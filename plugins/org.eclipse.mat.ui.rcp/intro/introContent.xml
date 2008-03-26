@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<introContent>
+	<!-- STANDBY PAGE  -->
+	<page alt-style="css/standby_swt.properties"
+		style="css/standby_root.css" id="standby">
+		<group id="page-links-standby">
+			<anchor id="beginAnchor" />
+			<link label="Overview"
+				url="http://org.eclipse.ui.intro/showPage?id=overview&amp;standby=false"
+				id="overview">
+				<text>Provides information for the quick start.</text>
+			</link>
+			<link label="Tutorials"
+				url="http://org.eclipse.ui.intro/showPage?id=tutorials&amp;standby=false"
+				id="tutorials">
+				<text>
+					Offers several step-by-step tutorials for quick
+					access.
+				</text>
+			</link>
+			<anchor id="endAnchor" />
+		</group>
+	</page>
+
+	<!-- TITLE -->
+	<page style="css/overview/overview.css"
+		alt-style="css/root_swt.properties" id="overview">
+		<group id="header">
+
+			<group id="page-links" filteredFrom="swt">
+				<anchor id="navigationBegin" />
+				<link
+					url="http://org.eclipse.ui.intro/showPage?id=overview"
+					id="overview">
+					<text id="linktext">Overview</text>
+				</link>
+				<link
+					url="http://org.eclipse.ui.intro/showPage?id=tutorials"
+					id="tutorials">
+					<text id="linktext">Tutorials</text>
+				</link>
+				<link
+					url="http://org.eclipse.ui.intro/switchToLaunchBar"
+					id="workbench">
+					<text id="linktext">Workbench</text>
+				</link>
+				<link id="version">
+					<text id="versiontext">Version 0.7.0.v20080326</text>
+				</link>
+				<link id="version">
+					<text id="editiontext">Incubation</text>
+				</link>
+				<anchor id="navigationEnd" />
+			</group>
+		</group>
+
+		<!--  OVERVIEW PAGE CONTENT -->
+		<group id="page-content" filteredFrom="swt">
+
+			<group id="overview-links" label="Introduction">
+
+				<anchor id="anchor"/>	
+
+				<link label="Help"
+					url="http://org.eclipse.ui.intro/showHelpTopic?id=/org.eclipse.mat.ui.help/html/45/b0eb510443731de10000000a1553f6/content.htm"
+					id="placeholder">
+					<text>
+						Get familiar with the tool by exploring its
+						documentation.
+					</text>
+				</link>
+
+				<link label="How to get a snapshot"
+					url="http://org.eclipse.ui.intro/showHelpTopic?id=/org.eclipse.mat.ui.help/html/45/b0e5250443731de10000000a1553f6/content.htm"
+					id="placeholder">
+					<text>
+						Learn how to configure your Java VM and/or
+						Engine to get a snapshot.
+					</text>
+				</link>
+
+				<link label="Memory Analyzer @ Eclipse"
+					url="http://org.eclipse.ui.intro/openBrowser?url=http://www.eclipse.org/mat/"
+					id="placeholder">
+					<text>
+						Check our home page for latest news and to
+						download the latest version.
+					</text>
+				</link>
+
+
+				<group id="overview-links" label="Workspace">
+
+					<link
+						label="Open a snapshot (VM 1.4.2_12 and 1.5.0_07 or higher)"
+						url="http://org.eclipse.ui.intro/runAction?pluginId=org.eclipse.mat.ui&amp;class=org.eclipse.mat.ui.internal.actions.OpenSnapshotAction"
+						id="placeholder">
+						<text>
+							Open a snapshot from your file system or
+							from the list of snapshots you have already
+							worked with:
+						</text>
+					</link>
+					<group id="snapshot_history" expandable="true"
+						expanded="true">
+						<contentProvider id="history-viewer"
+							pluginId="org.eclipse.mat.ui.rcp"
+							class="org.eclipse.mat.ui.rcp.actions.SnapshotHistoryViewer">
+						</contentProvider>
+					</group>
+				</group>
+			</group>
+
+		</group>
+	</page>
+
+	<!--  TUTORIALS  PAGE CONTENT -->
+	<page style="css/tutorials/tutorials.css"
+		alt-style="css/tutorials/swt.properties" id="tutorials">
+		<include path="overview/header" />		
+		<group id="page-content" filteredFrom="swt">
+			<anchor id="anchor"/>	
+		</group>			
+	</page>
+
+
+</introContent>

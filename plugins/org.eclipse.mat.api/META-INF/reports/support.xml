@@ -1,0 +1,13 @@
+<section name="Support">
+	<param key="html.collapsed" value="false" />
+
+	<section name="System Overview">
+		<param key="html.separate_file" value="true" />
+		<template>org.eclipse.mat.api:overview</template>
+	</section>
+	
+	<query name="Leaks">
+		<command>leakhunter</command>
+	</query>
+
+</section>

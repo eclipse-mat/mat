@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.1"?>
+
+<product name="Memory Analyzer Tool" id="org.eclipse.mat.ui.rcp.MemoryAnalyzer" application="org.eclipse.mat.ui.rcp.application" useFeatures="false">
+
+   <aboutInfo>
+      <image path="/org.eclipse.mat.ui.rcp/icons/memory_analyzer_16.gif"/>
+   </aboutInfo>
+
+   <configIni use="custom" path="/org.eclipse.mat.ui.rcp/config.ini"/>
+
+   <launcherArgs>
+      <vmArgs>-Xmx1024m</vmArgs>
+      <vmArgsMac>-Dorg.eclipse.swt.internal.carbon.smallFonts
+-XstartOnFirstThread</vmArgsMac>
+   </launcherArgs>
+
+   <windowImages i16="/org.eclipse.mat.ui.rcp/icons/memory_analyzer_16.gif"/>
+
+   <splash
+      location="org.eclipse.mat.ui.rcp" />
+   <launcher name="MemoryAnalyzer">
+      <macosx icon="/org.eclipse.mat.ui.rcp/product/macosx/MemoryAnalyzer.icns"/>
+      <solaris/>
+      <win useIco="false">
+         <bmp/>
+      </win>
+   </launcher>
+
+   <intro introId="org.eclipse.mat.ui.rcp.Intro"/>
+
+   <vm>
+   </vm>
+
+   <plugins>
+      <plugin id="org.eclipse.mat.api"/>
+      <plugin id="org.eclipse.mat.chart"/>
+      <plugin id="org.eclipse.mat.chart.ui"/>
+      <plugin id="org.eclipse.mat.eclipse"/>
+      <plugin id="org.eclipse.mat.hprof"/>
+      <plugin id="org.eclipse.mat.jetty"/>
+      <plugin id="org.eclipse.mat.parser"/>
+      <plugin id="org.eclipse.mat.ui"/>
+      <plugin id="org.eclipse.mat.ui.help"/>
+      <plugin id="org.eclipse.mat.ui.rcp"/>
+      <plugin id="org.eclipse.pde.runtime"/>
+   </plugins>
+
+   <features>
+      <feature id="org.eclipse.mat" version="1.2.1"/>
+   </features>
+
+</product>

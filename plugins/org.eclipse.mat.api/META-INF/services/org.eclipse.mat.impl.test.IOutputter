@@ -1,0 +1,2 @@
+org.eclipse.mat.impl.test.html.HtmlOutputter
+org.eclipse.mat.impl.test.csv.CSVOutputter

@@ -1,0 +1,6 @@
+/* @@@   TUTORIALS  @@@ */
+
+/* show the "selected" image for this page */
+#page-links a#tutorials { background-image : url(../graphics/icons/tutorials_on.gif);  background-color: #ffffff; background-repeat : no-repeat ; background-position: 50% 20%; }
+
+a#placeholder img { background-image : url(../graphics/picto/placeholder.gif); }

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin>
+	<extension-point id="renderer" name="Query Result Renderer" schema="schema/renderer.exsd"/>
+	<extension-point id="factory" name="Snapshot Factory" schema="schema/factory.exsd"/>
+
+	<extension-point id="query" name="Query" schema="schema/query.exsd"/>
+	
+	<extension-point id="nameResolver" name="Class Specific Name Resolver" schema="schema/nameResolver.exsd"/>
+	<extension-point id="threadResolver" name="Thread Details Resolver" schema="schema/threadResolver.exsd"/>
+	<extension-point id="requestResolver" name="Request Details Resolver" schema="schema/requestResolver.exsd"/>
+	<extension-point id="ticketResolver" name="Trouble Ticket Resolver" schema="schema/ticketResolver.exsd"/>
+	<extension-point id="addonResolver" name="Addon Resolver" schema="schema/addonResolver.exsd"/>
+ <extension-point id="report" name="Report" schema="schema/report.exsd"/>
+	
+	<extension point="org.eclipse.mat.api.query">
+		<!-- core -->
+		<query impl="org.eclipse.mat.inspections.query.HistogramQuery"/>
+		<query impl="org.eclipse.mat.inspections.query.RetainedSetQuery"/>
+		<query impl="org.eclipse.mat.inspections.query.CustomizedRetainedSetQuery"/>
+		<query impl="org.eclipse.mat.inspections.query.DuplicatedClassesQuery"/>
+		<query impl="org.eclipse.mat.inspections.query.GroupByValueQuery"/>
+		<query impl="org.eclipse.mat.inspections.query.OQLQuery"/>
+		<query impl="org.eclipse.mat.inspections.query.ImmediateDominatorsQuery"/>
+		<query impl="org.eclipse.mat.inspections.query.TopConsumersQuery"/>
+		<query impl="org.eclipse.mat.inspections.query.TopConsumers2Query"/>
+		<query impl="org.eclipse.mat.inspections.query.FindStringsQuery"/>
+		<query impl="org.eclipse.mat.inspections.query.SystemPropertiesQuery"/>
+		<query impl="org.eclipse.mat.inspections.query.HeapDumpInfoQuery"/>
+		<query impl="org.eclipse.mat.inspections.query.ObjectListQuery"/>
+		<query impl="org.eclipse.mat.inspections.query.Path2GCRootsQuery"/>
+		<query impl="org.eclipse.mat.inspections.query.MultiplePath2GCRootsQuery"/>
+		<query impl="org.eclipse.mat.inspections.query.ClassReferrersQuery"/>
+		<query impl="org.eclipse.mat.inspections.query.DominatorQuery"/>
+		<query impl="org.eclipse.mat.inspections.query.DominatorQuery$ShowInDominatorQuery"/>
+		<query impl="org.eclipse.mat.inspections.query.BiggestObjectsPieQuery"/>
+		
+		<!-- leak identification -->
+		<query impl="org.eclipse.mat.inspections.query.LeakHunterQuery"/>
+		<query impl="org.eclipse.mat.inspections.query.FindLeaksQuery"/>
+		<query impl="org.eclipse.mat.inspections.query.BigDropsQuery"/>
+	
+		<query impl="org.eclipse.mat.inspections.tests.TableThresholdTest"/>
+		<query impl="org.eclipse.mat.inspections.tests.RunExpertSystemTest"/>
+		<query impl="org.eclipse.mat.inspections.tests.CreateDefaultReport"/>
+	
+		<!-- Threads -->
+		<query impl="org.eclipse.mat.inspections.query.threads.ThreadOverviewQuery"/>
+		<query impl="org.eclipse.mat.inspections.query.threads.ThreadInfoQuery"/>
+		
+		<!-- Collections -->
+		<query impl="org.eclipse.mat.inspections.query.collections.ArrayFillRatioQuery"/>
+		<query impl="org.eclipse.mat.inspections.query.collections.ArraysBySizeQuery"/>
+		<query impl="org.eclipse.mat.inspections.query.collections.CollectionFillRatioQuery"/>
+		<query impl="org.eclipse.mat.inspections.query.collections.CollectionsBySizeQuery"/>
+		<query impl="org.eclipse.mat.inspections.query.collections.HashEntriesQuery"/>
+		<query impl="org.eclipse.mat.inspections.query.collections.MapCollisionRatioQuery"/>
+		<query impl="org.eclipse.mat.inspections.query.collections.ExtractListValuesQuery"/>
+		<query impl="org.eclipse.mat.inspections.query.collections.HashSetValuesQuery"/>
+	
+		<!-- Referents -->
+		<query impl="org.eclipse.mat.inspections.query.WeakReferenceStatQuery"/>
+		<query impl="org.eclipse.mat.inspections.query.SoftReferenceStatQuery"/>
+		<query impl="org.eclipse.mat.inspections.query.FinalizerReferenceStatQuery"/>
+	
+		<query impl="org.eclipse.mat.inspections.query.finalizer.FinalizerQuery"/>
+		<query impl="org.eclipse.mat.inspections.query.finalizer.FinalizerInProcessingQuery"/>
+		<query impl="org.eclipse.mat.inspections.query.finalizer.FinalizerQueueQuery"/>
+		<query impl="org.eclipse.mat.inspections.query.finalizer.FinalizerThreadLocalsQuery"/>
+		<query impl="org.eclipse.mat.inspections.query.finalizer.FinalizerThreadQuery"/>
+	
+		<!-- Extra Information (this queries will appear on the toolbar or inside the overview pane) -->
+		
+		<query impl="org.eclipse.mat.inspections.ComponentReportQuery"/>
+	</extension>
+	
+	<extension point="org.eclipse.mat.api.nameResolver">
+		<resolver impl="org.eclipse.mat.internal.snapshot.CommonNameResolver$StringResolver" />
+		<resolver impl="org.eclipse.mat.internal.snapshot.CommonNameResolver$ThreadResolver" />
+		<resolver impl="org.eclipse.mat.internal.snapshot.CommonNameResolver$ThreadGroupResolver" />
+		<resolver impl="org.eclipse.mat.internal.snapshot.CommonNameResolver$ValueResolver" />
+		<resolver impl="org.eclipse.mat.internal.snapshot.CommonNameResolver$CharArrayResolver" />
+		<resolver impl="org.eclipse.mat.internal.snapshot.CommonNameResolver$ByteArrayResolver" />
+	</extension>
+	
+	<extension point="org.eclipse.mat.api.report">
+		<report id="suspects" name="Leak Suspects"
+				description="includes leak suspects and a system overview"
+				file="META-INF/reports/support.xml" />
+		<report id="overview" name="Heap Dump Overview"
+				description="includes class histogram, system properties and top consumers."
+				file="META-INF/reports/overview.xml" />
+	</extension>
+	
+</plugin>

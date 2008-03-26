@@ -1,0 +1,224 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+
+<LINK REL="stylesheet" TYPE="text/css" HREF="../../css/content.css" TITLE="Styles">
+<SCRIPT LANGUAGE="JavaScript">
+<!--
+var loops = 10;
+function GetLoio() {
+  return "46a4019b2cd752b7e10000000a155369";
+}
+//-->
+</SCRIPT>
+<head>
+<META NAME="Application" CONTENT="">
+<META NAME="Release" CONTENT="717">
+<META NAME="IndustryRelease" CONTENT="">
+<META NAME="Language" CONTENT="EN">
+<meta name="PHIO_GUID" content="C5BDC43DAC1BCF51E10000000A114084">
+<meta name="LOIO_GUID" content="46A4019B2CD752B7E10000000A155369">
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<title>WHERE Clause</title>
+<style type="text/css">
+<!--/* Font Definitions */@font-face {font-family:Wingdings; panose-1:5 0 0 0 0 0 0 0 0 0; }/* Style Definitions */p.MsoNormal, li.MsoNormal, div.MsoNormal { margin-top:3.0pt; margin-right:0in; margin-bottom:3.0pt; margin-left:0in; font-size:10.0pt; font-family:Arial; }h2 { margin-top:12.0pt; margin-right:0in; margin-bottom:3.0pt; margin-left:0in; page-break-after:avoid; font-size:16.0pt; font-family:Arial; color:navy; }h3 { margin-top:6.0pt; margin-right:0in; margin-bottom:3.0pt; margin-left:0in; page-break-after:avoid; font-size:14.0pt; font-family:Arial; color:navy; }p.MsoListBullet {margin-top:3.0pt; margin-right:0in; margin-bottom:3.0pt; margin-left:30.25pt; text-indent:-18.75pt; tab-stops:list 30.25pt; font-size:10.0pt; font-family:Arial; }p.MsoListContinue {margin-top:3.0pt; margin-right:0in; margin-bottom:3.0pt; margin-left:28.1pt; font-size:10.0pt; font-family:Arial; }a:link {color:blue; text-decoration:underline; text-underline:single;}a:visited {color:purple; text-decoration:underline; text-underline:single;}span.Object { font-family:Arial; font-style:italic; }span.UserInput { font-family:"Courier New"; font-weight:bold; }span.ScreenOutput { font-family:"Courier New"; }div.Section1 {page:Section1;}/* List Definitions */@list l0 { }@list l52:level1 { margin-left:30.25pt; text-indent:-18.75pt; font-family:"Arial Unicode MS";}-->  
+</style>
+</head>
+<body lang="EN-US" link="blue" vlink="purple" style='tab-interval:.25in'>
+<div class="Section1">
+<h2><span style='mso-ansi-language:EN-US'><span style='mso-spacerun:yes'></span>WHERE Clause</span></h2>
+
+<p class="MsoNormal"><span style='mso-ansi-language:EN-US'>The <span class=
+"Object">WHERE </span>clause specifies search conditions that filter out
+unwanted data from the query result.</span></p>
+
+<h3><span style='mso-ansi-language:EN-US'>Available Operators</span></h3>
+
+<p class="MsoNormal"><span style='mso-ansi-language:EN-US'>You can use the
+following operators which are listed in precedence levels. An operator on a
+higher level is evaluated before an operator on a lower level:</span></p>
+
+<p class="MsoListBullet"><span style=
+'font-family:"Arial Unicode MS"; mso-ansi-language:EN-US'><span style=
+'mso-list:Ignore'>&#9679;<span style=
+'font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><span style='mso-ansi-language:EN-US'>Parenthetical
+operations.</span></p>
+
+<p class="MsoListContinue"><span class="UserInput"><span lang="DE" style=
+'mso-bidi-font-family: Arial'>( )<span style=
+'mso-spacerun:yes'>&nbsp;&nbsp;&nbsp; </span></span></span></p>
+
+<p class="MsoListBullet"><span style=
+'font-family:"Arial Unicode MS"; mso-ansi-language:EN-US'><span style=
+'mso-list:Ignore'>&#9679;<span style=
+'font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><span style='mso-ansi-language:EN-US'>Relational
+operations.</span></p>
+
+<p class="MsoListContinue"><span class="UserInput"><span lang="DE" style=
+'mso-bidi-font-family: Arial'>&gt;=</span></span><span class=
+"ScreenOutput"><span lang="DE" style='mso-bidi-font-family:Arial'>,
+</span></span><span class="UserInput"><span lang="DE" style=
+'mso-bidi-font-family:Arial'>&lt;=</span></span><span class=
+"ScreenOutput"><span lang="DE" style='mso-bidi-font-family:Arial'>,
+</span></span><span class="UserInput"><span lang="DE" style=
+'mso-bidi-font-family:Arial'>&gt;</span></span><span class=
+"ScreenOutput"><span lang="DE" style='mso-bidi-font-family:Arial'>,
+</span></span><span class="UserInput"><span lang="DE" style=
+'mso-bidi-font-family:Arial'>&lt;</span></span><span class=
+"ScreenOutput"><span lang="DE" style='mso-bidi-font-family:Arial'>,
+</span></span><span class="UserInput"><span lang="DE" style=
+'mso-bidi-font-family:Arial'>[ NOT ] LIKE</span></span><span class=
+"ScreenOutput"><span lang="DE" style='mso-bidi-font-family:Arial'>,
+</span></span><span class="UserInput"><span lang="DE" style=
+'mso-bidi-font-family:Arial'>[ NOT ] IN</span></span></p>
+
+<table class="MsoTableGrid" border="1" cellspacing="0" cellpadding="0" style=
+'background:#D9D9D9;mso-shading:windowtext;mso-pattern:gray-15 auto; border-collapse:collapse;border:none;mso-border-alt:solid windowtext .5pt; mso-yfti-tbllook:480;mso-padding-alt:0in 5.4pt 0in 5.4pt;mso-border-insideh: .5pt solid windowtext;mso-border-insidev:.5pt solid windowtext'><tr style='mso-yfti-irow:0;mso-yfti-lastrow:yes'>
+<td width="619" valign="top" style=
+'width:6.45in;border:solid windowtext 1.0pt; mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal" style=
+'margin:0in;margin-bottom:.0001pt;mso-layout-grid-align: none;text-autospace:none'><span style=
+'mso-bidi-font-size:10.0pt;font-family: "Courier New";mso-fareast-font-family:"MS Mincho";color:black;mso-ansi-language: EN-US'>SELECT * FROM java.lang.String s WHERE s.count &gt;= 100</span></p>
+
+<p class="MsoNormal" style=
+'margin:0in;margin-bottom:.0001pt;mso-layout-grid-align: none;text-autospace:none'><span style=
+'mso-bidi-font-size:10.0pt;font-family: "Courier New";mso-fareast-font-family:"MS Mincho";color:black;mso-ansi-language: EN-US'>SELECT * FROM java.lang.String s WHERE toString(s) LIKE </span><span style=
+'mso-bidi-font-size:10.0pt;font-family:"Courier New";mso-fareast-font-family: "MS Mincho";color:#2A00FF;mso-ansi-language:EN-US'>".*day"</span></p>
+
+<p class="MsoNormal" style=
+'margin:0in;margin-bottom:.0001pt;mso-layout-grid-align: none;text-autospace:none'><span style=
+'mso-bidi-font-size:10.0pt;font-family: "Courier New";mso-fareast-font-family:"MS Mincho";color:black;mso-ansi-language: EN-US'>SELECT * FROM java.lang.String s WHERE s.value NOT IN dominators(s)</span></p>
+</td>
+</tr>
+</table>
+
+<p class="MsoListBullet" style='mso-list:l52 level1 lfo3'><span style=
+'font-family:"Arial Unicode MS";mso-ansi-language:EN-US'><span style=
+'mso-list:Ignore'>&#9679;<span style=
+'font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><span style='mso-ansi-language:EN-US'>Equality
+operations.</span></p>
+
+<p class="MsoListContinue"><span class="UserInput"><span lang="DE" style=
+'mso-bidi-font-family: Arial'>s=</span></span><span class="ScreenOutput"><span
+lang="DE" style='mso-bidi-font-family: Arial'>, </span></span><span class=
+"UserInput"><span lang="DE" style=
+'mso-bidi-font-family: Arial'>!=</span></span></p>
+
+<table class="MsoTableGrid" border="1" cellspacing="0" cellpadding="0" style=
+'background:#D9D9D9;mso-shading:windowtext;mso-pattern:gray-15 auto; border-collapse:collapse;border:none;mso-border-alt:solid windowtext .5pt; mso-yfti-tbllook:480;mso-padding-alt:0in 5.4pt 0in 5.4pt;mso-border-insideh: .5pt solid windowtext;mso-border-insidev:.5pt solid windowtext'><tr style='mso-yfti-irow:0;mso-yfti-lastrow:yes'>
+<td width="619" valign="top" style=
+'width:6.45in;border:solid windowtext 1.0pt; mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span style=
+'mso-bidi-font-size:10.0pt;font-family:"Courier New"; mso-fareast-font-family:"MS Mincho";color:black;mso-ansi-language:EN-US'>SELECT * FROM java.lang.String s WHERE toString(s) = </span><span style=
+'mso-bidi-font-size: 10.0pt;font-family:"Courier New";mso-fareast-font-family:"MS Mincho"; color:#2A00FF;mso-ansi-language:EN-US'>"monday"</span></p>
+</td>
+</tr>
+</table>
+
+<p class="MsoListBullet" style='mso-list:l52 level1 lfo4'><span style=
+'font-family:"Arial Unicode MS";mso-ansi-language:EN-US'><span style=
+'mso-list:Ignore'>&#9679;<span style=
+'font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><span style='mso-ansi-language:EN-US'><span style=
+'mso-spacerun:yes'>&nbsp;</span>Conditional AND operation.</span></p>
+
+<p class="MsoListContinue"><span class="UserInput"><span lang="DE" style=
+'mso-bidi-font-family: Arial'>AND</span></span></p>
+
+<table class="MsoTableGrid" border="1" cellspacing="0" cellpadding="0" style=
+'background:#D9D9D9;mso-shading:windowtext;mso-pattern:gray-15 auto; border-collapse:collapse;border:none;mso-border-alt:solid windowtext .5pt; mso-yfti-tbllook:480;mso-padding-alt:0in 5.4pt 0in 5.4pt;mso-border-insideh: .5pt solid windowtext;mso-border-insidev:.5pt solid windowtext'><tr style='mso-yfti-irow:0;mso-yfti-lastrow:yes'>
+<td width="619" valign="top" style=
+'width:6.45in;border:solid windowtext 1.0pt; mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span style=
+'mso-bidi-font-size:10.0pt;font-family:"Courier New"; mso-fareast-font-family:"MS Mincho";color:black;mso-ansi-language:EN-US'>SELECT * FROM java.lang.String s WHERE s.count &gt; 100 AND s.</span><span
+style=
+'mso-bidi-font-size:10.0pt;font-family:"Courier New";mso-fareast-font-family: "MS Mincho";color:#646464;mso-ansi-language:EN-US'>@</span><span style=
+'mso-bidi-font-size:10.0pt;font-family:"Courier New";mso-fareast-font-family: "MS Mincho";color:black;mso-ansi-language:EN-US'>retainedHeapSize &gt; s.</span><span style=
+'mso-bidi-font-size:10.0pt;font-family:"Courier New";mso-fareast-font-family: "MS Mincho";color:#646464;mso-ansi-language:EN-US'>@</span><span style=
+'mso-bidi-font-size:10.0pt;font-family:"Courier New";mso-fareast-font-family: "MS Mincho";color:black;mso-ansi-language:EN-US'>usedHeapSize</span></p>
+</td>
+</tr>
+</table>
+
+<p class="MsoListBullet" style='mso-list:l52 level1 lfo5'><span style=
+'font-family:"Arial Unicode MS";mso-ansi-language:EN-US'><span style=
+'mso-list:Ignore'>&#9679;<span style=
+'font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><span style='mso-ansi-language:EN-US'>Conditional OR
+operation.</span></p>
+
+<p class="MsoListContinue"><span class="UserInput"><span lang="DE" style=
+'mso-bidi-font-family: Arial'>OR</span></span></p>
+
+<table class="MsoTableGrid" border="1" cellspacing="0" cellpadding="0" style=
+'background:#D9D9D9;mso-shading:windowtext;mso-pattern:gray-15 auto; border-collapse:collapse;border:none;mso-border-alt:solid windowtext .5pt; mso-yfti-tbllook:480;mso-padding-alt:0in 5.4pt 0in 5.4pt;mso-border-insideh: .5pt solid windowtext;mso-border-insidev:.5pt solid windowtext'><tr style='mso-yfti-irow:0;mso-yfti-lastrow:yes'>
+<td width="619" valign="top" style=
+'width:6.45in;border:solid windowtext 1.0pt; mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span style=
+'mso-bidi-font-size:10.0pt;font-family:"Courier New"; mso-fareast-font-family:"MS Mincho";color:black;mso-ansi-language:EN-US'>SELECT * FROM java.lang.String s WHERE s.count &gt; 1000 OR
+s.value.</span><span style=
+'mso-bidi-font-size:10.0pt;font-family:"Courier New";mso-fareast-font-family: "MS Mincho";color:#646464;mso-ansi-language:EN-US'>@</span><span style=
+'mso-bidi-font-size:10.0pt;font-family:"Courier New";mso-fareast-font-family: "MS Mincho";color:black;mso-ansi-language:EN-US'>length &gt; 1000</span></p>
+</td>
+</tr>
+</table>
+
+<p class="MsoNormal"><span style='mso-ansi-language:EN-US'>Operators can be
+applied to expressions, constant literals and sub queries. </span></p>
+
+<h3><span style='mso-ansi-language:EN-US'>Literal Expression</span></h3>
+
+<p class="MsoNormal"><span style='mso-ansi-language:EN-US'>Boolean, String,
+Integer, Long and null literals:</span></p>
+
+<table class="MsoTableGrid" border="1" cellspacing="0" cellpadding="0" style=
+'background:#D9D9D9;mso-shading:windowtext;mso-pattern:gray-15 auto; border-collapse:collapse;border:none;mso-border-alt:solid windowtext .5pt; mso-yfti-tbllook:480;mso-padding-alt:0in 5.4pt 0in 5.4pt;mso-border-insideh: .5pt solid windowtext;mso-border-insidev:.5pt solid windowtext'><tr style='mso-yfti-irow:0;mso-yfti-lastrow:yes'>
+<td width="619" valign="top" style=
+'width:6.45in;border:solid windowtext 1.0pt; mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal" style=
+'margin:0in;margin-bottom:.0001pt;mso-layout-grid-align: none;text-autospace:none'><span style=
+'mso-bidi-font-size:10.0pt;font-family: "Courier New";mso-fareast-font-family:"MS Mincho";color:black;mso-ansi-language: EN-US'>SELECT * FROM java.lang.String s</span></p>
+
+<p class="MsoNormal" style=
+'margin:0in;margin-bottom:.0001pt;mso-layout-grid-align: none;text-autospace:none'><span style=
+'mso-bidi-font-size:10.0pt;font-family: "Courier New";mso-fareast-font-family:"MS Mincho";color:black;mso-ansi-language: EN-US'><span style=
+'mso-spacerun:yes'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>WHERE ( s.count &gt; 1000 ) = </span><b><span style=
+'mso-bidi-font-size:10.0pt;font-family:"Courier New"; mso-fareast-font-family:"MS Mincho";color:#7F0055;mso-ansi-language:EN-US'>true</span></b></p>
+
+<p class="MsoNormal" style=
+'margin:0in;margin-bottom:.0001pt;mso-layout-grid-align: none;text-autospace:none'><span style=
+'mso-bidi-font-size:10.0pt;font-family: "Courier New";mso-fareast-font-family:"MS Mincho";color:black;mso-ansi-language: EN-US'><span style=
+'mso-spacerun:yes'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>WHERE toString(s) = </span><span style=
+'mso-bidi-font-size:10.0pt;font-family:"Courier New";mso-fareast-font-family: "MS Mincho";color:#2A00FF;mso-ansi-language:EN-US'>"monday"</span></p>
+
+<p class="MsoNormal" style=
+'margin:0in;margin-bottom:.0001pt;mso-layout-grid-align: none;text-autospace:none'><span style=
+'mso-bidi-font-size:10.0pt;font-family: "Courier New";mso-fareast-font-family:"MS Mincho";color:black;mso-ansi-language: EN-US'><span style=
+'mso-spacerun:yes'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>WHERE dominators(s).size() = 0</span></p>
+
+<p class="MsoNormal" style=
+'margin:0in;margin-bottom:.0001pt;mso-layout-grid-align: none;text-autospace:none'><span style=
+'mso-bidi-font-size:10.0pt;font-family: "Courier New";mso-fareast-font-family:"MS Mincho";color:black;mso-ansi-language: EN-US'><span style=
+'mso-spacerun:yes'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>WHERE s.</span><span style=
+'mso-bidi-font-size:10.0pt;font-family:"Courier New";mso-fareast-font-family: "MS Mincho";color:#646464;mso-ansi-language:EN-US'>@</span><span style=
+'mso-bidi-font-size:10.0pt;font-family:"Courier New";mso-fareast-font-family: "MS Mincho";color:black;mso-ansi-language:EN-US'>retainedHeapSize &gt; 1024L</span></p>
+
+<p class="MsoNormal" style=
+'margin:0in;margin-bottom:.0001pt;mso-layout-grid-align: none;text-autospace:none'><span style=
+'mso-bidi-font-size:10.0pt;font-family: "Courier New";mso-fareast-font-family:"MS Mincho";color:black;mso-ansi-language: EN-US'><span style=
+'mso-spacerun:yes'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span>WHERE s.</span><span style=
+'mso-bidi-font-size:10.0pt;font-family:"Courier New";mso-fareast-font-family: "MS Mincho";color:#646464;mso-ansi-language:EN-US'>@</span><span style=
+'mso-bidi-font-size:10.0pt;font-family:"Courier New";mso-fareast-font-family: "MS Mincho";color:black;mso-ansi-language:EN-US'>GCRootInfo != </span><b><span style=
+'mso-bidi-font-size:10.0pt;font-family:"Courier New";mso-fareast-font-family: "MS Mincho";color:#7F0055;mso-ansi-language:EN-US'>null</span></b></p>
+</td>
+</tr>
+</table>
+
+<h3><span style='mso-ansi-language:EN-US'>&nbsp;</span></h3>
+</div>
+</body>
+</html>
+
+
