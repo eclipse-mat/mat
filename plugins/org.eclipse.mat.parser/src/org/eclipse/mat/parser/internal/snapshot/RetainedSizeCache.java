@@ -109,7 +109,7 @@ public class RetainedSizeCache
             Logger.getLogger(RetainedSizeCache.class.getName()).log(Level.WARNING,
                             "Error reading pre-calculated retained sizes. Re-calculing...", e);
 
-            // might have read crap
+            // might have read corrupt data
             id2size.clear();
             delete = true;
         }
