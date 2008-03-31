@@ -71,8 +71,6 @@ public class MemoryAnalyserPlugin extends AbstractUIPlugin
 
         String REFRESHING = "icons/refreshing.gif"; //$NON-NLS-1$
 
-        String EMPTY_ICON = "icons/empty_icon.gif"; //$NON-NLS-1$
-
         String CALCULATOR = "icons/calculator.gif";//$NON-NLS-1$
 
         String FILTER = "icons/filter.gif"; //$NON-NLS-1$
