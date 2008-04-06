@@ -40,11 +40,10 @@ import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IPrimitiveArray;
 import org.eclipse.mat.util.IProgressListener;
 
-
 public class HprofParserHandlerImpl implements IHprofParserHandler
 {
     // private String prefix;
-    private int version;
+    private AbstractParser.Version version;
 
     private XSnapshotInfo info = new XSnapshotInfo();
 
@@ -92,8 +91,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
 
         // informational messages to the user
         monitor.sendUserMessage(IProgressListener.Severity.INFO, MessageFormat.format(
-                        "Heap {0} contains {1,number} objects", new Object[] { info.getPath(), identifiers.size() }),
-                        null);
+                        "Heap {0} contains {1,number} objects", info.getPath(), identifiers.size()), null);
 
         int maxClassId = 0;
 
@@ -175,7 +173,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
         // create required (fake) classes for arrays
         if (!requiredArrayClassIDs.isEmpty())
         {
-            if (version >= HprofBasics.VERSION_JDK12BETA4)
+            if (version.ordinal() >= AbstractParser.Version.JDK12BETA4.ordinal())
             {
                 for (long arrayClassID : requiredArrayClassIDs)
                 {
@@ -366,7 +364,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
         index.setObject2classId(object2classId);
 
         index.setOutbound(outbound.flush());
-        
+
         return object2position.writeTo(new File(info.getPrefix() + "temp.o2hprof.index"));
     }
 
@@ -413,18 +411,18 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
 
     public void addProperty(String name, String value) throws IOException
     {
-        if (IHprofParserHandler.VERSION_ID.equals(name))
+        if (IHprofParserHandler.VERSION.equals(name))
         {
-            version = Integer.parseInt(value);
-            this.info.setProperty(Constants.VERSION_PROPERTY, version);
+            version = AbstractParser.Version.valueOf(value);
+            info.setProperty(HprofHeapObjectReader.VERSION_PROPERTY, version.name());
         }
         else if (IHprofParserHandler.IDENTIFIER_SIZE.equals(name))
         {
-            this.info.setIdentifierSize(Integer.parseInt(value));
+            info.setIdentifierSize(Integer.parseInt(value));
         }
         else if (IHprofParserHandler.CREATION_DATE.equals(name))
         {
-            this.info.setCreationDate(new Date(Long.parseLong(value)));
+            info.setCreationDate(new Date(Long.parseLong(value)));
         }
     }
 

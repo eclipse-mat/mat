@@ -28,8 +28,7 @@ public interface IHprofParserHandler
 {
     String IDENTIFIER_SIZE = "ID_SIZE";
     String CREATION_DATE = "CREATION_DATE";
-    String VERSION_ID = "VERSION_ID";
-    String VERSION_STRING = "VERSION_STRING";
+    String VERSION = "VERSION";
     
     public class HeapObject
     {

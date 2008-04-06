@@ -13,6 +13,7 @@ package org.eclipse.mat.hprof;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -33,17 +34,15 @@ import org.eclipse.mat.snapshot.model.FieldDescriptor;
 import org.eclipse.mat.snapshot.model.IArray;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
-import org.eclipse.mat.snapshot.model.IObjectArray;
 import org.eclipse.mat.snapshot.model.IPrimitiveArray;
 
-
-public class HprofRandomAccessParser extends HprofBasics
+public class HprofRandomAccessParser extends AbstractParser
 {
     public static final int LAZY_LOADING_LIMIT = 256;
 
-    public HprofRandomAccessParser(File file, int version, int identifierSize) throws IOException
+    public HprofRandomAccessParser(File file, Version version, int identifierSize) throws IOException
     {
-        in = new PositionInputStream(new BufferedRandomAccessInputStream(new RandomAccessFile(file, "r"), 512));
+        this.in = new PositionInputStream(new BufferedRandomAccessInputStream(new RandomAccessFile(file, "r"), 512));
         this.version = version;
         this.identifierSize = identifierSize;
     }
@@ -53,43 +52,24 @@ public class HprofRandomAccessParser extends HprofBasics
         in.close();
     }
 
-    public synchronized IObject read(int objectId, long position, ISnapshot dump) throws IOException,
-                    SnapshotException
+    public synchronized IObject read(int objectId, long position, ISnapshot dump) throws IOException, SnapshotException
     {
         in.seek(position);
-        int type = in.readUnsignedByte();
-        switch (type)
+        int segmentType = in.readUnsignedByte();
+        switch (segmentType)
         {
-            case HPROF_GC_INSTANCE_DUMP:
-            {
-                return readInstance(objectId, position, dump);
-            }
-            case HPROF_GC_OBJ_ARRAY_DUMP:
-            {
-                return readArray(objectId, false, dump);
-            }
-            case HPROF_GC_PRIM_ARRAY_DUMP:
-            {
-                return readArray(objectId, true, dump);
-            }
-            case HPROF_GC_ROOT_UNKNOWN:
-            case HPROF_GC_ROOT_THREAD_OBJ:
-            case HPROF_GC_ROOT_JNI_GLOBAL:
-            case HPROF_GC_ROOT_JNI_LOCAL:
-            case HPROF_GC_ROOT_JAVA_FRAME:
-            case HPROF_GC_ROOT_NATIVE_STACK:
-            case HPROF_GC_ROOT_STICKY_CLASS:
-            case HPROF_GC_ROOT_THREAD_BLOCK:
-            case HPROF_GC_ROOT_MONITOR_USED:
-            case HPROF_GC_CLASS_DUMP:
+            case Constants.DumpSegment.INSTANCE_DUMP:
+                return readInstanceDump(objectId, position, dump);
+            case Constants.DumpSegment.OBJECT_ARRAY_DUMP:
+                return readObjectArrayDump(objectId, dump);
+            case Constants.DumpSegment.PRIMITIVE_ARRAY_DUMP:
+                return readPrimitiveArrayDump(objectId, dump);
             default:
-            {
-                throw new IOException("Unrecognized heap dump sub-record type:  " + type);
-            }
+                throw new IOException(MessageFormat.format("Illegal dump segment {0}", segmentType));
         }
 
     }
-    
+
     public List<IClass> resolveClassHierarchy(ISnapshot snapshot, IClass clazz) throws SnapshotException
     {
         List<IClass> answer = new ArrayList<IClass>();
@@ -105,13 +85,9 @@ public class HprofRandomAccessParser extends HprofBasics
         return answer;
     }
 
-    private IObject readInstance(int objectId, long position, ISnapshot dump) throws IOException, SnapshotException
+    private IObject readInstanceDump(int objectId, long position, ISnapshot dump) throws IOException, SnapshotException
     {
         long address = readID();
-        // in.readInt(); // StackTrace stackTrace =
-        // getStackTraceFromSerial(in.readInt());
-        // /*long classID = */readID();
-        // /* int bytesFollowing = */in.readInt();
         if (in.skipBytes(8 + identifierSize) != 8 + identifierSize)
             throw new IOException();
 
@@ -133,7 +109,7 @@ public class HprofRandomAccessParser extends HprofBasics
                     FieldDescriptor field = fields.get(ii);
                     byte type = (byte) field.getSignature().charAt(0);
                     Object[] value = new Object[1];
-                    readBytes += readValueForTypeSignature(dump, in, type, value);
+                    readBytes += readValue(dump, type, value);
                     instanceFields.add(new Field(field.getName(), field.getSignature(), value[0]));
                 }
             }
@@ -147,118 +123,74 @@ public class HprofRandomAccessParser extends HprofBasics
         }
     }
 
-    private IArray readArray(int objectId, boolean isPrimitive, ISnapshot dump) throws IOException,
-                    SnapshotException
+    private IArray readObjectArrayDump(int objectId, ISnapshot dump) throws IOException, SnapshotException
     {
         long id = readID();
-        in.readInt(); // stackTrace
+
+        in.skipBytes(4);
+        int size = in.readInt();
+
+        long arrayClassObjectID = readID();
+
+        IClass arrayType = (IClass) dump.getObject(dump.mapAddressToId(arrayClassObjectID));
+        if (arrayType == null)
+            throw new RuntimeException("missing fake class");
+
+        Object content = null;
+        if (size * identifierSize < LAZY_LOADING_LIMIT)
+        {
+            long[] data = new long[size];
+            for (int ii = 0; ii < data.length; ii++)
+                data[ii] = readID();
+            content = data;
+        }
+        else
+        {
+            content = new AbstractArrayImpl.ArrayContentDescriptor(false, in.position(), 0, size);
+        }
+
+        return new ObjectArrayImpl(objectId, id, (ClassImpl) arrayType, size, arrayClassObjectID, arrayType
+                        .getObjectAddress(), content);
+    }
+
+    private IArray readPrimitiveArrayDump(int objectId, ISnapshot dump) throws IOException, SnapshotException
+    {
+        long id = readID();
+
+        in.skipBytes(4);
         int arraySize = in.readInt();
 
-        long elementClassID;
-        if (isPrimitive)
+        long elementType = in.readByte();
+        if ((elementType < IPrimitiveArray.Type.BOOLEAN) || (elementType > IPrimitiveArray.Type.LONG))
+            throw new IOException("Illegal primitive object array type");
+
+        int elementSize = IPrimitiveArray.ELEMENT_SIZE[(int) elementType];
+        int len = elementSize * arraySize;
+
+        Object content = null;
+        if (len < LAZY_LOADING_LIMIT)
         {
-            elementClassID = in.readByte();
+            byte[] data = new byte[len];
+            in.readFully(data);
+            content = data;
         }
         else
         {
-            elementClassID = readID();
+            content = new AbstractArrayImpl.ArrayContentDescriptor(true, in.position(), elementSize, arraySize);
         }
 
-        byte primitiveSignature = 0x00;
-        int elSize = 0;
-        if (isPrimitive || version < VERSION_JDK12BETA4)
-        {
-            if ((elementClassID > 3) && (elementClassID < 12))
-            {
-                primitiveSignature = IPrimitiveArray.SIGNATURES[(int) elementClassID];
-                elSize = IPrimitiveArray.ELEMENT_SIZE[(int) elementClassID];
-            }
-
-            if (version >= VERSION_JDK12BETA4 && primitiveSignature == 0x00) { throw new IOException(
-                            "Unrecognized typecode:  " + elementClassID); }
-        }
-
-        if (primitiveSignature != 0x00)
-        {
-            // do not read primitive type -> no references
-            Object content = null;
-            int size = elSize * arraySize;
-
-            if (size < LAZY_LOADING_LIMIT)
-            {
-                byte[] data = new byte[size];
-                in.readFully(data);
-                content = data;
-            }
-            else
-            {
-                content = new AbstractArrayImpl.ArrayContentDescriptor(true, in.position(), elSize, arraySize);
-            }
-
-            IClass clazz = null;
-            Collection<IClass> classes = dump.getClassesByName(IPrimitiveArray.TYPE[(int) elementClassID], false);
-            if ((classes == null) || classes.isEmpty())
-                throw new RuntimeException("missing fake class " + IPrimitiveArray.TYPE[(int) elementClassID]);
-            else if (classes.size() > 1)
-                throw new IOException("Duplicate class: " + IPrimitiveArray.TYPE[(int) elementClassID]);
-            else
-                clazz = classes.iterator().next();
-
-            IPrimitiveArray answer = new PrimitiveArrayImpl(objectId, id, (ClassImpl) clazz, arraySize,
-                            (int) elementClassID, content);
-            return answer;
-        }
+        // lookup class by name
+        IClass clazz = null;
+        String name = IPrimitiveArray.TYPE[(int) elementType];
+        Collection<IClass> classes = dump.getClassesByName(name, false);
+        if (classes == null || classes.isEmpty())
+            throw new IOException("missing fake class " + name);
+        else if (classes.size() > 1)
+            throw new IOException("Duplicate class: " + name);
         else
-        {
-            long arrayClassID = 0;
-            if (version >= VERSION_JDK12BETA4)
-            {
-                // It changed from the ID of the object describing the
-                // class of element types to the ID of the object describing
-                // the type of the array.
-                arrayClassID = elementClassID;
-                elementClassID = 0;
-            }
+            clazz = classes.iterator().next();
 
-            IClass arrayType = null;
-            if (arrayClassID != 0)
-            {
-                arrayType = (IClass) dump.getObject(dump.mapAddressToId(arrayClassID));
-                if (arrayType == null) { throw new RuntimeException("missing fake class"); }
-            }
-            else if (elementClassID != 0)
-            {
-                arrayType = (IClass) dump.getObject(dump.mapAddressToId(elementClassID));
-                if (arrayType != null)
-                {
-                    String name = arrayType.getName() + "[]";
-                    Collection<IClass> classes = dump.getClassesByName(name, false);
-                    if ((classes == null) || (classes.size() == 0))
-                        throw new RuntimeException("missing fake class for array " + id);
-                    else if (classes.size() > 1)
-                        throw new IOException("Duplicate class: " + name);
-                    else
-                        arrayType = classes.iterator().next();
-                }
-            }
-
-            Object content = null;
-            if (arraySize * identifierSize < LAZY_LOADING_LIMIT)
-            {
-                long[] data = new long[arraySize];
-                for (int ii = 0; ii < data.length; ii++)
-                    data[ii] = readID();
-                content = data;
-            }
-            else
-            {
-                content = new AbstractArrayImpl.ArrayContentDescriptor(false, in.position(), 0, arraySize);
-            }
-
-            IObjectArray answer = new ObjectArrayImpl(objectId, id, (ClassImpl) arrayType, arraySize, elementClassID,
-                            arrayType.getObjectAddress(), content);
-            return answer;
-        }
+        return new PrimitiveArrayImpl(objectId, id, (ClassImpl) clazz, arraySize, (int) elementType, content);
     }
 
     public Object read(ArrayContentDescriptor descriptor) throws IOException

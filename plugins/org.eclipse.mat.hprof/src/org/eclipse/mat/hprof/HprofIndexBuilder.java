@@ -10,9 +10,7 @@
  *******************************************************************************/
 package org.eclipse.mat.hprof;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -26,17 +24,15 @@ import org.eclipse.mat.parser.IIndexBuilder;
 import org.eclipse.mat.parser.IPreliminaryIndex;
 import org.eclipse.mat.parser.index.IndexWriter;
 import org.eclipse.mat.parser.index.IIndexReader.IOne2LongIndex;
-import org.eclipse.mat.parser.io.PositionInputStream;
 import org.eclipse.mat.snapshot.SnapshotException;
 import org.eclipse.mat.util.IProgressListener;
 
-
 public class HprofIndexBuilder implements IIndexBuilder
 {
-    File file;
-    String prefix;
-    IOne2LongIndex id2position;
-    List<IParsingEnhancer> enhancers;
+    private File file;
+    private String prefix;
+    private IOne2LongIndex id2position;
+    private List<IParsingEnhancer> enhancers;
 
     public void init(File file, String prefix)
     {
@@ -55,111 +51,51 @@ public class HprofIndexBuilder implements IIndexBuilder
 
     public void fill(IPreliminaryIndex preliminary, IProgressListener listener) throws SnapshotException, IOException
     {
-        IHprofParserHandler handler = null;
-        PositionInputStream in = null;
+        SimpleMonitor monitor = new SimpleMonitor(MessageFormat.format("Parsing {0}", new Object[] { file
+                        .getAbsolutePath() }), listener, new int[] { 500, 1500 });
 
-        try
-        {
-            SimpleMonitor monitor = new SimpleMonitor(MessageFormat.format("Parsing {0}", new Object[] { file
-                            .getAbsolutePath() }), listener, new int[] { 500, 1500 });
+        listener.beginTask(MessageFormat.format("Parsing {0}", file.getName()), 3000);
 
-            listener.beginTask(MessageFormat.format("Parsing {0}", file.getName()), 3000);
+        IHprofParserHandler handler = new HprofParserHandlerImpl();
+        handler.beforePass1(preliminary.getSnapshotInfo());
 
-            in = new PositionInputStream(new BufferedInputStream(new FileInputStream(file)));
-            int magicNumber = in.readInt();
-            if (magicNumber == HprofBasics.MAGIC_NUMBER)
-            {
-                handler = new HprofParserHandlerImpl();
-                handler.beforePass1(preliminary.getSnapshotInfo());
+        for (IParsingEnhancer enhancer : enhancers)
+            enhancer.beforePass1(handler);
 
-                for (IParsingEnhancer enhancer : enhancers)
-                    enhancer.beforePass1(handler);
+        SimpleMonitor.Listener mon = (SimpleMonitor.Listener) monitor.nextMonitor();
+        mon.beginTask(MessageFormat.format("Scanning {0}", new Object[] { file.getAbsolutePath() }), (int) (file
+                        .length() / 1000));
+        Pass1Parser pass1 = new Pass1Parser(handler, mon);
+        pass1.read(file);
 
-                try
-                {
-                    SimpleMonitor.Listener mon = (SimpleMonitor.Listener) monitor.nextMonitor();
-                    mon.beginTask(MessageFormat.format("Scanning {0}", new Object[] { file.getAbsolutePath() }),
-                                    (int) (file.length() / 1000));
-                    Pass1Parser parser = new Pass1Parser(in, 1, handler, mon);
-                    parser.read();
+        if (listener.isCanceled())
+            throw new IProgressListener.OperationCanceledException();
 
-                    if (listener.isCanceled())
-                        throw new IProgressListener.OperationCanceledException();
+        mon.done();
 
-                    mon.done();
-                }
-                finally
-                {
-                    try
-                    {
-                        in.close();
-                        in = null;
-                    }
-                    catch (IOException ignore)
-                    {
-                        // $JL-EXC$
-                    }
-                }
+        handler.beforePass2(listener);
+        for (IParsingEnhancer enhancer : enhancers)
+            enhancer.beforePass2(handler);
 
-                handler.beforePass2(listener);
-                for (IParsingEnhancer enhancer : enhancers)
-                    enhancer.beforePass2(handler);
+        mon = (SimpleMonitor.Listener) monitor.nextMonitor();
+        mon.beginTask(MessageFormat.format("Extracting objects from {0}", new Object[] { file.getAbsolutePath() }),
+                        (int) (file.length() / 1000));
 
-                try
-                {
-                    in = new PositionInputStream(new BufferedInputStream(new FileInputStream(file)));
-                    in.readInt();
+        Pass2Parser pass2 = new Pass2Parser(handler, mon);
+        pass2.read(file);
 
-                    SimpleMonitor.Listener mon = (SimpleMonitor.Listener) monitor.nextMonitor();
-                    mon.beginTask(MessageFormat.format("Extracting objects from {0}", new Object[] { file
-                                    .getAbsolutePath() }), (int) (file.length() / 1000));
-                    Pass2Parser parser = new Pass2Parser(in, 1, handler, mon);
-                    parser.read();
+        if (listener.isCanceled())
+            throw new IProgressListener.OperationCanceledException();
 
-                    if (listener.isCanceled())
-                        throw new IProgressListener.OperationCanceledException();
+        mon.done();
 
-                    mon.done();
-                }
-                finally
-                {
-                    try
-                    {
-                        if (in != null)
-                            in.close();
-                        in = null;
-                    }
-                    catch (IOException ignore)
-                    {
-                        // $JL-EXC$
-                    }
-                }
+        if (listener.isCanceled())
+            throw new IProgressListener.OperationCanceledException();
 
-                if (listener.isCanceled())
-                    throw new IProgressListener.OperationCanceledException();
+        for (IParsingEnhancer enhancer : enhancers)
+            enhancer.beforeCompletion(handler);
 
-                for (IParsingEnhancer enhancer : enhancers)
-                    enhancer.beforeCompletion(handler);
-
-                id2position = handler.fillIn(preliminary);
-            }
-            else
-            {
-                throw new SnapshotException(MessageFormat.format("Unknown magic number in HPROF: {0}", magicNumber));
-            }
-        }
-        finally
-        {
-            try
-            {
-                if (in != null)
-                    in.close();
-            }
-            catch (IOException ignore)
-            {
-                // $JL-EXC$
-            }
-        }
+        id2position = handler.fillIn(preliminary);
     }
 
     public void clean(final int[] purgedMapping, IProgressListener listener) throws IOException

@@ -26,9 +26,10 @@ import org.eclipse.mat.snapshot.ISnapshotAddon;
 import org.eclipse.mat.snapshot.SnapshotException;
 import org.eclipse.mat.snapshot.model.IObject;
 
-
 public class HprofHeapObjectReader implements IObjectReader
 {
+    public static final String VERSION_PROPERTY = "hprof.version";
+
     private ISnapshot snapshot;
     private HprofRandomAccessParser hprofDump;
     private IIndexReader.IOne2LongIndex o2hprof;
@@ -37,8 +38,12 @@ public class HprofHeapObjectReader implements IObjectReader
     public void open(ISnapshot snapshot) throws IOException
     {
         this.snapshot = snapshot;
+
+        AbstractParser.Version version = AbstractParser.Version.valueOf((String) snapshot.getSnapshotInfo()
+                        .getProperty(VERSION_PROPERTY));
+
         this.hprofDump = new HprofRandomAccessParser(new File(snapshot.getSnapshotInfo().getPath()), //
-                        (Integer) snapshot.getSnapshotInfo().getProperty(Constants.VERSION_PROPERTY), //
+                        version, //
                         snapshot.getSnapshotInfo().getIdentifierSize());
         this.o2hprof = new IndexReader.LongIndexReader(new File(snapshot.getSnapshotInfo().getPrefix()
                         + "o2hprof.index"));

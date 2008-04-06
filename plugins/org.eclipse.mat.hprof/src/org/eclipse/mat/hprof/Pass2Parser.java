@@ -10,11 +10,13 @@
  *******************************************************************************/
 package org.eclipse.mat.hprof;
 
+import java.io.BufferedInputStream;
 import java.io.EOFException;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.eclipse.mat.hprof.IHprofParserHandler.HeapObject;
 import org.eclipse.mat.impl.snapshot.internal.SimpleMonitor;
@@ -26,202 +28,97 @@ import org.eclipse.mat.snapshot.model.FieldDescriptor;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IPrimitiveArray;
 
-
 /**
  * Parser used to read the hprof formatted heap dump
  */
 
-public class Pass2Parser extends HprofBasics
+public class Pass2Parser extends AbstractParser
 {
+    private IHprofParserHandler handler;
+    private SimpleMonitor.Listener monitor;
 
-    private int dumpsToSkip;
-
-    long lastRecordPosition;
-
-    protected IHprofParserHandler handler;
-    protected SimpleMonitor.Listener monitor;
-
-    public Pass2Parser(PositionInputStream in, int dumpNumber, IHprofParserHandler handler,
-                    SimpleMonitor.Listener monitor) throws IOException
+    public Pass2Parser(IHprofParserHandler handler, SimpleMonitor.Listener monitor)
     {
-        this.in = in;
-        this.dumpsToSkip = dumpNumber - 1;
         this.handler = handler;
         this.monitor = monitor;
     }
 
-    public void read() throws IOException
+    public void read(File file) throws IOException
     {
-        version = readVersionHeader();
-        handler.addProperty(IHprofParserHandler.VERSION_ID, String.valueOf(version));
-        handler.addProperty(IHprofParserHandler.VERSION_STRING, HprofBasics.VERSIONS[version]);
+        in = new PositionInputStream(new BufferedInputStream(new FileInputStream(file)));
 
-        identifierSize = in.readInt();
-        handler.addProperty(IHprofParserHandler.IDENTIFIER_SIZE, String.valueOf(identifierSize));
-
-        if (identifierSize != 4 && identifierSize != 8) { throw new IOException(
-                        "I'm sorry, but I can't deal with an identifier size of " + identifierSize
-                                        + ".  I can only deal with 4 or 8."); }
-
-        long date = in.readLong();
-        handler.addProperty(IHprofParserHandler.CREATION_DATE, String.valueOf(date));
-
-        for (;;)
+        try
         {
-            if (this.monitor.isProbablyCanceled())
-                return;
-            this.monitor.totalWorkDone(in.position() / 1000);
+            version = readVersionHeader();
+            identifierSize = in.readInt();
+            if (identifierSize != 4 && identifierSize != 8)
+                throw new IOException("Only 32bit and 64bit dumps are supported.");
+            in.skipBytes(8); // creation date
 
-            int type;
-            try
+            while (true)
             {
-                type = in.readUnsignedByte();
-            }
-            catch (EOFException ignored)
-            {
-                // $JL-EXC$
-                break;
-            }
-            in.readInt(); // Timestamp of this record
-            long length = readUnsignedInt();
-            if (length < 0) { throw new IOException("Bad record length of " + length); }
-            switch (type)
-            {
-                case HPROF_UTF8:
-                case HPROF_LOAD_CLASS:
-                    in.skipBytes(length);
-                    break;
+                if (monitor.isProbablyCanceled())
+                    return;
+                monitor.totalWorkDone(in.position() / 1000);
 
-                case HPROF_HEAP_DUMP:
+                int record;
+
+                try
                 {
-                    if (dumpsToSkip <= 0)
+                    record = in.readUnsignedByte();
+                }
+                catch (EOFException ignored)
+                {
+                    // eof while reading the next record is okay
+                    break;
+                }
+
+                in.skipBytes(4); // time stamp
+
+                long length = readUnsignedInt();
+                if (length < 0)
+                    throw new IOException(MessageFormat.format("Illegal record length at byte {0}", in.position()));
+
+                switch (record)
+                {
+                    case Constants.Record.HEAP_DUMP:
                     {
-                        readHeapDump(length);
+                        readDumpSegments(length);
                         return;
                     }
-                    else
+                    case Constants.Record.HEAP_DUMP_SEGMENT:
                     {
-                        dumpsToSkip--;
-                        in.skipBytes(length);
-                    }
-                    break;
-                }
-
-                case HPROF_HEAP_DUMP_END:
-                {
-                    if (version >= VERSION_JDK6)
-                    {
-                        if (dumpsToSkip <= 0)
-                        {
-                            in.skipBytes(length); // should be no-op
-                            return;
-                        }
+                        if (version.ordinal() >= Version.JDK6.ordinal())
+                            readDumpSegments(length);
                         else
-                        {
-                            // skip this dump (of the end record for a sequence
-                            // of dump segments)
-                            dumpsToSkip--;
-                        }
-                    }
-                    else
-                    {
-                        // HPROF_HEAP_DUMP_END only recognized in >= 1.0.2
-                        warn("Ignoring unrecognized record type " + type);
-                    }
-                    in.skipBytes(length); // should be no-op
-                    break;
-                }
-
-                case HPROF_HEAP_DUMP_SEGMENT:
-                {
-                    if (version >= VERSION_JDK6)
-                    {
-                        if (dumpsToSkip <= 0)
-                        {
-                            // read the dump segment
-                            readHeapDump(length);
-                        }
-                        else
-                        {
-                            // all segments comprising the heap dump will be
-                            // skipped
                             in.skipBytes(length);
-                        }
+                        break;
                     }
-                    else
-                    {
-                        // HPROF_HEAP_DUMP_SEGMENT only recognized in >= 1.0.2
-                        warn("Ignoring unrecognized record type " + type);
+                    default:
                         in.skipBytes(length);
-                    }
-                    break;
+                        break;
                 }
 
-                case HPROF_HEAP_SUMMARY:
-                case HPROF_FRAME:
-                case HPROF_TRACE:
-                case HPROF_UNLOAD_CLASS:
-                case HPROF_ALLOC_SITES:
-                case HPROF_START_THREAD:
-                case HPROF_END_THREAD:
-                case HPROF_CPU_SAMPLES:
-                case HPROF_CONTROL_SETTINGS:
-                case HPROF_LOCKSTATS_WAIT_TIME:
-                case HPROF_LOCKSTATS_HOLD_TIME:
-                {
-                    // Ignore these record types
-                    in.skipBytes(length);
-                    break;
-                }
-                default:
-                {
-                    in.skipBytes(length);
-                    warn("Ignoring unrecognized record type " + type);
-                }
             }
         }
-    }
-
-    private int readVersionHeader() throws IOException
-    {
-        int candidatesLeft = VERSIONS.length;
-        boolean[] matched = new boolean[VERSIONS.length];
-        for (int i = 0; i < candidatesLeft; i++)
+        finally
         {
-            matched[i] = true;
-        }
-
-        int pos = 0;
-        while (candidatesLeft > 0)
-        {
-            char c = (char) in.readByte();
-            for (int i = 0; i < VERSIONS.length; i++)
+            try
             {
-                if (matched[i])
-                {
-                    if (c != VERSIONS[i].charAt(pos))
-                    { // Not matched
-                        matched[i] = false;
-                        --candidatesLeft;
-                    }
-                    else if (pos == VERSIONS[i].length() - 1)
-                    { // Full match
-                        return i;
-                    }
-                }
+                in.close();
             }
-            ++pos;
+            catch (IOException ignore)
+            {}
         }
-        throw new IOException("Version string not recognized at byte " + (pos + 3));
     }
 
-    private void readHeapDump(long bytesLeft) throws IOException
+    private void readDumpSegments(long length) throws IOException
     {
-        while (bytesLeft > 0)
+        while (length > 0)
         {
-            lastRecordPosition = in.position();
+            long segmentStartPos = in.position();
 
-            long workDone = lastRecordPosition / 1000;
+            long workDone = segmentStartPos / 1000;
             if (this.monitor.getWorkDone() < workDone)
             {
                 if (this.monitor.isProbablyCanceled())
@@ -229,160 +126,94 @@ public class Pass2Parser extends HprofBasics
                 this.monitor.totalWorkDone(workDone);
             }
 
-            int type = in.readUnsignedByte();
+            int segmentType = in.readUnsignedByte();
             int size = 0;
-            bytesLeft--;
-            switch (type)
+            length--;
+            switch (segmentType)
             {
-                case HPROF_GC_ROOT_UNKNOWN:
-                {
+                case Constants.DumpSegment.ROOT_UNKNOWN:
+                case Constants.DumpSegment.ROOT_STICKY_CLASS:
+                case Constants.DumpSegment.ROOT_MONITOR_USED:
                     if (in.skipBytes(identifierSize) != identifierSize)
                         throw new IOException();
-                    bytesLeft -= identifierSize;
+                    length -= identifierSize;
                     break;
-                }
-                case HPROF_GC_ROOT_THREAD_OBJ:
-                {
-                    size = identifierSize + 8;
-                    if (in.skipBytes(size) != size)
-                        throw new IOException();
-                    bytesLeft -= size;
-                    break;
-                }
-                case HPROF_GC_ROOT_JNI_GLOBAL:
-                {
+                case Constants.DumpSegment.ROOT_JNI_GLOBAL:
                     size = identifierSize * 2;
                     if (in.skipBytes(size) != size)
                         throw new IOException();
-                    bytesLeft -= size;
+                    length -= size;
                     break;
-                }
-                case HPROF_GC_ROOT_JNI_LOCAL:
-                {
-                    size = identifierSize + 8;
-                    if (in.skipBytes(size) != size)
-                        throw new IOException();
-                    bytesLeft -= size;
-                    break;
-                }
-                case HPROF_GC_ROOT_JAVA_FRAME:
-                {
-                    size = identifierSize + 8;
-                    if (in.skipBytes(size) != size)
-                        throw new IOException();
-                    bytesLeft -= size;
-                    break;
-                }
-                case HPROF_GC_ROOT_NATIVE_STACK:
-                {
+                case Constants.DumpSegment.ROOT_NATIVE_STACK:
+                case Constants.DumpSegment.ROOT_THREAD_BLOCK:
                     size = identifierSize + 4;
                     if (in.skipBytes(size) != size)
                         throw new IOException();
-                    bytesLeft -= size;
+                    length -= size;
                     break;
-                }
-                case HPROF_GC_ROOT_STICKY_CLASS:
-                {
-                    if (in.skipBytes(identifierSize) != identifierSize)
-                        throw new IOException();
-                    bytesLeft -= identifierSize;
-                    break;
-                }
-                case HPROF_GC_ROOT_THREAD_BLOCK:
-                {
-                    size = identifierSize + 4;
+                case Constants.DumpSegment.ROOT_THREAD_OBJECT:
+                case Constants.DumpSegment.ROOT_JNI_LOCAL:
+                case Constants.DumpSegment.ROOT_JAVA_FRAME:
+                    size = identifierSize + 8;
                     if (in.skipBytes(size) != size)
                         throw new IOException();
-                    bytesLeft -= size;
+                    length -= size;
                     break;
-                }
-                case HPROF_GC_ROOT_MONITOR_USED:
-                {
-                    if (in.skipBytes(identifierSize) != identifierSize)
-                        throw new IOException();
-                    bytesLeft -= identifierSize;
+                case Constants.DumpSegment.CLASS_DUMP:
+                    length -= skipClassDump();
                     break;
-                }
-                case HPROF_GC_CLASS_DUMP:
-                {
-                    int bytesRead = readClass();
-                    bytesLeft -= bytesRead;
+                case Constants.DumpSegment.INSTANCE_DUMP:
+                    length -= readInstanceDump(segmentStartPos);
                     break;
-                }
-                case HPROF_GC_INSTANCE_DUMP:
-                {
-                    int bytesRead = readInstance();
-                    bytesLeft -= bytesRead;
+                case Constants.DumpSegment.OBJECT_ARRAY_DUMP:
+                    length -= readObjectArrayDump(segmentStartPos);
                     break;
-                }
-                case HPROF_GC_OBJ_ARRAY_DUMP:
-                {
-                    int bytesRead = readArray(false);
-                    bytesLeft -= bytesRead;
+                case Constants.DumpSegment.PRIMITIVE_ARRAY_DUMP:
+                    length -= readPrimitveArrayDump(segmentStartPos);
                     break;
-                }
-                case HPROF_GC_PRIM_ARRAY_DUMP:
-                {
-                    int bytesRead = readArray(true);
-                    bytesLeft -= bytesRead;
-                    break;
-                }
                 default:
-                {
-                    throw new IOException("Unrecognized heap dump sub-record type:  " + type
-                                    + " @ last record position " + lastRecordPosition);
-                }
+                    throw new IOException(MessageFormat.format("Unrecognized segment type {0} at position {1}",
+                                    segmentType, segmentStartPos));
             }
         }
-        if (bytesLeft != 0)
-        {
-            warn("Error reading heap dump or heap dump segment:  Byte count is " + bytesLeft + " instead of 0");
-            in.skipBytes(bytesLeft);
-        }
+
+        if (length != 0)
+            throw new IOException("Invalid dump record length.");
     }
 
-    private int readClass() throws IOException
+    private int skipClassDump() throws IOException
     {
         int bytesRead = 7 * identifierSize + 8;
         if (in.skipBytes(bytesRead) != bytesRead)
             throw new IOException();
 
-        int numConstPoolEntries = in.readUnsignedShort();
+        int constantPoolSize = in.readUnsignedShort();
         bytesRead += 2;
-        for (int i = 0; i < numConstPoolEntries; i++)
+        for (int ii = 0; ii < constantPoolSize; ii++)
         {
-            /* int index = */in.readUnsignedShort();
-            bytesRead += 2;
-            bytesRead += readValue(null, in, null);
+            bytesRead += in.skipBytes(2);
+            bytesRead += skipValue();
         }
 
-        int numStatics = in.readUnsignedShort();
+        int numStaticFields = in.readUnsignedShort();
         bytesRead += 2;
-        for (int i = 0; i < numStatics; i++)
+        for (int i = 0; i < numStaticFields; i++)
         {
-            if (in.skipBytes(identifierSize) != identifierSize)
-                throw new IOException();
-            bytesRead += identifierSize;
-            byte type = in.readByte();
-            bytesRead++;
-            bytesRead += readValueForType(null, in, type, null);
+            bytesRead += in.skipBytes(identifierSize);
+            bytesRead += skipValue();
         }
 
-        int numFields = in.readUnsignedShort();
+        int numInstanceFields = in.readUnsignedShort();
         bytesRead += 2;
-
-        int s = (identifierSize + 1) * numFields;
-        if (in.skipBytes(s) != s)
-            throw new IOException();
-        bytesRead += s;
+        bytesRead += in.skipBytes((identifierSize + 1) * numInstanceFields);
 
         return bytesRead;
     }
 
-    private int readInstance() throws IOException
+    private int readInstanceDump(long segmentStartPos) throws IOException
     {
         long id = readID();
-        in.readInt(); // stack trace
+        in.skipBytes(4);
         long classID = readID();
         int bytesFollowing = in.readInt();
 
@@ -394,148 +225,98 @@ public class Pass2Parser extends HprofBasics
 
         heapObject.references.add(thisClazz.getObjectAddress());
 
+        // extract outgoing references
         int readBytes = 0;
         for (IClass clazz : hierarchy)
         {
             for (FieldDescriptor field : clazz.getFieldDescriptors())
             {
                 byte type = (byte) field.getSignature().charAt(0);
-                switch (type)
+                if (type == '[' || type == 'L')
                 {
-                    case '[':
-                    case 'L':
-                        long ref = readID();
-                        readBytes += identifierSize;
+                    long refId = readID();
+                    readBytes += identifierSize;
 
-                        if (ref != 0)
-                            heapObject.references.add(ref);
-
-                        break;
-
-                    default:
-                        readBytes += skipValueForTypeSignature(in, type);
+                    if (refId != 0)
+                        heapObject.references.add(refId);
+                }
+                else
+                {
+                    readBytes += skipValue(type);
                 }
             }
         }
 
         if (readBytes != bytesFollowing)
-            throw new IOException("Unexpected amount of data found in HPROF_GC_INSTANCE_DUMP.");
+            throw new IOException("Illegal segment length for instance 0x" + Long.toHexString(id));
 
-        handler.addObject(heapObject, lastRecordPosition);
+        handler.addObject(heapObject, segmentStartPos);
 
         return 2 * identifierSize + 8 + bytesFollowing;
     }
 
-    private int readArray(boolean isPrimitive) throws IOException
+    private int readObjectArrayDump(long segmentStartPos) throws IOException
     {
         long id = readID();
-        in.readInt(); // stack trace
-        int arraySize = in.readInt();
+
+        in.skipBytes(4);
+        int size = in.readInt();
         int bytesRead = identifierSize + 8;
 
-        long elementClassID;
-        if (isPrimitive)
-        {
-            elementClassID = in.readByte();
-            bytesRead++;
-        }
-        else
-        {
-            elementClassID = readID();
-            bytesRead += identifierSize;
-        }
+        long arrayClassObjectID = readID();
+        bytesRead += identifierSize;
 
-        byte primitiveSignature = 0x00;
-        int elSize = 0;
-        if (isPrimitive || version < VERSION_JDK12BETA4)
-        {
-            if ((elementClassID > 3) && (elementClassID < 12))
-            {
-                primitiveSignature = IPrimitiveArray.SIGNATURES[(int) elementClassID];
-                elSize = IPrimitiveArray.ELEMENT_SIZE[(int) elementClassID];
-            }
+        ClassImpl arrayType = (ClassImpl) handler.lookupClass(arrayClassObjectID);
+        if (arrayType == null)
+            throw new RuntimeException("handler must create fake class for 0x" + Long.toHexString(arrayClassObjectID));
 
-            if (version >= VERSION_JDK12BETA4 && primitiveSignature == 0x00) { throw new IOException(
-                            "Unrecognized typecode:  " + elementClassID); }
+        HeapObject heapObject = new HeapObject(handler.mapAddressToId(id), id, arrayType, ObjectArrayImpl
+                        .doGetUsedHeapSize(arrayType, size));
+        heapObject.references.add(arrayType.getObjectAddress());
+        heapObject.isArray = true;
+
+        for (int ii = 0; ii < size; ii++)
+        {
+            long refId = readID();
+            if (refId != 0)
+                heapObject.references.add(refId);
         }
 
-        if (primitiveSignature != 0x00)
-        {
-            // do not read primitive type -> no references
-            int size = elSize * arraySize;
-            bytesRead += size;
-            if (in.skipBytes(size) != size)
-                throw new IOException();
+        handler.addObject(heapObject, segmentStartPos);
 
-            String name = IPrimitiveArray.TYPE[(int) elementClassID];
-            ClassImpl clazz = (ClassImpl) handler.lookupClassByName(name, true);
-            if (clazz == null) { throw new RuntimeException("handler must create fake class for " + name); }
-
-            HeapObject heapObject = new HeapObject(handler.mapAddressToId(id), id, clazz, PrimitiveArrayImpl
-                            .doGetUsedHeapSize(clazz, arraySize, (int) elementClassID));
-            heapObject.references.add(clazz.getObjectAddress());
-            heapObject.isArray = true;
-
-            handler.addObject(heapObject, lastRecordPosition);
-        }
-        else
-        {
-            long arrayClassID = 0;
-            if (version >= VERSION_JDK12BETA4)
-            {
-                // It changed from the ID of the object describing the
-                // class of element types to the ID of the object describing
-                // the type of the array.
-                arrayClassID = elementClassID;
-                elementClassID = 0;
-            }
-
-            // This is needed because the JDK only creates Class structures
-            // for array element types, not the arrays themselves. For
-            // analysis, though, we need to pretend that there's a
-            // JavaClass for the array type, too.
-
-            ClassImpl arrayType = null;
-            if (arrayClassID != 0)
-            {
-                arrayType = (ClassImpl) handler.lookupClass(arrayClassID);
-            }
-            else if (elementClassID != 0)
-            {
-                arrayType = (ClassImpl) handler.lookupClass(elementClassID);
-                if (arrayType != null)
-                {
-                    String name = arrayType.getName() + "[]";
-                    arrayType = (ClassImpl) handler.lookupClassByName(name, true);
-                }
-            }
-
-            if (arrayType == null)
-                throw new RuntimeException("handle must create fake class for " + arrayClassID);
-
-            HeapObject heapObject = new HeapObject(handler.mapAddressToId(id), id, arrayType, ObjectArrayImpl
-                            .doGetUsedHeapSize(arrayType, arraySize));
-            heapObject.references.add(arrayType.getObjectAddress());
-            heapObject.isArray = true;
-
-            int size = arraySize * identifierSize;
-            bytesRead += size;
-
-            for (int ii = 0; ii < arraySize; ii++)
-            {
-                long refId = readID();
-                if (refId != 0)
-                    heapObject.references.add(refId);
-            }
-
-            handler.addObject(heapObject, lastRecordPosition);
-        }
+        bytesRead += (size * identifierSize);
         return bytesRead;
     }
 
-    private void warn(String msg)
+    private int readPrimitveArrayDump(long segmentStartPost) throws IOException
     {
-        Logger.getLogger(Pass2Parser.class.getName()).log(Level.WARNING, msg);
+        long id = readID();
+
+        in.skipBytes(4);
+        int size = in.readInt();
+        int bytesRead = identifierSize + 8;
+
+        byte elementType = in.readByte();
+        bytesRead++;
+
+        if ((elementType < IPrimitiveArray.Type.BOOLEAN) || (elementType > IPrimitiveArray.Type.LONG))
+            throw new IOException("Illegal primitive object array type");
+
+        String name = IPrimitiveArray.TYPE[(int) elementType];
+        ClassImpl clazz = (ClassImpl) handler.lookupClassByName(name, true);
+        if (clazz == null)
+            throw new RuntimeException("handler must create fake class for " + name);
+
+        HeapObject heapObject = new HeapObject(handler.mapAddressToId(id), id, clazz, PrimitiveArrayImpl
+                        .doGetUsedHeapSize(clazz, size, (int) elementType));
+        heapObject.references.add(clazz.getObjectAddress());
+        heapObject.isArray = true;
+
+        handler.addObject(heapObject, segmentStartPost);
+
+        int elementSize = IPrimitiveArray.ELEMENT_SIZE[(int) elementType];
+        bytesRead += in.skipBytes(elementSize * size);
+        return bytesRead;
     }
 
 }
