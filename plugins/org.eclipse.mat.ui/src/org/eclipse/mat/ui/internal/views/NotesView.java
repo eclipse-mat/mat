@@ -125,6 +125,7 @@ public class NotesView extends ViewPart implements IPartListener, Observer
         undoManager = new TextViewerUndoManager(UNDO_LEVEL);
         undoManager.connect(textViewer);
         textViewer.setUndoManager(undoManager);
+
         textViewer.addSelectionChangedListener(new ISelectionChangedListener()
         {
             public void selectionChanged(SelectionChangedEvent event)
@@ -138,11 +139,11 @@ public class NotesView extends ViewPart implements IPartListener, Observer
         {
             public void keyPressed(KeyEvent event)
             {
-                if (event.keyCode == 'z' && (event.stateMask & SWT.CTRL) != 0)
+                if (event.keyCode == 'z' && (event.stateMask & SWT.MOD1) != 0)
                 {
                     undo.run();
                 }
-                if (event.keyCode == 'y' && (event.stateMask & SWT.CTRL) != 0)
+                if (event.keyCode == 'y' && (event.stateMask & SWT.MOD1) != 0)
                 {
                     redo.run();
                 }
@@ -188,7 +189,6 @@ public class NotesView extends ViewPart implements IPartListener, Observer
         });
         Menu menu = menuMgr.createContextMenu(textViewer.getControl());
         textViewer.getControl().setMenu(menu);
-
     }
 
     private void textEditorContextMenuAboutToShow(IMenuManager manager)
@@ -244,7 +244,6 @@ public class NotesView extends ViewPart implements IPartListener, Observer
     public void setFocus()
     {
         textViewer.getControl().setFocus();
-
     }
 
     public void partActivated(IWorkbenchPart part)
@@ -260,7 +259,6 @@ public class NotesView extends ViewPart implements IPartListener, Observer
         {
             this.snapshotPath = path;
             this.updateTextViewer();
-
         }
     }
 
@@ -269,7 +267,6 @@ public class NotesView extends ViewPart implements IPartListener, Observer
         if (snapshotPath != null && undoManager.undoable())
             saveNotes();
         partActivated(part);
-
     }
 
     public void partClosed(IWorkbenchPart part)
@@ -286,7 +283,6 @@ public class NotesView extends ViewPart implements IPartListener, Observer
             this.snapshotPath = null;
             this.updateTextViewer();
         }
-
     }
 
     public void partDeactivated(IWorkbenchPart part)
@@ -304,45 +300,14 @@ public class NotesView extends ViewPart implements IPartListener, Observer
 
     private void makeActions()
     {
-
         // Install the standard text actions.
         addAction(ActionFactory.CUT, ITextOperationTarget.CUT, "org.eclipse.ui.edit.cut");
         addAction(ActionFactory.COPY, ITextOperationTarget.COPY, "org.eclipse.ui.edit.copy");
         addAction(ActionFactory.PASTE, ITextOperationTarget.PASTE, "org.eclipse.ui.edit.paste");
         addAction(ActionFactory.DELETE, ITextOperationTarget.DELETE, "org.eclipse.ui.edit.delete");
         addAction(ActionFactory.SELECT_ALL, ITextOperationTarget.SELECT_ALL, "org.eclipse.ui.edit.selectAll");
-        addAction(ActionFactory.UNDO, ITextOperationTarget.UNDO, "org.eclipse.ui.edit.undo");
-        addAction(ActionFactory.REDO, ITextOperationTarget.REDO, "org.eclipse.ui.edit.redo");
-
-        undo = new Action()
-        {
-
-            @Override
-            public void run()
-            {
-                undoManager.undo();
-            }
-
-        };
-        undo.setText("Undo");
-        undo.setActionDefinitionId("org.eclipse.ui.edit.undo");
-
-        getViewSite().getActionBars().setGlobalActionHandler(ActionFactory.UNDO.getId(), undo);
-
-        redo = new Action()
-        {
-
-            @Override
-            public void run()
-            {
-                undoManager.redo();
-            }
-
-        };
-        redo.setText("Redo");
-        redo.setActionDefinitionId("org.eclipse.ui.edit.redo");
-
-        getViewSite().getActionBars().setGlobalActionHandler(ActionFactory.REDO.getId(), redo);
+        undo = addAction(ActionFactory.UNDO, ITextOperationTarget.UNDO, "org.eclipse.ui.edit.undo");
+        redo = addAction(ActionFactory.REDO, ITextOperationTarget.REDO, "org.eclipse.ui.edit.redo");
     }
 
     public void update(Observable o, Object arg)
@@ -369,14 +334,12 @@ public class NotesView extends ViewPart implements IPartListener, Observer
             }
             else
                 textViewer.setDocument(new Document(""));
-
         }
         else
         {
             textViewer.setDocument(new Document(""));
             textViewer.getControl().setEnabled(false);
         }
-
     }
 
     private void searchForHyperlinks(String allText, int offset)
@@ -423,7 +386,6 @@ public class NotesView extends ViewPart implements IPartListener, Observer
             if (text != null && text.trim() != "")
                 NotesManager.instance().saveNotes(snapshotPath, text);
             resetUndoManager();
-
         }
     }
 
@@ -447,7 +409,6 @@ public class NotesView extends ViewPart implements IPartListener, Observer
     {
         if (part instanceof HeapEditor)
         {
-
             textViewer.getControl().setEnabled(true);
             return true;
         }
@@ -536,10 +497,8 @@ public class NotesView extends ViewPart implements IPartListener, Observer
                 if (menu != null && !menu.isDisposed())
                     menu.dispose();
 
-                menu = popupMenu.createMenu(editor.getEditorSite().getActionBars().getStatusLineManager(),
-                //
-
-                                PlatformUI.getWorkbench().getDisplay().getActiveShell());
+                menu = popupMenu.createMenu(editor.getEditorSite().getActionBars().getStatusLineManager(), PlatformUI
+                                .getWorkbench().getDisplay().getActiveShell());
                 menu.setVisible(true);
             }
             catch (NumberFormatException ignore)

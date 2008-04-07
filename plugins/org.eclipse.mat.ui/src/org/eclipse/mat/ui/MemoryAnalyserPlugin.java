@@ -41,9 +41,7 @@ public class MemoryAnalyserPlugin extends AbstractUIPlugin
 
         String REFRESH = "icons/refresh.gif"; //$NON-NLS-1$       
         String THREAD = "icons/thread.gif"; //$NON-NLS-1$       
-        String SHOW_DIFFERENCES = "icons/show_differences.gif"; //$NON-NLS-1$
-        String SHOW_DIFFERENCES_DISABLED = "icons/show_differences_disabled.gif"; //$NON-NLS-1$
-
+       
         String RETAINED_SET = "icons/retainedSet.gif"; //$NON-NLS-1$
         String PACKAGE = "icons/package.gif"; //$NON-NLS-1$
 
