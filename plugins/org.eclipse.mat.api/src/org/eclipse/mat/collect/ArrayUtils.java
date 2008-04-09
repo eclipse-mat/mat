@@ -142,13 +142,13 @@ public class ArrayUtils
             if (v2 <= v3)
                 return pos2;
             else
-                return v1 < v3 ? pos1 : pos3; 
+                return v1 < v3 ? pos3 : pos1; 
         
         /* else -> v1 > v2 */
         if (v1 <= v3)
             return pos1;
         else
-            return v2 < v3 ? pos2 : pos3;
+            return v2 < v3 ? pos3 : pos2;
     }
 
     private static int median(long x[], int pos1, int pos2, int pos3)
@@ -161,19 +161,19 @@ public class ArrayUtils
             if (v2 <= v3)
                 return pos2;
             else
-                return v1 < v3 ? pos1 : pos3; 
+                return v1 < v3 ? pos3 : pos1; 
         
         /* else -> v1 > v2 */
         if (v1 <= v3)
             return pos1;
         else
-            return v2 < v3 ? pos2 : pos3;    
+            return v2 < v3 ? pos3 : pos2;    
     }
 
     private static int split(int[] keys, int[] values, int left, int right)
     {
         // just take the median of the middle key and the two border keys
-        int splittingIdx = median(keys, left, right - 1, (right - left) >> 1);
+        int splittingIdx = median(keys, left, right, left + ((right - left) >> 1));
         int splittingValue = keys[splittingIdx];
 
         // move splitting element first
@@ -196,7 +196,7 @@ public class ArrayUtils
     private static int splitDesc(long[] keys, int[] values, int left, int right)
     {
         // just take the median of the middle key and the two border keys
-        int splittingIdx = median(keys, left, right - 1, (right - left) >> 1);
+        int splittingIdx = median(keys, left, right, left + ((right - left) >> 1));
         long splittingValue = keys[splittingIdx];
 
         // move splitting element first
