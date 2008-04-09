@@ -355,7 +355,7 @@ public final class HashMapIntObject<E> implements Serializable
             putQuick(stream.readInt(), (E)stream.readObject());
     }
     
-    public void putQuick(int key, E value)
+    private void putQuick(int key, E value)
     {
         int hash = (key & Integer.MAX_VALUE) % capacity;
         while (used[hash])

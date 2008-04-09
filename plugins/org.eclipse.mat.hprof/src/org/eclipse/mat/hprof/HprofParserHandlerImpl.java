@@ -280,30 +280,11 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
 
     private int sizeOf(FieldDescriptor field)
     {
-        char s = field.getSignature().charAt(0);
-        switch (s)
-        {
-            case 'I':
-                return 4;
-            case 'Z':
-                return 1;
-            case 'C':
-                return 2;
-            case 'F':
-                return 4;
-            case 'D':
-                return 8;
-            case 'B':
-                return 1;
-            case 'S':
-                return 2;
-            case 'J':
-                return 8;
-            case 'L':
-                return info.getIdentifierSize(); // object
-            default:
-                return 0;
-        }
+        int type = field.getType();
+        if (type == 2)
+            return info.getIdentifierSize();
+
+        return IPrimitiveArray.ELEMENT_SIZE[type];
     }
 
     private int alignUpTo8(int n)

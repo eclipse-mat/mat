@@ -25,7 +25,6 @@ import org.eclipse.mat.snapshot.model.IPrimitiveArray;
 import org.eclipse.mat.snapshot.model.NamedReference;
 import org.eclipse.mat.snapshot.model.ObjectReference;
 
-
 /* package */abstract class LazyFields<O extends IObject>
 {
     private WeakReference<ISnapshot> snapshot;
@@ -166,7 +165,8 @@ import org.eclipse.mat.snapshot.model.ObjectReference;
         @Override
         protected Object createElement(IPrimitiveArray array, int index)
         {
-            return new FieldNode(array.getField(index), false);
+            Field field = new Field("[" + index + "]", array.getType(), array.getValueAt(index));
+            return new FieldNode(field, false);
         }
     }
 
@@ -197,7 +197,7 @@ import org.eclipse.mat.snapshot.model.ObjectReference;
             }
             else
             {
-                Field f = new Field("[" + index + "]", "L", "null");
+                Field f = new Field("[" + index + "]", IObject.Type.OBJECT, "null");
                 return new FieldNode(f, false);
             }
         }
@@ -207,7 +207,7 @@ import org.eclipse.mat.snapshot.model.ObjectReference;
     // private helpers
     // //////////////////////////////////////////////////////////////
 
-    private static void fixObjectReferences(ISnapshot snapshot, List<Object> appendTo, List<?> fields,
+    protected static void fixObjectReferences(ISnapshot snapshot, List<Object> appendTo, List<?> fields,
                     boolean areStatics)
     {
         for (int ii = 0; ii < fields.size(); ii++)
@@ -224,7 +224,7 @@ import org.eclipse.mat.snapshot.model.ObjectReference;
                 }
                 else
                 {
-                    Field f = new Field(field.getName(), field.getSignature(), "null");
+                    Field f = new Field(field.getName(), field.getType(), "null");
                     appendTo.add(new FieldNode(f, areStatics));
                 }
             }

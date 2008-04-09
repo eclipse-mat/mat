@@ -20,11 +20,11 @@ import org.eclipse.mat.snapshot.model.ClassSpecificNameResolverRegistry;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IPrimitiveArray;
+import org.eclipse.mat.snapshot.model.PrettyPrinter;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.ui.PlatformUI;
-
 
 public abstract class CopyActions extends Action
 {
@@ -127,19 +127,12 @@ public abstract class CopyActions extends Action
             String text = null;
             if ("java.lang.String".equals(object.getClazz().getName()))
             {
-                int count = (Integer) object.resolveValue("count");
-                if (count > 0)
-                {
-                    int offset = (Integer) object.resolveValue("offset");
-
-                    IPrimitiveArray primitiveArray = (IPrimitiveArray) object.resolveValue("value");
-                    text = (primitiveArray).valueString(count, offset, count);
-                }
+                text = PrettyPrinter.objectAsString(object, Integer.MAX_VALUE);
             }
             else if ("char[]".equals(object.getClazz().getName()))
             {
-                IPrimitiveArray primitiveArray = (IPrimitiveArray) object;
-                text = (primitiveArray).valueString(primitiveArray.getLength());
+                IPrimitiveArray charArray = (IPrimitiveArray) object;
+                text = PrettyPrinter.arrayAsString(charArray, 0, charArray.getLength(), charArray.getLength());
             }
             else
             {

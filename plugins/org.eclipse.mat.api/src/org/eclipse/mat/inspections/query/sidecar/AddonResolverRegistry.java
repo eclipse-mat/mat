@@ -49,18 +49,17 @@ public class AddonResolverRegistry extends RegistryReader<AddonResolverRegistry.
         }
 
         @SuppressWarnings("unchecked")
-        public <A extends ISnapshotAddon> Class<A> getQueryInterface() throws InvalidRegistryObjectException, ClassNotFoundException 
+        public <A extends ISnapshotAddon> Class<A> getQueryInterface() throws ClassNotFoundException
         {
             Bundle bundle = Platform.getBundle(configElement.getContributor().getName());
             if (bundle == null)
                 return null;
 
-            return (Class<A>)bundle.loadClass(configElement.getAttribute("impl"));
-           
+            return (Class<A>) bundle.loadClass(configElement.getAttribute("impl"));
         }
 
-        public IQuery getQuery() throws InvalidRegistryObjectException, ClassNotFoundException,
-                        InstantiationException, IllegalAccessException
+        public IQuery getQuery() throws InvalidRegistryObjectException, ClassNotFoundException, InstantiationException,
+                        IllegalAccessException
         {
             Bundle bundle = Platform.getBundle(configElement.getContributor().getName());
             if (bundle == null)

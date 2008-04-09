@@ -1,10 +1,19 @@
+/*******************************************************************************
+ * Copyright (c) 2008 SAP AG.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    SAP AG - initial API and implementation
+ *******************************************************************************/
 package org.eclipse.mat.parser.model;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.mat.collect.ArrayLong;
-import org.eclipse.mat.snapshot.model.Field;
 import org.eclipse.mat.snapshot.model.IPrimitiveArray;
 import org.eclipse.mat.snapshot.model.NamedReference;
 import org.eclipse.mat.snapshot.model.PseudoReference;
@@ -25,12 +34,11 @@ public class PrimitiveArrayImpl extends AbstractArrayImpl implements IPrimitiveA
     {
         return type;
     }
-
-    public Field getField(int index)
+    
+    public Object getValueAt(int index)
     {
         byte[] data = (byte[]) getContent(index * ELEMENT_SIZE[type], ELEMENT_SIZE[type]);
-        Object v = asObject(data, 0);
-        return new Field("[" + index + "]", String.valueOf((char) SIGNATURES[type]), v);
+        return asObject(data, 0);
     }
 
     private Object asObject(byte[] data, int offset)
@@ -38,97 +46,25 @@ public class PrimitiveArrayImpl extends AbstractArrayImpl implements IPrimitiveA
         switch (type)
         {
             case Type.BOOLEAN:
-            case 'Z':
                 return data[offset] != 0;
+            case Type.CHAR:
+                return readChar(data, offset);
+            case Type.FLOAT:
+                return readFloat(data, offset);
+            case Type.DOUBLE:
+                return readDouble(data, offset);
             case Type.BYTE:
-            case 'B':
                 return data[offset];
             case Type.SHORT:
-            case 'S':
                 return readShort(data, offset);
-            case Type.CHAR:
-            case 'C':
-                return readChar(data, offset);
             case Type.INT:
-            case 'I':
                 return readInt(data, offset);
-            case Type.FLOAT:
-            case 'F':
-                return readFloat(data, offset);
             case Type.LONG:
-            case 'J':
                 return readLong(data, offset);
-            case Type.DOUBLE:
-            case 'D':
-                return readDouble(data, offset);
         }
         return null;
     }
     
-    public String valueString(int limit, int offset, int count)
-    {
-        int numOfElement = count <= limit ? count : limit;
-        if (numOfElement > length - offset)
-            numOfElement = length - offset;
-
-        byte[] data = null;
-        if (offset == 0 && length == numOfElement)
-        {
-            // if possible use getContent() -> no array copy, and the content is
-            // cached
-            data = (byte[]) getContent();
-        }
-        else
-        {
-            // read part of the content only. The result is not cached
-            data = (byte[]) getContent(offset * ELEMENT_SIZE[type], numOfElement * ELEMENT_SIZE[type]);
-        }
-
-        if (type == Type.CHAR)
-        {
-            StringBuilder answer = new StringBuilder(numOfElement * 110 / 100);
-
-            for (int ii = 0; ii < numOfElement; ii++)
-            {
-                char val = readChar(data, ii * 2);
-                if (val >= 32 && val < 127)
-                    answer.append(val);
-                else
-                    answer.append("\\u").append(Integer.toString(0xFFFF & val, 16));
-            }
-            if (limit < count)
-                answer.append("...");
-            return answer.toString();
-        }
-        else
-        {
-            StringBuilder answer = new StringBuilder("{");
-
-            if (offset > 0)
-                answer.append("...");
-
-            for (int ii = 0; ii < numOfElement; ii++)
-            {
-                if (ii > 0)
-                    answer.append(",");
-                
-                answer.append(asObject(data, ii * ELEMENT_SIZE[type]));
-            }
-            
-            if (numOfElement - offset < length)
-                answer.append("...");
-            
-            answer.append("{");
-            
-            return answer.toString();
-        }
-    }
-
-    public String valueString(int limit)
-    {
-        return valueString(limit, 0, length);
-    }
-
     @Override
     public ArrayLong getReferences()
     {

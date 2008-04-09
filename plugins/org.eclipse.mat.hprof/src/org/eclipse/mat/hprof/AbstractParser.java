@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2008 SAP AG.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    SAP AG - initial API and implementation
+ *******************************************************************************/
 package org.eclipse.mat.hprof;
 
 import java.io.IOException;
@@ -5,6 +15,8 @@ import java.text.MessageFormat;
 
 import org.eclipse.mat.parser.io.PositionInputStream;
 import org.eclipse.mat.snapshot.ISnapshot;
+import org.eclipse.mat.snapshot.model.IObject;
+import org.eclipse.mat.snapshot.model.IPrimitiveArray;
 import org.eclipse.mat.snapshot.model.ObjectReference;
 
 // Hprof binary format as defined here:
@@ -81,12 +93,12 @@ import org.eclipse.mat.snapshot.model.ObjectReference;
 
     protected PositionInputStream in;
     protected Version version;
-    protected int identifierSize;
+    protected int idSize;
 
     /* package */AbstractParser()
     {}
 
-    protected Version readVersionHeader() throws IOException
+    protected Version readVersion() throws IOException
     {
         StringBuilder version = new StringBuilder();
 
@@ -121,111 +133,55 @@ import org.eclipse.mat.snapshot.model.ObjectReference;
 
     protected long readID() throws IOException
     {
-        return identifierSize == 4 ? (0x0FFFFFFFFL & (long) in.readInt()) : in.readLong();
+        return idSize == 4 ? (0x0FFFFFFFFL & (long) in.readInt()) : in.readLong();
     }
 
-    protected int readValue(ISnapshot snapshot, Object[] result) throws IOException
+    protected Object readValue(ISnapshot snapshot) throws IOException
     {
         byte type = in.readByte();
-        return 1 + readValue(snapshot, type, result);
+        return readValue(snapshot, type);
     }
 
-    protected int readValue(ISnapshot snapshot, byte type, Object[] result) throws IOException
+    protected Object readValue(ISnapshot snapshot, int type) throws IOException
     {
         switch (type)
         {
-            case 2:
-            case '[':
-            case 'L':
+            case IObject.Type.OBJECT:
                 long id = readID();
-                result[0] = id == 0 ? null : new ObjectReference(snapshot, id);
-                return identifierSize;
-            case 4:
-            case 'Z':
-                result[0] = in.readByte() != 0;
-                return 1;
-            case 8:
-            case 'B':
-                result[0] = in.readByte();
-                return 1;
-            case 9:
-            case 'S':
-                result[0] = in.readShort();
-                return 2;
-            case 5:
-            case 'C':
-                result[0] = in.readChar();
-                return 2;
-            case 10:
-            case 'I':
-                result[0] = in.readInt();
-                return 4;
-            case 6:
-            case 'F':
-                result[0] = in.readFloat();
-                return 4;
-            case 11:
-            case 'J':
-                result[0] = in.readLong();
-                return 8;
-            case 7:
-            case 'D':
-                result[0] = in.readDouble();
-                return 8;
+                return id == 0 ? null : new ObjectReference(snapshot, id);
+            case IObject.Type.BOOLEAN:
+                return in.readByte() != 0;
+            case IObject.Type.CHAR:
+                return in.readChar();
+            case IObject.Type.FLOAT:
+                return in.readFloat();
+            case IObject.Type.DOUBLE:
+                return in.readDouble();
+            case IObject.Type.BYTE:
+                return in.readByte();
+            case IObject.Type.SHORT:
+                return in.readShort();
+            case IObject.Type.INT:
+                return in.readInt();
+            case IObject.Type.LONG:
+                return in.readLong();
             default:
-                throw new IOException("Bad Signature:  " + type);
+                throw new IOException("Illegal Type:  " + type);
         }
     }
 
-    protected int skipValue() throws IOException
+    protected void skipValue() throws IOException
     {
         byte type = in.readByte();
-        return 1 + skipValue(type);
+        skipValue(type);
     }
 
-    protected int skipValue(byte type) throws IOException
+    protected void skipValue(int type) throws IOException
     {
-        int size = 0;
-
-        switch (type)
-        {
-            case 2:
-            case '[':
-            case 'L':
-                size = identifierSize;
-                break;
-            case 4:
-            case 'Z':
-            case 8:
-            case 'B':
-                size = 1;
-                break;
-            case 9:
-            case 'S':
-            case 5:
-            case 'C':
-                size = 2;
-                break;
-            case 10:
-            case 'I':
-            case 6:
-            case 'F':
-                size = 4;
-                break;
-            case 11:
-            case 'J':
-            case 7:
-            case 'D':
-                size = 8;
-                break;
-            default:
-                throw new IOException("Bad Signature:  " + type);
-
-        }
-
-        if (in.skipBytes(size) != size)
-            throw new IOException();
-        return size;
+        if (type == 2)
+            in.skipBytes(idSize);
+        else
+            in.skipBytes(IPrimitiveArray.ELEMENT_SIZE[type]);
     }
 
 }

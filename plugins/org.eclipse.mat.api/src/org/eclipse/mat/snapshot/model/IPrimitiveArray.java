@@ -16,21 +16,6 @@ package org.eclipse.mat.snapshot.model;
 public interface IPrimitiveArray extends IArray
 {
     /**
-     * The type of the primitive array.
-     */
-    public interface Type
-    {
-        int BOOLEAN = 4;
-        int CHAR = 5;
-        int FLOAT = 6;
-        int DOUBLE = 7;
-        int BYTE = 8;
-        int SHORT = 9;
-        int INT = 10;
-        int LONG = 11;
-    }
-
-    /**
      * Primitive signatures.
      */
     public static final byte[] SIGNATURES = { -1, -1, -1, -1, (byte) 'Z', (byte) 'C', (byte) 'F', (byte) 'D',
@@ -53,19 +38,8 @@ public interface IPrimitiveArray extends IArray
     public int getType();
 
     /**
-     * Returns the Field by a given index.
+     * Returns the Object at a given index.
      */
-    public Field getField(int index);
+    public Object getValueAt(int index);
 
-    /**
-     * Converts the array content into a display string which is limited by the
-     * given limit.
-     */
-    public String valueString(int limit);
-
-    /**
-     * Converts the array content into a display string which is limited by the
-     * given limit and takes into account offset and count.
-     */
-    public String valueString(int limit, int offset, int count);
 }

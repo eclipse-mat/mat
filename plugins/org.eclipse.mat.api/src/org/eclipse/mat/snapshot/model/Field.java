@@ -17,13 +17,13 @@ import java.io.Serializable;
  */
 public class Field extends FieldDescriptor implements Serializable
 {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 
     protected Object value;
 
-    public Field(String name, String signature, Object value)
+    public Field(String name, int type, Object value)
     {
-        super(name, signature);
+        super(name, type);
         this.value = value;
     }
 
@@ -39,6 +39,6 @@ public class Field extends FieldDescriptor implements Serializable
 
     public String toString()
     {
-        return signature + " " + name + ": \t" + value;
+        return type + " " + name + ": \t" + value;
     }
 }

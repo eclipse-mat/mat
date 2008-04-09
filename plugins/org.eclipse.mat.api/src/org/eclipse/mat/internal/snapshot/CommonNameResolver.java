@@ -17,31 +17,17 @@ import org.eclipse.mat.snapshot.model.IClassSpecificNameResolver;
 import org.eclipse.mat.snapshot.model.IInstance;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IPrimitiveArray;
+import org.eclipse.mat.snapshot.model.PrettyPrinter;
 
 public class CommonNameResolver
 {
     @Subject("java.lang.String")
     public static class StringResolver implements IClassSpecificNameResolver
     {
-
         public String resolve(IObject obj) throws SnapshotException
         {
-            IInstance s = (IInstance) obj;
-            // some string (when caught in constructor?) do not reference a
-            // char array
-            int count = (Integer) s.resolveValue("count");
-            if (count == 0)
-                return "";
-
-            IPrimitiveArray charArray = (IPrimitiveArray) s.resolveValue("value");
-            if (charArray == null)
-                return null;
-
-            int offset = (Integer) s.resolveValue("offset");
-
-            return charArray.valueString(1024, offset, count);
+            return PrettyPrinter.objectAsString(obj, 1024);
         }
-
     }
 
     @Subject("java.lang.Thread")
@@ -51,7 +37,7 @@ public class CommonNameResolver
         {
             IInstance s = (IInstance) obj;
             IPrimitiveArray charArray = (IPrimitiveArray) s.resolveValue("name");
-            return charArray != null ? charArray.valueString(1024) : null;
+            return charArray != null ? PrettyPrinter.arrayAsString(charArray, 0, charArray.getLength(), 1024) : null;
         }
     }
 
@@ -87,7 +73,8 @@ public class CommonNameResolver
     {
         public String resolve(IObject heapObject) throws SnapshotException
         {
-            return ((IPrimitiveArray) heapObject).valueString(1024);
+            IPrimitiveArray charArray = (IPrimitiveArray) heapObject;
+            return PrettyPrinter.arrayAsString(charArray, 0, charArray.getLength(), 1024);
         }
     }
 
@@ -106,6 +93,6 @@ public class CommonNameResolver
             }
             return new String(value);
         }
-
     }
+
 }

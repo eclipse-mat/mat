@@ -55,7 +55,7 @@ public final class HashMapObjectLong<E> implements Serializable
         if (size == limit)
             resize(capacity << 1);
 
-        int hash = key.hashCode() % capacity;
+        int hash = hashOf(key) % capacity;
         while (used[hash])
         {
             if (keys[hash].equals(key))
@@ -77,7 +77,7 @@ public final class HashMapObjectLong<E> implements Serializable
     {
         Object keyObj = key;
         
-        int hash = keyObj.hashCode() % capacity;
+        int hash = hashOf(keyObj) % capacity;
         while (used[hash])
         {
             if (keys[hash] == keyObj)
@@ -91,7 +91,7 @@ public final class HashMapObjectLong<E> implements Serializable
                 {
                     keyObj = keys[hash];
                     used[hash] = false;
-                    int newHash = keyObj.hashCode() % capacity;
+                    int newHash = hashOf(keyObj) % capacity;
                     while (used[newHash])
                         newHash = (newHash + step) % capacity;
 
@@ -110,7 +110,7 @@ public final class HashMapObjectLong<E> implements Serializable
 
     public boolean containsKey(E key)
     {
-        int hash = key.hashCode() % capacity;
+        int hash = hashOf(key) % capacity;
         while (used[hash])
         {
             if (keys[hash].equals(key)) { return true; }
@@ -121,7 +121,7 @@ public final class HashMapObjectLong<E> implements Serializable
 
     public long get(E key)
     {
-        int hash = key.hashCode() % capacity;
+        int hash = hashOf(key) % capacity;
         while (used[hash])
         {
             if (keys[hash].equals(key)) { return values[hash]; }
@@ -319,7 +319,7 @@ public final class HashMapObjectLong<E> implements Serializable
             if (oldUsed[i])
             {
                 key = oldKeys[i];
-                hash = key.hashCode() % capacity;
+                hash = hashOf(key) % capacity;
                 while (used[hash])
                 {
                     hash = (hash + step) % capacity;
@@ -331,4 +331,10 @@ public final class HashMapObjectLong<E> implements Serializable
         }
         size = oldSize;
     }
+    
+    private int hashOf(Object obj)
+    {
+        return Math.abs(obj.hashCode());
+    }
+
 }

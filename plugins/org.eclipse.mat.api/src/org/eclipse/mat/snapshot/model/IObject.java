@@ -25,6 +25,23 @@ import org.eclipse.mat.snapshot.SnapshotException;
 public interface IObject extends Serializable
 {
     /**
+     * The type of the primitive array.
+     */
+    public interface Type
+    {
+        int OBJECT = 2;
+        
+        int BOOLEAN = 4;
+        int CHAR = 5;
+        int FLOAT = 6;
+        int DOUBLE = 7;
+        int BYTE = 8;
+        int SHORT = 9;
+        int INT = 10;
+        int LONG = 11;
+    }
+
+    /**
      * Get id for the snapshot object. The id is not the address, but an
      * internally assigned number fitting into an <code>int</code> (this helps
      * reducing the memory footprint of the snapshot considerably - addresses

@@ -44,7 +44,7 @@ public class HprofRandomAccessParser extends AbstractParser
     {
         this.in = new PositionInputStream(new BufferedRandomAccessInputStream(new RandomAccessFile(file, "r"), 512));
         this.version = version;
-        this.identifierSize = identifierSize;
+        this.idSize = identifierSize;
     }
 
     public synchronized void close() throws IOException
@@ -88,7 +88,7 @@ public class HprofRandomAccessParser extends AbstractParser
     private IObject readInstanceDump(int objectId, long position, ISnapshot dump) throws IOException, SnapshotException
     {
         long address = readID();
-        if (in.skipBytes(8 + identifierSize) != 8 + identifierSize)
+        if (in.skipBytes(8 + idSize) != 8 + idSize)
             throw new IOException();
 
         // check if we need to defer reading the class
@@ -99,7 +99,6 @@ public class HprofRandomAccessParser extends AbstractParser
         }
         else
         {
-            int readBytes = 0;
             List<Field> instanceFields = new ArrayList<Field>();
             for (IClass clazz : hierarchy)
             {
@@ -107,10 +106,9 @@ public class HprofRandomAccessParser extends AbstractParser
                 for (int ii = 0; ii < fields.size(); ii++)
                 {
                     FieldDescriptor field = fields.get(ii);
-                    byte type = (byte) field.getSignature().charAt(0);
-                    Object[] value = new Object[1];
-                    readBytes += readValue(dump, type, value);
-                    instanceFields.add(new Field(field.getName(), field.getSignature(), value[0]));
+                    int type = field.getType();
+                    Object value = readValue(dump, type);
+                    instanceFields.add(new Field(field.getName(), field.getType(), value));
                 }
             }
 
@@ -137,7 +135,7 @@ public class HprofRandomAccessParser extends AbstractParser
             throw new RuntimeException("missing fake class");
 
         Object content = null;
-        if (size * identifierSize < LAZY_LOADING_LIMIT)
+        if (size * idSize < LAZY_LOADING_LIMIT)
         {
             long[] data = new long[size];
             for (int ii = 0; ii < data.length; ii++)
@@ -196,7 +194,7 @@ public class HprofRandomAccessParser extends AbstractParser
     public Object read(ArrayContentDescriptor descriptor) throws IOException
     {
         return read(descriptor, 0, descriptor.isPrimitive() ? descriptor.getElementSize() * descriptor.getArraySize()
-                        : descriptor.getArraySize() * this.identifierSize);
+                        : descriptor.getArraySize() * this.idSize);
     }
 
     public synchronized Object read(ArrayContentDescriptor descriptor, int offset, int length) throws IOException
@@ -211,7 +209,7 @@ public class HprofRandomAccessParser extends AbstractParser
         }
         else
         {
-            long[] data = new long[length / this.identifierSize];
+            long[] data = new long[length / this.idSize];
             for (int ii = 0; ii < data.length; ii++)
             {
                 data[ii] = readID();

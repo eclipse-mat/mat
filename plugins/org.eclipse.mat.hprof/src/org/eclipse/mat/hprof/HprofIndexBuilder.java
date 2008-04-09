@@ -115,17 +115,15 @@ public class HprofIndexBuilder implements IIndexBuilder
             newIndex.close();
         }
         catch (IOException ignore)
-        {
-            // $JL-EXC$
-        }
+        {}
+
         try
         {
             id2position.close();
         }
         catch (IOException ignore)
-        {
-            // $JL-EXC$
-        }
+        {}
+
         id2position.delete();
         id2position = null;
     }

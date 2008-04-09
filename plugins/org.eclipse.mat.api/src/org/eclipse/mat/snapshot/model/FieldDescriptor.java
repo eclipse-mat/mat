@@ -17,15 +17,15 @@ import java.io.Serializable;
  */
 public class FieldDescriptor implements Serializable
 {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 
     protected String name;
-    protected String signature;
+    protected int type;
 
-    public FieldDescriptor(String name, String signature)
+    public FieldDescriptor(String name, int type)
     {
         this.name = name;
-        this.signature = signature;
+        this.type = type;
     }
 
     public String getName()
@@ -33,42 +33,27 @@ public class FieldDescriptor implements Serializable
         return name;
     }
 
-    public String getSignature()
+    public int getType()
     {
-        return signature;
+        return type;
     }
 
-    public void setName(String string)
+    public void setName(String name)
     {
-        name = string;
+        this.name = name;
     }
 
-    public void setSignature(String string)
+    public void setType(int type)
     {
-        signature = string;
+        this.type = type;
     }
 
     public String getVerboseSignature()
     {
-        if ("I".equals(signature))
-            return "int";
-        else if ("Z".equals(signature))
-            return "boolean";
-        else if ("C".equals(signature))
-            return "char";
-        else if ("F".equals(signature))
-            return "float";
-        else if ("D".equals(signature))
-            return "double";
-        else if ("B".equals(signature))
-            return "byte";
-        else if ("S".equals(signature))
-            return "short";
-        else if ("J".equals(signature))
-            return "long";
-        else if ("L".equals(signature))
+        if (type == 2)
             return "ref";
-        else
-            return signature;
+
+        String t = IPrimitiveArray.TYPE[type];
+        return t.substring(0, t.length() - 2);
     }
 }

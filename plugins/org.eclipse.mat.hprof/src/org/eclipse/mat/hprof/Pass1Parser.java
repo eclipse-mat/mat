@@ -1,7 +1,16 @@
+/*******************************************************************************
+ * Copyright (c) 2008 SAP AG.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    SAP AG - initial API and implementation
+ *******************************************************************************/
 package org.eclipse.mat.hprof;
 
 import java.io.BufferedInputStream;
-import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -26,7 +35,7 @@ public class Pass1Parser extends AbstractParser
     private static final Pattern PATTERN_PRIMITIVE_ARRAY = Pattern.compile("^(\\[+)(.)$");
 
     private HashMapLongObject<String> class2name = new HashMapLongObject<String>();
-    private HashMapLongObject<Long> threadSeq2id = new HashMapLongObject<Long>();
+    private HashMapLongObject<Long> thread2id = new HashMapLongObject<Long>();
     private IHprofParserHandler handler;
     private SimpleMonitor.Listener monitor;
 
@@ -42,85 +51,55 @@ public class Pass1Parser extends AbstractParser
 
         try
         {
-            // version & header
-            version = readVersionHeader();
-            monitor.sendUserMessage(IProgressListener.Severity.INFO, MessageFormat.format(
-                            "Heap {0} has HPROF Version {1}", file.getAbsolutePath(), version), null);
+            // header & version
+            version = readVersion();
             handler.addProperty(IHprofParserHandler.VERSION, version.toString());
 
             // identifierSize (32 or 64 bit)
-            identifierSize = in.readInt();
-            if (identifierSize != 4 && identifierSize != 8)
+            idSize = in.readInt();
+            if (idSize != 4 && idSize != 8)
                 throw new IOException("Only 32bit and 64bit dumps are supported.");
-            handler.addProperty(IHprofParserHandler.IDENTIFIER_SIZE, String.valueOf(identifierSize));
+            handler.addProperty(IHprofParserHandler.IDENTIFIER_SIZE, String.valueOf(idSize));
 
             // creation date
             long date = in.readLong();
             handler.addProperty(IHprofParserHandler.CREATION_DATE, String.valueOf(date));
 
-            while (true)
+            long fileSize = file.length();
+            long curPos = in.position();
+
+            while (curPos < fileSize)
             {
                 if (monitor.isProbablyCanceled())
-                    return;
-                monitor.totalWorkDone(in.position() / 1000);
+                    throw new IProgressListener.OperationCanceledException();
+                monitor.totalWorkDone(curPos / 1000);
 
-                int record;
-
-                try
-                {
-                    record = in.readUnsignedByte();
-                }
-                catch (EOFException ignored)
-                {
-                    // eof while reading the next record is okay
-                    break;
-                }
+                int record = in.readUnsignedByte();
 
                 in.skipBytes(4); // time stamp
 
                 long length = readUnsignedInt();
                 if (length < 0)
-                    throw new IOException(MessageFormat.format("Illegal record length at byte $0", in.position()));
+                    throw new IOException(MessageFormat.format("Illegal record length at byte {0}", in.position()));
 
                 switch (record)
                 {
                     case Constants.Record.STRING_IN_UTF8:
-                    {
-                        long id = readID();
-                        byte[] chars = new byte[(int) (length - identifierSize)];
-                        in.readFully(chars);
-                        handler.getConstantPool().put(id, new String(chars));
+                        readString(length);
                         break;
-                    }
                     case Constants.Record.LOAD_CLASS:
-                    {
-                        in.skipBytes(4);
-                        long classID = readID();
-                        in.skipBytes(4);
-                        long nameID = readID();
-
-                        String className = getNameFromAddress(nameID).replace('/', '.');
-                        class2name.put(classID, className);
+                        readLoadClass();
                         break;
-                    }
                     case Constants.Record.HEAP_DUMP:
-                    {
-                        readDumpSegments(length);
-                        return;
-                    }
                     case Constants.Record.HEAP_DUMP_SEGMENT:
-                    {
-                        if (version.ordinal() >= Version.JDK6.ordinal())
-                            readDumpSegments(length);
-                        else
-                            in.skipBytes(length);
+                        readDumpSegments(length);
                         break;
-                    }
                     default:
                         in.skipBytes(length);
                         break;
                 }
 
+                curPos = in.position();
             }
         }
         finally
@@ -134,165 +113,164 @@ public class Pass1Parser extends AbstractParser
         }
     }
 
+    private void readString(long length) throws IOException
+    {
+        long id = readID();
+        byte[] chars = new byte[(int) (length - idSize)];
+        in.readFully(chars);
+        handler.getConstantPool().put(id, new String(chars));
+    }
+
+    private void readLoadClass() throws IOException
+    {
+        in.skipBytes(4);
+        long classID = readID();
+        in.skipBytes(4);
+        long nameID = readID();
+
+        String className = getStringConstant(nameID).replace('/', '.');
+        class2name.put(classID, className);
+    }
+
     private void readDumpSegments(long length) throws IOException
     {
-        while (length > 0)
-        {
-            long segmentStartPos = in.position();
+        long segmentStartPos = in.position();
+        long segmentsEndPos = segmentStartPos + length;
 
+        while (segmentStartPos < segmentsEndPos)
+        {
             long workDone = segmentStartPos / 1000;
             if (this.monitor.getWorkDone() < workDone)
             {
                 if (this.monitor.isProbablyCanceled())
-                    return;
+                    throw new IProgressListener.OperationCanceledException();
                 this.monitor.totalWorkDone(workDone);
             }
 
             int segmentType = in.readUnsignedByte();
-            length--;
-
-            long id = 0;
-            int threadSeq = 0;
-
             switch (segmentType)
             {
                 case Constants.DumpSegment.ROOT_UNKNOWN:
-                    id = readID();
-                    length -= identifierSize;
-                    handler.addGCRoot(id, 0, GCRootInfo.Type.UNKNOWN);
+                    readGC(GCRootInfo.Type.UNKNOWN, 0);
                     break;
                 case Constants.DumpSegment.ROOT_THREAD_OBJECT:
-                    id = readID();
-                    threadSeq = in.readInt();
-                    in.skipBytes(4); // stackSeq
-                    length -= identifierSize + 8;
-                    threadSeq2id.put(threadSeq, id);
-                    handler.addGCRoot(id, 0, GCRootInfo.Type.THREAD_OBJ);
+                    readGCThreadObject(GCRootInfo.Type.THREAD_OBJ);
                     break;
                 case Constants.DumpSegment.ROOT_JNI_GLOBAL:
-                    id = readID();
-                    in.skipBytes(identifierSize);
-                    length -= 2 * identifierSize;
-                    handler.addGCRoot(id, 0, GCRootInfo.Type.NATIVE_STACK);
+                    readGC(GCRootInfo.Type.NATIVE_STACK, idSize);
                     break;
                 case Constants.DumpSegment.ROOT_JNI_LOCAL:
-                    id = readID();
-                    threadSeq = in.readInt();
-                    in.skipBytes(4);
-                    length -= identifierSize + 8;
-                    handler.addGCRoot(id, threadSeq2id.get(threadSeq), GCRootInfo.Type.NATIVE_LOCAL);
+                    readGCWithThreadContext(GCRootInfo.Type.NATIVE_LOCAL, 4);
                     break;
                 case Constants.DumpSegment.ROOT_JAVA_FRAME:
-                    id = readID();
-                    threadSeq = in.readInt();
-                    in.skipBytes(4);
-                    length -= identifierSize + 8;
-                    handler.addGCRoot(id, threadSeq2id.get(threadSeq), GCRootInfo.Type.JAVA_LOCAL);
+                    readGCWithThreadContext(GCRootInfo.Type.JAVA_LOCAL, 4);
                     break;
                 case Constants.DumpSegment.ROOT_NATIVE_STACK:
-                    id = readID();
-                    threadSeq = in.readInt();
-                    length -= identifierSize + 4;
-                    handler.addGCRoot(id, threadSeq2id.get(threadSeq), GCRootInfo.Type.NATIVE_STACK);
+                    readGCWithThreadContext(GCRootInfo.Type.NATIVE_STACK, 0);
                     break;
                 case Constants.DumpSegment.ROOT_STICKY_CLASS:
-                    id = readID();
-                    length -= identifierSize;
-                    handler.addGCRoot(id, 0, GCRootInfo.Type.SYSTEM_CLASS);
+                    readGC(GCRootInfo.Type.SYSTEM_CLASS, 0);
                     break;
                 case Constants.DumpSegment.ROOT_THREAD_BLOCK:
-                    id = readID();
-                    in.skipBytes(4);
-                    length -= identifierSize + 4;
-                    handler.addGCRoot(id, 0, GCRootInfo.Type.THREAD_BLOCK);
+                    readGC(GCRootInfo.Type.THREAD_BLOCK, 4);
                     break;
                 case Constants.DumpSegment.ROOT_MONITOR_USED:
-                    id = readID();
-                    length -= identifierSize;
-                    handler.addGCRoot(id, 0, GCRootInfo.Type.BUSY_MONITOR);
+                    readGC(GCRootInfo.Type.BUSY_MONITOR, 0);
                     break;
                 case Constants.DumpSegment.CLASS_DUMP:
-                    length -= readClassDump(segmentStartPos);
+                    readClassDump(segmentStartPos);
                     break;
                 case Constants.DumpSegment.INSTANCE_DUMP:
-                    length -= readInstanceDump(segmentStartPos);
+                    readInstanceDump(segmentStartPos);
                     break;
                 case Constants.DumpSegment.OBJECT_ARRAY_DUMP:
-                    length -= readObjectArrayDump(segmentStartPos);
+                    readObjectArrayDump(segmentStartPos);
                     break;
                 case Constants.DumpSegment.PRIMITIVE_ARRAY_DUMP:
-                    length -= readPrimitiveArrayDump(segmentStartPos);
+                    readPrimitiveArrayDump(segmentStartPos);
                     break;
                 default:
-                    throw new IOException(MessageFormat.format("Unrecognized segment type {0} at position {1}",
+                    throw new IOException(MessageFormat.format("Error reading segment type {0} at position {1}",
                                     segmentType, segmentStartPos));
             }
 
+            segmentStartPos = in.position();
         }
-
-        if (length != 0)
-            throw new IOException("Invalid dump record length.");
     }
 
-    private int readClassDump(long segmentStartPos) throws IOException
+    private void readGCThreadObject(int gcType) throws IOException
+    {
+        long id = readID();
+        int threadSerialNo = in.readInt();
+        thread2id.put(threadSerialNo, id);
+        handler.addGCRoot(id, 0, gcType);
+
+        in.skipBytes(4);
+    }
+
+    private void readGC(int gcType, int skip) throws IOException
+    {
+        long id = readID();
+        handler.addGCRoot(id, 0, gcType);
+
+        if (skip > 0)
+            in.skipBytes(skip);
+    }
+
+    private void readGCWithThreadContext(int gcType, int skip) throws IOException
+    {
+        long id = readID();
+        int threadSerialNo = in.readInt();
+        handler.addGCRoot(id, thread2id.get(threadSerialNo), gcType);
+
+        if (skip > 0)
+            in.skipBytes(skip);
+    }
+
+    private void readClassDump(long segmentStartPos) throws IOException
     {
         long address = readID();
         in.skipBytes(4); // stack trace serial number
         long superClassObjectId = readID();
         long classLoaderObjectId = readID();
-        int bytesRead = 3 * identifierSize + 4;
 
         // skip signers, protection domain, reserved ids (2), instance size
-        bytesRead += in.skipBytes(this.identifierSize * 4 + 4);
+        in.skipBytes(this.idSize * 4 + 4);
 
         // constant pool: u2 ( u2 u1 value )*
         int constantPoolSize = in.readUnsignedShort();
-        bytesRead += 2;
         for (int ii = 0; ii < constantPoolSize; ii++)
         {
-            bytesRead += in.skipBytes(2); // index
-            bytesRead += skipValue(); // value
+            in.skipBytes(2); // index
+            skipValue(); // value
         }
 
         // static fields: u2 num ( name ID, u1 type, value)
         int numStaticFields = in.readUnsignedShort();
-        bytesRead += 2;
         Field[] statics = new Field[numStaticFields];
 
-        Object[] value = new Object[1];
         for (int ii = 0; ii < numStaticFields; ii++)
         {
             long nameId = readID();
-            bytesRead += identifierSize;
-            String name = getNameFromAddress(nameId);
+            String name = getStringConstant(nameId);
 
             byte type = in.readByte();
-            bytesRead++;
-            if (version.ordinal() >= Version.JDK12BETA4.ordinal())
-                type = getSignatureFromType(type);
 
-            bytesRead += readValue(null, type, value);
-
-            statics[ii] = new Field(name, String.valueOf((char) type), value[0]);
+            Object value = readValue(null, type);
+            statics[ii] = new Field(name, type, value);
         }
 
         // instance fields: u2 num ( name ID, u1 type )
         int numInstanceFields = in.readUnsignedShort();
-        bytesRead += 2;
         FieldDescriptor[] fields = new FieldDescriptor[numInstanceFields];
 
-        for (int i = 0; i < numInstanceFields; i++)
+        for (int ii = 0; ii < numInstanceFields; ii++)
         {
             long nameId = readID();
-            bytesRead += identifierSize;
-            String name = getNameFromAddress(nameId);
+            String name = getStringConstant(nameId);
 
             byte type = in.readByte();
-            bytesRead++;
-            if (version.ordinal() >= Version.JDK12BETA4.ordinal())
-                type = getSignatureFromType(type);
-
-            fields[i] = new FieldDescriptor(name, String.valueOf((char) type));
+            fields[ii] = new FieldDescriptor(name, type);
         }
 
         // get name
@@ -336,55 +314,42 @@ public class Pass1Parser extends AbstractParser
 
         ClassImpl clazz = new ClassImpl(address, className, superClassObjectId, classLoaderObjectId, statics, fields);
         handler.addClass(clazz, segmentStartPos);
-
-        return bytesRead;
     }
 
-    private int readInstanceDump(long segmentStartPos) throws IOException
+    private void readInstanceDump(long segmentStartPos) throws IOException
     {
         long id = readID();
         handler.reportInstance(id, segmentStartPos);
-        if (in.skipBytes(identifierSize + 4) != identifierSize + 4)
-            throw new IOException();
-
-        int len = in.readInt();
-        if (in.skipBytes(len) != len)
-            throw new IOException();
-        return 2 * identifierSize + 8 + len;
+        in.skipBytes(idSize + 4);
+        int payload = in.readInt();
+        in.skipBytes(payload);
     }
 
-    private int readObjectArrayDump(long segmentStartPos) throws IOException
+    private void readObjectArrayDump(long segmentStartPos) throws IOException
     {
         long address = readID();
         handler.reportInstance(address, segmentStartPos);
 
         in.skipBytes(4);
         int size = in.readInt();
-        int bytesRead = identifierSize + 8;
-
         long arrayClassObjectID = readID();
-        bytesRead += identifierSize;
 
         // check if class needs to be created
         IClass arrayType = handler.lookupClass(arrayClassObjectID);
         if (arrayType == null)
             handler.reportRequiredObjectArray(arrayClassObjectID);
 
-        bytesRead += in.skipBytes(size * identifierSize);
-        return bytesRead;
+        in.skipBytes(size * idSize);
     }
 
-    private int readPrimitiveArrayDump(long segmentStartPos) throws IOException
+    private void readPrimitiveArrayDump(long segmentStartPos) throws IOException
     {
         long address = readID();
         handler.reportInstance(address, segmentStartPos);
 
         in.skipBytes(4);
         int size = in.readInt();
-        int bytesRead = identifierSize + 8;
-
         byte elementType = in.readByte();
-        bytesRead++;
 
         if ((elementType < IPrimitiveArray.Type.BOOLEAN) || (elementType > IPrimitiveArray.Type.LONG))
             throw new IOException("Illegal primitive object array type");
@@ -396,20 +361,10 @@ public class Pass1Parser extends AbstractParser
             handler.reportRequiredPrimitiveArray((int) elementType);
 
         int elementSize = IPrimitiveArray.ELEMENT_SIZE[(int) elementType];
-        bytesRead += in.skipBytes(elementSize * size);
-        return bytesRead;
+        in.skipBytes(elementSize * size);
     }
 
-    private byte getSignatureFromType(byte type) throws IOException
-    {
-        if (type == 2)
-            return (byte) 'L';
-        if (type < 4 || type > 11)
-            throw new IOException("Unknown type of " + type);
-        return IPrimitiveArray.SIGNATURES[type];
-    }
-
-    private String getNameFromAddress(long address) throws IOException
+    private String getStringConstant(long address) throws IOException
     {
         if (address == 0L)
             return "";

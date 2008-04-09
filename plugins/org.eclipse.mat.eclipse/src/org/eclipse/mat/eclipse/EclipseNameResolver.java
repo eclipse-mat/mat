@@ -14,7 +14,6 @@ import org.eclipse.mat.snapshot.SnapshotException;
 import org.eclipse.mat.snapshot.extension.Subject;
 import org.eclipse.mat.snapshot.model.IClassSpecificNameResolver;
 import org.eclipse.mat.snapshot.model.IObject;
-import org.eclipse.mat.snapshot.model.IPrimitiveArray;
 
 public class EclipseNameResolver
 {
@@ -24,10 +23,8 @@ public class EclipseNameResolver
 
         public String resolve(IObject obj) throws SnapshotException
         {
-            IPrimitiveArray charArray = (IPrimitiveArray) obj.resolveValue("hostdata.symbolicName.value");
-            if (charArray == null)
-                return null;
-            return charArray.valueString(1024);
+            IObject s = (IObject) obj.resolveValue("hostdata.symbolicName");
+            return s != null ? s.getClassSpecificName() : null;
         }
 
     }
@@ -38,10 +35,8 @@ public class EclipseNameResolver
 
         public String resolve(IObject obj) throws SnapshotException
         {
-            IPrimitiveArray charArray = (IPrimitiveArray) obj.resolveValue("manager.data.symbolicName.value");
-            if (charArray == null)
-                return null;
-            return charArray.valueString(1024);
+            IObject s = (IObject) obj.resolveValue("manager.data.symbolicName");
+            return s != null ? s.getClassSpecificName() : null;
         }
 
     }

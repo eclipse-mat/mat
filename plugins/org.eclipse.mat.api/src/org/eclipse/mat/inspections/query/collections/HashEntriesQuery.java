@@ -350,7 +350,7 @@ public class HashEntriesQuery implements IQuery
                     if (field.getValue() == null)
                         continue;
 
-                    if (field.getSignature().charAt(0) != 'L')
+                    if (field.getType() != IObject.Type.OBJECT)
                         continue;
 
                     if (info.getKeyField().equals(field.getName()))
