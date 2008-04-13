@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
 
 import org.eclipse.mat.impl.snapshot.ISnapshotFactory;
 import org.eclipse.mat.parser.IIndexBuilder;
+import org.eclipse.mat.parser.ParserPlugin;
 import org.eclipse.mat.parser.internal.oql.OQLQueryImpl;
 import org.eclipse.mat.parser.internal.util.ParserRegistry;
 import org.eclipse.mat.parser.model.XSnapshotInfo;
@@ -47,7 +48,6 @@ public class SnapshotFactoryImpl implements ISnapshotFactory
     }
 
     private Map<File, SnapshotEntry> snapshotCache = new HashMap<File, SnapshotEntry>();
-    private ParserRegistry parserRegistry = new ParserRegistry();
 
     public ISnapshot openSnapshot(File file, IProgressListener listener) throws SnapshotException
     {
@@ -80,7 +80,7 @@ public class SnapshotFactoryImpl implements ISnapshotFactory
                     // check if hprof file is newer than index file
                     if (file.lastModified() < indexFile.lastModified())
                     {
-                        answer = SnapshotImpl.readFromFile(file, prefix, parserRegistry, listener);
+                        answer = SnapshotImpl.readFromFile(file, prefix, listener);
                     }
                 }
             }
@@ -150,7 +150,7 @@ public class SnapshotFactoryImpl implements ISnapshotFactory
     private final ISnapshot parse(File file, String prefix, IProgressListener listener) throws IOException,
                     SnapshotException
     {
-        ParserRegistry.Parser parser = parserRegistry.matchParser(file.getName());
+        ParserRegistry.Parser parser = ParserPlugin.getDefault().getParserRegistry().matchParser(file.getName());
         if (parser == null)
             throw new SnapshotException(MessageFormat.format("No parser registered for file ''{0}''", file.getName()));
 

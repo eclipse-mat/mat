@@ -20,7 +20,7 @@ import org.eclipse.mat.hprof.internal.EnhancerRegistry;
 import org.eclipse.mat.parser.IObjectReader;
 import org.eclipse.mat.parser.index.IIndexReader;
 import org.eclipse.mat.parser.index.IndexReader;
-import org.eclipse.mat.parser.model.AbstractArrayImpl.ArrayContentDescriptor;
+import org.eclipse.mat.parser.model.AbstractArrayImpl.IContentDescriptor;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.ISnapshotAddon;
 import org.eclipse.mat.snapshot.SnapshotException;
@@ -53,12 +53,12 @@ public class HprofHeapObjectReader implements IObjectReader
             this.enhancers.add(enhancer.runtime());
     }
 
-    public Object read(ArrayContentDescriptor descriptor, int offset, int length) throws IOException
+    public Object read(IContentDescriptor descriptor, int offset, int length) throws IOException
     {
         return hprofDump.read(descriptor, offset, length);
     }
 
-    public Object read(ArrayContentDescriptor descriptor) throws IOException
+    public Object read(IContentDescriptor descriptor) throws IOException
     {
         return hprofDump.read(descriptor);
     }

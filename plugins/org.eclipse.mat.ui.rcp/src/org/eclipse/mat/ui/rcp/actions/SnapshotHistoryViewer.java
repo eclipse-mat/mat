@@ -37,7 +37,8 @@ import org.osgi.framework.Bundle;
 
 public class SnapshotHistoryViewer implements IIntroContentProvider
 {
-    private static final String HEAP = ".hprof";
+    private static final String ICON = "../intro/css/graphics/icons/heapdump16.gif";
+
     private Image bulletImage;
     private boolean disposed;
     private FormText formText;
@@ -49,6 +50,7 @@ public class SnapshotHistoryViewer implements IIntroContentProvider
     {
         if (disposed)
             return;
+
         List<SnapshotHistoryService.Entry> lastHeaps = SnapshotHistoryService.getInstance().getVisitedEntries();
         if (lastHeaps == null)
         {
@@ -63,13 +65,12 @@ public class SnapshotHistoryViewer implements IIntroContentProvider
                 out.println("<ul id=\"snapshot_history\">");
                 for (SnapshotHistoryService.Entry entry : lastHeaps)
                 {
-                    out.print("<li>");
-                    String src = getImageSrc(entry.getFilePath());
-                    if (src != null)
-                        out.print("<img src =\"" + src + "\">");
-                    out
-                                    .print("<a class=\"topicList\" href=\"http://org.eclipse.ui.intro/runAction?pluginId=org.eclipse.mat.ui.rcp&amp;class=org.eclipse.mat.ui.rcp.actions.OpenEditorAction&amp;param="
-                                                    + entry.getFilePath() + "\">");
+                    out.print("<li><img src =\"" + ICON + "\">");
+                    out.print("<a class=\"topicList\" href=\"http://org.eclipse.ui.intro/runAction?"
+                                    + "pluginId=org.eclipse.mat.ui.rcp&amp;"
+                                    + "class=org.eclipse.mat.ui.rcp.actions.OpenEditorAction&amp;param=");
+                    out.print(entry.getFilePath());
+                    out.print("\">");
                     out.print(entry.getFilePath());
                     out.print("</a>");
                     out.println("</li>");
@@ -119,15 +120,13 @@ public class SnapshotHistoryViewer implements IIntroContentProvider
             {
                 for (SnapshotHistoryService.Entry entry : lastHeaps)
                 {
-                    buffer.append("<li style=\"image\" value=\"");
-                    buffer.append("bullet");
+                    buffer.append("<li style=\"image\" value=\"bullet\">");
+                    buffer.append("<img src =\"" + ICON + "\">");
+                    buffer.append("<a href=\"http://org.eclipse.ui.intro/runAction?"
+                                    + "standby=true&amp;pluginId=org.eclipse.mat.ui.rcp&amp;"
+                                    + "class=org.eclipse.mat.ui.rcp.actions.OpenEditorAction&amp;param=");
+                    buffer.append(entry.getFilePath());
                     buffer.append("\">");
-                    String src = getImageSrc(entry.getFilePath());
-                    if (src != null)
-                        buffer.append("<img src =\"" + src + "\">");
-                    buffer
-                                    .append("<a href=\"http://org.eclipse.ui.intro/runAction?standby=true&amp;pluginId=org.eclipse.mat.ui.rcp&amp;class=org.eclipse.mat.ui.rcp.actions.OpenEditorAction&amp;param="
-                                                    + entry.getFilePath() + "\">");
                     buffer.append(entry.getFilePath());
                     buffer.append("</a>");
                     buffer.append("</li>");
@@ -187,13 +186,5 @@ public class SnapshotHistoryViewer implements IIntroContentProvider
 
             }
         });
-    }
-
-    private String getImageSrc(String path)
-    {
-        if (path.endsWith(HEAP))
-            return "../intro/css/graphics/icons/heapdump16.gif";
-        else
-            return null;
     }
 }

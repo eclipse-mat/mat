@@ -39,6 +39,7 @@ import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.collect.IteratorInt;
 import org.eclipse.mat.collect.SetInt;
 import org.eclipse.mat.parser.IObjectReader;
+import org.eclipse.mat.parser.ParserPlugin;
 import org.eclipse.mat.parser.index.IIndexReader;
 import org.eclipse.mat.parser.index.IndexManager;
 import org.eclipse.mat.parser.index.IIndexReader.IOne2OneIndex;
@@ -86,8 +87,8 @@ public class SnapshotImpl implements ISnapshot
     private static final String VERSION = "MAT_01";
 
     @SuppressWarnings("unchecked")
-    public static SnapshotImpl readFromFile(File file, String prefix, ParserRegistry parserRegistry,
-                    IProgressListener listener) throws IOException
+    public static SnapshotImpl readFromFile(File file, String prefix, IProgressListener listener)
+                    throws SnapshotException, IOException
     {
         FileInputStream fis = null;
 
@@ -101,7 +102,7 @@ public class SnapshotImpl implements ISnapshot
                 throw new IOException(MessageFormat.format("Unkown version: {0}", version));
 
             String objectReaderUniqueIdentifier = in.readUTF();
-            Parser parser = parserRegistry.lookupParser(objectReaderUniqueIdentifier);
+            Parser parser = ParserPlugin.getDefault().getParserRegistry().lookupParser(objectReaderUniqueIdentifier);
             if (parser == null)
                 throw new IOException("Heap Parser not found: " + objectReaderUniqueIdentifier);
             IObjectReader heapObjectReader = parser.create(IObjectReader.class, ParserRegistry.OBJECT_READER);
@@ -218,7 +219,7 @@ public class SnapshotImpl implements ISnapshot
                     HashMapIntObject<HashMapIntObject<XGCRootInfo[]>> rootsPerThread, //
                     HashMapIntObject<String> loaderLabels, //
                     BitField arrayObjects, //
-                    IndexManager indexManager) throws IOException
+                    IndexManager indexManager) throws SnapshotException, IOException
     {
         this.snapshotInfo = snapshotInfo;
         this.heapObjectReader = heapObjectReader;

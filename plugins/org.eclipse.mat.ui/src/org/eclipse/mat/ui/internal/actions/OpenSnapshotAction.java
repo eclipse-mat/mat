@@ -10,9 +10,6 @@
  *******************************************************************************/
 package org.eclipse.mat.ui.internal.actions;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 
@@ -25,8 +22,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -36,9 +31,7 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.editor.PathEditorInput;
 import org.eclipse.mat.ui.internal.OpenSnapshot;
-import org.eclipse.ui.IEditorDescriptor;
 import org.eclipse.ui.IEditorInput;
-import org.eclipse.ui.IEditorRegistry;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -46,7 +39,6 @@ import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
-import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.part.FileEditorInput;
 
 
@@ -71,12 +63,11 @@ public class OpenSnapshotAction extends Action implements IWorkbenchWindowAction
             @Override
             public void visit(IFileStore fileStore)
             {
-                IEditorInput input = createEditorInput(fileStore);
-                String editorId = getEditorId(fileStore);
-                IWorkbenchPage page = fWindow.getActivePage();
                 try
                 {
-                    page.openEditor(input, editorId);
+                    IEditorInput input = createEditorInput(fileStore);
+                    IWorkbenchPage page = fWindow.getActivePage();
+                    page.openEditor(input, MemoryAnalyserPlugin.EDITOR_ID);
                 }
                 catch (PartInitException e)
                 {
@@ -142,64 +133,6 @@ public class OpenSnapshotAction extends Action implements IWorkbenchWindowAction
     // //////////////////////////////////////////////////////////////
     // helpers to actually correctly open the editor window
     // //////////////////////////////////////////////////////////////
-
-    private String getEditorId(IFileStore file)
-    {
-        IWorkbench workbench = fWindow.getWorkbench();
-        IEditorRegistry editorRegistry = workbench.getEditorRegistry();
-        IEditorDescriptor descriptor = editorRegistry.getDefaultEditor(file.getName(), getContentType(file));
-
-        // check the OS for in-place editor (OLE on Win32)
-        if (descriptor == null && editorRegistry.isSystemInPlaceEditorAvailable(file.getName()))
-            descriptor = editorRegistry.findEditor(IEditorRegistry.SYSTEM_INPLACE_EDITOR_ID);
-
-        // check the OS for external editor
-        if (descriptor == null && editorRegistry.isSystemExternalEditorAvailable(file.getName()))
-            descriptor = editorRegistry.findEditor(IEditorRegistry.SYSTEM_EXTERNAL_EDITOR_ID);
-
-        if (descriptor != null)
-            return descriptor.getId();
-
-        return EditorsUI.DEFAULT_TEXT_EDITOR_ID;
-    }
-
-    private IContentType getContentType(IFileStore fileStore)
-    {
-        if (fileStore == null)
-            return null;
-
-        InputStream stream = null;
-        try
-        {
-            stream = fileStore.openInputStream(EFS.NONE, null);
-            return Platform.getContentTypeManager().findContentTypeFor(stream, fileStore.getName());
-        }
-        catch (IOException x)
-        {
-            MemoryAnalyserPlugin.log(x);
-            return null;
-        }
-        catch (CoreException x)
-        {
-            // Do not log FileNotFoundException (no access)
-            if (!(x.getStatus().getException() instanceof FileNotFoundException))
-                MemoryAnalyserPlugin.log(x);
-
-            return null;
-        }
-        finally
-        {
-            try
-            {
-                if (stream != null)
-                    stream.close();
-            }
-            catch (IOException x)
-            {
-                MemoryAnalyserPlugin.log(x);
-            }
-        }
-    }
 
     private IEditorInput createEditorInput(IFileStore fileStore)
     {

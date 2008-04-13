@@ -19,9 +19,11 @@ import java.util.regex.PatternSyntaxException;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
+import org.eclipse.core.runtime.dynamichelpers.IExtensionTracker;
 import org.eclipse.mat.impl.registry.RegistryReader;
 import org.eclipse.mat.parser.ParserPlugin;
-
+import org.eclipse.mat.snapshot.SnapshotFormat;
+import org.eclipse.mat.util.SimpleStringTokenizer;
 
 public class ParserRegistry extends RegistryReader<ParserRegistry.Parser>
 {
@@ -31,17 +33,14 @@ public class ParserRegistry extends RegistryReader<ParserRegistry.Parser>
     public class Parser
     {
         private IConfigurationElement configElement;
-        private Pattern pattern;
+        private SnapshotFormat snapshotFormat;
+        private Pattern[] pattern;
 
-        public Parser(IConfigurationElement configElement, Pattern pattern)
+        private Parser(IConfigurationElement configElement, SnapshotFormat snapshotFormat, Pattern[] pattern)
         {
             this.configElement = configElement;
+            this.snapshotFormat = snapshotFormat;
             this.pattern = pattern;
-        }
-
-        public Pattern getPattern()
-        {
-            return pattern;
         }
 
         public String getUniqueIdentifier()
@@ -68,22 +67,28 @@ public class ParserRegistry extends RegistryReader<ParserRegistry.Parser>
         }
     }
 
-    public ParserRegistry()
+    public ParserRegistry(IExtensionTracker tracker)
     {
-        init(ParserPlugin.getDefault().getExtensionTracker(), ParserPlugin.PLUGIN_ID + ".parser");
+        init(tracker, ParserPlugin.PLUGIN_ID + ".parser");
     }
 
     @Override
     public Parser createDelegate(IConfigurationElement configElement)
     {
-        String regexp = configElement.getAttribute("fileNamePattern");
-        if (regexp == null || regexp.length() == 0)
+        String fileExtensions = configElement.getAttribute("fileExtension");
+        if (fileExtensions == null || fileExtensions.length() == 0)
             return null;
 
         try
         {
-            Pattern p = Pattern.compile(regexp);
-            return new Parser(configElement, p);
+            String[] extensions = SimpleStringTokenizer.split(fileExtensions, ',');
+            Pattern[] patterns = new Pattern[extensions.length];
+            for (int ii = 0; ii < extensions.length; ii++)
+                patterns[ii] = Pattern.compile("(.*\\.)((?i)" + extensions[ii] + ")(\\.[0-9]*)?");
+
+            SnapshotFormat snapshotFormat = new SnapshotFormat(configElement.getAttribute("name"), extensions);
+            SnapshotFormat.add(snapshotFormat);
+            return new Parser(configElement, snapshotFormat, patterns);
         }
         catch (PatternSyntaxException e)
         {
@@ -97,7 +102,9 @@ public class ParserRegistry extends RegistryReader<ParserRegistry.Parser>
 
     @Override
     protected void removeDelegate(Parser delegate)
-    {}
+    {
+        SnapshotFormat.remove(delegate.snapshotFormat);
+    }
 
     public Parser lookupParser(String uniqueIdentifier)
     {
@@ -110,8 +117,9 @@ public class ParserRegistry extends RegistryReader<ParserRegistry.Parser>
     public Parser matchParser(String fileName)
     {
         for (Parser p : delegates())
-            if (p.pattern.matcher(fileName).matches())
-                return p;
+            for (Pattern regex : p.pattern)
+                if (regex.matcher(fileName).matches())
+                    return p;
         return null;
     }
 

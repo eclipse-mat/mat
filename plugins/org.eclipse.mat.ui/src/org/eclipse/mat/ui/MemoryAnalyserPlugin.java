@@ -27,6 +27,7 @@ import org.osgi.framework.BundleContext;
 public class MemoryAnalyserPlugin extends AbstractUIPlugin
 {
     public static final String PLUGIN_ID = "org.eclipse.mat.ui"; //$NON-NLS-1$
+    public static final String EDITOR_ID = "org.eclipse.mat.ui.editors.HeapEditor"; //$NON-NLS-1$
 
     public interface ISharedImages
     {
@@ -86,11 +87,6 @@ public class MemoryAnalyserPlugin extends AbstractUIPlugin
         String SHOW_ADDONS = "icons/heapdump_addons.gif"; //$NON-NLS-1$  
         String FATAL_ERROR = "icons/fatalerror.gif"; //$NON-NLS-1$  
         String EXPLORE = "icons/explore.gif"; //$NON-NLS-1$  
-    }
-
-    public interface FileExtensions
-    {
-        final static String HEAPDUMP_EXTENSION = ".hprof"; //$NON-NLS-1$
     }
 
     private static MemoryAnalyserPlugin plugin;

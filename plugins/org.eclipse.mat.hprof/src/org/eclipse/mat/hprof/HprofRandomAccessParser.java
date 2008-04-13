@@ -26,7 +26,7 @@ import org.eclipse.mat.parser.model.ClassLoaderImpl;
 import org.eclipse.mat.parser.model.InstanceImpl;
 import org.eclipse.mat.parser.model.ObjectArrayImpl;
 import org.eclipse.mat.parser.model.PrimitiveArrayImpl;
-import org.eclipse.mat.parser.model.AbstractArrayImpl.ArrayContentDescriptor;
+import org.eclipse.mat.parser.model.AbstractArrayImpl.IContentDescriptor;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.SnapshotException;
 import org.eclipse.mat.snapshot.model.Field;
@@ -39,6 +39,43 @@ import org.eclipse.mat.snapshot.model.IPrimitiveArray;
 public class HprofRandomAccessParser extends AbstractParser
 {
     public static final int LAZY_LOADING_LIMIT = 256;
+
+    public static class Descriptor implements AbstractArrayImpl.IContentDescriptor
+    {
+        boolean isPrimitive;
+        long position;
+        int arraySize;
+        int elementSize;
+
+        public Descriptor(boolean isPrimitive, long position, int elementSize, int arraySize)
+        {
+            this.isPrimitive = isPrimitive;
+            this.position = position;
+            this.elementSize = elementSize;
+            this.arraySize = arraySize;
+        }
+
+        public boolean isPrimitive()
+        {
+            return isPrimitive;
+        }
+
+        public long getPosition()
+        {
+            return position;
+        }
+
+        public int getArraySize()
+        {
+            return arraySize;
+        }
+
+        public int getElementSize()
+        {
+            return elementSize;
+        }
+
+    }
 
     public HprofRandomAccessParser(File file, Version version, int identifierSize) throws IOException
     {
@@ -144,11 +181,10 @@ public class HprofRandomAccessParser extends AbstractParser
         }
         else
         {
-            content = new AbstractArrayImpl.ArrayContentDescriptor(false, in.position(), 0, size);
+            content = new Descriptor(false, in.position(), 0, size);
         }
 
-        return new ObjectArrayImpl(objectId, id, (ClassImpl) arrayType, size, arrayClassObjectID, arrayType
-                        .getObjectAddress(), content);
+        return new ObjectArrayImpl(objectId, id, (ClassImpl) arrayType, size, content);
     }
 
     private IArray readPrimitiveArrayDump(int objectId, ISnapshot dump) throws IOException, SnapshotException
@@ -174,7 +210,7 @@ public class HprofRandomAccessParser extends AbstractParser
         }
         else
         {
-            content = new AbstractArrayImpl.ArrayContentDescriptor(true, in.position(), elementSize, arraySize);
+            content = new Descriptor(true, in.position(), elementSize, arraySize);
         }
 
         // lookup class by name
@@ -191,14 +227,17 @@ public class HprofRandomAccessParser extends AbstractParser
         return new PrimitiveArrayImpl(objectId, id, (ClassImpl) clazz, arraySize, (int) elementType, content);
     }
 
-    public Object read(ArrayContentDescriptor descriptor) throws IOException
+    public Object read(IContentDescriptor content) throws IOException
     {
+        Descriptor descriptor = (Descriptor) content;
         return read(descriptor, 0, descriptor.isPrimitive() ? descriptor.getElementSize() * descriptor.getArraySize()
                         : descriptor.getArraySize() * this.idSize);
     }
 
-    public synchronized Object read(ArrayContentDescriptor descriptor, int offset, int length) throws IOException
+    public synchronized Object read(IContentDescriptor content, int offset, int length) throws IOException
     {
+        Descriptor descriptor = (Descriptor) content;
+
         in.seek(descriptor.getPosition() + offset);
 
         if (descriptor.isPrimitive())

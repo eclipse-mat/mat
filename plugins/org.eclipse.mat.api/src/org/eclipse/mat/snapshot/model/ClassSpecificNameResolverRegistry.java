@@ -23,7 +23,6 @@ import org.eclipse.mat.ApiPlugin;
 import org.eclipse.mat.impl.registry.RegistryReader;
 import org.eclipse.mat.snapshot.SnapshotException;
 
-
 /**
  * Registry for name resolvers which resolve the names for objects of specific
  * classes (found in an snapshot), e.g. String (where the char[] is evaluated)
@@ -46,7 +45,7 @@ public class ClassSpecificNameResolverRegistry extends RegistryReader<IClassSpec
     // //////////////////////////////////////////////////////////////
     // registry methods
     // //////////////////////////////////////////////////////////////
-    
+
     private Map<String, IClassSpecificNameResolver> resolvers;
 
     private ClassSpecificNameResolverRegistry()
@@ -101,7 +100,6 @@ public class ClassSpecificNameResolverRegistry extends RegistryReader<IClassSpec
         }
     }
 
-
     /**
      * Register class specific name resolver.
      * 
@@ -146,6 +144,12 @@ public class ClassSpecificNameResolverRegistry extends RegistryReader<IClassSpec
                 if (resolver != null) { return resolver.resolve(object); }
                 clazz = clazz.getSuperClass();
             }
+            return null;
+        }
+        catch (RuntimeException e)
+        {
+            Logger.getLogger(ClassSpecificNameResolverRegistry.class.getName()).log(Level.SEVERE,
+                            MessageFormat.format("Error resolving name of {0}", object.getTechnicalName()), e);
             return null;
         }
         catch (SnapshotException e)

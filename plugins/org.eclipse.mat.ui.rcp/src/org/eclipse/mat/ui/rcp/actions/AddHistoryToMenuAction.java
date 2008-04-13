@@ -18,6 +18,7 @@ import org.eclipse.jface.action.ContributionItem;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
+import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.SnapshotHistoryService;
 import org.eclipse.mat.ui.editor.PathEditorInput;
 import org.eclipse.swt.SWT;
@@ -25,13 +26,10 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.ui.IEditorDescriptor;
-import org.eclipse.ui.IEditorRegistry;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
-
 
 public class AddHistoryToMenuAction extends ContributionItem
 {
@@ -203,12 +201,12 @@ public class AddHistoryToMenuAction extends ContributionItem
         int i = 0;
         for (final SnapshotHistoryService.Entry entry : lastHeaps)
         {
-            if (i==10)
+            if (i == 10)
                 continue;
             final int historyIndex = i;
             PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable()
             {
-                public void run() 
+                public void run()
                 {
                     final String text = calcText(historyIndex, entry);
                     final MenuItem mi = new MenuItem(menu, SWT.PUSH, menuIndex[0]);
@@ -220,14 +218,13 @@ public class AddHistoryToMenuAction extends ContributionItem
                         {
                             try
                             {
-                                final IEditorRegistry registry = PlatformUI.getWorkbench().getEditorRegistry();
-                                final IEditorDescriptor descriptor = registry.getDefaultEditor(entry.getFilePath());
                                 IDE.openEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(),
-                                                new PathEditorInput(new Path(entry.getFilePath())), descriptor.getId(),
-                                                true);
+                                                new PathEditorInput(new Path(entry.getFilePath())),
+                                                MemoryAnalyserPlugin.EDITOR_ID, true);
                                 if (PlatformUI.getWorkbench().getIntroManager().getIntro() != null)
-                                {// if this action was called with open welcome page - set it to
-                                    // standby mode.
+                                {
+                                    // if this action was called with open
+                                    // welcome page - set it to standby mode.
                                     PlatformUI.getWorkbench().getIntroManager().setIntroStandby(
                                                     PlatformUI.getWorkbench().getIntroManager().getIntro(), true);
                                 }

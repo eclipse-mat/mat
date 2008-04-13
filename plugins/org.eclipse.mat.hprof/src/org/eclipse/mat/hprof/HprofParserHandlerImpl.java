@@ -364,11 +364,14 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
                 {
                     XGCRootInfo root = roots.next();
                     root.setObjectId(idx);
-                    int contextId = identifiers.reverse(root.getContextAddress());
-                    if (contextId < 0)
-                        roots.remove();
-                    else
-                        root.setContextId(contextId);
+                    if (root.getContextAddress() != 0)
+                    {
+                        int contextId = identifiers.reverse(root.getContextAddress());
+                        if (contextId < 0)
+                            roots.remove();
+                        else
+                            root.setContextId(contextId);
+                    }
                 }
                 sink.put(idx, entry.getValue());
             }

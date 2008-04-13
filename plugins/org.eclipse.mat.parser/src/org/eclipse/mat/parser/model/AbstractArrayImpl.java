@@ -16,47 +16,13 @@ import java.lang.ref.SoftReference;
 import org.eclipse.mat.snapshot.model.Field;
 import org.eclipse.mat.snapshot.model.IArray;
 
-
 public abstract class AbstractArrayImpl extends AbstractObjectImpl implements IArray
 {
     private static final long serialVersionUID = 1L;
 
-    public static class ArrayContentDescriptor
-    {
-        boolean isPrimitive;
-        long position;
-        int arraySize;
-        int elementSize;
-
-        public ArrayContentDescriptor(boolean isPrimitive, long position, int elementSize, int arraySize)
-        {
-            this.isPrimitive = isPrimitive;
-            this.position = position;
-            this.elementSize = elementSize;
-            this.arraySize = arraySize;
-        }
-
-        public boolean isPrimitive()
-        {
-            return isPrimitive;
-        }
-
-        public long getPosition()
-        {
-            return position;
-        }
-
-        public int getArraySize()
-        {
-            return arraySize;
-        }
-
-        public int getElementSize()
-        {
-            return elementSize;
-        }
-
-    }
+    /* marker interface */
+    public interface IContentDescriptor
+    {}
 
     protected int length;
     private Object content;
@@ -82,7 +48,7 @@ public abstract class AbstractArrayImpl extends AbstractObjectImpl implements IA
     public Object getContent()
     {
         // content might be lazy loaded
-        if (content instanceof ArrayContentDescriptor)
+        if (content instanceof IContentDescriptor)
         {
             synchronized (this)
             {
@@ -94,7 +60,7 @@ public abstract class AbstractArrayImpl extends AbstractObjectImpl implements IA
                 {
                     try
                     {
-                        ArrayContentDescriptor descriptor = (ArrayContentDescriptor) content;
+                        IContentDescriptor descriptor = (IContentDescriptor) content;
                         result = source.getHeapObjectReader().read(descriptor);
                         lazyReadContent = new SoftReference<Object>(result);
                     }
@@ -114,7 +80,7 @@ public abstract class AbstractArrayImpl extends AbstractObjectImpl implements IA
     {
         try
         {
-            if (content instanceof ArrayContentDescriptor)
+            if (content instanceof IContentDescriptor)
             {
                 Object soft = null;
                 if (lazyReadContent != null)
@@ -128,7 +94,7 @@ public abstract class AbstractArrayImpl extends AbstractObjectImpl implements IA
                 }
                 else
                 {
-                    return source.getHeapObjectReader().read((ArrayContentDescriptor) content, offset, length);
+                    return source.getHeapObjectReader().read((IContentDescriptor) content, offset, length);
                 }
             }
             else

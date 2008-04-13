@@ -14,6 +14,7 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.dynamichelpers.ExtensionTracker;
 import org.eclipse.core.runtime.dynamichelpers.IExtensionTracker;
+import org.eclipse.mat.parser.internal.util.ParserRegistry;
 import org.osgi.framework.BundleContext;
 
 public class ParserPlugin extends Plugin
@@ -23,6 +24,7 @@ public class ParserPlugin extends Plugin
     private static ParserPlugin plugin;
     
     private IExtensionTracker tracker;
+    private ParserRegistry registry;
 
     public ParserPlugin()
     {}
@@ -32,6 +34,8 @@ public class ParserPlugin extends Plugin
         super.start(context);
         tracker = new ExtensionTracker(Platform.getExtensionRegistry());
         plugin = this;
+        
+        registry = new ParserRegistry(tracker);
     }
 
     public void stop(BundleContext context) throws Exception
@@ -49,6 +53,11 @@ public class ParserPlugin extends Plugin
     public IExtensionTracker getExtensionTracker()
     {
         return tracker;
+    }
+    
+    public ParserRegistry getParserRegistry()
+    {
+        return registry;
     }
 
 }

@@ -10,7 +10,9 @@
  *******************************************************************************/
 package org.eclipse.mat.util;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 public final class SimpleStringTokenizer implements Iterable<String>
@@ -40,7 +42,7 @@ public final class SimpleStringTokenizer implements Iterable<String>
             {
                 if (position >= maxPosition)
                     throw new NoSuchElementException();
-                
+
                 String answer;
 
                 int p = subject.indexOf(delim, position);
@@ -65,5 +67,13 @@ public final class SimpleStringTokenizer implements Iterable<String>
                 throw new UnsupportedOperationException();
             }
         };
+    }
+
+    public static String[] split(String subject, char delim)
+    {
+        List<String> answer = new ArrayList<String>();
+        for (String s : new SimpleStringTokenizer(subject, delim))
+            answer.add(s.trim());
+        return answer.toArray(new String[0]);
     }
 }

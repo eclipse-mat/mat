@@ -35,7 +35,6 @@ import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.VoidProgressListener;
 import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
 
-
 /* package */class GarbageCleaner
 {
 
@@ -379,8 +378,9 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
             for (int ii = 0; ii < a.length; ii++)
             {
                 a[ii] = r.get(ii);
-                a[ii].setContextId(map[a[ii].getContextId()]);
                 a[ii].setObjectId(map[a[ii].getObjectId()]);
+                if (a[ii].getContextAddress() != 0)
+                    a[ii].setContextId(map[a[ii].getContextId()]);
             }
 
             answer.put(a[0].getObjectId(), a);

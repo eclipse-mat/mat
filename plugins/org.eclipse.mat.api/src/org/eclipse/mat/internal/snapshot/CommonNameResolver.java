@@ -14,7 +14,6 @@ import org.eclipse.mat.snapshot.SnapshotException;
 import org.eclipse.mat.snapshot.extension.Subject;
 import org.eclipse.mat.snapshot.extension.Subjects;
 import org.eclipse.mat.snapshot.model.IClassSpecificNameResolver;
-import org.eclipse.mat.snapshot.model.IInstance;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IPrimitiveArray;
 import org.eclipse.mat.snapshot.model.PrettyPrinter;
@@ -35,9 +34,8 @@ public class CommonNameResolver
     {
         public String resolve(IObject obj) throws SnapshotException
         {
-            IInstance s = (IInstance) obj;
-            IPrimitiveArray charArray = (IPrimitiveArray) s.resolveValue("name");
-            return charArray != null ? PrettyPrinter.arrayAsString(charArray, 0, charArray.getLength(), 1024) : null;
+            IObject name = (IObject) obj.resolveValue("name");
+            return name != null ? name.getClassSpecificName() : null;
         }
     }
 

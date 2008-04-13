@@ -48,8 +48,5 @@ public class Perspective implements IPerspectiveFactory
         layout.addShowViewShortcut(INSPECTOR_VIEW);
         layout.addShowViewShortcut(NOTES_VIEW);
         layout.addShowViewShortcut(ERROR_VIEW);
-        // layout.addShowViewShortcut("org.eclipse.pde.ui.PluginsView");
-        // FIXME log view
-
     }
 }

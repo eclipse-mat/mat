@@ -18,8 +18,6 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.Action;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.editor.PathEditorInput;
-import org.eclipse.ui.IEditorDescriptor;
-import org.eclipse.ui.IEditorRegistry;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
@@ -43,10 +41,8 @@ public class OpenEditorAction extends Action implements IIntroAction
 
             if (path.toFile().exists())
             {
-                IEditorRegistry registry = PlatformUI.getWorkbench().getEditorRegistry();
-                IEditorDescriptor descriptor = registry.getDefaultEditor(params.getProperty("param"));
                 IDE.openEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(),
-                                new PathEditorInput(path), descriptor.getId(), true);
+                                new PathEditorInput(path), MemoryAnalyserPlugin.EDITOR_ID, true);
                 PlatformUI.getWorkbench().getIntroManager().closeIntro(
                                 PlatformUI.getWorkbench().getIntroManager().getIntro());
             }

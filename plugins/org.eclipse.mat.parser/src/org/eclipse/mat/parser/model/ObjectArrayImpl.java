@@ -18,18 +18,13 @@ import org.eclipse.mat.snapshot.model.IObjectArray;
 import org.eclipse.mat.snapshot.model.NamedReference;
 import org.eclipse.mat.snapshot.model.PseudoReference;
 
-
 public class ObjectArrayImpl extends AbstractArrayImpl implements IObjectArray
 {
     private static final long serialVersionUID = 1L;
 
-    long elementClassId;
-
-    public ObjectArrayImpl(int objectId, long address, ClassImpl classInstance, int length, long elementClassId,
-                    long arrayClassId, Object content)
+    public ObjectArrayImpl(int objectId, long address, ClassImpl classInstance, int length, Object content)
     {
         super(objectId, address, classInstance, length, content);
-        this.elementClassId = elementClassId;
     }
 
     @Override
