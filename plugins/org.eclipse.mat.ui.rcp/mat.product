@@ -36,9 +36,10 @@
    </plugins>
 
    <features>
-      <feature id="org.eclipse.mat.chart.feature" version="0.7.0.qualifier"/>
       <feature id="org.eclipse.mat.dependencies.r322.feature" version="0.7.0.qualifier"/>
       <feature id="org.eclipse.mat.feature" version="0.7.0.qualifier"/>
+      <feature id="org.eclipse.mat.chart.feature" version="0.7.0.qualifier"/>
+      <feature id="org.eclipse.mat.rcp.feature" version="0.7.0.qualifier"/>
    </features>
 
 </product>
