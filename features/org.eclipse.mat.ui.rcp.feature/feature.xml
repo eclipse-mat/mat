@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="org.eclipse.mat.rcp.feature"
+      label="RCP Application (Incubation)"
+      version="0.7.0.qualifier"
+      provider-name="Eclipse.org">
+
+   <description url="http://www.example.com/description">
+      [Enter Feature Description here.]
+   </description>
+
+   <copyright url="http://www.example.com/copyright">
+      [Enter Copyright Description here.]
+   </copyright>
+
+   <license url="http://www.example.com/license">
+      [Enter License Description here.]
+   </license>
+
+   <requires>
+      <import feature="org.eclipse.mat.feature" version="0.7.0.qualifier"/>
+      <import feature="org.eclipse.mat.chart.feature" version="0.7.0.qualifier"/>
+      <import plugin="org.eclipse.mat.ui.help"/>
+      <import plugin="org.eclipse.mat.ui"/>
+      <import plugin="org.eclipse.ui.intro"/>
+      <import plugin="org.eclipse.core.runtime"/>
+      <import plugin="org.eclipse.ui"/>
+      <import plugin="org.eclipse.core.resources"/>
+      <import plugin="org.eclipse.core.filesystem"/>
+      <import plugin="org.eclipse.ui.ide"/>
+      <import plugin="org.eclipse.ui.editors"/>
+      <import plugin="org.eclipse.ui.cheatsheets"/>
+      <import plugin="org.eclipse.platform"/>
+      <import plugin="org.eclipse.ui.forms"/>
+      <import plugin="org.eclipse.help.base"/>
+   </requires>
+
+   <plugin
+         id="org.eclipse.mat.ui.rcp"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+</feature>
