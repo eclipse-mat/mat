@@ -59,7 +59,7 @@ Java and all Java-based trademarks are trademarks of Sun Microsystems, Inc. in t
    </license>
 
    <requires>
-      <import feature="org.eclipse.mat" version="0.7.0" match="compatible"/>
+      <import feature="org.eclipse.mat.feature" version="0.7.0.qualifier"/>
    </requires>
 
    <plugin
