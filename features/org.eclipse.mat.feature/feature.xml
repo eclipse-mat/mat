@@ -7,7 +7,7 @@
    <install-handler/>
 
    <description url="http://www.eclipse.org/mat/">
-      Memory Analyzer.
+      Memory Analyzer
    </description>
 
    <copyright>
@@ -60,8 +60,24 @@ Java and all Java-based trademarks are trademarks of Sun Microsystems, Inc. in t
    </license>
 
    <requires>
-      <import feature="org.eclipse.rcp" version="3.3.0" match="compatible"/>
-      <import feature="org.eclipse.platform" version="3.3.0" match="compatible"/>
+      <import plugin="org.eclipse.core.runtime" version="2.1.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.core.resources"/>
+      <import plugin="org.eclipse.core.filesystem"/>
+      <import plugin="org.eclipse.ui.intro"/>
+      <import plugin="org.eclipse.ui"/>
+      <import plugin="org.eclipse.ui.ide"/>
+      <import plugin="org.eclipse.ui.console"/>
+      <import plugin="org.eclipse.ui.workbench"/>
+      <import plugin="org.eclipse.ui.editors"/>
+      <import plugin="org.eclipse.ui.views"/>
+      <import plugin="org.eclipse.jface.text"/>
+      <import plugin="org.eclipse.ui.cheatsheets"/>
+      <import plugin="org.eclipse.ui.forms"/>
+      <import plugin="org.eclipse.help"/>
+      <import plugin="org.eclipse.help.appserver"/>
+      <import plugin="org.eclipse.help.base"/>
+      <import plugin="org.eclipse.help.ui"/>
+      <import plugin="org.eclipse.help.webapp"/>
    </requires>
 
    <plugin

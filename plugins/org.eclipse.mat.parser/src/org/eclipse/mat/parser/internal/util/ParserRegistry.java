@@ -48,6 +48,11 @@ public class ParserRegistry extends RegistryReader<ParserRegistry.Parser>
             IExtension extension = (IExtension) configElement.getParent();
             return extension.getUniqueIdentifier();
         }
+        
+        public SnapshotFormat getSnapshotFormat()
+        {
+            return snapshotFormat;
+        }
 
         @SuppressWarnings("unchecked")
         public <I> I create(Class<I> type, String attribute)
@@ -87,7 +92,6 @@ public class ParserRegistry extends RegistryReader<ParserRegistry.Parser>
                 patterns[ii] = Pattern.compile("(.*\\.)((?i)" + extensions[ii] + ")(\\.[0-9]*)?");
 
             SnapshotFormat snapshotFormat = new SnapshotFormat(configElement.getAttribute("name"), extensions);
-            SnapshotFormat.add(snapshotFormat);
             return new Parser(configElement, snapshotFormat, patterns);
         }
         catch (PatternSyntaxException e)
@@ -102,9 +106,7 @@ public class ParserRegistry extends RegistryReader<ParserRegistry.Parser>
 
     @Override
     protected void removeDelegate(Parser delegate)
-    {
-        SnapshotFormat.remove(delegate.snapshotFormat);
-    }
+    {}
 
     public Parser lookupParser(String uniqueIdentifier)
     {

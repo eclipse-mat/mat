@@ -11,6 +11,7 @@
 package org.eclipse.mat.snapshot;
 
 import java.io.File;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -102,6 +103,11 @@ public final class SnapshotFactory
     public static IOQLQuery createQuery(String queryString) throws OQLParseException, SnapshotException
     {
         return factory.createQuery(queryString);
+    }
+    
+    public static List<SnapshotFormat> getSupportedFormats()
+    {
+        return factory.getSupportedFormats();
     }
 
 }

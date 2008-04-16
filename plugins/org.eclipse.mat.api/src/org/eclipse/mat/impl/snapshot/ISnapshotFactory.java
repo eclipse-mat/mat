@@ -11,11 +11,13 @@
 package org.eclipse.mat.impl.snapshot;
 
 import java.io.File;
+import java.util.List;
 
 import org.eclipse.mat.snapshot.IOQLQuery;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.OQLParseException;
 import org.eclipse.mat.snapshot.SnapshotException;
+import org.eclipse.mat.snapshot.SnapshotFormat;
 import org.eclipse.mat.util.IProgressListener;
 
 
@@ -26,4 +28,6 @@ public interface ISnapshotFactory
     void dispose(ISnapshot snapshot);
 
     IOQLQuery createQuery(String queryString) throws OQLParseException, SnapshotException;
+    
+    List<SnapshotFormat> getSupportedFormats();
 }

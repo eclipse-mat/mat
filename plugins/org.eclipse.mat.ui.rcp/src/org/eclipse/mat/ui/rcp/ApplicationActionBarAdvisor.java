@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.mat.ui.rcp;
 
+import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.GroupMarker;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.IMenuManager;
@@ -17,6 +18,7 @@ import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.mat.ui.rcp.actions.AddHistoryToMenuAction;
 import org.eclipse.mat.ui.rcp.actions.OpenHelp;
+import org.eclipse.mat.ui.rcp.actions.OpenPreferenceAction;
 import org.eclipse.mat.ui.rcp.actions.ShowViewMenu;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -25,23 +27,15 @@ import org.eclipse.ui.actions.ActionFactory.IWorkbenchAction;
 import org.eclipse.ui.application.ActionBarAdvisor;
 import org.eclipse.ui.application.IActionBarConfigurer;
 
-
-/**
- * An action bar advisor is responsible for creating, adding, and disposing of
- * the actions added to a workbench window. Each window will be populated with
- * new actions.
- */
 public class ApplicationActionBarAdvisor extends ActionBarAdvisor
 {
 
-    // Actions - important to allocate these only in makeActions, and then use
-    // them
-    // in the fill methods. This ensures that the actions aren't recreated
-    // when fillActionBars is called with FILL_PROXY.
     private IWorkbenchAction exitAction;
     private IWorkbenchAction copyAction;
     private IWorkbenchAction helpAction;
     private IWorkbenchAction welcomeAction;
+    
+    private Action preferencesAction;
     private IContributionItem openViewAction;
     private IContributionItem historyAction;
 
@@ -52,13 +46,6 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor
 
     protected void makeActions(final IWorkbenchWindow window)
     {
-        // Creates the actions and registers them.
-        // Registering is needed to ensure that key bindings work.
-        // The corresponding commands keybindings are defined in the plugin.xml
-        // file.
-        // Registering also provides automatic disposal of the actions when
-        // the window is closed.
-
         exitAction = ActionFactory.QUIT.create(window);
         register(exitAction);
         copyAction = ActionFactory.COPY.create(window);
@@ -67,6 +54,8 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor
         register(helpAction);
         welcomeAction = ActionFactory.INTRO.create(window);
         register(welcomeAction);
+
+        preferencesAction = new OpenPreferenceAction();
         openViewAction = new ShowViewMenu(window);
         historyAction = new AddHistoryToMenuAction(window);
     }
@@ -87,6 +76,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor
 
         MenuManager windowMenu = new MenuManager("&View", IWorkbenchActionConstants.M_WINDOW);
         windowMenu.add(openViewAction);
+        windowMenu.add(preferencesAction);
         menuBar.add(windowMenu);
 
         MenuManager helpMenu = new MenuManager("&Help", IWorkbenchActionConstants.M_HELP);

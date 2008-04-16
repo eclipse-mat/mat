@@ -35,12 +35,6 @@
             pattern="org\.eclipse\.ui\.ide/org\.eclipse\.ui\.navigate\.selectWorkingSets"/>       
       <activityPatternBinding
             activityId="org.eclipse.mat.digger.modification"
-            pattern="org\.eclipse\.ui\.ide/org\.eclipse\.update\.ui\.configManager"/>       
-      <activityPatternBinding
-            activityId="org.eclipse.mat.digger.modification"
-            pattern="org\.eclipse\.ui\.ide/org\.eclipse\.update\.ui\.newUpdates"/>       
-      <activityPatternBinding
-            activityId="org.eclipse.mat.digger.modification"
             pattern="org\.eclipse\.ui\.workbench\.texteditor/org\.eclipse\.ui\.edit\.text\.gotoLastEditPosition"/>
       <activityPatternBinding
             activityId="org.eclipse.mat.digger.modification"
@@ -67,46 +61,41 @@
             activityId="org.eclipse.mat.digger.modification"
             pattern="org\.eclipse\.ui\.editors/org\.eclipse\.ui\.edit\.text\.gotoNextAnnotation"/>
    </extension>
+   
     <extension id="intro" point="org.eclipse.ui.intro.config">
-      <config content="intro/introContent.xml" id="org.eclipse.mat.ui.rcp.introConfig" introId="org.eclipse.mat.ui.rcp.Intro">
-         <presentation
-               home-page-id="overview"
-               standby-page-id="standby">
-	          <implementation kind="html" style="$nl$/intro/css/shared.css"/>
+      <config content="intro/introContent.xml"
+              id="org.eclipse.mat.ui.rcp.introConfig"
+              introId="org.eclipse.mat.ui.rcp.Intro">
+              
+        <presentation home-page-id="overview" standby-page-id="standby">
+	      <implementation kind="html" style="intro/css/shared.css"/>
 
-            <launchBar
-                  bg="#d7e5f0"
-                  location="fastview">              
-               <shortcut tooltip="Overview" icon="intro/css/graphics/icons/overview_small.gif" url="http://org.eclipse.ui.intro/showPage?id=overview"/>
-               <shortcut tooltip="Tutorials" icon="intro/css/graphics/icons/tutorials_small.gif" url="http://org.eclipse.ui.intro/showPage?id=tutorials"/>
-            </launchBar>
-            
-         </presentation>
+          <launchBar bg="#d7e5f0" location="fastview">              
+            <shortcut tooltip="Overview" icon="intro/css/graphics/icons/overview_small.gif" url="http://org.eclipse.ui.intro/showPage?id=overview"/>
+            <shortcut tooltip="Tutorials" icon="intro/css/graphics/icons/tutorials_small.gif" url="http://org.eclipse.ui.intro/showPage?id=tutorials"/>
+          </launchBar>
+        </presentation>
       </config>
-      <config
-            content="intro/introContent.xml"
-            id="org.eclipse.mat.ui.rcp.introConfigId"
-            introId="org.eclipse.mat.ui.rcp.Intro">
-         <presentation
-               home-page-id="root">
-            <implementation
-                  kind="html"
-                  os="win32,linux,macosx"
-                  style="content/shared.css">
-            </implementation>
-         </presentation>
-      </config>
-   </extension>
-   <extension point="org.eclipse.ui.intro">
-       <introProductBinding
+    </extension>
+   
+    <extension point="org.eclipse.ui.intro">
+      <introProductBinding
              introId="org.eclipse.mat.ui.rcp.Intro"
              productId="org.eclipse.mat.ui.rcp.MemoryAnalyzer"/>
-       <intro
+      <intro
              class="org.eclipse.ui.intro.config.CustomizableIntroPart"
              icon="icons/memory_analyzer_16.gif"
              id="org.eclipse.mat.ui.rcp.Intro"
              label="Welcome"/>
     </extension>
+
+    <extension point="org.eclipse.ui.intro.configExtension">		
+       <configExtension
+			configId="org.eclipse.mat.ui.rcp.introConfig"
+			content="intro/tutorials_rcp.xml">
+       </configExtension>
+    </extension>
+
    <extension
          id="MemoryAnalyzer"
          point="org.eclipse.core.runtime.products">
@@ -218,21 +207,4 @@
             sequence="M1+M2+W">
       </key>
    </extension>
- <extension
-       point="org.eclipse.ui.splashHandlers">
-    <splashHandler
-          class="org.eclipse.mat.ui.rcp.SplashHandler"
-          id="org.eclipse.mat.ui.rcp.splashHandler">
-    </splashHandler>
-    <splashHandlerProductBinding
-          productId="org.eclipse.mat.ui.rcp.MemoryAnalyzer"
-          splashId="org.eclipse.mat.ui.rcp.splashHandler">
-    </splashHandlerProductBinding>
- </extension>
- <extension point="org.eclipse.ui.intro.configExtension">		
-		<configExtension
-			configId="org.eclipse.mat.ui.rcp.introConfig"
-			content="intro/tutorials_rcp.xml">
-		</configExtension>		
-	</extension>
 </plugin>

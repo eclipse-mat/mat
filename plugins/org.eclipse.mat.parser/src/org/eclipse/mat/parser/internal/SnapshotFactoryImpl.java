@@ -15,8 +15,10 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -25,10 +27,12 @@ import org.eclipse.mat.parser.IIndexBuilder;
 import org.eclipse.mat.parser.ParserPlugin;
 import org.eclipse.mat.parser.internal.oql.OQLQueryImpl;
 import org.eclipse.mat.parser.internal.util.ParserRegistry;
+import org.eclipse.mat.parser.internal.util.ParserRegistry.Parser;
 import org.eclipse.mat.parser.model.XSnapshotInfo;
 import org.eclipse.mat.snapshot.IOQLQuery;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.SnapshotException;
+import org.eclipse.mat.snapshot.SnapshotFormat;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.IProgressListener.Severity;
 
@@ -143,6 +147,17 @@ public class SnapshotFactoryImpl implements ISnapshotFactory
         return new OQLQueryImpl(queryString);
     }
 
+    public List<SnapshotFormat> getSupportedFormats()
+    {
+        List<SnapshotFormat> answer = new ArrayList<SnapshotFormat>(5);
+        
+        for (Parser parser : ParserPlugin.getDefault().getParserRegistry().delegates())
+            answer.add(parser.getSnapshotFormat());
+
+        return answer;
+    }
+    
+    
     // //////////////////////////////////////////////////////////////
     // Internal implementations
     // //////////////////////////////////////////////////////////////

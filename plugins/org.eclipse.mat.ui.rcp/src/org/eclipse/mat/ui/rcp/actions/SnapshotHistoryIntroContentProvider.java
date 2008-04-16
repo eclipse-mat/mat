@@ -35,7 +35,7 @@ import org.eclipse.ui.intro.config.IIntroURL;
 import org.eclipse.ui.intro.config.IntroURLFactory;
 import org.osgi.framework.Bundle;
 
-public class SnapshotHistoryViewer implements IIntroContentProvider
+public class SnapshotHistoryIntroContentProvider implements IIntroContentProvider
 {
     private static final String ICON = "../intro/css/graphics/icons/heapdump16.gif";
 

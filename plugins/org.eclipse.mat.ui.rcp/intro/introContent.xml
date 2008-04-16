@@ -44,12 +44,15 @@
 					id="workbench">
 					<text id="linktext">Workbench</text>
 				</link>
-				<link id="version">
-					<text id="versiontext">Version 0.7.0.v20080326</text>
+  				<link id="version">
+					<text id="editiontext">The Diligent Digger (Incubation)</text>
 				</link>
-				<link id="version">
-					<text id="editiontext">Incubation</text>
-				</link>
+				<group id="version" expanded="true">
+					<contentProvider id="editiontext"
+						pluginId="org.eclipse.mat.ui.rcp"
+						class="org.eclipse.mat.ui.rcp.actions.VersionIntroContentProvider">
+					</contentProvider>						
+				</group>
 				<anchor id="navigationEnd" />
 			</group>
 		</group>
@@ -105,7 +108,7 @@
 						expanded="true">
 						<contentProvider id="history-viewer"
 							pluginId="org.eclipse.mat.ui.rcp"
-							class="org.eclipse.mat.ui.rcp.actions.SnapshotHistoryViewer">
+							class="org.eclipse.mat.ui.rcp.actions.SnapshotHistoryIntroContentProvider">
 						</contentProvider>
 					</group>
 				</group>

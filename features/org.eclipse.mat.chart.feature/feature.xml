@@ -59,7 +59,17 @@ Java and all Java-based trademarks are trademarks of Sun Microsystems, Inc. in t
    </license>
 
    <requires>
-      <import feature="org.eclipse.mat.feature" version="0.7.0.qualifier"/>
+      <import plugin="org.eclipse.mat.api"/>
+      <import plugin="org.eclipse.birt.chart.engine"/>
+      <import plugin="org.eclipse.mat.chart"/>
+      <import plugin="org.eclipse.mat.ui"/>
+      <import plugin="org.eclipse.ui"/>
+      <import plugin="org.eclipse.ui.forms"/>
+      <import plugin="org.eclipse.birt.chart.device.extension"/>
+      <import plugin="org.eclipse.birt.chart.device.swt"/>
+      <import plugin="org.eclipse.birt.chart.engine.extension"/>
+      <import plugin="org.eclipse.birt.core"/>
+      <import feature="org.eclipse.mat.feature" version="0.7.0" match="greaterOrEqual"/>
    </requires>
 
    <plugin

@@ -23,6 +23,7 @@ import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jface.dialogs.IInputValidator;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.mat.snapshot.SnapshotFactory;
 import org.eclipse.mat.snapshot.SnapshotFormat;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.swt.SWT;
@@ -109,7 +110,7 @@ public class OpenSnapshot
 
         private void applyFilter(FileDialog dialog)
         {
-            List<SnapshotFormat> types = SnapshotFormat.all();
+            List<SnapshotFormat> types = SnapshotFactory.getSupportedFormats();
 
             String[] filterExtensions = new String[types.size() + 1];
             String[] filterNames = new String[types.size() + 1];
