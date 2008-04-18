@@ -170,7 +170,7 @@ public class ArrayUtils
             return v2 < v3 ? pos3 : pos2;    
     }
 
-    private static int split(int[] keys, int[] values, int left, int right)
+    private static int[] split(int[] keys, int[] values, int left, int right)
     {
         // just take the median of the middle key and the two border keys
         int splittingIdx = median(keys, left, right, left + ((right - left) >> 1));
@@ -180,20 +180,30 @@ public class ArrayUtils
         swap(keys, values, left, splittingIdx);
 
         int i = left;
+        int c = 0; // number of elements equal to splittingValue
         for (int j = left + 1; j <= right; j++)
         {
             if (keys[j] < splittingValue)
             {
                 i++;
                 swap(keys, values, i, j);
+                
+                // if there are duplicates, keep them next to each other
+                if (c > 0) 
+                    swap(keys, values, i + c, j);
+            }
+            else if (keys[j] == splittingValue)
+            {
+                c++;
+                swap(keys, values, i + c, j);
             }
         }
         swap(keys, values, left, i);
 
-        return i;
+        return new int[] {i, i + c};
     }
 
-    private static int splitDesc(long[] keys, int[] values, int left, int right)
+    private static int[] splitDesc(long[] keys, int[] values, int left, int right)
     {
         // just take the median of the middle key and the two border keys
         int splittingIdx = median(keys, left, right, left + ((right - left) >> 1));
@@ -203,17 +213,27 @@ public class ArrayUtils
         swap(keys, values, left, splittingIdx);
 
         int i = left;
+        int c = 0; // number of elements equal to splittingValue
         for (int j = left + 1; j <= right; j++)
         {
             if (keys[j] > splittingValue)
             {
                 i++;
                 swap(keys, values, i, j);
+                
+                // if there are duplicates, keep them next to each other
+                if (c > 0) 
+                    swap(keys, values, i + c, j);
+            }
+            else if (keys[j] == splittingValue)
+            {
+                c++;
+                swap(keys, values, i + c, j);
             }
         }
         swap(keys, values, left, i);
 
-        return i;
+        return new int[] {i, i + c};
     }
 
     private static void hybridsort(int[] keys, int[] values, int left, int right)
@@ -226,9 +246,15 @@ public class ArrayUtils
             }
             else
             {
-                int i = split(keys, values, left, right);
-                hybridsort(keys, values, left, i - 1);
-                hybridsort(keys, values, i + 1, right);
+                // split the array - the elements between i[0] and i[1] are equal.
+                // the elements on the left are smaller, on the right - bigger
+                int[] i = split(keys, values, left, right);
+                
+                // sort all keys smaller than keys[i]
+                if (left < i[0] - 1) hybridsort(keys, values, left, i[0] - 1);
+                
+                // sort all keys bigger than keys[i]
+                if (right > i[1] + 1) hybridsort(keys, values, i[1] + 1, right);
             }
         }
     }
@@ -252,9 +278,15 @@ public class ArrayUtils
             }
             else
             {
-                int i = splitDesc(keys, values, left, right);
-                hybridsortDesc(keys, values, tmpKeys, tmpValues, left, i - 1);
-                hybridsortDesc(keys, values, tmpKeys, tmpValues, i + 1, right);
+                // split the array - the elements between i[0] and i[1] are equal.
+                // the elements on the left are bigger, on the right - smaller
+                int[] i = splitDesc(keys, values, left, right);
+                
+                // sort all keys bigger than keys[i]
+                if (left < i[0] - 1) hybridsortDesc(keys, values, tmpKeys, tmpValues, left, i[0] - 1);;
+                
+                // sort all keys smaller than keys[i]
+                if (right > i[1] + 1) hybridsortDesc(keys, values, tmpKeys, tmpValues, i[1] + 1, right);
             }
         }
     }
@@ -329,5 +361,4 @@ public class ArrayUtils
             destKeys[trgOffset + index[idx]++] = srcKeys[i];
         }
     }
-
 }
