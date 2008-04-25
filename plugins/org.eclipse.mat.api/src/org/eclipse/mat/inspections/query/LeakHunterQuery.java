@@ -392,7 +392,7 @@ public class LeakHunterQuery implements IQuery
             Path2GCRootsQuery p2gc = new Path2GCRootsQuery();
             p2gc.snapshot = snapshot;
             p2gc.object = describedObject.getObjectId();
-            composite.addResult("Shortest paths to the accumulation point", QueryUtil.execute(p2gc, listener));
+            composite.addResult("Shortest Paths To the Accumulation Point", QueryUtil.execute(p2gc, listener));
         }
         catch (Exception e)
         {
@@ -401,13 +401,13 @@ public class LeakHunterQuery implements IQuery
 
         // show the acc. point in the dominator tree
         IResult objectInDominatorTree = showInDominatorTree(describedObject.getObjectId());
-        composite.addResult("Accumulation point in the Dominator tree", objectInDominatorTree);
+        composite.addResult("Accumulated Objects", objectInDominatorTree);
 
         // add histogram of dominated.
         IResult histogramOfDominated = getHistogramOfDominated(describedObject.getObjectId());
         if (histogramOfDominated != null)
         {
-            composite.addResult("Class Histogram of objects dominated by the accumulation point", histogramOfDominated);
+            composite.addResult("Accumulated Objects by Class", histogramOfDominated);
         }
 
         if (threadDetails != null)
@@ -514,7 +514,7 @@ public class LeakHunterQuery implements IQuery
         AccumulationPoint accPoint = suspect.getAccumulationPoint();
         if (accPoint != null)
         {
-            composite.addResult("Common path to the Accumulation Point", //
+            composite.addResult("Common Path To the Accumulation Point", //
                             MultiplePath2GCRootsQuery.create(snapshot, suspect.getPathsComputer(), suspect
                                             .getCommonPath()));
         }
@@ -522,7 +522,7 @@ public class LeakHunterQuery implements IQuery
         {
             IResult result = findReferencePattern(suspect);
             if (result != null)
-                composite.addResult("Reference pattern", result);
+                composite.addResult("Reference Pattern", result);
         }
 
         return composite;
@@ -860,7 +860,7 @@ public class LeakHunterQuery implements IQuery
             }
 
             // provide the common path as details
-            composite.addResult("Common path to the Accumulation Point", //
+            composite.addResult("Common Path To the Accumulation Point", //
                             MultiplePath2GCRootsQuery.create(snapshot, comp, commonPath.toArray()));
 
             result.add(composite);
