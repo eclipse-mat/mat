@@ -99,7 +99,6 @@ public class ChartBuilder
         {
             chart.getLegend().setVisible(true);
             chart.getLegend().setBackground(ColorDefinitionImpl.WHITE());
-            chart.getLegend().getText().getFont().setName("Arial");
             chart.getLegend().getText().getFont().setSize(fontSize);
         }
 
