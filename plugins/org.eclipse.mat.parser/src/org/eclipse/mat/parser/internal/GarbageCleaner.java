@@ -151,6 +151,8 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
                 }
             }
 
+            preA2size.close();
+            preA2size.delete();
             preA2size = null;
 
             // classes cannot be removed right away
@@ -165,8 +167,10 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
             }
 
             reachable = null; // early gc...
+
+            identifiers.close();
+            identifiers.delete();
             identifiers = null;
-            // preliminaryIdx.o2address().unload();
 
             if (listener.isCanceled())
                 return null;
@@ -229,7 +233,10 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
                                     return map;
                                 }
                             }));
-            object2classId = null; // TODO indeces currently not cleared
+            
+            object2classId.close();
+            object2classId.delete();
+            object2classId = null;
 
             if (listener.isCanceled())
                 return null;
@@ -302,6 +309,9 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
 
                 w_out.log(k, tl.toArray());
             }
+
+            preOutbound.close();
+            preOutbound.delete();
             preOutbound = null;
 
             if (listener.isCanceled())
