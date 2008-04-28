@@ -33,6 +33,7 @@
 		<query impl="org.eclipse.mat.inspections.query.DominatorQuery"/>
 		<query impl="org.eclipse.mat.inspections.query.DominatorQuery$ShowInDominatorQuery"/>
 		<query impl="org.eclipse.mat.inspections.query.BiggestObjectsPieQuery"/>
+		<query impl="org.eclipse.mat.inspections.query.ClassLoaderExplorerQuery"/>
 		
 		<!-- leak identification -->
 		<query impl="org.eclipse.mat.inspections.query.LeakHunterQuery"/>

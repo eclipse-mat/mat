@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.mat.snapshot.model;
 
+import java.util.List;
+
 import org.eclipse.mat.snapshot.SnapshotException;
 import org.eclipse.mat.util.IProgressListener;
 
@@ -19,8 +21,14 @@ import org.eclipse.mat.util.IProgressListener;
 public interface IClassLoader extends IInstance
 {
     /**
-     * Returns the retained size of all objects and classes loaded by this class loader.
+     * Returns the retained size of all objects and classes loaded by this class
+     * loader.
      */
-    public long getRetainedHeapSizeOfObjects(boolean calculateIfNotAvailable, boolean calculateMinRetainedSize, IProgressListener listener) throws SnapshotException;
-   
+    long getRetainedHeapSizeOfObjects(boolean calculateIfNotAvailable, boolean calculateMinRetainedSize,
+                    IProgressListener listener) throws SnapshotException;
+
+    /**
+     * Returns the classes defined by this class loader instance.
+     */
+    List<IClass> getDefinedClasses() throws SnapshotException;
 }

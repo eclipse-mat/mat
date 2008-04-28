@@ -37,7 +37,7 @@ public interface IClass extends IObject
     /**
      * Ids of all instances of this class.
      */
-    public int[] getObjectIds() throws UnsupportedOperationException, SnapshotException;
+    public int[] getObjectIds() throws SnapshotException;
 
     /**
      * Returns the id of the class loader which loaded this class.
