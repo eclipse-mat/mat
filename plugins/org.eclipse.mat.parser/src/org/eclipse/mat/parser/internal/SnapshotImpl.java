@@ -282,7 +282,7 @@ public class SnapshotImpl implements ISnapshot
                 IObject classLoader = getObject(classLoaderId);
                 label = classLoader.getClassSpecificName();
                 if (label == null)
-                    label = classLoader.getTechnicalName();
+                    label = ClassLoaderImpl.NO_LABEL;
             }
 
             loaderLabels.put(classLoaderId, label);
@@ -307,7 +307,7 @@ public class SnapshotImpl implements ISnapshot
                     IObject classLoader = getObject(classLoaderId);
                     label = classLoader.getClassSpecificName();
                     if (label == null)
-                        label = classLoader.getTechnicalName();
+                        label = ClassLoaderImpl.NO_LABEL;
                 }
 
                 loaderLabels.put(classLoaderId, label);
@@ -1486,6 +1486,16 @@ public class SnapshotImpl implements ISnapshot
     {
         return (String) loaderLabels.get(objectId);
     }
+    
+    public void setClassLoaderLabel(int objectId, String label)
+    {
+        if (label == null)
+            throw new NullPointerException("label");
+
+        String old = loaderLabels.put(objectId, label);
+        if (old == null)
+            throw new RuntimeException("Replacing a non-existent class loader label.");
+    }
 
     private int dfs2(BitField bits, BitField exclude, String[] fieldNames) throws IOException, SnapshotException
     {
@@ -1966,7 +1976,7 @@ public class SnapshotImpl implements ISnapshot
                 else
                 {
                     ClassImpl classImpl = (ClassImpl) snapshot.getObject(snapshot.indexManager.o2class().get(objectId));
-                    if (snapshot.loaderLabels.containsKey(objectId))
+                    if (snapshot.isClassLoader(objectId))
                         answer = new ClassLoaderImpl(objectId, Long.MIN_VALUE, classImpl, null);
                     else
                         answer = new InstanceImpl(objectId, Long.MIN_VALUE, classImpl, null);

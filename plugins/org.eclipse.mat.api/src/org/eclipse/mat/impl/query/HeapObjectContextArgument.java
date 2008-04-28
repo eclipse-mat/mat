@@ -36,7 +36,7 @@ public class HeapObjectContextArgument implements IHeapObjectFactory
     @Override
     public String toString()
     {
-        return label != null ? "<" + label + ">" : "<context>";
+        return label != null ? "[" + label + "]" : "[context]";
     }
 
     public IHeapObjectArgument create(final ISnapshot snapshot)
@@ -79,7 +79,7 @@ public class HeapObjectContextArgument implements IHeapObjectFactory
 
             public String getLabel()
             {
-                return "<context>";
+                return label;
             }
         };
     }

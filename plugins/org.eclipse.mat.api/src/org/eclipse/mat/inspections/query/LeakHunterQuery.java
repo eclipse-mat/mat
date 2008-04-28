@@ -46,6 +46,7 @@ import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.Category;
 import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.Help;
+import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.query.annotations.Argument.Advice;
 import org.eclipse.mat.query.results.CompositeResult;
 import org.eclipse.mat.query.results.ListResult;
@@ -70,9 +71,14 @@ import org.eclipse.mat.test.SectionSpec;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.VoidProgressListener;
 
-
+@Name("Find Leaks")
 @CommandName("leakhunter")
 @Category("Leak Identification")
+@Help("Report potential memory leaks.\n\n"
+                + "The query analyzes the dominator tree and searches for big memory chunks "
+                + "(by default more than 10% of the total heap). These could be single objects "
+                + "or groups of objects from the same class. Then it tries to automatically find the exact "
+                + "accumulation point - usually an array or a collection.")
 public class LeakHunterQuery implements IQuery
 {
 

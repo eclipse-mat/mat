@@ -16,16 +16,18 @@ import java.util.List;
 import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.parser.internal.SnapshotImpl;
 import org.eclipse.mat.snapshot.SnapshotException;
+import org.eclipse.mat.snapshot.model.ClassSpecificNameResolverRegistry;
 import org.eclipse.mat.snapshot.model.Field;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IClassLoader;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.VoidProgressListener;
 
-
 public class ClassLoaderImpl extends InstanceImpl implements IClassLoader
 {
     private static final long serialVersionUID = 1L;
+
+    public static final String NO_LABEL = "__none__";
 
     public ClassLoaderImpl(int objectId, long address, ClassImpl clazz, List<Field> fields)
     {
@@ -45,11 +47,20 @@ public class ClassLoaderImpl extends InstanceImpl implements IClassLoader
             super.readFully();
         }
     }
-    
+
     @Override
     public String getClassSpecificName()
     {
-        return source.getClassLoaderLabel(getObjectId());
+        String label = source.getClassLoaderLabel(getObjectId());
+
+        if (NO_LABEL.equals(label))
+        {
+            label = ClassSpecificNameResolverRegistry.resolve(this);
+            if (label != null)
+                source.setClassLoaderLabel(getObjectId(), label);
+        }
+
+        return label;
     }
 
     public List<IClass> getDefinedClasses() throws SnapshotException
@@ -62,16 +73,9 @@ public class ClassLoaderImpl extends InstanceImpl implements IClassLoader
     {
         return doGetRetainedHeapSizeOfObjects(source, getObjectId(), calculateIfNotAvailable, calculateMinRetainedSize,
                         listener);
-    }   
-
-    public long getMinRetainedHeapSize(int[] minRetainedSet) throws SnapshotException
-    {
-        long retainedSize = source.getHeapSize(minRetainedSet);
-        return retainedSize;
     }
 
-    public static final List<IClass> doGetDefinedClasses(SnapshotImpl dump, int classLoaderId)
-                    throws SnapshotException
+    public static final List<IClass> doGetDefinedClasses(SnapshotImpl dump, int classLoaderId) throws SnapshotException
     {
         List<IClass> answer = new ArrayList<IClass>();
         for (IClass clasz : dump.getClasses())
@@ -90,7 +94,7 @@ public class ClassLoaderImpl extends InstanceImpl implements IClassLoader
 
         if (answer > 0 || !calculateIfNotAvailable)
             return answer;
-        
+
         if (answer < 0 && calculateMinRetainedSize)
             return answer;
 
@@ -107,7 +111,7 @@ public class ClassLoaderImpl extends InstanceImpl implements IClassLoader
 
         int[] retainedSet;
         long retainedSize = 0;
-        
+
         if (!calculateMinRetainedSize)
         {
             retainedSet = dump.getRetainedSet(objectIds.toArray(), listener);
@@ -123,10 +127,10 @@ public class ClassLoaderImpl extends InstanceImpl implements IClassLoader
         }
 
         if (calculateMinRetainedSize)
-           retainedSize = -retainedSize;
-        
-        dump.getRetainedSizeCache().put(classLoaderId, retainedSize);     
+            retainedSize = -retainedSize;
+
+        dump.getRetainedSizeCache().put(classLoaderId, retainedSize);
         return retainedSize;
     }
-   
+
 }

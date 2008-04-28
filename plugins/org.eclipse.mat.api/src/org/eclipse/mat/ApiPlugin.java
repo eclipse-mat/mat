@@ -9,8 +9,11 @@
  *    SAP AG - initial API and implementation
  *******************************************************************************/
 package org.eclipse.mat;
+
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Plugin;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.dynamichelpers.ExtensionTracker;
 import org.eclipse.core.runtime.dynamichelpers.IExtensionTracker;
 import org.osgi.framework.BundleContext;
@@ -49,6 +52,21 @@ public class ApiPlugin extends Plugin
     public IExtensionTracker getExtensionTracker()
     {
         return tracker;
+    }
+
+    public static void log(IStatus status)
+    {
+        getDefault().getLog().log(status);
+    }
+
+    public static void log(Throwable e)
+    {
+        log(e, "Internal Error");
+    }
+
+    public static void log(Throwable e, String message)
+    {
+        log(new Status(IStatus.ERROR, PLUGIN_ID, message, e));
     }
 
 }

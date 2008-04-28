@@ -22,7 +22,7 @@ import org.eclipse.mat.snapshot.ClassLoaderHistogramRecord;
 import org.eclipse.mat.snapshot.Histogram;
 import org.eclipse.mat.snapshot.HistogramRecord;
 import org.eclipse.mat.snapshot.SnapshotException;
-
+import org.eclipse.mat.snapshot.model.IObject;
 
 public class HistogramBuilder extends HistogramRecord
 {
@@ -81,12 +81,15 @@ public class HistogramBuilder extends HistogramRecord
             ClassLoaderHistogramRecordBuilder clRec = cl2builder.get(classLoaderId);
             if (clRec == null)
             {
-                String loaderLabel = snapshot.getClassLoaderLabel(classLoaderId);
+                IObject classLoader = snapshot.getObject(classLoaderId);
+                String label = classLoader.getClassSpecificName();
+                if (label == null)
+                    label = classLoader.getTechnicalName();
 
                 long retainedHeapSize = isDefaultHistogram ? ClassLoaderImpl.doGetRetainedHeapSizeOfObjects(snapshot,
                                 classLoaderId, false, false, null) : 0;
 
-                clRec = new ClassLoaderHistogramRecordBuilder(loaderLabel, classLoaderId, retainedHeapSize);
+                clRec = new ClassLoaderHistogramRecordBuilder(label, classLoaderId, retainedHeapSize);
                 cl2builder.put(classLoaderId, clRec);
             }
             clRec.add(record);

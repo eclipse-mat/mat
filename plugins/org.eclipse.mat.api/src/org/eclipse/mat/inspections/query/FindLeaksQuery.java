@@ -37,7 +37,6 @@ import org.eclipse.mat.query.ResultMetaData;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.Category;
 import org.eclipse.mat.query.annotations.Help;
-import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.snapshot.ClassHistogramRecord;
 import org.eclipse.mat.snapshot.ClassLoaderHistogramRecord;
 import org.eclipse.mat.snapshot.Histogram;
@@ -50,14 +49,7 @@ import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.VoidProgressListener;
 
-
-@Name("Find Leaks")
-@Category("Leak Identification")
-@Help("Report potential memory leaks.\n\n"
-                + "The query analyzes the dominator tree and searches for big memory chunks "
-                + "(by default more than 20% of the total heap). These could be single objects "
-                + "or groups of objects from the same class. Then it tries to automatically find the exact "
-                + "accumulation point - usually an array or a collection.")
+@Category(Category.HIDDEN)
 public class FindLeaksQuery implements IQuery
 {
 

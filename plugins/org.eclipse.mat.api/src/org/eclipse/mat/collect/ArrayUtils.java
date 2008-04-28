@@ -15,19 +15,18 @@ public class ArrayUtils
 {
 
     /**
-     * Sorts the keys in an increasing order. Elements key[i] and
-     * values[i] are always swapped together in the corresponding arrays. 
-     * 
+     * Sorts the keys in an increasing order. Elements key[i] and values[i] are
+     * always swapped together in the corresponding arrays.
+     * <p>
      * A mixture of several sorting algorithms is used:
-     * 
-     * A radix sort performs better on the numeric data we sort, but requires 
-     * additional storage to perform the sorting. Therefore only the not-very-large
-     * parts produced by a quick sort are sorted with radix sort.
-     * An insertion sort is used to sort the smallest arrays, where the the overhead of the 
-     * radix sort is also bigger 
-     * 
+     * <p>
+     * A radix sort performs better on the numeric data we sort, but requires
+     * additional storage to perform the sorting. Therefore only the
+     * not-very-large parts produced by a quick sort are sorted with radix sort.
+     * An insertion sort is used to sort the smallest arrays, where the the
+     * overhead of the radix sort is also bigger
+     * <p>
      * Works correctly only with positive keys!
-     *  
      */
     public static void sort(int[] keys, int[] values)
     {
@@ -35,19 +34,18 @@ public class ArrayUtils
     }
 
     /**
-     * Sorts the keys in an decreasing order. Elements key[i] and
-     * values[i] are always swapped together in the corresponding arrays. 
-     * 
+     * Sorts the keys in an decreasing order. Elements key[i] and values[i] are
+     * always swapped together in the corresponding arrays.
+     * <p>
      * A mixture of several sorting algorithms is used:
-     * 
-     * A radix sort performs better on the numeric data we sort, but requires 
-     * additional storage to perform the sorting. Therefore only the not-very-large
-     * parts produced by a quick sort are sorted with radix sort.
-     * An insertion sort is used to sort the smallest arrays, where the the overhead of the 
-     * radix sort is also bigger 
-     * 
+     * <p>
+     * A radix sort performs better on the numeric data we sort, but requires
+     * additional storage to perform the sorting. Therefore only the
+     * not-very-large parts produced by a quick sort are sorted with radix sort.
+     * An insertion sort is used to sort the smallest arrays, where the the
+     * overhead of the radix sort is also bigger
+     * <p>
      * Works correctly only with positive keys!
-     *  
      */
     public static void sortDesc(long[] keys, int[] values)
     {
@@ -56,23 +54,22 @@ public class ArrayUtils
 
     
     /**
-     * Sorts the keys in an decreasing order. Elements key[i] and
-     * values[i] are always swapped together in the corresponding arrays. 
-     * 
+     * Sorts the keys in an decreasing order. Elements key[i] and values[i] are
+     * always swapped together in the corresponding arrays.
+     * <p>
      * A mixture of several sorting algorithms is used:
-     * 
-     * A radix sort performs better on the numeric data we sort, but requires 
-     * additional storage to perform the sorting. Therefore only the not-very-large
-     * parts produced by a quick sort are sorted with radix sort.
-     * An insertion sort is used to sort the smallest arrays, where the the overhead of the 
-     * radix sort is also bigger 
-     * 
+     * <p>
+     * A radix sort performs better on the numeric data we sort, but requires
+     * additional storage to perform the sorting. Therefore only the
+     * not-very-large parts produced by a quick sort are sorted with radix sort.
+     * An insertion sort is used to sort the smallest arrays, where the the
+     * overhead of the radix sort is also bigger
+     * <p>
      * Works correctly only with positive keys!
-     * 
-     * This version of the method allows the temporarily needed arrays for the radix sort
-     * to be provided externally - tempa and tempb. This saves unnecessary array creation
-     * and cleanup
-     *  
+     * <p>
+     * This version of the method allows the temporarily needed arrays for the
+     * radix sort to be provided externally - tempa and tempb. This saves
+     * unnecessary array creation and cleanup
      */
     public static void sortDesc(long[] a, int[] b, long[] tmpa, int[] tmpb)
     {
@@ -81,18 +78,17 @@ public class ArrayUtils
 
     /**
      * Sorts a range from the keys in an increasing order. Elements key[i] and
-     * values[i] are always swapped together in the corresponding arrays. 
-     * 
+     * values[i] are always swapped together in the corresponding arrays.
+     * <p>
      * A mixture of several sorting algorithms is used:
-     * 
-     * A radix sort performs better on the numeric data we sort, but requires 
-     * additional storage to perform the sorting. Therefore only the not-very-large
-     * parts produced by a quick sort are sorted with radix sort.
-     * An insertion sort is used to sort the smallest arrays, where the the overhead of the 
-     * radix sort is also bigger 
-     * 
+     * <p>
+     * A radix sort performs better on the numeric data we sort, but requires
+     * additional storage to perform the sorting. Therefore only the
+     * not-very-large parts produced by a quick sort are sorted with radix sort.
+     * An insertion sort is used to sort the smallest arrays, where the the
+     * overhead of the radix sort is also bigger
+     * <p>
      * Works correctly only with positive keys!
-     *  
      */
     public static void sort(int[] keys, int[] values, int offset, int length)
     {
@@ -283,7 +279,8 @@ public class ArrayUtils
                 int[] i = splitDesc(keys, values, left, right);
                 
                 // sort all keys bigger than keys[i]
-                if (left < i[0] - 1) hybridsortDesc(keys, values, tmpKeys, tmpValues, left, i[0] - 1);;
+                if (left < i[0] - 1)
+                    hybridsortDesc(keys, values, tmpKeys, tmpValues, left, i[0] - 1);
                 
                 // sort all keys smaller than keys[i]
                 if (right > i[1] + 1) hybridsortDesc(keys, values, tmpKeys, tmpValues, i[1] + 1, right);

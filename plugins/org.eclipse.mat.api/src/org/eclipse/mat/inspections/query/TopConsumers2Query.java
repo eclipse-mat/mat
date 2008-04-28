@@ -50,6 +50,7 @@ import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.SnapshotException;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
+import org.eclipse.mat.test.Params;
 import org.eclipse.mat.test.QuerySpec;
 import org.eclipse.mat.test.SectionSpec;
 import org.eclipse.mat.util.IProgressListener;
@@ -207,7 +208,9 @@ public class TopConsumers2Query implements IQuery
                     pie.addSlice(ids[ii]);
 
                 composite.add(new QuerySpec("Biggest Objects (Overview)", pie.build()));
-                composite.add(new QuerySpec("Biggest Objects", new ObjectListQuery.OutboundObjects(snapshot, ids)));
+                QuerySpec spec = new QuerySpec("Biggest Objects", new ObjectListQuery.OutboundObjects(snapshot, ids));
+                spec.set(Params.Html.COLLAPSED, Boolean.TRUE.toString());
+                composite.add(spec);
             }
         }
 
@@ -268,7 +271,10 @@ public class TopConsumers2Query implements IQuery
             result.addColumn(COL_RETAINED_HEAP, new PercentageValueProvider(totalHeap));
 
             composite.add(new QuerySpec("Biggest Top-Level Dominator Classes (Overview)", pie.build()));
-            composite.add(new QuerySpec("Biggest Top-Level Dominator Classes", result));
+
+            QuerySpec spec = new QuerySpec("Biggest Top-Level Dominator Classes", result);
+            spec.set(Params.Html.COLLAPSED, Boolean.TRUE.toString());
+            composite.add(spec);
         }
     }
 
@@ -324,7 +330,10 @@ public class TopConsumers2Query implements IQuery
             result.addColumn(COL_RETAINED_HEAP, new PercentageValueProvider(totalHeap));
 
             composite.add(new QuerySpec("Biggest Top-Level Dominator Class Loaders (Overview)", pie.build()));
-            composite.add(new QuerySpec("Biggest Top-Level Dominator Class Loaders", result));
+
+            QuerySpec spec = new QuerySpec("Biggest Top-Level Dominator Class Loaders", result);
+            spec.set(Params.Html.COLLAPSED, Boolean.TRUE.toString());
+            composite.add(spec);
         }
     }
 

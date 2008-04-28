@@ -217,7 +217,7 @@ public class QueryContextMenu
     // do nothing, to be overwritten
     }
 
-    private static final Pattern PATH_PATTERN = Pattern.compile("^[^ ]*\\.([\\p{Alnum}$]([^ .])*.*)$");
+    private static final Pattern PATH_PATTERN = Pattern.compile("^[^ ]*\\.([A-Z][\\p{Alnum}$]([^ .])*.*)$");
 
     private static String fixLabel(String label)
     {
@@ -225,7 +225,7 @@ public class QueryContextMenu
         label = matcher.matches() ? matcher.group(1) : label;
         return (label.length() > 100) ? label.substring(0, 100) + "..." : label;
     }
-
+    
     private static final class QueryAction extends Action
     {
         HeapEditor editor;

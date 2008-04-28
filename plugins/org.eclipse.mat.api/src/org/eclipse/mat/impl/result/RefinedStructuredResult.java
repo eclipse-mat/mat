@@ -440,9 +440,9 @@ public abstract class RefinedStructuredResult implements IStructuredResult, ISel
         return row;
     }
 
-    public void calculateTotals(List<?> elements, TotalsRow control, IProgressListener listener)
+    public void calculateTotals(List<?> elements, TotalsRow totals, IProgressListener listener)
     {
-        control.setTotals(this.totalsCalculator.calculate(subject, elements, listener));
+        totals.setTotals(this.totalsCalculator.calculate(subject, elements, listener));
     }
 
     // //////////////////////////////////////////////////////////////

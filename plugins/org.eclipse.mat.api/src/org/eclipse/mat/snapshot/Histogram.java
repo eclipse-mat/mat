@@ -29,7 +29,6 @@ import org.eclipse.mat.query.IResultTree;
 import org.eclipse.mat.query.Icons;
 import org.eclipse.mat.query.ResultMetaData;
 
-
 /**
  * Class histogram - heap objects aggregated by their class. It holds the number
  * and consumed memory of the objects aggregated per class and aggregated per
@@ -698,7 +697,7 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
 
             public String getOQL()
             {
-                return null;
+                return isDefaultHistogram ? OQL.forObjectsOfClass(record.getClassId()) : null;
             }
         };
     }
@@ -808,7 +807,10 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
 
                     public String getOQL()
                     {
-                        return null;
+                        if (histogram.isDefaultHistogram)
+                            return OQL.classesByClassLoaderId(record.getClassLoaderId());
+                        else
+                            return null;
                     }
                 };
             }
@@ -832,7 +834,10 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
 
                     public String getOQL()
                     {
-                        return null;
+                        if (histogram.isDefaultHistogram)
+                            return OQL.forObjectsOfClass(record.getClassId());
+                        else
+                            return null;
                     }
                 };
             }
