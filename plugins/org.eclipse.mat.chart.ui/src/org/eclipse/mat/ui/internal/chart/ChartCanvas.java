@@ -43,6 +43,8 @@ public class ChartCanvas extends Canvas
 
     private Image cachedImage = null;
 
+    private boolean needsGeneration = true;
+
     public ChartCanvas(Composite parent, int style)
     {
         super(parent, style);
@@ -63,17 +65,12 @@ public class ChartCanvas extends Canvas
 
             public void paintControl(PaintEvent e)
             {
-
                 Composite co = (Composite) e.getSource();
                 final Rectangle rect = co.getClientArea();
 
-                if (cachedImage == null)
-                {
-                    if (chart != null)
-                        buildChart();
-
+                if (needsGeneration)
                     drawToCachedImage(rect);
-                }
+
                 e.gc.drawImage(cachedImage, 0, 0, cachedImage.getBounds().width, cachedImage.getBounds().height, 0, 0,
                                 rect.width, rect.height);
 
@@ -82,17 +79,14 @@ public class ChartCanvas extends Canvas
 
         addControlListener(new ControlAdapter()
         {
-
             public void controlResized(ControlEvent e)
             {
-                if (chart != null)
-                    buildChart();
-                cachedImage = null;
+                needsGeneration = true;
             }
         });
     }
 
-    private void buildChart()
+    private void generateChartState(GC gc)
     {
         try
         {
@@ -114,6 +108,8 @@ public class ChartCanvas extends Canvas
             });
 
             state = gr.build(render.getDisplayServer(), chart, bo, null, rtc, null);
+
+            needsGeneration = false;
         }
         catch (ChartException e)
         {
@@ -121,20 +117,22 @@ public class ChartCanvas extends Canvas
         }
     }
 
-    public void drawToCachedImage(Rectangle size)
+    private void drawToCachedImage(Rectangle size)
     {
         GC gc = null;
         try
         {
             if (cachedImage != null)
                 cachedImage.dispose();
+
             cachedImage = new Image(Display.getCurrent(), size.width, size.height);
 
             gc = new GC(cachedImage);
             render.setProperty(IDeviceRenderer.GRAPHICS_CONTEXT, gc);
 
-            if (state != null)
+            if (chart != null)
             {
+                generateChartState(gc);
                 Generator gr = Generator.instance();
                 gr.render(render, state);
             }
@@ -157,10 +155,7 @@ public class ChartCanvas extends Canvas
 
     public void setChart(Chart chart)
     {
-        if (cachedImage != null)
-            cachedImage.dispose();
-
-        cachedImage = null;
+        needsGeneration = true;
         this.chart = chart;
     }
 
