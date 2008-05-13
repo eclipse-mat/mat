@@ -111,7 +111,7 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
 
             List<ClassImpl> classes2remove = new ArrayList<ClassImpl>();
 
-            IOne2OneIndex preA2size = idx.array2size;
+            final IOne2OneIndex preA2size = idx.array2size;
 
             for (int ii = 0, jj = 0; ii < oldNoOfObjects; ii++)
             {
@@ -150,10 +150,6 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
                     }
                 }
             }
-
-            preA2size.close();
-            preA2size.delete();
-            preA2size = null;
 
             // classes cannot be removed right away
             // as they are needed to remove instances of this class
@@ -253,7 +249,7 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
             idxManager.setReader(Index.A2SIZE, new IndexWriter.IntIndexStreamer().writeTo(indexFile,
                             new NewObjectIntIterator()
                             {
-                                IOne2OneIndex a2size = idx.array2size;
+                                IOne2OneIndex a2size = preA2size;
                                 int newIndex = 0;
 
                                 @Override
@@ -273,6 +269,9 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
                                 }
                             }));
 
+            preA2size.close();
+            preA2size.delete();
+            
             if (listener.isCanceled())
                 return null;
             listener.worked(1); // 9
