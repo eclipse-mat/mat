@@ -147,7 +147,9 @@ public abstract class IndexWriter
         {}
 
         public void delete()
-        {}
+        {
+            identifiers = null;
+        }
 
         public void unload() throws IOException
         {
@@ -299,7 +301,7 @@ public abstract class IndexWriter
 
         protected abstract ArrayIntCompressed getPage(int page);
 
-        public synchronized void unload() throws IOException
+        public synchronized void unload()
         {
             this.pages = new Pages<V>(size / pageSize + 1);
         }
@@ -374,7 +376,9 @@ public abstract class IndexWriter
         {}
 
         public void delete()
-        {}
+        {
+            pages = null;
+        }
     }
 
     public static class IntIndexStreamer extends IntIndex<SoftReference<ArrayIntCompressed>>
@@ -1113,9 +1117,10 @@ public abstract class IndexWriter
 
         protected abstract ArrayLongCompressed getPage(int page);
 
-        public synchronized void unload() throws IOException
+        public synchronized void unload()
         {
-            this.pages = new HashMapIntObject<Object>(size / pageSize + 1);
+            pages = new HashMapIntObject<Object>(size / pageSize + 1);
+            binarySearchCache = new HashMapIntLong(1 << DEPTH);
         }
 
         public int size()

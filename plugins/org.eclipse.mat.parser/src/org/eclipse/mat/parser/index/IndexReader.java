@@ -95,6 +95,8 @@ public abstract class IndexReader
 
         public synchronized void close()
         {
+            unload();
+            
             if (in != null)
             {
                 try
@@ -241,6 +243,9 @@ public abstract class IndexReader
 
         public synchronized void close()
         {
+            header.unload();
+            body.unload();
+            
             if (in != null)
             {
                 try
@@ -409,6 +414,8 @@ public abstract class IndexReader
 
         public synchronized void close()
         {
+            unload();
+            
             if (in != null)
             {
                 try
@@ -538,6 +545,8 @@ public abstract class IndexReader
 
         public synchronized void close()
         {
+            unload();
+            
             if (in != null)
             {
                 try
@@ -555,7 +564,7 @@ public abstract class IndexReader
             }
         }
 
-        public void unload() throws IOException
+        public void unload()
         {
             header.unload();
             body.unload();
