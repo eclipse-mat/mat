@@ -129,7 +129,7 @@ public class OpenSnapshot
                 {
                     if (jj > 0)
                         e.append(";");
-                    e.append("*").append(fileExtensions[jj]);
+                    e.append("*.").append(fileExtensions[jj]);
                 }
 
                 filterExtensions[ii + 1] = e.toString();

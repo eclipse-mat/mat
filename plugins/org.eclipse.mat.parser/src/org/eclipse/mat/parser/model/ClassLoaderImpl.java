@@ -29,6 +29,8 @@ public class ClassLoaderImpl extends InstanceImpl implements IClassLoader
 
     public static final String NO_LABEL = "__none__";
 
+    private volatile transient List<IClass> definedClasses = null;
+
     public ClassLoaderImpl(int objectId, long address, ClassImpl clazz, List<Field> fields)
     {
         super(objectId, address, clazz, fields);
@@ -65,7 +67,18 @@ public class ClassLoaderImpl extends InstanceImpl implements IClassLoader
 
     public List<IClass> getDefinedClasses() throws SnapshotException
     {
-        return doGetDefinedClasses(source, getObjectId());
+        if (definedClasses == null)
+        {
+            synchronized (this)
+            {
+                if (definedClasses == null)
+                {
+                    definedClasses = doGetDefinedClasses(source, getObjectId());
+                }
+            }
+        }
+
+        return definedClasses;
     }
 
     public long getRetainedHeapSizeOfObjects(boolean calculateIfNotAvailable, boolean calculateMinRetainedSize,

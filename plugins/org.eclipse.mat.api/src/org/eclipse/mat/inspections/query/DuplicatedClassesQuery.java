@@ -36,16 +36,16 @@ import org.eclipse.mat.snapshot.OQL;
 import org.eclipse.mat.snapshot.SnapshotException;
 import org.eclipse.mat.snapshot.model.GCRootInfo;
 import org.eclipse.mat.snapshot.model.IClass;
-import org.eclipse.mat.snapshot.model.IObject;
+import org.eclipse.mat.snapshot.model.IClassLoader;
 import org.eclipse.mat.snapshot.model.ObjectComparators;
 import org.eclipse.mat.test.ITestResult;
 import org.eclipse.mat.util.IProgressListener;
 
-
 @Name("Duplicate Classes")
 @Category("Java Basics")
 @Help("Extract classes loaded multiple times.")
-public class DuplicatedClassesQuery implements IQuery, IResultTree, IIconProvider, ITestResult, IDecorator, ISelectionProvider
+public class DuplicatedClassesQuery implements IQuery, IResultTree, IIconProvider, ITestResult, IDecorator,
+                ISelectionProvider
 {
     @Argument
     public ISnapshot snapshot;
@@ -59,7 +59,8 @@ public class DuplicatedClassesQuery implements IQuery, IResultTree, IIconProvide
     public IResult execute(IProgressListener listener) throws Exception
     {
         IClass[] allClasses = snapshot.getClasses().toArray(new IClass[0]);
-        listener.beginTask("Checking for duplicate Classes", allClasses.length / 100);
+        int length = allClasses.length;
+        listener.beginTask("Checking for duplicate Classes", length / 100);
 
         Arrays.sort(allClasses, ObjectComparators.getComparatorForTechnicalNameAscending());
 
@@ -67,21 +68,23 @@ public class DuplicatedClassesQuery implements IQuery, IResultTree, IIconProvide
 
         String previousName = allClasses[0].getName();
 
-        for (int ii = 1; ii < allClasses.length; ii++)
+        for (int ii = 1; ii < length; ii++)
         {
             if (previousName.equals(allClasses[ii].getName()))
             {
                 List<IClass> duplicates = new ArrayList<IClass>();
                 problems.add(duplicates);
 
-                for (ii--; allClasses[ii].getName().equals(previousName); ii++)
+                for (ii--; ii < length && allClasses[ii].getName().equals(previousName); ii++)
                 {
                     duplicates.add(allClasses[ii]);
                 }
             }
-            previousName = allClasses[ii].getName();
 
-            if (ii / 100 == 0)
+            if (ii < length)
+                previousName = allClasses[ii].getName();
+
+            if (ii % 100 == 0)
                 listener.worked(1);
 
             if (listener.isCanceled())
@@ -112,7 +115,9 @@ public class DuplicatedClassesQuery implements IQuery, IResultTree, IIconProvide
     public Column[] getColumns()
     {
         return new Column[] { new Column("Name").decorator(this), //
-                        new Column("Count", int.class).sorting(Column.SortDirection.DESC) };
+                        new Column("Count", int.class).sorting(Column.SortDirection.DESC), //
+                        new Column("Defined Classes", int.class).noTotals(), //
+                        new Column("No. of Instances", int.class).noTotals() };
     }
 
     public List<?> getElements()
@@ -147,17 +152,32 @@ public class DuplicatedClassesQuery implements IQuery, IResultTree, IIconProvide
         }
         else if (element instanceof IClass)
         {
-            if (columnIndex == 0)
+            if (columnIndex != 1)
             {
                 try
                 {
-                    IObject classLoader = snapshot.getObject(((IClass) element).getClassLoaderId());
-                    String loaderName = classLoader.getClassSpecificName();
+                    IClassLoader classLoader = (IClassLoader) snapshot.getObject(((IClass) element).getClassLoaderId());
 
-                    if (loaderName != null)
-                        return loaderName + " @ 0x" + Long.toHexString(classLoader.getObjectAddress());
-                    else
-                        return classLoader.getTechnicalName();
+                    switch (columnIndex)
+                    {
+                        case 0:
+                            String loaderName = classLoader.getClassSpecificName();
+
+                            if (loaderName != null)
+                                return loaderName + " @ 0x" + Long.toHexString(classLoader.getObjectAddress());
+                            else
+                                return classLoader.getTechnicalName();
+                        case 1:
+                            return null;
+                        case 2:
+                            return classLoader.getDefinedClasses().size();
+                        case 3:
+                            int instantiatedObjects = 0;
+                            for (IClass clazz : classLoader.getDefinedClasses())
+                                instantiatedObjects += clazz.getNumberOfObjects();
+                            return instantiatedObjects;
+                    }
+
                 }
                 catch (SnapshotException e)
                 {
