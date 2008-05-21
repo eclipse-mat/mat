@@ -67,18 +67,18 @@ public class ClassLoaderImpl extends InstanceImpl implements IClassLoader
 
     public List<IClass> getDefinedClasses() throws SnapshotException
     {
-        if (definedClasses == null)
+        List<IClass> result = definedClasses;
+        if (result == null)
         {
             synchronized (this)
             {
-                if (definedClasses == null)
+                if (result == null)
                 {
-                    definedClasses = doGetDefinedClasses(source, getObjectId());
+                    definedClasses = result = doGetDefinedClasses(source, getObjectId());
                 }
             }
         }
-
-        return definedClasses;
+        return result;
     }
 
     public long getRetainedHeapSizeOfObjects(boolean calculateIfNotAvailable, boolean calculateMinRetainedSize,

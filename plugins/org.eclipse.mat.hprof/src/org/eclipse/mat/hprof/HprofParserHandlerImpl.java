@@ -173,58 +173,30 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
         // create required (fake) classes for arrays
         if (!requiredArrayClassIDs.isEmpty())
         {
-            if (version.ordinal() >= AbstractParser.Version.JDK12BETA4.ordinal())
+            for (long arrayClassID : requiredArrayClassIDs)
             {
-                for (long arrayClassID : requiredArrayClassIDs)
+                IClass arrayType = lookupClass(arrayClassID);
+                if (arrayType == null)
                 {
-                    IClass arrayType = lookupClass(arrayClassID);
-                    if (arrayType == null)
+                    // in some dumps (written with a beta version), the
+                    // elementClass is written in the arrayClassId
+
+                    int objectId = identifiers.reverse(arrayClassID);
+                    if (objectId >= 0)
                     {
-                        // in some dumps (written with a beta version), the
-                        // elementClass is written in the arrayClassId
-
-                        int objectId = identifiers.reverse(arrayClassID);
-                        if (objectId >= 0)
-                        {
-                            final String MSG = "Error: 0x{0} is used as class and object simultaneously. Are you using a beta DLL for Sun JDK 1.4.2 to write the heap dump?";
-                            String msg = MessageFormat.format(MSG, new Object[] { Long.toHexString(arrayClassID) });
-                            throw new SnapshotException(msg);
-                        }
-
-                        arrayType = new ClassImpl(arrayClassID, "unknown-class[]", 0, 0, new Field[0],
-                                        new FieldDescriptor[0]);
-                        addClass((ClassImpl) arrayType, -1);
-
-                        // commented by kt. It is already added by the
-                        // addClass() call above
-                        // identifiers.add(arrayClassID);
+                        final String MSG = "Error: 0x{0} is used as class and object simultaneously. Are you using a beta DLL for Sun JDK 1.4.2 to write the heap dump?";
+                        String msg = MessageFormat.format(MSG, Long.toHexString(arrayClassID));
+                        throw new SnapshotException(msg);
                     }
+
+                    arrayType = new ClassImpl(arrayClassID, "unknown-class[]", 0, 0, new Field[0],
+                                    new FieldDescriptor[0]);
+                    addClass((ClassImpl) arrayType, -1);
+
+                    // commented by kt. It is already added by the
+                    // addClass() call above
+                    // identifiers.add(arrayClassID);
                 }
-            }
-            else
-            {
-                for (long elementClassID : requiredArrayClassIDs)
-                {
-                    IClass arrayType = lookupClass(elementClassID);
-                    String name = null;
-                    if (arrayType != null)
-                    {
-                        name = arrayType.getName() + "[]";
-                        arrayType = lookupClassByName(name, true);
-                    }
-
-                    if (arrayType == null)
-                    {
-                        while (identifiers.reverse(++nextObjectAddress) >= 0)
-                        {}
-
-                        arrayType = new ClassImpl(nextObjectAddress, name != null ? name : "unknown-class[]", 0, 0,
-                                        new Field[0], new FieldDescriptor[0]);
-                        addClass((ClassImpl) arrayType, -1);
-                    }
-
-                }
-
             }
         }
         requiredArrayClassIDs = null;
@@ -295,8 +267,9 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
 
     public IOne2LongIndex fillIn(IPreliminaryIndex index) throws IOException
     {
-        // Ensure all classes loaded by the system class loaders are marked as
+        // ensure all classes loaded by the system class loaders are marked as
         // GCRoots
+        //
         // For some dumps produced with jmap 1.5_xx this is not the case, and
         // it may happen that the super classes of some classes are missing
         // Array classes, e.g. java.lang.String[][] are not explicitly

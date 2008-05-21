@@ -38,7 +38,7 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
 /* package */class GarbageCleaner
 {
 
-    public static int[] clean(final PrelimanryIndexImpl idx, final SnapshotImplBuilder builder,
+    public static int[] clean(final PreliminaryIndexImpl idx, final SnapshotImplBuilder builder,
                     IProgressListener listener) throws IOException
     {
         IndexManager idxManager = new IndexManager();

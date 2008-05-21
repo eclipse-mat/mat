@@ -318,8 +318,8 @@ public class Pass1Parser extends AbstractParser
 
     private void readInstanceDump(long segmentStartPos) throws IOException
     {
-        long id = readID();
-        handler.reportInstance(id, segmentStartPos);
+        long address = readID();
+        handler.reportInstance(address, segmentStartPos);
         in.skipBytes(idSize + 4);
         int payload = in.readInt();
         in.skipBytes(payload);

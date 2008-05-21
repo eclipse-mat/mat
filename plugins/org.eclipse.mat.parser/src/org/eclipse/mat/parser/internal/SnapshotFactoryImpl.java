@@ -178,7 +178,7 @@ public class SnapshotFactoryImpl implements ISnapshotFactory
             XSnapshotInfo snapshotInfo = new XSnapshotInfo();
             snapshotInfo.setPath(file.getAbsolutePath());
             snapshotInfo.setPrefix(prefix);
-            PrelimanryIndexImpl idx = new PrelimanryIndexImpl(snapshotInfo);
+            PreliminaryIndexImpl idx = new PreliminaryIndexImpl(snapshotInfo);
 
             indexBuilder.fill(idx, listener);
 

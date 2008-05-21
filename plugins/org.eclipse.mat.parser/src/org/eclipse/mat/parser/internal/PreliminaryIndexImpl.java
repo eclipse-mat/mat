@@ -20,7 +20,7 @@ import org.eclipse.mat.parser.model.XGCRootInfo;
 import org.eclipse.mat.parser.model.XSnapshotInfo;
 
 
-/* package */class PrelimanryIndexImpl implements IPreliminaryIndex
+/* package */class PreliminaryIndexImpl implements IPreliminaryIndex
 {
     XSnapshotInfo snapshotInfo;
 
@@ -43,7 +43,7 @@ import org.eclipse.mat.parser.model.XSnapshotInfo;
     // id -> int (size)
     IIndexReader.IOne2OneIndex array2size = null;
 
-    public PrelimanryIndexImpl(XSnapshotInfo snapshotInfo)
+    public PreliminaryIndexImpl(XSnapshotInfo snapshotInfo)
     {
         this.snapshotInfo = snapshotInfo;
     }

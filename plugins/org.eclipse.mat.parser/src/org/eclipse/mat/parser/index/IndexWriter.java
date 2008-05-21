@@ -38,7 +38,6 @@ import org.eclipse.mat.parser.io.BitInputStream;
 import org.eclipse.mat.parser.io.BitOutputStream;
 import org.eclipse.mat.util.IProgressListener;
 
-
 public abstract class IndexWriter
 {
     public static final int PAGE_SIZE_INT = 1000000;
@@ -725,8 +724,6 @@ public abstract class IndexWriter
         {
             close();
 
-            int javaLangClassLoaderClassId = -1;
-
             int[] header = new int[size];
 
             DataOutputStream index = new DataOutputStream(new BufferedOutputStream(
@@ -763,19 +760,7 @@ public abstract class IndexWriter
                         refIndex[ii] = segmentIn.readInt(bitLength);
 
                         if (isPseudo)
-                        {
-                            // if the pseudo reference is from the system class
-                            // loader instance (object id = 0) to the
-                            // java.lang.Class, then we cannot store that
-                            // information using a negative number. For this one
-                            // special case we save the value in
-                            // javaLangClassLoaderClassId
-
-                            if (refIndex[ii] == 0)
-                                javaLangClassLoaderClassId = objIndex[ii];
-                            else
-                                refIndex[ii] *= -1;
-                        }
+                            refIndex[ii] = -1 - refIndex[ii]; // 0 is a valid!
                     }
 
                     segmentIn.close();
@@ -816,10 +801,10 @@ public abstract class IndexWriter
 
                             for (int jj = start; jj < ii; jj++)
                             {
-                                if (refIndex[jj] < 0 || (previous == javaLangClassLoaderClassId && refIndex[jj] == 0))
+                                if (refIndex[jj] < 0)
                                 {
                                     endPseudo++;
-                                    refIndex[jj] *= -1;
+                                    refIndex[jj] = -refIndex[jj] - 1;
                                 }
 
                                 if (duplicates.add(refIndex[jj]))
@@ -1011,7 +996,8 @@ public abstract class IndexWriter
 
         int pageSize;
         int size;
-        /** pages are either IntArrayCompressed or SoftReference<IntArrayCompressed> */
+        // pages are either IntArrayCompressed or
+        // SoftReference<IntArrayCompressed>
         HashMapIntObject<Object> pages;
         HashMapIntLong binarySearchCache = new HashMapIntLong(1 << DEPTH);
 
