@@ -24,7 +24,6 @@ import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.util.IProgressListener;
 
-
 @Name("System Properties")
 @Category("Java Basics")
 @Help("Displays the Java system properties.")
@@ -38,10 +37,16 @@ public class SystemPropertiesQuery implements IQuery
         Collection<IClass> classes = snapshot.getClassesByName("java.lang.System", false); //$NON-NLS-1$
         IClass systemClass = (IClass) classes.iterator().next();
 
+        IObject properties = (IObject) systemClass.resolveValue("props"); //$NON-NLS-1$
+        if (properties == null)
+            properties = (IObject) systemClass.resolveValue("systemProperties"); //$NON-NLS-1$
+        if (properties == null)
+            return null;
+
         HashEntriesQuery query = new HashEntriesQuery();
         query.snapshot = snapshot;
-        query.objects = QueryUtil.asArgument((IObject) systemClass.resolveValue("props"));
-        return (HashEntriesQuery.Result)QueryUtil.execute(query, listener);
+        query.objects = QueryUtil.asArgument(properties);
+        return (HashEntriesQuery.Result) QueryUtil.execute(query, listener);
     }
 
 }
