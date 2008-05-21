@@ -11,9 +11,12 @@
 package org.eclipse.mat.ui.internal.views;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
@@ -23,7 +26,6 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.window.Window;
 import org.eclipse.mat.snapshot.SnapshotInfo;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.SnapshotHistoryService;
@@ -44,11 +46,13 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.ui.IEditorDescriptor;
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorRegistry;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
@@ -56,74 +60,104 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 
-
-public class SnapshotHistoryView extends ViewPart implements
-                org.eclipse.mat.ui.SnapshotHistoryService.IChangeListener
+public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.SnapshotHistoryService.IChangeListener
 {
 
-    static class DeleteSnapshotDialog extends MessageDialog
+    private class Outline extends SnapshotOutlinePage implements SelectionListener
     {
-        private boolean deleteInFileSystem = false;
+        SnapshotHistoryService.Entry current;
 
-        /**
-         * Control testing mode. In testing mode, it returns true to delete
-         * contents and does not pop up the dialog.
-         */
-        private boolean fIsTesting = false;
-
-        private Button radio1;
-
-        private Button radio2;
-
-        public DeleteSnapshotDialog(Shell parentShell, Path[] paths)
+        public Outline()
         {
-            super(parentShell, "Confirm Deletion of Heap Dump", null, // accept the
-                            // default window
-                            // icon
-                            getMessage(paths), MessageDialog.QUESTION, new String[] { IDialogConstants.YES_LABEL,
-                                            IDialogConstants.NO_LABEL }, 0); // yes
+            table.addSelectionListener(this);
         }
 
-        private static String getMessage(Path[] paths)
+        public void widgetDefaultSelected(SelectionEvent e)
         {
-            String message;
-            if (paths.length == 1)
+            widgetSelected(e);
+        }
+
+        public void widgetSelected(SelectionEvent e)
+        {
+            SnapshotHistoryService.Entry newEntry = (SnapshotHistoryService.Entry) ((TableItem) e.item).getData();
+
+            if (newEntry != null)
             {
-                message = "Are you sure you want to delete heap dump '" + paths[0].toOSString() + "'?";
-            }
-            else if (paths.length > 1)
-            {
-                message = "Are you sure you want to delete these " + paths.length + " heap dumps?";
+                if (!newEntry.equals(current))
+                {
+                    current = newEntry;
+                }
+                updateSnapshotInput();
             }
             else
             {
-                message = "";
+                current = null;
+                updateSnapshotInput();
             }
-            return message;
+        }
+
+        @Override
+        protected SnapshotInfo getBaseline()
+        {
+            return null;
+        }
+
+        @Override
+        protected SnapshotInfo getSnapshot()
+        {
+            return current != null && current.getInfo() instanceof SnapshotInfo ? (SnapshotInfo) current.getInfo()
+                            : null;
+        }
+
+        @Override
+        protected IPath getSnapshotPath()
+        {
+            return current != null ? new Path(current.getFilePath()) : null;
+        }
+
+        @Override
+        public void dispose()
+        {
+            table.removeSelectionListener(this);
+            super.dispose();
+        }
+
+    }
+
+    private static class DeleteSnapshotDialog extends MessageDialog
+    {
+        private boolean deleteInFileSystem = false;
+        private Button deleteRadio;
+
+        public DeleteSnapshotDialog(Shell parentShell, String dialogTitle)
+        {
+            super(parentShell, //
+                            "Confirm Deletion of Heap Dump", //
+                            null, // accept the default window icon
+                            dialogTitle, //
+                            MessageDialog.QUESTION, //
+                            new String[] { IDialogConstants.YES_LABEL, IDialogConstants.NO_LABEL }, //
+                            0); // yes
         }
 
         protected Control createCustomArea(Composite parent)
         {
             Composite composite = new Composite(parent, SWT.NONE);
             composite.setLayout(new GridLayout());
-            radio1 = new Button(composite, SWT.RADIO);
-            radio1.addSelectionListener(selectionListener);
-            String text1;
 
-            text1 = "Also delete in file system (including index files)";
+            deleteRadio = new Button(composite, SWT.RADIO);
+            deleteRadio.addSelectionListener(selectionListener);
+            deleteRadio.setText("Also delete in file system (including index files)");
+            deleteRadio.setFont(parent.getFont());
 
-            radio1.setText(text1);
-            radio1.setFont(parent.getFont());
-
-            radio2 = new Button(composite, SWT.RADIO);
-            radio2.addSelectionListener(selectionListener);
-            String text2 = "Delete only from history";
-            radio2.setText(text2);
-            radio2.setFont(parent.getFont());
+            Button radio = new Button(composite, SWT.RADIO);
+            radio.addSelectionListener(selectionListener);
+            radio.setText("Delete only from history");
+            radio.setFont(parent.getFont());
 
             // set initial state
-            radio1.setSelection(deleteInFileSystem);
-            radio2.setSelection(!deleteInFileSystem);
+            deleteRadio.setSelection(deleteInFileSystem);
+            radio.setSelection(!deleteInFileSystem);
 
             return composite;
         }
@@ -134,9 +168,7 @@ public class SnapshotHistoryView extends ViewPart implements
             {
                 Button button = (Button) e.widget;
                 if (button.getSelection())
-                {
-                    deleteInFileSystem = (button == radio1);
-                }
+                    deleteInFileSystem = (button == deleteRadio);
             }
         };
 
@@ -144,51 +176,15 @@ public class SnapshotHistoryView extends ViewPart implements
         {
             return deleteInFileSystem;
         }
-
-        /*
-         * (non-Javadoc)
-         * 
-         * @see org.eclipse.jface.window.Window#open()
-         */
-        public int open()
-        {
-            // Override Window#open() to allow for non-interactive testing.
-            if (fIsTesting)
-            {
-                deleteInFileSystem = true;
-                return Window.OK;
-            }
-            return super.open();
-        }
-
-        /**
-         * Set this delete dialog into testing mode. It won't pop up, and it
-         * returns true for deleteContent.
-         * 
-         * @param t
-         *            the testing mode
-         */
-        void setTestingMode(boolean t)
-        {
-            fIsTesting = t;
-        }
     }
 
     private Table table;
 
     private Action actionOpenHeapDump;
-
     private Action actionRemoveHeapDumpFromHistory;
-
     private Action actionDeleteHeapDump;
-
     private Action actionOpenHeapDumpInFileSystem;
-
-    public SnapshotHistoryView()
-    {
-        super();
-
-    }
+    private Action actionDeleteIndeces;
 
     @Override
     public void createPartControl(Composite parent)
@@ -287,53 +283,43 @@ public class SnapshotHistoryView extends ViewPart implements
             public void run()
             {
                 TableItem[] selection = (TableItem[]) table.getSelection();
+                if (selection.length == 0)
+                    return;
 
                 // as table items are disposed, copy the path before
-                List<Path> toDelete = new ArrayList<Path>(selection.length);
+                List<File> toDelete = new ArrayList<File>(selection.length);
 
                 for (TableItem item : selection)
-                    toDelete.add(new Path(((SnapshotHistoryService.Entry) item.getData()).getFilePath()));
+                    toDelete.add(new File(((SnapshotHistoryService.Entry) item.getData()).getFilePath()));
 
-                DeleteSnapshotDialog deleteSnapshotDialog = new DeleteSnapshotDialog(table.getShell(), toDelete
-                                .toArray(new Path[toDelete.size()]));
-                // MessageBox messageBox = new MessageBox(table.getShell(),
-                // SWT.ICON_QUESTION | SWT.YES | SWT.NO);
-                //
-                // if (toDelete.size() == 1)
-                // {
-                // String fileName = new Path(((SnapshotHistoryService.Entry)
-                // selection[0].getData()).getFilePath())
-                // .lastSegment();
-                // messageBox.setMessage("Do you really want to delete " +
-                // fileName);
-                // }
-                // else if (toDelete.size() > 1)
-                // messageBox.setMessage("Do you really want to delete these " +
-                // toDelete.size() + " heap dumps?");
-                // messageBox.setText("Confirm Delete");
-                // int response = messageBox.open();
+                String dialogTitle;
+                if (toDelete.size() > 1)
+                    dialogTitle = MessageFormat.format("Are you sure you want to delete these {0,number} heap dumps?",
+                                    toDelete.size());
+                else
+                    dialogTitle = MessageFormat.format("Are you sure you want to delete heap dump ''{0}''?", //
+                                    toDelete.get(0).getAbsolutePath());
+
+                DeleteSnapshotDialog deleteSnapshotDialog = new DeleteSnapshotDialog(table.getShell(), dialogTitle);
 
                 int response = deleteSnapshotDialog.open();
+                if (response != IDialogConstants.OK_ID)
+                    return;
 
-                if (response == IDialogConstants.OK_ID)
+                for (File path : toDelete)
+                    SnapshotHistoryService.getInstance().removePath(new Path(path.getAbsolutePath()));
+
+                if (deleteSnapshotDialog.getDeleteInFileSystem())
                 {
-                    if (deleteSnapshotDialog.getDeleteInFileSystem())
+                    for (File path : toDelete)
                     {
-                        for (Path path : toDelete)
-                        {
-                            getSite().getPage().closeEditor(
-                                            PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
-                                                            .findEditor(new PathEditorInput(path)), false);
-                            File file = path.toFile();
-                            file.delete();
-                            SnapshotHistoryService.getInstance().removePath(path);
-                            deleteIndexes(path.removeFileExtension());
-                        }
-                    }
-                    else
-                    {
-                        for (Path path : toDelete)
-                            SnapshotHistoryService.getInstance().removePath(path);
+                        IEditorPart editor = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
+                                        .findEditor(new PathEditorInput(new Path(path.getAbsolutePath())));
+                        if (editor != null)
+                            getSite().getPage().closeEditor(editor, true);
+
+                        path.delete();
+                        deleteIndexes(path, null);
                     }
                 }
             }
@@ -375,61 +361,48 @@ public class SnapshotHistoryView extends ViewPart implements
                     }
                     else if (osName.indexOf("mac") != -1)
                     {
-                        executeCommandForceDir("open", osPath, file);
+                        execute("open", osPath, file);
                     }
                     else if (osName.indexOf("linux") != -1)
                     {
                         String desktop = System.getProperty("sun.desktop");
-                        if (desktop == null)
-                        {
-                            desktop = "";
-                        }
-                        desktop = desktop.toLowerCase();
+                        desktop = desktop == null ? "" : desktop.toLowerCase();
+
                         if (desktop.indexOf("gnome") != -1)
                         {
-                            executeCommandForceDir("gnome-open", osPath, file);
+                            execute("gnome-open", osPath, file);
                         }
                         else if (desktop.indexOf("konqueror") != -1 || desktop.indexOf("kde") != -1)
                         {
-                            executeCommandForceDir("konqueror", osPath, file);
+                            execute("konqueror", osPath, file);
                         }
                         else
                         {
-                            displayMessage("Sorry, I do not know how to open the file manager for your Linux desktop \""
-                                            + desktop + "\".\n" + "I will try to use konqueror.");
-                            executeCommandForceDir("konqueror", osPath, file);
+                            displayMessage(MessageFormat.format("I do not know how to open the file manager"
+                                            + " for your Linux desktop ''{0}''. I will try to use gnome", desktop));
+                            execute("gnome-open", osPath, file);
                         }
                     }
                     else
                     {
-                        displayMessage("Sorry, this action cannot be accomplished for operating system: " + osName);
+                        displayMessage(MessageFormat.format("Sorry, operation not implementation for OS: {0}", osName));
                     }
                 }
                 else
                 {
-                    // should not happened, as history contains only existing
-                    // files
+                    displayMessage(MessageFormat.format("File {0} does not exist (anymore).", file.getAbsolutePath()));
                 }
             }
 
-            private void executeCommandForceDir(String baseCommand, String osPath, File file)
+            private void execute(String baseCommand, String osPath, File file)
             {
-                String forceDirectoryPath = osPath;
-                if (file.isFile())
-                {
-                    try
-                    {
-                        forceDirectoryPath = file.getParentFile().getCanonicalPath();
-                    }
-                    catch (IOException ex)
-                    {
-                        MemoryAnalyserPlugin.log(ex);
-                    }
-                }
-                String args[] = { baseCommand, forceDirectoryPath };
                 try
                 {
-                    Runtime.getRuntime().exec(args);
+                    String forceDirectoryPath = osPath;
+                    if (file.isFile())
+                        forceDirectoryPath = file.getParentFile().getCanonicalPath();
+
+                    Runtime.getRuntime().exec(new String[] { baseCommand, forceDirectoryPath });
                 }
                 catch (IOException ex)
                 {
@@ -442,33 +415,36 @@ public class SnapshotHistoryView extends ViewPart implements
                 MessageDialog.openInformation(table.getParent().getShell(), "Explore File System", message);
             }
         };
-        actionOpenHeapDumpInFileSystem.setText("Explore in File System");        
+        actionOpenHeapDumpInFileSystem.setText("Explore in File System");
         actionOpenHeapDumpInFileSystem.setImageDescriptor(MemoryAnalyserPlugin
                         .getImageDescriptor(ISharedImages.EXPLORE));
 
-    }
+        actionDeleteIndeces = new Action("Delete Index Files")
+        {
+            @Override
+            public void run()
+            {
+                List<File> problems = new ArrayList<File>();
 
-    private void deleteIndexes(IPath path)
-    {
-        checkIndex(path.addFileExtension("a2s.index"));
-        checkIndex(path.addFileExtension("domIn.index"));
-        checkIndex(path.addFileExtension("domOut.index"));
-        checkIndex(path.addFileExtension("i2s.index"));
-        checkIndex(path.addFileExtension("idx.index"));
-        checkIndex(path.addFileExtension("inbound.index"));
-        checkIndex(path.addFileExtension("index"));
-        checkIndex(path.addFileExtension("notes.txt"));
-        checkIndex(path.addFileExtension("o2c.index"));
-        checkIndex(path.addFileExtension("o2p.index"));
-        checkIndex(path.addFileExtension("o2ret.index"));
-        checkIndex(path.addFileExtension("outbound.index"));
-    }
+                for (TableItem item : ((TableItem[]) table.getSelection()))
+                {
+                    File snapshot = new File(((SnapshotHistoryService.Entry) item.getData()).getFilePath());
+                    deleteIndexes(snapshot, problems);
+                }
 
-    private void checkIndex(IPath path)
-    {
-        File indexFile = path.toFile();
-        if (indexFile.exists())
-            indexFile.delete();
+                if (!problems.isEmpty())
+                {
+                    StringBuilder msg = new StringBuilder();
+                    msg.append("Error deleting the following files:");
+                    for (File f : problems)
+                        msg.append("\n\t").append(f.getAbsolutePath());
+
+                    MessageBox box = new MessageBox(table.getShell(), SWT.OK | SWT.ICON_ERROR);
+                    box.setMessage(msg.toString());
+                    box.open();
+                }
+            }
+        };
     }
 
     private void hookContextMenu()
@@ -489,99 +465,39 @@ public class SnapshotHistoryView extends ViewPart implements
     private void editorContextMenuAboutToShow(IMenuManager manager)
     {
         TableItem[] selection = (TableItem[]) table.getSelection();
+        if (selection.length == 0)
+            return;
 
-        if (selection.length >= 1)
-        {
-            manager.add(actionOpenHeapDump);
-            manager.add(actionOpenHeapDumpInFileSystem);            
-            manager.add(actionDeleteHeapDump);
-        }
+        actionOpenHeapDump.setEnabled(selection.length == 1);
+        manager.add(actionOpenHeapDump);
 
-        if (selection.length == 1)
-        {
-            actionOpenHeapDump.setEnabled(true);
-            actionOpenHeapDumpInFileSystem.setEnabled(true); 
-            }
-        else if (selection.length > 1)
-        {
-            actionOpenHeapDump.setEnabled(false);            
-        }
+        actionOpenHeapDumpInFileSystem.setEnabled(selection.length == 1);
+        manager.add(actionOpenHeapDumpInFileSystem);
+
+        manager.add(actionDeleteHeapDump);
+        manager.add(actionDeleteIndeces);
     }
 
     @Override
     public void dispose()
     {
         super.dispose();
-
         SnapshotHistoryService.getInstance().removeChangeListener(this);
     }
 
-    class Outline extends SnapshotOutlinePage implements SelectionListener
+    @Override
+    public void setFocus()
     {
-        SnapshotHistoryService.Entry current;
-
-        public Outline()
-        {
-            table.addSelectionListener(this);
-        }
-
-        public void widgetDefaultSelected(SelectionEvent e)
-        {
-            widgetSelected(e);
-        }
-
-        public void widgetSelected(SelectionEvent e)
-        {
-            SnapshotHistoryService.Entry newEntry = (SnapshotHistoryService.Entry) ((TableItem) e.item).getData();
-
-            if (newEntry != null)
-            {
-                if (!newEntry.equals(current))
-                {
-                    current = newEntry;
-                }
-                updateSnapshotInput();
-            }
-            else
-            {
-                current = null;
-                updateSnapshotInput();
-            }
-        }
-
-        @Override
-        protected SnapshotInfo getBaseline()
-        {
-            return null;
-        }
-
-        @Override
-        protected SnapshotInfo getSnapshot()
-        {
-            return current != null && current.getInfo() instanceof SnapshotInfo ? (SnapshotInfo) current.getInfo()
-                            : null;
-        }
-
-        @Override
-        protected IPath getSnapshotPath()
-        {
-            return current != null ? new Path(current.getFilePath()) : null;
-        }
-
+        table.setFocus();
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public Object getAdapter(Class required)
     {
-        if (IContentOutlinePage.class.equals(required)) { return new Outline(); }
+        if (IContentOutlinePage.class.equals(required))
+            return new Outline();
         return super.getAdapter(required);
-    }
-
-    @Override
-    public void setFocus()
-    {
-
     }
 
     public void onSnapshotsChanged(final List<Entry> visitedSnapshots)
@@ -613,8 +529,6 @@ public class SnapshotHistoryView extends ViewPart implements
         {
             String osPath = ((SnapshotHistoryService.Entry) selection[0].getData()).getFilePath();
             Path path = new Path(osPath);
-            // IFile[] heapFile =
-            // ResourcesPlugin.getWorkspace().getRoot().findFilesForLocation(path);
 
             if (path.toFile().exists())
             {
@@ -637,6 +551,30 @@ public class SnapshotHistoryView extends ViewPart implements
                                                 + path.toOSString());
                 SnapshotHistoryService.getInstance().removePath(path);
             }
+        }
+    }
+
+    private void deleteIndexes(File snapshot, List<File> problems)
+    {
+        File directory = snapshot.getParentFile();
+        String name = snapshot.getName();
+
+        final Pattern pattern = Pattern.compile(name.substring(0, name.lastIndexOf('.')) + "\\.(.*\\.)+index");
+
+        String[] indexFiles = directory.list(new FilenameFilter()
+        {
+            public boolean accept(File dir, String name)
+            {
+                return pattern.matcher(name).matches();
+            }
+        });
+
+        for (String indexFile : indexFiles)
+        {
+            File f = new File(directory, indexFile);
+            if (f.exists())
+                if (!f.delete() && problems != null)
+                    problems.add(f);
         }
     }
 }
