@@ -26,7 +26,7 @@ import org.eclipse.mat.util.IProgressListener;
 
 @Name("Show Retained Set")
 @Icon("/META-INF/icons/show_retained_set.gif")
-@Help("Calculate the retained set of an arbitray set of objects.\n\n"
+@Help("Calculate the retained set of an arbitrary set of objects.\n\n"
                 + "Optionally one can provide a list field names. If this parameter is specified, "
                 + "instead of assuming that the whole instance is not available, just the references "
                 + "with the specified name are considered non-existing.")
