@@ -52,6 +52,7 @@ public class CommonNameResolver
     }
 
     @Subjects( { "java.lang.Byte", //
+                    "java.lang.Character", //
                     "java.lang.Short", //
                     "java.lang.Integer", //
                     "java.lang.Long", //
