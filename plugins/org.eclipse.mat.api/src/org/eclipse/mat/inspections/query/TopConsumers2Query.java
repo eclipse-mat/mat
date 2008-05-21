@@ -56,7 +56,6 @@ import org.eclipse.mat.test.SectionSpec;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.SimpleStringTokenizer;
 
-
 @Name("Top Consumers")
 @CommandName("top_consumers_html")
 @Category("Leak Identification")
@@ -174,8 +173,10 @@ public class TopConsumers2Query implements IQuery
             else
             {
                 composite.add(new QuerySpec("Biggest Objects (Overview)", pie.build()));
-                composite.add(new QuerySpec("Biggest Objects", new ObjectListQuery.OutboundObjects(snapshot, suspects
-                                .toArray())));
+                QuerySpec spec = new QuerySpec("Biggest Objects", new ObjectListQuery.OutboundObjects(snapshot,
+                                suspects.toArray()));
+                spec.set(Params.Html.COLLAPSED, Boolean.TRUE.toString());
+                composite.add(spec);
             }
         }
         else
