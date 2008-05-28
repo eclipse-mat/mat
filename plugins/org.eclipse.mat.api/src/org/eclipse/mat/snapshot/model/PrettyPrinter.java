@@ -56,7 +56,7 @@ public class PrettyPrinter
         StringBuilder result = new StringBuilder(value.length >> 1);
         for (int ii = 0; ii < value.length;)
         {
-            char val = (char) ((value[ii] << 8) + value[ii + 1]);
+            char val = (char) (((value[ii] & 0xff) << 8) + (value[ii + 1] & 0xff));
             if (val >= 32 && val < 127)
                 result.append(val);
             else

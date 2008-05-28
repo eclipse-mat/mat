@@ -34,7 +34,7 @@ public class PrimitiveArrayImpl extends AbstractArrayImpl implements IPrimitiveA
     {
         return type;
     }
-    
+
     public Object getValueAt(int index)
     {
         byte[] data = (byte[]) getContent(index * ELEMENT_SIZE[type], ELEMENT_SIZE[type]);
@@ -64,7 +64,7 @@ public class PrimitiveArrayImpl extends AbstractArrayImpl implements IPrimitiveA
         }
         return null;
     }
-    
+
     @Override
     public ArrayLong getReferences()
     {
@@ -99,12 +99,16 @@ public class PrimitiveArrayImpl extends AbstractArrayImpl implements IPrimitiveA
 
     private short readShort(byte[] data, int offset)
     {
-        return (short) ((data[offset] << 8) + data[offset + 1]);
+        int b1 = ((int) data[offset] & 0xff);
+        int b2 = ((int) data[offset + 1] & 0xff);
+        return (short) ((b1 << 8) + b2);
     }
 
     private char readChar(byte[] data, int offset)
     {
-        return (char) ((data[offset] << 8) + data[offset + 1]);
+        int b1 = ((int) data[offset] & 0xff);
+        int b2 = ((int) data[offset + 1] & 0xff);
+        return (char) ((b1 << 8) + b2);
     }
 
     private int readInt(byte[] data, int offset)
@@ -123,14 +127,14 @@ public class PrimitiveArrayImpl extends AbstractArrayImpl implements IPrimitiveA
 
     private long readLong(byte[] data, int offset)
     {
-        return (((long) data[offset] << 56) + //
-                        ((long) (data[offset + 1] & 255) << 48) + //
-                        ((long) (data[offset + 2] & 255) << 40) + //
-                        ((long) (data[offset + 3] & 255) << 32) + //
-                        ((long) (data[offset + 4] & 255) << 24) + //
-                        ((data[offset + 5] & 255) << 16) + //
-                        ((data[offset + 6] & 255) << 8) + //
-        ((data[offset + 7] & 255) << 0));
+        return ((((long) data[offset] & 0xff) << 56) + //
+                        ((long) (data[offset + 1] & 0xff) << 48) + //
+                        ((long) (data[offset + 2] & 0xff) << 40) + //
+                        ((long) (data[offset + 3] & 0xff) << 32) + //
+                        ((long) (data[offset + 4] & 0xff) << 24) + //
+                        ((data[offset + 5] & 0xff) << 16) + //
+                        ((data[offset + 6] & 0xff) << 8) + //
+        ((data[offset + 7] & 0xff) << 0));
     }
 
     private double readDouble(byte[] data, int offset)

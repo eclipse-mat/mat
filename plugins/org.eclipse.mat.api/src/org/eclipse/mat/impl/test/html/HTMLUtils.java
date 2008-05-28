@@ -25,6 +25,8 @@ public final class HTMLUtils
                 result.append("&lt;");
             else if (ch == '>')
                 result.append("&gt;");
+            else if (ch == '&')
+                result.append("&amp;");
             else
                 result.append(ch);
         }
