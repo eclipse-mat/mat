@@ -145,8 +145,8 @@ public class Pass2Parser extends AbstractParser
                     readPrimitveArrayDump(segmentStartPos);
                     break;
                 default:
-                    throw new IOException(MessageFormat.format("Error reading segment type {0} at position {1}",
-                                    segmentType, segmentStartPos));
+                    throw new IOException(MessageFormat.format("Invalid heap dump file.\n"
+                                    + "Unsupported segment type {0} at position {1}", segmentType, segmentStartPos));
             }
             segmentStartPos = in.position();
         }

@@ -178,13 +178,10 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
                 IClass arrayType = lookupClass(arrayClassID);
                 if (arrayType == null)
                 {
-                    // in some dumps (written with a beta version), the
-                    // elementClass is written in the arrayClassId
-
                     int objectId = identifiers.reverse(arrayClassID);
                     if (objectId >= 0)
                     {
-                        final String MSG = "Error: 0x{0} is used as class and object simultaneously. Are you using a beta DLL for Sun JDK 1.4.2 to write the heap dump?";
+                        final String MSG = "Error: Found instance segment but expected class segment (see FAQ): 0x{0}";
                         String msg = MessageFormat.format(MSG, Long.toHexString(arrayClassID));
                         throw new SnapshotException(msg);
                     }
@@ -192,10 +189,6 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
                     arrayType = new ClassImpl(arrayClassID, "unknown-class[]", 0, 0, new Field[0],
                                     new FieldDescriptor[0]);
                     addClass((ClassImpl) arrayType, -1);
-
-                    // commented by kt. It is already added by the
-                    // addClass() call above
-                    // identifiers.add(arrayClassID);
                 }
             }
         }
