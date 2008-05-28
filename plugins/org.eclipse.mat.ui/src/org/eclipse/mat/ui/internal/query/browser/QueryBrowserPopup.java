@@ -453,7 +453,7 @@ public class QueryBrowserPopup extends PopupDialog
 
             close();
 
-            QueryExecution.execute(editor, cmdLine);
+            QueryExecution.executeCommandLine(editor, null, cmdLine);
         }
         catch (SnapshotException e)
         {

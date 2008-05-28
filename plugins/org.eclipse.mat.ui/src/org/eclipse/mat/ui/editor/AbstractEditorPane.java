@@ -16,6 +16,7 @@ import java.util.List;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.mat.ui.util.PaneState;
 import org.eclipse.mat.ui.util.PopupMenu;
 import org.eclipse.swt.events.MenuAdapter;
 import org.eclipse.swt.events.MenuEvent;
@@ -39,6 +40,7 @@ public abstract class AbstractEditorPane implements IEditorPart
     protected IEditorSite site;
     protected List<IPropertyListener> listeners = new ArrayList<IPropertyListener>();
     private Menu contextMenu;
+    private PaneState paneState;
 
     void setConfiguration(PaneConfiguration conf)
     {
@@ -178,5 +180,15 @@ public abstract class AbstractEditorPane implements IEditorPart
 
     protected void editorContextMenuAboutToShow(PopupMenu menu)
     {}
+
+    public PaneState getPaneState()
+    {
+        return paneState;
+    }
+
+    public void setPaneState(PaneState paneState)
+    {
+        this.paneState = paneState;
+    }
 
 }

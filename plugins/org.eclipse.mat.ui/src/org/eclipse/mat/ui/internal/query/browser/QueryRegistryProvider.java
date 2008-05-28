@@ -63,7 +63,7 @@ public class QueryRegistryProvider extends QueryBrowserProvider
 
         public void execute(HeapEditor editor) throws SnapshotException
         {
-            QueryExecution.execute(editor, query);
+            QueryExecution.executeQuery(editor, query);
         }
 
         public ImageDescriptor getImageDescriptor()

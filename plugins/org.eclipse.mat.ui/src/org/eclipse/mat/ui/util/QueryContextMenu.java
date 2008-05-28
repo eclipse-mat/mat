@@ -260,7 +260,7 @@ public class QueryContextMenu
                     }
                 }
 
-                QueryExecution.execute(editor, set, !descriptor.isShallow(), false);
+                QueryExecution.execute(editor, editor.getActiveEditor().getPaneState(), null, set, !descriptor.isShallow(), false);
             }
             catch (SnapshotException e)
             {

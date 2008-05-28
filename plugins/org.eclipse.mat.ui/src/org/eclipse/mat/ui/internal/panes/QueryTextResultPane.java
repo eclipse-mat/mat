@@ -170,7 +170,7 @@ public class QueryTextResultPane extends HeapEditorPane implements ISelectionPro
             {
                 HeapEditor editor = (HeapEditor) ((MultiPaneEditorSite) getEditorSite()).getMultiPageEditor();
                 ArgumentSet set = CommandLine.parse(new ArgumentContextProvider(editor), url.getContent());
-                QueryExecution.execute(editor, set, false, true);
+                QueryExecution.execute(editor, this.getPaneState(), null, set, false, true);
             }
             catch (SnapshotException e)
             {
@@ -193,7 +193,7 @@ public class QueryTextResultPane extends HeapEditorPane implements ISelectionPro
                 String label = entry.getName();
                 if (label == null)
                     label = parent.getTitle() + " " + (index + 1);
-                QueryExecution.displayResult(editor, new QueryResult(parent, null, label, entry.getResult()));
+                QueryExecution.displayResult(editor, this.getPaneState(), null, new QueryResult(parent, null, label, entry.getResult()), false);
             }
 
             event.doit = false;

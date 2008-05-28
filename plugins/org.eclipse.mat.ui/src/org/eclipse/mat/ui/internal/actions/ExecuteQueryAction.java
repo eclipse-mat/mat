@@ -60,9 +60,9 @@ public class ExecuteQueryAction extends Action
         try
         {
             if (commandLine != null)
-                QueryExecution.execute(editor, commandLine);
+                QueryExecution.executeCommandLine(editor, null, commandLine);
             else
-                QueryExecution.execute(editor, descriptor);
+                QueryExecution.executeQuery(editor, descriptor);
         }
         catch (SnapshotException e)
         {

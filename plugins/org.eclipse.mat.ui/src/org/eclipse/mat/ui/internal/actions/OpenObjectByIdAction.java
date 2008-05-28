@@ -80,7 +80,7 @@ public class OpenObjectByIdAction extends Action
                 }
                 else
                 {
-                    QueryExecution.execute(editor, "list_objects " + value);
+                    QueryExecution.executeCommandLine(editor, null, "list_objects " + value);
                 }
             }
         }

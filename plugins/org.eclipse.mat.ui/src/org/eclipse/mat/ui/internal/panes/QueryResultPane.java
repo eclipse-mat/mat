@@ -229,7 +229,7 @@ public class QueryResultPane extends HeapEditorPane implements ISelectionProvide
 
                     });
 
-                    QueryExecution.execute((HeapEditor) editor, set, false, false);
+                    QueryExecution.execute((HeapEditor) editor, ((HeapEditor) editor).getActiveEditor().getPaneState(), null, set, false, false);
 
                 }
                 catch (SnapshotException e)

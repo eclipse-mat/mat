@@ -84,7 +84,7 @@ public class QueryHistoryProvider extends QueryBrowserProvider
 
         public void execute(HeapEditor editor) throws SnapshotException
         {
-            QueryExecution.execute(editor, commandLine);
+            QueryExecution.executeCommandLine(editor, null, commandLine);
         }
 
         public ImageDescriptor getImageDescriptor()

@@ -43,6 +43,8 @@ import org.eclipse.mat.ui.internal.ParseHeapDumpJob;
 import org.eclipse.mat.ui.internal.actions.ImportReportAction;
 import org.eclipse.mat.ui.internal.views.SnapshotOutlinePage;
 import org.eclipse.mat.ui.util.ImageHelper;
+import org.eclipse.mat.ui.util.PaneState;
+import org.eclipse.mat.ui.util.PaneState.PaneType;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IFileEditorInput;
@@ -52,7 +54,6 @@ import org.eclipse.ui.IURIEditorInput;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
-
 
 public class HeapEditor extends MultiPaneEditor implements ISelectionProvider
 {
@@ -272,9 +273,14 @@ public class HeapEditor extends MultiPaneEditor implements ISelectionProvider
             {
                 IResult result = ImportReportAction.unzipAndOpen(reportFile.getParent(), reportFile.getName());
                 AbstractEditorPane pane = QueryExecution.createPane(result, null);
+                
                 QueryDescriptor descriptor = QueryRegistry.instance().getQuery(CreateDefaultReport.class);
-                addNewPage(pane, new QueryResult(descriptor, descriptor.getIdentifier() + " support.xml", result), descriptor
-                                .getIdentifier(), ImageHelper.getImage(descriptor));
+                PaneState state = new PaneState(PaneType.QUERY, null, reportFile.getName(), false);
+                state.setImage(pane.getTitleImage());
+                pane.setPaneState(state);
+
+                addNewPage(pane, new QueryResult(descriptor, descriptor.getIdentifier() + " support.xml", result),
+                                descriptor.getIdentifier(), ImageHelper.getImage(descriptor));
             }
             catch (IOException e)
             {

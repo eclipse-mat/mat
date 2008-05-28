@@ -24,6 +24,7 @@ public class Perspective implements IPerspectiveFactory
     private static final String DETAILS_VIEW = MemoryAnalyserPlugin.PLUGIN_ID + ".views.SnapshotDetailsView";
     private static final String NOTES_VIEW = MemoryAnalyserPlugin.PLUGIN_ID + ".views.TextEditorView";
     private static final String INSPECTOR_VIEW = MemoryAnalyserPlugin.PLUGIN_ID + ".views.InspectorView";
+    private static final String NAVIGATOR_VIEW = MemoryAnalyserPlugin.PLUGIN_ID + ".views.NavigatorView";
     private static final String ERROR_VIEW = "org.eclipse.pde.runtime.LogView";
 
     public void createInitialLayout(IPageLayout layout)
@@ -43,12 +44,14 @@ public class Perspective implements IPerspectiveFactory
                         (float) 0.80, editorArea);        
         bottomMiddle.addView(NOTES_VIEW);
         bottomMiddle.addPlaceholder(IPageLayout.ID_PROGRESS_VIEW);
-        
+        bottomMiddle.addView(NAVIGATOR_VIEW);
+
         layout.addShowViewShortcut(HISTORY_VIEW);
         layout.addShowViewShortcut(DETAILS_VIEW);
         layout.addShowViewShortcut(INSPECTOR_VIEW);
         layout.addShowViewShortcut(NOTES_VIEW);
-        layout.addShowViewShortcut(ERROR_VIEW);        
+        layout.addShowViewShortcut(ERROR_VIEW);
+        layout.addShowViewShortcut(NAVIGATOR_VIEW);
 
         Bundle bundle = Platform.getBundle("org.eclipse.jdt.ui");
         if (bundle != null)

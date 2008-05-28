@@ -50,6 +50,12 @@
 			class="org.eclipse.mat.ui.internal.views.NotesView"
 			icon="icons/notepad.gif"
 			id="org.eclipse.mat.ui.views.TextEditorView" name="Notes" />
+		<view allowMultiple="false"
+        	category="org.eclipse.mat"
+        	class="org.eclipse.mat.ui.internal.views.NavigatorView"
+        	icon="icons/navigator_view.gif"
+       	    id="org.eclipse.mat.ui.views.NavigatorView"
+            name="Navigation History"/>        
 	</extension>
 
 	<extension point="org.eclipse.mat.ui.editorPanes">

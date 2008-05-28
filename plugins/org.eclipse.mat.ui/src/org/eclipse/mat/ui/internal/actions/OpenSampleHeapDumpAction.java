@@ -130,7 +130,7 @@ public class OpenSampleHeapDumpAction extends Action implements ICheatSheetActio
                 try
                 {
                     HeapEditor heapEditor = (HeapEditor) editorPart;
-                    QueryExecution.execute(heapEditor, editorId);
+                    QueryExecution.executeCommandLine(heapEditor, null, editorId);
                 }
                 catch (SnapshotException exp)
                 {

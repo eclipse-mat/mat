@@ -67,7 +67,7 @@ public class ImportReportAction extends Action
                 {
                     IResult result = unzipAndOpen(dialog.getFilterPath(), name);
                     QueryResult queryResult = new QueryResult(null, "Report: " + name, result);
-                    QueryExecution.displayResult(heapEditor, queryResult);
+                    QueryExecution.displayResult(heapEditor, null, null, queryResult, false);
                 }
                 catch (IOException e)
                 {

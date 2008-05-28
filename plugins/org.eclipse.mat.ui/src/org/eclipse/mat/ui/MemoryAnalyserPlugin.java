@@ -87,6 +87,10 @@ public class MemoryAnalyserPlugin extends AbstractUIPlugin
         String SHOW_ADDONS = "icons/heapdump_addons.gif"; //$NON-NLS-1$  
         String FATAL_ERROR = "icons/fatalerror.gif"; //$NON-NLS-1$  
         String EXPLORE = "icons/explore.gif"; //$NON-NLS-1$  
+        
+        String SHOW_PANE = "icons/show_pane.gif"; //$NON-NLS-1$  
+        String CLOSE_PANE = "icons/close_pane.gif"; //$NON-NLS-1$  
+        String CLOSE_BRANCH = "icons/close_branch.gif"; //$NON-NLS-1$  
     }
 
     private static MemoryAnalyserPlugin plugin;

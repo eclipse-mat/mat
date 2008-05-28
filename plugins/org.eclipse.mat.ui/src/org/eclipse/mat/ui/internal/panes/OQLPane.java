@@ -13,6 +13,7 @@ package org.eclipse.mat.ui.internal.panes;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -36,9 +37,12 @@ import org.eclipse.mat.ui.editor.AbstractPaneJob;
 import org.eclipse.mat.ui.editor.CompositeHeapEditorPane;
 import org.eclipse.mat.ui.editor.HeapEditor;
 import org.eclipse.mat.ui.editor.MultiPaneEditorSite;
+import org.eclipse.mat.ui.editor.PaneConfiguration;
 import org.eclipse.mat.ui.internal.query.ArgumentContextProvider;
 import org.eclipse.mat.ui.util.ErrorHelper;
+import org.eclipse.mat.ui.util.PaneState;
 import org.eclipse.mat.ui.util.ProgressMonitorWrapper;
+import org.eclipse.mat.ui.util.PaneState.PaneType;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StyleRange;
@@ -56,7 +60,6 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.actions.ActionFactory.IWorkbenchAction;
-
 
 public class OQLPane extends CompositeHeapEditorPane
 {
@@ -96,7 +99,7 @@ public class OQLPane extends CompositeHeapEditorPane
                                     "/org.eclipse.mat.ui.help/html/46/9f7472517a52b6e10000000a155369/content.htm");
                     e.doit = false;
                 }
-                if (e.keyCode == '\r' && (e.stateMask & SWT.CTRL) != 0)
+                if (e.keyCode == '\r' && (e.stateMask & SWT.MOD1) != 0)
                 {
                     executeAction.run();
                 }
@@ -114,57 +117,8 @@ public class OQLPane extends CompositeHeapEditorPane
 
     private void makeActions()
     {
-        executeAction = new Action()
-        {
-            @Override
-            public void run()
-            {
-                try
-                {
-                    String query = queryString.getSelectionText();
-                    Point queryRange = queryString.getSelectionRange();
+        executeAction = new ExecuteQueryAction();
 
-                    if ("".equals(query))
-                    {
-                        query = queryString.getText();
-                        queryRange = new Point(0, queryString.getCharCount());
-                    }
-
-                    try
-                    {
-                        // force parsing of OQL query
-                        SnapshotFactory.createQuery(query);
-                        new OQLJob(OQLPane.this, query).schedule();
-                    }
-                    catch (final OQLParseException e)
-                    {
-                        int start = findInText(query, e.getLine(), e.getColumn());
-
-                        StyleRange style2 = new StyleRange();
-                        style2.start = start + queryRange.x;
-                        style2.length = queryRange.y - start;
-                        style2.foreground = PlatformUI.getWorkbench().getDisplay().getSystemColor(SWT.COLOR_RED);
-                        queryString.replaceStyleRanges(0, queryString.getCharCount(), new StyleRange[] { style2 });
-
-                        createExceptionPane(e, query);
-                    }
-                    catch (Exception e)
-                    {
-                        createExceptionPane(e, query);
-                    }
-                }
-                catch (PartInitException e1)
-                {
-                    ErrorHelper.logThrowableAndShowMessage(e1, "Error executing query");
-                }
-            }
-
-        };
-        executeAction.setText("Execute Query");
-        executeAction.setImageDescriptor(MemoryAnalyserPlugin
-                        .getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.EXECUTE_QUERY));
-
-       
         IWorkbenchWindow window = getEditorSite().getWorkbenchWindow();
         IWorkbenchAction globalAction = ActionFactory.COPY.create(window);
         Action copyAction = new Action()
@@ -237,16 +191,42 @@ public class OQLPane extends CompositeHeapEditorPane
         else if (param instanceof QueryResult)
         {
             QueryResult queryResult = (QueryResult) param;
-            initQueryResult(queryResult);
+            initQueryResult(queryResult, null);
+        }
+        else if (param instanceof PaneState)
+        {
+            queryString.setText(((PaneState) param).getIdentifier());
+            new ExecuteQueryAction((PaneState) param).run();
         }
     }
 
-    private void initQueryResult(QueryResult queryResult)
+    private void initQueryResult(QueryResult queryResult, PaneState state)
     {
         IOQLQuery.Result subject = (IOQLQuery.Result) (queryResult).getSubject();
         queryString.setText(subject.getOQLQuery());
 
         AbstractEditorPane pane = QueryExecution.createPane(subject, this.getClass());
+
+        if (state == null)
+        {
+            for (PaneState child : getPaneState().getChildren())
+            {
+                if (queryString.getText().equals(child.getIdentifier()))
+                {
+                    state = child;
+                    break;
+                }
+            }
+
+            if (state == null)
+            {
+                state = new PaneState(PaneType.COMPOSITE_CHILD, getPaneState(), queryString.getText(), true);
+                state.setImage(getTitleImage());
+            }
+        }
+
+        pane.setPaneState(state);
+
         createResultPane(pane, queryResult);
     }
 
@@ -257,12 +237,13 @@ public class OQLPane extends CompositeHeapEditorPane
     class OQLJob extends AbstractPaneJob
     {
         String queryString;
+        PaneState state;
 
-        public OQLJob(AbstractEditorPane pane, String queryString)
+        public OQLJob(AbstractEditorPane pane, String queryString, PaneState state)
         {
             super(queryString.toString(), pane);
             this.queryString = queryString;
-
+            this.state = state;
             this.setUser(true);
         }
 
@@ -286,7 +267,7 @@ public class OQLPane extends CompositeHeapEditorPane
                 {
                     public void run()
                     {
-                        initQueryResult(result);
+                        initQueryResult(result, state);
                     }
                 });
             }
@@ -312,22 +293,22 @@ public class OQLPane extends CompositeHeapEditorPane
         }
     }
 
-    public void createExceptionPane(Exception e, String queryString) throws PartInitException
+    public void createExceptionPane(Exception cause, String queryString) throws PartInitException
     {
         StringBuilder buf = new StringBuilder(256);
         buf.append("Executed Query:\n");
         buf.append(queryString);
 
         Throwable t = null;
-        if (e instanceof SnapshotException)
+        if (cause instanceof SnapshotException)
         {
             buf.append("\n\nProblem reported:\n");
-            buf.append(e.getMessage());
-            t = e.getCause();
+            buf.append(cause.getMessage());
+            t = cause.getCause();
         }
         else
         {
-            t = e;
+            t = cause;
         }
 
         if (t != null)
@@ -341,7 +322,81 @@ public class OQLPane extends CompositeHeapEditorPane
             buf.append(w.toString());
         }
 
-        createResultPane("TextViewPane", buf.toString());
+        try
+        {
+            AbstractEditorPane pane = PaneConfiguration.createNewPane("TextViewPane");
+            if (pane == null)
+                throw new PartInitException("TextViewPane not found.");
+
+            // no pane state -> do not include in navigation history
+            createResultPane(pane, buf.toString());
+        }
+        catch (CoreException e)
+        {
+            throw new PartInitException(ErrorHelper.createErrorStatus(e));
+        }
+    }
+
+    private class ExecuteQueryAction extends Action
+    {
+        private PaneState state;
+
+        public ExecuteQueryAction()
+        {
+            this(null);
+        }
+
+        public ExecuteQueryAction(PaneState state)
+        {
+            this.state = state;
+            setText("Execute Query");
+            setImageDescriptor(MemoryAnalyserPlugin
+                            .getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.EXECUTE_QUERY));
+        }
+
+        @Override
+        public void run()
+        {
+            try
+            {
+                String query = queryString.getSelectionText();
+                Point queryRange = queryString.getSelectionRange();
+
+                if ("".equals(query))
+                {
+                    query = queryString.getText();
+                    queryRange = new Point(0, queryString.getCharCount());
+                }
+
+                try
+                {
+                    // force parsing of OQL query
+                    SnapshotFactory.createQuery(query);
+                    new OQLJob(OQLPane.this, query, state).schedule();
+                }
+                catch (final OQLParseException e)
+                {
+                    int start = findInText(query, e.getLine(), e.getColumn());
+
+                    StyleRange style2 = new StyleRange();
+                    style2.start = start + queryRange.x;
+                    style2.length = queryRange.y - start;
+                    style2.foreground = PlatformUI.getWorkbench().getDisplay().getSystemColor(SWT.COLOR_RED);
+                    queryString.replaceStyleRanges(0, queryString.getCharCount(), new StyleRange[] { style2 });
+
+                    createExceptionPane(e, query);
+                }
+                catch (Exception e)
+                {
+                    createExceptionPane(e, query);
+                }
+            }
+            catch (PartInitException e1)
+            {
+                ErrorHelper.logThrowableAndShowMessage(e1, "Error executing query");
+            }
+        }
+
     }
 
     // //////////////////////////////////////////////////////////////

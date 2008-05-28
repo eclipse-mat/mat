@@ -44,35 +44,44 @@ import org.eclipse.mat.test.QuerySpec;
 import org.eclipse.mat.test.SectionSpec;
 import org.eclipse.mat.test.Spec;
 import org.eclipse.mat.ui.editor.AbstractEditorPane;
+import org.eclipse.mat.ui.editor.CompositeHeapEditorPane;
 import org.eclipse.mat.ui.editor.HeapEditor;
 import org.eclipse.mat.ui.internal.query.ArgumentContextProvider;
 import org.eclipse.mat.ui.internal.query.arguments.ArgumentsWizard;
 import org.eclipse.mat.ui.internal.query.browser.QueryHistory;
 import org.eclipse.mat.ui.util.ErrorHelper;
 import org.eclipse.mat.ui.util.ImageHelper;
+import org.eclipse.mat.ui.util.PaneState;
 import org.eclipse.mat.ui.util.ProgressMonitorWrapper;
+import org.eclipse.mat.ui.util.PaneState.PaneType;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.VoidProgressListener;
 import org.eclipse.ui.PlatformUI;
 
-
 public class QueryExecution
 {
 
-    public static void execute(HeapEditor editor, String commandLine) throws SnapshotException
+    public static void executeAgain(HeapEditor editor, PaneState state) throws SnapshotException
+    {
+        ArgumentSet argumentSet = CommandLine.parse(new ArgumentContextProvider(editor), state.getIdentifier());
+        execute(editor, state.getParentPaneState(), state, argumentSet, false, true);
+    }
+
+    public static void executeCommandLine(HeapEditor editor, PaneState originator, String commandLine)
+                    throws SnapshotException
     {
         ArgumentSet argumentSet = CommandLine.parse(new ArgumentContextProvider(editor), commandLine);
-        execute(editor, argumentSet, false, true);
+        execute(editor, originator, null, argumentSet, false, true);
     }
 
-    public static void execute(HeapEditor editor, QueryDescriptor query) throws SnapshotException
+    public static void executeQuery(HeapEditor editor, QueryDescriptor query) throws SnapshotException
     {
         ArgumentSet argumentSet = query.createNewArgumentSet(new ArgumentContextProvider(editor));
-        execute(editor, argumentSet, true, true);
+        execute(editor, null, null, argumentSet, true, true);
     }
 
-    public static void execute(HeapEditor editor, ArgumentSet set, boolean promptUser, boolean addToHistory)
-                    throws SnapshotException
+    public static void execute(HeapEditor editor, PaneState originator, PaneState stateToReopen, ArgumentSet set,
+                    boolean promptUser, boolean isReproducable) throws SnapshotException
     {
         if (!set.isExecutable())
             promptUser = true;
@@ -82,10 +91,10 @@ public class QueryExecution
 
         String cmdLine = set.writeToLine();
 
-        if (addToHistory)
-            QueryHistory.addQuery(cmdLine);
-
-        Job job = new ExecutionJob(editor, cmdLine, set);
+        if (isReproducable)
+            QueryHistory.addQuery(cmdLine);   
+       
+        Job job = new ExecutionJob(editor, originator, stateToReopen, cmdLine, set, isReproducable);
         job.setUser(true);
         job.schedule();
     }
@@ -119,8 +128,7 @@ public class QueryExecution
             // dialog has to be created to be able to set help to its shell
             dialog.create();
 
-            PlatformUI.getWorkbench().getHelpSystem().setHelp(dialog.getShell(),
-                            "org.eclipse.mat.ui.query.arguments");
+            PlatformUI.getWorkbench().getHelpSystem().setHelp(dialog.getShell(), "org.eclipse.mat.ui.query.arguments");
             dialog.open();
 
             if (dialog.getReturnCode() == Window.CANCEL)
@@ -130,7 +138,8 @@ public class QueryExecution
         return true;
     }
 
-    public static void displayResult(final HeapEditor editor, QueryResult result)
+    public static void displayResult(final HeapEditor editor, final PaneState originator, final PaneState stateToReopen,
+                    QueryResult result, final boolean isReproducable)
     {
         if (result.getSubject() instanceof CompositeResult)
         {
@@ -149,7 +158,7 @@ public class QueryExecution
         {
             public void run()
             {
-                doDisplayResult(editor, r, true);
+                doDisplayResult(editor, originator, stateToReopen, r, true, isReproducable);
             }
         });
     }
@@ -165,12 +174,19 @@ public class QueryExecution
     {
         HeapEditor editor;
         ArgumentSet argumentSet;
+        PaneState originator;
+        PaneState stateToReopen;
+        boolean isReproducable;
 
-        public ExecutionJob(HeapEditor editor, String name, ArgumentSet argumentSet)
+        public ExecutionJob(HeapEditor editor, PaneState originator, PaneState stateToReopen, String name,
+                        ArgumentSet argumentSet, boolean isReproducable)
         {
             super(name);
             this.editor = editor;
+            this.originator = originator;
+            this.stateToReopen = stateToReopen;
             this.argumentSet = argumentSet;
+            this.isReproducable = isReproducable;
         }
 
         @Override
@@ -182,7 +198,7 @@ public class QueryExecution
 
                 if (result != null && result.getSubject() != null)
                 {
-                    displayResult(editor, result);
+                    displayResult(editor, originator, stateToReopen, result, isReproducable);
 
                     return Status.OK_STATUS;
                 }
@@ -221,7 +237,8 @@ public class QueryExecution
     // private static helpers
     // //////////////////////////////////////////////////////////////
 
-    private static void doDisplayResult(HeapEditor editor, QueryResult result, boolean isFirst)
+    private static void doDisplayResult(HeapEditor editor, PaneState originator, PaneState stateToReopen,
+                    QueryResult result, boolean isFirst, boolean isReproducable)
     {
         if (result.isComposite())
         {
@@ -230,18 +247,46 @@ public class QueryExecution
             boolean first = true;
             for (CompositeResult.Entry r : results)
             {
-                doDisplayResult(editor, new QueryResult(result, result.getQuery(), result.getCommand(), r.getResult()),
-                                first);
+                doDisplayResult(editor, originator, stateToReopen, new QueryResult(result, result.getQuery(), result
+                                .getCommand(), r.getResult()), first, isReproducable);
                 first = false;
             }
         }
         else
         {
             IResult subject = result.getSubject();
-            Object initArguments = result;
 
             AbstractEditorPane pane = createPane(subject, null);
-            editor.addNewPage(pane, initArguments, result.getTitle(), ImageHelper.getImage(result.getQuery()));
+
+            if (stateToReopen == null)
+            {               
+                // to keep to the tree hierarchy for the Composite result pane we need
+                // to add a new result state to an active COMPOSITE_CHILD
+                if (originator != null && originator.getType() == PaneType.COMPOSITE_PARENT)
+                {
+                    for (PaneState child : originator.getChildren())
+                    {
+                        if (child.isActive())
+                        {
+                            originator = child;
+                            break;
+                        }
+                    }
+                }
+                PaneState state;
+                if (pane instanceof CompositeHeapEditorPane)
+                    state = new PaneState(PaneType.COMPOSITE_PARENT, originator, pane.getTitle(), false);
+                else
+                    state = new PaneState(PaneType.QUERY, originator, result.getCommand(), isReproducable);
+                state.setImage(ImageHelper.getImage(result.getQuery()));
+                pane.setPaneState(state);
+            }
+            else
+            {
+                pane.setPaneState(stateToReopen);
+            }
+            
+            editor.addNewPage(pane, result, result.getTitle(), ImageHelper.getImage(result.getQuery()));
         }
     }
 

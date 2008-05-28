@@ -426,7 +426,7 @@ public class OverviewPane extends HeapEditorPane implements IHyperlinkListener, 
         try
         {
             HeapEditor heapEditor = (HeapEditor) ((MultiPaneEditorSite) getSite()).getMultiPageEditor();
-            QueryExecution.execute(heapEditor, command);
+            QueryExecution.executeCommandLine(heapEditor, this.getPaneState(), command);
         }
         catch (SnapshotException exp)
         {

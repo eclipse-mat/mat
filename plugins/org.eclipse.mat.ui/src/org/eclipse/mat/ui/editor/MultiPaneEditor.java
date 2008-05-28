@@ -40,8 +40,11 @@ import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.util.ErrorHelper;
+import org.eclipse.mat.ui.util.NavigatorState;
+import org.eclipse.mat.ui.util.PaneState;
 import org.eclipse.mat.ui.util.PopupMenu;
 import org.eclipse.mat.ui.util.ImageHelper.ImageImageDescriptor;
+import org.eclipse.mat.ui.util.PaneState.PaneType;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabFolder2Listener;
@@ -79,7 +82,6 @@ import org.eclipse.ui.part.EditorPart;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.part.IWorkbenchPartOrientation;
 
-
 public class MultiPaneEditor extends EditorPart implements IResourceChangeListener
 {
     // //////////////////////////////////////////////////////////////
@@ -105,6 +107,7 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
 
     private List<IMultiPaneEditorContributor> contributors = new ArrayList<IMultiPaneEditorContributor>();
     private Menu menu;
+    private NavigatorState navigatorState;
 
     // //////////////////////////////////////////////////////////////
     // multi pane editor creation & disposal
@@ -350,12 +353,16 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
                 if (editor.getSequenceNr() >= 0)
                 {
                     AbstractEditorPane part = editor.build();
+
+                    PaneState state = new PaneState(PaneType.EDITOR, null, editor.getId(), true);
+                    state.setImage(part.getTitleImage());
+                    part.setPaneState(state);
+
                     int index = addPage(part, getPaneEditorInput(), true);
                     setPageText(index, part.getTitle());
                     setPageImage(index, part.getTitleImage());
-                    if (part instanceof AbstractEditorPane)
-                        ((AbstractEditorPane) part).initWithArgument(null);
 
+                    part.initWithArgument(null);
                 }
             }
             catch (CoreException e)
@@ -545,14 +552,21 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
         try
         {
             AbstractEditorPane part = editor.build();
-            int index = addPage(part, getPaneEditorInput(), true);
 
+            PaneState state;
+            if (part instanceof CompositeHeapEditorPane)
+                state = new PaneState(PaneType.COMPOSITE_PARENT, null, editor.getId(), false);
+            else
+                state = new PaneState(PaneType.EDITOR, null, editor.getId(), argument == null);
+            state.setImage(part.getTitleImage());
+            part.setPaneState(state);
+
+            int index = addPage(part, getPaneEditorInput(), true);
             CTabItem item = getItem(index);
             item.setText(title != null ? title : part.getTitle());
             item.setImage(image != null ? image : part.getTitleImage());
 
-            if (part instanceof AbstractEditorPane)
-                ((AbstractEditorPane) part).initWithArgument(argument);
+            part.initWithArgument(argument);
 
             if (doFocus)
             {
@@ -573,28 +587,30 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
         return index;
     }
 
-    private void addPage(int index, AbstractEditorPane editor, IEditorInput input, boolean isClosable)
+    private void addPage(int index, AbstractEditorPane pane, IEditorInput input, boolean isClosable)
                     throws PartInitException
     {
-        IEditorSite site = new MultiPaneEditorSite(this, editor);
-        editor.init(site, input);
-        Composite parent2 = new Composite(this.container, getOrientation(editor));
+        IEditorSite site = new MultiPaneEditorSite(this, pane);
+        pane.init(site, input);
+        Composite parent2 = new Composite(this.container, getOrientation(pane));
         parent2.setLayout(new FillLayout());
-        editor.createPartControl(parent2);
+        pane.createPartControl(parent2);
 
         final CTabItem item = new CTabItem(container, (isClosable ? SWT.CLOSE : SWT.NONE), index);
         item.setControl(parent2);
-        item.setData(editor);
+        item.setData(pane);
 
-        nestedPanes.add(editor);
+        nestedPanes.add(pane);
 
-        editor.addPropertyListener(new IPropertyListener()
+        pane.addPropertyListener(new IPropertyListener()
         {
             public void propertyChanged(Object source, int propertyId)
             {
                 MultiPaneEditor.this.handlePropertyChange(item, propertyId);
             }
         });
+
+        navigatorState.paneAdded(pane.getPaneState());
     }
 
     private void handlePropertyChange(CTabItem item, int propertyId)
@@ -658,6 +674,9 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
         // first: activate previous pane
         AbstractEditorPane lastPane = nestedPanes.peek();
 
+        if (pane.getPaneState() != null)
+            this.navigatorState.paneRemoved(pane.getPaneState());
+
         // dispose item before disposing editor, in case there's an exception in
         // editor's dispose
         item.dispose();
@@ -693,6 +712,12 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
         setSite(site);
         setInput(input);
         site.setSelectionProvider(new MultiPaneEditorSelectionProvider(this));
+        navigatorState = new NavigatorState();
+    }
+
+    public NavigatorState getNavigatorState()
+    {
+        return navigatorState;
     }
 
     public boolean isDirty()
@@ -901,6 +926,37 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
         return -1;
     }
 
+    public void bringPageToTop(PaneState state)
+    {
+        for (CTabItem item : container.getItems())
+        {
+            if (((AbstractEditorPane) item.getData()).getPaneState() == state)
+            {
+                setActivePage(container.indexOf(item));
+                break;
+            }
+        }
+    }
+
+    public void initWithAnotherArgument(PaneState parent, PaneState child)
+    {
+        AbstractEditorPane pane = getEditor(parent);
+        if (pane != null)
+            pane.initWithArgument(child);
+    }
+
+    public void closePage(PaneState state)
+    {
+        for (CTabItem item : container.getItems())
+        {
+            if (((AbstractEditorPane) item.getData()).getPaneState() == state)
+            {
+                removePage(container.indexOf(item));
+                break;
+            }
+        }
+    }
+
     private Control getControl(int pageIndex)
     {
         return getItem(pageIndex).getControl();
@@ -910,6 +966,18 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
     {
         Item item = getItem(pageIndex);
         return item != null ? (AbstractEditorPane) item.getData() : null;
+    }
+
+    public AbstractEditorPane getEditor(PaneState state)
+    {
+        for (CTabItem item : container.getItems())
+        {
+            AbstractEditorPane pane = (AbstractEditorPane) item.getData();
+            if (pane.getPaneState() == state)
+                return pane;
+        }
+
+        return null;
     }
 
     private CTabItem getItem(int pageIndex)
@@ -946,4 +1014,5 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
     {
         return container.isDisposed();
     }
+
 }

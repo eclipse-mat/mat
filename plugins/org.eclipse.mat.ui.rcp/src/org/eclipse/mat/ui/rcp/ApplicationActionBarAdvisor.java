@@ -74,8 +74,9 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor
         editMenu.add(copyAction);
         menuBar.add(editMenu);
 
-        MenuManager windowMenu = new MenuManager("&View", IWorkbenchActionConstants.M_WINDOW);
+        MenuManager windowMenu = new MenuManager("&Window", IWorkbenchActionConstants.M_WINDOW);
         windowMenu.add(openViewAction);
+        windowMenu.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
         windowMenu.add(preferencesAction);
         menuBar.add(windowMenu);
 
