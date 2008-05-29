@@ -5,8 +5,8 @@ Bundle-SymbolicName: org.eclipse.mat.parser;singleton:=true
 Bundle-Version: 0.7.0.qualifier
 Bundle-Activator: org.eclipse.mat.parser.ParserPlugin
 Bundle-Vendor: Eclipse.org
-Require-Bundle: org.eclipse.core.runtime,
- org.eclipse.mat.api;visibility:=reexport
+Require-Bundle: org.eclipse.core.runtime;bundle-version="3.3.100",
+ org.eclipse.mat.api;bundle-version="0.7.0";visibility:=reexport
 Eclipse-LazyStart: true
 Bundle-ActivationPolicy: lazy
 Export-Package: org.eclipse.mat.parser,

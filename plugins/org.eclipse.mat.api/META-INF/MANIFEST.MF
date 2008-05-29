@@ -30,7 +30,7 @@ Export-Package:  org.eclipse.mat.collect,
  org.eclipse.mat.snapshot.model,
  org.eclipse.mat.test,
  org.eclipse.mat.util
-Require-Bundle: org.eclipse.core.runtime;bundle-version="2.1"
+Require-Bundle: org.eclipse.core.runtime;bundle-version="3.3.100"
 Bundle-Activator: org.eclipse.mat.ApiPlugin
 Eclipse-LazyStart: true
 Bundle-ActivationPolicy: lazy
