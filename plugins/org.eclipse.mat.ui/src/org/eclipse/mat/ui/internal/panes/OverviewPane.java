@@ -343,7 +343,7 @@ public class OverviewPane extends HeapEditorPane implements IHyperlinkListener, 
             QueryDescriptor tc = QueryRegistry.instance().getQuery(TopConsumers2Query.class);
 
             buf.append(
-                            "<form><li style=\"text\" value=\"\">BIRT chart engine not available. No pie today. "
+                            "<form><li style=\"text\" value=\"\">BIRT Chart Engine (>2.2.2) not available. No pie today. "
                                             + "Check-out the <a href=\"").append(h.getIdentifier()).append(
                             "\">Dominator Tree</a> or <a href=\"").append(tc.getIdentifier()).append(
                             "\">Top Consumers</a>.</li></form>");
