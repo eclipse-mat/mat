@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<introContent>
+  	<extensionContent id="noteworthy-introExtension" style="css/noteworthy/noteworthy.css"
+		name="Memory Analyzer Samples" path="overview/page-content/overview-links/anchor">
+				<link label="New and Noteworthy"
+					url="http://org.eclipse.ui.intro/showPage?id=new_and_noteworthy_12"
+					id="placeholder" style-id="content-link">
+					<text>
+						Check out the new features in Analyzer 0.7.0
+					</text>
+				</link>
+       	
+  	</extensionContent>
+  	
+  	<!--  NEW AND NOTEWORTHY -->
+	<page id="new_and_noteworthy_12"
+		style="css/noteworthy/noteworthy.css">
+		<include path="overview/header" />
+		<group style-id="content-group" id="page-content" filteredFrom="swt">
+			<html id="placeholder" src="noteworthy/1.2.0/index.html"
+				type="inline" />
+		</group>
+	</page>
+
+	<page id="new_and_noteworthy_11"
+		style="css/noteworthy/noteworthy.css">
+		<include path="overview/header" />
+		<group style-id="content-group" id="page-content" filteredFrom="swt">
+			<html id="placeholder" src="noteworthy/1.1.1/index.html"
+				type="inline" />
+		</group>
+	</page>
+	
+	<page id="new_and_noteworthy_older"
+		style="css/noteworthy/noteworthy.css">
+		<include path="overview/header" />
+		<group style-id="content-group" id="page-content" filteredFrom="swt">
+			<html style-id="content-link" id="placeholder" src="noteworthy/older/index.html"
+				type="inline" />
+		</group>
+	</page>
+</introContent>

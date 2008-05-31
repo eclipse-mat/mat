@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension-point id="parser" name="Heap Parser" schema="schema/parser.exsd"/>
+   
+   <extension
+         point="org.eclipse.mat.api.factory">
+      <factory
+            class="org.eclipse.mat.parser.internal.SnapshotFactoryImpl">
+      </factory>
+   </extension>
+   
+</plugin>

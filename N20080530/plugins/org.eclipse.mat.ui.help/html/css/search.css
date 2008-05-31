@@ -1,0 +1,10 @@
+body {
+   background-color:#fefeee;
+   font-family:Arial,Helvetica,sans-serif;
+   margin:10px;
+}
+table {
+   border-width:1px;
+   border-style:solid;
+   border-color:black;
+}

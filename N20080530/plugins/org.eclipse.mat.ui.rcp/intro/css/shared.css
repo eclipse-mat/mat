@@ -1,0 +1,308 @@
+/* 
+ * Set up general fonts, sizes and colors 
+ */
+html, body 
+{ 
+	font-family : Arial, sans-serif; 
+	font-size : 12 px;
+	color : #000000;
+	width : 100%; height : 100%; 
+	
+	border-style: solid;
+	border-color: #ffffff;
+	border-width: 1px;
+	margin: 0px;
+	background-color :  #ffffff;	
+	
+}
+
+body, .page{
+	min-width : 770px;
+	/* since IE doesn't support min-width, try expression */
+	width:expression(document.body.clientWidth < 770? "770px": "auto" );
+	min-height : 425px;
+	height : 100%;
+	height : expression(document.body.clientHeight < 425? "425px": "100%" );
+}
+
+
+html, body, p, a { margin : 0px; padding : 0px; }
+
+/*
+ * to get scrollbars working in both IE and Mozilla
+ */
+html,body { overflow: auto; }
+html>body { overflow: visible; }
+
+/* @@@     NAVIGATION BAR    @@@ */
+
+#page-links
+{
+	border-top-width : 1px;
+	border-top-color : #ffffff;
+	border-top-style : solid;
+	background-color :  #d7e5f0; 		
+	height : 56 px;
+}
+
+#page-links #version
+{
+	position: absolute;
+	right: 20px;
+}
+
+#page-links img#bg1
+{
+	border-right-width : 1px;
+	border-right-color : #ffffff;
+	border-right-style : solid;	
+	position : absolute; 
+	top : 31 px;
+	left : 0px;
+	bottom : 0 px,
+}
+
+#page-links #linktext
+{
+	position : relative;   
+	bottom : -22 px;
+
+	font-weight : bold;
+	font-family : Arial, sans serif;
+	font-size : 12 px;		
+	
+	margin-left : 20 px;
+	margin-right : 20 px;
+}
+
+#page-links a
+{
+	height : 56 px;
+}
+
+#page-links #versiontext
+{
+	font-weight : bold;
+	font-family : Arial, sans serif;
+	font-size : 22 px;
+}
+
+#page-links #editiontext
+{
+	position: relative;
+	bottom: -23px;
+	
+	font-weight : bold;
+	font-family : Arial, sans serif;
+	font-size : 10 px;
+}
+
+
+/* properties for each of the navigation-links  */
+#page-links a#overview { background-image : url(graphics/icons/overview_off.gif); background-repeat : no-repeat ;  background-position: 50% 20%; }
+#page-links a#overview:active { background-image : url(graphics/icons/overview_on.gif); background-color: #ffffff; }
+#page-links a#tutorials { background-image : url(graphics/icons/tutorials_off.gif); background-repeat : no-repeat ; background-position: 50% 20%; }
+#page-links a#tutorials:active { background-image : url(graphics/icons/tutorials_on.gif); background-color: #ffffff; }
+#page-links a#workbench { background-image : url(graphics/icons/workbench_off.gif); background-repeat : no-repeat ; background-position: 50% 20%;}
+#page-links a#workbench:active { background-image : url(graphics/icons/workbench_on.gif); background-color: #ffffff; }
+
+/* Needed in IE to get shift+tab to show the active image properly */
+a:active {
+	border : solid 0px;
+}
+
+/* @@@  END OF NAVIGATION BAR    @@@ */
+
+
+/* @@@ page-content @@@ */
+
+iframe {
+	position:relative;
+	width:100%;
+	height:100%;	
+} 
+	
+/* mozilla scrollbar appearing off page fix */
+#page-content > iframe {
+	width: 98%;
+	padding-left: 1%;	
+	overflow : auto;
+}	
+
+#page-content 
+{
+	display : block;
+		margin-top : 21 px;  margin-left : 32 px;  margin-right : 92 px;
+
+	float : none;
+	clear : both;
+	background-color : transparent; z-index : 100;
+	font-weight : normal;
+	font-family : Arial, sans-serif;
+	font-size : 12px;
+}
+
+#heading-links a {
+	width :  100 %;
+	vertical-align : top;
+	margin-bottom : -10 px;
+	padding-right : 42 px;
+}
+
+#heading-links a .link-label {
+	display : block;
+	position : relative;
+	top : -45px;
+	left : 60px; 
+	width : 70 %;
+	font-weight : bold;
+	font-size : 13 px;		
+}
+
+
+#heading-links a p .text {
+	display : block;
+	width : 100%;
+	position : relative;
+	top : -48px;
+	left : 60px;
+}
+
+#heading-links a img {
+	height : 48 px;
+	width : 48 px;
+	vertical-align : middle;
+}
+
+
+/* For regular div labels */
+H4 .div-label {
+	font-size : 13px;
+	font-weight : bold;
+	float : none;
+	clear : both;
+	color : #8da0ba;
+}
+
+#overview-links {
+	text-align : left;
+	width : 100 %;
+	padding-top: 15 px;
+	/* To center in Moz (have to use text-align for IE) */
+	margin : 0px auto;
+	font-family : Arial, sans-serif; 
+	font-size : 12 px;	
+}
+
+
+#overview-links a {
+	width :  49 %;
+	vertical-align : top;
+	margin-bottom : -10 px;
+	padding-right : 42 px;
+}
+
+#overview-links a .link-label {
+	display : block;
+	position : relative;
+	top : -45px;
+	left : 60px; 
+	width : 70 %;
+	font-weight : bold;
+	font-size : 13 px;		
+}
+
+
+#overview-links a p .text {
+	display : block;
+	width : 80%;
+	position : relative;
+	top : -40px;
+	left : 60px;
+	/*bottom : -32px;					*/
+}
+
+#overview-links a img {
+	height : 48 px;
+	width : 48 px;
+	vertical-align : middle;
+}
+
+
+/* Special case for Mozilla, because the links are displayed
+   in 1 vertical column instead of 2 centered columns */ 
+#overview-links > a { 	width : 700px; }
+#overview-links a > .link-label { width : 700px; }
+#overview-links a p > .text { width : 700px; }
+
+
+a {
+	text-decoration : none;
+	color : #000000;
+	font-size : 12 px;
+	font-family : Arial, sans-serif; 
+}
+
+a .link-label {
+	font-weight : bold;
+}
+
+a .text {
+	font-weight : normal;
+}
+
+p .group-description {
+	font-size : 12 px;
+	font-weight : normal;
+	color : #000000;
+}
+
+
+div#snapshot_history {
+	position: relative;
+	top: -25px;
+	margin-bottom: -25px;
+	margin-left: 52px;
+}
+
+#snapshot_history .div-label {
+	font-size: 9pt;
+}
+
+#snapshot_history .provided-content {
+}
+
+#snapshot_history .status-text {
+	font-weight: normal;
+	color: #909090;
+	font-size: 8pt;
+}
+
+ul#snapshot_history {
+	padding-top: 10 px;
+	list-style-type: none;
+	list-style-image: url("graphics/icons/arrow.gif");
+	margin-left: 10px;
+	margin-top: 5px;
+}
+
+ul#snapshot_history li {
+	text-align : left;	
+	width: auto;
+	margin-bottom: auto;
+	position : relative;	
+}
+
+ul#snapshot_history a {
+	font-weight: normal;
+	text-align : left;	
+	width: auto;
+	margin-bottom: auto;
+	position : relative;
+	
+}
+
+ul#snapshot_history a:hover {
+	text-decoration: underline;
+}
+

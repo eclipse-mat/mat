@@ -1,0 +1,272 @@
+/*******************************************************************************
+ * Copyright (c) 2008 SAP AG.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    SAP AG - initial API and implementation
+ *******************************************************************************/
+package org.eclipse.mat.hprof;
+
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.text.MessageFormat;
+import java.util.List;
+
+import org.eclipse.mat.hprof.IHprofParserHandler.HeapObject;
+import org.eclipse.mat.impl.snapshot.internal.SimpleMonitor;
+import org.eclipse.mat.parser.io.PositionInputStream;
+import org.eclipse.mat.parser.model.ClassImpl;
+import org.eclipse.mat.parser.model.ObjectArrayImpl;
+import org.eclipse.mat.parser.model.PrimitiveArrayImpl;
+import org.eclipse.mat.snapshot.model.FieldDescriptor;
+import org.eclipse.mat.snapshot.model.IClass;
+import org.eclipse.mat.snapshot.model.IObject;
+import org.eclipse.mat.snapshot.model.IPrimitiveArray;
+import org.eclipse.mat.util.IProgressListener;
+
+/**
+ * Parser used to read the hprof formatted heap dump
+ */
+
+public class Pass2Parser extends AbstractParser
+{
+    private IHprofParserHandler handler;
+    private SimpleMonitor.Listener monitor;
+
+    public Pass2Parser(IHprofParserHandler handler, SimpleMonitor.Listener monitor)
+    {
+        this.handler = handler;
+        this.monitor = monitor;
+    }
+
+    public void read(File file) throws IOException
+    {
+        in = new PositionInputStream(new BufferedInputStream(new FileInputStream(file)));
+
+        try
+        {
+            version = readVersion();
+            idSize = in.readInt();
+            if (idSize != 4 && idSize != 8)
+                throw new IOException("Only 32bit and 64bit dumps are supported.");
+            in.skipBytes(8); // creation date
+
+            long fileSize = file.length();
+            long curPos = in.position();
+
+            while (curPos < fileSize)
+            {
+                if (monitor.isProbablyCanceled())
+                    throw new IProgressListener.OperationCanceledException();
+                monitor.totalWorkDone(curPos / 1000);
+
+                int record = in.readUnsignedByte();
+
+                in.skipBytes(4); // time stamp
+
+                long length = readUnsignedInt();
+                if (length < 0)
+                    throw new IOException(MessageFormat.format("Illegal record length at byte {0}", in.position()));
+
+                if (record == Constants.Record.HEAP_DUMP //
+                                || record == Constants.Record.HEAP_DUMP_SEGMENT)
+                {
+                    readDumpSegments(length);
+                }
+                else
+                {
+                    in.skipBytes(length);
+                }
+
+                curPos = in.position();
+            }
+        }
+        finally
+        {
+            try
+            {
+                in.close();
+            }
+            catch (IOException ignore)
+            {}
+        }
+    }
+
+    private void readDumpSegments(long length) throws IOException
+    {
+        long segmentStartPos = in.position();
+        long segmentsEndPos = segmentStartPos + length;
+
+        while (segmentStartPos < segmentsEndPos)
+        {
+            long workDone = segmentStartPos / 1000;
+            if (this.monitor.getWorkDone() < workDone)
+            {
+                if (this.monitor.isProbablyCanceled())
+                    throw new IProgressListener.OperationCanceledException();
+                this.monitor.totalWorkDone(workDone);
+            }
+
+            int segmentType = in.readUnsignedByte();
+            switch (segmentType)
+            {
+                case Constants.DumpSegment.ROOT_UNKNOWN:
+                case Constants.DumpSegment.ROOT_STICKY_CLASS:
+                case Constants.DumpSegment.ROOT_MONITOR_USED:
+                    in.skipBytes(idSize);
+                    break;
+                case Constants.DumpSegment.ROOT_JNI_GLOBAL:
+                    in.skipBytes(idSize * 2);
+                    break;
+                case Constants.DumpSegment.ROOT_NATIVE_STACK:
+                case Constants.DumpSegment.ROOT_THREAD_BLOCK:
+                    in.skipBytes(idSize + 4);
+                    break;
+                case Constants.DumpSegment.ROOT_THREAD_OBJECT:
+                case Constants.DumpSegment.ROOT_JNI_LOCAL:
+                case Constants.DumpSegment.ROOT_JAVA_FRAME:
+                    in.skipBytes(idSize + 8);
+                    break;
+                case Constants.DumpSegment.CLASS_DUMP:
+                    skipClassDump();
+                    break;
+                case Constants.DumpSegment.INSTANCE_DUMP:
+                    readInstanceDump(segmentStartPos);
+                    break;
+                case Constants.DumpSegment.OBJECT_ARRAY_DUMP:
+                    readObjectArrayDump(segmentStartPos);
+                    break;
+                case Constants.DumpSegment.PRIMITIVE_ARRAY_DUMP:
+                    readPrimitveArrayDump(segmentStartPos);
+                    break;
+                default:
+                    throw new IOException(MessageFormat.format("Invalid heap dump file.\n"
+                                    + "Unsupported segment type {0} at position {1}", segmentType, segmentStartPos));
+            }
+            segmentStartPos = in.position();
+        }
+    }
+
+    private void skipClassDump() throws IOException
+    {
+        in.skipBytes(7 * idSize + 8);
+
+        int constantPoolSize = in.readUnsignedShort();
+        for (int ii = 0; ii < constantPoolSize; ii++)
+        {
+            in.skipBytes(2);
+            skipValue();
+        }
+
+        int numStaticFields = in.readUnsignedShort();
+        for (int i = 0; i < numStaticFields; i++)
+        {
+            in.skipBytes(idSize);
+            skipValue();
+        }
+
+        int numInstanceFields = in.readUnsignedShort();
+        in.skipBytes((idSize + 1) * numInstanceFields);
+    }
+
+    private void readInstanceDump(long segmentStartPos) throws IOException
+    {
+        long id = readID();
+        in.skipBytes(4);
+        long classID = readID();
+        int bytesFollowing = in.readInt();
+        long endPos = in.position() + bytesFollowing;
+
+        List<IClass> hierarchy = handler.resolveClassHierarchy(classID);
+
+        ClassImpl thisClazz = (ClassImpl) hierarchy.get(0);
+        HeapObject heapObject = new HeapObject(handler.mapAddressToId(id), id, thisClazz, thisClazz
+                        .getHeapSizePerInstance());
+
+        heapObject.references.add(thisClazz.getObjectAddress());
+
+        // extract outgoing references
+        for (IClass clazz : hierarchy)
+        {
+            for (FieldDescriptor field : clazz.getFieldDescriptors())
+            {
+                int type = field.getType();
+                if (type == IObject.Type.OBJECT)
+                {
+                    long refId = readID();
+                    if (refId != 0)
+                        heapObject.references.add(refId);
+                }
+                else
+                {
+                    skipValue(type);
+                }
+            }
+        }
+
+        if (endPos != in.position())
+            throw new IOException("Insufficient bytes read for instance at " + segmentStartPos);
+
+        handler.addObject(heapObject, segmentStartPos);
+    }
+
+    private void readObjectArrayDump(long segmentStartPos) throws IOException
+    {
+        long id = readID();
+
+        in.skipBytes(4);
+        int size = in.readInt();
+        long arrayClassObjectID = readID();
+
+        ClassImpl arrayType = (ClassImpl) handler.lookupClass(arrayClassObjectID);
+        if (arrayType == null)
+            throw new RuntimeException("handler must create fake class for 0x" + Long.toHexString(arrayClassObjectID));
+
+        HeapObject heapObject = new HeapObject(handler.mapAddressToId(id), id, arrayType, ObjectArrayImpl
+                        .doGetUsedHeapSize(arrayType, size));
+        heapObject.references.add(arrayType.getObjectAddress());
+        heapObject.isArray = true;
+
+        for (int ii = 0; ii < size; ii++)
+        {
+            long refId = readID();
+            if (refId != 0)
+                heapObject.references.add(refId);
+        }
+
+        handler.addObject(heapObject, segmentStartPos);
+    }
+
+    private void readPrimitveArrayDump(long segmentStartPost) throws IOException
+    {
+        long id = readID();
+
+        in.skipBytes(4);
+        int size = in.readInt();
+        byte elementType = in.readByte();
+
+        if ((elementType < IPrimitiveArray.Type.BOOLEAN) || (elementType > IPrimitiveArray.Type.LONG))
+            throw new IOException("Illegal primitive object array type");
+
+        String name = IPrimitiveArray.TYPE[(int) elementType];
+        ClassImpl clazz = (ClassImpl) handler.lookupClassByName(name, true);
+        if (clazz == null)
+            throw new RuntimeException("handler must create fake class for " + name);
+
+        HeapObject heapObject = new HeapObject(handler.mapAddressToId(id), id, clazz, PrimitiveArrayImpl
+                        .doGetUsedHeapSize(clazz, size, (int) elementType));
+        heapObject.references.add(clazz.getObjectAddress());
+        heapObject.isArray = true;
+
+        handler.addObject(heapObject, segmentStartPost);
+
+        int elementSize = IPrimitiveArray.ELEMENT_SIZE[(int) elementType];
+        in.skipBytes(elementSize * size);
+    }
+
+}

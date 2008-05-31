@@ -1,0 +1,32 @@
+<section name="System Overview">
+	<param key="html.collapsed" value="false" />
+	
+	<query name="Heap Dump Overview">
+		<param key="html.show_table_header" value="false" />
+		<command>heap_dump_overview</command>
+	</query>	
+	<query name="System Properties">
+		<param key="html.separate_file" value="true" />		
+		<param key="sort_column" value="Key" />
+		<param key="sort_order" value="ASC" />
+		<param key="hide_column" value="Collection" />
+		<param key ="limit" value="1000" />		
+		<command>system_properties</command>
+	</query>
+	<query name="Thread Overview">
+		<param key="html.separate_file" value="true" />
+		<param key ="limit" value="1000" />
+		<command>thread_overview</command>
+	</query>	
+	<query name="Top Consumers">
+		<param key="html.separate_file" value="true" />
+		<command>top_consumers_html</command>
+	</query>
+	<query name="Class Histogram">
+		<param key="html.separate_file" value="true" />
+		<param key="sort_column" value="Retained Heap" />
+		<param key="retained_size_for" value="_default_"/>
+		<param key="retained_size_approx" value="true"/>
+		<command>histogram</command>
+	</query>	
+</section>
