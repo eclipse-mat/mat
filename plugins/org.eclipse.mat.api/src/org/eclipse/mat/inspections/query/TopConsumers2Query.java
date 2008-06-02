@@ -384,7 +384,10 @@ public class TopConsumers2Query implements IQuery
             if (loaderRecord == null)
             {
                 IObject loader = snapshot.getObject(clazz.getClassLoaderId());
-                loaderRecord = new ClassLoaderHistogramRecord(loader.getClassSpecificName(), loader.getObjectId(),
+                String name = loader.getClassSpecificName();
+                if (name == null)
+                    name = loader.getTechnicalName();
+                loaderRecord = new ClassLoaderHistogramRecord(name, loader.getObjectId(),
                                 null, 0, 0, 0);
                 id2loader.put(clazz.getClassLoaderId(), loaderRecord);
             }

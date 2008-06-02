@@ -61,7 +61,7 @@ public class FindStringsQuery implements IQuery
                         break ClassesLoop;
 
                     String value = snapshot.getObject(id).getClassSpecificName();
-                    if (pattern.matcher(value).matches())
+                    if (value != null && pattern.matcher(value).matches())
                         result.add(id);
                 }
             }

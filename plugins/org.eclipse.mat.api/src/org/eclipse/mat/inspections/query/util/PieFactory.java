@@ -52,7 +52,7 @@ public class PieFactory
     public Slice addSlice(int objectId, String label, long usedHeapSize, long retainedHeapSize)
     {
         SliceImpl slice = new SliceImpl(objectId);
-        slice.label = label;
+        slice.label = label != null ? label : "";
         slice.shallowSize = usedHeapSize;
         slice.retainedSize = retainedHeapSize;
         slices.add(slice);

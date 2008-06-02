@@ -119,6 +119,8 @@ import org.eclipse.mat.util.IProgressListener;
         if (contextClassLoader != null)
         {
             info.contextClassLoader = contextClassLoader.getClassSpecificName();
+            if (info.contextClassLoader == null)
+                info.contextClassLoader = contextClassLoader.getTechnicalName();
             info.contextClassLoaderId = contextClassLoader.getObjectId();
         }
     }
