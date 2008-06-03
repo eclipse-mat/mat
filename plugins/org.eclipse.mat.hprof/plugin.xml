@@ -8,7 +8,7 @@
          point="org.eclipse.mat.parser.parser">
       <parser
       		name="HPROF binary heap dumps"
-            fileExtension="hprof"
+            fileExtension="hprof,bin"
             indexBuilder="org.eclipse.mat.hprof.HprofIndexBuilder"
             objectReader="org.eclipse.mat.hprof.HprofHeapObjectReader">
       </parser>
