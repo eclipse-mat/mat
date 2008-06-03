@@ -11,6 +11,7 @@
 package org.eclipse.mat.hprof;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.MessageFormat;
 
 import org.eclipse.mat.parser.io.PositionInputStream;
@@ -24,7 +25,7 @@ import org.eclipse.mat.snapshot.model.ObjectReference;
 
 /* package */abstract class AbstractParser
 {
-    enum Version
+    /* package */enum Version
     {
         JDK12BETA3("JAVA PROFILE 1.0"), //
         JDK12BETA4("JAVA PROFILE 1.0.1"), //
@@ -98,14 +99,14 @@ import org.eclipse.mat.snapshot.model.ObjectReference;
     /* package */AbstractParser()
     {}
 
-    protected Version readVersion() throws IOException
+    /* protected */static Version readVersion(InputStream in) throws IOException
     {
         StringBuilder version = new StringBuilder();
 
         int bytesRead = 0;
         while (bytesRead < 20)
         {
-            byte b = in.readByte();
+            byte b = (byte) in.read();
             bytesRead++;
 
             if (b != 0)
@@ -116,7 +117,13 @@ import org.eclipse.mat.snapshot.model.ObjectReference;
             {
                 Version answer = Version.byLabel(version.toString());
                 if (answer == null)
-                    throw new IOException(MessageFormat.format("Unknown HPROF Version ({0})", version.toString()));
+                {
+                    if (bytesRead <= 13) // did not read "JAVA PROFILE "
+                        throw new IOException("Not a HPROF heap dump");
+                    else
+                        throw new IOException(MessageFormat.format("Unknown HPROF Version ({0})", version.toString()));
+                }
+
                 if (answer == Version.JDK12BETA3) // not supported by MAT
                     throw new IOException(MessageFormat.format("Unsupported HPROF Version {0}", answer.getLabel()));
                 return answer;

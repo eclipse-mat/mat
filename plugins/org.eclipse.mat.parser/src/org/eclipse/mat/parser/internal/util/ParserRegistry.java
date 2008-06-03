@@ -11,6 +11,8 @@
 package org.eclipse.mat.parser.internal.util;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -48,7 +50,7 @@ public class ParserRegistry extends RegistryReader<ParserRegistry.Parser>
             IExtension extension = (IExtension) configElement.getParent();
             return extension.getUniqueIdentifier();
         }
-        
+
         public SnapshotFormat getSnapshotFormat()
         {
             return snapshotFormat;
@@ -116,13 +118,14 @@ public class ParserRegistry extends RegistryReader<ParserRegistry.Parser>
         return null;
     }
 
-    public Parser matchParser(String fileName)
+    public List<Parser> matchParser(String fileName)
     {
+        List<Parser> answer = new ArrayList<Parser>();
         for (Parser p : delegates())
             for (Pattern regex : p.pattern)
                 if (regex.matcher(fileName).matches())
-                    return p;
-        return null;
+                    answer.add(p);
+        return answer;
     }
 
 }

@@ -24,6 +24,7 @@ import org.eclipse.mat.snapshot.SnapshotFactory;
 import org.eclipse.mat.ui.SnapshotHistoryService;
 import org.eclipse.mat.ui.util.ErrorHelper;
 import org.eclipse.mat.ui.util.ProgressMonitorWrapper;
+import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.progress.IProgressConstants;
 
@@ -69,6 +70,10 @@ public abstract class ParseHeapDumpJob extends Job
 
                 return Status.OK_STATUS;
             }
+        }
+        catch (IProgressListener.OperationCanceledException e)
+        {
+            return Status.CANCEL_STATUS;
         }
         catch (SnapshotException e)
         {

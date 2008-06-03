@@ -101,7 +101,7 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
             /* END - marking objects */
 
             if (listener.isCanceled())
-                return null;
+                throw new IProgressListener.OperationCanceledException();
             listener.worked(1); // 3
             listener.subTask("Re-indexing objects");
 
@@ -169,7 +169,7 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
             identifiers = null;
 
             if (listener.isCanceled())
-                return null;
+                throw new IProgressListener.OperationCanceledException();
             listener.worked(1); // 4
             listener.subTask("Re-indexing classes");
 
@@ -191,7 +191,7 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
             idx.getSnapshotInfo().setNumberOfClasses(classesByNewId.size());
 
             if (listener.isCanceled())
-                return null;
+                throw new IProgressListener.OperationCanceledException();
             listener.worked(1); // 5
 
             // //////////////////////////////////////////////////////////////
@@ -203,7 +203,7 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
             idxManager.setReader(Index.IDENTIFIER, new IndexWriter.LongIndexStreamer().writeTo(indexFile, id2a));
 
             if (listener.isCanceled())
-                return null;
+                throw new IProgressListener.OperationCanceledException();
             listener.worked(1); // 6
 
             // //////////////////////////////////////////////////////////////
@@ -235,7 +235,7 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
             object2classId = null;
 
             if (listener.isCanceled())
-                return null;
+                throw new IProgressListener.OperationCanceledException();
             listener.worked(1); // 7
 
             // //////////////////////////////////////////////////////////////
@@ -273,7 +273,7 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
             preA2size.delete();
             
             if (listener.isCanceled())
-                return null;
+                throw new IProgressListener.OperationCanceledException();
             listener.worked(1); // 9
 
             // //////////////////////////////////////////////////////////////
@@ -317,7 +317,7 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
             {
                 w_in.cancel();
                 w_out.cancel();
-                return null;
+                throw new IProgressListener.OperationCanceledException();
             }
             listener.worked(1); // 10
 
@@ -328,7 +328,7 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
             if (listener.isCanceled())
             {
                 w_out.cancel();
-                return null;
+                throw new IProgressListener.OperationCanceledException();
             }
 
             listener.worked(1); // 11
@@ -338,7 +338,7 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
             idxManager.setReader(Index.OUTBOUND, w_out.flush());
             w_out = null;
             if (listener.isCanceled())
-                return null;
+                throw new IProgressListener.OperationCanceledException();
             listener.worked(1); // 12
 
             // fix roots

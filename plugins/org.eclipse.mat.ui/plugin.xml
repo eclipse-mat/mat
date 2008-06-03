@@ -20,12 +20,13 @@
 	</extension>
 
 	<extension point="org.eclipse.ui.editors">
-		<editor class="org.eclipse.mat.ui.editor.HeapEditor"
-			contributorClass="org.eclipse.mat.ui.editor.MultiPaneEditorContributor"
-			extensions="hprof"
-			icon="icons/heapobjects/heapdump16.gif"
-			id="org.eclipse.mat.ui.editors.HeapEditor"
-			name="Eclipse Memory Analyzer" />
+		<editor id="org.eclipse.mat.ui.editors.HeapEditor"
+		        name="Eclipse Memory Analyzer"
+		        class="org.eclipse.mat.ui.editor.HeapEditor"
+		        contributorClass="org.eclipse.mat.ui.editor.MultiPaneEditorContributor"
+		        icon="icons/heapobjects/heapdump16.gif">
+			<contentTypeBinding contentTypeId="org.eclipse.mat.JavaHeapDump" />
+		</editor>
 	</extension>
 
 	<extension point="org.eclipse.ui.views">
@@ -148,7 +149,6 @@
 		<actionSet label="Open Heap Dump" visible="false"
 			id="org.eclipse.mat.ui.actionSet.openExternalFile">
 			<action icon="icons/open_snapshot.gif"
-				definitionId="org.eclipse.mat.ui.openExternalFile"
 				label="Open Heap Dump..."
 				class="org.eclipse.mat.ui.internal.actions.OpenSnapshotAction"
 				tooltip="Open Heap Dump" menubarPath="file/new.ext" style="push"
@@ -233,5 +233,4 @@
 			content="intro/noteworthy_rcp.xml">
 		</configExtension>	
 	</extension>
-
 </plugin>

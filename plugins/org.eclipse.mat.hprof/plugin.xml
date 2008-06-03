@@ -3,7 +3,7 @@
 <plugin>
    <extension-point id="enhancer" name="HPROF Enhancement" schema="schema/enhancer.exsd"/>
    <extension
-         id="hprof"
+         id="hprof,bin,dmp"
          name="HPROF Formatted Dumps"
          point="org.eclipse.mat.parser.parser">
       <parser
@@ -13,5 +13,16 @@
             objectReader="org.eclipse.mat.hprof.HprofHeapObjectReader">
       </parser>
    </extension>
+
+	<extension point="org.eclipse.core.contenttype.contentTypes">
+	    <content-type
+		      id="org.eclipse.mat.HprofHeapDump"
+		      base-type="org.eclipse.mat.JavaHeapDump"
+	          describer="org.eclipse.mat.hprof.HprofContentDescriber"
+	          file-extensions="hprof,bin,dmp"
+		      name="Hprof Heap Dump"
+		      priority="normal">
+		</content-type>
+	</extension>
 
 </plugin>

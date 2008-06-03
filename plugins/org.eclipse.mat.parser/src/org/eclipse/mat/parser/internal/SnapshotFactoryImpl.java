@@ -22,6 +22,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.MultiStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.mat.impl.snapshot.ISnapshotFactory;
 import org.eclipse.mat.parser.IIndexBuilder;
 import org.eclipse.mat.parser.ParserPlugin;
@@ -35,7 +38,6 @@ import org.eclipse.mat.snapshot.SnapshotException;
 import org.eclipse.mat.snapshot.SnapshotFormat;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.IProgressListener.Severity;
-
 
 public class SnapshotFactoryImpl implements ISnapshotFactory
 {
@@ -150,14 +152,13 @@ public class SnapshotFactoryImpl implements ISnapshotFactory
     public List<SnapshotFormat> getSupportedFormats()
     {
         List<SnapshotFormat> answer = new ArrayList<SnapshotFormat>(5);
-        
+
         for (Parser parser : ParserPlugin.getDefault().getParserRegistry().delegates())
             answer.add(parser.getSnapshotFormat());
 
         return answer;
     }
-    
-    
+
     // //////////////////////////////////////////////////////////////
     // Internal implementations
     // //////////////////////////////////////////////////////////////
@@ -165,40 +166,67 @@ public class SnapshotFactoryImpl implements ISnapshotFactory
     private final ISnapshot parse(File file, String prefix, IProgressListener listener) throws IOException,
                     SnapshotException
     {
-        ParserRegistry.Parser parser = ParserPlugin.getDefault().getParserRegistry().matchParser(file.getName());
-        if (parser == null)
-            throw new SnapshotException(MessageFormat.format("No parser registered for file ''{0}''", file.getName()));
+        ParserRegistry registry = ParserPlugin.getDefault().getParserRegistry();
 
-        IIndexBuilder indexBuilder = parser.create(IIndexBuilder.class, ParserRegistry.INDEX_BUILDER);
+        List<ParserRegistry.Parser> parsers = registry.matchParser(file.getName());
+        if (parsers.isEmpty())
+            parsers.addAll(registry.delegates()); // try all...
 
-        try
+        List<IOException> errors = new ArrayList<IOException>();
+
+        for (Parser parser : parsers)
         {
-            indexBuilder.init(file, prefix);
+            IIndexBuilder indexBuilder = parser.create(IIndexBuilder.class, ParserRegistry.INDEX_BUILDER);
 
-            XSnapshotInfo snapshotInfo = new XSnapshotInfo();
-            snapshotInfo.setPath(file.getAbsolutePath());
-            snapshotInfo.setPrefix(prefix);
-            PreliminaryIndexImpl idx = new PreliminaryIndexImpl(snapshotInfo);
+            try
+            {
+                indexBuilder.init(file, prefix);
 
-            indexBuilder.fill(idx, listener);
+                XSnapshotInfo snapshotInfo = new XSnapshotInfo();
+                snapshotInfo.setPath(file.getAbsolutePath());
+                snapshotInfo.setPrefix(prefix);
+                PreliminaryIndexImpl idx = new PreliminaryIndexImpl(snapshotInfo);
 
-            SnapshotImplBuilder builder = new SnapshotImplBuilder(idx.getSnapshotInfo());
+                indexBuilder.fill(idx, listener);
 
-            int[] purgedMapping = GarbageCleaner.clean(idx, builder, listener);
+                SnapshotImplBuilder builder = new SnapshotImplBuilder(idx.getSnapshotInfo());
 
-            indexBuilder.clean(purgedMapping, listener);
+                int[] purgedMapping = GarbageCleaner.clean(idx, builder, listener);
 
-            SnapshotImpl snapshot = builder.create(parser, listener);
+                indexBuilder.clean(purgedMapping, listener);
 
-            snapshot.calculateDominatorTree(listener);
+                SnapshotImpl snapshot = builder.create(parser, listener);
 
-            return snapshot;
+                snapshot.calculateDominatorTree(listener);
+
+                return snapshot;
+            }
+            catch (IOException ioe)
+            {
+                errors.add(ioe);
+                indexBuilder.cancel();
+            }
+            catch (Exception e)
+            {
+                indexBuilder.cancel();
+
+                throw SnapshotException.rethrow(e);
+            }
         }
-        catch (Exception e)
-        {
-            indexBuilder.cancel();
 
-            throw SnapshotException.rethrow(e);
+        if (!errors.isEmpty())
+        {
+            MultiStatus status = new MultiStatus(ParserPlugin.PLUGIN_ID, 0, "Error opening heap dump", null);
+            for (IOException error : errors)
+                status.add(new Status(IStatus.ERROR, ParserPlugin.PLUGIN_ID, 0, error.getMessage(), error));
+            ParserPlugin.getDefault().getLog().log(status);
+
+            throw new SnapshotException(MessageFormat.format("Error opening heap dump ''{0}''. Check log for details.",
+                            file.getName()));
+        }
+        else
+        {
+            throw new SnapshotException(MessageFormat.format("No parser registered for file ''{0}''", file.getName()));
         }
     }
 

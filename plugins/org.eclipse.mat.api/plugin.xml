@@ -91,5 +91,13 @@
 				description="includes class histogram, system properties and top consumers."
 				file="META-INF/reports/overview.xml" />
 	</extension>
+
+	<extension point="org.eclipse.core.contenttype.contentTypes">
+	    <content-type
+		      id="org.eclipse.mat.JavaHeapDump"
+		      name="Java Heap Dump"
+		      priority="normal">
+		</content-type>
+	</extension>
 	
 </plugin>

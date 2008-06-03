@@ -52,7 +52,7 @@ public class Pass1Parser extends AbstractParser
         try
         {
             // header & version
-            version = readVersion();
+            version = readVersion(in);
             handler.addProperty(IHprofParserHandler.VERSION, version.toString());
 
             // identifierSize (32 or 64 bit)

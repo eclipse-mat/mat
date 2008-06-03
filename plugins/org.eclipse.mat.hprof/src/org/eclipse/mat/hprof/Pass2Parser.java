@@ -50,7 +50,7 @@ public class Pass2Parser extends AbstractParser
 
         try
         {
-            version = readVersion();
+            version = readVersion(in);
             idSize = in.readInt();
             if (idSize != 4 && idSize != 8)
                 throw new IOException("Only 32bit and 64bit dumps are supported.");
