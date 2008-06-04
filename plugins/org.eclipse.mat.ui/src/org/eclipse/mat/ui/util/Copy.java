@@ -28,7 +28,6 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
-
 public class Copy
 {
     static CopyToClipboardData copyData;
@@ -84,6 +83,7 @@ public class Copy
         StringBuffer resultBuffer = new StringBuffer();
         StringBuffer rowBuffer = new StringBuffer();
         int numberOfColumns = getColumnCount();
+
         Object[] items;
         if (copyData.getSelection() != null)
             items = copyData.getSelection();
@@ -94,69 +94,76 @@ public class Copy
             items = ((Tree) copyData.control).getItems();
 
         Item[] columns = getColumns(copyData.control);
-        // find the length of column 0 by running through all the
-        // entries and finding the longest one
-        for (int columnIndex = 0; columnIndex < numberOfColumns; columnIndex++)
-        {
-            getColumnLength(items, columns, columnIndex);
-        }
 
-        // add column names to the result buffer
-        for (int i = 0; i < numberOfColumns; i++)
+        if (numberOfColumns == 0)
         {
-            if (i == 0)
-                resultBuffer.append(align(columns[i].getText(), true, columnLengths.get(0)));
-            else
-                resultBuffer.append("|" + align(columns[i].getText(), false, columnLengths.get(i))); //$NON-NLS-1$ 
+            resultBuffer = copySimpleStructure(items, resultBuffer);
         }
-        resultBuffer.append("\r\n"); //$NON-NLS-1$
-
-        for (Object item : items)
+        else
         {
-            boolean addLineBreak = true;
+            // find the length of column 0 by running through all the
+            // entries and finding the longest one
             for (int columnIndex = 0; columnIndex < numberOfColumns; columnIndex++)
             {
-                String value = "";
-                if (item instanceof TableItem)
-                {                    
-                    value = ((TableItem) item).getText(columnIndex);                    
-                }
-                else if ((item instanceof TreeItem) && toPrint((TreeItem) item))
-                {
-                    value = ((TreeItem) item).getText(columnIndex);
-                }
-                else if ((item instanceof TreeItem) && !toPrint((TreeItem) item))
-                {
-                    addLineBreak = false;
-                    break;
-                }
-                for (String filterName : Filter.FILTER_TYPES)
-                {
-                    if (value.equals(filterName))
-                        value = "";
-                }
-                               
-                if (columnIndex == 0)
-                    rowBuffer.append(align(value, true, columnLengths.get(0)));
-                else
-                    rowBuffer.append("|" + align(value, false, columnLengths.get(columnIndex)));
-
+                getColumnLength(items, columns, columnIndex);
             }
-            if (addLineBreak)
-                rowBuffer.append("\r\n");//$NON-NLS-1$
-            if (item instanceof TreeItem && ((TreeItem) item).getExpanded() && toPrint((TreeItem) item))
+
+            // add column names to the result buffer
+            for (int i = 0; i < numberOfColumns; i++)
             {
-                addNextLineToClipboard(new StringBuilder(), (TreeItem) item, rowBuffer, numberOfColumns, columnLengths
-                                .get(0));
+                if (i == 0)
+                    resultBuffer.append(align(columns[i].getText(), true, columnLengths.get(0)));
+                else
+                    resultBuffer.append("|" + align(columns[i].getText(), false, columnLengths.get(i))); //$NON-NLS-1$ 
             }
+            resultBuffer.append("\r\n"); //$NON-NLS-1$
+
+            for (Object item : items)
+            {
+                boolean addLineBreak = true;
+                for (int columnIndex = 0; columnIndex < numberOfColumns; columnIndex++)
+                {
+                    String value = "";
+                    if (item instanceof TableItem)
+                    {
+                        value = ((TableItem) item).getText(columnIndex);
+                    }
+                    else if ((item instanceof TreeItem) && toPrint((TreeItem) item))
+                    {
+                        value = ((TreeItem) item).getText(columnIndex);
+                    }
+                    else if ((item instanceof TreeItem) && !toPrint((TreeItem) item))
+                    {
+                        addLineBreak = false;
+                        break;
+                    }
+                    for (String filterName : Filter.FILTER_TYPES)
+                    {
+                        if (value.equals(filterName))
+                            value = "";
+                    }
+
+                    if (columnIndex == 0)
+                        rowBuffer.append(align(value, true, columnLengths.get(0)));
+                    else
+                        rowBuffer.append("|" + align(value, false, columnLengths.get(columnIndex)));
+
+                }
+                if (addLineBreak)
+                    rowBuffer.append("\r\n");//$NON-NLS-1$
+                if (item instanceof TreeItem && ((TreeItem) item).getExpanded() && toPrint((TreeItem) item))
+                {
+                    addNextLineToClipboard(new StringBuilder(), (TreeItem) item, rowBuffer, numberOfColumns,
+                                    columnLengths.get(0));
+                }
+            }
+
+            String dashedLine = getDashedLine(numberOfColumns);
+            columnLengths.clear();
+            resultBuffer.append(dashedLine + "\r\n"); //$NON-NLS-1$
+            resultBuffer.append(rowBuffer);
+            resultBuffer.append(dashedLine + "\r\n"); //$NON-NLS-1$
         }
-
-        String dashedLine = getDashedLine(numberOfColumns);
-        columnLengths.clear();
-        resultBuffer.append(dashedLine + "\r\n"); //$NON-NLS-1$
-        resultBuffer.append(rowBuffer);
-        resultBuffer.append(dashedLine + "\r\n"); //$NON-NLS-1$
-
         if (writer != null)
         {
             writer.append(resultBuffer.toString());
@@ -176,6 +183,40 @@ public class Copy
 
     }
 
+    private static StringBuffer copySimpleStructure(Object[] items, StringBuffer resultBuffer)
+    {
+        for (Object item : items)
+        {
+            boolean addLineBreak = true;
+
+            String value = "";
+            if (item instanceof TableItem)
+            {
+                value = ((TableItem) item).getText();
+            }
+            else if ((item instanceof TreeItem) && toPrint((TreeItem) item))
+            {
+                value = ((TreeItem) item).getText();
+            }
+            else if ((item instanceof TreeItem) && !toPrint((TreeItem) item))
+            {
+                addLineBreak = false;
+                continue;
+            }
+
+            resultBuffer.append(align(value, true, value.length()));
+            if (addLineBreak)
+                resultBuffer.append("\r\n");//$NON-NLS-1$
+
+            if (item instanceof TreeItem && ((TreeItem) item).getExpanded() && toPrint((TreeItem) item))
+            {
+                addNextLineToClipboard(new StringBuilder(), (TreeItem) item, resultBuffer, 0, ((TreeItem) item)
+                                .getText().length());
+            }
+        }
+        return resultBuffer;
+    }
+
     private static void addNextLineToClipboard(StringBuilder level, TreeItem item, StringBuffer rowBuffer,
                     int numberOfColumns, int length)
     {
@@ -187,13 +228,20 @@ public class Copy
             Item[] selection = copyData.getSelection();
             if (selection == null || (selection != null && !skip(children[j])))
             {
-                for (int i = 0; i < numberOfColumns; i++)
+                if (numberOfColumns == 0)
                 {
-                    if (i == 0)
-                        rowBuffer.append(level + align(children[j].getText(i), true, length - level.length()));
-                    else
-                        rowBuffer.append("|" + align(children[j].getText(i), false, columnLengths.get(i))); //$NON-NLS-1$ 
+                    rowBuffer.append(level + align(children[j].getText(), true, length - level.length()));
+                }
+                else
+                {
+                    for (int i = 0; i < numberOfColumns; i++)
+                    {
+                        if (i == 0)
+                            rowBuffer.append(level + align(children[j].getText(i), true, length - level.length()));
+                        else
+                            rowBuffer.append("|" + align(children[j].getText(i), false, columnLengths.get(i))); //$NON-NLS-1$ 
 
+                    }
                 }
                 rowBuffer.append("\r\n"); //$NON-NLS-1$
 

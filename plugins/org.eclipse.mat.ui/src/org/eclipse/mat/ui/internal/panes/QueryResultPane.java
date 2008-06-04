@@ -120,7 +120,7 @@ public class QueryResultPane extends HeapEditorPane implements ISelectionProvide
     public void setFocus()
     {
         if (viewer != null)
-            viewer.getControl().setFocus();
+            viewer.setFocus();
     }
 
     @Override

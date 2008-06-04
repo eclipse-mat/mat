@@ -39,6 +39,7 @@ import org.eclipse.mat.ui.editor.CompositeHeapEditorPane;
 import org.eclipse.mat.ui.editor.HeapEditor;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
 import org.eclipse.mat.ui.editor.PaneConfiguration;
+import org.eclipse.mat.ui.util.Copy;
 import org.eclipse.mat.ui.util.ErrorHelper;
 import org.eclipse.mat.ui.util.PaneState;
 import org.eclipse.mat.ui.util.NavigatorState.IStateChangeListener;
@@ -53,6 +54,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.part.IPageSite;
 import org.eclipse.ui.part.Page;
 
@@ -201,6 +203,17 @@ public class NavigatorViewPage extends Page implements ISelectionProvider, IDoub
         closeWithChildrenAction.setText("Close Branch");
         closeWithChildrenAction.setImageDescriptor(MemoryAnalyserPlugin.getImageDescriptor(ISharedImages.CLOSE_BRANCH));
 
+        Action copyAction = new Action()
+        {
+
+            @Override
+            public void run()
+            {
+                Copy.copyToClipboard(treeViewer.getTree());
+            }
+        };
+        getSite().getActionBars().setGlobalActionHandler(ActionFactory.COPY.getId(), copyAction);
+        getSite().getActionBars().updateActionBars();
     }
 
     private void close(boolean remove, boolean recursive)

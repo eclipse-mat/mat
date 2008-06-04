@@ -47,6 +47,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.ModifyEvent;
@@ -54,7 +56,6 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
@@ -66,6 +67,7 @@ public class OQLPane extends CompositeHeapEditorPane
     private StyledText queryString;
 
     private Action executeAction;
+    private Action copyQueryStringAction;
 
     // //////////////////////////////////////////////////////////////
     // initialization methods
@@ -106,6 +108,22 @@ public class OQLPane extends CompositeHeapEditorPane
             }
 
         });
+        queryString.addFocusListener(new FocusListener()
+        {
+
+            public void focusGained(FocusEvent e)
+            {
+                // Register copy action with the global action handler.                
+                HeapEditor editor = (HeapEditor) ((MultiPaneEditorSite) getEditorSite()).getMultiPageEditor();
+                editor.getEditorSite().getActionBars().setGlobalActionHandler(ActionFactory.COPY.getId(), copyQueryStringAction);                
+                editor.getEditorSite().getActionBars().updateActionBars();
+            }
+
+            public void focusLost(FocusEvent e)
+            {}
+
+        });
+        queryString.setFocus();
 
         createContainer(sash);
 
@@ -113,6 +131,7 @@ public class OQLPane extends CompositeHeapEditorPane
 
         makeActions();
         hookContextMenu();
+
     }
 
     private void makeActions()
@@ -121,20 +140,15 @@ public class OQLPane extends CompositeHeapEditorPane
 
         IWorkbenchWindow window = getEditorSite().getWorkbenchWindow();
         IWorkbenchAction globalAction = ActionFactory.COPY.create(window);
-        Action copyAction = new Action()
+        copyQueryStringAction = new Action()
         {
-
             @Override
             public void run()
             {
-                queryString.copy();
+               queryString.copy();
             }
-
         };
-        copyAction.setAccelerator(globalAction.getAccelerator());
-        // Register copy action with the global action handler.
-        IActionBars actionBars = getEditorSite().getActionBars();
-        actionBars.setGlobalActionHandler(ActionFactory.COPY.getId(), copyAction);
+        copyQueryStringAction.setAccelerator(globalAction.getAccelerator());
     }
 
     protected int findInText(String query, int line, int column)
@@ -228,6 +242,12 @@ public class OQLPane extends CompositeHeapEditorPane
         pane.setPaneState(state);
 
         createResultPane(pane, queryResult);
+    }
+
+    @Override
+    public void setFocus()
+    {
+        queryString.setFocus();        
     }
 
     // //////////////////////////////////////////////////////////////

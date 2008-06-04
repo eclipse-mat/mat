@@ -57,6 +57,8 @@ import org.eclipse.mat.ui.util.SearchOnTyping;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ControlEditor;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
@@ -75,7 +77,6 @@ import org.eclipse.swt.widgets.Widget;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.themes.ColorUtil;
-
 
 public abstract class RefinedResultViewer
 {
@@ -234,6 +235,26 @@ public abstract class RefinedResultViewer
         try
         {
             control = adapter.createControl(parent);
+            control.addFocusListener(new FocusListener()
+            {
+
+                public void focusGained(FocusEvent e)
+                {                    
+                    RefinedResultViewer.this.editor.getEditorSite().getActionBars().setGlobalActionHandler(
+                                    ActionFactory.COPY.getId(), new Action()
+                                    {
+                                        @Override
+                                        public void run()
+                                        {
+                                            Copy.copyToClipboard(control);
+                                        }
+                                    });
+                    RefinedResultViewer.this.editor.getEditorSite().getActionBars().updateActionBars();
+                }
+
+                public void focusLost(FocusEvent e)
+                {}
+            });
 
             boldFont = resourceManager.createFont(FontDescriptor.createFrom(adapter.getFont()).setStyle(SWT.BOLD));
             grayColor = resourceManager.createColor( //
@@ -642,16 +663,6 @@ public abstract class RefinedResultViewer
 
     public void contributeToToolBar(IToolBarManager manager)
     {
-        editor.getEditorSite().getActionBars().setGlobalActionHandler(ActionFactory.COPY.getId(), new Action()
-        {
-
-            @Override
-            public void run()
-            {
-                Copy.copyToClipboard(control);
-            }
-
-        });
 
         Action calculateRetainedSizeMenu = new EasyToolBarDropDown("Calculate retained size", //
                         MemoryAnalyserPlugin.getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.CALCULATOR), //
@@ -1134,6 +1145,11 @@ public abstract class RefinedResultViewer
         }
 
         return new StructuredSelection(selection);
+    }
+
+    public final void setFocus()
+    {
+        control.setFocus();
     }
 
     protected final void resort()
