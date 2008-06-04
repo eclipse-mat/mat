@@ -3,7 +3,7 @@
 <plugin>
    <extension-point id="enhancer" name="HPROF Enhancement" schema="schema/enhancer.exsd"/>
    <extension
-         id="hprof,bin,dmp"
+         id="hprof"
          name="HPROF Formatted Dumps"
          point="org.eclipse.mat.parser.parser">
       <parser
