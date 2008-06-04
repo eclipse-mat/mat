@@ -559,7 +559,7 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
         File directory = snapshot.getParentFile();
         String name = snapshot.getName();
 
-        final Pattern pattern = Pattern.compile(name.substring(0, name.lastIndexOf('.')) + "\\.(.*\\.)+index");
+        final Pattern pattern = Pattern.compile(name.substring(0, name.lastIndexOf('.')) + "\\.(.*\\.)?index");
 
         String[] indexFiles = directory.list(new FilenameFilter()
         {
