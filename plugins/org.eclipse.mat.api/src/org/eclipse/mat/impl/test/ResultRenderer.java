@@ -375,7 +375,7 @@ public class ResultRenderer implements IOutputter.Context
         boolean isSeparateFile = part.params().shallow().getBoolean(Params.Html.SEPARATE_FILE, false);
         if (isSeparateFile)
         {
-            String filename = FileUtils.toFilename(part.spec().getName(), "html");
+            String filename = FileUtils.toFilename(part.spec().getName() + part.getId(), "html");
 
             PageSnippets.linkedHeading(artefact, part, order, filename);
 

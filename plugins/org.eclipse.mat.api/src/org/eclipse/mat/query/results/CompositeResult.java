@@ -17,7 +17,7 @@ import java.util.List;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.ResultMetaData;
 import org.eclipse.mat.test.ITestResult;
-
+import org.eclipse.mat.test.Spec;
 
 /**
  * Return multiple result types.
@@ -91,7 +91,8 @@ public final class CompositeResult implements IResult
 
     public void addResult(IResult result)
     {
-        this.entries.add(new Entry(null, result));
+        String name = result instanceof Spec ? ((Spec) result).getName() : null;
+        this.entries.add(new Entry(name, result));
     }
 
     public void addResult(String name, IResult result)
@@ -120,7 +121,7 @@ public final class CompositeResult implements IResult
     }
 
     public String getName()
-    {        
+    {
         return name;
     }
 

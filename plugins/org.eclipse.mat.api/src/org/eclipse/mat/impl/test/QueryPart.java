@@ -106,6 +106,7 @@ public class QueryPart extends AbstractPart
 
             // overwrite all parameters explicitly given
             replacement.putAll(spec().getParams());
+            replacement.setName(spec().getName());
 
             AbstractPart part = AbstractPart.build(getParent(), replacement);
             getParent().replace(this, part);
