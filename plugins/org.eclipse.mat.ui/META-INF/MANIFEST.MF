@@ -24,5 +24,6 @@ Eclipse-LazyStart: true
 Bundle-ActivationPolicy: lazy
 Export-Package: org.eclipse.mat.ui,
  org.eclipse.mat.ui.editor,
+ org.eclipse.mat.ui.internal;x-friends:="org.eclipse.mat.ui.rcp",
  org.eclipse.mat.ui.util
 Bundle-RequiredExecutionEnvironment: J2SE-1.5

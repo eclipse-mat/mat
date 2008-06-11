@@ -11,7 +11,6 @@
 package org.eclipse.mat.ui.rcp.actions;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,10 +21,10 @@ import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
+import org.eclipse.mat.ui.internal.Perspective;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.activities.WorkbenchActivityHelper;
@@ -37,10 +36,7 @@ public class ShowViewMenu extends ContributionItem
     private IWorkbenchWindow window;
     protected boolean dirty = true;
 
-    private Map<String, IAction> actions = new HashMap<String, IAction>(21);
-
-    // Maps pages to a list of opened views
-    private Map<IWorkbenchPage, ArrayList<String>> openedViews = new HashMap<IWorkbenchPage, ArrayList<String>>();
+    private Map<String, IAction> actions = new HashMap<String, IAction>(10);
 
     private IMenuListener menuListener = new IMenuListener()
     {
@@ -89,33 +85,14 @@ public class ShowViewMenu extends ContributionItem
         // Remove all.
         innerMgr.removeAll();
 
-        // If no page disable all.
-        IWorkbenchPage page = window.getActivePage();
-        if (page == null) { return; }
-
-        // If no active perspective disable all
-        if (page.getPerspective() == null) { return; }
-
-        // Get visible actions.
-        List<String> viewIds = Arrays.asList(page.getShowViewShortcuts());
-
-        // add all open views
-        viewIds = addOpenedViews(page, viewIds);
-
-        List<IAction> actions = new ArrayList<IAction>(viewIds.size());
-        for (String id : viewIds)
+        List<IAction> actions = new ArrayList<IAction>(Perspective.Views.values().length);
+        
+        // adding all views out of Perspective.Views to the menu
+        for (Perspective.Views view : Perspective.Views.values())
         {
-            if (id.equals("org.eclipse.ui.internal.introview"))
-            {
-                continue;
-            }
-            IAction action = getAction(id);
+            IAction action = getAction(view.getId());
             if (action != null)
             {
-                if (WorkbenchActivityHelper.filterItem(action))
-                {
-                    continue;
-                }
                 actions.add(action);
             }
         }
@@ -124,41 +101,6 @@ public class ShowViewMenu extends ContributionItem
         {
             innerMgr.add(action);
         }
-    }
-
-    private List<String> addOpenedViews(IWorkbenchPage page, List<String> actions)
-    {
-        ArrayList<String> views = getParts(page);
-        ArrayList<String> result = new ArrayList<String>(views.size() + actions.size());
-
-        for (int i = 0; i < actions.size(); i++)
-        {
-            String element = actions.get(i);
-            if (result.indexOf(element) < 0)
-            {
-                result.add(element);
-            }
-        }
-        for (int i = 0; i < views.size(); i++)
-        {
-            String element = views.get(i);
-            if (result.indexOf(element) < 0)
-            {
-                result.add(element);
-            }
-        }
-        return result;
-    }
-
-    private ArrayList<String> getParts(IWorkbenchPage page)
-    {
-        ArrayList<String> parts = (ArrayList<String>) openedViews.get(page);
-        if (parts == null)
-        {
-            parts = new ArrayList<String>();
-            openedViews.put(page, parts);
-        }
-        return parts;
     }
 
     /**
@@ -171,7 +113,7 @@ public class ShowViewMenu extends ContributionItem
         IAction action = (IAction) actions.get(id);
         if (action == null)
         {
-            IViewRegistry reg = PlatformUI.getWorkbench().getViewRegistry(); 
+            IViewRegistry reg = PlatformUI.getWorkbench().getViewRegistry();
             IViewDescriptor desc = reg.find(id);
             if (desc != null)
             {

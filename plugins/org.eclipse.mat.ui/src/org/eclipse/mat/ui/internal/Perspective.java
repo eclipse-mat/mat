@@ -20,12 +20,27 @@ import org.osgi.framework.Bundle;
 
 public class Perspective implements IPerspectiveFactory
 {
-    private static final String HISTORY_VIEW = MemoryAnalyserPlugin.PLUGIN_ID + ".views.SnapshotHistoryView";
-    private static final String DETAILS_VIEW = MemoryAnalyserPlugin.PLUGIN_ID + ".views.SnapshotDetailsView";
-    private static final String NOTES_VIEW = MemoryAnalyserPlugin.PLUGIN_ID + ".views.TextEditorView";
-    private static final String INSPECTOR_VIEW = MemoryAnalyserPlugin.PLUGIN_ID + ".views.InspectorView";
-    private static final String NAVIGATOR_VIEW = MemoryAnalyserPlugin.PLUGIN_ID + ".views.NavigatorView";
-    private static final String ERROR_VIEW = "org.eclipse.pde.runtime.LogView";
+    public enum Views
+    {
+        HISTORY_VIEW(MemoryAnalyserPlugin.PLUGIN_ID + ".views.SnapshotHistoryView"), 
+        DETAILS_VIEW(MemoryAnalyserPlugin.PLUGIN_ID + ".views.SnapshotDetailsView"), 
+        NOTES_VIEW(MemoryAnalyserPlugin.PLUGIN_ID + ".views.TextEditorView"), 
+        INSPECTOR_VIEW(MemoryAnalyserPlugin.PLUGIN_ID + ".views.InspectorView"), 
+        NAVIGATOR_VIEW(MemoryAnalyserPlugin.PLUGIN_ID + ".views.NavigatorView"), 
+        ERROR_VIEW("org.eclipse.pde.runtime.LogView");
+
+        private final String id;
+
+        private Views(String id)
+        {
+            this.id = id;
+        }
+
+        public String getId()
+        {
+            return this.id;
+        }
+    };
 
     public void createInitialLayout(IPageLayout layout)
     {
@@ -33,25 +48,24 @@ public class Perspective implements IPerspectiveFactory
         layout.setEditorAreaVisible(true);
 
         IFolderLayout topLeft = layout.createFolder("topLeft", IPageLayout.LEFT, (float) 0.26, editorArea);
-        topLeft.addView(INSPECTOR_VIEW);
-        topLeft.addPlaceholder(DETAILS_VIEW);
+        topLeft.addView(Views.INSPECTOR_VIEW.getId());
+        topLeft.addPlaceholder(Views.DETAILS_VIEW.getId());
 
         IPlaceholderFolderLayout bottomLeft = layout.createPlaceholderFolder("bottomLeft", IPageLayout.BOTTOM,
-                        (float) 0.60, DETAILS_VIEW);
-        bottomLeft.addPlaceholder(HISTORY_VIEW);
+                        (float) 0.60, Views.DETAILS_VIEW.getId());
+        bottomLeft.addPlaceholder(Views.HISTORY_VIEW.getId());
 
-        IFolderLayout bottomMiddle = layout.createFolder("bottomMiddle", IPageLayout.BOTTOM,
-                        (float) 0.80, editorArea);        
-        bottomMiddle.addView(NOTES_VIEW);
+        IFolderLayout bottomMiddle = layout.createFolder("bottomMiddle", IPageLayout.BOTTOM, (float) 0.80, editorArea);
+        bottomMiddle.addView(Views.NOTES_VIEW.getId());
         bottomMiddle.addPlaceholder(IPageLayout.ID_PROGRESS_VIEW);
-        bottomMiddle.addView(NAVIGATOR_VIEW);
+        bottomMiddle.addView(Views.NAVIGATOR_VIEW.getId());
 
-        layout.addShowViewShortcut(HISTORY_VIEW);
-        layout.addShowViewShortcut(DETAILS_VIEW);
-        layout.addShowViewShortcut(INSPECTOR_VIEW);
-        layout.addShowViewShortcut(NOTES_VIEW);
-        layout.addShowViewShortcut(ERROR_VIEW);
-        layout.addShowViewShortcut(NAVIGATOR_VIEW);
+        layout.addShowViewShortcut(Views.HISTORY_VIEW.getId());
+        layout.addShowViewShortcut(Views.DETAILS_VIEW.getId());
+        layout.addShowViewShortcut(Views.INSPECTOR_VIEW.getId());
+        layout.addShowViewShortcut(Views.NOTES_VIEW.getId());
+        layout.addShowViewShortcut(Views.ERROR_VIEW.getId());
+        layout.addShowViewShortcut(Views.NAVIGATOR_VIEW.getId());
 
         Bundle bundle = Platform.getBundle("org.eclipse.jdt.ui");
         if (bundle != null)
