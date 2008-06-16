@@ -1,0 +1,25 @@
+body {
+   margin:0;
+}
+form {
+   font-family:Arial,Helvetica,sans-serif;
+   font-style:normal;
+   font-size:12px;
+}
+table {
+   font-family:Arial,Helvetica,sans-serif;
+   font-style:normal;
+   font-size:12px;
+}
+td {
+   font-family:Arial,Helvetica,sans-serif;
+   font-style:normal;
+   font-size:12px;
+}
+a {
+   font-family:Arial,Helvetica,sans-serif;
+   font-style:normal;
+   font-size:12px;
+   text-decoration:none;
+   color:#9ca5c6;
+}

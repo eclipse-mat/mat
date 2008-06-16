@@ -1,0 +1,102 @@
+<h2>New and Noteworthy</h2>
+
+<h3>Older Releases ( < 0.6.0)</h3>
+<table id="nn">
+<colgroup>
+    <col width="20%">
+    <col width="80%">
+</colgroup>
+<tbody>
+<table id="nn">
+	<colgroup>
+		<col width="20%">
+		<col width="80%">
+	</colgroup>
+	<tbody>
+	    <tr>
+			<td id="nn_heading">Paths from GC roots</td>
+			<td id="nn_body">Exclude <strong>weak and soft
+			references</strong> in Paths from GC roots. Also, check out the <strong>paths</strong>
+			in the console. The command can now exclude arbitrary class/field
+			combinations.
+			<p><img src="noteworthy/older/exclude_from_paths.gif" /></p>
+			</td>
+		</tr>
+		<tr>
+			<td id="nn_heading">Paths from GC roots</td>
+			<td id="nn_body">Now shows for thread-bound GC roots (JNI locals, Java locals, busy monitors) also the thread itself.
+			<p><img src="noteworthy/older/threads_in_paths.gif" /></p>
+			</td>
+		</tr>
+		<tr>
+			<td id="nn_heading">Calculate retained set on pattern</td>
+			<td id="nn_body">Calculate the retained set on all objects whose classes
+			match a regular expression.
+			<p><img src="noteworthy/older/retained_set_on_pattern.gif" /></p>
+			</td>
+		</tr>
+		<tr>
+			<td id="nn_heading">Notes</td>
+			<td id="nn_body">For your convenience, you can jot down notes
+			with every heap dump. The notes are saved in a file named <strong>&lt;heap
+			dump name&gt;.notes.txt</strong>.
+			<p><img src="noteworthy/older/notes.gif" /></p>
+			</td>
+		</tr>
+		<tr>
+			<td id="nn_heading">Object Query Language</td>
+			<td id="nn_body">The Object Query Language (OQL) let's you
+			perform custom SQL-like queries on the heap dump. Just think of
+			classes as tables, objects as rows and fields as columns.
+			<p><img src="noteworthy/older/oql.gif" /></p>
+			</td>
+		</tr>
+		<tr>
+			<td id="nn_heading">Support for 6.40/7.00</td>
+			<td id="nn_body">
+			The <strong>sessions</strong> view and command, the <strong>list_loaders</strong> command, and the <strong>leaking_loaders</strong> command are extended to work with heap dumps of 6.40/7.00 systems.
+			</td>
+		</tr>
+	</tbody>
+</table>
+
+<h3>Usability Improvements</h3>
+
+<table id="nn">
+	<colgroup>
+		<col width="20%">
+		<col width="80%">
+	</colgroup>
+	<tbody>
+		<tr>
+			<td id="nn_heading">Object Icons</td>
+			<td id="nn_body">To easily identify objects, classes, arrays and
+			class loaders have their own icons. Any garbage collection root is
+			decorated with a orange dot in the lower left corner. Press <strong>Alt-I</strong>
+			for help on icons.
+			<p><img src="noteworthy/older/icons.gif" /></p>
+			</td>
+		</tr>
+		<tr>
+			<td id="nn_heading">Object Inspector</td>
+			<td id="nn_body">The new inspector is now available in all views and fully supports all possible context actions.
+			<p><img src="noteworthy/older/inspector.gif" /></p>
+			</td>
+		</tr>
+		<tr>
+			<td id="nn_heading">Customize Layout</td>
+			<td id="nn_body">Arrange available windows as you see fit. The layout will
+			be restored when you start the Analyzer the next time.
+			<p><img src="noteworthy/older/view_menu.gif" /></p>
+			</td>
+		</tr>
+		<tr>
+			<td id="nn_heading">Window Management</td>
+			<td id="nn_body">Right click on the window title to manage the open views on your heap dump.
+			<p><img src="noteworthy/older/window_context_menu.gif" /></p>
+			</td>
+		</tr>
+	</tbody>
+</table>
+
+

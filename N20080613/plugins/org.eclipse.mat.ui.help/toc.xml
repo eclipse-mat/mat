@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?NLS TYPE="org.eclipse.help.toc"?>
+
+<toc label="Memory Analyzer" topic="html/45/b0eb510443731de10000000a1553f6/content.htm">
+	<topic label="Acquiring a Heap Dump" href="html/45/b0e5250443731de10000000a1553f6/content.htm" />		                                             
+	<topic label="Class and Class Loader  Histogram Views"
+		href="html/45/af861f44e76002e10000000a1553f6/content.htm" />
+	<topic label="Class References View"
+		href="html/45/af7c198bf95fffe10000000a1553f6/content.htm" />
+	<topic label="Dominator Tree View" 
+		href="html/45/af77fd8bf95fffe10000000a1553f6/content.htm" />
+	<topic label="Paths to GC Roots View"
+		href="html/45/af772a8bf95fffe10000000a1553f6/content.htm" />
+	<topic label="Merged Paths to GC Roots View"
+	    href="html/46/9d67eef83c3719e10000000a11466f/content.htm" />
+	<topic label="Object References View"
+		href="html/45/af4df764d00063e10000000a11466f/content.htm" />
+	<topic label="Queries"
+		href="html/46/9f9d1c446952b8e10000000a155369/content.htm" />	
+	<topic label="Object Query Language(OQL)" href="html/46/9f7472517a52b6e10000000a155369/content.htm">
+		<anchor id="oql" />		 	
+	</topic>
+</toc>

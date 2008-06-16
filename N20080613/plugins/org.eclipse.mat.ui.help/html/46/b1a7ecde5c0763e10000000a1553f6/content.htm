@@ -1,0 +1,575 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+
+<LINK REL="stylesheet" TYPE="text/css" HREF="../../css/content.css" TITLE="Styles">
+<SCRIPT LANGUAGE="JavaScript">
+<!--
+var loops = 10;
+function GetLoio() {
+  return "46b1a7ecde5c0763e10000000a1553f6";
+}
+//-->
+</SCRIPT>
+<head>
+<META NAME="Application" CONTENT="">
+<META NAME="Release" CONTENT="717">
+<META NAME="IndustryRelease" CONTENT="">
+<META NAME="Language" CONTENT="EN">
+<meta name="PHIO_GUID" content="C5BDC43DAC1BCF51E10000000A114084">
+<meta name="LOIO_GUID" content="46B1A7ECDE5C0763E10000000A1553F6">
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<title>Property Accessors </title>
+<style type="text/css">
+<!--/* Font Definitions */@font-face {font-family:"MS Mincho"; panose-1:2 2 6 9 4 2 5 8 3 4; }/* Style Definitions */p.MsoNormal, li.MsoNormal, div.MsoNormal { margin-top:3.0pt; margin-right:0in; margin-bottom:3.0pt; margin-left:0in; font-size:10.0pt; font-family:Arial; }h2 { margin-top:12.0pt; margin-right:0in; margin-bottom:3.0pt; margin-left:0in; page-break-after:avoid; font-size:16.0pt; font-family:Arial; color:navy; }h3 { margin-top:6.0pt; margin-right:0in; margin-bottom:3.0pt; margin-left:0in; page-break-after:avoid; font-size:14.0pt; font-family:Arial; color:navy; }a:link {color:blue; text-decoration:underline; text-underline:single;}a:visited {color:purple; text-decoration:underline; text-underline:single;}p.TableHeading { margin-top:3.0pt; margin-right:0in; margin-bottom:3.0pt; margin-left:0in; font-size:10.0pt; font-family:Arial; font-weight:bold; }p.TableText { margin-top:3.0pt; margin-right:0in; margin-bottom:3.0pt; margin-left:0in; font-size:10.0pt; font-family:Arial; }span.Object { font-family:Arial; font-style:italic; }div.Section1 {page:Section1;}/* List Definitions */@list l0 { }-->  
+</style>
+</head>
+<body lang="DE" link="blue" vlink="purple" style='tab-interval:.25in'>
+<div class="Section1">
+<h2><span lang="EN-US" style='mso-ansi-language:EN-US'><span style=
+'mso-spacerun:yes'></span>Property Accessors</span></h2>
+
+<h3><span lang="EN-US" style='mso-ansi-language:EN-US'>Accessing Fields of the
+Heap Object</span></h3>
+
+<p class="MsoNormal"><span lang="EN-US" style=
+'mso-ansi-language:EN-US'>Properties of heap objects are accessed using a
+simple dot notation:</span></p>
+
+<table class="MsoTableGrid" border="1" cellspacing="0" cellpadding="0" style=
+'background:#D9D9D9;mso-shading:windowtext;mso-pattern:gray-15 auto; border-collapse:collapse;border:none;mso-border-alt:solid windowtext .5pt; mso-yfti-tbllook:480;mso-padding-alt:0in 5.4pt 0in 5.4pt;mso-border-insideh: .5pt solid windowtext;mso-border-insidev:.5pt solid windowtext'><tr style='mso-yfti-irow:0;mso-yfti-firstrow:yes;mso-yfti-lastrow:yes'>
+<td width="619" valign="top" style=
+'width:6.45in;border:solid windowtext 1.0pt; mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span lang="EN-US" style=
+'mso-bidi-font-size:10.0pt; font-family:"Courier New";mso-fareast-font-family:"MS Mincho";color:black; mso-ansi-language:EN-US'>[ &lt;alias&gt; . ] &lt;field&gt; . &lt;field&gt; . &lt;field&gt;</span></p>
+</td>
+</tr>
+</table>
+
+<p class="MsoNormal"><span lang="EN-US" style='mso-ansi-language:EN-US'>An
+alias can be defined in the <span class="Object">FROM</span> clause to
+identify the current object, for example a row in the SQL analogy in which the
+OQL statement operates. Without an alias, the field is assumed to be one of
+the fields of the current object.</span></p>
+
+<p class="MsoNormal"><span lang="EN-US" style='mso-ansi-language:EN-US'>Fields
+are attributes of the Java objects in the heap dump. You have to use the <span
+class="Object">Object Inspector</span> to find out the available fields of an
+object.</span></p>
+
+<h3><span lang="EN-US" style='mso-ansi-language:EN-US'>Accessing JavaBeans
+Properties</span></h3>
+
+<p class="MsoNormal"><span lang="EN-US" style='mso-ansi-language:EN-US'>As the
+original objects in the heap dump are inactive and you cannot access their
+attributes, the Memory Analyzer creates parallel objects that represent the
+original objects, such as <span class="Object">IObject</span>,</span><span
+class="Object">IClass</span><span lang="EN-US" style=
+'mso-ansi-language:EN-US'> and </span><span class="Object">IArray</span><span
+lang="EN-US" style='mso-ansi-language: EN-US'>. Using the @ symbol, OQL
+accesses attributes of the underlying Java objects. The attributes are
+resolved via Bean Introspection.</span></p>
+
+<table class="MsoTableGrid" border="1" cellspacing="0" cellpadding="0" style=
+'background:#D9D9D9;mso-shading:windowtext;mso-pattern:gray-15 auto; border-collapse:collapse;border:none;mso-border-alt:solid windowtext .5pt; mso-yfti-tbllook:480;mso-padding-alt:0in 5.4pt 0in 5.4pt;mso-border-insideh: .5pt solid windowtext;mso-border-insidev:.5pt solid windowtext'><tr style='mso-yfti-irow:0;mso-yfti-firstrow:yes;mso-yfti-lastrow:yes'>
+<td width="619" valign="top" style=
+'width:6.45in;border:solid windowtext 1.0pt; mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span lang="EN-US" style=
+'mso-bidi-font-size:10.0pt; font-family:"Courier New";mso-fareast-font-family:"MS Mincho";mso-ansi-language: EN-US'>[ &lt;alias&gt; . ] @&lt;attribute&gt; ...</span></p>
+</td>
+</tr>
+</table>
+
+<p class="MsoNormal"><span lang="EN-US" style='mso-ansi-language:EN-US'>The
+following table lists some commonly used Java attributes:</span></p>
+
+<table class="MsoNormalTable" border="1" cellspacing="0" cellpadding="0"
+style=
+'border-collapse:collapse;border:none;mso-border-alt:solid windowtext .75pt; mso-padding-alt:0in 5.4pt 0in 5.4pt;mso-border-insideh:.75pt solid windowtext; mso-border-insidev:.75pt solid windowtext'><tr style='mso-yfti-irow:0;mso-yfti-firstrow:yes'>
+<td width="148" valign="top" style=
+'width:110.7pt;border:solid windowtext 1.0pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="TableHeading"><span lang="EN-US" style=
+'mso-ansi-language:EN-US'>Object Type</span></p>
+</td>
+<td width="148" valign="top" style=
+'width:110.7pt;border:solid windowtext 1.0pt; border-left:none;mso-border-left-alt:solid windowtext .75pt;mso-border-alt: solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="TableHeading"><span lang="EN-US" style=
+'mso-ansi-language:EN-US'>Object Class</span></p>
+</td>
+<td width="148" valign="top" style=
+'width:110.7pt;border:solid windowtext 1.0pt; border-left:none;mso-border-left-alt:solid windowtext .75pt;mso-border-alt: solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="TableHeading"><span lang="EN-US" style=
+'mso-ansi-language:EN-US'>Object Name</span></p>
+</td>
+<td width="148" valign="top" style=
+'width:110.7pt;border:solid windowtext 1.0pt; border-left:none;mso-border-left-alt:solid windowtext .75pt;mso-border-alt: solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="TableHeading"><span lang="EN-US" style=
+'mso-ansi-language:EN-US'>Details</span></p>
+</td>
+</tr>
+
+<tr style='mso-yfti-irow:1'>
+<td width="148" valign="top" style=
+'width:110.7pt;border:solid windowtext 1.0pt; border-top:none;mso-border-top-alt:solid windowtext .75pt;mso-border-alt: solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span lang="EN-US" style='mso-ansi-language:EN-US'>Any
+heap object</span></p>
+</td>
+<td width="148" valign="top" style=
+'width:110.7pt;border-top:none;border-left: none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .75pt;mso-border-left-alt:solid windowtext .75pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span class="Object"><span lang="EN-US" style=
+'mso-ansi-language: EN-US'>IObject</span></span></p>
+</td>
+<td width="148" valign="top" style=
+'width:110.7pt;border-top:none;border-left: none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .75pt;mso-border-left-alt:solid windowtext .75pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span class="Object"><span lang="EN-US" style=
+'mso-ansi-language: EN-US'>ObjectId</span></span></p>
+</td>
+<td width="148" valign="top" style=
+'width:110.7pt;border-top:none;border-left: none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .75pt;mso-border-left-alt:solid windowtext .75pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span lang="EN-US" style='mso-ansi-language:EN-US'>ID of
+snapshot object.</span></p>
+</td>
+</tr>
+
+<tr style='mso-yfti-irow:2'>
+<td width="148" valign="top" style=
+'width:110.7pt;border:solid windowtext 1.0pt; border-top:none;mso-border-top-alt:solid windowtext .75pt;mso-border-alt: solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span lang="EN-US" style=
+'mso-ansi-language:EN-US'>&nbsp;</span></p>
+</td>
+<td width="148" valign="top" style=
+'width:110.7pt;border-top:none;border-left: none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .75pt;mso-border-left-alt:solid windowtext .75pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span class="Object"><span lang="EN-US" style=
+'mso-ansi-language: EN-US'>&nbsp;</span></span></p>
+</td>
+<td width="148" valign="top" style=
+'width:110.7pt;border-top:none;border-left: none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .75pt;mso-border-left-alt:solid windowtext .75pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span class="Object"><span lang="EN-US" style=
+'mso-ansi-language: EN-US'>objectAddress</span></span></p>
+</td>
+<td width="148" valign="top" style=
+'width:110.7pt;border-top:none;border-left: none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .75pt;mso-border-left-alt:solid windowtext .75pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span lang="EN-US" style='mso-ansi-language:EN-US'>The
+address of snapshot object.</span></p>
+</td>
+</tr>
+
+<tr style='mso-yfti-irow:3'>
+<td width="148" valign="top" style=
+'width:110.7pt;border:solid windowtext 1.0pt; border-top:none;mso-border-top-alt:solid windowtext .75pt;mso-border-alt: solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span lang="EN-US" style=
+'mso-ansi-language:EN-US'>&nbsp;</span></p>
+</td>
+<td width="148" valign="top" style=
+'width:110.7pt;border-top:none;border-left: none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .75pt;mso-border-left-alt:solid windowtext .75pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span class="Object"><span lang="EN-US" style=
+'mso-ansi-language: EN-US'>&nbsp;</span></span></p>
+</td>
+<td width="148" valign="top" style=
+'width:110.7pt;border-top:none;border-left: none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .75pt;mso-border-left-alt:solid windowtext .75pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span class="Object"><span lang="EN-US" style=
+'mso-ansi-language: EN-US'>clazz</span></span></p>
+</td>
+<td width="148" valign="top" style=
+'width:110.7pt;border-top:none;border-left: none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .75pt;mso-border-left-alt:solid windowtext .75pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span lang="EN-US" style='mso-ansi-language:EN-US'>The
+class of this object.</span></p>
+</td>
+</tr>
+
+<tr style='mso-yfti-irow:4'>
+<td width="148" valign="top" style=
+'width:110.7pt;border:solid windowtext 1.0pt; border-top:none;mso-border-top-alt:solid windowtext .75pt;mso-border-alt: solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span lang="EN-US" style=
+'mso-ansi-language:EN-US'>&nbsp;</span></p>
+</td>
+<td width="148" valign="top" style=
+'width:110.7pt;border-top:none;border-left: none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .75pt;mso-border-left-alt:solid windowtext .75pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span class="Object"><span lang="EN-US" style=
+'mso-ansi-language: EN-US'>&nbsp;</span></span></p>
+</td>
+<td width="148" valign="top" style=
+'width:110.7pt;border-top:none;border-left: none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .75pt;mso-border-left-alt:solid windowtext .75pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span class="Object"><span lang="EN-US" style=
+'mso-ansi-language: EN-US'>usedHeapSize</span></span></p>
+</td>
+<td width="148" valign="top" style=
+'width:110.7pt;border-top:none;border-left: none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .75pt;mso-border-left-alt:solid windowtext .75pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span lang="EN-US" style='mso-ansi-language:EN-US'>The
+shallow heap size.</span></p>
+</td>
+</tr>
+
+<tr style='mso-yfti-irow:5'>
+<td width="148" valign="top" style=
+'width:110.7pt;border:solid windowtext 1.0pt; border-top:none;mso-border-top-alt:solid windowtext .75pt;mso-border-alt: solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span lang="EN-US" style=
+'mso-ansi-language:EN-US'>&nbsp;</span></p>
+</td>
+<td width="148" valign="top" style=
+'width:110.7pt;border-top:none;border-left: none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .75pt;mso-border-left-alt:solid windowtext .75pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span class="Object"><span lang="EN-US" style=
+'mso-ansi-language: EN-US'>&nbsp;</span></span></p>
+</td>
+<td width="148" valign="top" style=
+'width:110.7pt;border-top:none;border-left: none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .75pt;mso-border-left-alt:solid windowtext .75pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span class="Object"><span lang="EN-US" style=
+'mso-ansi-language: EN-US'>retainedHeapSize</span></span></p>
+</td>
+<td width="148" valign="top" style=
+'width:110.7pt;border-top:none;border-left: none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .75pt;mso-border-left-alt:solid windowtext .75pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span lang="EN-US" style='mso-ansi-language:EN-US'>The
+retained heap size.</span></p>
+</td>
+</tr>
+
+<tr style='mso-yfti-irow:6'>
+<td width="148" valign="top" style=
+'width:110.7pt;border:solid windowtext 1.0pt; border-top:none;mso-border-top-alt:solid windowtext .75pt;mso-border-alt: solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span lang="EN-US" style=
+'mso-ansi-language:EN-US'>&nbsp;</span></p>
+</td>
+<td width="148" valign="top" style=
+'width:110.7pt;border-top:none;border-left: none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .75pt;mso-border-left-alt:solid windowtext .75pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span class="Object"><span lang="EN-US" style=
+'mso-ansi-language: EN-US'>&nbsp;</span></span></p>
+</td>
+<td width="148" valign="top" style=
+'width:110.7pt;border-top:none;border-left: none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .75pt;mso-border-left-alt:solid windowtext .75pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span class="Object"><span lang="EN-US" style=
+'mso-ansi-language: EN-US'>displayName</span></span></p>
+</td>
+<td width="148" valign="top" style=
+'width:110.7pt;border-top:none;border-left: none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .75pt;mso-border-left-alt:solid windowtext .75pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span lang="EN-US" style='mso-ansi-language:EN-US'>The
+display name.</span></p>
+</td>
+</tr>
+
+<tr style='mso-yfti-irow:7'>
+<td width="148" valign="top" style=
+'width:110.7pt;border:solid windowtext 1.0pt; border-top:none;mso-border-top-alt:solid windowtext .75pt;mso-border-alt: solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span lang="EN-US" style=
+'mso-ansi-language:EN-US'>&nbsp;</span></p>
+</td>
+<td width="148" valign="top" style=
+'width:110.7pt;border-top:none;border-left: none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .75pt;mso-border-left-alt:solid windowtext .75pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span class="Object"><span lang="EN-US" style=
+'mso-ansi-language: EN-US'>&nbsp;</span></span></p>
+</td>
+<td width="148" valign="top" style=
+'width:110.7pt;border-top:none;border-left: none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .75pt;mso-border-left-alt:solid windowtext .75pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span class="Object"><span lang="EN-US" style=
+'mso-ansi-language: EN-US'>GCRootInfo</span></span></p>
+</td>
+<td width="148" valign="top" style=
+'width:110.7pt;border-top:none;border-left: none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .75pt;mso-border-left-alt:solid windowtext .75pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span lang="EN-US" style='mso-ansi-language:EN-US'>The
+collection root info, if the object is a GC root.</span></p>
+</td>
+</tr>
+
+<tr style='mso-yfti-irow:8'>
+<td width="148" valign="top" style=
+'width:110.7pt;border:solid windowtext 1.0pt; border-top:none;mso-border-top-alt:solid windowtext .75pt;mso-border-alt: solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span lang="EN-US" style='mso-ansi-language:EN-US'>Class
+object</span></p>
+</td>
+<td width="148" valign="top" style=
+'width:110.7pt;border-top:none;border-left: none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .75pt;mso-border-left-alt:solid windowtext .75pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span class="Object"><span lang="EN-US" style=
+'mso-ansi-language: EN-US'>IClass<span style='mso-tab-count:1'>&nbsp;&nbsp;
+</span></span></span></p>
+</td>
+<td width="148" valign="top" style=
+'width:110.7pt;border-top:none;border-left: none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .75pt;mso-border-left-alt:solid windowtext .75pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span class="Object"><span lang="EN-US" style=
+'mso-ansi-language: EN-US'>classLoaderId</span></span></p>
+</td>
+<td width="148" valign="top" style=
+'width:110.7pt;border-top:none;border-left: none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .75pt;mso-border-left-alt:solid windowtext .75pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span lang="EN-US" style='mso-ansi-language:EN-US'>The ID
+of the class loader.</span></p>
+</td>
+</tr>
+
+<tr style='mso-yfti-irow:9'>
+<td width="148" valign="top" style=
+'width:110.7pt;border:solid windowtext 1.0pt; border-top:none;mso-border-top-alt:solid windowtext .75pt;mso-border-alt: solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span lang="EN-US" style=
+'mso-ansi-language:EN-US'>&nbsp;</span></p>
+</td>
+<td width="148" valign="top" style=
+'width:110.7pt;border-top:none;border-left: none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .75pt;mso-border-left-alt:solid windowtext .75pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span class="Object"><span lang="EN-US" style=
+'mso-ansi-language: EN-US'>&nbsp;</span></span></p>
+</td>
+<td width="148" valign="top" style=
+'width:110.7pt;border-top:none;border-left: none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .75pt;mso-border-left-alt:solid windowtext .75pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span class="Object"><span lang="EN-US" style=
+'mso-ansi-language: EN-US'>numberOfObjects</span></span></p>
+</td>
+<td width="148" valign="top" style=
+'width:110.7pt;border-top:none;border-left: none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .75pt;mso-border-left-alt:solid windowtext .75pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span lang="EN-US" style='mso-ansi-language:EN-US'>The
+number of instances.</span></p>
+</td>
+</tr>
+
+<tr style='mso-yfti-irow:10'>
+<td width="148" valign="top" style=
+'width:110.7pt;border:solid windowtext 1.0pt; border-top:none;mso-border-top-alt:solid windowtext .75pt;mso-border-alt: solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span lang="EN-US" style=
+'mso-ansi-language:EN-US'>&nbsp;</span></p>
+</td>
+<td width="148" valign="top" style=
+'width:110.7pt;border-top:none;border-left: none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .75pt;mso-border-left-alt:solid windowtext .75pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span class="Object"><span lang="EN-US" style=
+'mso-ansi-language: EN-US'>&nbsp;</span></span></p>
+</td>
+<td width="148" valign="top" style=
+'width:110.7pt;border-top:none;border-left: none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .75pt;mso-border-left-alt:solid windowtext .75pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span class="Object"><span lang="EN-US" style=
+'mso-ansi-language: EN-US'>name</span></span></p>
+</td>
+<td width="148" valign="top" style=
+'width:110.7pt;border-top:none;border-left: none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .75pt;mso-border-left-alt:solid windowtext .75pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span lang="EN-US" style='mso-ansi-language:EN-US'>The
+fully qualified class name.</span></p>
+</td>
+</tr>
+
+<tr style='mso-yfti-irow:11'>
+<td width="148" valign="top" style=
+'width:110.7pt;border:solid windowtext 1.0pt; border-top:none;mso-border-top-alt:solid windowtext .75pt;mso-border-alt: solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span lang="EN-US" style=
+'mso-ansi-language:EN-US'>&nbsp;</span></p>
+</td>
+<td width="148" valign="top" style=
+'width:110.7pt;border-top:none;border-left: none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .75pt;mso-border-left-alt:solid windowtext .75pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span class="Object"><span lang="EN-US" style=
+'mso-ansi-language: EN-US'>&nbsp;</span></span></p>
+</td>
+<td width="148" valign="top" style=
+'width:110.7pt;border-top:none;border-left: none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .75pt;mso-border-left-alt:solid windowtext .75pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span class="Object"><span lang="EN-US" style=
+'mso-ansi-language: EN-US'>superClassId</span></span></p>
+</td>
+<td width="148" valign="top" style=
+'width:110.7pt;border-top:none;border-left: none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .75pt;mso-border-left-alt:solid windowtext .75pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span lang="EN-US" style='mso-ansi-language:EN-US'>The ID
+of the super class, -1 if it has none.</span></p>
+</td>
+</tr>
+
+<tr style='mso-yfti-irow:12;mso-yfti-lastrow:yes'>
+<td width="148" valign="top" style=
+'width:110.7pt;border:solid windowtext 1.0pt; border-top:none;mso-border-top-alt:solid windowtext .75pt;mso-border-alt: solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span lang="EN-US" style='mso-ansi-language:EN-US'>Any
+array</span></p>
+</td>
+<td width="148" valign="top" style=
+'width:110.7pt;border-top:none;border-left: none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .75pt;mso-border-left-alt:solid windowtext .75pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span class="Object"><span lang="EN-US" style=
+'mso-ansi-language: EN-US'>IArray</span></span></p>
+</td>
+<td width="148" valign="top" style=
+'width:110.7pt;border-top:none;border-left: none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .75pt;mso-border-left-alt:solid windowtext .75pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span class="Object"><span lang="EN-US" style=
+'mso-ansi-language: EN-US'>length</span></span></p>
+</td>
+<td width="148" valign="top" style=
+'width:110.7pt;border-top:none;border-left: none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .75pt;mso-border-left-alt:solid windowtext .75pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span lang="EN-US" style='mso-ansi-language:EN-US'>The
+length of the array.</span></p>
+</td>
+</tr>
+</table>
+
+<h3><span lang="EN-US" style='mso-ansi-language:EN-US'>Calling Java
+Methods</span></h3>
+
+<p class="MsoNormal"><span lang="EN-US" style='mso-ansi-language:EN-US'>Adding
+parentheses forces OQL to interpret this as a Java method call. The call is
+executed via reflection.</span></p>
+
+<table class="MsoTableGrid" border="1" cellspacing="0" cellpadding="0" style=
+'background:#D9D9D9;mso-shading:windowtext;mso-pattern:gray-15 auto; border-collapse:collapse;border:none;mso-border-alt:solid windowtext .5pt; mso-yfti-tbllook:480;mso-padding-alt:0in 5.4pt 0in 5.4pt;mso-border-insideh: .5pt solid windowtext;mso-border-insidev:.5pt solid windowtext'><tr style='mso-yfti-irow:0;mso-yfti-firstrow:yes;mso-yfti-lastrow:yes'>
+<td width="619" valign="top" style=
+'width:6.45in;border:solid windowtext 1.0pt; mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span lang="EN-US" style=
+'mso-bidi-font-size:10.0pt; font-family:"Courier New";mso-fareast-font-family:"MS Mincho";mso-ansi-language: EN-US'>[ &lt;alias&gt; . ] @&lt;method&gt;( [ &lt; expression &gt;, &lt; expression
+&gt; ] ) ...</span></p>
+</td>
+</tr>
+</table>
+
+<p class="MsoNormal"><span lang="EN-US" style='mso-ansi-language:EN-US'>The
+following table lists some commonly used Java methods:</span></p>
+
+<table class="MsoNormalTable" border="1" cellspacing="0" cellpadding="0"
+style=
+'border-collapse:collapse;border:none;mso-border-alt:solid windowtext .75pt; mso-padding-alt:0in 5.4pt 0in 5.4pt;mso-border-insideh:.75pt solid windowtext; mso-border-insidev:.75pt solid windowtext'><tr style='mso-yfti-irow:0;mso-yfti-firstrow:yes'>
+<td width="148" valign="top" style=
+'width:110.7pt;border:solid windowtext 1.0pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="TableHeading"><span lang="EN-US" style=
+'mso-ansi-language:EN-US'>Object Type</span></p>
+</td>
+<td width="148" valign="top" style=
+'width:110.7pt;border:solid windowtext 1.0pt; border-left:none;mso-border-left-alt:solid windowtext .75pt;mso-border-alt: solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="TableHeading"><span lang="EN-US" style=
+'mso-ansi-language:EN-US'>Object Class</span></p>
+</td>
+<td width="148" valign="top" style=
+'width:110.7pt;border:solid windowtext 1.0pt; border-left:none;mso-border-left-alt:solid windowtext .75pt;mso-border-alt: solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="TableHeading"><span lang="EN-US" style=
+'mso-ansi-language:EN-US'>Method</span></p>
+</td>
+<td width="148" valign="top" style=
+'width:110.7pt;border:solid windowtext 1.0pt; border-left:none;mso-border-left-alt:solid windowtext .75pt;mso-border-alt: solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="TableHeading"><span lang="EN-US" style=
+'mso-ansi-language:EN-US'>Details</span></p>
+</td>
+</tr>
+
+<tr style='mso-yfti-irow:1'>
+<td width="148" valign="top" style=
+'width:110.7pt;border:solid windowtext 1.0pt; border-top:none;mso-border-top-alt:solid windowtext .75pt;mso-border-alt: solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span lang="EN-US" style=
+'mso-ansi-language:EN-US'>$snapshot</span></p>
+</td>
+<td width="148" valign="top" style=
+'width:110.7pt;border-top:none;border-left: none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .75pt;mso-border-left-alt:solid windowtext .75pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span class="Object"><span lang="EN-US" style=
+'mso-ansi-language: EN-US'>ISnapshot</span></span></p>
+</td>
+<td width="148" valign="top" style=
+'width:110.7pt;border-top:none;border-left: none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .75pt;mso-border-left-alt:solid windowtext .75pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="TableText"><span class="Object"><span lang="EN-US" style=
+'mso-ansi-language: EN-US'>getClasses()</span></span></p>
+</td>
+<td width="148" valign="top" style=
+'width:110.7pt;border-top:none;border-left: none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .75pt;mso-border-left-alt:solid windowtext .75pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span lang="EN-US" style='mso-ansi-language:EN-US'>A
+collection of all classes.</span></p>
+</td>
+</tr>
+
+<tr style='mso-yfti-irow:2'>
+<td width="148" valign="top" style=
+'width:110.7pt;border:solid windowtext 1.0pt; border-top:none;mso-border-top-alt:solid windowtext .75pt;mso-border-alt: solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span lang="EN-US" style=
+'mso-ansi-language:EN-US'>&nbsp;</span></p>
+</td>
+<td width="148" valign="top" style=
+'width:110.7pt;border-top:none;border-left: none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .75pt;mso-border-left-alt:solid windowtext .75pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span class="Object"><span lang="EN-US" style=
+'mso-ansi-language: EN-US'>&nbsp;</span></span></p>
+</td>
+<td width="148" valign="top" style=
+'width:110.7pt;border-top:none;border-left: none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .75pt;mso-border-left-alt:solid windowtext .75pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="TableText"><span class="Object"><span lang="EN-US" style=
+'mso-ansi-language: EN-US'>getClassesByName(String name, boolean
+includeSubClasses)</span></span></p>
+</td>
+<td width="148" valign="top" style=
+'width:110.7pt;border-top:none;border-left: none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .75pt;mso-border-left-alt:solid windowtext .75pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span lang="EN-US" style='mso-ansi-language:EN-US'>A
+collection of classes.</span></p>
+</td>
+</tr>
+
+<tr style='mso-yfti-irow:3'>
+<td width="148" valign="top" style=
+'width:110.7pt;border:solid windowtext 1.0pt; border-top:none;mso-border-top-alt:solid windowtext .75pt;mso-border-alt: solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span lang="EN-US" style='mso-ansi-language:EN-US'>Class
+object</span></p>
+</td>
+<td width="148" valign="top" style=
+'width:110.7pt;border-top:none;border-left: none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .75pt;mso-border-left-alt:solid windowtext .75pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span class="Object"><span lang="EN-US" style=
+'mso-ansi-language: EN-US'>IClass</span></span></p>
+</td>
+<td width="148" valign="top" style=
+'width:110.7pt;border-top:none;border-left: none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .75pt;mso-border-left-alt:solid windowtext .75pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="TableText"><span class="Object"><span lang="EN-US" style=
+'mso-ansi-language: EN-US'>hasSuperClass()</span></span></p>
+</td>
+<td width="148" valign="top" style=
+'width:110.7pt;border-top:none;border-left: none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .75pt;mso-border-left-alt:solid windowtext .75pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span lang="EN-US" style='mso-ansi-language:EN-US'>True
+if the class has a super class.</span></p>
+</td>
+</tr>
+
+<tr style='mso-yfti-irow:4;mso-yfti-lastrow:yes'>
+<td width="148" valign="top" style=
+'width:110.7pt;border:solid windowtext 1.0pt; border-top:none;mso-border-top-alt:solid windowtext .75pt;mso-border-alt: solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span lang="EN-US" style=
+'mso-ansi-language:EN-US'>&nbsp;</span></p>
+</td>
+<td width="148" valign="top" style=
+'width:110.7pt;border-top:none;border-left: none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .75pt;mso-border-left-alt:solid windowtext .75pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span lang="EN-US" style=
+'mso-ansi-language:EN-US'>&nbsp;</span></p>
+</td>
+<td width="148" valign="top" style=
+'width:110.7pt;border-top:none;border-left: none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .75pt;mso-border-left-alt:solid windowtext .75pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="TableText"><span class="Object"><span lang="EN-US" style=
+'mso-ansi-language: EN-US'>isArrayType()</span></span></p>
+</td>
+<td width="148" valign="top" style=
+'width:110.7pt;border-top:none;border-left: none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .75pt;mso-border-left-alt:solid windowtext .75pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span lang="EN-US" style='mso-ansi-language:EN-US'>True
+if the class is an array type.</span></p>
+</td>
+</tr>
+</table>
+
+<h3><span lang="EN-US" style='mso-ansi-language:EN-US'>Build-in OQL
+Functions</span></h3>
+
+<table class="MsoTableGrid" border="1" cellspacing="0" cellpadding="0" style=
+'background:#D9D9D9;mso-shading:windowtext;mso-pattern:gray-15 auto; border-collapse:collapse;border:none;mso-border-alt:solid windowtext .5pt; mso-yfti-tbllook:480;mso-padding-alt:0in 5.4pt 0in 5.4pt;mso-border-insideh: .5pt solid windowtext;mso-border-insidev:.5pt solid windowtext'><tr style='mso-yfti-irow:0;mso-yfti-firstrow:yes;mso-yfti-lastrow:yes'>
+<td width="619" valign="top" style=
+'width:6.45in;border:solid windowtext 1.0pt; mso-border-alt:solid windowtext .5pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span lang="EN-US" style=
+'mso-bidi-font-size:10.0pt; font-family:"Courier New";mso-fareast-font-family:"MS Mincho";color:black; mso-ansi-language:EN-US'>&lt;function&gt;( &lt;parameter&gt; )</span></p>
+</td>
+</tr>
+</table>
+
+<p class="MsoNormal"><span lang="EN-US" style='mso-ansi-language:EN-US'>The
+following table lists the available built-in functions:</span></p>
+
+<table class="MsoNormalTable" border="1" cellspacing="0" cellpadding="0"
+style=
+'border-collapse:collapse;border:none;mso-border-alt:solid windowtext .75pt; mso-padding-alt:0in 5.4pt 0in 5.4pt;mso-border-insideh:.75pt solid windowtext; mso-border-insidev:.75pt solid windowtext'><tr style='mso-yfti-irow:0;mso-yfti-firstrow:yes;page-break-inside:avoid'>
+<td width="295" valign="top" style=
+'width:221.4pt;border:solid windowtext 1.0pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="TableHeading"><span lang="EN-US" style=
+'mso-ansi-language:EN-US'>Function</span></p>
+</td>
+<td width="295" valign="top" style=
+'width:221.4pt;border:solid windowtext 1.0pt; border-left:none;mso-border-left-alt:solid windowtext .75pt;mso-border-alt: solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="TableHeading"><span lang="EN-US" style=
+'mso-ansi-language:EN-US'>Details</span></p>
+</td>
+</tr>
+
+<tr style='mso-yfti-irow:1;page-break-inside:avoid'>
+<td width="295" valign="top" style=
+'width:221.4pt;border:solid windowtext 1.0pt; border-top:none;mso-border-top-alt:solid windowtext .75pt;mso-border-alt: solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="TableText"><span class="Object"><span lang="EN-US" style=
+'mso-ansi-language: EN-US'>toHex( number )</span></span></p>
+</td>
+<td width="295" valign="top" style=
+'width:221.4pt;border-top:none;border-left: none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .75pt;mso-border-left-alt:solid windowtext .75pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="TableText"><span lang="EN-US" style='mso-ansi-language:EN-US'>Prints
+the number as hexadecimal.</span></p>
+</td>
+</tr>
+
+<tr style='mso-yfti-irow:2;page-break-inside:avoid'>
+<td width="295" valign="top" style=
+'width:221.4pt;border:solid windowtext 1.0pt; border-top:none;mso-border-top-alt:solid windowtext .75pt;mso-border-alt: solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="TableText"><span class="Object"><span lang="EN-US" style=
+'mso-ansi-language: EN-US'>toString( object )</span></span></p>
+</td>
+<td width="295" valign="top" style=
+'width:221.4pt;border-top:none;border-left: none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .75pt;mso-border-left-alt:solid windowtext .75pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="TableText"><span lang="EN-US" style=
+'mso-ansi-language:EN-US'>Returns the value of an object, e.g. the content of
+a String and so on.</span></p>
+</td>
+</tr>
+
+<tr style='mso-yfti-irow:3;page-break-inside:avoid'>
+<td width="295" valign="top" style=
+'width:221.4pt;border:solid windowtext 1.0pt; border-top:none;mso-border-top-alt:solid windowtext .75pt;mso-border-alt: solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="TableText"><span class="Object"><span lang="EN-US" style=
+'mso-ansi-language: EN-US'>dominators( object )</span></span></p>
+</td>
+<td width="295" valign="top" style=
+'width:221.4pt;border-top:none;border-left: none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .75pt;mso-border-left-alt:solid windowtext .75pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span lang="EN-US" style='mso-ansi-language:EN-US'>The
+objects immediately dominated by the object.</span></p>
+</td>
+</tr>
+
+<tr style='mso-yfti-irow:4;page-break-inside:avoid'>
+<td width="295" valign="top" style=
+'width:221.4pt;border:solid windowtext 1.0pt; border-top:none;mso-border-top-alt:solid windowtext .75pt;mso-border-alt: solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="TableText"><span class="Object"><span lang="EN-US" style=
+'mso-ansi-language: EN-US'>outbounds( object )</span></span></p>
+</td>
+<td width="295" valign="top" style=
+'width:221.4pt;border-top:none;border-left: none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .75pt;mso-border-left-alt:solid windowtext .75pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="TableText"><span lang="EN-US" style=
+'mso-ansi-language:EN-US'>Outbound referrer.</span></p>
+</td>
+</tr>
+
+<tr style='mso-yfti-irow:5;page-break-inside:avoid'>
+<td width="295" valign="top" style=
+'width:221.4pt;border:solid windowtext 1.0pt; border-top:none;mso-border-top-alt:solid windowtext .75pt;mso-border-alt: solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="TableText"><span class="Object"><span lang="EN-US" style=
+'mso-ansi-language: EN-US'>inbounds( object )</span></span></p>
+</td>
+<td width="295" valign="top" style=
+'width:221.4pt;border-top:none;border-left: none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .75pt;mso-border-left-alt:solid windowtext .75pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span lang="EN-US" style=
+'mso-ansi-language:EN-US'>Inbound referrer.</span></p>
+</td>
+</tr>
+
+<tr style='mso-yfti-irow:6;page-break-inside:avoid'>
+<td width="295" valign="top" style=
+'width:221.4pt;border:solid windowtext 1.0pt; border-top:none;mso-border-top-alt:solid windowtext .75pt;mso-border-alt: solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="TableText"><span class="Object"><span lang="EN-US" style=
+'mso-ansi-language: EN-US'>classof( object )</span></span></p>
+</td>
+<td width="295" valign="top" style=
+'width:221.4pt;border-top:none;border-left: none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .75pt;mso-border-left-alt:solid windowtext .75pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span lang="EN-US" style='mso-ansi-language:EN-US'>The
+class of the current object.</span></p>
+</td>
+</tr>
+
+<tr style='mso-yfti-irow:7;mso-yfti-lastrow:yes;page-break-inside:avoid'>
+<td width="295" valign="top" style=
+'width:221.4pt;border:solid windowtext 1.0pt; border-top:none;mso-border-top-alt:solid windowtext .75pt;mso-border-alt: solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="TableText"><span class="Object"><span lang="EN-US" style=
+'mso-ansi-language: EN-US'>dominatorof( object )</span></span></p>
+</td>
+<td width="295" valign="top" style=
+'width:221.4pt;border-top:none;border-left: none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .75pt;mso-border-left-alt:solid windowtext .75pt; mso-border-alt:solid windowtext .75pt;padding:0in 5.4pt 0in 5.4pt'><p class="MsoNormal"><span lang="EN-US" style='mso-ansi-language:EN-US'>The
+immediate dominator, -1 if none.</span></p>
+</td>
+</tr>
+</table>
+
+<p class="MsoNormal"><span lang="EN-US" style=
+'mso-ansi-language:EN-US'>&nbsp;</span></p>
+
+<p class="MsoNormal"><span lang="EN-US" style=
+'mso-ansi-language:EN-US'>&nbsp;</span></p>
+
+<p class="MsoNormal"><span lang="EN-US" style=
+'mso-ansi-language:EN-US'>&nbsp;</span></p>
+
+<p class="MsoNormal"><span lang="EN-US" style=
+'mso-ansi-language:EN-US'>&nbsp;</span></p>
+</div>
+</body>
+</html>
+
+

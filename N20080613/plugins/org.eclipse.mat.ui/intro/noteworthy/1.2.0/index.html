@@ -1,0 +1,111 @@
+<h2>New and Noteworthy</h2>
+
+<h3>Release 0.7.0</h3>
+<table id="nn">
+<colgroup>
+    <col width="20%">
+    <col width="80%">
+</colgroup>
+<tbody>
+    <tr>
+        <td id="nn_heading">Overview Page</td>
+        <td id="nn_body">The new Overview page provides a quick look at the size of the heap dump,
+        the biggest objects and most frequently used actions.
+        <p><img src="noteworthy/1.2.0/overview.png" /></p>
+        </td>
+    </tr>
+
+    <tr>
+        <td id="nn_heading">Leak Suspect Report</td>
+        <td id="nn_body">The leak suspect report lists possible memory leaks.
+        <p><img src="noteworthy/1.2.0/report_suspects.png" /></p>
+        The report lists
+        <ul>
+        	<li>big objects or group of objects and</li>
+        	<li>threads consuming excessive processing space.</li>
+       	</ul>
+		<p>Please note the <strong>keywords</strong> available to search for known problems and
+		the <strong>CSN component</strong> (if available) to forward the problem to the right development organization.</p>
+        <p>The small ZIP file containing HTML can easily be send via email. No transfer of multi GB heap dumps necessary.</p> 
+        </td>
+    </tr>
+
+    <tr>
+        <td id="nn_heading">Drill Down</td>
+        <td id="nn_body">
+        Drill down to list
+		<ul>
+			<li>the accumulation point (who is keeping the memory) and </li>
+			<li>the retained set of the accumulation point (what is kept alive)</li>
+		</ul>
+		If the report is viewed inside the Memory Analyzer, use the hyper-links to view the objects.  
+        <p><img src="noteworthy/1.2.0/report_accumulation_point.png" /></p>
+        </td>
+    </tr>
+
+    <tr>
+        <td id="nn_heading">Run Report</td>
+        <td id="nn_body">Either select the report from the tool bar... 
+        <p><img src="noteworthy/1.2.0/select_report.png" /></p>
+        ... or execute the command line script:
+        <pre>ScriptParseHeapDump -report default:support.xml &lt;path to hprof&gt;</pre>
+        ... or mail the result to an email address:
+        <pre>ScriptParseHeapDump -report default:support.xml -mail &lt;recepients&gt; -smtp_gateway &lt;host&gt; -smtp_from &lt;address&gt; &lt;path to hprof&gt;</pre>
+        </td>
+    </tr>
+    <tr>
+        <td id="nn_heading">Java Locals</td>
+        <td id="nn_body">Objects marked as Garbage Collection Roots of type "Java Local" are now referenced from the thread.
+        <p><img src="noteworthy/1.2.0/java_locals.png" /></p>
+        <em>For example, now it is very easy to see which objects the Finalizer thread currently processes.</em>
+        </td>
+    </tr>
+    <tr>
+        <td id="nn_heading">Threads</td>
+        <td id="nn_body">List threads plus details with <strong>Java Basics</strong> -&gt; <strong>Thread Overview</strong>.
+        <p><img src="noteworthy/1.2.0/thread_overview_menu.png" /></p>
+        Then drill down into the details.
+        <p>If the thread is currently processing a <strong>request</strong>, more details are displayed. Known requests are <strong>HTTP, JCO, JDBC, socket input streams</strong>.</p>
+        </td>
+    </tr>
+</tbody>
+</table>
+
+<h3>Usability Improvements</h3>
+<table id="nn">
+	<colgroup>
+		<col width="20%">
+		<col width="80%">
+	</colgroup>
+	<tbody>
+    <tr>
+        <td id="nn_heading">Search</td>
+        <td id="nn_body">Just start typing to highlight elements.
+        <p><img src="noteworthy/1.2.0/search.png" /></p>
+        </td>
+    </tr>
+    <tr>
+        <td id="nn_heading">Filter</td>
+        <td id="nn_body">Filtering is now available in all views. For example, one can filter tree to see only children greater than a limit.
+        <p><img src="noteworthy/1.2.0/filtering.png" /></p>
+        </td>
+    </tr>
+    <tr>
+        <td id="nn_heading">Grouping</td>
+        <td id="nn_body">We have added more grouping options.
+        <p><img src="noteworthy/1.2.0/grouping_options.png" /></p>
+        </td>
+    </tr>
+	</tbody>
+</table>
+
+
+<h3>Other New & Noteworthy</h3>
+
+<ul>
+<li><a href="http://org.eclipse.ui.intro/showPage?id=new_and_noteworthy_11">Release 0.6.0</a></li>
+<li><a href="http://org.eclipse.ui.intro/showPage?id=new_and_noteworthy_older">Older releases</a></li>
+</ul>
+
+<p>
+

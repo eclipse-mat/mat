@@ -1,0 +1,53 @@
+
+h2
+{
+	font-weight : bold;
+	font-size : 16 px;
+	color:  #8da0ba;
+}
+
+h3
+{
+	font-weight : bold;
+	font-size : 13 px;
+	color:  #8da0ba;
+}
+
+#nn
+{
+	width: 800px;
+	border-collapse: collapse;
+	
+	font-family : Arial, sans serif;
+	font-size : 12 px;
+}
+
+
+#nn td
+{
+	border-top: solid thin black;
+	padding: 10px;
+}
+
+#nn tr
+{
+	vertical-align: top;
+}
+
+#nn_heading
+{
+	font-weight: bold;
+	text-align: right;
+}
+
+#nn_body
+{
+}
+
+#nn_body img
+{
+	margin-top : 10px;
+	margin-bottom : 10px;
+}
+
+a#placeholder img { background-image : url(../graphics/placeholder.gif); }
