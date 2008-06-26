@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.BitField;
 import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.parser.IObjectReader;
@@ -23,7 +24,6 @@ import org.eclipse.mat.parser.internal.util.ParserRegistry.Parser;
 import org.eclipse.mat.parser.model.ClassImpl;
 import org.eclipse.mat.parser.model.XGCRootInfo;
 import org.eclipse.mat.parser.model.XSnapshotInfo;
-import org.eclipse.mat.snapshot.SnapshotException;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.util.IProgressListener;
 

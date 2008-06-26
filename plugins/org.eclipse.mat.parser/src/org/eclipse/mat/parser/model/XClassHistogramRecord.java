@@ -10,9 +10,9 @@
  *******************************************************************************/
 package org.eclipse.mat.parser.model;
 
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.snapshot.ClassHistogramRecord;
 import org.eclipse.mat.snapshot.ISnapshot;
-import org.eclipse.mat.snapshot.SnapshotException;
 import org.eclipse.mat.util.IProgressListener;
 
 public class XClassHistogramRecord extends ClassHistogramRecord

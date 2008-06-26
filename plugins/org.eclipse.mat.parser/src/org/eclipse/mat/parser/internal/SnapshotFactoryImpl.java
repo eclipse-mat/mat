@@ -25,21 +25,20 @@ import java.util.regex.Pattern;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.mat.impl.snapshot.ISnapshotFactory;
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.parser.IIndexBuilder;
-import org.eclipse.mat.parser.ParserPlugin;
 import org.eclipse.mat.parser.internal.oql.OQLQueryImpl;
 import org.eclipse.mat.parser.internal.util.ParserRegistry;
 import org.eclipse.mat.parser.internal.util.ParserRegistry.Parser;
 import org.eclipse.mat.parser.model.XSnapshotInfo;
 import org.eclipse.mat.snapshot.IOQLQuery;
 import org.eclipse.mat.snapshot.ISnapshot;
-import org.eclipse.mat.snapshot.SnapshotException;
+import org.eclipse.mat.snapshot.SnapshotFactory;
 import org.eclipse.mat.snapshot.SnapshotFormat;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.IProgressListener.Severity;
 
-public class SnapshotFactoryImpl implements ISnapshotFactory
+public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
 {
     private static class SnapshotEntry
     {

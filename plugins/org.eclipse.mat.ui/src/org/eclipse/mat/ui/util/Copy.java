@@ -16,7 +16,7 @@ import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.mat.impl.result.Filter;
+import org.eclipse.mat.query.refined.Filter;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;

@@ -10,8 +10,9 @@
  *******************************************************************************/
 package org.eclipse.mat.ui.internal.query.arguments;
 
-import org.eclipse.mat.impl.query.ArgumentDescriptor;
-import org.eclipse.mat.snapshot.SnapshotException;
+import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.query.IQueryContext;
+import org.eclipse.mat.query.registry.ArgumentDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.SelectionEvent;
@@ -28,9 +29,9 @@ public class EnumComboEditor extends ArgumentEditor
     Object[] enumConstants;
     Object value;
 
-    public EnumComboEditor(Composite parent, ArgumentDescriptor descriptor, TableItem item)
+    public EnumComboEditor(Composite parent, IQueryContext context, ArgumentDescriptor descriptor, TableItem item)
     {
-        super(parent, descriptor, item);
+        super(parent, context, descriptor, item);
         enumConstants = descriptor.getType().getEnumConstants();
         setBackground(parent.getBackground());
         setLayout(new FillLayout());

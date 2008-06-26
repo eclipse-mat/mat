@@ -14,7 +14,8 @@ import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.wizard.WizardPage;
-import org.eclipse.mat.impl.query.ArgumentSet;
+import org.eclipse.mat.query.IQueryContext;
+import org.eclipse.mat.query.registry.ArgumentSet;
 import org.eclipse.mat.ui.internal.query.arguments.LinkEditor.Mode;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
@@ -27,15 +28,17 @@ import org.eclipse.ui.PlatformUI;
 
 public class ArgumentsWizardPage extends WizardPage implements ArgumentsTable.ITableListener
 {
-
+    private IQueryContext context;
     private ArgumentSet argumentSet;
     private ArgumentsTable table;
 
-    public ArgumentsWizardPage(ArgumentSet argumentSet)
+    public ArgumentsWizardPage(IQueryContext context, ArgumentSet argumentSet)
     {
         super("Query Arguments", argumentSet.getQueryDescriptor().getName(), null);
 
         setDescription(argumentSet.getQueryDescriptor().getShortDescription());
+        
+        this.context = context;
         this.argumentSet = argumentSet;
     }
 
@@ -57,7 +60,7 @@ public class ArgumentsWizardPage extends WizardPage implements ArgumentsTable.IT
         {
             mode = Mode.ADVANCED_MODE;
         }
-        table = new ArgumentsTable(tableComposite, SWT.FULL_SELECTION | SWT.SINGLE, argumentSet, mode);
+        table = new ArgumentsTable(tableComposite, SWT.FULL_SELECTION | SWT.SINGLE, context, argumentSet, mode);
         table.addListener(this);
 
         tableComposite.layout();

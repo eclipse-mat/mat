@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.mat.ui.internal.panes;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -22,25 +24,21 @@ import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
-import org.eclipse.mat.impl.query.ArgumentSet;
-import org.eclipse.mat.impl.query.CommandLine;
-import org.eclipse.mat.impl.query.DiggerUrl;
-import org.eclipse.mat.impl.query.IndividualObjectUrl;
-import org.eclipse.mat.impl.query.QueryResult;
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.ContextProvider;
 import org.eclipse.mat.query.IContextObject;
-import org.eclipse.mat.query.results.CompositeResult;
+import org.eclipse.mat.query.registry.ArgumentSet;
+import org.eclipse.mat.query.registry.CommandLine;
+import org.eclipse.mat.query.registry.QueryObjectLink;
+import org.eclipse.mat.query.registry.QueryResult;
 import org.eclipse.mat.query.results.DisplayFileResult;
 import org.eclipse.mat.query.results.TextResult;
-import org.eclipse.mat.snapshot.SnapshotException;
+import org.eclipse.mat.report.IOutputter;
+import org.eclipse.mat.report.RendererRegistry;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.QueryExecution;
-import org.eclipse.mat.ui.editor.HeapEditor;
-import org.eclipse.mat.ui.editor.HeapEditorPane;
-import org.eclipse.mat.ui.editor.MultiPaneEditorSite;
-import org.eclipse.mat.ui.internal.query.ArgumentContextProvider;
+import org.eclipse.mat.ui.editor.AbstractEditorPane;
 import org.eclipse.mat.ui.util.ErrorHelper;
-import org.eclipse.mat.ui.util.ImageHelper;
 import org.eclipse.mat.ui.util.PopupMenu;
 import org.eclipse.mat.ui.util.QueryContextMenu;
 import org.eclipse.swt.SWT;
@@ -53,8 +51,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IWorkbenchPart;
 
-
-public class QueryTextResultPane extends HeapEditorPane implements ISelectionProvider, LocationListener
+public class QueryTextResultPane extends AbstractEditorPane implements ISelectionProvider, LocationListener
 {
     private Browser browser;
 
@@ -93,7 +90,26 @@ public class QueryTextResultPane extends HeapEditorPane implements ISelectionPro
 
         if (queryResult.getSubject() instanceof TextResult)
         {
-            browser.setText(((TextResult) queryResult.getSubject()).getHtml());
+            TextResult textResult = (TextResult) queryResult.getSubject();
+
+            if (textResult.isHtml())
+            {
+                browser.setText(textResult.getText());
+            }
+            else
+            {
+                try
+                {
+                    IOutputter outputter = RendererRegistry.instance().match("html", TextResult.class);
+                    StringWriter writer = new StringWriter();
+                    outputter.embedd(null, textResult, writer);
+                    browser.setText(writer.toString());
+                }
+                catch (IOException e)
+                {
+                    throw new RuntimeException(e);
+                }
+            }
         }
         else if (queryResult.getSubject() instanceof DisplayFileResult)
         {
@@ -122,81 +138,62 @@ public class QueryTextResultPane extends HeapEditorPane implements ISelectionPro
 
     public void changing(LocationEvent event)
     {
-        DiggerUrl url = DiggerUrl.parse(event.location);
+        QueryObjectLink url = QueryObjectLink.parse(event.location);
         if (url == null)
             return;
 
-        if (url instanceof IndividualObjectUrl)
+        switch (url.getType())
         {
-            IndividualObjectUrl objectUrl = (IndividualObjectUrl) url;
-
-            try
+            case OBJECT:
             {
-                final int objectId = getSnapshotInput().getSnapshot().mapAddressToId(objectUrl.getObjectAddress());
-                if (objectId < 0)
-                    return;
-
-                this.selection = new StructuredSelection(new IContextObject()
+                try
                 {
-                    public int getObjectId()
+                    final int objectId = getEditor().getQueryContext().mapToObjectId(url.getTarget());
+                    if (objectId < 0)
+                        return;
+
+                    this.selection = new StructuredSelection(new IContextObject()
                     {
-                        return objectId;
-                    }
-                });
+                        public int getObjectId()
+                        {
+                            return objectId;
+                        }
+                    });
 
-                for (ISelectionChangedListener l : new ArrayList<ISelectionChangedListener>(listeners))
-                    l.selectionChanged(new SelectionChangedEvent(QueryTextResultPane.this, selection));
+                    for (ISelectionChangedListener l : new ArrayList<ISelectionChangedListener>(listeners))
+                        l.selectionChanged(new SelectionChangedEvent(QueryTextResultPane.this, selection));
 
-                PopupMenu m = new PopupMenu();
-                contextMenu.addContextActions(m, selection);
+                    PopupMenu m = new PopupMenu();
+                    contextMenu.addContextActions(m, selection);
 
-                if (menu != null && !menu.isDisposed())
-                    menu.dispose();
+                    if (menu != null && !menu.isDisposed())
+                        menu.dispose();
 
-                menu = m.createMenu(getEditorSite().getActionBars().getStatusLineManager(), browser);
-                menu.setVisible(true);
+                    menu = m.createMenu(getEditorSite().getActionBars().getStatusLineManager(), browser);
+                    menu.setVisible(true);
+                }
+                catch (Exception e)
+                {
+                    ErrorHelper.logThrowableAndShowMessage(e, MessageFormat.format(
+                                    "Unable to map address {0} to an object on the heap.", url.getTarget()));
+                }
+                event.doit = false;
+                break;
             }
-            catch (Exception e)
+            case QUERY:
             {
-                ErrorHelper.logThrowableAndShowMessage(e, MessageFormat.format(
-                                "Unable to map address 0x{0} to an object on the heap.", new Object[] { Long
-                                                .toHexString(objectUrl.getObjectAddress()) }));
-            }
-            event.doit = false;
-        }
-        else if ("query".equals(url.getType()))
-        {
-            try
-            {
-                HeapEditor editor = (HeapEditor) ((MultiPaneEditorSite) getEditorSite()).getMultiPageEditor();
-                ArgumentSet set = CommandLine.parse(new ArgumentContextProvider(editor), url.getContent());
-                QueryExecution.execute(editor, this.getPaneState(), null, set, false, true);
-            }
-            catch (SnapshotException e)
-            {
-                ErrorHelper.logThrowableAndShowMessage(e);
-            }
+                try
+                {
+                    ArgumentSet set = CommandLine.parse(getQueryContext(), url.getTarget());
+                    QueryExecution.execute(getEditor(), this.getPaneState(), null, set, false, true);
+                }
+                catch (SnapshotException e)
+                {
+                    ErrorHelper.logThrowableAndShowMessage(e);
+                }
 
-            event.doit = false;
-        }
-        else if ("result".equals(url.getType()))
-        {
-            QueryResult parent = queryResult.getParent();
-
-            if (parent != null)
-            {
-                String path = url.getContent();
-                int index = Integer.parseInt(path.substring(3)) - 1;
-
-                CompositeResult.Entry entry = ((CompositeResult) parent.getSubject()).getResultEntries().get(index);
-                HeapEditor editor = (HeapEditor) ((MultiPaneEditorSite) getEditorSite()).getMultiPageEditor();
-                String label = entry.getName();
-                if (label == null)
-                    label = parent.getTitle() + " " + (index + 1);
-                QueryExecution.displayResult(editor, this.getPaneState(), null, new QueryResult(parent, null, label, entry.getResult()), false);
+                event.doit = false;
             }
-
-            event.doit = false;
         }
     }
 
@@ -211,7 +208,7 @@ public class QueryTextResultPane extends HeapEditorPane implements ISelectionPro
     @Override
     public Image getTitleImage()
     {
-        Image image = queryResult != null ? ImageHelper.getImage(queryResult.getQuery()) : null;
+        Image image = queryResult != null ? MemoryAnalyserPlugin.getDefault().getImage(queryResult.getQuery()) : null;
         return image != null ? image : MemoryAnalyserPlugin.getImage(MemoryAnalyserPlugin.ISharedImages.QUERY);
     }
 
@@ -235,7 +232,7 @@ public class QueryTextResultPane extends HeapEditorPane implements ISelectionPro
     {
         throw new UnsupportedOperationException();
     }
-    
+
     @Override
     public void dispose()
     {

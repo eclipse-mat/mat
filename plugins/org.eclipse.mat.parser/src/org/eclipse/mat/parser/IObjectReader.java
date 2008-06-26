@@ -12,10 +12,9 @@ package org.eclipse.mat.parser;
 
 import java.io.IOException;
 
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.parser.model.AbstractArrayImpl.IContentDescriptor;
 import org.eclipse.mat.snapshot.ISnapshot;
-import org.eclipse.mat.snapshot.ISnapshotAddon;
-import org.eclipse.mat.snapshot.SnapshotException;
 import org.eclipse.mat.snapshot.model.IObject;
 
 public interface IObjectReader
@@ -30,5 +29,5 @@ public interface IObjectReader
 
     Object read(IContentDescriptor content, int offset, int length) throws IOException;
 
-    <A extends ISnapshotAddon> A getAddon(Class<A> addon) throws SnapshotException;
+    <A> A getAddon(Class<A> addon) throws SnapshotException;
 }

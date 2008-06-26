@@ -22,9 +22,9 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.dynamichelpers.IExtensionTracker;
-import org.eclipse.mat.impl.registry.RegistryReader;
-import org.eclipse.mat.parser.ParserPlugin;
+import org.eclipse.mat.parser.internal.ParserPlugin;
 import org.eclipse.mat.snapshot.SnapshotFormat;
+import org.eclipse.mat.util.RegistryReader;
 import org.eclipse.mat.util.SimpleStringTokenizer;
 
 public class ParserRegistry extends RegistryReader<ParserRegistry.Parser>

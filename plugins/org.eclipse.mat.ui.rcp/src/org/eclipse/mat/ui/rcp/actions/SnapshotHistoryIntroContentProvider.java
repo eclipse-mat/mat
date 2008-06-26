@@ -20,6 +20,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.SnapshotHistoryService;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.graphics.Image;
@@ -37,7 +38,8 @@ import org.osgi.framework.Bundle;
 
 public class SnapshotHistoryIntroContentProvider implements IIntroContentProvider
 {
-    private static final String ICON = "../intro/css/graphics/icons/heapdump16.gif";
+    private static final String DUMP_ICON = "../intro/css/icons/heapdump.gif";
+    private static final String RESOURCE_ICON = "../intro/css/icons/resource.gif";
 
     private Image bulletImage;
     private boolean disposed;
@@ -51,8 +53,8 @@ public class SnapshotHistoryIntroContentProvider implements IIntroContentProvide
         if (disposed)
             return;
 
-        List<SnapshotHistoryService.Entry> lastHeaps = SnapshotHistoryService.getInstance().getVisitedEntries();
-        if (lastHeaps == null)
+        List<SnapshotHistoryService.Entry> lastFiles = SnapshotHistoryService.getInstance().getVisitedEntries();
+        if (lastFiles == null)
         {
             out.print("<p class=\"status-text\">");
             out.print("Please wait... the list is loading");
@@ -60,16 +62,24 @@ public class SnapshotHistoryIntroContentProvider implements IIntroContentProvide
         }
         else
         {
-            if (lastHeaps.size() > 0)
+            if (!lastFiles.isEmpty())
             {
                 out.println("<ul id=\"snapshot_history\">");
-                for (SnapshotHistoryService.Entry entry : lastHeaps)
+                for (SnapshotHistoryService.Entry entry : lastFiles)
                 {
-                    out.print("<li><img src =\"" + ICON + "\">");
+                    String icon = MemoryAnalyserPlugin.EDITOR_ID.equals(entry.getEditorId()) ? DUMP_ICON
+                                    : RESOURCE_ICON;
+
+                    out.print("<li><img src =\"");
+                    out.print(icon);
+                    out.print("\">");
+                    
                     out.print("<a class=\"topicList\" href=\"http://org.eclipse.ui.intro/runAction?"
                                     + "pluginId=org.eclipse.mat.ui.rcp&amp;"
                                     + "class=org.eclipse.mat.ui.rcp.actions.OpenEditorAction&amp;param=");
                     out.print(entry.getFilePath());
+                    out.print("&amp;editorId=");
+                    out.print(entry.getEditorId());
                     out.print("\">");
                     out.print(entry.getFilePath());
                     out.print("</a>");
@@ -90,7 +100,7 @@ public class SnapshotHistoryIntroContentProvider implements IIntroContentProvide
     {
         if (disposed)
             return;
-        List<SnapshotHistoryService.Entry> lastHeaps = SnapshotHistoryService.getInstance().getVisitedEntries();
+        List<SnapshotHistoryService.Entry> lastFiles = SnapshotHistoryService.getInstance().getVisitedEntries();
         if (formText == null)
         {
             // a one-time pass
@@ -102,13 +112,13 @@ public class SnapshotHistoryIntroContentProvider implements IIntroContentProvide
                     openHeapDump((String) e.getHref());
                 }
             });
-            bulletImage = createImage(new Path("../intro/css/graphics/icons/arrow.gif"));
+            bulletImage = createImage(new Path("../intro/css/icons/arrow.gif"));
             if (bulletImage != null)
                 formText.setImage("bullet", bulletImage);
         }
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         buffer.append("<form>");
-        if (lastHeaps == null)
+        if (lastFiles == null)
         {
             buffer.append("<p>");
             buffer.append("Please wait... the list is loading");
@@ -116,16 +126,21 @@ public class SnapshotHistoryIntroContentProvider implements IIntroContentProvide
         }
         else
         {
-            if (lastHeaps.size() > 0)
+            if (lastFiles.size() > 0)
             {
-                for (SnapshotHistoryService.Entry entry : lastHeaps)
+                for (SnapshotHistoryService.Entry entry : lastFiles)
                 {
+                    String icon = MemoryAnalyserPlugin.EDITOR_ID.equals(entry.getEditorId()) ? DUMP_ICON
+                                    : RESOURCE_ICON;
+
                     buffer.append("<li style=\"image\" value=\"bullet\">");
-                    buffer.append("<img src =\"" + ICON + "\">");
+                    buffer.append("<img src =\"").append(icon).append("\">");
                     buffer.append("<a href=\"http://org.eclipse.ui.intro/runAction?"
                                     + "standby=true&amp;pluginId=org.eclipse.mat.ui.rcp&amp;"
                                     + "class=org.eclipse.mat.ui.rcp.actions.OpenEditorAction&amp;param=");
                     buffer.append(entry.getFilePath());
+                    buffer.append("&amp;editorId=");
+                    buffer.append(entry.getEditorId());
                     buffer.append("\">");
                     buffer.append(entry.getFilePath());
                     buffer.append("</a>");

@@ -13,14 +13,17 @@ package org.eclipse.mat.snapshot.model;
 import java.io.Serializable;
 import java.util.List;
 
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.snapshot.ISnapshot;
-import org.eclipse.mat.snapshot.SnapshotException;
-
+import org.eclipse.mat.snapshot.extension.IClassSpecificNameResolver;
+import org.eclipse.mat.snapshot.registry.ClassSpecificNameResolverRegistry;
 
 /**
  * Base interface for all objects found in a snapshot. Other model interfaces
  * derive from this interface, e.g. for classes, plain objects, object arrays,
  * primitive arrays...
+ * 
+ * @noimplement
  */
 public interface IObject extends Serializable
 {
@@ -30,7 +33,7 @@ public interface IObject extends Serializable
     public interface Type
     {
         int OBJECT = 2;
-        
+
         int BOOLEAN = 4;
         int CHAR = 5;
         int FLOAT = 6;
@@ -55,8 +58,9 @@ public interface IObject extends Serializable
      * Get address for the snapshot object. This is the address at which the
      * object was stored in memory. Use the address only for visualization
      * purposes and try to use the id wherever possible as the snapshot API is
-     * optimized to handle ids and not addresses. Addresses are bigger (<code>long</code>),
-     * have no consecutive order (with gaps), and are not used for hashing.
+     * optimized to handle ids and not addresses. Addresses are bigger (
+     * <code>long</code>), have no consecutive order (with gaps), and are not
+     * used for hashing.
      * 
      * @return address for the snapshot object
      */
@@ -87,16 +91,15 @@ public interface IObject extends Serializable
     /**
      * Get technical name of this object which is something like class@address.
      * 
-     * @return technical name of this object which is something like
-     *         class@address
+     * @return technical name of this object which is something like class@address
      */
     public String getTechnicalName();
 
     /**
      * Get class specific name of this object which depends on the availability
      * of the appropriate {@link IClassSpecificNameResolver} at the
-     * {@link ClassSpecificNameResolverRegistry}, e.g. for a String the value
-     * of the char[].
+     * {@link ClassSpecificNameResolverRegistry}, e.g. for a String the value of
+     * the char[].
      * 
      * @return class specific name of the given snapshot object or null if it
      *         can't be resolved
@@ -132,7 +135,8 @@ public interface IObject extends Serializable
      * are followed and its fields are evaluated. If any of the object
      * references is null, null is returned.
      * 
-     * @param field the field name in dot notation
+     * @param field
+     *            the field name in dot notation
      * @return the value of the field
      */
     public Object resolveValue(String field) throws SnapshotException;

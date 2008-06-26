@@ -40,7 +40,7 @@ public class Perspective implements IPerspectiveFactory
         {
             return this.id;
         }
-    };
+    }
 
     public void createInitialLayout(IPageLayout layout)
     {

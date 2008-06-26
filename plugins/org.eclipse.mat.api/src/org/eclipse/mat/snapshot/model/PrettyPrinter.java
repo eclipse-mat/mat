@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.mat.snapshot.model;
 
-import org.eclipse.mat.snapshot.SnapshotException;
+import org.eclipse.mat.SnapshotException;
 
 public class PrettyPrinter
 {

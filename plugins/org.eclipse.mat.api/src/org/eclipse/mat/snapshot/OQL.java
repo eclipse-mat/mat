@@ -15,11 +15,10 @@ import java.util.regex.Pattern;
 
 import org.eclipse.mat.snapshot.model.IClass;
 
-
 /**
  * Factory for often-used OQL queries.
  */
-public class OQL
+public final class OQL
 {
 
     /**
@@ -181,4 +180,7 @@ public class OQL
     {
         return MessageFormat.format(OQL_classesByClassLoaderId, new Object[] { classLoaderId });
     }
+    
+    private OQL()
+    {}
 }

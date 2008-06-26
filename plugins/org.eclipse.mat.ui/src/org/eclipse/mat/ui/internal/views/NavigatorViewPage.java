@@ -36,9 +36,8 @@ import org.eclipse.mat.ui.QueryExecution;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin.ISharedImages;
 import org.eclipse.mat.ui.editor.AbstractEditorPane;
 import org.eclipse.mat.ui.editor.CompositeHeapEditorPane;
-import org.eclipse.mat.ui.editor.HeapEditor;
+import org.eclipse.mat.ui.editor.EditorPaneRegistry;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
-import org.eclipse.mat.ui.editor.PaneConfiguration;
 import org.eclipse.mat.ui.util.Copy;
 import org.eclipse.mat.ui.util.ErrorHelper;
 import org.eclipse.mat.ui.util.PaneState;
@@ -205,7 +204,6 @@ public class NavigatorViewPage extends Page implements ISelectionProvider, IDoub
 
         Action copyAction = new Action()
         {
-
             @Override
             public void run()
             {
@@ -214,6 +212,7 @@ public class NavigatorViewPage extends Page implements ISelectionProvider, IDoub
         };
         getSite().getActionBars().setGlobalActionHandler(ActionFactory.COPY.getId(), copyAction);
         getSite().getActionBars().updateActionBars();
+
     }
 
     private void close(boolean remove, boolean recursive)
@@ -387,14 +386,14 @@ public class NavigatorViewPage extends Page implements ISelectionProvider, IDoub
                 {
                     case EDITOR:
                     {
-                        AbstractEditorPane pane = PaneConfiguration.createNewPane(state.getIdentifier());
+                        AbstractEditorPane pane = EditorPaneRegistry.instance().createNewPane(state.getIdentifier());
                         pane.setPaneState(state);
                         editor.addNewPage(pane, null, null, null);
                         break;
                     }
                     case QUERY:
                     {
-                        QueryExecution.executeAgain((HeapEditor) editor, state);
+                        QueryExecution.executeAgain(editor, state);
                         break;
                     }
                     case COMPOSITE_CHILD:
@@ -402,7 +401,8 @@ public class NavigatorViewPage extends Page implements ISelectionProvider, IDoub
                         AbstractEditorPane parent = editor.getEditor(state.getParentPaneState());
                         if (parent == null)
                         {
-                            parent = PaneConfiguration.createNewPane(state.getParentPaneState().getIdentifier());
+                            parent = EditorPaneRegistry.instance().createNewPane(
+                                            state.getParentPaneState().getIdentifier());
                             parent.setPaneState(state.getParentPaneState());
                             editor.addNewPage(parent, null, null, null);
                         }

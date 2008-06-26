@@ -13,13 +13,13 @@ package org.eclipse.mat.parser.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.parser.internal.SnapshotImpl;
-import org.eclipse.mat.snapshot.SnapshotException;
-import org.eclipse.mat.snapshot.model.ClassSpecificNameResolverRegistry;
 import org.eclipse.mat.snapshot.model.Field;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IClassLoader;
+import org.eclipse.mat.snapshot.registry.ClassSpecificNameResolverRegistry;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.VoidProgressListener;
 

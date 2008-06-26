@@ -32,6 +32,7 @@ import org.eclipse.mat.ui.SnapshotHistoryService;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin.ISharedImages;
 import org.eclipse.mat.ui.SnapshotHistoryService.Entry;
 import org.eclipse.mat.ui.editor.PathEditorInput;
+import org.eclipse.mat.ui.snapshot.views.SnapshotOutlinePage;
 import org.eclipse.mat.ui.util.ErrorHelper;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyAdapter;
@@ -51,7 +52,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.ui.IEditorDescriptor;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorRegistry;
 import org.eclipse.ui.PartInitException;
@@ -132,7 +132,7 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
         public DeleteSnapshotDialog(Shell parentShell, String dialogTitle)
         {
             super(parentShell, //
-                            "Confirm Deletion of Heap Dump", //
+                            "Confirm Deletion", //
                             null, // accept the default window icon
                             dialogTitle, //
                             MessageDialog.QUESTION, //
@@ -180,10 +180,10 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
 
     private Table table;
 
-    private Action actionOpenHeapDump;
-    private Action actionRemoveHeapDumpFromHistory;
-    private Action actionDeleteHeapDump;
-    private Action actionOpenHeapDumpInFileSystem;
+    private Action actionOpen;
+    private Action actionRemoveFromList;
+    private Action actionDelete;
+    private Action actionOpenFileInFileSystem;
     private Action actionDeleteIndeces;
 
     @Override
@@ -191,7 +191,7 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
     {
         this.table = new Table(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION);
         TableColumn tableColumn = new TableColumn(table, SWT.LEFT);
-        tableColumn.setText("Visited Heap Dumps"); //$NON-NLS-1$
+        tableColumn.setText("Recently Used Files"); //$NON-NLS-1$
         tableColumn.setWidth(400);
         table.setHeaderVisible(true);
 
@@ -202,7 +202,7 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
             public void mouseDoubleClick(MouseEvent event)
             {
                 TableItem[] selection = (TableItem[]) table.getSelection();
-                openHeapDump(selection);
+                openFile(selection);
             }
 
         });
@@ -219,7 +219,7 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
             {
                 if (e.character == 0x007F)
                 {
-                    actionRemoveHeapDumpFromHistory.run();
+                    actionRemoveFromList.run();
                 }
             }
         });
@@ -229,9 +229,9 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
 
     private void fillTable()
     {
-        List<SnapshotHistoryService.Entry> lastHeaps = SnapshotHistoryService.getInstance().getVisitedEntries();
+        List<SnapshotHistoryService.Entry> lastFiles = SnapshotHistoryService.getInstance().getVisitedEntries();
 
-        for (SnapshotHistoryService.Entry entry : lastHeaps)
+        for (SnapshotHistoryService.Entry entry : lastFiles)
         {
             TableItem tableItem = new TableItem(table, 0);
             tableItem.setText(entry.getFilePath());
@@ -245,18 +245,18 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
 
     private void makeActions()
     {
-        actionOpenHeapDump = new Action()
+        actionOpen = new Action()
         {
             public void run()
             {
                 TableItem[] selection = (TableItem[]) table.getSelection();
-                openHeapDump(selection);
+                openFile(selection);
             }
         };
-        actionOpenHeapDump.setText("Open Heap Dump");
-        actionOpenHeapDump.setImageDescriptor(MemoryAnalyserPlugin.getImageDescriptor(ISharedImages.OPEN_SNAPSHOT));
+        actionOpen.setText("Open");
+        actionOpen.setImageDescriptor(MemoryAnalyserPlugin.getImageDescriptor(ISharedImages.OPEN_SNAPSHOT));
 
-        actionRemoveHeapDumpFromHistory = new Action()
+        actionRemoveFromList = new Action()
         {
             public void run()
             {
@@ -272,11 +272,11 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
                     SnapshotHistoryService.getInstance().removePath(path);
             }
         };
-        actionRemoveHeapDumpFromHistory.setText("Remove from History");
-        actionRemoveHeapDumpFromHistory.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages()
-                        .getImageDescriptor(org.eclipse.ui.ISharedImages.IMG_TOOL_DELETE));
+        actionRemoveFromList.setText("Remove from List");
+        actionRemoveFromList.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(
+                        org.eclipse.ui.ISharedImages.IMG_TOOL_DELETE));
 
-        actionDeleteHeapDump = new Action()
+        actionDelete = new Action()
         {
 
             @Override
@@ -294,10 +294,10 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
 
                 String dialogTitle;
                 if (toDelete.size() > 1)
-                    dialogTitle = MessageFormat.format("Are you sure you want to delete these {0,number} heap dumps?",
+                    dialogTitle = MessageFormat.format("Are you sure you want to delete these {0,number} file?",
                                     toDelete.size());
                 else
-                    dialogTitle = MessageFormat.format("Are you sure you want to delete heap dump ''{0}''?", //
+                    dialogTitle = MessageFormat.format("Are you sure you want to delete ''{0}''?", //
                                     toDelete.get(0).getAbsolutePath());
 
                 DeleteSnapshotDialog deleteSnapshotDialog = new DeleteSnapshotDialog(table.getShell(), dialogTitle);
@@ -325,11 +325,11 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
             }
 
         };
-        actionDeleteHeapDump.setText("Delete Heap Dump");
-        actionDeleteHeapDump.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(
+        actionDelete.setText("Delete File");
+        actionDelete.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(
                         org.eclipse.ui.ISharedImages.IMG_TOOL_DELETE));
 
-        actionOpenHeapDumpInFileSystem = new Action()
+        actionOpenFileInFileSystem = new Action()
         {
 
             @Override
@@ -337,8 +337,8 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
             {
                 TableItem[] selection = (TableItem[]) table.getSelection();
 
-                String heapDumpPathString = ((SnapshotHistoryService.Entry) selection[0].getData()).getFilePath();
-                IPath path = new Path(heapDumpPathString);
+                String filename = ((SnapshotHistoryService.Entry) selection[0].getData()).getFilePath();
+                IPath path = new Path(filename);
                 File file = path.toFile();
 
                 if (file.exists())
@@ -415,8 +415,8 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
                 MessageDialog.openInformation(table.getParent().getShell(), "Explore File System", message);
             }
         };
-        actionOpenHeapDumpInFileSystem.setText("Explore in File System");
-        actionOpenHeapDumpInFileSystem.setImageDescriptor(MemoryAnalyserPlugin
+        actionOpenFileInFileSystem.setText("Explore in File System");
+        actionOpenFileInFileSystem.setImageDescriptor(MemoryAnalyserPlugin
                         .getImageDescriptor(ISharedImages.EXPLORE));
 
         actionDeleteIndeces = new Action("Delete Index Files")
@@ -468,13 +468,13 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
         if (selection.length == 0)
             return;
 
-        actionOpenHeapDump.setEnabled(selection.length == 1);
-        manager.add(actionOpenHeapDump);
+        actionOpen.setEnabled(selection.length == 1);
+        manager.add(actionOpen);
 
-        actionOpenHeapDumpInFileSystem.setEnabled(selection.length == 1);
-        manager.add(actionOpenHeapDumpInFileSystem);
+        actionOpenFileInFileSystem.setEnabled(selection.length == 1);
+        manager.add(actionOpenFileInFileSystem);
 
-        manager.add(actionDeleteHeapDump);
+        manager.add(actionDelete);
         manager.add(actionDeleteIndeces);
     }
 
@@ -500,7 +500,7 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
         return super.getAdapter(required);
     }
 
-    public void onSnapshotsChanged(final List<Entry> visitedSnapshots)
+    public void onFileHistoryChange(final List<Entry> visited)
     {
         if (this.table.isDisposed())
             return;
@@ -510,7 +510,7 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
             public void run()
             {
                 table.removeAll();
-                for (SnapshotHistoryService.Entry entry : visitedSnapshots)
+                for (SnapshotHistoryService.Entry entry : visited)
                 {
                     TableItem item = new TableItem(table, 0);
                     item.setText(entry.getFilePath());
@@ -523,21 +523,19 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
         });
     }
 
-    private void openHeapDump(TableItem[] selection)
+    private void openFile(TableItem[] selection)
     {
         if (selection.length == 1)
         {
-            String osPath = ((SnapshotHistoryService.Entry) selection[0].getData()).getFilePath();
-            Path path = new Path(osPath);
+            SnapshotHistoryService.Entry entry = (SnapshotHistoryService.Entry) selection[0].getData();
+            Path path = new Path(entry.getFilePath());
 
             if (path.toFile().exists())
             {
                 try
                 {
-                    IEditorRegistry registry = PlatformUI.getWorkbench().getEditorRegistry();
-                    IEditorDescriptor descriptor = registry.getDefaultEditor(osPath);
                     IDE.openEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(),
-                                    new PathEditorInput(path), descriptor.getId(), true);
+                                    new PathEditorInput(path), entry.getEditorId(), true);
                 }
                 catch (PartInitException e)
                 {
@@ -546,9 +544,10 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
             }
             else
             {
-                MessageDialog.openError(this.table.getParent().getShell(), "Heap Dump does not exist anymore",
-                                "The selected heap dump does not exist anymore. It will be deleted from the history list.\n\nSelected Heap Dump:\n"
-                                                + path.toOSString());
+                MessageDialog.openError(this.table.getParent().getShell(), "File does not exist anymore", MessageFormat
+                                .format("The selected file does not exist anymore. "
+                                                + "It will be deleted from the history list."
+                                                + "\n\nSelected File:\n{0}", path.toOSString()));
                 SnapshotHistoryService.getInstance().removePath(path);
             }
         }

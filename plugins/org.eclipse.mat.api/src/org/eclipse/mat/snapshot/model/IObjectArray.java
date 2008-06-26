@@ -12,6 +12,8 @@ package org.eclipse.mat.snapshot.model;
 
 /**
  * Marker interface to represent object arrays in the heap dump.
+ * 
+ * @noimplement
  */
 public interface IObjectArray extends IArray
 {}

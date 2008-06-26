@@ -14,14 +14,13 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.HashMapIntObject;
 
 
 /**
  * This class represents a set of paths from the GC roots to different objects,
  * which go through one and the same object.
- * 
- * @author d041376
  */
 public class MultiplePathsFromGCRootsRecord
 {

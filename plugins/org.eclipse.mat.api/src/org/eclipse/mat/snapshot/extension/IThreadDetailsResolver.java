@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.mat.snapshot.extension;
 
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.Column;
-import org.eclipse.mat.snapshot.SnapshotException;
 import org.eclipse.mat.util.IProgressListener;
 
 public interface IThreadDetailsResolver

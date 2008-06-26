@@ -12,10 +12,10 @@ package org.eclipse.mat.parser.model;
 
 import java.util.ArrayList;
 
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.snapshot.ClassHistogramRecord;
 import org.eclipse.mat.snapshot.ClassLoaderHistogramRecord;
 import org.eclipse.mat.snapshot.ISnapshot;
-import org.eclipse.mat.snapshot.SnapshotException;
 import org.eclipse.mat.snapshot.model.IClassLoader;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.util.IProgressListener;

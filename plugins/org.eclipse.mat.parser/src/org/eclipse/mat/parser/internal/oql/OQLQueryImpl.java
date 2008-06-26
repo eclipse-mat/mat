@@ -21,12 +21,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.collect.ArrayLong;
 import org.eclipse.mat.collect.IteratorInt;
 import org.eclipse.mat.collect.IteratorLong;
 import org.eclipse.mat.collect.SetInt;
-import org.eclipse.mat.impl.snapshot.internal.SimpleMonitor;
 import org.eclipse.mat.parser.internal.oql.compiler.CompilerImpl;
 import org.eclipse.mat.parser.internal.oql.compiler.EvaluationContext;
 import org.eclipse.mat.parser.internal.oql.compiler.Expression;
@@ -43,11 +43,11 @@ import org.eclipse.mat.snapshot.IOQLQuery;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.OQL;
 import org.eclipse.mat.snapshot.OQLParseException;
-import org.eclipse.mat.snapshot.SnapshotException;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.PatternUtil;
+import org.eclipse.mat.util.SimpleMonitor;
 import org.eclipse.mat.util.VoidProgressListener;
 
 

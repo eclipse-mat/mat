@@ -11,14 +11,14 @@
 package org.eclipse.mat.ui.internal.panes;
 
 import org.eclipse.jface.action.IToolBarManager;
-import org.eclipse.mat.ui.editor.HeapEditorPane;
+import org.eclipse.mat.ui.editor.AbstractEditorPane;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
 
-public class TextViewPane extends HeapEditorPane
+public class TextViewPane extends AbstractEditorPane
 {
     Text text;
 

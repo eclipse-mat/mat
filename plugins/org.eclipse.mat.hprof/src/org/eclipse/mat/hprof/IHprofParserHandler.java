@@ -13,13 +13,13 @@ package org.eclipse.mat.hprof;
 import java.io.IOException;
 import java.util.List;
 
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayLong;
 import org.eclipse.mat.collect.HashMapLongObject;
 import org.eclipse.mat.parser.IPreliminaryIndex;
 import org.eclipse.mat.parser.index.IIndexReader.IOne2LongIndex;
 import org.eclipse.mat.parser.model.ClassImpl;
 import org.eclipse.mat.parser.model.XSnapshotInfo;
-import org.eclipse.mat.snapshot.SnapshotException;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.util.IProgressListener;
 

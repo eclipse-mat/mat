@@ -13,12 +13,12 @@ package org.eclipse.mat.parser.internal.snapshot;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.BitField;
 import org.eclipse.mat.parser.index.IIndexReader;
 import org.eclipse.mat.parser.internal.util.IntStack;
 import org.eclipse.mat.snapshot.ExcludedReferencesDescriptor;
 import org.eclipse.mat.snapshot.ISnapshot;
-import org.eclipse.mat.snapshot.SnapshotException;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.NamedReference;
 import org.eclipse.mat.util.IProgressListener;

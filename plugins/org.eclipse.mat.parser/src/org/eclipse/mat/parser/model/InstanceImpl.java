@@ -16,10 +16,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayLong;
 import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.collect.IteratorInt;
-import org.eclipse.mat.snapshot.SnapshotException;
 import org.eclipse.mat.snapshot.model.Field;
 import org.eclipse.mat.snapshot.model.GCRootInfo;
 import org.eclipse.mat.snapshot.model.IInstance;

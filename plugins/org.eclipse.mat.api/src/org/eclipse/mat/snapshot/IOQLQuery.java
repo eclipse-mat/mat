@@ -10,11 +10,14 @@
  *******************************************************************************/
 package org.eclipse.mat.snapshot;
 
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.util.IProgressListener;
 
 /**
  * OQL Query
+ * 
+ * @noimplement
  */
 public interface IOQLQuery
 {

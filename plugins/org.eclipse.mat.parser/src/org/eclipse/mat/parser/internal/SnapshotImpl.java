@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.collect.ArrayIntBig;
 import org.eclipse.mat.collect.BitField;
@@ -39,7 +40,6 @@ import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.collect.IteratorInt;
 import org.eclipse.mat.collect.SetInt;
 import org.eclipse.mat.parser.IObjectReader;
-import org.eclipse.mat.parser.ParserPlugin;
 import org.eclipse.mat.parser.index.IIndexReader;
 import org.eclipse.mat.parser.index.IndexManager;
 import org.eclipse.mat.parser.index.IIndexReader.IOne2OneIndex;
@@ -65,9 +65,7 @@ import org.eclipse.mat.snapshot.Histogram;
 import org.eclipse.mat.snapshot.IMultiplePathsFromGCRootsComputer;
 import org.eclipse.mat.snapshot.IPathsFromGCRootsComputer;
 import org.eclipse.mat.snapshot.ISnapshot;
-import org.eclipse.mat.snapshot.ISnapshotAddon;
 import org.eclipse.mat.snapshot.PathsFromGCRootsTree;
-import org.eclipse.mat.snapshot.SnapshotException;
 import org.eclipse.mat.snapshot.DominatorsSummary.ClassDominatorRecord;
 import org.eclipse.mat.snapshot.model.GCRootInfo;
 import org.eclipse.mat.snapshot.model.IClass;
@@ -1943,11 +1941,11 @@ public class SnapshotImpl implements ISnapshot
         return rootsPerThread;
     }
 
-    public <A extends ISnapshotAddon> A getSnapshotAddons(Class<A> addon) throws SnapshotException
+    public <A> A getSnapshotAddons(Class<A> addon) throws SnapshotException
     {
         return heapObjectReader.getAddon(addon);
     }
-
+    
     // //////////////////////////////////////////////////////////////
     // private classes
     // //////////////////////////////////////////////////////////////

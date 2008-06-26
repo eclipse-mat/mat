@@ -19,14 +19,15 @@ import java.util.Map;
 import org.eclipse.mat.collect.SetInt;
 import org.eclipse.mat.snapshot.model.IObject;
 
-
 /**
  * This class holds the data of a dominators summary (see
  * ISnapshot.getDominatorsOf()). For a given list of objects the summary
- * contains the dominators of the single objects grouped by class or by
- * class loader.
+ * contains the dominators of the single objects grouped by class or by class
+ * loader.#
+ * 
+ * @noinstantiate
  */
-public class DominatorsSummary
+public final class DominatorsSummary
 {
 
     private ClassDominatorRecord[] classDominatorRecords;

@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.mat.ui;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -17,12 +20,17 @@ import java.util.logging.Logger;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.dynamichelpers.ExtensionTracker;
+import org.eclipse.core.runtime.dynamichelpers.IExtensionTracker;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.mat.query.registry.QueryDescriptor;
 import org.eclipse.mat.ui.internal.ErrorLogHandler;
+import org.eclipse.mat.ui.snapshot.ImageHelper.ImageImageDescriptor;
+import org.eclipse.swt.SWTException;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
-
 
 public class MemoryAnalyserPlugin extends AbstractUIPlugin
 {
@@ -42,7 +50,7 @@ public class MemoryAnalyserPlugin extends AbstractUIPlugin
 
         String REFRESH = "icons/refresh.gif"; //$NON-NLS-1$       
         String THREAD = "icons/thread.gif"; //$NON-NLS-1$       
-       
+
         String RETAINED_SET = "icons/retainedSet.gif"; //$NON-NLS-1$
         String PACKAGE = "icons/package.gif"; //$NON-NLS-1$
 
@@ -84,10 +92,8 @@ public class MemoryAnalyserPlugin extends AbstractUIPlugin
         String FIND = "icons/find.gif"; //$NON-NLS-1$  
         String EXECUTE_QUERY = "icons/execute_query.gif"; //$NON-NLS-1$
         String SHOW_AS_HISTOGRAM = "icons/as_histogram.gif"; //$NON-NLS-1$  
-        String SHOW_ADDONS = "icons/heapdump_addons.gif"; //$NON-NLS-1$  
-        String FATAL_ERROR = "icons/fatalerror.gif"; //$NON-NLS-1$  
         String EXPLORE = "icons/explore.gif"; //$NON-NLS-1$  
-        
+
         String SHOW_PANE = "icons/show_pane.gif"; //$NON-NLS-1$  
         String CLOSE_PANE = "icons/close_pane.gif"; //$NON-NLS-1$  
         String CLOSE_BRANCH = "icons/close_branch.gif"; //$NON-NLS-1$  
@@ -96,6 +102,8 @@ public class MemoryAnalyserPlugin extends AbstractUIPlugin
     private static MemoryAnalyserPlugin plugin;
 
     private Map<ImageDescriptor, Image> imageCache = new HashMap<ImageDescriptor, Image>(20);
+    private Map<URL, ImageDescriptor> imagePathCache = new HashMap<URL, ImageDescriptor>(20);
+    private IExtensionTracker tracker;
 
     public MemoryAnalyserPlugin()
     {
@@ -107,6 +115,8 @@ public class MemoryAnalyserPlugin extends AbstractUIPlugin
     {
         super.start(context);
 
+        tracker = new ExtensionTracker(Platform.getExtensionRegistry());
+
         // redirect logging from the analysis core into the Eclipse logging
         // facility
         Logger logger = Logger.getLogger("org.eclipse.mat");
@@ -117,6 +127,8 @@ public class MemoryAnalyserPlugin extends AbstractUIPlugin
     public void stop(BundleContext context) throws Exception
     {
         plugin = null;
+
+        tracker.close();
 
         for (Image image : imageCache.values())
             image.dispose();
@@ -130,11 +142,20 @@ public class MemoryAnalyserPlugin extends AbstractUIPlugin
         return plugin;
     }
 
+    // //////////////////////////////////////////////////////////////
+    // image handling
+    // //////////////////////////////////////////////////////////////
+
     public static ImageDescriptor getImageDescriptor(String path)
     {
         return AbstractUIPlugin.imageDescriptorFromPlugin(PLUGIN_ID, path); //$NON-NLS-1$
     }
 
+    public static Image getImage(String name)
+    {
+        return MemoryAnalyserPlugin.getDefault().getImage(getImageDescriptor(name));
+    }
+    
     public Image getImage(ImageDescriptor descriptor)
     {
         Image image = imageCache.get(descriptor);
@@ -146,10 +167,80 @@ public class MemoryAnalyserPlugin extends AbstractUIPlugin
         return image;
     }
 
-    public static Image getImage(String name)
+    public ImageDescriptor getImageDescriptor(URL path)
     {
-        return MemoryAnalyserPlugin.getDefault().getImage(MemoryAnalyserPlugin.getImageDescriptor(name));
+        ImageDescriptor descriptor = imagePathCache.get(path);
+        if (descriptor == null)
+        {
+            Image image = loadImage(path);
+            if (image == null)
+                descriptor = getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.MISSING_IMAGE);
+            else
+                descriptor = new ImageImageDescriptor(image);
+
+            imagePathCache.put(path, descriptor);
+        }
+
+        return descriptor;
     }
+    
+    public Image getImage(URL path)
+    {
+        return getImage(getImageDescriptor(path));
+    }
+
+    private Image loadImage(URL path)
+    {
+        InputStream stream = null;
+        try
+        {
+            stream = path.openStream();
+            return new Image(PlatformUI.getWorkbench().getDisplay(), stream);
+        }
+        catch (SWTException e)
+        {
+            MemoryAnalyserPlugin.log(e);
+            return null;
+        }
+        catch (IOException e)
+        {
+            MemoryAnalyserPlugin.log(e);
+            return null;
+        }
+        finally
+        {
+            try
+            {
+                if (stream != null)
+                    stream.close();
+            }
+            catch (IOException ignore)
+            {
+                // $JL-EXC$
+            }
+        }
+    }
+    
+    public ImageDescriptor getImageDescriptor(QueryDescriptor query)
+    {
+        URL url = query != null ? query.getIcon() : null;
+        return url != null ? getImageDescriptor(url) : null;
+    }
+
+    public Image getImage(QueryDescriptor query)
+    {
+        ImageDescriptor imageDescriptor = getImageDescriptor(query);
+        return imageDescriptor == null ? null : getImage(imageDescriptor);
+    }
+
+    public IExtensionTracker getExtensionTracker()
+    {
+        return tracker;
+    }
+
+    // //////////////////////////////////////////////////////////////
+    // logging
+    // //////////////////////////////////////////////////////////////
 
     public static void log(IStatus status)
     {
@@ -164,10 +255,5 @@ public class MemoryAnalyserPlugin extends AbstractUIPlugin
     public static void log(Throwable e, String message)
     {
         log(new Status(IStatus.ERROR, PLUGIN_ID, message, e));
-    }
-
-    public static boolean isRunningAsRCP()
-    {
-        return "org.eclipse.mat.ui.rcp.application".equals(Platform.getProduct().getApplication());
     }
 }

@@ -25,10 +25,7 @@ import java.util.List;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.mat.snapshot.ISnapshot;
-import org.eclipse.mat.snapshot.SnapshotInfo;
 import org.eclipse.ui.PlatformUI;
-
 
 public class SnapshotHistoryService
 {
@@ -37,25 +34,32 @@ public class SnapshotHistoryService
 
     public interface IChangeListener
     {
-        void onSnapshotsChanged(List<Entry> visitedSnapshots);
+        void onFileHistoryChange(List<Entry> visited);
     }
 
     public static class Entry implements Serializable
     {
         private static final long serialVersionUID = 1L;
 
+        String editorId;
         String filePath;
         Long fileLength;
         Serializable info;
 
-        private Entry(String filePath)
+        private Entry(String editorId, String filePath)
         {
+            this.editorId = editorId;
             this.filePath = filePath;
         }
 
         public Long getFileLength()
         {
             return fileLength;
+        }
+
+        public String getEditorId()
+        {
+            return editorId;
         }
 
         public String getFilePath()
@@ -83,16 +87,13 @@ public class SnapshotHistoryService
     }
 
     private static final int NUMBER = 100;
-    private static SnapshotHistoryService instance = null;
+    private static SnapshotHistoryService instance = new SnapshotHistoryService();
 
-    LinkedList<Entry> list;
-    List<IChangeListener> listeners = new ArrayList<IChangeListener>();
+    private LinkedList<Entry> list;
+    private List<IChangeListener> listeners = new ArrayList<IChangeListener>();
 
     public static SnapshotHistoryService getInstance()
     {
-        if (instance == null)
-            instance = new SnapshotHistoryService();
-
         return instance;
     }
 
@@ -102,32 +103,9 @@ public class SnapshotHistoryService
         initializeDocument();
     }
 
-    /**
-     * This is a convenience method which extracts the snapshot info object,
-     * creates a copy (needed because SnapshotInfo is actually XSnapshotInfo and
-     * resides in the private packages of another plugin which causes problems
-     * during deserialization) and stores it in the history.
-     */
-    public void addVisitedPath(IPath path, ISnapshot snapshot)
+    public void addVisitedPath(String editorId, String path, Serializable info)
     {
-        SnapshotInfo info = snapshot.getSnapshotInfo();
-        Serializable addtlInfo = new SnapshotInfo(info.getPath(), //
-                        info.getPrefix(), //
-                        info.getJvmInfo(), //
-                        info.getIdentifierSize(), //
-                        info.getCreationDate(), //
-                        info.getNumberOfObjects(), //
-                        info.getNumberOfGCRoots(), //
-                        info.getNumberOfClasses(), //
-                        info.getNumberOfClassLoaders(), //
-                        info.getUsedHeapSize());
-
-        addVisitedPath(path, addtlInfo);
-    }
-
-    public void addVisitedPath(IPath path, Serializable info)
-    {
-        Entry e = new Entry(path.toOSString());
+        Entry e = new Entry(editorId, path);
 
         if (list.contains(e))
             list.remove(e);
@@ -145,19 +123,24 @@ public class SnapshotHistoryService
         informListeners();
     }
 
-    public void addVisitedPath(IPath path)
+    public void addVisitedPath(String editorId, String path)
     {
-        this.addVisitedPath(path, (Serializable) null);
+        this.addVisitedPath(editorId, path, (Serializable) null);
     }
 
     public void removePath(IPath path)
     {
-        Entry e = new Entry(path.toOSString());
-
-        if (list.remove(e))
+        String filename = path.toOSString();
+        for (Iterator<Entry> iter = list.iterator(); iter.hasNext();)
         {
-            saveDocument();
-            informListeners();
+            Entry entry = (Entry) iter.next();
+            if (entry.getFilePath().equals(filename))
+            {
+                iter.remove();
+                saveDocument();
+                informListeners();
+                break;
+            }
         }
     }
 
@@ -166,7 +149,7 @@ public class SnapshotHistoryService
         List<Entry> entries = getVisitedEntries();
 
         for (IChangeListener listener : this.listeners)
-            listener.onSnapshotsChanged(entries);
+            listener.onFileHistoryChange(entries);
     }
 
     public List<Entry> getVisitedEntries()
@@ -184,7 +167,6 @@ public class SnapshotHistoryService
         this.listeners.remove(listener);
     }
 
-    @SuppressWarnings("unchecked")
     private synchronized void initializeDocument()
     {
         File file = new File(FILE_NAME);
@@ -194,8 +176,12 @@ public class SnapshotHistoryService
             {
                 final StringBuilder buf = new StringBuilder();
 
+                list = new LinkedList<Entry>();
+
                 ObjectInputStream oin = new ObjectInputStream(new FileInputStream(file));
-                list = (LinkedList<Entry>) oin.readObject();
+                int size = oin.readInt();
+                for (int ii = 0; ii < size; ii++)
+                    list.add((Entry) oin.readObject());
                 oin.close();
 
                 for (Iterator<Entry> iter = list.iterator(); iter.hasNext();)
@@ -225,6 +211,11 @@ public class SnapshotHistoryService
                 }
 
             }
+            catch (IOException ignore)
+            {
+                MemoryAnalyserPlugin.log(ignore);
+                new File(FILE_NAME).delete();
+            }
             catch (Exception ignore)
             {
                 MemoryAnalyserPlugin.log(ignore);
@@ -242,7 +233,10 @@ public class SnapshotHistoryService
             if (!list.isEmpty())
             {
                 ObjectOutputStream oout = new ObjectOutputStream(new FileOutputStream(FILE_NAME));
-                oout.writeObject(list);
+                oout.writeInt(list.size());
+                for (Entry entry : list)
+                    oout.writeObject(entry);
+                oout.flush();
                 oout.close();
             }
             else

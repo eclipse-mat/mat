@@ -10,11 +10,10 @@
  *******************************************************************************/
 package org.eclipse.mat.hprof.extension;
 
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.snapshot.ISnapshot;
-import org.eclipse.mat.snapshot.ISnapshotAddon;
-import org.eclipse.mat.snapshot.SnapshotException;
 
 public interface IRuntimeEnhancer
 {
-    <A extends ISnapshotAddon> A getAddon(ISnapshot snapshot, Class<A> addon) throws SnapshotException;
+    <A> A getAddon(ISnapshot snapshot, Class<A> addon) throws SnapshotException;
 }

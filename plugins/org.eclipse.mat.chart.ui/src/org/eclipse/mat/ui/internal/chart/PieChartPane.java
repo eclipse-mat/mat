@@ -27,14 +27,13 @@ import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.mat.impl.chart.ChartBuilder;
-import org.eclipse.mat.impl.query.QueryResult;
 import org.eclipse.mat.query.ContextProvider;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IResultPie;
 import org.eclipse.mat.query.IResultPie.Slice;
+import org.eclipse.mat.query.registry.QueryResult;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
-import org.eclipse.mat.ui.editor.HeapEditorPane;
-import org.eclipse.mat.ui.util.ImageHelper;
+import org.eclipse.mat.ui.editor.AbstractEditorPane;
 import org.eclipse.mat.ui.util.PopupMenu;
 import org.eclipse.mat.ui.util.QueryContextMenu;
 import org.eclipse.swt.SWT;
@@ -44,7 +43,7 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.forms.widgets.FormText;
 
 
-public class PieChartPane extends HeapEditorPane implements ISelectionProvider
+public class PieChartPane extends AbstractEditorPane implements ISelectionProvider
 {
     List<ISelectionChangedListener> listeners = new ArrayList<ISelectionChangedListener>();
 
@@ -105,8 +104,7 @@ public class PieChartPane extends HeapEditorPane implements ISelectionProvider
     @Override
     public Image getTitleImage()
     {
-        Image image = queryResult != null ? ImageHelper.getImage(queryResult.getQuery()) : null;
-        return image != null ? image : MemoryAnalyserPlugin.getImage(MemoryAnalyserPlugin.ISharedImages.QUERY);
+        return queryResult != null ? MemoryAnalyserPlugin.getDefault().getImage(queryResult.getQuery()) : null;
     }
 
     class CallBackListener implements ICallBackNotifier

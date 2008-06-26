@@ -12,12 +12,13 @@ package org.eclipse.mat.ui.internal.viewer;
 
 import java.util.List;
 
-import org.eclipse.mat.impl.query.QueryResult;
-import org.eclipse.mat.impl.result.RefinedTable;
-import org.eclipse.mat.impl.result.TotalsRow;
 import org.eclipse.mat.query.Column;
+import org.eclipse.mat.query.IQueryContext;
+import org.eclipse.mat.query.refined.RefinedTable;
+import org.eclipse.mat.query.refined.TotalsRow;
+import org.eclipse.mat.query.registry.QueryResult;
 import org.eclipse.mat.ui.editor.AbstractEditorPane;
-import org.eclipse.mat.ui.editor.HeapEditor;
+import org.eclipse.mat.ui.editor.MultiPaneEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ControlEditor;
 import org.eclipse.swt.custom.TableEditor;
@@ -41,13 +42,13 @@ public class RefinedTableViewer extends RefinedResultViewer
     Table table;
     TableEditor tableEditor;
 
-    public RefinedTableViewer(QueryResult result, RefinedTable table)
+    public RefinedTableViewer(IQueryContext context, QueryResult result, RefinedTable table)
     {
-        super(result, table);
+        super(context, result, table);
     }
 
     @Override
-    public void init(Composite parent, HeapEditor editor, AbstractEditorPane pane)
+    public void init(Composite parent, MultiPaneEditor editor, AbstractEditorPane pane)
     {
         super.init(new TableAdapter(), parent, editor, pane);
     }

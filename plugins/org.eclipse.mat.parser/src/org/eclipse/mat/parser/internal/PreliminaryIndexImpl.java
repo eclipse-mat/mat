@@ -90,6 +90,6 @@ import org.eclipse.mat.parser.model.XSnapshotInfo;
 
     public void delete()
     {
-        // TODO delete prelimanry indeces (if stored)
+        // TODO delete preliminary indeces (if stored)
     }
 }

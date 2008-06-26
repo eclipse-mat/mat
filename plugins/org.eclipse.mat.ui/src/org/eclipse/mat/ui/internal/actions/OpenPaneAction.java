@@ -11,16 +11,16 @@
 package org.eclipse.mat.ui.internal.actions;
 
 import org.eclipse.jface.action.Action;
-import org.eclipse.mat.ui.editor.HeapEditor;
+import org.eclipse.mat.ui.editor.MultiPaneEditor;
 
 
 public class OpenPaneAction extends Action
 {
 
-    private HeapEditor editor;
+    private MultiPaneEditor editor;
     private String paneId;
 
-    public OpenPaneAction(HeapEditor editor, String paneId)
+    public OpenPaneAction(MultiPaneEditor editor, String paneId)
     {
         super();
         this.editor = editor;
@@ -30,7 +30,7 @@ public class OpenPaneAction extends Action
     @Override
     public void run()
     {
-        ((HeapEditor) editor).addNewPage(paneId, null, true);
+        editor.addNewPage(paneId, null, true);
     }
 
 }

@@ -16,15 +16,17 @@ import java.util.List;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.mat.impl.query.QueryResult;
-import org.eclipse.mat.impl.result.RefinedTree;
-import org.eclipse.mat.impl.result.TotalsRow;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.ContextProvider;
+import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.IResultTree;
+import org.eclipse.mat.query.ContextDerivedData.DerivedOperation;
+import org.eclipse.mat.query.refined.RefinedTree;
+import org.eclipse.mat.query.refined.TotalsRow;
+import org.eclipse.mat.query.registry.QueryResult;
 import org.eclipse.mat.ui.editor.AbstractEditorPane;
 import org.eclipse.mat.ui.editor.AbstractPaneJob;
-import org.eclipse.mat.ui.editor.HeapEditor;
+import org.eclipse.mat.ui.editor.MultiPaneEditor;
 import org.eclipse.mat.util.VoidProgressListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ControlEditor;
@@ -50,13 +52,13 @@ public class RefinedTreeViewer extends RefinedResultViewer
     Tree tree;
     TreeEditor treeEditor;
 
-    public RefinedTreeViewer(QueryResult result, RefinedTree tree)
+    public RefinedTreeViewer(IQueryContext context, QueryResult result, RefinedTree tree)
     {
-        super(result, tree);
+        super(context, result, tree);
     }
 
     @Override
-    public void init(Composite parent, HeapEditor editor, AbstractEditorPane pane)
+    public void init(Composite parent, MultiPaneEditor editor, AbstractEditorPane pane)
     {
         super.init(new TreeAdapter(), parent, editor, pane);
 
@@ -274,9 +276,9 @@ public class RefinedTreeViewer extends RefinedResultViewer
     }
 
     @Override
-    protected void doCalculateRetainedSizesForAll(ContextProvider provider, boolean approximation)
+    protected void doCalculateDerivedValuesForAll(ContextProvider provider, DerivedOperation operation)
     {
-        super.doCalculateRetainedSizesForAll(provider, approximation);
+        super.doCalculateDerivedValuesForAll(provider, operation);
 
         // trigger jobs for all other expanded tree items
 
@@ -289,7 +291,7 @@ public class RefinedTreeViewer extends RefinedResultViewer
             ControlItem ctrl = (ControlItem) item.getData(Key.CONTROL);
             if (ctrl != null && ctrl.children != null)
             {
-                new RetainedSizeJob.OnFullList(this, provider, ctrl.children, approximation, item, ctrl).schedule();
+                new DerivedDataJob.OnFullList(this, provider, operation, ctrl.children, item, ctrl).schedule();
                 children.add(item);
             }
         }
@@ -304,7 +306,7 @@ public class RefinedTreeViewer extends RefinedResultViewer
                 ControlItem ctrl = (ControlItem) item.getData(Key.CONTROL);
                 if (ctrl != null && ctrl.children != null)
                 {
-                    new RetainedSizeJob.OnFullList(this, provider, ctrl.children, approximation, item, ctrl).schedule();
+                    new DerivedDataJob.OnFullList(this, provider, operation, ctrl.children, item, ctrl).schedule();
                     children.add(item);
                 }
             }

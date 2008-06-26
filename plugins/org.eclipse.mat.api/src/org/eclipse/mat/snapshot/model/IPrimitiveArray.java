@@ -12,6 +12,8 @@ package org.eclipse.mat.snapshot.model;
 
 /**
  * Interface for primitive arrays in the heap dump.
+ * 
+ * @noimplement
  */
 public interface IPrimitiveArray extends IArray
 {

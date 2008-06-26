@@ -25,8 +25,7 @@
 	<query name="Class Histogram">
 		<param key="html.separate_file" value="true" />
 		<param key="sort_column" value="Retained Heap" />
-		<param key="retained_size_for" value="_default_"/>
-		<param key="retained_size_approx" value="true"/>
+		<param key="derived_data_column" value="_default_=APPROXIMATE"/>
 		<command>histogram</command>
 	</query>	
 </section>

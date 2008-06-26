@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.collect.HashMapLongObject;
 import org.eclipse.mat.collect.IteratorLong;
@@ -32,7 +33,6 @@ import org.eclipse.mat.parser.index.IndexManager.Index;
 import org.eclipse.mat.parser.model.ClassImpl;
 import org.eclipse.mat.parser.model.XGCRootInfo;
 import org.eclipse.mat.parser.model.XSnapshotInfo;
-import org.eclipse.mat.snapshot.SnapshotException;
 import org.eclipse.mat.snapshot.model.Field;
 import org.eclipse.mat.snapshot.model.FieldDescriptor;
 import org.eclipse.mat.snapshot.model.GCRootInfo;

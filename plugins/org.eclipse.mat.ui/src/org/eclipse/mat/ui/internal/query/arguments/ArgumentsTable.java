@@ -28,12 +28,17 @@ import org.eclipse.jface.resource.LocalResourceManager;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.window.DefaultToolTip;
 import org.eclipse.jface.window.ToolTip;
-import org.eclipse.mat.impl.query.ArgumentDescriptor;
-import org.eclipse.mat.impl.query.ArgumentSet;
-import org.eclipse.mat.impl.query.HeapObjectContextArgument;
-import org.eclipse.mat.impl.query.HeapObjectParamArgument;
-import org.eclipse.mat.snapshot.SnapshotException;
+import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.internal.snapshot.HeapObjectContextArgument;
+import org.eclipse.mat.internal.snapshot.HeapObjectParamArgument;
+import org.eclipse.mat.query.IQueryContext;
+import org.eclipse.mat.query.annotations.Argument;
+import org.eclipse.mat.query.registry.ArgumentDescriptor;
+import org.eclipse.mat.query.registry.ArgumentSet;
+import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.SnapshotFactory;
+import org.eclipse.mat.snapshot.model.IObject;
+import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.ui.internal.query.arguments.LinkEditor.Mode;
 import org.eclipse.mat.ui.internal.query.arguments.TextEditor.DecoratorType;
 import org.eclipse.swt.SWT;
@@ -46,7 +51,6 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
-
 
 public class ArgumentsTable implements ArgumentEditor.IEditorListener
 {
@@ -72,6 +76,8 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
     private Map<ArgumentEditor, String> errors = Collections.synchronizedMap(new HashMap<ArgumentEditor, String>());
     private Mode mode = Mode.SIMPLE_MODE;
     private Map<ArgumentDescriptor, Mode> modeMap;
+
+    private IQueryContext context;
     private ArgumentSet argumentSet;
 
     public interface ITableListener
@@ -85,8 +91,9 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
         void onModeChange(Mode mode);
     }
 
-    public ArgumentsTable(Composite parent, int style, ArgumentSet argumentSet, Mode mode)
+    public ArgumentsTable(Composite parent, int style, IQueryContext context, ArgumentSet argumentSet, Mode mode)
     {
+        this.context = context;
         this.argumentSet = argumentSet;
         this.mode = mode;
 
@@ -113,7 +120,7 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
         modeMap = new HashMap<ArgumentDescriptor, Mode>(argumentSet.getQueryDescriptor().getArguments().size());
         for (ArgumentDescriptor descriptor : argumentSet.getQueryDescriptor().getArguments())
         {
-            if (descriptor.isHeapObject())
+            if (isHeapObject(descriptor))
                 modeMap.put(descriptor, mode);
         }
 
@@ -168,12 +175,14 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
 
         for (ArgumentDescriptor descriptor : argumentSet.getQueryDescriptor().getArguments())
         {
-            if (descriptor.isPrimarySnapshot())
+            if (context.available(descriptor.getType(), descriptor.getAdvice()))
                 continue;
 
             String flag = createArgumentLabel(descriptor);
 
-            if (descriptor.isMultiple() && !(descriptor.isHeapObject()))
+            boolean isHeapObject = isHeapObject(descriptor);
+
+            if (descriptor.isMultiple() && !isHeapObject)
             {
                 List<?> values = (List<?>) argumentSet.getArgumentValue(descriptor);
 
@@ -197,8 +206,7 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
                     addEditorRow(descriptor, "..\"..", null, -1);
                 }
             }
-            else if (descriptor.isHeapObject()
-                            && argumentSet.getArgumentValue(descriptor) instanceof HeapObjectContextArgument)
+            else if (isHeapObject && argumentSet.getArgumentValue(descriptor) instanceof HeapObjectContextArgument)
             { // when query is called for the certain object instance (from
                 // the view).
                 // In that case hoa cannot be modified
@@ -206,7 +214,7 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
                 item.setFont(normalFont);
                 item.setText(new String[] { flag, String.valueOf(argumentSet.getArgumentValue(descriptor)) });
             }
-            else if (descriptor.isHeapObject())
+            else if (isHeapObject)
             {
                 addHeapObjectTableItems(descriptor, (HeapObjectParamArgument) argumentSet.getArgumentValue(descriptor));
             }
@@ -239,6 +247,14 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
         }
     }
 
+    private boolean isHeapObject(ArgumentDescriptor descriptor)
+    {
+        boolean isHeapObject = descriptor.getAdvice() == Argument.Advice.HEAP_OBJECT //
+                        || IObject.class.isAssignableFrom(descriptor.getType()) //
+                        || IHeapObjectArgument.class.isAssignableFrom(descriptor.getType());
+        return isHeapObject;
+    }
+
     private String createArgumentLabel(ArgumentDescriptor descriptor)
     {
         String flag = descriptor.getFlag();
@@ -262,7 +278,7 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
 
         TableEditor editor = createEditor();
 
-        ArgumentEditor aec = TableEditorFactory.createTableEditor(table, descriptor, item);
+        ArgumentEditor aec = TableEditorFactory.createTableEditor(table, context, descriptor, item);
         editor.setEditor(aec, item, 1);
         item.setData(aec);
 
@@ -328,7 +344,7 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
 
         TableEditor editor = createEditor();
 
-        ImageTextEditor aec = new ImageTextEditor(table, descriptor, item, decorator);
+        ImageTextEditor aec = new ImageTextEditor(table, context, descriptor, item, decorator);
         editor.setEditor(aec, item, 1);
         item.setData(aec);
 
@@ -448,7 +464,7 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
 
         TableEditor editor = createEditor();
 
-        ImageTextEditor aec = new ImageTextEditor(table, descriptor, item, decorator);
+        ImageTextEditor aec = new ImageTextEditor(table, context, descriptor, item, decorator);
         editor.setEditor(aec, item, 1);
         item.setData(aec);
 
@@ -472,7 +488,7 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
         item.setText("");
         TableEditor editor = createEditor();
 
-        LinkEditor aec = new LinkEditor(table, descriptor, item, mode);
+        LinkEditor aec = new LinkEditor(table, context, descriptor, item, mode);
         editor.setEditor(aec, item, 1);
         item.setData(aec);
     }
@@ -494,7 +510,7 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
 
         TableEditor editor = createEditor();
 
-        CheckBoxEditor aec = new CheckBoxEditor(table, descriptor, item, type);
+        CheckBoxEditor aec = new CheckBoxEditor(table, context, descriptor, item, type);
         editor.setEditor(aec, item, 1);
         item.setData(aec);
 
@@ -518,13 +534,15 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
         onError(argEditor, null);
         onError(null, null);
 
+        boolean isHeapObject = isHeapObject(descriptor);
+
         boolean isLastOne = descriptor.isMultiple()
-                        && !descriptor.isHeapObject()
+                        && !isHeapObject
                         && (myIndex + 1 == table.getItemCount() || ((ArgumentEditor) table.getItem(myIndex + 1)
                                         .getData()).getDescriptor() != descriptor);
 
         // update argument set -- heap objects
-        if (descriptor.isHeapObject())
+        if (isHeapObject)
         {
             // if (value == null)
             // return;
@@ -637,7 +655,8 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
 
     private HeapObjectParamArgument createHeapObjectDefinition(ArgumentDescriptor descriptor)
     {
-        HeapObjectParamArgument hoa = new HeapObjectParamArgument();
+        ISnapshot snapshot = (ISnapshot) context.get(ISnapshot.class, null);
+        HeapObjectParamArgument hoa = new HeapObjectParamArgument(snapshot);
 
         Control[] children = table.getChildren();
         for (Control control : children)
@@ -719,7 +738,7 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
 
             if (decorator.equals(TextEditor.DecoratorType.QUERY))
             {
-                if(line.equals(""))
+                if (line.equals(""))
                     return;
                 try
                 {
@@ -728,7 +747,7 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
                 catch (SnapshotException e)
                 {
                     // $JL-EXC$
-                    
+
                     // fix: reformat message for proper displaying
                     String msg = e.getMessage();
 

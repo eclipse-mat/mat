@@ -14,18 +14,19 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.mat.impl.query.ArgumentDescriptor;
-import org.eclipse.mat.snapshot.SnapshotException;
+import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.query.IQueryContext;
+import org.eclipse.mat.query.registry.ArgumentDescriptor;
 import org.eclipse.mat.ui.internal.query.arguments.LinkEditor.Mode;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.TableItem;
 
-
 public abstract class ArgumentEditor extends Composite
 {
+    protected IQueryContext context;
     protected ArgumentDescriptor descriptor;
-    private List<IEditorListener> listeners;
+    private List<IEditorListener> listeners = Collections.synchronizedList(new ArrayList<IEditorListener>());
     protected TableItem item;
 
     public interface IEditorListener
@@ -40,11 +41,11 @@ public abstract class ArgumentEditor extends Composite
 
     }
 
-    public ArgumentEditor(Composite parent, final ArgumentDescriptor descriptor, TableItem item)
+    public ArgumentEditor(Composite parent, IQueryContext context, ArgumentDescriptor descriptor, TableItem item)
     {
         super(parent, SWT.NONE);
+        this.context = context;
         this.descriptor = descriptor;
-        this.listeners = Collections.synchronizedList(new ArrayList<IEditorListener>());
         this.item = item;
     }
 

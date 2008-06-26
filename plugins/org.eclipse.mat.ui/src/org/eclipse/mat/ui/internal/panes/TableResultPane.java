@@ -16,27 +16,25 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
-import org.eclipse.mat.impl.query.QueryResult;
-import org.eclipse.mat.impl.result.Filter;
-import org.eclipse.mat.impl.result.RefinedStructuredResult;
-import org.eclipse.mat.impl.result.RefinedTable;
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.IResult;
-import org.eclipse.mat.query.quantize.TQuantize;
+import org.eclipse.mat.query.refined.Filter;
+import org.eclipse.mat.query.refined.RefinedStructuredResult;
+import org.eclipse.mat.query.refined.RefinedTable;
+import org.eclipse.mat.query.registry.QueryResult;
 import org.eclipse.mat.snapshot.ISnapshot;
-import org.eclipse.mat.snapshot.SnapshotException;
+import org.eclipse.mat.snapshot.query.TQuantize;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.internal.viewer.RefinedResultViewer;
 import org.eclipse.mat.ui.internal.viewer.RefinedTableViewer;
 import org.eclipse.mat.ui.util.EasyToolBarDropDown;
 import org.eclipse.mat.ui.util.ErrorHelper;
-import org.eclipse.mat.ui.util.ImageHelper;
 import org.eclipse.mat.ui.util.PopupMenu;
 import org.eclipse.mat.ui.util.ProgressMonitorWrapper;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.ui.PlatformUI;
-
 
 public class TableResultPane extends QueryResultPane
 {
@@ -108,7 +106,7 @@ public class TableResultPane extends QueryResultPane
             else
             {
                 setText(target.getLabel());
-                setImageDescriptor(ImageHelper.getImageDescriptor(target.getIcon()));
+                setImageDescriptor(MemoryAnalyserPlugin.getDefault().getImageDescriptor(target.getIcon()));
             }
         }
 
@@ -118,7 +116,7 @@ public class TableResultPane extends QueryResultPane
             {
                 deactivateViewer();
                 groupedBy = target;
-                activateViewer(new RefinedTableViewer(srcQueryResult, (RefinedTable) srcStructured));
+                activateViewer(new RefinedTableViewer(getQueryContext(), srcQueryResult, (RefinedTable) srcStructured));
             }
             else
             {
@@ -153,7 +151,7 @@ public class TableResultPane extends QueryResultPane
                     {
                         try
                         {
-                            ISnapshot snapshot = getSnapshotInput().getSnapshot();
+                            ISnapshot snapshot = (ISnapshot) getQueryContext().get(ISnapshot.class, null);
                             TQuantize t = TQuantize.defaultValueDistribution(snapshot, (RefinedTable) srcStructured,
                                             target);
                             final IResult subject = t.process(new ProgressMonitorWrapper(monitor));

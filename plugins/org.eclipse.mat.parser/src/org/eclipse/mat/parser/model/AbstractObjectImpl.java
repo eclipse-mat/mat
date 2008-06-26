@@ -14,15 +14,15 @@ import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.Comparator;
 
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayLong;
 import org.eclipse.mat.parser.internal.SnapshotImpl;
 import org.eclipse.mat.snapshot.ISnapshot;
-import org.eclipse.mat.snapshot.SnapshotException;
-import org.eclipse.mat.snapshot.model.ClassSpecificNameResolverRegistry;
 import org.eclipse.mat.snapshot.model.Field;
 import org.eclipse.mat.snapshot.model.GCRootInfo;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.ObjectReference;
+import org.eclipse.mat.snapshot.registry.ClassSpecificNameResolverRegistry;
 
 
 public abstract class AbstractObjectImpl implements IObject, Serializable

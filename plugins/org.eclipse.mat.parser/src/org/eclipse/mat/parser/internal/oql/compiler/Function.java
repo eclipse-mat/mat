@@ -12,9 +12,9 @@ package org.eclipse.mat.parser.internal.oql.compiler;
 
 import java.text.MessageFormat;
 
-import org.eclipse.mat.snapshot.SnapshotException;
-import org.eclipse.mat.snapshot.model.ClassSpecificNameResolverRegistry;
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.snapshot.model.IObject;
+import org.eclipse.mat.snapshot.registry.ClassSpecificNameResolverRegistry;
 import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
 
 

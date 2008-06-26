@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.mat.snapshot.extension;
 
-import org.eclipse.mat.snapshot.SnapshotException;
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.snapshot.model.IClassLoader;
 import org.eclipse.mat.util.IProgressListener;
 

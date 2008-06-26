@@ -1,6 +1,8 @@
 package org.eclipse.mat.snapshot;
 
-
+/**
+ * @noinstantiate
+ */
 public class SnapshotFormat
 {
     private String name;

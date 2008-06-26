@@ -10,8 +10,8 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.preference.PreferenceDialog;
 import org.eclipse.jface.preference.PreferenceManager;
 import org.eclipse.jface.preference.PreferenceNode;
-import org.eclipse.mat.impl.registry.RegistryReader;
 import org.eclipse.mat.ui.rcp.RCPPlugin;
+import org.eclipse.mat.util.RegistryReader;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.PlatformUI;
 

@@ -18,10 +18,10 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.collect.ArrayLong;
 import org.eclipse.mat.parser.internal.SnapshotImpl;
-import org.eclipse.mat.snapshot.SnapshotException;
 import org.eclipse.mat.snapshot.model.Field;
 import org.eclipse.mat.snapshot.model.FieldDescriptor;
 import org.eclipse.mat.snapshot.model.IClass;

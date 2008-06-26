@@ -6,8 +6,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.snapshot.ISnapshot;
-import org.eclipse.mat.snapshot.SnapshotException;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.tests.TestSnapshots;
 import org.eclipse.mat.util.VoidProgressListener;

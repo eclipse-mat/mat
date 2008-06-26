@@ -12,6 +12,8 @@ package org.eclipse.mat.snapshot;
 
 import java.util.Collection;
 
+import org.eclipse.mat.SnapshotException;
+
 /**
  * Interface describing an interactive computer for paths from GC roots to an
  * object. You will get such a computer from the {@link ISnapshot} API.
@@ -22,6 +24,8 @@ import java.util.Collection;
  * its class and from the class to its class loader you can even see why a class
  * or class loader remains in memory, i.e. which other objects hold references
  * to objects of the class or class loader of interest.
+ * 
+ * @noimplement
  */
 public interface IPathsFromGCRootsComputer
 {

@@ -15,7 +15,7 @@
 			<br/> In this cheat sheet we will use a sample heap dump. Please open it by
 			activating the action link below.
       </description>
-      <action class="org.eclipse.mat.ui.internal.actions.OpenSampleHeapDumpAction" pluginId="org.eclipse.mat.ui" confirm="false" param1="org.eclipse.mat.ui.help/heapdump/HeapDumpSample.hprof">
+      <action class="org.eclipse.mat.ui.snapshot.actions.OpenSampleHeapDumpAction" pluginId="org.eclipse.mat.ui" confirm="false" param1="org.eclipse.mat.ui.help/heapdump/HeapDumpSample.hprof">
       </action>
    </item>
    <item title="Open Class Histogram" dialog="true" skip="false" href="/org.eclipse.mat.ui.help/html/45/af861f44e76002e10000000a1553f6/content.htm">
@@ -28,7 +28,7 @@
 			<b>Open Class Histogram</b>
 			<br/> toolbar button.
       </description>
-      <action class="org.eclipse.mat.ui.internal.actions.OpenSampleHeapDumpAction" pluginId="org.eclipse.mat.ui" confirm="false" param1="org.eclipse.mat.ui.help/heapdump/HeapDumpSample.hprof" param2="histogram">
+      <action class="org.eclipse.mat.ui.snapshot.actions.OpenSampleHeapDumpAction" pluginId="org.eclipse.mat.ui" confirm="false" param1="org.eclipse.mat.ui.help/heapdump/HeapDumpSample.hprof" param2="histogram">
       </action>
    </item>
    <item title="Sort histogram by classloader" dialog="true" skip="true" href="/org.eclipse.mat.ui.help/html/45/af861f44e76002e10000000a1553f6/content.htm">

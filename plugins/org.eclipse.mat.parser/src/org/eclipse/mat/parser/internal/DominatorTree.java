@@ -14,17 +14,17 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayUtils;
 import org.eclipse.mat.collect.BitField;
 import org.eclipse.mat.collect.IteratorInt;
-import org.eclipse.mat.impl.snapshot.internal.SimpleMonitor;
 import org.eclipse.mat.parser.index.IIndexReader;
 import org.eclipse.mat.parser.index.IndexManager;
 import org.eclipse.mat.parser.index.IndexWriter;
 import org.eclipse.mat.parser.index.IndexManager.Index;
 import org.eclipse.mat.parser.internal.util.IntStack;
-import org.eclipse.mat.snapshot.SnapshotException;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.SimpleMonitor;
 
 
 public class DominatorTree

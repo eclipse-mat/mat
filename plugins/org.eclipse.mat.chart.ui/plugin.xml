@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.2"?>
 <plugin>
-   <extension point="org.eclipse.mat.ui.resultPanes">
-      <pane class="org.eclipse.mat.ui.internal.chart.PieChartPane">
-         <result type="org.eclipse.mat.query.IResultPie" />
-      </pane>
-   </extension>
+	<extension point="org.eclipse.mat.ui.editorPanes">
+		<pane id="PieChartPane" class="org.eclipse.mat.ui.internal.chart.PieChartPane">
+			<result type="org.eclipse.mat.query.IResultPie" />
+		</pane>
+	</extension>
 
 </plugin>

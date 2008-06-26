@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.hprof.extension.IRuntimeEnhancer;
 import org.eclipse.mat.hprof.internal.EnhancerRegistry;
 import org.eclipse.mat.parser.IObjectReader;
@@ -22,8 +23,6 @@ import org.eclipse.mat.parser.index.IIndexReader;
 import org.eclipse.mat.parser.index.IndexReader;
 import org.eclipse.mat.parser.model.AbstractArrayImpl.IContentDescriptor;
 import org.eclipse.mat.snapshot.ISnapshot;
-import org.eclipse.mat.snapshot.ISnapshotAddon;
-import org.eclipse.mat.snapshot.SnapshotException;
 import org.eclipse.mat.snapshot.model.IObject;
 
 public class HprofHeapObjectReader implements IObjectReader
@@ -69,7 +68,7 @@ public class HprofHeapObjectReader implements IObjectReader
         return hprofDump.read(objectId, filePosition, snapshot);
     }
 
-    public <A extends ISnapshotAddon> A getAddon(Class<A> addon) throws SnapshotException
+    public <A> A getAddon(Class<A> addon) throws SnapshotException
     {
         for (IRuntimeEnhancer enhancer : enhancers)
         {

@@ -18,7 +18,6 @@ import org.eclipse.jface.action.ContributionItem;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
-import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.SnapshotHistoryService;
 import org.eclipse.mat.ui.editor.PathEditorInput;
 import org.eclipse.swt.SWT;
@@ -220,7 +219,7 @@ public class AddHistoryToMenuAction extends ContributionItem
                             {
                                 IDE.openEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(),
                                                 new PathEditorInput(new Path(entry.getFilePath())),
-                                                MemoryAnalyserPlugin.EDITOR_ID, true);
+                                                entry.getEditorId(), true);
                                 if (PlatformUI.getWorkbench().getIntroManager().getIntro() != null)
                                 {
                                     // if this action was called with open

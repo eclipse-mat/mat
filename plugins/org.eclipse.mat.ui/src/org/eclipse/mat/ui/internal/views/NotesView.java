@@ -10,7 +10,15 @@
  *******************************************************************************/
 package org.eclipse.mat.ui.internal.views;
 
-import java.math.BigInteger;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -44,13 +52,10 @@ import org.eclipse.jface.text.hyperlink.IHyperlinkDetector;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
-import org.eclipse.mat.impl.snapshot.notes.NotesManager;
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.ContextProvider;
 import org.eclipse.mat.query.IContextObject;
-import org.eclipse.mat.snapshot.ISnapshot;
-import org.eclipse.mat.snapshot.SnapshotException;
-import org.eclipse.mat.ui.editor.HeapEditor;
-import org.eclipse.mat.ui.editor.ISnapshotEditorInput;
+import org.eclipse.mat.ui.editor.MultiPaneEditor;
 import org.eclipse.mat.ui.util.PopupMenu;
 import org.eclipse.mat.ui.util.QueryContextMenu;
 import org.eclipse.swt.SWT;
@@ -79,21 +84,22 @@ import org.eclipse.ui.texteditor.IUpdate;
 
 public class NotesView extends ViewPart implements IPartListener, Observer
 {
-    private String snapshotPath;
-    private static Menu menu;
+    private static final int UNDO_LEVEL = 10;
+
+    private File resource;
     private DisposeListener disposeListener;
 
-    Action undo;
-    Action redo;
+    private Action undo;
+    private Action redo;
 
-    Font font;
-    Color hyperlinkColor;
+    private Menu menu;
+    private Font font;
+    private Color hyperlinkColor;
 
-    HeapEditor heapEditor;
+    private MultiPaneEditor editor;
 
     private TextViewer textViewer;
-    private static final int UNDO_LEVEL = 10;
-    TextViewerUndoManager undoManager;
+    private TextViewerUndoManager undoManager;
     private Map<String, NotesViewAction> actions = new HashMap<String, NotesViewAction>();
 
     @Override
@@ -134,7 +140,6 @@ public class NotesView extends ViewPart implements IPartListener, Observer
             }
         });
 
-        // TODO(en) make it work without keyListener
         textViewer.getTextWidget().addKeyListener(new KeyAdapter()
         {
             public void keyPressed(KeyEvent event)
@@ -164,7 +169,6 @@ public class NotesView extends ViewPart implements IPartListener, Observer
         makeActions();
         hookContextMenu();
         showBootstrapPart();
-        NotesManager.instance().addObserver(this);
         updateActions();
     }
 
@@ -252,19 +256,19 @@ public class NotesView extends ViewPart implements IPartListener, Observer
             return;
 
         textViewer.getControl().setEnabled(true);
-        this.heapEditor = (HeapEditor) part;
-        String path = ((ISnapshotEditorInput) heapEditor.getPaneEditorInput()).getPath().toOSString();
+        editor = (MultiPaneEditor) part;
+        File path = editor.getResourceFile();
 
-        if (!path.equals(this.snapshotPath))
+        if (path != null && !path.equals(resource))
         {
-            this.snapshotPath = path;
-            this.updateTextViewer();
+            resource = path;
+            updateTextViewer();
         }
     }
 
     public void partBroughtToTop(IWorkbenchPart part)
     {
-        if (snapshotPath != null && undoManager.undoable())
+        if (resource != null && undoManager.undoable())
             saveNotes();
         partActivated(part);
     }
@@ -273,14 +277,14 @@ public class NotesView extends ViewPart implements IPartListener, Observer
     {
         if (!supportsNotes(part)) { return; }
 
-        HeapEditor heapEditor = (HeapEditor) part;
-        String path = ((ISnapshotEditorInput) heapEditor.getPaneEditorInput()).getPath().toOSString();
+        MultiPaneEditor editor = (MultiPaneEditor) part;
+        File resource = editor.getResourceFile();
 
-        if (path.equals(this.snapshotPath))
+        if (resource.equals(this.resource))
         {
             if (undoManager.undoable())
                 saveNotes();
-            this.snapshotPath = null;
+            this.resource = null;
             this.updateTextViewer();
         }
     }
@@ -314,7 +318,7 @@ public class NotesView extends ViewPart implements IPartListener, Observer
     {
         String path = (String) arg;
 
-        if (path == null || path.equals(this.snapshotPath))
+        if (path == null || path.equals(this.resource))
         {
             updateTextViewer();
         }
@@ -323,12 +327,12 @@ public class NotesView extends ViewPart implements IPartListener, Observer
     private void updateTextViewer()
     {
         // get notes.txt and if it's not null set is as input
-        if (snapshotPath != null)
+        if (resource != null)
         {
-            StringBuffer buffer = NotesManager.instance().getSnapshotNotes(snapshotPath);
+            String buffer = readNotes(resource);
             if (buffer != null)
             {
-                Document document = new Document(buffer.toString());
+                Document document = new Document(buffer);
                 textViewer.setDocument(document);
                 revealEndOfDocument();
             }
@@ -344,7 +348,7 @@ public class NotesView extends ViewPart implements IPartListener, Observer
 
     private void searchForHyperlinks(String allText, int offset)
     {
-        if (snapshotPath == null)
+        if (resource == null)
             return;
         Pattern addressPattern = Pattern.compile("0x\\p{XDigit}+");//$NON-NLS-1$        
         String[] fields = allText.split("\\W", 0);
@@ -355,7 +359,7 @@ public class NotesView extends ViewPart implements IPartListener, Observer
             if (addressPattern.matcher(field).matches())
             {
                 IRegion idRegion = new Region(offset, field.length());
-                IdHyperlink hyperlink = new IdHyperlink(field, heapEditor, idRegion);
+                IdHyperlink hyperlink = new IdHyperlink(field, editor, idRegion);
                 hyperlinks.add(hyperlink);
             }
             offset = offset + field.length() + 1; // length of the splitter
@@ -380,11 +384,11 @@ public class NotesView extends ViewPart implements IPartListener, Observer
 
     private void saveNotes()
     {
-        if (snapshotPath != null)
+        if (resource != null)
         {
             String text = textViewer.getDocument().get();
             if (text != null && text.trim() != "")
-                NotesManager.instance().saveNotes(snapshotPath, text);
+                saveNotes(resource, text);
             resetUndoManager();
         }
     }
@@ -392,7 +396,6 @@ public class NotesView extends ViewPart implements IPartListener, Observer
     @Override
     public void dispose()
     {
-        NotesManager.instance().deleteObserver(this);
         undoManager.disconnect();
         getSite().getPage().removePartListener(this);
         getSite().getShell().removeDisposeListener(disposeListener);
@@ -407,7 +410,7 @@ public class NotesView extends ViewPart implements IPartListener, Observer
 
     private boolean supportsNotes(IWorkbenchPart part)
     {
-        if (part instanceof HeapEditor)
+        if (part instanceof MultiPaneEditor)
         {
             textViewer.getControl().setEnabled(true);
             return true;
@@ -432,19 +435,17 @@ public class NotesView extends ViewPart implements IPartListener, Observer
         undoManager.reset();
     }
 
-    private static final class IdHyperlink implements IHyperlink
+    private final class IdHyperlink implements IHyperlink
     {
 
         String id;
-        ISnapshot snapshot;
-        HeapEditor editor;
+        MultiPaneEditor editor;
         IRegion region;
 
-        public IdHyperlink(String id, HeapEditor editor, IRegion region)
+        public IdHyperlink(String id, MultiPaneEditor editor, IRegion region)
         {
             this.id = id;
             this.editor = editor;
-            this.snapshot = editor.getSnapshotInput().getSnapshot();
             this.region = region;
         }
 
@@ -467,10 +468,7 @@ public class NotesView extends ViewPart implements IPartListener, Observer
         {
             try
             {
-                long objectAddress = new BigInteger(id.substring(2), 16).longValue();
-
-                final int objectId = snapshot.mapAddressToId(objectAddress);
-
+                final int objectId = editor.getQueryContext().mapToObjectId(id);
                 if (objectId < 0)
                     return;
 
@@ -571,14 +569,14 @@ public class NotesView extends ViewPart implements IPartListener, Observer
             if (address != null && addressPattern.matcher(address).matches())
             {
                 IRegion idRegion = new Region(startIndex, address.length());
-                return new IHyperlink[] { new IdHyperlink(address, heapEditor, idRegion) };
+                return new IHyperlink[] { new IdHyperlink(address, editor, idRegion) };
             }
             else
                 return null;
         }
     }
 
-    class NotesViewAction extends Action implements IUpdate
+    private class NotesViewAction extends Action implements IUpdate
     {
         private int actionId;
 
@@ -603,6 +601,98 @@ public class NotesView extends ViewPart implements IPartListener, Observer
             if (super.isEnabled() != isEnabled())
                 setEnabled(isEnabled());
         }
+    }
+
+    // //////////////////////////////////////////////////////////////
+    // notes management
+    // //////////////////////////////////////////////////////////////
+
+    private static String readNotes(File resourcePath)
+    {
+        try
+        {
+            if (resourcePath != null)
+            {
+                File notesFile = getDefaultNotesFile(resourcePath);
+                if (notesFile.exists())
+                {
+                    FileReader fileReader = new FileReader(getDefaultNotesFile(resourcePath));
+
+                    BufferedReader myInput = new BufferedReader(fileReader);
+
+                    try
+                    {
+                        String s;
+                        StringBuffer b = new StringBuffer();
+                        while ((s = myInput.readLine()) != null)
+                        {
+                            b.append(s);
+                            b.append("\n");
+                        }
+                        return b.toString();
+                    }
+                    finally
+                    {
+                        try
+                        {
+                            myInput.close();
+                        }
+                        catch (IOException ignore)
+                        {}
+                    }
+                }
+            }
+
+            return null;
+        }
+        catch (FileNotFoundException e)
+        {
+            throw new RuntimeException(e);
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static void saveNotes(File resource, String notes)
+    {
+        OutputStream fout = null;
+
+        try
+        {
+            File notesFile = getDefaultNotesFile(resource);
+
+            fout = new FileOutputStream(notesFile);
+            OutputStreamWriter out = new OutputStreamWriter(new BufferedOutputStream(fout), "UTF8");
+            out.write(notes);
+            out.flush();
+            out.close();
+        }
+        catch (FileNotFoundException e)
+        {
+            throw new RuntimeException(e);
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException(e);
+        }
+        finally
+        {
+            try
+            {
+                fout.close();
+            }
+            catch (IOException ignore)
+            {}
+        }
+    }
+
+    private static File getDefaultNotesFile(File resource)
+    {
+        String filename = resource.getAbsolutePath();
+        int p = filename.lastIndexOf('.');
+        return new File(filename.substring(0, p + 1) + "notes.txt");
     }
 
 }

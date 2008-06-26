@@ -10,9 +10,6 @@
  *******************************************************************************/
 package org.eclipse.mat.ui.internal.viewer;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -30,26 +27,25 @@ import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.resource.LocalResourceManager;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredSelection;
-import org.eclipse.mat.impl.query.QueryResult;
-import org.eclipse.mat.impl.result.Filter;
-import org.eclipse.mat.impl.result.RefinedStructuredResult;
-import org.eclipse.mat.impl.result.TotalsRow;
-import org.eclipse.mat.impl.result.RefinedStructuredResult.CalculationJobDefinition;
-import org.eclipse.mat.impl.test.IOutputter;
-import org.eclipse.mat.impl.test.OutputterRegistry;
-import org.eclipse.mat.impl.test.ResultRenderer.RenderingInfo;
 import org.eclipse.mat.query.Column;
+import org.eclipse.mat.query.ContextDerivedData;
 import org.eclipse.mat.query.ContextProvider;
 import org.eclipse.mat.query.IContextObject;
+import org.eclipse.mat.query.IQueryContext;
+import org.eclipse.mat.query.ContextDerivedData.DerivedColumn;
+import org.eclipse.mat.query.ContextDerivedData.DerivedOperation;
+import org.eclipse.mat.query.refined.Filter;
+import org.eclipse.mat.query.refined.RefinedStructuredResult;
+import org.eclipse.mat.query.refined.TotalsRow;
+import org.eclipse.mat.query.refined.RefinedStructuredResult.DerivedDataJobDefinition;
+import org.eclipse.mat.query.registry.QueryResult;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
-import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.editor.AbstractEditorPane;
 import org.eclipse.mat.ui.editor.AbstractPaneJob;
-import org.eclipse.mat.ui.editor.HeapEditor;
+import org.eclipse.mat.ui.editor.MultiPaneEditor;
 import org.eclipse.mat.ui.util.Copy;
 import org.eclipse.mat.ui.util.EasyToolBarDropDown;
 import org.eclipse.mat.ui.util.ErrorHelper;
-import org.eclipse.mat.ui.util.ImageHelper;
 import org.eclipse.mat.ui.util.PopupMenu;
 import org.eclipse.mat.ui.util.ProgressMonitorWrapper;
 import org.eclipse.mat.ui.util.QueryContextMenu;
@@ -84,13 +80,6 @@ public abstract class RefinedResultViewer
     protected static final int MAX_COLUMN_WIDTH = 500;
     protected static final int MIN_COLUMN_WIDTH = 90;
 
-    private static final String[] TXT_FILTER_NAMES = { "Plain Text(*.txt)" }; //$NON-NLS-1$
-    private static final String[] HTML_FILTER_NAMES = { "Web Page (*.html)" }; //$NON-NLS-1$
-
-    // These filter extensions are used to filter which files are displayed.
-    private static final String[] TXT_FILTER_EXTS = { "*.txt" }; //$NON-NLS-1$
-    private static final String[] HTML_FILTER_EXTS = { "*.html" }; //$NON-NLS-1$
-
     /* package */interface Key
     {
         String CONTROL = "$control";
@@ -115,6 +104,11 @@ public abstract class RefinedResultViewer
         public String toString()
         {
             return level + " " + hashCode() + " " + totals;
+        }
+
+        public TotalsRow getTotals()
+        {
+            return totals;
         }
 
     }
@@ -169,7 +163,7 @@ public abstract class RefinedResultViewer
     }
 
     /** pane in which the viewer is embedded */
-    protected HeapEditor editor;
+    protected MultiPaneEditor editor;
 
     /** the editor pane */
     protected AbstractEditorPane pane;
@@ -202,11 +196,12 @@ public abstract class RefinedResultViewer
     /** colors used for decorated columns */
     protected Color[] colors;
 
+    protected IQueryContext context;
     protected QueryResult queryResult;
     protected RefinedStructuredResult result;
 
     /** details a/b retained size calculation */
-    protected List<CalculationJobDefinition> jobs;
+    protected List<DerivedDataJobDefinition> jobs;
 
     protected QueryContextMenu contextMenu;
     protected TotalsRow rootTotalsRow;
@@ -216,16 +211,17 @@ public abstract class RefinedResultViewer
     // initialization
     // //////////////////////////////////////////////////////////////
 
-    /* package */RefinedResultViewer(QueryResult result, RefinedStructuredResult refinedResult)
+    /* package */RefinedResultViewer(IQueryContext context, QueryResult result, RefinedStructuredResult refinedResult)
     {
+        this.context = context;
         this.queryResult = result;
         this.result = refinedResult;
-        this.jobs = new ArrayList<CalculationJobDefinition>(refinedResult.getJobs());
+        this.jobs = new ArrayList<DerivedDataJobDefinition>(refinedResult.getJobs());
     }
 
-    public abstract void init(Composite parent, HeapEditor editor, AbstractEditorPane pane);
+    public abstract void init(Composite parent, MultiPaneEditor editor, AbstractEditorPane pane);
 
-    protected void init(WidgetAdapter viewer, Composite parent, HeapEditor editor, AbstractEditorPane pane)
+    protected void init(WidgetAdapter viewer, Composite parent, MultiPaneEditor editor, AbstractEditorPane pane)
     {
         this.adapter = viewer;
         this.editor = editor;
@@ -239,7 +235,7 @@ public abstract class RefinedResultViewer
             {
 
                 public void focusGained(FocusEvent e)
-                {                    
+                {
                     RefinedResultViewer.this.editor.getEditorSite().getActionBars().setGlobalActionHandler(
                                     ActionFactory.COPY.getId(), new Action()
                                     {
@@ -361,7 +357,7 @@ public abstract class RefinedResultViewer
 
         URL image = result.getIcon(element);
         if (image != null)
-            item.setImage(ImageHelper.getImage(image));
+            item.setImage(MemoryAnalyserPlugin.getDefault().getImage(image));
 
         for (int ii = 0; ii < columns.length; ii++)
         {
@@ -383,7 +379,7 @@ public abstract class RefinedResultViewer
 
     protected void applyTotals(Item item, TotalsRow totalsRow)
     {
-        item.setImage(ImageHelper.getImage(totalsRow.getIcon()));
+        item.setImage(MemoryAnalyserPlugin.getDefault().getImage(totalsRow.getIcon()));
 
         for (int ii = 0; ii < columns.length; ii++)
             adapter.apply(item, ii, totalsRow.getLabel(ii));
@@ -591,33 +587,25 @@ public abstract class RefinedResultViewer
             {
                 menu.addSeparator();
 
-                Action action = new Action(Messages.label_calc_min_retained_size)
+                for (DerivedColumn derivedColumn : context.getContextDerivedData().getDerivedColumns())
                 {
-                    @Override
-                    public void run()
+                    for (final DerivedOperation derivedOperation : derivedColumn.getOperations())
                     {
-                        doCalculatedRetainedSizesForSelection(provider, true);
+                        Action action = new Action(derivedOperation.getLabel())
+                        {
+                            @Override
+                            public void run()
+                            {
+                                doCalculateDerivedValuesForSelection(provider, derivedOperation);
+                            }
+                        };
+
+                        action.setImageDescriptor(MemoryAnalyserPlugin
+                                        .getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.CALCULATOR));
+                        menu.add(action);
                     }
-                };
-
-                action.setImageDescriptor(MemoryAnalyserPlugin
-                                .getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.CALCULATOR));
-                menu.add(action);
-
-                action = new Action(Messages.label_calc_precise_retained_size)
-                {
-                    @Override
-                    public void run()
-                    {
-                        doCalculatedRetainedSizesForSelection(provider, false);
-                    }
-                };
-
-                action.setImageDescriptor(MemoryAnalyserPlugin
-                                .getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.CALCULATOR));
-                menu.add(action);
+                }
             }
-
         };
     }
 
@@ -663,7 +651,6 @@ public abstract class RefinedResultViewer
 
     public void contributeToToolBar(IToolBarManager manager)
     {
-
         Action calculateRetainedSizeMenu = new EasyToolBarDropDown("Calculate retained size", //
                         MemoryAnalyserPlugin.getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.CALCULATOR), //
                         editor)
@@ -699,32 +686,28 @@ public abstract class RefinedResultViewer
 
             private void addRetainedSizeActions(PopupMenu toThisMenu, final ContextProvider cp)
             {
-                Action action = new Action(Messages.label_calc_min_retained_size)
+                ContextDerivedData derivedData = context.getContextDerivedData();
+                if (derivedData == null)
+                    return;
+
+                for (DerivedColumn derivedColumn : derivedData.getDerivedColumns())
                 {
-                    @Override
-                    public void run()
+                    for (final DerivedOperation derivedOperation : derivedColumn.getOperations())
                     {
-                        doCalculateRetainedSizesForAll(cp, true);
+                        Action action = new Action(derivedOperation.getLabel())
+                        {
+                            @Override
+                            public void run()
+                            {
+                                doCalculateDerivedValuesForAll(cp, derivedOperation);
+                            }
+                        };
+
+                        action.setImageDescriptor(MemoryAnalyserPlugin
+                                        .getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.CALCULATOR));
+                        toThisMenu.add(action);
                     }
-                };
-
-                action.setImageDescriptor(MemoryAnalyserPlugin
-                                .getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.CALCULATOR));
-                toThisMenu.add(action);
-
-                action = new Action(Messages.label_calc_precise_retained_size)
-                {
-                    @Override
-                    public void run()
-                    {
-                        doCalculateRetainedSizesForAll(cp, false);
-                    }
-                };
-
-                action.setImageDescriptor(MemoryAnalyserPlugin
-                                .getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.CALCULATOR));
-                toThisMenu.add(action);
-
+                }
             }
         };
 
@@ -736,85 +719,9 @@ public abstract class RefinedResultViewer
             @Override
             public void contribute(PopupMenu menu)
             {
-                Action action = new Action("Export to HTML...")
-                {
-                    @Override
-                    public void run()
-                    {
-                        ExportDialog dialog = new ExportDialog(control.getShell(), HTML_FILTER_NAMES, HTML_FILTER_EXTS);
-                        String fileName = dialog.open();
-                        try
-                        {
-                            if (fileName != null)
-                            {
-                                IOutputter outputter = OutputterRegistry.instance().get("html");
-                                PrintWriter writer = new PrintWriter(new FileWriter(fileName));
-                                RenderingInfo rInfo = new RenderingInfo(result.getColumns().length);
-                                outputter.process(null, null, result, rInfo, writer);
-                                writer.flush();
-                                writer.close();
-                            }
-                        }
-                        catch (IOException e)
-                        {
-                            throw new RuntimeException("Error in export to HTML: data type not supported for export.",
-                                            e);
-                        }
-                    }
-                };
-
-                action.setImageDescriptor(MemoryAnalyserPlugin
-                                .getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.EXPORT_HTML));
-                // TODO(en) implement export to HTML
-                // menu.add(action);
-
-                action = new Action("Export to CSV...")
-                {
-                    @Override
-                    public void run()
-                    {
-                        ExportDialog dialog = new ExportDialog(control.getShell());
-                        String fileName = dialog.open();
-                        try
-                        {
-                            if (fileName != null)
-                            {
-                                IOutputter outputter = OutputterRegistry.instance().get("csv");
-                                PrintWriter writer = new PrintWriter(new FileWriter(fileName));
-                                RenderingInfo rInfo = new RenderingInfo(result.getColumns().length);
-                                outputter.process(null, null, result, rInfo, writer);
-                                writer.flush();
-                                writer.close();
-                            }
-                        }
-                        catch (IOException e)
-                        {
-                            throw new RuntimeException("Error in export to .csv: data type not supported for export.",
-                                            e);
-                        }
-                    }
-                };
-
-                action.setImageDescriptor(MemoryAnalyserPlugin
-                                .getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.EXPORT_CSV));
-                menu.add(action);
-
-                action = new Action("Export to TXT...")
-                {
-                    public void run()
-                    {
-                        ExportDialog dialog = new ExportDialog(control.getShell(), TXT_FILTER_NAMES, TXT_FILTER_EXTS);
-                        String fileName = dialog.open();
-                        if (fileName != null)
-                        {
-                            Copy.exportToTxtFile(control, fileName);
-                        }
-                    }
-                };
-                action.setImageDescriptor(MemoryAnalyserPlugin
-                                .getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.EXPORT_TXT));
-                menu.add(action);
-
+                menu.add(new ExportActions.HtmlExport(control, result, context));
+                menu.add(new ExportActions.CsvExport(control, result, context));
+                menu.add(new ExportActions.TxtExport(control));
             }
         };
 
@@ -1039,17 +946,19 @@ public abstract class RefinedResultViewer
     // retained size calculation for all/selection
     // //////////////////////////////////////////////////////////////
 
-    public void showRetainedSizeColumn(ContextProvider provider)
+    public void showDerivedDataColumn(ContextProvider provider, DerivedOperation operation)
     {
-        prepareColumns(provider);
+        prepareColumns(provider, operation);
     }
 
-    protected void prepareColumns(ContextProvider provider)
+    protected void prepareColumns(ContextProvider provider, DerivedOperation operation)
     {
-        Column queryColumn = result.getColumnFor(provider);
+        DerivedColumn derivedColumn = context.getContextDerivedData().lookup(operation);
+
+        Column queryColumn = result.getColumnFor(provider, derivedColumn);
         if (queryColumn == null)
         {
-            queryColumn = result.addRetainedSizeColumn(provider);
+            queryColumn = result.addDerivedDataColumn(provider, derivedColumn);
 
             Item column = adapter.createColumn(queryColumn, this.columns.length, new ColumnSelectionListener());
 
@@ -1062,31 +971,31 @@ public abstract class RefinedResultViewer
         }
     }
 
-    protected void doCalculateRetainedSizesForAll(ContextProvider provider, boolean approximation)
+    protected void doCalculateDerivedValuesForAll(ContextProvider provider, DerivedOperation operation)
     {
-        prepareColumns(provider);
+        prepareColumns(provider, operation);
 
         boolean jobFound = false;
-        for (CalculationJobDefinition job : jobs)
+        for (DerivedDataJobDefinition job : jobs)
         {
             if (job.getContextProvider().hasSameTarget(provider))
             {
                 jobFound = true;
-                if (!approximation && job.isApproximation())
-                    job.setApproximation(false);
+                job.setOperation(operation);
+                break;
             }
         }
 
         if (!jobFound)
-            jobs.add(new CalculationJobDefinition(provider, approximation));
+            jobs.add(new DerivedDataJobDefinition(provider, operation));
 
         ControlItem ctrl = (ControlItem) control.getData(Key.CONTROL);
-        new RetainedSizeJob.OnFullList(this, provider, ctrl.children, approximation, null, ctrl).schedule();
+        new DerivedDataJob.OnFullList(this, provider, operation, ctrl.children, null, ctrl).schedule();
     }
 
-    protected void doCalculatedRetainedSizesForSelection(ContextProvider provider, boolean approximation)
+    protected void doCalculateDerivedValuesForSelection(ContextProvider provider, DerivedOperation operation)
     {
-        prepareColumns(provider);
+        prepareColumns(provider, operation);
 
         Item[] items = adapter.getSelection();
         if (items.length == 0)
@@ -1107,7 +1016,7 @@ public abstract class RefinedResultViewer
 
         if (widgetItems.size() > 0)
         {
-            new RetainedSizeJob.OnSelection(this, provider, subjectItems, approximation, widgetItems).schedule();
+            new DerivedDataJob.OnSelection(this, provider, operation, subjectItems, widgetItems).schedule();
         }
     }
 
@@ -1242,10 +1151,10 @@ public abstract class RefinedResultViewer
                 updateDisplay();
                 calculateTotals(monitor);
 
-                for (RefinedStructuredResult.CalculationJobDefinition job : viewer.jobs)
+                for (RefinedStructuredResult.DerivedDataJobDefinition job : viewer.jobs)
                 {
-                    new RetainedSizeJob.OnFullList(viewer, job.getContextProvider(), ctrl.children, job
-                                    .isApproximation(), parentItem, ctrl).schedule();
+                    new DerivedDataJob.OnFullList(viewer, job.getContextProvider(), job.getOperation(), ctrl.children,
+                                    parentItem, ctrl).schedule();
                 }
 
                 return Status.OK_STATUS;

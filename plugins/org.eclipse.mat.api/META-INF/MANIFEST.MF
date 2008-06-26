@@ -4,34 +4,16 @@ Bundle-Name: Memory Analyzer API (Incubation)
 Bundle-SymbolicName: org.eclipse.mat.api;singleton:=true
 Bundle-Version: 0.7.0.qualifier
 Bundle-Vendor: Eclipse.org
-Export-Package:  org.eclipse.mat.collect,
- org.eclipse.mat.impl.query,
- org.eclipse.mat.impl.registry,
- org.eclipse.mat.impl.result,
- org.eclipse.mat.impl.snapshot,
- org.eclipse.mat.impl.snapshot.extract,
- org.eclipse.mat.impl.snapshot.internal,
- org.eclipse.mat.impl.snapshot.notes,
- org.eclipse.mat.impl.test,
- org.eclipse.mat.impl.test.csv,
- org.eclipse.mat.impl.test.html,
- org.eclipse.mat.inspections.query,
- org.eclipse.mat.inspections.query.collections,
- org.eclipse.mat.inspections.query.finalizer,
- org.eclipse.mat.inspections.query.sidecar,
- org.eclipse.mat.inspections.query.util,
- org.eclipse.mat.inspections.tests,
- org.eclipse.mat.query,
- org.eclipse.mat.query.annotations,
- org.eclipse.mat.query.quantize,
- org.eclipse.mat.query.results,
+Export-Package: org.eclipse.mat.internal.snapshot;x-friends:="org.eclipse.mat.ui",
  org.eclipse.mat.snapshot,
  org.eclipse.mat.snapshot.extension,
+ org.eclipse.mat.snapshot.inspections,
  org.eclipse.mat.snapshot.model,
- org.eclipse.mat.test,
- org.eclipse.mat.util
-Require-Bundle: org.eclipse.core.runtime;bundle-version="3.3.100"
-Bundle-Activator: org.eclipse.mat.ApiPlugin
+ org.eclipse.mat.snapshot.query,
+ org.eclipse.mat.snapshot.registry
+Require-Bundle: org.eclipse.core.runtime;bundle-version="3.3.100",
+ org.eclipse.mat.report;bundle-version="[0.7.0.20080620,0.7.1)";visibility:=reexport
+Bundle-Activator: org.eclipse.mat.internal.MATPlugin
 Eclipse-LazyStart: true
 Bundle-ActivationPolicy: lazy
 Eclipse-BuddyPolicy: registered

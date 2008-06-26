@@ -18,8 +18,8 @@ import java.text.MessageFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.HashMapLongObject;
-import org.eclipse.mat.impl.snapshot.internal.SimpleMonitor;
 import org.eclipse.mat.parser.io.PositionInputStream;
 import org.eclipse.mat.parser.model.ClassImpl;
 import org.eclipse.mat.snapshot.model.Field;
@@ -28,6 +28,7 @@ import org.eclipse.mat.snapshot.model.GCRootInfo;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IPrimitiveArray;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.SimpleMonitor;
 
 public class Pass1Parser extends AbstractParser
 {
@@ -45,7 +46,7 @@ public class Pass1Parser extends AbstractParser
         this.monitor = monitor;
     }
 
-    public void read(File file) throws IOException
+    public void read(File file) throws SnapshotException, IOException
     {
         in = new PositionInputStream(new BufferedInputStream(new FileInputStream(file)));
 
@@ -58,7 +59,7 @@ public class Pass1Parser extends AbstractParser
             // identifierSize (32 or 64 bit)
             idSize = in.readInt();
             if (idSize != 4 && idSize != 8)
-                throw new IOException("Only 32bit and 64bit dumps are supported.");
+                throw new SnapshotException("Only 32bit and 64bit dumps are supported.");
             handler.addProperty(IHprofParserHandler.IDENTIFIER_SIZE, String.valueOf(idSize));
 
             // creation date
@@ -80,7 +81,8 @@ public class Pass1Parser extends AbstractParser
 
                 long length = readUnsignedInt();
                 if (length < 0)
-                    throw new IOException(MessageFormat.format("Illegal record length at byte {0}", in.position()));
+                    throw new SnapshotException(MessageFormat
+                                    .format("Illegal record length at byte {0}", in.position()));
 
                 switch (record)
                 {
@@ -132,7 +134,7 @@ public class Pass1Parser extends AbstractParser
         class2name.put(classID, className);
     }
 
-    private void readDumpSegments(long length) throws IOException
+    private void readDumpSegments(long length) throws IOException, SnapshotException
     {
         long segmentStartPos = in.position();
         long segmentsEndPos = segmentStartPos + length;
@@ -190,7 +192,7 @@ public class Pass1Parser extends AbstractParser
                     readPrimitiveArrayDump(segmentStartPos);
                     break;
                 default:
-                    throw new IOException(MessageFormat.format("Error: Invalid heap dump file.\n"
+                    throw new SnapshotException(MessageFormat.format("Error: Invalid heap dump file.\n"
                                     + "Unsupported segment type {0} at position {1}", segmentType, segmentStartPos));
             }
 
@@ -342,7 +344,7 @@ public class Pass1Parser extends AbstractParser
         in.skipBytes(size * idSize);
     }
 
-    private void readPrimitiveArrayDump(long segmentStartPos) throws IOException
+    private void readPrimitiveArrayDump(long segmentStartPos) throws SnapshotException, IOException
     {
         long address = readID();
         handler.reportInstance(address, segmentStartPos);
@@ -352,7 +354,7 @@ public class Pass1Parser extends AbstractParser
         byte elementType = in.readByte();
 
         if ((elementType < IPrimitiveArray.Type.BOOLEAN) || (elementType > IPrimitiveArray.Type.LONG))
-            throw new IOException("Illegal primitive object array type");
+            throw new SnapshotException("Illegal primitive object array type");
 
         // check if class needs to be created
         String name = IPrimitiveArray.TYPE[(int) elementType];

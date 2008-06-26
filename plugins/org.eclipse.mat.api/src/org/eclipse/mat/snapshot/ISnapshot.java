@@ -15,11 +15,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.snapshot.model.GCRootInfo;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.util.IProgressListener;
-
 
 /**
  * Interface for snapshots. It is the central API for handling HPROF snapshots.
@@ -29,9 +29,9 @@ import org.eclipse.mat.util.IProgressListener;
  * holds quite a lot of memory, so try to keep not too many open at the same
  * time.
  * <p>
- * The basic "handle" you will encounter in the API is an <code>int</code>.
- * It is the id of an object and is always of the size of four bytes (no matter
- * if 32 or 64 bit). Operations are either performed on <code>int</code> or
+ * The basic "handle" you will encounter in the API is an <code>int</code>. It
+ * is the id of an object and is always of the size of four bytes (no matter if
+ * 32 or 64 bit). Operations are either performed on <code>int</code> or
  * <code>int[]</code> (addresses are stored in longs, but they should be used
  * only for display purposes). In order to simplify working with them and for
  * performance reasons compared to <code>Collection&lt;Integer&gt;</code> some
@@ -39,6 +39,8 @@ import org.eclipse.mat.util.IProgressListener;
  * BitField (for huge fixed bit fields), ArrayIntBig and ArrayLongBig (for huge
  * growing arrays) and ArrayIntCompressed and ArrayLongCompressed (for
  * fixed-size compressed arrays).
+ * 
+ * @noimplement
  */
 public interface ISnapshot
 {
@@ -603,6 +605,6 @@ public interface ISnapshot
      *         trace info, JVM arguments, etc.
      * @throws SnapshotException
      */
-    public <A extends ISnapshotAddon> A getSnapshotAddons(Class<A> addon) throws SnapshotException;
+    public <A> A getSnapshotAddons(Class<A> addon) throws SnapshotException;
 
 }

@@ -11,6 +11,11 @@
    </annotation>
 
    <element name="extension">
+      <annotation>
+         <appinfo>
+            <meta.element />
+         </appinfo>
+      </annotation>
       <complexType>
          <sequence>
             <element ref="pane" minOccurs="1" maxOccurs="unbounded"/>
@@ -45,6 +50,7 @@
    <element name="pane">
       <complexType>
          <sequence>
+            <element ref="result" minOccurs="0" maxOccurs="unbounded"/>
          </sequence>
          <attribute name="id" type="string" use="required">
             <annotation>
@@ -77,6 +83,21 @@
       </complexType>
    </element>
 
+   <element name="result">
+      <complexType>
+         <attribute name="type" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+               <appinfo>
+                  <meta.attribute kind="java" basedOn=":org.eclipse.mat.query.IResult"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
    <annotation>
       <appinfo>
          <meta.section type="since"/>
@@ -103,7 +124,6 @@
          [Enter API information here.]
       </documentation>
    </annotation>
-
 
    <annotation>
       <appinfo>

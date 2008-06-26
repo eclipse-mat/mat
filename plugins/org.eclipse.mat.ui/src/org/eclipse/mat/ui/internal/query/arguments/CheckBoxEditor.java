@@ -10,8 +10,9 @@
  *******************************************************************************/
 package org.eclipse.mat.ui.internal.query.arguments;
 
-import org.eclipse.mat.impl.query.ArgumentDescriptor;
-import org.eclipse.mat.snapshot.SnapshotException;
+import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.query.IQueryContext;
+import org.eclipse.mat.query.registry.ArgumentDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
@@ -62,9 +63,10 @@ public class CheckBoxEditor extends ArgumentEditor
         }
     }
 
-    public CheckBoxEditor(Composite parent, ArgumentDescriptor descriptor, TableItem item, Type type)
+    public CheckBoxEditor(Composite parent, IQueryContext context, ArgumentDescriptor descriptor, TableItem item,
+                    Type type)
     {
-        super(parent, descriptor, item);
+        super(parent, context, descriptor, item);
         this.type = type;
         setBackground(parent.getBackground());
         setLayout(new FillLayout());

@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.mat.snapshot;
 
+import org.eclipse.mat.SnapshotException;
+
 /**
  * Exception thrown by the OQL parser. Contains line and column information
  * where exactly the error was found.

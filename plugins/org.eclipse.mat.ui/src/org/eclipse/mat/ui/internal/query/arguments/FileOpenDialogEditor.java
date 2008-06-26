@@ -13,8 +13,9 @@ package org.eclipse.mat.ui.internal.query.arguments;
 import java.io.File;
 
 import org.eclipse.core.runtime.Preferences;
-import org.eclipse.mat.impl.query.ArgumentDescriptor;
-import org.eclipse.mat.snapshot.SnapshotException;
+import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.query.IQueryContext;
+import org.eclipse.mat.query.registry.ArgumentDescriptor;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyAdapter;
@@ -68,9 +69,9 @@ public class FileOpenDialogEditor extends ArgumentEditor
         }
     }
 
-    public FileOpenDialogEditor(Composite parent, ArgumentDescriptor descriptor, TableItem item)
+    public FileOpenDialogEditor(Composite parent, IQueryContext context, ArgumentDescriptor descriptor, TableItem item)
     {
-        super(parent, descriptor, item);
+        super(parent, context, descriptor, item);
         this.setBackground(parent.getBackground());
         this.parent = parent;
 
@@ -79,7 +80,6 @@ public class FileOpenDialogEditor extends ArgumentEditor
 
     protected void createContents()
     {
-//        this.setLayout(new FillLayout());
         this.setLayout(new FileOpenDialogEditorLayout());
         text = new Text(this, SWT.LEFT);
         text.addKeyListener(new KeyAdapter()
@@ -152,7 +152,7 @@ public class FileOpenDialogEditor extends ArgumentEditor
             }
             else
             {
-                value = descriptor.stringToValue(t);
+                value = context.convertToValue(descriptor.getType(), descriptor.getAdvice(), t);
             }
 
             fireValueChangedEvent(value, this);
@@ -168,7 +168,7 @@ public class FileOpenDialogEditor extends ArgumentEditor
     public void setValue(Object value) throws SnapshotException
     {
         this.value = value;
-        text.setText(descriptor.valueToString(value));
+        text.setText(context.convertToString(descriptor.getType(), descriptor.getAdvice(), value));
     }
 
     @Override

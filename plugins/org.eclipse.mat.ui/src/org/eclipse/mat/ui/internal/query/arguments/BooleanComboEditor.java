@@ -10,8 +10,9 @@
  *******************************************************************************/
 package org.eclipse.mat.ui.internal.query.arguments;
 
-import org.eclipse.mat.impl.query.ArgumentDescriptor;
-import org.eclipse.mat.snapshot.SnapshotException;
+import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.query.IQueryContext;
+import org.eclipse.mat.query.registry.ArgumentDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.SelectionEvent;
@@ -20,18 +21,17 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.TableItem;
 
-
 public class BooleanComboEditor extends ArgumentEditor
 {
     private static final String BOOLEAN_TRUE = Boolean.TRUE.toString();
     private static final String BOOLEAN_FALSE = Boolean.FALSE.toString();
 
     private CCombo combo;
-    private Boolean value;   
+    private Boolean value;
 
-    public BooleanComboEditor(Composite parent, ArgumentDescriptor descriptor, TableItem item)
+    public BooleanComboEditor(Composite parent, IQueryContext context, ArgumentDescriptor descriptor, TableItem item)
     {
-        super(parent, descriptor, item);
+        super(parent, context, descriptor, item);
         setBackground(parent.getBackground());
         setLayout(new FillLayout());
         createContents(parent);
@@ -61,15 +61,14 @@ public class BooleanComboEditor extends ArgumentEditor
     {
         try
         {
-            this.value = (Boolean) this.descriptor.stringToValue(combo.getText());
+            this.value = (Boolean) context
+                            .convertToValue(descriptor.getType(), descriptor.getAdvice(), combo.getText());
             fireValueChangedEvent(this.value, this);
         }
         catch (SnapshotException e)
         {
-            // $JL-EXC$
             // true/false can not fail
         }
-
     }
 
     @Override
@@ -88,9 +87,8 @@ public class BooleanComboEditor extends ArgumentEditor
 
     @Override
     public boolean setFocus()
-    {        
+    {
         return combo.setFocus();
     }
-    
-    
+
 }

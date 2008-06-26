@@ -16,11 +16,11 @@ import java.io.RandomAccessFile;
 import java.io.Serializable;
 import java.lang.ref.SoftReference;
 
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayIntCompressed;
 import org.eclipse.mat.collect.ArrayLongCompressed;
 import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.parser.io.SimpleBufferedRandomAccessInputStream;
-import org.eclipse.mat.snapshot.SnapshotException;
 
 
 public abstract class IndexReader

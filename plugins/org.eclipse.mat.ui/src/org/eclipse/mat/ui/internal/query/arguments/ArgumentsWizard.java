@@ -12,9 +12,10 @@ package org.eclipse.mat.ui.internal.query.arguments;
 
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.wizard.Wizard;
-import org.eclipse.mat.impl.query.ArgumentSet;
+import org.eclipse.mat.query.IQueryContext;
+import org.eclipse.mat.query.registry.ArgumentSet;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
-import org.eclipse.mat.ui.internal.query.browser.QueryContextHelp;
+import org.eclipse.mat.ui.internal.browser.QueryContextHelp;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Rectangle;
 
@@ -33,10 +34,12 @@ public class ArgumentsWizard extends Wizard
         return result;
     }
 
-    ArgumentSet argumentSet;
+    private IQueryContext context;
+    private ArgumentSet argumentSet;
 
-    public ArgumentsWizard(ArgumentSet argumentSet)
+    public ArgumentsWizard(IQueryContext context, ArgumentSet argumentSet)
     {
+        this.context = context;
         this.argumentSet = argumentSet;
 
         setWindowTitle(argumentSet.getQueryDescriptor().getName());
@@ -48,7 +51,7 @@ public class ArgumentsWizard extends Wizard
     @Override
     public void addPages()
     {
-        addPage(new ArgumentsWizardPage(argumentSet));
+        addPage(new ArgumentsWizardPage(context, argumentSet));
 
          if (argumentSet.getQueryDescriptor().getHelp() != null)
         {

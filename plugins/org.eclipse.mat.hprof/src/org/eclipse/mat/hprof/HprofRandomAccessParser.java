@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.parser.io.BufferedRandomAccessInputStream;
 import org.eclipse.mat.parser.io.PositionInputStream;
 import org.eclipse.mat.parser.model.AbstractArrayImpl;
@@ -28,7 +29,6 @@ import org.eclipse.mat.parser.model.ObjectArrayImpl;
 import org.eclipse.mat.parser.model.PrimitiveArrayImpl;
 import org.eclipse.mat.parser.model.AbstractArrayImpl.IContentDescriptor;
 import org.eclipse.mat.snapshot.ISnapshot;
-import org.eclipse.mat.snapshot.SnapshotException;
 import org.eclipse.mat.snapshot.model.Field;
 import org.eclipse.mat.snapshot.model.FieldDescriptor;
 import org.eclipse.mat.snapshot.model.IArray;

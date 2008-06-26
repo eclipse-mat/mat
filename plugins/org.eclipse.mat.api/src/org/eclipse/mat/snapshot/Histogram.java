@@ -20,14 +20,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IContextObjectSet;
 import org.eclipse.mat.query.IIconProvider;
 import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.query.IResultTree;
-import org.eclipse.mat.query.Icons;
 import org.eclipse.mat.query.ResultMetaData;
+import org.eclipse.mat.snapshot.query.Icons;
 
 /**
  * Class histogram - heap objects aggregated by their class. It holds the number
@@ -401,8 +402,8 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
      * @param histogram
      *            histogram you want a human reable text based report for
      * @param comparator
-     *            comparator to be used for sorting the histogram records ({@link HistogramRecord}
-     *            provides some default comparators)
+     *            comparator to be used for sorting the histogram records (
+     *            {@link HistogramRecord} provides some default comparators)
      * @return human redable text based report for the given histogram
      */
     public static String generateClassHistogramRecordTextReport(Histogram histogram,
@@ -482,8 +483,8 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
      *            histogram you want a machine/human readable comma separated
      *            report for
      * @param comparator
-     *            comparator to be used for sorting the histogram records ({@link HistogramRecord}
-     *            provides some default comparators)
+     *            comparator to be used for sorting the histogram records (
+     *            {@link HistogramRecord} provides some default comparators)
      * @return machine/human readable comma separated report for the given
      *         histogram
      */
@@ -502,8 +503,8 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
      *            histogram you want a machine/human readable comma separated
      *            report for
      * @param comparator
-     *            comparator to be used for sorting the histogram records ({@link HistogramRecord}
-     *            provides some default comparators)
+     *            comparator to be used for sorting the histogram records (
+     *            {@link HistogramRecord} provides some default comparators)
      * @return machine/human readable comma separated report for the given
      *         histogram
      */
@@ -515,7 +516,6 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
                         "Class Name", "Objects", "Shallow Heap", "Retained Heap" });
     }
 
-    @SuppressWarnings("unchecked")
     private static String generateClassloaderHistogramCsvReport(List<ClassLoaderHistogramRecord> records,
                     Comparator<HistogramRecord> comparator, String[] headers)
     {
@@ -532,34 +532,26 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
         report.append(";\r\n");
         for (ClassLoaderHistogramRecord classloaderRecord : records)
         {
-            Collection classRecords = ((ClassLoaderHistogramRecord) classloaderRecord).getClassHistogramRecords();
-            List list = new ArrayList(classRecords);
+            Collection<ClassHistogramRecord> classRecords = ((ClassLoaderHistogramRecord) classloaderRecord)
+                            .getClassHistogramRecords();
+            List<ClassHistogramRecord> list = new ArrayList<ClassHistogramRecord>(classRecords);
             Collections.sort(list, Histogram.COMPARATOR_FOR_USEDHEAPSIZE);
             for (int i = list.size() - 1; i >= 0; i--)
             {
-                Object classData = list.get(i);
-                if (classData instanceof ClassHistogramRecord)
-                {
-                    ClassHistogramRecord record = (ClassHistogramRecord) classData;
-                    report.append(classloaderRecord.getLabel());
-                    report.append(";");
-                    report.append(record.getLabel());
-                    report.append(";");
-                    report.append(record.getNumberOfObjects());
-                    report.append(";");
-                    report.append(record.getUsedHeapSize());
-                    report.append(";");
-                    if (record.getRetainedHeapSize() < 0)
-                        report.append(">=" + (-record.getRetainedHeapSize()));
-                    else
-                        report.append(record.getRetainedHeapSize());
-                    report.append(";\r\n");
-                }
+                ClassHistogramRecord record = list.get(i);
+                report.append(classloaderRecord.getLabel());
+                report.append(";");
+                report.append(record.getLabel());
+                report.append(";");
+                report.append(record.getNumberOfObjects());
+                report.append(";");
+                report.append(record.getUsedHeapSize());
+                report.append(";");
+                if (record.getRetainedHeapSize() < 0)
+                    report.append(">=" + (-record.getRetainedHeapSize()));
                 else
-                {
-                    // TODO throw new Exception("Error in file exporter data
-                    // type");
-                }
+                    report.append(record.getRetainedHeapSize());
+                report.append(";\r\n");
             }
         }
         return report.toString();

@@ -12,12 +12,13 @@ package org.eclipse.mat.snapshot.model;
 
 import java.util.List;
 
-import org.eclipse.mat.snapshot.SnapshotException;
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.util.IProgressListener;
-
 
 /**
  * Interface for a class instance in the heap dump.
+ * 
+ * @noimplement
  */
 public interface IClass extends IObject
 {
@@ -43,14 +44,15 @@ public interface IClass extends IObject
      * Returns the id of the class loader which loaded this class.
      */
     public int getClassLoaderId();
-    
+
     /**
      * Returns the address of the class loader which loaded this class.
      */
     public long getClassLoaderAddress();
 
     /**
-     * Returns field descriptors for all member variables of instances of this class.
+     * Returns field descriptors for all member variables of instances of this
+     * class.
      */
     public List<FieldDescriptor> getFieldDescriptors();
 
@@ -60,17 +62,21 @@ public interface IClass extends IObject
     public List<Field> getStaticFields();
 
     /**
-     * Returns the heap size of one instance of this class. Not valid if this class represents an array.
+     * Returns the heap size of one instance of this class. Not valid if this
+     * class represents an array.
      */
     public int getHeapSizePerInstance();
 
     /**
-     * Returns the retained size of all objects of this instance including the class instance.
+     * Returns the retained size of all objects of this instance including the
+     * class instance.
      */
-    public long getRetainedHeapSizeOfObjects(boolean calculateIfNotAvailable, boolean calculateMinRetainedSize, IProgressListener listener) throws SnapshotException;
+    public long getRetainedHeapSizeOfObjects(boolean calculateIfNotAvailable, boolean calculateMinRetainedSize,
+                    IProgressListener listener) throws SnapshotException;
 
     /**
-     * Returns the id of the super class. -1 if it has no super class, i.e. if it is java.lang.Object.
+     * Returns the id of the super class. -1 if it has no super class, i.e. if
+     * it is java.lang.Object.
      */
     public int getSuperClassId();
 
@@ -95,7 +101,7 @@ public interface IClass extends IObject
     public List<IClass> getAllSubclasses();
 
     public boolean doesExtend(String className) throws SnapshotException;
-    
+
     /**
      * Returns true if the class is an array class.
      */

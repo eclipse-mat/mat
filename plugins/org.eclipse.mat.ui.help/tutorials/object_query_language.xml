@@ -11,7 +11,7 @@
          Open a sample heap dump by activating the action link
 			below.
       </description>
-      <action class="org.eclipse.mat.ui.internal.actions.OpenSampleHeapDumpAction" pluginId="org.eclipse.mat.ui" confirm="false" param1="org.eclipse.mat.ui.help/heapdump/HeapDumpSample.hprof">
+      <action class="org.eclipse.mat.ui.snapshot.actions.OpenSampleHeapDumpAction" pluginId="org.eclipse.mat.ui" confirm="false" param1="org.eclipse.mat.ui.help/heapdump/HeapDumpSample.hprof">
       </action>
    </item>
    <item title="FROM Clause" dialog="true" skip="true" href="/org.eclipse.mat.ui.help/html/46/a4d9daaee752b6e10000000a155369/content.htm">
@@ -29,7 +29,7 @@
 			<br/>
 			<br/>
       </description>
-      <action class="org.eclipse.mat.ui.internal.actions.OpenSampleHeapDumpAction" pluginId="org.eclipse.mat.ui" confirm="false" param1="org.eclipse.mat.ui.help/heapdump/HeapDumpSample.hprof" param2="oql" param3="SELECT * FROM java.lang.ref.SoftReference">
+      <action class="org.eclipse.mat.ui.snapshot.actions.OpenSampleHeapDumpAction" pluginId="org.eclipse.mat.ui" confirm="false" param1="org.eclipse.mat.ui.help/heapdump/HeapDumpSample.hprof" param2="oql" param3="SELECT * FROM java.lang.ref.SoftReference">
       </action>
    </item>
    <item title="WHERE Clause" dialog="true" skip="true" href="/org.eclipse.mat.ui.help/html/46/a4019b2cd752b7e10000000a155369/content.htm">
@@ -44,7 +44,7 @@
 			be addressed with dot notation to reach fields of a table alias or even fields of
 			nested objects: &lt;field&gt;.&lt;field&gt;.&lt;field&gt;.
       </description>
-      <action class="org.eclipse.mat.ui.internal.actions.OpenSampleHeapDumpAction" pluginId="org.eclipse.mat.ui" confirm="false" param1="org.eclipse.mat.ui.help/heapdump/HeapDumpSample.hprof" param2="oql" param3="SELECT * FROM java.lang.String s WHERE s.count > 100">
+      <action class="org.eclipse.mat.ui.snapshot.actions.OpenSampleHeapDumpAction" pluginId="org.eclipse.mat.ui" confirm="false" param1="org.eclipse.mat.ui.help/heapdump/HeapDumpSample.hprof" param2="oql" param3="SELECT * FROM java.lang.String s WHERE s.count > 100">
       </action>
    </item>
    <item title="SELECT Clause" dialog="true" skip="true" href="/org.eclipse.mat.ui.help/html/46/a4ff1a2cd752b7e10000000a155369/content.htm">
@@ -62,7 +62,7 @@
 			arrays). Functions like toHex(), toString(), classof(), dominatorof() etc.
 			allow simple transformations.
       </description>
-      <action class="org.eclipse.mat.ui.internal.actions.OpenSampleHeapDumpAction" pluginId="org.eclipse.mat.ui" confirm="false" param1="org.eclipse.mat.ui.help/heapdump/HeapDumpSample.hprof" param2="oql" param3="SELECT toHex(m.@objectAddress), m.size, m.table.@length, m.@retainedHeapSize FROM java.util.HashMap m">
+      <action class="org.eclipse.mat.ui.snapshot.actions.OpenSampleHeapDumpAction" pluginId="org.eclipse.mat.ui" confirm="false" param1="org.eclipse.mat.ui.help/heapdump/HeapDumpSample.hprof" param2="oql" param3="SELECT toHex(m.@objectAddress), m.size, m.table.@length, m.@retainedHeapSize FROM java.util.HashMap m">
       </action>
    </item>
 </cheatsheet>

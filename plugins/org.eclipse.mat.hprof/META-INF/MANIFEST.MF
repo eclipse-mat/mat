@@ -4,8 +4,7 @@ Bundle-Name: Memory Analyzer - HPROF Adapter (Incubation)
 Bundle-SymbolicName: org.eclipse.mat.hprof;singleton:=true
 Bundle-Version: 0.7.0.qualifier
 Bundle-Vendor: Eclipse.org
-Require-Bundle: org.eclipse.mat.parser;bundle-version="0.7.0",
+Require-Bundle: org.eclipse.mat.parser;bundle-version="[0.7.0.20080620,0.7.1)",
  org.eclipse.core.runtime;bundle-version="3.3.100"
-Export-Package: org.eclipse.mat.hprof,
- org.eclipse.mat.hprof.extension
+Export-Package: org.eclipse.mat.hprof.extension
 Bundle-RequiredExecutionEnvironment: J2SE-1.5

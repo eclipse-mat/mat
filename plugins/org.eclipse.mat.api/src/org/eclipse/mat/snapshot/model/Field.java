@@ -15,7 +15,7 @@ import java.io.Serializable;
 /**
  * Describes a member variable, i.e. name, signature and value.
  */
-public class Field extends FieldDescriptor implements Serializable
+public final class Field extends FieldDescriptor implements Serializable
 {
     private static final long serialVersionUID = 2L;
 

@@ -24,36 +24,32 @@ import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayIntBig;
-import org.eclipse.mat.impl.query.ArgumentSet;
-import org.eclipse.mat.impl.query.QueryDescriptor;
-import org.eclipse.mat.impl.query.QueryRegistry;
-import org.eclipse.mat.impl.query.QueryResult;
-import org.eclipse.mat.impl.result.RefinedStructuredResult;
-import org.eclipse.mat.impl.result.RefinedTable;
-import org.eclipse.mat.impl.result.RefinedTree;
-import org.eclipse.mat.inspections.query.HistogramQuery;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IContextObjectSet;
-import org.eclipse.mat.query.IHeapObjectArgument;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.query.IResultTree;
 import org.eclipse.mat.query.IStructuredResult;
-import org.eclipse.mat.snapshot.ISnapshot;
-import org.eclipse.mat.snapshot.SnapshotException;
+import org.eclipse.mat.query.refined.RefinedResultBuilder;
+import org.eclipse.mat.query.refined.RefinedTable;
+import org.eclipse.mat.query.refined.RefinedTree;
+import org.eclipse.mat.query.registry.ArgumentSet;
+import org.eclipse.mat.query.registry.QueryDescriptor;
+import org.eclipse.mat.query.registry.QueryRegistry;
+import org.eclipse.mat.query.registry.QueryResult;
+import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.QueryExecution;
-import org.eclipse.mat.ui.editor.HeapEditor;
-import org.eclipse.mat.ui.editor.HeapEditorPane;
+import org.eclipse.mat.ui.editor.AbstractEditorPane;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
 import org.eclipse.mat.ui.editor.MultiPaneEditorSite;
-import org.eclipse.mat.ui.internal.query.ArgumentContextProvider;
 import org.eclipse.mat.ui.internal.viewer.RefinedResultViewer;
 import org.eclipse.mat.ui.internal.viewer.RefinedTableViewer;
 import org.eclipse.mat.ui.internal.viewer.RefinedTreeViewer;
+import org.eclipse.mat.ui.snapshot.editor.HeapEditor;
 import org.eclipse.mat.ui.util.ErrorHelper;
-import org.eclipse.mat.ui.util.ImageHelper;
 import org.eclipse.mat.ui.util.PopupMenu;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.swt.SWT;
@@ -67,7 +63,7 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPart;
 
 
-public class QueryResultPane extends HeapEditorPane implements ISelectionProvider
+public class QueryResultPane extends AbstractEditorPane implements ISelectionProvider
 {
     private List<ISelectionChangedListener> listeners = Collections
                     .synchronizedList(new ArrayList<ISelectionChangedListener>());
@@ -112,7 +108,8 @@ public class QueryResultPane extends HeapEditorPane implements ISelectionProvide
     @Override
     public Image getTitleImage()
     {
-        Image image = viewer != null ? ImageHelper.getImage(viewer.getQueryResult().getQuery()) : null;
+        Image image = viewer != null ? MemoryAnalyserPlugin.getDefault().getImage(viewer.getQueryResult().getQuery())
+                        : null;
         return image != null ? image : MemoryAnalyserPlugin.getImage(MemoryAnalyserPlugin.ISharedImages.QUERY);
     }
 
@@ -178,8 +175,8 @@ public class QueryResultPane extends HeapEditorPane implements ISelectionProvide
                 try
                 {
                     IEditorPart editor = site.getPage().getActiveEditor();
-                    QueryDescriptor descriptor = QueryRegistry.instance().getQuery(HistogramQuery.class);
-                    ArgumentSet set = descriptor.createNewArgumentSet(new ArgumentContextProvider((HeapEditor) editor));
+                    QueryDescriptor descriptor = QueryRegistry.instance().getQuery("histogram");
+                    ArgumentSet set = descriptor.createNewArgumentSet(getQueryContext());
                     set.setArgumentValue(descriptor.getArgumentByName("objects"), new IHeapObjectArgument()
                     {
 
@@ -248,19 +245,18 @@ public class QueryResultPane extends HeapEditorPane implements ISelectionProvide
     protected RefinedResultViewer createViewer(QueryResult queryResult)
     {
         IResult subject = queryResult.getSubject();
-        ISnapshot snapshot = getSnapshotInput().getSnapshot();
 
         if (subject instanceof IResultTree)
         {
-            RefinedTree refinedTree = (RefinedTree) new RefinedStructuredResult.Builder(snapshot, //
+            RefinedTree refinedTree = (RefinedTree) new RefinedResultBuilder(getQueryContext(), //
                             (IResultTree) subject).build();
-            return new RefinedTreeViewer(queryResult, refinedTree);
+            return new RefinedTreeViewer(getQueryContext(), queryResult, refinedTree);
         }
         else if (subject instanceof IResultTable)
         {
-            RefinedTable refinedTable = (RefinedTable) new RefinedStructuredResult.Builder(snapshot, //
+            RefinedTable refinedTable = (RefinedTable) new RefinedResultBuilder(getQueryContext(), //
                             (IResultTable) subject).build();
-            return new RefinedTableViewer(queryResult, refinedTable);
+            return new RefinedTableViewer(getQueryContext(), queryResult, refinedTable);
         }
         else
         {
@@ -275,7 +271,7 @@ public class QueryResultPane extends HeapEditorPane implements ISelectionProvide
 
         try
         {
-            viewer.init(top, (HeapEditor) ((MultiPaneEditorSite) getEditorSite()).getMultiPageEditor(), this);
+            viewer.init(top, ((MultiPaneEditorSite) getEditorSite()).getMultiPageEditor(), this);
             hookContextMenu(viewer.getControl());
             hookContextAwareListeners();
             MultiPaneEditor multiPaneEditor = ((MultiPaneEditorSite) getEditorSite()).getMultiPageEditor();
@@ -299,6 +295,7 @@ public class QueryResultPane extends HeapEditorPane implements ISelectionProvide
     // selection provider
     // //////////////////////////////////////////////////////////////
 
+    /** delay selection events -> do not flood object inspector */
     private Listener proxy = new Listener()
     {
         boolean arrowKeyDown = false;
@@ -340,8 +337,6 @@ public class QueryResultPane extends HeapEditorPane implements ISelectionProvide
                     });
 
             }
-            // TODO Auto-generated method stub
-
         }
     };
 

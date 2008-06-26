@@ -24,24 +24,22 @@ import org.eclipse.birt.chart.model.attribute.Bounds;
 import org.eclipse.birt.chart.model.attribute.impl.BoundsImpl;
 import org.eclipse.birt.chart.script.IScriptClassLoader;
 import org.eclipse.birt.chart.util.PluginSettings;
-import org.eclipse.mat.impl.test.IOutputter;
-import org.eclipse.mat.impl.test.QueryPart;
-import org.eclipse.mat.impl.test.ResultRenderer.RenderingInfo;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.IResultPie;
+import org.eclipse.mat.report.IOutputter;
+import org.eclipse.mat.report.Renderer;
 
-
+@Renderer(target = "html", result = IResultPie.class)
 public class HtmlPieChartRenderer implements IOutputter
 {
 
-    public void embedd(Context context, QueryPart part, IResult result, RenderingInfo renderingInfo, Writer writer)
-                    throws IOException
+    public void embedd(Context context, IResult result, Writer writer) throws IOException
     {
         try
         {
             IResultPie pie = (IResultPie) result;
 
-            String imageFile = "chart" + part.getId() + ".png";
+            String imageFile = "chart" + context.getId() + ".png";
 
             Chart chart = ChartBuilder.create(pie, false);
 
@@ -76,13 +74,7 @@ public class HtmlPieChartRenderer implements IOutputter
         }
     }
 
-    public String getExtension()
-    {
-        return "html";
-    }
-
-    public void process(Context context, QueryPart part, IResult result, RenderingInfo renderingInfo, Writer writer)
-                    throws IOException
+    public void process(Context context, IResult result, Writer writer) throws IOException
     {}
 
 }

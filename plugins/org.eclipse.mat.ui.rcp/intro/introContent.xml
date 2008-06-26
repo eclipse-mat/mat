@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <introContent>
 	<!-- STANDBY PAGE  -->
-	<page alt-style="css/standby_swt.properties"
-		style="css/standby_root.css" id="standby">
+	<page style="css/standby.css" id="standby">
 		<group id="page-links-standby">
 			<anchor id="beginAnchor" />
 			<link label="Overview"
@@ -13,9 +12,7 @@
 			<link label="Tutorials"
 				url="http://org.eclipse.ui.intro/showPage?id=tutorials&amp;standby=false"
 				id="tutorials">
-				<text>
-					Offers several step-by-step tutorials for quick
-					access.
+				<text> Offers several step-by-step tutorials for quick access.
 				</text>
 			</link>
 			<anchor id="endAnchor" />
@@ -23,108 +20,66 @@
 	</page>
 
 	<!-- TITLE -->
-	<page style="css/overview/overview.css"
-		alt-style="css/root_swt.properties" id="overview">
-		<group id="header">
-
-			<group id="page-links" filteredFrom="swt">
-				<anchor id="navigationBegin" />
-				<link
-					url="http://org.eclipse.ui.intro/showPage?id=overview"
-					id="overview">
-					<text id="linktext">Overview</text>
-				</link>
-				<link
-					url="http://org.eclipse.ui.intro/showPage?id=tutorials"
-					id="tutorials">
-					<text id="linktext">Tutorials</text>
-				</link>
-				<link
-					url="http://org.eclipse.ui.intro/switchToLaunchBar"
-					id="workbench">
-					<text id="linktext">Workbench</text>
-				</link>
-  				<link id="version">
-					<text id="editiontext">The Diligent Digger (Incubation)</text>
-				</link>
-				<group id="version" expanded="true">
-					<contentProvider id="editiontext"
-						pluginId="org.eclipse.mat.ui.rcp"
-						class="org.eclipse.mat.ui.rcp.actions.VersionIntroContentProvider">
-					</contentProvider>						
-				</group>
-				<anchor id="navigationEnd" />
-			</group>
+	<page id="overview" style="css/overview.css">
+		<group id="navigation-bar">
+			<link url="http://org.eclipse.ui.intro/showPage?id=overview" id="overview"
+				label="Overview" />
+			<link url="http://org.eclipse.ui.intro/showPage?id=tutorials"
+				id="tutorials" label="Tutorials" />
+			<link url="http://org.eclipse.ui.intro/switchToLaunchBar" id="workbench"
+				label="Workbench" />
+			<text id="edition">The Diligent Digger (Incubation)</text>
+			<contentProvider id="version" pluginId="org.eclipse.mat.ui.rcp"
+				class="org.eclipse.mat.ui.rcp.actions.VersionIntroContentProvider" />
 		</group>
 
 		<!--  OVERVIEW PAGE CONTENT -->
-		<group id="page-content" filteredFrom="swt">
-
+		<group id="page-content">
 			<group id="overview-links" label="Introduction">
-
-				<anchor id="anchor"/>	
-
+				<anchor id="anchor" />
+				<link label="New and Noteworthy" url="http://org.eclipse.ui.intro/showHelpTopic?id=/org.eclipse.mat.ui.help/html/45/b0eb510443731de10000000a1553f6/content.htm">
+					<img src="css/pictograms/new.gif" alt="New and Noteworthy" />
+					<text>Check out the new features in Analyzer 0.7.0</text>
+				</link>
 				<link label="Help"
-					url="http://org.eclipse.ui.intro/showHelpTopic?id=/org.eclipse.mat.ui.help/html/45/b0eb510443731de10000000a1553f6/content.htm"
-					id="placeholder">
-					<text>
-						Get familiar with the tool by exploring its
-						documentation.
+					url="http://org.eclipse.ui.intro/showHelpTopic?id=/org.eclipse.mat.ui.help/html/45/b0eb510443731de10000000a1553f6/content.htm">
+					<img src="css/pictograms/help.gif" alt="Help" />
+					<text>Get familiar with the tool by exploring its documentation.
 					</text>
 				</link>
-
-				<link label="How to get a snapshot"
-					url="http://org.eclipse.ui.intro/showHelpTopic?id=/org.eclipse.mat.ui.help/html/45/b0e5250443731de10000000a1553f6/content.htm"
-					id="placeholder">
-					<text>
-						Learn how to configure your Java VM and/or
-						Engine to get a snapshot.
-					</text>
+				<link label="How to Get a Heap Dump"
+					url="http://org.eclipse.ui.intro/showHelpTopic?id=/org.eclipse.mat.ui.help/html/45/b0e5250443731de10000000a1553f6/content.htm">
+					<img src="css/pictograms/acquire.gif" alt="How to Get a Snapshot" />
+					<text>Learn how to configure your Java VM and/or Engine to get
+						a snapshot.</text>
 				</link>
-
-				<link label="Memory Analyzer @ Eclipse"
-					url="http://org.eclipse.ui.intro/openBrowser?url=http://www.eclipse.org/mat/"
-					id="placeholder">
-					<text>
-						Check our home page for latest news and to
-						download the latest version.
-					</text>
+				<link label="Memory Analyzer @ Eclipse.org"
+					url="http://org.eclipse.ui.intro/openBrowser?url=http://www.eclipse.org/mat/">
+					<img src="css/pictograms/web.gif" alt="Memory Analyzer Homepage" />
+					<text>Check our home page for latest news and to download the
+						latest version.</text>
 				</link>
-
-
-				<group id="overview-links" label="Workspace">
-
-					<link
-						label="Open a snapshot (VM 1.4.2_12 and 1.5.0_07 or higher)"
-						url="http://org.eclipse.ui.intro/runAction?pluginId=org.eclipse.mat.ui&amp;class=org.eclipse.mat.ui.internal.actions.OpenSnapshotAction"
-						id="placeholder">
-						<text>
-							Open a snapshot from your file system or
-							from the list of snapshots you have already
-							worked with:
-						</text>
-					</link>
-					<group id="snapshot_history" expandable="true"
-						expanded="true">
-						<contentProvider id="history-viewer"
-							pluginId="org.eclipse.mat.ui.rcp"
-							class="org.eclipse.mat.ui.rcp.actions.SnapshotHistoryIntroContentProvider">
-						</contentProvider>
-					</group>
-				</group>
 			</group>
-
+			<group id="overview-links" label="Workspace">
+				<link label="Open a Heap Dump (VM 1.4.2_12 and 1.5.0_07 or higher)"
+					url="http://org.eclipse.ui.intro/runAction?pluginId=org.eclipse.mat.ui&amp;class=org.eclipse.mat.ui.snapshot.actions.OpenSnapshotAction">
+					<img src="css/pictograms/parse.gif" alt="Open a Heap Dump" />
+					<text>Open a snapshot from your file system or from the list of
+						snapshots you have already worked with:</text>
+				</link>
+			</group>
+			<contentProvider id="history-viewer" pluginId="org.eclipse.mat.ui.rcp"
+				class="org.eclipse.mat.ui.rcp.actions.SnapshotHistoryIntroContentProvider">
+			</contentProvider>
 		</group>
 	</page>
 
 	<!--  TUTORIALS  PAGE CONTENT -->
-	<page style="css/tutorials/tutorials.css"
-		alt-style="css/tutorials/swt.properties" id="tutorials">
-		<include path="overview/header" />		
-		<group id="page-content" filteredFrom="swt">
-			<anchor id="anchor"/>	
-		</group>			
+	<page style="css/tutorials.css"
+		id="tutorials">
+		<include path="overview/navigation-bar" />
+		<group id="page-content">
+			<anchor id="anchor" />
+		</group>
 	</page>
-
-
 </introContent>

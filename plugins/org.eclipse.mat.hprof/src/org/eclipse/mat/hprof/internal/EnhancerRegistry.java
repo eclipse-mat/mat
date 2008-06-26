@@ -18,7 +18,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.mat.hprof.extension.IParsingEnhancer;
 import org.eclipse.mat.hprof.extension.IRuntimeEnhancer;
-import org.eclipse.mat.impl.registry.RegistryReader;
+import org.eclipse.mat.util.RegistryReader;
 
 
 public class EnhancerRegistry extends RegistryReader<EnhancerRegistry.Enhancer>

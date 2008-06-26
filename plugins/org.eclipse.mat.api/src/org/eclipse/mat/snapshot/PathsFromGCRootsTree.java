@@ -14,8 +14,10 @@ import java.util.HashMap;
 
 /**
  * This class holds the paths from one single object to its GC roots.
+ * 
+ * @noinstantiate
  */
-public class PathsFromGCRootsTree
+public final class PathsFromGCRootsTree
 {
     private int ownId;
     private int[] objectIds;

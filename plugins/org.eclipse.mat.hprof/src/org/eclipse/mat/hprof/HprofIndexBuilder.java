@@ -16,16 +16,16 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.IteratorLong;
 import org.eclipse.mat.hprof.extension.IParsingEnhancer;
 import org.eclipse.mat.hprof.internal.EnhancerRegistry;
-import org.eclipse.mat.impl.snapshot.internal.SimpleMonitor;
 import org.eclipse.mat.parser.IIndexBuilder;
 import org.eclipse.mat.parser.IPreliminaryIndex;
 import org.eclipse.mat.parser.index.IndexWriter;
 import org.eclipse.mat.parser.index.IIndexReader.IOne2LongIndex;
-import org.eclipse.mat.snapshot.SnapshotException;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.SimpleMonitor;
 
 public class HprofIndexBuilder implements IIndexBuilder
 {
@@ -59,9 +59,6 @@ public class HprofIndexBuilder implements IIndexBuilder
         IHprofParserHandler handler = new HprofParserHandlerImpl();
         handler.beforePass1(preliminary.getSnapshotInfo());
 
-        for (IParsingEnhancer enhancer : enhancers)
-            enhancer.beforePass1(handler);
-
         SimpleMonitor.Listener mon = (SimpleMonitor.Listener) monitor.nextMonitor();
         mon.beginTask(MessageFormat.format("Scanning {0}", new Object[] { file.getAbsolutePath() }), (int) (file
                         .length() / 1000));
@@ -74,8 +71,6 @@ public class HprofIndexBuilder implements IIndexBuilder
         mon.done();
 
         handler.beforePass2(listener);
-        for (IParsingEnhancer enhancer : enhancers)
-            enhancer.beforePass2(handler);
 
         mon = (SimpleMonitor.Listener) monitor.nextMonitor();
         mon.beginTask(MessageFormat.format("Extracting objects from {0}", new Object[] { file.getAbsolutePath() }),
@@ -93,7 +88,7 @@ public class HprofIndexBuilder implements IIndexBuilder
             throw new IProgressListener.OperationCanceledException();
 
         for (IParsingEnhancer enhancer : enhancers)
-            enhancer.beforeCompletion(handler);
+            enhancer.onParsingCompleted(handler.getSnapshotInfo());
 
         id2position = handler.fillIn(preliminary);
     }

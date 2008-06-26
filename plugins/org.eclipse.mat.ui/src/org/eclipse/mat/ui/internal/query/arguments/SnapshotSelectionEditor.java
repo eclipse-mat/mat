@@ -14,11 +14,13 @@ import java.io.File;
 import java.text.MessageFormat;
 
 import org.eclipse.core.filesystem.IFileStore;
-import org.eclipse.mat.impl.query.ArgumentDescriptor;
-import org.eclipse.mat.impl.query.SnapshotArgument;
-import org.eclipse.mat.snapshot.SnapshotException;
+import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.internal.snapshot.SnapshotArgument;
+import org.eclipse.mat.query.IQueryContext;
+import org.eclipse.mat.query.registry.ArgumentDescriptor;
+import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.SnapshotHistoryService;
-import org.eclipse.mat.ui.internal.OpenSnapshot;
+import org.eclipse.mat.ui.snapshot.OpenSnapshot;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyEvent;
@@ -32,7 +34,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.TableItem;
-
 
 public class SnapshotSelectionEditor extends ArgumentEditor
 {
@@ -65,9 +66,10 @@ public class SnapshotSelectionEditor extends ArgumentEditor
         }
     }
 
-    public SnapshotSelectionEditor(Composite parent, ArgumentDescriptor descriptor, TableItem item)
+    public SnapshotSelectionEditor(Composite parent, IQueryContext context, ArgumentDescriptor descriptor,
+                    TableItem item)
     {
-        super(parent, descriptor, item);
+        super(parent, context, descriptor, item);
         createContents();
     }
 
@@ -99,7 +101,10 @@ public class SnapshotSelectionEditor extends ArgumentEditor
         combo.setBackground(this.getParent().getBackground());
 
         for (SnapshotHistoryService.Entry entry : SnapshotHistoryService.getInstance().getVisitedEntries())
-            combo.add(entry.getFilePath());
+        {
+            if (MemoryAnalyserPlugin.EDITOR_ID.equals(entry.getEditorId()))
+                combo.add(entry.getFilePath());
+        }
 
         combo.addSelectionListener(new SelectionListener()
         {
@@ -125,7 +130,7 @@ public class SnapshotSelectionEditor extends ArgumentEditor
     protected void editingDone()
     {
         String path = combo.getText().trim();
-        
+
         if (path.length() > 0 && !new File(path).exists())
         {
             fireErrorEvent(MessageFormat.format("File does not exist.", path), this);

@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.mat.parser.internal.oql.compiler;
 
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.parser.internal.oql.OQLQueryImpl;
-import org.eclipse.mat.snapshot.SnapshotException;
 import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
 
 

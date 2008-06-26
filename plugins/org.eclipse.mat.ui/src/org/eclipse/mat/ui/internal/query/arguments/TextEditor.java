@@ -10,9 +10,10 @@
  *******************************************************************************/
 package org.eclipse.mat.ui.internal.query.arguments;
 
-import org.eclipse.mat.impl.query.ArgumentDescriptor;
+import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.annotations.Argument;
-import org.eclipse.mat.snapshot.SnapshotException;
+import org.eclipse.mat.query.registry.ArgumentDescriptor;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.util.PatternUtil;
 import org.eclipse.swt.SWT;
@@ -74,18 +75,19 @@ public class TextEditor extends ArgumentEditor
         }
     }
 
-    public TextEditor(Composite parent, ArgumentDescriptor descriptor, TableItem item, DecoratorType decorator)
+    public TextEditor(Composite parent, IQueryContext context, ArgumentDescriptor descriptor, TableItem item,
+                    DecoratorType decorator)
     {
-        super(parent, descriptor, item);
+        super(parent, context, descriptor, item);
         this.setBackground(parent.getBackground());
         this.parent = parent;
         this.decorator = decorator;
         createContents();
     }
 
-    public TextEditor(Composite parent, ArgumentDescriptor descriptor, TableItem item)
+    public TextEditor(Composite parent, IQueryContext context, ArgumentDescriptor descriptor, TableItem item)
     {
-        this(parent, descriptor, item, null);
+        this(parent, context, descriptor, item, null);
     }
 
     protected void createContents()
@@ -145,7 +147,7 @@ public class TextEditor extends ArgumentEditor
             }
             else
             {
-                value = descriptor.stringToValue(t);
+                value = context.convertToValue(descriptor.getType(), descriptor.getAdvice(), t);
             }
             
             fireValueChangedEvent(value, this);
@@ -161,7 +163,7 @@ public class TextEditor extends ArgumentEditor
     public void setValue(Object value) throws SnapshotException
     {
         this.value = value;
-        text.setText(descriptor.valueToString(value));
+        text.setText(context.convertToString(descriptor.getType(), descriptor.getAdvice(), value));
     }
 
     @Override

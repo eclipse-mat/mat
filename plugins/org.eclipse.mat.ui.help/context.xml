@@ -2,7 +2,7 @@
 <?NLS TYPE="org.eclipse.help.contexts"?>
 <contexts>
 	<context id="oql">
-		<description>Object Query Langauge (OQL) Syntax</description>
+		<description>Object Query Language (OQL) Syntax</description>
 		<topic label="OQL Details" href="html/46/a4ff1a2cd752b7e10000000a155369/content.htm" />
 	</context>
 	<context id="org.eclipse.mat.ui.query.arguments">

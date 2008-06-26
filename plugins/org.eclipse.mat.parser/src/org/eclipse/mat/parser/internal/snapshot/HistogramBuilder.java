@@ -13,6 +13,7 @@ package org.eclipse.mat.parser.internal.snapshot;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.parser.internal.SnapshotImpl;
 import org.eclipse.mat.parser.model.ClassImpl;
@@ -21,8 +22,8 @@ import org.eclipse.mat.snapshot.ClassHistogramRecord;
 import org.eclipse.mat.snapshot.ClassLoaderHistogramRecord;
 import org.eclipse.mat.snapshot.Histogram;
 import org.eclipse.mat.snapshot.HistogramRecord;
-import org.eclipse.mat.snapshot.SnapshotException;
 import org.eclipse.mat.snapshot.model.IObject;
+import org.eclipse.mat.util.VoidProgressListener;
 
 public class HistogramBuilder extends HistogramRecord
 {
@@ -109,6 +110,13 @@ public class HistogramBuilder extends HistogramRecord
             numberOfObjectsOverall += builder.getNumberOfObjects();
             usedHeapSizeOverall += builder.getUsedHeapSize();
             retainedHeapSizeOverall += builder.getRetainedHeapSize();
+        }
+        
+        if (isDefaultHistogram)
+        {
+            VoidProgressListener listener = new VoidProgressListener();
+            for (ClassHistogramRecord r : classHistogramRecords)
+                r.calculateRetainedSize(snapshot, false, true, listener);
         }
 
         return new Histogram(getLabel(), classHistogramRecords, classLoaderHistogramRecords, numberOfObjectsOverall,

@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.mat.parser.internal.snapshot;
 
-import org.eclipse.mat.snapshot.SnapshotException;
+import org.eclipse.mat.SnapshotException;
 
 /**
  * @deprecated Use {@link HistogramBuilder#toHistogram(org.eclipse.mat.internal.snapshot.hprof.HprofSnapshot, boolean) instead}

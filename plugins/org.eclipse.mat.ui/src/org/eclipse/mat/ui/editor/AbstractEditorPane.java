@@ -16,6 +16,7 @@ import java.util.List;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.ui.util.PaneState;
 import org.eclipse.mat.ui.util.PopupMenu;
 import org.eclipse.swt.events.MenuAdapter;
@@ -30,7 +31,6 @@ import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IPropertyListener;
 import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.PartInitException;
-
 
 public abstract class AbstractEditorPane implements IEditorPart
 {
@@ -191,4 +191,13 @@ public abstract class AbstractEditorPane implements IEditorPart
         this.paneState = paneState;
     }
 
+    public MultiPaneEditor getEditor()
+    {
+        return ((MultiPaneEditorSite) this.getEditorSite()).getMultiPageEditor();
+    }
+
+    public IQueryContext getQueryContext()
+    {
+        return getEditor().getQueryContext();
+    }
 }

@@ -17,8 +17,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.parser.internal.oql.compiler.CompilerImpl.ConstantExpression;
-import org.eclipse.mat.snapshot.SnapshotException;
 import org.eclipse.mat.util.PatternUtil;
 import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
 

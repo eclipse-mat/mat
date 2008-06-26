@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Memory Analyzer Help (Incubation)
 Bundle-SymbolicName: org.eclipse.mat.ui.help;singleton:=true
 Bundle-Version: 0.7.0.qualifier
-Bundle-Activator: org.eclipse.mat.ui.help.Activator
 Bundle-Vendor: Eclipse.org
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.3.100",
  org.eclipse.ui;bundle-version="3.3.0",
@@ -12,7 +11,4 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="3.3.100",
  org.eclipse.help.base;bundle-version="3.3.0",
  org.eclipse.help.ui;bundle-version="3.3.0",
  org.eclipse.help.webapp;bundle-version="3.3.0"
-Eclipse-LazyStart: true
-Bundle-ActivationPolicy: lazy
-Export-Package: org.eclipse.mat.ui.help
 Bundle-RequiredExecutionEnvironment: J2SE-1.5

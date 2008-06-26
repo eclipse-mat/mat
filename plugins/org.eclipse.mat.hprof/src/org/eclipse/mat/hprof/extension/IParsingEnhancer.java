@@ -12,16 +12,10 @@ package org.eclipse.mat.hprof.extension;
 
 import java.io.IOException;
 
-import org.eclipse.mat.hprof.IHprofParserHandler;
-
+import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.snapshot.SnapshotInfo;
 
 public interface IParsingEnhancer
 {
-
-    void beforePass1(IHprofParserHandler handler) throws IOException;
-
-    void beforePass2(IHprofParserHandler handler) throws IOException;
-
-    void beforeCompletion(IHprofParserHandler handler) throws IOException;
-
+    void onParsingCompleted(SnapshotInfo snapshotInfo) throws SnapshotException, IOException;
 }

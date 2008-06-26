@@ -18,43 +18,42 @@ import java.util.regex.Pattern;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.mat.impl.query.ArgumentDescriptor;
-import org.eclipse.mat.impl.query.ArgumentSet;
-import org.eclipse.mat.impl.query.CategoryDescriptor;
-import org.eclipse.mat.impl.query.HeapObjectContextArgument;
-import org.eclipse.mat.impl.query.QueryDescriptor;
-import org.eclipse.mat.impl.query.QueryRegistry;
-import org.eclipse.mat.impl.query.QueryResult;
-import org.eclipse.mat.impl.query.QueryTarget;
+import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.internal.snapshot.HeapObjectContextArgument;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.ContextProvider;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IContextObjectSet;
 import org.eclipse.mat.query.IStructuredResult;
-import org.eclipse.mat.snapshot.SnapshotException;
+import org.eclipse.mat.query.annotations.Argument;
+import org.eclipse.mat.query.registry.ArgumentDescriptor;
+import org.eclipse.mat.query.registry.ArgumentSet;
+import org.eclipse.mat.query.registry.CategoryDescriptor;
+import org.eclipse.mat.query.registry.QueryDescriptor;
+import org.eclipse.mat.query.registry.QueryRegistry;
+import org.eclipse.mat.query.registry.QueryResult;
+import org.eclipse.mat.snapshot.ISnapshot;
+import org.eclipse.mat.snapshot.model.IObject;
+import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.QueryExecution;
-import org.eclipse.mat.ui.editor.HeapEditor;
-import org.eclipse.mat.ui.editor.HeapEditorPane;
-import org.eclipse.mat.ui.editor.MultiPaneEditorSite;
-import org.eclipse.mat.ui.internal.query.ArgumentContextProvider;
-import org.eclipse.mat.ui.internal.query.CopyActions;
-
+import org.eclipse.mat.ui.editor.AbstractEditorPane;
+import org.eclipse.mat.ui.editor.MultiPaneEditor;
 
 public class QueryContextMenu
 {
-    private HeapEditor editor;
+    private MultiPaneEditor editor;
     private List<ContextProvider> contextProvider;
 
     /** query result might not exist! */
     private QueryResult queryResult;
 
-    public QueryContextMenu(HeapEditorPane pane, QueryResult result)
+    public QueryContextMenu(AbstractEditorPane pane, QueryResult result)
     {
-        this((HeapEditor) ((MultiPaneEditorSite) pane.getEditorSite()).getMultiPageEditor(), result);
+        this(pane.getEditor(), result);
     }
 
-    public QueryContextMenu(HeapEditor editor, QueryResult result)
+    public QueryContextMenu(MultiPaneEditor editor, QueryResult result)
     {
         this.editor = editor;
         this.queryResult = result;
@@ -70,16 +69,16 @@ public class QueryContextMenu
         }
     }
 
-    public QueryContextMenu(HeapEditor editor, ContextProvider provider)
+    public QueryContextMenu(MultiPaneEditor editor, ContextProvider provider)
     {
         this.editor = editor;
         contextProvider = new ArrayList<ContextProvider>(1);
         contextProvider.add(provider);
     }
 
-    public QueryContextMenu(HeapEditorPane pane, ContextProvider provider)
+    public QueryContextMenu(AbstractEditorPane pane, ContextProvider provider)
     {
-        this((HeapEditor) ((MultiPaneEditorSite) pane.getEditorSite()).getMultiPageEditor(), provider);
+        this(pane.getEditor(), provider);
     }
 
     public final void addContextActions(PopupMenu manager, IStructuredSelection selection)
@@ -128,8 +127,6 @@ public class QueryContextMenu
 
             queryMenu(menu, menuContext, label);
 
-            copyMenu(menu, menuContext, label);
-
             customMenu(menu, menuContext, p, label);
         }
     }
@@ -172,44 +169,99 @@ public class QueryContextMenu
         return label;
     }
 
-    private void queryMenu(PopupMenu menu, List<IContextObject> menuContext, String label)
+    private static class Policy
     {
-        // type of commands
-        boolean isSingleObject = menuContext.size() == 1 && !(menuContext.get(0) instanceof IContextObjectSet);
-        QueryTarget target = isSingleObject ? QueryTarget.OBJECT : QueryTarget.OBJECT_SET;
+        private boolean multipleObjectSelected;
+        private Class<? extends IContextObject> type;
 
-        addCategories(menu, QueryRegistry.instance().getRootCategory(), menuContext, label, target);
-    }
-
-    private void addCategories(PopupMenu menu, CategoryDescriptor root, List<IContextObject> menuContext, String label,
-                    QueryTarget target)
-    {
-        for (CategoryDescriptor sub : root.getSubCategories())
+        public Policy(List<IContextObject> menuContext)
         {
-            PopupMenu subManager = new PopupMenu(sub.getName());
-            menu.add(subManager);
-            addCategories(subManager, sub, menuContext, label, target);
-        }
+            multipleObjectSelected = menuContext.size() > 1 || menuContext.get(0) instanceof IContextObjectSet;
 
-        for (QueryDescriptor query : root.getQueries())
-        {
-            if (query.accept(target))
+            type = IContextObjectSet.class;
+            for (IContextObject obj : menuContext)
             {
-                menu.add(new QueryAction(editor, query, menuContext, label));
+                if (!IContextObjectSet.class.isAssignableFrom(obj.getClass()))
+                {
+                    type = IContextObject.class;
+                    break;
+                }
             }
         }
+
+        public boolean accept(QueryDescriptor query)
+        {
+            boolean heapObjectArgExists = false;
+            boolean heapObjectArgIsMultiple = false;
+
+            for (ArgumentDescriptor argument : query.getArguments())
+            {
+                if (isHeapObject(argument))
+                {
+                    heapObjectArgExists = true;
+                    heapObjectArgIsMultiple = heapObjectArgIsMultiple || argument.isMultiple()
+                                    || IHeapObjectArgument.class.isAssignableFrom(argument.getType());
+                }
+                else if (argument.getType().isAssignableFrom(type))
+                {
+                    heapObjectArgExists = true;
+                    heapObjectArgIsMultiple = heapObjectArgIsMultiple || argument.isMultiple();
+                }
+            }
+
+            if (!heapObjectArgExists)
+                return false;
+            if (!heapObjectArgIsMultiple && multipleObjectSelected)
+                return false;
+
+            return true;
+        }
+
+        private boolean isHeapObject(ArgumentDescriptor argument)
+        {
+            Class<?> argType = argument.getType();
+
+            if (argType.isAssignableFrom(int.class) && argument.getAdvice() == Argument.Advice.HEAP_OBJECT)
+                return true;
+            if (argType.isAssignableFrom(IObject.class))
+                return true;
+            if (argType.isAssignableFrom(IHeapObjectArgument.class))
+                return true;
+            if (argType.isAssignableFrom(type))
+                return true;
+
+            return false;
+        }
     }
 
-    private void copyMenu(PopupMenu menu, List<IContextObject> menuContext, String label)
+    private void queryMenu(PopupMenu menu, List<IContextObject> menuContext, String label)
     {
-        menu.addSeparator();
-        PopupMenu copy = new PopupMenu("Copy");
-        copy.setImageDescriptor(MemoryAnalyserPlugin.getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.COPY));
-        menu.add(copy);
+        addCategories(menu, QueryRegistry.instance().getRootCategory(), menuContext, label, new Policy(menuContext));
+    }
 
-        copy.add(new CopyActions.Address(editor.getSnapshotInput().getSnapshot(), menuContext));
-        copy.add(new CopyActions.FQClassName(editor.getSnapshotInput().getSnapshot(), menuContext));
-        copy.add(new CopyActions.Value(editor.getSnapshotInput().getSnapshot(), menuContext));
+    private void addCategories(PopupMenu menu, //
+                    CategoryDescriptor root, //
+                    List<IContextObject> menuContext, //
+                    String label, //
+                    Policy policy)
+    {
+        for (Object item : root.getChildren())
+        {
+            if (item instanceof CategoryDescriptor)
+            {
+                CategoryDescriptor sub = (CategoryDescriptor) item;
+                PopupMenu subManager = new PopupMenu(sub.getName());
+                menu.add(subManager);
+                addCategories(subManager, sub, menuContext, label, policy);
+            }
+            else if (item instanceof QueryDescriptor)
+            {
+                QueryDescriptor query = (QueryDescriptor) item;
+                if (policy.accept(query))
+                    menu.add(new QueryAction(editor, query, menuContext, label));
+
+            }
+        }
     }
 
     protected void customMenu(PopupMenu menu, List<IContextObject> menuContext, ContextProvider provider, String label)
@@ -225,24 +277,27 @@ public class QueryContextMenu
         label = matcher.matches() ? matcher.group(1) : label;
         return (label.length() > 100) ? label.substring(0, 100) + "..." : label;
     }
-    
+
     private static final class QueryAction extends Action
     {
-        HeapEditor editor;
-        QueryDescriptor descriptor;
+        MultiPaneEditor editor;
+        QueryDescriptor query;
         List<IContextObject> context;
         String label;
 
-        public QueryAction(HeapEditor editor, QueryDescriptor descriptor, List<IContextObject> context, String label)
+        public QueryAction(MultiPaneEditor editor, //
+                        QueryDescriptor query, //
+                        List<IContextObject> context, //
+                        String label)
         {
-            super(descriptor.getName());
+            super(query.getName());
             this.editor = editor;
-            this.descriptor = descriptor;
+            this.query = query;
             this.context = context;
             this.label = label;
 
-            this.setToolTipText(descriptor.getShortDescription());
-            this.setImageDescriptor(ImageHelper.getImageDescriptor(descriptor));
+            this.setToolTipText(query.getShortDescription());
+            this.setImageDescriptor(MemoryAnalyserPlugin.getDefault().getImageDescriptor(query));
         }
 
         @Override
@@ -250,23 +305,53 @@ public class QueryContextMenu
         {
             try
             {
-                ArgumentSet set = descriptor.createNewArgumentSet(new ArgumentContextProvider(editor));
-
-                for (ArgumentDescriptor arg : set.getUnsetArguments())
-                {
-                    if (arg.isHeapObject())
-                    {
-                        set.setArgumentValue(arg, new HeapObjectContextArgument(context, label));
-                    }
-                }
-
-                QueryExecution.execute(editor, editor.getActiveEditor().getPaneState(), null, set, !descriptor.isShallow(), false);
+                ArgumentSet set = query.createNewArgumentSet(editor.getQueryContext());
+                fillInObjectArguments(set);
+                QueryExecution.execute(editor, editor.getActiveEditor().getPaneState(), null, set, !query.isShallow(),
+                                false);
             }
             catch (SnapshotException e)
             {
                 ErrorHelper.logThrowableAndShowMessage(e);
             }
         }
-    }
 
+        private void fillInObjectArguments(ArgumentSet set)
+        {
+            ISnapshot snapshot = (ISnapshot) editor.getQueryContext().get(ISnapshot.class, null);
+
+            for (ArgumentDescriptor argument : query.getArguments())
+            {
+                if ((int.class.isAssignableFrom(argument.getType()) && argument.getAdvice() == Argument.Advice.HEAP_OBJECT) //
+                                || IObject.class.isAssignableFrom(argument.getType()) //
+                                || IHeapObjectArgument.class.isAssignableFrom(argument.getType()))
+                {
+                    set.setArgumentValue(argument, new HeapObjectContextArgument(snapshot, context, label));
+                }
+                else if (IContextObjectSet.class.isAssignableFrom(argument.getType()))
+                {
+                    if (argument.isMultiple())
+                    {
+                        set.setArgumentValue(argument, context);
+                    }
+                    else
+                    {
+                        set.setArgumentValue(argument, context.get(0));
+                    }
+                }
+                else if (IContextObject.class.isAssignableFrom(argument.getType()))
+                {
+                    if (argument.isMultiple())
+                    {
+                        set.setArgumentValue(argument, context);
+                    }
+                    else
+                    {
+                        set.setArgumentValue(argument, context.get(0));
+                    }
+                }
+            }
+
+        }
+    }
 }

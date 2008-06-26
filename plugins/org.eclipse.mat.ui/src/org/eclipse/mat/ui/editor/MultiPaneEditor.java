@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.mat.ui.editor;
 
+import java.io.File;
+import java.net.URI;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -17,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -25,8 +29,10 @@ import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.IExtensionRegistry;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
@@ -38,12 +44,13 @@ import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.util.SafeRunnable;
+import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
+import org.eclipse.mat.ui.snapshot.ImageHelper.ImageImageDescriptor;
 import org.eclipse.mat.ui.util.ErrorHelper;
 import org.eclipse.mat.ui.util.NavigatorState;
 import org.eclipse.mat.ui.util.PaneState;
 import org.eclipse.mat.ui.util.PopupMenu;
-import org.eclipse.mat.ui.util.ImageHelper.ImageImageDescriptor;
 import org.eclipse.mat.ui.util.PaneState.PaneType;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
@@ -71,7 +78,10 @@ import org.eclipse.ui.IEditorActionBarContributor;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
+import org.eclipse.ui.IFileEditorInput;
+import org.eclipse.ui.IPathEditorInput;
 import org.eclipse.ui.IPropertyListener;
+import org.eclipse.ui.IURIEditorInput;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
@@ -88,15 +98,6 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
     // inner classes
     // //////////////////////////////////////////////////////////////
 
-    interface Constants
-    {
-        String ATT_ID = "id"; //$NON-NLS-1$
-        String ATT_EDITOR_CLASS = "editorClass"; //$NON-NLS-1$
-        String ATT_CLASS = "class"; //$NON-NLS-1$
-        String ATT_SEQUENCE_NR = "sequenceNr"; //$NON-NLS-1$
-        String ATT_EDITOR_ID = "editorId"; //$NON-NLS-1$
-    }
-
     public static final int PROP_ACTION_BAR = 0x1000001;
     public static final int PROP_FOLDER_IMAGE = 0x1000002;
 
@@ -108,6 +109,9 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
     private List<IMultiPaneEditorContributor> contributors = new ArrayList<IMultiPaneEditorContributor>();
     private Menu menu;
     private NavigatorState navigatorState;
+
+    private File resource;
+    private IQueryContext queryContext;
 
     // //////////////////////////////////////////////////////////////
     // multi pane editor creation & disposal
@@ -325,54 +329,15 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
 
         // set the active page (page 0 by default),
         // unless it has already been done
-        if (getActivePage() == -1)
-            setActivePage(0);
+        if (getActivePage() == -1 && container.getItemCount() > 0)
+            pageChange(0);
     }
 
     /**
      * read pane configuration & create initial set of pages
      */
     protected void createInitialPanes()
-    {
-        List<PaneConfiguration> elements = new ArrayList<PaneConfiguration>(PaneConfiguration.panes());
-
-        Collections.sort(elements, new Comparator<PaneConfiguration>()
-        {
-            public int compare(PaneConfiguration o1, PaneConfiguration o2)
-            {
-                int seqNr1 = o1.getSequenceNr();
-                int seqNr2 = o2.getSequenceNr();
-                return seqNr1 > seqNr2 ? 1 : seqNr1 == seqNr2 ? 0 : -1;
-            }
-        });
-
-        for (PaneConfiguration editor : elements)
-        {
-            try
-            {
-                if (editor.getSequenceNr() >= 0)
-                {
-                    AbstractEditorPane part = editor.build();
-
-                    PaneState state = new PaneState(PaneType.EDITOR, null, editor.getId(), true);
-                    state.setImage(part.getTitleImage());
-                    part.setPaneState(state);
-
-                    int index = addPage(part, getPaneEditorInput(), true);
-                    setPageText(index, part.getTitle());
-                    setPageImage(index, part.getTitleImage());
-
-                    part.initWithArgument(null);
-                }
-            }
-            catch (CoreException e)
-            {
-                ErrorHelper.logThrowableAndShowMessage(e);
-            }
-        }
-
-        pageChange(0);
-    }
+    {}
 
     /**
      * read configured contributors & create
@@ -393,7 +358,7 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
                 {
                     try
                     {
-                        String editorClass = confElements[jj].getAttribute(Constants.ATT_EDITOR_CLASS);
+                        String editorClass = confElements[jj].getAttribute("editorClass");
                         if (editorClass == null)
                             continue;
 
@@ -410,13 +375,13 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
                             continue;
 
                         // sequenceNr
-                        String sequenceNrStr = confElements[jj].getAttribute(Constants.ATT_SEQUENCE_NR);
+                        String sequenceNrStr = confElements[jj].getAttribute("sequenceNr");
                         int sequenceNr = sequenceNrStr != null && sequenceNrStr.length() > 0 ? Integer
                                         .valueOf(sequenceNrStr) : Integer.MAX_VALUE;
 
                         // instantiate editor
                         IMultiPaneEditorContributor contributor = (IMultiPaneEditorContributor) confElements[jj]
-                                        .createExecutableExtension(Constants.ATT_CLASS);
+                                        .createExecutableExtension("class");
 
                         List<IMultiPaneEditorContributor> list = seq2contributors.get(sequenceNr);
                         if (list == null)
@@ -525,11 +490,11 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
     public void addNewPage(String paneId, Object argument, boolean isSingelton, boolean doFocus, String title,
                     Image image)
     {
-        PaneConfiguration cfg = PaneConfiguration.forPane(paneId);
+        PaneConfiguration cfg = EditorPaneRegistry.instance().forPane(paneId);
         if (cfg == null)
             return;
 
-        if (isSingelton || cfg.getSequenceNr() == -2)
+        if (isSingelton)
         {
             int indexCount = getPageCount();
             for (int i = 0; i < indexCount; i++)
@@ -713,6 +678,40 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
         setInput(input);
         site.setSelectionProvider(new MultiPaneEditorSelectionProvider(this));
         navigatorState = new NavigatorState();
+
+        if (input instanceof IFileEditorInput)
+        {
+            IFile file = ((IFileEditorInput) input).getFile();
+            this.resource = file.getLocation().toFile();
+            this.setPartName(file.getName());
+        }
+        else if (input instanceof IPathEditorInput)
+        {
+            IPath path = ((IPathEditorInput) input).getPath();
+            this.resource = path.toFile();
+            this.setPartName(path.lastSegment());
+        }
+        else if (input instanceof IURIEditorInput)
+        {
+            URI uri = ((IURIEditorInput) input).getURI();
+
+            if ("file".equals(uri.getScheme()))
+            {
+                IPath path = new Path(uri.getPath());
+                this.resource = path.toFile();
+                this.setPartName(path.lastSegment());
+            }
+            else
+            {
+                throw new PartInitException(MessageFormat.format("Unsupported scheme: {0}", uri.toASCIIString()));
+            }
+        }
+        else
+        {
+            throw new PartInitException(MessageFormat.format("Unsupported editor input: {0}", input.getClass()
+                            .getName()));
+        }
+
     }
 
     public NavigatorState getNavigatorState()
@@ -796,7 +795,7 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
 
         pane.setFocus();
 
-        contributeToToolBar(pane);
+        updateToolbar();
 
         IEditorActionBarContributor contributor = getEditorSite().getActionBarContributor();
         if (contributor != null && contributor instanceof MultiPaneEditorContributor)
@@ -878,21 +877,12 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
 
     public void updateToolbar()
     {
-        AbstractEditorPane activeEditor = getActiveEditor();
-        contributeToToolBar(activeEditor);
-        if (activeEditor != null)
-            activeEditor.getEditorSite().getActionBars().updateActionBars();
-    }
-
-    private void contributeToToolBar(AbstractEditorPane activeEditor)
-    {
         toolbarManager.removeAll();
 
         for (IMultiPaneEditorContributor contributor : this.contributors)
-        {
             contributor.contributeToToolbar(toolbarManager);
-        }
 
+        AbstractEditorPane activeEditor = getActiveEditor();
         if (activeEditor != null)
         {
             toolbarManager.add(new Separator());
@@ -900,6 +890,9 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
         }
 
         toolbarManager.update(false);
+
+        if (activeEditor != null)
+            activeEditor.getEditorSite().getActionBars().updateActionBars();
     }
 
     // //////////////////////////////////////////////////////////////
@@ -1000,19 +993,28 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
         container.setSelection(pageIndex);
     }
 
-    private void setPageImage(int pageIndex, Image image)
-    {
-        getItem(pageIndex).setImage(image);
-    }
-
-    private void setPageText(int pageIndex, String text)
-    {
-        getItem(pageIndex).setText(text);
-    }
-
     public boolean isDisposed()
     {
         return container.isDisposed();
+    }
+
+    // //////////////////////////////////////////////////////////////
+    // query context
+    // //////////////////////////////////////////////////////////////
+
+    public File getResourceFile()
+    {
+        return resource;
+    }
+    
+    public IQueryContext getQueryContext()
+    {
+        return queryContext;
+    }
+
+    protected void setQueryContext(IQueryContext queryContext)
+    {
+        this.queryContext = queryContext;
     }
 
 }

@@ -13,7 +13,8 @@ package org.eclipse.mat.ui.internal.query.arguments;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.fieldassist.ControlDecoration;
 import org.eclipse.jface.resource.JFaceResources;
-import org.eclipse.mat.impl.query.ArgumentDescriptor;
+import org.eclipse.mat.query.IQueryContext;
+import org.eclipse.mat.query.registry.ArgumentDescriptor;
 import org.eclipse.mat.util.PatternUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
@@ -69,10 +70,10 @@ public class ImageTextEditor extends TextEditor
         }
     }
 
-    public ImageTextEditor(Composite parent, ArgumentDescriptor descriptor, TableItem item,
+    public ImageTextEditor(Composite parent, IQueryContext context, ArgumentDescriptor descriptor, TableItem item,
                     final DecoratorType decorator)
     {
-        super(parent, descriptor, item, decorator);
+        super(parent, context, descriptor, item, decorator);
 
         text.addFocusListener(new FocusListener()
         {

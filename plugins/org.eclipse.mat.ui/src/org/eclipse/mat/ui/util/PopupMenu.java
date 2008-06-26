@@ -141,7 +141,7 @@ public final class PopupMenu
             {
                 PopupMenu popup = (PopupMenu) item;
 
-                if (!popup.children.isEmpty())
+                if (!popup.isEmpty())
                 {
                     ImageDescriptor imageDescriptor = popup.getImageDescriptor();
 
@@ -222,6 +222,32 @@ public final class PopupMenu
         }
 
         return imageDescriptor;
+    }
+
+    private boolean isEmpty()
+    {
+        if (children.isEmpty())
+            return true;
+
+        for (Object child : children)
+        {
+            if (child instanceof PopupMenu)
+            {
+                if (!((PopupMenu) child).isEmpty())
+                    return false;
+                continue;
+            }
+            else if (child == SEPARATOR)
+            {
+                continue;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        
+        return true;
     }
 
     // //////////////////////////////////////////////////////////////

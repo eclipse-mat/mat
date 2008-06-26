@@ -15,9 +15,8 @@ import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IMenuCreator;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.mat.ui.editor.HeapEditor;
-import org.eclipse.mat.ui.editor.HeapEditorPane;
-import org.eclipse.mat.ui.editor.MultiPaneEditorSite;
+import org.eclipse.mat.ui.editor.AbstractEditorPane;
+import org.eclipse.mat.ui.editor.MultiPaneEditor;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Control;
@@ -37,12 +36,12 @@ public abstract class EasyToolBarDropDown extends Action implements IMenuCreator
     private ToolBar toolBar;
     private Menu menu;
 
-    public EasyToolBarDropDown(String text, ImageDescriptor image, HeapEditorPane pane)
+    public EasyToolBarDropDown(String text, ImageDescriptor image, AbstractEditorPane pane)
     {
-        this(text, image, (HeapEditor) ((MultiPaneEditorSite) pane.getEditorSite()).getMultiPageEditor());
+        this(text, image, pane.getEditor());
     }
 
-    public EasyToolBarDropDown(String text, ImageDescriptor image, HeapEditor editor)
+    public EasyToolBarDropDown(String text, ImageDescriptor image, MultiPaneEditor editor)
     {
         super(text, image);
         this.toolBar = editor.getToolBarManager().getControl();

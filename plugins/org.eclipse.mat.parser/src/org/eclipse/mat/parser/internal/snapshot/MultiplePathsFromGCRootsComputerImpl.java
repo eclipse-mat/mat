@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.BitField;
 import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.collect.SetInt;
@@ -25,7 +26,6 @@ import org.eclipse.mat.parser.internal.util.IntStack;
 import org.eclipse.mat.snapshot.IMultiplePathsFromGCRootsComputer;
 import org.eclipse.mat.snapshot.MultiplePathsFromGCRootsClassRecord;
 import org.eclipse.mat.snapshot.MultiplePathsFromGCRootsRecord;
-import org.eclipse.mat.snapshot.SnapshotException;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.NamedReference;

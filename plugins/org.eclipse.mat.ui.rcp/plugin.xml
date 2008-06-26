@@ -2,15 +2,11 @@
 <?eclipse version="3.0"?>
 <plugin>
 
-     <extension
-         id="application"
-         point="org.eclipse.core.runtime.applications">
-      <application>
-         <run
-               class="org.eclipse.mat.ui.rcp.Application">
-         </run>
-      </application>
-   </extension>
+     <extension id="application" point="org.eclipse.core.runtime.applications">
+		<application>
+			<run class="org.eclipse.mat.ui.rcp.Application"/>
+		</application>
+	</extension>
 
    <extension
          point="org.eclipse.ui.activities">
@@ -71,8 +67,8 @@
 	      <implementation kind="html" style="intro/css/shared.css"/>
 
           <launchBar bg="#d7e5f0" location="fastview">              
-            <shortcut tooltip="Overview" icon="intro/css/graphics/icons/overview_small.gif" url="http://org.eclipse.ui.intro/showPage?id=overview"/>
-            <shortcut tooltip="Tutorials" icon="intro/css/graphics/icons/tutorials_small.gif" url="http://org.eclipse.ui.intro/showPage?id=tutorials"/>
+            <shortcut tooltip="Overview" icon="intro/css/icons/overview_small.gif" url="http://org.eclipse.ui.intro/showPage?id=overview"/>
+            <shortcut tooltip="Tutorials" icon="intro/css/icons/tutorials_small.gif" url="http://org.eclipse.ui.intro/showPage?id=tutorials"/>
           </launchBar>
         </presentation>
       </config>
@@ -87,13 +83,6 @@
              icon="icons/memory_analyzer_16.gif"
              id="org.eclipse.mat.ui.rcp.Intro"
              label="Welcome"/>
-    </extension>
-
-    <extension point="org.eclipse.ui.intro.configExtension">		
-       <configExtension
-			configId="org.eclipse.mat.ui.rcp.introConfig"
-			content="intro/tutorials_rcp.xml">
-       </configExtension>
     </extension>
 
    <extension

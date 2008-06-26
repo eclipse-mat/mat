@@ -7,8 +7,6 @@
 	<extension-point id="editorContributions"
 		name="Multi Pane Editor Contributions"
 		schema="schema/editorContributions.exsd" />
-	<extension-point id="resultPanes" name="Result Panes"
-		schema="schema/resultPanes.exsd"/>
 	
 	<extension point="org.eclipse.ui.perspectives">
 		<perspective
@@ -22,7 +20,7 @@
 	<extension point="org.eclipse.ui.editors">
 		<editor id="org.eclipse.mat.ui.editors.HeapEditor"
 		        name="Eclipse Memory Analyzer"
-		        class="org.eclipse.mat.ui.editor.HeapEditor"
+		        class="org.eclipse.mat.ui.snapshot.editor.HeapEditor"
 		        contributorClass="org.eclipse.mat.ui.editor.MultiPaneEditorContributor"
 		        icon="icons/heapobjects/heapdump16.gif">
 			<contentTypeBinding contentTypeId="org.eclipse.mat.JavaHeapDump" />
@@ -43,7 +41,7 @@
 			id="org.eclipse.mat.ui.views.SnapshotDetailsView"
 			name="Heap Dump Details" />
 		<view allowMultiple="true" category="org.eclipse.mat"
-			class="org.eclipse.mat.ui.internal.views.inspector.InspectorView"
+			class="org.eclipse.mat.ui.snapshot.views.inspector.InspectorView"
 			icon="icons/inspector_view.gif"
 			id="org.eclipse.mat.ui.views.InspectorView"
 			name="Inspector" />
@@ -60,78 +58,44 @@
 	</extension>
 
 	<extension point="org.eclipse.mat.ui.editorPanes">
-		<pane
-			class="org.eclipse.mat.ui.internal.panes.OverviewPane"
-			id="OverviewPane" sequenceNr="1" />
-		<pane
-			class="org.eclipse.mat.ui.internal.panes.QueryResultPane"
-			id="QueryResult" sequenceNr="-1" />
-		<pane
-			class="org.eclipse.mat.ui.internal.panes.TableResultPane"
-			id="QueryResultTable" sequenceNr="-1" />
-		<pane
-			class="org.eclipse.mat.ui.internal.panes.HistogramPane"
-			id="HistogramPane" sequenceNr="-1" />
-		<pane
-			class="org.eclipse.mat.ui.internal.panes.DominatorPane"
-			id="DominatorTreePane" sequenceNr="-1" />
-		<pane
-			class="org.eclipse.mat.ui.internal.panes.Path2GCRootsPane"
-			id="Path2GCRootsPane" sequenceNr="-1" />
-		<pane
-			class="org.eclipse.mat.ui.internal.panes.MultiplePath2GCRootsPane"
-			id="MultiplePath2GCRootsPane" sequenceNr="-1" />
-		<pane
-			class="org.eclipse.mat.ui.internal.panes.QueryTextResultPane"
-			id="QueryTextResult" sequenceNr="-1" />
-		<pane class="org.eclipse.mat.ui.internal.panes.OQLPane"
-			id="OQL" sequenceNr="-1" />
-		<pane
-			class="org.eclipse.mat.ui.internal.panes.TextViewPane"
-			id="TextViewPane" sequenceNr="-1" />
+		<pane id="QueryResult" class="org.eclipse.mat.ui.internal.panes.QueryResultPane">
+			<result type="org.eclipse.mat.query.IResultTree"/>
+		</pane>
+		<pane id="QueryResultTable" class="org.eclipse.mat.ui.internal.panes.TableResultPane">
+			<result type="org.eclipse.mat.query.IResultTable"/>
+		</pane>
+		<pane id="QueryTextResult" class="org.eclipse.mat.ui.internal.panes.QueryTextResultPane">
+			<result type="org.eclipse.mat.query.IResult"/>
+			<result type="org.eclipse.mat.query.results.TextResult"/>
+			<result type="org.eclipse.mat.query.results.DisplayFileResult"/>
+		</pane>
+		<pane id="TextViewPane" class="org.eclipse.mat.ui.internal.panes.TextViewPane"/>
+		
+		<pane id="OverviewPane" class="org.eclipse.mat.ui.snapshot.panes.OverviewPane"/>
+		<pane id="OQL" class="org.eclipse.mat.ui.snapshot.panes.OQLPane">
+			<result type="org.eclipse.mat.snapshot.IOQLQuery$Result"/>
+		</pane>
+		<pane id="HistogramPane" class="org.eclipse.mat.ui.snapshot.panes.HistogramPane">
+			<result type="org.eclipse.mat.snapshot.Histogram"/>
+			<result type="org.eclipse.mat.snapshot.Histogram$ClassLoaderTree"/>
+			<result type="org.eclipse.mat.snapshot.query.HistogramResult"/>
+		</pane>
+		<pane id="DominatorTreePane" class="org.eclipse.mat.ui.snapshot.panes.DominatorPane">
+			<result type="org.eclipse.mat.snapshot.inspections.DominatorQuery$Tree"/>
+		</pane>
+		<pane id="Path2GCRootsPane" class="org.eclipse.mat.ui.snapshot.panes.Path2GCRootsPane">
+			<result type="org.eclipse.mat.snapshot.inspections.Path2GCRootsQuery$Tree"/>
+		</pane>
+		<pane id="MultiplePath2GCRootsPane" class="org.eclipse.mat.ui.snapshot.panes.MultiplePath2GCRootsPane">
+			<result type="org.eclipse.mat.snapshot.inspections.MultiplePath2GCRootsQuery$Tree"/>
+		</pane>
 	</extension>
-
-   <extension
-         point="org.eclipse.mat.ui.resultPanes">
-      <pane class="org.eclipse.mat.ui.internal.panes.OQLPane">
-         <result type="org.eclipse.mat.snapshot.IOQLQuery$Result"/>
-      </pane>
-      <pane class="org.eclipse.mat.ui.internal.panes.HistogramPane">
-         <result type="org.eclipse.mat.snapshot.Histogram"/>
-         <result type="org.eclipse.mat.snapshot.Histogram$ClassLoaderTree"/>
-         <result type="org.eclipse.mat.query.results.HistogramResult"/>
-      </pane>
-      <pane class="org.eclipse.mat.ui.internal.panes.DominatorPane">
-         <result type="org.eclipse.mat.inspections.query.DominatorQuery$Tree"/>
-      </pane>
-      <pane class="org.eclipse.mat.ui.internal.panes.Path2GCRootsPane">
-         <result type="org.eclipse.mat.inspections.query.Path2GCRootsQuery$Tree"/>
-      </pane>
-      <pane class="org.eclipse.mat.ui.internal.panes.MultiplePath2GCRootsPane">
-         <result type="org.eclipse.mat.inspections.query.MultiplePath2GCRootsQuery$Tree"/>
-      </pane>
-      <pane class="org.eclipse.mat.ui.internal.panes.TableResultPane">
-         <result type="org.eclipse.mat.query.IResultTable"/>
-      </pane>
-      <pane class="org.eclipse.mat.ui.internal.panes.QueryResultPane">
-         <result type="org.eclipse.mat.query.IResultTree"/>
-      </pane>
-      <pane class="org.eclipse.mat.ui.internal.panes.QueryTextResultPane">
-         <result type="org.eclipse.mat.query.results.TextResult"/>
-      </pane>
-      <pane class="org.eclipse.mat.ui.internal.panes.QueryTextResultPane">
-         <result type="org.eclipse.mat.query.results.DisplayFileResult"/>
-      </pane>
-      <pane class="org.eclipse.mat.ui.internal.panes.QueryTextResultPane">
-         <result type="org.eclipse.mat.query.IResult"/>
-      </pane>
-   </extension>
    
 	<extension
 		point="org.eclipse.mat.ui.editorContributions">
 		<contribution
-			class="org.eclipse.mat.ui.internal.HeapEditorContributions"
-			editorClass="org.eclipse.mat.ui.editor.HeapEditor"
+			class="org.eclipse.mat.ui.snapshot.editor.HeapEditorContributions"
+			editorClass="org.eclipse.mat.ui.snapshot.editor.HeapEditor"
 			sequenceNr="2" />
 	</extension>
 
@@ -140,7 +104,7 @@
 			id="org.eclipse.mat.ui.actionSet.openIconAssist"
 			label="Icon Assist..." visible="false">
 			<action
-				class="org.eclipse.mat.ui.internal.actions.OpenIconAssistAction"
+				class="org.eclipse.mat.ui.snapshot.actions.OpenIconAssistAction"
 				definitionId="org.eclipse.mat.ui.actions.IconAssist"
 				id="org.eclipse.mat.ui.openIconAssist"
 				label="Icon Assist..." menubarPath="help/additions" style="push"
@@ -150,7 +114,7 @@
 			id="org.eclipse.mat.ui.actionSet.openExternalFile">
 			<action icon="icons/open_snapshot.gif"
 				label="Open Heap Dump..."
-				class="org.eclipse.mat.ui.internal.actions.OpenSnapshotAction"
+				class="org.eclipse.mat.ui.snapshot.actions.OpenSnapshotAction"
 				tooltip="Open Heap Dump" menubarPath="file/new.ext" style="push"
 				toolbarPath="org.eclipse.ui.workbench.file/new.ext"
 				id="org.eclipse.mat.ui.openExternalFile">
@@ -187,15 +151,15 @@
 
 	<extension point="org.eclipse.ui.handlers">
 		<handler
-			class="org.eclipse.mat.ui.internal.query.browser.QueryBrowserHandler"
+			class="org.eclipse.mat.ui.internal.browser.QueryBrowserHandler"
 			commandId="org.eclipse.mat.ui.query.browser.QueryBrowser">
 		</handler>
 		<handler
-			class="org.eclipse.mat.ui.internal.query.browser.QueryHistoryHandler"
+			class="org.eclipse.mat.ui.internal.browser.QueryHistoryHandler"
 			commandId="org.eclipse.mat.ui.query.browser.QueryHistory">
 		</handler>
 		<handler
-			class="org.eclipse.mat.ui.internal.actions.OpenIconAssistAction$Handler"
+			class="org.eclipse.mat.ui.snapshot.actions.OpenIconAssistAction$Handler"
 			commandId="org.eclipse.mat.ui.actions.IconAssist">
 		</handler>
 	</extension>
@@ -217,20 +181,20 @@
 			schemeId="org.eclipse.mat.scheme" sequence="Alt+I">
 		</key>
 	</extension>
-	
+
 	<extension point="org.eclipse.ui.intro.configExtension">
-		<configExtension configId="org.eclipse.ui.intro.universalConfig"
-			content="intro/overview_ide.xml">
-		</configExtension>
-		<configExtension configId="org.eclipse.ui.intro.universalConfig"
-			content="intro/tutorials_ide.xml">
-		</configExtension>
-		<configExtension configId="org.eclipse.ui.intro.universalConfig"
-			content="intro/noteworthy_ide.xml">
-		</configExtension>	
-		<configExtension
-			configId="org.eclipse.mat.ui.rcp.introConfig"
-			content="intro/noteworthy_rcp.xml">
-		</configExtension>	
+		<!-- config extendsions to the RCP welcome page -->		
+		<configExtension configId="org.eclipse.mat.ui.rcp.introConfig" content="intro/all_tutorials.xml" />
+		
+		<!-- config extensions to the universal (IDE) Welcome Page -->
+		<configExtension configId="org.eclipse.ui.intro.universalConfig" content="intro/overview_ide.xml" />
+		<configExtension configId="org.eclipse.ui.intro.universalConfig" content="intro/tutorials_ide.xml" />
+    </extension>
+	
+	<extension point="org.eclipse.mat.report.query">
+		<query impl="org.eclipse.mat.ui.snapshot.actions.CopyActions$Address" />
+		<query impl="org.eclipse.mat.ui.snapshot.actions.CopyActions$FQClassName" />
+		<query impl="org.eclipse.mat.ui.snapshot.actions.CopyActions$Value" />
 	</extension>
+
 </plugin>

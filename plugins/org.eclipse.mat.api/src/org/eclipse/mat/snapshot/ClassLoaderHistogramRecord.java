@@ -13,6 +13,7 @@ package org.eclipse.mat.snapshot;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayIntBig;
 import org.eclipse.mat.util.IProgressListener;
 

@@ -20,30 +20,40 @@ import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.InvalidRegistryObjectException;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.mat.ApiPlugin;
-import org.eclipse.mat.impl.snapshot.ISnapshotFactory;
+import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.internal.MATPlugin;
 import org.eclipse.mat.util.IProgressListener;
-
 
 /**
  * {@link ISnapshot} factory
  */
 public final class SnapshotFactory
 {
-    private static ISnapshotFactory factory;
+    public interface Implementation
+    {
+        ISnapshot openSnapshot(File file, IProgressListener listener) throws SnapshotException;
+
+        void dispose(ISnapshot snapshot);
+
+        IOQLQuery createQuery(String queryString) throws OQLParseException, SnapshotException;
+
+        List<SnapshotFormat> getSupportedFormats();
+    }
+
+    private static Implementation factory;
 
     static
     {
         try
         {
             IExtensionPoint extensionPoint = Platform.getExtensionRegistry().getExtensionPoint(
-                            ApiPlugin.PLUGIN_ID + ".factory");
+                            MATPlugin.PLUGIN_ID + ".factory");
             if (extensionPoint != null)
             {
                 for (IExtension extension : extensionPoint.getExtensions())
                 {
-                    factory = (ISnapshotFactory) extension.getConfigurationElements()[0]
-                                    .createExecutableExtension("class");
+                    factory = (Implementation) extension.getConfigurationElements()[0]
+                                    .createExecutableExtension("impl");
                     break;
                 }
             }
@@ -104,10 +114,12 @@ public final class SnapshotFactory
     {
         return factory.createQuery(queryString);
     }
-    
+
     public static List<SnapshotFormat> getSupportedFormats()
     {
         return factory.getSupportedFormats();
     }
 
+    private SnapshotFactory()
+    {}
 }

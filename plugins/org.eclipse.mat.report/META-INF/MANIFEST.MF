@@ -1,7 +1,22 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Memory Analyzer HTML Reporting (Incubation)
-Bundle-SymbolicName: org.eclipse.mat.report
+Bundle-SymbolicName: org.eclipse.mat.report;singleton:=true
 Bundle-Version: 0.7.0.qualifier
 Bundle-Vendor: Eclipse.org
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Export-Package: org.eclipse.mat,
+ org.eclipse.mat.collect,
+ org.eclipse.mat.query,
+ org.eclipse.mat.query.annotations,
+ org.eclipse.mat.query.quantize,
+ org.eclipse.mat.query.refined,
+ org.eclipse.mat.query.registry;x-friends:="org.eclipse.mat.ui,org.eclipse.mat.api,org.eclipse.mat.chart.ui",
+ org.eclipse.mat.query.results,
+ org.eclipse.mat.report,
+ org.eclipse.mat.util
+Require-Bundle: org.eclipse.core.runtime;bundle-version="3.3.100"
+Eclipse-BuddyPolicy: dependent
+Bundle-ActivationPolicy: lazy
+Eclipse-LazyStart: true
+Bundle-Activator: org.eclipse.mat.report.internal.ReportPlugin

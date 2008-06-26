@@ -11,32 +11,32 @@
 package org.eclipse.mat.ui.internal.actions;
 
 import org.eclipse.jface.action.Action;
-import org.eclipse.mat.impl.query.QueryDescriptor;
-import org.eclipse.mat.impl.query.QueryRegistry;
-import org.eclipse.mat.snapshot.SnapshotException;
+import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.query.registry.QueryDescriptor;
+import org.eclipse.mat.query.registry.QueryRegistry;
+import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.QueryExecution;
-import org.eclipse.mat.ui.editor.HeapEditor;
+import org.eclipse.mat.ui.editor.MultiPaneEditor;
 import org.eclipse.mat.ui.util.ErrorHelper;
-import org.eclipse.mat.ui.util.ImageHelper;
 
 
 public class ExecuteQueryAction extends Action
 {
-    private HeapEditor editor;
+    private MultiPaneEditor editor;
     private QueryDescriptor descriptor;
     private String commandLine;
 
-    public ExecuteQueryAction(HeapEditor editor, QueryDescriptor descriptor)
+    public ExecuteQueryAction(MultiPaneEditor editor, QueryDescriptor descriptor)
     {
         this.editor = editor;
         this.descriptor = descriptor;
 
         setText(descriptor.getName());
         setToolTipText(descriptor.getShortDescription());
-        setImageDescriptor(ImageHelper.getImageDescriptor(descriptor));
+        setImageDescriptor(MemoryAnalyserPlugin.getDefault().getImageDescriptor(descriptor));
     }
 
-    public ExecuteQueryAction(HeapEditor editor, String commandLine)
+    public ExecuteQueryAction(MultiPaneEditor editor, String commandLine)
     {
         this.editor = editor;
         this.commandLine = commandLine;
@@ -50,7 +50,7 @@ public class ExecuteQueryAction extends Action
         if (descriptor != null)
         {
             setToolTipText(descriptor.getShortDescription());
-            setImageDescriptor(ImageHelper.getImageDescriptor(descriptor));
+            setImageDescriptor(MemoryAnalyserPlugin.getDefault().getImageDescriptor(descriptor));
         }
     }
 
