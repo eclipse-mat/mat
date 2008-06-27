@@ -75,7 +75,7 @@ import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.VoidProgressListener;
 import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
 
-public class SnapshotImpl implements ISnapshot
+public final class SnapshotImpl implements ISnapshot
 {
 
     // //////////////////////////////////////////////////////////////

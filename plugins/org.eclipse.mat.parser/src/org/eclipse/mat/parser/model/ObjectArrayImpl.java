@@ -18,6 +18,9 @@ import org.eclipse.mat.snapshot.model.IObjectArray;
 import org.eclipse.mat.snapshot.model.NamedReference;
 import org.eclipse.mat.snapshot.model.PseudoReference;
 
+/**
+ * @noextend
+ */
 public class ObjectArrayImpl extends AbstractArrayImpl implements IObjectArray
 {
     private static final long serialVersionUID = 1L;

@@ -18,7 +18,9 @@ import org.eclipse.mat.parser.model.ClassImpl;
 import org.eclipse.mat.parser.model.XGCRootInfo;
 import org.eclipse.mat.parser.model.XSnapshotInfo;
 
-
+/**
+ * @noimplement
+ */
 public interface IPreliminaryIndex
 {
     XSnapshotInfo getSnapshotInfo();

@@ -21,7 +21,7 @@ import java.util.List;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.collect.ArrayLong;
-import org.eclipse.mat.parser.internal.SnapshotImpl;
+import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.Field;
 import org.eclipse.mat.snapshot.model.FieldDescriptor;
 import org.eclipse.mat.snapshot.model.IClass;
@@ -31,7 +31,9 @@ import org.eclipse.mat.snapshot.model.PseudoReference;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.VoidProgressListener;
 
-
+/**
+ * @noextend
+ */
 public class ClassImpl extends AbstractObjectImpl implements IClass, Comparable<ClassImpl>
 {
     private static final long serialVersionUID = 22L;
@@ -362,9 +364,9 @@ public class ClassImpl extends AbstractObjectImpl implements IClass, Comparable<
 
         return hasSuperClass() ? ((ClassImpl) source.getObject(this.superClassId)).doesExtend(className) : false;
     }
-
+    
     @Override
-    public void setSnapshot(SnapshotImpl dump)
+    public void setSnapshot(ISnapshot dump)
     {
         super.setSnapshot(dump);
         

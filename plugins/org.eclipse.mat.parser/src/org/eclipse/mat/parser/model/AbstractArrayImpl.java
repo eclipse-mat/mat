@@ -16,6 +16,9 @@ import java.lang.ref.SoftReference;
 import org.eclipse.mat.snapshot.model.Field;
 import org.eclipse.mat.snapshot.model.IArray;
 
+/**
+ * @noextend
+ */
 public abstract class AbstractArrayImpl extends AbstractObjectImpl implements IArray
 {
     private static final long serialVersionUID = 1L;

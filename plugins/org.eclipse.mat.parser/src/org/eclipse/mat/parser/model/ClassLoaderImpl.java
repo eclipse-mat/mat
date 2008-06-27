@@ -16,6 +16,7 @@ import java.util.List;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.parser.internal.SnapshotImpl;
+import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.Field;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IClassLoader;
@@ -23,6 +24,9 @@ import org.eclipse.mat.snapshot.registry.ClassSpecificNameResolverRegistry;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.VoidProgressListener;
 
+/**
+ * @noextend
+ */
 public class ClassLoaderImpl extends InstanceImpl implements IClassLoader
 {
     private static final long serialVersionUID = 1L;
@@ -88,7 +92,7 @@ public class ClassLoaderImpl extends InstanceImpl implements IClassLoader
                         listener);
     }
 
-    public static final List<IClass> doGetDefinedClasses(SnapshotImpl dump, int classLoaderId) throws SnapshotException
+    public static final List<IClass> doGetDefinedClasses(ISnapshot dump, int classLoaderId) throws SnapshotException
     {
         List<IClass> answer = new ArrayList<IClass>();
         for (IClass clasz : dump.getClasses())
@@ -99,11 +103,11 @@ public class ClassLoaderImpl extends InstanceImpl implements IClassLoader
         return answer;
     }
 
-    public static final long doGetRetainedHeapSizeOfObjects(SnapshotImpl dump, int classLoaderId,
+    public static final long doGetRetainedHeapSizeOfObjects(ISnapshot dump, int classLoaderId,
                     boolean calculateIfNotAvailable, boolean calculateMinRetainedSize, IProgressListener listener)
                     throws SnapshotException
     {
-        long answer = dump.getRetainedSizeCache().get(classLoaderId);
+        long answer = ((SnapshotImpl) dump).getRetainedSizeCache().get(classLoaderId);
 
         if (answer > 0 || !calculateIfNotAvailable)
             return answer;
@@ -142,7 +146,7 @@ public class ClassLoaderImpl extends InstanceImpl implements IClassLoader
         if (calculateMinRetainedSize)
             retainedSize = -retainedSize;
 
-        dump.getRetainedSizeCache().put(classLoaderId, retainedSize);
+        ((SnapshotImpl) dump).getRetainedSizeCache().put(classLoaderId, retainedSize);
         return retainedSize;
     }
 

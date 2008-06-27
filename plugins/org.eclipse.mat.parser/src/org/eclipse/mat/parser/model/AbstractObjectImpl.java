@@ -24,7 +24,9 @@ import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.ObjectReference;
 import org.eclipse.mat.snapshot.registry.ClassSpecificNameResolverRegistry;
 
-
+/**
+ * @noextend
+ */
 public abstract class AbstractObjectImpl implements IObject, Serializable
 {
     private static final long serialVersionUID = 2451875423035843852L;
@@ -81,9 +83,9 @@ public abstract class AbstractObjectImpl implements IObject, Serializable
         this.classInstance = classInstance;
     }
 
-    public void setSnapshot(SnapshotImpl dump)
+    public void setSnapshot(ISnapshot dump)
     {
-        this.source = dump;
+        this.source = (SnapshotImpl) dump;
     }
 
     public ISnapshot getSnapshot()

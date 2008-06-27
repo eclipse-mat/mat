@@ -28,7 +28,9 @@ import org.eclipse.mat.snapshot.model.ObjectReference;
 import org.eclipse.mat.snapshot.model.PseudoReference;
 import org.eclipse.mat.snapshot.model.ThreadToLocalReference;
 
-
+/**
+ * @noextend
+ */
 public class InstanceImpl extends AbstractObjectImpl implements IInstance
 {
     private static final long serialVersionUID = 1L;

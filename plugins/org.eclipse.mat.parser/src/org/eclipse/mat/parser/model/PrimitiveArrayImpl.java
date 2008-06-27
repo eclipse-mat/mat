@@ -18,6 +18,9 @@ import org.eclipse.mat.snapshot.model.IPrimitiveArray;
 import org.eclipse.mat.snapshot.model.NamedReference;
 import org.eclipse.mat.snapshot.model.PseudoReference;
 
+/**
+ * @noextend
+ */
 public class PrimitiveArrayImpl extends AbstractArrayImpl implements IPrimitiveArray
 {
     private static final long serialVersionUID = 1L;

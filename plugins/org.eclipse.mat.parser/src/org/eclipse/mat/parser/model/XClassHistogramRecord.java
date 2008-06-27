@@ -15,7 +15,7 @@ import org.eclipse.mat.snapshot.ClassHistogramRecord;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.util.IProgressListener;
 
-public class XClassHistogramRecord extends ClassHistogramRecord
+public final class XClassHistogramRecord extends ClassHistogramRecord
 {
     private static final long serialVersionUID = 1L;
 

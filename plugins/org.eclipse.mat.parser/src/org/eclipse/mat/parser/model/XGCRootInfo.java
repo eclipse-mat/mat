@@ -12,7 +12,7 @@ package org.eclipse.mat.parser.model;
 
 import org.eclipse.mat.snapshot.model.GCRootInfo;
 
-public class XGCRootInfo extends GCRootInfo
+public final class XGCRootInfo extends GCRootInfo
 {
     private static final long serialVersionUID = 1L;
 

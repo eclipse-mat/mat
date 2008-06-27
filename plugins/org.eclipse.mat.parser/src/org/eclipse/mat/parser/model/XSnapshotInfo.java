@@ -15,7 +15,7 @@ import java.util.Date;
 import org.eclipse.mat.snapshot.SnapshotInfo;
 
 
-public class XSnapshotInfo extends SnapshotInfo
+public final class XSnapshotInfo extends SnapshotInfo
 {
     private static final long serialVersionUID = 3L;
 
