@@ -195,7 +195,7 @@ public final class CollectionUtil
                     new Info("java.util.ArrayList", ~Version.IBM16, "size", "elementData"), //
                     new IBM6ArrayListInfo("java.util.ArrayList", Version.IBM16, "firstIndex", "lastIndex", "array"), //
 
-                    new Info("java.util.ArrayDeque", Version.IBM16, "rear", "elements"), //
+                    new IBM6ArrayListInfo("java.util.ArrayDeque", Version.IBM16, "front", "rear", "elements"), //
 
                     new Info("java.util.LinkedList", "size", null), //
 
@@ -209,18 +209,14 @@ public final class CollectionUtil
                     new Info("java.util.HashSet", Version.IBM16, //
                                     "backingMap.elementCount", "backingMap.elementData", "key", "value"), // 
 
-                    new Info("java.util.TreeMap", "size", null), // 
-                    new Info("java.util.TreeSet", "size", null), //
+                    new Info("java.util.TreeMap", "size", null), //
+
+                    new Info("java.util.TreeSet", ~Version.IBM16, "m.size", null), // 
+                    new Info("java.util.TreeSet", Version.IBM16, "backingMap.size", null), 
 
                     new Info("java.util.Hashtable", ~(Version.IBM15 | Version.IBM16), "count", "table", "key", "value"), //
                     new Info("java.util.Hashtable", Version.IBM15 | Version.IBM16, //
                                     "elementCount", "elementData", "key", "value"), //
-
-                    // extends Hashtable. Seperate definition needed?
-                    new Info("java.util.Properties", ~(Version.IBM14 | Version.IBM15 | Version.IBM16), "count", "table"), //
-                    new Info("java.util.Properties", Version.IBM14, "count", "table", "key", "value"), //
-                    new Info("java.util.Properties", Version.IBM15 | Version.IBM16, //
-                                    "elementCount", "elementData", "key", "value"), // 
 
                     new Info("java.util.Vector", "elementCount", "elementData"), //
 
