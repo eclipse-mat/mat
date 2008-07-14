@@ -397,7 +397,7 @@ public final class SnapshotImpl implements ISnapshot
         }
 
         if (listener.isCanceled())
-            return null;
+            throw new IProgressListener.OperationCanceledException();
 
         return histogramBuilder.toHistogram(this, true);
     }
@@ -1484,7 +1484,7 @@ public final class SnapshotImpl implements ISnapshot
     {
         return (String) loaderLabels.get(objectId);
     }
-    
+
     public void setClassLoaderLabel(int objectId, String label)
     {
         if (label == null)
@@ -1945,7 +1945,7 @@ public final class SnapshotImpl implements ISnapshot
     {
         return heapObjectReader.getAddon(addon);
     }
-    
+
     // //////////////////////////////////////////////////////////////
     // private classes
     // //////////////////////////////////////////////////////////////
