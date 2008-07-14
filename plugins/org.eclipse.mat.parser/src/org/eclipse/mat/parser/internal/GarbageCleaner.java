@@ -368,7 +368,7 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
         }
         finally
         {
-            // delete all temporary indeces
+            // delete all temporary indices
             idx.delete();
 
             if (idxManager != null && listener.isCanceled())

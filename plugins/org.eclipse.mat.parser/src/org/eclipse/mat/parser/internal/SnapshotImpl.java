@@ -97,7 +97,7 @@ public final class SnapshotImpl implements ISnapshot
 
             String version = in.readUTF();
             if (!VERSION.equals(version))
-                throw new IOException(MessageFormat.format("Unkown version: {0}", version));
+                throw new IOException(MessageFormat.format("Unknown version: {0}", version));
 
             String objectReaderUniqueIdentifier = in.readUTF();
             Parser parser = ParserPlugin.getDefault().getParserRegistry().lookupParser(objectReaderUniqueIdentifier);
@@ -940,7 +940,7 @@ public final class SnapshotImpl implements ISnapshot
     public int[] getTopAncestorsInDominatorTree(int[] objectIds, IProgressListener listener) throws SnapshotException
     {
         if (!isDominatorTreeCalculated())
-            throw new SnapshotException("Dominator tree not available. Delete indeces and parse again.");
+            throw new SnapshotException("Dominator tree not available. Delete indices and parse again.");
 
         if (listener == null)
             listener = new VoidProgressListener();
@@ -1179,14 +1179,14 @@ public final class SnapshotImpl implements ISnapshot
     public int[] getImmediateDominatedIds(int objectId) throws SnapshotException
     {
         if (!isDominatorTreeCalculated())
-            throw new SnapshotException("Dominator tree not available. Delete indeces and parse again.");
+            throw new SnapshotException("Dominator tree not available. Delete indices and parse again.");
         return indexManager.dominated().get(objectId + 1);
     }
 
     public int getImmediateDominatorId(int objectId) throws SnapshotException
     {
         if (!isDominatorTreeCalculated())
-            throw new SnapshotException("Dominator tree not available. Delete indeces and parse again.");
+            throw new SnapshotException("Dominator tree not available. Delete indices and parse again.");
         return indexManager.dominator().get(objectId) - 2;
     }
 
@@ -1194,7 +1194,7 @@ public final class SnapshotImpl implements ISnapshot
                     throws SnapshotException
     {
         if (!isDominatorTreeCalculated())
-            throw new SnapshotException("Dominator tree not available. Delete indeces and parse again.");
+            throw new SnapshotException("Dominator tree not available. Delete indices and parse again.");
 
         if (progressListener == null)
             progressListener = new VoidProgressListener();

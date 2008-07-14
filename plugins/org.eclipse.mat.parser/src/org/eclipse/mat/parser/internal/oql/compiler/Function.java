@@ -125,7 +125,7 @@ abstract class Function extends Expression
             else
             {
                 throw new SnapshotException(MessageFormat.format(ERR_NO_FUNCTION, argument, s, s != null ? s.getClass()
-                                .getName() : "unkown", getSymbol()));
+                                .getName() : "unknown", getSymbol()));
             }
         }
 
@@ -161,7 +161,7 @@ abstract class Function extends Expression
             else
             {
                 throw new SnapshotException(MessageFormat.format(ERR_NO_FUNCTION, argument, s, s != null ? s.getClass()
-                                .getName() : "unkown", getSymbol()));
+                                .getName() : "unknown", getSymbol()));
             }
         }
 
@@ -197,7 +197,7 @@ abstract class Function extends Expression
             else
             {
                 throw new SnapshotException(MessageFormat.format(ERR_NO_FUNCTION, argument, s, s != null ? s.getClass()
-                                .getName() : "unkown", getSymbol()));
+                                .getName() : "unknown", getSymbol()));
             }
         }
 
@@ -233,7 +233,7 @@ abstract class Function extends Expression
             else
             {
                 throw new SnapshotException(MessageFormat.format(ERR_NO_FUNCTION, argument, s, s != null ? s.getClass()
-                                .getName() : "unkown", getSymbol()));
+                                .getName() : "unknown", getSymbol()));
             }
         }
 
@@ -271,7 +271,7 @@ abstract class Function extends Expression
             else
             {
                 throw new SnapshotException(MessageFormat.format(ERR_NO_FUNCTION, argument, s, s != null ? s.getClass()
-                                .getName() : "unkown", getSymbol()));
+                                .getName() : "unknown", getSymbol()));
             }
 
             return dominatorId >= 0 ? ctx.getSnapshot().getObject(dominatorId) : null;

@@ -763,11 +763,11 @@ abstract class Operation extends Expression
 
             if (obj1 == null || !(obj1 instanceof Number))
                 throw new UnsupportedOperationException(MessageFormat.format(ERR_NOT_A_NUMBER, new Object[] { args[0],
-                                obj1, obj1 != null ? obj1.getClass().getName() : "unkown", getSymbol() }));
+                                obj1, obj1 != null ? obj1.getClass().getName() : "unknown", getSymbol() }));
 
             if (obj2 == null || !(obj2 instanceof Number))
                 throw new UnsupportedOperationException(MessageFormat.format(ERR_NOT_A_NUMBER, new Object[] { args[1],
-                                obj2, obj2 != null ? obj2.getClass().getName() : "unkown", getSymbol() }));
+                                obj2, obj2 != null ? obj2.getClass().getName() : "unknown", getSymbol() }));
 
             if (obj1 instanceof Double || obj1 instanceof Float || obj2 instanceof Double || obj2 instanceof Float)
             {

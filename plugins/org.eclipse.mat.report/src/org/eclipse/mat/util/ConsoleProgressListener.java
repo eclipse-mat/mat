@@ -108,7 +108,7 @@ public class ConsoleProgressListener implements IProgressListener
                 out.write("[ERROR] ");
                 break;
             default:
-                out.write("[UNKOWN] ");
+                out.write("[UNKNOWN] ");
         }
 
         out.write(message);
