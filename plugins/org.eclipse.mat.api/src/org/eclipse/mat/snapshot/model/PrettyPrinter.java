@@ -60,7 +60,7 @@ public class PrettyPrinter
             if (val >= 32 && val < 127)
                 result.append(val);
             else
-                result.append("\\u").append(Integer.toString(0xFFFF & val, 16));
+                result.append("\\u").append(String.format("%04x", 0xFFFF & val));
             ii += elementSize;
         }
         if (limit < count)
