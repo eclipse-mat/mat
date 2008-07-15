@@ -18,7 +18,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -29,7 +28,7 @@ import org.eclipse.ui.PlatformUI;
 
 public class SnapshotHistoryService
 {
-    public final static String FILE_NAME = MemoryAnalyserPlugin.getDefault().getStateLocation().toOSString()
+    private final static String FILE_NAME = MemoryAnalyserPlugin.getDefault().getStateLocation().toOSString()
                     + File.separator + "snapshotHistory.ser"; //$NON-NLS-1$
 
     public interface IChangeListener
@@ -41,10 +40,10 @@ public class SnapshotHistoryService
     {
         private static final long serialVersionUID = 1L;
 
-        String editorId;
-        String filePath;
-        Long fileLength;
-        Serializable info;
+        private String editorId;
+        private String filePath;
+        private Long fileLength;
+        private Serializable info;
 
         private Entry(String editorId, String filePath)
         {
@@ -87,40 +86,45 @@ public class SnapshotHistoryService
     }
 
     private static final int NUMBER = 100;
-    private static SnapshotHistoryService instance = new SnapshotHistoryService();
+    private static SnapshotHistoryService INSTANCE = new SnapshotHistoryService();
 
     private LinkedList<Entry> list;
     private List<IChangeListener> listeners = new ArrayList<IChangeListener>();
 
     public static SnapshotHistoryService getInstance()
     {
-        return instance;
+        return INSTANCE;
     }
 
-    SnapshotHistoryService()
+    private SnapshotHistoryService()
     {
         this.listeners = new ArrayList<IChangeListener>();
         initializeDocument();
     }
 
-    public void addVisitedPath(String editorId, String path, Serializable info)
+    public synchronized void addVisitedPath(String editorId, String path, Serializable info)
     {
         Entry e = new Entry(editorId, path);
-
-        if (list.contains(e))
-            list.remove(e);
-
         e.fileLength = new File(e.filePath).length();
         e.info = info;
 
-        list.addFirst(e);
+        List<Entry> copy = null;
 
-        if (list.size() > NUMBER)
-            list.removeLast();
+        synchronized (list)
+        {
+            if (list.contains(e))
+                list.remove(e);
 
-        saveDocument();
+            list.addFirst(e);
 
-        informListeners();
+            if (list.size() > NUMBER)
+                list.removeLast();
+
+            copy = new ArrayList<Entry>(list);
+        }
+
+        saveDocument(copy);
+        informListeners(copy);
     }
 
     public void addVisitedPath(String editorId, String path)
@@ -131,30 +135,42 @@ public class SnapshotHistoryService
     public void removePath(IPath path)
     {
         String filename = path.toOSString();
-        for (Iterator<Entry> iter = list.iterator(); iter.hasNext();)
+
+        List<Entry> copy = null;
+
+        synchronized (list)
         {
-            Entry entry = (Entry) iter.next();
-            if (entry.getFilePath().equals(filename))
+            for (Iterator<Entry> iter = list.iterator(); iter.hasNext();)
             {
-                iter.remove();
-                saveDocument();
-                informListeners();
-                break;
+                Entry entry = (Entry) iter.next();
+                if (entry.getFilePath().equals(filename))
+                {
+                    iter.remove();
+                    copy = new ArrayList<Entry>(list);
+                    break;
+                }
             }
+        }
+
+        if (copy != null)
+        {
+            saveDocument(copy);
+            informListeners(copy);
         }
     }
 
-    private void informListeners()
+    private void informListeners(List<Entry> copy)
     {
-        List<Entry> entries = getVisitedEntries();
-
-        for (IChangeListener listener : this.listeners)
-            listener.onFileHistoryChange(entries);
+        for (IChangeListener listener : new ArrayList<IChangeListener>(listeners))
+            listener.onFileHistoryChange(copy);
     }
 
     public List<Entry> getVisitedEntries()
     {
-        return Collections.unmodifiableList(list);
+        synchronized (list)
+        {
+            return new ArrayList<Entry>(list);
+        }
     }
 
     public void addChangeListener(IChangeListener listener)
@@ -167,7 +183,10 @@ public class SnapshotHistoryService
         this.listeners.remove(listener);
     }
 
-    private synchronized void initializeDocument()
+    /**
+     * only called from constructor
+     */
+    private void initializeDocument()
     {
         File file = new File(FILE_NAME);
         if (file.exists())
@@ -226,15 +245,15 @@ public class SnapshotHistoryService
             list = new LinkedList<Entry>();
     }
 
-    private synchronized void saveDocument()
+    private static void saveDocument(List<Entry> copy)
     {
         try
         {
-            if (!list.isEmpty())
+            if (!copy.isEmpty())
             {
                 ObjectOutputStream oout = new ObjectOutputStream(new FileOutputStream(FILE_NAME));
-                oout.writeInt(list.size());
-                for (Entry entry : list)
+                oout.writeInt(copy.size());
+                for (Entry entry : copy)
                     oout.writeObject(entry);
                 oout.flush();
                 oout.close();
