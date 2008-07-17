@@ -6,7 +6,7 @@
 			We will focus on heap dumps only, the most complete type of snapshot.
       </description>
    </intro>
-   <item title="Open the heap dump" dialog="true" skip="false" href="/org.eclipse.mat.ui.help/html/45/b0eb510443731de10000000a1553f6/content.htm">
+   <item title="Open the heap dump" dialog="true" skip="false" href="/org.eclipse.mat.ui.help/tasks/basictutorial.html">
       <description>
          From the main menu, select
 			<b>File &gt; Open Snapshot</b>,
@@ -18,7 +18,7 @@
       <action class="org.eclipse.mat.ui.snapshot.actions.OpenSampleHeapDumpAction" pluginId="org.eclipse.mat.ui" confirm="false" param1="org.eclipse.mat.ui.help/heapdump/HeapDumpSample.hprof">
       </action>
    </item>
-   <item title="Open Class Histogram" dialog="true" skip="false" href="/org.eclipse.mat.ui.help/html/45/af861f44e76002e10000000a1553f6/content.htm">
+   <item title="Open Class Histogram" dialog="true" skip="false" href="/org.eclipse.mat.ui.help/tasks/basictutorial.html#N10001__class_histogram">
       <description>
          Class Histogram shows the classes found in the snapshot, 
 			the number of objects for each class, the heap memory consumption 
@@ -31,7 +31,7 @@
       <action class="org.eclipse.mat.ui.snapshot.actions.OpenSampleHeapDumpAction" pluginId="org.eclipse.mat.ui" confirm="false" param1="org.eclipse.mat.ui.help/heapdump/HeapDumpSample.hprof" param2="histogram">
       </action>
    </item>
-   <item title="Sort histogram by classloader" dialog="true" skip="true" href="/org.eclipse.mat.ui.help/html/45/af861f44e76002e10000000a1553f6/content.htm">
+   <item title="Sort histogram by classloader" dialog="true" skip="true" href="/org.eclipse.mat.ui.help/tasks/basictutorial.html#N10001__histogram_by_classloader">
       <description>
          To see the histogram sorted by classloaders select the
 			<br/>
@@ -41,7 +41,7 @@
 			<b>Group by class</b> option of the same combobox.
       </description>
    </item>
-   <item title="Compare two snapshots" dialog="true" skip="true" href="/org.eclipse.mat.ui.help/html/45/af861f44e76002e10000000a1553f6/content.htm">
+   <item title="Compare two snapshots" dialog="true" skip="true" href="/org.eclipse.mat.ui.help/tasks/basictutorial.html#N10001__compare">
       <description>
          To compare two snapshots open a baseline snapshot and a later snapshot and press the
 			<br/>
@@ -50,7 +50,7 @@
 			toolbar button, and select the baseline snapshot to see the differences.
       </description>
    </item>
-   <item title="Export histogram data" dialog="true" skip="true" href="/org.eclipse.mat.ui.help/html/45/b0eb510443731de10000000a1553f6/content.htm">
+   <item title="Export histogram data" dialog="true" skip="true" href="/org.eclipse.mat.ui.help/tasks/exportdata.html">
       <description>
          To export the histogram sorted by classes or classloaders press the
 			<br/>

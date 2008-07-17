@@ -1,23 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <?NLS TYPE="org.eclipse.help.toc"?>
 
-<toc label="Memory Analyzer" topic="html/45/b0eb510443731de10000000a1553f6/content.htm">
-	<topic label="Acquiring a Heap Dump" href="html/45/b0e5250443731de10000000a1553f6/content.htm" />		                                             
-	<topic label="Class and Class Loader  Histogram Views"
-		href="html/45/af861f44e76002e10000000a1553f6/content.htm" />
-	<topic label="Class References View"
-		href="html/45/af7c198bf95fffe10000000a1553f6/content.htm" />
-	<topic label="Dominator Tree View" 
-		href="html/45/af77fd8bf95fffe10000000a1553f6/content.htm" />
-	<topic label="Paths to GC Roots View"
-		href="html/45/af772a8bf95fffe10000000a1553f6/content.htm" />
-	<topic label="Merged Paths to GC Roots View"
-	    href="html/46/9d67eef83c3719e10000000a11466f/content.htm" />
-	<topic label="Object References View"
-		href="html/45/af4df764d00063e10000000a11466f/content.htm" />
-	<topic label="Queries"
-		href="html/46/9f9d1c446952b8e10000000a155369/content.htm" />	
-	<topic label="Object Query Language(OQL)" href="html/46/9f7472517a52b6e10000000a155369/content.htm">
-		<anchor id="oql" />		 	
-	</topic>
+<toc label="Memory Analyzer" topic="tasks/basictutorial.html">
+<topic label="Getting Started">
+<topic label="Basic Tutorial" href="tasks/basictutorial.html"/>
+</topic>
+<topic label="Concepts">
+<topic label="Heap Dump" href="concepts/heapdump.html"/>
+<topic label="Shallow vs. Retained Heap" href="concepts/shallowretainedheap.html"/>
+<topic label="Dominator Tree" href="concepts/dominatortree.html"/>
+<topic label="Garbage Collection Roots" href="concepts/garbagecollectionroots.html"/>
+</topic>
+<topic label="Tasks">
+<topic label="Acquiring Heap Dumps" href="tasks/acquiringheapdump.html"/>
+<topic label="Running Leak Suspect Report" href="tasks/runningleaksuspectreport.html"/>
+<topic label="List the Biggest Objects" href="tasks/listbiggestobjects.html"/>
+<topic label="Finding Responsible Objects" href="tasks/findingresponsibleobjects.html"/>
+<topic label="Querying Heap Objects (OQL)" href="tasks/queryingheapobjects.html"/>
+<topic label="Analyzing Class Loader" href="tasks/analyzingclassloader.html"/>
+<topic label="Analyzing Threads" href="tasks/analyzingthreads.html"/>
+<topic label="Analyzing Java Collection Usage" href="tasks/analyzingjavacollectionusage.html"/>
+<topic label="Analyzing Finalizer" href="tasks/analyzingfinalizer.html"/>
+<topic label="Export Data" href="tasks/exportdata.html"/>
+</topic>
+<topic label="Reference">
+<topic label="Query Matrix" href="reference/querymatrix.html">
+<topic label="Finding Memory Leak" href="reference/findingmemoryleak.html"/>
+<topic label="Analyzing Memory Consumption" href="reference/analyzingmemoryconsumption.html"/>
+</topic>
+<topic label="OQL Syntax" href="reference/oqlsyntax.html">
+<topic label="SELECT Clause" href="reference/oqlsyntaxselect.html"/>
+<topic label="FROM Clause" href="reference/oqlsyntaxfrom.html"/>
+<topic label="WHERE Clause" href="reference/oqlsyntaxwhere.html"/>
+<topic label="Property Accessors" href="reference/propertyaccessors.html"/>
+<topic label="BNF for the Object Query Language" href="reference/bnfofoql.html"/>
+</topic>
+<topic label="Selecting Objects in Query Arguments" href="reference/selectingobjectsinqueryarguments.html"/>
+<topic label="Icons Assist" href="reference/iconassist.html"/>
+<topic label="Tips and Tricks" href="reference/tipsandtricks.html"/>
+</topic>
 </toc>

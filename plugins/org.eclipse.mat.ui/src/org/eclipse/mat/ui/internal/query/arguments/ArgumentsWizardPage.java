@@ -19,8 +19,6 @@ import org.eclipse.mat.query.registry.ArgumentSet;
 import org.eclipse.mat.ui.internal.query.arguments.LinkEditor.Mode;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.events.HelpEvent;
-import org.eclipse.swt.events.HelpListener;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.PlatformUI;
@@ -66,20 +64,8 @@ public class ArgumentsWizardPage extends WizardPage implements ArgumentsTable.IT
         tableComposite.layout();
         tableComposite.pack();
 
-        PlatformUI.getWorkbench().getHelpSystem().setHelp(getShell(), "org.eclipse.mat.ui.query.arguments");
+        PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, "org.eclipse.mat.ui.help.query_arguments");
         composite.setContent(tableComposite);
-        composite.addHelpListener(new HelpListener()
-        {
-            public void helpRequested(HelpEvent e)
-            {
-                PlatformUI
-                                .getWorkbench()
-                                .getHelpSystem()
-                                .displayHelpResource(
-                                                "/org.eclipse.mat.ui.help/html/46/9f9d1c446952b8e10000000a155369/content.htm#argumentWizard");
-            }
-        });
-
         setControl(composite);
     }
 

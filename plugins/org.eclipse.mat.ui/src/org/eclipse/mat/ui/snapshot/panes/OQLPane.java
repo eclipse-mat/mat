@@ -84,16 +84,11 @@ public class OQLPane extends CompositeHeapEditorPane
             }
         });
 
+        PlatformUI.getWorkbench().getHelpSystem().setHelp(queryString, "org.eclipse.mat.ui.help.oql");
         queryString.addKeyListener(new KeyAdapter()
         {
             public void keyPressed(KeyEvent e)
             {
-                if (e.keyCode == SWT.F1)
-                {
-                    PlatformUI.getWorkbench().getHelpSystem().displayHelpResource(
-                                    "/org.eclipse.mat.ui.help/html/46/9f7472517a52b6e10000000a155369/content.htm");
-                    e.doit = false;
-                }
                 if (e.keyCode == '\r' && (e.stateMask & SWT.MOD1) != 0)
                 {
                     executeAction.run();

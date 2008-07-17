@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en-us" xml:lang="en-us">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<meta name="copyright" content="(C) Copyright 2005" />
+<meta name="DC.rights.owner" content="(C) Copyright 2005" />
+<meta content="task" name="DC.Type" />
+<meta name="DC.Title" content="Finding Responsible Objects" />
+<meta scheme="URI" name="DC.Relation" content="../concepts/dominatortree.html" />
+<meta content="XHTML" name="DC.Format" />
+<meta content="findingresponsibleobjects" name="DC.Identifier" />
+<meta content="en-us" name="DC.Language" />
+<link href="..\commonltr.css" type="text/css" rel="stylesheet" />
+<title>Finding Responsible Objects</title>
+</head>
+<body id="findingresponsibleobjects"><a name="findingresponsibleobjects"><!-- --></a>
+
+
+<h1 class="topictitle1">Finding Responsible Objects</h1>
+
+
+<div>
+<div class="section">
+<strong>Immediate Dominators</strong><p>This query finds and aggregates all objects dominating a given set of objects on class level.</p>
+
+<p>Choice of options:</p>
+
+<br /><ul><li>Selecting entries and using the context menu</li>
+</ul>
+
+<br /><img src="../mimes/m64b9f6a9.png" alt="screen shot of the context menu" /><br />
+<br /><ul><li>The toolbar command <span class="menucascade"><span class="uicontrol">Query Browser</span> &gt; <span class="uicontrol">Immediate Dominators</span></span> starts a wizard to select an object set.</li>
+</ul>
+
+<br /><img src="../mimes/6ac427cd.png" alt="screen shot of the list of immediate dominators" /><br />
+The immediate dominators of all char arrays are all objects responsible for keeping the <span class="cmdname">char[]</span> alive. The result will contain most likely <span class="cmdname">java.lang.String</span> objects. If you add the skip pattern <span class="cmdname">java.*</span>, and you will see the non-JDK classes responsible for the char arrays.
+</div>
+
+</div>
+
+<div><div class="relconcepts"><strong>Related concepts</strong><br />
+<div><a href="../concepts/dominatortree.html">Dominator Tree</a></div>
+</div>
+</div>
+
+</body>
+</html>

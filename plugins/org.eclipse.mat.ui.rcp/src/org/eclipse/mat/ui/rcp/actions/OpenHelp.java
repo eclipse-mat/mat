@@ -31,7 +31,7 @@ public class OpenHelp extends Action implements IWorkbenchAction
     public void run()
     {
         PlatformUI.getWorkbench().getHelpSystem().displayHelpResource(
-        "/org.eclipse.mat.ui.help/html/45/b0eb510443731de10000000a1553f6/content.htm");
+        "/org.eclipse.mat.ui.help/tasks/basictutorial.html");
     }
 
 

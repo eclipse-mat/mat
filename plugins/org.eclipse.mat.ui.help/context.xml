@@ -3,11 +3,11 @@
 <contexts>
 	<context id="oql">
 		<description>Object Query Language (OQL) Syntax</description>
-		<topic label="OQL Details" href="html/46/a4ff1a2cd752b7e10000000a155369/content.htm" />
+		<topic label="OQL Syntax" href="reference/oqlsyntax.html" />
 	</context>
-	<context id="org.eclipse.mat.ui.query.arguments">
-		<description>TODO/description>
+	<context id="query_arguments">
+		<description>TODO</description>
 		<topic label="How to provide heap object arguments"
-			href="html/46/9f9d1c446952b8e10000000a155369/content.htm#argumentWizard" />
-	</context>
+			href="reference/selectingobjectsinqueryarguments.html#queryarguments__arguments" />
+	</context>	
 </contexts>

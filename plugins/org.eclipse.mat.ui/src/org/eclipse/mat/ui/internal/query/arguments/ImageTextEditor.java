@@ -154,7 +154,7 @@ public class ImageTextEditor extends TextEditor
             public void linkActivated(HyperlinkEvent e)
             {
                 PlatformUI.getWorkbench().getHelpSystem().displayHelpResource(
-                                "/org.eclipse.mat.ui.help/html/46/9f9d1c446952b8e10000000a155369/content.htm"
+                                "/org.eclipse.mat.ui.help/reference/selectingobjectsinqueryarguments.html#queryarguments__"
                                                 + decorator.getHelpLink());
             }
         });

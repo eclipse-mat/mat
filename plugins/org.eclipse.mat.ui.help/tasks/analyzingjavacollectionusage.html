@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en-us" xml:lang="en-us">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<meta name="copyright" content="(C) Copyright 2005" />
+<meta name="DC.rights.owner" content="(C) Copyright 2005" />
+<meta content="task" name="DC.Type" />
+<meta name="DC.Title" content="Analyzing Java Collection Usage" />
+<meta content="XHTML" name="DC.Format" />
+<meta content="analyzingjavacollectionusage" name="DC.Identifier" />
+<meta content="en-us" name="DC.Language" />
+<link href="..\commonltr.css" type="text/css" rel="stylesheet" />
+<title>Analyzing Java Collection Usage</title>
+</head>
+<body id="analyzingjavacollectionusage"><a name="analyzingjavacollectionusage"><!-- --></a>
+
+
+<h1 class="topictitle1">Analyzing Java Collection Usage</h1>
+
+
+<div>
+<div class="section">
+<p>A collection is an object that are used to store, retrieve and manipulate the data. Memory Analyzer offers the following 
+  queries to analyze java collections:</p>
+
+
+<div class="tablenoborder"><table summary="" cellspacing="0" cellpadding="4" frame="border" border="1" rules="all">
+<tbody>
+<tr>
+<td class="cellrowborder" valign="top"><strong>Array Fill Ratio Query</strong></td>
+
+<td class="cellrowborder" valign="top">Prints a frequency distribution of fill ratios of non-primitive arrays. The fill ratio is the proportion of non-null elements in the array. The arrays are then accumulated into as many segments as parameterized. Primitive arrays cannot have null values so this query works only on object arrays.</td>
+
+</tr>
+
+<tr>
+<td class="cellrowborder" valign="top"><strong>Arrays Grouped by Size Query</strong></td>
+
+<td class="cellrowborder" valign="top">Distribution histogram of given arrays grouped by the size.</td>
+
+</tr>
+
+<tr>
+<td class="cellrowborder" valign="top"><strong>Collection Fill Ratio Query</strong></td>
+
+<td class="cellrowborder" valign="top"><p>Prints a frequency distribution of fill ratios of given collections. The following collections can be used for the query:</p>
+ 
+<br /><ul>
+<li><pre class="codeblock">java.util.ArrayList</pre>
+</li>
+
+<li><pre class="codeblock">java.util.HashMap</pre>
+</li>
+
+<li><pre class="codeblock">java.util.Hashtable</pre>
+</li>
+
+<li><pre class="codeblock">java.util.Properties</pre>
+</li>
+
+<li><pre class="codeblock">java.util.Vector</pre>
+</li>
+
+<li><pre class="codeblock">java.util.WeakHashMap</pre>
+</li>
+
+<li><pre class="codeblock">java.util.concurrent.ConcurrentHashMap$Segment</pre>
+</li>
+
+</ul>
+
+<p>One additional custom collection (e.g. non-JDK) collection can be specified by the 'collection', 'size_attribute' and 'array_attribute' argument.</p>
+
+</td>
+
+</tr>
+
+<tr>
+<td class="cellrowborder" valign="top"><strong>Collections Grouped By Size Query</strong></td>
+
+<td class="cellrowborder" valign="top"><p>Distribution histogram of given collections by their size. The following collections can be used for the query. Known collections:</p>
+
+<br /><ul>
+<li><pre class="codeblock">java.util.ArrayList</pre>
+</li>
+
+<li><pre class="codeblock">java.util.TreeMap</pre>
+</li>
+
+<li><pre class="codeblock">java.util.HashMap</pre>
+</li>
+
+<li><pre class="codeblock">java.util.Hashtable</pre>
+</li>
+
+<li><pre class="codeblock">java.util.Properties</pre>
+</li>
+
+<li><pre class="codeblock">java.util.Vector</pre>
+</li>
+
+<li><pre class="codeblock">java.util.WeakHashMap</pre>
+</li>
+
+<li><pre class="codeblock">java.util.concurrent.ConcurrentHashMap$Segment</pre>
+</li>
+
+</ul>
+
+<p>One additional custom collection (e.g. non-JDK) collection can be specified by the 'collection', 'size_attribute' and 'array_attribute' argument.</p>
+
+</td>
+
+</tr>
+
+<tr>
+<td class="cellrowborder" valign="top"><strong>Extract List Values Query</strong></td>
+
+<td class="cellrowborder" valign="top">
+<p>Lists elements of a LinkedList, ArrayList or Vector object.</p>
+
+</td>
+
+</tr>
+
+<tr>
+<td class="cellrowborder" valign="top"><strong>Hash Entries Query</strong></td>
+
+<td class="cellrowborder" valign="top">
+<p>Extracts the key-value pairs from hash maps and hashtables.</p>
+
+</td>
+
+</tr>
+
+<tr>
+<td class="cellrowborder" valign="top"><strong>Extract Hash Set Value Query</strong></td>
+
+<td class="cellrowborder" valign="top">
+<p>Lists elements of a HashSet.</p>
+
+</td>
+
+</tr>
+
+<tr>
+<td class="cellrowborder" valign="top"><strong>Map Collision Ratio Query</strong></td>
+
+<td class="cellrowborder" valign="top">
+<p>Prints a frequency distribution of the collision ratios of map-like collections. The following map-like collections can be used for the query.</p>
+
+<br /><ul><li><pre class="codeblock">java.util.HashMap</pre>
+</li>
+
+<li><pre class="codeblock">java.util.Properties</pre>
+</li>
+
+<li><pre class="codeblock">java.util.Hashtable</pre>
+</li>
+
+<li><pre class="codeblock">java.util.WeakHashMap</pre>
+</li>
+
+<li><pre class="codeblock">java.util.concurrent.ConcurrentHashMap$Segment</pre>
+</li>
+
+</ul>
+ 
+<p>
+One additional custom map-like (e.g. non-JDK) collection can be specified by the 'collection', 'size_attribute' and 'array_attribute' argument.
+</p>
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+</div>
+
+<p>All these queries are accessible from the toolbar drop-down menu: <span class="cmdname">Open Query Browser &gt; Java Collections &gt;</span></p>
+
+<img src="../mimes/m33f9e094.png" />
+</div>
+
+</div>
+
+
+</body>
+</html>

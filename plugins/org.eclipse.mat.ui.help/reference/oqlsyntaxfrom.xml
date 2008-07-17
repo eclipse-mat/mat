@@ -1,0 +1,77 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<?xml-stylesheet href="../../../xsl/dita2html_shell.xsl" type="text/xsl"?>
+<!DOCTYPE reference PUBLIC "-//IBM//DTD DITA Reference//EN" "../../../dtd/reference.dtd" []>
+<reference id="oqlsyntaxfrom" xml:lang="en-us">
+	<title>FROM Clause</title>
+	<shortdesc />
+
+	<prolog />
+	<refbody>
+		<section>
+			<title>Specify the class</title>
+			<p>
+				The FROM clause defines the classes on which to operate.
+				Specifiy the class by one of the following means:
+			</p>
+			<b>by class name:</b>
+			<codeblock>SELECT * FROM java.lang.String</codeblock>
+			<b>by a regular expression matching the class name:</b>
+			<codeblock>SELECT * FROM "java\.lang\..*"</codeblock>
+			<b>by the object address of the class:</b>
+			<codeblock>SELECT * FROM 0xe14a100</codeblock>
+			<b>by the object id:</b>
+			<codeblock>SELECT * FROM 3022</codeblock>
+			<b>by a sub select:</b>
+			<codeblock>SELECT * FROM ( SELECT *
+                FROM java.lang.Class c
+                WHERE c implements com.sap.tools.memory.snapshot.model.IClass )</codeblock>
+			<p>
+				The statement returns all objects in the heap. The
+				<cmdname>implements</cmdname>
+				check is necessary, as the heap dump can contain
+				<cmdname>java.lang.Class</cmdname>
+				instances caused by proxy classes. The same effect has
+				the following query, which calls a method directly on
+				the ISnapshot object:
+			</p>
+			<codeblock>SELECT * FROM $snapshot.getClasses()</codeblock>
+		</section>
+		<section>
+			<title>Include sub classes</title>
+			<p>
+				Use the
+				<cmdname>INSTANCEOF</cmdname>
+				keyword to include objects of sub-classes into the
+				query:
+			</p>
+			<codeblock>SELECT * FROM INSTANCEOF java.lang.ref.Reference</codeblock>
+			<p>
+				The resulting table contains, amongst others,
+				WeakReference and SoftReference objects because both
+				classes extend from
+				<cmdname>java.lang.ref.Reference</cmdname>
+				. By the way, the same result has the following query
+			</p>
+			<codeblock>SELECT * FROM $snapshot.getClassesByName("java.lang.ref.Reference", true)</codeblock>
+		</section>
+		<section>
+			<title>
+				Prevent interpretation of the from term as classes
+			</title>
+			<p>
+				Use the OBJECTS keyword if you do not want to process
+				the term as classes:
+			</p>
+			<codeblock>SELECT * FROM OBJECTS java.lang.String</codeblock>
+			<p>
+				The result is just one object, the java.lang.String
+				class object.
+			</p>
+			<note>
+				Please note, that currently the FROM OBJECTS term is in
+				the test phase!
+			</note>
+		</section>
+	</refbody>
+</reference>

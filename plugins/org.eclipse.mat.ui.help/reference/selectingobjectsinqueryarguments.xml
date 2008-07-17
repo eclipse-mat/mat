@@ -1,0 +1,190 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<?xml-stylesheet href="../../../xsl/dita2html_shell.xsl" type="text/xsl"?>
+<!DOCTYPE reference PUBLIC "-//IBM//DTD DITA Reference//EN" "../../../dtd/reference.dtd" []>
+<reference id="queryarguments" xml:lang="en-us">
+	<title>Selecting Objects in Query Arguments</title>
+	<shortdesc />
+
+	<prolog />
+
+	<refbody>
+		<section>
+			<p> Memory Analyzer provides a set of queries to analyze a heap dump. These
+				queries are grouped into several categories. </p>
+			<p> You can select a query out of the drop-down toolbar menu. </p>
+			<image href="../mimes/189608b9.png" align="left" placement="break"/>
+			<p> In the menu you can also access the list of already executed queries via the
+				<cmdname>History</cmdname> entry. The Query Selector which can be
+				quickly accessed with the
+				<cmdname>Ctrl+Q</cmdname> key combination. </p>
+			<image href="../mimes/3860f55b.png" align="left" placement="break"/>
+			<p> The Query Selector consists of an input field, where you can search for
+				queries, below the input field you can find the history of already executed
+				queries and below the history the list of all available queries grouped by
+				their category. When a query is marked, a detailed description of the query
+				is displayed at the bottom. This description contains also the information
+				about the arguments for this query. </p>
+			<image href="../mimes/36c94924.png" align="left" placement="break"/>
+			<p> If a query has arguments a menu is opened up when the query is selected. All
+				arguments are displayed in an table, the mandatory arguments are bold. In
+				the message area at the top information is displayed about the mandatory
+				arguments. At the bottom the detailed description is displayed like in the
+				query selector. </p>
+			<p id="arguments">
+				<b>Providing Query Arguments</b>
+			</p>
+			<p>To add the arguments to a query you may use a query browser or an arguments
+				dialog.</p>
+			<image href="../mimes/arguments_wizard.png" align="left"
+				placement="break"/>
+			<p>Mandatory arguments are in boldface. Tooltips and help infopop that are
+				below the dialog provide argument description. Message area of the dialog
+				itself shows information about the selected argument or an error message if
+				you have entered a not valid value. Some queries require a set of objects as an
+				argument. You can provide those objects using the simple or the advanced
+				mode of the dialog. On the figure below you can see the simple mode. A set of
+				objects is defined by a pattern. </p>
+			<image href="../mimes/arguments_pattern.png" align="left"
+				placement="break"/>
+			<p id="pattern">
+				<b>Pattern Syntax</b>
+			</p>
+			<p>The metacharacters that are supported by a pattern are:<b>(</b>, <b>[</b>, <b>{</b> ,<b>\</b>, <b>^</b>, <b>-</b>, <b>$</b>, <b>|</b>, <b>]</b>,
+				<b>}</b>, <b>)</b>, <b>?</b>, <b>*</b> and <b>+</b>.</p>
+			<simpletable relcolwidth="2* 2*">
+				<sthead>
+					<stentry>
+						Pattern Syntax
+					</stentry>
+					<stentry>Details</stentry>
+				</sthead>
+				<strow>
+					<stentry>
+						<codeblock>[abc]</codeblock>
+					</stentry>
+					<stentry>
+						a, b, or c (simple class)
+					</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<codeblock>[^abc]</codeblock>
+					</stentry>
+					<stentry>
+						Any character except a, b, or c (negation)
+					</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<codeblock>outbounds( object )</codeblock>
+					</stentry>
+					<stentry>outbound referrer</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<codeblock>[a-zA-Z]</codeblock>
+					</stentry>
+					<stentry>a through z, or A through Z, inclusive (range)</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<codeblock>[a-d[m-p]]</codeblock>
+					</stentry>
+					<stentry>a through d, or m through p: [a-dm-p] (union)</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<codeblock>[a-z&amp;&amp;[def]]</codeblock>
+					</stentry>
+					<stentry>
+						d, e, or f (intersection)
+					</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<codeblock>[a-z&amp;&amp;[^bc]]</codeblock>
+					</stentry>
+					<stentry>
+						a through z, except for b and c: [ad-z] (subtraction)
+					</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<codeblock>[a-z&amp;&amp;[^m-p]]</codeblock>
+					</stentry>
+					<stentry>
+						a through z, and not m through p: [a-lq-z] (subtraction)
+					</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<codeblock>\d</codeblock>
+					</stentry>
+					<stentry>
+						A digit: [0-9]
+					</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<codeblock>\D</codeblock>
+					</stentry>
+					<stentry>
+						A non-digit: [^0-9]
+					</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<codeblock>\s</codeblock>
+					</stentry>
+					<stentry>
+						A whitespace character: [ \t\n\x0B\f\r]
+					</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<codeblock>\S</codeblock>
+					</stentry>
+					<stentry>
+						 A non-whitespace character: [^\s]
+					</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<codeblock>\w</codeblock>
+					</stentry>
+					<stentry>
+						 A word character: [a-zA-Z_0-9]
+					</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<codeblock>\W</codeblock>
+					</stentry>
+					<stentry>
+						 A non-word character: [^\w]
+					</stentry>
+				</strow>
+			</simpletable>				
+ 
+			<p>In advanced mode, you can define a set of objects with a pattern, object
+				addresses or an Object Query Language (OQL) query. Icons and help messages
+				give you information about the type of the argument.</p>
+			<image href="../mimes/arguments_advanced.png" align="left"
+				placement="break"/>
+			<p>You may enter a single parameter per line, such as a pattern, an object
+				address, or an OQL query. Additional line for this type of the argument is
+				added automatically, thus multiple arguments can be entered.</p>
+			<p id="address">
+				<b>Object Address Syntax</b>
+			</p>
+			<p>The object address has a hexadecimal form, that is it starts with the
+				hex-prefix 0x and consists of one or more letters A-F and digits 0-9.</p>
+			<p>
+				<b>Example:</b> 0x36d99c88</p>
+			
+			<p id="oql_query">For more information about OQL, refer to the <xref href="oqlsyntax.html" format="html" type="reference">OQL syntax details</xref></p>
+		</section>
+	</refbody>
+	<related-links><link href="querymatrix.html" format="html" type="reference"><linktext>Query Matrix</linktext></link></related-links>
+</reference>

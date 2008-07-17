@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cheatsheet title="OQL in 1 minute">
-   <intro href="/org.eclipse.mat.ui.help/html/46/9f7472517a52b6e10000000a155369/content.htm">
+   <intro href="/org.eclipse.mat.ui.help/reference/oqlsyntax.html">
       <description>
          OQL is the build-in object query language. Learn to perform
 			custom SQL-like queries on the heap dump in one minute.
@@ -14,7 +14,7 @@
       <action class="org.eclipse.mat.ui.snapshot.actions.OpenSampleHeapDumpAction" pluginId="org.eclipse.mat.ui" confirm="false" param1="org.eclipse.mat.ui.help/heapdump/HeapDumpSample.hprof">
       </action>
    </item>
-   <item title="FROM Clause" dialog="true" skip="true" href="/org.eclipse.mat.ui.help/html/46/a4d9daaee752b6e10000000a155369/content.htm">
+   <item title="FROM Clause" dialog="true" skip="true" href="/org.eclipse.mat.ui.help/reference/oqlsyntaxfrom.html">
       <description>
          Think of classes as tables, objects as rows, and fields as columns.
 			<br/>
@@ -32,7 +32,7 @@
       <action class="org.eclipse.mat.ui.snapshot.actions.OpenSampleHeapDumpAction" pluginId="org.eclipse.mat.ui" confirm="false" param1="org.eclipse.mat.ui.help/heapdump/HeapDumpSample.hprof" param2="oql" param3="SELECT * FROM java.lang.ref.SoftReference">
       </action>
    </item>
-   <item title="WHERE Clause" dialog="true" skip="true" href="/org.eclipse.mat.ui.help/html/46/a4019b2cd752b7e10000000a155369/content.htm">
+   <item title="WHERE Clause" dialog="true" skip="true" href="/org.eclipse.mat.ui.help/reference/oqlsyntaxwhere.html">
       <description>
          To conditionally select objects, a WHERE clause can be added to the
 			SELECT statement:
@@ -47,7 +47,7 @@
       <action class="org.eclipse.mat.ui.snapshot.actions.OpenSampleHeapDumpAction" pluginId="org.eclipse.mat.ui" confirm="false" param1="org.eclipse.mat.ui.help/heapdump/HeapDumpSample.hprof" param2="oql" param3="SELECT * FROM java.lang.String s WHERE s.count > 100">
       </action>
    </item>
-   <item title="SELECT Clause" dialog="true" skip="true" href="/org.eclipse.mat.ui.help/html/46/a4ff1a2cd752b7e10000000a155369/content.htm">
+   <item title="SELECT Clause" dialog="true" skip="true" href="/org.eclipse.mat.ui.help/reference/oqlsyntaxselect.html">
       <description>
          To select the content of specific fields, use a SELECT statement like
 			this:

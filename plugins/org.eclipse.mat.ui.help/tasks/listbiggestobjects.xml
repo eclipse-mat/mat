@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE task PUBLIC "-//IBM//DTD DITA Task//EN"
+ "../../../dtd/task.dtd">
+
+<?xml-stylesheet href="../../../xsl/ditaview_shell.xsl" type="text/xsl"?>
+<task id="listbiggestobjects" xml:lang="en-us">
+	<title>List the Biggest Objects</title>
+	<prolog />
+	<taskbody>
+		<context>
+			<p>
+				Top Consumers query lists the largest objects grouped by
+				class, class loader, and package. To run the query select <cmdname>Top Consumers</cmdname> in the <cmdname>Leak Identification category</cmdname>:
+			</p>
+			<image href="../mimes/m34daec6d.png"
+				alt="screen shot of the list of biggest objects" />
+			<p>
+				The result of the query is displayed as HTML page.
+				Objects are represented by hyperlinks, activating those
+				hyperlinks you can bring up a context menu and continue
+				the analysis of the selected object.
+			</p>
+			<image href="../mimes/m3131b4b6.png" alt="Screenshot of report" />
+		</context>
+	</taskbody>
+</task>

@@ -39,9 +39,9 @@ public class TextEditor extends ArgumentEditor
 
     public enum DecoratorType
     {
-        PATTERN(MemoryAnalyserPlugin.ISharedImages.CLASS, "Enter a class name pattern (java.util.*)", "#pattern"), OBJECT_ADDRESS(
-                        MemoryAnalyserPlugin.ISharedImages.ID, "Enter an address (0x4711)", "#address"), QUERY(
-                        MemoryAnalyserPlugin.ISharedImages.OQL, "Enter an OQL query (select * from ...)", "#oql_query");
+        PATTERN(MemoryAnalyserPlugin.ISharedImages.CLASS, "Enter a class name pattern (java.util.*)", "pattern"), OBJECT_ADDRESS(
+                        MemoryAnalyserPlugin.ISharedImages.ID, "Enter an address (0x4711)", "address"), QUERY(
+                        MemoryAnalyserPlugin.ISharedImages.OQL, "Enter an OQL query (select * from ...)", "oql_query");
 
         private String imageType;
         private String helpText;

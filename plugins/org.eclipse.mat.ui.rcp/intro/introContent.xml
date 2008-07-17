@@ -37,18 +37,18 @@
 		<group id="page-content">
 			<group id="overview-links" label="Introduction">
 				<anchor id="anchor" />
-				<link label="New and Noteworthy" url="http://org.eclipse.ui.intro/showHelpTopic?id=/org.eclipse.mat.ui.help/html/45/b0eb510443731de10000000a1553f6/content.htm">
+				<link label="New and Noteworthy" url="http://org.eclipse.ui.intro/showHelpTopic?id=/org.eclipse.mat.ui.help/tasks/basictutorial.html">
 					<img src="css/pictograms/new.gif" alt="New and Noteworthy" />
 					<text>Check out the new features in Analyzer 0.7.0</text>
 				</link>
 				<link label="Help"
-					url="http://org.eclipse.ui.intro/showHelpTopic?id=/org.eclipse.mat.ui.help/html/45/b0eb510443731de10000000a1553f6/content.htm">
+					url="http://org.eclipse.ui.intro/showHelpTopic?id=/org.eclipse.mat.ui.help/tasks/basictutorial.html">
 					<img src="css/pictograms/help.gif" alt="Help" />
 					<text>Get familiar with the tool by exploring its documentation.
 					</text>
 				</link>
 				<link label="How to Get a Heap Dump"
-					url="http://org.eclipse.ui.intro/showHelpTopic?id=/org.eclipse.mat.ui.help/html/45/b0e5250443731de10000000a1553f6/content.htm">
+					url="http://org.eclipse.ui.intro/showHelpTopic?id=/org.eclipse.mat.ui.help/tasks/acquiringheapdump.html">
 					<img src="css/pictograms/acquire.gif" alt="How to Get a Snapshot" />
 					<text>Learn how to configure your Java VM and/or Engine to get
 						a snapshot.</text>
