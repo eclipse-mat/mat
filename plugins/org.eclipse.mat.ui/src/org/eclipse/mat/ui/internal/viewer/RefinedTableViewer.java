@@ -12,6 +12,7 @@ package org.eclipse.mat.ui.internal.viewer;
 
 import java.util.List;
 
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.refined.RefinedTable;
@@ -35,7 +36,6 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Widget;
-
 
 public class RefinedTableViewer extends RefinedResultViewer
 {
@@ -303,5 +303,13 @@ public class RefinedTableViewer extends RefinedResultViewer
             ((TableItem) item).setText(index, label);
         }
 
+        public int getLineHeightEstimation()
+        {
+            if (Platform.OS_MACOSX.equals(Platform.getOS()))
+                return 20;
+            if (System.getProperty("os.name").indexOf("Vista") >= 0)
+                return 20;
+            return 18;
+        }
     }
 }

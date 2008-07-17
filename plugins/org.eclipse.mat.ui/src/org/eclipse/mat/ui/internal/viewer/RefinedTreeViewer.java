@@ -15,6 +15,7 @@ import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.ContextProvider;
@@ -664,5 +665,13 @@ public class RefinedTreeViewer extends RefinedResultViewer
             ((TreeItem) item).setText(index, label);
         }
 
+        public int getLineHeightEstimation()
+        {
+            if (Platform.OS_MACOSX.equals(Platform.getOS()))
+                return 20;
+            if (System.getProperty("os.name").indexOf("Vista") >= 0)
+                return 19;
+            return 18;
+        }
     }
 }

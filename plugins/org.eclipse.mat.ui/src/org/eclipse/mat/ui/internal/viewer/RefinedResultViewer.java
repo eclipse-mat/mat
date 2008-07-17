@@ -17,7 +17,6 @@ import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.jface.action.Action;
@@ -160,6 +159,8 @@ public abstract class RefinedResultViewer
         void setExpanded(Item parentItem, boolean b);
 
         Rectangle getTextBounds(Widget item, int index);
+
+        int getLineHeightEstimation();
     }
 
     /** pane in which the viewer is embedded */
@@ -272,8 +273,7 @@ public abstract class RefinedResultViewer
 
             // estimate the number of visible items
             // (control is invisible! -> no actual size available)
-            int estimatedLineHeight = Platform.OS_MACOSX.equals(Platform.getOS()) ? 20 : 18;
-
+            int estimatedLineHeight = adapter.getLineHeightEstimation();
             Rectangle bounds = parent.getParent().getBounds();
             visibleItemsEstimate = Math.max(((bounds.height - 10) / estimatedLineHeight) - 2, 1);
 
