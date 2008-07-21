@@ -51,6 +51,12 @@ import org.xml.sax.helpers.AttributesImpl;
 
 public class ResultRenderer
 {
+    private interface Key
+    {
+        String IS_EXPANDABLE = "isExpandable";
+        String ARTEFACT = "artefact";
+    }
+
     /* package */class HtmlArtefact
     {
         File file;
@@ -127,7 +133,7 @@ public class ResultRenderer
         HtmlArtefact index = new HtmlArtefact(null, indexFile, part.spec().getName());
         suite.addResult(indexFile);
 
-        part.putObject(HtmlArtefact.class, index);
+        part.putObject(Key.ARTEFACT, index);
     }
 
     public void endSuite(TestSuite suite, AbstractPart part) throws IOException
@@ -167,17 +173,35 @@ public class ResultRenderer
             order++;
         }
 
-        HtmlArtefact artefact = section.getObject(HtmlArtefact.class);
-        if (artefact == null)
-            artefact = section.getParent().getObject(HtmlArtefact.class);
+        HtmlArtefact srcArtefact = (HtmlArtefact) section.getObject(Key.ARTEFACT);
+        if (srcArtefact == null)
+            srcArtefact = (HtmlArtefact) section.getParent().getObject(Key.ARTEFACT);
 
-        artefact = createNewFileIfNecessary(artefact, section, order);
+        HtmlArtefact artefact = createNewFileIfNecessary(srcArtefact, section, order);
 
-        PageSnippets.heading(artefact, section, order);
+        // do not create expansion if
+        // (a) it is the top-level element
+        // (b) it is a new file (e.g. the top-level element for a sub-page)
+        if (order == 1 || srcArtefact != artefact)
+        {
+            PageSnippets.heading(artefact, section, order, false);
+        }
+        else
+        {
+            PageSnippets.heading(artefact, section, order, true);
+            PageSnippets.beginExpandableDiv(artefact, section);
+            section.putObject(Key.IS_EXPANDABLE, true);
+        }
     }
 
     public void endSection(SectionPart section) throws IOException
-    {}
+    {
+        if (section.getObject(Key.IS_EXPANDABLE) != null)
+        {
+            HtmlArtefact artefact = (HtmlArtefact) section.getObject(Key.ARTEFACT);
+            PageSnippets.endDiv(artefact);
+        }
+    }
 
     public void process(QueryPart test, IResult result, RenderingInfo rInfo) throws IOException
     {
@@ -206,9 +230,9 @@ public class ResultRenderer
     private void doProcessAlien(String format, IOutputter outputter, QueryPart test, IResult result, RenderingInfo info)
                     throws IOException
     {
-        HtmlArtefact artefact = test.getObject(HtmlArtefact.class);
+        HtmlArtefact artefact = (HtmlArtefact) test.getObject(Key.ARTEFACT);
         if (artefact == null)
-            artefact = test.getParent().getObject(HtmlArtefact.class);
+            artefact = (HtmlArtefact) test.getParent().getObject(Key.ARTEFACT);
 
         String filename = FileUtils.toFilename(test.spec().getName(), format);
         PageSnippets.linkedHeading(artefact, test, 5, filename);
@@ -221,9 +245,9 @@ public class ResultRenderer
     private void doProcess(IOutputter outputter, QueryPart test, IResult result, RenderingInfo rInfo, boolean firstPass)
                     throws IOException
     {
-        HtmlArtefact artefact = test.getObject(HtmlArtefact.class);
+        HtmlArtefact artefact = (HtmlArtefact) test.getObject(Key.ARTEFACT);
         if (artefact == null)
-            artefact = test.getParent().getObject(HtmlArtefact.class);
+            artefact = (HtmlArtefact) test.getParent().getObject(Key.ARTEFACT);
 
         artefact = createNewFileIfNecessary(artefact, test, 5);
 
@@ -252,10 +276,15 @@ public class ResultRenderer
             PageSnippets.link(artefact, filename, "Details &raquo;");
             artefact.append("</div>");
 
+            // create new page for the details elements
             HtmlArtefact details = new HtmlArtefact(artefact, new File(directory, filename), test.getParent().spec()
                             .getName());
-            test.getParent().putObject(HtmlArtefact.class, details);
-            test.putObject(HtmlArtefact.class, details);
+
+            // assign output page to all other children
+            for (AbstractPart part : test.getParent().getChildren())
+                part.putObject(Key.ARTEFACT, details);
+
+            // process this child again (repeat on details page)
             doProcess(outputter, test, result, rInfo, false);
         }
 
@@ -381,7 +410,7 @@ public class ResultRenderer
             artefact = new HtmlArtefact(artefact, new File(directory, filename), part.spec().getName());
         }
 
-        part.putObject(HtmlArtefact.class, artefact);
+        part.putObject(Key.ARTEFACT, artefact);
         return artefact;
     }
 
@@ -408,10 +437,10 @@ public class ResultRenderer
             if (part.getStatus() != null)
                 toc.append("<img src=\"img/").append(part.getStatus().name().toLowerCase() + ".gif\"> ");
 
-            HtmlArtefact page = part.getObject(HtmlArtefact.class);
+            HtmlArtefact page = (HtmlArtefact) part.getObject(Key.ARTEFACT);
             AbstractPart p = part;
             while (page == null)
-                page = (p = p.getParent()).getObject(HtmlArtefact.class);
+                page = (HtmlArtefact) (p = p.getParent()).getObject(Key.ARTEFACT);
 
             if (page != null)
             {
@@ -496,10 +525,10 @@ public class ResultRenderer
         if (status != null)
             attrib.addAttribute("", "", "status", "", status.name());
 
-        HtmlArtefact page = part.getObject(HtmlArtefact.class);
+        HtmlArtefact page = (HtmlArtefact) part.getObject(Key.ARTEFACT);
         AbstractPart p = part;
         while (page == null)
-            page = (p = p.getParent()).getObject(HtmlArtefact.class);
+            page = (HtmlArtefact) (p = p.getParent()).getObject(Key.ARTEFACT);
 
         if (page != null)
             attrib.addAttribute("", "", "file", "", page.file.getName());

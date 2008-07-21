@@ -54,7 +54,7 @@ public abstract class AbstractPart
     protected long totalExecutionTime;
 
     /** renderer can attach arbitrary objects to keep track of rendering status */
-    protected Map<Class<?>, Object> objects = new HashMap<Class<?>, Object>();
+    protected Map<String, Object> objects = new HashMap<String, Object>();
 
     protected ITestResult.Status status;
 
@@ -94,16 +94,14 @@ public abstract class AbstractPart
         return params;
     }
 
-    @SuppressWarnings("unchecked")
-    public <C> C getObject(Class<C> key)
+    public Object getObject(String key)
     {
-        return (C) objects.get(key);
+        return objects.get(key);
     }
 
-    @SuppressWarnings("unchecked")
-    public <C> C putObject(Class<C> key, C value)
+    public Object putObject(String key, Object value)
     {
-        return (C) objects.put(key, value);
+        return objects.put(key, value);
     }
 
     public abstract ITestResult.Status execute(IQueryContext context, ResultRenderer renderer, IProgressListener listener)

@@ -18,7 +18,6 @@ import org.eclipse.mat.query.registry.QueryObjectLink;
 import org.eclipse.mat.report.Params;
 import org.eclipse.mat.report.internal.ResultRenderer.HtmlArtefact;
 
-
 /* package */class PageSnippets
 {
 
@@ -45,7 +44,7 @@ import org.eclipse.mat.report.internal.ResultRenderer.HtmlArtefact;
         artefact.append("</body></html>");
     }
 
-    public static void heading(HtmlArtefact artefact, AbstractPart part, int order)
+    public static void heading(HtmlArtefact artefact, AbstractPart part, int order, boolean expandable)
     {
         boolean showHeading = part.params().shallow().getBoolean(Params.Html.SHOW_HEADING, true);
         if (!showHeading)
@@ -54,7 +53,7 @@ import org.eclipse.mat.report.internal.ResultRenderer.HtmlArtefact;
         }
         else
         {
-            String v = String.valueOf(order);
+            String v = String.valueOf(Math.min(order, 5));
             artefact.append("<h").append(v).append(">");
 
             if (part.getStatus() != null)
@@ -62,7 +61,13 @@ import org.eclipse.mat.report.internal.ResultRenderer.HtmlArtefact;
 
             artefact.append("<a name=\"").append(part.getId()).append("\">");
             artefact.append(part.spec().getName());
-            artefact.append("</a></h").append(v).append(">");
+            artefact.append("</a>");
+
+            if (expandable)
+                artefact.append(" <a href=\"#\" onclick=\"hide('exp").append(part.getId()).append(
+                                "'); return false;\" title=\"hide / unhide\"><img src=\"img/hide.gif\"></a>");
+
+            artefact.append("</h").append(v).append(">");
         }
     }
 

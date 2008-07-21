@@ -132,6 +132,7 @@ public class QueryPart extends AbstractPart
 
             AbstractPart part = AbstractPart.build(getParent(), replacement);
             part.queryExecutionTime = queryExecutionTime;
+            part.objects = objects;
             getParent().replace(this, part);
             return part.execute(context, renderer, listener);
         }
