@@ -12,7 +12,7 @@ package org.eclipse.mat.ui.internal.browser;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.mat.ui.snapshot.editor.HeapEditor;
+import org.eclipse.mat.ui.editor.MultiPaneEditor;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -34,10 +34,10 @@ public class QueryHistoryHandler extends AbstractHandler
             return null;
 
         IEditorPart activeEditor = page.getActiveEditor();
-        if (!(activeEditor instanceof HeapEditor))
+        if (!(activeEditor instanceof MultiPaneEditor))
             return null;
 
-        new QueryBrowserPopup((HeapEditor) activeEditor, true).open();
+        new QueryBrowserPopup((MultiPaneEditor) activeEditor, true).open();
 
         return null;
     }
