@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.mat.report;
 
+/**
+ * @noimplement
+ */
 public interface Params
 {
     String TIMESTAMP = "timestamp";
@@ -17,6 +20,9 @@ public interface Params
     String SNAPSHOT_PREFIX = "snapshot_prefix";
     String FORMAT = "format";
 
+    /**
+     * @noimplement
+     */
     public interface Html
     {
         String FILENAME = "html.filename";
@@ -28,6 +34,9 @@ public interface Params
         String SHOW_TOTALS = "html.show_totals";
     }
     
+    /**
+     * @noimplement
+     */
     public interface Rendering
     {
         String PATTERN ="rendering.pattern";
@@ -36,7 +45,6 @@ public interface Params
         String PATTERN_SEQUENTIAL = "sequential";
         
         String SORT_COLUMN = "sort_column";
-        String SORT_ORDER = "sort_order";
         String FILTER = "filter";
         String LIMIT = "limit";
         String HIDE_COLUMN = "hide_column";

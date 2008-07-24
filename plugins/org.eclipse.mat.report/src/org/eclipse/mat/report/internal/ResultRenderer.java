@@ -519,7 +519,11 @@ public class ResultRenderer
                     throws SAXException
     {
         attrib.clear();
-        attrib.addAttribute("", "", "name", "", part.spec().getName());
+        
+        String name = part.spec().getName();
+        if (name == null)
+            name = part.getId();
+        attrib.addAttribute("", "", "name", "", name);
 
         Status status = part.getStatus();
         if (status != null)

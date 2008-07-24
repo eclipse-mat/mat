@@ -12,12 +12,15 @@ package org.eclipse.mat.report.internal;
 
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.ContextProvider;
 import org.eclipse.mat.query.IQueryContext;
@@ -425,25 +428,32 @@ public class QueryPart extends AbstractPart
 
     private void addSortOrder(RefinedResultBuilder builder)
     {
-        String sortColumn = params().get(Params.Rendering.SORT_COLUMN);
-        if (sortColumn != null)
+        String[] columns = params().getStringArray(Params.Rendering.SORT_COLUMN);
+        if (columns == null || columns.length == 0)
+            return;
+
+        ArrayInt indices = new ArrayInt(columns.length);
+        List<Column.SortDirection> directions = new ArrayList<Column.SortDirection>(columns.length);
+
+        for (String column : columns)
         {
-            int columnIndex = builder.getColumnIndexByName(sortColumn);
+            int p = column.indexOf('=');
+
+            String name = p < 0 ? column : column.substring(0, p);
+            Column.SortDirection direction = p < 0 ? null : Column.SortDirection.valueOf(column.substring(p + 1));
+
+            int columnIndex = builder.getColumnIndexByName(name);
             if (columnIndex < 0)
             {
                 Logger.getLogger(getClass().getName()).log(Level.WARNING,
-                                MessageFormat.format("Column not found: {0}", sortColumn));
+                                MessageFormat.format("Sort column not found: {0}", name));
+                continue;
             }
-            else
-            {
-                Column.SortDirection direction = null;
 
-                String sortOrder = params.get(Params.Rendering.SORT_ORDER);
-                if (sortOrder != null)
-                    direction = Column.SortDirection.valueOf(sortOrder);
-
-                builder.setSortOrder(columnIndex, direction);
-            }
+            indices.add(columnIndex);
+            directions.add(direction);
         }
+
+        builder.setSortOrder(indices.toArray(), directions.toArray(new Column.SortDirection[0]));
     }
 }

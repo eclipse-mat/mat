@@ -11,8 +11,10 @@
 
 package org.eclipse.mat.query.refined;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.eclipse.mat.query.Column;
@@ -34,7 +36,7 @@ import org.eclipse.mat.query.refined.RefinedStructuredResult.CalculatedColumnAcc
 import org.eclipse.mat.query.refined.RefinedStructuredResult.DerivedDataJobDefinition;
 import org.eclipse.mat.query.refined.RefinedStructuredResult.ValueAccessor;
 
-public class RefinedResultBuilder
+public final class RefinedResultBuilder
 {
     private static final class DefaultContextProvider extends ContextProvider
     {
@@ -80,19 +82,14 @@ public class RefinedResultBuilder
 
         setColumnData(subject);
         addPreConfiguredDerivedColumns(refinedResult.metaData);
-
-        if (refinedResult.metaData.isPreSorted())
-        {
-            refinedResult.sortColumn = refinedResult.metaData.getPreSortedColumnIndex();
-            refinedResult.sortDirection = refinedResult.metaData.getPreSortedDirection();
-            refinedResult.resultIsSorted = true;
-        }
     }
 
-    protected void setColumnData(IStructuredResult structuredResult)
+    private void setColumnData(IStructuredResult structuredResult)
     {
         Column[] columns = structuredResult.getColumns();
         ContextDerivedData derivedData = refinedResult.context.getContextDerivedData();
+
+        boolean foundSortColumn = false;
 
         for (int ii = 0; ii < columns.length; ii++)
         {
@@ -129,11 +126,18 @@ public class RefinedResultBuilder
 
             refinedResult.addColumn(columns[ii], accessor);
 
-            if (refinedResult.sortColumn < 0 && columns[ii].getSortDirection() != null)
+            if (!foundSortColumn && columns[ii].getSortDirection() != null)
             {
-                refinedResult.sortColumn = ii;
-                refinedResult.sortDirection = columns[ii].getSortDirection();
+                refinedResult.setSortOrder(columns[ii], columns[ii].getSortDirection());
+                foundSortColumn = true;
             }
+        }
+
+        if (refinedResult.metaData.isPreSorted())
+        {
+            refinedResult.internalSetSortOrder(refinedResult.metaData.getPreSortedColumnIndex(), // 
+                            refinedResult.metaData.getPreSortedDirection(), //
+                            true, null);
         }
     }
 
@@ -166,13 +170,39 @@ public class RefinedResultBuilder
 
     public void setSortOrder(int columnIndex, SortDirection direction)
     {
-        refinedResult.sortColumn = columnIndex;
-        refinedResult.sortDirection = direction != null ? direction : Column.SortDirection
-                        .defaultFor(refinedResult.columns.get(columnIndex));
+        if (direction == null)
+            direction = Column.SortDirection.defaultFor(refinedResult.columns.get(columnIndex));
 
-        refinedResult.resultIsSorted = refinedResult.metaData.isPreSorted()
-                        && refinedResult.sortColumn == refinedResult.metaData.getPreSortedColumnIndex()
-                        && refinedResult.sortDirection == refinedResult.metaData.getPreSortedDirection();
+        boolean isPreSorted = refinedResult.metaData.isPreSorted()
+                        && columnIndex == refinedResult.metaData.getPreSortedColumnIndex()
+                        && direction == refinedResult.metaData.getPreSortedDirection();
+
+        refinedResult.internalSetSortOrder(columnIndex, direction, isPreSorted, null);
+    }
+
+    public void setSortOrder(int[] indices, SortDirection[] directions)
+    {
+        if (indices.length != directions.length)
+            throw new IllegalArgumentException("Same number of columns and sort directions must be provided.");
+        
+        if (indices.length == 1)
+        {
+            setSortOrder(indices[0], directions[0]);
+        }
+        else
+        {
+            Column.SortDirection direction = directions[0];
+            if (direction == null)
+                direction = Column.SortDirection.defaultFor(refinedResult.columns.get(indices[0]));
+
+            List<Comparator<Object>> comparators = new ArrayList<Comparator<Object>>(indices.length);
+            
+            for (int ii = 0; ii < indices.length; ii++)
+                comparators.add(refinedResult.buildComparator(indices[ii], directions[ii]));
+            
+            Comparator<Object> cmp = new RefinedStructuredResult.MultiColumnComparator(comparators);
+            refinedResult.internalSetSortOrder(indices[0], direction, false, cmp);
+        }
     }
 
     public void addDefaultContextDerivedColumn(DerivedOperation operation)

@@ -29,6 +29,7 @@ import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.ISelectionProvider;
 import org.eclipse.mat.query.IStructuredResult;
 import org.eclipse.mat.query.ResultMetaData;
+import org.eclipse.mat.query.Column.SortDirection;
 import org.eclipse.mat.query.ContextDerivedData.DerivedCalculator;
 import org.eclipse.mat.query.ContextDerivedData.DerivedColumn;
 import org.eclipse.mat.query.ContextDerivedData.DerivedOperation;
@@ -123,6 +124,27 @@ public abstract class RefinedStructuredResult implements IStructuredResult, //
         }
     }
 
+    /* package */static final class MultiColumnComparator implements Comparator<Object>
+    {
+        private List<Comparator<Object>> list;
+
+        public MultiColumnComparator(List<Comparator<Object>> list)
+        {
+            this.list = list;
+        }
+
+        public int compare(Object o1, Object o2)
+        {
+            for (Comparator<Object> c : list)
+            {
+                int result = c.compare(o1, o2);
+                if (result != 0)
+                    return result;
+            }
+            return 0;
+        }
+    }
+
     // //////////////////////////////////////////////////////////////
     // member variables
     // //////////////////////////////////////////////////////////////
@@ -150,9 +172,10 @@ public abstract class RefinedStructuredResult implements IStructuredResult, //
     protected List<Filter> filters = new ArrayList<Filter>();
     protected List<IDecorator> decorators = new ArrayList<IDecorator>();
 
-    protected boolean resultIsSorted = false;
-    protected int sortColumn = -1;
-    protected Column.SortDirection sortDirection;
+    private boolean resultIsSorted = false;
+    private int sortColumn = -1;
+    private Column.SortDirection sortDirection;
+    private Comparator<Object> comparator;
 
     protected boolean inlineJobs = false;
     protected List<DerivedDataJobDefinition> jobs = new ArrayList<DerivedDataJobDefinition>();
@@ -231,24 +254,39 @@ public abstract class RefinedStructuredResult implements IStructuredResult, //
         return sortDirection;
     }
 
-    public void setSortOrder(Column queryColumn, Column.SortDirection direction)
+    /* package */void internalSetSortOrder(int columnIndex, SortDirection direction, boolean isPreSorted,
+                    Comparator<Object> cmp)
     {
-        sortColumn = columns.indexOf(queryColumn);
-        sortDirection = direction;
-        resultIsSorted = false;
+        this.sortColumn = columnIndex;
+        this.sortDirection = direction;
+        this.resultIsSorted = isPreSorted;
+
+        if (cmp == null)
+            cmp = buildComparator(columnIndex, direction);
+
+        this.comparator = cmp;
     }
 
     @SuppressWarnings("unchecked")
+    /* package */Comparator<Object> buildComparator(int columnIndex, Column.SortDirection direction)
+    {
+        Comparator<Object> cmp = (Comparator<Object>) columns.get(columnIndex).getComparator();
+        if (cmp == null)
+            cmp = new NaturalComparator(this, columnIndex);
+        if (direction == Column.SortDirection.DESC)
+            cmp = Collections.reverseOrder(cmp);
+        return cmp;
+    }
+
+    public void setSortOrder(Column queryColumn, Column.SortDirection direction)
+    {
+        internalSetSortOrder(columns.indexOf(queryColumn), direction, false, null);
+    }
+
     public void sort(List<?> elements)
     {
-        Comparator<Object> cmp = (Comparator<Object>) columns.get(sortColumn).getComparator();
-        if (cmp == null)
-            cmp = new NaturalComparator(this, sortColumn);
-
-        if (sortDirection == Column.SortDirection.DESC)
-            cmp = Collections.reverseOrder(cmp);
-
-        Collections.sort(elements, cmp);
+        if (comparator != null)
+            Collections.sort(elements, comparator);
     }
 
     // //////////////////////////////////////////////////////////////
