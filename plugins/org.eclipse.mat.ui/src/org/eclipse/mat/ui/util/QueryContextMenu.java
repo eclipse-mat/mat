@@ -171,12 +171,14 @@ public class QueryContextMenu
 
     private static class Policy
     {
-        private boolean multipleObjectSelected;
+        private final boolean multiRowSelection;
+        private final boolean multiObjectSelection;
         private Class<? extends IContextObject> type;
 
         public Policy(List<IContextObject> menuContext)
         {
-            multipleObjectSelected = menuContext.size() > 1 || menuContext.get(0) instanceof IContextObjectSet;
+            multiRowSelection = menuContext.size() > 1;
+            multiObjectSelection = multiRowSelection || menuContext.get(0) instanceof IContextObjectSet;
 
             type = IContextObjectSet.class;
             for (IContextObject obj : menuContext)
@@ -193,6 +195,9 @@ public class QueryContextMenu
         {
             boolean heapObjectArgExists = false;
             boolean heapObjectArgIsMultiple = false;
+            
+            boolean contextObjectArgExists = false;
+            boolean contextObjectArgIsMultiple = false;
 
             for (ArgumentDescriptor argument : query.getArguments())
             {
@@ -204,14 +209,16 @@ public class QueryContextMenu
                 }
                 else if (argument.getType().isAssignableFrom(type))
                 {
-                    heapObjectArgExists = true;
-                    heapObjectArgIsMultiple = heapObjectArgIsMultiple || argument.isMultiple();
+                    contextObjectArgExists = true;
+                    contextObjectArgIsMultiple = contextObjectArgIsMultiple || argument.isMultiple();
                 }
             }
 
-            if (!heapObjectArgExists)
+            if (!heapObjectArgExists && !contextObjectArgExists)
                 return false;
-            if (!heapObjectArgIsMultiple && multipleObjectSelected)
+            if (heapObjectArgExists && !heapObjectArgIsMultiple && multiObjectSelection)
+                return false;
+            if (contextObjectArgExists && !contextObjectArgIsMultiple && multiRowSelection)
                 return false;
 
             return true;
@@ -226,8 +233,6 @@ public class QueryContextMenu
             if (argType.isAssignableFrom(IObject.class))
                 return true;
             if (argType.isAssignableFrom(IHeapObjectArgument.class))
-                return true;
-            if (argType.isAssignableFrom(type))
                 return true;
 
             return false;
