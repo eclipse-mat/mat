@@ -11,7 +11,7 @@ import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.util.IProgressListener;
 
-@Name("99|Open Source File")
+@Name("101|Open Source File")
 public class OpenSourceFileQuery implements IQuery
 {
     @Argument
