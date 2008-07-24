@@ -16,15 +16,19 @@ public class PrettyPrinter
 {
     public static String objectAsString(IObject stringObject, int limit) throws SnapshotException
     {
-        int count = (Integer) stringObject.resolveValue("count");
-        if (count == 0)
+        Integer count = (Integer) stringObject.resolveValue("count");
+        if (count == null)
+            return null;
+        if (count.intValue() == 0)
             return "";
 
         IPrimitiveArray charArray = (IPrimitiveArray) stringObject.resolveValue("value");
         if (charArray == null)
             return null;
 
-        int offset = (Integer) stringObject.resolveValue("offset");
+        Integer offset = (Integer) stringObject.resolveValue("offset");
+        if (offset == null)
+            return null;
 
         return arrayAsString(charArray, offset, count, limit);
     }

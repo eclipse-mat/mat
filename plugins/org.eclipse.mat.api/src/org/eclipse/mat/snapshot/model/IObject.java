@@ -15,8 +15,6 @@ import java.util.List;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.snapshot.ISnapshot;
-import org.eclipse.mat.snapshot.extension.IClassSpecificNameResolver;
-import org.eclipse.mat.snapshot.registry.ClassSpecificNameResolverRegistry;
 
 /**
  * Base interface for all objects found in a snapshot. Other model interfaces

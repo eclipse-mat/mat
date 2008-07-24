@@ -12,7 +12,6 @@ package org.eclipse.mat.snapshot.extension;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.snapshot.model.IObject;
-import org.eclipse.mat.snapshot.registry.ClassSpecificNameResolverRegistry;
 
 /**
  * Interface describing a name resolver for objects of specific classes (found
