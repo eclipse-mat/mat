@@ -36,7 +36,7 @@
 <topic label="Property Accessors" href="reference/propertyaccessors.html"/>
 <topic label="BNF for the Object Query Language" href="reference/bnfofoql.html"/>
 </topic>
-<topic label="Selecting Objects in Query Arguments" href="reference/selectingobjectsinqueryarguments.html"/>
+<topic label="Selecting Queries" href="reference/selectingqueries.html"/>
 <topic label="Icons Assist" href="reference/iconassist.html"/>
 <topic label="Tips and Tricks" href="reference/tipsandtricks.html"/>
 </topic>

@@ -54,11 +54,11 @@
 				Under
 				<menucascade><uicontrol>Window</uicontrol><uicontrol>Show View</uicontrol></menucascade>
 				you find all memory analysis views. By default the
-				Inspector and Notes views are visible. But you can open
+				Inspector, Navigator and Notes views are visible. But you can open
 				and re-arrange additional views in the memory analysis
 				perspective as in any other Eclipse perspective.
 			</p>
-			<image href="../mimes/2b8bfd16.png" />
+			<image href="../mimes/open_views.png" />
 			<p>
 				Heap Dump History View - Contains the list of heap dumps
 				recently opened and supports context actions to manage
@@ -71,6 +71,12 @@
 			</p>
 			<p>
 				<image href="../mimes/m2e8a36f1.png" />
+			</p>
+			<p> Navigation History View - Keeps history of all the opened result views and
+				allows to navigate among them.
+		    </p>
+			<p>
+				<image href="../mimes/navigator_view.png" />
 			</p>
 			<p>
 				Notes View - You can take notes for every heap dump. The
@@ -105,24 +111,21 @@
 				load and define the various classes.
 			</p>
 			<p>
-				The retained size on a class loader is the amount of
+				The retained size of a class loader is the amount of
 				memory that is collected by the garbage collector (GC)
 				when all objects of the classes in the class loader are
 				no longer accessible by the GC.
 			</p>
 			<p>
-				You can search for classes or class loaders with a
-				regular search expression in the text input field and
-				choosing the
-				<varname>Find Now</varname>
-				button.
-			</p>
+				You can filter the class or class loader histogram with a
+				regular search expression in the first line of the histogram.				
+			</p>			
+			<image href="../mimes/filter.png" />			
 			<p>
 				Context menus offer additional functionality in every
 				view. For some objects you can examine the content, like
 				for
 				<varname>HashMap</varname>
-
 				you can examine the keys/values of the data structure.
 			</p>
 			<p id="compare">
@@ -186,18 +189,7 @@
 				classes, classloaders or packages that occupy a lot of
 				memory.
 			</p>
-			<image href="../mimes/m70160b7c.jpg" />
-			<p>
-				<b>Dominator Tree Grouping</b>
-			</p>
-			<p>
-				The Dominator Tree can be grouped by classes,
-				classloaders or packages. If there is not one huge
-				object in the Dominator Tree, grouping helps to identify
-				classes, classloaders or packages that occupy a lot of
-				memory.
-			</p>
-			<image href="../mimes/m70160b7c.jpg" />
+			<image href="../mimes/m70160b7c.jpg" />			
 			<p id="paths2gc">
 				<b>Paths to GC Roots Heap Editor</b>
 			</p>

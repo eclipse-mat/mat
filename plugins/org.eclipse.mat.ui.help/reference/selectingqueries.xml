@@ -3,7 +3,7 @@
 <?xml-stylesheet href="../../../xsl/dita2html_shell.xsl" type="text/xsl"?>
 <!DOCTYPE reference PUBLIC "-//IBM//DTD DITA Reference//EN" "../../../dtd/reference.dtd" []>
 <reference id="queryarguments" xml:lang="en-us">
-	<title>Selecting Objects in Query Arguments</title>
+	<title>Selecting Queries</title>
 	<shortdesc />
 
 	<prolog />
@@ -25,12 +25,13 @@
 				their category. When a query is marked, a detailed description of the query
 				is displayed at the bottom. This description contains also the information
 				about the arguments for this query. </p>
-			<image href="../mimes/36c94924.png" align="left" placement="break"/>
-			<p> If a query has arguments a menu is opened up when the query is selected. All
+			<p> If a query has arguments a wizard is opened up when the query is selected. All
 				arguments are displayed in an table, the mandatory arguments are bold. In
 				the message area at the top information is displayed about the mandatory
 				arguments. At the bottom the detailed description is displayed like in the
 				query selector. </p>
+			<image href="../mimes/36c94924.png" align="left" placement="break"/>
+			
 			<p id="arguments">
 				<b>Providing Query Arguments</b>
 			</p>

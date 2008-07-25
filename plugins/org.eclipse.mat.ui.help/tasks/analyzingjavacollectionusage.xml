@@ -88,7 +88,7 @@ One additional custom map-like (e.g. non-JDK) collection can be specified by the
 </tbody>
 </tgroup>
 </table>
-<p>All these queries are accessible from the toolbar drop-down menu: <cmdname>Open Query Browser &gt; Java Collections &gt;</cmdname></p>
+<p>All these queries are accessible from the toolbar drop-down menu: <menucascade><uicontrol>Open Query Browser</uicontrol><uicontrol>Java Collections</uicontrol></menucascade></p>
 <image href="../mimes/m33f9e094.png"></image>
 </context>
 </taskbody>
