@@ -109,4 +109,13 @@
 		</content-type>
 	</extension>
 	
+	<extension id="parse" point="org.eclipse.core.runtime.applications">
+		<application
+		      cardinality="singleton-global"
+		      thread="main"
+		      visible="true">
+			<run class="org.eclipse.mat.internal.apps.ParseSnapshotApp" />
+		</application>
+	</extension>
+	
 </plugin>

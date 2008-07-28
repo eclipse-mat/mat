@@ -18,13 +18,12 @@ import org.eclipse.core.runtime.dynamichelpers.ExtensionTracker;
 import org.eclipse.core.runtime.dynamichelpers.IExtensionTracker;
 import org.osgi.framework.BundleContext;
 
-
 public class MATPlugin extends Plugin
 {
     public static final String PLUGIN_ID = "org.eclipse.mat.api";
 
     private static MATPlugin plugin;
-    
+
     private IExtensionTracker tracker;
 
     public MATPlugin()
@@ -67,6 +66,11 @@ public class MATPlugin extends Plugin
     public static void log(Throwable e, String message)
     {
         log(new Status(IStatus.ERROR, PLUGIN_ID, message, e));
+    }
+
+    public static void log(String message)
+    {
+        log(new Status(IStatus.ERROR, PLUGIN_ID, message));
     }
 
 }
