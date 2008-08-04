@@ -57,6 +57,9 @@ public class PrettyPrinter
             value = (byte[]) charArray.getContent(elementSize * offset, contentToRead);
         }
 
+        if (value == null)
+            return null;
+
         StringBuilder result = new StringBuilder(value.length >> 1);
         for (int ii = 0; ii < value.length;)
         {
