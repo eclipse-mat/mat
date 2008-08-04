@@ -4,7 +4,10 @@
    <extension
          id="application"
          point="org.eclipse.core.runtime.applications">
-      <application>
+      <application
+            cardinality="singleton-global"
+            thread="main"
+            visible="true">
          <run
                class="org.eclipse.mat.tests.regression.Application">
          </run>
