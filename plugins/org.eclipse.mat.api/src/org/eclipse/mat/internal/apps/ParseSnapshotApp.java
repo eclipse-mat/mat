@@ -24,30 +24,42 @@ public class ParseSnapshotApp implements IApplication
 
     public Object start(IApplicationContext context) throws Exception
     {
-        String[] args = (String[]) context.getArguments().get(IApplicationContext.APPLICATION_ARGS);
-
-        if (args == null || args.length < 1)
-            throw new IllegalArgumentException("Usage: <snapshot> [(<report id>)*]");
-
-        File file = new File(args[0]);
-        if (!file.exists())
-            throw new FileNotFoundException(MessageFormat.format("File not found: {0}", file.getAbsolutePath()));
-
-        List<Spec> reports = new ArrayList<Spec>();
-
-        SpecFactory factory = SpecFactory.instance();
-        for (int ii = 1; ii < args.length; ii++)
+        try
         {
-            Spec spec = factory.create(args[ii]);
-            if (spec != null)
-                reports.add(spec);
-            else
-                MATPlugin.log(MessageFormat.format("Report not found: {0}", args[ii]));
+            String[] args = (String[]) context.getArguments().get(IApplicationContext.APPLICATION_ARGS);
+
+            if (args == null || args.length < 1)
+                throw new IllegalArgumentException("Usage: <snapshot> [(<report id>)*]");
+
+            File file = new File(args[0]);
+            if (!file.exists())
+                throw new FileNotFoundException(MessageFormat.format("File not found: {0}", file.getAbsolutePath()));
+
+            List<Spec> reports = new ArrayList<Spec>();
+
+            SpecFactory factory = SpecFactory.instance();
+            for (int ii = 1; ii < args.length; ii++)
+            {
+                Spec spec = factory.create(args[ii]);
+                if (spec != null)
+                    reports.add(spec);
+                else
+                    MATPlugin.log(MessageFormat.format("Report not found: {0}", args[ii]));
+            }
+
+            parse(file, reports);
+
+            return 0;
         }
-
-        parse(file, reports);
-
-        return 0;
+        catch (Throwable e)
+        {
+            //Need stack in sys.out when called from cmd
+            e.printStackTrace(System.err);
+            if (e instanceof Exception)
+                throw (Exception) e;
+            else
+                throw new RuntimeException(e);
+        }
     }
 
     public void stop()
@@ -57,9 +69,11 @@ public class ParseSnapshotApp implements IApplication
     {
 
         ConsoleProgressListener listener = new ConsoleProgressListener(System.out);
-
+        long startTime = System.currentTimeMillis();
         ISnapshot snapshot = SnapshotFactory.openSnapshot(file, listener);
         listener.done();
+        long endTime = System.currentTimeMillis();
+        System.out.println("parsing duration: " + (endTime - startTime)/1000 + " sec");
 
         try
         {

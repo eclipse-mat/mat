@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.mat.report.internal;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
@@ -26,6 +27,7 @@ import org.eclipse.mat.query.refined.RefinedTable;
 import org.eclipse.mat.query.refined.RefinedTree;
 import org.eclipse.mat.query.refined.TotalsRow;
 import org.eclipse.mat.query.registry.QueryObjectLink;
+import org.eclipse.mat.query.results.DisplayFileResult;
 import org.eclipse.mat.query.results.TextResult;
 import org.eclipse.mat.report.IOutputter;
 import org.eclipse.mat.report.Params;
@@ -51,10 +53,16 @@ public class HtmlOutputter implements IOutputter
         {
             renderText(context, (TextResult) result, writer);
         }
+        else if (result instanceof DisplayFileResult)
+        {       
+            File target = new File( context.getOutputDirectory(), ((DisplayFileResult) result).getFile().getName());
+            //TODO(en) check whether successful:
+            ((DisplayFileResult) result).getFile().renameTo(target);           
+        }
         else if (result == null)
         {
             writer.append("n/a");
-        }
+        }            
         else
         {
             writer.append(result.toString());

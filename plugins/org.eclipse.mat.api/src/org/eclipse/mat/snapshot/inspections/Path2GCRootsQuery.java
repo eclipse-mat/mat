@@ -27,6 +27,7 @@ import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IDecorator;
 import org.eclipse.mat.query.IIconProvider;
 import org.eclipse.mat.query.IQuery;
+import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.IResultTree;
 import org.eclipse.mat.query.ISelectionProvider;
 import org.eclipse.mat.query.ResultMetaData;
@@ -79,7 +80,7 @@ public class Path2GCRootsQuery implements IQuery
     @Argument(isMandatory = false)
     public int numberOfPaths = 30;
 
-    public Tree execute(IProgressListener listener) throws Exception
+    public IResult execute(IProgressListener listener) throws Exception
     {
         // convert excludes into the required format
         Map<IClass, Set<String>> excludeMap = convert(snapshot, excludes);
@@ -92,7 +93,7 @@ public class Path2GCRootsQuery implements IQuery
         return result;
     }
 
-    /* package */static Map<IClass, Set<String>> convert(ISnapshot snapshot, List<String> excludes)
+    protected static Map<IClass, Set<String>> convert(ISnapshot snapshot, List<String> excludes)
                     throws SnapshotException
     {
         Map<IClass, Set<String>> excludeMap = null;

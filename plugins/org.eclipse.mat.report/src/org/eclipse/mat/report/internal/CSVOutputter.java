@@ -59,14 +59,15 @@ public class CSVOutputter implements IOutputter
         // add data rows
         if (result instanceof RefinedTable)
         {
-            for (int i = 0; i < ((RefinedTable) result).getRowCount(); i++)
+            RefinedTable table = ((RefinedTable) result);
+            int limit = Math.min(table.getRowCount(), context.getLimit());
+            for (int i = 0; i < limit; i++)
             {
                 for (int columnIndex = 0; columnIndex < columns.length; columnIndex++)
                 {
                     if (context.isVisible(columnIndex))
                     {
-                        Object columnValue = ((RefinedTable) result).getColumnValue(((RefinedTable) result).getRow(i),
-                                        columnIndex);
+                        Object columnValue = table.getColumnValue(table.getRow(i), columnIndex);
                         if (columnValue != null)
                         {
                             writer.append(getStringValue(columnValue, filter[columnIndex]));
@@ -79,15 +80,17 @@ public class CSVOutputter implements IOutputter
         }
         else if (result instanceof RefinedTree)
         {
-            // export only first level of the RafinedTree
-            List<?> elements = ((RefinedTree) result).getElements();
-            for (int i = 0; i < elements.size(); i++)
+            RefinedTree tree = (RefinedTree) result;
+            // export only first level of the RefinedTree
+            List<?> elements = tree.getElements();
+            int limit = Math.min(elements.size(), context.getLimit());
+            for (int i = 0; i < limit; i++)
             {
                 for (int columnIndex = 0; columnIndex < columns.length; columnIndex++)
                 {
                     if (context.isVisible(columnIndex))
                     {
-                        Object columnValue = ((RefinedTree) result).getColumnValue(elements.get(i), columnIndex);
+                        Object columnValue = tree.getColumnValue(elements.get(i), columnIndex);
                         if (columnValue != null)
                         {
                             writer.append(getStringValue(columnValue, filter[columnIndex]));

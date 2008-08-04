@@ -49,7 +49,7 @@ public interface IPathsFromGCRootsComputer
 
     /**
      * Helper method constructing a tree like data structure from the given
-     * paths. Either all so far collcted paths could be dropped in here or just
+     * paths. Either all so far collected paths could be dropped in here or just
      * the last ones if you want to limit the view.
      * 
      * @param paths
