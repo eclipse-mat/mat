@@ -80,10 +80,9 @@ public class MultiplePathsFromGCRootsComputerImpl implements IMultiplePathsFromG
     
     private void computePaths(IProgressListener progressListener) throws SnapshotException
     {
-        float tmp = objectIds.length / 100;
-        int reportFrequesncy = tmp > 1 ? (int) tmp : 1;
-        int unitsToReport = tmp > 1 ? 1 : (int) (1/tmp);
+        int reportFrequency = Math.max(10, objectIds.length / 100);
         progressListener.beginTask("Finding paths", 100);
+        
         ArrayList<int[]> pathsList = new ArrayList<int[]>();
 
         for (int i = 0; i < objectIds.length; i++)
@@ -100,9 +99,8 @@ public class MultiplePathsFromGCRootsComputerImpl implements IMultiplePathsFromG
             
             if (progressListener.isCanceled())
                 throw new IProgressListener.OperationCanceledException();
-            if (i % reportFrequesncy == 0) {
-                progressListener.worked(unitsToReport);
-            }
+            if (i % reportFrequency == 0)
+                progressListener.worked(1);
         }
         progressListener.done();
 
