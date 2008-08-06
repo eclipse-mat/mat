@@ -44,9 +44,9 @@ class HeapdumpTestsResult
         return errorMessages;
     }
     
-    public void setErrorMessages(List<String> errors)
+    public void addErrorMessage(String message)
     {
-        this.errorMessages = errors;
+        errorMessages.add(message);
     }
     
     public void addTestData(TestData data)

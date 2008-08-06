@@ -89,8 +89,6 @@ public class RegressionTestApplication
         this.args = args;
     }
 
-    private List<String> problems = new ArrayList<String>();
-
     public void run() throws Exception
     {
 
@@ -117,10 +115,11 @@ public class RegressionTestApplication
             List<HeapdumpTestsResult> testResults = new ArrayList<HeapdumpTestsResult>(dumpList.size());
             for (File dump : dumpList)
             {
-                // prepare test environment
-                cleanIndexFiles(dump, true);
                 HeapdumpTestsResult result = new HeapdumpTestsResult(dump.getName());
                 testResults.add(result);
+
+                // prepare test environment
+                cleanIndexFiles(dump, result, true);
 
                 try
                 {
@@ -131,7 +130,7 @@ public class RegressionTestApplication
                 {
                     String message = "ERROR> " + e.getMessage();
                     System.err.println(message);
-                    problems.add(message);
+                    result.addErrorMessage(message);
                     continue;
                 }
                 // process the result (compare to the baseline)
@@ -147,10 +146,9 @@ public class RegressionTestApplication
                         break;
                     }
                 }
-                if (succeed && problems.isEmpty())
-                    cleanIndexFiles(dump, false);
+                if (succeed && result.getErrorMessages().isEmpty())
+                    cleanIndexFiles(dump, result, false);
 
-                result.setErrorMessages(problems);
             }
 
             if (!testResults.isEmpty())
@@ -163,6 +161,11 @@ public class RegressionTestApplication
                 boolean succeed = true;
                 for (HeapdumpTestsResult entry : testResults)
                 {
+                    if (!entry.getErrorMessages().isEmpty())
+                    {
+                        succeed = false;
+                        break;
+                    }
                     for (TestData testData : entry.getTestData())
                     {
                         if (!testData.getDifferences().isEmpty())
@@ -174,7 +177,7 @@ public class RegressionTestApplication
                     if (!succeed)
                         break;
                 }
-                if (succeed && problems.isEmpty())
+                if (succeed)
                     System.out.println("Tests finished successfully");
                 else
                     System.out.println("Tests finished with errors");
@@ -288,9 +291,8 @@ public class RegressionTestApplication
         }
         catch (Exception e)
         {
-            String errorMessage = "ERROR> Failed to generate the report. ";
+            System.err.println("ERROR> Failed to generate the report. ");
             e.printStackTrace(System.err);
-            problems.add(errorMessage);
         }
 
     }
@@ -302,26 +304,26 @@ public class RegressionTestApplication
         File baselineDir = new File(dump.getAbsolutePath() + Utils.BASELINE_EXTENSION);
         if (baselineDir.exists() && baselineDir.isDirectory() && baselineDir.listFiles().length > 0)
         {
-            // create temp folder, unzip result in it
-            File tempDir = new File(dump.getAbsolutePath() + Utils.TEST_EXTENSION);
-            if (tempDir.exists())
+            // create folder, unzip result in it
+            File resultDir = new File(dump.getAbsolutePath() + Utils.TEST_EXTENSION);
+            if (resultDir.exists())
             {
-                File[] oldFiles = tempDir.listFiles();
+                File[] oldFiles = resultDir.listFiles();
                 for (File file : oldFiles)
                 {
                     file.delete();
                 }
-                tempDir.delete();
+                resultDir.delete();
             }
-            tempDir.mkdir();
-            unzipTestResults(tempDir, dump);
-            
+            resultDir.mkdir();
+            unzipTestResults(resultDir, dump, result);
+
             // verify that all the baseline results have corresponding result
             // files in test folder
             File[] baselineFiles = baselineDir.listFiles();
             for (final File baselineFile : baselineFiles)
             {
-                File[] matchingFiles = tempDir.listFiles(new FileFilter()
+                File[] matchingFiles = resultDir.listFiles(new FileFilter()
                 {
 
                     public boolean accept(File file)
@@ -331,11 +333,15 @@ public class RegressionTestApplication
 
                 });
                 if (matchingFiles.length == 0)
-                    System.err.println("ERROR> Baseline result " + baselineFile + " has no corresponding test result");
+                {
+                    String errorMessage = "ERROR> Baseline result " + baselineFile + " has no corresponding test result";
+                    System.err.println(errorMessage);
+                    result.addErrorMessage(errorMessage);
+                }
             }
-            
-            // foreach result file compare
-            File[] results = tempDir.listFiles();
+
+            // for each result file compare
+            File[] results = resultDir.listFiles();
 
             System.out.println("-------------------------------------------------------------------");
             for (final File testResultFile : results)
@@ -370,7 +376,7 @@ public class RegressionTestApplication
                     System.out.println("OUTPUT> New baseline was added for " + testResultFile.getName());
                     result.addTestData(new TestData(testResultFile.getName(), "New baseline was added", null));
                 }
-            }          
+            }
         }
 
         else
@@ -378,7 +384,7 @@ public class RegressionTestApplication
             // create baseline folder and copy the result of the tests in it
             baselineDir.mkdir();
             // unzip only baseline results (.csv, etc) delete zip file
-            unzipTestResults(baselineDir, dump);
+            unzipTestResults(baselineDir, dump, result);
             // report new baseline creation
             File[] baseline = baselineDir.listFiles();
             for (File baselineFile : baseline)
@@ -389,10 +395,10 @@ public class RegressionTestApplication
         }
     }
 
-    private void cleanIndexFiles(File file, boolean throwExcepionFlag) throws Exception
+    private void cleanIndexFiles(File file, HeapdumpTestsResult result, boolean throwExcepionFlag) throws Exception
     {
         System.out.println("OUTPUT>Task: Cleaning the indexes and old result files for " + file.getName());
-        File dir = file.getParentFile();          
+        File dir = file.getParentFile();
 
         String[] indexFiles = dir.list(Utils.cleanupFilter);
 
@@ -409,7 +415,7 @@ public class RegressionTestApplication
                     else
                     {
                         String problem = "ERROR> Failed to remove file " + indexFile + " from the directory " + dir;
-                        problems.add(problem);
+                        result.addErrorMessage(problem);
                         System.err.println(problem);
                     }
                 }
@@ -422,7 +428,7 @@ public class RegressionTestApplication
 
     }
 
-    private void unzip(File zipfile, File targetDir) throws Exception
+    private void unzip(File zipfile, File targetDir, HeapdumpTestsResult result) throws Exception
     {
         int BUFFER = 512;// 1024;
         BufferedOutputStream dest = null;
@@ -471,18 +477,18 @@ public class RegressionTestApplication
         }
         catch (FileNotFoundException e)
         {
-            problems.add("File not found: " + e.getMessage());
+            result.addErrorMessage("File not found: " + e.getMessage());
             System.err.println("ERROR> File not found" + e.getMessage());
         }
         catch (IOException e)
         {
-            problems.add(e.getMessage());
+            result.addErrorMessage(e.getMessage());
             System.err.println("ERROR> " + e.getMessage());
         }
 
-    }    
+    }
 
-    private void unzipTestResults(File baselineDir, File dumpFile) throws Exception
+    private void unzipTestResults(File baselineDir, File dumpFile, HeapdumpTestsResult result) throws Exception
     {
         // get result file name
         String resultsFileName = dumpFile.getAbsolutePath().substring(0, dumpFile.getAbsolutePath().lastIndexOf('.'))
@@ -495,14 +501,14 @@ public class RegressionTestApplication
         if (succeed)
         {
             // unzip
-            unzip(targetFile, baselineDir);
+            unzip(targetFile, baselineDir, result);
             targetFile.delete();
         }
         else
         {
             String message = "ERROR> Failed coping test results file " + resultsFileName
                             + " to the destination folder " + baselineDir;
-            problems.add(message);
+            result.addErrorMessage(message);
             System.err.println(message);
         }
 
@@ -553,5 +559,5 @@ public class RegressionTestApplication
         System.out.println("Exit Status: OK");
         // $JL-SYS_OUT_ERR$
 
-    }   
+    }
 }
