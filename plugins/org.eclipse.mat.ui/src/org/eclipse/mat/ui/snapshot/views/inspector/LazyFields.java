@@ -188,7 +188,7 @@ import org.eclipse.mat.snapshot.model.ObjectReference;
         @Override
         protected Object createElement(IObjectArray array, int index)
         {
-            long refs[] = (long[]) array.getContent();
+            long refs[] = (long[]) array.getReferenceArray();
 
             if (refs[index] != 0)
             {

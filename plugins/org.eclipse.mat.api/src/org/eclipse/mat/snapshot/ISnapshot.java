@@ -360,13 +360,13 @@ public interface ISnapshot
      * 
      * @param objectIds
      *            objects on which the minimum retained set should be determined
-     * @param progressListener
+     * @param listener
      *            progress listener informing about the current state of
      *            execution
      * @return the minimum retained set of objects for the given objects
      * @throws SnapshotException
      */
-    public long getMinRetainedSize(int[] objectIds, IProgressListener progressMonitor) throws SnapshotException;
+    public long getMinRetainedSize(int[] objectIds, IProgressListener listener) throws SnapshotException;
 
     /**
      * Get objects the given object directly dominates, i.e. the objects which
@@ -435,7 +435,7 @@ public interface ISnapshot
      * @param objectIds
      *            the objects for which the top-ancestors in the Dominator tree
      *            have to be found
-     * @param progressListener
+     * @param listener
      *            progress listener informing about the current state of
      *            execution
      * @return int[] the objects which not in a parent/child relation in the

@@ -95,9 +95,8 @@ public interface IObject extends Serializable
 
     /**
      * Get class specific name of this object which depends on the availability
-     * of the appropriate {@link IClassSpecificNameResolver} at the
-     * {@link ClassSpecificNameResolverRegistry}, e.g. for a String the value of
-     * the char[].
+     * of the appropriate name resolver, e.g. for a String the value of the
+     * char[].
      * 
      * @return class specific name of the given snapshot object or null if it
      *         can't be resolved

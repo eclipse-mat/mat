@@ -22,10 +22,4 @@ public interface IArray extends IObject
      */
     public int getLength();
 
-    /**
-     * Returns the (binary) content of the array.
-     */
-    public Object getContent();
-    
-    public Object getContent(int offset, int length);
 }

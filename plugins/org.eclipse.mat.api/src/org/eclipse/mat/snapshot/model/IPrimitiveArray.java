@@ -35,13 +35,43 @@ public interface IPrimitiveArray extends IArray
                     "byte[]", "short[]", "int[]", "long[]" };
 
     /**
-     * Returns the {@link Type} of the primitive array.
+     * Java component type of the primitive array.
+     */
+    public static final Class<?>[] COMPONENT_TYPE = { null, null, null, null, boolean.class, char.class, float.class,
+                    double.class, byte.class, short.class, int.class, long.class };
+
+    /**
+     * Returns the {@link IObject.Type} of the primitive array.
      */
     public int getType();
+
+    /**
+     * Returns the component type of the array.
+     */
+    public Class<?> getComponentType();
 
     /**
      * Returns the Object at a given index.
      */
     public Object getValueAt(int index);
 
+    /**
+     * Get the primitive Java array. The return value can be casted into the
+     * correct component type, e.g.
+     * 
+     * <pre>
+     * if (char.class == array.getComponentType())
+     * {
+     *     char[] content = (char[]) array.getValueArray();
+     *     System.out.println(content.length);
+     * }
+     * </pre>
+     */
+    public Object getValueArray();
+
+    /**
+     * Get the primitive Java array, beginning at <code>offset</code> and
+     * <code>length</code> number of elements.
+     */
+    public Object getValueArray(int offset, int length);
 }

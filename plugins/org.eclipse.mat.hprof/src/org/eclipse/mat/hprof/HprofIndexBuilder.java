@@ -19,7 +19,6 @@ import java.util.List;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.IteratorLong;
 import org.eclipse.mat.hprof.extension.IParsingEnhancer;
-import org.eclipse.mat.hprof.internal.EnhancerRegistry;
 import org.eclipse.mat.parser.IIndexBuilder;
 import org.eclipse.mat.parser.IPreliminaryIndex;
 import org.eclipse.mat.parser.index.IndexWriter;

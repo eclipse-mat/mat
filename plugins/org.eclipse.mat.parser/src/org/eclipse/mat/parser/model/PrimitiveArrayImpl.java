@@ -10,10 +10,14 @@
  *******************************************************************************/
 package org.eclipse.mat.parser.model;
 
+import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayLong;
+import org.eclipse.mat.snapshot.model.Field;
 import org.eclipse.mat.snapshot.model.IPrimitiveArray;
 import org.eclipse.mat.snapshot.model.NamedReference;
 import org.eclipse.mat.snapshot.model.PseudoReference;
@@ -23,13 +27,13 @@ import org.eclipse.mat.snapshot.model.PseudoReference;
  */
 public class PrimitiveArrayImpl extends AbstractArrayImpl implements IPrimitiveArray
 {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 
     private int type;
 
-    public PrimitiveArrayImpl(int objectId, long address, ClassImpl classInstance, int length, int type, Object content)
+    public PrimitiveArrayImpl(int objectId, long address, ClassImpl classInstance, int length, int type)
     {
-        super(objectId, address, classInstance, length, content);
+        super(objectId, address, classInstance, length);
         this.type = type;
     }
 
@@ -37,34 +41,52 @@ public class PrimitiveArrayImpl extends AbstractArrayImpl implements IPrimitiveA
     {
         return type;
     }
+    
+    public Class<?> getComponentType()
+    {
+        return COMPONENT_TYPE[type];
+    }
 
     public Object getValueAt(int index)
     {
-        byte[] data = (byte[]) getContent(index * ELEMENT_SIZE[type], ELEMENT_SIZE[type]);
-        return asObject(data, 0);
+        Object data = getValueArray(index, 1);
+        return Array.get(data, 0);
     }
 
-    private Object asObject(byte[] data, int offset)
+    public Object getValueArray()
     {
-        switch (type)
+        try
         {
-            case Type.BOOLEAN:
-                return data[offset] != 0;
-            case Type.CHAR:
-                return readChar(data, offset);
-            case Type.FLOAT:
-                return readFloat(data, offset);
-            case Type.DOUBLE:
-                return readDouble(data, offset);
-            case Type.BYTE:
-                return data[offset];
-            case Type.SHORT:
-                return readShort(data, offset);
-            case Type.INT:
-                return readInt(data, offset);
-            case Type.LONG:
-                return readLong(data, offset);
+            return source.getHeapObjectReader().readPrimitiveArrayContent(this, 0, getLength());
         }
+        catch (SnapshotException e)
+        {
+            throw new RuntimeException(e);
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Object getValueArray(int offset, int length)
+    {
+        try
+        {
+            return source.getHeapObjectReader().readPrimitiveArrayContent(this, offset, length);
+        }
+        catch (SnapshotException e)
+        {
+            throw new RuntimeException(e);
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
+    protected Field internalGetField(String name)
+    {
         return null;
     }
 
@@ -98,51 +120,6 @@ public class PrimitiveArrayImpl extends AbstractArrayImpl implements IPrimitiveA
     public static int doGetUsedHeapSize(ClassImpl clazz, int length, int type)
     {
         return alignUpTo8(2 * clazz.getHeapSizePerInstance() + 4 + length * ELEMENT_SIZE[type]);
-    }
-
-    private short readShort(byte[] data, int offset)
-    {
-        int b1 = ((int) data[offset] & 0xff);
-        int b2 = ((int) data[offset + 1] & 0xff);
-        return (short) ((b1 << 8) + b2);
-    }
-
-    private char readChar(byte[] data, int offset)
-    {
-        int b1 = ((int) data[offset] & 0xff);
-        int b2 = ((int) data[offset + 1] & 0xff);
-        return (char) ((b1 << 8) + b2);
-    }
-
-    private int readInt(byte[] data, int offset)
-    {
-        int ch1 = data[offset] & 0xff;
-        int ch2 = data[offset + 1] & 0xff;
-        int ch3 = data[offset + 2] & 0xff;
-        int ch4 = data[offset + 3] & 0xff;
-        return ((ch1 << 24) + (ch2 << 16) + (ch3 << 8) + (ch4 << 0));
-    }
-
-    private float readFloat(byte[] data, int offset)
-    {
-        return Float.intBitsToFloat(readInt(data, offset));
-    }
-
-    private long readLong(byte[] data, int offset)
-    {
-        return ((((long) data[offset] & 0xff) << 56) + //
-                        ((long) (data[offset + 1] & 0xff) << 48) + //
-                        ((long) (data[offset + 2] & 0xff) << 40) + //
-                        ((long) (data[offset + 3] & 0xff) << 32) + //
-                        ((long) (data[offset + 4] & 0xff) << 24) + //
-                        ((data[offset + 5] & 0xff) << 16) + //
-                        ((data[offset + 6] & 0xff) << 8) + //
-        ((data[offset + 7] & 0xff) << 0));
-    }
-
-    private double readDouble(byte[] data, int offset)
-    {
-        return Double.longBitsToDouble(readLong(data, offset));
     }
 
 }

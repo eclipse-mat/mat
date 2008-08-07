@@ -164,7 +164,7 @@ public final class CollectionUtil
 
     public static int getNumberOfNoNullArrayElements(IObjectArray arrayObject)
     {
-        long[] elements = (long[]) arrayObject.getContent();
+        long[] elements = arrayObject.getReferenceArray();
         int result = 0;
         for (int i = 0; i < elements.length; i++)
         {

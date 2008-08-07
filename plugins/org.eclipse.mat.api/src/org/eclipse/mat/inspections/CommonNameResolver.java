@@ -84,7 +84,7 @@ public class CommonNameResolver
         {
             byte dot = (byte) '.';
             IPrimitiveArray arr = (IPrimitiveArray) heapObject;
-            byte[] value = (byte[]) arr.getContent(0, Math.min(arr.getLength(), 1024));
+            byte[] value = (byte[]) arr.getValueArray(0, Math.min(arr.getLength(), 1024));
             for (int i = 0; i < value.length; i++)
             {
                 if (value[i] < 32 || value[i] > 127)

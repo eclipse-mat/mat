@@ -19,7 +19,7 @@ import org.eclipse.mat.util.IProgressListener;
  * <p>
  * 
  * <pre>
- * @Argument
+ * &#064;Argument
  * public IHeapObjectArgument objects;
  * 
  * public IResult execute(IProgressListener listener) throws Exception
@@ -33,14 +33,13 @@ import org.eclipse.mat.util.IProgressListener;
  *     }
  * }
  * </pre>
- * 
  * <p>
- * There two advantage over using primitive Integer arrays: First, the object
- * set is chunked (if accessed through the iterator) and second, there is no
- * need to annotate the variable with isHeapObject = true.
+ * There are two advantages over using primitive Integer arrays: First, the
+ * object set is chunked (if accessed through the iterator) and second, there is
+ * no need to annotate the variable with isHeapObject = true.
  * 
  * <pre>
- * &amp;atArgument(isHeapObject = true)
+ * &#064;Argument(isHeapObject = true)
  * public int[] objects;
  * </pre>
  */

@@ -8,7 +8,7 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.mat.hprof.internal;
+package org.eclipse.mat.hprof;
 
 import java.text.MessageFormat;
 import java.util.logging.Level;

@@ -162,7 +162,7 @@ public abstract class AbstractObjectImpl implements IObject, Serializable
 
     // If the name is in the form <FIELD>{.<FIELD>}
     // the fields are transiently followed
-    public Object resolveValue(String name) throws SnapshotException
+    public final Object resolveValue(String name) throws SnapshotException
     {
         int p = name.indexOf('.');
         String n = p < 0 ? name : name.substring(0, p);

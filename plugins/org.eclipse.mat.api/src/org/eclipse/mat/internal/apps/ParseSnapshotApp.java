@@ -42,9 +42,14 @@ public class ParseSnapshotApp implements IApplication
             {
                 Spec spec = factory.create(args[ii]);
                 if (spec != null)
+                {
+                    factory.resolve(spec);
                     reports.add(spec);
+                }
                 else
-                    MATPlugin.log(MessageFormat.format("Report not found: {0}", args[ii]));
+                {
+                    System.err.println(MessageFormat.format("Report not found: {0}", args[ii]));
+                }
             }
 
             parse(file, reports);
@@ -53,7 +58,7 @@ public class ParseSnapshotApp implements IApplication
         }
         catch (Throwable e)
         {
-            //Need stack in sys.out when called from cmd
+            // Need stack in sys.out when called from cmd
             e.printStackTrace(System.err);
             if (e instanceof Exception)
                 throw (Exception) e;
@@ -67,13 +72,14 @@ public class ParseSnapshotApp implements IApplication
 
     private void parse(File file, List<Spec> reports) throws SnapshotException, IOException
     {
+        long startTime = System.currentTimeMillis();
 
         ConsoleProgressListener listener = new ConsoleProgressListener(System.out);
-        long startTime = System.currentTimeMillis();
         ISnapshot snapshot = SnapshotFactory.openSnapshot(file, listener);
         listener.done();
+
         long endTime = System.currentTimeMillis();
-        System.out.println("parsing duration: " + (endTime - startTime)/1000 + " sec");
+        System.out.println(MessageFormat.format("Time: {0} secs", (endTime - startTime) / 1000));
 
         try
         {

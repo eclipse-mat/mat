@@ -21,9 +21,21 @@ import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.util.IProgressListener;
 
+/**
+ * Lookup, parameterize and run queries on a given heap dump.
+ * 
+ * <pre>
+ * IResult result = SnapshotQuery.lookup(&quot;top_consumers_html&quot;, snapshot) //
+ *                 .set(&quot;objects&quot;, retained) //
+ *                 .execute(listener);
+ * </pre>
+ */
 public class SnapshotQuery
 {
 
+    /**
+     * Factory method to create a query by name.
+     */
     public static SnapshotQuery lookup(String name, ISnapshot snapshot) throws SnapshotException
     {
         QueryDescriptor query = QueryRegistry.instance().getQuery(name);
@@ -39,6 +51,10 @@ public class SnapshotQuery
         return new SnapshotQuery(snapshot, arguments);
     }
 
+    /**
+     * Factory method to create a query by command line, i.e. setting the
+     * arguments accordingly.
+     */
     public static SnapshotQuery parse(String commandLine, ISnapshot snapshot) throws SnapshotException
     {
         IQueryContext context = new SnapshotQueryContext(snapshot);
@@ -57,6 +73,11 @@ public class SnapshotQuery
         this.arguments = arguments;
     }
 
+    /**
+     * Set the argument identified by <code>name</code>. Heap objects can be
+     * provided as <code>int</code>, <code>Integer</code>, <code>int[]</code> or
+     * <code>IObject</code>.
+     */
     public SnapshotQuery set(String name, Object value) throws SnapshotException
     {
         ArgumentDescriptor argument = query.getArgumentByName(name);
@@ -73,7 +94,6 @@ public class SnapshotQuery
             if (value instanceof ArgumentFactory)
             {
                 // do nothing: correct
-                System.out.println("SnapshotQuery.set()");
             }
             if (value instanceof IObject)
             {
@@ -103,12 +123,19 @@ public class SnapshotQuery
         return this;
     }
 
+    /**
+     * Execute the query and return the result.
+     */
     public IResult execute(IProgressListener listener) throws SnapshotException
     {
         QueryResult result = arguments.execute(listener);
         return result != null ? result.getSubject() : null;
     }
 
+    /**
+     * Execute the query and return a {@link RefinedResultBuilder} which allows
+     * for filtering, sorting and limiting of the result.
+     */
     public RefinedResultBuilder refine(IProgressListener listener) throws SnapshotException
     {
         IResult result = execute(listener);

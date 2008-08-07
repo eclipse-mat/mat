@@ -21,13 +21,11 @@ import java.util.List;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.parser.io.BufferedRandomAccessInputStream;
 import org.eclipse.mat.parser.io.PositionInputStream;
-import org.eclipse.mat.parser.model.AbstractArrayImpl;
 import org.eclipse.mat.parser.model.ClassImpl;
 import org.eclipse.mat.parser.model.ClassLoaderImpl;
 import org.eclipse.mat.parser.model.InstanceImpl;
 import org.eclipse.mat.parser.model.ObjectArrayImpl;
 import org.eclipse.mat.parser.model.PrimitiveArrayImpl;
-import org.eclipse.mat.parser.model.AbstractArrayImpl.IContentDescriptor;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.Field;
 import org.eclipse.mat.snapshot.model.FieldDescriptor;
@@ -39,43 +37,6 @@ import org.eclipse.mat.snapshot.model.IPrimitiveArray;
 public class HprofRandomAccessParser extends AbstractParser
 {
     public static final int LAZY_LOADING_LIMIT = 256;
-
-    public static class Descriptor implements AbstractArrayImpl.IContentDescriptor
-    {
-        boolean isPrimitive;
-        long position;
-        int arraySize;
-        int elementSize;
-
-        public Descriptor(boolean isPrimitive, long position, int elementSize, int arraySize)
-        {
-            this.isPrimitive = isPrimitive;
-            this.position = position;
-            this.elementSize = elementSize;
-            this.arraySize = arraySize;
-        }
-
-        public boolean isPrimitive()
-        {
-            return isPrimitive;
-        }
-
-        public long getPosition()
-        {
-            return position;
-        }
-
-        public int getArraySize()
-        {
-            return arraySize;
-        }
-
-        public int getElementSize()
-        {
-            return elementSize;
-        }
-
-    }
 
     public HprofRandomAccessParser(File file, Version version, int identifierSize) throws IOException
     {
@@ -181,10 +142,12 @@ public class HprofRandomAccessParser extends AbstractParser
         }
         else
         {
-            content = new Descriptor(false, in.position(), 0, size);
+            content = new ArrayDescription.Offline(false, in.position(), 0, size);
         }
 
-        return new ObjectArrayImpl(objectId, id, (ClassImpl) arrayType, size, content);
+        ObjectArrayImpl array = new ObjectArrayImpl(objectId, id, (ClassImpl) arrayType, size);
+        array.setInfo(content);
+        return array;
     }
 
     private IArray readPrimitiveArrayDump(int objectId, ISnapshot dump) throws IOException, SnapshotException
@@ -206,11 +169,11 @@ public class HprofRandomAccessParser extends AbstractParser
         {
             byte[] data = new byte[len];
             in.readFully(data);
-            content = data;
+            content = elementType == IObject.Type.BYTE ? data : new ArrayDescription.Raw(data);
         }
         else
         {
-            content = new Descriptor(true, in.position(), elementSize, arraySize);
+            content = new ArrayDescription.Offline(true, in.position(), elementSize, arraySize);
         }
 
         // lookup class by name
@@ -224,36 +187,33 @@ public class HprofRandomAccessParser extends AbstractParser
         else
             clazz = classes.iterator().next();
 
-        return new PrimitiveArrayImpl(objectId, id, (ClassImpl) clazz, arraySize, (int) elementType, content);
+        PrimitiveArrayImpl array = new PrimitiveArrayImpl(objectId, id, (ClassImpl) clazz, arraySize, (int) elementType);
+        array.setInfo(content);
+
+        return array;
     }
 
-    public Object read(IContentDescriptor content) throws IOException
+    public synchronized long[] readObjectArray(ArrayDescription.Offline descriptor, int offset, int length)
+                    throws IOException
     {
-        Descriptor descriptor = (Descriptor) content;
-        return read(descriptor, 0, descriptor.isPrimitive() ? descriptor.getElementSize() * descriptor.getArraySize()
-                        : descriptor.getArraySize() * this.idSize);
+        int elementSize = this.idSize;
+
+        in.seek(descriptor.getPosition() + (offset * elementSize));
+        long[] data = new long[length];
+        for (int ii = 0; ii < data.length; ii++)
+            data[ii] = readID();
+        return data;
     }
 
-    public synchronized Object read(IContentDescriptor content, int offset, int length) throws IOException
+    public synchronized byte[] readPrimitiveArray(ArrayDescription.Offline descriptor, int offset, int length)
+                    throws IOException
     {
-        Descriptor descriptor = (Descriptor) content;
+        int elementSize = descriptor.getElementSize();
 
-        in.seek(descriptor.getPosition() + offset);
+        in.seek(descriptor.getPosition() + (offset * elementSize));
 
-        if (descriptor.isPrimitive())
-        {
-            byte[] data = new byte[length];
-            in.readFully(data);
-            return data;
-        }
-        else
-        {
-            long[] data = new long[length / this.idSize];
-            for (int ii = 0; ii < data.length; ii++)
-            {
-                data[ii] = readID();
-            }
-            return data;
-        }
+        byte[] data = new byte[length * elementSize];
+        in.readFully(data);
+        return data;
     }
 }

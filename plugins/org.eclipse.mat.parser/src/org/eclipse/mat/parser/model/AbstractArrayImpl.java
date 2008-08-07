@@ -10,10 +10,6 @@
  *******************************************************************************/
 package org.eclipse.mat.parser.model;
 
-import java.io.IOException;
-import java.lang.ref.SoftReference;
-
-import org.eclipse.mat.snapshot.model.Field;
 import org.eclipse.mat.snapshot.model.IArray;
 
 /**
@@ -21,21 +17,26 @@ import org.eclipse.mat.snapshot.model.IArray;
  */
 public abstract class AbstractArrayImpl extends AbstractObjectImpl implements IArray
 {
-    private static final long serialVersionUID = 1L;
-
-    /* marker interface */
-    public interface IContentDescriptor
-    {}
+    private static final long serialVersionUID = 2L;
 
     protected int length;
-    private Object content;
-    private transient SoftReference<Object> lazyReadContent;
+    
+    private Object info;
 
-    public AbstractArrayImpl(int objectId, long address, ClassImpl classInstance, int length, Object content)
+    public AbstractArrayImpl(int objectId, long address, ClassImpl classInstance, int length)
     {
         super(objectId, address, classInstance);
         this.length = length;
-        this.content = content;
+    }
+    
+    public Object getInfo()
+    {
+        return info;
+    }
+
+    public void setInfo(Object content)
+    {
+        this.info = content;
     }
 
     public int getLength()
@@ -48,79 +49,9 @@ public abstract class AbstractArrayImpl extends AbstractObjectImpl implements IA
         length = i;
     }
 
-    public Object getContent()
-    {
-        // content might be lazy loaded
-        if (content instanceof IContentDescriptor)
-        {
-            synchronized (this)
-            {
-                Object result = null;
-                if (lazyReadContent != null)
-                    result = lazyReadContent.get();
-
-                if (result == null)
-                {
-                    try
-                    {
-                        IContentDescriptor descriptor = (IContentDescriptor) content;
-                        result = source.getHeapObjectReader().read(descriptor);
-                        lazyReadContent = new SoftReference<Object>(result);
-                    }
-                    catch (IOException e)
-                    {
-                        throw new RuntimeException(e);
-                    }
-                }
-                return result;
-            }
-        }
-
-        return content;
-    }
-
-    public Object getContent(int offset, int length)
-    {
-        try
-        {
-            if (content instanceof IContentDescriptor)
-            {
-                Object soft = null;
-                if (lazyReadContent != null)
-                    soft = lazyReadContent.get();
-
-                if (soft != null)
-                {
-                    byte[] answer = new byte[length];
-                    System.arraycopy(soft, offset, answer, 0, answer.length);
-                    return answer;
-                }
-                else
-                {
-                    return source.getHeapObjectReader().read((IContentDescriptor) content, offset, length);
-                }
-            }
-            else
-            {
-                byte[] answer = new byte[length];
-                System.arraycopy(content, offset, answer, 0, answer.length);
-                return answer;
-            }
-        }
-        catch (IOException e)
-        {
-            throw new RuntimeException(e);
-        }
-    }
-
     protected StringBuffer appendFields(StringBuffer buf)
     {
         return super.appendFields(buf).append(";length=").append(length);
-    }
-
-    protected Field internalGetField(String name)
-    {
-        return null;
     }
 
     public String getTechnicalName()
