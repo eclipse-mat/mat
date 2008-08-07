@@ -47,7 +47,7 @@ public class CSVOutputter implements IOutputter
         {
             filter[columnIndex] = (Filter.ValueConverter) columns[columnIndex].getData(Filter.ValueConverter.class);
 
-            if (context.isVisible(columnIndex))
+            if (context.isColumnVisible(columnIndex))
             {
                 if (columns[columnIndex].getLabel() != null)
                     writer.append(columns[columnIndex].getLabel());
@@ -65,7 +65,7 @@ public class CSVOutputter implements IOutputter
             {
                 for (int columnIndex = 0; columnIndex < columns.length; columnIndex++)
                 {
-                    if (context.isVisible(columnIndex))
+                    if (context.isColumnVisible(columnIndex))
                     {
                         Object columnValue = table.getColumnValue(table.getRow(i), columnIndex);
                         if (columnValue != null)
@@ -88,7 +88,7 @@ public class CSVOutputter implements IOutputter
             {
                 for (int columnIndex = 0; columnIndex < columns.length; columnIndex++)
                 {
-                    if (context.isVisible(columnIndex))
+                    if (context.isColumnVisible(columnIndex))
                     {
                         Object columnValue = tree.getColumnValue(elements.get(i), columnIndex);
                         if (columnValue != null)

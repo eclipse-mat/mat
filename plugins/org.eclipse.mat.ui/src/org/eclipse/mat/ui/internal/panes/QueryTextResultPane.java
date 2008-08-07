@@ -145,56 +145,66 @@ public class QueryTextResultPane extends AbstractEditorPane implements ISelectio
         switch (url.getType())
         {
             case OBJECT:
-            {
-                try
-                {
-                    final int objectId = getEditor().getQueryContext().mapToObjectId(url.getTarget());
-                    if (objectId < 0)
-                        return;
-
-                    this.selection = new StructuredSelection(new IContextObject()
-                    {
-                        public int getObjectId()
-                        {
-                            return objectId;
-                        }
-                    });
-
-                    for (ISelectionChangedListener l : new ArrayList<ISelectionChangedListener>(listeners))
-                        l.selectionChanged(new SelectionChangedEvent(QueryTextResultPane.this, selection));
-
-                    PopupMenu m = new PopupMenu();
-                    contextMenu.addContextActions(m, selection);
-
-                    if (menu != null && !menu.isDisposed())
-                        menu.dispose();
-
-                    menu = m.createMenu(getEditorSite().getActionBars().getStatusLineManager(), browser);
-                    menu.setVisible(true);
-                }
-                catch (Exception e)
-                {
-                    ErrorHelper.logThrowableAndShowMessage(e, MessageFormat.format(
-                                    "Unable to map address {0} to an object on the heap.", url.getTarget()));
-                }
-                event.doit = false;
+                onObjectLinkEvent(event, url);
                 break;
-            }
             case QUERY:
-            {
-                try
-                {
-                    ArgumentSet set = CommandLine.parse(getQueryContext(), url.getTarget());
-                    QueryExecution.execute(getEditor(), this.getPaneState(), null, set, false, true);
-                }
-                catch (SnapshotException e)
-                {
-                    ErrorHelper.logThrowableAndShowMessage(e);
-                }
-
-                event.doit = false;
-            }
+                onQueryLinkEvent(event, url);
+                break;
+            case DETAIL_RESULT:
+                break;
         }
+    }
+
+    private void onObjectLinkEvent(LocationEvent event, QueryObjectLink url)
+    {
+        try
+        {
+            final int objectId = getEditor().getQueryContext().mapToObjectId(url.getTarget());
+            if (objectId < 0)
+                return;
+
+            this.selection = new StructuredSelection(new IContextObject()
+            {
+                public int getObjectId()
+                {
+                    return objectId;
+                }
+            });
+
+            for (ISelectionChangedListener l : new ArrayList<ISelectionChangedListener>(listeners))
+                l.selectionChanged(new SelectionChangedEvent(QueryTextResultPane.this, selection));
+
+            PopupMenu m = new PopupMenu();
+            contextMenu.addContextActions(m, selection);
+
+            if (menu != null && !menu.isDisposed())
+                menu.dispose();
+
+            menu = m.createMenu(getEditorSite().getActionBars().getStatusLineManager(), browser);
+            menu.setVisible(true);
+            
+            event.doit = false;
+        }
+        catch (Exception e)
+        {
+            ErrorHelper.logThrowableAndShowMessage(e, MessageFormat.format(
+                            "Unable to map address {0} to an object on the heap.", url.getTarget()));
+        }
+    }
+    
+    private void onQueryLinkEvent(LocationEvent event, QueryObjectLink url)
+    {
+        try
+        {
+            ArgumentSet set = CommandLine.parse(getQueryContext(), url.getTarget());
+            QueryExecution.execute(getEditor(), this.getPaneState(), null, set, false, true);
+        }
+        catch (SnapshotException e)
+        {
+            ErrorHelper.logThrowableAndShowMessage(e);
+        }
+
+        event.doit = false;
     }
 
     public void changed(LocationEvent event)

@@ -37,7 +37,13 @@ public final class ResultMetaData
          */
         public Builder addContext(ContextProvider provider)
         {
-            data.provider.add(provider);
+            data.contextProviders.add(provider);
+            return this;
+        }
+
+        public Builder addDetailResult(DetailResultProvider provider)
+        {
+            data.resultProviders.add(provider);
             return this;
         }
 
@@ -70,13 +76,14 @@ public final class ResultMetaData
             ResultMetaData answer = data;
             data = null;
 
-            answer.provider = Collections.unmodifiableList(answer.provider);
+            answer.contextProviders = Collections.unmodifiableList(answer.contextProviders);
 
             return answer;
         }
     }
 
-    private List<ContextProvider> provider = new ArrayList<ContextProvider>();
+    private List<ContextProvider> contextProviders = new ArrayList<ContextProvider>();
+    private List<DetailResultProvider> resultProviders = new ArrayList<DetailResultProvider>();
 
     private int preSortedColumnIndex;
     private Column.SortDirection preSortedSortDirection;
@@ -91,7 +98,12 @@ public final class ResultMetaData
      */
     public List<ContextProvider> getContextProviders()
     {
-        return provider;
+        return contextProviders;
+    }
+
+    public List<DetailResultProvider> getDetailResultProviders()
+    {
+        return resultProviders;
     }
 
     /**

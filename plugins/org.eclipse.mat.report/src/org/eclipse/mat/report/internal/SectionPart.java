@@ -11,8 +11,6 @@
 package org.eclipse.mat.report.internal;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.IQueryContext;
@@ -23,15 +21,13 @@ import org.eclipse.mat.util.IProgressListener;
 
 public class SectionPart extends AbstractPart
 {
-    private List<AbstractPart> children;
 
-    public SectionPart(SectionPart parent, SectionSpec spec)
+    public SectionPart(AbstractPart parent, SectionSpec spec)
     {
         super(parent, spec);
 
         this.status = spec.getStatus();
 
-        this.children = new ArrayList<AbstractPart>(spec.getChildren().size());
         for (Spec child : spec.getChildren())
             children.add(AbstractPart.build(this, child));
     }
@@ -54,16 +50,6 @@ public class SectionPart extends AbstractPart
         renderer.endSection(this);
 
         return status;
-    }
-
-    public List<AbstractPart> getChildren()
-    {
-        return children;
-    }
-
-    public void replace(AbstractPart part, AbstractPart other)
-    {
-        this.children.set(this.children.indexOf(part), other);
     }
 
 }

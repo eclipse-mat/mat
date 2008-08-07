@@ -11,7 +11,9 @@
 package org.eclipse.mat.report.internal;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.mat.SnapshotException;
@@ -22,7 +24,6 @@ import org.eclipse.mat.report.SectionSpec;
 import org.eclipse.mat.report.Spec;
 import org.eclipse.mat.util.IProgressListener;
 
-
 public abstract class AbstractPart
 {
     private static long ID_GENERATOR = 1;
@@ -31,7 +32,7 @@ public abstract class AbstractPart
     // factory method
     // //////////////////////////////////////////////////////////////
 
-    public static AbstractPart build(SectionPart parent, Spec spec)
+    public static AbstractPart build(AbstractPart parent, Spec spec)
     {
         if (spec instanceof SectionSpec)
             return new SectionPart(parent, (SectionSpec) spec);
@@ -46,9 +47,13 @@ public abstract class AbstractPart
     // //////////////////////////////////////////////////////////////
 
     protected final String id = String.valueOf(ID_GENERATOR++);
-    protected SectionPart parent;
-    protected Spec spec;
-    protected Parameters params;
+    protected final AbstractPart parent;
+    protected final Spec spec;
+    protected final Parameters params;
+
+    protected final List<AbstractPart> children;
+
+    protected String filename;
 
     protected long queryExecutionTime;
     protected long totalExecutionTime;
@@ -58,7 +63,7 @@ public abstract class AbstractPart
 
     protected ITestResult.Status status;
 
-    protected AbstractPart(SectionPart parent, Spec spec)
+    protected AbstractPart(AbstractPart parent, Spec spec)
     {
         this.parent = parent;
         this.spec = spec;
@@ -67,6 +72,8 @@ public abstract class AbstractPart
             this.params = new Parameters.Deep(parent.params(), spec.getParams());
         else
             this.params = new Parameters.Deep(spec.getParams());
+
+        this.children = new ArrayList<AbstractPart>();
     }
 
     public String getId()
@@ -79,7 +86,7 @@ public abstract class AbstractPart
         return status;
     }
 
-    public SectionPart getParent()
+    public AbstractPart getParent()
     {
         return parent;
     }
@@ -104,7 +111,27 @@ public abstract class AbstractPart
         return objects.put(key, value);
     }
 
-    public abstract ITestResult.Status execute(IQueryContext context, ResultRenderer renderer, IProgressListener listener)
-                    throws SnapshotException, IOException;
+    public List<AbstractPart> getChildren()
+    {
+        return children;
+    }
+
+    public void replace(AbstractPart part, AbstractPart other)
+    {
+        this.children.set(this.children.indexOf(part), other);
+    }
+
+    /* package */String getFilename()
+    {
+        return filename;
+    }
+
+    /* package */void setFilename(String filename)
+    {
+        this.filename = filename;
+    }
+
+    public abstract ITestResult.Status execute(IQueryContext context, ResultRenderer renderer,
+                    IProgressListener listener) throws SnapshotException, IOException;
 
 }

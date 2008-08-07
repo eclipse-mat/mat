@@ -10,20 +10,26 @@
  *******************************************************************************/
 package org.eclipse.mat.ui.util;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.internal.snapshot.HeapObjectContextArgument;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.ContextProvider;
+import org.eclipse.mat.query.DetailResultProvider;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IContextObjectSet;
+import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.IStructuredResult;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.registry.ArgumentDescriptor;
@@ -38,12 +44,14 @@ import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.QueryExecution;
 import org.eclipse.mat.ui.editor.AbstractEditorPane;
+import org.eclipse.mat.ui.editor.AbstractPaneJob;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
 
 public class QueryContextMenu
 {
     private MultiPaneEditor editor;
     private List<ContextProvider> contextProvider;
+    private List<DetailResultProvider> resultProvider;
 
     /** query result might not exist! */
     private QueryResult queryResult;
@@ -61,6 +69,8 @@ public class QueryContextMenu
         if (!(result.getSubject() instanceof IStructuredResult))
             throw new UnsupportedOperationException("Subject of QueryResult must be of type IStructuredResult");
 
+        resultProvider = result.getResultMetaData().getDetailResultProviders();
+
         contextProvider = result.getResultMetaData().getContextProviders();
         if (contextProvider.isEmpty())
         {
@@ -72,6 +82,8 @@ public class QueryContextMenu
     public QueryContextMenu(MultiPaneEditor editor, ContextProvider provider)
     {
         this.editor = editor;
+        resultProvider = new ArrayList<DetailResultProvider>(0);
+
         contextProvider = new ArrayList<ContextProvider>(1);
         contextProvider.add(provider);
     }
@@ -86,9 +98,12 @@ public class QueryContextMenu
         if (selection.isEmpty())
             return;
 
+        // context result
+        resultMenu(manager, selection);
+
         String label = null;
 
-        // prepare menus
+        // context calculation
         for (ContextProvider p : contextProvider)
         {
             List<IContextObject> menuContext = new ArrayList<IContextObject>();
@@ -195,7 +210,7 @@ public class QueryContextMenu
         {
             boolean heapObjectArgExists = false;
             boolean heapObjectArgIsMultiple = false;
-            
+
             boolean contextObjectArgExists = false;
             boolean contextObjectArgIsMultiple = false;
 
@@ -236,6 +251,57 @@ public class QueryContextMenu
                 return true;
 
             return false;
+        }
+    }
+
+    private void resultMenu(PopupMenu menu, IStructuredSelection selection)
+    {
+        if (selection.size() == 1)
+        {
+            boolean hasContextResultProviderMenu = false;
+            for (final DetailResultProvider r : resultProvider)
+            {
+                final Object firstElement = selection.getFirstElement();
+                boolean hasResult = r.hasResult(firstElement);
+                if (hasResult)
+                {
+                    final PaneState originator = editor.getActiveEditor().getPaneState();
+
+                    menu.add(new Action(r.getLabel())
+                    {
+                        @Override
+                        public void run()
+                        {
+                            new AbstractPaneJob(MessageFormat.format("Processing: {0}", r.getLabel()), null)
+                            {
+
+                                @Override
+                                protected IStatus doRun(IProgressMonitor monitor)
+                                {
+                                    try
+                                    {
+                                        IResult result = r.getResult(firstElement, new ProgressMonitorWrapper(monitor));
+                                        QueryResult qr = new QueryResult(null, MessageFormat.format("Details: {0}", r
+                                                        .getLabel()), result);
+                                        QueryExecution.displayResult(editor, originator, null, qr, false);
+                                        return Status.OK_STATUS;
+                                    }
+                                    catch (SnapshotException e)
+                                    {
+                                        return ErrorHelper.createErrorStatus(e);
+                                    }
+                                }
+
+                            }.schedule();
+                        }
+                    });
+
+                    hasContextResultProviderMenu = true;
+                }
+            }
+
+            if (hasContextResultProviderMenu)
+                menu.addSeparator();
         }
     }
 

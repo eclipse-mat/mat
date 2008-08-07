@@ -15,13 +15,15 @@ import java.io.File;
 import java.net.URL;
 
 import org.eclipse.mat.query.IQueryContext;
+import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.report.IOutputter;
+import org.eclipse.mat.report.QuerySpec;
 
 /* package */class RenderingInfo implements IOutputter.Context
 {
     private ResultRenderer resultRenderer;
     private QueryPart part;
-    
+
     private boolean[] visibleColumns;
     private int limit;
     private boolean showTotals = true;
@@ -41,29 +43,9 @@ import org.eclipse.mat.report.IOutputter;
             visibleColumns[ii] = true;
     }
 
-    public boolean hasLimit()
-    {
-        return limit >= 0;
-    }
-
-    public boolean isVisible(int columnIndex)
-    {
-        return visibleColumns[columnIndex];
-    }
-
-    public boolean showTotals()
-    {
-        return showTotals;
-    }
-
     public String getId()
     {
         return part.getId();
-    }
-
-    public int getLimit()
-    {
-        return limit;
     }
 
     public File getOutputDirectory()
@@ -76,16 +58,48 @@ import org.eclipse.mat.report.IOutputter;
         return resultRenderer.getQueryContext();
     }
 
-    public String getRelativeIconLink(URL icon)
+    public String addIcon(URL icon)
     {
-        return resultRenderer.getRelativeIconLink(icon);
+        return resultRenderer.addIcon(icon);
+    }
+
+    public String addContextResult(String name, IResult result)
+    {
+        QuerySpec spec = new QuerySpec(name, result);
+        spec.set("$embedded", "true");
+
+        QueryPart child = new QueryPart(this.part, spec);
+        String filename = child.getId() + ".html";
+        child.setFilename(filename);
+        part.children.add(child);
+        return filename;
+    }
+
+    public boolean hasLimit()
+    {
+        return limit >= 0;
+    }
+
+    public int getLimit()
+    {
+        return limit;
+    }
+
+    public boolean isColumnVisible(int columnIndex)
+    {
+        return visibleColumns[columnIndex];
+    }
+
+    public boolean isTotalsRowVisible()
+    {
+        return showTotals;
     }
 
     public String param(String key)
     {
         return part.params().get(key);
     }
-    
+
     public String param(String key, String defaultValue)
     {
         return part.params().get(key, defaultValue);

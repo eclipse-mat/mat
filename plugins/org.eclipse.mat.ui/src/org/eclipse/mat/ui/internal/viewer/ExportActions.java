@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2008 SAP AG.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    SAP AG - initial API and implementation
+ *******************************************************************************/
 package org.eclipse.mat.ui.internal.viewer;
 
 import java.io.File;
@@ -257,7 +267,12 @@ import org.eclipse.swt.widgets.TreeItem;
             return context;
         }
 
-        public String getRelativeIconLink(URL icon)
+        public String addIcon(URL icon)
+        {
+            return null;
+        }
+        
+        public String addContextResult(String name, IResult result)
         {
             return null;
         }
@@ -267,7 +282,7 @@ import org.eclipse.swt.widgets.TreeItem;
             return false;
         }
 
-        public boolean isVisible(int columnIndex)
+        public boolean isColumnVisible(int columnIndex)
         {
             return true;
         }
@@ -282,7 +297,7 @@ import org.eclipse.swt.widgets.TreeItem;
             return null;
         }
 
-        public boolean showTotals()
+        public boolean isTotalsRowVisible()
         {
             return true;
         }

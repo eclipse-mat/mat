@@ -22,21 +22,23 @@ public interface IOutputter
 {
     public interface Context
     {
+        String getId();
+        
         IQueryContext getQueryContext();
 
-        String getRelativeIconLink(URL icon);
-
         File getOutputDirectory();
+        
+        String addIcon(URL icon);
+        
+        String addContextResult(String name, IResult result);
 
         boolean hasLimit();
 
-        boolean isVisible(int columnIndex);
-
-        boolean showTotals();
-
-        String getId();
-
         int getLimit();
+
+        boolean isColumnVisible(int columnIndex);
+
+        boolean isTotalsRowVisible();
 
         String param(String key);
         

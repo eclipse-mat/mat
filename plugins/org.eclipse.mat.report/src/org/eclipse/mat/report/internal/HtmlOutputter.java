@@ -17,10 +17,12 @@ import java.util.List;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.Column;
+import org.eclipse.mat.query.DetailResultProvider;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IDecorator;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.IStructuredResult;
+import org.eclipse.mat.query.ResultMetaData;
 import org.eclipse.mat.query.refined.Filter;
 import org.eclipse.mat.query.refined.RefinedStructuredResult;
 import org.eclipse.mat.query.refined.RefinedTable;
@@ -80,16 +82,18 @@ public class HtmlOutputter implements IOutputter
 
     private void renderTable(Context context, RefinedTable table, Writer artefact) throws IOException
     {
+        boolean hasDetailsLink = !table.getResultMetaData().getDetailResultProviders().isEmpty();
+
         Column[] columns = table.getColumns();
 
         artefact.append("<table class=\"result\">");
 
-        renderTableHeader(context, artefact, columns);
+        renderTableHeader(context, artefact, columns, hasDetailsLink);
 
         artefact.append("<tbody>");
 
         // render filter row
-        renderFilterRow(context, artefact, table);
+        renderFilterRow(context, artefact, table, hasDetailsLink);
 
         int numberOfRowsToDisplay = (context.hasLimit() && context.getLimit() < table.getRowCount()) ? context
                         .getLimit() : table.getRowCount();
@@ -104,28 +108,29 @@ public class HtmlOutputter implements IOutputter
 
             artefact.append(">");
 
-            if (context.isVisible(0))
+            if (context.isColumnVisible(0))
             {
                 artefact.append("<td>");
 
-                String iconUrl = context.getRelativeIconLink(table.getIcon(row));
+                String iconUrl = context.addIcon(table.getIcon(row));
                 if (iconUrl != null)
                     artefact.append("<img src=\"").append(iconUrl).append("\">");
                 renderColumnValue(context, artefact, table, columns, row, 0);
 
                 artefact.append("</td>");
             }
-            renderDataColumns(context, artefact, table, columns, row);
+            renderDataColumns(context, artefact, table, columns, row, hasDetailsLink);
             artefact.append("</tr>");
         }
         // append totals row
         renderTotalsRow(context, artefact, (RefinedStructuredResult) table, ((RefinedTable) table).getRows(),
-                        numberOfRowsToDisplay, columns, 0);
+                        numberOfRowsToDisplay, columns, 0, hasDetailsLink);
 
         artefact.append("</tbody></table>");
     }
 
-    private void renderFilterRow(Context context, Writer artefact, RefinedStructuredResult result) throws IOException
+    private void renderFilterRow(Context context, Writer artefact, RefinedStructuredResult result,
+                    boolean hasDetailsLink) throws IOException
     {
         if (!result.hasActiveFilter())
             return;
@@ -134,18 +139,23 @@ public class HtmlOutputter implements IOutputter
         Filter[] filter = result.getFilter();
         for (int i = 0; i < filter.length; i++)
         {
-            if (context.isVisible(i))
+            if (context.isColumnVisible(i))
             {
                 if (filter[i].isActive())
                     artefact.append("<td>").append(HTMLUtils.escapeText(filter[i].getCriteria())).append("</td>");
                 else
-                    artefact.append("<td></td>");
+                    artefact.append("<td/>");
             }
         }
+
+        if (hasDetailsLink)
+            artefact.append("<td/>");
+
         artefact.append("</tr>");
     }
 
-    private void renderTableHeader(Context context, Writer artefact, Column[] columns) throws IOException
+    private void renderTableHeader(Context context, Writer artefact, Column[] columns, boolean hasDetailsLink)
+                    throws IOException
     {
         boolean showTableHeader = "true".equals(context.param(Params.Html.SHOW_TABLE_HEADER, "true"));
         if (showTableHeader)
@@ -153,28 +163,32 @@ public class HtmlOutputter implements IOutputter
             artefact.append("<thead><tr>");
             for (int ii = 0; ii < columns.length; ii++)
             {
-                if (context.isVisible(ii))
+                if (context.isColumnVisible(ii))
                     artefact.append("<th>").append(columns[ii].getLabel()).append("</th>");
             }
+
+            if (hasDetailsLink)
+                artefact.append("<th>Details</th>");
+
             artefact.append("</tr></thead>");
         }
     }
 
     private void renderTotalsRow(Context context, Writer artefact, RefinedStructuredResult result, List<?> elements,
-                    int numberOfRowsToDisplay, Column[] columns, int level) throws IOException
+                    int numberOfRowsToDisplay, Column[] columns, int level, boolean hasDetailsLink) throws IOException
     {
-        if (context.showTotals())
+        if (context.isTotalsRowVisible())
         {
             final TotalsRow totalsRow = result.buildTotalsRow(elements);
             totalsRow.setVisibleItems(numberOfRowsToDisplay);
             if (!totalsRow.isVisible())
                 return;
             result.calculateTotals(elements, totalsRow, new VoidProgressListener());
-            String iconUrl = context.getRelativeIconLink(totalsRow.getIcon());
+            String iconUrl = context.addIcon(totalsRow.getIcon());
             artefact.append("<tr class=\"totals\">");
             for (int i = 0; i < columns.length; i++)
             {
-                if (context.isVisible(i))
+                if (context.isColumnVisible(i))
                 {
                     if (i == 0)// append icon
                         artefact.append("<td style=\"padding-left:").append(String.valueOf(level * 10)).append("px\">")
@@ -190,29 +204,35 @@ public class HtmlOutputter implements IOutputter
                     }
                 }
             }
+
+            if (hasDetailsLink)
+                artefact.append("<td/>");
+
             artefact.append("</tr>");
         }
     }
 
     private void renderTree(Context context, RefinedTree tree, Writer artefact) throws IOException
     {
+        boolean hasDetailsLink = !tree.getResultMetaData().getDetailResultProviders().isEmpty();
+
         Column[] columns = tree.getColumns();
 
         artefact.append("<table class=\"result\">");
 
-        renderTableHeader(context, artefact, columns);
+        renderTableHeader(context, artefact, columns, hasDetailsLink);
 
         artefact.append("<tbody>");
 
-        renderFilterRow(context, artefact, tree);
+        renderFilterRow(context, artefact, tree, hasDetailsLink);
 
-        renderChildren(context, artefact, tree, columns, tree.getElements(), 0);
+        renderChildren(context, artefact, tree, columns, tree.getElements(), 0, hasDetailsLink);
 
         artefact.append("</tbody></table>");
     }
 
     private void renderChildren(Context context, Writer artefact, RefinedTree tree, Column[] columns, List<?> elements,
-                    int level) throws IOException
+                    int level, boolean hasDetailsLink) throws IOException
     {
         int numberOfRowsToDisplay = (context.hasLimit() && context.getLimit() < elements.size()) ? context.getLimit()
                         : elements.size();
@@ -232,12 +252,12 @@ public class HtmlOutputter implements IOutputter
 
             artefact.append(">");
 
-            if (context.isVisible(0))
+            if (context.isColumnVisible(0))
             {
 
                 artefact.append("<td style=\"padding-left:").append(String.valueOf(level * 10)).append("px\">");
 
-                String iconUrl = context.getRelativeIconLink(tree.getIcon(element));
+                String iconUrl = context.addIcon(tree.getIcon(element));
                 if (iconUrl != null)
                     artefact.append("<img src=\"").append(iconUrl).append("\">");
 
@@ -248,12 +268,12 @@ public class HtmlOutputter implements IOutputter
 
                 artefact.append("</td>");
             }
-            renderDataColumns(context, artefact, tree, columns, element);
+            renderDataColumns(context, artefact, tree, columns, element, hasDetailsLink);
             artefact.append("</tr>");
 
             if (isExpanded && hasChildren && level < 100)
             {
-                renderChildren(context, artefact, tree, columns, children, level + 1);
+                renderChildren(context, artefact, tree, columns, children, level + 1, hasDetailsLink);
             }
             else if (level == 100)
             {
@@ -262,7 +282,7 @@ public class HtmlOutputter implements IOutputter
 
         }
         renderTotalsRow(context, artefact, (RefinedStructuredResult) tree, elements, numberOfRowsToDisplay, columns,
-                        level);
+                        level, hasDetailsLink);
     }
 
     private void renderDepthRow(Writer artefact) throws IOException
@@ -274,11 +294,11 @@ public class HtmlOutputter implements IOutputter
     }
 
     private void renderDataColumns(Context context, Writer artefact, RefinedStructuredResult structured,
-                    Column[] columns, Object row) throws IOException
+                    Column[] columns, Object row, boolean hasDetailsLink) throws IOException
     {
         for (int columnIndex = 1; columnIndex < columns.length; columnIndex++)
         {
-            if (context.isVisible(columnIndex))
+            if (context.isColumnVisible(columnIndex))
             {
                 if (columns[columnIndex].isNumeric())
                     artefact.append("<td align=\"right\">");
@@ -288,6 +308,35 @@ public class HtmlOutputter implements IOutputter
                 renderColumnValue(context, artefact, structured, columns, row, columnIndex);
                 artefact.append("</td>");
             }
+        }
+
+        if (hasDetailsLink)
+        {
+            artefact.append("<td>");
+            for (DetailResultProvider p : structured.getResultMetaData().getDetailResultProviders())
+            {
+                if (p.hasResult(row))
+                {
+                    try
+                    {
+                        String link = context.addContextResult(p.getLabel(), p.getResult(row,
+                                        new VoidProgressListener()));
+                        if (link != null)
+                        {
+                            artefact.append("<a href=\"").append(link).append("\">");
+                            artefact.append(p.getLabel());
+                            artefact.append("</a>");
+                        }
+                    }
+                    catch (SnapshotException e)
+                    {
+                        IOException ioe = new IOException(e.getMessage());
+                        ioe.initCause(e);
+                        throw ioe;
+                    }
+                }
+            }
+            artefact.append("</td>");
         }
     }
 
@@ -356,7 +405,7 @@ public class HtmlOutputter implements IOutputter
 
         if (textResult.isHtml())
         {
-            writer.append(textResult.getText());
+            resolveDetailLinks(context, textResult, writer);
         }
         else
         {
@@ -366,5 +415,82 @@ public class HtmlOutputter implements IOutputter
         }
 
         writer.append("</p>");//$NON-NLS-1$
+    }
+
+    private void resolveDetailLinks(Context context, TextResult textResult, Writer writer) throws IOException
+    {
+        ResultMetaData metaData = textResult.getResultMetaData();
+        if (metaData == null || metaData.getDetailResultProviders().isEmpty())
+        {
+            writer.append(textResult.getText());
+            return;
+        }
+
+        // very simple parsing, as we are only interested in links we construct ourselves
+        String text = textResult.getText();
+        
+        int start = 0;
+        int length = text.length();
+        
+        int protocolIndex = text.indexOf(QueryObjectLink.PROTOCOL);
+        while (protocolIndex >= 0)
+        {
+            int endIndex = text.indexOf('"', protocolIndex);
+            if (endIndex < 0)
+                break;
+            
+            String url = text.substring(protocolIndex, endIndex);
+            QueryObjectLink link = QueryObjectLink.parse(url);
+            if (link == null || link.getType() != QueryObjectLink.Type.DETAIL_RESULT)
+            {
+                writer.append(text.substring(start, endIndex));
+            }
+            else
+            {
+                int targetIndex = link.getTarget().indexOf('/');
+                String name = link.getTarget().substring(0, targetIndex);
+                String identifier = link.getTarget().substring(targetIndex + 1);
+                
+                writer.append(text.subSequence(start, protocolIndex));
+                
+                boolean done = false;
+                for (DetailResultProvider provider : metaData.getDetailResultProviders())
+                {
+                    if (name.equals(provider.getLabel()))
+                    {
+                        if (provider.hasResult(identifier))
+                        {
+                            try
+                            {
+                                String l = context.addContextResult(provider.getLabel(), provider.getResult(identifier,
+                                                new VoidProgressListener()));
+                                if (l != null)
+                                {
+                                    writer.append(l);
+                                    done = true;
+                                }
+                            }
+                            catch (SnapshotException e)
+                            {
+                                IOException ioe = new IOException(e.getMessage());
+                                ioe.initCause(e);
+                                throw ioe;
+                            }
+                        }
+                        break;
+                    }
+                }
+
+                if (!done)
+                    writer.append(url);
+            }
+            
+            start = endIndex;
+            protocolIndex = text.indexOf(QueryObjectLink.PROTOCOL, start);
+        }
+
+        if (start < length)
+            writer.append(text.substring(start));
+
     }
 }

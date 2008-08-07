@@ -50,7 +50,7 @@ public class FieldDescriptor implements Serializable
 
     public String getVerboseSignature()
     {
-        if (type == 2)
+        if (type == IObject.Type.OBJECT)
             return "ref";
 
         String t = IPrimitiveArray.TYPE[type];

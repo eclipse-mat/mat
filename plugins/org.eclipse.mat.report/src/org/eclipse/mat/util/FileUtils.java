@@ -74,6 +74,28 @@ public final class FileUtils
         return buf.toString();
     }
     
+    public static String toFilename(String prefix, String suffix, String extension)
+    {
+        StringBuilder buf = new StringBuilder(prefix.length() + suffix.length() + extension.length() + 1);
+        
+        for (String s : new String[] { prefix, suffix })
+        {
+            for (int ii = 0; ii < s.length() && ii < 20; ii++)
+            {
+                char c = s.charAt(ii);
+                if (Character.isLetterOrDigit(c))
+                    buf.append(c);
+                else
+                    buf.append("_");
+            }
+        }
+
+        buf.append(".").append(extension);
+
+        return buf.toString();
+    }
+
+    
     // //////////////////////////////////////////////////////////////
     // inner classes
     // //////////////////////////////////////////////////////////////

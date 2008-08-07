@@ -17,7 +17,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.Column;
+import org.eclipse.mat.query.DetailResultProvider;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IIconProvider;
 import org.eclipse.mat.query.IQuery;
@@ -31,8 +33,8 @@ import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.query.Icons;
+import org.eclipse.mat.snapshot.query.SnapshotQuery;
 import org.eclipse.mat.util.IProgressListener;
-
 
 @Name("Thread Overview")
 @Category("Java Basics")
@@ -89,7 +91,28 @@ public class ThreadOverviewQuery implements IQuery
 
         public ResultMetaData getResultMetaData()
         {
-            return null;
+            return new ResultMetaData.Builder() //
+                            .addDetailResult(new DetailResultProvider("Thread Details")
+                            {
+                                @Override
+                                public boolean hasResult(Object row)
+                                {
+                                    return true;
+                                }
+
+                                @Override
+                                public IResult getResult(Object row, IProgressListener listener)
+                                                throws SnapshotException
+                                {
+                                    int threadId = ((ThreadInfoImpl) row).getThreadId();
+
+                                    return SnapshotQuery.lookup("thread_details", snapshot) //
+                                                    .set("threadIds", threadId) //
+                                                    .execute(listener);
+                                }
+
+                            }) //
+                            .build();
         }
 
         public Column[] getColumns()

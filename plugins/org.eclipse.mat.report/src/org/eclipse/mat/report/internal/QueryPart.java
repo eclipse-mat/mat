@@ -47,7 +47,7 @@ import org.eclipse.mat.util.IProgressListener;
 
 public class QueryPart extends AbstractPart
 {
-    public QueryPart(SectionPart parent, QuerySpec spec)
+    public QueryPart(AbstractPart parent, QuerySpec spec)
     {
         super(parent, spec);
     }
@@ -136,6 +136,7 @@ public class QueryPart extends AbstractPart
             AbstractPart part = AbstractPart.build(getParent(), replacement);
             part.queryExecutionTime = queryExecutionTime;
             part.objects = objects;
+            part.filename = filename;
             getParent().replace(this, part);
             return part.execute(context, renderer, listener);
         }
@@ -175,6 +176,15 @@ public class QueryPart extends AbstractPart
         {
             RenderingInfo rInfo = new RenderingInfo(this, renderer);
             renderer.process(this, result, rInfo);
+        }
+
+        // this list is dynamically changed while iterating over it. Therefore
+        // we cannot use an iterator -> ConcurrentModificationException
+        for (int ii = 0; ii < this.children.size(); ii++)
+        {
+            AbstractPart part = this.children.get(ii);
+            Status status = part.execute(context, renderer, listener);
+            this.status = Status.max(this.status, status);
         }
 
         return status;

@@ -166,7 +166,7 @@ public class ResultRenderer
     {
         int order = 1;
 
-        SectionPart p = section;
+        AbstractPart p = section;
         while (p.getParent() != null)
         {
             p = p.getParent();
@@ -306,7 +306,7 @@ public class ResultRenderer
         return isClockingReportGeneration;
     }
 
-    public String getRelativeIconLink(URL icon)
+    public String addIcon(URL icon)
     {
         if (icon == null)
             return null;
@@ -401,11 +401,15 @@ public class ResultRenderer
                     throws IOException
     {
         boolean isSeparateFile = part.params().shallow().getBoolean(Params.Html.SEPARATE_FILE, false);
-        if (isSeparateFile)
+        boolean isEmbedded = part.params().shallow().getBoolean("$embedded", false);
+        if (isSeparateFile || isEmbedded)
         {
-            String filename = FileUtils.toFilename(part.spec().getName() + part.getId(), "html");
+            String filename = part.getFilename();
+            if (filename == null)
+                filename = FileUtils.toFilename(part.spec().getName(), part.getId(), "html");
 
-            PageSnippets.linkedHeading(artefact, part, order, filename);
+            if (!isEmbedded)
+                PageSnippets.linkedHeading(artefact, part, order, filename);
 
             artefact = new HtmlArtefact(artefact, new File(directory, filename), part.spec().getName());
         }
@@ -420,17 +424,13 @@ public class ResultRenderer
 
         toc.append("<h1>Table of Contents</h1>\n");
 
-        if (part instanceof SectionPart)
-        {
-            SectionPart sections = (SectionPart) part;
-            renderResult(toc, sections);
-        }
+        renderResult(toc, part);
     }
 
-    private void renderResult(HtmlArtefact toc, SectionPart sections)
+    private void renderResult(HtmlArtefact toc, AbstractPart parent)
     {
         toc.append("<ul>");
-        for (AbstractPart part : sections.getChildren())
+        for (AbstractPart part : parent.getChildren())
         {
             toc.append("<li>");
 
@@ -453,8 +453,8 @@ public class ResultRenderer
                 toc.append(part.spec().getName());
             }
 
-            if (part instanceof SectionPart)
-                renderResult(toc, (SectionPart) part);
+            if (!part.children.isEmpty())
+                renderResult(toc, part);
 
             toc.append("</li>");
         }
@@ -519,7 +519,7 @@ public class ResultRenderer
                     throws SAXException
     {
         attrib.clear();
-        
+
         String name = part.spec().getName();
         if (name == null)
             name = part.getId();
@@ -544,11 +544,8 @@ public class ResultRenderer
             attrib.addAttribute("", "", "time", "", String.valueOf(part.totalExecutionTime));
 
         handler.startElement("", "", "part", attrib);
-        if (part instanceof SectionPart)
-        {
-            for (AbstractPart child : ((SectionPart) part).getChildren())
-                renderTOCPart(handler, attrib, child);
-        }
+        for (AbstractPart child : part.getChildren())
+            renderTOCPart(handler, attrib, child);
         handler.endElement("", "", "part");
     }
 

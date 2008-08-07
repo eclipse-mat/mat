@@ -16,14 +16,16 @@ import java.net.URLEncoder;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.eclipse.mat.query.DetailResultProvider;
+
 public final class QueryObjectLink
 {
     public enum Type
     {
-        OBJECT, QUERY;
+        OBJECT, QUERY, DETAIL_RESULT;
     }
 
-    private final static String PROTOCOL = "mat://"; //$NON-NLS-1$
+    public final static String PROTOCOL = "mat://"; //$NON-NLS-1$
 
     private final static String ENC = "UTF-8"; //$NON-NLS-1$
 
@@ -59,6 +61,11 @@ public final class QueryObjectLink
     public static final String forObject(String identifier)
     {
         return forType(Type.OBJECT, identifier);
+    }
+
+    public static final String forDetailResult(DetailResultProvider provider, String identifier)
+    {
+        return forType(Type.DETAIL_RESULT, provider.getLabel() + "/" + identifier);
     }
 
     public static final String forType(Type type, String target)
