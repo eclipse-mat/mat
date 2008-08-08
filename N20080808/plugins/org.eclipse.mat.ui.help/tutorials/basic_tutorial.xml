@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cheatsheet title="Basic Analysis">
+   <intro>
+      <description>
+         Here you will learn the basics on snapshots and memory analysis.
+			We will focus on heap dumps only, the most complete type of snapshot.
+      </description>
+   </intro>
+   <item title="Open the heap dump" dialog="true" skip="false" href="/org.eclipse.mat.ui.help/tasks/basictutorial.html">
+      <description>
+         From the main menu, select
+			<b>File &gt; Open Snapshot</b>,
+			<br/> then select a heap dump and press
+			<b>Open</b>.
+			<br/> In this cheat sheet we will use a sample heap dump. Please open it by
+			activating the action link below.
+      </description>
+      <action class="org.eclipse.mat.ui.snapshot.actions.OpenSampleHeapDumpAction" pluginId="org.eclipse.mat.ui" confirm="false" param1="org.eclipse.mat.ui.help/heapdump/HeapDumpSample.hprof">
+      </action>
+   </item>
+   <item title="Open Class Histogram" dialog="true" skip="false" href="/org.eclipse.mat.ui.help/tasks/basictutorial.html#N10001__class_histogram">
+      <description>
+         Class Histogram shows the classes found in the snapshot, 
+			the number of objects for each class, the heap memory consumption 
+			of these objects, and the minimum retained size of the objects. 
+			To open the view press
+			<br/>
+			<b>Open Class Histogram</b>
+			<br/> toolbar button.
+      </description>
+      <action class="org.eclipse.mat.ui.snapshot.actions.OpenSampleHeapDumpAction" pluginId="org.eclipse.mat.ui" confirm="false" param1="org.eclipse.mat.ui.help/heapdump/HeapDumpSample.hprof" param2="histogram">
+      </action>
+   </item>
+   <item title="Sort histogram by classloader" dialog="true" skip="true" href="/org.eclipse.mat.ui.help/tasks/basictutorial.html#N10001__histogram_by_classloader">
+      <description>
+         To see the histogram sorted by classloaders select the
+			<br/>
+			<b>Group by classloader</b>
+			<br/>
+			combobox toolbar button. To return to the initial sorting select the
+			<b>Group by class</b> option of the same combobox.
+      </description>
+   </item>
+   <item title="Compare two snapshots" dialog="true" skip="true" href="/org.eclipse.mat.ui.help/tasks/basictutorial.html#N10001__compare">
+      <description>
+         To compare two snapshots open a baseline snapshot and a later snapshot and press the
+			<br/>
+			<b>Show differences</b>
+			<br/>
+			toolbar button, and select the baseline snapshot to see the differences.
+      </description>
+   </item>
+   <item title="Export histogram data" dialog="true" skip="true" href="/org.eclipse.mat.ui.help/tasks/exportdata.html">
+      <description>
+         To export the histogram sorted by classes or classloaders press the
+			<br/>
+			<b>Export</b>
+			<br/> combobox toolbar button. Now you can choose among HTML, CSV and TXT export
+			formats.
+			<br/>
+			<br/> To copy the selection to the clipboard press 
+			<br/>
+			<b>Ctrl-C</b>
+			<br/> or use the context menu action.
+      </description>
+      <onCompletion>
+         Congratulations! You have learned how to perform the basic analysis of the heap dump.
+      </onCompletion>
+   </item>
+</cheatsheet>

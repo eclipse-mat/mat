@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en-us" xml:lang="en-us">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<meta name="copyright" content="(C) Copyright 2005" />
+<meta name="DC.rights.owner" content="(C) Copyright 2005" />
+<meta content="reference" name="DC.Type" />
+<meta name="DC.Title" content="Finding Memory Leak" />
+<meta name="abstract" content="" />
+<meta name="description" content="" />
+<meta scheme="URI" name="DC.Relation" content="../reference/querymatrix.html" />
+<meta content="XHTML" name="DC.Format" />
+<meta content="findingmemoryleak" name="DC.Identifier" />
+<meta content="en-us" name="DC.Language" />
+<link href="..\commonltr.css" type="text/css" rel="stylesheet" />
+<title>Finding Memory Leak</title>
+</head>
+<body id="findingmemoryleak"><a name="findingmemoryleak"><!-- --></a>
+
+
+	<h1 class="topictitle1">Finding Memory Leak</h1>
+
+	
+
+	
+
+	<div><p />
+
+		<div class="section">
+			<p>
+				The following 4-step approach proved to be most
+				efficient to detect memory issues:
+			</p>
+
+			<br /><ol>
+				<li>
+					Get an overview of the heap dump. See:
+					<em>Overview</em>
+				</li>
+
+				<li>
+					Find big memory chunks (single objects or groups of
+					objects).
+				</li>
+
+				<li>Inspect the content of this memory chunk.</li>
+
+				<li>
+					If the content of the memory chunk is to big check
+					who keeps this memory chunk alive
+				</li>
+
+			</ol>
+
+			<p>
+				The following table contains a list of queries that are
+				most helpful in resolving memory issues.
+			</p>
+
+			<a name="findingmemoryleak__findingmemoryleak"><!-- --></a><table summary="" cellspacing="0" cellpadding="4" id="findingmemoryleak__findingmemoryleak" border="1" class="simpletableborder">
+				<tr>
+					<td valign="top" width="40%">Dominator Tree</td>
+
+					<td valign="top" width="60%">
+						In Dominator Tree every node is responsible for
+						keeping its children alive. The tree is sorted
+						by the retained size, so you find single big
+						objects easily. When there is no single object
+						responsible for big memory consumption it is
+						helpful to group the result by class and class
+						loader to reveal big memory chunks.
+					</td>
+
+				</tr>
+
+				<tr>
+					<td valign="top">Top Consumers</td>
+
+					<td valign="top">
+						Top Consumers query returns information about
+						the biggest objects grouped by class, class
+						loader, and package.
+					</td>
+
+				</tr>
+
+				<tr>
+					<td valign="top">Paths to GC Roots</td>
+
+					<td valign="top">
+						Paths to GC Roots query helps to identify who is
+						responsible for keeping a single object in the
+						heap. It is reasonably to run this query on a
+						possible suspect (memory accumulation point),
+						which you can find e.g. using Big Drops in
+						Dominator Tree Query (see
+						<em>Big Drop</em>
+						entry further down for more details).
+					</td>
+
+				</tr>
+
+				<tr>
+				    <td valign="top">Leaking Loaders</td>
+
+					<td valign="top">
+						Extracts class loaders which are not registered
+						with deployment anymore, but are still in memory
+						due to e.g. an error in registry.
+					</td>
+
+				</tr>
+
+				<tr>
+				    <td valign="top">Duplicate Classes</td>
+
+					<td valign="top">
+						Lists classes loaded multiple times. Grouping the result by class loader points to the class loaders that load the same class multiple times. Possible cause: Several versions of the same library are deployed.
+					</td>
+
+				</tr>
+
+				<tr>
+				    <td valign="top">Big Drops in Dominator Tree Query</td>
+
+					<td valign="top">
+						Displays memory accumulation points in the dominator tree. Displayed are objects with a big difference between the retained size of the parent and the children and the first "interesting" dominator of the accumulation point. These are places where the memory of many small objects is accumulated under one object. 
+					</td>
+
+				</tr>
+
+				<tr>
+				    <td valign="top">Leak Hunter Report</td>
+
+					<td valign="top">
+						Leak Hunter query analyzes the heap dump, searches for memory leak and provides an illustrative description of the identified suspects. 
+					</td>
+
+				</tr>
+
+			</table>
+
+		</div>
+
+	</div>
+
+<div>
+<div class="familylinks">
+<div class="parentlink"><strong>Parent topic:</strong> <a href="../reference/querymatrix.html" title="There is no exact algorithm for memory analysis. The following table divides existing heap dump queries by the usage categories.">Query Matrix</a></div>
+</div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,56 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<?xml-stylesheet href="../../../xsl/dita2html_shell.xsl" type="text/xsl"?>
+<!DOCTYPE reference PUBLIC "-//IBM//DTD DITA Reference//EN" "../../../dtd/reference.dtd" []>
+<reference id="oqlsyntaxwhere" xml:lang="en-us">
+	<title>WHERE Clause</title>
+	<shortdesc />
+
+	<prolog />
+	<refbody>
+		<section>
+			<p>
+				The WHERE clause specifies search conditions, that
+				remove unwanted data from the query result. The
+				following operators, are in order of precedence. The
+				operators are evaluated in the specified order:
+
+			</p>
+			<title>
+				&gt;=, &lt;=, &gt;, &lt;, [ NOT ] LIKE, [ NOT ] IN
+				(relational operations)
+			</title>
+			<codeblock>SELECT * FROM java.lang.String s WHERE s.count >= 100</codeblock>
+			<codeblock>SELECT * FROM java.lang.String s WHERE toString(s) LIKE ".*day"</codeblock>
+			<codeblock>SELECT * FROM java.lang.String s WHERE s.value NOT IN dominators(s)</codeblock>
+		</section>
+		<section>
+			<title>=, != (equality operations)</title>
+			<codeblock>SELECT * FROM java.lang.String s WHERE toString(s) = "monday"</codeblock>
+		</section>
+		<section>
+			<title>AND (conditional AND operation)</title>
+			<codeblock>SELECT * FROM java.lang.String s WHERE s.count > 100 AND s.@retainedHeapSize > s.@usedHeapSize</codeblock>
+		</section>
+		<section>
+			<title>OR (conditional OR operation)</title>
+			<codeblock>SELECT * FROM java.lang.String s WHERE s.count > 1000 OR s.value.@length > 1000</codeblock>
+			<p>
+				Operators can be applied to expressions, constant
+				literals and sub queries. Valid expressions are
+				explained in the next sections.
+			</p>
+		</section>
+		<section>
+			<title>Literal Expression</title>
+			<p>Boolean, String, Integer, Long and null literals:</p>
+			<codeblock>SELECT * FROM java.lang.String s
+         WHERE ( s.count > 1000 ) = true
+         WHERE toString(s) = "monday"
+         WHERE dominators(s).size() = 0
+         WHERE s.@retainedHeapSize > 1024L
+         WHERE s.@GCRootInfo != null
+</codeblock>
+		</section>
+	</refbody>
+</reference>

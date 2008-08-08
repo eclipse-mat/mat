@@ -1,0 +1,201 @@
+/* 
+ * Base fonts, sizes, colors 
+ */
+html, body 
+{ 
+	font-family: Arial, sans-serif; 
+	font-size: 12px;
+	color: #000000;
+	width: 100%;
+	height: 100%; 
+	
+	border-style: solid;
+	border-color: #ffffff;
+	border-width: 1px;
+	background-color: #ffffff;		
+}
+
+html, body, p, a { margin : 0px; padding : 0px; }
+
+/*
+ * to get scroll bars working in both IE and Mozilla
+ */
+html,body { overflow: auto; }
+html>body { overflow: visible; }
+
+a
+{
+	text-decoration : none;
+	color : #000000;
+}
+
+
+/*
+ * Navigation Bar  border:1px solid #f00;
+ */
+
+#navigation-bar
+{
+	border-top-width : 1px;
+	border-top-color : #ffffff;
+	border-top-style : solid;
+	background-color :  #d7e5f0;
+	height: 56px;
+}
+
+#navigation-bar a
+{
+	width: 80px;
+	height: 56px;
+}
+
+#navigation-bar a .link-label
+{
+	position: absolute;
+	top: 35px;
+	
+	width: 80px;
+	text-align: center;
+	
+	font-weight: bold;
+	font-family: Arial, sans-serif;
+	font-size: 12px;		
+}
+
+/* absolute positioning -> only then do IE and Mozilla render identical */
+#navigation-bar a#overview { position: absolute; left: 0px; }
+#navigation-bar a#tutorials { position: absolute; left: 90px; }
+#navigation-bar a#workbench { position: absolute; left: 180px; }
+
+/* image properties */
+#navigation-bar a#overview { background-image : url(icons/overview_off.gif); background-repeat : no-repeat ;  background-position: 50% 20%; }
+#navigation-bar a#overview:active { background-image : url(icons/overview_on.gif); background-color: #ffffff; }
+#navigation-bar a#tutorials { background-image : url(icons/tutorials_off.gif); background-repeat : no-repeat ; background-position: 50% 20%; }
+#navigation-bar a#tutorials:active { background-image : url(icons/tutorials_on.gif); background-color: #ffffff; }
+#navigation-bar a#workbench { background-image : url(icons/workbench_off.gif); background-repeat : no-repeat ; background-position: 50% 20%;}
+#navigation-bar a#workbench:active { background-image : url(icons/workbench_on.gif); background-color: #ffffff; }
+
+/* Needed in IE to get shift+tab to show the active image properly */
+a:active
+{
+	border : solid 0px;
+}
+
+/*
+ * Version & Edition Information
+ */
+
+#edition
+{
+	position: absolute;
+	top: 5px;
+	right: 10px;
+
+	font-weight: bold;
+}
+
+#version
+{
+	position: absolute;
+	top: 42px;
+	right: 10px;
+
+	font-size: 10px;		
+}
+
+/*
+ * Page content w/ Overview Links
+ */
+
+#page-content 
+{
+	display: block;
+	margin-top: 21px;
+	margin-left: 32px;
+	margin-right: 92px;
+}
+
+h4 .div-label
+{
+	font-size : 13px;
+	font-weight : bold;
+	float : none;
+	clear : both;
+	color : #8da0ba;
+}
+
+#overview-links
+{
+	width: 100%;
+	padding-top: 15px;
+	clear: left;
+}
+
+#overview-links a
+{
+	display: block;
+	float: left;
+	width: 48%;
+	vertical-align: top;
+}
+
+#overview-links a img
+{
+	position: relative;
+	right: 50px;
+
+	height: 48px;
+	width: 48px;
+}
+
+#overview-links a .link-label
+{
+	display: block;
+	position: relative;
+	top : -45px;
+	left : 60px; 
+	width : 70%;
+	font-weight: bold;
+	font-size: 13px;		
+}
+
+
+#overview-links a p .text
+{
+	display: block;
+	width: 80%;
+	position: relative;
+	top: -40px;
+	left: 60px;
+}
+
+/*
+ * artifact history
+ */
+#history-viewer
+{
+	clear: left;
+	position: relative;
+	left: 48px;
+	top: -30px;
+}
+
+#history-viewer .status-text
+{
+	font-weight: normal;
+	color: #909090;
+	font-size: 8pt;
+	padding-left: 50px;
+}
+
+#history-viewer ul
+{
+	list-style-type: none;
+	list-style-image: url("icons/arrow.gif");
+}
+
+#history-viewer ul li a:hover
+{
+	text-decoration: underline;
+}
+

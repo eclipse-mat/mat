@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?NLS TYPE="org.eclipse.help.contexts"?>
+<contexts>
+	<context id="oql">
+		<description>Object Query Language (OQL) Syntax</description>
+		<topic label="OQL Syntax" href="reference/oqlsyntax.html" />
+	</context>
+	<context id="query_arguments">
+		<description>TODO</description>
+		<topic label="How to provide heap object arguments"
+			href="reference/selectingqueries.html#queryarguments__arguments" />
+	</context>	
+</contexts>

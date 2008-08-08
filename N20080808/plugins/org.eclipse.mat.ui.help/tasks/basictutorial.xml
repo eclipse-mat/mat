@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="../../../ditaview_shell.xml" type="text/xml"?>
+<!--Arbortext, Inc., 1988-2006, v.4002-->
+<!DOCTYPE task PUBLIC "-//IBM//DTD DITA Task//EN"
+ "../../../dtd/task.dtd">
+<task id="N10001" xml:lang="en-us">
+	<title>Basic Tutorial</title>
+	<taskbody>
+		<context>
+			<p>
+				This tutorial provides a "jumping-off place" to get
+				familiar with Memory Analyzer.
+			</p>
+			<p>
+				<b>Open a sample heap dump</b>
+			</p>
+			<p>
+				If you run a standalone version of Memory Analyzer you
+				already have the perspective settings, otherwise you
+				should switch to the Memory Analysis Perspective:
+
+				<image href="../mimes/me76fc4.png" />
+				<xref format="html"	href='javascript:executeCommand("org.eclipse.ui.perspectives.showPerspective(org.eclipse.ui.perspectives.showPerspective.perspectiveId=org.eclipse.mat.ui.perspective)")'>
+					Window &gt; Open Perspective &gt; Other... &gt; Memory Analysis						
+				</xref>
+			</p>
+			<p>
+				This will activate relevant to memory analysis views,
+				menus and actions.
+			</p>
+			<p> Open a sample heap dump using the action link:
+				<image href="../mimes/me76fc4.png"/>
+				<xref format="html"
+					href='javascript:liveAction("org.eclipse.mat.ui","org.eclipse.mat.ui.snapshot.actions.OpenSampleHeapDumpAction","org.eclipse.mat.ui.help/heapdump/HeapDumpSample.hprof")'>
+					Open Sample Heap Dump </xref>. Or using the File Menu:</p>
+			<p>
+				From the menu bar, select
+				<menucascade><uicontrol>File</uicontrol><uicontrol><image href="../mimes/i-openhd.png" /> Open Heap Dump...</uicontrol></menucascade>
+				and provide the location of the heap dump in the dialog:
+			</p>
+				<image href="../mimes/m30bbc130.png" />
+			<p><b>Walk-through Memory Analysis Perspective</b></p>
+			<p>
+				Now you have a sample heap dump opened in the Memory
+				Analysis Perspective
+			</p>
+			<image href="../mimes/6744cf51.png" />
+			<p>
+				Heap dump is opened in the editor area. All new result
+				views for heap dump will open as new tabs within this
+				editor, next to the Overview pane.
+			</p>
+			<p>
+				Under
+				<menucascade><uicontrol>Window</uicontrol><uicontrol>Show View</uicontrol></menucascade>
+				you find all memory analysis views. By default the
+				Inspector, Navigator and Notes views are visible. But you can open
+				and re-arrange additional views in the memory analysis
+				perspective as in any other Eclipse perspective.
+			</p>
+			<image href="../mimes/open_views.png" />
+			<p>
+				Heap Dump History View - Contains the list of heap dumps
+				recently opened and supports context actions to manage
+				the history.
+			</p>
+			<image href="../mimes/ma79a80.png" />
+			<p>
+				Inspector View - Provides details about the selected
+				object and supports various context actions.
+			</p>
+			<p>
+				<image href="../mimes/m2e8a36f1.png" />
+			</p>
+			<p> Navigation History View - Keeps history of all the opened result views and
+				allows to navigate among them.
+		    </p>
+			<p>
+				<image href="../mimes/navigator_view.png" />
+			</p>
+			<p>
+				Notes View - You can take notes for every heap dump. The
+				notes are saved together with the heap dump.
+			</p>
+			<p>
+				<b>Major Heap Editors</b>
+			</p>
+			<p id="class_histogram">
+				<b>Histogram Heap Editor</b>
+			</p>
+			<p>
+				The heap editor Histogram lists the classes found in the
+				snapshot, the number of objects for each class, the heap
+				memory consumption of these objects, and optional the
+				minimum retained size of the objects. You can activate
+				the calculation of the retained size using the context
+				menu – for the selected entry, or a toolbar action – for
+				the whole histogram.
+			</p>
+			<image href="../mimes/m38121718.jpg" />
+			<p id="histogram_by_classloader">
+				To switch between the Class and Class Loader histogram,
+				choose button:
+				<image href="../mimes/i-grouping.png" />
+			</p>
+			<image href="../mimes/5ea1779a.jpg" />
+			<p>
+				The class loader view and class view display the same
+				information with different grouping. In the class loader
+				view the classes are grouped by the class loaders that
+				load and define the various classes.
+			</p>
+			<p>
+				The retained size of a class loader is the amount of
+				memory that is collected by the garbage collector (GC)
+				when all objects of the classes in the class loader are
+				no longer accessible by the GC.
+			</p>
+			<p>
+				You can filter the class or class loader histogram with a
+				regular search expression in the first line of the histogram.				
+			</p>			
+			<image href="../mimes/filter.png" />			
+			<p>
+				Context menus offer additional functionality in every
+				view. For some objects you can examine the content, like
+				for
+				<varname>HashMap</varname>
+				you can examine the keys/values of the data structure.
+			</p>
+			<p id="compare">
+				Button:
+				<image href="../mimes/i-compare.png" />
+				(Baseline) perform the comparison of two snapshots
+			</p>
+			<p>
+				<note>
+					Note: The percentages displayed, refer to the
+					overall difference not for each class.
+				</note>
+			</p>
+			<p id="dominator">
+				<b>Dominator Tree Heap Editor</b>
+			</p>
+			<p>
+				The Dominator Tree view is used for the memory footprint
+				analysis,. It is based on the same semantics as the
+				retained set/size calculation. The Dominator Tree view
+				represents:
+			</p>
+			<ul>
+				<li>
+					The dominated objects
+					<p>
+						A particular object, other objects depend on and
+						are garbage collected if the particular object
+						can not be accessed anymore.
+					</p>
+				</li>
+				<li>
+					The dominator chain of the objects to the root
+					<p>
+						Which objects prohibit the garbage collection of
+						a the particular object.
+					</p>
+				</li>
+			</ul>
+			<p>
+				To open a Dominator Tree view, choose the button:
+				<image href="../mimes/i-dominatortree.png" />
+			</p>
+			<image href="../mimes/29f9f92f.jpg" />
+			<p>
+				In the screenshot shown above, the biggest objects in
+				the heap are displayed on the first tree level. Objects
+				that are solely held by themselves are displayed on the
+				next level and so on. If there are several objects
+				referencing to a chain, only the root object of the
+				chain is displayed on the first level. The other objects
+				can be viewed by expanding the node.
+			</p>
+			<p>
+				<b>Dominator Tree Grouping</b>
+			</p>
+			<p>
+				The Dominator Tree can be grouped by classes,
+				classloaders or packages. If there is not one huge
+				object in the Dominator Tree, grouping helps to identify
+				classes, classloaders or packages that occupy a lot of
+				memory.
+			</p>
+			<image href="../mimes/m70160b7c.jpg" />			
+			<p id="paths2gc">
+				<b>Paths to GC Roots Heap Editor</b>
+			</p>
+			<p>
+				The Paths to GC Roots analyzes which objects keep a
+				single object in the heap. You can open this view using
+				context menu
+				<cmdname>Path to GC Roots</cmdname>
+				.
+			</p>
+			<image href="../mimes/m6c3568d1.jpg" />
+			<p>
+				The data is structured as tree. The Paths from GC Roots
+				view shows the first group of paths from GC Roots to the
+				object of interest. If more than one path leads from one
+				GC Root to the object of interest, the shortest path is
+				displayed. This path to sub-objects that are objects
+				under the object of interest are not necessarily the
+				only references to these objects, therefore you can
+				request to display the other path to the object as well.
+				To learn more about the paths of a sub object from the
+				GC Roots, you have to open the view to the object that
+				is of interest.
+			</p>
+			<b>Merged Paths to GC Roots</b>
+			<p>
+				The Merged Paths to GC Roots view shows the shortest
+				paths from the GC roots to each instance of the selected
+				class. You can open this heap editor using context menu
+				<varname>Merge Shortest Paths to GC Roots</varname>
+				on any class instance. The heap editor explores all the
+				paths at once and is useful to analyze the memory leak
+				by finding a common chain of references to a group of
+				objects.
+			</p>
+		</context>
+	</taskbody>
+	<related-links>
+		<link href="../concepts/dominatortree.xml" format="xml"
+			type="concept">
+			<linktext>Dominator Tree</linktext>
+		</link>
+		<link href="../concepts/garbagecollectionroots.xml" format="xml"
+			type="concept">
+			<linktext>Garbage Collection Roots</linktext>
+		</link>
+	</related-links>
+</task>

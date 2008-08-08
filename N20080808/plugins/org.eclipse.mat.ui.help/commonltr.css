@@ -1,0 +1,1306 @@
+/*
+ | (c) Copyright IBM Corp. 2004, 2005 All Rights Reserved.
+ */
+ 
+.unresolved { background-color: skyblue; }
+.noTemplate { background-color: yellow; }
+
+.base { background-color: #ffffff; }
+
+/* Add space for top level topics */
+.nested0 { margin-top : 1em;}
+
+/* div with class=p is used for paragraphs that contain blocks, to keep the XHTML valid */
+.p {margin-top: 1em}
+
+/* Default of italics to set apart figure captions */
+.figcap { font-style: italic }
+.figdesc { font-style: normal }
+
+/* Use @frame to create frames on figures */
+.figborder { border-style: solid; padding-left : 3px; border-width : 2px; padding-right : 3px; margin-top: 1em; border-color : Silver;}
+.figsides { border-left : 2px solid; padding-left : 3px; border-right : 2px solid; padding-right : 3px; margin-top: 1em; border-color : Silver;}
+.figtop { border-top : 2px solid; margin-top: 1em; border-color : Silver;}
+.figbottom { border-bottom : 2px solid; border-color : Silver;}
+.figtopbot { border-top : 2px solid; border-bottom : 2px solid; margin-top: 1em; border-color : Silver;}
+
+/* Most link groups are created with <div>. Ensure they have space before and after. */
+.ullinks { list-style-type: none }
+.ulchildlink { margin-top: 1em; margin-bottom: 1em }
+.olchildlink { margin-top: 1em; margin-bottom: 1em }
+.linklist { margin-bottom: 1em }
+.linklistwithchild { margin-left: 1.5em; margin-bottom: 1em  }
+.sublinklist { margin-left: 1.5em; margin-bottom: 1em  }
+.relconcepts { margin-top: 1em; margin-bottom: 1em }
+.reltasks { margin-top: 1em; margin-bottom: 1em }
+.relref { margin-top: 1em; margin-bottom: 1em }
+.relinfo { margin-top: 1em; margin-bottom: 1em }
+.breadcrumb { font-size : smaller; margin-bottom: 1em }
+.prereq { margin-left : 20px;}
+
+/* Set heading sizes, getting smaller for deeper nesting */
+.topictitle1 { margin-top: 0pc; margin-bottom: .1em; font-size: 1.34em; }
+.topictitle2 { margin-top: 1pc; margin-bottom: .45em; font-size: 1.17em; }
+.topictitle3 { margin-top: 1pc; margin-bottom: .17em; font-size: 1.17em; font-weight: bold; }
+.topictitle4 { margin-top: .83em; font-size: 1.17em; font-weight: bold; }
+.topictitle5 { font-size: 1.17em; font-weight: bold; }
+.topictitle6 { font-size: 1.17em; font-style: italic; }
+.sectiontitle { margin-top: 1em; margin-bottom: 0em; color: black; font-size: 1.17em; font-weight: bold;}
+.section { margin-top: 1em; margin-bottom: 1em }
+.example { margin-top: 1em; margin-bottom: 1em }
+
+/* All note formats have the same default presentation */
+.note { margin-top: 1em; margin-bottom : 1em;}
+.notetitle { font-weight: bold }
+.notelisttitle { font-weight: bold }
+.tip { margin-top: 1em; margin-bottom : 1em;}
+.tiptitle { font-weight: bold }
+.fastpath { margin-top: 1em; margin-bottom : 1em;}
+.fastpathtitle { font-weight: bold }
+.important { margin-top: 1em; margin-bottom : 1em;}
+.importanttitle { font-weight: bold }
+.remember { margin-top: 1em; margin-bottom : 1em;}
+.remembertitle { font-weight: bold }
+.restriction { margin-top: 1em; margin-bottom : 1em;}
+.restrictiontitle { font-weight: bold }
+.attention { margin-top: 1em; margin-bottom : 1em;}
+.attentiontitle { font-weight: bold }
+.dangertitle { font-weight: bold }
+.danger { margin-top: 1em; margin-bottom : 1em;}
+.cautiontitle { font-weight: bold }
+.caution { font-weight: bold; margin-bottom : 1em; }
+
+/* Simple lists do not get a bullet */
+ul.simple { list-style-type: none }
+
+/* Used on the first column of a table, when rowheader="firstcol" is used */
+.firstcol { font-weight : bold;}
+
+/* Various basic phrase styles */
+.bold { font-weight: bold; }
+.boldItalic { font-weight: bold; font-style: italic; }
+.italic { font-style: italic; }
+.underlined { text-decoration: underline; }
+.uicontrol { font-weight: bold; }
+.parmname { font-weight: bold; }
+.kwd { font-weight: bold; }
+.defkwd { font-weight: bold; text-decoration: underline; }
+.var { font-style : italic;}
+.shortcut { text-decoration: underline; }
+
+/* Default of bold for definition list terms */
+.dlterm { font-weight: bold; }
+
+/* Use CSS to expand lists with @compact="no" */
+.dltermexpand { font-weight: bold; margin-top: 1em; }
+*[compact="yes"]>li { margin-top: 0em;}
+*[compact="no"]>li { margin-top: .53em;}	
+.liexpand { margin-top: 1em; margin-bottom: 1em }
+.sliexpand { margin-top: 1em; margin-bottom: 1em }
+.dlexpand { margin-top: 1em; margin-bottom: 1em }
+.ddexpand { margin-top: 1em; margin-bottom: 1em }
+.stepexpand { margin-top: 1em; margin-bottom: 1em }
+.substepexpand { margin-top: 1em; margin-bottom: 1em }
+
+/* Align images based on @align on topic/image */
+div.imageleft { text-align: left }
+div.imagecenter { text-align: center }
+div.imageright { text-align: right }
+div.imagejustify { text-align: justify }
+
+pre.screen { padding: 5px 5px 5px 5px; border: outset; background-color: #CCCCCC; margin-top: 2px; margin-bottom : 2px; white-space: pre}
+
+/* copied from common.css */
+body {
+	font-family: Arial, sans-serif;
+	font-size: 0.8em;
+	background-color: #ffffff;
+	color: Black;
+	margin-right: 5em;
+	margin-bottom: 1em;
+}
+
+.ibmfilepath {
+	font-family: monospace;
+	font-size: 100%;
+}
+
+.ibmcommand {
+	font-weight: bold;
+}
+
+.ibmemphasis {
+	font-style: italic;
+}
+
+.mv,.pk,.pkdef,.pv {
+	font-family: monospace;
+	font-size: 100%;
+	padding-top: 0em;
+	padding-right: .3em;
+	padding-bottom: 0em;
+	padding-left: .3em;
+}
+
+tt,samp {
+	font-family: monospace;
+	font-size: 100%;
+}
+
+BODY.nav {
+	background-color: #FFFFFF;
+	border-right: 0.2em ridge black;
+	font-size: 0.95em;
+}
+
+.base {
+	font-weight: normal;
+	font-style: normal;
+	font-variant: normal;
+	text-decoration: none;
+	background-color: #ffffff;
+}
+
+TABLE {
+	color: black;
+	width: 90%;
+	border-collapse: collapse;
+	border-color: Black;
+	background: white;
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+	margin-left: 0em;
+	margin-right: 0em;
+}
+
+.tbldesc {
+	font-style: italic;
+}
+
+TH {
+	font-weight: bold;
+	font-size: 0.7em;
+	color: black;
+	background-color: #dadada;
+	padding-top: 0.1em;
+	padding-bottom: 0.3em;
+	padding-left: 1em;
+	padding-right: 1em;
+}
+
+TH.base {
+	font-weight: bold;
+	color: black;
+	border: 1 solid #606060;
+	background-color: #dcdada;
+	padding-top: 0.65em;
+	padding-bottom: 0.65em;
+	padding-left: 1em;
+	padding-right: 1em;
+}
+
+TD {
+	font-size: 0.7em;
+	color: black;
+	background-color: white;
+	padding-top: 0.1em;
+	padding-bottom: 0.3em;
+	padding-left: 1em;
+	padding-right: 1em;
+}
+
+CITE {
+	font-style: italic;
+}
+
+EM {
+	font-style: italic;
+}
+
+STRONG {
+	font-weight: bold;
+}
+
+caption {
+	text-align: left;
+	font-style: italic;
+}
+
+DT {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+DD {
+	margin-left: 1.0em;
+}
+
+PRE,pre.cgraphic {
+	font-family: monospace;
+	font-size: 12px;
+	background-color: #dadada;
+	padding: 5px;
+}
+
+.italic {
+	font-style: italic;
+}
+
+.bold {
+	font-weight: bold;
+}
+
+.underlined {
+	text-decoration: underline;
+}
+
+.bold-italic,.boldItalic {
+	font-weight: bold;
+	font-style: italic;
+}
+
+.smallCaps,.smallcaps {
+	text-transform: uppercase;
+	font-size: smaller;
+	font-variant: small-caps;
+}
+
+.italic-underlined {
+	font-style: italic;
+	text-decoration: underline;
+}
+
+.bold-underlined {
+	font-weight: bold;
+	text-decoration: underline;
+}
+
+.bold-italic-underlined {
+	font-weight: bold;
+	font-style: italic;
+	text-decoration: underline;
+}
+
+.smallcaps-underlined {
+	font-variant: small-caps;
+	text-decoration: underline;
+}
+
+.emphasis {
+	font-style: italic;
+}
+
+.inlinedef {
+	font-style: italic;
+}
+
+.sidebar {
+	background: #cccccc;
+}
+
+A:link {
+	color: #006699;
+	text-decoration: underline;
+}
+
+A:visited {
+	color: #996699;
+	text-decoration: underline;
+}
+
+A:active {
+	color: #006699;
+	text-decoration: underline;
+}
+
+A:hover {
+	color: #996699;;
+	text-decoration: underline;
+}
+
+a.toclink:link {
+	text-decoration: none;
+}
+
+a.toclink:active {
+	text-decoration: none;
+}
+
+a.toclink:visited {
+	text-decoration: none;
+}
+
+a.toclink:hover {
+	text-decoration: underline;
+}
+
+a.ptoclink:link {
+	text-decoration: none;
+}
+
+a.ptoclink:active {
+	text-decoration: none;
+}
+
+a.ptoclink:visited {
+	text-decoration: none;
+}
+
+a.ptoclink:hover {
+	text-decoration: underline;
+}
+
+a.indexlink:link {
+	text-decoration: none;
+}
+
+a.indexlink:active {
+	text-decoration: none;
+}
+
+a.indexlink:visited {
+	text-decoration: none;
+}
+
+a.indexlink:hover {
+	text-decoration: underline;
+}
+
+a.figurelist:link {
+	text-decoration: none;
+}
+
+a.figurelist:active {
+	text-decoration: none;
+}
+
+a.figurelist:visited {
+	text-decoration: none;
+}
+
+a.figurelist:hover {
+	text-decoration: underline;
+}
+
+a.tablelist:link {
+	text-decoration: none;
+}
+
+a.tablelist:active {
+	text-decoration: none;
+}
+
+a.tablelist:visited {
+	text-decoration: none;
+}
+
+a.tablelist:hover {
+	text-decoration: underline;
+}
+
+a.boldgreylink:link {
+	text-decoration: none;
+	color: #333333;
+	font-family: Verdana, Arial, sans-serif;
+	font-weight: bold;
+	font-size: 0.9em;
+}
+
+a.boldgreylink:visited {
+	text-decoration: none;
+	color: #333333;
+	font-family: Verdana, Arial, sans-serif;
+	font-weight: bold;
+	font-size: 0.9em;
+}
+
+a.boldgreylink:hover {
+	text-decoration: underline;
+	color: #333333;
+	font-family: Verdana, Arial, sans-serif;
+	font-weight: bold;
+	font-size: 0.9em;
+}
+
+.runningheader {
+	font-family: Verdana, Arial, sans-serif;
+	font-size: 0.7em;
+}
+
+.runningfooter {
+	font-family: Verdana, Arial, sans-serif;
+	font-size: 0.7em;
+}
+
+.runningfooter a:link {
+	font-weight: bold;
+	color: #000000;
+	text-decoration: none;
+}
+
+.runningfooter a:active {
+	font-weight: bold;
+	color: #000000;
+	text-decoration: none;
+}
+
+.runningfooter a:visited {
+	font-weight: bold;
+	color: #000000;
+	text-decoration: none;
+}
+
+.runningfooter a:hover {
+	font-weight: bold;
+	color: #000000;
+	text-decoration: underline;
+}
+
+#breadcrumb,.breadcrumb,span.breadcrumbs {
+	font-size: 0.75em;
+}
+
+.fastpath {
+	margin-top: 1em;
+	margin-bottom: 1em;
+}
+
+.fastpathtitle {
+	font-weight: bold;
+}
+
+.toc {
+	font-size: small;
+}
+
+.nested0 {
+	margin-top: 0em;
+}
+
+.p {
+	margin-top: 1em;
+}
+
+span.figcap {
+	font-style: italic;
+}
+
+span.figdesc {
+	font-style: italic;
+}
+
+div.figbox {
+	
+}
+
+div.figrules {
+	
+}
+
+div.fignone {
+	
+}
+
+.fignone {
+	
+}
+
+.figborder {
+	
+}
+
+.figsides {
+	
+}
+
+.figtop {
+	
+}
+
+.figbottom {
+	
+}
+
+.figtopbot {
+	
+}
+
+.parentlink {
+	
+}
+
+.prevlink {
+	
+}
+
+.nextlink {
+	
+}
+
+.relconceptshd {
+	
+}
+
+.reltaskshd {
+	
+}
+
+.relrefhd {
+	
+}
+
+.synnone {
+	
+}
+
+.synborder {
+	
+}
+
+.synsides {
+	
+}
+
+.syntop {
+	
+}
+
+.synbottom {
+	
+}
+
+.syntopbot {
+	
+}
+
+.skip {
+	margin-top: 1em;
+}
+
+.skipspace {
+	margin-top: 1em;
+	margin-bottom: 1em;
+}
+
+.ulchildlink {
+	margin-top: 1em;
+	margin-bottom: 1em;
+}
+
+.olchildlink {
+	margin-top: 1em;
+	margin-bottom: 1em;
+}
+
+ul,ol {
+	margin-top: 0.1em;
+	padding-top: 0.1em;
+}
+
+ul.simple {
+	list-style-type: none;
+}
+
+ul.indexlist {
+	list-style-type: none;
+}
+
+OL LI {
+	margin-top: 0.0em;
+	margin-bottom: 0.0em;
+	margin-left: 0.0em;
+}
+
+UL LI {
+	margin-top: 0.0em;
+	margin-bottom: 0.0em;
+	margin-left: 0.0em;
+}
+
+OL LI DIV P {
+	list-style-type: decimal;
+	margin-top: 0.2em;
+	margin-bottom: 0.2em;
+}
+
+UL LI DIV P {
+	list-style-type: disc;
+	margin-top: 0.2em;
+	margin-bottom: 0.2em;
+}
+
+* [compact="yes"]>li {
+	margin-top: 0 em;
+}
+
+* [compact="no"]>li {
+	margin-top: 0.5em;
+}
+
+hr {
+	margin-bottom: 0em;
+	margin-top: 0em;
+	padding-top: 0em;
+	padding-bottom: 0em;
+	width: 90%;
+	color: #cccccc;
+	text-align: center;
+}
+
+H1,.title,.pagetitle,.topictitle1 {
+	font-size: 1.5em;
+	font-style: normal;
+	font-weight: bold;
+	margin-bottom: 0.5em;
+	word-spacing: 0.1em;
+}
+
+H2,.subtitle,.pagesubtitle,.topictitle2 {
+	font-size: 1.25em;
+	font-style: normal;
+	font-weight: bold;
+	margin-bottom: 0.0em;
+	padding-bottom: 0.0em;
+}
+
+H3,.boldtitle,.topictitle3 {
+	font-size: 1.0em;
+	font-style: normal;
+	font-weight: bold;
+	margin-bottom: 0.2em;
+	padding-bottom: 0.1em;
+}
+
+H4,.topictitle4 {
+	font-size: 0.9em;
+	font-style: normal;
+	font-weight: bold;
+	margin-bottom: 0.1em;
+	padding-bottom: 0.1em;
+}
+
+h5,.topictitle5 {
+	font-size: 0.8em;
+	font-style: normal;
+	font-weight: bold;
+	margin-bottom: 0em;
+	padding-bottom: 0em;
+}
+
+h6,.topictitle6 {
+	font-size: 0.7em;
+	font-style: normal;
+	font-weight: bold;
+	margin-bottom: 0em;
+	padding-bottom: 0em;
+}
+
+div.headtitle {
+	font-size: 1em;
+	font-weight: bold;
+	margin-left: 0em;
+}
+
+div.head0 {
+	font-size: 0.9em;
+	font-weight: bold;
+	margin-left: 0em;
+	margin-top: 0.5em;
+}
+
+div.head1 {
+	font-size: 0.8em;
+	font-weight: bold;
+	margin-left: 1em;
+	padding-top: 0.5em;
+}
+
+div.head2 {
+	font-size: 0.7em;
+	font-weight: normal;
+	margin-left: 2em;
+}
+
+div.head3 {
+	font-size: 0.7em;
+	font-weight: normal;
+	margin-left: 3em;
+}
+
+div.head4 {
+	font-size: 0.7em;
+	font-weight: normal;
+	margin-left: 4em;
+}
+
+div.head5 {
+	font-size: 0.7em;
+	font-weight: normal;
+	margin-left: 5em;
+}
+
+div.head6 {
+	font-size: 0.7em;
+	font-weight: normal;
+	margin-left: 6em;
+}
+
+div.head7 {
+	font-size: 0.7em;
+	font-weight: normal;
+	margin-left: 7em;
+}
+
+div.head8 {
+	font-size: 0.7em;
+	font-weight: normal;
+	margin-left: 8em;
+}
+
+div.head9 {
+	font-size: 0.7em;
+	font-weight: normal;
+	margin-left: 9em;
+}
+
+.tip {
+	margin-top: 1em;
+	margin-bottom: 1em;
+}
+
+.tiptitle {
+	font-weight: bold;
+}
+
+.firstcol {
+	font-weight: bold;
+}
+
+.ptocH1 {
+	font-size: x-small;
+}
+
+.ptocH2 {
+	font-size: x-small;
+}
+
+.stitle {
+	font-style: italic;
+	text-decoration: underline;
+}
+
+.nte {
+	
+}
+
+.xxlines {
+	white-space: pre;
+	font-size: 0.95em;
+}
+
+.sectiontitle {
+	margin-top: 1em;
+	margin-bottom: 0em;
+	color: black;
+	font-size: 1.2em;
+	font-weight: bold;
+}
+
+div.imageleft {
+	text-align: left;
+}
+
+div.imagecenter {
+	text-align: center;
+}
+
+div.imageright {
+	text-align: right;
+}
+
+div.imagejustify {
+	text-align: justify;
+}
+
+div.mmobj {
+	margin-top: 1em;
+	margin-bottom: 1em;
+	text-align: center;
+}
+
+div.mmobjleft {
+	margin-top: 1em;
+	margin-bottom: 1em;
+	text-align: left;
+}
+
+div.mmobjcenter {
+	margin-top: 1em;
+	margin-bottom: 1em;
+	text-align: center;
+}
+
+div.mmobjright {
+	margin-top: 1em;
+	margin-bottom: 1em;
+	text-align: right;
+}
+
+pre.screen {
+	padding: 1em 1em 1em 1em;
+	margin-top: 0.4em;
+	margin-bottom: 0.4em;
+	border: thin solid Black;
+	font-size: 100%;
+}
+
+.prereq {
+	margin-left: 1.5em;
+}
+
+.defListHead {
+	font-weight: bold;
+	text-decoration: underline;
+}
+
+span.mv {
+	font-style: italic;
+}
+
+span.md {
+	text-decoration: line-through;
+}
+
+.pk,span.pk {
+	font-weight: bold;
+}
+
+span.pkdef {
+	font-weight: bold;
+	text-decoration: underline;
+}
+
+span.pv {
+	font-style: italic;
+}
+
+span.pvdef {
+	font-style: italic;
+	text-decoration: underline;
+}
+
+span.kwd {
+	font-weight: bold;
+}
+
+span.kdwdef {
+	font-weight: bold;
+	text-decoration: underline;
+}
+
+.parmListKwd {
+	font-weight: bold;
+}
+
+.parmListVar {
+	font-style: italic;
+}
+
+span.oper {
+	font-style: normal;
+}
+
+span.operdef {
+	text-decoration: underline;
+}
+
+VAR,span.var {
+	font-style: italic;
+}
+
+span.vardef {
+	font-style: italic;
+	text-decoration: underline;
+}
+
+div.msg {
+	padding: 0.2em 1em 1em 1em;
+	margin-top: 0.4em;
+	margin-bottom: 0.4em;
+}
+
+div.msgnum {
+	float: left;
+	font-weight: bold;
+	margin-bottom: 1em;
+	margin-right: 1em;
+}
+
+div.msgtext {
+	font-weight: bold;
+	margin-bottom: 1em;
+}
+
+div.msgitemtitle {
+	font-weight: bold;
+}
+
+p.msgitem {
+	margin-top: 0em;
+}
+
+.attention,div.attention {
+	margin-top: 1em;
+	margin-bottom: 1em;
+}
+
+.attentiontitle,span.attentiontitle {
+	font-weight: bold;
+}
+
+.cautiontitle,div.cautiontitle {
+	margin-top: 1em;
+	font-weight: bold;
+}
+
+.caution,div.caution {
+	margin-top: 1em;
+	margin-bottom: 1em;
+}
+
+.danger,div.danger {
+	padding: 0.5em 0.5em 0.5em 0.5em;
+	border: solid;
+	border-width: thin;
+	font-weight: bold;
+	margin-top: 0.2em;
+	margin-bottom: 1em;
+}
+
+.dangertitle,div.dangertitle {
+	margin-top: 1em;
+	font-weight: bold;
+}
+
+.important {
+	margin-top: 1em;
+	margin-bottom: 1em;
+}
+
+.importanttitle {
+	font-weight: bold;
+}
+
+.remember {
+	margin-top: 1em;
+	margin-bottom: 1em;
+}
+
+.remembertitle {
+	font-weight: bold;
+}
+
+.restriction {
+	margin-top: 1em;
+	margin-bottom: 1em;
+}
+
+.restrictiontitle {
+	font-weight: bold;
+}
+
+div.warningtitle {
+	font-weight: bold;
+}
+
+div.warningbody {
+	margin-left: 2em
+}
+
+.note {
+	margin-top: 1em;
+	margin-bottom: 1em;
+}
+
+.notetitle,div.notetitle {
+	font-weight: bold;
+}
+
+div.notebody {
+	margin-left: 2em;
+}
+
+div.notelisttitle {
+	font-weight: bold;
+}
+
+div.fnnum {
+	float: left;
+}
+
+div.fntext {
+	margin-left: 2em;
+}
+
+div.stepl {
+	margin-left: 2em;
+}
+
+div.steplnum {
+	font-weight: bold;
+	float: left;
+	margin-left: 0.5em;
+}
+
+div.stepltext {
+	margin-left: 5em;
+}
+
+div.steplnum {
+	font-style: italic;
+	font-weight: bold;
+	float: left;
+	margin-left: 0.5em;
+}
+
+div.stepltext {
+	margin-bottom: 0.5em;
+	margin-left: 3em;
+}
+
+div.ledi {
+	margin-left: 3em;
+}
+
+div.ledesc {
+	margin-left: 3em;
+}
+
+span.pblktitle {
+	font-weight: bold;
+}
+
+div.pblklblbox {
+	padding: 0.5em 0.5em 0.5em 0.5em;
+	border: solid;
+	border-width: thin;
+	margin-top: 0.2em;
+}
+
+span.ednoticestitle {
+	font-weight: bold;
+}
+
+span.term {
+	font-weight: bold;
+}
+
+span.idxshow {
+	color: green;
+}
+
+div.code {
+	font-weight: bold;
+	margin-bottom: 1em;
+}
+
+span.refkey {
+	font-weight: bold;
+	color: white;
+	background-color: black;
+}
+
+tt.apl {
+	font-style: italic;
+}
+
+div.qualifstart {
+	padding: 0.1em 0.5em 0.5em 0.5em;
+	border-top: solid;
+	border-left: solid;
+	border-right: solid;
+	border-width: thin;
+	font-weight: bold;
+	margin-top: 0.2em;
+	margin-bottom: 0.2em;
+	text-align: center;
+}
+
+div.qualifend {
+	padding: 0.5em 0.5em 0.1em 0.5em;
+	border-bottom: solid;
+	border-left: solid;
+	border-right: solid;
+	border-width: thin;
+	font-weight: bold;
+	margin-bottom: 0.2em;
+	text-align: center;
+}
+
+.noshade {
+	background-color: transparent;
+}
+
+.xlight {
+	background-color: #DADADA;
+}
+
+.light {
+	background-color: #B0B0B0;
+}
+
+.medium {
+	background-color: #8C8C8C;
+}
+
+.dark {
+	background-color: #6E6E6E;
+}
+
+.xdark {
+	background-color: #585858;
+}
+
+.light-yellow {
+	background-color: #FFFFCC;
+}
+
+.khaki {
+	background-color: #CCCC99;
+}
+
+.medium-blue {
+	background-color: #6699CC;
+}
+
+.light-blue {
+	background-color: #CCCCFF;
+}
+
+.mid-grey {
+	background-color: #CCCCCC;
+}
+
+.light-grey {
+	background-color: #DADADA;
+}
+
+.lightest-grey {
+	background-color: #E6E6E6;
+}
+
+#changed {
+	position: absolute;
+	left: 0.2em;
+	color: #7B68EE;
+	background-color: #FFFFFF;
+	font-style: normal;
+	font-weight: bold;
+}
+
+INPUT.buttons {
+	font-size: 0.75em;
+	border-top: 0.2em outset #B1B1B1;
+	border-right: 0.2em outset #000000;
+	border-bottom: 0.2em outset #000000;
+	border-left: 0.2em outset #B1B1B1;
+	background-color: #E2E2E2;
+	margin-bottom: 0.2em;
+}
+
+.cgraphic {
+	font-size: 90%;
+	color: black;
+}
+
+.aix,.hpux,.sun,.unix,.win2,.winnt,.win,.zos,.linux,.os390,.os400,.c,.cplusplus,.cobol,.fortran,.java,.macosx,.os2,.pl1,.rpg
+	{
+	background-repeat: no-repeat;
+	background-position: top left;
+	margin-top: 0.5em;
+	text-indent: 55px;
+}
+
+.aix {
+	background-image: url(ngaix.gif);
+}
+
+.hpux {
+	background-image: url(nghpux.gif);
+}
+
+.sun {
+	background-image: url(ngsolaris.gif);
+}
+
+.unix {
+	background-image: url(ngunix.gif);
+}
+
+.win2 {
+	background-image: url(ng2000.gif);
+}
+
+.winxp {
+	background-image: url(ngxp.gif);
+}
+
+.winnt {
+	background-image: url(ngnt.gif);
+}
+
+.win {
+	background-image: url(ngwin.gif);
+}
+
+.zos {
+	background-image: url(ngzos.gif);
+}
+
+.linux {
+	background-image: url(nglinux.gif);
+}
+
+.os390 {
+	background-image: url(ng390.gif);
+}
+
+.os400 {
+	background-image: url(ng400.gif);
+}
+
+.c {
+	background-image: url(ngc.gif);
+}
+
+.cplusplus {
+	background-image: url(ngcpp.gif);
+}
+
+.cobol {
+	background-image: url(ngcobol.gif);
+}
+
+.fortran {
+	background-image: url(ngfortran.gif);
+}
+
+.java {
+	background-image: url(ngjava.gif);
+}
+
+.macosx {
+	background-image: url(ngmacosx.gif);
+}
+
+.os2 {
+	background-image: url(ngos2.gif);
+}
+
+.pl1 {
+	background-image: url(ngpl1.gif);
+}
+
+.rpg {
+	background-image: url(ngrpg.gif);
+}

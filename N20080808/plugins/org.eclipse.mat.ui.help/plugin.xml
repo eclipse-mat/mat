@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+
+	<extension point="org.eclipse.help.toc">
+		<toc file="toc.xml" primary="true"/>
+	</extension>
+
+	<extension point="org.eclipse.help.contexts">
+		<contexts file="context.xml" />
+	</extension>
+
+	<extension point="org.eclipse.ui.cheatsheets.cheatSheetContent">
+		<category id="org.eclipse.mat.tutorials" name="Memory Analyzer"/>
+		
+		<cheatsheet 
+				id="org.eclipse.mat.tutorials.object_query_language"
+				contentFile="tutorials/object_query_language.xml"
+				category="org.eclipse.mat.tutorials"            
+				name="OQL Tutorial" />
+
+		<cheatsheet
+				id="org.eclipse.mat.tutorials.basicTutorial"
+				contentFile="tutorials/basic_tutorial.xml"
+				category="org.eclipse.mat.tutorials"
+				composite="false"
+				name="Basics"/>
+
+		<cheatsheet
+				id="org.eclipse.mat.tutorials.bestFeaturesTutorial"
+				contentFile="tutorials/best_features_tutorial.xml"
+				category="org.eclipse.mat.tutorials"
+				name="Best Features Tutorial"/>
+
+		<cheatsheet
+				id="org.eclipse.mat.tutorials.findingProblemsTutorial"
+				contentFile="tutorials/memory_hunting.xml"
+				category="org.eclipse.mat.tutorials"
+				name="Finding Memory Problems Tutorial"/>
+	</extension>
+
+</plugin>

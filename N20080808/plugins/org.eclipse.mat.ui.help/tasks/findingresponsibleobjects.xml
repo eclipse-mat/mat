@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE task PUBLIC "-//IBM//DTD DITA Task//EN"
+ "../../../dtd/task.dtd">
+<?xml-stylesheet href="../../../xsl/ditaview_shell.xsl" type="text/xsl"?>
+<task id="findingresponsibleobjects" xml:lang="en-us">
+<title>Finding Responsible Objects</title>
+<prolog></prolog>
+<taskbody>
+<context>
+<b>Immediate Dominators</b><p>This query finds and aggregates all objects dominating a given set of objects on class level.</p>
+<p>Choice of options:</p>
+<ul><li>Selecting entries and using the context menu</li></ul>
+<image href="../mimes/m64b9f6a9.png" alt="screen shot of the context menu" placement="break"></image>
+<ul><li>The toolbar command <menucascade><uicontrol>Query Browser</uicontrol><uicontrol>Immediate Dominators</uicontrol></menucascade> starts a wizard to select an object set.</li></ul>
+<image href="../mimes/6ac427cd.png" alt="screen shot of the list of immediate dominators" placement="break"></image>
+The immediate dominators of all char arrays are all objects responsible for keeping the <cmdname>char[]</cmdname> alive. The result will contain most likely <cmdname>java.lang.String</cmdname> objects. If you add the skip pattern <cmdname>java.*</cmdname>, and you will see the non-JDK classes responsible for the char arrays.
+</context>
+</taskbody>
+<related-links>
+<link href="../concepts/dominatortree.html" format="html" type="concept"><linktext>Dominator Tree</linktext>
+</link>
+</related-links>
+</task>

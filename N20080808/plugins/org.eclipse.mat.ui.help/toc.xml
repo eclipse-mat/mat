@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?NLS TYPE="org.eclipse.help.toc"?>
+
+<toc label="Memory Analyzer" topic="tasks/basictutorial.html">
+<topic label="Getting Started">
+<topic label="Basic Tutorial" href="tasks/basictutorial.html"/>
+</topic>
+<topic label="Concepts">
+<topic label="Heap Dump" href="concepts/heapdump.html"/>
+<topic label="Shallow vs. Retained Heap" href="concepts/shallowretainedheap.html"/>
+<topic label="Dominator Tree" href="concepts/dominatortree.html"/>
+<topic label="Garbage Collection Roots" href="concepts/garbagecollectionroots.html"/>
+</topic>
+<topic label="Tasks">
+<topic label="Acquiring Heap Dumps" href="tasks/acquiringheapdump.html"/>
+<topic label="Running Leak Suspect Report" href="tasks/runningleaksuspectreport.html"/>
+<topic label="List the Biggest Objects" href="tasks/listbiggestobjects.html"/>
+<topic label="Finding Responsible Objects" href="tasks/findingresponsibleobjects.html"/>
+<topic label="Querying Heap Objects (OQL)" href="tasks/queryingheapobjects.html"/>
+<topic label="Analyzing Class Loader" href="tasks/analyzingclassloader.html"/>
+<topic label="Analyzing Threads" href="tasks/analyzingthreads.html"/>
+<topic label="Analyzing Java Collection Usage" href="tasks/analyzingjavacollectionusage.html"/>
+<topic label="Analyzing Finalizer" href="tasks/analyzingfinalizer.html"/>
+<topic label="Export Data" href="tasks/exportdata.html"/>
+</topic>
+<topic label="Reference">
+<topic label="Query Matrix" href="reference/querymatrix.html">
+<topic label="Finding Memory Leak" href="reference/findingmemoryleak.html"/>
+<topic label="Analyzing Memory Consumption" href="reference/analyzingmemoryconsumption.html"/>
+</topic>
+<topic label="OQL Syntax" href="reference/oqlsyntax.html">
+<topic label="SELECT Clause" href="reference/oqlsyntaxselect.html"/>
+<topic label="FROM Clause" href="reference/oqlsyntaxfrom.html"/>
+<topic label="WHERE Clause" href="reference/oqlsyntaxwhere.html"/>
+<topic label="Property Accessors" href="reference/propertyaccessors.html"/>
+<topic label="BNF for the Object Query Language" href="reference/bnfofoql.html"/>
+</topic>
+<topic label="Selecting Queries" href="reference/selectingqueries.html"/>
+<topic label="Icons Assist" href="reference/iconassist.html"/>
+<topic label="Tips and Tricks" href="reference/tipsandtricks.html"/>
+</topic>
+</toc>
