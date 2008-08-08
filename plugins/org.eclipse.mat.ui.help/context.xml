@@ -8,6 +8,6 @@
 	<context id="query_arguments">
 		<description>TODO</description>
 		<topic label="How to provide heap object arguments"
-			href="reference/selectingobjectsinqueryarguments.html#queryarguments__arguments" />
+			href="reference/selectingqueries.html#queryarguments__arguments" />
 	</context>	
 </contexts>

@@ -4,7 +4,7 @@
 		name="Memory Analyzer Overview" path="overview/@">
 		<group style-id="content-group" id="org.eclipse.mat.mat-overview-group">
 			<link label="Memory Analyzer Overview" id="mat-overview" style-id="content-link"
-				url="http://org.eclipse.ui.intro/showHelpTopic?id=/org.eclipse.mat.ui.help/html/45/b0eb510443731de10000000a1553f6/content.htm">
+				url="http://org.eclipse.ui.intro/showHelpTopic?id=/org.eclipse.mat.ui.help/tasks/basictutorial.html">
 				<text>Get familiar with the Memory Analyzer tool and get
 					important information on getting started.</text>
 			</link>
