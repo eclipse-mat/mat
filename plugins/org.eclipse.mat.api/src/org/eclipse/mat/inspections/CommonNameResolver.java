@@ -82,9 +82,12 @@ public class CommonNameResolver
     {
         public String resolve(IObject heapObject) throws SnapshotException
         {
-            byte dot = (byte) '.';
             IPrimitiveArray arr = (IPrimitiveArray) heapObject;
             byte[] value = (byte[]) arr.getValueArray(0, Math.min(arr.getLength(), 1024));
+            if (value == null)
+                return null;
+
+            byte dot = (byte) '.';
             for (int i = 0; i < value.length; i++)
             {
                 if (value[i] < 32 || value[i] > 127)
