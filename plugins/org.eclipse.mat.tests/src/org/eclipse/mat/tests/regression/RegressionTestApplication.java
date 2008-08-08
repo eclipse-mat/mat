@@ -21,6 +21,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -55,11 +56,14 @@ public class RegressionTestApplication
     private class StreamGobbler extends Thread
     {
         InputStream is;
+        PrintStream os;
         String type;
+        StringBuilder builder = new StringBuilder();
 
-        StreamGobbler(InputStream is, String type)
+        StreamGobbler(InputStream is, PrintStream out, String type)
         {
             this.is = is;
+            this.os = out;
             this.type = type;
         }
 
@@ -73,7 +77,8 @@ public class RegressionTestApplication
                 String line = null;
                 while ((line = br.readLine()) != null)
                 {
-                    System.out.println(type + ">" + line);
+                    builder.append(line).append("\n");
+                    os.println(type + ">" + line);
                 }
             }
             catch (IOException ioe)
@@ -81,6 +86,11 @@ public class RegressionTestApplication
                 // $JL-EXC$
                 ioe.printStackTrace();
             }
+        }
+
+        public String getMessage()
+        {
+            return builder.toString();
         }
     }
 
@@ -128,9 +138,8 @@ public class RegressionTestApplication
                 }
                 catch (Exception e)
                 {
-                    String message = "ERROR> " + e.getMessage();
-                    System.err.println(message);
-                    result.addErrorMessage(message);
+                    System.err.println("ERROR> " + e.getMessage());
+                    result.addErrorMessage(e.getMessage());
                     continue;
                 }
                 // process the result (compare to the baseline)
@@ -334,7 +343,8 @@ public class RegressionTestApplication
                 });
                 if (matchingFiles.length == 0)
                 {
-                    String errorMessage = "ERROR> Baseline result " + baselineFile + " has no corresponding test result";
+                    String errorMessage = "ERROR> Baseline result " + baselineFile
+                                    + " has no corresponding test result";
                     System.err.println(errorMessage);
                     result.addErrorMessage(errorMessage);
                 }
@@ -439,7 +449,6 @@ public class RegressionTestApplication
         }
         catch (FileNotFoundException e)
         {
-            // $JL-EXC$
             // is not possible
             return;
         }
@@ -538,12 +547,11 @@ public class RegressionTestApplication
         cmd.append(" org.eclipse.mat.tests:regression");
 
         System.out.println("Starting: " + cmd.toString());
-        // $JL-SYS_OUT_ERR$
 
         Process process = Runtime.getRuntime().exec(cmd.toString());
-        StreamGobbler errorGobbler = new StreamGobbler(process.getErrorStream(), "ERROR");
+        StreamGobbler errorGobbler = new StreamGobbler(process.getErrorStream(), System.err, "ERROR");
         // any output?
-        StreamGobbler outputGobbler = new StreamGobbler(process.getInputStream(), "OUTPUT");
+        StreamGobbler outputGobbler = new StreamGobbler(process.getInputStream(), System.out, "OUTPUT");
 
         // kick them off
         errorGobbler.start();
@@ -554,10 +562,9 @@ public class RegressionTestApplication
         if (status != 0) // something went wrong
         {
             System.err.println("Exit Status: FAILED");
-            throw new IOException("Exception while running the report");
+            throw new IOException("Exception while running the report: " + outputGobbler.getMessage() + "\n\n"
+                            + errorGobbler.getMessage());
         }
         System.out.println("Exit Status: OK");
-        // $JL-SYS_OUT_ERR$
-
     }
 }
