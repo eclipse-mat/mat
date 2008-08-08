@@ -13,6 +13,7 @@ package org.eclipse.mat.report.internal;
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
+import java.text.MessageFormat;
 import java.util.List;
 
 import org.eclipse.mat.SnapshotException;
@@ -22,7 +23,6 @@ import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IDecorator;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.IStructuredResult;
-import org.eclipse.mat.query.ResultMetaData;
 import org.eclipse.mat.query.refined.Filter;
 import org.eclipse.mat.query.refined.RefinedStructuredResult;
 import org.eclipse.mat.query.refined.RefinedTable;
@@ -43,28 +43,35 @@ public class HtmlOutputter implements IOutputter
 
     public void embedd(Context context, IResult result, Writer writer) throws IOException
     {
+        boolean hasDetailsLink = "true".equals(context.param(Params.Html.RENDER_DETAILS, "true")) // 
+                        && result.getResultMetaData() != null //
+                        && !result.getResultMetaData().getDetailResultProviders().isEmpty();
+
         if (result instanceof RefinedTable)
         {
-            renderTable(context, (RefinedTable) result, writer);
+            renderTable(context, (RefinedTable) result, writer, hasDetailsLink);
         }
         else if (result instanceof RefinedTree)
         {
-            renderTree(context, (RefinedTree) result, writer);
+            renderTree(context, (RefinedTree) result, writer, hasDetailsLink);
         }
         else if (result instanceof TextResult)
         {
-            renderText(context, (TextResult) result, writer);
+            renderText(context, (TextResult) result, writer, hasDetailsLink);
         }
         else if (result instanceof DisplayFileResult)
-        {       
-            File target = new File( context.getOutputDirectory(), ((DisplayFileResult) result).getFile().getName());
-            //TODO(en) check whether successful:
-            ((DisplayFileResult) result).getFile().renameTo(target);           
+        {
+            File src = ((DisplayFileResult) result).getFile();
+            File dest = new File(context.getOutputDirectory(), src.getName());
+
+            if (!src.renameTo(dest))
+                throw new IOException(MessageFormat.format("Error moving file {0} to {1}", //
+                                src.getAbsolutePath(), dest.getAbsolutePath()));
         }
         else if (result == null)
         {
             writer.append("n/a");
-        }            
+        }
         else
         {
             writer.append(result.toString());
@@ -80,10 +87,9 @@ public class HtmlOutputter implements IOutputter
     // 
     // //////////////////////////////////////////////////////////////
 
-    private void renderTable(Context context, RefinedTable table, Writer artefact) throws IOException
+    private void renderTable(Context context, RefinedTable table, Writer artefact, boolean hasDetailsLink)
+                    throws IOException
     {
-        boolean hasDetailsLink = !table.getResultMetaData().getDetailResultProviders().isEmpty();
-
         Column[] columns = table.getColumns();
 
         artefact.append("<table class=\"result\">");
@@ -212,10 +218,9 @@ public class HtmlOutputter implements IOutputter
         }
     }
 
-    private void renderTree(Context context, RefinedTree tree, Writer artefact) throws IOException
+    private void renderTree(Context context, RefinedTree tree, Writer artefact, boolean hasDetailsLink)
+                    throws IOException
     {
-        boolean hasDetailsLink = !tree.getResultMetaData().getDetailResultProviders().isEmpty();
-
         Column[] columns = tree.getColumns();
 
         artefact.append("<table class=\"result\">");
@@ -399,13 +404,17 @@ public class HtmlOutputter implements IOutputter
         }
     }
 
-    private void renderText(Context context, TextResult textResult, Writer writer) throws IOException
+    private void renderText(Context context, TextResult textResult, Writer writer, boolean hasDetailsLink)
+                    throws IOException
     {
         writer.append("<p>");//$NON-NLS-1$
 
         if (textResult.isHtml())
         {
-            resolveDetailLinks(context, textResult, writer);
+            if (!hasDetailsLink)
+                writer.append(textResult.getText());
+            else
+                resolveDetailLinks(context, textResult, writer);
         }
         else
         {
@@ -419,26 +428,22 @@ public class HtmlOutputter implements IOutputter
 
     private void resolveDetailLinks(Context context, TextResult textResult, Writer writer) throws IOException
     {
-        ResultMetaData metaData = textResult.getResultMetaData();
-        if (metaData == null || metaData.getDetailResultProviders().isEmpty())
-        {
-            writer.append(textResult.getText());
-            return;
-        }
+        List<DetailResultProvider> detailProvider = textResult.getResultMetaData().getDetailResultProviders();
 
-        // very simple parsing, as we are only interested in links we construct ourselves
+        // very simple parsing, as we are only interested in links we construct
+        // ourselves
         String text = textResult.getText();
-        
+
         int start = 0;
         int length = text.length();
-        
+
         int protocolIndex = text.indexOf(QueryObjectLink.PROTOCOL);
         while (protocolIndex >= 0)
         {
             int endIndex = text.indexOf('"', protocolIndex);
             if (endIndex < 0)
                 break;
-            
+
             String url = text.substring(protocolIndex, endIndex);
             QueryObjectLink link = QueryObjectLink.parse(url);
             if (link == null || link.getType() != QueryObjectLink.Type.DETAIL_RESULT)
@@ -450,11 +455,11 @@ public class HtmlOutputter implements IOutputter
                 int targetIndex = link.getTarget().indexOf('/');
                 String name = link.getTarget().substring(0, targetIndex);
                 String identifier = link.getTarget().substring(targetIndex + 1);
-                
+
                 writer.append(text.subSequence(start, protocolIndex));
-                
+
                 boolean done = false;
-                for (DetailResultProvider provider : metaData.getDetailResultProviders())
+                for (DetailResultProvider provider : detailProvider)
                 {
                     if (name.equals(provider.getLabel()))
                     {
@@ -484,7 +489,7 @@ public class HtmlOutputter implements IOutputter
                 if (!done)
                     writer.append(url);
             }
-            
+
             start = endIndex;
             protocolIndex = text.indexOf(QueryObjectLink.PROTOCOL, start);
         }

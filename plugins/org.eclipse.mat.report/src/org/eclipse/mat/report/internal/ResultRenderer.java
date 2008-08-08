@@ -51,6 +51,9 @@ import org.xml.sax.helpers.AttributesImpl;
 
 public class ResultRenderer
 {
+    /* package */static final String DIR_PAGES = "pages";
+    /* package */static final String DIR_ICONS = "icons";
+
     private interface Key
     {
         String IS_EXPANDABLE = "isExpandable";
@@ -59,13 +62,23 @@ public class ResultRenderer
 
     /* package */class HtmlArtefact
     {
-        File file;
-        PrintWriter writer;
+        private File file;
+        private PrintWriter writer;
+        private String pathToRoot;
+        private String relativePathName;
 
-        private HtmlArtefact(HtmlArtefact parent, File file, String title) throws IOException
+        private HtmlArtefact(HtmlArtefact parent, File directory, String filename, String title) throws IOException
         {
-            this.file = file;
+            this.file = new File(directory, filename);
             this.writer = new PrintWriter(file);
+
+            this.pathToRoot = "";
+            for (int ii = 0; ii < filename.length(); ii++)
+                if (filename.charAt(ii) == File.separatorChar)
+                    pathToRoot += "../";
+
+            this.relativePathName = this.file.getAbsolutePath().substring(directory.getAbsolutePath().length() + 1)
+                            .replace(File.separatorChar, '/');
 
             artefacts.add(this);
 
@@ -99,6 +112,21 @@ public class ResultRenderer
         {
             return file.getAbsolutePath();
         }
+
+        public File getFile()
+        {
+            return file;
+        }
+
+        public String getPathToRoot()
+        {
+            return pathToRoot;
+        }
+
+        public String getRelativePathName()
+        {
+            return relativePathName;
+        }
     }
 
     private TestSuite suite;
@@ -129,9 +157,8 @@ public class ResultRenderer
 
         prepareTempDirectory();
 
-        File indexFile = new File(directory, "index.html");
-        HtmlArtefact index = new HtmlArtefact(null, indexFile, part.spec().getName());
-        suite.addResult(indexFile);
+        HtmlArtefact index = new HtmlArtefact(null, directory, "index.html", part.spec().getName());
+        suite.addResult(index.getFile());
 
         part.putObject(Key.ARTEFACT, index);
     }
@@ -154,7 +181,7 @@ public class ResultRenderer
     {
         if (!icon2name.isEmpty())
         {
-            File iconDir = new File(directory, "icons");
+            File iconDir = new File(directory, DIR_ICONS);
             iconDir.mkdir();
 
             for (Map.Entry<URL, String> entry : icon2name.entrySet())
@@ -234,7 +261,12 @@ public class ResultRenderer
         if (artefact == null)
             artefact = (HtmlArtefact) test.getParent().getObject(Key.ARTEFACT);
 
-        String filename = FileUtils.toFilename(test.spec().getName(), format);
+        String filename = test.getFilename();
+        if (filename == null)
+            filename = test.params().shallow().get(Params.FILENAME);
+        if (filename == null)
+            filename = FileUtils.toFilename(DIR_PAGES + File.separator + test.spec().getName(), test.getId(), format);
+
         PageSnippets.linkedHeading(artefact, test, 5, filename);
 
         Writer writer = new FileWriter(new File(this.directory, filename));
@@ -270,15 +302,14 @@ public class ResultRenderer
 
         if (isOverviewDetailsPattern)
         {
-            String filename = test.getId() + ".html";
+            String filename = DIR_PAGES + File.separator + test.getId() + ".html";
 
             artefact.append("<div>");
             PageSnippets.link(artefact, filename, "Details &raquo;");
             artefact.append("</div>");
 
             // create new page for the details elements
-            HtmlArtefact details = new HtmlArtefact(artefact, new File(directory, filename), test.getParent().spec()
-                            .getName());
+            HtmlArtefact details = new HtmlArtefact(artefact, directory, filename, test.getParent().spec().getName());
 
             // assign output page to all other children
             for (AbstractPart part : test.getParent().getChildren())
@@ -306,7 +337,7 @@ public class ResultRenderer
         return isClockingReportGeneration;
     }
 
-    public String addIcon(URL icon)
+    /* package */String addIcon(URL icon, AbstractPart part)
     {
         if (icon == null)
             return null;
@@ -321,15 +352,24 @@ public class ResultRenderer
             icon2name.put(icon, name = "i" + icon2name.size() + extension);
         }
 
-        return "icons/" + name;
+        HtmlArtefact artefact = ((HtmlArtefact) part.getObject(Key.ARTEFACT));
+
+        return artefact.getPathToRoot() + DIR_ICONS + "/" + name;
     }
 
-    public File getOutputDirectory()
+    /* package */File getOutputDirectory(AbstractPart part)
     {
-        return directory;
+        HtmlArtefact artefact = (HtmlArtefact) part.getObject(Key.ARTEFACT);
+        return artefact == null ? directory : artefact.getFile().getParentFile();
     }
 
-    public IQueryContext getQueryContext()
+    /* package */String getPathToRoot(AbstractPart part)
+    {
+        HtmlArtefact artefact = (HtmlArtefact) part.getObject(Key.ARTEFACT);
+        return artefact == null ? "" : artefact.getPathToRoot();
+    }
+
+    /* package */IQueryContext getQueryContext()
     {
         return suite.getQueryContext();
     }
@@ -352,6 +392,9 @@ public class ResultRenderer
         copyResource("/META-INF/html/img/success.gif", new File(imgDir, "success.gif"));
         copyResource("/META-INF/html/img/warning.gif", new File(imgDir, "warning.gif"));
         copyResource("/META-INF/html/img/error.gif", new File(imgDir, "error.gif"));
+
+        File pagesDir = new File(directory, DIR_PAGES);
+        pagesDir.mkdir();
     }
 
     private void copyResource(String resource, File target) throws FileNotFoundException, IOException
@@ -406,12 +449,18 @@ public class ResultRenderer
         {
             String filename = part.getFilename();
             if (filename == null)
-                filename = FileUtils.toFilename(part.spec().getName(), part.getId(), "html");
+                filename = part.params().shallow().get(Params.FILENAME);
+            if (filename == null)
+                filename = FileUtils.toFilename(DIR_PAGES + File.separator + part.spec().getName(), part.getId(),
+                                "html");
+
+            HtmlArtefact newArtefact = new HtmlArtefact(artefact, directory, filename, part.spec().getName());
 
             if (!isEmbedded)
-                PageSnippets.linkedHeading(artefact, part, order, filename);
+                PageSnippets.linkedHeading(artefact, part, order, newArtefact.getRelativePathName());
 
-            artefact = new HtmlArtefact(artefact, new File(directory, filename), part.spec().getName());
+            artefact = newArtefact;
+
         }
 
         part.putObject(Key.ARTEFACT, artefact);
@@ -420,7 +469,7 @@ public class ResultRenderer
 
     private void renderTableOfContents(AbstractPart part) throws IOException
     {
-        HtmlArtefact toc = new HtmlArtefact(null, new File(directory, "toc.html"), "Table Of Contents");
+        HtmlArtefact toc = new HtmlArtefact(null, directory, "toc.html", "Table Of Contents");
 
         toc.append("<h1>Table of Contents</h1>\n");
 
@@ -444,7 +493,7 @@ public class ResultRenderer
 
             if (page != null)
             {
-                PageSnippets.beginLink(toc, page.file.getName() + "#" + part.getId());
+                PageSnippets.beginLink(toc, page.getRelativePathName() + "#" + part.getId());
                 toc.append(part.spec().getName());
                 PageSnippets.endLink(toc);
             }

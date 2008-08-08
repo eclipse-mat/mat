@@ -50,7 +50,7 @@ import org.eclipse.mat.report.QuerySpec;
 
     public File getOutputDirectory()
     {
-        return resultRenderer.getOutputDirectory();
+        return resultRenderer.getOutputDirectory(part);
     }
 
     public IQueryContext getQueryContext()
@@ -60,7 +60,7 @@ import org.eclipse.mat.report.QuerySpec;
 
     public String addIcon(URL icon)
     {
-        return resultRenderer.addIcon(icon);
+        return resultRenderer.addIcon(icon, part);
     }
 
     public String addContextResult(String name, IResult result)
@@ -69,10 +69,10 @@ import org.eclipse.mat.report.QuerySpec;
         spec.set("$embedded", "true");
 
         QueryPart child = new QueryPart(this.part, spec);
-        String filename = child.getId() + ".html";
+        String filename = ResultRenderer.DIR_PAGES + File.separator + child.getId() + ".html";
         child.setFilename(filename);
         part.children.add(child);
-        return filename;
+        return resultRenderer.getPathToRoot(part) + filename.replace(File.separatorChar, '/');
     }
 
     public boolean hasLimit()

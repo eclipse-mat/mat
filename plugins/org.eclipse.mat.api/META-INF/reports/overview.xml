@@ -10,12 +10,13 @@
 		<param key="sort_column" value="Key" />
 		<param key="sort_order" value="ASC" />
 		<param key="hide_column" value="Collection" />
-		<param key ="limit" value="1000" />		
+		<param key="limit" value="1000" />		
 		<command>system_properties</command>
 	</query>
 	<query name="Thread Overview">
+		<param key="limit" value="1000" />
 		<param key="html.separate_file" value="true" />
-		<param key ="limit" value="1000" />
+		<param key="html.render_details" value="false" />
 		<command>thread_overview</command>
 	</query>	
 	<query name="Top Consumers">

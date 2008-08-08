@@ -562,8 +562,8 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
         pane.createPartControl(parent2);
 
         final CTabItem item = new CTabItem(container, (isClosable ? SWT.CLOSE : SWT.NONE), index);
-        item.setControl(parent2);
         item.setData(pane);
+        item.setControl(parent2);
 
         nestedPanes.add(pane);
 

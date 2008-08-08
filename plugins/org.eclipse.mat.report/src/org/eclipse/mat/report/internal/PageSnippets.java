@@ -25,16 +25,20 @@ import org.eclipse.mat.report.internal.ResultRenderer.HtmlArtefact;
     {
         artefact.append("<html><head>");
         artefact.append("<title>").append(title).append("</title>");
-        artefact.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"styles.css\">");
-        artefact.append("<script src=\"code.js\" type=\"text/javascript\"></script>");
+        artefact.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"").append(artefact.getPathToRoot()).append(
+                        "styles.css\">");
+        artefact.append("<script src=\"").append(artefact.getPathToRoot()).append(
+                        "code.js\" type=\"text/javascript\"></script>");
         artefact.append("</head><body onload=\"preparepage();\">");
 
         artefact.append("<div id=\"toc\"><ul>");
-        artefact.append("<li><a href=\"index.html\">Home</a></li>");
-        artefact.append("<li><a href=\"toc.html\">Table Of Contents</a></li>");
+        artefact.append("<li><a href=\"").append(artefact.getPathToRoot()).append("index.html\">Home</a></li>");
+        artefact.append("<li><a href=\"").append(artefact.getPathToRoot()).append(
+                        "toc.html\">Table Of Contents</a></li>");
 
         if (parent != null)
-            artefact.append("<li><a href=\"").append(parent.file.getName()).append("\">Up</a></li>");
+            artefact.append("<li><a href=\"").append(artefact.getPathToRoot()).append(parent.getRelativePathName())
+                            .append("\">Up</a></li>");
 
         artefact.append("</ul></div>\n");
     }
@@ -57,29 +61,32 @@ import org.eclipse.mat.report.internal.ResultRenderer.HtmlArtefact;
             artefact.append("<h").append(v).append(">");
 
             if (part.getStatus() != null)
-                artefact.append("<img src=\"img/").append(part.getStatus().name().toLowerCase() + ".gif\"> ");
+                artefact.append("<img src=\"").append(artefact.getPathToRoot()) //
+                                .append("img/").append(part.getStatus().name().toLowerCase() + ".gif\"> ");
 
             artefact.append("<a name=\"").append(part.getId()).append("\">");
             artefact.append(part.spec().getName());
             artefact.append("</a>");
 
             if (expandable)
-                artefact.append(" <a href=\"#\" onclick=\"hide('exp").append(part.getId()).append(
-                                "'); return false;\" title=\"hide / unhide\"><img src=\"img/hide.gif\"></a>");
+                artefact.append(" <a href=\"#\" onclick=\"hide('exp").append(part.getId()) //
+                                .append("'); return false;\" title=\"hide / unhide\"><img src=\"") //
+                                .append(artefact.getPathToRoot()).append("img/hide.gif\"></a>");
 
             artefact.append("</h").append(v).append(">");
         }
     }
 
-    public static void linkedHeading(HtmlArtefact artefact, AbstractPart part, int order, String target)
+    public static void linkedHeading(HtmlArtefact artefact, AbstractPart part, int order, String filename)
     {
         String v = String.valueOf(order);
         artefact.append("<h").append(v).append(">");
 
         if (part instanceof QueryPart && part.getStatus() != null)
-            artefact.append("<img src=\"img/").append(part.getStatus().name().toLowerCase() + ".gif\"> ");
+            artefact.append("<img src=\"").append(artefact.getPathToRoot()).append("img/").append(
+                            part.getStatus().name().toLowerCase() + ".gif\"> ");
 
-        artefact.append("<a href=\"").append(target).append("\">");
+        artefact.append("<a href=\"").append(artefact.getPathToRoot()).append(filename).append("\">");
         artefact.append(part.spec().getName());
         artefact.append("</a></h").append(v).append(">");
     }
@@ -97,12 +104,14 @@ import org.eclipse.mat.report.internal.ResultRenderer.HtmlArtefact;
             artefact.append("<h5>");
 
             if (query.getStatus() != null)
-                artefact.append("<img src=\"img/").append(query.getStatus().name().toLowerCase() + ".gif\"> ");
+                artefact.append("<img src=\"").append(artefact.getPathToRoot()).append("img/").append(
+                                query.getStatus().name().toLowerCase() + ".gif\"> ");
 
             artefact.append("<a name=\"").append(query.getId()).append("\">");
             artefact.append(query.spec().getName()).append("</a>");
-            artefact.append(" <a href=\"#\" onclick=\"hide('exp").append(query.getId()).append(
-                            "'); return false;\" title=\"hide / unhide\"><img src=\"img/hide.gif\"></a>");
+            artefact.append(" <a href=\"#\" onclick=\"hide('exp").append(query.getId()) //
+                            .append("'); return false;\" title=\"hide / unhide\"><img src=\"") //
+                            .append(artefact.getPathToRoot()).append("img/hide.gif\"></a>");
 
             if (query.getCommand() != null)
             {
@@ -119,9 +128,10 @@ import org.eclipse.mat.report.internal.ResultRenderer.HtmlArtefact;
                     cmdString = query.getCommand();
                 }
 
-                artefact.append("<a href=\"").append(QueryObjectLink.forQuery(query.getCommand())).append(
-                                "\" title=\"Open in Memory Analyzer: ").append(cmdString).append(
-                                "\"><img src=\"img/open.gif\"></a>");
+                artefact.append("<a href=\"").append(QueryObjectLink.forQuery(query.getCommand())) //
+                                .append("\" title=\"Open in Memory Analyzer: ") //
+                                .append(cmdString).append("\"><img src=\"") //
+                                .append(artefact.getPathToRoot()).append("img/open.gif\"></a>");
             }
 
             artefact.append("</h5>");
@@ -130,14 +140,14 @@ import org.eclipse.mat.report.internal.ResultRenderer.HtmlArtefact;
 
     public static void link(HtmlArtefact artefact, String target, String label)
     {
-        artefact.append("<a href=\"").append(target).append("\">");
+        artefact.append("<a href=\"").append(artefact.getPathToRoot()).append(target).append("\">");
         artefact.append(label);
         artefact.append("</a>");
     }
 
     public static void beginLink(HtmlArtefact artefact, String target)
     {
-        artefact.append("<a href=\"").append(target).append("\">");
+        artefact.append("<a href=\"").append(artefact.getPathToRoot()).append(target).append("\">");
     }
 
     public static void endLink(HtmlArtefact artefact)

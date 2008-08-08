@@ -44,7 +44,7 @@ public final class FileUtils
         }
 
     }
-    
+
     public static File createTempDirectory(String prefix, File parent) throws IOException
     {
         File tempFile = File.createTempFile(prefix, "", parent);
@@ -58,32 +58,21 @@ public final class FileUtils
 
     public static String toFilename(String name, String extension)
     {
-        StringBuilder buf = new StringBuilder(name.length() + extension.length() + 1);
-        
-        for (int ii = 0; ii < name.length(); ii++)
-        {
-            char c = name.charAt(ii);
-            if (Character.isLetterOrDigit(c))
-                buf.append(c);
-            else
-                buf.append("_");
-        }
-        
-        buf.append(".").append(extension);
-        
-        return buf.toString();
+        return toFilename(name, "", extension);
     }
-    
+
     public static String toFilename(String prefix, String suffix, String extension)
     {
         StringBuilder buf = new StringBuilder(prefix.length() + suffix.length() + extension.length() + 1);
-        
+
         for (String s : new String[] { prefix, suffix })
         {
             for (int ii = 0; ii < s.length() && ii < 20; ii++)
             {
                 char c = s.charAt(ii);
-                if (Character.isLetterOrDigit(c))
+                if (c == File.separatorChar)
+                    buf.append(c);
+                else if (Character.isLetterOrDigit(c))
                     buf.append(c);
                 else
                     buf.append("_");
@@ -95,7 +84,6 @@ public final class FileUtils
         return buf.toString();
     }
 
-    
     // //////////////////////////////////////////////////////////////
     // inner classes
     // //////////////////////////////////////////////////////////////
