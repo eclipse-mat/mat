@@ -26,9 +26,10 @@ public class WeakReferenceStatQuery implements IQuery
 {
     @Argument
     public ISnapshot snapshot;
-    
+
     public IResult execute(IProgressListener listener) throws Exception
     {
+        InspectionAssert.heapFormatIsNot(snapshot, "phd");
         return ReferenceQuery.execute("weak_stat", "java\\.lang\\.ref\\.WeakReference", snapshot, listener);
     }
 

@@ -29,6 +29,7 @@ public class SoftReferenceStatQuery implements IQuery
     
     public IResult execute(IProgressListener listener) throws Exception
     {
+        InspectionAssert.heapFormatIsNot(snapshot, "phd");
         return ReferenceQuery.execute("soft_stat", "java\\.lang\\.ref\\.SoftReference", snapshot, listener);
     }
 

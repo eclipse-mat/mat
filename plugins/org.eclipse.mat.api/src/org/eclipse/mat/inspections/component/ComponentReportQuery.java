@@ -65,13 +65,33 @@ public class ComponentReportQuery implements IQuery
 
         addOverview(componentReport, totalSize, retained, histogram, ticks);
 
-        addDuplicateStrings(componentReport, histogram, ticks);
+        try
+        {
+            addDuplicateStrings(componentReport, histogram, ticks);
+        }
+        catch (UnsupportedOperationException e)
+        { /* ignore, if not supported by heap format */}
 
-        addEmptyCollections(componentReport, totalSize, histogram, ticks);
+        try
+        {
+            addEmptyCollections(componentReport, totalSize, histogram, ticks);
+        }
+        catch (UnsupportedOperationException e)
+        { /* ignore, if not supported by heap format */}
 
-        addCollectionFillRatios(componentReport, totalSize, histogram, ticks);
+        try
+        {
+            addCollectionFillRatios(componentReport, totalSize, histogram, ticks);
+        }
+        catch (UnsupportedOperationException e)
+        { /* ignore, if not supported by heap format */}
 
-        addHashMapsCollisionRatios(componentReport, totalSize, histogram, ticks);
+        try
+        {
+            addHashMapsCollisionRatios(componentReport, histogram, ticks);
+        }
+        catch (UnsupportedOperationException e)
+        { /* ignore, if not supported by heap format */}
 
         ticks.delegate.done();
 
@@ -458,7 +478,7 @@ public class ComponentReportQuery implements IQuery
     // hash map collision ratios
     // //////////////////////////////////////////////////////////////
 
-    private void addHashMapsCollisionRatios(SectionSpec componentReport, long totalSize, Histogram histogram,
+    private void addHashMapsCollisionRatios(SectionSpec componentReport, Histogram histogram,
                     Ticks listener) throws Exception
     {
         SectionSpec overview = new SectionSpec("Map Collision Ratios");

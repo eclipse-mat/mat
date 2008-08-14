@@ -17,6 +17,7 @@ import java.util.Map;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.HashMapIntObject;
+import org.eclipse.mat.inspections.InspectionAssert;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.ContextProvider;
 import org.eclipse.mat.query.IContextObject;
@@ -264,6 +265,7 @@ public class HashEntriesQuery implements IQuery
 
     public Result execute(IProgressListener listener) throws Exception
     {
+        InspectionAssert.heapFormatIsNot(snapshot, "phd");
         listener.subTask("Extracting Key Value Pairs...");
 
         // prepare meta-data of known collections

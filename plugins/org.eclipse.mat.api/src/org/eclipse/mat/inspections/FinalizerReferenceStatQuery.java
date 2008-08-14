@@ -29,6 +29,7 @@ public class FinalizerReferenceStatQuery implements IQuery
     
     public IResult execute(IProgressListener listener) throws Exception
     {
+        InspectionAssert.heapFormatIsNot(snapshot, "phd");
         return ReferenceQuery.execute("finalizer_stat", "java\\.lang\\.ref\\.Finalizer", snapshot, listener);
     }
 

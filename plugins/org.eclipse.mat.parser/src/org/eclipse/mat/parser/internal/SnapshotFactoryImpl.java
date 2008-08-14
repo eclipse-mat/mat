@@ -56,62 +56,55 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
 
     public ISnapshot openSnapshot(File file, IProgressListener listener) throws SnapshotException
     {
+        ISnapshot answer = null;
+
+        // lookup in cache
+        SnapshotEntry entry = snapshotCache.get(file);
+        if (entry != null)
+        {
+            answer = entry.snapshot.get();
+
+            if (answer != null)
+            {
+                entry.usageCount++;
+                return answer;
+            }
+        }
+
+        String name = file.getAbsolutePath();
+
+        String prefix = name.substring(0, name.lastIndexOf('.') + 1);
+
         try
         {
-            ISnapshot answer = null;
-
-            // lookup in cache
-            SnapshotEntry entry = snapshotCache.get(file);
-            if (entry != null)
+            File indexFile = new File(prefix + "index");
+            if (indexFile.exists())
             {
-                answer = entry.snapshot.get();
-
-                if (answer != null)
+                // check if hprof file is newer than index file
+                if (file.lastModified() < indexFile.lastModified())
                 {
-                    entry.usageCount++;
-                    return answer;
+                    answer = SnapshotImpl.readFromFile(file, prefix, listener);
                 }
             }
-
-            String name = file.getAbsolutePath();
-
-            String prefix = name.substring(0, name.lastIndexOf('.') + 1);
-
-            try
-            {
-                File indexFile = new File(prefix + "index");
-                if (indexFile.exists())
-                {
-                    // check if hprof file is newer than index file
-                    if (file.lastModified() < indexFile.lastModified())
-                    {
-                        answer = SnapshotImpl.readFromFile(file, prefix, listener);
-                    }
-                }
-            }
-            catch (IOException ignore_and_reparse)
-            {
-                String message = MessageFormat.format("Reparsing heap dump file due to {0}",
-                                new Object[] { ignore_and_reparse.getMessage() });
-                listener.sendUserMessage(Severity.WARNING, message, ignore_and_reparse);
-            }
-
-            if (answer == null)
-            {
-                deleteIndexFiles(file);
-                answer = parse(file, prefix, listener);
-            }
-
-            entry = new SnapshotEntry(1, answer);
-
-            snapshotCache.put(file, entry);
-
-            return answer;
         }
-        catch (IOException e)
+        catch (IOException ignore_and_reparse)
         {
-            throw new SnapshotException(e);
+            String message = MessageFormat.format("Reparsing heap dump file due to {0}",
+                            new Object[] { ignore_and_reparse.getMessage() });
+            listener.sendUserMessage(Severity.WARNING, message, ignore_and_reparse);
         }
+
+        if (answer == null)
+        {
+            deleteIndexFiles(file);
+            answer = parse(file, prefix, listener);
+        }
+
+        entry = new SnapshotEntry(1, answer);
+
+        snapshotCache.put(file, entry);
+
+        return answer;
     }
 
     public synchronized void dispose(ISnapshot snapshot)
@@ -162,8 +155,7 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
     // Internal implementations
     // //////////////////////////////////////////////////////////////
 
-    private final ISnapshot parse(File file, String prefix, IProgressListener listener) throws IOException,
-                    SnapshotException
+    private final ISnapshot parse(File file, String prefix, IProgressListener listener) throws SnapshotException
     {
         ParserRegistry registry = ParserPlugin.getDefault().getParserRegistry();
 
@@ -184,6 +176,7 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
                 XSnapshotInfo snapshotInfo = new XSnapshotInfo();
                 snapshotInfo.setPath(file.getAbsolutePath());
                 snapshotInfo.setPrefix(prefix);
+                snapshotInfo.setProperty("$heapFormat", parser.getId());
                 PreliminaryIndexImpl idx = new PreliminaryIndexImpl(snapshotInfo);
 
                 indexBuilder.fill(idx, listener);

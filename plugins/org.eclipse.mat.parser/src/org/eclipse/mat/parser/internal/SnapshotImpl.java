@@ -106,10 +106,19 @@ public final class SnapshotImpl implements ISnapshot
             IObjectReader heapObjectReader = parser.create(IObjectReader.class, ParserRegistry.OBJECT_READER);
 
             XSnapshotInfo snapshotInfo = (XSnapshotInfo) in.readObject();
+            snapshotInfo.setProperty("$heapFormat", parser.getId());
             HashMapIntObject<ClassImpl> classCache = (HashMapIntObject<ClassImpl>) in.readObject();
+
+            if (listener.isCanceled())
+                throw new IProgressListener.OperationCanceledException();
+
             HashMapIntObject<XGCRootInfo[]> roots = (HashMapIntObject<XGCRootInfo[]>) in.readObject();
             HashMapIntObject<HashMapIntObject<XGCRootInfo[]>> rootsPerThread = (HashMapIntObject<HashMapIntObject<XGCRootInfo[]>>) in
                             .readObject();
+
+            if (listener.isCanceled())
+                throw new IProgressListener.OperationCanceledException();
+
             HashMapIntObject<String> loaderLabels = (HashMapIntObject<String>) in.readObject();
             BitField arrayObjects = (BitField) in.readObject();
 
@@ -166,8 +175,16 @@ public final class SnapshotImpl implements ISnapshot
             out.writeUTF(objectReaderUniqueIdentifier);
             out.writeObject(answer.snapshotInfo);
             out.writeObject(answer.classCache);
+
+            if (listener.isCanceled())
+                throw new IProgressListener.OperationCanceledException();
+
             out.writeObject(answer.roots);
             out.writeObject(answer.rootsPerThread);
+
+            if (listener.isCanceled())
+                throw new IProgressListener.OperationCanceledException();
+
             out.writeObject(answer.loaderLabels);
             out.writeObject(answer.arrayObjects);
         }
@@ -267,7 +284,7 @@ public final class SnapshotImpl implements ISnapshot
             usedHeapSize += clasz.getTotalSize();
 
             int classLoaderId = clasz.getClassLoaderId();
-            String label = (String) loaderLabels.get(classLoaderId);
+            String label = loaderLabels.get(classLoaderId);
             if (label != null)
                 continue;
 
@@ -292,7 +309,7 @@ public final class SnapshotImpl implements ISnapshot
         {
             for (int classLoaderId : clazz.getObjectIds())
             {
-                String label = (String) loaderLabels.get(classLoaderId);
+                String label = loaderLabels.get(classLoaderId);
                 if (label != null)
                     continue;
 
@@ -344,7 +361,7 @@ public final class SnapshotImpl implements ISnapshot
 
     public Collection<IClass> getClasses() throws SnapshotException
     {
-        return Arrays.asList((IClass[]) classCache.getAllValues(new IClass[classCache.size()]));
+        return Arrays.asList(classCache.getAllValues(new IClass[classCache.size()]));
     }
 
     public Collection<IClass> getClassesByName(String name, boolean includeSubClasses) throws SnapshotException
@@ -424,7 +441,7 @@ public final class SnapshotImpl implements ISnapshot
         {
             classId = o2class.get(objectIds[ii]);
             // classId = classIds[ii];
-            clasz = (IClass) classCache.get(classId);
+            clasz = classCache.get(classId);
 
             if (clasz.isArrayType())
             {
@@ -432,7 +449,7 @@ public final class SnapshotImpl implements ISnapshot
             }
             else
             {
-                IClass current = (IClass) classCache.get(objectIds[ii]);
+                IClass current = classCache.get(objectIds[ii]);
                 if (current != null)
                     histogramBuilder.add(classId, objectIds[ii], current.getUsedHeapSize());
                 else
@@ -705,37 +722,28 @@ public final class SnapshotImpl implements ISnapshot
         if (listener == null)
             listener = new VoidProgressListener();
 
-        try
+        BitField initialSet = new BitField(numberOfObjects);
+        for (int objId : objectIds)
+            initialSet.set(objId);
+
+        if (listener.isCanceled())
+            return null;
+
+        BitField reachable = new BitField(numberOfObjects);
+
+        int markedObjects = dfs2(reachable, initialSet, fieldNames);
+
+        int[] retained = new int[numberOfObjects - markedObjects];
+        int j = 0;
+        for (int i = 0; i < numberOfObjects; i++)
         {
-            BitField initialSet = new BitField(numberOfObjects);
-            for (int objId : objectIds)
-                initialSet.set(objId);
-
-            if (listener.isCanceled())
-                return null;
-
-            BitField reachable = new BitField(numberOfObjects);
-
-            int markedObjects = dfs2(reachable, initialSet, fieldNames);
-
-            int[] retained = new int[numberOfObjects - markedObjects];
-            int j = 0;
-            for (int i = 0; i < numberOfObjects; i++)
+            if (!reachable.get(i))
             {
-                if (!reachable.get(i))
-                {
-                    retained[j++] = i;
-                }
+                retained[j++] = i;
             }
-
-            return retained;
-
-        }
-        catch (IOException e)
-        {
-            throw new SnapshotException(e);
         }
 
+        return retained;
     }
 
     public int[] getRetainedSet(int[] objectIds, ExcludedReferencesDescriptor[] excludedReferences,
@@ -1054,7 +1062,7 @@ public final class SnapshotImpl implements ISnapshot
 
     }
 
-    private int[] getTopAncestorsWithBooleanCache(int[] objectIds, IProgressListener listener) throws SnapshotException
+    private int[] getTopAncestorsWithBooleanCache(int[] objectIds, IProgressListener listener)
     {
         /*
          * objects on the path from a top-ancestor to the <root> will be saved
@@ -1156,7 +1164,7 @@ public final class SnapshotImpl implements ISnapshot
 
     }
 
-    private boolean isDominatorTreeCalculated() throws SnapshotException
+    private boolean isDominatorTreeCalculated()
     {
         return dominatorTreeCalculated;
     }
@@ -1227,7 +1235,7 @@ public final class SnapshotImpl implements ISnapshot
             else
             {
                 domClassId = o2classIndex.get(dominatorId);
-                clasz = (IClass) classCache.get(domClassId);
+                clasz = classCache.get(domClassId);
                 domClassName = clasz.getName();
             }
 
@@ -1253,7 +1261,7 @@ public final class SnapshotImpl implements ISnapshot
                         else
                         {
                             domClassId = o2classIndex.get(dominatorId);
-                            clasz = (IClass) classCache.get(domClassId);
+                            clasz = classCache.get(domClassId);
                             domClassName = clasz.getName();
                         }
                     }
@@ -1287,8 +1295,7 @@ public final class SnapshotImpl implements ISnapshot
                 map.put(clasz, record);
                 record.setClassName(domClassName);
                 record.setClassId(domClassId);
-                record.setClassloaderId(dominatorId == -1 ? -1 : clasz.getClassLoaderId());
-
+                record.setClassloaderId(dominatorId == -1 || clasz == null ? -1 : clasz.getClassLoaderId());
             }
 
             if (record.addDominator(dominatorId) && dominatorId != -1)
@@ -1313,7 +1320,7 @@ public final class SnapshotImpl implements ISnapshot
 
     public IObject getObject(int objectId) throws SnapshotException
     {
-        IObject answer = (IObject) this.classCache.get(objectId);
+        IObject answer = this.classCache.get(objectId);
         if (answer != null)
             return answer;
 
@@ -1322,7 +1329,7 @@ public final class SnapshotImpl implements ISnapshot
 
     public GCRootInfo[] getGCRootInfo(int objectId) throws SnapshotException
     {
-        return (GCRootInfo[]) roots.get(objectId);
+        return roots.get(objectId);
     }
 
     public IClass getClassOf(int objectId) throws SnapshotException
@@ -1354,7 +1361,7 @@ public final class SnapshotImpl implements ISnapshot
             else
             {
                 // it is an instance
-                IClass clazz = (IClass) classCache.get(indexManager.o2class().get(objectId));
+                IClass clazz = classCache.get(indexManager.o2class().get(objectId));
                 return clazz.getHeapSizePerInstance();
             }
 
@@ -1383,7 +1390,7 @@ public final class SnapshotImpl implements ISnapshot
                 else
                 {
                     // it is an instance
-                    IClass clazz = (IClass) classCache.get(o2class.get(objectId));
+                    IClass clazz = classCache.get(o2class.get(objectId));
                     total += clazz.getHeapSizePerInstance();
                 }
             }
@@ -1457,7 +1464,7 @@ public final class SnapshotImpl implements ISnapshot
 
     public List<IClass> resolveClassHierarchy(int classIndex)
     {
-        IClass clazz = (IClass) classCache.get(classIndex);
+        IClass clazz = classCache.get(classIndex);
         if (clazz == null)
             return null;
 
@@ -1465,7 +1472,7 @@ public final class SnapshotImpl implements ISnapshot
         answer.add(clazz);
         while (clazz.hasSuperClass())
         {
-            clazz = (IClass) classCache.get(clazz.getSuperClassId());
+            clazz = classCache.get(clazz.getSuperClassId());
             if (clazz == null)
                 return null;
             answer.add(clazz);
@@ -1482,7 +1489,7 @@ public final class SnapshotImpl implements ISnapshot
 
     public String getClassLoaderLabel(int objectId)
     {
-        return (String) loaderLabels.get(objectId);
+        return loaderLabels.get(objectId);
     }
 
     public void setClassLoaderLabel(int objectId, String label)
@@ -1495,7 +1502,7 @@ public final class SnapshotImpl implements ISnapshot
             throw new RuntimeException("Replacing a non-existent class loader label.");
     }
 
-    private int dfs2(BitField bits, BitField exclude, String[] fieldNames) throws IOException, SnapshotException
+    private int dfs2(BitField bits, BitField exclude, String[] fieldNames) throws SnapshotException
     {
         int count = 0;
 
@@ -1784,7 +1791,7 @@ public final class SnapshotImpl implements ISnapshot
                     // Continue with the FIFO
                     while (fifo.size() > 0)
                     {
-                        currentPath = (Path) fifo.getFirst();
+                        currentPath = fifo.getFirst();
                         fifo.removeFirst();
                         currentId = currentPath.getIndex();
                         currentReferrers = inboundIndex.get(currentId);
@@ -1867,7 +1874,7 @@ public final class SnapshotImpl implements ISnapshot
             GCRootInfo[] rootInfo = null;
             for (int i = fromIndex; i < currentReferrers.length; i++)
             {
-                rootInfo = (GCRootInfo[]) roots.get(currentReferrers[i]);
+                rootInfo = roots.get(currentReferrers[i]);
                 if (rootInfo != null)
                 {
                     if (excludeMap == null)

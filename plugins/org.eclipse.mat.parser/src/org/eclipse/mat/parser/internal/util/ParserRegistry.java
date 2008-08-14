@@ -34,15 +34,22 @@ public class ParserRegistry extends RegistryReader<ParserRegistry.Parser>
 
     public class Parser
     {
+        private String id;
         private IConfigurationElement configElement;
         private SnapshotFormat snapshotFormat;
         private Pattern[] pattern;
 
         private Parser(IConfigurationElement configElement, SnapshotFormat snapshotFormat, Pattern[] pattern)
         {
+            this.id = ((IExtension) configElement.getParent()).getSimpleIdentifier();
             this.configElement = configElement;
             this.snapshotFormat = snapshotFormat;
             this.pattern = pattern;
+        }
+        
+        public String getId()
+        {
+            return id;
         }
 
         public String getUniqueIdentifier()

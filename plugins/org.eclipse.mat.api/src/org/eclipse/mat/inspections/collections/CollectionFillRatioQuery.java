@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.inspections.InspectionAssert;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
@@ -74,6 +75,8 @@ public class CollectionFillRatioQuery implements IQuery
 
     public IResult execute(IProgressListener listener) throws Exception
     {
+        InspectionAssert.heapFormatIsNot(snapshot, "phd");
+        
         listener.subTask("Extracting collection fill ratios...");
 
         Map<Integer, CollectionUtil.Info> metadata = new HashMap<Integer, CollectionUtil.Info>();
@@ -131,7 +134,7 @@ public class CollectionFillRatioQuery implements IQuery
                 if (info != null)
                 {
                     IObject obj = snapshot.getObject(objectId);
-                    double fillRatio = getFillRatio(info, obj, snapshot);
+                    double fillRatio = getFillRatio(info, obj);
                     quantize.addValue(obj.getObjectId(), fillRatio, 1, obj.getUsedHeapSize());
                 }
             }
@@ -140,7 +143,7 @@ public class CollectionFillRatioQuery implements IQuery
         return quantize.getResult();
     }
 
-    private static double getFillRatio(CollectionUtil.Info info, IObject hashtableObject, ISnapshot snapshot)
+    private static double getFillRatio(CollectionUtil.Info info, IObject hashtableObject)
                     throws SnapshotException
     {
         int size = info.getSize(hashtableObject);
