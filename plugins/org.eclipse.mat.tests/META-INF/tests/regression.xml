@@ -1,12 +1,15 @@
 <section name="Regression Tests"> 
+	<param key="clock_report" value="true"/>
 	<query name="info">
 		<param key="format" value="csv" />
+		<param key="filename" value="info.csv"/>
 		<param key="html.separate_file" value="true" />	
 		<param key="html.show_table_header" value="false" />
 		<command>heap_dump_overview</command>
 	</query>	
 	<query name="System Properties">
 		<param key="format" value="csv" />
+		<param key="filename" value="System_Properties.csv"/>
 		<param key="html.separate_file" value="true" />		
 		<param key="sort_column" value="Key" />
 		<param key="sort_order" value="ASC" />		
@@ -15,6 +18,7 @@
 	</query>	
 	<query name="Class Histogram">
 	    <param key="format" value="csv" />
+		<param key="filename" value="Class_Histogram.csv"/>
 		<param key="html.separate_file" value="true" />
 		<param key="sort_column" value="Retained Heap" />
 		<param key="derived_data_column" value="_default_=APPROXIMATE"/>
@@ -23,6 +27,7 @@
 	</query>
 	<query name="Class Loader Histogram">
 	    <param key="format" value="csv" />
+		<param key="filename" value="Class_Loader_Histogram.csv"/>
 		<param key="html.separate_file" value="true" />
 		<param key="sort_column" value="Retained Heap" />
 		<param key="derived_data_column" value="_default_=APPROXIMATE"/>
@@ -31,6 +36,7 @@
 	</query>
 	<query name="Dominator Tree">
 		<param key="format" value="csv" />
+		<param key="filename" value="Dominator_Tree.csv"/>
 		<param key="html.separate_file" value="true" />
 		<param key="sort_column" value="Retained Heap"/>
 		<param key="limit" value="50000" />	
@@ -41,6 +47,7 @@
 	</query>
 	<query name="List 1000 Strings">
 		<param key="format" value="csv" />
+		<param key="filename" value="List_1000_Strings.csv"/>
 		<param key="html.separate_file" value="true" />
 		<command>oql "select s.@objectAddress as ADDRESS, toString(s)as VALUE from java.lang.String s"</command>
 		<param key="sort_column" value="ADDRESS" />
@@ -48,14 +55,23 @@
 	</query>	
 	<query name="Paths from GC Roots">
 		<param key="format" value="csv" />
+		<param key="filename" value="Paths_from_GC_Roots.csv"/>
 		<param key="html.separate_file" value="true" />
 		<command>path2gc_reg_test</command>
 		<param key="limit" value="100" />
 	</query>
 	<query name="Merged Paths from GC Roots">
+		<param key="filename" value="Merged_Paths_from_GC_Roots.csv"/>
 		<param key="format" value="csv" />
 		<param key="html.separate_file" value="true" />
 		<command>merged_paths_reg_test</command>
+		<param key="limit" value="1000" />
+	</query>	
+	<query name="Immediate Dominators of java.util.HashMap$Entry">
+		<param key="filename" value="Immediate_Dominators_of_java.util.HashMap$Entry.csv"/>
+		<param key="format" value="csv" />
+		<param key="html.separate_file" value="true" />
+		<command>immediate_dominators java.util.HashMap$Entry</command>
 		<param key="limit" value="1000" />
 	</query>		
 </section>
