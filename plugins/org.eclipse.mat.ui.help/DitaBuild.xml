@@ -22,6 +22,7 @@
 				<property name="dita.temp.dir" location="temp"/>
 				<property name="output.dir" location="."/>
 				<property name="transtype" value="eclipsehelp"/>
+				<property name="args.hdf" location="javascript_ref.xml"/>
 			</ant>			
 			
 			<delete dir="temp"/>
