@@ -14,6 +14,7 @@ import java.text.MessageFormat;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
+import org.eclipse.mat.inspections.InspectionAssert;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
@@ -43,6 +44,8 @@ public class ExtractListValuesQuery implements IQuery
 
     public IResult execute(IProgressListener listener) throws Exception
     {
+        InspectionAssert.heapFormatIsNot(snapshot, "phd");
+
         CollectionUtil.Info info = CollectionUtil.getInfo(list);
 
         if (info != null && !info.isMap())

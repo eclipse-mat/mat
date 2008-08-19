@@ -48,6 +48,8 @@ public class GroupByValueQuery implements IQuery
 
     public IResult execute(IProgressListener listener) throws Exception
     {
+        InspectionAssert.heapFormatIsNot(snapshot, "phd");
+
         listener.subTask("Grouping objects ...");
 
         Quantize quantize = Quantize.valueDistribution("String Value") //

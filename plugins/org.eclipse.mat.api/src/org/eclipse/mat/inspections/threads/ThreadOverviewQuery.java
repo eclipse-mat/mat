@@ -18,6 +18,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.inspections.InspectionAssert;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.DetailResultProvider;
 import org.eclipse.mat.query.IContextObject;
@@ -97,7 +98,15 @@ public class ThreadOverviewQuery implements IQuery
                                 @Override
                                 public boolean hasResult(Object row)
                                 {
-                                    return true;
+                                    try
+                                    {
+                                        InspectionAssert.heapFormatIsNot(snapshot, "phd");
+                                        return true;
+                                    }
+                                    catch (UnsupportedOperationException e)
+                                    {
+                                        return false;
+                                    }
                                 }
 
                                 @Override

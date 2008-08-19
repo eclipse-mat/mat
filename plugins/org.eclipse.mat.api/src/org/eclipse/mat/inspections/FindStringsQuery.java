@@ -43,6 +43,8 @@ public class FindStringsQuery implements IQuery
 
     public IResult execute(IProgressListener listener) throws Exception
     {
+        InspectionAssert.heapFormatIsNot(snapshot, "phd");
+
         listener.subTask("Searching Strings...");
 
         ArrayInt result = new ArrayInt();

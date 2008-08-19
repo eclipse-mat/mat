@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.inspections.InspectionAssert;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.annotations.Argument;
@@ -29,7 +30,6 @@ import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.extension.IThreadInfo;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.util.IProgressListener;
-
 
 @Name("Thread Details")
 @Category("Java Basics")
@@ -65,6 +65,8 @@ public class ThreadInfoQuery implements IQuery
 
     public Result execute(IProgressListener listener) throws Exception
     {
+        InspectionAssert.heapFormatIsNot(snapshot, "phd");
+
         Result spec = new Result("Thread Details");
         List<ThreadInfoImpl> infos = new ArrayList<ThreadInfoImpl>();
 

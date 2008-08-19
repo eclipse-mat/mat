@@ -53,6 +53,8 @@ public class ClassLoaderExplorerQuery implements IQuery
 
     public IResult execute(IProgressListener listener) throws Exception
     {
+        InspectionAssert.heapFormatIsNot(snapshot, "phd");
+
         // collect all class loader instances
         HashMapIntObject<Node> classLoader = new HashMapIntObject<Node>();
         for (IClass clazz : snapshot.getClassesByName("java.lang.ClassLoader", true))

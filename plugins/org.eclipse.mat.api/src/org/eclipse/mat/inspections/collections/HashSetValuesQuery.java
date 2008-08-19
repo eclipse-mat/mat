@@ -14,6 +14,7 @@ import java.text.MessageFormat;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
+import org.eclipse.mat.inspections.InspectionAssert;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
@@ -43,6 +44,8 @@ public class HashSetValuesQuery implements IQuery
 
     public IResult execute(IProgressListener listener) throws Exception
     {
+        InspectionAssert.heapFormatIsNot(snapshot, "phd");
+
         if (!hashSet.getClazz().doesExtend("java.util.HashSet"))
             throw new IllegalArgumentException(MessageFormat.format("Not a hash set: {0}", hashSet.getDisplayName()));
 

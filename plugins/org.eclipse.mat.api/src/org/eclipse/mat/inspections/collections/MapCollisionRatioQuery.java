@@ -15,6 +15,7 @@ import java.util.Collection;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.HashMapIntObject;
+import org.eclipse.mat.inspections.InspectionAssert;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
@@ -71,6 +72,8 @@ public class MapCollisionRatioQuery implements IQuery
 
     public IResult execute(IProgressListener listener) throws Exception
     {
+        InspectionAssert.heapFormatIsNot(snapshot, "phd");
+
         listener.subTask("Calculating Map Collision Ratios...");
 
         // prepare meta-data of known collections
@@ -117,7 +120,7 @@ public class MapCollisionRatioQuery implements IQuery
                 if (info != null)
                 {
                     IObject obj = snapshot.getObject(objectId);
-                    double collisionRatio = getCollisionRatio(info, obj, snapshot);
+                    double collisionRatio = getCollisionRatio(info, obj);
                     quantize.addValue(obj.getObjectId(), collisionRatio, null, obj.getUsedHeapSize());
                 }
             }
@@ -126,8 +129,7 @@ public class MapCollisionRatioQuery implements IQuery
         return quantize.getResult();
     }
 
-    private static double getCollisionRatio(CollectionUtil.Info info, IObject hashtableObject, ISnapshot snapshot)
-                    throws SnapshotException
+    private static double getCollisionRatio(CollectionUtil.Info info, IObject hashtableObject) throws SnapshotException
     {
         int size = info.getSize(hashtableObject);
 

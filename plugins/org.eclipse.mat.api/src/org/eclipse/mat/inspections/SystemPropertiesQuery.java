@@ -34,8 +34,10 @@ public class SystemPropertiesQuery implements IQuery
 
     public HashEntriesQuery.Result execute(IProgressListener listener) throws Exception
     {
+        InspectionAssert.heapFormatIsNot(snapshot, "phd");
+
         Collection<IClass> classes = snapshot.getClassesByName("java.lang.System", false); //$NON-NLS-1$
-        IClass systemClass = (IClass) classes.iterator().next();
+        IClass systemClass = classes.iterator().next();
 
         IObject properties = (IObject) systemClass.resolveValue("props"); //$NON-NLS-1$
         if (properties == null)
