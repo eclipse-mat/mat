@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.mat.ui.internal.panes;
 
-import java.io.IOException;
-import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -33,14 +31,13 @@ import org.eclipse.mat.query.registry.QueryObjectLink;
 import org.eclipse.mat.query.registry.QueryResult;
 import org.eclipse.mat.query.results.DisplayFileResult;
 import org.eclipse.mat.query.results.TextResult;
-import org.eclipse.mat.report.IOutputter;
-import org.eclipse.mat.report.RendererRegistry;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.QueryExecution;
 import org.eclipse.mat.ui.editor.AbstractEditorPane;
 import org.eclipse.mat.ui.util.ErrorHelper;
 import org.eclipse.mat.ui.util.PopupMenu;
 import org.eclipse.mat.ui.util.QueryContextMenu;
+import org.eclipse.mat.util.HTMLUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.browser.LocationEvent;
@@ -98,17 +95,8 @@ public class QueryTextResultPane extends AbstractEditorPane implements ISelectio
             }
             else
             {
-                try
-                {
-                    IOutputter outputter = RendererRegistry.instance().match("html", TextResult.class);
-                    StringWriter writer = new StringWriter();
-                    outputter.embedd(null, textResult, writer);
-                    browser.setText(writer.toString());
-                }
-                catch (IOException e)
-                {
-                    throw new RuntimeException(e);
-                }
+                String html = "<pre>" + HTMLUtils.escapeText(textResult.getText()) + "</pre>";
+                browser.setText(html);
             }
         }
         else if (queryResult.getSubject() instanceof DisplayFileResult)
