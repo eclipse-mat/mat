@@ -325,9 +325,9 @@ public class TestApplication
                 builder.append("Heap Dump").append(RegTestUtils.SEPARATOR).append("Test Name")
                                 //
                                 .append(RegTestUtils.SEPARATOR).append("Date").append(RegTestUtils.SEPARATOR).append(
-                                                "Query time, ms")
+                                                "Query time, ns")
                                 //
-                                .append(RegTestUtils.SEPARATOR).append("Time, ms").append(RegTestUtils.SEPARATOR)
+                                .append(RegTestUtils.SEPARATOR).append("Time, ns").append(RegTestUtils.SEPARATOR)
                                 .append("Build Version");
 
                 out.println(builder.toString());
