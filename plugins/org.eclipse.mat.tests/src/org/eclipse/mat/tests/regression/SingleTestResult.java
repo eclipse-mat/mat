@@ -13,13 +13,13 @@ package org.eclipse.mat.tests.regression;
 import java.util.ArrayList;
 import java.util.List;
 
-class TestData
+/*package*/class SingleTestResult
 {
     private String testName;
     private String result;
     private List<Difference> differences;
 
-    public TestData(String testName, String result, List<Difference> differences)
+    public SingleTestResult(String testName, String result, List<Difference> differences)
     {
         this.testName = testName;
         this.result = result;

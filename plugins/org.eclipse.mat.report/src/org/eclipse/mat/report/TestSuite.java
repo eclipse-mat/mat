@@ -74,7 +74,7 @@ public class TestSuite
             output = file;
             return this;
         }
-        
+
         public Builder doClockReportGeneration()
         {
             this.clockReportGeneration = true;
@@ -98,6 +98,9 @@ public class TestSuite
                 output = new File(output, prefix + "_" + FileUtils.toFilename(template.getName(), "zip"));
             }
 
+            clockReportGeneration = clockReportGeneration
+                            || "true".equals(template.getParams().get(Params.CLOCK_REPORT));
+
             TestSuite testSuite = new TestSuite(template, queryContext, clockReportGeneration);
             testSuite.output = output;
             return testSuite;
@@ -112,7 +115,7 @@ public class TestSuite
     private final Spec spec;
     private final IQueryContext queryContext;
     private final boolean clockReportGeneration;
-    
+
     private File output;
     private final List<File> results = new ArrayList<File>();
 
@@ -145,7 +148,7 @@ public class TestSuite
     {
         return queryContext;
     }
-    
+
     public boolean isClockingReportGeneration()
     {
         return clockReportGeneration;

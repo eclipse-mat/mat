@@ -89,7 +89,7 @@ public class ParseSnapshotApp implements IApplication
         listener.done();
 
         long endTime = System.currentTimeMillis();
-        System.out.println(MessageFormat.format("Time: {0} secs", (endTime - startTime) / 1000));
+        System.out.println(MessageFormat.format("Time to parse: {0} ms", Long.toString(endTime - startTime)));
 
         try
         {

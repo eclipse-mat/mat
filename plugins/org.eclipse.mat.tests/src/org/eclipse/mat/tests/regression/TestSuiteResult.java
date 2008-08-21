@@ -13,19 +13,17 @@ package org.eclipse.mat.tests.regression;
 import java.util.ArrayList;
 import java.util.List;
 
-class HeapdumpTestsResult
-{   
-    String dumpName;
-    String fileSize;
-    String numberOfObjects;
-    String bitSize;
-    List<TestData> testData;
+/*package*/class TestSuiteResult
+{
+    String dumpName;   
+    String parsingTime;   
+    List<SingleTestResult> singleTestResult;
     List<String> errorMessages;
-    
-    public HeapdumpTestsResult(String dumpName)
-    {        
+
+    public TestSuiteResult(String dumpName)
+    {
         this.dumpName = dumpName;
-        testData = new ArrayList<TestData>();
+        singleTestResult = new ArrayList<SingleTestResult>();
         errorMessages = new ArrayList<String>();
     }
 
@@ -34,53 +32,33 @@ class HeapdumpTestsResult
         return dumpName;
     }
 
-    public List<TestData> getTestData()
+    public List<SingleTestResult> getTestData()
     {
-        return testData;
+        return singleTestResult;
     }
 
     public List<String> getErrorMessages()
     {
         return errorMessages;
     }
-    
+
     public void addErrorMessage(String message)
     {
         errorMessages.add(message);
     }
-    
-    public void addTestData(TestData data)
+
+    public void addTestData(SingleTestResult data)
     {
-        testData.add(data);
+        singleTestResult.add(data);
+    }   
+
+    public String getParsingTime()
+    {
+        return (parsingTime == null) ? "N/A" : parsingTime;
     }
 
-    public String getFileSize()
+    public void setParsingTime(String parsingTime)
     {
-        return fileSize;
-    }
-
-    public void setFileSize(String fileSize)
-    {
-        this.fileSize = fileSize;
-    }
-
-    public String getNumberOfObjects()
-    {
-        return numberOfObjects;
-    }
-
-    public void setNumberOfObjects(String numberOfObjects)
-    {
-        this.numberOfObjects = numberOfObjects;
-    }
-
-    public String getBitSize()
-    {
-        return bitSize;
-    }
-
-    public void setBitSize(String bitSize)
-    {
-        this.bitSize = bitSize;
+        this.parsingTime = parsingTime;
     }
 }

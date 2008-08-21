@@ -21,6 +21,7 @@ public interface Params
     String SNAPSHOT = "snapshot";
     String SNAPSHOT_PREFIX = "snapshot_prefix";
     String FORMAT = "format";
+    String CLOCK_REPORT = "clock_report";
 
     /**
      * If given, the filename is used to create the output file. Depending on

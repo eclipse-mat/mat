@@ -4,7 +4,20 @@
         <filter id="924844039">
             <message_arguments>
                 <message_argument value="0.7.0.qualifier"/>
+                <message_argument value="0.7.0.200808081658"/>
+            </message_arguments>
+        </filter>
+        <filter id="924844039">
+            <message_arguments>
+                <message_argument value="0.7.0.qualifier"/>
                 <message_argument value="0.7.0.200806271307"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/mat/report/Params.java" type="org.eclipse.mat.report.Params">
+        <filter id="1211105284">
+            <message_arguments>
+                <message_argument value="org.eclipse.mat.report.Params"/>
             </message_arguments>
         </filter>
     </resource>

@@ -30,17 +30,17 @@ public class CleanAllApplication
             return;
         }
 
-        File[] indexes = dumpDir.listFiles(Utils.cleanupFilter);
+        File[] indexes = dumpDir.listFiles(RegTestUtils.cleanupFilter);
         for (File indexFile : indexes)
         {
             if (indexFile.isDirectory())
             {
-                for (File file : indexFile.listFiles(Utils.cleanupFilter))
+                for (File file : indexFile.listFiles(RegTestUtils.cleanupFilter))
                 {
-                    Utils.removeFile(file);
+                    RegTestUtils.removeFile(file);
                 }
             }
-            Utils.removeFile(indexFile);
+            RegTestUtils.removeFile(indexFile);
         }
 
     }

@@ -11,6 +11,7 @@
 package org.eclipse.mat.tests.regression;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ForceNewBaselineApplication
@@ -31,19 +32,19 @@ public class ForceNewBaselineApplication
             return;
         }
 
-        List<File> dumps = Utils.collectDumps(dumpDir);
+        List<File> dumps = RegTestUtils.collectDumps(dumpDir, new ArrayList<File>());
         for (File dump : dumps)
         {
             // delete old baseline
-            File baselineFolder = new File(dump.getAbsolutePath() + Utils.BASELINE_EXTENSION);
+            File baselineFolder = new File(dump.getAbsolutePath() + RegTestUtils.BASELINE_EXTENSION);
             if (baselineFolder.exists())
             {
                 for (File file : baselineFolder.listFiles())
                 {
-                    Utils.removeFile(file);
+                    RegTestUtils.removeFile(file);
 
                 }
-                Utils.removeFile(baselineFolder);
+                RegTestUtils.removeFile(baselineFolder);
             }
             else
             {
@@ -51,11 +52,11 @@ public class ForceNewBaselineApplication
             }
 
             // rename test result folder into baseline folder
-            File testFolder = new File(dump.getAbsolutePath() + Utils.TEST_EXTENSION);
+            File testFolder = new File(dump.getAbsolutePath() + RegTestUtils.TEST_EXTENSION);
             if (testFolder.exists() && testFolder.listFiles().length > 0)
             {
                 // create new baseline folder
-                File newBaselineFolder = new File(dump.getAbsolutePath() + Utils.BASELINE_EXTENSION);
+                File newBaselineFolder = new File(dump.getAbsolutePath() + RegTestUtils.BASELINE_EXTENSION);
                 newBaselineFolder.mkdir();
                 File[] baselineFiles = testFolder.listFiles();
                 for (File baselineFile : baselineFiles)

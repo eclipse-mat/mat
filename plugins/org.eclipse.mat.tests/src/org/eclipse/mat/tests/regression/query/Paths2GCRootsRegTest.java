@@ -23,7 +23,6 @@ import org.eclipse.mat.query.annotations.Category;
 import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.query.refined.RefinedResultBuilder;
-import org.eclipse.mat.query.results.ListResult;
 import org.eclipse.mat.snapshot.IPathsFromGCRootsComputer;
 import org.eclipse.mat.snapshot.inspections.Path2GCRootsQuery;
 import org.eclipse.mat.snapshot.model.IClass;
@@ -38,7 +37,7 @@ public class Paths2GCRootsRegTest extends Path2GCRootsQuery
     // other arguments are the same as in superclass
     @Argument(isMandatory = false)
     public int numberOfPaths = 100;
-   
+
     public IResult execute(IProgressListener listener) throws Exception
     {
         // get 1st HashMap object from the list of HashMaps sorted ascending
@@ -54,7 +53,7 @@ public class Paths2GCRootsRegTest extends Path2GCRootsQuery
         // create result tree
         IPathsFromGCRootsComputer computer = snapshot.getPathsFromGCRoots(object, excludeMap);
 
-        List<List2String> stringResult = new ArrayList<List2String>(numberOfPaths);
+        List<String> stringResult = new ArrayList<String>(numberOfPaths);
         for (int i = 0; i < numberOfPaths; i++)
         {
             int[] path = computer.getNextShortestPath();
@@ -63,15 +62,20 @@ public class Paths2GCRootsRegTest extends Path2GCRootsQuery
                 computer = null;
                 break;
             }
-            List<Long> addresses = new ArrayList<Long>(path.length);
+
+            StringBuilder buffer = new StringBuilder(path.length * 20);
             for (int j = 0; j < path.length; j++)
             {
-                addresses.add(snapshot.mapIdToAddress(path[j]));
+                if (j > 0)
+                    buffer.append(", ");
+
+                buffer.append("0x").append(Long.toHexString(snapshot.mapIdToAddress(path[j])));                
             }
-            stringResult.add(new List2String(addresses));
+            stringResult.add(buffer.toString());
+
         }
 
-        return new ListResult(List2String.class, stringResult, "path");
+        return new StringResult(stringResult);
     }
 
 }

@@ -44,7 +44,11 @@ public class Application implements IApplication
         }    
         else if ("-test".equals(application))
         {
-            new RegressionTestApplication(appArgs).run();
+            new TestApplication(appArgs, "regression", true).run();
+        }
+        else if("-performance".equals(application))
+        {
+            new TestApplication(appArgs, "performance", false).run();
         }
         else
         {
