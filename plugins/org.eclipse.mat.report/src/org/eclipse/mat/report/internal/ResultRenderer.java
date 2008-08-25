@@ -97,10 +97,6 @@ public class ResultRenderer
             {
                 PageSnippets.endPage(this);
             }
-            catch (IOException ignore)
-            {
-                // $JL-EXC$ closing file anyway
-            }
             finally
             {
                 writer.close();
@@ -163,7 +159,7 @@ public class ResultRenderer
         part.putObject(Key.ARTEFACT, index);
     }
 
-    public void endSuite(TestSuite suite, AbstractPart part) throws IOException
+    public void endSuite(AbstractPart part) throws IOException
     {
         renderTableOfContents(part);
 
@@ -174,7 +170,7 @@ public class ResultRenderer
 
         copyIcons();
 
-        zipAndCopy();
+        zipResult();
     }
 
     private void copyIcons() throws IOException
@@ -221,7 +217,7 @@ public class ResultRenderer
         }
     }
 
-    public void endSection(SectionPart section) throws IOException
+    public void endSection(SectionPart section)
     {
         if (section.getObject(Key.IS_EXPANDABLE) != null)
         {
@@ -421,22 +417,9 @@ public class ResultRenderer
         }
         finally
         {
-            try
-            {
+            if (in != null)
                 in.close();
-            }
-            catch (IOException ignore)
-            {
-                // $JL-EXC$
-            }
-            try
-            {
-                out.close();
-            }
-            catch (IOException ignore)
-            {
-                // $JL-EXC$
-            }
+            out.close();
         }
     }
 
@@ -466,6 +449,10 @@ public class ResultRenderer
         part.putObject(Key.ARTEFACT, artefact);
         return artefact;
     }
+    
+    // //////////////////////////////////////////////////////////////
+    // render table of contents into HTML page
+    // //////////////////////////////////////////////////////////////
 
     private void renderTableOfContents(AbstractPart part) throws IOException
     {
@@ -491,16 +478,9 @@ public class ResultRenderer
             while (page == null)
                 page = (HtmlArtefact) (p = p.getParent()).getObject(Key.ARTEFACT);
 
-            if (page != null)
-            {
-                PageSnippets.beginLink(toc, page.getRelativePathName() + "#" + part.getId());
-                toc.append(part.spec().getName());
-                PageSnippets.endLink(toc);
-            }
-            else
-            {
-                toc.append(part.spec().getName());
-            }
+            PageSnippets.beginLink(toc, page.getRelativePathName() + "#" + part.getId());
+            toc.append(part.spec().getName());
+            PageSnippets.endLink(toc);
 
             if (!part.children.isEmpty())
                 renderResult(toc, part);
@@ -508,6 +488,22 @@ public class ResultRenderer
             toc.append("</li>");
         }
         toc.append("</ul>");
+    }
+
+    // //////////////////////////////////////////////////////////////
+    // render table of contents into XML file
+    // //////////////////////////////////////////////////////////////
+
+    private static final String URI = "http://www.eclipse.org/mat/report/";
+
+    private interface Attrib
+    {
+        String NAME = "name";
+        String STATUS = "status";
+        String FILE = "file";
+        String QUERY_TIME = "query-time";
+        String TIME = "time";
+        String PART = "part";
     }
 
     private void renderTOCXml(AbstractPart part) throws IOException
@@ -559,8 +555,11 @@ public class ResultRenderer
         }
         finally
         {
-            out.flush();
-            out.close();
+            if (out != null)
+            {
+                out.flush();
+                out.close();
+            }
         }
     }
 
@@ -572,33 +571,35 @@ public class ResultRenderer
         String name = part.spec().getName();
         if (name == null)
             name = part.getId();
-        attrib.addAttribute("", "", "name", "", name);
+        attrib.addAttribute(URI, Attrib.NAME, Attrib.NAME, "", name);
 
         Status status = part.getStatus();
         if (status != null)
-            attrib.addAttribute("", "", "status", "", status.name());
+            attrib.addAttribute(URI, Attrib.STATUS, Attrib.STATUS, "", status.name());
 
         HtmlArtefact page = (HtmlArtefact) part.getObject(Key.ARTEFACT);
         AbstractPart p = part;
         while (page == null)
             page = (HtmlArtefact) (p = p.getParent()).getObject(Key.ARTEFACT);
-
-        if (page != null)
-            attrib.addAttribute("", "", "file", "", page.file.getName());
+        attrib.addAttribute(URI, Attrib.FILE, Attrib.FILE, "", page.file.getName());
 
         if (part.queryExecutionTime > 0)
-            attrib.addAttribute("", "", "query-time", "", String.valueOf(part.queryExecutionTime));
+            attrib.addAttribute(URI, Attrib.QUERY_TIME, Attrib.QUERY_TIME, "", String.valueOf(part.queryExecutionTime));
 
         if (part.totalExecutionTime > 0)
-            attrib.addAttribute("", "", "time", "", String.valueOf(part.totalExecutionTime));
+            attrib.addAttribute(URI, Attrib.TIME, Attrib.TIME, "", String.valueOf(part.totalExecutionTime));
 
-        handler.startElement("", "", "part", attrib);
+        handler.startElement(URI, Attrib.PART, Attrib.PART, attrib);
         for (AbstractPart child : part.getChildren())
             renderTOCPart(handler, attrib, child);
-        handler.endElement("", "", "part");
+        handler.endElement(URI, Attrib.PART, Attrib.PART);
     }
+    
+    // //////////////////////////////////////////////////////////////
+    // zip directory
+    // //////////////////////////////////////////////////////////////
 
-    private void zipAndCopy() throws IOException
+    private void zipResult() throws IOException
     {
         File targetZip = suite.getOutput();
         ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(targetZip));

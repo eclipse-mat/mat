@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.mat.report.internal;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
@@ -21,7 +20,7 @@ import org.eclipse.mat.report.internal.ResultRenderer.HtmlArtefact;
 /* package */class PageSnippets
 {
 
-    public static void beginPage(HtmlArtefact parent, HtmlArtefact artefact, String title) throws IOException
+    public static void beginPage(HtmlArtefact parent, HtmlArtefact artefact, String title)
     {
         artefact.append("<html><head>");
         artefact.append("<title>").append(title).append("</title>");
@@ -43,7 +42,7 @@ import org.eclipse.mat.report.internal.ResultRenderer.HtmlArtefact;
         artefact.append("</ul></div>\n");
     }
 
-    public static void endPage(HtmlArtefact artefact) throws IOException
+    public static void endPage(HtmlArtefact artefact)
     {
         artefact.append("</body></html>");
     }

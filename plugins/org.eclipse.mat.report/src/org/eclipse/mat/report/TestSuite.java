@@ -134,7 +134,7 @@ public class TestSuite
 
         renderer.beginSuite(this, part);
         part.execute(queryContext, renderer, listener);
-        renderer.endSuite(this, part);
+        renderer.endSuite(part);
 
         return part.getStatus();
     }
