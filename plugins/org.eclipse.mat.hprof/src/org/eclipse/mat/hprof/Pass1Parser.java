@@ -40,7 +40,7 @@ public class Pass1Parser extends AbstractParser
     private IHprofParserHandler handler;
     private SimpleMonitor.Listener monitor;
 
-    public Pass1Parser(IHprofParserHandler handler, SimpleMonitor.Listener monitor) throws IOException
+    public Pass1Parser(IHprofParserHandler handler, SimpleMonitor.Listener monitor)
     {
         this.handler = handler;
         this.monitor = monitor;
@@ -282,7 +282,7 @@ public class Pass1Parser extends AbstractParser
         }
 
         // get name
-        String className = (String) class2name.get(address);
+        String className = class2name.get(address);
         if (className == null)
             className = "unknown-name@0x" + Long.toHexString(address);
 
@@ -363,16 +363,16 @@ public class Pass1Parser extends AbstractParser
             throw new SnapshotException("Illegal primitive object array type");
 
         // check if class needs to be created
-        String name = IPrimitiveArray.TYPE[(int) elementType];
+        String name = IPrimitiveArray.TYPE[elementType];
         IClass clazz = handler.lookupClassByName(name, true);
         if (clazz == null)
-            handler.reportRequiredPrimitiveArray((int) elementType);
+            handler.reportRequiredPrimitiveArray(elementType);
 
-        int elementSize = IPrimitiveArray.ELEMENT_SIZE[(int) elementType];
+        int elementSize = IPrimitiveArray.ELEMENT_SIZE[elementType];
         in.skipBytes(elementSize * size);
     }
 
-    private String getStringConstant(long address) throws IOException
+    private String getStringConstant(long address)
     {
         if (address == 0L)
             return "";

@@ -59,16 +59,16 @@ public class HeapEditorContributions implements IMultiPaneEditorContributor
     public void init(MultiPaneEditor editor)
     {
         this.editor = (HeapEditor) editor;
-        openOverview = new OpenPaneAction((HeapEditor) editor, "OverviewPane");
+        openOverview = new OpenPaneAction(editor, "OverviewPane");
         openOverview.setImageDescriptor(MemoryAnalyserPlugin
                         .getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.INFO));
         openOverview.setToolTipText("Open Overview Pane");
-        openHistogram = new ExecuteQueryAction((HeapEditor) editor, "histogram");
-        openDominatorTree = new ExecuteQueryAction((HeapEditor) editor, "dominator_tree");
+        openHistogram = new ExecuteQueryAction(editor, "histogram");
+        openDominatorTree = new ExecuteQueryAction(editor, "dominator_tree");
         openOQLPane = new OpenOQLStudioAction();
 
-        runExpertTest = new RunReportsDropDownAction((HeapEditor) editor);
-        openQueries = new QueryDropDownMenuAction((HeapEditor) editor);
+        runExpertTest = new RunReportsDropDownAction(editor);
+        openQueries = new QueryDropDownMenuAction(editor);
 
         openObjectById = new OpenObjectByIdAction();
     }

@@ -30,6 +30,7 @@ import org.eclipse.mat.query.ContextDerivedData;
 import org.eclipse.mat.query.ContextProvider;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IContextObjectSet;
+import org.eclipse.mat.query.IDecorator;
 import org.eclipse.mat.query.IIconProvider;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.IResultTable;
@@ -272,6 +273,26 @@ public final class TQuantize
 
         }
 
+        private static final class WrappedDecorator implements IDecorator
+        {
+            private IDecorator delegate;
+
+            public WrappedDecorator(IDecorator delegate)
+            {
+                this.delegate = delegate;
+            }
+
+            public String prefix(Object row)
+            {
+                return row instanceof GroupedRow ? null : delegate.prefix(row);
+            }
+
+            public String suffix(Object row)
+            {
+                return row instanceof GroupedRow ? null : delegate.suffix(row);
+            }
+        }
+
         TQuantize quantize;
 
         private Builder(ISnapshot snapshot, IResultTable base, Calculator calculator) throws SnapshotException
@@ -306,7 +327,11 @@ public final class TQuantize
             if (type == null)
                 type = String.class;
 
-            return new Column(col.getLabel(), type, col.getAlign(), col.getSortDirection(), fmt, cmp);
+            IDecorator dec = col.getDecorator();
+            if (dec != null)
+                dec = new WrappedDecorator(dec);
+
+            return new Column(col.getLabel(), type, col.getAlign(), col.getSortDirection(), fmt, cmp).decorator(dec);
         }
 
         /**
@@ -314,7 +339,9 @@ public final class TQuantize
          */
         public Builder column(String label, Column baseColumn, int baseColumnIndex, Quantize.Function.Factory qff)
         {
-            quantize.columns.add(baseColumn);
+            Column col = new Column(label, baseColumn.getType(), baseColumn.getAlign(), baseColumn.getSortDirection(),
+                            baseColumn.getFormatter(), baseColumn.getComparator()).decorator(baseColumn.getDecorator());
+            quantize.columns.add(col);
             quantize.columnIndeces.add(baseColumnIndex);
             quantize.functions.add(qff);
 
@@ -371,6 +398,9 @@ public final class TQuantize
 
     /**
      * Create distribution based on the given table.
+     * 
+     * @param listener
+     *            progress listener
      */
     public IResult process(IProgressListener listener) throws SnapshotException
     {

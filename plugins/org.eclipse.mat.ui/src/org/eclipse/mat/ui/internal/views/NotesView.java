@@ -681,7 +681,8 @@ public class NotesView extends ViewPart implements IPartListener, Observer
         {
             try
             {
-                fout.close();
+                if (fout != null)
+                    fout.close();
             }
             catch (IOException ignore)
             {}

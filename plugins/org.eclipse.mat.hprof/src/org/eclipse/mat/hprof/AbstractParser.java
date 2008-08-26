@@ -135,12 +135,12 @@ import org.eclipse.mat.snapshot.model.ObjectReference;
 
     protected long readUnsignedInt() throws IOException
     {
-        return (0x0FFFFFFFFL & (long) in.readInt());
+        return (0x0FFFFFFFFL & in.readInt());
     }
 
     protected long readID() throws IOException
     {
-        return idSize == 4 ? (0x0FFFFFFFFL & (long) in.readInt()) : in.readLong();
+        return idSize == 4 ? (0x0FFFFFFFFL & in.readInt()) : in.readLong();
     }
 
     protected Object readValue(ISnapshot snapshot) throws IOException

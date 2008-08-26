@@ -179,7 +179,7 @@ public class MultiplePathsFromGCRootsComputerImpl implements IMultiplePathsFromG
         // Continue with the FIFO
         while (pathFifo.size() > 0)
         {
-            currentPath = (Path) pathFifo.getFirst();
+            currentPath = pathFifo.getFirst();
             pathFifo.removeFirst();
 
             currentReferrers = referrersFifo.getFirst();

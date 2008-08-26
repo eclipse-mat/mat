@@ -69,7 +69,7 @@ public class QueryExecution
     }
 
     public static void execute(MultiPaneEditor editor, PaneState originator, PaneState stateToReopen, ArgumentSet set,
-                    boolean promptUser, boolean isReproducable) throws SnapshotException
+                    boolean promptUser, boolean isReproducable)
     {
         if (!set.isExecutable())
             promptUser = true;
@@ -135,7 +135,7 @@ public class QueryExecution
         {
             public void run()
             {
-                doDisplayResult(editor, originator, stateToReopen, r, true, isReproducable);
+                doDisplayResult(editor, originator, stateToReopen, r, isReproducable);
             }
         });
     }
@@ -215,18 +215,16 @@ public class QueryExecution
     // //////////////////////////////////////////////////////////////
 
     private static void doDisplayResult(MultiPaneEditor editor, PaneState originator, PaneState stateToReopen,
-                    QueryResult result, boolean isFirst, boolean isReproducable)
+                    QueryResult result, boolean isReproducable)
     {
         if (result.isComposite())
         {
             List<CompositeResult.Entry> results = ((CompositeResult) result.getSubject()).getResultEntries();
 
-            boolean first = true;
             for (CompositeResult.Entry r : results)
             {
                 doDisplayResult(editor, originator, stateToReopen, new QueryResult(result, result.getQuery(), result
-                                .getCommand(), r.getResult()), first, isReproducable);
-                first = false;
+                                .getCommand(), r.getResult()), isReproducable);
             }
         }
         else

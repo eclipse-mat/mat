@@ -142,7 +142,7 @@ public class SnapshotHistoryService
         {
             for (Iterator<Entry> iter = list.iterator(); iter.hasNext();)
             {
-                Entry entry = (Entry) iter.next();
+                Entry entry = iter.next();
                 if (entry.getFilePath().equals(filename))
                 {
                     iter.remove();

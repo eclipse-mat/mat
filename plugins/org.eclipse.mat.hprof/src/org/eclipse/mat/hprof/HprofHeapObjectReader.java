@@ -223,15 +223,15 @@ public class HprofHeapObjectReader implements IObjectReader
 
     private short readShort(byte[] data, int offset)
     {
-        int b1 = ((int) data[offset] & 0xff);
-        int b2 = ((int) data[offset + 1] & 0xff);
+        int b1 = (data[offset] & 0xff);
+        int b2 = (data[offset + 1] & 0xff);
         return (short) ((b1 << 8) + b2);
     }
 
     private char readChar(byte[] data, int offset)
     {
-        int b1 = ((int) data[offset] & 0xff);
-        int b2 = ((int) data[offset + 1] & 0xff);
+        int b1 = (data[offset] & 0xff);
+        int b2 = (data[offset + 1] & 0xff);
         return (char) ((b1 << 8) + b2);
     }
 

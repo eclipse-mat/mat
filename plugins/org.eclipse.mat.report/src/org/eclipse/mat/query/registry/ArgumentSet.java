@@ -31,7 +31,7 @@ public class ArgumentSet
     private QueryDescriptor query;
     private Map<ArgumentDescriptor, Object> values;
 
-    ArgumentSet(QueryDescriptor query, IQueryContext context) throws SnapshotException
+    /* package */ArgumentSet(QueryDescriptor query, IQueryContext context)
     {
         this.query = query;
         this.values = new HashMap<ArgumentDescriptor, Object>();
@@ -137,7 +137,7 @@ public class ArgumentSet
         }
     }
 
-    public String writeToLine() throws SnapshotException
+    public String writeToLine()
     {
         StringBuilder answer = new StringBuilder(128);
         answer.append(query.getIdentifier()).append(" ");
@@ -155,7 +155,7 @@ public class ArgumentSet
             {
                 if (value != null)
                     arg.appendUsage(answer, value);
-                else if (value == null && arg.getDefaultValue() != null)
+                else if (arg.getDefaultValue() != null)
                     arg.appendUsage(answer, null);
                 else if (arg.isMandatory() && arg.getDefaultValue() != null)
                     arg.appendUsage(answer, arg.getDefaultValue());

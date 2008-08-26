@@ -208,14 +208,14 @@ public class QueryRegistry extends RegistryReader<IQuery>
             clazz = clazz.getSuperclass();
         }
 
-        readMenuEntries(queryClass, query, descriptor);
+        readMenuEntries(queryClass, descriptor);
 
         commandsByIdentifier.put(identifier, descriptor);
         commandsByClass.put(query.getClass().getName().toLowerCase(), descriptor);
         return descriptor;
     }
 
-    private void readMenuEntries(Class<? extends IQuery> queryClass, IQuery query, QueryDescriptor descriptor)
+    private void readMenuEntries(Class<? extends IQuery> queryClass, QueryDescriptor descriptor)
     {
         Menu menu = queryClass.getAnnotation(Menu.class);
         if (menu == null || menu.value() == null || menu.value().length == 0)

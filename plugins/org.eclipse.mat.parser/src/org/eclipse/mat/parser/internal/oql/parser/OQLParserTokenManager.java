@@ -1092,7 +1092,7 @@ public class OQLParserTokenManager implements OQLParserConstants
             }
             else
             {
-                int hiByte = (int) (curChar >> 8);
+                int hiByte = (curChar >> 8);
                 int i1 = hiByte >> 6;
                 long l1 = 1L << (hiByte & 077);
                 int i2 = (curChar & 0xff) >> 6;
@@ -1243,7 +1243,7 @@ public class OQLParserTokenManager implements OQLParserConstants
             }
             else
             {
-                int hiByte = (int) (curChar >> 8);
+                int hiByte = (curChar >> 8);
                 int i1 = hiByte >> 6;
                 long l1 = 1L << (hiByte & 077);
                 int i2 = (curChar & 0xff) >> 6;
@@ -1314,7 +1314,8 @@ public class OQLParserTokenManager implements OQLParserConstants
     static final int[] jjnextStates = { 19, 20, 25, 26, 29, 30, 9, 34, 35, 36, 38, 39, 36, 40, 5, 6, 9, 21, 22, 9, 29,
                     30, 9, 7, 8, 14, 15, 23, 24, 27, 28, 31, 32, };
 
-    private static final boolean jjCanMove_0(int hiByte, int i1, int i2, long l1, long l2)
+    private static final boolean jjCanMove_0(int hiByte, @SuppressWarnings("unused") int i1, int i2,
+                    @SuppressWarnings("unused") long l1, long l2)
     {
         switch (hiByte)
         {
@@ -1583,7 +1584,7 @@ public class OQLParserTokenManager implements OQLParserConstants
         }
     }
 
-    void SkipLexicalActions(Token matchedToken)
+    void SkipLexicalActions(@SuppressWarnings("unused") Token matchedToken)
     {
         switch (jjmatchedKind)
         {

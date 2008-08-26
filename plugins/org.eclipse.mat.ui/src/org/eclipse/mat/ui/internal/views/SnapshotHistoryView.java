@@ -201,7 +201,7 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
             @Override
             public void mouseDoubleClick(MouseEvent event)
             {
-                TableItem[] selection = (TableItem[]) table.getSelection();
+                TableItem[] selection = table.getSelection();
                 openFile(selection);
             }
 
@@ -249,7 +249,7 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
         {
             public void run()
             {
-                TableItem[] selection = (TableItem[]) table.getSelection();
+                TableItem[] selection = table.getSelection();
                 openFile(selection);
             }
         };
@@ -260,7 +260,7 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
         {
             public void run()
             {
-                TableItem[] selection = (TableItem[]) table.getSelection();
+                TableItem[] selection = table.getSelection();
 
                 // as table items are disposed, copy the path before
                 List<Path> toDelete = new ArrayList<Path>(selection.length);
@@ -282,7 +282,7 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
             @Override
             public void run()
             {
-                TableItem[] selection = (TableItem[]) table.getSelection();
+                TableItem[] selection = table.getSelection();
                 if (selection.length == 0)
                     return;
 
@@ -335,7 +335,7 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
             @Override
             public void run()
             {
-                TableItem[] selection = (TableItem[]) table.getSelection();
+                TableItem[] selection = table.getSelection();
 
                 String filename = ((SnapshotHistoryService.Entry) selection[0].getData()).getFilePath();
                 IPath path = new Path(filename);
@@ -426,7 +426,7 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
             {
                 List<File> problems = new ArrayList<File>();
 
-                for (TableItem item : ((TableItem[]) table.getSelection()))
+                for (TableItem item : table.getSelection())
                 {
                     File snapshot = new File(((SnapshotHistoryService.Entry) item.getData()).getFilePath());
                     deleteIndexes(snapshot, problems);
@@ -464,7 +464,7 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
 
     private void editorContextMenuAboutToShow(IMenuManager manager)
     {
-        TableItem[] selection = (TableItem[]) table.getSelection();
+        TableItem[] selection = table.getSelection();
         if (selection.length == 0)
             return;
 

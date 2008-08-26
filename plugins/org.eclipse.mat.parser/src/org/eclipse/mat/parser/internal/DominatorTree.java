@@ -215,7 +215,7 @@ public class DominatorTree
 
         }
 
-        private void dfs(int root) throws IOException, UnsupportedOperationException, SnapshotException
+        private void dfs(int root) throws UnsupportedOperationException
         {
             IProgressListener progressListener = this.monitor.nextMonitor();
             progressListener.beginTask("Depth-first search", snapshot.getSnapshotInfo().getNumberOfObjects() >> 16);
@@ -316,7 +316,7 @@ public class DominatorTree
         }
 
         // gets retained set idx and returns the real indexes
-        private int[] getPredecessors(int v) throws IOException, UnsupportedOperationException, SnapshotException
+        private int[] getPredecessors(int v)
         {
             v -= 2;
             // for the GC roots return the artificial root

@@ -157,7 +157,7 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
             {
                 classesById.remove(c.getObjectId());
 
-                ClassImpl superclass = (ClassImpl) classesById.get(c.getSuperClassId());
+                ClassImpl superclass = classesById.get(c.getSuperClassId());
                 if (superclass != null)
                     superclass.removeSubClass(c);
             }

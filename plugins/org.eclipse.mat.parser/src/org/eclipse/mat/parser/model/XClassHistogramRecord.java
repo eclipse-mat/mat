@@ -23,9 +23,11 @@ public final class XClassHistogramRecord extends ClassHistogramRecord
 
     public XClassHistogramRecord(ClassImpl classInstance) throws SnapshotException
     {
-        super(classInstance.getName(), classInstance.getObjectId(), classInstance.getNumberOfObjects(),
-                        (long) ((ClassImpl) classInstance).getTotalSize(), classInstance.getRetainedHeapSizeOfObjects(
-                                        false, false, null));
+        super(classInstance.getName(), //
+                        classInstance.getObjectId(), //
+                        classInstance.getNumberOfObjects(), //
+                        classInstance.getTotalSize(), //
+                        classInstance.getRetainedHeapSizeOfObjects(false, false, null));
         this.classInstance = classInstance;
     }
 

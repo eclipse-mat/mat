@@ -68,6 +68,9 @@ public abstract class AbstractEditorPane implements IEditorPart
         return site;
     }
 
+    /**
+     * @param argument
+     */
     public void initWithArgument(Object argument)
     {}
 
@@ -132,6 +135,9 @@ public abstract class AbstractEditorPane implements IEditorPart
         return false;
     }
 
+    /**
+     * @param manager
+     */
     public void contributeToToolBar(IToolBarManager manager)
     {}
 
@@ -178,6 +184,9 @@ public abstract class AbstractEditorPane implements IEditorPart
 
     }
 
+    /**
+     * @param menu
+     */
     protected void editorContextMenuAboutToShow(PopupMenu menu)
     {}
 

@@ -21,7 +21,6 @@ import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Item;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
@@ -30,70 +29,63 @@ import org.eclipse.swt.widgets.TreeItem;
 
 public class Copy
 {
-    static CopyToClipboardData copyData;
-    static Clipboard clipboard;
-    static Map<Integer, Integer> columnLengths = new HashMap<Integer, Integer>();
-
-    public Copy()
-    {}
-
-    private static final class CopyToClipboardData
-    {
-        Control control;
-        private Item[] selection;
-        Display display;
-
-        private CopyToClipboardData(Control control, Item[] selection)
-        {
-            this.control = control;
-            this.display = control.getDisplay();
-            this.selection = selection;
-        }
-
-        private Item[] getSelection()
-        {
-            if (selection != null && selection.length != 0)
-                return selection;
-            return null;
-        }
-    }
+    private Control control;
+    private Item[] selection;
+    private Map<Integer, Integer> columnLengths = new HashMap<Integer, Integer>();
 
     public static void copyToClipboard(Control control)
     {
-        copyData = new CopyToClipboardData(control, getSelection(control));
-        doCopy(copyData, null);
+        Item[] selection = (control instanceof Table) ? ((Table) control).getSelection() //
+                        : ((Tree) control).getSelection();
+
+        new Copy(control, selection).doCopy(null);
     }
 
     public static void exportToTxtFile(Control control, String fileName)
     {
-        copyData = new CopyToClipboardData(control, null);
+        PrintWriter writer = null;
         try
         {
-            PrintWriter writer = new PrintWriter(new FileWriter(fileName));
-            doCopy(copyData, writer);
+            writer = new PrintWriter(new FileWriter(fileName));
+            new Copy(control, null).doCopy(writer);
         }
         catch (IOException e)
         {
             throw new RuntimeException("Error in export to .txt: data type not supported for export.", e);
         }
+        finally
+        {
+            if (writer != null)
+                writer.close();
+        }
     }
 
-    private static void doCopy(CopyToClipboardData data, PrintWriter writer)
+    // //////////////////////////////////////////////////////////////
+    // private methods
+    // //////////////////////////////////////////////////////////////
+
+    private Copy(Control control, Item[] selection)
+    {
+        this.control = control;
+        this.selection = selection != null && selection.length > 0 ? selection : null;
+    }
+
+    private void doCopy(PrintWriter writer)
     {
         StringBuffer resultBuffer = new StringBuffer();
         StringBuffer rowBuffer = new StringBuffer();
         int numberOfColumns = getColumnCount();
 
         Object[] items;
-        if (copyData.getSelection() != null)
-            items = copyData.getSelection();
-        else if (copyData.control instanceof Table)
-            items = ((Table) copyData.control).getItems();
+        if (selection != null)
+            items = selection;
+        else if (control instanceof Table)
+            items = ((Table) control).getItems();
         else
             // if (copyData.control instanceof Tree)
-            items = ((Tree) copyData.control).getItems();
+            items = ((Tree) control).getItems();
 
-        Item[] columns = getColumns(copyData.control);
+        Item[] columns = getColumns(control);
 
         if (numberOfColumns == 0)
         {
@@ -172,18 +164,15 @@ public class Copy
         }
         else
         {
-            TextTransfer textTransfer = TextTransfer.getInstance();
-            Transfer[] transfers = new Transfer[] { textTransfer };
-            Object[] dataToCopy = new Object[] { resultBuffer.toString() };
-            if (clipboard == null || clipboard.isDisposed())
-                clipboard = new Clipboard(copyData.display);
-            clipboard.setContents(dataToCopy, transfers);
+            Clipboard clipboard = new Clipboard(control.getDisplay());
+            clipboard.setContents(new Object[] { resultBuffer.toString() },
+                            new Transfer[] { TextTransfer.getInstance() });
             clipboard.dispose();
         }
 
     }
 
-    private static StringBuffer copySimpleStructure(Object[] items, StringBuffer resultBuffer)
+    private StringBuffer copySimpleStructure(Object[] items, StringBuffer resultBuffer)
     {
         for (Object item : items)
         {
@@ -217,7 +206,7 @@ public class Copy
         return resultBuffer;
     }
 
-    private static void addNextLineToClipboard(StringBuilder level, TreeItem item, StringBuffer rowBuffer,
+    private void addNextLineToClipboard(StringBuilder level, TreeItem item, StringBuffer rowBuffer,
                     int numberOfColumns, int length)
     {
 
@@ -225,8 +214,7 @@ public class Copy
         for (int j = 0; j < children.length; j++)
         {
             level = getLevel(level, children.length, j);
-            Item[] selection = copyData.getSelection();
-            if (selection == null || (selection != null && !skip(children[j])))
+            if (selection == null || !skip(children[j]))
             {
                 if (numberOfColumns == 0)
                 {
@@ -256,7 +244,7 @@ public class Copy
         }
     }
 
-    private static Item[] getColumns(Control control)
+    private Item[] getColumns(Control control)
     {
         if (control instanceof Table)
             return ((Table) control).getColumns();
@@ -265,12 +253,12 @@ public class Copy
             return ((Tree) control).getColumns();
     }
 
-    private static int getColumnCount()
+    private int getColumnCount()
     {
-        if (copyData.control instanceof Table)
-            return ((Table) copyData.control).getColumnCount();
-        else if (copyData.control instanceof Tree)
-            return ((Tree) copyData.control).getColumnCount();
+        if (control instanceof Table)
+            return ((Table) control).getColumnCount();
+        else if (control instanceof Tree)
+            return ((Tree) control).getColumnCount();
         else
             return 0;
     }
@@ -310,7 +298,7 @@ public class Copy
         return buf.toString();
     }
 
-    private static String getDashedLine(int numberOfColumns)
+    private String getDashedLine(int numberOfColumns)
     {
         StringBuffer dashes = new StringBuffer();
         int dashesLength = 0;
@@ -323,7 +311,7 @@ public class Copy
         return dashes.toString();
     }
 
-    private static int getColumnLength(Object[] items, Item[] columns, int columnNumber)
+    private int getColumnLength(Object[] items, Item[] columns, int columnNumber)
     {
         int lengthToCompare = 0;
         String header = columns[columnNumber].getText();
@@ -358,13 +346,13 @@ public class Copy
         return length;
     }
 
-    private static int getOtherColumnLength(TreeItem item, int length, int columnNumber)
+    private int getOtherColumnLength(TreeItem item, int length, int columnNumber)
     {
         int lengthToCompare = 0;
         TreeItem[] children = item.getItems();
         for (int i = 0; i < children.length; i++)
         {
-            if (copyData.getSelection() != null && skip(children[i]))
+            if (selection != null && skip(children[i]))
                 continue;
             String columnText = children[i].getText(columnNumber);
             if (columnText != null)
@@ -383,13 +371,13 @@ public class Copy
         return length;
     }
 
-    private static int compare(TreeItem item, int length, StringBuilder level)
+    private int compare(TreeItem item, int length, StringBuilder level)
     {
         int lengthToCompare = 0;
         TreeItem[] children = item.getItems();
         for (int i = 0; i < children.length; i++)
         {
-            if (copyData.getSelection() != null && skip(children[i]))
+            if (selection != null && skip(children[i]))
                 continue;
             level = getLevel(level, children.length, i);
             lengthToCompare = children[i].getText(0).length() + level.length();
@@ -409,11 +397,11 @@ public class Copy
         return length;
     }
 
-    private static boolean toPrint(TreeItem item)
+    private boolean toPrint(TreeItem item)
     {
-        TreeItem[] selection = (TreeItem[]) copyData.getSelection();
         if (selection == null)
             return true;
+        TreeItem[] selection = (TreeItem[]) this.selection;
         for (TreeItem treeItem : selection)
         {
             if (treeItem.equals(item.getParentItem()))
@@ -422,9 +410,9 @@ public class Copy
         return true;
     }
 
-    private static boolean skip(TreeItem item)
+    private boolean skip(TreeItem item)
     {
-        TreeItem[] selection = (TreeItem[]) copyData.getSelection();
+        TreeItem[] selection = (TreeItem[]) this.selection;
         for (TreeItem treeItem : selection)
         {
             if (treeItem.equals(item))
@@ -433,7 +421,7 @@ public class Copy
         return true;
     }
 
-    private static StringBuilder getLevel(StringBuilder level, int length, int counter)
+    private StringBuilder getLevel(StringBuilder level, int length, int counter)
     {
         int k = level.indexOf("'-"); //$NON-NLS-1$
         if (k != -1)
@@ -460,12 +448,4 @@ public class Copy
         return level;
     }
 
-    private static Item[] getSelection(Control control)
-    {
-        if (control instanceof Table)
-            return ((Table) control).getSelection();
-        else
-            // Tree
-            return ((Tree) control).getSelection();
-    }
 }

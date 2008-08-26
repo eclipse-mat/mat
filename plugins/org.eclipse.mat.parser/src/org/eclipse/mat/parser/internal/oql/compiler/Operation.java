@@ -158,7 +158,7 @@ abstract class Operation extends Expression
                 return right == null;
 
             if (right == null)
-                return left == null;
+                return false;
 
             return left.equals(right);
         }
@@ -207,7 +207,7 @@ abstract class Operation extends Expression
                 return right != null;
 
             if (right == null)
-                return left != null;
+                return true;
 
             return !left.equals(right);
         }
@@ -254,7 +254,7 @@ abstract class Operation extends Expression
                 throw new UnsupportedOperationException(MessageFormat.format(ERR_NO_COMPARABLE, this.args[1], right
                                 .getClass().getName(), getSymbol()));
 
-            return ((Comparable) left).compareTo((Comparable) right) > 0;
+            return ((Comparable) left).compareTo(right) > 0;
         }
 
         public String getSymbol()
@@ -299,7 +299,7 @@ abstract class Operation extends Expression
                 throw new UnsupportedOperationException(MessageFormat.format(ERR_NO_COMPARABLE, this.args[1], right
                                 .getClass().getName(), getSymbol()));
 
-            return ((Comparable) left).compareTo((Comparable) right) >= 0;
+            return ((Comparable) left).compareTo(right) >= 0;
         }
 
         public String getSymbol()
@@ -344,7 +344,7 @@ abstract class Operation extends Expression
                 throw new UnsupportedOperationException(MessageFormat.format(ERR_NO_COMPARABLE, this.args[1], right
                                 .getClass().getName(), getSymbol()));
 
-            return ((Comparable) left).compareTo((Comparable) right) < 0;
+            return ((Comparable) left).compareTo(right) < 0;
         }
 
         public String getSymbol()
@@ -389,7 +389,7 @@ abstract class Operation extends Expression
                 throw new UnsupportedOperationException(MessageFormat.format(ERR_NO_COMPARABLE, this.args[1], right
                                 .getClass().getName(), getSymbol()));
 
-            return ((Comparable) left).compareTo((Comparable) right) <= 0;
+            return ((Comparable) left).compareTo(right) <= 0;
         }
 
         public String getSymbol()

@@ -109,7 +109,7 @@ public class ShowViewMenu extends ContributionItem
     {
         // Keep a cache, rather than creating a new action each time,
         // so that image caching in ActionContributionItem works.
-        IAction action = (IAction) actions.get(id);
+        IAction action = actions.get(id);
         if (action == null)
         {
             IViewRegistry reg = PlatformUI.getWorkbench().getViewRegistry();

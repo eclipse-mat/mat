@@ -129,8 +129,7 @@ public class HtmlOutputter implements IOutputter
             artefact.append("</tr>");
         }
         // append totals row
-        renderTotalsRow(context, artefact, (RefinedStructuredResult) table, ((RefinedTable) table).getRows(),
-                        numberOfRowsToDisplay, columns, 0, hasDetailsLink);
+        renderTotalsRow(context, artefact, table, table.getRows(), numberOfRowsToDisplay, columns, 0, hasDetailsLink);
 
         artefact.append("</tbody></table>");
     }
@@ -286,8 +285,7 @@ public class HtmlOutputter implements IOutputter
             }
 
         }
-        renderTotalsRow(context, artefact, (RefinedStructuredResult) tree, elements, numberOfRowsToDisplay, columns,
-                        level, hasDetailsLink);
+        renderTotalsRow(context, artefact, tree, elements, numberOfRowsToDisplay, columns, level, hasDetailsLink);
     }
 
     private void renderDepthRow(Writer artefact) throws IOException
@@ -382,7 +380,7 @@ public class HtmlOutputter implements IOutputter
         int objectId = -1;
 
         IContextObject ctx = thing.getContext(row);
-        if (ctx instanceof IContextObject)
+        if (ctx != null)
             objectId = ctx.getObjectId();
 
         if (objectId >= 0)

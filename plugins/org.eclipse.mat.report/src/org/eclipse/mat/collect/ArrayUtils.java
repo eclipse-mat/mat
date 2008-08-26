@@ -321,7 +321,7 @@ public class ArrayUtils
         int srcEnd = srcOffset + length;
 
         for (int i = srcOffset; i < srcEnd; i++)
-            count[(int) ((srcKeys[i] >> (shiftBits)) & 0xff)]++;
+            count[((srcKeys[i] >> (shiftBits)) & 0xff)]++;
 
         /* index[0] = 0 */
         for (int i = 1; i < 256; i++)
@@ -329,7 +329,7 @@ public class ArrayUtils
 
         for (int i = srcOffset; i < srcEnd; i++)
         {
-            int idx = (int) ((srcKeys[i] >> (shiftBits)) & 0xff);
+            int idx = ((srcKeys[i] >> (shiftBits)) & 0xff);
             destValues[trgOffset + index[idx]] = srcValues[i];
             destKeys[trgOffset + index[idx]++] = srcKeys[i];
         }

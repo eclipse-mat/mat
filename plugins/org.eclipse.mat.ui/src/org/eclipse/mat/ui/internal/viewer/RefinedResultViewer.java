@@ -882,7 +882,7 @@ public abstract class RefinedResultViewer
                 switch (e.type)
                 {
                     case SWT.FocusOut:
-                        updateCriteria(item, filter, columnIndex, text.getText());
+                        updateCriteria(filter, columnIndex, text.getText());
                         composite.dispose();
                         break;
 
@@ -900,7 +900,7 @@ public abstract class RefinedResultViewer
                         {
                             case SWT.TRAVERSE_RETURN:
                                 // $JL-SWITCH$ fall through
-                                updateCriteria(item, filter, columnIndex, text.getText());
+                                updateCriteria(filter, columnIndex, text.getText());
                             case SWT.TRAVERSE_ESCAPE:
                                 composite.dispose();
                                 e.doit = false;
@@ -909,7 +909,7 @@ public abstract class RefinedResultViewer
                 }
             }
 
-            private void updateCriteria(final Item filterRow, final Filter filter, final int columnIndex, String text)
+            private void updateCriteria(final Filter filter, final int columnIndex, String text)
             {
                 boolean changed = false;
                 try

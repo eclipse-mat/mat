@@ -80,7 +80,7 @@ public class ParseSnapshotApp implements IApplication
     public void stop()
     {}
 
-    private void parse(File file, List<Spec> reports) throws SnapshotException, IOException
+    private void parse(File file, List<Spec> reports) throws SnapshotException
     {
         long startTime = System.currentTimeMillis();
 
@@ -97,7 +97,7 @@ public class ParseSnapshotApp implements IApplication
             {
                 try
                 {
-                    runReport(file, snapshot, report);
+                    runReport(snapshot, report);
                 }
                 catch (SnapshotException e)
                 {
@@ -115,7 +115,7 @@ public class ParseSnapshotApp implements IApplication
         }
     }
 
-    private void runReport(File heapFile, ISnapshot snapshot, Spec report) throws SnapshotException, IOException
+    private void runReport(ISnapshot snapshot, Spec report) throws SnapshotException, IOException
     {
         TestSuite suite = new TestSuite.Builder(report) //
                         .build(new SnapshotQueryContext(snapshot));

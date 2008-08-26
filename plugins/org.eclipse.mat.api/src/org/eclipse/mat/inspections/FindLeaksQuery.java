@@ -140,7 +140,7 @@ public class FindLeaksQuery implements IQuery
         /*
          * build the results
          */
-        return buildResult(suspiciousObjects, suspiciousClasses, totalHeap, threshold, listener);
+        return buildResult(suspiciousObjects, suspiciousClasses, totalHeap, listener);
 
     }
 
@@ -305,7 +305,7 @@ public class FindLeaksQuery implements IQuery
     }
 
     private IResult buildResult(ArrayInt suspiciousObjects, ArrayList<ClassHistogramRecord> suspiciousClasses,
-                    long totalHeap, long threshold, IProgressListener listener) throws SnapshotException
+                    long totalHeap, IProgressListener listener) throws SnapshotException
     {
         SuspectRecord[] allSuspects = new SuspectRecord[suspiciousObjects.size() + suspiciousClasses.size()];
         int j = 0;

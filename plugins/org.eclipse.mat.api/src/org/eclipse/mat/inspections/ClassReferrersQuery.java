@@ -259,7 +259,7 @@ public class ClassReferrersQuery implements IQuery
                 ids.add(node.objects.get(i));
 
             ClassNode parentNode = node;
-            while (parentNode.parent instanceof ClassNode && !ids.isEmpty())
+            while (parentNode.parent != null && !ids.isEmpty())
             {
                 parentNode = parentNode.parent;
                 if (parentNode.classId == node.classId)

@@ -72,7 +72,7 @@ public class Converters
     {
         String result;
 
-        IConverter<Object> converter = (IConverter<Object>) getConverter(type);
+        IConverter<Object> converter = getConverter(type);
         if (converter != null)
             result = converter.toString(value);
         else

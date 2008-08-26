@@ -165,7 +165,7 @@ public abstract class IndexReader
 
     }
 
-    static class IntIndex1NReader implements IIndexReader.IOne2ManyIndex
+    /* package */static class IntIndex1NReader implements IIndexReader.IOne2ManyIndex
     {
         File indexFile;
         SimpleBufferedRandomAccessInputStream in;
@@ -199,7 +199,6 @@ public abstract class IndexReader
         }
 
         public IntIndex1NReader(File indexFile, IIndexReader.IOne2OneIndex header, IIndexReader.IOne2OneIndex body)
-                        throws IOException
         {
             this.indexFile = indexFile;
             this.header = ((IntIndexReader) header);
@@ -294,6 +293,9 @@ public abstract class IndexReader
             super(indexFile);
         }
 
+        /**
+         * @throws IOException
+         */
         public IntIndex1NSortedReader(File indexFile, IOne2OneIndex header, IOne2OneIndex body) throws IOException
         {
             super(indexFile, header, body);

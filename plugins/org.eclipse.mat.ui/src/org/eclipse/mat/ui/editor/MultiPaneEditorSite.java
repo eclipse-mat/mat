@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.mat.ui.editor;
 
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -156,16 +155,6 @@ public class MultiPaneEditorSite implements IEditorSite
         {
             selectionProvider.addSelectionChangedListener(getSelectionChangedListener());
         }
-    }
-
-    public void progressEnd(Job job)
-    {
-    // Do nothing
-    }
-
-    public void progressStart(Job job)
-    {
-    // Do nothing
     }
 
     @SuppressWarnings("unchecked")

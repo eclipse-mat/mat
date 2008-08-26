@@ -531,37 +531,6 @@ public class RefinedTreeViewer extends RefinedResultViewer
                 ((TreeItem) item).setItemCount(count);
         }
 
-        public void clearAll(Item item, boolean all)
-        {
-            if (item == null)
-                tree.clearAll(all);
-            else
-                ((TreeItem) item).clearAll(all);
-        }
-
-        public void clear(Item item, boolean all)
-        {
-            TreeItem mine = (TreeItem) item;
-            TreeItem parent = mine.getParentItem();
-            if (parent != null)
-            {
-                parent.clear(parent.indexOf(mine), false);
-            }
-            else
-            {
-                Tree tree = mine.getParent();
-                mine.getParent().clear(tree.indexOf(mine), false);
-            }
-        }
-
-        public void clear(Item parent, int index, boolean all)
-        {
-            if (parent != null)
-                ((TreeItem) parent).clear(index, all);
-            else
-                tree.clear(index, all);
-        }
-
         public Item getItem(Point pt)
         {
             return tree.getItem(pt);
@@ -580,7 +549,7 @@ public class RefinedTreeViewer extends RefinedResultViewer
 
         public Item[] getSelection()
         {
-            return (Item[]) tree.getSelection();
+            return tree.getSelection();
         }
 
         public Item createColumn(Column queryColumn, int index, SelectionListener listener)

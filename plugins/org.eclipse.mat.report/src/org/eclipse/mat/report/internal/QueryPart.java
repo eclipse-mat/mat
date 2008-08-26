@@ -152,7 +152,7 @@ public class QueryPart extends AbstractPart
         // renderer
         if (result instanceof RefinedTable && !hasParameterThatNeedRefining)
         {
-            readParamsAndProcess(renderer, context, (RefinedStructuredResult) result);
+            readParamsAndProcess(renderer, (RefinedStructuredResult) result);
         }
         else if (result instanceof IResultTable)
         {
@@ -161,7 +161,7 @@ public class QueryPart extends AbstractPart
         }
         else if (result instanceof RefinedTree && !hasParameterThatNeedRefining)
         {
-            readParamsAndProcess(renderer, context, (RefinedStructuredResult) result);
+            readParamsAndProcess(renderer, (RefinedStructuredResult) result);
         }
         else if (result instanceof IResultTree)
         {
@@ -274,7 +274,7 @@ public class QueryPart extends AbstractPart
         renderer.process(this, builder.build(), rInfo);
     }
 
-    private void readParamsAndProcess(ResultRenderer renderer, IQueryContext context, RefinedStructuredResult result)
+    private void readParamsAndProcess(ResultRenderer renderer, RefinedStructuredResult result)
                     throws IOException
     {
         RenderingInfo rInfo = new RenderingInfo(this, renderer, result.getColumns().length);

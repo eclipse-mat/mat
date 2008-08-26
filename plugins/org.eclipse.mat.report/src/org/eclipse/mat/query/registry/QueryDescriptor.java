@@ -83,6 +83,11 @@ public class QueryDescriptor
         return subject;
     }
 
+    /**
+     * Create ArgumentSet.
+     * 
+     * @throws SnapshotException
+     */
     public ArgumentSet createNewArgumentSet(IQueryContext context) throws SnapshotException
     {
         return new ArgumentSet(this, context);

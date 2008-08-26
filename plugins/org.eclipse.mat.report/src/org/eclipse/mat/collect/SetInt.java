@@ -160,7 +160,7 @@ public final class SetInt implements Serializable
     {
         capacity = PrimeFinder.findNextPrime(initialCapacity);
         step = PrimeFinder.findPrevPrime(initialCapacity);
-        limit = (int) ((float) capacity * 0.75);
+        limit = (int) (capacity * 0.75);
         clear();
         keys = new int[capacity];
     }

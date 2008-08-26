@@ -558,7 +558,7 @@ public class OQLQueryImpl implements IOQLQuery
     // oql execution
     // //////////////////////////////////////////////////////////////
 
-    public OQLQueryImpl(EvaluationContext parent, Query query) throws OQLParseException
+    public OQLQueryImpl(EvaluationContext parent, Query query)
     {
         init(parent, query);
     }

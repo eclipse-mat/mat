@@ -14,7 +14,6 @@ import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
@@ -273,6 +272,7 @@ public abstract class IndexWriter
             return answer;
         }
 
+        @SuppressWarnings("null")
         public int[] getAll(int index[])
         {
             int[] answer = new int[index.length];
@@ -432,7 +432,7 @@ public abstract class IndexWriter
             return getReader(null);
         }
 
-        void openStream(DataOutputStream out, long position) throws FileNotFoundException
+        void openStream(DataOutputStream out, long position)
         {
             this.out = out;
 
@@ -620,6 +620,9 @@ public abstract class IndexWriter
             return createReader(headerIndex, body.getReader(null));
         }
 
+        /**
+         * @throws IOException
+         */
         protected IIndexReader.IOne2ManyIndex createReader(IIndexReader.IOne2OneIndex headerIndex,
                         IIndexReader.IOne2OneIndex bodyIndex) throws IOException
         {
@@ -686,6 +689,9 @@ public abstract class IndexWriter
         BitOutputStream[] segments;
         int[] segmentSizes;
 
+        /**
+         * @throws IOException
+         */
         public InboundWriter(int size, File indexFile) throws IOException
         {
             this.size = size;
@@ -922,6 +928,9 @@ public abstract class IndexWriter
         int[][] elements;
         File indexFile;
 
+        /**
+         * @throws IOException
+         */
         public IntArray1NUncompressedCollector(int size, File indexFile) throws IOException
         {
             this.elements = new int[size][];
@@ -1042,6 +1051,7 @@ public abstract class IndexWriter
             return answer;
         }
 
+        @SuppressWarnings("null")
         public int reverse(long value)
         {
             int low = 0;
@@ -1274,7 +1284,7 @@ public abstract class IndexWriter
             return getReader(indexFile);
         }
 
-        void openStream(DataOutputStream out, long position) throws FileNotFoundException
+        void openStream(DataOutputStream out, long position)
         {
             this.out = out;
 

@@ -94,7 +94,7 @@ public class MultiplePathsFromGCRootsRecord
             }
         }
 
-        return (MultiplePathsFromGCRootsRecord[]) nextLevelRecords.getAllValues(new MultiplePathsFromGCRootsRecord[0]);
+        return nextLevelRecords.getAllValues(new MultiplePathsFromGCRootsRecord[0]);
 
     }
 

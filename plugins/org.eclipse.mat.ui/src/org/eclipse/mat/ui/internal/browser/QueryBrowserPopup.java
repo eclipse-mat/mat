@@ -46,7 +46,6 @@ import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontMetrics;
 import org.eclipse.swt.graphics.GC;
@@ -62,7 +61,6 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.themes.ColorUtil;
 
 
 public class QueryBrowserPopup extends PopupDialog
@@ -90,7 +88,6 @@ public class QueryBrowserPopup extends PopupDialog
     private Text filterText;
     private QueryContextHelp helpText;
     private Table table;
-    private Color grayColor;
     private TextLayout textLayout;
 
     private boolean resized = false;
@@ -301,9 +298,6 @@ public class QueryBrowserPopup extends PopupDialog
             }
         });
 
-        grayColor = resourceManager.createColor(ColorUtil.blend(table.getBackground().getRGB(), table.getForeground()
-                        .getRGB()));
-
         final TextStyle boldStyle = new TextStyle(boldFont, null, null);
         Listener listener = new Listener()
         {
@@ -318,7 +312,7 @@ public class QueryBrowserPopup extends PopupDialog
                             entry.measure(event, textLayout, resourceManager, boldStyle);
                             break;
                         case SWT.PaintItem:
-                            entry.paint(event, textLayout, resourceManager, boldStyle, grayColor);
+                            entry.paint(event, textLayout, resourceManager, boldStyle);
                             break;
                         case SWT.EraseItem:
                             entry.erase(event);

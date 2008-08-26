@@ -74,7 +74,7 @@ public abstract class RegistryReader<D> implements IExtensionChangeHandler
 
             try
             {
-                D delegate = (D) createDelegate(configs[i]);
+                D delegate = createDelegate(configs[i]);
                 if (delegate != null)
                 {
                     delegates.add(delegate);

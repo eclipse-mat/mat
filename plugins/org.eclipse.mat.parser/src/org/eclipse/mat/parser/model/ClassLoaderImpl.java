@@ -69,6 +69,7 @@ public class ClassLoaderImpl extends InstanceImpl implements IClassLoader
         return label;
     }
 
+    @SuppressWarnings("null")
     public List<IClass> getDefinedClasses() throws SnapshotException
     {
         List<IClass> result = definedClasses;

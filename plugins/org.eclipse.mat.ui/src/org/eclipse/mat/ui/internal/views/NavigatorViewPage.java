@@ -217,7 +217,7 @@ public class NavigatorViewPage extends Page implements ISelectionProvider, IDoub
 
     private void close(boolean remove, boolean recursive)
     {
-        TreeItem[] selection = (TreeItem[]) treeViewer.getTree().getSelection();
+        TreeItem[] selection = treeViewer.getTree().getSelection();
         List<PaneState> selectedStates = new ArrayList<PaneState>(selection.length);
         for (TreeItem treeItem : selection)
         {

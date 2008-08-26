@@ -70,6 +70,7 @@ public class ClassLoaderHistogramRecord extends HistogramRecord
      * Get ids of the objects this class loader histogram record stands for.
      * 
      * @return ids of the objects this class loader histogram record stands for
+     * @throws SnapshotException
      */
     public int[] getObjectIds() throws SnapshotException
     {

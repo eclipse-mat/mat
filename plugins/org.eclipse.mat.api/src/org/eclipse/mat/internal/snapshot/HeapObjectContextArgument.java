@@ -22,7 +22,6 @@ import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.VoidProgressListener;
 
-
 public class HeapObjectContextArgument extends HeapObjectArgumentFactory
 {
     List<IContextObject> context;
@@ -40,12 +39,12 @@ public class HeapObjectContextArgument extends HeapObjectArgumentFactory
     {
         return label != null ? "[" + label + "]" : "[context]";
     }
-    
+
     public void appendUsage(StringBuilder buf)
     {
         buf.append(toString());
     }
-    
+
     @Override
     protected int[] asIntegerArray() throws SnapshotException
     {
@@ -60,7 +59,7 @@ public class HeapObjectContextArgument extends HeapObjectArgumentFactory
 
             public int[] getIds(IProgressListener listener) throws SnapshotException
             {
-                return HeapObjectContextArgument.this.getIds(snapshot, listener);
+                return HeapObjectContextArgument.this.getIds(listener);
             }
 
             public Iterator<int[]> iterator()
@@ -98,7 +97,7 @@ public class HeapObjectContextArgument extends HeapObjectArgumentFactory
         };
     }
 
-    private int[] getIds(ISnapshot snapshot, IProgressListener listener)
+    private int[] getIds(IProgressListener listener)
     {
         ArrayIntBig objIdxs = new ArrayIntBig();
         for (IContextObject ctx : context)
@@ -107,6 +106,9 @@ public class HeapObjectContextArgument extends HeapObjectArgumentFactory
                 objIdxs.addAll(((IContextObjectSet) ctx).getObjectIds());
             else
                 objIdxs.add(ctx.getObjectId());
+
+            if (listener.isCanceled())
+                throw new IProgressListener.OperationCanceledException();
         }
 
         return objIdxs.toArray();

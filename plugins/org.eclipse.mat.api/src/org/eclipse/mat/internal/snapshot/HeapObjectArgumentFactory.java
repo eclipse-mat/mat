@@ -89,7 +89,7 @@ public abstract class HeapObjectArgumentFactory implements ArgumentFactory
     }
 
     private Object assignObjectIds(ArgumentDescriptor argument, ISnapshot snapshot, int[] objectIds)
-                    throws IllegalArgumentException, IllegalAccessException, SnapshotException
+                    throws IllegalArgumentException, SnapshotException
     {
         if (argument.isArray())
         {

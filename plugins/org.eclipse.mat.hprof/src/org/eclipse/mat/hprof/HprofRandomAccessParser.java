@@ -57,7 +57,7 @@ public class HprofRandomAccessParser extends AbstractParser
         switch (segmentType)
         {
             case Constants.DumpSegment.INSTANCE_DUMP:
-                return readInstanceDump(objectId, position, dump);
+                return readInstanceDump(objectId, dump);
             case Constants.DumpSegment.OBJECT_ARRAY_DUMP:
                 return readObjectArrayDump(objectId, dump);
             case Constants.DumpSegment.PRIMITIVE_ARRAY_DUMP:
@@ -83,7 +83,7 @@ public class HprofRandomAccessParser extends AbstractParser
         return answer;
     }
 
-    private IObject readInstanceDump(int objectId, long position, ISnapshot dump) throws IOException, SnapshotException
+    private IObject readInstanceDump(int objectId, ISnapshot dump) throws IOException, SnapshotException
     {
         long address = readID();
         if (in.skipBytes(8 + idSize) != 8 + idSize)

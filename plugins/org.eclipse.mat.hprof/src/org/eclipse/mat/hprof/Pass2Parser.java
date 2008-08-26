@@ -261,19 +261,19 @@ public class Pass2Parser extends AbstractParser
         if ((elementType < IPrimitiveArray.Type.BOOLEAN) || (elementType > IPrimitiveArray.Type.LONG))
             throw new SnapshotException("Illegal primitive object array type");
 
-        String name = IPrimitiveArray.TYPE[(int) elementType];
+        String name = IPrimitiveArray.TYPE[elementType];
         ClassImpl clazz = (ClassImpl) handler.lookupClassByName(name, true);
         if (clazz == null)
             throw new RuntimeException("handler must create fake class for " + name);
 
         HeapObject heapObject = new HeapObject(handler.mapAddressToId(id), id, clazz, PrimitiveArrayImpl
-                        .doGetUsedHeapSize(clazz, size, (int) elementType));
+                        .doGetUsedHeapSize(clazz, size, elementType));
         heapObject.references.add(clazz.getObjectAddress());
         heapObject.isArray = true;
 
         handler.addObject(heapObject, segmentStartPost);
 
-        int elementSize = IPrimitiveArray.ELEMENT_SIZE[(int) elementType];
+        int elementSize = IPrimitiveArray.ELEMENT_SIZE[elementType];
         in.skipBytes(elementSize * size);
     }
 

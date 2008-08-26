@@ -52,8 +52,7 @@ public class RendererRegistry extends RegistryReader<IOutputter>
 
         String format = annotation.target();
 
-        Map<Class<? extends IResult>, IOutputter> theFormatMap = (Map<Class<? extends IResult>, IOutputter>) theMap
-                        .get(format);
+        Map<Class<? extends IResult>, IOutputter> theFormatMap = theMap.get(format);
         if (theFormatMap == null)
             theMap.put(format, theFormatMap = new HashMap<Class<? extends IResult>, IOutputter>());
 

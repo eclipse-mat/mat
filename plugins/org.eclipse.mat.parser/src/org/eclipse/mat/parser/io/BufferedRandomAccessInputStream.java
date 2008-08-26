@@ -146,6 +146,9 @@ public class BufferedRandomAccessInputStream extends InputStream
         raf.close();
     }
 
+    /**
+     * @throws IOException
+     */
     public void seek(long pos) throws IOException
     {
         reported_pos = pos;

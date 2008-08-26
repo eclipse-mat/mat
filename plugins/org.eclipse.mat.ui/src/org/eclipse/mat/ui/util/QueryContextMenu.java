@@ -335,6 +335,14 @@ public class QueryContextMenu
         }
     }
 
+    /**
+     * To be overwritten by sub-classes.
+     * 
+     * @param menu
+     * @param menuContext
+     * @param provider
+     * @param label
+     */
     protected void customMenu(PopupMenu menu, List<IContextObject> menuContext, ContextProvider provider, String label)
     {
     // do nothing, to be overwritten

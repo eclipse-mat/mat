@@ -66,6 +66,7 @@ public class SnapshotInfo implements Serializable
                     long usedHeapSize)
     {
         this.path = path;
+        this.prefix = prefix;
         this.jvmInfo = jvmInfo;
         this.identifierSize = identifierSize;
         this.creationDate = creationDate != null ? new Date(creationDate.getTime()) : null;

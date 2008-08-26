@@ -47,7 +47,7 @@ public class LeakingPlugins implements IQuery
         {
             for (int objectId : clazz.getObjectIds())
             {
-                IObject proxy = (IObject) snapshot.getObject(objectId);
+                IObject proxy = snapshot.getObject(objectId);
                 boolean isStale = (Boolean)proxy.resolveValue("stale");
                 if (isStale)
                 {

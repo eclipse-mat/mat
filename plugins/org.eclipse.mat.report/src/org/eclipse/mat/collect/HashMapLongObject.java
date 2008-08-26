@@ -295,7 +295,7 @@ public final class HashMapLongObject<E> implements Serializable
     {
         capacity = PrimeFinder.findNextPrime(initialCapacity);
         step = PrimeFinder.findPrevPrime(initialCapacity);
-        limit = (int) ((float) capacity * 0.75);
+        limit = (int) (capacity * 0.75);
         clear();
         keys = new long[capacity];
         // This cast is ok as long as nobody assigns the field values to a field

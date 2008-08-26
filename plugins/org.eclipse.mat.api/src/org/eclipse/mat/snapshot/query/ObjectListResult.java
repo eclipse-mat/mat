@@ -143,7 +143,7 @@ public final class ObjectListResult
             return objects;
         }
 
-        private final List<?> asList(Node parent, int[] ids) throws SnapshotException
+        private final List<?> asList(Node parent, int[] ids)
         {
             List<LinkedNode> objects = new ArrayList<LinkedNode>(ids.length);
             for (int ii = 0; ii < ids.length; ii++)

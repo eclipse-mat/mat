@@ -49,7 +49,6 @@ import org.eclipse.mat.snapshot.query.Icons;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.VoidProgressListener;
 
-
 @Name("Dominator Tree")
 @CommandName("dominator_tree")
 @Category(Category.HIDDEN)
@@ -600,7 +599,8 @@ public class DominatorQuery implements IQuery
 
     private static class ClassLoaderTree extends Tree implements IIconProvider
     {
-        static List<?> prepareSet(ISnapshot snapshot, int[] roots, IProgressListener listener) throws SnapshotException
+        /* package */static List<?> prepareSet(ISnapshot snapshot, int[] roots, IProgressListener listener)
+                        throws SnapshotException
         {
             HashMapIntObject<GroupedNode> classLoader2node = new HashMapIntObject<GroupedNode>();
 
@@ -625,6 +625,9 @@ public class DominatorQuery implements IQuery
                 node.objects.add(dominatedId);
                 node.shallowHeap += snapshot.getHeapSize(dominatedId);
                 node.retainedHeap += snapshot.getRetainedHeapSize(dominatedId);
+
+                if (ii / 100 == 0 && listener.isCanceled())
+                    throw new IProgressListener.OperationCanceledException();
             }
 
             return Arrays.asList(classLoader2node.getAllValues());

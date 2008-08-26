@@ -694,7 +694,7 @@ public class LeakHunterQuery implements IQuery
     }
 
     private ThreadInfoQuery.Result extractThreadData(int threadId, Set<String> keywords,
-                    List<IClassLoader> involvedClassloaders, StringBuilder builder) throws SnapshotException
+                    List<IClassLoader> involvedClassloaders, StringBuilder builder)
     {
         ThreadInfoQuery.Result threadDetails = null;
 

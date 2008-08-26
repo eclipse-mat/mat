@@ -144,7 +144,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
             javaLangClass.addInstance(clazz.getUsedHeapSize());
 
             // resolve super class
-            ClassImpl superclass = (ClassImpl) lookupClass(clazz.getSuperClassAddress());
+            ClassImpl superclass = lookupClass(clazz.getSuperClassAddress());
             if (superclass != null)
                 superclass.addSubClass(clazz);
 
@@ -220,7 +220,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
         if (!clazz.isArrayType())
         {
             if (clazz.getSuperClassAddress() == 0) { return 2 * info.getIdentifierSize(); }
-            ClassImpl superClass = (ClassImpl) classesByAddress.get(clazz.getSuperClassAddress());
+            ClassImpl superClass = classesByAddress.get(clazz.getSuperClassAddress());
             int ownFieldsSize = 0;
             for (FieldDescriptor field : clazz.getFieldDescriptors())
                 ownFieldsSize += sizeOf(field);
@@ -268,7 +268,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
         // Array classes, e.g. java.lang.String[][] are not explicitly
         // marked. They are also not marked as "system class" in the non-jmap
         // heap dumps
-        ClassImpl[] allClasses = (ClassImpl[]) classesByAddress.getAllValues(new ClassImpl[0]);
+        ClassImpl[] allClasses = classesByAddress.getAllValues(new ClassImpl[0]);
         for (ClassImpl clazz : allClasses)
         {
             if (clazz.getClassLoaderAddress() == 0 && !clazz.isArrayType()
@@ -381,7 +381,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
     {
         if (referrer != 0)
         {
-            HashMapLongObject localAddressToRootInfo = (HashMapLongObject) threadAddressToLocals.get(referrer);
+            HashMapLongObject localAddressToRootInfo = threadAddressToLocals.get(referrer);
             if (localAddressToRootInfo == null)
             {
                 localAddressToRootInfo = new HashMapLongObject();
@@ -475,7 +475,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
 
     public ClassImpl lookupClass(long classId)
     {
-        return (ClassImpl) classesByAddress.get(classId);
+        return classesByAddress.get(classId);
     }
 
     public IClass lookupClassByName(String name, boolean failOnMultipleInstances)
@@ -497,12 +497,12 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
     {
         List<IClass> answer = new ArrayList<IClass>();
 
-        ClassImpl clazz = (ClassImpl) classesByAddress.get(classId);
+        ClassImpl clazz = classesByAddress.get(classId);
         answer.add(clazz);
 
         while (clazz.hasSuperClass())
         {
-            clazz = (ClassImpl) classesByAddress.get(clazz.getSuperClassAddress());
+            clazz = classesByAddress.get(clazz.getSuperClassAddress());
             answer.add(clazz);
         }
 

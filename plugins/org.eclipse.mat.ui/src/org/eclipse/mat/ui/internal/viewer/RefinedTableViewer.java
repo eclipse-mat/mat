@@ -221,7 +221,7 @@ public class RefinedTableViewer extends RefinedResultViewer
 
         public Item[] getSelection()
         {
-            return (Item[]) table.getSelection();
+            return table.getSelection();
         }
 
         public Item createColumn(Column queryColumn, int index, SelectionListener listener)

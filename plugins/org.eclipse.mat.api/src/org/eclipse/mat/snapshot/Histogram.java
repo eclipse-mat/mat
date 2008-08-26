@@ -530,10 +530,12 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
         report.append(";");
         report.append(headers[4]);
         report.append(";\r\n");
+        
+        Collections.sort(records, comparator);
+        
         for (ClassLoaderHistogramRecord classloaderRecord : records)
         {
-            Collection<ClassHistogramRecord> classRecords = ((ClassLoaderHistogramRecord) classloaderRecord)
-                            .getClassHistogramRecords();
+            Collection<ClassHistogramRecord> classRecords = classloaderRecord.getClassHistogramRecords();
             List<ClassHistogramRecord> list = new ArrayList<ClassHistogramRecord>(classRecords);
             Collections.sort(list, Histogram.COMPARATOR_FOR_USEDHEAPSIZE);
             for (int i = list.size() - 1; i >= 0; i--)

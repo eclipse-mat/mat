@@ -19,7 +19,6 @@ import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.collect.SetInt;
 import org.eclipse.mat.snapshot.model.IClass;
 
-
 public class MultiplePathsFromGCRootsClassRecord
 {
     private List<int[]> paths = new ArrayList<int[]>();
@@ -66,8 +65,7 @@ public class MultiplePathsFromGCRootsClassRecord
             }
         }
 
-        return (MultiplePathsFromGCRootsClassRecord[]) nextLevelRecords
-                        .getAllValues(new MultiplePathsFromGCRootsClassRecord[0]);
+        return nextLevelRecords.getAllValues(new MultiplePathsFromGCRootsClassRecord[0]);
 
     }
 

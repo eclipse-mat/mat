@@ -86,7 +86,7 @@ public class ChartCanvas extends Canvas
         });
     }
 
-    private void generateChartState(GC gc)
+    private void generateChartState()
     {
         try
         {
@@ -132,7 +132,7 @@ public class ChartCanvas extends Canvas
 
             if (chart != null)
             {
-                generateChartState(gc);
+                generateChartState();
                 Generator gr = Generator.instance();
                 gr.render(render, state);
             }

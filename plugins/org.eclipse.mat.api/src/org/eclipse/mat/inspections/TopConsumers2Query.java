@@ -220,13 +220,15 @@ public class TopConsumers2Query implements IQuery
 
     /** find suspect classes */
     private void addTopLevelDominatorClasses(SectionSpec composite, Histogram histogram, IProgressListener listener)
-                    throws SnapshotException
     {
         ClassHistogramRecord[] records = histogram.getClassHistogramRecords().toArray(new ClassHistogramRecord[0]);
         Arrays.sort(records, Histogram.reverseComparator(Histogram.COMPARATOR_FOR_RETAINEDHEAPSIZE));
 
         PieFactory pie = new PieFactory(snapshot, totalHeap);
         ArrayList<ClassHistogramRecord> suspects = new ArrayList<ClassHistogramRecord>();
+
+        if (listener.isCanceled())
+            throw new IProgressListener.OperationCanceledException();
 
         for (ClassHistogramRecord record : records)
         {
@@ -289,6 +291,9 @@ public class TopConsumers2Query implements IQuery
 
         PieFactory pie = new PieFactory(snapshot, totalHeap);
         ArrayList<ClassLoaderHistogramRecord> suspects = new ArrayList<ClassLoaderHistogramRecord>();
+        
+        if (listener.isCanceled())
+            throw new IProgressListener.OperationCanceledException();
 
         for (ClassLoaderHistogramRecord record : records)
         {
@@ -388,8 +393,7 @@ public class TopConsumers2Query implements IQuery
                 String name = loader.getClassSpecificName();
                 if (name == null)
                     name = loader.getTechnicalName();
-                loaderRecord = new ClassLoaderHistogramRecord(name, loader.getObjectId(),
-                                null, 0, 0, 0);
+                loaderRecord = new ClassLoaderHistogramRecord(name, loader.getObjectId(), null, 0, 0, 0);
                 id2loader.put(clazz.getClassLoaderId(), loaderRecord);
             }
             loaderRecord.incNumberOfObjects();
@@ -514,7 +518,7 @@ public class TopConsumers2Query implements IQuery
         public Object getValueFor(Object row)
         {
             HistogramRecord record = (HistogramRecord) row;
-            return (double) record.getRetainedHeapSize() / base;
+            return record.getRetainedHeapSize() / base;
         }
     }
 
@@ -569,7 +573,7 @@ public class TopConsumers2Query implements IQuery
                 case 1:
                     return node.retainedSize;
                 case 2:
-                    return (double) node.retainedSize / base;
+                    return node.retainedSize / base;
                 case 3:
                     return node.dominatorsCount;
             }
