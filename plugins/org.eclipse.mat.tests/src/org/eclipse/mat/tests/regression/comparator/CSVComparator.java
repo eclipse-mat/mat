@@ -34,10 +34,13 @@ public class CSVComparator implements IComparator
             System.err.println("FAILED> Files have different lengths");
             return differences;
         }
-        BufferedReader baselineReader = new BufferedReader(new FileReader(baseline.getAbsolutePath()), 1024);
-        BufferedReader testFileReader = new BufferedReader(new FileReader(testFile.getAbsolutePath()), 1024);
+        BufferedReader baselineReader = null;
+        BufferedReader testFileReader = null;
         try
         {
+            baselineReader = new BufferedReader(new FileReader(baseline.getAbsolutePath()), 1024);
+            testFileReader = new BufferedReader(new FileReader(testFile.getAbsolutePath()), 1024);
+
             String baseLine;
             String testLine;
             int lineNumber = 1;
@@ -58,7 +61,7 @@ public class CSVComparator implements IComparator
 
         }
         catch (IOException e)
-        {            
+        {
             System.err.println("ERROR> Failed to read the file " + e);
         }
         finally

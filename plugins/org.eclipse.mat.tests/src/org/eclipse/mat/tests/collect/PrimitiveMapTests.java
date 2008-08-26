@@ -165,7 +165,7 @@ public class PrimitiveMapTests
 
             try
             {
-                retValue = delegate.get((Integer) key);
+                retValue = delegate.get(key);
             }
             catch (NoSuchElementException ignore)
             {}

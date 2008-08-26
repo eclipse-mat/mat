@@ -1,5 +1,4 @@
 <section name="Regression Tests"> 
-	<param key="clock_report" value="true"/>
 	<query name="info">
 		<param key="format" value="csv" />
 		<param key="filename" value="info.csv"/>
@@ -55,7 +54,7 @@
 	</query>	
 	<query name="Paths from GC Roots">
 		<param key="format" value="csv" />
-		<param key="filename" value="Paths_from_GC_Roots.csv"/>
+		<param key="filename" value="Paths_from_GC_Root.csv"/>
 		<param key="html.separate_file" value="true" />
 		<command>path2gc_reg_test</command>
 		<param key="limit" value="100" />

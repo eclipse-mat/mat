@@ -14,37 +14,34 @@ import java.io.File;
 
 public class CleanAllApplication
 {
-    private String[] args;   
-    
-    public CleanAllApplication(String[] args)
+    private File dumpDir;
+
+    public CleanAllApplication(File dumpDir)
     {
-        this.args = args;
+        this.dumpDir = dumpDir;
     }
 
     public void run() throws Exception
-    {        
-        File dumpDir = new File(args[0]);
-        if (!dumpDir.isDirectory())
-        {
-            System.err.println("Please provide a directory");
-            return;
-        }
-
-        File[] indexes = dumpDir.listFiles(RegTestUtils.cleanupFilter);
-        for (File indexFile : indexes)
-        {
-            if (indexFile.isDirectory())
-            {
-                for (File file : indexFile.listFiles(RegTestUtils.cleanupFilter))
-                {
-                    RegTestUtils.removeFile(file);
-                }
-            }
-            RegTestUtils.removeFile(indexFile);
-        }
-
+    {
+        remove(dumpDir);
     }
 
-   
+    private void remove(File dir)
+    {
+        File[] filesToRemove = dir.listFiles(RegTestUtils.cleanupFilter);
+        for (File file : filesToRemove)
+        {
+            if (file.isDirectory())
+            {
+                remove(file);
+                if (file.listFiles().length == 0)
+                    RegTestUtils.removeFile(file);
+            }
+            else
+            {
+                RegTestUtils.removeFile(file);
+            }
+        }
+    }
 
 }

@@ -16,21 +16,15 @@ import java.util.List;
 
 public class ForceNewBaselineApplication
 {
-    private String[] args;
+    private File dumpDir;
     
-    public ForceNewBaselineApplication(String[] args)
+    public ForceNewBaselineApplication(File dumpDir)
     {
-        this.args = args;
+        this.dumpDir = dumpDir;
     }
 
     public void run()
-    {
-        File dumpDir = new File(args[0]);
-        if (!dumpDir.isDirectory())
-        {
-            System.err.println("Please provide a directory");
-            return;
-        }
+    {   
 
         List<File> dumps = RegTestUtils.collectDumps(dumpDir, new ArrayList<File>());
         for (File dump : dumps)

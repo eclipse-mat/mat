@@ -10,9 +10,8 @@
  *******************************************************************************/
 package org.eclipse.mat.tests.regression;
 
+import java.io.File;
 import java.text.MessageFormat;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
@@ -22,44 +21,62 @@ public class Application implements IApplication
     public Object start(IApplicationContext context) throws Exception
     {
         String[] args = (String[]) context.getArguments().get(IApplicationContext.APPLICATION_ARGS);
-       
-        if (args.length !=3)
+
+        if (args.length != 3)
         {
-            System.err.println("Missing parameters.\r\n  Usage: <application> [dumpFolder] [jvmargs]");
+            printUsage("Missing parameters.");
             return IApplication.EXIT_RELAUNCH;
         }
-            
+
         String application = args[0];
 
-        String[] appArgs = new String[args.length - 1];
-        System.arraycopy(args, 1, appArgs, 0, appArgs.length);
+        File dumpDir = new File(args[1]);
+        if (!dumpDir.isDirectory())
+        {
+            printUsage(MessageFormat.format("{0} is not a directory", dumpDir.getAbsolutePath()));
+            return IApplication.EXIT_RELAUNCH;
+        }
+        String jvmFlags = args[2];
 
         if ("-cleanAll".equals(application))
         { // removes index files and last test results
-            new CleanAllApplication(appArgs).run();
+            new CleanAllApplication(dumpDir).run();
         }
         else if ("-newBaseline".equals(application))
         {
-            new ForceNewBaselineApplication(appArgs).run();
-        }    
+            new ForceNewBaselineApplication(dumpDir).run();
+        }
         else if ("-test".equals(application))
         {
-            new TestApplication(appArgs, "regression", true).run();
+            new TestApplication(dumpDir, jvmFlags, "regression", true).run();
         }
-        else if("-performance".equals(application))
+        else if ("-performance".equals(application))
         {
-            new TestApplication(appArgs, "performance", false).run();
+            new TestApplication(dumpDir, jvmFlags, "performance", false).run();
         }
         else
         {
-            Logger.getLogger(getClass().getName()).log(Level.SEVERE,
-                            MessageFormat.format("Unknown application: {0}", application));
+            printUsage(MessageFormat.format("Unknown application: {0}", application));
             return IApplication.EXIT_RELAUNCH;
-        }      
-      
+        }
+
         return IApplication.EXIT_OK;
-    }   
+    }
+
+    private void printUsage(String errorMessage)
+    {
+        System.err.println(errorMessage);
+        System.err
+                        .println("Usage: <application> <dumpFolder> <jvmargs>\n\n"
+                                        + "where:\n" //
+                                        + "  <application> one of -test : run regression tests\n" //
+                                        + "                       -cleanAll : clean index files and test results\n" //
+                                        + "                       -newBaseline : overwrite existing base line with the last test results\n" //
+                                        + "                       -performance : run performance tests\n" //
+                                        + "  <dumpFolder>  a directory with a set of heap dumps\n"
+                                        + "  <jvmargs>     the arguments passed through to the VM parsing the heap dumps.");
+    }
 
     public void stop()
-    {}    
+    {}
 }

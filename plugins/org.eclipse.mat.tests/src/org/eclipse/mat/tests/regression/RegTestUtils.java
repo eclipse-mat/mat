@@ -35,10 +35,8 @@ public class RegTestUtils
     {
         public boolean accept(File dir, String name)
         {
-            if (new File(dir, name).isDirectory())
-                return false;
-            Pattern hprofPattern = Pattern.compile(name.substring(0, name.lastIndexOf('.')) + "\\.hprof");
-            Pattern dtfjPattern = Pattern.compile(name.substring(0, name.lastIndexOf('.')) + "\\.dtfj");
+            Pattern hprofPattern = Pattern.compile(".*\\.hprof");
+            Pattern dtfjPattern = Pattern.compile(".*\\.dtfj");
             Pattern resultFilePattern = Pattern.compile("performanceResults.*\\.csv");
             return !hprofPattern.matcher(name).matches() && !name.endsWith(BASELINE_EXTENSION)
                             && !dtfjPattern.matcher(name).matches() && !resultFilePattern.matcher(name).matches();

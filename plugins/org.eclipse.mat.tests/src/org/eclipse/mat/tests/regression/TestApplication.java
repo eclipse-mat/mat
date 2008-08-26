@@ -61,7 +61,8 @@ import org.xml.sax.helpers.XMLReaderFactory;
 
 public class TestApplication
 {
-    private String[] args;
+    private File dumpDir;
+    private String jvmFlags;
     private String report;
     private boolean compare;
 
@@ -152,26 +153,17 @@ public class TestApplication
         }
     }
 
-    public TestApplication(String[] args, String report, boolean compare)
+    public TestApplication(File dumpDir, String jvmFlags, String report, boolean compare)
     {
-        this.args = args;
+        this.dumpDir = dumpDir;
+        this.jvmFlags = jvmFlags;
         this.report = report;
         this.compare = compare;
     }
 
     public void run() throws Exception
     {
-
-        File dumpsFolder = new File(args[0]);
-        if (!dumpsFolder.exists())
-        {
-            System.err.println("Provided directory does not exist");
-            return;
-        }
-
-        String jvmFlags = args[1];
-
-        List<File> dumpList = RegTestUtils.collectDumps(dumpsFolder, new ArrayList<File>());
+        List<File> dumpList = RegTestUtils.collectDumps(dumpDir, new ArrayList<File>());
 
         if (dumpList.isEmpty())
         {
@@ -195,7 +187,7 @@ public class TestApplication
                 }
                 catch (Exception e)
                 {
-                    //skip test suite for this heap dump                     
+                    // skip test suite for this heap dump
                     continue;
                 }
 
@@ -218,7 +210,7 @@ public class TestApplication
                 else
                 {
                     // record performance times
-                    recordTimes(dump, result, dumpsFolder);
+                    recordTimes(dump, result, dumpDir);
                 }
 
                 // do the cleanup only if all the tests succeeded
@@ -242,7 +234,7 @@ public class TestApplication
                 {
                     // generate XML report for regression tests
                     System.out.println("-------------------------------------------------------------------");
-                    generateXMLReport(dumpsFolder, testResults);
+                    generateXMLReport(dumpDir, testResults);
                 }
                 System.out.println("-------------------------------------------------------------------");
 
@@ -647,9 +639,9 @@ public class TestApplication
                                     f.getAbsolutePath());
                     result.addErrorMessage(message);
                     System.err.println(message);
-                    
+
                     if (throwExcepionFlag)
-                        throw new Exception(message);                    
+                        throw new Exception(message);
                 }
                 else
                 {
