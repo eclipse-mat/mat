@@ -408,6 +408,24 @@ public class TestApplication
 
     }
 
+    private static final String URI = "http://www.eclipse.org/mat/regtest/";
+
+    private interface Parameter
+    {
+        String NAME = "name";
+        String TEST_SUITE = "testSuite";
+        String HEAP_DUMP = "heapDump";
+        String ERROR = "error";
+        String TEST = "test";
+        String TEST_NAME = "testName";
+        String RESULT = "result";
+        String PROBLEM = "problem";
+        String DIFFERENCE = "difference";
+        String LINE = "line";
+        String BASELINE = "baseLine";
+        String TESTLINE = "testLine";
+    }
+
     private void generateXMLReport(File targetFolder, List<TestSuiteResult> testResults)
     {
         try
@@ -427,41 +445,41 @@ public class TestApplication
             handler.startDocument();
 
             AttributesImpl atts = new AttributesImpl();
-            handler.startElement("", "", "testSuite", atts);
+            handler.startElement(URI, Parameter.TEST_SUITE, Parameter.TEST_SUITE, atts);
 
             for (TestSuiteResult testSuiteResult : testResults)
             {
                 atts.clear();
-                atts.addAttribute("", "", "name", "CDATA", testSuiteResult.getDumpName());
-                handler.startElement("", "", "heapDump", atts);
+                atts.addAttribute(URI, Parameter.NAME, Parameter.NAME, "CDATA", testSuiteResult.getDumpName());
+                handler.startElement(URI, Parameter.HEAP_DUMP, Parameter.HEAP_DUMP, atts);
                 atts.clear();
 
                 List<String> errors = testSuiteResult.getErrorMessages();
                 for (String error : errors)
                 {
                     atts.clear();
-                    handler.startElement("", "", "error", atts);
+                    handler.startElement(URI, Parameter.ERROR, Parameter.ERROR, atts);
                     handler.characters(error.toCharArray(), 0, error.length());
-                    handler.endElement("", "", "error");
+                    handler.endElement(URI, Parameter.ERROR, Parameter.ERROR);
                 }
 
                 List<SingleTestResult> tests = testSuiteResult.getTestData();
                 for (SingleTestResult singleTestResult : tests)
                 {
                     atts.clear();
-                    handler.startElement("", "", "test", atts);
+                    handler.startElement(URI, Parameter.TEST, Parameter.TEST, atts);
 
                     atts.clear();
-                    handler.startElement("", "", "testName", atts);
+                    handler.startElement(URI, Parameter.TEST_NAME, Parameter.TEST_NAME, atts);
                     handler.characters(singleTestResult.getTestName().toCharArray(), 0, singleTestResult.getTestName()
                                     .length());
-                    handler.endElement("", "", "testName");
+                    handler.endElement(URI, Parameter.TEST_NAME, Parameter.TEST_NAME);
 
                     atts.clear();
-                    handler.startElement("", "", "result", atts);
+                    handler.startElement(URI, Parameter.RESULT, Parameter.RESULT, atts);
                     handler.characters(singleTestResult.getResult().toCharArray(), 0, singleTestResult.getResult()
                                     .length());
-                    handler.endElement("", "", "result");
+                    handler.endElement(URI, Parameter.RESULT, Parameter.RESULT);
 
                     List<Difference> differences = singleTestResult.getDifferences();
                     for (Difference difference : differences)
@@ -469,37 +487,37 @@ public class TestApplication
                         atts.clear();
                         if (difference.getProblem() != null)
                         {
-                            handler.startElement("", "", "difference", atts);
-                            handler.startElement("", "", "problem", atts);
+                            handler.startElement(URI, Parameter.DIFFERENCE, Parameter.DIFFERENCE, atts);
+                            handler.startElement(URI, Parameter.PROBLEM, Parameter.PROBLEM, atts);
                             handler.characters(difference.getProblem().toCharArray(), 0, difference.getProblem()
                                             .length());
-                            handler.endElement("", "", "problem");
+                            handler.endElement(URI, Parameter.PROBLEM, Parameter.PROBLEM);
                         }
                         else
                         {
-                            atts.addAttribute("", "", "line", "", difference.getLineNumber());
-                            handler.startElement("", "", "difference", atts);
+                            atts.addAttribute(URI, Parameter.LINE, Parameter.LINE, "", difference.getLineNumber());
+                            handler.startElement(URI, Parameter.DIFFERENCE, Parameter.DIFFERENCE, atts);
 
                             atts.clear();
-                            handler.startElement("", "", "baseline", atts);
+                            handler.startElement(URI, Parameter.BASELINE, Parameter.BASELINE, atts);
                             handler.characters(difference.getBaseline().toCharArray(), 0, difference.getBaseline()
                                             .length());
-                            handler.endElement("", "", "baseline");
+                            handler.endElement(URI, Parameter.BASELINE, Parameter.BASELINE);
 
                             atts.clear();
-                            handler.startElement("", "", "testLine", atts);
+                            handler.startElement(URI, Parameter.TESTLINE, Parameter.TESTLINE, atts);
                             handler.characters(difference.getTestLine().toCharArray(), 0, difference.getTestLine()
                                             .length());
-                            handler.endElement("", "", "testLine");
+                            handler.endElement(URI, Parameter.TESTLINE, Parameter.TESTLINE);
                         }
 
-                        handler.endElement("", "", "difference");
+                        handler.endElement(URI, Parameter.DIFFERENCE, Parameter.DIFFERENCE);
                     }
-                    handler.endElement("", "", "test");
+                    handler.endElement(URI, Parameter.TEST, Parameter.TEST);
                 }
-                handler.endElement("", "", "heapDump");
+                handler.endElement(URI, Parameter.HEAP_DUMP, Parameter.HEAP_DUMP);
             }
-            handler.endElement("", "", "testSuite");
+            handler.endElement(URI, Parameter.TEST_SUITE, Parameter.TEST_SUITE);
             handler.endDocument();
             out.close();
             System.out.println("Report is generated in: " + targetFolder);
