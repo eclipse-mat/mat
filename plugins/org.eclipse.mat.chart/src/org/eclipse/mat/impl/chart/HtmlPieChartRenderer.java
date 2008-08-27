@@ -13,6 +13,8 @@ package org.eclipse.mat.impl.chart;
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.eclipse.birt.chart.device.IDeviceRenderer;
 import org.eclipse.birt.chart.exception.ChartException;
@@ -66,12 +68,29 @@ public class HtmlPieChartRenderer implements IOutputter
 
             writer.append("<img src=\"").append(imageFile).append("\" width=\"800\" height=\"350\">");
         }
+        catch (LinkageError e)
+        {
+            handleError(e, writer);
+        }
         catch (ChartException e)
         {
-            IOException ioe = new IOException();
-            ioe.initCause(e);
-            throw ioe;
+            handleError(e, writer);
         }
+    }
+
+    private void handleError(Throwable e, Writer writer) throws IOException
+    {
+        StringBuilder message = new StringBuilder();
+        message.append("Error rendering chart: ");
+        message.append(e.getClass().getName());
+
+        if (e.getMessage() != null)
+            message.append(": ").append(e.getMessage());
+
+        String msg = message.toString();
+
+        writer.append(msg).append(" (See Log for Details)");
+        Logger.getLogger(getClass().getName()).log(Level.SEVERE, msg, e);
     }
 
     public void process(Context context, IResult result, Writer writer) throws IOException

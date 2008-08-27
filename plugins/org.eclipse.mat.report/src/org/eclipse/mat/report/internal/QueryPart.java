@@ -93,9 +93,9 @@ public class QueryPart extends AbstractPart
         {
             if (getCommand() == null)
             {
-                String msg = MessageFormat.format("No command specified for test ''{0}'' of section ''{1}''", //
-                                spec().getName(), sectionName);
-                Logger.getLogger(getClass().getName()).log(Level.WARNING, msg);
+                ReportPlugin.log(IStatus.ERROR, MessageFormat.format(
+                                "No command specified for test ''{0}'' of section ''{1}''", //
+                                spec().getName(), sectionName));
             }
             else
             {
@@ -106,10 +106,8 @@ public class QueryPart extends AbstractPart
                 }
                 catch (Exception e)
                 {
-                    Logger.getLogger(getClass().getName()).log(
-                                    Level.WARNING,
-                                    MessageFormat.format("Ignoring result of ''{0}'' due to {1}", spec().getName(), e
-                                                    .getMessage()), e);
+                    ReportPlugin.log(e, MessageFormat.format("Ignoring result of ''{0}'' due to {1}", spec().getName(),
+                                    e.getMessage()));
                     return status;
                 }
                 finally
@@ -274,8 +272,7 @@ public class QueryPart extends AbstractPart
         renderer.process(this, builder.build(), rInfo);
     }
 
-    private void readParamsAndProcess(ResultRenderer renderer, RefinedStructuredResult result)
-                    throws IOException
+    private void readParamsAndProcess(ResultRenderer renderer, RefinedStructuredResult result) throws IOException
     {
         RenderingInfo rInfo = new RenderingInfo(this, renderer, result.getColumns().length);
         addHardLimit(rInfo);

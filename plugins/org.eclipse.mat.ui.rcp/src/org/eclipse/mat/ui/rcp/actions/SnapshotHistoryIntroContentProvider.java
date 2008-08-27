@@ -73,7 +73,7 @@ public class SnapshotHistoryIntroContentProvider implements IIntroContentProvide
                     out.print("<li><img src =\"");
                     out.print(icon);
                     out.print("\">");
-                    
+
                     out.print("<a class=\"topicList\" href=\"http://org.eclipse.ui.intro/runAction?"
                                     + "pluginId=org.eclipse.mat.ui.rcp&amp;"
                                     + "class=org.eclipse.mat.ui.rcp.actions.OpenEditorAction&amp;param=");
@@ -112,7 +112,7 @@ public class SnapshotHistoryIntroContentProvider implements IIntroContentProvide
                     openHeapDump((String) e.getHref());
                 }
             });
-            bulletImage = createImage(new Path("../intro/css/icons/arrow.gif"));
+            bulletImage = createImage(new Path("intro/css/icons/arrow.gif"));
             if (bulletImage != null)
                 formText.setImage("bullet", bulletImage);
         }
@@ -134,7 +134,7 @@ public class SnapshotHistoryIntroContentProvider implements IIntroContentProvide
                                     : RESOURCE_ICON;
 
                     buffer.append("<li style=\"image\" value=\"bullet\">");
-                    buffer.append("<img src =\"").append(icon).append("\">");
+                    buffer.append("<img src =\"").append(icon).append("\"/>");
                     buffer.append("<a href=\"http://org.eclipse.ui.intro/runAction?"
                                     + "standby=true&amp;pluginId=org.eclipse.mat.ui.rcp&amp;"
                                     + "class=org.eclipse.mat.ui.rcp.actions.OpenEditorAction&amp;param=");
@@ -162,6 +162,9 @@ public class SnapshotHistoryIntroContentProvider implements IIntroContentProvide
     {
         Bundle bundle = Platform.getBundle("org.eclipse.mat.ui.rcp");
         URL url = FileLocator.find(bundle, path, null);
+        if (url == null)
+            return null;
+
         try
         {
             url = FileLocator.toFileURL(url);
@@ -170,7 +173,7 @@ public class SnapshotHistoryIntroContentProvider implements IIntroContentProvide
         }
         catch (IOException e)
         {
-            // $JL-EXC$ on image error do not fail but show no image at all
+            MemoryAnalyserPlugin.log(e, "Error creating image for intro page.");
             return null;
         }
     }

@@ -93,7 +93,7 @@ public class PieChartPane extends AbstractEditorPane implements ISelectionProvid
         label.setBackground(parent.getDisplay().getSystemColor(SWT.COLOR_WHITE));
         GridDataFactory.fillDefaults().grab(true, false).indent(5, 0).hint(SWT.DEFAULT, 45).applyTo(label);
 
-        canvas.render.setProperty(IDeviceRenderer.UPDATE_NOTIFIER, new CallBackListener());
+        canvas.renderer.setProperty(IDeviceRenderer.UPDATE_NOTIFIER, new CallBackListener());
     }
 
     public String getTitle()
