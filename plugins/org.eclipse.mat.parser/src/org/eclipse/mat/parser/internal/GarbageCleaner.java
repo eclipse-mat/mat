@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -99,6 +100,9 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
             }
             marker = null;
             /* END - marking objects */
+
+            if (ParserPlugin.getDefault().isDebugging())
+                printHistogramOfUnreachableObjects(idx, reachable);
 
             if (listener.isCanceled())
                 throw new IProgressListener.OperationCanceledException();
@@ -229,7 +233,7 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
                                     return map;
                                 }
                             }));
-            
+
             object2classId.close();
             object2classId.delete();
             object2classId = null;
@@ -271,7 +275,7 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
 
             preA2size.close();
             preA2size.delete();
-            
+
             if (listener.isCanceled())
                 throw new IProgressListener.OperationCanceledException();
             listener.worked(1); // 9
@@ -451,4 +455,91 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
             impl.setCacheEntry(key);
         }
     }
+
+    // //////////////////////////////////////////////////////////////
+    // debugging
+    // //////////////////////////////////////////////////////////////
+
+    private static final class Record implements Comparable<Record>
+    {
+        ClassImpl clazz;
+        int objectCount;
+        long size;
+
+        public Record(ClassImpl clazz)
+        {
+            this.clazz = clazz;
+        }
+
+        public int compareTo(Record o)
+        {
+            if (size > o.size)
+                return -1;
+            if (size < o.size)
+                return 1;
+
+            if (objectCount > o.objectCount)
+                return -1;
+            if (objectCount < o.objectCount)
+                return 1;
+
+            return clazz.getName().compareTo(o.clazz.getName());
+        }
+    }
+
+    private static void printHistogramOfUnreachableObjects(PreliminaryIndexImpl idx, boolean[] reachable)
+    {
+        IOne2OneIndex array2size = idx.array2size;
+
+        HashMapIntObject<Record> histogram = new HashMapIntObject<Record>();
+
+        int totalObjectCount = 0;
+        long totalSize = 0;
+
+        for (int ii = 0; ii < reachable.length; ii++)
+        {
+            if (!reachable[ii])
+            {
+                int classId = idx.object2classId.get(ii);
+
+                Record r = histogram.get(classId);
+                if (r == null)
+                {
+                    ClassImpl clazz = idx.classesById.get(classId);
+                    r = new Record(clazz);
+                    histogram.put(classId, r);
+                }
+
+                r.objectCount++;
+                totalObjectCount++;
+
+                if (r.clazz.isArrayType())
+                {
+                    int s = array2size.get(ii);
+                    r.size += s;
+                    totalSize += s;
+                }
+                else
+                {
+                    int s = r.clazz.getHeapSizePerInstance();
+                    r.size += s;
+                    totalSize += s;
+                }
+            }
+        }
+
+        List<Record> records = new ArrayList<Record>();
+        for (Iterator<Record> iter = histogram.values(); iter.hasNext();)
+            records.add(iter.next());
+        Collections.sort(records);
+
+        System.out.println(String.format("%-58s %10s %10s", "Class", "Count", "Size"));
+        for (Record record : records)
+        {
+            System.out.println(String.format("%-58s %10d %10d", //
+                            record.clazz.getName(), record.objectCount, record.size));
+        }
+        System.out.println(String.format("%-58s %10d %10d", "Totals", totalObjectCount, totalSize));
+    }
+
 }
