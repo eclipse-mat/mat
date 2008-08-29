@@ -18,26 +18,22 @@ import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.PrintWriter;
-import java.text.DateFormat;
 import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
 import javax.xml.transform.OutputKeys;
@@ -51,13 +47,7 @@ import org.eclipse.mat.tests.regression.comparator.BinaryComparator;
 import org.eclipse.mat.tests.regression.comparator.CSVComparator;
 import org.eclipse.mat.tests.regression.comparator.IComparator;
 import org.osgi.framework.Bundle;
-import org.xml.sax.Attributes;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.AttributesImpl;
-import org.xml.sax.helpers.DefaultHandler;
-import org.xml.sax.helpers.XMLReaderFactory;
 
 public class TestApplication
 {
@@ -78,7 +68,7 @@ public class TestApplication
         InputStream is;
         PrintStream os;
         String type;
-        StringBuilder builder = new StringBuilder();
+        private List<String> lines = new ArrayList<String>();
 
         StreamGobbler(InputStream is, PrintStream out, String type)
         {
@@ -97,7 +87,7 @@ public class TestApplication
                 String line = null;
                 while ((line = br.readLine()) != null)
                 {
-                    builder.append(line).append("\n");
+                    lines.add(line);
                     os.println(type + ">" + line);
                 }
             }
@@ -110,46 +100,15 @@ public class TestApplication
 
         public String getMessage()
         {
-            return builder.toString();
-        }
-    }
-
-    private class PerfData
-    {
-        String testName;
-        String queryTime;
-        String time;
-
-        public PerfData(String testName, String queryTime, String time)
-        {
-            this.queryTime = queryTime;
-            this.testName = testName;
-            this.time = time;
+            StringBuilder buf = new StringBuilder();
+            for (String line : lines)
+                buf.append(line).append("\n");
+            return buf.toString();
         }
 
-    }
-
-    private class TOCHandler extends DefaultHandler
-    {
-
-        List<PerfData> data = new ArrayList<PerfData>();
-
-        @Override
-        public void startElement(String uri, String localName, String name, Attributes attributes) throws SAXException
+        public List<String> getLines()
         {
-            if (name.equalsIgnoreCase("part"))
-            {
-                if (attributes.getValue("query-time") != null && attributes.getValue("time") != null)
-                {
-                    data.add(new PerfData(attributes.getValue("name"), attributes.getValue("query-time"), attributes
-                                    .getValue("time")));
-                }
-            }
-        }
-
-        public List<PerfData> getData()
-        {
-            return data;
+            return lines;
         }
     }
 
@@ -177,7 +136,7 @@ public class TestApplication
             List<TestSuiteResult> testResults = new ArrayList<TestSuiteResult>(dumpList.size());
             for (File dump : dumpList)
             {
-                TestSuiteResult result = new TestSuiteResult(dump.getName());
+                TestSuiteResult result = new TestSuiteResult(dump);
                 testResults.add(result);
 
                 try
@@ -202,16 +161,10 @@ public class TestApplication
                     result.addErrorMessage(e.getMessage());
                     continue;
                 }
+
+                // process the result (compare to the baseline)
                 if (compare)
-                {
-                    // process the result (compare to the baseline)
                     processResults(dump, result);
-                }
-                else
-                {
-                    // record performance times
-                    recordTimes(dump, result, dumpDir);
-                }
 
                 // do the cleanup only if all the tests succeeded
                 boolean succeed = true;
@@ -230,34 +183,20 @@ public class TestApplication
 
             if (!testResults.isEmpty())
             {
-                if (compare)
-                {
-                    // generate XML report for regression tests
-                    System.out.println("-------------------------------------------------------------------");
-                    generateXMLReport(dumpDir, testResults);
-                }
                 System.out.println("-------------------------------------------------------------------");
 
-                boolean succeed = true;
-                for (TestSuiteResult entry : testResults)
-                {
-                    if (!entry.getErrorMessages().isEmpty())
-                    {
-                        succeed = false;
-                        break;
-                    }
-                    for (SingleTestResult singleTestResult : entry.getTestData())
-                    {
-                        if (!singleTestResult.getDifferences().isEmpty())
-                        {
-                            succeed = false;
-                            break;
-                        }
-                    }
-                    if (!succeed)
-                        break;
-                }
-                if (succeed)
+                if (compare)
+                    generateXMLReport(testResults);
+                else
+                    generatePerformanceReport(testResults);
+
+                System.out.println("-------------------------------------------------------------------");
+
+                boolean isSuccessful = true;
+                for (int ii = 0; isSuccessful && ii < testResults.size(); ii++)
+                    isSuccessful = testResults.get(ii).isSuccessful();
+                
+                if (isSuccessful)
                     System.out.println("Tests finished successfully");
                 else
                     System.out.println("Tests finished with errors");
@@ -267,145 +206,6 @@ public class TestApplication
                 System.out.println("Failed");
             }
         }
-    }
-
-    private void recordTimes(File dump, TestSuiteResult result, File dumpsFolder) throws FileNotFoundException
-    {
-        // get result file name
-        String resultsFileName = dump.getAbsolutePath().substring(0, dump.getAbsolutePath().lastIndexOf('.'))
-                        + "_Performance_Tests.zip";
-        String relativePath = dump.getAbsolutePath().substring(dumpsFolder.getAbsolutePath().length() + 1,
-                        dump.getAbsolutePath().length());
-
-        if (!new File(resultsFileName).exists())
-            throw new FileNotFoundException(MessageFormat.format("Performance test result zip file not found: {0}",
-                            resultsFileName));
-        System.out.println("OUTPUT> Task: extracting performance time records from " + resultsFileName);
-        PrintStream out = null;
-        ZipFile zipFile = null;
-        try
-        {
-
-            File resultReport = new File(dumpsFolder, "performanceResults.csv");
-            try
-            {
-                out = new PrintStream(new FileOutputStream(resultReport, true));
-            }
-            catch (FileNotFoundException e)
-            {
-                // file is in use -> create a new one
-                File[] resultFiles = dumpsFolder.listFiles(new FilenameFilter()
-                {
-
-                    public boolean accept(File dir, String name)
-                    {
-                        Pattern pattern = Pattern.compile("performanceResults.*\\.csv");
-                        return pattern.matcher(name).matches();
-                    }
-                });
-                String newResultFileName = "performanceResults(" + resultFiles.length + ").csv";
-                System.out.println("WARNING: performance.csv file is in use. Creating a new result file: "
-                                + newResultFileName);
-                resultReport = new File(dumpsFolder, newResultFileName);
-                out = new PrintStream(new FileOutputStream(resultReport, true));
-            }
-            if (!resultReport.exists() || resultReport.length() == 0)
-            {
-                // add heading
-                StringBuilder builder = new StringBuilder();
-
-                builder.append("Heap Dump").append(RegTestUtils.SEPARATOR).append("Test Name")
-                                //
-                                .append(RegTestUtils.SEPARATOR).append("Date").append(RegTestUtils.SEPARATOR).append(
-                                                "Query time, ns")
-                                //
-                                .append(RegTestUtils.SEPARATOR).append("Time, ns").append(RegTestUtils.SEPARATOR)
-                                .append("Build Version");
-
-                out.println(builder.toString());
-            }
-
-            zipFile = new ZipFile(resultsFileName);
-            Enumeration<? extends ZipEntry> entries = zipFile.entries();
-
-            while (entries.hasMoreElements())
-            {
-                ZipEntry entry = entries.nextElement();
-                // we are interested in toc.xml only, as it contains the time
-                // info
-                if (entry.isDirectory() || !entry.getName().equals("toc.xml"))
-                    continue;
-
-                XMLReader parser = XMLReaderFactory.createXMLReader();
-                TOCHandler handler = new TOCHandler();
-                parser.setContentHandler(handler);
-                parser.parse(new InputSource(zipFile.getInputStream(entry)));
-                List<PerfData> data = handler.getData();
-
-                Bundle bundle = Platform.getBundle("org.eclipse.mat.api");
-                String buildId = (bundle != null) ? bundle.getHeaders().get("Bundle-Version").toString()
-                                : "Unknown version";
-                String date = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, Locale.GERMANY)
-                                .format(new Date());
-
-                String parsingTime = result.getParsingTime();
-                StringBuilder builder = new StringBuilder();
-
-                builder.append(relativePath).append(RegTestUtils.SEPARATOR).append("Parsing")
-                                //
-                                .append(RegTestUtils.SEPARATOR).append(date).append(RegTestUtils.SEPARATOR)
-                                //
-                                .append(RegTestUtils.SEPARATOR).append(parsingTime).append(RegTestUtils.SEPARATOR)
-                                .append(buildId);
-
-                out.println(builder.toString());
-
-                for (PerfData perfData : data)
-                {
-                    builder = new StringBuilder();
-
-                    builder.append(relativePath).append(RegTestUtils.SEPARATOR).append(perfData.testName)//
-                                    .append(RegTestUtils.SEPARATOR).append(date).append(RegTestUtils.SEPARATOR)//
-                                    .append(perfData.queryTime).append(RegTestUtils.SEPARATOR)//
-                                    .append(perfData.time).append(RegTestUtils.SEPARATOR).append(buildId);
-
-                    out.println(builder.toString());
-                }
-                // there is only one toc.xml
-                break;
-            }
-            out.flush();
-            out.close();
-            zipFile.close();
-        }
-        catch (IOException e)
-        {
-            result.addErrorMessage(e.getMessage());
-            System.err.println("ERROR> " + e.getMessage());
-        }
-        catch (SAXException e)
-        {
-            result.addErrorMessage(e.getMessage());
-            System.err.println("ERROR> " + e.getMessage());
-        }
-        finally
-        {
-            try
-            {
-                if (out != null)
-                {
-                    out.flush();
-                    out.close();
-                }
-                if (zipFile != null)
-                    zipFile.close();
-            }
-            catch (IOException e)
-            {
-                // ignore
-            }
-        }
-
     }
 
     private static final String URI = "http://www.eclipse.org/mat/regtest/";
@@ -426,11 +226,11 @@ public class TestApplication
         String TESTLINE = "testLine";
     }
 
-    private void generateXMLReport(File targetFolder, List<TestSuiteResult> testResults)
+    private void generateXMLReport(List<TestSuiteResult> testResults)
     {
         try
         {
-            File resultFile = new File(targetFolder, RegTestUtils.RESULT_FILENAME);
+            File resultFile = new File(dumpDir, RegTestUtils.RESULT_FILENAME);
             PrintWriter out = new PrintWriter(resultFile);
 
             StreamResult streamResult = new StreamResult(out);
@@ -520,11 +320,11 @@ public class TestApplication
             handler.endElement(URI, Parameter.TEST_SUITE, Parameter.TEST_SUITE);
             handler.endDocument();
             out.close();
-            System.out.println("Report is generated in: " + targetFolder);
+            System.out.println("Report is generated in: " + dumpDir);
         }
         catch (FileNotFoundException e)
         {
-            System.err.println("ERROR> File not found " + targetFolder.getAbsolutePath()
+            System.err.println("ERROR> File not found " + dumpDir.getAbsolutePath()
                             + "result.xml. Failed to generate the report");
 
         }
@@ -534,6 +334,56 @@ public class TestApplication
             e.printStackTrace(System.err);
         }
 
+    }
+
+    private void generatePerformanceReport(List<TestSuiteResult> results) throws IOException
+    {
+        File report = new File(dumpDir, String.format("performanceResults_%1$tY%1$tm%1$td%1$tH%1$tM.csv", new Date()));
+
+        PrintStream out = null;
+
+        try
+        {
+            out = new PrintStream(new FileOutputStream(report));
+
+            // add heading
+            out.append("Heap Dump").append(RegTestUtils.SEPARATOR) //
+                            .append("Test Name").append(RegTestUtils.SEPARATOR) //
+                            .append("Date").append(RegTestUtils.SEPARATOR) //
+                            .append("Time").append(RegTestUtils.SEPARATOR) //
+                            .append("Build Version").append("\n");
+
+            Bundle bundle = Platform.getBundle("org.eclipse.mat.api");
+            String buildId = (bundle != null) ? bundle.getHeaders().get("Bundle-Version").toString()
+                            : "Unknown version";
+            String date = new SimpleDateFormat("yyyy-MM-dd HH:mm").format(new Date());
+
+            for (TestSuiteResult result : results)
+            {
+                String path = result.getSnapshot().getAbsolutePath();
+                String relativePath = path.substring(dumpDir.getAbsolutePath().length() + 1);
+
+                for (PerfData record : result.getPerfData())
+                {
+                    out.append(relativePath).append(RegTestUtils.SEPARATOR) //
+                                    .append(record.getTestName()).append(RegTestUtils.SEPARATOR) //
+                                    .append(date).append(RegTestUtils.SEPARATOR) //
+                                    .append(record.getTime()).append(RegTestUtils.SEPARATOR) //
+                                    .append(buildId).append("\n");
+                }
+            }
+
+        }
+        finally
+        {
+            if (out != null)
+            {
+                out.flush();
+                out.close();
+            }
+        }
+
+        System.out.println(MessageFormat.format("Saved performance data to {0}", report.getAbsolutePath()));
     }
 
     private void processResults(File dump, TestSuiteResult result) throws Exception
@@ -661,10 +511,6 @@ public class TestApplication
                     if (throwExcepionFlag)
                         throw new Exception(message);
                 }
-                else
-                {
-                    System.out.println("OUTPUT>File " + f.getName() + " deleted.");
-                }
             }
         }
 
@@ -774,9 +620,10 @@ public class TestApplication
         cmd.append(" -install \"").append(osgiInstallArea).append("\"");
         cmd.append(" -configuration \"").append(osgiConfiguration).append("\"");
         cmd.append(" -data \"").append(osgiInstanceArea).append("\"");
-        cmd.append(" -application org.eclipse.mat.api.parse");
+        cmd.append(" -application org.eclipse.mat.tests.application");
+        cmd.append(" -parse");
         cmd.append(" \"").append(dump.getAbsolutePath()).append("\"");
-        cmd.append(" org.eclipse.mat.tests:" + report);
+        cmd.append(" org.eclipse.mat.tests:").append(report);
 
         System.out.println("Starting: " + cmd.toString());
 
@@ -800,10 +647,13 @@ public class TestApplication
         // extract parsing time
         if (extractTime)
         {
-            Pattern pattern = Pattern.compile("Time to parse: ([0-9]*)");
-            Matcher matcher = pattern.matcher(outputGobbler.getMessage());
-            if (matcher.find())
-                result.setParsingTime(matcher.group(1));
+            Pattern pattern = Pattern.compile("Task: (.*) ([0-9]*) ms");
+            for (String line : outputGobbler.getLines())
+            {
+                Matcher matcher = pattern.matcher(line);
+                if (matcher.matches())
+                    result.addPerfData(new PerfData(matcher.group(1), matcher.group(2)));
+            }
         }
         System.out.println("Exit Status: OK");
     }

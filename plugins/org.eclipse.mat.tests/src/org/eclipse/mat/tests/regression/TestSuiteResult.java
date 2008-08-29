@@ -10,26 +10,30 @@
  *******************************************************************************/
 package org.eclipse.mat.tests.regression;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 /*package*/class TestSuiteResult
 {
-    String dumpName;   
-    String parsingTime;   
-    List<SingleTestResult> singleTestResult;
-    List<String> errorMessages;
+    private File snapshot;
+    private List<SingleTestResult> singleTestResult = new ArrayList<SingleTestResult>();
+    private List<String> errorMessages = new ArrayList<String>();
+    private List<PerfData> perfData = new ArrayList<PerfData>();
 
-    public TestSuiteResult(String dumpName)
+    public TestSuiteResult(File snapshot)
     {
-        this.dumpName = dumpName;
-        singleTestResult = new ArrayList<SingleTestResult>();
-        errorMessages = new ArrayList<String>();
+        this.snapshot = snapshot;
     }
 
     public String getDumpName()
     {
-        return dumpName;
+        return snapshot.getName();
+    }
+
+    public File getSnapshot()
+    {
+        return snapshot;
     }
 
     public List<SingleTestResult> getTestData()
@@ -50,15 +54,29 @@ import java.util.List;
     public void addTestData(SingleTestResult data)
     {
         singleTestResult.add(data);
-    }   
-
-    public String getParsingTime()
-    {
-        return (parsingTime == null) ? "N/A" : parsingTime;
     }
 
-    public void setParsingTime(String parsingTime)
+    public void addPerfData(PerfData data)
     {
-        this.parsingTime = parsingTime;
+        perfData.add(data);
+    }
+
+    public List<PerfData> getPerfData()
+    {
+        return perfData;
+    }
+
+    public boolean isSuccessful()
+    {
+        if (!errorMessages.isEmpty())
+            return false;
+
+        for (SingleTestResult result : singleTestResult)
+        {
+            if (!result.isSuccessful())
+                return false;
+        }
+
+        return true;
     }
 }

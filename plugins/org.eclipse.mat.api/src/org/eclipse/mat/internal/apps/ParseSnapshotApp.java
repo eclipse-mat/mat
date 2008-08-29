@@ -34,47 +34,35 @@ public class ParseSnapshotApp implements IApplication
 
     public Object start(IApplicationContext context) throws Exception
     {
-        try
+        String[] args = (String[]) context.getArguments().get(IApplicationContext.APPLICATION_ARGS);
+
+        if (args == null || args.length < 1)
+            throw new IllegalArgumentException("Usage: <snapshot> [(<report id>)*]");
+
+        File file = new File(args[0]);
+        if (!file.exists())
+            throw new FileNotFoundException(MessageFormat.format("File not found: {0}", file.getAbsolutePath()));
+
+        List<Spec> reports = new ArrayList<Spec>();
+
+        SpecFactory factory = SpecFactory.instance();
+        for (int ii = 1; ii < args.length; ii++)
         {
-            String[] args = (String[]) context.getArguments().get(IApplicationContext.APPLICATION_ARGS);
-
-            if (args == null || args.length < 1)
-                throw new IllegalArgumentException("Usage: <snapshot> [(<report id>)*]");
-
-            File file = new File(args[0]);
-            if (!file.exists())
-                throw new FileNotFoundException(MessageFormat.format("File not found: {0}", file.getAbsolutePath()));
-
-            List<Spec> reports = new ArrayList<Spec>();
-
-            SpecFactory factory = SpecFactory.instance();
-            for (int ii = 1; ii < args.length; ii++)
+            Spec spec = factory.create(args[ii]);
+            if (spec != null)
             {
-                Spec spec = factory.create(args[ii]);
-                if (spec != null)
-                {
-                    factory.resolve(spec);
-                    reports.add(spec);
-                }
-                else
-                {
-                    System.err.println(MessageFormat.format("Report not found: {0}", args[ii]));
-                }
+                factory.resolve(spec);
+                reports.add(spec);
             }
-
-            parse(file, reports);
-
-            return 0;
-        }
-        catch (Throwable e)
-        {
-            // Need stack in sys.out when called from cmd
-            e.printStackTrace(System.err);
-            if (e instanceof Exception)
-                throw (Exception) e;
             else
-                throw new RuntimeException(e);
+            {
+                System.err.println(MessageFormat.format("Report not found: {0}", args[ii]));
+            }
         }
+
+        parse(file, reports);
+
+        return IApplication.EXIT_OK;
     }
 
     public void stop()
@@ -82,14 +70,9 @@ public class ParseSnapshotApp implements IApplication
 
     private void parse(File file, List<Spec> reports) throws SnapshotException
     {
-        long startTime = System.currentTimeMillis();
-
         ConsoleProgressListener listener = new ConsoleProgressListener(System.out);
         ISnapshot snapshot = SnapshotFactory.openSnapshot(file, listener);
         listener.done();
-
-        long endTime = System.currentTimeMillis();
-        System.out.println(MessageFormat.format("Time to parse: {0} ms", Long.toString(endTime - startTime)));
 
         try
         {

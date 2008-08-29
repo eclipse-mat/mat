@@ -588,7 +588,7 @@ public class TopConsumers2Query implements IQuery
         public URL getIcon(Object row)
         {
             PackageTreeNode node = (PackageTreeNode) row;
-            return node.subpackages.isEmpty() ? Icons.PACKAGE : Icons.CLASS;
+            return node.subpackages.isEmpty() ? Icons.CLASS : Icons.PACKAGE;
         }
 
         public boolean isExpanded(Object row)

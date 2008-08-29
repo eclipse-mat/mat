@@ -133,8 +133,6 @@ public class ResultRenderer
 
     private Map<URL, String> icon2name = new HashMap<URL, String>();
 
-    private boolean isClockingReportGeneration = false;
-
     public ResultRenderer()
     {
         html = RendererRegistry.instance().match("html", IResult.class);
@@ -148,8 +146,6 @@ public class ResultRenderer
     public void beginSuite(TestSuite suite, AbstractPart part) throws IOException
     {
         this.suite = suite;
-
-        this.isClockingReportGeneration = suite.isClockingReportGeneration();
 
         prepareTempDirectory();
 
@@ -328,11 +324,6 @@ public class ResultRenderer
     // context interface
     // //////////////////////////////////////////////////////////////
 
-    /* package */boolean isClockingReportGeneration()
-    {
-        return isClockingReportGeneration;
-    }
-
     /* package */String addIcon(URL icon, AbstractPart part)
     {
         if (icon == null)
@@ -501,8 +492,6 @@ public class ResultRenderer
         String NAME = "name";
         String STATUS = "status";
         String FILE = "file";
-        String QUERY_TIME = "query-time";
-        String TIME = "time";
         String PART = "part";
     }
 
@@ -582,12 +571,6 @@ public class ResultRenderer
         while (page == null)
             page = (HtmlArtefact) (p = p.getParent()).getObject(Key.ARTEFACT);
         attrib.addAttribute(URI, Attrib.FILE, Attrib.FILE, "", page.file.getName());
-
-        if (part.queryExecutionTime > 0)
-            attrib.addAttribute(URI, Attrib.QUERY_TIME, Attrib.QUERY_TIME, "", String.valueOf(part.queryExecutionTime));
-
-        if (part.totalExecutionTime > 0)
-            attrib.addAttribute(URI, Attrib.TIME, Attrib.TIME, "", String.valueOf(part.totalExecutionTime));
 
         handler.startElement(URI, Attrib.PART, Attrib.PART, attrib);
         for (AbstractPart child : part.getChildren())

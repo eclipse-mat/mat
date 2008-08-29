@@ -68,24 +68,8 @@ public class QueryPart extends AbstractPart
     public Status execute(IQueryContext context, ResultRenderer renderer, IProgressListener listener)
                     throws SnapshotException, IOException
     {
-        long start = renderer.isClockingReportGeneration() ? System.nanoTime() : 0;
-        try
-        {
-            return doExecute(context, renderer, listener);
-        }
-        finally
-        {
-            if (renderer.isClockingReportGeneration())
-                totalExecutionTime = System.nanoTime() - start;
-        }
-    }
-
-    private Status doExecute(IQueryContext context, ResultRenderer renderer, IProgressListener listener)
-                    throws SnapshotException, IOException
-    {
         String sectionName = parent != null ? parent.spec().getName() : "none";
-        listener.subTask(MessageFormat.format("Processing test ''{0}'' of section ''{1}''", spec().getName(),
-                        sectionName));
+        listener.subTask(MessageFormat.format("Test ''{0}'' of section ''{1}''", spec().getName(), sectionName));
 
         IResult result = spec().getResult();
 
@@ -99,21 +83,15 @@ public class QueryPart extends AbstractPart
             }
             else
             {
-                long startQueryExecution = renderer.isClockingReportGeneration() ? System.nanoTime() : 0;
                 try
                 {
-                    result = CommandLine.execute(context, getCommand(), listener);
+                    result = CommandLine.execute(context, getCommand(), new SilentListener(listener));
                 }
                 catch (Exception e)
                 {
                     ReportPlugin.log(e, MessageFormat.format("Ignoring result of ''{0}'' due to {1}", spec().getName(),
                                     e.getMessage()));
                     return status;
-                }
-                finally
-                {
-                    if (renderer.isClockingReportGeneration())
-                        this.queryExecutionTime = System.nanoTime() - startQueryExecution;
                 }
             }
         }
@@ -132,7 +110,6 @@ public class QueryPart extends AbstractPart
             replacement.setName(spec().getName());
 
             AbstractPart part = AbstractPart.build(getParent(), replacement);
-            part.queryExecutionTime = queryExecutionTime;
             part.objects = objects;
             part.filename = filename;
             getParent().replace(this, part);
@@ -462,5 +439,41 @@ public class QueryPart extends AbstractPart
         }
 
         builder.setSortOrder(indices.toArray(), directions.toArray(new Column.SortDirection[0]));
+    }
+
+    private static final class SilentListener implements IProgressListener
+    {
+        IProgressListener delegate;
+
+        public SilentListener(IProgressListener delegate)
+        {
+            this.delegate = delegate;
+        }
+
+        public void beginTask(String name, int totalWork)
+        {}
+
+        public void done()
+        {}
+
+        public boolean isCanceled()
+        {
+            return delegate.isCanceled();
+        }
+
+        public void sendUserMessage(Severity severity, String message, Throwable exception)
+        {
+            delegate.sendUserMessage(severity, message, exception);
+        }
+
+        public void setCanceled(boolean value)
+        {}
+
+        public void subTask(String name)
+        {}
+
+        public void worked(int work)
+        {}
+
     }
 }

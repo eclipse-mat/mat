@@ -1,5 +1,4 @@
 <section name="Performance Tests"> 
-	<param key="clock_report" value="true"/>		
 	<query name="Paths from GC Roots">		
 		<param key="html.separate_file" value="true" />
 		<command>path2gc_reg_test</command>

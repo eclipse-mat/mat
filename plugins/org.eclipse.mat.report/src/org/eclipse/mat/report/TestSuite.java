@@ -34,7 +34,6 @@ public class TestSuite
     {
         private Spec template;
         private File output;
-        private boolean clockReportGeneration = false;
 
         public Builder(String identifier) throws SnapshotException
         {
@@ -75,12 +74,6 @@ public class TestSuite
             return this;
         }
 
-        public Builder doClockReportGeneration()
-        {
-            this.clockReportGeneration = true;
-            return this;
-        }
-
         public TestSuite build(IQueryContext queryContext)
         {
             template.set("timestamp", String.valueOf(System.currentTimeMillis()));
@@ -98,10 +91,7 @@ public class TestSuite
                 output = new File(output, prefix + "_" + FileUtils.toFilename(template.getName(), "zip"));
             }
 
-            clockReportGeneration = clockReportGeneration
-                            || "true".equals(template.getParams().get(Params.CLOCK_REPORT));
-
-            TestSuite testSuite = new TestSuite(template, queryContext, clockReportGeneration);
+            TestSuite testSuite = new TestSuite(template, queryContext);
             testSuite.output = output;
             return testSuite;
         }
@@ -114,16 +104,14 @@ public class TestSuite
 
     private final Spec spec;
     private final IQueryContext queryContext;
-    private final boolean clockReportGeneration;
 
     private File output;
     private final List<File> results = new ArrayList<File>();
 
-    private TestSuite(Spec spec, IQueryContext queryContext, boolean clockReportGeneration)
+    private TestSuite(Spec spec, IQueryContext queryContext)
     {
         this.spec = spec;
         this.queryContext = queryContext;
-        this.clockReportGeneration = clockReportGeneration;
     }
 
     public Status execute(IProgressListener listener) throws IOException, SnapshotException
@@ -147,11 +135,6 @@ public class TestSuite
     public IQueryContext getQueryContext()
     {
         return queryContext;
-    }
-
-    public boolean isClockingReportGeneration()
-    {
-        return clockReportGeneration;
     }
 
     public File getOutput()

@@ -8,22 +8,18 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *******************************************************************************/
+
 package org.eclipse.mat.tests.regression;
 
-import java.util.ArrayList;
-import java.util.List;
-
-/*package*/class SingleTestResult
+/* package */class PerfData
 {
     private String testName;
-    private String result;
-    private List<Difference> differences;
+    private String time;
 
-    public SingleTestResult(String testName, String result, List<Difference> differences)
+    public PerfData(String testName, String time)
     {
         this.testName = testName;
-        this.result = result;
-        this.differences = differences;
+        this.time = time;
     }
 
     public String getTestName()
@@ -31,19 +27,8 @@ import java.util.List;
         return testName;
     }
 
-    public String getResult()
+    public String getTime()
     {
-        return result;
+        return time;
     }
-
-    public List<Difference> getDifferences()
-    {
-        return differences == null ? new ArrayList<Difference>(0) : differences;
-    }
-
-    public boolean isSuccessful()
-    {
-        return differences == null || differences.isEmpty();
-    }
-
 }

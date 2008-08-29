@@ -55,9 +55,6 @@ public abstract class AbstractPart
 
     protected String filename;
 
-    protected long queryExecutionTime;
-    protected long totalExecutionTime;
-
     /** renderer can attach arbitrary objects to keep track of rendering status */
     protected Map<String, Object> objects = new HashMap<String, Object>();
 
