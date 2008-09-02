@@ -21,7 +21,7 @@ import java.util.NoSuchElementException;
 public final class HashMapObjectLong<E> implements Serializable
 {
     private static final NoSuchElementException noSuchElementException = new NoSuchElementException(
-    "This is static exception, there is no stack trace available. It is thrown by get() method.");
+                    "This is static exception, there is no stack trace available. It is thrown by get() method.");
 
     public interface Entry<E>
     {
@@ -76,7 +76,7 @@ public final class HashMapObjectLong<E> implements Serializable
     public boolean remove(E key)
     {
         Object keyObj = key;
-        
+
         int hash = hashOf(keyObj) % capacity;
         while (used[hash])
         {
@@ -142,7 +142,7 @@ public final class HashMapObjectLong<E> implements Serializable
         }
         return array;
     }
-    
+
     @SuppressWarnings("unchecked")
     public <T> T[] getAllKeys(T[] a)
     {
@@ -197,7 +197,7 @@ public final class HashMapObjectLong<E> implements Serializable
                     if (used[i])
                     {
                         n++;
-                        return (E)keys[i];
+                        return (E) keys[i];
                     }
                 }
                 throw new NoSuchElementException();
@@ -261,7 +261,7 @@ public final class HashMapObjectLong<E> implements Serializable
                             @SuppressWarnings("unchecked")
                             public E getKey()
                             {
-                                return (E)keys[i];
+                                return (E) keys[i];
                             }
 
                             public long getValue()
@@ -298,7 +298,7 @@ public final class HashMapObjectLong<E> implements Serializable
     private void init(int initialCapacity)
     {
         capacity = PrimeFinder.findNextPrime(initialCapacity);
-        step = PrimeFinder.findPrevPrime(initialCapacity);
+        step = Math.max(1, PrimeFinder.findPrevPrime(initialCapacity / 3));
         limit = (int) (capacity * 0.75);
         clear();
         keys = new Object[capacity];
@@ -331,7 +331,7 @@ public final class HashMapObjectLong<E> implements Serializable
         }
         size = oldSize;
     }
-    
+
     private int hashOf(Object obj)
     {
         return Math.abs(obj.hashCode());

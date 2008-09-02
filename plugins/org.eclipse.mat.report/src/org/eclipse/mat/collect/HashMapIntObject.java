@@ -292,7 +292,7 @@ public final class HashMapIntObject<E> implements Serializable
     private void init(int initialCapacity)
     {
         capacity = PrimeFinder.findNextPrime(initialCapacity);
-        step = PrimeFinder.findPrevPrime(initialCapacity);
+        step = Math.max(1, PrimeFinder.findPrevPrime(initialCapacity / 3));
         limit = (int) (capacity * 0.75);
         clear();
         keys = new int[capacity];
@@ -347,14 +347,17 @@ public final class HashMapIntObject<E> implements Serializable
     {
         stream.defaultReadObject();
 
+        // compat: serialized maps could contain old step factor
+        step = Math.max(1, PrimeFinder.findPrevPrime(capacity / 3));
+
         used = new boolean[capacity];
         keys = new int[capacity];
-        values = (E[])new Object[capacity];
-        
+        values = (E[]) new Object[capacity];
+
         for (int ii = 0; ii < size; ii++)
-            putQuick(stream.readInt(), (E)stream.readObject());
+            putQuick(stream.readInt(), (E) stream.readObject());
     }
-    
+
     private void putQuick(int key, E value)
     {
         int hash = (key & Integer.MAX_VALUE) % capacity;

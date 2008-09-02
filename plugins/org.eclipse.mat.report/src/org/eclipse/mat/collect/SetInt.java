@@ -11,11 +11,7 @@
 package org.eclipse.mat.collect;
 
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.NoSuchElementException;
-import java.util.Random;
-import java.util.Set;
 
 public final class SetInt implements Serializable
 {
@@ -159,7 +155,7 @@ public final class SetInt implements Serializable
     private void init(int initialCapacity)
     {
         capacity = PrimeFinder.findNextPrime(initialCapacity);
-        step = PrimeFinder.findPrevPrime(initialCapacity);
+        step = Math.max(1, PrimeFinder.findPrevPrime(initialCapacity / 3));
         limit = (int) (capacity * 0.75);
         clear();
         keys = new int[capacity];
@@ -188,64 +184,4 @@ public final class SetInt implements Serializable
         }
         size = oldSize;
     }
-
-    public static void main(String[] args)
-    {
-        Set<Integer> reference = new HashSet<Integer>();
-        SetInt subject = new SetInt();
-
-        Random random = new Random();
-
-        for (int ii = 0; ii < 10000; ii++)
-        {
-            int s = random.nextInt();
-            assert subject.add(s) == reference.add(s);
-        }
-
-        assert subject.size() == reference.size();
-        for (int r : reference)
-            assert subject.contains(r);
-
-        int[] data = subject.toArray();
-
-        int[] referenceData = new int[reference.size()];
-        int index = 0;
-        for (int r : reference)
-            referenceData[index++] = r;
-
-        assertEquals(data, referenceData);
-
-        IteratorInt iter = subject.iterator();
-        index = 0;
-        while (iter.hasNext() && index < referenceData.length)
-            referenceData[index++] = iter.next();
-
-        assert index == referenceData.length;
-        assert !iter.hasNext();
-
-        assertEquals(data, referenceData);
-
-        for (int r : referenceData)
-            assert subject.remove(r);
-
-        assert subject.isEmpty();
-
-        subject = new SetInt(10);
-        for (int ii = 0; ii < 1000; ii++)
-            subject.add(random.nextInt());
-        assert !subject.isEmpty();
-        subject.clear();
-        assert subject.isEmpty();
-    }
-
-    private static void assertEquals(int[] a, int[] b)
-    {
-        assert a.length == b.length;
-        Arrays.sort(a);
-        Arrays.sort(b);
-
-        for (int ii = 0; ii < a.length; ii++)
-            assert a[ii] == b[ii] : a[ii] + "!=" + b[ii];
-    }
-
 }

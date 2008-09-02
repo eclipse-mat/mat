@@ -1353,15 +1353,17 @@ public final class SnapshotImpl implements ISnapshot
         }
         else
         {
-            if (classCache.containsKey(objectId))
+            IClass clazz = classCache.get(objectId);
+
+            if (clazz != null)
             {
                 // it is a class
-                return ((IClass) classCache.get(objectId)).getUsedHeapSize();
+                return clazz.getUsedHeapSize();
             }
             else
-            {
+            {   
                 // it is an instance
-                IClass clazz = classCache.get(indexManager.o2class().get(objectId));
+                clazz = classCache.get(indexManager.o2class().get(objectId));
                 return clazz.getHeapSizePerInstance();
             }
 

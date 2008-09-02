@@ -270,7 +270,7 @@ public final class HashMapIntLong implements Serializable
     private void init(int initialCapacity)
     {
         capacity = PrimeFinder.findNextPrime(initialCapacity);
-        step = PrimeFinder.findPrevPrime(initialCapacity);
+        step = Math.max(1, PrimeFinder.findPrevPrime(initialCapacity / 3));
         limit = (int) (capacity * 0.75);
         clear();
         keys = new int[capacity];
