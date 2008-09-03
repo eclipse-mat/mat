@@ -72,6 +72,7 @@
 	
 	<extension point="org.eclipse.mat.api.nameResolver">
 		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$StringResolver" />
+		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$StringBufferResolver" />
 		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$ThreadResolver" />
 		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$ThreadGroupResolver" />
 		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$ValueResolver" />

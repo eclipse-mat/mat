@@ -29,6 +29,26 @@ public class CommonNameResolver
         }
     }
 
+    @Subjects( { "java.lang.StringBuffer", // 
+                    "java.lang.StringBuilder" })
+    public static class StringBufferResolver implements IClassSpecificNameResolver
+    {
+        public String resolve(IObject obj) throws SnapshotException
+        {
+            Integer count = (Integer) obj.resolveValue("count");
+            if (count == null)
+                return null;
+            if (count == 0)
+                return "";
+            
+            IPrimitiveArray charArray = (IPrimitiveArray) obj.resolveValue("value");
+            if (charArray == null)
+                return null;
+
+            return PrettyPrinter.arrayAsString(charArray, 0, count, 1024);
+        }
+    }
+
     @Subject("java.lang.Thread")
     public static class ThreadResolver implements IClassSpecificNameResolver
     {
