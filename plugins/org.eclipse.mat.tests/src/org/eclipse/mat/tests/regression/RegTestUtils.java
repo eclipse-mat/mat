@@ -49,12 +49,8 @@ public class RegTestUtils
         if (!file.delete())
         {
 
-            System.err.println("ERROR> Failed to remove file " + file.getName() + " from the directory "
+            System.err.println("ERROR: Failed to remove file " + file.getName() + " from the directory "
                             + file.getParent());
-        }
-        else
-        {
-            System.out.println("OUTPUT> File " + file.getName() + " deleted.");
         }
     }
 

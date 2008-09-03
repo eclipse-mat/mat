@@ -26,7 +26,7 @@ import org.eclipse.mat.snapshot.query.SnapshotQuery;
 import org.eclipse.mat.util.IProgressListener;
 
 @Name("Retained Size for Histogram")
-@CommandName("retained_size_histogram")
+@CommandName("retained_size_histogram_test")
 @Category(Category.HIDDEN)
 public class RetainedSizeForHistogramQuery implements IQuery
 {

@@ -13,6 +13,7 @@ package org.eclipse.mat.tests.regression.comparator;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -29,16 +30,20 @@ public class BinaryComparator implements IComparator
 
     public List<Difference> compare(File baseline, File testFile) throws Exception
     {
+        String testName = baseline.getName().substring(0, baseline.getName().lastIndexOf("."));
+        System.out.println(MessageFormat.format("Comparing: {0}", testName));
+
         List<Difference> differences = new ArrayList<Difference>();
-        System.out.println("OUTPUT> Task: comparing two result files for binary Dominator Tree");
+        
         InputStream baselineStream = null;
         InputStream testStream = null;
         if (baseline.length() != testFile.length())
         {
-            String errorMessage = "Files have different lengths: baseline file length = " + baseline.length()
-            + ", test file length = " + testFile.length();
+            String errorMessage = MessageFormat.format(
+                            "Files have different lengths: baseline file length = {0}, test file length = {1}",
+                            baseline.length(), testFile.length());
             differences.add(new Difference(errorMessage));
-            System.err.println("FAILED> "+errorMessage);
+            System.err.println(MessageFormat.format("ERROR: ({0}) {1}", testName, errorMessage));
             return differences;
         }
 
@@ -47,22 +52,22 @@ public class BinaryComparator implements IComparator
             baselineStream = new FileInputStream(baseline);
             testStream = new FileInputStream(testFile);
 
-            if (inputStreamEquals(baselineStream, testStream))
+            if (inputStreamEquals(testName, baselineStream, testStream))
             {
-                System.out.println("OK> Files are identical");
                 return null;
             }
             else
             {
                 differences.add(new Difference(FAILED_MESSAGE));
-                System.err.println("FAILED> " + FAILED_MESSAGE);
+                System.err.println(MessageFormat.format("ERROR: ({0}) {1}", testName, FAILED_MESSAGE));
                 return differences;
             }
 
         }
         catch (Exception e)
         {
-            System.err.println("FAILED> Failed to compare two binary files: " + baseline.getName());
+            System.err.println(MessageFormat.format("ERROR: ({0}) Error comparing binary files: {0}", testName, e
+                            .getMessage()));
             return null;
         }
         finally
@@ -79,7 +84,7 @@ public class BinaryComparator implements IComparator
         }
     }
 
-    private boolean inputStreamEquals(InputStream baselineStream, InputStream testStream)
+    private boolean inputStreamEquals(String testName, InputStream baselineStream, InputStream testStream)
     {
         if (baselineStream == testStream)
             return true;
@@ -129,7 +134,8 @@ public class BinaryComparator implements IComparator
         }
         catch (Exception e)
         {
-            System.err.println("FAILED> Failed to compare two binary files");
+            System.err.println(MessageFormat.format("ERROR: ({0}) Error comparing binary files: {0}", testName, e
+                            .getMessage()));
             return false;
         }
     }

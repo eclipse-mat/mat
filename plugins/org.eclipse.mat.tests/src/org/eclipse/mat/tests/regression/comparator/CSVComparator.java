@@ -14,6 +14,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,14 +25,16 @@ public class CSVComparator implements IComparator
 
     public List<Difference> compare(File baseline, File testFile) throws Exception
     {
-        System.out.println("OUTPUT> Task: comparing two result files for "
-                        + baseline.getName().substring(0, baseline.getName().lastIndexOf(".")));
+        String testName = baseline.getName().substring(0, baseline.getName().lastIndexOf("."));
+
+        System.out.println(MessageFormat.format("Comparing: {0}", testName));
+
         List<Difference> differences = new ArrayList<Difference>();
         if (baseline.length() < testFile.length())
         {
             differences.add(new Difference("", "baseLine length: " + baseline.length(), "testFile length: "
                             + testFile.length()));
-            System.err.println("FAILED> Files have different lengths");
+            System.err.println(MessageFormat.format("ERROR: ({0}) Files have different lengths", testName));
             return differences;
         }
         BufferedReader baselineReader = null;
@@ -54,15 +57,14 @@ public class CSVComparator implements IComparator
                     break;
                 lineNumber = lineNumber + 1;
             }
-            if (differences.isEmpty())
-                System.out.println("OK> Result files are identical");
-            else
-                System.err.println("FAILED> Differences to the baseline were found");
+
+            if (!differences.isEmpty())
+                System.err.println(MessageFormat.format("ERROR: ({0}) Differences detected", testName));
 
         }
         catch (IOException e)
         {
-            System.err.println("ERROR> Failed to read the file " + e);
+            System.err.println(MessageFormat.format("ERROR: ({0}) Error reading file {0}", testName, e.getMessage()));
         }
         finally
         {
@@ -75,11 +77,10 @@ public class CSVComparator implements IComparator
             }
             catch (IOException e)
             {
-                // $JL-EXC$
-                System.err.println("ERROR> Failed to close the BufferReader: " + e);
+                System.err.println(MessageFormat.format("ERROR: ({0}) Error closing BufferedReader: {0}", //
+                                testName, e.getMessage()));
             }
         }
         return differences;
     }
-
 }

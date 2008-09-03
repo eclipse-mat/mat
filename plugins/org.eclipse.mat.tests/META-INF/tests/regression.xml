@@ -19,7 +19,7 @@
 	    <param key="format" value="csv" />
 		<param key="filename" value="Class_Histogram.csv"/>
 		<param key="html.separate_file" value="true" />
-		<param key="sort_column" value="Retained Heap" />
+		<param key="sort_column" value="Retained Heap=DESC,Shallow Heap=DESC,Objects=DESC,Class Name" />
 		<param key="derived_data_column" value="_default_=APPROXIMATE"/>
 		<param key="limit" value="50000" />
 		<command>histogram</command>
@@ -28,10 +28,10 @@
 	    <param key="format" value="csv" />
 		<param key="filename" value="Class_Loader_Histogram.csv"/>
 		<param key="html.separate_file" value="true" />
-		<param key="sort_column" value="Retained Heap" />
+		<param key="sort_column" value="Retained Heap=DESC,Shallow Heap=DESC,Objects=DESC,Class Name" />
 		<param key="derived_data_column" value="_default_=APPROXIMATE"/>
 		<param key="limit" value="50000" />
-		<command>histogram -byClassLoader</command>
+		<command>histogram -groupBy BY_CLASSLOADER</command>
 	</query>
 	<query name="Dominator Tree">
 		<param key="format" value="csv" />
@@ -42,7 +42,7 @@
 		<command>dominator_tree</command>
 	</query>
 	<query name="Dominator Tree (binary)">			
-		<command>dom_tree_binary</command>				
+		<command>dom_tree_binary_test</command>				
 	</query>
 	<query name="List 1000 Strings">
 		<param key="format" value="csv" />

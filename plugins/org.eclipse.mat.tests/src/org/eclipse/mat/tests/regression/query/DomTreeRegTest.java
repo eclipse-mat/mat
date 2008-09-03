@@ -30,7 +30,7 @@ import org.eclipse.mat.util.IProgressListener;
 
 @Name("Dominator Tree (binary)")
 @Category(Category.HIDDEN)
-@CommandName("dom_tree_binary")
+@CommandName("dom_tree_binary_test")
 public class DomTreeRegTest implements IQuery
 {
     @Argument

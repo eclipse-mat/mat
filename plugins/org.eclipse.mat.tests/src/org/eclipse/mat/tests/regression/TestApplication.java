@@ -157,7 +157,7 @@ public class TestApplication
                 }
                 catch (Exception e)
                 {
-                    System.err.println("ERROR> " + e.getMessage());
+                    System.err.println("ERROR: " + e.getMessage());
                     result.addErrorMessage(e.getMessage());
                     continue;
                 }
@@ -195,7 +195,7 @@ public class TestApplication
                 boolean isSuccessful = true;
                 for (int ii = 0; isSuccessful && ii < testResults.size(); ii++)
                     isSuccessful = testResults.get(ii).isSuccessful();
-                
+
                 if (isSuccessful)
                     System.out.println("Tests finished successfully");
                 else
@@ -320,17 +320,17 @@ public class TestApplication
             handler.endElement(URI, Parameter.TEST_SUITE, Parameter.TEST_SUITE);
             handler.endDocument();
             out.close();
-            System.out.println("Report is generated in: " + dumpDir);
+            System.out.println("Report is generated in: " + resultFile.getAbsolutePath());
         }
         catch (FileNotFoundException e)
         {
-            System.err.println("ERROR> File not found " + dumpDir.getAbsolutePath()
+            System.err.println("ERROR: File not found " + dumpDir.getAbsolutePath()
                             + "result.xml. Failed to generate the report");
 
         }
         catch (Exception e)
         {
-            System.err.println("ERROR> Failed to generate the report. ");
+            System.err.println("ERROR: Failed to generate the report. ");
             e.printStackTrace(System.err);
         }
 
@@ -424,7 +424,7 @@ public class TestApplication
                 if (matchingFiles.length == 0)
                 {
                     String errorMessage = MessageFormat.format(
-                                    "ERROR> Baseline result {0} has no corresponding test result", baselineFile);
+                                    "ERROR: Baseline result {0} has no corresponding test result", baselineFile);
 
                     System.err.println(errorMessage);
                     result.addErrorMessage(errorMessage);
@@ -464,12 +464,11 @@ public class TestApplication
                     File newBaselineFile = new File(baselineDir, testResultFile.getName());
                     testResultFile.renameTo(newBaselineFile);
 
-                    System.out.println("OUTPUT> New baseline was added for " + testResultFile.getName());
+                    System.out.println("Info: New baseline was added for " + testResultFile.getName());
                     result.addTestData(new SingleTestResult(testResultFile.getName(), "New baseline was added", null));
                 }
             }
         }
-
         else
         {
             // create baseline folder and copy the result of the tests in it
@@ -483,14 +482,14 @@ public class TestApplication
                 SingleTestResult singleTestResult = new SingleTestResult(baselineFile.getName(),
                                 "New baseline was added", null);
                 result.addTestData(singleTestResult);
-                System.out.println("OUTPUT> New baseline was added for " + baselineFile.getName());
+                System.out.println("Info: New baseline was added for " + baselineFile.getName());
             }
         }
     }
 
     private void cleanIndexFiles(File file, TestSuiteResult result, boolean throwExcepionFlag) throws Exception
     {
-        System.out.println("OUTPUT>Task: Cleaning the indexes and old result files for " + file.getName());
+        System.out.println("Cleanup: Cleaning the indexes and old result files for " + file.getName());
         File dir = file.getParentFile();
 
         String[] indexFiles = dir.list(RegTestUtils.cleanupFilter);
@@ -565,12 +564,12 @@ public class TestApplication
         catch (FileNotFoundException e)
         {
             result.addErrorMessage("File not found: " + e.getMessage());
-            System.err.println("ERROR> File not found" + e.getMessage());
+            System.err.println("ERROR: File not found" + e.getMessage());
         }
         catch (IOException e)
         {
             result.addErrorMessage(e.getMessage());
-            System.err.println("ERROR> " + e.getMessage());
+            System.err.println("ERROR: " + e.getMessage());
         }
 
     }
@@ -580,7 +579,7 @@ public class TestApplication
         // get result file name
         String resultsFileName = dumpFile.getAbsolutePath().substring(0, dumpFile.getAbsolutePath().lastIndexOf('.'))
                         + "_Regression_Tests.zip";
-        System.out.println("OUTPUT> Task: unziping test result file " + resultsFileName);
+        System.out.println("Unzip: unziping test result file " + resultsFileName);
 
         File originFile = new File(resultsFileName);
         File targetFile = new File(baselineDir, originFile.getName());
@@ -593,7 +592,7 @@ public class TestApplication
         }
         else
         {
-            String message = "ERROR> Failed coping test results file " + resultsFileName
+            String message = "ERROR: Failed coping test results file " + resultsFileName
                             + " to the destination folder " + baselineDir;
             result.addErrorMessage(message);
             System.err.println(message);
@@ -616,10 +615,16 @@ public class TestApplication
                         File.separator).append("java\"");
         cmd.append(" ").append(jvmFlags);
         cmd.append(" -jar \"").append(cp).append("\"");
-        cmd.append(" -dev \"").append(osgiDev).append("\"");
-        cmd.append(" -install \"").append(osgiInstallArea).append("\"");
-        cmd.append(" -configuration \"").append(osgiConfiguration).append("\"");
-        cmd.append(" -data \"").append(osgiInstanceArea).append("\"");
+
+        if (osgiDev != null)
+            cmd.append(" -dev \"").append(osgiDev).append("\"");
+        if (osgiInstallArea != null)
+            cmd.append(" -install \"").append(osgiInstallArea).append("\"");
+        if (osgiConfiguration != null)
+            cmd.append(" -configuration \"").append(osgiConfiguration).append("\"");
+        if (osgiInstallArea != null)
+            cmd.append(" -data \"").append(osgiInstanceArea).append("\"");
+
         cmd.append(" -application org.eclipse.mat.tests.application");
         cmd.append(" -parse");
         cmd.append(" \"").append(dump.getAbsolutePath()).append("\"");
@@ -655,6 +660,5 @@ public class TestApplication
                     result.addPerfData(new PerfData(matcher.group(1), matcher.group(2)));
             }
         }
-        System.out.println("Exit Status: OK");
     }
 }

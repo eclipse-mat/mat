@@ -11,22 +11,22 @@
 	</query>				
 	<query name="Retained Size Approx for Histogram">		
 		<param key="html.separate_file" value="true" />
-		<command>retained_size_histogram -approx</command>
+		<command>retained_size_histogram_test -approx</command>
 		<param key="limit" value="50000" />
 	</query>
 	<query name="Retained Size Approx for Classloaders">		
 		<param key="html.separate_file" value="true" />
-		<command>retained_size_histogram -byClassLoader -approx</command>
+		<command>retained_size_histogram_test -byClassLoader -approx</command>
 		<param key="limit" value="50000" />		
 	</query>
 	<query name="Retained Size for Histogram(precise)">		
 		<param key="html.separate_file" value="true" />
-		<command>retained_size_histogram</command>
+		<command>retained_size_histogram_test</command>
 		<param key="limit" value="50000" />
 	</query>
 	<query name="Retained Size for Classloaders(precise)">		
 		<param key="html.separate_file" value="true" />
-		<command>retained_size_histogram -byClassLoader </command>
+		<command>retained_size_histogram_test -byClassLoader </command>
 		<param key="limit" value="50000" />		
 	</query>
 	<query name="Immediate Dominators of java.util.HashMap$Entry">		

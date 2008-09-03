@@ -42,7 +42,7 @@ public class ForceNewBaselineApplication
             }
             else
             {
-                System.err.println("WARNING> Heap dump " + dump.getName() + "has no baseline");
+                System.err.println("Info: Heap dump " + dump.getName() + "has no baseline");
             }
 
             // rename test result folder into baseline folder
@@ -59,12 +59,12 @@ public class ForceNewBaselineApplication
                     boolean succeed = baselineFile.renameTo(newBaselineFile);
                     if (succeed)
                     {
-                        System.out.println("OUTPUT> New baseline was created for heap dump: " + dump.getName()
+                        System.out.println("New baseline was created for heap dump: " + dump.getName()
                                         + " file: " + baselineFile.getName());
                     }
                     else
                     {
-                        System.err.println("ERROR> Failed overriding the baseline for heap dump: " + dump.getName()
+                        System.err.println("ERROR: Failed overriding the baseline for heap dump: " + dump.getName()
                                         + " file: " + baselineFile.getName());
                     }
                 }
@@ -73,7 +73,7 @@ public class ForceNewBaselineApplication
             }
             else
             {
-                System.err.println("WARNING> Heap dump " + dump.getName() + " has no test results");
+                System.err.println("ERROR: Heap dump " + dump.getName() + " has no test results");
             }
         }
 

@@ -11,10 +11,8 @@
 package org.eclipse.mat.tests.regression;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.PrintStream;
 
-import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.internal.snapshot.SnapshotQueryContext;
 import org.eclipse.mat.report.Spec;
 import org.eclipse.mat.report.TestSuite;
@@ -34,7 +32,7 @@ public class TestParseApp
         this.report = report;
     }
 
-    public void run()
+    public void run() throws Exception
     {
         IProgressListener listener = new ClockedProgressListener(snapshotFile, System.out);
 
@@ -48,14 +46,6 @@ public class TestParseApp
                             .build(new SnapshotQueryContext(snapshot));
 
             suite.execute(listener);
-        }
-        catch (SnapshotException e)
-        {
-            e.printStackTrace(System.err);
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace(System.err);
         }
         finally
         {
