@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.mat.ui.snapshot.panes;
 
+import java.net.URL;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,9 +38,9 @@ import org.eclipse.mat.query.registry.QueryResult;
 import org.eclipse.mat.snapshot.Histogram;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.SnapshotFactory;
-import org.eclipse.mat.snapshot.query.RetainedSizeDerivedData;
 import org.eclipse.mat.snapshot.query.HistogramResult;
 import org.eclipse.mat.snapshot.query.Icons;
+import org.eclipse.mat.snapshot.query.RetainedSizeDerivedData;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
 import org.eclipse.mat.ui.editor.MultiPaneEditorSite;
@@ -68,10 +69,40 @@ import org.eclipse.ui.ide.ResourceUtil;
 
 public class HistogramPane extends QueryResultPane
 {
-    boolean isGrouped = false;
-    Histogram histogram;
+    public enum Grouping
+    {
+        BY_CLASS("Group by class", Icons.CLASS), //
+        BY_CLASSLOADER("Group by class loader", Icons.CLASSLOADER_INSTANCE), //
+        BY_PACKAGE("Group by package", Icons.PACKAGE);
 
-    Action deltaAction;
+        String label;
+        URL icon;
+
+        private Grouping(String label, URL icon)
+        {
+            this.label = label;
+            this.icon = icon;
+        }
+
+        public URL getIcon()
+        {
+            return icon;
+        }
+
+        public String toString()
+        {
+            return label;
+        }
+    }
+
+    /**
+     * the underlying histogram, possibly different from the histogram displayed
+     * because of the delta action
+     */
+    private Histogram histogram;
+    private Grouping groupedBy;
+
+    private Action deltaAction;
 
     @Override
     protected void makeActions()
@@ -97,24 +128,44 @@ public class HistogramPane extends QueryResultPane
                 throw new RuntimeException(e);
             }
         }
-        else if (argument instanceof QueryResult && ((QueryResult) argument).getSubject() instanceof HistogramResult)
+        else if (argument instanceof QueryResult //
+                        && ((QueryResult) argument).getSubject() instanceof HistogramResult)
         {
             QueryResult previous = (QueryResult) argument;
-            argument = new QueryResult(previous.getQuery(), previous.getCommand(), ((HistogramResult) previous
-                            .getSubject()).asTable());
+            argument = new QueryResult(previous.getQuery(), previous.getCommand(), //
+                            ((HistogramResult) previous.getSubject()).getHistogram());
         }
 
         super.initWithArgument(argument);
 
         IResult subject = ((QueryResult) argument).getSubject();
-        histogram = subject instanceof Histogram ? (Histogram) subject //
-                        : ((Histogram.ClassLoaderTree) subject).getHistogram();
+        if (subject instanceof Histogram)
+            groupedBy = Grouping.BY_CLASS;
+        else if (subject instanceof Histogram.ClassLoaderTree)
+            groupedBy = Grouping.BY_CLASSLOADER;
+        else if (subject instanceof Histogram.PackageTree)
+            groupedBy = Grouping.BY_PACKAGE;
+
+        histogram = unwrapHistogram(subject);
 
         // the default histogram has the retained size column visible by default
         // (as values might have been stored)
         if (histogram.isDefaultHistogram())
             viewer.showDerivedDataColumn(viewer.getQueryResult().getDefaultContextProvider(),
                             RetainedSizeDerivedData.APPROXIMATE);
+    }
+
+    private Histogram unwrapHistogram(IResult subject)
+    {
+        if (subject instanceof Histogram)
+            return (Histogram) subject;
+        else if (subject instanceof Histogram.ClassLoaderTree)
+            return ((Histogram.ClassLoaderTree) subject).getHistogram();
+        else if (subject instanceof Histogram.PackageTree)
+            return ((Histogram.PackageTree) subject).getHistogram();
+        else
+            throw new RuntimeException(MessageFormat.format("Illegal type for HistogramPane: {0}", //
+                            subject.getClass().getName()));
     }
 
     @Override
@@ -137,20 +188,13 @@ public class HistogramPane extends QueryResultPane
             @Override
             public void contribute(PopupMenu menu)
             {
-                Action action = new GroupingAction(false);
-                action.setText("Group by class");
-                action.setImageDescriptor(MemoryAnalyserPlugin.getDefault().getImageDescriptor(Icons.CLASS));
-                action.setEnabled(isGrouped);
-                action.setChecked(!isGrouped);
-                menu.add(action);
-
-                action = new GroupingAction(true);
-                action.setText("Group by class loader");
-                action.setImageDescriptor(MemoryAnalyserPlugin.getDefault().getImageDescriptor(
-                                Icons.CLASSLOADER_INSTANCE));
-                action.setEnabled(!isGrouped);
-                action.setChecked(isGrouped);
-                menu.add(action);
+                for (Grouping g : Grouping.values())
+                {
+                    Action action = new GroupingAction(g);
+                    action.setEnabled(g != groupedBy);
+                    action.setChecked(g == groupedBy);
+                    menu.add(action);
+                }
             }
         };
 
@@ -186,10 +230,22 @@ public class HistogramPane extends QueryResultPane
                             deactivateViewer();
 
                             QueryResult qr;
-                            if (HistogramPane.this.isGrouped)
-                                qr = new QueryResult(null, "[diff]", delta.groupByClassLoader());
-                            else
-                                qr = new QueryResult(null, "[diff]", delta);
+                            switch (HistogramPane.this.groupedBy)
+                            {
+                                case BY_CLASS:
+                                    qr = new QueryResult(null, "[diff]", delta);
+                                    break;
+                                case BY_CLASSLOADER:
+                                    qr = new QueryResult(null, "[diff]", delta.groupByClassLoader());
+                                    break;
+                                case BY_PACKAGE:
+                                    qr = new QueryResult(null, "[diff]", delta.groupByPackage());
+                                    break;
+                                default:
+                                    throw new RuntimeException(MessageFormat
+                                                    .format("Illegal type for HistogramPane: {0}",
+                                                                    HistogramPane.this.groupedBy));
+                            }
 
                             RefinedResultViewer v = createViewer(qr);
 
@@ -218,19 +274,22 @@ public class HistogramPane extends QueryResultPane
 
     private class GroupingAction extends Action
     {
-        private boolean doGroup;
+        private Grouping groupBy;
 
-        public GroupingAction(boolean doGroup)
+        public GroupingAction(Grouping groupBy)
         {
-            super("Group", AS_CHECK_BOX);
-            this.doGroup = doGroup;
+            super(groupBy.toString(), AS_CHECK_BOX);
+            this.groupBy = groupBy;
+
+            setImageDescriptor(MemoryAnalyserPlugin.getDefault().getImageDescriptor(groupBy.getIcon()));
         }
 
         public void run()
         {
-            if (!isChecked())// do not run the same action twice - selection
-                // was not changed
+            // do not run the same action twice - selection was not changed
+            if (!isChecked())
                 return;
+
             if (viewer.getResult().hasActiveFilter())
             {
                 StringBuilder buf = new StringBuilder();
@@ -244,9 +303,7 @@ public class HistogramPane extends QueryResultPane
                     return;
             }
 
-            IStructuredResult unwrapped = viewer.getResult().unwrap();
-            final Histogram current = unwrapped instanceof Histogram ? (Histogram) unwrapped
-                            : ((Histogram.ClassLoaderTree) unwrapped).getHistogram();
+            final Histogram current = unwrapHistogram(viewer.getResult().unwrap());
 
             new Job(getText())
             {
@@ -254,15 +311,28 @@ public class HistogramPane extends QueryResultPane
                 {
                     IStructuredResult result;
 
-                    if (doGroup)
-                        result = current.groupByClassLoader();
-                    else
-                        result = current;
+                    switch (groupBy)
+                    {
+                        case BY_CLASS:
+                            result = current;
+                            break;
+                        case BY_CLASSLOADER:
+                            result = current.groupByClassLoader();
+                            break;
+                        case BY_PACKAGE:
+                            result = current.groupByPackage();
+                            break;
+                        default:
+                            throw new RuntimeException(MessageFormat.format("Illegal type for HistogramPane: {0}",
+                                            groupBy));
 
-                    final QueryResult queryResult = current == HistogramPane.this.histogram ? new QueryResult(
-                                    QueryRegistry.instance().getQuery("histogram"), //
-                                    "histogram" + (doGroup ? " -byclassloader" : ""), result) : // 
-                                    new QueryResult(null, "[diff]", result);
+                    }
+
+                    final boolean isDeltaHistogram = current != HistogramPane.this.histogram;
+
+                    final QueryResult queryResult = isDeltaHistogram ? new QueryResult(null, "[diff]", result)
+                                    : new QueryResult(QueryRegistry.instance().getQuery("histogram"),
+                                                    "histogram -groupBy " + groupBy.name(), result);
 
                     PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()
                     {
@@ -270,11 +340,16 @@ public class HistogramPane extends QueryResultPane
                         {
                             deactivateViewer();
 
-                            HistogramPane.this.isGrouped = doGroup;
+                            HistogramPane.this.groupedBy = groupBy;
 
                             RefinedResultViewer v = createViewer(queryResult);
 
                             activateViewer(v);
+                            
+                            if (!isDeltaHistogram && histogram.isDefaultHistogram())
+                                v.showDerivedDataColumn(v.getQueryResult().getDefaultContextProvider(),
+                                                RetainedSizeDerivedData.APPROXIMATE);
+                            
                         }
 
                     });
@@ -325,9 +400,27 @@ public class HistogramPane extends QueryResultPane
             {
                 deactivateViewer();
 
+                IResult result;
+
+                switch (groupedBy)
+                {
+                    case BY_CLASS:
+                        result = histogram;
+                        break;
+                    case BY_CLASSLOADER:
+                        result = histogram.groupByClassLoader();
+                        break;
+                    case BY_PACKAGE:
+                        result = histogram.groupByPackage();
+                        break;
+                    default:
+                        throw new RuntimeException(MessageFormat.format("Illegal type for HistogramPane: {0}",
+                                        groupedBy));
+                }
+
                 QueryResult qr = new QueryResult(QueryRegistry.instance().getQuery("histogram"), //
-                                "histogram" + (isGrouped ? " -byclassloader" : ""), //
-                                isGrouped ? histogram.groupByClassLoader() : histogram);
+                                "histogram -groupBy " + groupedBy.name(), //
+                                result);
 
                 activateViewer(createViewer(qr));
             }

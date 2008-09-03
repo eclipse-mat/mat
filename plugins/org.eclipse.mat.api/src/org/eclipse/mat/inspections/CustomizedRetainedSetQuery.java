@@ -33,7 +33,6 @@ import org.eclipse.mat.snapshot.ExcludedReferencesDescriptor;
 import org.eclipse.mat.snapshot.Histogram;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IClass;
-import org.eclipse.mat.snapshot.query.HistogramResult;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.util.IProgressListener;
 
@@ -108,7 +107,7 @@ public class CustomizedRetainedSetQuery implements IQuery
             throw new IProgressListener.OperationCanceledException();
 
         histogram.setLabel(MessageFormat.format("Retained by ''{0}''", new Object[] { objects.getLabel() }));
-        return new HistogramResult(histogram);
+        return histogram;
     }
 
     private ExcludedReferencesDescriptor[] getExcludedReferenceDescriptors(String[] excludedRefs)

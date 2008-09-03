@@ -16,6 +16,7 @@ import java.text.Format;
 import java.text.MessageFormat;
 import java.text.ParsePosition;
 import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.NoSuchElementException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -76,6 +77,8 @@ public class RetainedSizeDerivedData extends ContextDerivedData
         if (result instanceof Histogram)
             calculator = new AllClasses(snapshot, provider, result);
         else if (result instanceof Histogram.ClassLoaderTree)
+            calculator = new AllClasses(snapshot, provider, result);
+        else if (result instanceof Histogram.PackageTree)
             calculator = new AllClasses(snapshot, provider, result);
         else
             calculator = new DerivedCalculatorImpl(snapshot, provider);
@@ -241,7 +244,31 @@ public class RetainedSizeDerivedData extends ContextDerivedData
                 {
                     throw new RuntimeException(e);
                 }
+            }
+            else if (result instanceof Histogram.PackageTree)
+            {
+                try
+                {
+                    VoidProgressListener listener = new VoidProgressListener();
+                    Histogram.PackageTree packageTree = (Histogram.PackageTree) result;
 
+                    LinkedList<Object> nodes = new LinkedList<Object>();
+                    nodes.addAll(packageTree.getElements());
+
+                    while (!nodes.isEmpty())
+                    {
+                        Object child = nodes.removeFirst();
+                        if (packageTree.hasChildren(child))
+                            nodes.addAll(packageTree.getChildren(child));
+
+                        if (child instanceof ClassHistogramRecord)
+                            ((ClassHistogramRecord) child).calculateRetainedSize(snaphot, false, true, listener);
+                    }
+                }
+                catch (SnapshotException e)
+                {
+                    throw new RuntimeException(e);
+                }
             }
         }
 

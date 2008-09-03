@@ -16,8 +16,10 @@ import org.eclipse.mat.query.ResultMetaData;
 import org.eclipse.mat.snapshot.Histogram;
 
 /**
- * Wrapper to return a {@link org.eclipse.mat.snapshot.Histogram} as a
- * query result.
+ * Wrapper to return a {@link org.eclipse.mat.snapshot.Histogram} as a query
+ * result.
+ * 
+ * @deprecated Use {@link Histogram} instead.
  */
 public final class HistogramResult implements IResult
 {
@@ -35,12 +37,12 @@ public final class HistogramResult implements IResult
 
     public Histogram getHistogram()
     {
-        return histogram;
+        return this.histogram;
     }
 
     public IResultTable asTable()
     {
         return this.histogram;
     }
-    
+
 }

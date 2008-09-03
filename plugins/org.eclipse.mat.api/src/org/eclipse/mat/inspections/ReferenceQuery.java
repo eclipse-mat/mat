@@ -22,7 +22,6 @@ import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IInstance;
 import org.eclipse.mat.snapshot.model.ObjectReference;
-import org.eclipse.mat.snapshot.query.HistogramResult;
 import org.eclipse.mat.util.IProgressListener;
 
 
@@ -63,7 +62,7 @@ public class ReferenceQuery
             throw new IProgressListener.OperationCanceledException();
         
         histogram.setLabel(MessageFormat.format("{0}: Referents", label));
-        result.addResult(new HistogramResult(histogram));
+        result.addResult(histogram);
 
         listener.subTask("Computing retained set of reference set (assuming only the "
                         + "referents are no longer referenced by the Reference objects)...");
@@ -74,7 +73,7 @@ public class ReferenceQuery
         if (listener.isCanceled())
             throw new IProgressListener.OperationCanceledException();
         histogram.setLabel(MessageFormat.format("{0}: Retained throu referent Field", label));
-        result.addResult(new HistogramResult(histogram));
+        result.addResult(histogram);
 
         return result;
     }

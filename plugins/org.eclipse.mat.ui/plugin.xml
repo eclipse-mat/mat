@@ -78,6 +78,7 @@
 		<pane id="HistogramPane" class="org.eclipse.mat.ui.snapshot.panes.HistogramPane">
 			<result type="org.eclipse.mat.snapshot.Histogram"/>
 			<result type="org.eclipse.mat.snapshot.Histogram$ClassLoaderTree"/>
+			<result type="org.eclipse.mat.snapshot.Histogram$PackageTree"/>
 			<result type="org.eclipse.mat.snapshot.query.HistogramResult"/>
 		</pane>
 		<pane id="DominatorTreePane" class="org.eclipse.mat.ui.snapshot.panes.DominatorPane">

@@ -17,10 +17,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IContextObjectSet;
@@ -29,6 +31,7 @@ import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.query.IResultTree;
 import org.eclipse.mat.query.ResultMetaData;
 import org.eclipse.mat.snapshot.query.Icons;
+import org.eclipse.mat.util.SimpleStringTokenizer;
 
 /**
  * Class histogram - heap objects aggregated by their class. It holds the number
@@ -530,9 +533,9 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
         report.append(";");
         report.append(headers[4]);
         report.append(";\r\n");
-        
+
         Collections.sort(records, comparator);
-        
+
         for (ClassLoaderHistogramRecord classloaderRecord : records)
         {
             Collection<ClassHistogramRecord> classRecords = classloaderRecord.getClassHistogramRecords();
@@ -710,9 +713,9 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
         return new ClassLoaderTree(this);
     }
 
-    public static class ClassLoaderTree implements IResultTree, IIconProvider
+    public final static class ClassLoaderTree implements IResultTree, IIconProvider
     {
-        Histogram histogram;
+        private Histogram histogram;
 
         public ClassLoaderTree(Histogram histogram)
         {
@@ -846,5 +849,198 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
         {
             return row instanceof ClassLoaderHistogramRecord ? Icons.CLASSLOADER_INSTANCE : Icons.CLASS;
         }
+    }
+
+    // //////////////////////////////////////////////////////////////
+    // implementation as tree grouped by package
+    // //////////////////////////////////////////////////////////////
+
+    public IResultTree groupByPackage()
+    {
+        return new PackageTree(this);
+    }
+
+    private static class PackageNode extends HistogramRecord
+    {
+        private static final long serialVersionUID = 1L;
+
+        /* package */Map<String, PackageNode> subPackages = new HashMap<String, PackageNode>();
+        /* package */List<ClassHistogramRecord> classes = new ArrayList<ClassHistogramRecord>();
+
+        public PackageNode(String name)
+        {
+            super(name);
+        }
+
+    }
+
+    public static final class PackageTree implements IResultTree, IIconProvider
+    {
+        private Histogram histogram;
+        PackageNode root;
+
+        public PackageTree(Histogram histogram)
+        {
+            this.histogram = histogram;
+
+            buildTree(histogram);
+        }
+
+        private void buildTree(Histogram histogram)
+        {
+            root = new PackageNode("<ROOT>");
+
+            for (ClassHistogramRecord record : histogram.getClassHistogramRecords())
+            {
+                PackageNode current = root;
+
+                String path[] = SimpleStringTokenizer.split(record.getLabel(), '.');
+                for (int ii = 0; ii < path.length - 1; ii++)
+                {
+                    PackageNode child = current.subPackages.get(path[ii]);
+                    if (child == null)
+                        current.subPackages.put(path[ii], child = new PackageNode(path[ii]));
+                    child.incNumberOfObjects(record.numberOfObjects);
+                    child.incUsedHeapSize(record.getUsedHeapSize());
+
+                    current = child;
+                }
+
+                current.classes.add(record);
+            }
+        }
+
+        public Histogram getHistogram()
+        {
+            return histogram;
+        }
+
+        public ResultMetaData getResultMetaData()
+        {
+            return null;
+        }
+
+        public Column[] getColumns()
+        {
+            return new Column[] {
+                            new Column("Package / Class", String.class).comparing(HistogramRecord.COMPARATOR_FOR_LABEL), //
+                            new Column("Objects", long.class) //
+                                            .comparing(HistogramRecord.COMPARATOR_FOR_NUMBEROFOBJECTS), //
+                            new Column("Shallow Heap", long.class) //
+                                            .sorting(Column.SortDirection.DESC)//
+                                            .comparing(HistogramRecord.COMPARATOR_FOR_USEDHEAPSIZE) };
+        }
+
+        public List<?> getElements()
+        {
+            return getChildren(root);
+        }
+
+        public boolean hasChildren(Object element)
+        {
+            return element instanceof PackageNode;
+        }
+
+        public List<?> getChildren(Object parent)
+        {
+            PackageNode node = (PackageNode) parent;
+            List<HistogramRecord> answer = new ArrayList<HistogramRecord>();
+            answer.addAll(node.subPackages.values());
+            answer.addAll(node.classes);
+            return answer;
+        }
+
+        public Object getColumnValue(Object row, int columnIndex)
+        {
+            HistogramRecord record = (HistogramRecord) row;
+            switch (columnIndex)
+            {
+                case 0:
+                    return record.getLabel();
+                case 1:
+                    return record.getNumberOfObjects();
+                case 2:
+                    return record.getUsedHeapSize();
+            }
+            return null;
+        }
+
+        public IContextObject getContext(Object row)
+        {
+            if (row instanceof PackageNode)
+            {
+                final PackageNode node = (PackageNode) row;
+
+                return new IContextObjectSet()
+                {
+                    public int getObjectId()
+                    {
+                        return -1;
+                    }
+
+                    public int[] getObjectIds()
+                    {
+                        ArrayInt objectIds = new ArrayInt();
+
+                        LinkedList<PackageNode> nodes = new LinkedList<PackageNode>();
+                        nodes.add(node);
+
+                        while (!nodes.isEmpty())
+                        {
+                            PackageNode n = nodes.removeFirst();
+                            for (ClassHistogramRecord record : n.classes)
+                                objectIds.addAll(record.getObjectIds());
+
+                            nodes.addAll(n.subPackages.values());
+                        }
+
+                        return objectIds.toArray();
+                    }
+
+                    public String getOQL()
+                    {
+                        return null;
+                    }
+                };
+            }
+            else if (row instanceof ClassHistogramRecord)
+            {
+                final ClassHistogramRecord record = (ClassHistogramRecord) row;
+                if (record.getClassId() < 0)
+                    return null;
+
+                return new IContextObjectSet()
+                {
+                    public int getObjectId()
+                    {
+                        return record.getClassId();
+                    }
+
+                    public int[] getObjectIds()
+                    {
+                        return record.getObjectIds();
+                    }
+
+                    public String getOQL()
+                    {
+                        if (histogram.isDefaultHistogram)
+                            return OQL.forObjectsOfClass(record.getClassId());
+                        else
+                            return null;
+                    }
+                };
+            }
+            else
+            {
+                return null;
+            }
+
+        }
+
+        public URL getIcon(Object row)
+        {
+            return row instanceof PackageNode ? Icons.PACKAGE : Icons.CLASS;
+        }
+
     }
 }
