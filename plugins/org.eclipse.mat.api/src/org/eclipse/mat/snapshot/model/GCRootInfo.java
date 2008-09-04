@@ -102,6 +102,15 @@ abstract public class GCRootInfo implements Serializable
         return type;
     }
 
+    public static String getTypeAsString(int type)
+    {
+        for (int i = 0; i < 9; i++)
+            if (((1 << i) & type) != 0)
+                return TYPE_STRING[i];
+
+        return null;
+    }
+    
     public static String getTypeSetAsString(GCRootInfo[] roots)
     {
         int typeSet = 0;
