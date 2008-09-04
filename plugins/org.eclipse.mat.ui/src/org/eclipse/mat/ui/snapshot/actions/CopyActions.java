@@ -25,8 +25,6 @@ import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IPrimitiveArray;
-import org.eclipse.mat.snapshot.model.PrettyPrinter;
-import org.eclipse.mat.snapshot.registry.ClassSpecificNameResolverRegistry;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
@@ -127,26 +125,31 @@ public abstract class CopyActions implements IQuery
     {
         protected void appendValue(StringBuilder buf, IObject object) throws SnapshotException
         {
-            String text = null;
-            if ("java.lang.String".equals(object.getClazz().getName()))
-            {
-                text = PrettyPrinter.objectAsString(object, Integer.MAX_VALUE);
-            }
-            else if ("char[]".equals(object.getClazz().getName()))
-            {
-                IPrimitiveArray charArray = (IPrimitiveArray) object;
-                text = PrettyPrinter.arrayAsString(charArray, 0, charArray.getLength(), charArray.getLength());
-            }
-            else
-            {
-                text = object.getClassSpecificName();
-                text = ClassSpecificNameResolverRegistry.resolve(object);
-            }
+            ExportInfo info = ExportInfo.of(object);
 
-            if (text != null)
-                buf.append(text);
+            if (info != null)
+            {
+                IPrimitiveArray charArray = info.getCharArray();
+                final int length = charArray.getLength();
+                final int end = info.getOffset() + info.getCount();
+
+                int offset = info.getOffset();
+
+                while (offset < end)
+                {
+                    int read = Math.min(4092, length - offset);
+                    char[] array = (char[]) charArray.getValueArray(offset, read);
+
+                    buf.append(new String(array));
+
+                    offset += read;
+                }
+            }
             else
-                buf.append(object.getTechnicalName());
+            {
+                String name = object.getClassSpecificName();
+                buf.append(name != null ? name : object.getTechnicalName());
+            }
         }
     }
 

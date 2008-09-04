@@ -31,6 +31,7 @@ import org.eclipse.jface.window.ToolTip;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.internal.snapshot.HeapObjectContextArgument;
 import org.eclipse.mat.internal.snapshot.HeapObjectParamArgument;
+import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.registry.ArgumentDescriptor;
@@ -182,9 +183,17 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
 
             boolean isHeapObject = isHeapObject(descriptor);
 
-            if (descriptor.isMultiple() && !isHeapObject)
+            Object argumentValue = argumentSet.getArgumentValue(descriptor);
+
+            if (IContextObject.class.isAssignableFrom(descriptor.getType()))
             {
-                List<?> values = (List<?>) argumentSet.getArgumentValue(descriptor);
+                TableItem item = new TableItem(table, SWT.NONE);
+                item.setFont(normalFont);
+                item.setText(new String[] { flag, "selected rows" });
+            }
+            else if (descriptor.isMultiple() && !isHeapObject)
+            {
+                List<?> values = (List<?>) argumentValue;
 
                 if (values == null)
                     values = (List<?>) descriptor.getDefaultValue();
@@ -206,21 +215,21 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
                     addEditorRow(descriptor, "..\"..", null, -1);
                 }
             }
-            else if (isHeapObject && argumentSet.getArgumentValue(descriptor) instanceof HeapObjectContextArgument)
-            { // when query is called for the certain object instance (from
-                // the view).
-                // In that case hoa cannot be modified
+            else if (isHeapObject && argumentValue instanceof HeapObjectContextArgument)
+            {
+                // when query is called for the certain object instance (from
+                // the view). In that case hoa cannot be modified
                 TableItem item = new TableItem(table, SWT.NONE);
                 item.setFont(normalFont);
-                item.setText(new String[] { flag, String.valueOf(argumentSet.getArgumentValue(descriptor)) });
+                item.setText(new String[] { flag, String.valueOf(argumentValue) });
             }
             else if (isHeapObject)
             {
-                addHeapObjectTableItems(descriptor, (HeapObjectParamArgument) argumentSet.getArgumentValue(descriptor));
+                addHeapObjectTableItems(descriptor, (HeapObjectParamArgument) argumentValue);
             }
             else
             {
-                Object value = argumentSet.getArgumentValue(descriptor);
+                Object value = argumentValue;
                 if (value == null)
                     value = descriptor.getDefaultValue();
 

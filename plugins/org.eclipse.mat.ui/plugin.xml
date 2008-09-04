@@ -196,6 +196,7 @@
 		<query impl="org.eclipse.mat.ui.snapshot.actions.CopyActions$Address" />
 		<query impl="org.eclipse.mat.ui.snapshot.actions.CopyActions$FQClassName" />
 		<query impl="org.eclipse.mat.ui.snapshot.actions.CopyActions$Value" />
+		<query impl="org.eclipse.mat.ui.snapshot.actions.SaveValueAsQuery" />
 	</extension>
 
 </plugin>
