@@ -47,6 +47,7 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.actions.ActionFactory;
 
 public class QueryTextResultPane extends AbstractEditorPane implements ISelectionProvider, LocationListener
 {
@@ -119,6 +120,16 @@ public class QueryTextResultPane extends AbstractEditorPane implements ISelectio
         firePropertyChange(IWorkbenchPart.PROP_TITLE);
     }
 
+    @Override
+    public void setFocus()
+    {
+        // unregister the old global action handler (handles trees and tables)
+        // to be able to use Ctrl-C to copy text
+        site.getActionBars().setGlobalActionHandler(ActionFactory.COPY.getId(), null);
+        site.getActionBars().updateActionBars();
+        browser.setFocus();
+    }
+
     public ISelection getSelection()
     {
         return selection != null ? selection : StructuredSelection.EMPTY;
@@ -170,7 +181,7 @@ public class QueryTextResultPane extends AbstractEditorPane implements ISelectio
 
             menu = m.createMenu(getEditorSite().getActionBars().getStatusLineManager(), browser);
             menu.setVisible(true);
-            
+
             event.doit = false;
         }
         catch (Exception e)
@@ -179,7 +190,7 @@ public class QueryTextResultPane extends AbstractEditorPane implements ISelectio
                             "Unable to map address {0} to an object on the heap.", url.getTarget()));
         }
     }
-    
+
     private void onQueryLinkEvent(LocationEvent event, QueryObjectLink url)
     {
         try
