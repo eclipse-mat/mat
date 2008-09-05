@@ -69,6 +69,11 @@ import org.eclipse.mat.snapshot.model.IPrimitiveArray;
             count = (Integer) object.resolveValue("count");
             charArray = (IPrimitiveArray) object.resolveValue("value");
         }
+        else if (object.getClazz().doesExtend("java.io.StringWriter"))
+        {
+            count = (Integer) object.resolveValue("buf.count");
+            charArray = (IPrimitiveArray) object.resolveValue("buf.value");
+        }
         else
         {
             return null;
