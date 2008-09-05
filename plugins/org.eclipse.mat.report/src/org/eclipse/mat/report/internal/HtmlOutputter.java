@@ -44,6 +44,7 @@ public class HtmlOutputter implements IOutputter
     public void embedd(Context context, IResult result, Writer writer) throws IOException
     {
         boolean hasDetailsLink = "true".equals(context.param(Params.Html.RENDER_DETAILS, "true")) // 
+                        && result != null //
                         && result.getResultMetaData() != null //
                         && !result.getResultMetaData().getDetailResultProviders().isEmpty();
 

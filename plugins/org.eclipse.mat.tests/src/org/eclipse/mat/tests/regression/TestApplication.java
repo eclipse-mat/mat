@@ -46,6 +46,7 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.mat.tests.regression.comparator.BinaryComparator;
 import org.eclipse.mat.tests.regression.comparator.CSVComparator;
 import org.eclipse.mat.tests.regression.comparator.IComparator;
+import org.eclipse.mat.util.SimpleStringTokenizer;
 import org.osgi.framework.Bundle;
 import org.xml.sax.helpers.AttributesImpl;
 
@@ -609,35 +610,57 @@ public class TestApplication
         String osgiInstanceArea = p.getProperty("osgi.instance.area");
         String osgiConfiguration = p.getProperty("osgi.configuration.area");
 
-        StringBuilder cmd = new StringBuilder();
+        List<String> cmdArray = new ArrayList<String>();
 
-        cmd.append("\"").append(System.getProperty("java.home")).append(File.separator).append("bin").append(
-                        File.separator).append("java\"");
-        cmd.append(" ").append(jvmFlags);
-        cmd.append(" -jar \"").append(cp).append("\"");
+        cmdArray.add(System.getProperty("java.home") + File.separator + "bin" + File.separator + "java");
+
+        for (String s : SimpleStringTokenizer.split(jvmFlags, ' '))
+            cmdArray.add(s);
+
+        cmdArray.add("-jar");
+        cmdArray.add(cp);
 
         if (osgiDev != null)
-            cmd.append(" -dev \"").append(osgiDev).append("\"");
+        {
+            cmdArray.add("-dev");
+            cmdArray.add(osgiDev);
+        }
+
         if (osgiInstallArea != null)
-            cmd.append(" -install \"").append(osgiInstallArea).append("\"");
+        {
+            cmdArray.add("-install");
+            cmdArray.add(osgiInstallArea);
+        }
+
         if (osgiConfiguration != null)
-            cmd.append(" -configuration \"").append(osgiConfiguration).append("\"");
-        if (osgiInstallArea != null)
-            cmd.append(" -data \"").append(osgiInstanceArea).append("\"");
+        {
+            cmdArray.add("-configuration");
+            cmdArray.add(osgiConfiguration);
+        }
 
-        cmd.append(" -application org.eclipse.mat.tests.application");
-        cmd.append(" -parse");
-        cmd.append(" \"").append(dump.getAbsolutePath()).append("\"");
-        cmd.append(" org.eclipse.mat.tests:").append(report);
+        if (osgiInstanceArea != null)
+        {
+            cmdArray.add("-data");
+            cmdArray.add(osgiInstanceArea);
+        }
 
-        System.out.println("Starting: " + cmd.toString());
+        cmdArray.add("-application");
+        cmdArray.add("org.eclipse.mat.tests.application");
+        cmdArray.add("-parse");
+        cmdArray.add(dump.getAbsolutePath());
+        cmdArray.add("org.eclipse.mat.tests:" + report);
 
-        Process process = Runtime.getRuntime().exec(cmd.toString());
+        System.out.println("Starting: ");
+        for (String s : cmdArray)
+        {
+            System.out.print("   ");
+            System.out.println(s);
+        }
+
+        Process process = Runtime.getRuntime().exec(cmdArray.toArray(new String[0]));
         StreamGobbler errorGobbler = new StreamGobbler(process.getErrorStream(), System.err, "ERROR");
-        // any output?
         StreamGobbler outputGobbler = new StreamGobbler(process.getInputStream(), System.out, "OUTPUT");
 
-        // kick them off
         errorGobbler.start();
         outputGobbler.start();
 
@@ -645,9 +668,9 @@ public class TestApplication
         int status = process.waitFor();
         if (status != 0) // something went wrong
         {
-            System.err.println("Exit Status: FAILED");
-            throw new IOException(MessageFormat.format("Exception while running the report: {0}\n\n {1}", outputGobbler
-                            .getMessage(), errorGobbler.getMessage()));
+            System.err.println(MessageFormat.format("ERROR: Exit Status {0}", status));
+            throw new IOException(MessageFormat.format("Parsing finished with exit status {0}.\nOutput:\n{1}\n\n {2}", //
+                            status, outputGobbler.getMessage(), errorGobbler.getMessage()));
         }
         // extract parsing time
         if (extractTime)
