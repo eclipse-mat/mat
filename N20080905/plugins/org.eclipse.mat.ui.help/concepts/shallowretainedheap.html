@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en-us" xml:lang="en-us">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<meta name="copyright" content="(C) Copyright 2005" />
+<meta name="DC.rights.owner" content="(C) Copyright 2005" />
+<meta content="concept" name="DC.Type" />
+<meta name="DC.Title" content="Shallow vs. Retained Heap" />
+<meta content="XHTML" name="DC.Format" />
+<meta content="shallowretainedheapconcept" name="DC.Identifier" />
+<meta content="en-us" name="DC.Language" />
+<link href="..\commonltr.css" type="text/css" rel="stylesheet" />
+<title>Shallow vs. Retained Heap</title>
+<script language="JavaScript" src="PLUGINS_ROOT/org.eclipse.help/livehelp.js"> </script></head>
+<body id="shallowretainedheapconcept"><a name="shallowretainedheapconcept"><!-- --></a>
+
+ 
+    <h1 class="topictitle1">Shallow vs. Retained Heap</h1>
+
+    <div> 
+      <p> 
+        <strong>Shallow heap</strong>
+        is the memory consumed by one object. An object needs 32 or 64 bits (depending 
+        on the OS architecture) per reference, 4 bytes per Integer, 8 bytes per 
+        Long, etc. The total is then aligned to 8 bytes.</p>
+
+      <p> 
+        <strong>Retained set</strong>
+        of X is the set of objects which would be removed by GC.collected.</p>
+
+      <p> 
+        <strong>Retained heap</strong>
+        of X is the sum of shallow sizes of all objects in the retained set of 
+        X, i.e. memory kept alive by X.</p>
+
+      <p>Generally speaking, shallow heap of an object is its size in the heap 
+        and retained size of the same object is the amount of heap memory that 
+        will be freed when the object is garbage collected.</p>
+
+      <p>The retained set for a leading set of objects, such as all objects of 
+        a particular class or all objects of all classes loaded by a particular 
+        class loader or simply a bunch of arbitrary objects, is the set of objects 
+        that is released if all objects of that leading set become unaccessible. 
+        The retained set includes these objects as well as all other objects only 
+        accessible through these objects. The retained size is the total heap 
+        size of all objects contained in the retained set.</p>
+
+      <img src="../mimes/62ff1436.png" />
+      <p>The Minimum Retained Size gives a good n estimation of the retained size 
+        which is calculated about 1.000 times faster than the exact retained size 
+        of a set of objects. It only depends on the number of objects in the inspected 
+        set, not the number of objects in the heap dump.</p>
+
+    </div>
+
+  
+</body>
+</html>

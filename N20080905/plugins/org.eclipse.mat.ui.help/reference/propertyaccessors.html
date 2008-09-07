@@ -1,0 +1,335 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en-us" xml:lang="en-us">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<meta name="copyright" content="(C) Copyright 2005" />
+<meta name="DC.rights.owner" content="(C) Copyright 2005" />
+<meta content="reference" name="DC.Type" />
+<meta name="DC.Title" content="Property Accessors" />
+<meta name="abstract" content="" />
+<meta name="description" content="" />
+<meta scheme="URI" name="DC.Relation" content="../reference/oqlsyntax.html" />
+<meta content="XHTML" name="DC.Format" />
+<meta content="propertyaccessors" name="DC.Identifier" />
+<meta content="en-us" name="DC.Language" />
+<link href="..\commonltr.css" type="text/css" rel="stylesheet" />
+<title>Property Accessors</title>
+<script language="JavaScript" src="PLUGINS_ROOT/org.eclipse.help/livehelp.js"> </script></head>
+<body id="propertyaccessors"><a name="propertyaccessors"><!-- --></a>
+
+
+	<h1 class="topictitle1">Property Accessors</h1>
+
+	
+
+	
+	<div><p />
+
+		<div class="section"><h2 class="sectiontitle">Accessing fields of the heap object</h2>
+			
+			<p>
+				Properties of heap objects are accessed using a simple
+				dot notation:
+			</p>
+
+			<p>
+				[ &lt;alias&gt;. ] &lt;field&gt; . &lt;field&gt;.
+				&lt;field&gt;
+			</p>
+
+			<p>
+				An
+				<strong>alias</strong>
+				can be defined in the
+				<a href="oqlsyntaxfrom.html">FROM Clause</a>
+				to identify the current object, i.e. row in the SQL
+				analogy, on which the OQL statement operates. Without
+				alias, the field is assumed to be one of the fields of
+				the current object.
+				<strong>Fields</strong>
+				are attributes of the Java objects in the heap dump. Use
+				the
+				<span class="cmdname">Object Inspector</span>
+				to find out about the available fields of an object.
+			</p>
+
+		</div>
+
+		<div class="section"><h2 class="sectiontitle">Accessing Java Bean properties</h2>
+			
+			<p>[ &lt;alias&gt;. ] @&lt;attribute&gt; ...</p>
+
+			<p>
+				Using the @ symbol, OQL accesses attributes of the
+				underlying Java objects. The attributes are resolved via
+				Bean Introspection. The following table lists some
+				commonly used Java attributes.
+			</p>
+
+			<a name="propertyaccessors__javabean_prop"><!-- --></a><table summary="" cellspacing="0" cellpadding="4" id="propertyaccessors__javabean_prop" border="1" class="simpletableborder">
+				<tr>
+					<th valign="bottom" align="left" id="N10080" width="22.22222222222222%">Any heap object</th>
+
+					<th valign="bottom" align="left" id="N10086" width="22.22222222222222%">IObject</th>
+
+					<th valign="bottom" align="left" id="N1008C" width="22.22222222222222%">objectId</th>
+
+					<th valign="bottom" align="left" id="N10092" width="33.33333333333333%">id of snapshot object</th>
+
+				</tr>
+
+				<tr>
+					<td valign="top" headers="N10080">&#xA0;</td>
+
+					<td valign="top" headers="N10086">&#xA0;</td>
+
+					<td valign="top" headers="N1008C">objectAddress</td>
+
+					<td valign="top" headers="N10092">address of snapshot object</td>
+
+				</tr>
+
+				<tr>
+					<td valign="top" headers="N10080">&#xA0;</td>
+
+					<td valign="top" headers="N10086">&#xA0;</td>
+
+					<td valign="top" headers="N1008C">class</td>
+
+					<td valign="top" headers="N10092">class of this object</td>
+
+				</tr>
+
+				<tr>
+					<td valign="top" headers="N10080">&#xA0;</td>
+
+					<td valign="top" headers="N10086">&#xA0;</td>
+
+					<td valign="top" headers="N1008C">usedHeapSize</td>
+
+					<td valign="top" headers="N10092">shallow heap size</td>
+
+				</tr>
+
+				<tr>
+					<td valign="top" headers="N10080">&#xA0;</td>
+
+					<td valign="top" headers="N10086">&#xA0;</td>
+
+					<td valign="top" headers="N1008C">retainedHeapSize</td>
+
+					<td valign="top" headers="N10092">retained heap size</td>
+
+				</tr>
+
+				<tr>
+					<td valign="top" headers="N10080">&#xA0;</td>
+
+					<td valign="top" headers="N10086">&#xA0;</td>
+
+					<td valign="top" headers="N1008C">displayName</td>
+
+					<td valign="top" headers="N10092">display name</td>
+
+				</tr>
+
+				<tr>
+					<td valign="top" headers="N10080">Class object</td>
+
+					<td valign="top" headers="N10086">IClass</td>
+
+					<td valign="top" headers="N1008C">classLoaderId</td>
+
+					<td valign="top" headers="N10092">id of the class loader</td>
+
+				</tr>
+
+				<tr>
+					<td valign="top" headers="N10080">Any array</td>
+
+					<td valign="top" headers="N10086">IArray</td>
+
+					<td valign="top" headers="N1008C">length</td>
+
+					<td valign="top" headers="N10092">length of the array</td>
+
+				</tr>
+
+			</table>
+
+		</div>
+
+		<div class="section"><h2 class="sectiontitle">Calling Java methods</h2>
+			
+			<pre class="codeblock">[ &lt;alias&gt; . ] @&lt;method&gt;( [ &lt;expression&gt;, &lt;expression&gt; ] ) ...</pre>
+
+			<p>
+				Adding ( ) forces OQL to interpret this as a Java method
+				call. The call is executed via reflection. Common Java
+				methods.
+			</p>
+
+			<a name="propertyaccessors__javabean_prop"><!-- --></a><table summary="" cellspacing="0" cellpadding="4" id="propertyaccessors__javabean_prop" border="1" class="simpletableborder">
+				<tr>
+					<td valign="top" width="22.22222222222222%">$snapshot</td>
+
+					<td valign="top" width="22.22222222222222%">ISnapshot</td>
+
+					<td valign="top" width="22.22222222222222%">
+						<pre class="codeblock">getClasses()</pre>
+
+					</td>
+
+					<td valign="top" width="33.33333333333333%">a collection of all classes</td>
+
+				</tr>
+
+				<tr>
+					<td valign="top">&#xA0;</td>
+
+					<td valign="top">&#xA0;</td>
+
+					<td valign="top">
+						<pre class="codeblock">getClassesByName(String name, boolean includeSubClasses)</pre>
+
+					</td>
+
+					<td valign="top">a collection of classes</td>
+
+				</tr>
+
+				<tr>
+					<td valign="top">Class object</td>
+
+					<td valign="top">IClass</td>
+
+					<td valign="top">
+						<pre class="codeblock">hasSuperClass()</pre>
+
+					</td>
+
+					<td valign="top">
+						result is true if the class has a super class
+					</td>
+
+				</tr>
+
+				<tr>
+					<td valign="top">&#xA0;</td>
+
+					<td valign="top">&#xA0;</td>
+
+					<td valign="top">
+						<pre class="codeblock">isArrayType()</pre>
+
+					</td>
+
+					<td valign="top">
+						the result is true if the class is an array type
+					</td>
+
+				</tr>
+
+			</table>
+
+		</div>
+
+		<div class="section"><h2 class="sectiontitle">Build-in OQL functions</h2>
+			
+			<pre class="codeblock">&lt;function&gt;( &lt;parameter&gt; )</pre>
+
+			<p>Build-in functions.</p>
+
+			<a name="propertyaccessors__oql_functions"><!-- --></a><table summary="" cellspacing="0" cellpadding="4" id="propertyaccessors__oql_functions" border="1" class="simpletableborder">
+				<tr>
+					<td valign="top" width="40%">
+						<pre class="codeblock">toHex( number )</pre>
+
+					</td>
+
+					<td valign="top" width="60%">Print the number as hexadecimal</td>
+
+				</tr>
+
+				<tr>
+					<td valign="top">
+						<pre class="codeblock">toString( object )</pre>
+
+					</td>
+
+					<td valign="top">
+						Returns the value of an object, e.g. the content
+						of a String etc.
+					</td>
+
+				</tr>
+
+				<tr>
+					<td valign="top">
+						<pre class="codeblock">dominators( object )</pre>
+
+					</td>
+
+					<td valign="top">
+						The objects immediately dominated by the object
+					</td>
+
+				</tr>
+
+				<tr>
+					<td valign="top">
+						<pre class="codeblock">outbounds( object )</pre>
+
+					</td>
+
+					<td valign="top">outbound referrer</td>
+
+				</tr>
+
+				<tr>
+					<td valign="top">
+						<pre class="codeblock">inbounds( object )</pre>
+
+					</td>
+
+					<td valign="top">inbound referrer</td>
+
+				</tr>
+
+				<tr>
+					<td valign="top">
+						<pre class="codeblock">classof( object )</pre>
+
+					</td>
+
+					<td valign="top">the class of the current object</td>
+
+				</tr>
+
+				<tr>
+					<td valign="top">
+						<pre class="codeblock">dominatorof( object )</pre>
+
+					</td>
+
+					<td valign="top">
+						the immediate dominator, -1 if none
+					</td>
+
+				</tr>
+
+			</table>
+
+
+		</div>
+
+	</div>
+
+<div>
+<div class="familylinks">
+<div class="parentlink"><strong>Parent topic:</strong> <a href="../reference/oqlsyntax.html" title="">OQL Syntax</a></div>
+</div>
+</div>
+
+</body>
+</html>

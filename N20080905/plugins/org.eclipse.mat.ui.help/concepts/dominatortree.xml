@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+  <?xml-stylesheet href="../../../xsl/ditaview_shell.xsl" type="text/xsl"?>
+  <!DOCTYPE concept PUBLIC "-//IBM//DTD DITA Concept//EN" "../../../dtd/concept.dtd">
+  <concept id="dominatortreeconcept" xml:lang="en-us"> 
+    <title>Dominator Tree</title>
+    <conbody> 
+		<p>An object x
+			<b>dominates</b> an object y if every path in the object graph from the start (or
+			the root) node to y must go through x.</p>
+      <p>The 
+        <b>immediate dominator</b>
+        x of some object y is the dominator closest to the object y.</p>
+      <p>A 
+        <b>dominator tree</b>
+        is built out of the object graph. In the dominator tree each object is 
+        the immediate dominator of its children. so dependencies between the objects 
+        are easily identified.</p>
+      <p>Dominator Tree has the following important properties:</p>
+      <ul> 
+        <li>The objects belonging to the sub-tree of <keyword>x</keyword> (i.e. the objects dominated by <keyword>x</keyword>) represent the retained set of <keyword>x</keyword>.</li>
+        <li>If <keyword>x</keyword> is the immediate dominator of <keyword>y</keyword>, then the immediate dominator of <keyword>x</keyword> also dominates <keyword>y</keyword>, and so on.</li>
+        <li>The edges in the dominator tree do not directly correspond to object references from the object graph.</li>
+      </ul>
+      <image href="../mimes/m2268b281.png"></image>
+      <p>The transformation of the object reference graph into a dominator tree allows you to easily identify the biggest chunks of retained memory.</p>
+    </conbody>
+  </concept>

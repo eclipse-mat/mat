@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en-us" xml:lang="en-us">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<meta name="copyright" content="(C) Copyright 2005" />
+<meta name="DC.rights.owner" content="(C) Copyright 2005" />
+<meta content="reference" name="DC.Type" />
+<meta name="DC.Title" content="FROM Clause" />
+<meta name="abstract" content="" />
+<meta name="description" content="" />
+<meta scheme="URI" name="DC.Relation" content="../reference/oqlsyntax.html" />
+<meta content="XHTML" name="DC.Format" />
+<meta content="oqlsyntaxfrom" name="DC.Identifier" />
+<meta content="en-us" name="DC.Language" />
+<link href="..\commonltr.css" type="text/css" rel="stylesheet" />
+<title>FROM Clause</title>
+<script language="JavaScript" src="PLUGINS_ROOT/org.eclipse.help/livehelp.js"> </script></head>
+<body id="oqlsyntaxfrom"><a name="oqlsyntaxfrom"><!-- --></a>
+
+
+	<h1 class="topictitle1">FROM Clause</h1>
+
+	
+
+	
+	<div><p />
+
+		<div class="section"><h2 class="sectiontitle">Specify the class</h2>
+			
+			<p>
+				The FROM clause defines the classes on which to operate.
+				Specifiy the class by one of the following means:
+			</p>
+
+			<strong>by class name:</strong>
+			<pre class="codeblock">SELECT * FROM java.lang.String</pre>
+
+			<strong>by a regular expression matching the class name:</strong>
+			<pre class="codeblock">SELECT * FROM "java\.lang\..*"</pre>
+
+			<strong>by the object address of the class:</strong>
+			<pre class="codeblock">SELECT * FROM 0xe14a100</pre>
+
+			<strong>by the object id:</strong>
+			<pre class="codeblock">SELECT * FROM 3022</pre>
+
+			<strong>by a sub select:</strong>
+			<pre class="codeblock">SELECT * FROM ( SELECT *
+                FROM java.lang.Class c
+                WHERE c implements com.sap.tools.memory.snapshot.model.IClass )</pre>
+
+			<p>
+				The statement returns all objects in the heap. The
+				<span class="cmdname">implements</span>
+				check is necessary, as the heap dump can contain
+				<span class="cmdname">java.lang.Class</span>
+				instances caused by proxy classes. The same effect has
+				the following query, which calls a method directly on
+				the ISnapshot object:
+			</p>
+
+			<pre class="codeblock">SELECT * FROM $snapshot.getClasses()</pre>
+
+		</div>
+
+		<div class="section"><h2 class="sectiontitle">Include sub classes</h2>
+			
+			<p>
+				Use the
+				<span class="cmdname">INSTANCEOF</span>
+				keyword to include objects of sub-classes into the
+				query:
+			</p>
+
+			<pre class="codeblock">SELECT * FROM INSTANCEOF java.lang.ref.Reference</pre>
+
+			<p>
+				The resulting table contains, amongst others,
+				WeakReference and SoftReference objects because both
+				classes extend from
+				<span class="cmdname">java.lang.ref.Reference</span>
+				. By the way, the same result has the following query
+			</p>
+
+			<pre class="codeblock">SELECT * FROM $snapshot.getClassesByName("java.lang.ref.Reference", true)</pre>
+
+		</div>
+
+		<div class="section"><h2 class="sectiontitle">
+				Prevent interpretation of the from term as classes
+			</h2>
+			
+			<p>
+				Use the OBJECTS keyword if you do not want to process
+				the term as classes:
+			</p>
+
+			<pre class="codeblock">SELECT * FROM OBJECTS java.lang.String</pre>
+
+			<p>
+				The result is just one object, the java.lang.String
+				class object.
+			</p>
+
+			<div class="note"><span class="notetitle">Note:</span> 
+				Please note, that currently the FROM OBJECTS term is in
+				the test phase!
+			</div>
+
+		</div>
+
+	</div>
+
+<div>
+<div class="familylinks">
+<div class="parentlink"><strong>Parent topic:</strong> <a href="../reference/oqlsyntax.html" title="">OQL Syntax</a></div>
+</div>
+</div>
+
+</body>
+</html>

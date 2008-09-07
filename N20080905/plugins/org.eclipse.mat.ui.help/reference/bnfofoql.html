@@ -1,0 +1,398 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en-us" xml:lang="en-us">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<meta name="copyright" content="(C) Copyright 2005" />
+<meta name="DC.rights.owner" content="(C) Copyright 2005" />
+<meta content="reference" name="DC.Type" />
+<meta name="DC.Title" content="BNF for the Object Query Language" />
+<meta scheme="URI" name="DC.Relation" content="../reference/oqlsyntax.html" />
+<meta content="XHTML" name="DC.Format" />
+<meta content="bnfofoql" name="DC.Identifier" />
+<meta content="en-us" name="DC.Language" />
+<link href="..\commonltr.css" type="text/css" rel="stylesheet" />
+<title>BNF for the Object Query Language</title>
+<script language="JavaScript" src="PLUGINS_ROOT/org.eclipse.help/livehelp.js"> </script></head>
+<body id="bnfofoql"><a name="bnfofoql"><!-- --></a>
+
+
+	<h1 class="topictitle1">BNF for the Object Query Language</h1>
+
+
+	<div>
+		<div class="section">
+		<a name="bnfofoql__oql_table"><!-- --></a><table summary="" cellspacing="0" cellpadding="4" id="bnfofoql__oql_table" border="1" class="simpletableborder">
+            <tr>
+               <td valign="top"><pre class="codeblock">SelectStatement</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">::=</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">"SELECT" SelectList FromClause ( WhereClause )? ( UnionClause )?</pre>
+</td>
+
+            </tr>
+
+            <tr>
+               <td valign="top"><pre class="codeblock">SelectList</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">::=</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">(( "DISTINCT" | "AS RETAINED SET" )? ( "*" | "OBJECTS" SelectItem | SelectItem ( "," SelectItem )* ))</pre>
+</td>
+
+            </tr>
+
+            <tr>
+               <td valign="top"><pre class="codeblock">SelectItem</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">::=</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">( PathExpression | EnvVarPathExpression ) ( "AS" ( &gt;STRING_LITERAL&lt; | &gt;IDENTIFIER&lt; ) )?&gt;/IDENTIFIER&lt;&gt;/STRING_LITERAL&lt;</pre>
+</td>
+
+            </tr>
+
+            <tr>
+               <td valign="top"><pre class="codeblock">PathExpression</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">::=</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">( ObjectFacet | BuildInFunction ) ( "." ObjectFacet )*</pre>
+</td>
+
+            </tr>
+
+            <tr>
+               <td valign="top"><pre class="codeblock">EnvVarPathExpression</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">::=</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">( "$" &gt;IDENTIFIER&lt; ) ( "." ObjectFacet )*</pre>
+</td>
+
+            </tr>
+
+            <tr>
+               <td valign="top"><pre class="codeblock">ObjectFacet</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">::=</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">( ( "@" )? &gt;IDENTIFIER&lt; ( ParameterList )? )</pre>
+</td>
+
+            </tr>
+
+            <tr>
+               <td valign="top"><pre class="codeblock">ParameterList</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">::=</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">"(" ( ( PrimaryExpression ( "," PrimaryExpression )* ) )? ")"</pre>
+</td>
+
+            </tr>
+
+            <tr>
+               <td valign="top"><pre class="codeblock">FromClause</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">::=</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">"FROM" ( "OBJECTS" )? ( "INSTANCEOF" )? ( FromItem | "(" SelectStatement ")" ) ( &gt;IDENTIFIER&lt; )?</pre>
+</td>
+
+            </tr>
+
+            <tr>
+               <td valign="top"><pre class="codeblock">FromItem</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">::=</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">( ClassName | &gt;STRING_LITERAL&lt; | ObjectAddress ( "," ObjectAddress )* | ObjectId ( "," ObjectId )* | EnvVarPathExpression )</pre>
+</td>
+
+            </tr>
+
+            <tr>
+               <td valign="top"><pre class="codeblock">ClassName</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">::=</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">( &gt;IDENTIFIER&lt; ( "." &gt;IDENTIFIER&lt; )* ( "[]" )* )</pre>
+</td>
+
+            </tr>
+
+            <tr>
+               <td valign="top"><pre class="codeblock">ObjectAddress</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">::=</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">&gt;HEX_LITERAL&lt;</pre>
+</td>
+
+            </tr>
+
+            <tr>
+               <td valign="top"><pre class="codeblock">ObjectId</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">::=</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">&gt;INTEGER_LITERAL&lt;</pre>
+</td>
+
+            </tr>
+
+            <tr>
+               <td valign="top"><pre class="codeblock">WhereClause</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">::=</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">"WHERE" ConditionalOrExpression</pre>
+</td>
+
+            </tr>
+
+            <tr>
+               <td valign="top"><pre class="codeblock">ConditionalOrExpression</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">::=</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">ConditionalAndExpression ( "or" ConditionalAndExpression )*</pre>
+</td>
+
+            </tr>
+
+            <tr>
+               <td valign="top"><pre class="codeblock">ConditionalAndExpression</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">::=</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">EqualityExpression ( "and" EqualityExpression )*</pre>
+</td>
+
+            </tr>
+
+            <tr>
+               <td valign="top"><pre class="codeblock">EqualityExpression</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">::=</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">RelationalExpression ( ( "=" RelationalExpression | "!=" RelationalExpression ) )*</pre>
+</td>
+
+            </tr>
+
+            <tr>
+               <td valign="top"><pre class="codeblock">RelationalExpression</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">::=</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">( PrimaryExpression ( ( "&gt;" PrimaryExpression | "&lt;" PrimaryExpression | "&gt;=" PrimaryExpression | "&lt;=" PrimaryExpression | ( LikeClause | InClause ) | "implements" ClassName ) )? )</pre>
+</td>
+
+            </tr>
+
+            <tr>
+               <td valign="top"><pre class="codeblock">LikeClause</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">::=</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">( "NOT" )? "LIKE" &gt;STRING_LITERAL&lt;</pre>
+</td>
+
+            </tr>
+
+            <tr>
+               <td valign="top"><pre class="codeblock">InClause</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">::=</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">( "NOT" )? "IN" PrimaryExpression</pre>
+</td>
+
+            </tr>
+
+            <tr>
+               <td valign="top"><pre class="codeblock">PrimaryExpression</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">::=</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">Literal</pre>
+</td>
+
+            </tr>
+
+            <tr>
+               <td valign="top"><pre class="codeblock"> </pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">|</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">"(" ( ConditionalOrExpression | SubQuery ) ")</pre>
+</td>
+
+            </tr>
+
+            <tr>
+               <td valign="top"><pre class="codeblock"> </pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">|</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">PathExpression</pre>
+</td>
+
+            </tr>
+
+            <tr>
+               <td valign="top"><pre class="codeblock"> </pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">|</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">EnvVarPathExpression</pre>
+</td>
+
+            </tr>
+
+            <tr>
+               <td valign="top"><pre class="codeblock">SubQuery</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">::=</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">SelectStatement</pre>
+</td>
+
+            </tr>
+
+            <tr>
+               <td valign="top"><pre class="codeblock">Function</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">::=</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">( ( "toHex" | "toString" | "dominators" | "outbounds" | "inbounds" | "classof" | "dominatorof" ) "(" ConditionalOrExpression ")" )</pre>
+</td>
+
+            </tr>
+
+            <tr>
+               <td valign="top"><pre class="codeblock">Literal</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">::=</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">( &gt;INTEGER_LITERAL&lt; | &gt;LONG_LITERAL&lt; | &gt;FLOATING_POINT_LITERAL&lt; | &gt;CHARACTER_LITERAL&lt; | &gt;STRING_LITERAL&lt; | BooleanLiteral | NullLiteral )</pre>
+</td>
+
+            </tr>
+
+            <tr>
+               <td valign="top"><pre class="codeblock">BooleanLiteral</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">::=</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">"true"</pre>
+</td>
+
+            </tr>
+
+            <tr>
+               <td valign="top"><pre class="codeblock"> </pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">|</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">"false"</pre>
+</td>
+
+            </tr>
+
+            <tr>
+               <td valign="top"><pre class="codeblock">NullLiteral</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">::=</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">&gt;NULL&lt;</pre>
+</td>
+
+            </tr>
+
+            <tr>
+               <td valign="top"><pre class="codeblock">UnionClause</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">::=</pre>
+</td>
+
+               <td valign="top"><pre class="codeblock">( "UNION" "(" SelectStatement ")" )+</pre>
+</td>
+
+            </tr>
+          
+        </table>
+
+		</div>
+
+	</div>
+
+<div>
+<div class="familylinks">
+<div class="parentlink"><strong>Parent topic:</strong> <a href="../reference/oqlsyntax.html" title="">OQL Syntax</a></div>
+</div>
+</div>
+
+</body>
+</html>

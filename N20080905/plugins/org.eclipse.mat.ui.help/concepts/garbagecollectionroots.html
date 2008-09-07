@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en-us" xml:lang="en-us">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<meta name="copyright" content="(C) Copyright 2005" />
+<meta name="DC.rights.owner" content="(C) Copyright 2005" />
+<meta content="concept" name="DC.Type" />
+<meta name="DC.Title" content="Garbage Collection Roots" />
+<meta content="XHTML" name="DC.Format" />
+<meta content="garbagecollectionrootsconcept" name="DC.Identifier" />
+<meta content="en-us" name="DC.Language" />
+<link href="..\commonltr.css" type="text/css" rel="stylesheet" />
+<title>Garbage Collection Roots</title>
+<script language="JavaScript" src="PLUGINS_ROOT/org.eclipse.help/livehelp.js"> </script></head>
+<body id="garbagecollectionrootsconcept"><a name="garbagecollectionrootsconcept"><!-- --></a>
+
+
+	<h1 class="topictitle1">Garbage Collection Roots</h1>
+
+	<div>
+		<p>
+			A garbage collection root is an object that is accessible
+			from outside the heap. The following reasons make an object
+			a GC root:
+		</p>
+
+		<br /><ul>
+			<li>
+				System Class - Class loaded by boot-strap/system class
+				loader. For example, everything from the rt.jar like
+				<span class="cmdname">java.util.*</span>
+				.
+			</li>
+
+			<li>
+				JNI Local - Local variable in native code, such as user
+				defined JNI code or JVM internal code.
+			</li>
+
+			<li>
+				JNI Global - Global variable in native code, such as
+				user defined JNI code or JVM internal code.
+			</li>
+
+			<li>Thread Block - Currently active thread.</li>
+
+			<li>
+				Busy Monitor - Everything that has called
+				<span class="cmdname">wait()</span>
+				or
+				<span class="cmdname">notify()</span>
+				or that is synchronized. For example, by calling
+				<span class="cmdname">synchronized(Object)</span>
+				or by entering a synchronized method. Static method
+				means class, non-static method means object.
+			</li>
+
+			<li>
+				Java Local - Local variable. For example, input
+				parameters or locally created objects of methods that
+				are still in the stack of a thread.
+			</li>
+
+			<li>
+				Native Stack - In or out parameters in native code, such
+				as user defined JNI code or JVM internal code. This is
+				often the case as many methods have native parts and the
+				objects handled as method parameters become GC roots.
+				For example, parameters used for file/network I/O
+				methods or reflection.
+			</li>
+
+		</ul>
+
+	</div>
+
+
+</body>
+</html>

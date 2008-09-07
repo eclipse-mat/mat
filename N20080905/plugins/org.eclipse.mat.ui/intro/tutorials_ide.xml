@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<introContent>
+	<extensionContent id="org.eclipse.mat.tutorials" name="Memory Analyzer Tutorials"
+		style="css/tutorials.css" path="tutorials/@">
+		<group style-id="content-group" label="Memory Analyzer">
+			<link label="Basic Analysis"
+				url="http://org.eclipse.ui.intro/showStandby?partId=org.eclipse.platform.cheatsheet&amp;input=org.eclipse.mat.tutorials.basicTutorial"
+				id="mat-tutorials" style-id="content-link">
+				<text> Get familiar with the basic features for memory analysis.
+				</text>
+			</link>
+			<link label="OQL in 1 Minute"
+				url="http://org.eclipse.ui.intro/showStandby?partId=org.eclipse.platform.cheatsheet&amp;input=org.eclipse.mat.tutorials.object_query_language"
+				id="mat-tutorials" style-id="content-link">
+				<text> Get an idea how simple it is to perform custom SQL-like
+					queries.</text>
+			</link>
+		</group>
+	</extensionContent>
+</introContent>

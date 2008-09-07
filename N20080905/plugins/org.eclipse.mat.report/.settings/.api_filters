@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<component id="org.eclipse.mat.report" version="2">
+    <resource path="META-INF/MANIFEST.MF">
+        <filter id="923795461">
+            <message_arguments>
+                <message_argument value="0.7.0.qualifier"/>
+                <message_argument value="0.7.0.200808081658"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/mat/collect/SetInt.java" type="org.eclipse.mat.collect.SetInt">
+        <filter id="338792546">
+            <message_arguments>
+                <message_argument value="org.eclipse.mat.collect.SetInt"/>
+                <message_argument value="main(String[])"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/mat/report/TestSuite.java" type="org.eclipse.mat.report.TestSuite">
+        <filter id="338792546">
+            <message_arguments>
+                <message_argument value="org.eclipse.mat.report.TestSuite"/>
+                <message_argument value="isClockingReportGeneration()"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/mat/report/TestSuite.java" type="org.eclipse.mat.report.TestSuite$Builder">
+        <filter id="338792546">
+            <message_arguments>
+                <message_argument value="org.eclipse.mat.report.TestSuite.Builder"/>
+                <message_argument value="doClockReportGeneration()"/>
+            </message_arguments>
+        </filter>
+    </resource>
+</component>

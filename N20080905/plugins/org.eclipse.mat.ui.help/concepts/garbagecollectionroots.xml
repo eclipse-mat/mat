@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<?xml-stylesheet href="../../../xsl/ditaview_shell.xsl" type="text/xsl"?>
+<!DOCTYPE concept PUBLIC "-//IBM//DTD DITA Concept//EN" "../../../dtd/concept.dtd">
+<concept id="garbagecollectionrootsconcept" xml:lang="en-us">
+	<title>Garbage Collection Roots</title>
+	<conbody>
+		<p>
+			A garbage collection root is an object that is accessible
+			from outside the heap. The following reasons make an object
+			a GC root:
+		</p>
+		<ul>
+			<li>
+				System Class - Class loaded by boot-strap/system class
+				loader. For example, everything from the rt.jar like
+				<cmdname>java.util.*</cmdname>
+				.
+			</li>
+			<li>
+				JNI Local - Local variable in native code, such as user
+				defined JNI code or JVM internal code.
+			</li>
+			<li>
+				JNI Global - Global variable in native code, such as
+				user defined JNI code or JVM internal code.
+			</li>
+			<li>Thread Block - Currently active thread.</li>
+			<li>
+				Busy Monitor - Everything that has called
+				<cmdname>wait()</cmdname>
+				or
+				<cmdname>notify()</cmdname>
+				or that is synchronized. For example, by calling
+				<cmdname>synchronized(Object)</cmdname>
+				or by entering a synchronized method. Static method
+				means class, non-static method means object.
+			</li>
+			<li>
+				Java Local - Local variable. For example, input
+				parameters or locally created objects of methods that
+				are still in the stack of a thread.
+			</li>
+			<li>
+				Native Stack - In or out parameters in native code, such
+				as user defined JNI code or JVM internal code. This is
+				often the case as many methods have native parts and the
+				objects handled as method parameters become GC roots.
+				For example, parameters used for file/network I/O
+				methods or reflection.
+			</li>
+		</ul>
+	</conbody>
+</concept>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE task PUBLIC "-//IBM//DTD DITA Task//EN"
+ "../../../dtd/task.dtd">
+
+<?xml-stylesheet href="../../../xsl/ditaview_shell.xsl" type="text/xsl"?>
+<task id="analyzingclassloader" xml:lang="en-us">
+<title>Analyzing Class Loader</title>
+<prolog></prolog>
+<taskbody>
+<context><p>The ClassLoader is the part of the JVM that loads classes into memory.
+It is a essential component of the Java run-time system. Creating your own ClassLoader lets you to completely redefine how class files are brought into the system.</p>
+<p>Class Histogram and Dominator Tree allow grouping by classloader:</p>
+<image href="../mimes/1b0be1fb.png" alt="screen shot showing a reault grouped by class loader"></image>
+<p>You can continue to analyze the classloader using a context menu and Inspector View:</p>
+<image href="../mimes/m45858ad9.png"></image>
+</context>
+</taskbody>
+</task>

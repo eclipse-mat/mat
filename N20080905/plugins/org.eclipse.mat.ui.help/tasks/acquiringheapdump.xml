@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE task PUBLIC "-//IBM//DTD DITA Task//EN"
+ "../../../dtd/task.dtd">
+
+<?xml-stylesheet href="../../../xsl/ditaview_shell.xsl" type="text/xsl"?>
+<task id="acquiringheapdump" xml:lang="en-us">
+	<title>Acquiring Heap Dumps</title>
+	<prolog />
+	<taskbody>
+		<context>
+			<p>
+				You can get a heap dump on an out of memory error for
+				Sun JVM (1.4.2_12 or higher and 1.5.0_07 or higher),
+				HP-UX JVM (1.4.2_11 or higher) and SAP JVM (since
+				1.5.0) by setting the following JVM parameter:
+			</p>
+			<p>
+				<codeblock>-XX:+HeapDumpOnOutOfMemoryError</codeblock>
+			</p>
+			<p>The heap dump is written to the work directory.</p>
+			<p>
+				To get heap dump on demand use the following JVM
+				parameter:
+			</p>
+			<p>
+				<codeblock>-XX:+HeapDumpOnCtrlBreak</codeblock>
+			</p>
+			<p>
+				Alternatively, other tools can be used to acquire a heap
+				dump:
+			</p>
+			<ul>
+				<li>
+					<cmdname>jmap -dump:format=b,file=&lt;filename.hprof&gt; &lt;pid&gt;</cmdname>
+				</li>
+				<li>JConsole</li>
+				<li>Memory Analyzer (only on SAP JVM)</li>
+			</ul>
+			<image href="../mimes/m4900a8d.png"
+				alt="table of vm vendors and vm parameters to be used" />
+		</context>
+	</taskbody>
+</task>

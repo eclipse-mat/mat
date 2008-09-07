@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+	<extension-point id="query" name="Query" schema="schema/query.exsd"/>
+	<extension-point id="report" name="Report" schema="schema/report.exsd"/>
+	<extension-point id="renderer" name="Query Result Renderer" schema="schema/renderer.exsd"/>
+
+	<extension point="org.eclipse.mat.report.renderer">
+		<renderer impl="org.eclipse.mat.report.internal.CSVOutputter" />
+		<renderer impl="org.eclipse.mat.report.internal.HtmlOutputter" />
+	</extension>
+	
+	<extension point="org.eclipse.mat.report.query">
+		<query impl="org.eclipse.mat.report.internal.RunRegisterdReport"/>
+		<query impl="org.eclipse.mat.report.internal.RunExternalTest"/>
+	</extension>
+
+</plugin>

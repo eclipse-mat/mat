@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en-us" xml:lang="en-us">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<meta name="copyright" content="(C) Copyright 2005" />
+<meta name="DC.rights.owner" content="(C) Copyright 2005" />
+<meta content="reference" name="DC.Type" />
+<meta name="DC.Title" content="Analyzing Memory Consumption" />
+<meta name="abstract" content="" />
+<meta name="description" content="" />
+<meta scheme="URI" name="DC.Relation" content="../reference/querymatrix.html" />
+<meta content="XHTML" name="DC.Format" />
+<meta content="analyzingmemoryconsumption" name="DC.Identifier" />
+<meta content="en-us" name="DC.Language" />
+<link href="..\commonltr.css" type="text/css" rel="stylesheet" />
+<title>Analyzing Memory Consumption</title>
+<script language="JavaScript" src="PLUGINS_ROOT/org.eclipse.help/livehelp.js"> </script></head>
+<body id="analyzingmemoryconsumption"><a name="analyzingmemoryconsumption"><!-- --></a>
+
+
+	<h1 class="topictitle1">Analyzing Memory Consumption</h1>
+
+	
+
+	
+
+	<div><p />
+
+		<div class="section">
+			<p>
+				You analyze the heap dumps to find areas for
+				optimization:
+			</p>
+
+			<a name="analyzingmemoryconsumption__analyzingmemoryconsumptiontable"><!-- --></a><table summary="" cellspacing="0" cellpadding="4" id="analyzingmemoryconsumption__analyzingmemoryconsumptiontable" border="1" class="simpletableborder">
+				<tr>
+					<td valign="top" width="40%">Class Histogram</td>
+
+					<td valign="top" width="60%">
+							Memory Analyzer provides a developer with a
+							possibility to focus on a particular piece
+							of code. by using filters in the Class
+							Histogram:
+							<br /><div class="imageleft"><img src="../mimes/7507ab60.png" /></div><br />
+					</td>
+
+				</tr>
+
+				<tr>
+					<td valign="top">Immediate Dominators</td>
+
+					<td valign="top">
+							When you have found a suspect, that consumes
+							a lot of memory, you can use the dominators
+							query to find out what keeps this suspect in
+							memory. With this query you can also skip
+							the dominators that are of no interest for
+							you, e.g.
+							<span class="cmdname">java.*</span>
+							packages:
+
+						<br /><div class="imageleft"><img src="../mimes/m317da505.png" /></div><br />
+					</td>
+
+				</tr>
+
+				<tr>
+					<td valign="top">OQL</td>
+
+					<td valign="top">
+						<p>
+							The two most common ways to "waste" memory
+							are:
+						</p>
+
+						<br /><ul>
+							<li>
+								Inefficient use of data structures, like
+								keeping millions of empty lists or
+								HashMaps. With OQL you can easily find
+								e.g. all instances of ArrayList which
+								are empty and have never been modified:
+								<pre class="codeblock">SELECT * FROM java.util.ArrayList WHERE size=0 AND modCount=0</pre>
+
+							</li>
+
+							<li>
+								A lot of redundant data, e.g. redundant
+								<span class="cmdname">Strings</span>
+								or
+								<span class="cmdname">char[]</span>
+								. Below you can find two examples of OQL
+								queries to operate with Strings:
+								<pre class="codeblock">SELECT * FROM java.lang.String s WHERE s.count &gt;= 100</pre>
+
+								<pre class="codeblock">SELECT * FROM java.lang.String s WHERE toString(s) LIKE ".*day"</pre>
+
+							</li>
+
+						</ul>
+
+					</td>
+
+				</tr>
+
+			</table>
+
+		</div>
+
+	</div>
+
+<div>
+<div class="familylinks">
+<div class="parentlink"><strong>Parent topic:</strong> <a href="../reference/querymatrix.html" title="There is no exact algorithm for memory analysis. The following table divides existing heap dump queries by the usage categories.">Query Matrix</a></div>
+</div>
+</div>
+
+</body>
+</html>

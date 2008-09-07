@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE map PUBLIC "-//IBM//DTD DITA Map//EN"
+ "..\..\..\dtd\map.dtd">
+
+<map title="Memory Analyzer">
+	<topichead navtitle="Getting Started">
+		<topicref href="tasks/basictutorial.xml" type="task"></topicref>
+	</topichead>
+	<topichead navtitle="Concepts">
+		<topicref href="concepts/heapdump.xml" type="concept"></topicref>
+		<topicref href="concepts/shallowretainedheap.xml" type="concept">
+			</topicref>
+		<topicref href="concepts/dominatortree.xml" type="concept"></topicref>
+		<topicref href="concepts/garbagecollectionroots.xml" type="concept">
+			</topicref>
+	</topichead>
+	<topichead navtitle="Tasks">
+		<topicref href="tasks/acquiringheapdump.xml" type="task"></topicref>
+		<topicref href="tasks/runningleaksuspectreport.xml" type="task">
+			</topicref>
+		<topicref href="tasks/listbiggestobjects.xml" type="task"></topicref>
+		<topicref href="tasks/findingresponsibleobjects.xml" type="task">
+			</topicref>
+		<topicref href="tasks/queryingheapobjects.xml" type="task"></topicref>
+		<topicref href="tasks/analyzingclassloader.xml" type="task"></topicref>
+		<topicref href="tasks/analyzingthreads.xml" type="task"></topicref>
+		<topicref href="tasks/analyzingjavacollectionusage.xml" type="task">
+			</topicref>
+		<topicref href="tasks/analyzingfinalizer.xml" type="task"></topicref>
+		<topicref href="tasks/exportdata.xml" type="task"></topicref>
+	</topichead>
+	<topichead navtitle="Reference">
+		<topicref href="reference/querymatrix.xml" type="reference">
+			<topicref href="reference/findingmemoryleak.xml" type="reference">
+				</topicref>
+			<topicref href="reference/analyzingmemoryconsumption.xml"
+				type="reference"></topicref>
+		</topicref>
+		<topicref href="reference/oqlsyntax.xml" type="reference">
+			<topicref href="reference/oqlsyntaxselect.xml" type="reference">
+				</topicref>
+			<topicref href="reference/oqlsyntaxfrom.xml" type="reference">
+				</topicref>
+			<topicref href="reference/oqlsyntaxwhere.xml" type="reference">
+				</topicref>
+			<topicref href="reference/propertyaccessors.xml" type="reference">
+				</topicref>
+			<topicref href="reference/bnfofoql.xml" type="reference"></topicref>
+		</topicref>
+		<topicref href="reference/selectingqueries.xml"
+			type="reference"></topicref>
+		<topicref href="reference/iconassist.xml" type="reference"></topicref>
+		<topicref href="reference/tipsandtricks.xml" type="reference"></topicref>
+	</topichead>
+</map>
