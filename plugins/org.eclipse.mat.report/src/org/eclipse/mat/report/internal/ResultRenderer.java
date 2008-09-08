@@ -379,6 +379,10 @@ public class ResultRenderer
         copyResource("/META-INF/html/img/success.gif", new File(imgDir, "success.gif"));
         copyResource("/META-INF/html/img/warning.gif", new File(imgDir, "warning.gif"));
         copyResource("/META-INF/html/img/error.gif", new File(imgDir, "error.gif"));
+        copyResource("/META-INF/html/img/empty.gif", new File(imgDir, "empty.gif"));
+        copyResource("/META-INF/html/img/fork.gif", new File(imgDir, "fork.gif"));
+        copyResource("/META-INF/html/img/line.gif", new File(imgDir, "line.gif"));
+        copyResource("/META-INF/html/img/corner.gif", new File(imgDir, "corner.gif"));
 
         File pagesDir = new File(directory, DIR_PAGES);
         pagesDir.mkdir();
@@ -440,7 +444,7 @@ public class ResultRenderer
         part.putObject(Key.ARTEFACT, artefact);
         return artefact;
     }
-    
+
     // //////////////////////////////////////////////////////////////
     // render table of contents into HTML page
     // //////////////////////////////////////////////////////////////
@@ -577,7 +581,7 @@ public class ResultRenderer
             renderTOCPart(handler, attrib, child);
         handler.endElement(URI, Attrib.PART, Attrib.PART);
     }
-    
+
     // //////////////////////////////////////////////////////////////
     // zip directory
     // //////////////////////////////////////////////////////////////

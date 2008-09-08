@@ -11,6 +11,7 @@
 package org.eclipse.mat.report.internal;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.io.Writer;
 import java.text.MessageFormat;
@@ -130,8 +131,11 @@ public class HtmlOutputter implements IOutputter
             artefact.append("</tr>");
         }
         // append totals row
-        renderTotalsRow(context, artefact, table, table.getRows(), numberOfRowsToDisplay, columns, 0, hasDetailsLink);
-
+        final TotalsRow totalsRow = table.buildTotalsRow(table.getRows());
+        totalsRow.setVisibleItems(+numberOfRowsToDisplay);
+        if (totalsRow.isVisible())
+            renderTotalsRow(context, artefact, table, table.getRows(), totalsRow, columns, 0, new int[0],
+                            hasDetailsLink);
         artefact.append("</tbody></table>");
     }
 
@@ -181,14 +185,11 @@ public class HtmlOutputter implements IOutputter
     }
 
     private void renderTotalsRow(Context context, Writer artefact, RefinedStructuredResult result, List<?> elements,
-                    int numberOfRowsToDisplay, Column[] columns, int level, boolean hasDetailsLink) throws IOException
+                    TotalsRow totalsRow, Column[] columns, int level, int[] branches, boolean hasDetailsLink)
+                    throws IOException
     {
         if (context.isTotalsRowVisible())
         {
-            final TotalsRow totalsRow = result.buildTotalsRow(elements);
-            totalsRow.setVisibleItems(numberOfRowsToDisplay);
-            if (!totalsRow.isVisible())
-                return;
             result.calculateTotals(elements, totalsRow, new VoidProgressListener());
             String iconUrl = context.addIcon(totalsRow.getIcon());
             artefact.append("<tr class=\"totals\">");
@@ -197,9 +198,18 @@ public class HtmlOutputter implements IOutputter
                 if (context.isColumnVisible(i))
                 {
                     if (i == 0)// append icon
-                        artefact.append("<td style=\"padding-left:").append(String.valueOf(level * 10)).append("px\">")
-                                        .append("<img src=\"").append(iconUrl).append("\">").append(
-                                                        totalsRow.getLabel(i)).append("</td>");
+                    {
+                        artefact.append("<td>");
+
+                        if (branches.length > 0)
+                        {
+                            branches[branches.length - 1] = 3;
+                        }
+                        renderTreeIndentation(context, artefact, branches);
+
+                        artefact.append("<img src=\"").append(iconUrl).append("\"/>");
+                        artefact.append("<ul><li>").append(totalsRow.getLabel(i)).append("</li></ul>").append("</td>");
+                    }
                     else
                     {
                         if (columns[i].isNumeric())
@@ -231,16 +241,20 @@ public class HtmlOutputter implements IOutputter
 
         renderFilterRow(context, artefact, tree, hasDetailsLink);
 
-        renderChildren(context, artefact, tree, columns, tree.getElements(), 0, hasDetailsLink);
+        renderChildren(context, artefact, tree, columns, tree.getElements(), 0, new int[0], hasDetailsLink);
 
         artefact.append("</tbody></table>");
     }
 
     private void renderChildren(Context context, Writer artefact, RefinedTree tree, Column[] columns, List<?> elements,
-                    int level, boolean hasDetailsLink) throws IOException
+                    int level, int[] branches, boolean hasDetailsLink) throws IOException
     {
         int numberOfRowsToDisplay = (context.hasLimit() && context.getLimit() < elements.size()) ? context.getLimit()
                         : elements.size();
+
+        TotalsRow totalsRow = tree.buildTotalsRow(elements);
+        totalsRow.setVisibleItems(numberOfRowsToDisplay);
+
         for (int i = 0; i < numberOfRowsToDisplay; i++)
         {
             Object element = elements.get(i);
@@ -259,18 +273,27 @@ public class HtmlOutputter implements IOutputter
 
             if (context.isColumnVisible(0))
             {
-
-                artefact.append("<td style=\"padding-left:").append(String.valueOf(level * 10)).append("px\">");
+                artefact.append("<td>");
+                if (i == numberOfRowsToDisplay - 1 && (!totalsRow.isVisible() || !context.isTotalsRowVisible()))
+                {
+                    if (branches.length > 0)
+                    {
+                        branches[branches.length - 1] = 3;
+                    }
+                }
+                renderTreeIndentation(context, artefact, branches);
 
                 String iconUrl = context.addIcon(tree.getIcon(element));
                 if (iconUrl != null)
-                    artefact.append("<img src=\"").append(iconUrl).append("\">");
+                    artefact.append("<img src=\"").append(iconUrl).append("\"/>");
 
+                artefact.append("<ul><li>");
                 renderColumnValue(context, artefact, tree, columns, element, 0);
 
                 if (!isExpanded && hasChildren)
                     artefact.append(" &raquo;");
 
+                artefact.append("</li></ul>");
                 artefact.append("</td>");
             }
             renderDataColumns(context, artefact, tree, columns, element, hasDetailsLink);
@@ -278,7 +301,15 @@ public class HtmlOutputter implements IOutputter
 
             if (isExpanded && hasChildren && level < 100)
             {
-                renderChildren(context, artefact, tree, columns, children, level + 1, hasDetailsLink);
+                int[] newBranches = new int[branches.length + 1];
+                System.arraycopy(branches, 0, newBranches, 0, branches.length);
+                newBranches[newBranches.length - 1] = 2;
+                if (newBranches.length > 1)
+                {
+                    int last = newBranches[newBranches.length - 2];
+                    newBranches[newBranches.length - 2] = (last == 2) ? 1 : 0;
+                }
+                renderChildren(context, artefact, tree, columns, children, level + 1, newBranches, hasDetailsLink);
             }
             else if (level == 100)
             {
@@ -286,7 +317,44 @@ public class HtmlOutputter implements IOutputter
             }
 
         }
-        renderTotalsRow(context, artefact, tree, elements, numberOfRowsToDisplay, columns, level, hasDetailsLink);
+        if (totalsRow.isVisible())
+            renderTotalsRow(context, artefact, tree, elements, totalsRow, columns, level, branches, hasDetailsLink);
+    }
+
+    private void renderTreeIndentation(Context context, Writer artefact, int[] branches) throws IOException
+    {
+        File[] files = context.getOutputDirectory().listFiles(new FileFilter()
+        {
+
+            public boolean accept(File file)
+            {
+                if (file.isDirectory() && file.getName().equals("img"))
+                    return true;
+                return false;
+            }
+        });
+        String prefix = (files.length > 0) ? "" : "../";
+        for (int bc : branches)
+        {
+            switch (bc)
+            {
+                case 0:
+                    artefact.append("<img src=\"").append(prefix).append("img/empty.gif\"/>");
+                    break;
+                case 1:
+                    artefact.append("<img src=\"").append(prefix).append("img/line.gif\"/>");
+                    break;
+                case 2:
+                    artefact.append("<img src=\"").append(prefix).append("img/fork.gif\"/>");
+                    break;
+                case 3:
+                    artefact.append("<img src=\"").append(prefix).append("img/corner.gif\"/>");
+                    break;
+
+                default:
+                    break;
+            }
+        }
     }
 
     private void renderDepthRow(Writer artefact) throws IOException

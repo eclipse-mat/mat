@@ -33,15 +33,15 @@ img {
 }
 
 #toc ul {
-	margin:0;
-	padding:0;
-	list-style:none;
+	margin: 0;
+	padding: 0;
+	list-style: none;
 }
 
 #toc li {
-	margin:0;
-	padding:0;
-	float:left;
+	margin: 0;
+	padding: 0;
+	float: left;
 }
 
 #toc a {
@@ -49,13 +49,20 @@ img {
 	padding: 5px 10px;
 }
 
+.important {
+	background-color: #FFFFE1;
+	padding: 10px 10px 10px 10px;
+	border: 1px dotted black;
+	max-width: 600px;
+	overflow: visible;
+}
 
 /* query table and trees */
 
 .result {
 	border: 1px solid #666666;
 	font-family: "lucida grande", verdana, sans-serif;
-	font-size: 8pt;
+	font-size: 8pt;	
 }
 
 .result thead tr th {
@@ -92,10 +99,22 @@ img {
 	font-weight: bold;		
 }
 
-.important {
-	background-color: #FFFFE1;
-	padding: 10px 10px 10px 10px;
-	border: 1px dotted black;
-	max-width: 600px;
-	overflow: visible;
+.result tbody tr td img {
+	border: 0;
+	vertical-align: middle;	
+	padding: 0px;
+	float: left;
+	margin: 0px;			
+}
+
+.result tbody tr td ul {
+	list-style: none;
+	overflow: hidden;	
+	margin: 0px;
+	padding: 0px;			
+}
+
+.result tbody tr td li {		
+	word-wrap: break-word;	
+	float: left;	
 }
