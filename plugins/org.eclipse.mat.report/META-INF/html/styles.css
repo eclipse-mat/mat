@@ -109,7 +109,7 @@ img {
 
 .result tbody tr td ul {
 	list-style: none;
-	overflow: hidden;	
+	overflow: visible;	
 	margin: 0px;
 	padding: 0px;			
 }
