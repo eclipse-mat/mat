@@ -61,7 +61,7 @@ public abstract class Filter
         void filterChanged(Filter filter);
     }
 
-    public static final String[] FILTER_TYPES = new String[] { "<Regex Filter>", "<Numeric Filter>" };
+    public static final String[] FILTER_TYPES = new String[] { "<Regex>", "<Numeric>" };
 
     /**
      * if an exceptions is thrown, the internal state stays untouched. Hence, no

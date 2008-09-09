@@ -47,7 +47,6 @@ import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.widgets.Widget;
 import org.eclipse.ui.PlatformUI;
 
-
 public class RefinedTreeViewer extends RefinedResultViewer
 {
     Tree tree;
@@ -440,7 +439,7 @@ public class RefinedTreeViewer extends RefinedResultViewer
                 return;
             }
         }
-        
+
         // if we get here, a new root element has appeared
         refresh(false);
     }
@@ -636,6 +635,8 @@ public class RefinedTreeViewer extends RefinedResultViewer
 
         public int getLineHeightEstimation()
         {
+            if (Platform.OS_LINUX.equals(Platform.getOS()))
+                return 26;
             if (Platform.OS_MACOSX.equals(Platform.getOS()))
                 return 20;
             if (System.getProperty("os.name").indexOf("Vista") >= 0)

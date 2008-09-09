@@ -226,7 +226,7 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
             Table t = (Table) children[0];
 
             // on win32, item height is reported to low the first time around
-            int itemHeight = t.getItemHeight();
+            int itemHeight = t.getItemHeight() + 1;
             if (itemHeight < 17)
                 itemHeight = 17;
 

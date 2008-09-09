@@ -305,6 +305,8 @@ public class RefinedTableViewer extends RefinedResultViewer
 
         public int getLineHeightEstimation()
         {
+            if (Platform.OS_LINUX.equals(Platform.getOS()))
+                return 26;
             if (Platform.OS_MACOSX.equals(Platform.getOS()))
                 return 20;
             if (System.getProperty("os.name").indexOf("Vista") >= 0)
