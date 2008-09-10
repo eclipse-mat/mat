@@ -13,6 +13,7 @@ package org.eclipse.mat.ui.snapshot.views;
 import java.io.File;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
+import java.text.MessageFormat; 
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -215,20 +216,10 @@ public abstract class SnapshotOutlinePage extends Page implements IContentOutlin
                     {
                         return null;
                     }
-                    else if ("identifier_size".equals(label.getText()))
+                    else if (Messages.identifier_size.equals(label.getText()))
                     {
                         int identifierSize = ((Integer) obj).intValue();
-                        switch (identifierSize)
-                        {
-                            case 0:
-                                return null;
-                            case 4:
-                                return "32bit";
-                            case 8:
-                                return "64bit";
-                            default:
-                                return String.valueOf(identifierSize);
-                        }
+                        return MessageFormat.format(Messages.identifier_format, identifierSize); 
                     }
                     else if ((obj instanceof Long) || (obj instanceof Integer))
                     {
@@ -240,7 +231,7 @@ public abstract class SnapshotOutlinePage extends Page implements IContentOutlin
                     }
                     else if (obj instanceof Date)
                     {
-                        return "Date".equals(label.getText()) ? DateFormat.getDateInstance().format(obj) : DateFormat
+                        return Messages.date.equals(label.getText()) ? DateFormat.getDateInstance().format(obj) : DateFormat 
                                         .getTimeInstance().format(obj);
                     }
                     else
