@@ -16,6 +16,7 @@ import java.net.URLEncoder;
 import org.eclipse.mat.query.registry.QueryObjectLink;
 import org.eclipse.mat.report.Params;
 import org.eclipse.mat.report.internal.ResultRenderer.HtmlArtefact;
+import org.eclipse.mat.util.HTMLUtils;
 
 /* package */class PageSnippets
 {
@@ -64,7 +65,7 @@ import org.eclipse.mat.report.internal.ResultRenderer.HtmlArtefact;
                                 .append("img/").append(part.getStatus().name().toLowerCase() + ".gif\"> ");
 
             artefact.append("<a name=\"").append(part.getId()).append("\">");
-            artefact.append(part.spec().getName());
+            artefact.append(HTMLUtils.escapeText(part.spec().getName()));
             artefact.append("</a>");
 
             if (expandable)
@@ -86,7 +87,7 @@ import org.eclipse.mat.report.internal.ResultRenderer.HtmlArtefact;
                             part.getStatus().name().toLowerCase() + ".gif\"> ");
 
         artefact.append("<a href=\"").append(artefact.getPathToRoot()).append(filename).append("\">");
-        artefact.append(part.spec().getName());
+        artefact.append(HTMLUtils.escapeText(part.spec().getName()));
         artefact.append("</a></h").append(v).append(">");
     }
 
@@ -107,7 +108,7 @@ import org.eclipse.mat.report.internal.ResultRenderer.HtmlArtefact;
                                 query.getStatus().name().toLowerCase() + ".gif\"> ");
 
             artefact.append("<a name=\"").append(query.getId()).append("\">");
-            artefact.append(query.spec().getName()).append("</a>");
+            artefact.append(HTMLUtils.escapeText(query.spec().getName())).append("</a>");
             artefact.append(" <a href=\"#\" onclick=\"hide('exp").append(query.getId()) //
                             .append("'); return false;\" title=\"hide / unhide\"><img src=\"") //
                             .append(artefact.getPathToRoot()).append("img/hide.gif\"></a>");
@@ -140,7 +141,7 @@ import org.eclipse.mat.report.internal.ResultRenderer.HtmlArtefact;
     public static void link(HtmlArtefact artefact, String target, String label)
     {
         artefact.append("<a href=\"").append(artefact.getPathToRoot()).append(target).append("\">");
-        artefact.append(label);
+        artefact.append(HTMLUtils.escapeText(label));
         artefact.append("</a>");
     }
 

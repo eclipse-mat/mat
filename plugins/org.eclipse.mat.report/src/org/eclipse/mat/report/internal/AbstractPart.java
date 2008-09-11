@@ -113,11 +113,6 @@ public abstract class AbstractPart
         return children;
     }
 
-    public void replace(AbstractPart part, AbstractPart other)
-    {
-        this.children.set(this.children.indexOf(part), other);
-    }
-
     /* package */String getFilename()
     {
         return filename;
@@ -128,7 +123,7 @@ public abstract class AbstractPart
         this.filename = filename;
     }
 
-    public abstract ITestResult.Status execute(IQueryContext context, ResultRenderer renderer,
-                    IProgressListener listener) throws SnapshotException, IOException;
+    public abstract AbstractPart execute(IQueryContext context, ResultRenderer renderer, IProgressListener listener)
+                    throws SnapshotException, IOException;
 
 }

@@ -65,7 +65,7 @@ public class QueryPart extends AbstractPart
     }
 
     @Override
-    public Status execute(IQueryContext context, ResultRenderer renderer, IProgressListener listener)
+    public AbstractPart execute(IQueryContext context, ResultRenderer renderer, IProgressListener listener)
                     throws SnapshotException, IOException
     {
         String sectionName = parent != null ? parent.spec().getName() : "none";
@@ -91,7 +91,7 @@ public class QueryPart extends AbstractPart
                 {
                     ReportPlugin.log(e, MessageFormat.format("Ignoring result of ''{0}'' due to {1}", spec().getName(),
                                     e.getMessage()));
-                    return status;
+                    return this;
                 }
             }
         }
@@ -112,7 +112,6 @@ public class QueryPart extends AbstractPart
             AbstractPart part = AbstractPart.build(getParent(), replacement);
             part.objects = objects;
             part.filename = filename;
-            getParent().replace(this, part);
             return part.execute(context, renderer, listener);
         }
 
@@ -153,16 +152,14 @@ public class QueryPart extends AbstractPart
             renderer.process(this, result, rInfo);
         }
 
-        // this list is dynamically changed while iterating over it. Therefore
-        // we cannot use an iterator -> ConcurrentModificationException
         for (int ii = 0; ii < this.children.size(); ii++)
         {
-            AbstractPart part = this.children.get(ii);
-            Status status = part.execute(context, renderer, listener);
-            this.status = Status.max(this.status, status);
+            AbstractPart part = this.children.get(ii).execute(context, renderer, listener);
+            this.status = Status.max(this.status, part.status);
+            this.children.set(ii, part);
         }
 
-        return status;
+        return this;
     }
 
     private boolean hasParameterThatNeedRefining()

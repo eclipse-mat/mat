@@ -28,6 +28,7 @@ public class RunReportsDropDownAction extends EasyToolBarDropDown
 {
     private MultiPaneEditor editor;
     private Action importReportAction;
+    private Action runExternalReportAction;
 
     public RunReportsDropDownAction(MultiPaneEditor editor)
     {
@@ -35,8 +36,8 @@ public class RunReportsDropDownAction extends EasyToolBarDropDown
                         .getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.EXPERT_SYSTEM), editor);
 
         this.editor = editor;
-        importReportAction = new ImportReportAction(editor);
-        importReportAction.setText("Import Report...");
+        this.importReportAction = new ImportReportAction(editor);
+        this.runExternalReportAction = new RunExternalReportAction(editor);
     }
 
     @Override
@@ -63,5 +64,6 @@ public class RunReportsDropDownAction extends EasyToolBarDropDown
 
         menu.addSeparator();
         menu.add(importReportAction);
+        menu.add(runExternalReportAction);
     }
 }

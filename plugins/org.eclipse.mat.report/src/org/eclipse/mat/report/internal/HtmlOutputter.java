@@ -134,8 +134,7 @@ public class HtmlOutputter implements IOutputter
         final TotalsRow totalsRow = table.buildTotalsRow(table.getRows());
         totalsRow.setVisibleItems(+numberOfRowsToDisplay);
         if (totalsRow.isVisible())
-            renderTotalsRow(context, artefact, table, table.getRows(), totalsRow, columns, 0, new int[0],
-                            hasDetailsLink);
+            renderTotalsRow(context, artefact, table, table.getRows(), totalsRow, columns, new int[0], hasDetailsLink);
         artefact.append("</tbody></table>");
     }
 
@@ -185,8 +184,7 @@ public class HtmlOutputter implements IOutputter
     }
 
     private void renderTotalsRow(Context context, Writer artefact, RefinedStructuredResult result, List<?> elements,
-                    TotalsRow totalsRow, Column[] columns, int level, int[] branches, boolean hasDetailsLink)
-                    throws IOException
+                    TotalsRow totalsRow, Column[] columns, int[] branches, boolean hasDetailsLink) throws IOException
     {
         if (context.isTotalsRowVisible())
         {
@@ -318,7 +316,7 @@ public class HtmlOutputter implements IOutputter
 
         }
         if (totalsRow.isVisible())
-            renderTotalsRow(context, artefact, tree, elements, totalsRow, columns, level, branches, hasDetailsLink);
+            renderTotalsRow(context, artefact, tree, elements, totalsRow, columns, branches, hasDetailsLink);
     }
 
     private void renderTreeIndentation(Context context, Writer artefact, int[] branches) throws IOException

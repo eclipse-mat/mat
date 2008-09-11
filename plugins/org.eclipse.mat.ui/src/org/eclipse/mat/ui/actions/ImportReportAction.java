@@ -38,7 +38,7 @@ public class ImportReportAction extends Action
 
     public ImportReportAction(MultiPaneEditor editor)
     {
-        super("Import Report", MemoryAnalyserPlugin
+        super("Open Report...", MemoryAnalyserPlugin
                         .getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.IMPORT_REPORT));
 
         this.editor = editor;

@@ -48,7 +48,18 @@ public class ParseSnapshotApp implements IApplication
         SpecFactory factory = SpecFactory.instance();
         for (int ii = 1; ii < args.length; ii++)
         {
-            Spec spec = factory.create(args[ii]);
+            Spec spec = null;
+
+            File specFile = new File(args[ii]);
+            if (specFile.exists())
+            {
+                spec = factory.create(specFile);
+            }
+            else
+            {
+                spec = factory.create(args[ii]);
+            }
+
             if (spec != null)
             {
                 factory.resolve(spec);

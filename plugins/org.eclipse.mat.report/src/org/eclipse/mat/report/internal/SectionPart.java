@@ -33,23 +33,21 @@ public class SectionPart extends AbstractPart
     }
 
     @Override
-    public Status execute(IQueryContext context, ResultRenderer renderer, IProgressListener listener)
+    public AbstractPart execute(IQueryContext context, ResultRenderer renderer, IProgressListener listener)
                     throws SnapshotException, IOException
     {
         renderer.beginSection(this);
 
-        // this list is dynamically changed while iterating over it. Therefore
-        // we cannot use an iterator -> ConcurrentModificationException
         for (int ii = 0; ii < this.children.size(); ii++)
         {
-            AbstractPart part = this.children.get(ii);
-            Status status = part.execute(context, renderer, listener);
-            this.status = Status.max(this.status, status);
+            AbstractPart part = this.children.get(ii).execute(context, renderer, listener);
+            this.status = Status.max(this.status, part.status);
+            this.children.set(ii, part);
         }
 
         renderer.endSection(this);
 
-        return status;
+        return this;
     }
 
 }

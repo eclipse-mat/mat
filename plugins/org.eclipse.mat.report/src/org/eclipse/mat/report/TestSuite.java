@@ -121,7 +121,7 @@ public class TestSuite
         ResultRenderer renderer = new ResultRenderer();
 
         renderer.beginSuite(this, part);
-        part.execute(queryContext, renderer, listener);
+        part = part.execute(queryContext, renderer, listener);
         renderer.endSuite(part);
 
         return part.getStatus();
