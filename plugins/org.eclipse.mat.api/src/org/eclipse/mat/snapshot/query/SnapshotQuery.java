@@ -13,6 +13,7 @@ package org.eclipse.mat.snapshot.query;
 import java.text.MessageFormat;
 
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.internal.snapshot.HeapObjectArgumentFactory;
 import org.eclipse.mat.internal.snapshot.SnapshotQueryContext;
 import org.eclipse.mat.query.IQueryContext;
@@ -117,13 +118,18 @@ public class SnapshotQuery
             {
                 value = HeapObjectArgumentFactory.build(snapshot, (int[]) value);
             }
+            else if (value instanceof ArrayInt)
+            {
+                value = HeapObjectArgumentFactory.build(snapshot, ((ArrayInt) value).toArray());
+            }
             else if (value instanceof IHeapObjectArgument)
             {
                 value = HeapObjectArgumentFactory.build(snapshot, (IHeapObjectArgument) value);
             }
             else
             {
-                throw new SnapshotException(MessageFormat.format("Unsupported type for argument {0}: {1}", name, value
+                throw new SnapshotException(MessageFormat.format("Unsupported type for argument {0}: {1}\n"
+                                + "(Use: IObject, Integer, int[], ArrayInt, IHeapObjectArgument)", name, value
                                 .getClass().getName()));
             }
         }

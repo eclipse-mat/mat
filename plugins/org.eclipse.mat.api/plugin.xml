@@ -66,6 +66,7 @@
 		<!-- Extra Information (this queries will appear on the toolbar or inside the overview pane) -->
 		
 		<query impl="org.eclipse.mat.inspections.component.ComponentReportQuery"/>
+		<query impl="org.eclipse.mat.inspections.component.TopComponentReportsQuery"/>
 		
 		<!-- eclipse -->
 		<query impl="org.eclipse.mat.inspections.eclipse.LeakingPlugins"/>
@@ -101,6 +102,9 @@
 		<report id="overview" name="Heap Dump Overview"
 				description="includes class histogram, system properties and top consumers."
 				file="META-INF/reports/overview.xml" />
+		<report id="top_components" name="Top Components"
+				description="list reports for components bigger than 1 percent of the total heap."
+				file="META-INF/reports/top_components.xml" />
 	</extension>
 
 	<extension point="org.eclipse.core.contenttype.contentTypes">

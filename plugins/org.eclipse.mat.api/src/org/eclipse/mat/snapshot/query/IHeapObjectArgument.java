@@ -42,6 +42,8 @@ import org.eclipse.mat.util.IProgressListener;
  * &#064;Argument(isHeapObject = true)
  * public int[] objects;
  * </pre>
+ * 
+ * @noimplement
  */
 public interface IHeapObjectArgument extends Iterable<int[]>
 {
