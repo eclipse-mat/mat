@@ -580,7 +580,6 @@ public class OQLQueryImpl implements IOQLQuery
 
             // stack of no additional use but clutters UI
             throw new OQLParseException(e.getMessage(), null, line, column);
-            // $JL-EXC$
         }
         catch (TokenMgrError e)
         {
@@ -597,7 +596,6 @@ public class OQLQueryImpl implements IOQLQuery
 
             // stack of no additional use but clutters UI
             throw new OQLParseException(msg, null, line, column);
-            // $JL-EXC$
         }
     }
 

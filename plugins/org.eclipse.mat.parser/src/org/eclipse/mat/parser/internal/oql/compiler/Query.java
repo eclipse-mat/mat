@@ -356,7 +356,7 @@ public class Query
         buf.append("FROM ");
         buf.append(fromClause).append(" ");
 
-        // where clasue
+        // where clause
         if (whereClause != null)
             buf.append("WHERE ").append(whereClause);
 

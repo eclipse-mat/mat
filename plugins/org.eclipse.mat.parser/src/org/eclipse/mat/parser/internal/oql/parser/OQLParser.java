@@ -2,15 +2,14 @@
 package org.eclipse.mat.parser.internal.oql.parser;
 
 import java.math.BigInteger;
+import java.util.List;
 import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List;
 
 import org.eclipse.mat.parser.internal.oql.ICompiler;
 import org.eclipse.mat.parser.internal.oql.compiler.Attribute;
-import org.eclipse.mat.parser.internal.oql.compiler.Expression;
 import org.eclipse.mat.parser.internal.oql.compiler.Query;
-
+import org.eclipse.mat.parser.internal.oql.compiler.Expression;
 
 public class OQLParser implements OQLParserConstants
 {
@@ -21,9 +20,67 @@ public class OQLParser implements OQLParserConstants
         this.compiler = compiler;
     }
 
-    /***************************************************************************
+    public static void main(String args[]) throws ParseException
+    {
+        System.out.println("Reading from stdin");
+        OQLParser p = new OQLParser(System.in);
+        p.setCompiler(new org.eclipse.mat.parser.internal.oql.compiler.CompilerImpl());
+        Query q = p.ParseQueryFromInputLine();
+        System.out.println(q);
+
+        System.out.println("Parse Successfull");
+    }
+
+    protected boolean seeUnreservedKeyword(String keyword)
+    {
+        return (getToken(1).kind == IDENTIFIER && keyword.equals(getToken(1).image.toUpperCase()));
+    }
+
+    protected boolean seeUnreservedKeyword(String... keywords)
+    {
+        for (int index = 0; index < keywords.length; index++)
+        {
+            if (getToken(index + 1).kind != IDENTIFIER
+                            || !keywords[index].equals(getToken(index + 1).image.toUpperCase()))
+                return false;
+        }
+        return true;
+    }
+
+    protected boolean seeExclude(String... keywords)
+    {
+        if (getToken(1).kind != IDENTIFIER)
+            return false;
+
+        String image = getToken(1).image.toUpperCase();
+        for (int index = 0; index < keywords.length; index++)
+            if (keywords[index].equals(image))
+                return false;
+
+        return true;
+    }
+
+    protected ParseException generateCustomParseException(String... keywords)
+    {
+        Token currentToken = getToken(0);
+
+        StringBuilder buf = new StringBuilder();
+        for (String keyword : keywords)
+            buf.append("\n\t\"").append(keyword).append('"');
+
+        String msg = java.text.MessageFormat.format(
+                        "Encountered \"{0}\" at line {1}, column {2}.\nWas expecting one of: {3}",
+                        currentToken.next.image, currentToken.next.beginLine, currentToken.next.beginColumn, buf
+                                        .toString());
+
+        ParseException e = new ParseException(msg);
+        e.currentToken = currentToken;
+        return e;
+    }
+
+    /*******************************
      * THE OQL GRAMMAR STARTS HERE *
-     **************************************************************************/
+     *******************************/
     final public Query ParseQuery() throws ParseException
     {
         Query q;
@@ -33,50 +90,67 @@ public class OQLParser implements OQLParserConstants
             if (true)
                 return q;
         }
-        throw new RuntimeException("Missing return statement in function");
+        throw new Error("Missing return statement in function");
     }
 
     final public Query ParseQueryFromInputLine() throws ParseException
     {
         Query q;
         q = SelectStatement();
-        jj_consume_token(52);
+        jj_consume_token(39);
         {
             if (true)
                 return q;
         }
-        throw new RuntimeException("Missing return statement in function");
+        throw new Error("Missing return statement in function");
     }
 
     final public Query SelectStatement() throws ParseException
     {
         Query q = new Query();
-        jj_consume_token(K_SELECT);
+        try
+        {
+            if (seeUnreservedKeyword("SELECT"))
+            {
+
+            }
+            else
+            {
+                jj_consume_token(-1);
+                throw new ParseException();
+            }
+            jj_consume_token(IDENTIFIER);
+        }
+        catch (ParseException e)
+        {
+            {
+                if (true)
+                    throw generateCustomParseException("SELECT");
+            }
+        }
         SelectList(q);
         FromClause(q);
-        switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
+        if (jj_2_1(1))
         {
-            case K_WHERE:
-                WhereClause(q);
-                break;
-            default:
-                jj_la1[0] = jj_gen;
+            WhereClause(q);
+        }
+        else
+        {
 
         }
-        switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
+        if (jj_2_2(1))
         {
-            case K_UNION:
-                UnionClause(q);
-                break;
-            default:
-                jj_la1[1] = jj_gen;
+            UnionClause(q);
+        }
+        else
+        {
 
         }
         {
             if (true)
                 return q;
         }
-        throw new RuntimeException("Missing return statement in function");
+        throw new Error("Missing return statement in function");
     }
 
     /* ---------------- select --------------------- */
@@ -85,66 +159,75 @@ public class OQLParser implements OQLParserConstants
         Query.SelectClause selectClause = new Query.SelectClause();
         List<Query.SelectItem> columns = new ArrayList<Query.SelectItem>();
         Query.SelectItem a;
-        switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
+        if (jj_2_3(1))
         {
-            case K_AS_RETAINED_SET:
-            case K_DISTINCT:
-                switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-                {
-                    case K_DISTINCT:
-                        jj_consume_token(K_DISTINCT);
-                        selectClause.setDistinct(true);
-                        break;
-                    case K_AS_RETAINED_SET:
-                        jj_consume_token(K_AS_RETAINED_SET);
-                        selectClause.setRetainedSet(true);
-                        break;
-                    default:
-                        jj_la1[2] = jj_gen;
-                        jj_consume_token(-1);
-                        throw new ParseException();
-                }
-                break;
-            default:
-                jj_la1[3] = jj_gen;
+            if (seeUnreservedKeyword("DISTINCT"))
+            {
+                jj_consume_token(IDENTIFIER);
+                selectClause.setDistinct(true);
+            }
+            else if (seeUnreservedKeyword("AS", "RETAINED", "SET"))
+            {
+                jj_consume_token(IDENTIFIER);
+                jj_consume_token(IDENTIFIER);
+                jj_consume_token(IDENTIFIER);
+                selectClause.setRetainedSet(true);
+            }
+            else
+            {
+                jj_consume_token(-1);
+                throw new ParseException();
+            }
+        }
+        else
+        {
 
         }
         switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
         {
-            case 53:
-                jj_consume_token(53);
+            case 40:
+                jj_consume_token(40);
                 break;
-            case K_OBJECTS:
-                jj_consume_token(K_OBJECTS);
-                a = SelectItem();
-                columns.add(a);
-                selectClause.setAsObjects(true);
-                break;
-            case DOLLAR_SIGN:
-            case IDENTIFIER:
-            case 56:
-                a = SelectItem();
-                columns.add(a);
-                label_1: while (true)
+            default:
+                jj_la1[1] = jj_gen;
+                if (seeUnreservedKeyword("OBJECTS"))
+                {
+                    jj_consume_token(IDENTIFIER);
+                    a = SelectItem();
+                    columns.add(a);
+                    selectClause.setAsObjects(true);
+                }
+                else
                 {
                     switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
                     {
-                        case 54:
+                        case DOLLAR_SIGN:
+                        case IDENTIFIER:
+                        case 45:
+                            a = SelectItem();
+                            columns.add(a);
+                            label_1: while (true)
+                            {
+                                switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
+                                {
+                                    case 41:
 
+                                        break;
+                                    default:
+                                        jj_la1[0] = jj_gen;
+                                        break label_1;
+                                }
+                                jj_consume_token(41);
+                                a = SelectItem();
+                                columns.add(a);
+                            }
                             break;
                         default:
-                            jj_la1[4] = jj_gen;
-                            break label_1;
+                            jj_la1[2] = jj_gen;
+                            jj_consume_token(-1);
+                            throw new ParseException();
                     }
-                    jj_consume_token(54);
-                    a = SelectItem();
-                    columns.add(a);
                 }
-                break;
-            default:
-                jj_la1[5] = jj_gen;
-                jj_consume_token(-1);
-                throw new ParseException();
         }
         selectClause.setSelectList(columns);
         q.setSelectClause(selectClause);
@@ -157,37 +240,36 @@ public class OQLParser implements OQLParserConstants
         switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
         {
             case IDENTIFIER:
-            case 56:
+            case 45:
                 ex = PathExpression();
                 break;
             case DOLLAR_SIGN:
                 ex = EnvVarPathExpression();
                 break;
             default:
-                jj_la1[6] = jj_gen;
+                jj_la1[3] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
-        switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
+        if (seeUnreservedKeyword("AS"))
         {
-            case K_AS:
-                jj_consume_token(K_AS);
-                switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-                {
-                    case STRING_LITERAL:
-                        t1 = jj_consume_token(STRING_LITERAL);
-                        break;
-                    case IDENTIFIER:
-                        t2 = jj_consume_token(IDENTIFIER);
-                        break;
-                    default:
-                        jj_la1[7] = jj_gen;
-                        jj_consume_token(-1);
-                        throw new ParseException();
-                }
-                break;
-            default:
-                jj_la1[8] = jj_gen;
+            jj_consume_token(IDENTIFIER);
+            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
+            {
+                case STRING_LITERAL:
+                    t1 = jj_consume_token(STRING_LITERAL);
+                    break;
+                case IDENTIFIER:
+                    t2 = jj_consume_token(IDENTIFIER);
+                    break;
+                default:
+                    jj_la1[4] = jj_gen;
+                    jj_consume_token(-1);
+                    throw new ParseException();
+            }
+        }
+        else
+        {
 
         }
         String name = null;
@@ -200,7 +282,7 @@ public class OQLParser implements OQLParserConstants
             if (true)
                 return new Query.SelectItem(name, (Expression) ex);
         }
-        throw new RuntimeException("Missing return statement in function");
+        throw new Error("Missing return statement in function");
     }
 
     final public Object PathExpression() throws ParseException
@@ -213,14 +295,14 @@ public class OQLParser implements OQLParserConstants
         {
             switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
             {
-                case 55:
+                case 42:
 
                     break;
                 default:
-                    jj_la1[9] = jj_gen;
+                    jj_la1[5] = jj_gen;
                     break label_2;
             }
-            jj_consume_token(55);
+            jj_consume_token(42);
             ex = ObjectFacet(false);
             elements.add(ex);
         }
@@ -228,7 +310,7 @@ public class OQLParser implements OQLParserConstants
             if (true)
                 return compiler.path(elements);
         }
-        throw new RuntimeException("Missing return statement in function");
+        throw new Error("Missing return statement in function");
     }
 
     final public Object EnvVarPathExpression() throws ParseException
@@ -237,19 +319,21 @@ public class OQLParser implements OQLParserConstants
         Object ex = null;
         Token t_name = null;
         jj_consume_token(DOLLAR_SIGN);
+        jj_consume_token(43);
         t_name = jj_consume_token(IDENTIFIER);
+        jj_consume_token(44);
         label_3: while (true)
         {
             switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
             {
-                case 55:
+                case 42:
 
                     break;
                 default:
-                    jj_la1[10] = jj_gen;
+                    jj_la1[6] = jj_gen;
                     break label_3;
             }
-            jj_consume_token(55);
+            jj_consume_token(42);
             ex = ObjectFacet(false);
             elements.add(ex);
         }
@@ -258,7 +342,7 @@ public class OQLParser implements OQLParserConstants
             if (true)
                 return compiler.path(elements);
         }
-        throw new RuntimeException("Missing return statement in function");
+        throw new Error("Missing return statement in function");
     }
 
     final public Object ObjectFacet(boolean isFirstInPath) throws ParseException
@@ -268,21 +352,20 @@ public class OQLParser implements OQLParserConstants
         Object ex = null;
         switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
         {
-            case 56:
-                t_native = jj_consume_token(56);
+            case 45:
+                t_native = jj_consume_token(45);
                 break;
             default:
-                jj_la1[11] = jj_gen;
+                jj_la1[7] = jj_gen;
 
         }
         t_name = jj_consume_token(IDENTIFIER);
-        switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
+        if (jj_2_4(2147483647))
         {
-            case 57:
-                parameters = ParameterList();
-                break;
-            default:
-                jj_la1[12] = jj_gen;
+            parameters = ParameterList();
+        }
+        else
+        {
 
         }
         if (parameters != null)
@@ -293,14 +376,14 @@ public class OQLParser implements OQLParserConstants
             if (true)
                 return ex;
         }
-        throw new RuntimeException("Missing return statement in function");
+        throw new Error("Missing return statement in function");
     }
 
     final public List<Expression> ParameterList() throws ParseException
     {
         List<Expression> parameters = new ArrayList<Expression>();
         Object expr = null;
-        jj_consume_token(57);
+        jj_consume_token(46);
         switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
         {
             case INTEGER_LITERAL:
@@ -313,38 +396,38 @@ public class OQLParser implements OQLParserConstants
             case NULL:
             case DOLLAR_SIGN:
             case IDENTIFIER:
-            case 56:
-            case 57:
-            case 62:
-            case 63:
+            case 45:
+            case 46:
+            case 51:
+            case 52:
                 expr = SimpleExpression();
                 parameters.add((Expression) expr);
                 label_4: while (true)
                 {
                     switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
                     {
-                        case 54:
+                        case 41:
 
                             break;
                         default:
-                            jj_la1[13] = jj_gen;
+                            jj_la1[8] = jj_gen;
                             break label_4;
                     }
-                    jj_consume_token(54);
+                    jj_consume_token(41);
                     expr = SimpleExpression();
                     parameters.add((Expression) expr);
                 }
                 break;
             default:
-                jj_la1[14] = jj_gen;
+                jj_la1[9] = jj_gen;
 
         }
-        jj_consume_token(58);
+        jj_consume_token(47);
         {
             if (true)
                 return parameters;
         }
-        throw new RuntimeException("Missing return statement in function");
+        throw new Error("Missing return statement in function");
     }
 
     /* ---------------- from --------------------- */
@@ -353,24 +436,44 @@ public class OQLParser implements OQLParserConstants
         Query.FromClause fromItem = new Query.FromClause();
         Query subSelect = null;
 
-        Token t1 = null, t2 = null, t3 = null;
-        jj_consume_token(K_FROM);
-        switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
+        boolean isObjects = false;
+
+        Token t1 = null, t2 = null;
+        try
         {
-            case K_OBJECTS:
-                t1 = jj_consume_token(K_OBJECTS);
-                break;
-            default:
-                jj_la1[15] = jj_gen;
+            if (seeUnreservedKeyword("FROM"))
+            {
+
+            }
+            else
+            {
+                jj_consume_token(-1);
+                throw new ParseException();
+            }
+            jj_consume_token(IDENTIFIER);
+        }
+        catch (ParseException e)
+        {
+            {
+                if (true)
+                    throw generateCustomParseException("FROM");
+            }
+        }
+        if (seeUnreservedKeyword("OBJECTS"))
+        {
+            jj_consume_token(IDENTIFIER);
+            isObjects = true;
+        }
+        else
+        {
 
         }
-        switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
+        if (jj_2_5(2147483647))
         {
-            case K_INSTANCEOF:
-                t2 = jj_consume_token(K_INSTANCEOF);
-                break;
-            default:
-                jj_la1[16] = jj_gen;
+            t1 = jj_consume_token(INSTANCEOF);
+        }
+        else
+        {
 
         }
         switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
@@ -382,32 +485,31 @@ public class OQLParser implements OQLParserConstants
             case IDENTIFIER:
                 FromItem(fromItem);
                 break;
-            case 57:
-                jj_consume_token(57);
+            case 46:
+                jj_consume_token(46);
                 subSelect = SelectStatement();
-                jj_consume_token(58);
+                jj_consume_token(47);
                 break;
             default:
-                jj_la1[17] = jj_gen;
+                jj_la1[10] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
-        switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
+        if (seeExclude("WHERE", "UNION"))
         {
-            case IDENTIFIER:
-                t3 = jj_consume_token(IDENTIFIER);
-                break;
-            default:
-                jj_la1[18] = jj_gen;
+            t2 = jj_consume_token(IDENTIFIER);
+        }
+        else
+        {
 
         }
         fromItem.setSubSelect(subSelect);
 
-        fromItem.setIncludeObjects(t1 != null);
-        fromItem.setIncludeSubClasses(t2 != null);
+        fromItem.setIncludeObjects(isObjects);
+        fromItem.setIncludeSubClasses(t1 != null);
 
-        if (t3 != null)
-            fromItem.setAlias(t3.image);
+        if (t2 != null)
+            fromItem.setAlias(t2.image);
 
         q.setFromClause(fromItem);
     }
@@ -421,6 +523,10 @@ public class OQLParser implements OQLParserConstants
         int objectId = 0;
         switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
         {
+            case DOLLAR_SIGN:
+                expr = EnvVarPathExpression();
+                fromClause.setCall((Expression) expr);
+                break;
             case IDENTIFIER:
                 className = ClassName();
                 fromClause.setClassName(className);
@@ -436,14 +542,14 @@ public class OQLParser implements OQLParserConstants
                 {
                     switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
                     {
-                        case 54:
+                        case 41:
 
                             break;
                         default:
-                            jj_la1[19] = jj_gen;
+                            jj_la1[11] = jj_gen;
                             break label_5;
                     }
-                    jj_consume_token(54);
+                    jj_consume_token(41);
                     address = ObjectAddress();
                     fromClause.addObjectAddress(address);
                 }
@@ -455,23 +561,20 @@ public class OQLParser implements OQLParserConstants
                 {
                     switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
                     {
-                        case 54:
+                        case 41:
+
                             break;
                         default:
-                            jj_la1[20] = jj_gen;
+                            jj_la1[12] = jj_gen;
                             break label_6;
                     }
-                    jj_consume_token(54);
+                    jj_consume_token(41);
                     objectId = ObjectId();
                     fromClause.addObjectId(objectId);
                 }
                 break;
-            case DOLLAR_SIGN:
-                expr = EnvVarPathExpression();
-                fromClause.setCall((Expression) expr);
-                break;
             default:
-                jj_la1[21] = jj_gen;
+                jj_la1[13] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -487,14 +590,14 @@ public class OQLParser implements OQLParserConstants
         {
             switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
             {
-                case 55:
+                case 42:
 
                     break;
                 default:
-                    jj_la1[22] = jj_gen;
+                    jj_la1[14] = jj_gen;
                     break label_7;
             }
-            jj_consume_token(55);
+            jj_consume_token(42);
             t = jj_consume_token(IDENTIFIER);
             b.append(".").append(t.image);
         }
@@ -502,21 +605,21 @@ public class OQLParser implements OQLParserConstants
         {
             switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
             {
-                case 59:
+                case 48:
 
                     break;
                 default:
-                    jj_la1[23] = jj_gen;
+                    jj_la1[15] = jj_gen;
                     break label_8;
             }
-            jj_consume_token(59);
+            jj_consume_token(48);
             b.append("[]");
         }
         {
             if (true)
                 return b.toString();
         }
-        throw new RuntimeException("Missing return statement in function");
+        throw new Error("Missing return statement in function");
     }
 
     final public long ObjectAddress() throws ParseException
@@ -527,7 +630,7 @@ public class OQLParser implements OQLParserConstants
             if (true)
                 return new BigInteger(t.image.substring(2), 16).longValue();
         }
-        throw new RuntimeException("Missing return statement in function");
+        throw new Error("Missing return statement in function");
     }
 
     final public int ObjectId() throws ParseException
@@ -538,14 +641,23 @@ public class OQLParser implements OQLParserConstants
             if (true)
                 return Integer.parseInt(t.image);
         }
-        throw new RuntimeException("Missing return statement in function");
+        throw new Error("Missing return statement in function");
     }
 
     /* ---------------- where --------------------- */
     final public void WhereClause(Query q) throws ParseException
     {
         Object ex;
-        jj_consume_token(K_WHERE);
+        if (seeUnreservedKeyword("WHERE"))
+        {
+
+        }
+        else
+        {
+            jj_consume_token(-1);
+            throw new ParseException();
+        }
+        jj_consume_token(IDENTIFIER);
         ex = ConditionalOrExpression();
         q.setWhereClause((Expression) ex);
     }
@@ -563,7 +675,7 @@ public class OQLParser implements OQLParserConstants
 
                     break;
                 default:
-                    jj_la1[24] = jj_gen;
+                    jj_la1[16] = jj_gen;
                     break label_9;
             }
             jj_consume_token(OR);
@@ -583,7 +695,7 @@ public class OQLParser implements OQLParserConstants
             if (true)
                 return ex;
         }
-        throw new RuntimeException("Missing return statement in function");
+        throw new Error("Missing return statement in function");
     }
 
     final public Object ConditionalAndExpression() throws ParseException
@@ -599,7 +711,7 @@ public class OQLParser implements OQLParserConstants
 
                     break;
                 default:
-                    jj_la1[25] = jj_gen;
+                    jj_la1[17] = jj_gen;
                     break label_10;
             }
             jj_consume_token(AND);
@@ -619,7 +731,7 @@ public class OQLParser implements OQLParserConstants
             if (true)
                 return ex;
         }
-        throw new RuntimeException("Missing return statement in function");
+        throw new Error("Missing return statement in function");
     }
 
     final public Object EqualityExpression() throws ParseException
@@ -631,17 +743,17 @@ public class OQLParser implements OQLParserConstants
             switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
             {
                 case NE:
-                case 60:
+                case 49:
 
                     break;
                 default:
-                    jj_la1[26] = jj_gen;
+                    jj_la1[18] = jj_gen;
                     break label_11;
             }
             switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
             {
-                case 60:
-                    jj_consume_token(60);
+                case 49:
+                    jj_consume_token(49);
                     r = RelationalExpression();
                     ex = compiler.equal(ex, r);
                     break;
@@ -651,7 +763,7 @@ public class OQLParser implements OQLParserConstants
                     ex = compiler.notEqual(ex, r);
                     break;
                 default:
-                    jj_la1[27] = jj_gen;
+                    jj_la1[19] = jj_gen;
                     jj_consume_token(-1);
                     throw new ParseException();
             }
@@ -660,131 +772,128 @@ public class OQLParser implements OQLParserConstants
             if (true)
                 return ex;
         }
-        throw new RuntimeException("Missing return statement in function");
+        throw new Error("Missing return statement in function");
     }
 
     final public Object RelationalExpression() throws ParseException
     {
         Object ex, r;
         ex = SimpleExpression();
-        switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
+        if (jj_2_6(1))
         {
-            case K_IN:
-            case K_LIKE:
-            case K_NOT:
-            case IMPLEMENTS:
-            case LT:
-            case LE:
-            case GE:
-            case 61:
-                switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-                {
-                    case LT:
-                        jj_consume_token(LT);
-                        r = SimpleExpression();
-                        ex = compiler.lessThan(ex, r);
-                        break;
-                    case 61:
-                        jj_consume_token(61);
-                        r = SimpleExpression();
-                        ex = compiler.greaterThan(ex, r);
-                        break;
-                    case LE:
-                        jj_consume_token(LE);
-                        r = SimpleExpression();
-                        ex = compiler.lessThanOrEqual(ex, r);
-                        break;
-                    case GE:
-                        jj_consume_token(GE);
-                        r = SimpleExpression();
-                        ex = compiler.greaterThanOrEqual(ex, r);
-                        break;
-                    case K_IN:
-                    case K_LIKE:
-                    case K_NOT:
-                        if (jj_2_1(2))
+            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
+            {
+                case LT:
+                    jj_consume_token(LT);
+                    r = SimpleExpression();
+                    ex = compiler.lessThan(ex, r);
+                    break;
+                case 50:
+                    jj_consume_token(50);
+                    r = SimpleExpression();
+                    ex = compiler.greaterThan(ex, r);
+                    break;
+                case LE:
+                    jj_consume_token(LE);
+                    r = SimpleExpression();
+                    ex = compiler.lessThanOrEqual(ex, r);
+                    break;
+                case GE:
+                    jj_consume_token(GE);
+                    r = SimpleExpression();
+                    ex = compiler.greaterThanOrEqual(ex, r);
+                    break;
+                default:
+                    jj_la1[20] = jj_gen;
+                    if (seeUnreservedKeyword("LIKE"))
+                    {
+                        ex = LikeClause(ex, true);
+                    }
+                    else if (seeUnreservedKeyword("IN"))
+                    {
+                        ex = InClause(ex, true);
+                    }
+                    else if (seeUnreservedKeyword("NOT"))
+                    {
+                        ex = NotLikeInClause(ex);
+                    }
+                    else
+                    {
+                        switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
                         {
-                            ex = LikeClause(ex);
+                            case IMPLEMENTS:
+                                jj_consume_token(IMPLEMENTS);
+                                r = ClassName();
+                                ex = compiler.instanceOf(ex, (String) r);
+                                break;
+                            default:
+                                jj_la1[21] = jj_gen;
+                                jj_consume_token(-1);
+                                throw new ParseException();
                         }
-                        else
-                        {
-                            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-                            {
-                                case K_IN:
-                                case K_NOT:
-                                    ex = InClause(ex);
-                                    break;
-                                default:
-                                    jj_la1[28] = jj_gen;
-                                    jj_consume_token(-1);
-                                    throw new ParseException();
-                            }
-                        }
-                        break;
-                    case IMPLEMENTS:
-                        jj_consume_token(IMPLEMENTS);
-                        r = ClassName();
-                        ex = compiler.instanceOf(ex, (String) r);
-                        break;
-                    default:
-                        jj_la1[29] = jj_gen;
-                        jj_consume_token(-1);
-                        throw new ParseException();
-                }
-                break;
-            default:
-                jj_la1[30] = jj_gen;
+                    }
+            }
+        }
+        else
+        {
 
         }
         {
             if (true)
                 return ex;
         }
-        throw new RuntimeException("Missing return statement in function");
+        throw new Error("Missing return statement in function");
     }
 
-    final public Object LikeClause(Object left) throws ParseException
+    // only identifer (see [2]
+    // http://www.engr.mun.ca/~theo/JavaCC-FAQ/javacc-faq-moz.htm#keywords)
+    final public Object NotLikeInClause(Object left) throws ParseException
     {
-        Token t1 = null, t2 = null;
-        switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
+        Object ex;
+        jj_consume_token(IDENTIFIER);
+        if (seeUnreservedKeyword("LIKE"))
         {
-            case K_NOT:
-                t1 = jj_consume_token(K_NOT);
-                break;
-            default:
-                jj_la1[31] = jj_gen;
-
+            ex = LikeClause(left, false);
         }
-        jj_consume_token(K_LIKE);
-        t2 = jj_consume_token(STRING_LITERAL);
-        String pattern = t2.image.substring(1, t2.image.length() - 1);
+        else if (seeUnreservedKeyword("IN"))
+        {
+            ex = InClause(left, false);
+        }
+        else
+        {
+            jj_consume_token(-1);
+            throw new ParseException();
+        }
         {
             if (true)
-                return t1 == null ? compiler.like(left, pattern) : compiler.notLike(left, pattern);
+                return ex;
         }
-        throw new RuntimeException("Missing return statement in function");
+        throw new Error("Missing return statement in function");
     }
 
-    final public Object InClause(Object left) throws ParseException
+    final public Object LikeClause(Object left, boolean isLike) throws ParseException
+    {
+        Token t1 = null;
+        jj_consume_token(IDENTIFIER);
+        t1 = jj_consume_token(STRING_LITERAL);
+        String pattern = t1.image.substring(1, t1.image.length() - 1);
+        {
+            if (true)
+                return isLike ? compiler.like(left, pattern) : compiler.notLike(left, pattern);
+        }
+        throw new Error("Missing return statement in function");
+    }
+
+    final public Object InClause(Object left, boolean isIn) throws ParseException
     {
         Object r;
-        Token t = null;
-        switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-        {
-            case K_NOT:
-                t = jj_consume_token(K_NOT);
-                break;
-            default:
-                jj_la1[32] = jj_gen;
-
-        }
-        jj_consume_token(K_IN);
+        jj_consume_token(IDENTIFIER);
         r = SimpleExpression();
         {
             if (true)
-                return t == null ? compiler.in(left, r) : compiler.notIn(left, r);
+                return isIn ? compiler.in(left, r) : compiler.notIn(left, r);
         }
-        throw new RuntimeException("Missing return statement in function");
+        throw new Error("Missing return statement in function");
     }
 
     final public Object SimpleExpression() throws ParseException
@@ -795,28 +904,28 @@ public class OQLParser implements OQLParserConstants
         {
             switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
             {
-                case 62:
-                case 63:
+                case 51:
+                case 52:
 
                     break;
                 default:
-                    jj_la1[33] = jj_gen;
+                    jj_la1[22] = jj_gen;
                     break label_12;
             }
             switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
             {
-                case 62:
-                    jj_consume_token(62);
+                case 51:
+                    jj_consume_token(51);
                     r = MultiplicativeExpression();
                     ex = compiler.plus(ex, r);
                     break;
-                case 63:
-                    jj_consume_token(63);
+                case 52:
+                    jj_consume_token(52);
                     r = MultiplicativeExpression();
                     ex = compiler.minus(ex, r);
                     break;
                 default:
-                    jj_la1[34] = jj_gen;
+                    jj_la1[23] = jj_gen;
                     jj_consume_token(-1);
                     throw new ParseException();
             }
@@ -825,7 +934,7 @@ public class OQLParser implements OQLParserConstants
             if (true)
                 return ex;
         }
-        throw new RuntimeException("Missing return statement in function");
+        throw new Error("Missing return statement in function");
     }
 
     final public Object MultiplicativeExpression() throws ParseException
@@ -836,28 +945,28 @@ public class OQLParser implements OQLParserConstants
         {
             switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
             {
+                case 40:
                 case 53:
-                case 64:
 
                     break;
                 default:
-                    jj_la1[35] = jj_gen;
+                    jj_la1[24] = jj_gen;
                     break label_13;
             }
             switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
             {
-                case 53:
-                    jj_consume_token(53);
+                case 40:
+                    jj_consume_token(40);
                     r = PrimaryExpression();
                     ex = compiler.multiply(ex, r);
                     break;
-                case 64:
-                    jj_consume_token(64);
+                case 53:
+                    jj_consume_token(53);
                     r = PrimaryExpression();
                     ex = compiler.divide(ex, r);
                     break;
                 default:
-                    jj_la1[36] = jj_gen;
+                    jj_la1[25] = jj_gen;
                     jj_consume_token(-1);
                     throw new ParseException();
             }
@@ -866,7 +975,7 @@ public class OQLParser implements OQLParserConstants
             if (true)
                 return ex;
         }
-        throw new RuntimeException("Missing return statement in function");
+        throw new Error("Missing return statement in function");
     }
 
     final public Object PrimaryExpression() throws ParseException
@@ -882,50 +991,54 @@ public class OQLParser implements OQLParserConstants
             case TRUE:
             case FALSE:
             case NULL:
-            case 62:
-            case 63:
+            case 51:
+            case 52:
                 ex = Literal();
                 {
                     if (true)
                         return ex;
                 }
                 break;
-            case 57:
-                jj_consume_token(57);
-                switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
+            case 46:
+                jj_consume_token(46);
+                if (seeUnreservedKeyword("SELECT"))
                 {
-                    case INTEGER_LITERAL:
-                    case LONG_LITERAL:
-                    case FLOATING_POINT_LITERAL:
-                    case CHARACTER_LITERAL:
-                    case STRING_LITERAL:
-                    case TRUE:
-                    case FALSE:
-                    case NULL:
-                    case DOLLAR_SIGN:
-                    case IDENTIFIER:
-                    case 56:
-                    case 57:
-                    case 62:
-                    case 63:
-                        ex = ConditionalOrExpression();
-                        break;
-                    case K_SELECT:
-                        ex = SubQuery();
-                        break;
-                    default:
-                        jj_la1[37] = jj_gen;
-                        jj_consume_token(-1);
-                        throw new ParseException();
+                    ex = SubQuery();
                 }
-                jj_consume_token(58);
+                else
+                {
+                    switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
+                    {
+                        case INTEGER_LITERAL:
+                        case LONG_LITERAL:
+                        case FLOATING_POINT_LITERAL:
+                        case CHARACTER_LITERAL:
+                        case STRING_LITERAL:
+                        case TRUE:
+                        case FALSE:
+                        case NULL:
+                        case DOLLAR_SIGN:
+                        case IDENTIFIER:
+                        case 45:
+                        case 46:
+                        case 51:
+                        case 52:
+                            ex = ConditionalOrExpression();
+                            break;
+                        default:
+                            jj_la1[26] = jj_gen;
+                            jj_consume_token(-1);
+                            throw new ParseException();
+                    }
+                }
+                jj_consume_token(47);
                 {
                     if (true)
                         return ex;
                 }
                 break;
             case IDENTIFIER:
-            case 56:
+            case 45:
                 ex = PathExpression();
                 {
                     if (true)
@@ -940,11 +1053,11 @@ public class OQLParser implements OQLParserConstants
                 }
                 break;
             default:
-                jj_la1[38] = jj_gen;
+                jj_la1[27] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
-        throw new RuntimeException("Missing return statement in function");
+        throw new Error("Missing return statement in function");
     }
 
     final public Object SubQuery() throws ParseException
@@ -955,7 +1068,7 @@ public class OQLParser implements OQLParserConstants
             if (true)
                 return compiler.subQuery(q);
         }
-        throw new RuntimeException("Missing return statement in function");
+        throw new Error("Missing return statement in function");
     }
 
     final public Object Literal() throws ParseException
@@ -967,8 +1080,8 @@ public class OQLParser implements OQLParserConstants
             case INTEGER_LITERAL:
             case LONG_LITERAL:
             case FLOATING_POINT_LITERAL:
-            case 62:
-            case 63:
+            case 51:
+            case 52:
                 ex = NumberLiteral();
                 break;
             case CHARACTER_LITERAL:
@@ -987,7 +1100,7 @@ public class OQLParser implements OQLParserConstants
                 ex = NullLiteral();
                 break;
             default:
-                jj_la1[39] = jj_gen;
+                jj_la1[28] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -995,7 +1108,7 @@ public class OQLParser implements OQLParserConstants
             if (true)
                 return ex;
         }
-        throw new RuntimeException("Missing return statement in function");
+        throw new Error("Missing return statement in function");
     }
 
     final public Object NumberLiteral() throws ParseException
@@ -1004,24 +1117,24 @@ public class OQLParser implements OQLParserConstants
         Token t, unary = null;
         switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
         {
-            case 62:
-            case 63:
+            case 51:
+            case 52:
                 switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
                 {
-                    case 62:
-                        unary = jj_consume_token(62);
+                    case 51:
+                        unary = jj_consume_token(51);
                         break;
-                    case 63:
-                        unary = jj_consume_token(63);
+                    case 52:
+                        unary = jj_consume_token(52);
                         break;
                     default:
-                        jj_la1[40] = jj_gen;
+                        jj_la1[29] = jj_gen;
                         jj_consume_token(-1);
                         throw new ParseException();
                 }
                 break;
             default:
-                jj_la1[41] = jj_gen;
+                jj_la1[30] = jj_gen;
 
         }
         switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
@@ -1051,7 +1164,7 @@ public class OQLParser implements OQLParserConstants
                 ex = compiler.literal(aFloat);
                 break;
             default:
-                jj_la1[42] = jj_gen;
+                jj_la1[31] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -1059,7 +1172,7 @@ public class OQLParser implements OQLParserConstants
             if (true)
                 return ex;
         }
-        throw new RuntimeException("Missing return statement in function");
+        throw new Error("Missing return statement in function");
     }
 
     final public Object BooleanLiteral() throws ParseException
@@ -1081,11 +1194,11 @@ public class OQLParser implements OQLParserConstants
                 }
                 break;
             default:
-                jj_la1[43] = jj_gen;
+                jj_la1[32] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
-        throw new RuntimeException("Missing return statement in function");
+        throw new Error("Missing return statement in function");
     }
 
     final public Object NullLiteral() throws ParseException
@@ -1095,7 +1208,7 @@ public class OQLParser implements OQLParserConstants
             if (true)
                 return compiler.nullLiteral();
         }
-        throw new RuntimeException("Missing return statement in function");
+        throw new Error("Missing return statement in function");
     }
 
     /* ---------------- union --------------------- */
@@ -1104,24 +1217,23 @@ public class OQLParser implements OQLParserConstants
         Query unionQuery = null;
         label_14: while (true)
         {
-            jj_consume_token(K_UNION);
-            jj_consume_token(57);
+            jj_consume_token(IDENTIFIER);
+            jj_consume_token(46);
             unionQuery = SelectStatement();
-            jj_consume_token(58);
+            jj_consume_token(47);
             q.addUnionQuery(unionQuery);
-            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
+            if (seeUnreservedKeyword("UNION"))
             {
-                case K_UNION:
 
-                    break;
-                default:
-                    jj_la1[44] = jj_gen;
-                    break label_14;
+            }
+            else
+            {
+                break label_14;
             }
         }
     }
 
-    final private boolean jj_2_1(int xla)
+    private boolean jj_2_1(int xla)
     {
         jj_la = xla;
         jj_lastpos = jj_scanpos = token;
@@ -1139,80 +1251,369 @@ public class OQLParser implements OQLParserConstants
         }
     }
 
-    final private boolean jj_3R_15()
+    private boolean jj_2_2(int xla)
     {
-        Token xsp;
-        xsp = jj_scanpos;
-        if (jj_scan_token(21))
-            jj_scanpos = xsp;
-        if (jj_scan_token(K_LIKE))
+        jj_la = xla;
+        jj_lastpos = jj_scanpos = token;
+        try
+        {
+            return !jj_3_2();
+        }
+        catch (LookaheadSuccess ls)
+        {
             return true;
-        if (jj_scan_token(STRING_LITERAL))
+        }
+        finally
+        {
+            jj_save(1, xla);
+        }
+    }
+
+    private boolean jj_2_3(int xla)
+    {
+        jj_la = xla;
+        jj_lastpos = jj_scanpos = token;
+        try
+        {
+            return !jj_3_3();
+        }
+        catch (LookaheadSuccess ls)
+        {
+            return true;
+        }
+        finally
+        {
+            jj_save(2, xla);
+        }
+    }
+
+    private boolean jj_2_4(int xla)
+    {
+        jj_la = xla;
+        jj_lastpos = jj_scanpos = token;
+        try
+        {
+            return !jj_3_4();
+        }
+        catch (LookaheadSuccess ls)
+        {
+            return true;
+        }
+        finally
+        {
+            jj_save(3, xla);
+        }
+    }
+
+    private boolean jj_2_5(int xla)
+    {
+        jj_la = xla;
+        jj_lastpos = jj_scanpos = token;
+        try
+        {
+            return !jj_3_5();
+        }
+        catch (LookaheadSuccess ls)
+        {
+            return true;
+        }
+        finally
+        {
+            jj_save(4, xla);
+        }
+    }
+
+    private boolean jj_2_6(int xla)
+    {
+        jj_la = xla;
+        jj_lastpos = jj_scanpos = token;
+        try
+        {
+            return !jj_3_6();
+        }
+        catch (LookaheadSuccess ls)
+        {
+            return true;
+        }
+        finally
+        {
+            jj_save(5, xla);
+        }
+    }
+
+    private boolean jj_3R_28()
+    {
+        if (jj_scan_token(IDENTIFIER))
             return true;
         return false;
     }
 
-    final private boolean jj_3_1()
+    private boolean jj_3R_26()
+    {
+        if (jj_scan_token(IMPLEMENTS))
+            return true;
+        return false;
+    }
+
+    private boolean jj_3R_15()
+    {
+        jj_lookingAhead = true;
+        jj_semLA = seeUnreservedKeyword("WHERE");
+        jj_lookingAhead = false;
+        if (!jj_semLA || jj_3R_27())
+            return true;
+        if (jj_scan_token(IDENTIFIER))
+            return true;
+        return false;
+    }
+
+    private boolean jj_3R_25()
+    {
+        if (jj_3R_31())
+            return true;
+        return false;
+    }
+
+    private boolean jj_3R_24()
+    {
+        if (jj_3R_30())
+            return true;
+        return false;
+    }
+
+    private boolean jj_3_2()
+    {
+        if (jj_3R_16())
+            return true;
+        return false;
+    }
+
+    private boolean jj_3R_23()
+    {
+        if (jj_3R_29())
+            return true;
+        return false;
+    }
+
+    private boolean jj_3R_31()
+    {
+        if (jj_scan_token(IDENTIFIER))
+            return true;
+        return false;
+    }
+
+    private boolean jj_3_1()
     {
         if (jj_3R_15())
             return true;
         return false;
     }
 
+    private boolean jj_3R_22()
+    {
+        if (jj_scan_token(GE))
+            return true;
+        return false;
+    }
+
+    private boolean jj_3R_16()
+    {
+        Token xsp;
+        if (jj_3R_28())
+            return true;
+        while (true)
+        {
+            xsp = jj_scanpos;
+            if (jj_3R_28())
+            {
+                jj_scanpos = xsp;
+                break;
+            }
+        }
+        return false;
+    }
+
+    private boolean jj_3R_21()
+    {
+        if (jj_scan_token(LE))
+            return true;
+        return false;
+    }
+
+    private boolean jj_3R_20()
+    {
+        if (jj_scan_token(50))
+            return true;
+        return false;
+    }
+
+    private boolean jj_3R_19()
+    {
+        if (jj_scan_token(LT))
+            return true;
+        return false;
+    }
+
+    private boolean jj_3_4()
+    {
+        if (jj_scan_token(46))
+            return true;
+        return false;
+    }
+
+    private boolean jj_3R_18()
+    {
+        if (jj_scan_token(IDENTIFIER))
+            return true;
+        return false;
+    }
+
+    private boolean jj_3_5()
+    {
+        if (jj_scan_token(INSTANCEOF))
+            return true;
+        return false;
+    }
+
+    private boolean jj_3R_30()
+    {
+        if (jj_scan_token(IDENTIFIER))
+            return true;
+        return false;
+    }
+
+    private boolean jj_3_3()
+    {
+        Token xsp;
+        xsp = jj_scanpos;
+        jj_lookingAhead = true;
+        jj_semLA = seeUnreservedKeyword("DISTINCT");
+        jj_lookingAhead = false;
+        if (!jj_semLA || jj_3R_17())
+        {
+            jj_scanpos = xsp;
+            jj_lookingAhead = true;
+            jj_semLA = seeUnreservedKeyword("AS", "RETAINED", "SET");
+            jj_lookingAhead = false;
+            if (!jj_semLA || jj_3R_18())
+                return true;
+        }
+        return false;
+    }
+
+    private boolean jj_3R_17()
+    {
+        if (jj_scan_token(IDENTIFIER))
+            return true;
+        return false;
+    }
+
+    private boolean jj_3R_29()
+    {
+        if (jj_scan_token(IDENTIFIER))
+            return true;
+        return false;
+    }
+
+    private boolean jj_3R_27()
+    {
+        return false;
+    }
+
+    private boolean jj_3_6()
+    {
+        Token xsp;
+        xsp = jj_scanpos;
+        if (jj_3R_19())
+        {
+            jj_scanpos = xsp;
+            if (jj_3R_20())
+            {
+                jj_scanpos = xsp;
+                if (jj_3R_21())
+                {
+                    jj_scanpos = xsp;
+                    if (jj_3R_22())
+                    {
+                        jj_scanpos = xsp;
+                        jj_lookingAhead = true;
+                        jj_semLA = seeUnreservedKeyword("LIKE");
+                        jj_lookingAhead = false;
+                        if (!jj_semLA || jj_3R_23())
+                        {
+                            jj_scanpos = xsp;
+                            jj_lookingAhead = true;
+                            jj_semLA = seeUnreservedKeyword("IN");
+                            jj_lookingAhead = false;
+                            if (!jj_semLA || jj_3R_24())
+                            {
+                                jj_scanpos = xsp;
+                                jj_lookingAhead = true;
+                                jj_semLA = seeUnreservedKeyword("NOT");
+                                jj_lookingAhead = false;
+                                if (!jj_semLA || jj_3R_25())
+                                {
+                                    jj_scanpos = xsp;
+                                    if (jj_3R_26())
+                                        return true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    /** Generated Token Manager. */
     public OQLParserTokenManager token_source;
     SimpleCharStream jj_input_stream;
-    public Token token, jj_nt;
+    /** Current token. */
+    public Token token;
+    /** Next token. */
+    public Token jj_nt;
     private int jj_ntk;
     private Token jj_scanpos, jj_lastpos;
     private int jj_la;
-    public boolean lookingAhead = false;
-    @SuppressWarnings("unused")
+    /** Whether we are looking ahead. */
+    private boolean jj_lookingAhead = false;
     private boolean jj_semLA;
     private int jj_gen;
-    final private int[] jj_la1 = new int[45];
+    final private int[] jj_la1 = new int[33];
     static private int[] jj_la1_0;
     static private int[] jj_la1_1;
-    static private int[] jj_la1_2;
     static
     {
-        jj_la1_0();
-        jj_la1_1();
-        jj_la1_2();
+        jj_la1_init_0();
+        jj_la1_init_1();
     }
 
-    private static void jj_la1_0()
+    private static void jj_la1_init_0()
     {
-        jj_la1_0 = new int[] { 0x4000000, 0x2000000, 0x14000, 0x14000, 0x0, 0x400000, 0x0, 0x0, 0x2000, 0x0, 0x0, 0x0,
-                        0x0, 0x0, 0x18000000, 0x400000, 0x40000, 0x48000000, 0x0, 0x0, 0x0, 0x48000000, 0x0, 0x0, 0x0,
-                        0x0, 0x0, 0x0, 0x220000, 0x320000, 0x320000, 0x200000, 0x200000, 0x0, 0x0, 0x0, 0x0,
-                        0x19000000, 0x18000000, 0x18000000, 0x0, 0x0, 0x18000000, 0x0, 0x2000000, };
+        jj_la1_0 = new int[] { 0x0, 0x0, 0x60000000, 0x60000000, 0x40200000, 0x0, 0x0, 0x0, 0x0, 0x69b46000,
+                        0x60212000, 0x0, 0x0, 0x60212000, 0x0, 0x0, 0x2000000, 0x4000000, 0x0, 0x0, 0x0, 0x10000000,
+                        0x0, 0x0, 0x0, 0x0, 0x69b46000, 0x69b46000, 0x9b46000, 0x0, 0x0, 0x46000, 0x1800000, };
     }
 
-    private static void jj_la1_1()
+    private static void jj_la1_init_1()
     {
-        jj_la1_1 = new int[] { 0x0, 0x0, 0x0, 0x0, 0x400000, 0x1200c00, 0x1000c00, 0x808, 0x0, 0x800000, 0x800000,
-                        0x1000000, 0x2000000, 0x400000, 0xc3000d3d, 0x0, 0x0, 0x2000c08, 0x800, 0x400000, 0x400000,
-                        0xc08, 0x800000, 0x8000000, 0x40, 0x80, 0x10080000, 0x10080000, 0x0, 0x20064200, 0x20064200,
-                        0x0, 0x0, 0xc0000000, 0xc0000000, 0x200000, 0x200000, 0xc3000d3d, 0xc3000d3d, 0xc000013d,
-                        0xc0000000, 0xc0000000, 0x1, 0x30, 0x0, };
+        jj_la1_1 = new int[] { 0x200, 0x100, 0x2000, 0x2000, 0x0, 0x400, 0x400, 0x2000, 0x200, 0x186000, 0x4000, 0x200,
+                        0x200, 0x0, 0x400, 0x10000, 0x0, 0x0, 0x20040, 0x20040, 0x40032, 0x0, 0x180000, 0x180000,
+                        0x200100, 0x200100, 0x186000, 0x186000, 0x180000, 0x180000, 0x180000, 0x0, 0x0, };
     }
 
-    private static void jj_la1_2()
-    {
-        jj_la1_2 = new int[] { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-                        0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1,
-                        0x1, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, };
-    }
-
-    final private JJCalls[] jj_2_rtns = new JJCalls[1];
+    final private JJCalls[] jj_2_rtns = new JJCalls[6];
     private boolean jj_rescan = false;
     private int jj_gc = 0;
 
+    /** Constructor with InputStream. */
     public OQLParser(java.io.InputStream stream)
     {
         this(stream, null);
     }
 
+    /** Constructor with InputStream and supplied encoding */
     public OQLParser(java.io.InputStream stream, String encoding)
     {
         try
@@ -1227,17 +1628,19 @@ public class OQLParser implements OQLParserConstants
         token = new Token();
         jj_ntk = -1;
         jj_gen = 0;
-        for (int i = 0; i < 45; i++)
+        for (int i = 0; i < 33; i++)
             jj_la1[i] = -1;
         for (int i = 0; i < jj_2_rtns.length; i++)
             jj_2_rtns[i] = new JJCalls();
     }
 
+    /** Reinitialise. */
     public void ReInit(java.io.InputStream stream)
     {
         ReInit(stream, null);
     }
 
+    /** Reinitialise. */
     public void ReInit(java.io.InputStream stream, String encoding)
     {
         try
@@ -1252,12 +1655,13 @@ public class OQLParser implements OQLParserConstants
         token = new Token();
         jj_ntk = -1;
         jj_gen = 0;
-        for (int i = 0; i < 45; i++)
+        for (int i = 0; i < 33; i++)
             jj_la1[i] = -1;
         for (int i = 0; i < jj_2_rtns.length; i++)
             jj_2_rtns[i] = new JJCalls();
     }
 
+    /** Constructor. */
     public OQLParser(java.io.Reader stream)
     {
         jj_input_stream = new SimpleCharStream(stream, 1, 1);
@@ -1265,12 +1669,13 @@ public class OQLParser implements OQLParserConstants
         token = new Token();
         jj_ntk = -1;
         jj_gen = 0;
-        for (int i = 0; i < 45; i++)
+        for (int i = 0; i < 33; i++)
             jj_la1[i] = -1;
         for (int i = 0; i < jj_2_rtns.length; i++)
             jj_2_rtns[i] = new JJCalls();
     }
 
+    /** Reinitialise. */
     public void ReInit(java.io.Reader stream)
     {
         jj_input_stream.ReInit(stream, 1, 1);
@@ -1278,37 +1683,39 @@ public class OQLParser implements OQLParserConstants
         token = new Token();
         jj_ntk = -1;
         jj_gen = 0;
-        for (int i = 0; i < 45; i++)
+        for (int i = 0; i < 33; i++)
             jj_la1[i] = -1;
         for (int i = 0; i < jj_2_rtns.length; i++)
             jj_2_rtns[i] = new JJCalls();
     }
 
+    /** Constructor with generated Token Manager. */
     public OQLParser(OQLParserTokenManager tm)
     {
         token_source = tm;
         token = new Token();
         jj_ntk = -1;
         jj_gen = 0;
-        for (int i = 0; i < 45; i++)
+        for (int i = 0; i < 33; i++)
             jj_la1[i] = -1;
         for (int i = 0; i < jj_2_rtns.length; i++)
             jj_2_rtns[i] = new JJCalls();
     }
 
+    /** Reinitialise. */
     public void ReInit(OQLParserTokenManager tm)
     {
         token_source = tm;
         token = new Token();
         jj_ntk = -1;
         jj_gen = 0;
-        for (int i = 0; i < 45; i++)
+        for (int i = 0; i < 33; i++)
             jj_la1[i] = -1;
         for (int i = 0; i < jj_2_rtns.length; i++)
             jj_2_rtns[i] = new JJCalls();
     }
 
-    final private Token jj_consume_token(int kind) throws ParseException
+    private Token jj_consume_token(int kind) throws ParseException
     {
         Token oldToken;
         if ((oldToken = token).next != null)
@@ -1341,12 +1748,12 @@ public class OQLParser implements OQLParserConstants
     }
 
     @SuppressWarnings("serial")
-    static private final class LookaheadSuccess extends java.lang.RuntimeException
+    static private final class LookaheadSuccess extends java.lang.Error
     {}
 
     final private LookaheadSuccess jj_ls = new LookaheadSuccess();
 
-    final private boolean jj_scan_token(int kind)
+    private boolean jj_scan_token(int kind)
     {
         if (jj_scanpos == jj_lastpos)
         {
@@ -1383,6 +1790,7 @@ public class OQLParser implements OQLParserConstants
         return false;
     }
 
+    /** Get the next Token. */
     final public Token getNextToken()
     {
         if (token.next != null)
@@ -1394,9 +1802,10 @@ public class OQLParser implements OQLParserConstants
         return token;
     }
 
+    /** Get the specific Token. */
     final public Token getToken(int index)
     {
-        Token t = lookingAhead ? jj_scanpos : token;
+        Token t = jj_lookingAhead ? jj_scanpos : token;
         for (int i = 0; i < index; i++)
         {
             if (t.next != null)
@@ -1407,7 +1816,7 @@ public class OQLParser implements OQLParserConstants
         return t;
     }
 
-    final private int jj_ntk()
+    private int jj_ntk()
     {
         if ((jj_nt = token.next) == null)
             return (jj_ntk = (token.next = token_source.getNextToken()).kind);
@@ -1416,7 +1825,7 @@ public class OQLParser implements OQLParserConstants
     }
 
     @SuppressWarnings("unchecked")
-    private java.util.Vector jj_expentries = new java.util.Vector();
+    private java.util.List jj_expentries = new java.util.ArrayList();
     private int[] jj_expentry;
     private int jj_kind = -1;
     private int[] jj_lasttokens = new int[100];
@@ -1438,43 +1847,39 @@ public class OQLParser implements OQLParserConstants
             {
                 jj_expentry[i] = jj_lasttokens[i];
             }
-            boolean exists = false;
-            for (java.util.Enumeration e = jj_expentries.elements(); e.hasMoreElements();)
+            jj_entries_loop: for (java.util.Iterator it = jj_expentries.iterator(); it.hasNext();)
             {
-                int[] oldentry = (int[]) (e.nextElement());
+                int[] oldentry = (int[]) (it.next());
                 if (oldentry.length == jj_expentry.length)
                 {
-                    exists = true;
                     for (int i = 0; i < jj_expentry.length; i++)
                     {
                         if (oldentry[i] != jj_expentry[i])
                         {
-                            exists = false;
-                            break;
+                            continue jj_entries_loop;
                         }
                     }
-                    if (exists)
-                        break;
+                    jj_expentries.add(jj_expentry);
+                    break jj_entries_loop;
                 }
             }
-            if (!exists)
-                jj_expentries.addElement(jj_expentry);
             if (pos != 0)
                 jj_lasttokens[(jj_endpos = pos) - 1] = kind;
         }
     }
 
+    /** Generate ParseException. */
     @SuppressWarnings("unchecked")
     public ParseException generateParseException()
     {
-        jj_expentries.removeAllElements();
-        boolean[] la1tokens = new boolean[65];
+        jj_expentries.clear();
+        boolean[] la1tokens = new boolean[54];
         if (jj_kind >= 0)
         {
             la1tokens[jj_kind] = true;
             jj_kind = -1;
         }
-        for (int i = 0; i < 45; i++)
+        for (int i = 0; i < 33; i++)
         {
             if (jj_la1[i] == jj_gen)
             {
@@ -1488,20 +1893,16 @@ public class OQLParser implements OQLParserConstants
                     {
                         la1tokens[32 + j] = true;
                     }
-                    if ((jj_la1_2[i] & (1 << j)) != 0)
-                    {
-                        la1tokens[64 + j] = true;
-                    }
                 }
             }
         }
-        for (int i = 0; i < 65; i++)
+        for (int i = 0; i < 54; i++)
         {
             if (la1tokens[i])
             {
                 jj_expentry = new int[1];
                 jj_expentry[0] = i;
-                jj_expentries.addElement(jj_expentry);
+                jj_expentries.add(jj_expentry);
             }
         }
         jj_endpos = 0;
@@ -1510,21 +1911,23 @@ public class OQLParser implements OQLParserConstants
         int[][] exptokseq = new int[jj_expentries.size()][];
         for (int i = 0; i < jj_expentries.size(); i++)
         {
-            exptokseq[i] = (int[]) jj_expentries.elementAt(i);
+            exptokseq[i] = (int[]) jj_expentries.get(i);
         }
         return new ParseException(token, exptokseq, tokenImage);
     }
 
+    /** Enable tracing. */
     final public void enable_tracing()
     {}
 
+    /** Disable tracing. */
     final public void disable_tracing()
     {}
 
-    final private void jj_rescan_token()
+    private void jj_rescan_token()
     {
         jj_rescan = true;
-        for (int i = 0; i < 1; i++)
+        for (int i = 0; i < 6; i++)
         {
             try
             {
@@ -1540,6 +1943,21 @@ public class OQLParser implements OQLParserConstants
                             case 0:
                                 jj_3_1();
                                 break;
+                            case 1:
+                                jj_3_2();
+                                break;
+                            case 2:
+                                jj_3_3();
+                                break;
+                            case 3:
+                                jj_3_4();
+                                break;
+                            case 4:
+                                jj_3_5();
+                                break;
+                            case 5:
+                                jj_3_6();
+                                break;
                         }
                     }
                     p = p.next;
@@ -1547,15 +1965,12 @@ public class OQLParser implements OQLParserConstants
                 while (p != null);
             }
             catch (LookaheadSuccess ls)
-            {
-                // $JL-EXC$
-                // javacc generated code
-            }
+            {}
         }
         jj_rescan = false;
     }
 
-    final private void jj_save(int index, int xla)
+    private void jj_save(int index, int xla)
     {
         JJCalls p = jj_2_rtns[index];
         while (p.gen > jj_gen)
@@ -1580,15 +1995,4 @@ public class OQLParser implements OQLParserConstants
         JJCalls next;
     }
 
-    // public static void main( String args[] ) throws ParseException
-    // {
-    // System.out.println("Reading from stdin");
-    // OQLParser p = new OQLParser(System.in);
-    // p.setCompiler(new
-    // org.eclipse.mat.internal.snapshot.oql.compiler.CompilerImpl());
-    // Query q = p.ParseQueryFromInputLine();
-    // System.out.println(q);
-    //        
-    // System.out.println("Parse Successfull") ;
-    // }
 }

@@ -14,13 +14,12 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
-import org.eclipse.mat.tests.collect.CompressedArraysTest;
-import org.eclipse.mat.tests.collect.PrimitiveArrayTests;
-import org.eclipse.mat.tests.collect.PrimitiveMapTests;
-import org.eclipse.mat.tests.snapshot.DominatorTreeTest;
-
 @RunWith(Suite.class)
-@SuiteClasses( { CompressedArraysTest.class, PrimitiveArrayTests.class, PrimitiveMapTests.class, DominatorTreeTest.class })
+@SuiteClasses( { org.eclipse.mat.tests.collect.CompressedArraysTest.class, //
+                org.eclipse.mat.tests.collect.PrimitiveArrayTests.class, //
+                org.eclipse.mat.tests.collect.PrimitiveMapTests.class, //
+                org.eclipse.mat.tests.snapshot.DominatorTreeTest.class, //
+                org.eclipse.mat.tests.snapshot.OQLTest.class })
 public class AllTests
 {
 

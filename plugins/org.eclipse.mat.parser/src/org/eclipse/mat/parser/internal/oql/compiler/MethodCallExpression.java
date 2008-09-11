@@ -19,9 +19,9 @@ import java.util.regex.Pattern;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.parser.internal.oql.compiler.CompilerImpl.ConstantExpression;
+import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.util.PatternUtil;
 import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
-
 
 class MethodCallExpression extends Expression
 {
@@ -49,6 +49,13 @@ class MethodCallExpression extends Expression
         for (int ii = 0; ii < arguments.length; ii++)
             arguments[ii] = parameters.get(ii).compute(ctx);
 
+        // special handling for #toString() and IObjects
+        if (subject instanceof IObject && "toString".equals(this.name) && parameters.isEmpty())
+        {
+            String name = ((IObject) subject).getClassSpecificName();
+            return name != null ? name : ((IObject) subject).getTechnicalName();
+        }
+
         // find appropriate method
         Method[] methods = subject.getClass().getMethods();
         for (int ii = 0; ii < methods.length; ii++)
@@ -68,7 +75,8 @@ class MethodCallExpression extends Expression
                         {
                             // we do some special magic here...
                             if (parameterTypes[jj].isAssignableFrom(Pattern.class))
-                                arguments[jj] = Pattern.compile(PatternUtil.smartFix(String.valueOf(arguments[jj]), false));
+                                arguments[jj] = Pattern.compile(PatternUtil.smartFix(String.valueOf(arguments[jj]),
+                                                false));
                         }
                     }
 
