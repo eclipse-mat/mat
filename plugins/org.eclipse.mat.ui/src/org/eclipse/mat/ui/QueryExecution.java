@@ -217,7 +217,7 @@ public class QueryExecution
     private static void doDisplayResult(MultiPaneEditor editor, PaneState originator, PaneState stateToReopen,
                     QueryResult result, boolean isReproducable)
     {
-        if (result.isComposite())
+        if (result.getSubject() instanceof CompositeResult)
         {
             List<CompositeResult.Entry> results = ((CompositeResult) result.getSubject()).getResultEntries();
 

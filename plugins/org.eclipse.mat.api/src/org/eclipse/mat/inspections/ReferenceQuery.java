@@ -14,7 +14,9 @@ import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.regex.Pattern;
 
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
+import org.eclipse.mat.collect.SetInt;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.results.CompositeResult;
 import org.eclipse.mat.snapshot.Histogram;
@@ -24,17 +26,16 @@ import org.eclipse.mat.snapshot.model.IInstance;
 import org.eclipse.mat.snapshot.model.ObjectReference;
 import org.eclipse.mat.util.IProgressListener;
 
-
 public class ReferenceQuery
 {
 
-    public static IResult execute(String label, String className, ISnapshot snapshot, IProgressListener listener)
-                    throws Exception
+    public static IResult execute(String adverb, String className, ISnapshot snapshot,
+                    IProgressListener listener) throws SnapshotException
     {
         listener.subTask("Computing Referent Set (objects referenced by the Reference objects)...");
 
         ArrayInt instanceSet = new ArrayInt();
-        ArrayInt referentSet = new ArrayInt();
+        SetInt referentSet = new SetInt();
 
         Collection<IClass> classes = snapshot.getClassesByName(Pattern.compile(className), true);
         for (IClass clazz : classes)
@@ -55,14 +56,21 @@ public class ReferenceQuery
                 throw new IProgressListener.OperationCanceledException();
         }
 
+        return execute(adverb, instanceSet, referentSet, snapshot, listener);
+    }
+
+    public static CompositeResult execute(String adverb, ArrayInt instanceSet, SetInt referentSet,
+                    ISnapshot snapshot, IProgressListener listener) throws SnapshotException
+    {
         CompositeResult result = new CompositeResult();
 
         Histogram histogram = snapshot.getHistogram(referentSet.toArray(), listener);
         if (listener.isCanceled())
             throw new IProgressListener.OperationCanceledException();
-        
-        histogram.setLabel(MessageFormat.format("{0}: Referents", label));
-        result.addResult(histogram);
+
+        String l = MessageFormat.format("Histogram of {0} Referenced", adverb);
+        histogram.setLabel(l);
+        result.addResult(l, histogram);
 
         listener.subTask("Computing retained set of reference set (assuming only the "
                         + "referents are no longer referenced by the Reference objects)...");
@@ -72,8 +80,10 @@ public class ReferenceQuery
         histogram = snapshot.getHistogram(retainedSet, listener);
         if (listener.isCanceled())
             throw new IProgressListener.OperationCanceledException();
-        histogram.setLabel(MessageFormat.format("{0}: Retained throu referent Field", label));
-        result.addResult(histogram);
+
+        l = MessageFormat.format("Only {0} Retained", adverb);
+        histogram.setLabel(l);
+        result.addResult(l, histogram);
 
         return result;
     }

@@ -10,10 +10,17 @@
  *******************************************************************************/
 package org.eclipse.mat.inspections.component;
 
+import java.text.MessageFormat;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
+import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.collect.HashMapIntObject;
+import org.eclipse.mat.collect.SetInt;
+import org.eclipse.mat.inspections.ReferenceQuery;
 import org.eclipse.mat.inspections.collections.CollectionUtil;
 import org.eclipse.mat.inspections.util.PieFactory;
 import org.eclipse.mat.query.IQuery;
@@ -24,15 +31,20 @@ import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.query.refined.RefinedResultBuilder;
 import org.eclipse.mat.query.refined.RefinedTable;
 import org.eclipse.mat.query.refined.TotalsRow;
+import org.eclipse.mat.query.results.CompositeResult;
 import org.eclipse.mat.query.results.TextResult;
 import org.eclipse.mat.report.Params;
 import org.eclipse.mat.report.QuerySpec;
 import org.eclipse.mat.report.SectionSpec;
 import org.eclipse.mat.snapshot.ClassHistogramRecord;
+import org.eclipse.mat.snapshot.ExcludedReferencesDescriptor;
 import org.eclipse.mat.snapshot.Histogram;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IClass;
+import org.eclipse.mat.snapshot.model.IInstance;
+import org.eclipse.mat.snapshot.model.ObjectReference;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
+import org.eclipse.mat.snapshot.query.RetainedSizeDerivedData;
 import org.eclipse.mat.snapshot.query.SnapshotQuery;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.Units;
@@ -50,11 +62,13 @@ public class ComponentReportQuery implements IQuery
 
     public IResult execute(IProgressListener listener) throws Exception
     {
-        SectionSpec componentReport = new SectionSpec("Component Report " + objects.getLabel());
+        SectionSpec componentReport = new SectionSpec(MessageFormat.format("Component Report {0}", objects.getLabel()));
 
-        Ticks ticks = new Ticks(listener, "Component Report " + objects.getLabel(), 30);
+        Ticks ticks = new Ticks(listener, componentReport.getName(), 31);
 
-        int retained[] = snapshot.getRetainedSet(objects.getIds(ticks), ticks);
+        // calculate retained set
+        int[] retained = calculateRetainedSize(ticks);
+
         ticks.tick();
 
         Histogram histogram = snapshot.getHistogram(retained, ticks);
@@ -65,30 +79,50 @@ public class ComponentReportQuery implements IQuery
 
         addOverview(componentReport, totalSize, retained, histogram, ticks);
 
+        SectionSpec possibleWaste = new SectionSpec("Possible Memory Waste");
+        componentReport.add(possibleWaste);
+
         try
         {
-            addDuplicateStrings(componentReport, histogram, ticks);
+            addDuplicateStrings(possibleWaste, histogram, ticks);
         }
         catch (UnsupportedOperationException e)
         { /* ignore, if not supported by heap format */}
 
         try
         {
-            addEmptyCollections(componentReport, totalSize, histogram, ticks);
+            addEmptyCollections(possibleWaste, totalSize, histogram, ticks);
         }
         catch (UnsupportedOperationException e)
         { /* ignore, if not supported by heap format */}
 
         try
         {
-            addCollectionFillRatios(componentReport, totalSize, histogram, ticks);
+            addCollectionFillRatios(possibleWaste, totalSize, histogram, ticks);
+        }
+        catch (UnsupportedOperationException e)
+        { /* ignore, if not supported by heap format */}
+
+        SectionSpec miscellaneous = new SectionSpec("Miscellaneous");
+        componentReport.add(miscellaneous);
+
+        try
+        {
+            addSoftReferenceStatistic(miscellaneous, histogram, ticks);
         }
         catch (UnsupportedOperationException e)
         { /* ignore, if not supported by heap format */}
 
         try
         {
-            addHashMapsCollisionRatios(componentReport, histogram, ticks);
+            addFinalizerStatistic(miscellaneous, retained, ticks);
+        }
+        catch (UnsupportedOperationException e)
+        { /* ignore, if not supported by heap format */}
+
+        try
+        {
+            addHashMapsCollisionRatios(miscellaneous, histogram, ticks);
         }
         catch (UnsupportedOperationException e)
         { /* ignore, if not supported by heap format */}
@@ -98,7 +132,11 @@ public class ComponentReportQuery implements IQuery
         return componentReport;
     }
 
-    class Ticks implements IProgressListener
+    /**
+     * Purpose: absorb progress reports from sub-queries to report a smoother
+     * overall progress
+     */
+    private static class Ticks implements IProgressListener
     {
         IProgressListener delegate;
 
@@ -144,6 +182,47 @@ public class ComponentReportQuery implements IQuery
         public void worked(int work)
         {}
 
+    }
+
+    // //////////////////////////////////////////////////////////////
+    // calculate retained size
+    // //////////////////////////////////////////////////////////////
+
+    private int[] calculateRetainedSize(Ticks ticks) throws SnapshotException
+    {
+        int[] retained = null;
+
+        List<ExcludedReferencesDescriptor> excludes = new ArrayList<ExcludedReferencesDescriptor>();
+
+        addExcludes(excludes, "java.lang.ref.Finalizer", "referent");
+        addExcludes(excludes, "java.lang.ref.WeakReference", "referent");
+        addExcludes(excludes, "java.lang.ref.SoftReference", "referent");
+
+        if (excludes.isEmpty())
+        {
+            retained = snapshot.getRetainedSet(objects.getIds(ticks), ticks);
+        }
+        else
+        {
+            retained = snapshot.getRetainedSet(objects.getIds(ticks), //
+                            excludes.toArray(new ExcludedReferencesDescriptor[0]), //
+                            ticks);
+        }
+        return retained;
+    }
+
+    private void addExcludes(List<ExcludedReferencesDescriptor> excludes, String className, String... fields)
+                    throws SnapshotException
+    {
+        Collection<IClass> finalizer = snapshot.getClassesByName(className, true);
+        if (finalizer != null)
+        {
+            ArrayInt objectIds = new ArrayInt();
+            for (IClass c : finalizer)
+                objectIds.addAll(c.getObjectIds());
+
+            excludes.add(new ExcludedReferencesDescriptor(objectIds.toArray(), fields));
+        }
     }
 
     // //////////////////////////////////////////////////////////////
@@ -478,8 +557,8 @@ public class ComponentReportQuery implements IQuery
     // hash map collision ratios
     // //////////////////////////////////////////////////////////////
 
-    private void addHashMapsCollisionRatios(SectionSpec componentReport, Histogram histogram,
-                    Ticks listener) throws Exception
+    private void addHashMapsCollisionRatios(SectionSpec componentReport, Histogram histogram, Ticks listener)
+                    throws Exception
     {
         SectionSpec overview = new SectionSpec("Map Collision Ratios");
 
@@ -559,4 +638,168 @@ public class ComponentReportQuery implements IQuery
         componentReport.add(overview);
     }
 
+    // //////////////////////////////////////////////////////////////
+    // soft reference statistics
+    // //////////////////////////////////////////////////////////////
+
+    private void addSoftReferenceStatistic(SectionSpec componentReport, Histogram histogram, Ticks ticks)
+                    throws SnapshotException
+    {
+        Collection<IClass> classes = snapshot.getClassesByName("java.lang.ref.SoftReference", true);
+        if (classes == null)
+        {
+            addEmptyResult(componentReport, "Soft Reference Statistics", "Heap dumps contains no soft references.");
+            return;
+        }
+
+        SetInt softRefClassIds = new SetInt(classes.size());
+        for (IClass c : classes)
+            softRefClassIds.add(c.getObjectId());
+
+        ArrayList<ClassHistogramRecord> softRefs = new ArrayList<ClassHistogramRecord>();
+        long numObjects = 0, heapSize = 0;
+        ArrayInt instanceSet = new ArrayInt();
+        SetInt referentSet = new SetInt();
+
+        for (ClassHistogramRecord record : histogram.getClassHistogramRecords())
+        {
+            if (softRefClassIds.contains(record.getClassId()))
+            {
+                softRefs.add(record);
+                numObjects += record.getNumberOfObjects();
+                heapSize += record.getUsedHeapSize();
+
+                instanceSet.addAll(record.getObjectIds());
+
+                for (int objectId : record.getObjectIds())
+                {
+                    IInstance obj = (IInstance) snapshot.getObject(objectId);
+
+                    ObjectReference ref = (ObjectReference) obj.getField("referent").getValue();
+                    if (ref != null)
+                        referentSet.add(ref.getObjectId());
+                }
+            }
+        }
+
+        if (instanceSet.isEmpty())
+        {
+            addEmptyResult(componentReport, "Soft Reference Statistics",
+                            "Component does not keep Soft References alive.");
+            return;
+        }
+
+        Histogram softRefHistogram = new Histogram("Histogram of Soft References", softRefs, null, numObjects,
+                        heapSize, 0);
+
+        CompositeResult referents = ReferenceQuery.execute("softly", instanceSet, referentSet, snapshot, ticks);
+
+        StringBuilder comment = new StringBuilder();
+        comment.append(MessageFormat.format("A total of {0} java.lang.ref.SoftReference "
+                        + "object{0,choice,0#s|1#|2#s} have been found, "
+                        + "which softly reference {1,choice,0#no objects|1#one object|2#{1,number} objects}.<br/>",
+                        instanceSet.size(), referentSet.size()));
+
+        Histogram onlySoftlyReachable = (Histogram) referents.getResultEntries().get(1).getResult();
+        numObjects = 0;
+        heapSize = 0;
+        for (ClassHistogramRecord r : onlySoftlyReachable.getClassHistogramRecords())
+        {
+            numObjects += r.getNumberOfObjects();
+            heapSize += r.getUsedHeapSize();
+        }
+        comment.append(MessageFormat.format("{0,choice,0#none object|1#one object|2#{0,number} objects} totaling {1} "
+                        + "are retained (kept alive) only via soft references.", //
+                        numObjects, //
+                        Units.Storage.of(heapSize).format(heapSize)));
+
+        SectionSpec overview = new SectionSpec("Soft Reference Statistics");
+        QuerySpec commentSpec = new QuerySpec("Comment", new TextResult(comment.toString(), true));
+        commentSpec.set(Params.Rendering.PATTERN, Params.Rendering.PATTERN_OVERVIEW_DETAILS);
+        overview.add(commentSpec);
+
+        QuerySpec child = new QuerySpec(softRefHistogram.getLabel(), softRefHistogram);
+        child.set(Params.Rendering.DERIVED_DATA_COLUMN, "_default_=" + RetainedSizeDerivedData.APPROXIMATE.getCode());
+        overview.add(child);
+
+        for (CompositeResult.Entry entry : referents.getResultEntries())
+            overview.add(new QuerySpec(entry.getName(), entry.getResult()));
+
+        componentReport.add(overview);
+    }
+
+    // //////////////////////////////////////////////////////////////
+    // finalizer statistics
+    // //////////////////////////////////////////////////////////////
+
+    private void addFinalizerStatistic(SectionSpec componentReport, int[] retained, Ticks ticks)
+                    throws SnapshotException
+    {
+        Collection<IClass> classes = snapshot.getClassesByName("java.lang.ref.Finalizer", true);
+        if (classes == null)
+        {
+            addEmptyResult(componentReport, "Finalizer Statistics",
+                            "Heap dumps contains no java.lang.ref.Finalizer objects.");
+            return;
+        }
+
+        SetInt retainedSet = new SetInt(retained.length * 110 / 100);
+        for (int ii = 0; ii < retained.length; ii++)
+            retainedSet.add(retained[ii]);
+
+        ArrayInt finalizers = new ArrayInt();
+
+        for (IClass c : classes)
+        {
+            for (int objectId : c.getObjectIds())
+            {
+                IInstance obj = (IInstance) snapshot.getObject(objectId);
+
+                ObjectReference ref = (ObjectReference) obj.getField("referent").getValue();
+                if (ref != null)
+                {
+                    int referentId = ref.getObjectId();
+                    if (retainedSet.contains(referentId))
+                    {
+                        finalizers.add(referentId);
+                    }
+                }
+            }
+        }
+
+        if (finalizers.isEmpty())
+        {
+            addEmptyResult(componentReport, "Finalizer Statistics",
+                            "Component does not keep object with Finalizer methods alive.");
+            return;
+        }
+
+        SectionSpec overview = new SectionSpec("Finalizer Statistics");
+        StringBuilder comment = new StringBuilder();
+        comment.append(MessageFormat.format("A total of {0} object{0,choice,0#s|1#|2#s} "
+                        + "implement the finalize method.", finalizers.size()));
+
+        QuerySpec commentSpec = new QuerySpec("Comment", new TextResult(comment.toString(), true));
+        commentSpec.set(Params.Rendering.PATTERN, Params.Rendering.PATTERN_OVERVIEW_DETAILS);
+        overview.add(commentSpec);
+
+        Histogram histogram = snapshot.getHistogram(finalizers.toArray(), ticks);
+        histogram.setLabel("Histogram of Objects with Finalize Method");
+        overview.add(new QuerySpec(histogram.getLabel(), histogram));
+
+        componentReport.add(overview);
+    }
+
+    // //////////////////////////////////////////////////////////////
+    // internal utilitiy methods
+    // //////////////////////////////////////////////////////////////
+
+    private void addEmptyResult(SectionSpec report, String sectionLabel, String message)
+    {
+        SectionSpec section = new SectionSpec(sectionLabel);
+        QuerySpec commentSpec = new QuerySpec("Comment", new TextResult(message, true));
+        commentSpec.set(Params.Rendering.PATTERN, Params.Rendering.PATTERN_OVERVIEW_DETAILS);
+        section.add(commentSpec);
+        report.add(section);
+    }
 }

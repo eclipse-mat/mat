@@ -61,6 +61,7 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IPathEditorInput;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
@@ -105,6 +106,14 @@ public class HistogramPane extends QueryResultPane
     private Action deltaAction;
 
     @Override
+    public String getTitle()
+    {
+        if (histogram != null && histogram.getLabel() != null)
+            return histogram.getLabel();
+        return super.getTitle();
+    }
+
+    @Override
     protected void makeActions()
     {
         super.makeActions();
@@ -147,12 +156,14 @@ public class HistogramPane extends QueryResultPane
             groupedBy = Grouping.BY_PACKAGE;
 
         histogram = unwrapHistogram(subject);
+        firePropertyChange(IWorkbenchPart.PROP_TITLE);
 
         // the default histogram has the retained size column visible by default
         // (as values might have been stored)
         if (histogram.isDefaultHistogram())
             viewer.showDerivedDataColumn(viewer.getQueryResult().getDefaultContextProvider(),
                             RetainedSizeDerivedData.APPROXIMATE);
+        
     }
 
     private Histogram unwrapHistogram(IResult subject)

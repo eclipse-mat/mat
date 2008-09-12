@@ -26,11 +26,11 @@ public class FinalizerReferenceStatQuery implements IQuery
 {
     @Argument
     public ISnapshot snapshot;
-    
+
     public IResult execute(IProgressListener listener) throws Exception
     {
-        InspectionAssert.heapFormatIsNot(snapshot, "phd");
-        return ReferenceQuery.execute("finalizer_stat", "java\\.lang\\.ref\\.Finalizer", snapshot, listener);
+        InspectionAssert.heapFormatIsNot(snapshot, "phd", "dtfj");
+        return ReferenceQuery.execute("'Finalizely'", "java\\.lang\\.ref\\.Finalizer", snapshot, listener);
     }
 
 }

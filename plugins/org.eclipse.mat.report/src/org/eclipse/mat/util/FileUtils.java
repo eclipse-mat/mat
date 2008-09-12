@@ -70,9 +70,7 @@ public final class FileUtils
             for (int ii = 0; ii < s.length() && ii < 20; ii++)
             {
                 char c = s.charAt(ii);
-                if (c == File.separatorChar)
-                    buf.append(c);
-                else if (Character.isLetterOrDigit(c))
+                if (Character.isLetterOrDigit(c))
                     buf.append(c);
                 else
                     buf.append("_");

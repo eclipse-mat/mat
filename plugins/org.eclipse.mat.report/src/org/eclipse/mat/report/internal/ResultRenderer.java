@@ -46,6 +46,7 @@ import org.eclipse.mat.report.RendererRegistry;
 import org.eclipse.mat.report.TestSuite;
 import org.eclipse.mat.report.ITestResult.Status;
 import org.eclipse.mat.util.FileUtils;
+import org.eclipse.mat.util.HTMLUtils;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
@@ -257,7 +258,7 @@ public class ResultRenderer
         if (filename == null)
             filename = test.params().shallow().get(Params.FILENAME);
         if (filename == null)
-            filename = FileUtils.toFilename(DIR_PAGES + File.separator + test.spec().getName(), test.getId(), format);
+            filename = DIR_PAGES + File.separator + FileUtils.toFilename(test.spec().getName(), test.getId(), format);
 
         PageSnippets.linkedHeading(artefact, test, 5, filename);
 
@@ -297,7 +298,7 @@ public class ResultRenderer
             String filename = DIR_PAGES + File.separator + test.getId() + ".html";
 
             artefact.append("<div>");
-            PageSnippets.link(artefact, filename, "Details &raquo;");
+            PageSnippets.link(artefact, filename, "Details \u00bb");
             artefact.append("</div>");
 
             // create new page for the details elements
@@ -429,8 +430,8 @@ public class ResultRenderer
             if (filename == null)
                 filename = part.params().shallow().get(Params.FILENAME);
             if (filename == null)
-                filename = FileUtils.toFilename(DIR_PAGES + File.separator + part.spec().getName(), part.getId(),
-                                "html");
+                filename = DIR_PAGES + File.separator
+                                + FileUtils.toFilename(part.spec().getName(), part.getId(), "html");
 
             HtmlArtefact newArtefact = new HtmlArtefact(artefact, directory, filename, part.spec().getName());
 
@@ -474,7 +475,7 @@ public class ResultRenderer
                 page = (HtmlArtefact) (p = p.getParent()).getObject(Key.ARTEFACT);
 
             PageSnippets.beginLink(toc, page.getRelativePathName() + "#" + part.getId());
-            toc.append(part.spec().getName());
+            toc.append(HTMLUtils.escapeText(part.spec().getName()));
             PageSnippets.endLink(toc);
 
             if (!part.children.isEmpty())

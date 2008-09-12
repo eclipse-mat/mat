@@ -27,6 +27,8 @@ public final class HTMLUtils
                 result.append("&gt;");
             else if (ch == '&')
                 result.append("&amp;");
+            else if (ch == '\u00bb')
+                result.append("&raquo;");
             else
                 result.append(ch);
         }

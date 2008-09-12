@@ -11,9 +11,10 @@
 package org.eclipse.mat.snapshot;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 
-public class ExcludedReferencesDescriptor
+public final class ExcludedReferencesDescriptor
 {
     private int[] objectIds;
     private Set<String> fields;
@@ -23,6 +24,11 @@ public class ExcludedReferencesDescriptor
         this.fields = fields;
         this.objectIds = objectIds;
         Arrays.sort(this.objectIds);
+    }
+
+    public ExcludedReferencesDescriptor(int[] objectIds, String... fields)
+    {
+        this(objectIds, new HashSet<String>(Arrays.asList(fields)));
     }
 
     public Set<String> getFields()

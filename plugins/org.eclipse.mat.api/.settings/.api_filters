@@ -8,6 +8,18 @@
             </message_arguments>
         </filter>
     </resource>
+    <resource path="src/org/eclipse/mat/snapshot/ExcludedReferencesDescriptor.java" type="org.eclipse.mat.snapshot.ExcludedReferencesDescriptor">
+        <filter id="337768515">
+            <message_arguments>
+                <message_argument value="org.eclipse.mat.snapshot.ExcludedReferencesDescriptor"/>
+            </message_arguments>
+        </filter>
+        <filter id="1143996420">
+            <message_arguments>
+                <message_argument value="org.eclipse.mat.snapshot.ExcludedReferencesDescriptor"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="src/org/eclipse/mat/snapshot/Histogram.java" type="org.eclipse.mat.snapshot.Histogram$ClassLoaderTree">
         <filter id="337768515">
             <message_arguments>

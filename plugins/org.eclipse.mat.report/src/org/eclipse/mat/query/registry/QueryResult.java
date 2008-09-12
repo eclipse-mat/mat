@@ -15,7 +15,6 @@ import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.IStructuredResult;
 import org.eclipse.mat.query.ResultMetaData;
-import org.eclipse.mat.query.results.CompositeResult;
 
 public class QueryResult
 {
@@ -82,11 +81,6 @@ public class QueryResult
     public ResultMetaData getResultMetaData()
     {
         return resultMetaData;
-    }
-
-    public boolean isComposite()
-    {
-        return subject instanceof CompositeResult;
     }
 
     public String getTitle()
