@@ -11,7 +11,7 @@
 package org.eclipse.mat.parser.internal;
 
 import java.io.File;
-import java.io.FilenameFilter;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.text.MessageFormat;
@@ -89,8 +89,9 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
         }
         catch (IOException ignore_and_reparse)
         {
-            String message = MessageFormat.format("Reparsing heap dump file due to {0}",
-                            new Object[] { ignore_and_reparse.getMessage() });
+            String text = ignore_and_reparse.getMessage() != null ? ignore_and_reparse.getMessage()
+                            : ignore_and_reparse.getClass().getName();
+            String message = MessageFormat.format("Reparsing heap dump file due to {0}", text);
             listener.sendUserMessage(Severity.WARNING, message, ignore_and_reparse);
         }
 
@@ -226,28 +227,29 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
     {
         File directory = file.getParentFile();
         if (directory == null)
-        {
             directory = new File(".");
-        }
+
         String filename = file.getName();
+        String fragment = filename.substring(0, filename.lastIndexOf('.'));
+        final Pattern indexPattern = Pattern.compile(fragment + "\\.(.*\\.)?index");
+        final Pattern logPattern = Pattern.compile(fragment + "\\.inbound\\.index.*\\.log");
 
-        final Pattern indexPattern = Pattern.compile(filename.substring(0, filename.lastIndexOf('.')) + ".*index");
-        final Pattern logPattern = Pattern.compile(filename.substring(0, filename.lastIndexOf('.')) + ".*log");
-
-        String[] names = directory.list(new FilenameFilter()
+        File[] files = directory.listFiles(new FileFilter()
         {
-            public boolean accept(File dir, String name)
+            public boolean accept(File f)
             {
+                if (f.isDirectory())
+                    return false;
+
+                String name = f.getName();
                 return indexPattern.matcher(name).matches() || logPattern.matcher(name).matches();
             }
         });
 
-        if (names != null)
+        if (files != null)
         {
-            for (String name : names)
-            {
-                new File(directory, name).delete();
-            }
+            for (File f : files)
+                f.delete();
         }
     }
 }
