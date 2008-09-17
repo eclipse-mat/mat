@@ -14,8 +14,8 @@ import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.ContextProvider;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.snapshot.ISnapshot;
+import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.ui.snapshot.views.inspector.InspectorView.BaseNode;
-
 
 /* package */class InspectorContextProvider extends ContextProvider
 {
@@ -57,7 +57,18 @@ import org.eclipse.mat.ui.snapshot.views.inspector.InspectorView.BaseNode;
                         }
                     };
             }
+            else if (row instanceof IClass)
+            {
+                final IClass clazz = (IClass) row;
 
+                return new IContextObject()
+                {
+                    public int getObjectId()
+                    {
+                        return clazz.getObjectId();
+                    }
+                };
+            }
             return null;
         }
         catch (SnapshotException e)

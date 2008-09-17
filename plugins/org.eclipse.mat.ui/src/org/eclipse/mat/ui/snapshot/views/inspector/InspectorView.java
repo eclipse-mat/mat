@@ -13,6 +13,7 @@ package org.eclipse.mat.ui.snapshot.views.inspector;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -22,15 +23,26 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.layout.TableColumnLayout;
+import org.eclipse.jface.layout.TreeColumnLayout;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.viewers.ColumnWeightData;
+import org.eclipse.jface.viewers.IFontProvider;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.IContextObject;
@@ -49,18 +61,24 @@ import org.eclipse.mat.ui.util.Copy;
 import org.eclipse.mat.ui.util.PopupMenu;
 import org.eclipse.mat.ui.util.QueryContextMenu;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.events.MenuAdapter;
 import org.eclipse.swt.events.MenuEvent;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
@@ -68,19 +86,21 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.part.ViewPart;
 
-
 public class InspectorView extends ViewPart implements IPartListener, ISelectionChangedListener
 {
     private HeapEditor editor;
     /* package */ISnapshot snapshot;
 
     private Composite top;
-    private TableViewer objectDetails;
-    private TableViewer objectFields;
-    private Action syncAction;
+    private TableViewer topTableViewer;
+    private CTabFolder tabFolder;
+    private TableViewer attributesTable;
+    private TableViewer staticsTable;
+    private TreeViewer classHierarchyTree;
+    private boolean pinSelection = false;
+    private Font font;
 
-    private Menu fieldsContextMenu;
-    private Menu detailsContextMenu;
+    private List<Menu> contextMenus = new ArrayList<Menu>();
 
     boolean keepInSync = true;
 
@@ -117,7 +137,7 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
         }
     }
 
-    private static class DetailsLabelProvider extends LabelProvider
+    private static class TopTableLabelProvider extends LabelProvider
     {
 
         @Override
@@ -201,105 +221,111 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
         }
     }
 
-    static class InspectorLayout extends Layout
+    private class MenuListener extends MenuAdapter
     {
+        private Menu menu;
+        private StructuredViewer viewer;
 
-        @Override
-        protected Point computeSize(Composite composite, int wHint, int hHint, boolean flushCache)
+        public MenuListener(Menu menu, StructuredViewer viewer)
         {
-            Point extent = new Point(300, SWT.DEFAULT);
-            if (wHint != SWT.DEFAULT)
-                extent.x = wHint;
-            if (hHint != SWT.DEFAULT)
-                extent.y = hHint;
-            return extent;
+            this.menu = menu;
+            this.viewer = viewer;
         }
 
         @Override
-        protected void layout(Composite composite, boolean flushCache)
+        public void menuShown(MenuEvent e)
         {
-            Control[] children = composite.getChildren();
-            if (children.length != 2)
-                throw new RuntimeException("This is a specialized layout. Please adapt.");
+            MenuItem[] items = menu.getItems();
+            for (int ii = 0; ii < items.length; ii++)
+                items[ii].dispose();
 
-            Rectangle clientArea = composite.getClientArea();
-            Table t = (Table) children[0];
-
-            // on win32, item height is reported to low the first time around
-            int itemHeight = t.getItemHeight() + 1;
-            if (itemHeight < 17)
-                itemHeight = 17;
-
-            int scrollbarHeight = 2;
-            if (!"win32".equals(Platform.getOS()))
-                scrollbarHeight = t.getHorizontalBar().getSize().y;
-
-            int detailsHeight = 9 * itemHeight + scrollbarHeight;
-
-            // see Table#checkStyle -> H_SCROLL and V_SCROLL are always set,
-            // hence even under Mac OS X the scroll bars are always visible
-
-            layoutDetails(clientArea, detailsHeight, children[0]);
-            layoutFields(clientArea, detailsHeight, children[1]);
+            PopupMenu popup = new PopupMenu();
+            fillContextMenu(popup, viewer);
+            popup.addToMenu(editor.getEditorSite().getActionBars().getStatusLineManager(), menu);
         }
 
-        private void layoutFields(Rectangle clientArea, int detailsHeight, Control child)
+    }
+
+    private class HierarchyTreeContentProvider implements ITreeContentProvider
+    {
+        LinkedList<IClass> supers;
+
+        public Object[] getChildren(Object element)
         {
-            Table t = (Table) child;
-
-            int width = clientArea.width;
-            width -= t.getColumn(0).getWidth();
-            width -= t.getColumn(1).getWidth();
-
-            Point preferredSize = t.computeSize(SWT.DEFAULT, SWT.DEFAULT);
-            if (preferredSize.y > clientArea.height - detailsHeight - t.getHeaderHeight())
-            {
-                Point vBarSize = t.getVerticalBar().getSize();
-                width -= vBarSize.x;
-            }
-
-            width = Math.max(width, 250);
-
-            // resize
-            Point oldSize = t.getSize();
-            if (oldSize.x > clientArea.width)
-            {
-                t.getColumn(2).setWidth(width);
-                child.setBounds(clientArea.x, clientArea.y + detailsHeight, clientArea.width, clientArea.height
-                                - detailsHeight);
-                child.setSize(clientArea.width, clientArea.height - detailsHeight);
-            }
-            else
-            {
-                child.setBounds(clientArea.x, clientArea.y + detailsHeight, clientArea.width, clientArea.height
-                                - detailsHeight);
-                child.setSize(clientArea.width, clientArea.height - detailsHeight);
-                t.getColumn(2).setWidth(width);
-            }
+            int index = supers.indexOf(element);
+            if (index >= 0 && index + 1 < supers.size())
+                return new Object[] { supers.get(index + 1) };
+            return ((IClass) element).getSubclasses().toArray();
         }
 
-        private void layoutDetails(Rectangle clientArea, int detailsHeight, Control child)
+        public IClass getParent(Object element)
         {
-            Table t = (Table) child;
-            TableColumn col = t.getColumn(0);
+            return ((IClass) element).getSuperClass();
+        }
 
-            Point oldSize = t.getSize();
-            int scrollbarWidth = 0;
-            if (!"win32".equals(Platform.getOS()))
-                scrollbarWidth = t.getVerticalBar().getSize().x;
+        public boolean hasChildren(Object element)
+        {
+            return !((IClass) element).getSubclasses().isEmpty();
 
-            if (oldSize.x > clientArea.width)
+        }
+
+        public Object[] getElements(Object inputElement)
+        {
+            if (supers.isEmpty())
+                return new Object[0];
+
+            return new Object[] { supers.get(0) };
+        }
+
+        public void dispose()
+        {}
+
+        public void inputChanged(Viewer viewer, Object oldInput, Object newInput)
+        {
+            supers = new LinkedList<IClass>();
+            if (newInput instanceof IClass[])
             {
-                col.setWidth(clientArea.width - scrollbarWidth);
-                child.setBounds(clientArea.x, clientArea.y, clientArea.width, detailsHeight);
-                child.setSize(clientArea.width, detailsHeight);
+                IClass[] input = (IClass[]) newInput;
+
+                supers = new LinkedList<IClass>();
+                supers.add(input[0]);
+
+                while (input[0].hasSuperClass())
+                {
+                    input[0] = input[0].getSuperClass();
+                    supers.addFirst(input[0]);
+                }
             }
-            else
-            {
-                child.setBounds(clientArea.x, clientArea.y, clientArea.width, detailsHeight);
-                child.setSize(clientArea.width, detailsHeight);
-                col.setWidth(clientArea.width - scrollbarWidth);
-            }
+        }
+    }
+
+    private class HierarchyLabelProvider extends LabelProvider implements IFontProvider
+    {
+        private int classId;
+
+        public HierarchyLabelProvider(int classId)
+        {
+            super();
+            this.classId = classId;
+        }
+
+        @Override
+        public Image getImage(Object element)
+        {
+            return (element instanceof IClass) ? ImageHelper.getImage(ImageHelper.Type.CLASS) : null;
+        }
+
+        @Override
+        public String getText(Object element)
+        {
+            return (element instanceof IClass) ? ((IClass) element).getName() : "";
+        }
+
+        public Font getFont(Object element)
+        {
+            if (element instanceof IClass && ((IClass) element).getObjectId() == classId)
+                return font;
+            return null;
         }
 
     }
@@ -312,41 +338,162 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
     public void createPartControl(final Composite parent)
     {
         top = new Composite(parent, SWT.TOP);
-        top.setLayout(new InspectorLayout());
+        GridLayoutFactory.fillDefaults().numColumns(1).margins(0, 0).spacing(1, 1).applyTo(top);
 
-        createDetailsTable(top);
-        createFieldsTable(top);
+        IToolBarManager mgr = getViewSite().getActionBars().getToolBarManager();
+        mgr.add(createSyncAction());
+        
+        FontData[] data = JFaceResources.getDefaultFont().getFontData();
+        for (FontData fontData : data)
+        {
+            fontData.setStyle(SWT.BOLD);
+        }       
+        this.font = new Font(top.getDisplay(), data);
+
+        createTopTable(top);
+        createTabFolder(top);
 
         // add page listener
         getSite().getPage().addPartListener(this);
 
-        makeActions();
         hookContextMenu();
-        hookDoubleClickAction();
-
         showBootstrapPart();
     }
 
-    private void createDetailsTable(Composite composite)
+    private Action createSyncAction()
     {
-        objectDetails = new TableViewer(composite, SWT.FULL_SELECTION);
+        Action syncAction = new Action(null, IAction.AS_CHECK_BOX)
+        {
 
-        TableColumn column = new TableColumn(objectDetails.getTable(), SWT.LEFT);
-        column.setWidth(380);
+            @Override
+            public void run()
+            {
+                if (!keepInSync)
+                {
+                    showBootstrapPart();
+                    if (editor != null)
+                        updateOnSelection(editor.getSelection());
+                    keepInSync = true;
+                }
+                else
+                {
+                    keepInSync = false;
+                }
+                this.setChecked(!keepInSync);
+            }
 
-        objectDetails.getTable().setHeaderVisible(false);
-        objectDetails.getTable().setLinesVisible(false);
-        objectDetails.getTable().setSize(380, 120);
-        objectDetails.setLabelProvider(new DetailsLabelProvider());
-        objectDetails.setContentProvider(new TableContentProvider());
+        };
+        syncAction.setImageDescriptor(MemoryAnalyserPlugin
+                        .getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.SYNCED));
+        syncAction.setToolTipText("Link with Snapshot");
+
+        return syncAction;
+
     }
 
-    private void createFieldsTable(Composite composite)
+    private void createTopTable(Composite parent)
     {
-        objectFields = new TableViewer(composite, SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION);
+        Composite composite = new Composite(parent, SWT.NONE);
+        topTableViewer = new TableViewer(composite, SWT.FULL_SELECTION);
 
-        objectFields.setContentProvider(new FieldsContentProvider());
-        objectFields.setLabelProvider(new FieldsLabelProvider(this, objectFields.getTable().getFont()));
+        Table table = topTableViewer.getTable();
+        TableColumnLayout columnLayout = new TableColumnLayout();
+        composite.setLayout(columnLayout);
+
+        TableColumn column = new TableColumn(table, SWT.LEFT);
+        columnLayout.setColumnData(column, new ColumnWeightData(100, 10));
+
+        // on win32, item height is reported to low the first time around
+        int itemHeight = table.getItemHeight() + 1;
+        if (itemHeight < 17)
+            itemHeight = 17;
+
+        int scrollbarHeight = 2;
+        if (!"win32".equals(Platform.getOS()))
+            scrollbarHeight = table.getHorizontalBar().getSize().y;
+
+        int detailsHeight = 9 * itemHeight + scrollbarHeight;
+
+        table.setHeaderVisible(false);
+        table.setLinesVisible(false);
+        topTableViewer.setLabelProvider(new TopTableLabelProvider());
+        topTableViewer.setContentProvider(new TableContentProvider());
+
+        GridDataFactory.fillDefaults().hint(SWT.DEFAULT, detailsHeight)//
+                        .grab(true, false).applyTo(composite);
+
+    }
+
+    private void createTabFolder(Composite parent)
+    {
+        tabFolder = new CTabFolder(parent, SWT.TOP | SWT.FLAT);
+        GridDataFactory.fillDefaults().grab(true, true).align(SWT.FILL, SWT.FILL).applyTo(tabFolder);
+
+        ToolBar toolBar = new ToolBar(tabFolder, SWT.HORIZONTAL | SWT.FLAT);
+        tabFolder.setTopRight(toolBar);
+        // set the height of the tab to display the toolbar correctly
+        tabFolder.setTabHeight(Math.max(toolBar.computeSize(SWT.DEFAULT, SWT.DEFAULT).y, tabFolder.getTabHeight()));
+        final ToolItem pinItem = new ToolItem(toolBar, SWT.CHECK);
+        pinItem.setImage(MemoryAnalyserPlugin.getImage(MemoryAnalyserPlugin.ISharedImages.PINNED));
+        pinItem.setToolTipText("Pin Tab");
+        pinItem.addSelectionListener(new SelectionAdapter()
+        {
+            @Override
+            public void widgetSelected(SelectionEvent e)
+            {
+                pinSelection = !pinSelection;
+                pinItem.setSelection(pinSelection);
+            }
+        });
+
+        toolBar.pack();
+
+        final CTabItem staticsTab = new CTabItem(tabFolder, SWT.NULL);
+        staticsTab.setText("Statics");
+        staticsTable = createTable(tabFolder);
+        staticsTab.setControl(staticsTable.getTable().getParent());
+
+        CTabItem instancesTab = new CTabItem(tabFolder, SWT.NULL);
+        instancesTab.setText("Attributes");
+        attributesTable = createTable(tabFolder);
+        instancesTab.setControl(attributesTable.getTable().getParent());
+
+        CTabItem classHierarchyTab = new CTabItem(tabFolder, SWT.NULL);
+        classHierarchyTab.setText("Class Hierarchy");
+        classHierarchyTree = createHierarchyTree(tabFolder);
+        classHierarchyTab.setControl(classHierarchyTree.getTree().getParent());
+
+        tabFolder.setSelection(0);
+    }
+
+    private TreeViewer createHierarchyTree(CTabFolder parent)
+    {
+        Composite composite = new Composite(parent, SWT.NONE);
+        TreeViewer classHierarchyTree = new TreeViewer(composite, SWT.FULL_SELECTION);
+        classHierarchyTree.setContentProvider(new HierarchyTreeContentProvider());
+        classHierarchyTree.setLabelProvider(new HierarchyLabelProvider(-1));
+
+        Tree tree = classHierarchyTree.getTree();
+        TreeColumnLayout columnLayout = new TreeColumnLayout();
+        composite.setLayout(columnLayout);
+
+        TreeColumn column = new TreeColumn(tree, SWT.LEFT);
+        columnLayout.setColumnData(column, new ColumnWeightData(100, 10));
+
+        return classHierarchyTree;
+    }
+
+    private TableViewer createTable(Composite parent)
+    {
+        Composite composite = new Composite(parent, SWT.NONE);
+        TableColumnLayout columnLayout = new TableColumnLayout();
+        composite.setLayout(columnLayout);
+        GridDataFactory.fillDefaults().grab(true, true).align(SWT.FILL, SWT.FILL).applyTo(composite);
+
+        final TableViewer viewer = new TableViewer(composite, SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION);
+        Table table = viewer.getTable();
+        viewer.setContentProvider(new FieldsContentProvider());
+        viewer.setLabelProvider(new FieldsLabelProvider(this, table.getFont()));
 
         getViewSite().getActionBars().setGlobalActionHandler(ActionFactory.COPY.getId(), new Action()
         {
@@ -354,103 +501,48 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
             @Override
             public void run()
             {
-                Copy.copyToClipboard(objectFields.getControl());
+                Copy.copyToClipboard(viewer.getControl());
             }
 
         });
 
-        TableColumn tableColumn = new TableColumn(objectFields.getTable(), SWT.LEFT);
+        TableColumn tableColumn = new TableColumn(table, SWT.LEFT);
         tableColumn.setText("Type");
         tableColumn.setWidth(50);
+        columnLayout.setColumnData(tableColumn, new ColumnWeightData(10, 50, false));
 
-        tableColumn = new TableColumn(objectFields.getTable(), SWT.LEFT);
+        tableColumn = new TableColumn(table, SWT.LEFT);
         tableColumn.setWidth(80);
         tableColumn.setText("Name");
+        columnLayout.setColumnData(tableColumn, new ColumnWeightData(30, 80));
 
-        tableColumn = new TableColumn(objectFields.getTable(), SWT.LEFT);
+        tableColumn = new TableColumn(table, SWT.LEFT);
         tableColumn.setWidth(250);
         tableColumn.setText("Value");
+        columnLayout.setColumnData(tableColumn, new ColumnWeightData(60, 250, true));
 
-        objectFields.getTable().setHeaderVisible(true);
-    }
+        table.setHeaderVisible(true);
 
-    private void makeActions()
-    {
-        syncAction = new Action(null, IAction.AS_CHECK_BOX)
-        {
-            @Override
-            public void run()
-            {
-                if (this.isChecked())
-                {
-                    if (!keepInSync)
-                    {
-                        showBootstrapPart();
-                        if (editor != null)
-                            updateOnSelection(editor.getSelection());
-                    }
-
-                    keepInSync = true;
-                }
-                else
-                {
-                    keepInSync = false;
-                }
-            }
-        };
-        syncAction.setImageDescriptor(MemoryAnalyserPlugin
-                        .getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.SYNCED));
-        syncAction.setDisabledImageDescriptor(MemoryAnalyserPlugin
-                        .getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.SYNCED_DISABLED));
-        syncAction.setText("Link with Snapshot");
-        syncAction.setChecked(true);
+        return viewer;
     }
 
     private void hookContextMenu()
     {
-        // fields
-        fieldsContextMenu = new Menu(objectFields.getControl());
-        fieldsContextMenu.addMenuListener(new MenuAdapter()
-        {
-            @Override
-            public void menuShown(MenuEvent e)
-            {
-                MenuItem[] items = fieldsContextMenu.getItems();
-                for (int ii = 0; ii < items.length; ii++)
-                    items[ii].dispose();
-
-                PopupMenu popup = new PopupMenu();
-                fillContextMenu(popup, objectFields);
-                popup.addToMenu(editor.getEditorSite().getActionBars().getStatusLineManager(), fieldsContextMenu);
-            }
-
-        });
-        objectFields.getControl().setMenu(fieldsContextMenu);
-
-        // object details
-        detailsContextMenu = new Menu(objectDetails.getControl());
-        detailsContextMenu.addMenuListener(new MenuAdapter()
-        {
-            @Override
-            public void menuShown(MenuEvent e)
-            {
-                MenuItem[] items = detailsContextMenu.getItems();
-                for (int ii = 0; ii < items.length; ii++)
-                    items[ii].dispose();
-
-                PopupMenu popup = new PopupMenu();
-                fillContextMenu(popup, objectDetails);
-                popup.addToMenu(editor.getEditorSite().getActionBars().getStatusLineManager(), detailsContextMenu);
-            }
-
-        });
-        objectDetails.getControl().setMenu(detailsContextMenu);
+        createMenu(staticsTable);
+        createMenu(attributesTable);
+        createMenu(topTableViewer);
+        createMenu(classHierarchyTree);
     }
 
-    private void hookDoubleClickAction()
-    {}
+    private void createMenu(StructuredViewer viewer)
+    {
+        Menu menu = new Menu(viewer.getControl());
+        menu.addMenuListener(new MenuListener(menu, viewer));
+        viewer.getControl().setMenu(menu);
+        contextMenus.add(menu);
+    }
 
-    private void fillContextMenu(PopupMenu manager, TableViewer viewer)
+    private void fillContextMenu(PopupMenu manager, StructuredViewer viewer)
     {
         IStructuredSelection selection = (IStructuredSelection) viewer.getSelection();
 
@@ -461,8 +553,9 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
 
             IStructuredSelection editorSelection = (IStructuredSelection) editor.getSelection();
             final Object editorElement = editorSelection.getFirstElement();
-            
-            boolean isObject = firstElement instanceof IContextObject && editorElement instanceof IContextObject
+
+            boolean isObject = firstElement instanceof IContextObject
+                            && editorElement instanceof IContextObject
                             && ((IContextObject) firstElement).getObjectId() != ((IContextObject) editorElement)
                                             .getObjectId();
 
@@ -481,9 +574,6 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
 
             QueryContextMenu contextMenu = new QueryContextMenu(editor, contextProvider);
             contextMenu.addContextActions(manager, selection);
-
-            manager.addSeparator();
-            manager.add(syncAction);
         }
     }
 
@@ -508,11 +598,17 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
             this.editor = null;
         }
 
-        if (fieldsContextMenu != null && !fieldsContextMenu.isDisposed())
-            fieldsContextMenu.dispose();
+        for (Menu menu : contextMenus)
+        {
+            if (menu != null && !menu.isDisposed())
+            {
+                menu.dispose();
+                menu = null;
+            }
+        }
 
-        if (detailsContextMenu != null && !detailsContextMenu.isDisposed())
-            detailsContextMenu.dispose();
+        if (font != null)
+            font.dispose();
 
         getSite().getPage().removePartListener(this);
         super.dispose();
@@ -525,7 +621,7 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
     @Override
     public void setFocus()
     {
-        objectFields.getTable().setFocus();
+        tabFolder.getSelection().getControl().setFocus();
     }
 
     public void partActivated(IWorkbenchPart part)
@@ -603,7 +699,6 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
             if (!keepInSync)
             {
                 keepInSync = true;
-                syncAction.setChecked(true);
                 showBootstrapPart();
             }
         }
@@ -643,6 +738,15 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
         {
             final int objectId = objectSet.getObjectId();
 
+            // do not update if the selection has not changed (double click)
+            Object data = topTableViewer.getData("input");
+            if (data != null)
+            {
+                int current = ((Integer) data).intValue();
+                if (current == objectId)
+                    return;
+            }
+
             Job job = new Job("Update Object Details")
             {
 
@@ -656,21 +760,50 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
 
                         final IObject object = snapshot.getObject(objectId);
 
-                        Object current = objectFields.getInput();
-                        if (current instanceof BaseNode && ((BaseNode) current).objectId == object.getObjectId()) { return Status.OK_STATUS; }
-
                         // prepare object info
                         final List<Object> classInfos = prepareClassInfo(object);
 
-                        // prepare field info
-                        final LazyFields<?> fields = prepareFieldsInfo(object);
+                        // prepare static fields info
+                        final LazyFields<?> staticFields = prepareStaticFields(object);
+
+                        // prepare attributes
+                        final LazyFields<?> attributeFields = prepareAttributes(object);
 
                         PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()
                         {
                             public void run()
                             {
-                                objectDetails.setInput(classInfos);
-                                objectFields.setInput(fields);
+                                topTableViewer.setInput(classInfos);
+                                topTableViewer.setData("input", objectId);
+                                staticsTable.setInput(staticFields);
+                                attributesTable.setInput(attributeFields);
+                                IClass input = object instanceof IClass ? (IClass) object : object.getClazz();
+
+                                try
+                                {
+                                    classHierarchyTree.getTree().setRedraw(false);
+                                    classHierarchyTree.setInput(null);
+                                    classHierarchyTree
+                                                    .setLabelProvider(new HierarchyLabelProvider(input.getObjectId()));
+                                    classHierarchyTree.setInput(new IClass[] { input });
+                                    classHierarchyTree.expandAll();
+                                }
+                                finally
+                                {
+                                    classHierarchyTree.getTree().setRedraw(true);
+                                }
+
+                                if (!pinSelection)// no tab pinned
+                                {
+                                    int selectionIndex = tabFolder.getSelectionIndex();
+                                    if (selectionIndex <= 1)
+                                    {
+                                        int newSelectionIndex = (object instanceof IClass) ? 0 : 1;
+                                        if (selectionIndex != newSelectionIndex)
+                                            tabFolder.setSelection(newSelectionIndex);
+                                    }
+                                }
+
                             }
                         });
 
@@ -682,17 +815,28 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
                     }
                 }
 
-                private LazyFields<?> prepareFieldsInfo(final IObject object)
+                private LazyFields<?> prepareAttributes(final IObject object)
                 {
                     LazyFields<?> fields = null;
-                    if (object instanceof IClass)
-                        fields = new LazyFields.Class((IClass) object);
-                    else if (object instanceof IInstance)
+                    if (object instanceof IInstance)
                         fields = new LazyFields.Instance((IInstance) object);
                     else if (object instanceof IPrimitiveArray)
                         fields = new LazyFields.PrimitiveArray((IPrimitiveArray) object);
                     else if (object instanceof IObjectArray)
                         fields = new LazyFields.ObjectArray((IObjectArray) object);
+                    else
+                        fields = LazyFields.EMPTY;
+
+                    return fields;
+                }
+
+                private LazyFields<?> prepareStaticFields(final IObject object)
+                {
+                    LazyFields<?> fields = null;
+                    if (object instanceof IClass)
+                        fields = new LazyFields.Class((IClass) object);
+                    else if (object instanceof IInstance)
+                        fields = new LazyFields.Class(object.getClazz());
                     else
                         fields = LazyFields.EMPTY;
 
@@ -773,20 +917,31 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
                 // ColumnViewer does not cache the last (real) row subject
                 // which in turn often has a reference to the snapshot
 
-                if (objectDetails.getContentProvider() != null)
+                if (topTableViewer.getContentProvider() != null)
                 {
-                    objectDetails.setInput(new Object[] { new Object() });
+                    topTableViewer.setInput(new Object[] { new Object() });
                 }
 
-                if (objectFields.getContentProvider() != null)
+                if (staticsTable.getContentProvider() != null)
                 {
-                    objectFields.setInput(LazyFields.EMPTY);
+                    staticsTable.setInput(LazyFields.EMPTY);
                 }
 
-                if (!detailsContextMenu.isDisposed())
-                    disposeItems(detailsContextMenu);
-                if (!fieldsContextMenu.isDisposed())
-                    disposeItems(fieldsContextMenu);
+                if (attributesTable.getContentProvider() != null)
+                {
+                    attributesTable.setInput(LazyFields.EMPTY);
+                }
+
+                if (classHierarchyTree.getContentProvider() != null)
+                {
+                    classHierarchyTree.setInput(new Object[] { new Object() });
+                }
+
+                for (Menu menu : contextMenus)
+                {
+                    if (!menu.isDisposed())
+                        disposeItems(menu);
+                }
             }
         });
     }

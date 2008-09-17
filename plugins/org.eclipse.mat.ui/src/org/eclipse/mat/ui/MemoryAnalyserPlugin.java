@@ -97,6 +97,8 @@ public class MemoryAnalyserPlugin extends AbstractUIPlugin
         String SHOW_PANE = "icons/show_pane.gif"; //$NON-NLS-1$  
         String CLOSE_PANE = "icons/close_pane.gif"; //$NON-NLS-1$  
         String CLOSE_BRANCH = "icons/close_branch.gif"; //$NON-NLS-1$  
+        
+        String PINNED = "icons/pinned.gif"; //$NON-NLS-1$  
     }
 
     private static MemoryAnalyserPlugin plugin;

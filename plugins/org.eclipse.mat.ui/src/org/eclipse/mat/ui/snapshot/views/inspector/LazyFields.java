@@ -130,10 +130,9 @@ import org.eclipse.mat.snapshot.model.ObjectReference;
         public Instance(IInstance object)
         {
             super(object);
-            fixObjectReferences(object.getSnapshot(), cache, object.getClazz().getStaticFields(), true);
             fixObjectReferences(object.getSnapshot(), cache, object.getFields(), false);
         }
-
+        
         @Override
         protected Object createElement(IInstance array, int index)
         {
