@@ -39,6 +39,7 @@ import org.eclipse.mat.query.refined.TotalsRow;
 import org.eclipse.mat.query.refined.RefinedStructuredResult.DerivedDataJobDefinition;
 import org.eclipse.mat.query.registry.QueryResult;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
+import org.eclipse.mat.ui.actions.OpenHelpPageAction;
 import org.eclipse.mat.ui.editor.AbstractEditorPane;
 import org.eclipse.mat.ui.editor.AbstractPaneJob;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
@@ -709,6 +710,7 @@ public abstract class RefinedResultViewer
                     }
                 }
             }
+
         };
 
         Action exportMenu = new EasyToolBarDropDown("Export", MemoryAnalyserPlugin
@@ -727,6 +729,10 @@ public abstract class RefinedResultViewer
 
         manager.add(calculateRetainedSizeMenu);
         manager.add(exportMenu);
+
+        if (queryResult.getQuery() != null && queryResult.getQuery().getHelpUrl() != null)
+            manager.appendToGroup("help", new OpenHelpPageAction(queryResult.getQuery().getHelpUrl()));
+
     }
 
     public void addContextMenu(PopupMenu menu)

@@ -8,44 +8,52 @@
 <meta name="DC.Title" content="Heap Dump" />
 <meta scheme="URI" name="DC.Relation" content="../tasks/acquiringheapdump.html" />
 <meta content="XHTML" name="DC.Format" />
-<meta content="heapdumpconcept" name="DC.Identifier" />
+<meta content="concept_heapdump" name="DC.Identifier" />
 <meta content="en-us" name="DC.Language" />
-<link href="..\commonltr.css" type="text/css" rel="stylesheet" />
+<link href="..\styles/commonltr.css" type="text/css" rel="stylesheet" />
 <title>Heap Dump</title>
-<script language="JavaScript" src="PLUGINS_ROOT/org.eclipse.help/livehelp.js"> </script></head>
-<body id="heapdumpconcept"><a name="heapdumpconcept"><!-- --></a>
+</head>
+<body id="concept_heapdump"><a name="concept_heapdump"><!-- --></a>
 
 
-      <h1 class="topictitle1">Heap Dump</h1>
+	<h1 class="topictitle1">Heap Dump</h1>
 
-      <div>
-        <p>HPROF heap dump is a snapshot of java heap at a certain time. A full 
-          GC is triggered before the heap dump is written so it contains information 
-          about the remaining objects. </p>
-<br /><ul>
-        <li>All Objects
-        <p>Class, fields, primitive values and references</p>
-</li>
+	<div>
+		<p>HPROF heap dump is a snapshot of java heap at a certain time.
+			A full GC is triggered before the heap dump is written so it contains
+			information about the remaining objects.</p>
 
-        <li>All Classes
-        <p>Classloader, name, super class, static fields</p>
-</li>
+		<br /><ul>
+			<li>
+				All Objects
+				<p>Class, fields, primitive values and references</p>
 
-        <li>Garbage Collection Roots
-        <p>Objects defined to be reachable by the JVM</p>
-</li>
-</ul>
+			</li>
 
-        <p>A heap dump does not contain allocation information so it cannot resolve 
-          questions like who had created the objects and where they have been 
-          created.</p>
- 
-      </div>
+			<li>
+				All Classes
+				<p>Classloader, name, super class, static fields</p>
 
-      <div><div class="reltasks"><strong>Related tasks</strong><br />
+			</li>
+
+			<li>
+				Garbage Collection Roots
+				<p>Objects defined to be reachable by the JVM</p>
+
+			</li>
+
+		</ul>
+
+		<p>A heap dump does not contain allocation information so it cannot
+			resolve questions like who had created the objects and where they
+			have been created.</p>
+
+	</div>
+
+	<div><div class="reltasks"><strong>Related tasks</strong><br />
 <div><a href="../tasks/acquiringheapdump.html">Acquiring Heap Dumps</a></div>
 </div>
 </div>
-    
+
 </body>
 </html>

@@ -27,6 +27,9 @@ import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.Category;
+import org.eclipse.mat.query.annotations.CommandName;
+import org.eclipse.mat.query.annotations.Help;
+import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.query.refined.RefinedResultBuilder;
 import org.eclipse.mat.query.refined.RefinedTable;
@@ -50,7 +53,10 @@ import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.Units;
 
 @Name("Component Report")
+@CommandName("component_report")
 @Category("Leak Identification")
+@Help("Analyze a component for possible memory waste and other inefficiencies.")
+@HelpUrl("/org.eclipse.mat.ui.help/reference/inspections/component_report.html")
 public class ComponentReportQuery implements IQuery
 {
 
@@ -373,7 +379,7 @@ public class ComponentReportQuery implements IQuery
     {
         long threshold = totalSize / 20;
 
-        SectionSpec overview = new SectionSpec("Collection Usage");
+        SectionSpec overview = new SectionSpec("Empty Collections");
 
         StringBuilder comment = new StringBuilder();
         SectionSpec collectionbySizeSpec = new SectionSpec("Details");

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd" >
+<task id="task_analyzingfinalizer" xml:lang="en-us">
+	<title>Analyzing Finalizer</title>
+	<prolog />
+	<taskbody>
+		<context>
+			<p> Finalizers are executed when the internal garbage collection
+				cleans up the objects. Since you have no control over the finalizer
+				execution, it is recommended not to use them. because the Memory can
+				only be released when the finalize method finished so long running
+				tasks in the finalizer can block the garbage collection. To get the
+				finalizers overview select Finalizer Overview Query from the query
+				list:</p>
+			<image href="../mimes/26075503.png" />
+			<p>This query includes the following subqueries:</p>
+			<table>
+				<tgroup cols="2">
+					<tbody>
+						<row>
+							<entry>
+								<b>Finalizer In Processing</b>
+							</entry>
+							<entry>
+								<p> Extract object currently processed by Finalizer Thread. This
+									query return the currently processed object by the Finalizer
+									Thread if any. The returned object can be processed for one of
+									the following reasons:</p>
+								<ul>
+									<li>it is blocking</li>
+									<li>it is long running</li>
+									<li> it the finalizer queue was or is still full.</li>
+								</ul>
+								<p> Use the finalizer queue query to check the queue.</p>
+							</entry>
+						</row>
+						<row>
+							<entry>
+								<b>Finalizer Queue</b>
+							</entry>
+							<entry>
+								<p> This query shows the objects ready for finalization in their
+									processing order. Following reasons can cause a full finalizer
+									queue:</p>
+								<ul>
+									<li> The currently processed object is blocking or long running
+										(please use our finalizer in processing query to check).</li>
+									<li> The application made use of too many objects with
+										finalize() which are queued up in memory.</li>
+								</ul>
+							</entry>
+						</row>
+						<row>
+							<entry>
+								<b>Finalizer Thread Locals</b>
+							</entry>
+							<entry>
+								<p>
+									This query shows the thread locals of the daemon thread that
+									performs the object finalizations. If there are any, this
+									indicates miss-use in at least one of the processed finalizers
+									(
+									<cmdname>finalize()</cmdname>
+									implemented wrong) and might cause severe problems (e.g.
+									unreclaimed memory permanently hold by the finalizer thread or
+									finalizer processed under useless thread locals harming
+									application logic)
+								</p>
+							</entry>
+						</row>
+						<row>
+							<entry>
+								<b>Finalizer Thread</b>
+							</entry>
+							<entry> This query shows the daemon thread which performs the
+								object finalizations.</entry>
+						</row>
+					</tbody>
+				</tgroup>
+			</table>
+		</context>
+	</taskbody>
+</task>

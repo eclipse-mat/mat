@@ -1,13 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?pde version="3.1"?>
+<?pde version="3.4"?>
 
-<product name="Memory Analyzer Tool" id="org.eclipse.mat.ui.rcp.MemoryAnalyzer" application="org.eclipse.mat.ui.rcp.application" useFeatures="true">
+<product name="Memory Analyzer Tool" id="org.eclipse.mat.ui.rcp.MemoryAnalyzer" application="org.eclipse.mat.ui.rcp.application" version="0.7.0" useFeatures="true">
 
    <aboutInfo>
       <image path="/org.eclipse.mat.ui.rcp/icons/memory_analyzer_16.gif"/>
    </aboutInfo>
 
-   <configIni use="custom" path="/org.eclipse.mat.ui.rcp/config.ini"/>
+   <configIni use="default">
+      <linux>/org.eclipse.mat.ui.rcp/config.ini</linux>
+      <macosx>/org.eclipse.mat.ui.rcp/config.ini</macosx>
+      <solaris>/org.eclipse.mat.ui.rcp/config.ini</solaris>
+      <win32>/org.eclipse.mat.ui.rcp/config.ini</win32>
+   </configIni>
 
    <launcherArgs>
       <vmArgs>-Xmx1024m</vmArgs>

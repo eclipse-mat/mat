@@ -39,6 +39,10 @@ import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.action.IContributionItem;
+import org.eclipse.jface.action.IContributionManagerOverrides;
+import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -103,7 +107,8 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
 
     private LRUList<AbstractEditorPane> nestedPanes = new LRUList<AbstractEditorPane>();
 
-    private ToolBarManager toolbarManager;
+    private ToolBarManager toolbarMgr;
+    private ToolBarManager toolbarMgrHelp;
     private CTabFolder container;
 
     private List<IMultiPaneEditorContributor> contributors = new ArrayList<IMultiPaneEditorContributor>();
@@ -204,17 +209,22 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
     {
         // create composite
         Composite composite = new Composite(parent, SWT.TOP);
-        GridLayoutFactory.fillDefaults().applyTo(composite);
+        GridLayoutFactory.fillDefaults().numColumns(2).applyTo(composite);
 
         // create tool bar
         ToolBar toolbar = new ToolBar(composite, SWT.FLAT);
         GridDataFactory.fillDefaults().grab(true, false).indent(0, 2).applyTo(toolbar);
-        toolbarManager = new ToolBarManager(toolbar);
+        toolbarMgr = new ToolBarManager(toolbar);
+
+        // create tool bar
+        toolbar = new ToolBar(composite, SWT.FLAT);
+        GridDataFactory.fillDefaults().grab(false, false).indent(0, 2).applyTo(toolbar);
+        toolbarMgrHelp = new ToolBarManager(toolbar);
 
         // create folder
         container = new CTabFolder(composite, SWT.TOP | SWT.BORDER | SWT.FLAT);
 
-        GridDataFactory.fillDefaults().grab(true, true).indent(0, 0).applyTo(container);
+        GridDataFactory.fillDefaults().grab(true, true).span(2, 1).indent(0, 0).applyTo(container);
 
         container.setUnselectedImageVisible(true);
         container.setUnselectedCloseVisible(false);
@@ -425,9 +435,9 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
             contributor.dispose();
         contributors.clear();
 
-        if (toolbarManager != null)
-            toolbarManager.dispose();
-        toolbarManager = null;
+        if (toolbarMgr != null)
+            toolbarMgr.dispose();
+        toolbarMgr = null;
 
         if (menu != null && !menu.isDisposed())
             menu.dispose();
@@ -877,19 +887,23 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
 
     public void updateToolbar()
     {
-        toolbarManager.removeAll();
+        toolbarMgr.removeAll();
+        toolbarMgrHelp.removeAll();
+        
+        ToolbarMgr mgr = new ToolbarMgr(toolbarMgr, toolbarMgrHelp);
 
         for (IMultiPaneEditorContributor contributor : this.contributors)
-            contributor.contributeToToolbar(toolbarManager);
+            contributor.contributeToToolbar(mgr);
 
         AbstractEditorPane activeEditor = getActiveEditor();
         if (activeEditor != null)
         {
-            toolbarManager.add(new Separator());
-            activeEditor.contributeToToolBar(toolbarManager);
+            mgr.add(new Separator());
+            activeEditor.contributeToToolBar(mgr);
         }
 
-        toolbarManager.update(false);
+        toolbarMgr.update(false);
+        toolbarMgrHelp.update(false);
 
         if (activeEditor != null)
             activeEditor.getEditorSite().getActionBars().updateActionBars();
@@ -901,7 +915,7 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
 
     public ToolBarManager getToolBarManager()
     {
-        return toolbarManager;
+        return toolbarMgr;
     }
 
     public AbstractEditorPane getActiveEditor()
@@ -1006,7 +1020,7 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
     {
         return resource;
     }
-    
+
     public IQueryContext getQueryContext()
     {
         return queryContext;
@@ -1017,4 +1031,146 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
         this.queryContext = queryContext;
     }
 
+    // //////////////////////////////////////////////////////////////
+    // toolbar manager (pass on manager to the views, split later)
+    // //////////////////////////////////////////////////////////////
+
+    private static class ToolbarMgr implements IToolBarManager
+    {
+        private IToolBarManager delegate;
+        private IToolBarManager help;
+
+        public ToolbarMgr(IToolBarManager delegate, IToolBarManager help)
+        {
+            this.delegate = delegate;
+            this.help = help;
+        }
+
+        public void add(IAction action)
+        {
+            delegate.add(action);
+        }
+
+        public void add(IContributionItem item)
+        {
+            delegate.add(item);
+        }
+
+        public void appendToGroup(String groupName, IAction action)
+        {
+            if ("help".equals(groupName))
+                help.add(action);
+            else
+                delegate.appendToGroup(groupName, action);
+        }
+
+        public void appendToGroup(String groupName, IContributionItem item)
+        {
+            if ("help".equals(groupName))
+                help.add(item);
+            else
+                delegate.appendToGroup(groupName, item);
+        }
+
+        public IContributionItem find(String id)
+        {
+            return delegate.find(id);
+        }
+
+        public IContributionItem[] getItems()
+        {
+            return delegate.getItems();
+        }
+
+        public IContributionManagerOverrides getOverrides()
+        {
+            return delegate.getOverrides();
+        }
+
+        public void insertAfter(String id, IAction action)
+        {
+            delegate.insertAfter(id, action);
+        }
+
+        public void insertAfter(String id, IContributionItem item)
+        {
+            delegate.insertAfter(id, item);
+        }
+
+        public void insertBefore(String id, IAction action)
+        {
+            delegate.insertBefore(id, action);
+        }
+
+        public void insertBefore(String id, IContributionItem item)
+        {
+            delegate.insertBefore(id, item);
+        }
+
+        public boolean isDirty()
+        {
+            return delegate.isDirty();
+        }
+
+        public boolean isEmpty()
+        {
+            return delegate.isEmpty();
+        }
+
+        public void markDirty()
+        {
+            delegate.markDirty();
+        }
+
+        public void prependToGroup(String groupName, IAction action)
+        {
+            if ("help".equals(groupName))
+            {
+                if (help.isEmpty())
+                    help.add(action);
+                else
+                    help.insertBefore(help.getItems()[0].getId(), action);
+            }
+            else
+            {
+                delegate.prependToGroup(groupName, action);
+            }
+        }
+
+        public void prependToGroup(String groupName, IContributionItem item)
+        {
+            if ("help".equals(groupName))
+            {
+                if (help.isEmpty())
+                    help.add(item);
+                else
+                    help.insertBefore(help.getItems()[0].getId(), item);
+            }
+            else
+            {
+                delegate.prependToGroup(groupName, item);
+            }
+        }
+
+        public IContributionItem remove(IContributionItem item)
+        {
+            return delegate.remove(item);
+        }
+
+        public IContributionItem remove(String id)
+        {
+            return delegate.remove(id);
+        }
+
+        public void removeAll()
+        {
+            delegate.removeAll();
+        }
+
+        public void update(boolean force)
+        {
+            delegate.update(force);
+        }
+
+    }
 }

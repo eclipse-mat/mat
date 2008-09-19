@@ -7,48 +7,76 @@
 <meta content="concept" name="DC.Type" />
 <meta name="DC.Title" content="Dominator Tree" />
 <meta content="XHTML" name="DC.Format" />
-<meta content="dominatortreeconcept" name="DC.Identifier" />
+<meta content="concept_dominatortree" name="DC.Identifier" />
 <meta content="en-us" name="DC.Language" />
-<link href="..\commonltr.css" type="text/css" rel="stylesheet" />
+<link href="..\styles/commonltr.css" type="text/css" rel="stylesheet" />
 <title>Dominator Tree</title>
-<script language="JavaScript" src="PLUGINS_ROOT/org.eclipse.help/livehelp.js"> </script></head>
-<body id="dominatortreeconcept"><a name="dominatortreeconcept"><!-- --></a>
+</head>
+<body id="concept_dominatortree"><a name="concept_dominatortree"><!-- --></a>
 
- 
-    <h1 class="topictitle1">Dominator Tree</h1>
 
-    <div> 
-		<p>An object x
-			<strong>dominates</strong> an object y if every path in the object graph from the start (or
-			the root) node to y must go through x.</p>
+	<h1 class="topictitle1">Dominator Tree</h1>
 
-      <p>The 
-        <strong>immediate dominator</strong>
-        x of some object y is the dominator closest to the object y.</p>
+	<div>
+		<p>
+			An object x
+			<strong>dominates</strong>
+			an object y if every path in the object graph from the start (or the
+			root) node to y must go through x.
+		</p>
 
-      <p>A 
-        <strong>dominator tree</strong>
-        is built out of the object graph. In the dominator tree each object is 
-        the immediate dominator of its children. so dependencies between the objects 
-        are easily identified.</p>
+		<p>
+			The
+			<strong>immediate dominator</strong>
+			x of some object y is the dominator closest to the object y.
+		</p>
 
-      <p>Dominator Tree has the following important properties:</p>
+		<p>
+			A
+			<strong>dominator tree</strong>
+			is built out of the object graph. In the dominator tree each object
+			is the immediate dominator of its children. so dependencies between
+			the objects are easily identified.
+		</p>
 
-      <br /><ul> 
-        <li>The objects belonging to the sub-tree of <span class="keyword">x</span> (i.e. the objects dominated by <span class="keyword">x</span>) represent the retained set of <span class="keyword">x</span>.</li>
+		<p>Dominator Tree has the following important properties:</p>
 
-        <li>If <span class="keyword">x</span> is the immediate dominator of <span class="keyword">y</span>, then the immediate dominator of <span class="keyword">x</span> also dominates <span class="keyword">y</span>, and so on.</li>
+		<br /><ul>
+			<li>
+				The objects belonging to the sub-tree of
+				<span class="keyword">x</span>
+				(i.e. the objects dominated by
+				<span class="keyword">x</span>
+				) represent the retained set of
+				<span class="keyword">x</span>
+				.
+			</li>
 
-        <li>The edges in the dominator tree do not directly correspond to object references from the object graph.</li>
+			<li>
+				If
+				<span class="keyword">x</span>
+				is the immediate dominator of
+				<span class="keyword">y</span>
+				, then the immediate dominator of
+				<span class="keyword">x</span>
+				also dominates
+				<span class="keyword">y</span>
+				, and so on.
+			</li>
 
-      </ul>
+			<li>The edges in the dominator tree do not directly correspond to
+				object references from the object graph.</li>
 
-      <img src="../mimes/m2268b281.png" />
-      <p>The transformation of the object reference graph into a dominator tree allows you to easily identify the biggest chunks of retained memory.</p>
+		</ul>
 
-    </div>
+		<img src="../mimes/m2268b281.png" />
+		<p>The transformation of the object reference graph into a
+			dominator tree allows you to easily identify the biggest chunks of
+			retained memory.</p>
 
-  <div />
+	</div>
+
+<div />
 
 </body>
 </html>

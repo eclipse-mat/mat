@@ -9,6 +9,7 @@
  *    SAP AG - initial API and implementation
  *******************************************************************************/
 package org.eclipse.mat.inspections;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -36,33 +37,46 @@ import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.util.IProgressListener;
 
-
 @Name("Customized Retained Set")
 @Category("Java Basics")
 @Icon("/META-INF/icons/show_retained_set.gif")
-@Help("Calculate the retained set of a set of objects ignoring some other references.\n\n"
-                + "The references which should be excluded should have the format <objectAddress | pattern>[:fieldName].\n"
+@Help("Calculate the retained set of objects excluding references via given fields.\n\n" //
+
+                + "The custom retained set comprises all objects included in the normal retained set. " //
+                + "Additionally, it adds objects which are (a) reachable from the root set and (b) " //
+                + "would be garbage collected if the references defined by the excludes would not exist.\n\n" //
+
+                + "In terms of set operations, one could put it this way: the customized retained set contains "
+                + "all objects which are unreachable if all references to the root set and all references "
+                + "defined by the excludes are removed. From the resulting set, the objects of the retained set "
+                + "derived only through the excludes are removed.\n\n"
+
+                + "For example, to calculate the retained set of all classes in a package including those "
+                + "objects that would be freed only after the finalizer run (only on Sun's VM!), one could say:\n" //
+                + "\tcustom_retained_set sample\\.package.* -x java.lang.ref.Finalizer:referent\n\n" //
+
+                + "The excludes are specified as follows:\n" //
+                + "\texclude ::= ( <objectAddress> | <className> ) [: <field> [, <field> ]]\n" //
                 + "Example:\n" //
-                + "\tjava.lang.ref.WeakReference:referent\n\n" //
-                + "Entries with the same format can be loaded from a file (using the -xfile option).")
+                + "\tjava.lang.ref.WeakReference:referent\n" //
+                + "\t0x4711:attrib1,attrib2\n\n" //
+
+                + "Use the argument 'xfile' to read excludes from the file. Each lines must have the same format.")
 public class CustomizedRetainedSetQuery implements IQuery
 {
     @Argument
     public ISnapshot snapshot;
 
     @Argument(flag = "none")
+    @Help("Root set of objects for the retained set calculation")
     public IHeapObjectArgument objects;
 
-    // @Argument(isMandatory = false, flag = "f")
-    // @Help("List of field names")
-    // public String[] fieldNames;
-
     @Argument(isMandatory = false, flag = "x")
-    @Help("List of references to be excluded")
+    @Help("Exclude definitions")
     public String[] excludedReferences;
 
     @Argument(isMandatory = false, flag = "xfile")
-    @Help("File containing a list of references to be excluded")
+    @Help("File containing exclude definitions")
     public File excludedReferencesListFile;
 
     public IResult execute(IProgressListener listener) throws Exception
@@ -71,19 +85,19 @@ public class CustomizedRetainedSetQuery implements IQuery
 
         if (excludedReferences == null && excludedReferencesListFile == null)
         {
-            /* normal retained set */
+            // normal retained set
             retainedSet = snapshot.getRetainedSet(objects.getIds(listener), listener);
         }
         else
-        // retained set with excluded refs
         {
+            // retained set with excluded refs
             // read the file (if any)
             String[] fromFile = getLinesFromFile();
             if (fromFile != null && fromFile.length > 0)
             {
-                if (excludedReferences != null) // merge from file and manually
-                // entered entries
+                if (excludedReferences != null)
                 {
+                    // merge from file and manually entered entries
                     String[] tmp = new String[fromFile.length + excludedReferences.length];
                     System.arraycopy(fromFile, 0, tmp, 0, fromFile.length);
                     System.arraycopy(excludedReferences, 0, tmp, fromFile.length, excludedReferences.length);
@@ -111,13 +125,13 @@ public class CustomizedRetainedSetQuery implements IQuery
     }
 
     private ExcludedReferencesDescriptor[] getExcludedReferenceDescriptors(String[] excludedRefs)
-                    throws UnsupportedOperationException, SnapshotException
+                    throws SnapshotException
     {
         ExcludedReferencesDescriptor[] result = new ExcludedReferencesDescriptor[excludedRefs.length];
         int i = 0;
         for (String s : excludedRefs)
         {
-            /* fields are separated by ":" */
+            // fields are separated by ":"
             StringTokenizer tokenizer = new StringTokenizer(s, ":");
 
             String objectsDescription = tokenizer.nextToken();

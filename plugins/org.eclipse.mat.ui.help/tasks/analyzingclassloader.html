@@ -7,30 +7,35 @@
 <meta content="task" name="DC.Type" />
 <meta name="DC.Title" content="Analyzing Class Loader" />
 <meta content="XHTML" name="DC.Format" />
-<meta content="analyzingclassloader" name="DC.Identifier" />
+<meta content="task_analyzingclassloader" name="DC.Identifier" />
 <meta content="en-us" name="DC.Language" />
-<link href="..\commonltr.css" type="text/css" rel="stylesheet" />
+<link href="..\styles/commonltr.css" type="text/css" rel="stylesheet" />
 <title>Analyzing Class Loader</title>
-<script language="JavaScript" src="PLUGINS_ROOT/org.eclipse.help/livehelp.js"> </script></head>
-<body id="analyzingclassloader"><a name="analyzingclassloader"><!-- --></a>
+</head>
+<body id="task_analyzingclassloader"><a name="task_analyzingclassloader"><!-- --></a>
 
 
-<h1 class="topictitle1">Analyzing Class Loader</h1>
+	<h1 class="topictitle1">Analyzing Class Loader</h1>
 
+	
+	<div>
+		<div class="section">
+			<p>The ClassLoader is the part of the JVM that loads classes into
+				memory. It is a essential component of the Java run-time system.
+				Creating your own ClassLoader lets you to completely redefine how
+				class files are brought into the system.</p>
 
-<div>
-<div class="section"><p>The ClassLoader is the part of the JVM that loads classes into memory.
-It is a essential component of the Java run-time system. Creating your own ClassLoader lets you to completely redefine how class files are brought into the system.</p>
+			<p>Class Histogram and Dominator Tree allow grouping by
+				classloader:</p>
 
-<p>Class Histogram and Dominator Tree allow grouping by classloader:</p>
+			<img src="../mimes/1b0be1fb.png" alt="screen shot showing a reault grouped by class loader" />
+			<p>You can continue to analyze the classloader using a context
+				menu and Inspector View:</p>
 
-<img src="../mimes/1b0be1fb.png" alt="screen shot showing a reault grouped by class loader" />
-<p>You can continue to analyze the classloader using a context menu and Inspector View:</p>
+			<img src="../mimes/m45858ad9.png" />
+		</div>
 
-<img src="../mimes/m45858ad9.png" />
-</div>
-
-</div>
+	</div>
 
 
 </body>

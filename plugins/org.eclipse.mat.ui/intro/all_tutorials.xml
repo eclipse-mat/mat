@@ -20,8 +20,13 @@
 			<link label="OQL in 1 Minute"
 				url="http://org.eclipse.ui.intro/showStandby?partId=org.eclipse.platform.cheatsheet&amp;input=org.eclipse.mat.tutorials.object_query_language">
 				<img src="css/tutorial.gif" alt="OQL in 1 Minute" />
-				<text> Get an idea how simple it is to perform custom SQL-like
-					queries.</text>
+				<text>Get an idea how simple it is to perform custom SQL-like queries.</text>
+			</link>
+			<link label="Component Report"
+				url="http://org.eclipse.ui.intro/showStandby?partId=org.eclipse.platform.cheatsheet&amp;input=org.eclipse.mat.tutorials.component_report">
+				<img src="css/tutorial.gif" alt="OQL in 1 Minute" />
+				<text>A heap dump contains many objects. But which of those belong to your component?
+						And what conclusions can you draw from them? This is where the Component Report can help.</text>
 			</link>
 			<link label="How to Find Memory Problems"
 				url="http://org.eclipse.ui.intro/showStandby?partId=org.eclipse.platform.cheatsheet&amp;input=org.eclipse.mat.tutorials.findingProblemsTutorial">

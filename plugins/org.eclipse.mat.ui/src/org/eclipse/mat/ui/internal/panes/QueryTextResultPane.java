@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -33,6 +34,7 @@ import org.eclipse.mat.query.results.DisplayFileResult;
 import org.eclipse.mat.query.results.TextResult;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.QueryExecution;
+import org.eclipse.mat.ui.actions.OpenHelpPageAction;
 import org.eclipse.mat.ui.editor.AbstractEditorPane;
 import org.eclipse.mat.ui.util.ErrorHelper;
 import org.eclipse.mat.ui.util.PopupMenu;
@@ -118,6 +120,15 @@ public class QueryTextResultPane extends AbstractEditorPane implements ISelectio
         }
 
         firePropertyChange(IWorkbenchPart.PROP_TITLE);
+    }
+    
+    @Override
+    public void contributeToToolBar(IToolBarManager manager)
+    {
+        if (queryResult.getQuery() != null && queryResult.getQuery().getHelpUrl() != null)
+            manager.appendToGroup("help", new OpenHelpPageAction(queryResult.getQuery().getHelpUrl()));
+
+        super.contributeToToolBar(manager);
     }
 
     @Override

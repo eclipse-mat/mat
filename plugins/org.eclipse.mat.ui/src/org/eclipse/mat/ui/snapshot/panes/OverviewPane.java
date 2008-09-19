@@ -53,6 +53,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.cheatsheets.OpenCheatSheetAction;
 import org.eclipse.ui.forms.events.HyperlinkEvent;
 import org.eclipse.ui.forms.events.IHyperlinkListener;
 import org.eclipse.ui.forms.widgets.Form;
@@ -76,24 +77,27 @@ public class OverviewPane extends HeapEditorPane implements IHyperlinkListener, 
         toolkit = new FormToolkit(parent.getDisplay());
         form = toolkit.createForm(parent);
 
-        GridLayout layout = new GridLayout(2, true);
+        GridLayout layout = new GridLayout(3, true);
         layout.verticalSpacing = 20;
         form.getBody().setLayout(layout);
 
         Section section = createDetailsSection();
-        GridDataFactory.fillDefaults().grab(true, false).span(2, 1).applyTo(section);
+        GridDataFactory.fillDefaults().grab(true, false).span(3, 1).applyTo(section);
 
         section = createBiggestObjectsSection();
-        GridDataFactory.fillDefaults().grab(true, false).span(2, 1).hint(SWT.DEFAULT, 0).applyTo(section);
+        GridDataFactory.fillDefaults().grab(true, false).span(3, 1).hint(SWT.DEFAULT, 0).applyTo(section);
 
         section = createSidecarSection();
         if (section != null)
-            GridDataFactory.fillDefaults().grab(true, false).span(2, 1).applyTo(section);
+            GridDataFactory.fillDefaults().grab(true, false).span(3, 1).applyTo(section);
 
         section = createActionSection();
         GridDataFactory.fillDefaults().grab(true, false).applyTo(section);
 
         section = createReportsSection();
+        GridDataFactory.fillDefaults().grab(true, false).applyTo(section);
+
+        section = createStepByStepSection();
         GridDataFactory.fillDefaults().grab(true, false).applyTo(section);
 
         form.getBody().layout();
@@ -111,7 +115,7 @@ public class OverviewPane extends HeapEditorPane implements IHyperlinkListener, 
         List<QueryDescriptor> queries = QueryRegistry.instance().getQueries(Pattern.compile("supplement_.*"));
         if (queries.isEmpty())
             return null;
-        
+
         Collections.sort(queries, new Comparator<QueryDescriptor>()
         {
             public int compare(QueryDescriptor o1, QueryDescriptor o2)
@@ -210,12 +214,12 @@ public class OverviewPane extends HeapEditorPane implements IHyperlinkListener, 
         buf.append("<form>");
 
         addButton(buf, text, "histogram", null, "Histogram", "Lists number of instances per class");
-        addButton(buf, text, "dominator_tree", null, "Dominator Tree", "Lists biggest objects");
+        addButton(buf, text, "dominator_tree", null, "Dominator Tree",
+                        "List the <b>biggest objects</b> and what they keep alive.");
         addButton(buf, text, "top_consumers_html", null, "Top Consumers",
-                        "Prints most expensive objects and groups them by class and by package");
-        addButton(buf, text, "leakhunter", null, "Leak Hunter", "Automatically checks for leak suspects");
+                        "Print the most <b>expensive objects</b> grouped by class and by package.");
         addButton(buf, text, "duplicate_classes", null, "Duplicate Classes",
-                        "Lists classes loaded by more than one class loader");
+                        "Detect classes loaded by multiple class loaders.");
 
         buf.append("</form>");
         text.setText(buf.toString(), true, false);
@@ -237,11 +241,8 @@ public class OverviewPane extends HeapEditorPane implements IHyperlinkListener, 
         StringBuilder buf = new StringBuilder();
         buf.append("<form>");
 
-        for (SpecFactory.Report report : SpecFactory.instance().delegates())
-        {
-            addButton(buf, text, "create_report", "default_report " + report.getExtensionIdentifier(),
-                            report.getName(), report.getDescription());
-        }
+        addReportsByPattern(text, buf, Pattern.compile(".*:suspects"));
+        addReportsByPattern(text, buf, Pattern.compile(".*:top_components"));
 
         buf.append("</form>");
         text.setText(buf.toString(), true, false);
@@ -251,10 +252,64 @@ public class OverviewPane extends HeapEditorPane implements IHyperlinkListener, 
         return section;
     }
 
+    private void addReportsByPattern(FormText text, StringBuilder buf, Pattern pattern)
+    {
+        for (SpecFactory.Report report : SpecFactory.instance().delegates())
+        {
+            if (pattern.matcher(report.getExtensionIdentifier()).matches())
+                addButton(buf, text, "create_report", "default_report " + report.getExtensionIdentifier(), report
+                                .getName(), report.getDescription());
+        }
+    }
+
+    private Section createStepByStepSection()
+    {
+        Section section = toolkit.createSection(form.getBody(), Section.TITLE_BAR | Section.EXPANDED | Section.TWISTIE);
+        section.setText("Step By Step");
+
+        Composite sectionClient = toolkit.createComposite(section);
+        sectionClient.setLayout(new TableWrapLayout());
+
+        FormText text = toolkit.createFormText(sectionClient, true);
+        StringBuilder buf = new StringBuilder();
+        buf.append("<form>");
+
+        addCheatSheetLink(buf, "org.eclipse.mat.tutorials.component_report", "Component Report",
+                        "Analyze objects which belong to a <b>common root package</b> or <b>class loader</b>.");
+
+        buf.append("</form>");
+        text.setText(buf.toString(), true, false);
+        text.addHyperlinkListener(new IHyperlinkListener()
+        {
+            public void linkActivated(HyperlinkEvent e)
+            {
+                new OpenCheatSheetAction(String.valueOf(e.getHref())).run();
+            }
+
+            public void linkEntered(HyperlinkEvent e)
+            {}
+
+            public void linkExited(HyperlinkEvent e)
+            {}
+        });
+
+        section.setClient(sectionClient);
+        return section;
+    }
+
+    private void addCheatSheetLink(StringBuilder buf, String cheatSheetId, String title, String help)
+    {
+        buf.append("<li style=\"text\" value=\"\">");
+        buf.append("<a href=\"").append(cheatSheetId).append("\">").append(title).append("</a>");
+        if (help != null)
+            buf.append(": ").append(help);
+        buf.append("</li>");
+    }
+
     private void addButton(StringBuilder buf, FormText formText, String commandId, String command, String title,
                     String help)
     {
-        final QueryDescriptor descriptor = QueryRegistry.instance().getQuery(commandId);
+        QueryDescriptor descriptor = QueryRegistry.instance().getQuery(commandId);
         if (descriptor == null)
             return;
 

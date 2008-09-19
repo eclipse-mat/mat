@@ -30,6 +30,7 @@ public class QueryDescriptor
     protected String usage;
     protected final URL icon;
     protected final String help;
+    protected final String helpUrl;
     protected final int sortOrder;
 
     protected final Class<? extends IQuery> subject;
@@ -37,7 +38,7 @@ public class QueryDescriptor
     protected final List<QueryDescriptor> menuEntries;
 
     QueryDescriptor(String identifier, String name, String category, Class<? extends IQuery> subject, String usage,
-                    URL icon, String help)
+                    URL icon, String help, String helpUrl)
     {
         this.identifier = identifier;
 
@@ -58,6 +59,7 @@ public class QueryDescriptor
         this.usage = usage;
         this.icon = icon;
         this.help = help;
+        this.helpUrl = helpUrl;
 
         this.arguments = new ArrayList<ArgumentDescriptor>();
         this.menuEntries = new ArrayList<QueryDescriptor>();
@@ -126,6 +128,11 @@ public class QueryDescriptor
         return help;
     }
 
+    public String getHelpUrl()
+    {
+        return helpUrl;
+    }
+
     public String getShortDescription()
     {
         final int numChars = 80;
@@ -173,8 +180,8 @@ public class QueryDescriptor
                             !context.converts(argument.getType(), argument.getAdvice()))
             {
                 if (ReportPlugin.getDefault().isDebugging())
-                    ReportPlugin.log(IStatus.INFO, MessageFormat.format(
-                                    "Ingoring query {0} due to argument {1}", getIdentifier(), argument.getName()));
+                    ReportPlugin.log(IStatus.INFO, MessageFormat.format("Ingoring query {0} due to argument {1}",
+                                    getIdentifier(), argument.getName()));
                 return false;
             }
         }
@@ -234,9 +241,9 @@ public class QueryDescriptor
         arguments.add(descriptor);
     }
 
-    /* package */void addMenuEntry(String label, String category, String help, URL icon, String options)
+    /* package */void addMenuEntry(String label, String category, String help, String helpUrl, URL icon, String options)
     {
-        menuEntries.add(new ShallowQueryDescriptor(this, label, category, icon, help, options));
+        menuEntries.add(new ShallowQueryDescriptor(this, label, category, icon, help, helpUrl, options));
     }
 
     // //////////////////////////////////////////////////////////////
@@ -263,9 +270,9 @@ public class QueryDescriptor
         private String options;
 
         private ShallowQueryDescriptor(QueryDescriptor parent, String label, String category, URL icon, String help,
-                        String options)
+                        String helpUrl, String options)
         {
-            super(parent.identifier, label, category, parent.subject, parent.usage, icon, help);
+            super(parent.identifier, label, category, parent.subject, parent.usage, icon, help, helpUrl);
             this.options = options;
 
             this.arguments.addAll(parent.arguments);

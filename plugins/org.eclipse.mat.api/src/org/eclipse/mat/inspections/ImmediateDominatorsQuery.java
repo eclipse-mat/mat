@@ -25,6 +25,7 @@ import org.eclipse.mat.query.ResultMetaData;
 import org.eclipse.mat.query.Column.SortDirection;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.Help;
+import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.query.annotations.Argument.Advice;
@@ -43,6 +44,7 @@ import org.eclipse.mat.util.IProgressListener;
                 + "are all objects responsible for keeping the char[] alive. The result will "
                 + "contain most likely java.lang.String objects. Now add the skip pattern java.*, "
                 + "and you will see the non-JDK classes responsible for the char arrays.")
+@HelpUrl("/org.eclipse.mat.ui.help/reference/inspections/immediate_dominators.html#ref_inspections_immediate_dominators__result")
 public class ImmediateDominatorsQuery implements IQuery
 {
 

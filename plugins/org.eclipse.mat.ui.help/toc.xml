@@ -10,7 +10,7 @@
 <topic label="Heap Dump" href="concepts/heapdump.html"/>
 <topic label="Shallow vs. Retained Heap" href="concepts/shallowretainedheap.html"/>
 <topic label="Dominator Tree" href="concepts/dominatortree.html"/>
-<topic label="Garbage Collection Roots" href="concepts/garbagecollectionroots.html"/>
+<topic label="Garbage Collection Roots" href="concepts/gcroots.html"/>
 </topic>
 <topic label="Tasks">
 <topic label="Acquiring Heap Dumps" href="tasks/acquiringheapdump.html"/>
@@ -25,6 +25,12 @@
 <topic label="Export Data" href="tasks/exportdata.html"/>
 </topic>
 <topic label="Reference">
+<topic label="Inspections">
+<topic label="Leak Identification">
+<topic label="Component Report" href="reference/inspections/component_report.html"/>
+</topic>
+<topic label="Immediate Dominators" href="reference/inspections/immediate_dominators.html"/>
+</topic>
 <topic label="Query Matrix" href="reference/querymatrix.html">
 <topic label="Finding Memory Leak" href="reference/findingmemoryleak.html"/>
 <topic label="Analyzing Memory Consumption" href="reference/analyzingmemoryconsumption.html"/>

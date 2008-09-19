@@ -7,12 +7,12 @@
 <meta content="task" name="DC.Type" />
 <meta name="DC.Title" content="Analyzing Finalizer" />
 <meta content="XHTML" name="DC.Format" />
-<meta content="analyzingfinalizer" name="DC.Identifier" />
+<meta content="task_analyzingfinalizer" name="DC.Identifier" />
 <meta content="en-us" name="DC.Language" />
-<link href="..\commonltr.css" type="text/css" rel="stylesheet" />
+<link href="..\styles/commonltr.css" type="text/css" rel="stylesheet" />
 <title>Analyzing Finalizer</title>
-<script language="JavaScript" src="PLUGINS_ROOT/org.eclipse.help/livehelp.js"> </script></head>
-<body id="analyzingfinalizer"><a name="analyzingfinalizer"><!-- --></a>
+</head>
+<body id="task_analyzingfinalizer"><a name="task_analyzingfinalizer"><!-- --></a>
 
 
 	<h1 class="topictitle1">Analyzing Finalizer</h1>
@@ -20,16 +20,13 @@
 	
 	<div>
 		<div class="section">
-			<p>
-				Finalizers are executed when the internal garbage
-				collection cleans up the objects. Since you have no
-				control over the finalizer execution, it is recommended
-				not to use them. because the Memory can only be released
-				when the finalize method finished so long running tasks
-				in the finalizer can block the garbage collection. To
-				get the finalizers overview select Finalizer Overview
-				Query from the query list:
-			</p>
+			<p> Finalizers are executed when the internal garbage collection
+				cleans up the objects. Since you have no control over the finalizer
+				execution, it is recommended not to use them. because the Memory can
+				only be released when the finalize method finished so long running
+				tasks in the finalizer can block the garbage collection. To get the
+				finalizers overview select Finalizer Overview Query from the query
+				list:</p>
 
 			<img src="../mimes/26075503.png" />
 			<p>This query includes the following subqueries:</p>
@@ -43,32 +40,21 @@
 							</td>
 
 							<td class="cellrowborder" valign="top">
-								<p>
-									Extract object currently processed
-									by Finalizer Thread. This query
-									return the currently processed
-									object by the Finalizer Thread if
-									any. The returned object can be
-									processed for one of the following
-									reasons:
-								</p>
+								<p> Extract object currently processed by Finalizer Thread. This
+									query return the currently processed object by the Finalizer
+									Thread if any. The returned object can be processed for one of
+									the following reasons:</p>
 
 								<br /><ul>
 									<li>it is blocking</li>
 
 									<li>it is long running</li>
 
-									<li>
-										it the finalizer queue was or is
-										still full.
-									</li>
+									<li> it the finalizer queue was or is still full.</li>
 
 								</ul>
 
-								<p>
-									Use the finalizer queue query to
-									check the queue.
-								</p>
+								<p> Use the finalizer queue query to check the queue.</p>
 
 							</td>
 
@@ -80,26 +66,16 @@
 							</td>
 
 							<td class="cellrowborder" valign="top">
-								<p>
-									This query shows the objects ready
-									for finalization in their processing
-									order. Following reasons can cause a
-									full finalizer queue:
-								</p>
+								<p> This query shows the objects ready for finalization in their
+									processing order. Following reasons can cause a full finalizer
+									queue:</p>
 
 								<br /><ul>
-									<li>
-										The currently processed object
-										is blocking or long running
-										(please use our finalizer in
-										processing query to check).
-									</li>
+									<li> The currently processed object is blocking or long running
+										(please use our finalizer in processing query to check).</li>
 
-									<li>
-										The application made use of too
-										many objects with finalize()
-										which are queued up in memory.
-									</li>
+									<li> The application made use of too many objects with
+										finalize() which are queued up in memory.</li>
 
 								</ul>
 
@@ -114,19 +90,15 @@
 
 							<td class="cellrowborder" valign="top">
 								<p>
-									This query shows the thread locals
-									of the daemon thread that performs
-									the object finalizations. If there
-									are any, this indicates miss-use in
-									at least one of the processed
-									finalizers (
+									This query shows the thread locals of the daemon thread that
+									performs the object finalizations. If there are any, this
+									indicates miss-use in at least one of the processed finalizers
+									(
 									<span class="cmdname">finalize()</span>
-									implemented wrong) and might cause
-									severe problems (e.g. unreclaimed
-									memory permanently hold by the
-									finalizer thread or finalizer
-									processed under useless thread
-									locals harming application logic)
+									implemented wrong) and might cause severe problems (e.g.
+									unreclaimed memory permanently hold by the finalizer thread or
+									finalizer processed under useless thread locals harming
+									application logic)
 								</p>
 
 							</td>
@@ -138,10 +110,8 @@
 								<strong>Finalizer Thread</strong>
 							</td>
 
-							<td class="cellrowborder" valign="top">
-								This query shows the daemon thread which
-								performs the object finalizations.
-							</td>
+							<td class="cellrowborder" valign="top"> This query shows the daemon thread which performs the
+								object finalizations.</td>
 
 						</tr>
 

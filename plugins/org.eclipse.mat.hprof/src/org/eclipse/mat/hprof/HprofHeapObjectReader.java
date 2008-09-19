@@ -52,7 +52,11 @@ public class HprofHeapObjectReader implements IObjectReader
 
         this.enhancers = new ArrayList<IRuntimeEnhancer>();
         for (EnhancerRegistry.Enhancer enhancer : EnhancerRegistry.instance().delegates())
-            this.enhancers.add(enhancer.runtime());
+        {
+            IRuntimeEnhancer runtime = enhancer.runtime();
+            if (runtime != null)
+                this.enhancers.add(runtime);
+        }
     }
 
     public long[] readObjectArrayContent(ObjectArrayImpl array, int offset, int length) throws IOException,

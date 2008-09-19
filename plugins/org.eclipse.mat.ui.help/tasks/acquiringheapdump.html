@@ -7,12 +7,12 @@
 <meta content="task" name="DC.Type" />
 <meta name="DC.Title" content="Acquiring Heap Dumps" />
 <meta content="XHTML" name="DC.Format" />
-<meta content="acquiringheapdump" name="DC.Identifier" />
+<meta content="task_acquiringheapdump" name="DC.Identifier" />
 <meta content="en-us" name="DC.Language" />
-<link href="..\commonltr.css" type="text/css" rel="stylesheet" />
+<link href="..\styles/commonltr.css" type="text/css" rel="stylesheet" />
 <title>Acquiring Heap Dumps</title>
-<script language="JavaScript" src="PLUGINS_ROOT/org.eclipse.help/livehelp.js"> </script></head>
-<body id="acquiringheapdump"><a name="acquiringheapdump"><!-- --></a>
+</head>
+<body id="task_acquiringheapdump"><a name="task_acquiringheapdump"><!-- --></a>
 
 
 	<h1 class="topictitle1">Acquiring Heap Dumps</h1>
@@ -20,12 +20,10 @@
 	
 	<div>
 		<div class="section">
-			<p>
-				You can get a heap dump on an out of memory error for
-				Sun JVM (1.4.2_12 or higher and 1.5.0_07 or higher),
-				HP-UX JVM (1.4.2_11 or higher) and SAP JVM (since
-				1.5.0) by setting the following JVM parameter:
-			</p>
+			<p> You can get a heap dump on an out of memory error for Sun JVM
+				(1.4.2_12 or higher and 1.5.0_07 or higher), HP-UX JVM (1.4.2_11 or
+				higher) and SAP JVM (since 1.5.0) by setting the following JVM
+				parameter:</p>
 
 			<div class="p">
 				<pre class="codeblock">-XX:+HeapDumpOnOutOfMemoryError</pre>
@@ -34,19 +32,14 @@
 
 			<p>The heap dump is written to the work directory.</p>
 
-			<p>
-				To get heap dump on demand use the following JVM
-				parameter:
-			</p>
+			<p> To get heap dump on demand use the following JVM parameter:</p>
 
 			<div class="p">
 				<pre class="codeblock">-XX:+HeapDumpOnCtrlBreak</pre>
 
 			</div>
 
-			<p>
-				Alternatively, other tools can be used to acquire a heap
-				dump:
+			<p> Alternatively, other tools can be used to acquire a heap dump:
 			</p>
 
 			<br /><ul>

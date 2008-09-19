@@ -92,6 +92,7 @@ public class OQLPane extends CompositeHeapEditorPane
                 if (e.keyCode == '\r' && (e.stateMask & SWT.MOD1) != 0)
                 {
                     executeAction.run();
+                    e.doit = false;
                 }
             }
 

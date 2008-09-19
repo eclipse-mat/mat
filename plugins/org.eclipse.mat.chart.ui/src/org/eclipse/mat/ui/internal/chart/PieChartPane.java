@@ -19,6 +19,7 @@ import org.eclipse.birt.chart.device.IDeviceRenderer;
 import org.eclipse.birt.chart.event.StructureSource;
 import org.eclipse.birt.chart.model.Chart;
 import org.eclipse.birt.chart.model.attribute.CallBackValue;
+import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.ISelection;
@@ -33,6 +34,7 @@ import org.eclipse.mat.query.IResultPie;
 import org.eclipse.mat.query.IResultPie.Slice;
 import org.eclipse.mat.query.registry.QueryResult;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
+import org.eclipse.mat.ui.actions.OpenHelpPageAction;
 import org.eclipse.mat.ui.editor.AbstractEditorPane;
 import org.eclipse.mat.ui.util.PopupMenu;
 import org.eclipse.mat.ui.util.QueryContextMenu;
@@ -94,6 +96,15 @@ public class PieChartPane extends AbstractEditorPane implements ISelectionProvid
         GridDataFactory.fillDefaults().grab(true, false).indent(5, 0).hint(SWT.DEFAULT, 45).applyTo(label);
 
         canvas.renderer.setProperty(IDeviceRenderer.UPDATE_NOTIFIER, new CallBackListener());
+    }
+    
+    @Override
+    public void contributeToToolBar(IToolBarManager manager)
+    {
+        if (queryResult.getQuery() != null && queryResult.getQuery().getHelpUrl() != null)
+            manager.appendToGroup("help", new OpenHelpPageAction(queryResult.getQuery().getHelpUrl()));
+
+        super.contributeToToolBar(manager);
     }
 
     public String getTitle()

@@ -1,10 +1,23 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <component id="org.eclipse.mat.report" version="2">
     <resource path="META-INF/MANIFEST.MF">
+        <filter id="924844039">
+            <message_arguments>
+                <message_argument value="0.7.0.qualifier"/>
+                <message_argument value="0.7.0.200808081658"/>
+            </message_arguments>
+        </filter>
         <filter id="923795461">
             <message_arguments>
                 <message_argument value="0.7.0.qualifier"/>
                 <message_argument value="0.7.0.200808081658"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/mat/query/annotations/Menu.java" type="org.eclipse.mat.query.annotations.Menu$Entry">
+        <filter id="1093664772">
+            <message_arguments>
+                <message_argument value="org.eclipse.mat.query.annotations.Menu.Entry"/>
             </message_arguments>
         </filter>
     </resource>
@@ -13,6 +26,13 @@
             <message_arguments>
                 <message_argument value="org.eclipse.mat.collect.SetInt"/>
                 <message_argument value="main(String[])"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/mat/query/annotations/HelpUrl.java" type="org.eclipse.mat.query.annotations.HelpUrl">
+        <filter id="1110441988">
+            <message_arguments>
+                <message_argument value="org.eclipse.mat.query.annotations.HelpUrl"/>
             </message_arguments>
         </filter>
     </resource>

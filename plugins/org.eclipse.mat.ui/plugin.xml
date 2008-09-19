@@ -148,6 +148,15 @@
 			id="org.eclipse.mat.ui.actions.IconAssist"
 			name="Icon Assist">
 		</command>
+		<command
+			id="org.eclipse.mat.ui.actions.executeInspection"
+			name="Excecute Inspection">
+			<commandParameter
+				id="org.eclipse.mat.ui.actions.executeInspection.commandName"
+				name="commandName"
+				optional="false">
+			</commandParameter>
+		</command>
 	</extension>
 
 	<extension point="org.eclipse.ui.handlers">
@@ -162,6 +171,10 @@
 		<handler
 			class="org.eclipse.mat.ui.snapshot.actions.OpenIconAssistAction$Handler"
 			commandId="org.eclipse.mat.ui.actions.IconAssist">
+		</handler>
+		<handler
+			class="org.eclipse.mat.ui.internal.query.arguments.ExecuteInspectionHandler"
+			commandId="org.eclipse.mat.ui.actions.executeInspection">
 		</handler>
 	</extension>
 
@@ -197,6 +210,42 @@
 		<query impl="org.eclipse.mat.ui.snapshot.actions.CopyActions$FQClassName" />
 		<query impl="org.eclipse.mat.ui.snapshot.actions.CopyActions$Value" />
 		<query impl="org.eclipse.mat.ui.snapshot.actions.SaveValueAsQuery" />
+	</extension>
+
+	<extension point="org.eclipse.ui.cheatsheets.cheatSheetContent">
+		<category id="org.eclipse.mat.tutorials" name="Memory Analyzer"/>
+		
+		<cheatsheet 
+				id="org.eclipse.mat.tutorials.object_query_language"
+				contentFile="tutorials/object_query_language.xml"
+				category="org.eclipse.mat.tutorials"            
+				name="OQL Tutorial" />
+
+		<cheatsheet
+				id="org.eclipse.mat.tutorials.basicTutorial"
+				contentFile="tutorials/basic_tutorial.xml"
+				category="org.eclipse.mat.tutorials"
+				composite="false"
+				name="Basics"/>
+
+		<cheatsheet
+				id="org.eclipse.mat.tutorials.component_report"
+				contentFile="tutorials/component_report.xml"
+				category="org.eclipse.mat.tutorials"
+				composite="false"
+				name="Component Report"/>
+
+		<cheatsheet
+				id="org.eclipse.mat.tutorials.bestFeaturesTutorial"
+				contentFile="tutorials/best_features_tutorial.xml"
+				category="org.eclipse.mat.tutorials"
+				name="Best Features Tutorial"/>
+
+		<cheatsheet
+				id="org.eclipse.mat.tutorials.findingProblemsTutorial"
+				contentFile="tutorials/memory_hunting.xml"
+				category="org.eclipse.mat.tutorials"
+				name="Finding Memory Problems Tutorial"/>
 	</extension>
 
 </plugin>

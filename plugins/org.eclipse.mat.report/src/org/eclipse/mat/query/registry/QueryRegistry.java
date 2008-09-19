@@ -35,6 +35,7 @@ import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.Category;
 import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.Help;
+import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.query.annotations.Menu;
 import org.eclipse.mat.query.annotations.Name;
@@ -196,10 +197,14 @@ public class QueryRegistry extends RegistryReader<IQuery>
         Help h = queryClass.getAnnotation(Help.class);
         String help = h != null ? h.value() : null;
 
+        HelpUrl hu = queryClass.getAnnotation(HelpUrl.class);
+        String helpUrl = hu != null ? hu.value() : null;
+
         Icon i = queryClass.getAnnotation(Icon.class);
         URL icon = i != null ? queryClass.getResource(i.value()) : null;
 
-        QueryDescriptor descriptor = new QueryDescriptor(identifier, name, category, queryClass, usage, icon, help);
+        QueryDescriptor descriptor = new QueryDescriptor(identifier, name, category, queryClass, usage, icon, help,
+                        helpUrl);
 
         Class<?> clazz = queryClass;
         while (!clazz.equals(Object.class))
@@ -233,6 +238,10 @@ public class QueryRegistry extends RegistryReader<IQuery>
             if (help.length() == 0)
                 help = descriptor.getHelp();
 
+            String helpUrl = entry.helpUrl();
+            if (helpUrl.length() == 0)
+                helpUrl = descriptor.getHelpUrl();
+
             URL icon = descriptor.getIcon();
             String i = entry.icon();
             if (i.length() > 0)
@@ -240,7 +249,7 @@ public class QueryRegistry extends RegistryReader<IQuery>
 
             String options = entry.options();
 
-            descriptor.addMenuEntry(label, category, help, icon, options);
+            descriptor.addMenuEntry(label, category, help, helpUrl, icon, options);
         }
     }
 

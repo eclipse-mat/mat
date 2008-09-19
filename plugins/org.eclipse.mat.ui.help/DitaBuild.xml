@@ -1,35 +1,27 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-	<project name="eclipsehelp" default="all">
+<project name="eclipsehelp" default="eclipsehelp">
+	
+	<!-- dita.dir should point to the toolkit's root directory -->
+	<property name="dita.dir" value="C:/DITA-OT1.4.2.1"/>
+	
+	<target name="eclipsehelp">			
+		<ant antfile="${dita.dir}${file.separator}build.xml">
+			<property name="args.csspath" value="styles"/>
+			<property name="args.input" location="${basedir}/toc.ditamap"/>
+			<property name="clean.temp" value="yes"/>
+			<property name="dita.dir" value="${dita.dir}"/>
+			<property name="dita.eclipse.plugin" value="no" />
+			<property name="dita.extname" value=".dita"/>
+			<property name="dita.temp.dir" location="${basedir}/temp"/>
+			<property name="output.dir" value="${basedir}" />
+			<property name="transtype" value="eclipsehelp"/>
+			<property name="args.eclipse.provider" value="Eclipse.org"/>
+			<property name="args.eclipse.version" value="0.7"/>
+		</ant>			
 		
-		<!-- dita.dir should point to the toolkit's root directory -->
-		<property name="dita.dir" value="C:/DITA-OT1.4.2.1"/>
-		<property name="dita.eclipse.plugin" value="no"/>				
-		
-		<target name="all" depends="eclipsehelp"/>
-				
-		<!-- revise below here -->
-		<target name="eclipsehelp">			
-			<ant antfile="${dita.dir}${file.separator}conductor.xml" target="init"
-				dir="${dita.dir}">
-				<property name="args.copycss" value="no"/>
-				<property name="args.cssroot" value="."/>
-				<property name="args.eclipse.provider" value="Eclipse.org"/>
-				<property name="args.eclipse.version" value="0.7"/>
-				<property name="args.input" location="toc.ditamap"/>
-				<property name="args.eclipse.toc" value="toc.xml"/>
-				<property name="clean.temp" value="true"/>
-				<property name="dita.extname" value=".xml"/>
-				<property name="dita.temp.dir" location="temp"/>
-				<property name="output.dir" location="."/>
-				<property name="transtype" value="eclipsehelp"/>
-				<property name="args.hdf" location="javascript_ref.xml"/>
-			</ant>			
-			
-			<delete dir="temp"/>
-			<delete file="index.xml" />
-			<delete file="dita.list"/>
-			<delete file="dita.xml.properties"/>
-		</target>
-			
-	</project>
-  
+		<delete dir="temp"/>
+		<delete file="index.xml" />
+		<delete file="dita.list"/>
+		<delete file="dita.xml.properties"/>
+	</target>
+</project>
