@@ -73,13 +73,16 @@ public class ExtractListValuesQuery implements IQuery
         ArrayInt result = new ArrayInt();
 
         IObjectArray elementData = info.getBackingArray(list);
-        for (NamedReference ref : elementData.getOutboundReferences())
+        if (elementData != null)
         {
-            if (ref instanceof PseudoReference)
-                continue;
+            for (NamedReference ref : elementData.getOutboundReferences())
+            {
+                if (ref instanceof PseudoReference)
+                    continue;
 
-            result.add(ref.getObjectId());
-            listener.worked(1);
+                result.add(ref.getObjectId());
+                listener.worked(1);
+            }
         }
 
         listener.done();

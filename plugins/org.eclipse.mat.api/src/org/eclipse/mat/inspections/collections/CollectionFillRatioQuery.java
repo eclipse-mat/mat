@@ -76,7 +76,7 @@ public class CollectionFillRatioQuery implements IQuery
     public IResult execute(IProgressListener listener) throws Exception
     {
         InspectionAssert.heapFormatIsNot(snapshot, "phd");
-        
+
         listener.subTask("Extracting collection fill ratios...");
 
         Map<Integer, CollectionUtil.Info> metadata = new HashMap<Integer, CollectionUtil.Info>();
@@ -143,13 +143,12 @@ public class CollectionFillRatioQuery implements IQuery
         return quantize.getResult();
     }
 
-    private static double getFillRatio(CollectionUtil.Info info, IObject hashtableObject)
-                    throws SnapshotException
+    private static double getFillRatio(CollectionUtil.Info info, IObject hashtableObject) throws SnapshotException
     {
         int size = info.getSize(hashtableObject);
         IObjectArray table = info.getBackingArray(hashtableObject);
 
-        if (table.getLength() == 0)
+        if (table.getLength() == 0 || table.getLength() == 0)
             return 1; // 100% if the array has length 0 --> the good ones
 
         return (double) size / (double) table.getLength();

@@ -132,11 +132,12 @@ public class MapCollisionRatioQuery implements IQuery
     private static double getCollisionRatio(CollectionUtil.Info info, IObject hashtableObject) throws SnapshotException
     {
         int size = info.getSize(hashtableObject);
-
         if (size == 0)
             return 0;
 
         IObjectArray table = info.getBackingArray(hashtableObject);
+        if (table == null)
+            return 0;
 
         return (double) (size - CollectionUtil.getNumberOfNoNullArrayElements(table)) / (double) size;
     }
