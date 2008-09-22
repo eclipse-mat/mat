@@ -41,6 +41,25 @@
             </message_arguments>
         </filter>
     </resource>
+    <resource path="src/org/eclipse/mat/snapshot/model/GCRootInfo.java" type="org.eclipse.mat.snapshot.model.GCRootInfo$Type">
+        <filter id="403767336">
+            <message_arguments>
+                <message_argument value="org.eclipse.mat.snapshot.model.GCRootInfo.Type"/>
+                <message_argument value="FINALIZABLE"/>
+            </message_arguments>
+        </filter>
+        <filter id="1211105284">
+            <message_arguments>
+                <message_argument value="org.eclipse.mat.snapshot.model.GCRootInfo.Type"/>
+            </message_arguments>
+        </filter>
+        <filter id="403767336">
+            <message_arguments>
+                <message_argument value="org.eclipse.mat.snapshot.model.GCRootInfo.Type"/>
+                <message_argument value="UNFINALIZED"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="src/org/eclipse/mat/snapshot/model/GCRootInfo.java" type="org.eclipse.mat.snapshot.model.GCRootInfo">
         <filter id="1143996420">
             <message_arguments>

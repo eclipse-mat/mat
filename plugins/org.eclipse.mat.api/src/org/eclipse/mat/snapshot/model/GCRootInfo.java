@@ -59,10 +59,20 @@ abstract public class GCRootInfo implements Serializable
          */
         int NATIVE_STACK = 128;
         int THREAD_OBJ = 256;
+        /**
+         * An object which is a queue awaiting its finalizer to be run
+         */
+        int FINALIZABLE = 512;
+        /**
+         * An object which has a finalize method, but has not been finalized and
+         * is not yet on the finalizer queue
+         */
+        int UNFINALIZED = 1024;
     }
 
     private final static String[] TYPE_STRING = new String[] { "Unknown", "System Class", "JNI Local", "JNI Global",
-                    "Thread Block", "Busy Monitor", "Java Local", "Native Stack", "Thread" };
+                    "Thread Block", "Busy Monitor", "Java Local", "Native Stack", "Thread", "Finalizable",
+                    "Unfinalized" };
 
     protected int objectId;
     private long objectAddress;
@@ -104,13 +114,13 @@ abstract public class GCRootInfo implements Serializable
 
     public static String getTypeAsString(int type)
     {
-        for (int i = 0; i < 9; i++)
+        for (int i = 0; i < TYPE_STRING.length; i++)
             if (((1 << i) & type) != 0)
                 return TYPE_STRING[i];
 
         return null;
     }
-    
+
     public static String getTypeSetAsString(GCRootInfo[] roots)
     {
         int typeSet = 0;
@@ -121,7 +131,7 @@ abstract public class GCRootInfo implements Serializable
 
         StringBuilder buf = new StringBuilder();
         boolean first = true;
-        for (int i = 0; i < 9; i++)
+        for (int i = 0; i < TYPE_STRING.length; i++)
         {
             if (((1 << i) & typeSet) != 0)
             {
