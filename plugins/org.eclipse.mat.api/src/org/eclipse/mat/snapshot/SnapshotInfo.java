@@ -16,10 +16,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Class describing an {@link ISnapshot}. Each snapshot has some core data,
- * like the date when it was acquired/parsed, the number of objects inside...
- * This data is available with the snapshot info which is usually serialized
- * along with the snapshot.
+ * Class describing an {@link ISnapshot}. Each snapshot has some core data, like
+ * the date when it was acquired/parsed, the number of objects inside... This
+ * data is available with the snapshot info which is usually serialized along
+ * with the snapshot.
  */
 public class SnapshotInfo implements Serializable
 {
@@ -135,7 +135,8 @@ public class SnapshotInfo implements Serializable
     /**
      * Get date when the snapshot was acquired/parsed.
      * 
-     * @return date when the snapshot was acquired/parsed
+     * @return creation date, or <code>null</code> if the creation date is not
+     *         known
      */
     public Date getCreationDate()
     {
