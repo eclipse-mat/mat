@@ -14,6 +14,7 @@ import java.io.IOException;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.IQueryContext;
+import org.eclipse.mat.report.Params;
 import org.eclipse.mat.report.SectionSpec;
 import org.eclipse.mat.report.Spec;
 import org.eclipse.mat.report.ITestResult.Status;
@@ -30,6 +31,12 @@ public class SectionPart extends AbstractPart
 
         for (Spec child : spec.getChildren())
             children.add(AbstractPart.build(this, child));
+
+        if (spec.getName() == null)
+        {
+            spec.setName("");
+            params().put(Params.Html.SHOW_HEADING, Boolean.FALSE.toString());
+        }
     }
 
     @Override

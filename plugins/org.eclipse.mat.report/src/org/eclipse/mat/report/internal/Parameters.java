@@ -23,6 +23,10 @@ public abstract class Parameters
 
     public abstract String get(String key, String defaultValue);
 
+    public abstract void putAll(Map<String, String> params);
+
+    public abstract void put(String key, String value);
+
     public String get(String key)
     {
         return get(key, null);
@@ -32,7 +36,7 @@ public abstract class Parameters
     {
         if (value == null)
             return null;
-        
+
         while (true)
         {
             int p1 = value.indexOf("${");
@@ -62,31 +66,31 @@ public abstract class Parameters
         String value = get(key);
         return value == null ? defaultValue : "true".equals(value.toLowerCase());
     }
-    
+
     public String[] getStringArray(String key)
     {
         String value = get(key);
         if (value == null)
             return null;
-        
+
         List<String> values = new ArrayList<String>();
-        
+
         int c = 0;
         int p = value.indexOf(',', c);
-        
+
         while (p >= 0 && c < value.length())
         {
             String v = value.substring(c, p);
-            
+
             if (v.length() > 0)
                 values.add(v);
             c = p + 1;
             p = value.indexOf(',', c);
         }
-        
+
         if (c < value.length())
             values.add(value.substring(c));
-        
+
         return values.toArray(new String[0]);
     }
 
@@ -104,7 +108,7 @@ public abstract class Parameters
         public Deep(Parameters parent, Map<String, String> map)
         {
             this.parent = parent;
-            this.base = map;
+            this.base = new HashMap<String, String>(map);
 
             this.materialized = new HashMap<String, String>();
         }
@@ -140,6 +144,18 @@ public abstract class Parameters
         }
 
         @Override
+        public void putAll(Map<String, String> params)
+        {
+            base.putAll(params);
+        }
+
+        @Override
+        public void put(String key, String value)
+        {
+            base.put(key, value);
+        }
+
+        @Override
         public Parameters shallow()
         {
             return new Parameters()
@@ -158,6 +174,18 @@ public abstract class Parameters
                 public Parameters shallow()
                 {
                     return this;
+                }
+
+                @Override
+                public void putAll(Map<String, String> params)
+                {
+                    base.putAll(params);
+                }
+                
+                @Override
+                public void put(String key, String value)
+                {
+                    base.put(key, value);
                 }
             };
 

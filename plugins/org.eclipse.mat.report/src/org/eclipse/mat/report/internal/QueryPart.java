@@ -89,8 +89,12 @@ public class QueryPart extends AbstractPart
                 }
                 catch (Exception e)
                 {
+                    String msg = e.getMessage();
+                    if (msg == null)
+                        msg = e.getClass().getName();
+
                     ReportPlugin.log(e, MessageFormat.format("Ignoring result of ''{0}'' due to {1}", spec().getName(),
-                                    e.getMessage()));
+                                    msg));
                     return this;
                 }
             }
@@ -104,14 +108,15 @@ public class QueryPart extends AbstractPart
         if (result instanceof Spec)
         {
             Spec replacement = (Spec) result;
-
-            // overwrite all parameters explicitly given
-            replacement.putAll(spec().getParams());
             replacement.setName(spec().getName());
 
             AbstractPart part = AbstractPart.build(getParent(), replacement);
             part.objects = objects;
             part.filename = filename;
+
+            // overwrite all parameters explicitly given (but not to the spec)
+            part.params().putAll(spec().getParams());
+
             return part.execute(context, renderer, listener);
         }
 

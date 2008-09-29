@@ -18,6 +18,7 @@ import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.report.IOutputter;
 import org.eclipse.mat.report.QuerySpec;
+import org.eclipse.mat.report.Spec;
 
 /* package */class RenderingInfo implements IOutputter.Context
 {
@@ -63,8 +64,16 @@ import org.eclipse.mat.report.QuerySpec;
         return resultRenderer.addIcon(icon, part);
     }
 
+    public String getPathToRoot()
+    {
+        return resultRenderer.getPathToRoot(part);
+    }
+
     public String addContextResult(String name, IResult result)
     {
+        if (result instanceof Spec)
+            name = ((Spec) result).getName();
+        
         QuerySpec spec = new QuerySpec(name, result);
         spec.set("$embedded", "true");
 

@@ -11,7 +11,6 @@
 package org.eclipse.mat.report.internal;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.io.Writer;
 import java.text.MessageFormat;
@@ -321,45 +320,35 @@ public class HtmlOutputter implements IOutputter
 
     private void renderTreeIndentation(Context context, Writer artefact, int[] branches) throws IOException
     {
-        File[] files = context.getOutputDirectory().listFiles(new FileFilter()
-        {
+        String pathToRoot = context.getPathToRoot();
 
-            public boolean accept(File file)
-            {
-                if (file.isDirectory() && file.getName().equals("img"))
-                    return true;
-                return false;
-            }
-        });
-        String prefix = (files.length > 0) ? "" : "../";
-        for (int bc : branches)
+        for (int branch : branches)
         {
-            switch (bc)
+            artefact.append("<img src=\"").append(pathToRoot).append("img/");
+            switch (branch)
             {
                 case 0:
-                    artefact.append("<img src=\"").append(prefix).append("img/empty.gif\"/>");
+                    artefact.append("empty");
                     break;
                 case 1:
-                    artefact.append("<img src=\"").append(prefix).append("img/line.gif\"/>");
+                    artefact.append("line");
                     break;
                 case 2:
-                    artefact.append("<img src=\"").append(prefix).append("img/fork.gif\"/>");
+                    artefact.append("fork");
                     break;
                 case 3:
-                    artefact.append("<img src=\"").append(prefix).append("img/corner.gif\"/>");
-                    break;
-
-                default:
+                    artefact.append("corner");
                     break;
             }
+            artefact.append(".gif\"/>");
         }
     }
 
     private void renderDepthRow(Writer artefact) throws IOException
     {
         artefact.append("<tr class=\"totals\">");
-        artefact.append("<td style=\"padding-left:1000px\">").append("&raquo; Depth of the tree is limited to 100")
-                        .append("</td>");
+        artefact.append("<td style=\"padding-left:1000px\">") //
+                        .append("&raquo; Depth of the tree is limited to 100").append("</td>");
         artefact.append("</tr>");
     }
 

@@ -21,32 +21,49 @@ img {
 	vertical-align: middle;
 }
 
-/* table of contents */
+/* header */
 
-#toc {
+#header {
 	float: left;
 	width: 100%;
-	background: #cccccc;
+	background: #d7e5f0;
 	font-size: x-small;
 	font-weight: bold;
 	line-height: normal;
 }
 
-#toc ul {
+#header ul {
 	margin: 0;
 	padding: 0;
 	list-style: none;
 }
 
-#toc li {
+#header li {
 	margin: 0;
 	padding: 0;
 	float: left;
+	display:block;
+	padding: 5px 5px;
 }
 
-#toc a {
-	display:block;
-	padding: 5px 10px;
+/* footer */
+
+#footer {
+	float: left;
+	width: 100%;
+	background: #d7e5f0;
+	font-size: x-small;
+	font-weight: bold;
+	line-height: normal;
+	padding: 5px 5px;
+}
+
+#footer .toc {
+	float:left;
+}
+
+#footer .mat {
+	float:right;
 }
 
 .important {

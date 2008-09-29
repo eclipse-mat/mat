@@ -20,6 +20,9 @@ import org.eclipse.mat.query.IResult;
 
 public interface IOutputter
 {
+    /**
+     * @noimplement
+     */
     public interface Context
     {
         String getId();
@@ -27,6 +30,8 @@ public interface IOutputter
         IQueryContext getQueryContext();
 
         File getOutputDirectory();
+        
+        String getPathToRoot();
         
         String addIcon(URL icon);
         

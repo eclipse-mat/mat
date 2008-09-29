@@ -261,6 +261,11 @@ import org.eclipse.swt.widgets.TreeItem;
         {
             return outputDir;
         }
+        
+        public String getPathToRoot()
+        {
+            return "";
+        }
 
         public IQueryContext getQueryContext()
         {

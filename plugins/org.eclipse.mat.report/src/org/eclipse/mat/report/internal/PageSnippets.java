@@ -12,6 +12,7 @@ package org.eclipse.mat.report.internal;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.LinkedList;
 
 import org.eclipse.mat.query.registry.QueryObjectLink;
 import org.eclipse.mat.report.Params;
@@ -21,7 +22,7 @@ import org.eclipse.mat.util.HTMLUtils;
 /* package */class PageSnippets
 {
 
-    public static void beginPage(HtmlArtefact parent, HtmlArtefact artefact, String title)
+    public static void beginPage(final AbstractPart part, HtmlArtefact artefact, String title)
     {
         artefact.append("<html><head>");
         artefact.append("<title>").append(title).append("</title>");
@@ -31,20 +32,72 @@ import org.eclipse.mat.util.HTMLUtils;
                         "code.js\" type=\"text/javascript\"></script>");
         artefact.append("</head><body onload=\"preparepage();\">");
 
-        artefact.append("<div id=\"toc\"><ul>");
-        artefact.append("<li><a href=\"").append(artefact.getPathToRoot()).append("index.html\">Home</a></li>");
-        artefact.append("<li><a href=\"").append(artefact.getPathToRoot()).append(
-                        "toc.html\">Table Of Contents</a></li>");
+        artefact.append("<div id=\"header\"><ul>");
 
-        if (parent != null)
-            artefact.append("<li><a href=\"").append(artefact.getPathToRoot()).append(parent.getRelativePathName())
-                            .append("\">Up</a></li>");
+        if (part == null)
+        {
+            artefact.append("<li><a href=\"").append(artefact.getPathToRoot()).append(
+                            "index.html\">Start Page</a></li>");
+        }
+        else
+        {
+            LinkedList<AbstractPart> path = new LinkedList<AbstractPart>();
+            AbstractPart tmp = part;
+            while (tmp.getParent() != null)
+            {
+                AbstractPart parent = tmp.getParent();
+
+                boolean showHeading = parent.params().shallow().getBoolean(Params.Html.SHOW_HEADING, true);
+                if (showHeading)
+                    path.addFirst(parent);
+
+                tmp = parent;
+            }
+
+            boolean isFirst = true;
+
+            for (AbstractPart p : path)
+            {
+                HtmlArtefact page = (HtmlArtefact) p.getObject("artefact");
+                tmp = p;
+                while (page == null)
+                    page = (HtmlArtefact) (tmp = tmp.getParent()).getObject("artefact");
+
+                artefact.append("<li>");
+                if (!isFirst)
+                    artefact.append("&raquo; ");
+                PageSnippets.beginLink(artefact, page.getRelativePathName() + "#" + part.getId());
+                artefact.append(HTMLUtils.escapeText(p.spec().getName()));
+                PageSnippets.endLink(artefact);
+                artefact.append("</li>");
+
+                isFirst = false;
+            }
+
+            artefact.append("<li>");
+            if (!isFirst)
+                artefact.append("&raquo; ");
+            artefact.append("<a href=\"#\">").append(HTMLUtils.escapeText(part.spec().getName())).append("</a></li>");
+        }
 
         artefact.append("</ul></div>\n");
     }
 
     public static void endPage(HtmlArtefact artefact)
     {
+        artefact.append("<br/>");
+        artefact.append("<div id=\"footer\">");
+
+        artefact.append("<div class=\"toc\"><a href=\"").append(artefact.getPathToRoot()).append(
+                        "toc.html\">Table Of Contents</a></div>");
+
+        artefact.append("<div class=\"mat\">");
+        artefact.append("Created by <a href=\"http://www.eclipse.org/mat/\" "
+                        + "target=\"_blank\">Eclipse Memory Analyzer</a>");
+        artefact.append("</div>");
+
+        artefact.append("</div>\n");
+
         artefact.append("</body></html>");
     }
 
@@ -155,10 +208,10 @@ import org.eclipse.mat.util.HTMLUtils;
         artefact.append("</a>");
     }
 
-    public static void beginExpandableDiv(HtmlArtefact artefact, AbstractPart part)
+    public static void beginExpandableDiv(HtmlArtefact artefact, AbstractPart part, boolean isExpanded)
     {
         artefact.append("<div id=\"exp").append(part.getId()).append("\"");
-        if (part.params().getBoolean(Params.Html.COLLAPSED, false))
+        if (!isExpanded && part.params().getBoolean(Params.Html.COLLAPSED, false))
             artefact.append(" style=\"display:none\"");
         artefact.append(">");
     }

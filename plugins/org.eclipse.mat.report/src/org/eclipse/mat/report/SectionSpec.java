@@ -21,6 +21,7 @@ public class SectionSpec extends Spec
     private ITestResult.Status status;
     private List<Spec> children = new ArrayList<Spec>();
 
+    @Deprecated
     public SectionSpec()
     {}
 
@@ -28,7 +29,7 @@ public class SectionSpec extends Spec
     {
         super(name);
     }
-    
+
     public ITestResult.Status getStatus()
     {
         return status;
@@ -48,7 +49,7 @@ public class SectionSpec extends Spec
     {
         this.children.add(child);
     }
-    
+
     @Override
     public synchronized void merge(Spec otherSpec)
     {
@@ -57,11 +58,11 @@ public class SectionSpec extends Spec
                             getName()));
 
         super.merge(otherSpec);
-        
+
         SectionSpec other = (SectionSpec) otherSpec;
-        
+
         this.status = ITestResult.Status.max(this.status, other.status);
-        
+
         if (children.isEmpty())
         {
             children.addAll(other.children);
@@ -87,7 +88,7 @@ public class SectionSpec extends Spec
                     merged.add(spec);
                 }
             }
-            
+
             merged.addAll(children);
             children = merged;
         }
