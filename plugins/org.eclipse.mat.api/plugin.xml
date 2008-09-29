@@ -98,7 +98,7 @@
 	<extension point="org.eclipse.mat.report.report">
 		<report id="suspects" name="Leak Suspects"
 				description="includes leak suspects and a system overview"
-				file="META-INF/reports/support.xml" />
+				file="META-INF/reports/suspects.xml" />
 		<report id="overview" name="Heap Dump Overview"
 				description="includes class histogram, system properties and top consumers."
 				file="META-INF/reports/overview.xml" />
