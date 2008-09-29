@@ -18,7 +18,6 @@ import java.io.PrintWriter;
 import java.text.MessageFormat;
 import java.util.List;
 
-import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
@@ -56,12 +55,6 @@ public class SaveValueAsQuery implements IQuery
     public IResult execute(IProgressListener listener) throws Exception
     {
         checkIfFileExists();
-
-        // FIXME
-        ExportInfo info = ExportInfo.of(snapshot.getObject(objects.get(0).getObjectId()));
-        if (info == null)
-            throw new SnapshotException(
-                            "Nothing to save. Only char[], String, StringBuffer and StringBuilder currently supported.");
 
         writeToFile();
 

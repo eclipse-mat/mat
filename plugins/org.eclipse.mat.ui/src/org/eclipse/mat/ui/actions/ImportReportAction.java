@@ -31,60 +31,86 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.ui.PlatformUI;
 
-
 public class ImportReportAction extends Action
 {
     private MultiPaneEditor editor;
+    private File reportZipFile;
 
     public ImportReportAction(MultiPaneEditor editor)
+    {
+        this(editor, null);
+    }
+
+    public ImportReportAction(MultiPaneEditor editor, File reportZipFile)
     {
         super("Open Report...", MemoryAnalyserPlugin
                         .getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.IMPORT_REPORT));
 
         this.editor = editor;
+        this.reportZipFile = reportZipFile;
     }
 
     @Override
     public void run()
     {
-        FileDialog dialog = new FileDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), SWT.OPEN
-                        | SWT.MULTI);
-
-        dialog.setText("Import Report");
-        dialog.setFilterExtensions(new String[] { "*.zip" });
-        dialog.setFilterNames(new String[] { "Memory Analyzer Reports" });
-
-        prepareFilterSelection(dialog);
-
-        dialog.open();
-        String[] names = dialog.getFileNames();
-
-        if (names != null)
+        if (reportZipFile == null)
         {
-            for (String name : names)
+
+            FileDialog dialog = new FileDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
+                            SWT.OPEN | SWT.MULTI);
+
+            dialog.setText("Import Report");
+            dialog.setFilterExtensions(new String[] { "*.zip" });
+            dialog.setFilterNames(new String[] { "Memory Analyzer Reports" });
+
+            prepareFilterSelection(dialog);
+
+            dialog.open();
+            String[] names = dialog.getFileNames();
+
+            if (names != null)
             {
-                try
+                for (String name : names)
                 {
-                    IResult result = unzipAndOpen(dialog.getFilterPath(), name);
-                    QueryResult queryResult = new QueryResult(null, "Report: " + name, result);
-                    QueryExecution.displayResult(editor, null, null, queryResult, false);
+                    try
+                    {
+                        openReport(editor, new File(dialog.getFilterPath(), name));
+                    }
+                    catch (IOException e)
+                    {
+                        ErrorHelper.logThrowableAndShowMessage(e);
+                    }
                 }
-                catch (IOException e)
-                {
-                    ErrorHelper.logThrowableAndShowMessage(e);
-                }
+            }
+        }
+        else
+        {
+            try
+            {
+                openReport(editor, reportZipFile);
+            }
+            catch (IOException e)
+            {
+                ErrorHelper.logThrowableAndShowMessage(e);
             }
         }
     }
 
-    public static IResult unzipAndOpen(String directory, String name) throws IOException
+    public static void openReport(MultiPaneEditor editor, File reportZipFile) throws IOException
+    {
+        IResult result = unzipAndOpen(reportZipFile);
+        QueryResult queryResult = new QueryResult(null, "Report: " + reportZipFile.getName(), result);
+        QueryExecution.displayResult(editor, null, null, queryResult, false);
+    }
+
+    public static IResult unzipAndOpen(File reportZipFile) throws IOException
     {
         ZipFile zipFile = null;
         try
         {
             File targetDir = FileUtils.createTempDirectory("report", null);
 
-            zipFile = new ZipFile(new File(directory, name));
+            zipFile = new ZipFile(reportZipFile);
 
             Enumeration<? extends ZipEntry> entries = zipFile.entries();
             while (entries.hasMoreElements())

@@ -173,7 +173,7 @@
 			commandId="org.eclipse.mat.ui.actions.IconAssist">
 		</handler>
 		<handler
-			class="org.eclipse.mat.ui.internal.query.arguments.ExecuteInspectionHandler"
+			class="org.eclipse.mat.ui.internal.actions.ExecuteInspectionHandler"
 			commandId="org.eclipse.mat.ui.actions.executeInspection">
 		</handler>
 	</extension>

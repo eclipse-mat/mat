@@ -8,7 +8,7 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.mat.ui.internal.query.arguments;
+package org.eclipse.mat.ui.internal.actions;
 
 import java.text.MessageFormat;
 

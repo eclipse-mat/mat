@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.mat.ui.snapshot.editor;
 
-import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -23,6 +21,7 @@ import java.util.Set;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.ISelection;
@@ -30,22 +29,16 @@ import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.mat.internal.snapshot.SnapshotQueryContext;
-import org.eclipse.mat.query.IResult;
-import org.eclipse.mat.query.registry.QueryDescriptor;
-import org.eclipse.mat.query.registry.QueryRegistry;
-import org.eclipse.mat.query.registry.QueryResult;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.SnapshotFactory;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
-import org.eclipse.mat.ui.actions.ImportReportAction;
 import org.eclipse.mat.ui.editor.AbstractEditorPane;
-import org.eclipse.mat.ui.editor.EditorPaneRegistry;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
+import org.eclipse.mat.ui.internal.GettingStartedWizard;
 import org.eclipse.mat.ui.snapshot.ParseHeapDumpJob;
 import org.eclipse.mat.ui.snapshot.views.SnapshotOutlinePage;
-import org.eclipse.mat.ui.util.PaneState;
-import org.eclipse.mat.ui.util.PaneState.PaneType;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IFileEditorInput;
@@ -256,40 +249,21 @@ public class HeapEditor extends MultiPaneEditor implements ISelectionProvider
     protected void createInitialPanes()
     {
         addNewPage("OverviewPane", null);
-        
-        // create leak report pane if report exists
-        final ISnapshot snapshot = getSnapshotInput().getSnapshot();
-        File snapshotFile = new File(snapshot.getSnapshotInfo().getPath());
 
-        // extract prefix
-        String name = snapshotFile.getName();
-        int p = name.lastIndexOf('.');
-        String prefix = p < 0 ? name : name.substring(0, p);
-
-        // report file
-        final File reportFile = new File(snapshotFile.getParent(), prefix + "_support.zip");
-        if (reportFile.exists())
-        {
-            try
-            {
-                IResult result = ImportReportAction.unzipAndOpen(reportFile.getParent(), reportFile.getName());
-                AbstractEditorPane pane = EditorPaneRegistry.instance().createNewPane(result, null);
-
-                PaneState state = new PaneState(PaneType.QUERY, null, reportFile.getName(), false);
-                state.setImage(pane.getTitleImage());
-                pane.setPaneState(state);
-
-                QueryDescriptor descriptor = QueryRegistry.instance().getQuery("default_report");
-                addNewPage(pane, new QueryResult(descriptor, descriptor.getIdentifier() + " support.xml", result),
-                                descriptor.getIdentifier(), MemoryAnalyserPlugin.getDefault().getImage(descriptor));
-            }
-            catch (IOException e)
-            {
-                MemoryAnalyserPlugin.log(e);
-            }
-        }
-        
         updateToolbar();
+
+        // show getting started wizard if user did not hide it
+        Preferences prefs = MemoryAnalyserPlugin.getDefault().getPluginPreferences();
+        boolean hideWizard = prefs.getBoolean(GettingStartedWizard.HIDE_WIZARD_KEY);
+
+        if (!hideWizard)
+        {
+            GettingStartedWizard wizard = new GettingStartedWizard(this);
+            WizardDialog dialog = new WizardDialog(getSite().getShell(), wizard);
+            dialog.setBlockOnOpen(false);
+            dialog.create();
+            dialog.open();
+        }
     }
 
     public ISnapshotEditorInput getSnapshotInput()
