@@ -13,6 +13,13 @@
          </run>
       </application>
    </extension>
+
+	<extension id="junit4Runner" point="org.eclipse.core.runtime.applications">
+		<application cardinality="singleton-global" thread="main" visible="true">
+			<run class="org.eclipse.mat.tests.JUnit4TestRunner" />
+		</application>
+	</extension>
+    
    <extension
          point="org.eclipse.mat.report.report">
       <report

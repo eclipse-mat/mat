@@ -6,5 +6,6 @@ Bundle-Version: 0.7.0.qualifier
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Require-Bundle: org.eclipse.mat.api;bundle-version="[0.7.0.20080620,0.7.1)",
  org.eclipse.core.runtime,
- org.junit4;bundle-version="4.3.1"
+ org.junit4;bundle-version="4.3.1",
+ org.apache.ant;bundle-version="1.7.0"
 Bundle-ActivationPolicy: lazy

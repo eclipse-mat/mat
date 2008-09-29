@@ -68,6 +68,14 @@ Java and all Java-based trademarks are trademarks of Sun Microsystems, Inc. in t
          download-size="0"
          install-size="0"
          version="0.0.0"
+         unpack="true"/>
+
+   <plugin
+         id="org.eclipse.mat.tests.junit"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         fragment="true"
          unpack="false"/>
 
 </feature>
