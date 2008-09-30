@@ -55,7 +55,7 @@
 
 	<target name="-init.restart" if="restartLocation">
 		<echo message="Restarting with properties from ${restartLocation}" />
-		<property file="${restartLocation}/restart.properties" />
+		<property file="${restartLocation}/latest.properties" />
 		<echo message="Build Label: ${buildLabel}" />
 		<echo message="Qualifier: ${qualifier}" />
 	</target>
@@ -198,7 +198,7 @@
 		</java>
 
 		<!-- zip site -->
-		<zip destfile="${buildDirectory}/${buildLabel}/org.eclipse.mat-update-site.zip" basedir="${siteDirectory}" />
+		<zip destfile="${buildDirectory}/${buildLabel}/org.eclipse.mat-${buildId}-site.zip" basedir="${siteDirectory}" />
 
 		<delete dir="${siteDirectory}" />
 	</target>
