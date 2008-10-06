@@ -148,7 +148,7 @@ public class CollectionFillRatioQuery implements IQuery
         int size = info.getSize(hashtableObject);
         IObjectArray table = info.getBackingArray(hashtableObject);
 
-        if (table.getLength() == 0 || table.getLength() == 0)
+        if (table == null || table.getLength() == 0)
             return 1; // 100% if the array has length 0 --> the good ones
 
         return (double) size / (double) table.getLength();
