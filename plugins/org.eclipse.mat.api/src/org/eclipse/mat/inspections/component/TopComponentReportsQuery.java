@@ -37,6 +37,7 @@ import org.eclipse.mat.util.IProgressListener;
 @Name("Top Component Reports")
 @CommandName("component_report_top")
 @Category("Leak Identification")
+@Help("Creates a component report for every component (classloader) which occupies more memory than the specified threshold")
 public class TopComponentReportsQuery implements IQuery
 {
     @Argument
