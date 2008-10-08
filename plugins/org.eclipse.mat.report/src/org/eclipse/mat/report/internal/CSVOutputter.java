@@ -60,7 +60,9 @@ public class CSVOutputter implements IOutputter
         if (result instanceof RefinedTable)
         {
             RefinedTable table = ((RefinedTable) result);
-            int limit = Math.min(table.getRowCount(), context.getLimit());
+            int limit = context.getLimit() == 0 ? table.getRowCount() : Math.min(table.getRowCount(), context
+                            .getLimit());
+
             for (int i = 0; i < limit; i++)
             {
                 for (int columnIndex = 0; columnIndex < columns.length; columnIndex++)
@@ -83,7 +85,8 @@ public class CSVOutputter implements IOutputter
             RefinedTree tree = (RefinedTree) result;
             // export only first level of the RefinedTree
             List<?> elements = tree.getElements();
-            int limit = Math.min(elements.size(), context.getLimit());
+            int limit = context.getLimit() == 0 ? elements.size() : Math.min(elements.size(), context.getLimit());
+
             for (int i = 0; i < limit; i++)
             {
                 for (int columnIndex = 0; columnIndex < columns.length; columnIndex++)
