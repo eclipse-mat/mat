@@ -24,8 +24,11 @@
 
 package org.eclipse.mat.inspections.finalizer;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.SetInt;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
@@ -35,11 +38,12 @@ import org.eclipse.mat.query.annotations.Help;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.snapshot.ISnapshot;
-import org.eclipse.mat.snapshot.model.GCRootInfo;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IInstance;
 import org.eclipse.mat.snapshot.model.IObject;
+import org.eclipse.mat.snapshot.model.NamedReference;
 import org.eclipse.mat.snapshot.model.ObjectReference;
+import org.eclipse.mat.snapshot.model.ThreadToLocalReference;
 import org.eclipse.mat.snapshot.query.ObjectListResult;
 import org.eclipse.mat.util.IProgressListener;
 
@@ -79,29 +83,32 @@ public class FinalizerInProcessingQuery implements IQuery
 
         SetInt result = new SetInt();
 
-        long finalizerThreadAddress = snapshot.mapIdToAddress(finalizerThreadObjects[0]);
-        int roots[] = snapshot.getGCRoots();
-        for (int i = 0; i < roots.length; i++)
+        IObject finalizerThreadObject = snapshot.getObject(finalizerThreadObjects[0]);
+        IObject[] localVars = getLocalVarsForThread(finalizerThreadObject);
+        for (IObject object : localVars)
         {
-            GCRootInfo infos[] = snapshot.getGCRootInfo(roots[i]);
-            for (int j = 0; j < infos.length; j++)
+            if ("java.lang.ref.Finalizer".equals(object.getClazz().getName()))
             {
-                GCRootInfo info = infos[j];
-                if (info.getContextAddress() == finalizerThreadAddress)
+                ObjectReference ref = (ObjectReference) ((IInstance) object).getField("referent").getValue();
+                if (ref != null)
                 {
-                    IObject object = snapshot.getObject(info.getObjectId());
-                    if ("java.lang.ref.Finalizer".equals(object.getClazz().getName()))
-                    {
-                        ObjectReference ref = (ObjectReference) ((IInstance) object).getField("referent").getValue();
-                        if (ref != null)
-                        {
-                            result.add(ref.getObjectId());
-                        }
-                    }
+                    result.add(ref.getObjectId());
                 }
             }
         }
 
         return new ObjectListResult.Outbound(snapshot, result.toArray());
+    }
+    
+    private static IObject[] getLocalVarsForThread(IObject thread) throws SnapshotException
+    {
+        List<NamedReference> refs = thread.getOutboundReferences();
+        List<IObject> result = new ArrayList<IObject>();
+        for (NamedReference ref : refs)
+        {
+            if (ref instanceof ThreadToLocalReference)
+                result.add(ref.getObject());
+        }
+        return result.toArray(new IObject[result.size()]);
     }
 }
