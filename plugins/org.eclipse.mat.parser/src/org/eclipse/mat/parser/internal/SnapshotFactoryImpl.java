@@ -73,7 +73,8 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
 
         String name = file.getAbsolutePath();
 
-        String prefix = name.substring(0, name.lastIndexOf('.') + 1);
+        int p = name.lastIndexOf('.');
+        String prefix = p >= 0 ? name.substring(0, p + 1) : name;
 
         try
         {
@@ -230,9 +231,11 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
             directory = new File(".");
 
         String filename = file.getName();
-        String fragment = filename.substring(0, filename.lastIndexOf('.'));
-        final Pattern indexPattern = Pattern.compile(fragment + "\\.(.*\\.)?index");
-        final Pattern logPattern = Pattern.compile(fragment + "\\.inbound\\.index.*\\.log");
+
+        int p = filename.lastIndexOf('.');
+        final String fragment = p >= 0 ? filename.substring(0, p) : filename;
+        final Pattern indexPattern = Pattern.compile("\\.(.*\\.)?index$");
+        final Pattern logPattern = Pattern.compile("\\.inbound\\.index.*\\.log$");
 
         File[] files = directory.listFiles(new FileFilter()
         {
@@ -242,7 +245,8 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
                     return false;
 
                 String name = f.getName();
-                return indexPattern.matcher(name).matches() || logPattern.matcher(name).matches();
+                return name.startsWith(fragment)
+                                && (indexPattern.matcher(name).matches() || logPattern.matcher(name).matches());
             }
         });
 

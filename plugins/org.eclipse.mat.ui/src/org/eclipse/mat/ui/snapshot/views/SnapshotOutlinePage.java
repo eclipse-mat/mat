@@ -13,7 +13,7 @@ package org.eclipse.mat.ui.snapshot.views;
 import java.io.File;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
-import java.text.MessageFormat; 
+import java.text.MessageFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -38,7 +38,6 @@ import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.ui.part.IPageSite;
 import org.eclipse.ui.part.Page;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
-
 
 public abstract class SnapshotOutlinePage extends Page implements IContentOutlinePage
 {
@@ -219,7 +218,7 @@ public abstract class SnapshotOutlinePage extends Page implements IContentOutlin
                     else if (Messages.identifier_size.equals(label.getText()))
                     {
                         int identifierSize = ((Integer) obj).intValue();
-                        return MessageFormat.format(Messages.identifier_format, identifierSize); 
+                        return MessageFormat.format(Messages.identifier_format, identifierSize);
                     }
                     else if ((obj instanceof Long) || (obj instanceof Integer))
                     {
@@ -231,8 +230,8 @@ public abstract class SnapshotOutlinePage extends Page implements IContentOutlin
                     }
                     else if (obj instanceof Date)
                     {
-                        return Messages.date.equals(label.getText()) ? DateFormat.getDateInstance().format(obj) : DateFormat 
-                                        .getTimeInstance().format(obj);
+                        return Messages.date.equals(label.getText()) ? DateFormat.getDateInstance().format(obj)
+                                        : DateFormat.getTimeInstance().format(obj);
                     }
                     else
                     {
@@ -289,12 +288,12 @@ public abstract class SnapshotOutlinePage extends Page implements IContentOutlin
 
             // resource property (filename)
             int p = info.getPath().lastIndexOf(File.separatorChar);
-            String filename = info.getPath().substring(p + 1);
+            String filename = p >= 0 ? info.getPath().substring(p + 1) : info.getPath();
             String bFilename = null;
             if (bInfo.getPath() != null)
             {
                 p = bInfo.getPath().lastIndexOf(File.separatorChar);
-                bFilename = bInfo.getPath().substring(p + 1);
+                bFilename = p >= 0 ? bInfo.getPath().substring(p + 1) : bInfo.getPath();
             }
             elements.add(new Label(Messages.resource, filename, bFilename));
 
@@ -390,8 +389,8 @@ public abstract class SnapshotOutlinePage extends Page implements IContentOutlin
 
     /*
      * (non-Javadoc)
-     * 
-     * @see org.eclipse.ui.part.IPageBookViewPage#init(org.eclipse.ui.part.IPageSite)
+     * @see
+     * org.eclipse.ui.part.IPageBookViewPage#init(org.eclipse.ui.part.IPageSite)
      */
     @Override
     public void init(IPageSite pageSite)

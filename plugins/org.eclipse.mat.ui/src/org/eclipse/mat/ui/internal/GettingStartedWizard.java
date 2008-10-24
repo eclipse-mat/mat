@@ -295,6 +295,7 @@ public class GettingStartedWizard extends Wizard
         {
             super("");
 
+            setTitle("Re-Open Report");
             setDescription("Re-open a report that has been created previously. "
                             + "The reposts are stored as ZIP files next to the heap dump file.");
         }
@@ -340,20 +341,25 @@ public class GettingStartedWizard extends Wizard
                         {
                             ISnapshot snapshot = (ISnapshot) newInput;
 
-                            String prefix = snapshot.getSnapshotInfo().getPrefix();
+                            String prefix = snapshot.getSnapshotInfo().getPath();
 
                             int p = prefix.lastIndexOf(File.separatorChar);
                             if (p >= 0)
                                 prefix = prefix.substring(p + 1);
+                            
+                            p = prefix.lastIndexOf('.');
+                            if (p >= 0)
+                                prefix = prefix.substring(0, p);
 
-                            final Pattern regex = Pattern.compile(prefix + ".*\\.zip");
+                            final String fragment = prefix;
+                            final Pattern regex = Pattern.compile(".*\\.zip$");
 
                             fileList = new File(snapshot.getSnapshotInfo().getPath()).getParentFile().listFiles(
                                             new FilenameFilter()
                                             {
                                                 public boolean accept(File dir, String name)
                                                 {
-                                                    return regex.matcher(name).matches();
+                                                    return name.startsWith(fragment) && regex.matcher(name).matches();
                                                 }
                                             });
                         }
