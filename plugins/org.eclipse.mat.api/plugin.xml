@@ -66,7 +66,7 @@
 		<!-- Extra Information (this queries will appear on the toolbar or inside the overview pane) -->
 		
 		<query impl="org.eclipse.mat.inspections.component.ComponentReportQuery"/>
-		<query impl="org.eclipse.mat.inspections.component.TopComponentReportsQuery"/>
+		<query impl="org.eclipse.mat.inspections.component.TopComponentsReportQuery"/>
 		
 		<!-- eclipse -->
 		<query impl="org.eclipse.mat.inspections.eclipse.LeakingPlugins"/>

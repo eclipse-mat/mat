@@ -34,11 +34,11 @@ import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.query.SnapshotQuery;
 import org.eclipse.mat.util.IProgressListener;
 
-@Name("Top Component Reports")
+@Name("Top Components Report")
 @CommandName("component_report_top")
 @Category("Leak Identification")
-@Help("Creates a component report for every component (classloader) which occupies more memory than the specified threshold")
-public class TopComponentReportsQuery implements IQuery
+@Help("Creates a component report for every component (class loader) which occupies more memory than the specified threshold")
+public class TopComponentsReportQuery implements IQuery
 {
     @Argument
     public ISnapshot snapshot;
