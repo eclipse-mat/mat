@@ -1294,8 +1294,8 @@ public abstract class RefinedResultViewer
                 if (viewer.rootTotalsRow != null
                                 && viewer.rootTotalsRow.getVisibleItems() > ctrl.totals.getVisibleItems())
                 {
-                    ctrl.totals.setVisibleItems(Math.min(ctrl.totals.getNumberOfItems(), viewer.rootTotalsRow
-                                    .getVisibleItems()));
+                    ctrl.totals.setVisibleItems(Math.min(ctrl.totals.getNumberOfItems(), //
+                                    Math.max(viewer.rootTotalsRow.getVisibleItems(), viewer.visibleItemsEstimate)));
                 }
                 else
                 {
