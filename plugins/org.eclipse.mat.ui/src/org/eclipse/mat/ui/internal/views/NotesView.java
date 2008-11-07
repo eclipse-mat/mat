@@ -285,6 +285,7 @@ public class NotesView extends ViewPart implements IPartListener, Observer
             if (undoManager.undoable())
                 saveNotes();
             this.resource = null;
+            this.editor = null;
             this.updateTextViewer();
         }
     }
