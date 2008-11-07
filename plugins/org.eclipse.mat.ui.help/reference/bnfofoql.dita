@@ -19,7 +19,7 @@
             <strow>
                <stentry><codeblock>SelectItem</codeblock></stentry>
                <stentry><codeblock>::=</codeblock></stentry>
-               <stentry><codeblock>( PathExpression | EnvVarPathExpression ) ( "AS" ( &gt;STRING_LITERAL&lt; | &gt;IDENTIFIER&lt; ) )?&gt;/IDENTIFIER&lt;&gt;/STRING_LITERAL&lt;</codeblock></stentry>
+               <stentry><codeblock>( PathExpression | EnvVarPathExpression ) ( "AS" ( &lt;STRING_LITERAL&gt; | &lt;IDENTIFIER&gt; ) )?&lt;/IDENTIFIER&gt;&lt;/STRING_LITERAL&gt;</codeblock></stentry>
             </strow>
             <strow>
                <stentry><codeblock>PathExpression</codeblock></stentry>
@@ -29,12 +29,12 @@
             <strow>
                <stentry><codeblock>EnvVarPathExpression</codeblock></stentry>
                <stentry><codeblock>::=</codeblock></stentry>
-               <stentry><codeblock>( "$" &gt;IDENTIFIER&lt; ) ( "." ObjectFacet )*</codeblock></stentry>
+               <stentry><codeblock>( "$" &lt;IDENTIFIER&gt; ) ( "." ObjectFacet )*</codeblock></stentry>
             </strow>
             <strow>
                <stentry><codeblock>ObjectFacet</codeblock></stentry>
                <stentry><codeblock>::=</codeblock></stentry>
-               <stentry><codeblock>( ( "@" )? &gt;IDENTIFIER&lt; ( ParameterList )? )</codeblock></stentry>
+               <stentry><codeblock>( ( "@" )? &lt;IDENTIFIER&gt; ( ParameterList )? )</codeblock></stentry>
             </strow>
             <strow>
                <stentry><codeblock>ParameterList</codeblock></stentry>
@@ -44,27 +44,27 @@
             <strow>
                <stentry><codeblock>FromClause</codeblock></stentry>
                <stentry><codeblock>::=</codeblock></stentry>
-               <stentry><codeblock>"FROM" ( "OBJECTS" )? ( "INSTANCEOF" )? ( FromItem | "(" SelectStatement ")" ) ( &gt;IDENTIFIER&lt; )?</codeblock></stentry>
+               <stentry><codeblock>"FROM" ( "OBJECTS" )? ( "INSTANCEOF" )? ( FromItem | "(" SelectStatement ")" ) ( &lt;IDENTIFIER&gt; )?</codeblock></stentry>
             </strow>
             <strow>
                <stentry><codeblock>FromItem</codeblock></stentry>
                <stentry><codeblock>::=</codeblock></stentry>
-               <stentry><codeblock>( ClassName | &gt;STRING_LITERAL&lt; | ObjectAddress ( "," ObjectAddress )* | ObjectId ( "," ObjectId )* | EnvVarPathExpression )</codeblock></stentry>
+               <stentry><codeblock>( ClassName | &lt;STRING_LITERAL&gt; | ObjectAddress ( "," ObjectAddress )* | ObjectId ( "," ObjectId )* | EnvVarPathExpression )</codeblock></stentry>
             </strow>
             <strow>
                <stentry><codeblock>ClassName</codeblock></stentry>
                <stentry><codeblock>::=</codeblock></stentry>
-               <stentry><codeblock>( &gt;IDENTIFIER&lt; ( "." &gt;IDENTIFIER&lt; )* ( "[]" )* )</codeblock></stentry>
+               <stentry><codeblock>( &lt;IDENTIFIER&gt; ( "." &lt;IDENTIFIER&gt; )* ( "[]" )* )</codeblock></stentry>
             </strow>
             <strow>
                <stentry><codeblock>ObjectAddress</codeblock></stentry>
                <stentry><codeblock>::=</codeblock></stentry>
-               <stentry><codeblock>&gt;HEX_LITERAL&lt;</codeblock></stentry>
+               <stentry><codeblock>&lt;HEX_LITERAL&gt;</codeblock></stentry>
             </strow>
             <strow>
                <stentry><codeblock>ObjectId</codeblock></stentry>
                <stentry><codeblock>::=</codeblock></stentry>
-               <stentry><codeblock>&gt;INTEGER_LITERAL&lt;</codeblock></stentry>
+               <stentry><codeblock>&lt;INTEGER_LITERAL&gt;</codeblock></stentry>
             </strow>
             <strow>
                <stentry><codeblock>WhereClause</codeblock></stentry>
@@ -89,12 +89,12 @@
             <strow>
                <stentry><codeblock>RelationalExpression</codeblock></stentry>
                <stentry><codeblock>::=</codeblock></stentry>
-               <stentry><codeblock>( PrimaryExpression ( ( "&gt;" PrimaryExpression | "&lt;" PrimaryExpression | "&gt;=" PrimaryExpression | "&lt;=" PrimaryExpression | ( LikeClause | InClause ) | "implements" ClassName ) )? )</codeblock></stentry>
+               <stentry><codeblock>( PrimaryExpression ( ( "&lt;" PrimaryExpression | "&gt;" PrimaryExpression | "&lt;=" PrimaryExpression | "&gt;=" PrimaryExpression | ( LikeClause | InClause ) | "implements" ClassName ) )? )</codeblock></stentry>
             </strow>
             <strow>
                <stentry><codeblock>LikeClause</codeblock></stentry>
                <stentry><codeblock>::=</codeblock></stentry>
-               <stentry><codeblock>( "NOT" )? "LIKE" &gt;STRING_LITERAL&lt;</codeblock></stentry>
+               <stentry><codeblock>( "NOT" )? "LIKE" &lt;STRING_LITERAL&gt;</codeblock></stentry>
             </strow>
             <strow>
                <stentry><codeblock>InClause</codeblock></stentry>
@@ -134,7 +134,7 @@
             <strow>
                <stentry><codeblock>Literal</codeblock></stentry>
                <stentry><codeblock>::=</codeblock></stentry>
-               <stentry><codeblock>( &gt;INTEGER_LITERAL&lt; | &gt;LONG_LITERAL&lt; | &gt;FLOATING_POINT_LITERAL&lt; | &gt;CHARACTER_LITERAL&lt; | &gt;STRING_LITERAL&lt; | BooleanLiteral | NullLiteral )</codeblock></stentry>
+               <stentry><codeblock>( &lt;INTEGER_LITERAL&gt; | &lt;LONG_LITERAL&gt; | &lt;FLOATING_POINT_LITERAL&gt; | &lt;CHARACTER_LITERAL&gt; | &lt;STRING_LITERAL&gt; | BooleanLiteral | NullLiteral )</codeblock></stentry>
             </strow>
             <strow>
                <stentry><codeblock>BooleanLiteral</codeblock></stentry>
@@ -149,7 +149,7 @@
             <strow>
                <stentry><codeblock>NullLiteral</codeblock></stentry>
                <stentry><codeblock>::=</codeblock></stentry>
-               <stentry><codeblock>&gt;NULL&lt;</codeblock></stentry>
+               <stentry><codeblock>&lt;NULL&gt;</codeblock></stentry>
             </strow>
             <strow>
                <stentry><codeblock>UnionClause</codeblock></stentry>

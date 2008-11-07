@@ -71,9 +71,9 @@
 			<p>Use the AS keyword to name the columns:</p>
 
 			<pre class="codeblock">SELECT toString(s) AS Value,
-       s.@usedHeapSize AS "Retained Size",
-       s.@retainedHeapSize AS "Shallow Size"
-FROM java.lang.String s</pre>
+       		s.@usedHeapSize AS "Shallow Size",
+      		 s.@retainedHeapSize AS "Retained Size"
+			FROM java.lang.String s</pre>
 
 			<p>
 				Use the

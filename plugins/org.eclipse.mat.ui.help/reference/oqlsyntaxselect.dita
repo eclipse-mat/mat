@@ -42,9 +42,9 @@
 			<p><b>Provide column names</b></p>
 			<p>Use the AS keyword to name the columns:</p>
 			<codeblock>SELECT toString(s) AS Value,
-       s.@usedHeapSize AS "Retained Size",
-       s.@retainedHeapSize AS "Shallow Size"
-FROM java.lang.String s</codeblock>
+       		s.@usedHeapSize AS "Shallow Size",
+      		 s.@retainedHeapSize AS "Retained Size"
+			FROM java.lang.String s</codeblock>
 			<p>
 				Use the
 				<cmdname>AS RETAINED SET</cmdname>

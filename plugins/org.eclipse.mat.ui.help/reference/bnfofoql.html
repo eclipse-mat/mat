@@ -53,7 +53,7 @@
                <td valign="top"><pre class="codeblock">::=</pre>
 </td>
 
-               <td valign="top"><pre class="codeblock">( PathExpression | EnvVarPathExpression ) ( "AS" ( &gt;STRING_LITERAL&lt; | &gt;IDENTIFIER&lt; ) )?&gt;/IDENTIFIER&lt;&gt;/STRING_LITERAL&lt;</pre>
+               <td valign="top"><pre class="codeblock">( PathExpression | EnvVarPathExpression ) ( "AS" ( &lt;STRING_LITERAL&gt; | &lt;IDENTIFIER&gt; ) )?&lt;/IDENTIFIER&gt;&lt;/STRING_LITERAL&gt;</pre>
 </td>
 
             </tr>
@@ -77,7 +77,7 @@
                <td valign="top"><pre class="codeblock">::=</pre>
 </td>
 
-               <td valign="top"><pre class="codeblock">( "$" &gt;IDENTIFIER&lt; ) ( "." ObjectFacet )*</pre>
+               <td valign="top"><pre class="codeblock">( "$" &lt;IDENTIFIER&gt; ) ( "." ObjectFacet )*</pre>
 </td>
 
             </tr>
@@ -89,7 +89,7 @@
                <td valign="top"><pre class="codeblock">::=</pre>
 </td>
 
-               <td valign="top"><pre class="codeblock">( ( "@" )? &gt;IDENTIFIER&lt; ( ParameterList )? )</pre>
+               <td valign="top"><pre class="codeblock">( ( "@" )? &lt;IDENTIFIER&gt; ( ParameterList )? )</pre>
 </td>
 
             </tr>
@@ -113,7 +113,7 @@
                <td valign="top"><pre class="codeblock">::=</pre>
 </td>
 
-               <td valign="top"><pre class="codeblock">"FROM" ( "OBJECTS" )? ( "INSTANCEOF" )? ( FromItem | "(" SelectStatement ")" ) ( &gt;IDENTIFIER&lt; )?</pre>
+               <td valign="top"><pre class="codeblock">"FROM" ( "OBJECTS" )? ( "INSTANCEOF" )? ( FromItem | "(" SelectStatement ")" ) ( &lt;IDENTIFIER&gt; )?</pre>
 </td>
 
             </tr>
@@ -125,7 +125,7 @@
                <td valign="top"><pre class="codeblock">::=</pre>
 </td>
 
-               <td valign="top"><pre class="codeblock">( ClassName | &gt;STRING_LITERAL&lt; | ObjectAddress ( "," ObjectAddress )* | ObjectId ( "," ObjectId )* | EnvVarPathExpression )</pre>
+               <td valign="top"><pre class="codeblock">( ClassName | &lt;STRING_LITERAL&gt; | ObjectAddress ( "," ObjectAddress )* | ObjectId ( "," ObjectId )* | EnvVarPathExpression )</pre>
 </td>
 
             </tr>
@@ -137,7 +137,7 @@
                <td valign="top"><pre class="codeblock">::=</pre>
 </td>
 
-               <td valign="top"><pre class="codeblock">( &gt;IDENTIFIER&lt; ( "." &gt;IDENTIFIER&lt; )* ( "[]" )* )</pre>
+               <td valign="top"><pre class="codeblock">( &lt;IDENTIFIER&gt; ( "." &lt;IDENTIFIER&gt; )* ( "[]" )* )</pre>
 </td>
 
             </tr>
@@ -149,7 +149,7 @@
                <td valign="top"><pre class="codeblock">::=</pre>
 </td>
 
-               <td valign="top"><pre class="codeblock">&gt;HEX_LITERAL&lt;</pre>
+               <td valign="top"><pre class="codeblock">&lt;HEX_LITERAL&gt;</pre>
 </td>
 
             </tr>
@@ -161,7 +161,7 @@
                <td valign="top"><pre class="codeblock">::=</pre>
 </td>
 
-               <td valign="top"><pre class="codeblock">&gt;INTEGER_LITERAL&lt;</pre>
+               <td valign="top"><pre class="codeblock">&lt;INTEGER_LITERAL&gt;</pre>
 </td>
 
             </tr>
@@ -221,7 +221,7 @@
                <td valign="top"><pre class="codeblock">::=</pre>
 </td>
 
-               <td valign="top"><pre class="codeblock">( PrimaryExpression ( ( "&gt;" PrimaryExpression | "&lt;" PrimaryExpression | "&gt;=" PrimaryExpression | "&lt;=" PrimaryExpression | ( LikeClause | InClause ) | "implements" ClassName ) )? )</pre>
+               <td valign="top"><pre class="codeblock">( PrimaryExpression ( ( "&lt;" PrimaryExpression | "&gt;" PrimaryExpression | "&lt;=" PrimaryExpression | "&gt;=" PrimaryExpression | ( LikeClause | InClause ) | "implements" ClassName ) )? )</pre>
 </td>
 
             </tr>
@@ -233,7 +233,7 @@
                <td valign="top"><pre class="codeblock">::=</pre>
 </td>
 
-               <td valign="top"><pre class="codeblock">( "NOT" )? "LIKE" &gt;STRING_LITERAL&lt;</pre>
+               <td valign="top"><pre class="codeblock">( "NOT" )? "LIKE" &lt;STRING_LITERAL&gt;</pre>
 </td>
 
             </tr>
@@ -329,7 +329,7 @@
                <td valign="top"><pre class="codeblock">::=</pre>
 </td>
 
-               <td valign="top"><pre class="codeblock">( &gt;INTEGER_LITERAL&lt; | &gt;LONG_LITERAL&lt; | &gt;FLOATING_POINT_LITERAL&lt; | &gt;CHARACTER_LITERAL&lt; | &gt;STRING_LITERAL&lt; | BooleanLiteral | NullLiteral )</pre>
+               <td valign="top"><pre class="codeblock">( &lt;INTEGER_LITERAL&gt; | &lt;LONG_LITERAL&gt; | &lt;FLOATING_POINT_LITERAL&gt; | &lt;CHARACTER_LITERAL&gt; | &lt;STRING_LITERAL&gt; | BooleanLiteral | NullLiteral )</pre>
 </td>
 
             </tr>
@@ -365,7 +365,7 @@
                <td valign="top"><pre class="codeblock">::=</pre>
 </td>
 
-               <td valign="top"><pre class="codeblock">&gt;NULL&lt;</pre>
+               <td valign="top"><pre class="codeblock">&lt;NULL&gt;</pre>
 </td>
 
             </tr>
