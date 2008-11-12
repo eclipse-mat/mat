@@ -749,7 +749,7 @@ public class ComponentReportQuery implements IQuery
             return;
         }
 
-        SetInt retainedSet = new SetInt(retained.length * 110 / 100);
+        SetInt retainedSet = new SetInt((retained.length / 100) * 110);
         for (int ii = 0; ii < retained.length; ii++)
             retainedSet.add(retained[ii]);
 
