@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd" >
+<reference id="ref_findingmemoryleak" xml:lang="en-us">
+	<title>Finding Memory Leak</title>
+	<shortdesc />
+
+	<prolog />
+
+	<refbody>
+		<section>
+			<p>
+				The following 4-step approach proved to be most
+				efficient to detect memory issues:
+			</p>
+			<ol>
+				<li>
+					Get an overview of the heap dump. See:
+					<i>Overview</i>
+				</li>
+				<li>
+					Find big memory chunks (single objects or groups of
+					objects).
+				</li>
+				<li>Inspect the content of this memory chunk.</li>
+				<li>
+					If the content of the memory chunk is to big check
+					who keeps this memory chunk alive
+				</li>
+			</ol>
+			<p>
+				The following table contains a list of queries that are
+				most helpful in resolving memory issues.
+			</p>
+			<simpletable relcolwidth="2* 3*" id="findingmemoryleak">
+				<strow>
+					<stentry>Dominator Tree</stentry>
+					<stentry>
+						In Dominator Tree every node is responsible for
+						keeping its children alive. The tree is sorted
+						by the retained size, so you find single big
+						objects easily. When there is no single object
+						responsible for big memory consumption it is
+						helpful to group the result by class and class
+						loader to reveal big memory chunks.
+					</stentry>
+				</strow>
+				<strow>
+					<stentry>Top Consumers</stentry>
+					<stentry>
+						Top Consumers query returns information about
+						the biggest objects grouped by class, class
+						loader, and package.
+					</stentry>
+				</strow>
+				<strow>
+					<stentry>Paths to GC Roots</stentry>
+					<stentry>
+						Paths to GC Roots query helps to identify who is
+						responsible for keeping a single object in the
+						heap. It is reasonably to run this query on a
+						possible suspect (memory accumulation point),
+						which you can find e.g. using Big Drops in
+						Dominator Tree Query (see
+						<i>Big Drop</i>
+						entry further down for more details).
+					</stentry>
+				</strow>
+				<strow>
+				    <stentry>Leaking Loaders</stentry>
+					<stentry>
+						Extracts class loaders which are not registered
+						with deployment anymore, but are still in memory
+						due to e.g. an error in registry.
+					</stentry>
+				</strow>
+				<strow>
+				    <stentry>Duplicate Classes</stentry>
+					<stentry>
+						Lists classes loaded multiple times. Grouping the result by class loader points to the class loaders that load the same class multiple times. Possible cause: Several versions of the same library are deployed.
+					</stentry>
+				</strow>
+				<strow>
+				    <stentry>Big Drops in Dominator Tree Query</stentry>
+					<stentry>
+						Displays memory accumulation points in the dominator tree. Displayed are objects with a big difference between the retained size of the parent and the children and the first "interesting" dominator of the accumulation point. These are places where the memory of many small objects is accumulated under one object. 
+					</stentry>
+				</strow>
+				<strow>
+				    <stentry>Leak Hunter Report</stentry>
+					<stentry>
+						Leak Hunter query analyzes the heap dump, searches for memory leak and provides an illustrative description of the identified suspects. 
+					</stentry>
+				</strow>
+			</simpletable>
+		</section>
+	</refbody>
+</reference>

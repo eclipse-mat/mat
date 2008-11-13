@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE concept PUBLIC "-//OASIS//DTD DITA Concept//EN" "concept.dtd" >
+<concept id="concept_heapdump" xml:lang="en-us">
+	<title>Heap Dump</title>
+	<conbody>
+		<p>HPROF heap dump is a snapshot of java heap at a certain time.
+			A full GC is triggered before the heap dump is written so it contains
+			information about the remaining objects.</p>
+		<ul>
+			<li>
+				All Objects
+				<p>Class, fields, primitive values and references</p>
+			</li>
+			<li>
+				All Classes
+				<p>Classloader, name, super class, static fields</p>
+			</li>
+			<li>
+				Garbage Collection Roots
+				<p>Objects defined to be reachable by the JVM</p>
+			</li>
+		</ul>
+		<p>A heap dump does not contain allocation information so it cannot
+			resolve questions like who had created the objects and where they
+			have been created.</p>
+	</conbody>
+	<related-links>
+		<link href="../tasks/acquiringheapdump.html" format="html" type="task">
+			<linktext>Acquiring Heap Dumps</linktext>
+		</link>
+	</related-links>
+</concept>

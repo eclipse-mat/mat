@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en-us" xml:lang="en-us">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<meta name="copyright" content="(C) Copyright 2005" />
+<meta name="DC.rights.owner" content="(C) Copyright 2005" />
+<meta content="reference" name="DC.Type" />
+<meta name="DC.Title" content="SELECT Clause" />
+<meta name="abstract" content="" />
+<meta name="description" content="" />
+<meta scheme="URI" name="DC.Relation" content="../reference/oqlsyntax.html" />
+<meta content="XHTML" name="DC.Format" />
+<meta content="ref_oqlsyntaxselect" name="DC.Identifier" />
+<meta content="en-us" name="DC.Language" />
+<link href="..\styles/commonltr.css" type="text/css" rel="stylesheet" />
+<title>SELECT Clause</title>
+</head>
+<body id="ref_oqlsyntaxselect"><a name="ref_oqlsyntaxselect"><!-- --></a>
+
+
+	<h1 class="topictitle1">SELECT Clause</h1>
+
+	
+
+	
+	<div><p />
+
+		<div class="section">
+			<p>
+				The SELECT clause determines what to extract from the
+				heap dump. To display objects and be able to browse the
+				outgoing references, use the
+				<span class="cmdname">*</span>
+				symbol:
+			</p>
+
+			<pre class="codeblock">SELECT * FROM java.lang.String</pre>
+
+
+			<p><strong>Select specific columns</strong></p>
+
+			<p>
+				Alternatively, one can select the fields to be
+				displayed:
+			</p>
+
+			<pre class="codeblock">SELECT toString(s), s.count, s.value FROM java.lang.String s</pre>
+
+			<p>
+				The resulting table knows about the underlying object.
+				So you can use the context menu to open further views on
+				the object at hand. Use the @ symbol to access Java
+				attributes and methods of the objects. There are also a
+				number of build-in function available to extract common
+				information:
+			</p>
+
+			<pre class="codeblock">SELECT toString(s), s.@usedHeapSize,
+				s.@retainedHeapSize FROM java.lang.String s</pre>
+
+			<p>
+				The section on
+				<a href="propertyaccessors.html">
+					Property Accessors
+				</a>
+				contains details on the commonly available attributes.
+			</p>
+
+			<p><strong>Provide column names</strong></p>
+
+			<p>Use the AS keyword to name the columns:</p>
+
+			<pre class="codeblock">SELECT toString(s) AS Value,
+       		s.@usedHeapSize AS "Shallow Size",
+      		 s.@retainedHeapSize AS "Retained Size"
+			FROM java.lang.String s</pre>
+
+			<p>
+				Use the
+				<span class="cmdname">AS RETAINED SET</span>
+				keyword to get the set of objects retained by your
+				selection:
+			</p>
+
+			<pre class="codeblock">SELECT AS RETAINED SET * FROM java.lang.String</pre>
+
+			<p><strong>Flatten select items into an object list</strong></p>
+
+			<p>
+				Use the
+				<span class="cmdname">OBJECTS</span>
+				to interpret the items in the
+				<span class="cmdname">SELECT</span>
+				clause as objects:
+			</p>
+
+			<pre class="codeblock">SELECT OBJECTS dominators(s) FROM java.lang.String s</pre>
+
+			<p>
+				The function
+				<span class="cmdname">dominators()</span>
+				returns an array of objects. Therefore the query returns
+				a list of object lists, i.e. arrays. By using the
+				keyword
+				<span class="cmdname">OBJECTS</span>
+				, we force the OQL to reduce this into a single list of
+				objects.
+			</p>
+
+			<p><strong>Select unique objects</strong></p>
+
+			<p>
+				Use the
+				<span class="cmdname">DISTINCT</span>
+				keyword to only select unique objects:
+			</p>
+
+			<pre class="codeblock">SELECT DISTINCT classof(s) FROM java.lang.String s</pre>
+
+			<p>
+				The function
+				<span class="cmdname">classof</span>
+				returns the class object. Of course, all Strings have
+				the same class. Without the
+				<span class="cmdname">DISTINCT</span>
+				keyword, the query would result in a list with as many
+				rows with the same class as there are Strings.
+			</p>
+
+		</div>
+
+	</div>
+
+<div>
+<div class="familylinks">
+<div class="parentlink"><strong>Parent topic:</strong> <a href="../reference/oqlsyntax.html" title="">OQL Syntax</a></div>
+</div>
+</div>
+
+</body>
+</html>

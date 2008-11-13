@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension-point id="enhancer" name="HPROF Enhancement" schema="schema/enhancer.exsd"/>
+   <extension
+         id="hprof"
+         name="HPROF Formatted Dumps"
+         point="org.eclipse.mat.parser.parser">
+      <parser
+      		name="HPROF binary heap dumps"
+            fileExtension="hprof,bin"
+            indexBuilder="org.eclipse.mat.hprof.HprofIndexBuilder"
+            objectReader="org.eclipse.mat.hprof.HprofHeapObjectReader">
+      </parser>
+   </extension>
+
+	<extension point="org.eclipse.core.contenttype.contentTypes">
+	    <content-type
+		      id="org.eclipse.mat.HprofHeapDump"
+		      base-type="org.eclipse.mat.JavaHeapDump"
+	          describer="org.eclipse.mat.hprof.HprofContentDescriber"
+	          file-extensions="hprof,bin,dmp"
+		      name="Hprof Heap Dump"
+		      priority="normal">
+		</content-type>
+	</extension>
+
+</plugin>

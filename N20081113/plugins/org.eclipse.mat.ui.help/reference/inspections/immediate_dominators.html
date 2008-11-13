@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en-us" xml:lang="en-us">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<meta name="copyright" content="(C) Copyright 2005" />
+<meta name="DC.rights.owner" content="(C) Copyright 2005" />
+<meta content="reference" name="DC.Type" />
+<meta name="DC.Title" content="Immediate Dominators" />
+<meta name="abstract" content="Find out who is keeping alive a set of objects." />
+<meta name="description" content="Find out who is keeping alive a set of objects." />
+<meta scheme="URI" name="DC.Relation" content="../../concepts/dominatortree.html" />
+<meta scheme="URI" name="DC.Relation" content="../../concepts/gcroots.html" />
+<meta content="XHTML" name="DC.Format" />
+<meta content="ref_inspections_immediate_dominators" name="DC.Identifier" />
+<meta content="en-us" name="DC.Language" />
+<link href="..\..\styles/commonltr.css" type="text/css" rel="stylesheet" />
+<title>Immediate Dominators</title>
+</head>
+<body id="ref_inspections_immediate_dominators"><a name="ref_inspections_immediate_dominators"><!-- --></a>
+
+
+	<h1 class="topictitle1">Immediate Dominators</h1>
+
+	
+	<div><p>Find out who is keeping alive a set of objects.
+	</p>
+
+		<div class="section"><h2 class="sectiontitle">Motivation</h2>
+			
+			<img class="floatright" src="immediate_dominators_graph.png" alt="Object graph of an hash table structure." />
+			<p>
+				To find out why a single object is still in the heap is easy: follow
+				the
+				<a href="path_to_gc_roots.html">shortest path</a>
+				to any GC root. But what if you have thousands of objects? Expanding
+				every single path is too time consuming. Immediate dominators is a
+				very effective way to find out who is keeping a set of objects
+				alive.
+			</p>
+
+			<p>
+				Let's consider the object graph on the left: The blue objects
+				<img src="../../mimes/icons/obj_blue.png" alt="blue" />
+				represent
+				<samp class="codeph">java.util.HashMap</samp>
+				: the map itself, the backing array with the buckets and finally the
+				map entries referring to keys and values. The yellow objects
+				<img src="../../mimes/icons/obj_yellow.png" alt="yellow" />
+				are the values stored in the map, for example strings. The red
+				object
+				<img src="../../mimes/icons/obj_red.png" alt="red" />
+				is holding a reference to the map and thereby preventing its garbage
+				collection.
+			</p>
+
+			<p>
+				In this case, the
+				<a href="../../concepts/dominatortree.html">dominator tree</a>
+				is identical to the object graph. Keep in mind that the tree
+				structure can differ from the object graph!
+			</p>
+
+			<p>
+				The
+				<strong>immediate dominators</strong>
+				of the yellow objects are the hash map entries. If all references to
+				the entry objects were gone, all yellow strings were gone too.
+			</p>
+
+			<p>
+				The
+				<strong>skip pattern</strong>
+				tells the query to skip those immediate dominators which match the
+				pattern. In the exemplary graph, it skips all blue hash map objects
+				and spits out the red object. The resulting table says: this one red
+				object keeps alive three yellow strings.
+			</p>
+
+		</div>
+
+		<div class="section"><h2 class="sectiontitle">Arguments</h2>
+			
+			<table summary="" cellspacing="0" cellpadding="4" border="1" class="simpletableborder">
+				<tr>
+					<th valign="bottom" align="left" id="N100B8">Argument</th>
+
+					<th valign="bottom" align="left" id="N100BE">Description</th>
+
+				</tr>
+
+				<tr>
+					<td valign="top" headers="N100B8">objects</td>
+
+					<td valign="top" headers="N100BE">An arbitrary set of objects to be analyzed.</td>
+
+				</tr>
+
+				<tr>
+					<td valign="top" headers="N100B8">-skip</td>
+
+					<td valign="top" headers="N100BE">
+						<p> A regular expression specifying which objects to skip while
+							going up the dominator tree. If the dominator of an object
+							matches the pattern, then the dominator of that dominator will be
+							taken, and so on, until an object not matching the skip pattern
+							is reached.</p>
+
+						<p> If the object is not dominated by any other object, it is
+							placed in a category ROOT.</p>
+
+					</td>
+
+				</tr>
+
+			</table>
+
+		</div>
+
+		<div class="section" id="ref_inspections_immediate_dominators__result"><a name="ref_inspections_immediate_dominators__result"><!-- --></a><h2 class="sectiontitle">Result</h2>
+			
+			<p>The sample below shows the immediate dominators of all strings
+				in this particular heap dump.</p>
+
+			<p>
+				<img src="immediate_dominators_table.png" alt="Table displaying the immediate dominators." />
+			</p>
+
+			<p>
+				Read the selected row as follows:
+				<strong>7.669</strong>
+				instances of
+				<strong>ConfigurationElement</strong>
+				are responsible for
+				<strong>16.130</strong>
+				strings. The configuration elements alone take up
+				<strong>368.112</strong>
+				bytes (shallow size) while the strings use
+				<strong>387.120</strong>
+				bytes.
+			</p>
+
+			<p>
+				The
+				<strong>retained size</strong>
+				of each object set is not calculated right away for performance
+				reasons. Usually, the number of objects and shallow sizes should
+				provide an indication what to analyze further. Of course, one can
+				calculate the retained sizes using context menu.
+			</p>
+
+			<p>
+				The
+				<strong>ROOT</strong>
+				element contains all those objects, which are
+				<strong>not</strong>
+				dominated by another object. Those are typically instances, which
+				are kept alive through multiple paths which end in different
+				<a href="../../concepts/gcroots.html">GC Roots</a>
+				. Semantically, the ROOT element is the virtual root node of the
+				<a href="../../concepts/dominatortree.html">dominator tree</a>
+				.
+			</p>
+
+			<p>
+				<img src="immediate_dominators_context.png" alt="Context menu available in the immediate dominator&#13;&#10;&#9;&#9;&#9;&#9;&#9;&#9;table." />
+			</p>
+
+			<p>
+				As shown above, the
+				<strong>context menu</strong>
+				gives access to both sets of objects: The dominators (e.g. the
+				configuration elements) and the dominated objects (e.g. the
+				strings).
+			</p>
+
+			<p>In this example, the retained set of the 7.669 configuration
+				elements would - among other objects - contain the 16.130 strings.
+			</p>
+
+		</div>
+
+	</div>
+
+	<div><div class="relconcepts"><strong>Related concepts</strong><br />
+<div><a href="../../concepts/dominatortree.html">Dominator Tree</a></div>
+<div><a href="../../concepts/gcroots.html">Garbage Collection Roots</a></div>
+</div>
+</div>
+
+</body>
+</html>

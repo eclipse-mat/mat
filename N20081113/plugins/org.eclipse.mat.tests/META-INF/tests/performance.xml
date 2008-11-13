@@ -1,0 +1,37 @@
+<section name="Performance Tests"> 
+	<query name="Paths from GC Roots">		
+		<param key="html.separate_file" value="true" />
+		<command>path2gc_reg_test</command>
+		<param key="limit" value="100" />
+	</query>
+	<query name="Merged Paths from GC Roots">		
+		<param key="html.separate_file" value="true" />
+		<command>merged_paths_reg_test</command>
+		<param key="limit" value="1000" />
+	</query>				
+	<query name="Retained Size Approx for Histogram">		
+		<param key="html.separate_file" value="true" />
+		<command>retained_size_histogram_test -approx</command>
+		<param key="limit" value="50000" />
+	</query>
+	<query name="Retained Size Approx for Classloaders">		
+		<param key="html.separate_file" value="true" />
+		<command>retained_size_histogram_test -byClassLoader -approx</command>
+		<param key="limit" value="50000" />		
+	</query>
+	<query name="Retained Size for Histogram(precise)">		
+		<param key="html.separate_file" value="true" />
+		<command>retained_size_histogram_test</command>
+		<param key="limit" value="50000" />
+	</query>
+	<query name="Retained Size for Classloaders(precise)">		
+		<param key="html.separate_file" value="true" />
+		<command>retained_size_histogram_test -byClassLoader </command>
+		<param key="limit" value="50000" />		
+	</query>
+	<query name="Immediate Dominators of java.util.HashMap$Entry">		
+		<param key="html.separate_file" value="true" />
+		<command>immediate_dominators java.util.HashMap$Entry</command>
+		<param key="limit" value="1000" />
+	</query>
+</section>

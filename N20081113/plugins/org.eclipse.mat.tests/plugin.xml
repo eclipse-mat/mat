@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>   
+   <extension
+         id="application"
+         point="org.eclipse.core.runtime.applications">
+      <application
+            cardinality="singleton-global"
+            thread="main"
+            visible="true">
+         <run
+               class="org.eclipse.mat.tests.regression.Application">
+         </run>
+      </application>
+   </extension>
+
+	<extension id="junit4Runner" point="org.eclipse.core.runtime.applications">
+		<application cardinality="singleton-global" thread="main" visible="true">
+			<run class="org.eclipse.mat.tests.JUnit4TestRunner" />
+		</application>
+	</extension>
+    
+   <extension
+         point="org.eclipse.mat.report.report">
+      <report
+            description="regression tests specification"
+            file="META-INF/tests/regression.xml"
+            id="regression"
+            name="Regression Test Suite">
+      </report>
+      <report
+            file="META-INF/tests/performance.xml"
+            id="performance"
+            name="Performance Test Suite">
+      </report>
+   </extension>
+   <extension
+         point="org.eclipse.mat.report.query">
+      <query
+            impl="org.eclipse.mat.tests.regression.query.DomTreeRegTest">
+      </query>
+      <query
+            impl="org.eclipse.mat.tests.regression.query.Paths2GCRootsRegTest">
+      </query>
+      <query
+            impl="org.eclipse.mat.tests.regression.query.MergedPathsRegTest">
+      </query>
+      <query
+            impl="org.eclipse.mat.tests.regression.query.RetainedSizeForHistogramQuery">
+      </query>
+   </extension>
+
+</plugin>

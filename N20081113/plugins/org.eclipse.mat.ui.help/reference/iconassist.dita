@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd" >
+<reference id="icons" xml:lang="en-us">
+	<title>Icons Assist</title>
+	<refbody>
+		<section>
+			<simpletable relcolwidth="2* 12*" id="icons_table">
+				<sthead>
+					<stentry>Icon</stentry>
+					<stentry>Description</stentry>
+				</sthead>
+				<strow>
+					<stentry>
+						<image href="../mimes/i-arrayobject.png"></image>
+					</stentry>
+					<stentry>Array object</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<image href="../mimes/i-class.png"></image>
+					</stentry>
+					<stentry>Class</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<image href="../mimes/i-package.png"></image>
+					</stentry>
+					<stentry>Package</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<image href="../mimes/i-superclass.png"></image>
+					</stentry>
+					<stentry>Super class</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<image href="../mimes/i-classobject.png"></image>
+					</stentry>
+					<stentry>Class object</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<image href="../mimes/i-classloaderobject.png"></image>
+					</stentry>
+					<stentry>Class loader object</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<image href="../mimes/i-heapdump.png"></image>
+					</stentry>
+					<stentry>Heap dump</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<image href="../mimes/i-objectaddress.png"></image>
+					</stentry>
+					<stentry>Object address</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<image href="../mimes/i-otherobject.png"></image>
+					</stentry>
+					<stentry>Other object</stentry>
+				</strow>
+				<strow>
+					<stentry></stentry>
+					<stentry>
+						<b>Indicators added to heap objects</b>
+					</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<image href="../mimes/i-horefabove.png"></image>
+					</stentry>
+					<stentry>This heap object references the one above</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<image href="../mimes/i-horefbelow.png"></image>
+					</stentry>
+					<stentry>This heap object references the one below</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<image href="../mimes/i-hoisgcroot.png"></image>
+					</stentry>
+					<stentry>This heap object is a Garbage Collection Root
+					</stentry>
+				</strow>
+				<strow>
+					<stentry></stentry>
+					<stentry>
+						<b>Toolbar and context menus</b>
+					</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<image href="../mimes/i-dominatortree.png"></image>
+					</stentry>
+					<stentry>Dominator tree</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<image href="../mimes/i-querybrowser.png"></image>
+					</stentry>
+					<stentry>Query browser</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<image href="../mimes/i-retainedset.png"></image>
+					</stentry>
+					<stentry>Retained set / Customized retained set</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<image href="../mimes/i-expert.png"></image>
+					</stentry>
+					<stentry>Expert system tests drop-down menu</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<image href="../mimes/i-compare.png"></image>
+					</stentry>
+					<stentry>Compare current heap dump with another</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<image href="../mimes/i-showhg.png"></image>
+					</stentry>
+					<stentry>Show as histogram</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<image href="../mimes/i-calcrs.png"></image>
+					</stentry>
+					<stentry>Calculate retained size</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<image href="../mimes/i-idominators.png"></image>
+					</stentry>
+					<stentry>Immediate Dominators</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<image href="../mimes/i-histogram.png"></image>
+					</stentry>
+					<stentry>Histogram</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<image href="../mimes/i-thread.png"></image>
+					</stentry>
+					<stentry>Thread overview / thread details</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<image href="../mimes/i-pathtogc.png"></image>
+					</stentry>
+					<stentry>Paths to GC Roots</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<image href="../mimes/i-export.png"></image>
+					</stentry>
+					<stentry>Export drop-down menu</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<image href="../mimes/i-search.png"></image>
+					</stentry>
+					<stentry>Search object by its address</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<image href="../mimes/i-filter.png"></image>
+					</stentry>
+					<stentry>Filter</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<image href="../mimes/i-oqleditor.png"></image>
+					</stentry>
+					<stentry>Object Query Language Editor</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<image href="../mimes/i-shallow.png"></image>
+					</stentry>
+					<stentry>Shallow / heap sizes (in Object Inspector)
+					</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<image href="../mimes/i-grouping.png"></image>
+					</stentry>
+					<stentry>Grouping drop-down menu</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<image href="../mimes/i-objectinspectorview.png"></image>
+					</stentry>
+					<stentry>Pin current Object Inspector view (keep the content
+						constant)</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<image href="../mimes/i-oom.png"></image>
+					</stentry>
+					<stentry>Out of Memory stack trace (not always available)
+					</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<image href="../mimes/i-totalsrow.png"></image>
+					</stentry>
+					<stentry>Totals row. Decorated with + means that not all the
+						children are shown and the list can be expanded</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<image href="../mimes/i-openexportsr.png"></image>
+					</stentry>
+					<stentry>Open expert system report</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<image href="../mimes/i-overview.png"></image>
+					</stentry>
+					<stentry>Overview pane</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<image href="../mimes/i-openhd.png"></image>
+					</stentry>
+					<stentry>Open the heap dump</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<image href="../mimes/i-openhdff.png"></image>
+					</stentry>
+					<stentry>Open the heap dump from a file</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<image href="../mimes/i-finalizers.png"></image>
+					</stentry>
+					<stentry>Finalizers overview</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<image href="../mimes/i-export_xls.png"></image>
+					</stentry>
+					<stentry>Export to .xls</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<image href="../mimes/i-export_html.png"></image>
+					</stentry>
+					<stentry>Export to .html</stentry>
+				</strow>
+				<strow>
+					<stentry></stentry>
+					<stentry>
+						<b>Views</b>
+					</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<image href="../mimes/i-notesview.png"></image>
+					</stentry>
+					<stentry>Notes View - write and edit you notes in this view.
+						All the notes are stored together with the heap dump.</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<image href="../mimes/i-historyview.png"></image>
+					</stentry>
+					<stentry>History View - list of recently opened heap dumps
+					</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<image href="../mimes/i-hddetails.png"></image>
+					</stentry>
+					<stentry>Heap Dump Details</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<image href="../mimes/i-objectinspector.png"></image>
+					</stentry>
+					<stentry>Object Inspector - detailed information for the
+						selected object</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<image href="../mimes/i-errorlog.png"></image>
+					</stentry>
+					<stentry>Error Log - report the errors to our Bugzilla
+					</stentry>
+				</strow>
+			</simpletable>
+		</section>
+	</refbody>
+</reference>

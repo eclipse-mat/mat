@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd" >
+<reference id="ref_inspections_immediate_dominators" xml:lang="en-us">
+	<title>Immediate Dominators</title>
+	<shortdesc>Find out who is keeping alive a set of objects.
+	</shortdesc>
+	<refbody>
+		<section>
+			<title>Motivation</title>
+			<image href="immediate_dominators_graph.png" outputclass="floatright">
+				<alt>Object graph of an hash table structure.</alt>
+			</image>
+			<p>
+				To find out why a single object is still in the heap is easy: follow
+				the
+				<xref href="path_to_gc_roots.dita">shortest path</xref>
+				to any GC root. But what if you have thousands of objects? Expanding
+				every single path is too time consuming. Immediate dominators is a
+				very effective way to find out who is keeping a set of objects
+				alive.
+			</p>
+			<p>
+				Let's consider the object graph on the left: The blue objects
+				<image href="../../mimes/icons/obj_blue.png">
+					<alt>blue</alt>
+				</image>
+				represent
+				<codeph>java.util.HashMap</codeph>
+				: the map itself, the backing array with the buckets and finally the
+				map entries referring to keys and values. The yellow objects
+				<image href="../../mimes/icons/obj_yellow.png">
+					<alt>yellow</alt>
+				</image>
+				are the values stored in the map, for example strings. The red
+				object
+				<image href="../../mimes/icons/obj_red.png">
+					<alt>red</alt>
+				</image>
+				is holding a reference to the map and thereby preventing its garbage
+				collection.
+			</p>
+			<p>
+				In this case, the
+				<xref href="../../concepts/dominatortree.dita">dominator tree</xref>
+				is identical to the object graph. Keep in mind that the tree
+				structure can differ from the object graph!
+			</p>
+			<p>
+				The
+				<b>immediate dominators</b>
+				of the yellow objects are the hash map entries. If all references to
+				the entry objects were gone, all yellow strings were gone too.
+			</p>
+			<p>
+				The
+				<b>skip pattern</b>
+				tells the query to skip those immediate dominators which match the
+				pattern. In the exemplary graph, it skips all blue hash map objects
+				and spits out the red object. The resulting table says: this one red
+				object keeps alive three yellow strings.
+			</p>
+		</section>
+		<section>
+			<title>Arguments</title>
+			<simpletable>
+				<sthead>
+					<stentry>Argument</stentry>
+					<stentry>Description</stentry>
+				</sthead>
+				<strow>
+					<stentry>objects</stentry>
+					<stentry>An arbitrary set of objects to be analyzed.</stentry>
+				</strow>
+				<strow>
+					<stentry>-skip</stentry>
+					<stentry>
+						<p> A regular expression specifying which objects to skip while
+							going up the dominator tree. If the dominator of an object
+							matches the pattern, then the dominator of that dominator will be
+							taken, and so on, until an object not matching the skip pattern
+							is reached.</p>
+						<p> If the object is not dominated by any other object, it is
+							placed in a category ROOT.</p>
+					</stentry>
+				</strow>
+			</simpletable>
+		</section>
+		<section id="result">
+			<title>Result</title>
+			<p>The sample below shows the immediate dominators of all strings
+				in this particular heap dump.</p>
+			<p>
+				<image href="immediate_dominators_table.png">
+					<alt>Table displaying the immediate dominators.</alt>
+				</image>
+			</p>
+			<p>
+				Read the selected row as follows:
+				<b>7.669</b>
+				instances of
+				<b>ConfigurationElement</b>
+				are responsible for
+				<b>16.130</b>
+				strings. The configuration elements alone take up
+				<b>368.112</b>
+				bytes (shallow size) while the strings use
+				<b>387.120</b>
+				bytes.
+			</p>
+			<p>
+				The
+				<b>retained size</b>
+				of each object set is not calculated right away for performance
+				reasons. Usually, the number of objects and shallow sizes should
+				provide an indication what to analyze further. Of course, one can
+				calculate the retained sizes using context menu.
+			</p>
+			<p>
+				The
+				<b>ROOT</b>
+				element contains all those objects, which are
+				<b>not</b>
+				dominated by another object. Those are typically instances, which
+				are kept alive through multiple paths which end in different
+				<xref href="../../concepts/gcroots.dita">GC Roots</xref>
+				. Semantically, the ROOT element is the virtual root node of the
+				<xref href="../../concepts/dominatortree.dita">dominator tree</xref>
+				.
+			</p>
+			<p>
+				<image href="immediate_dominators_context.png">
+					<alt>Context menu available in the immediate dominator
+						table.</alt>
+				</image>
+			</p>
+			<p>
+				As shown above, the
+				<b>context menu</b>
+				gives access to both sets of objects: The dominators (e.g. the
+				configuration elements) and the dominated objects (e.g. the
+				strings).
+			</p>
+			<p>In this example, the retained set of the 7.669 configuration
+				elements would - among other objects - contain the 16.130 strings.
+			</p>
+		</section>
+	</refbody>
+	<related-links>
+		<link href="../../concepts/dominatortree.dita" />
+		<link href="../../concepts/gcroots.dita" />
+	</related-links>
+</reference>

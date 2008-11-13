@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd" >
+<reference id="ref_bnfofoql" xml:lang="en-us">
+	<title>BNF for the Object Query Language</title>
+
+	<refbody>
+		<section>
+		<simpletable  id="oql_table">
+            <strow>
+               <stentry><codeblock>SelectStatement</codeblock></stentry>
+               <stentry><codeblock>::=</codeblock></stentry>
+               <stentry><codeblock>"SELECT" SelectList FromClause ( WhereClause )? ( UnionClause )?</codeblock></stentry>
+            </strow>
+            <strow>
+               <stentry><codeblock>SelectList</codeblock></stentry>
+               <stentry><codeblock>::=</codeblock></stentry>
+               <stentry><codeblock>(( "DISTINCT" | "AS RETAINED SET" )? ( "*" | "OBJECTS" SelectItem | SelectItem ( "," SelectItem )* ))</codeblock></stentry>
+            </strow>
+            <strow>
+               <stentry><codeblock>SelectItem</codeblock></stentry>
+               <stentry><codeblock>::=</codeblock></stentry>
+               <stentry><codeblock>( PathExpression | EnvVarPathExpression ) ( "AS" ( &lt;STRING_LITERAL&gt; | &lt;IDENTIFIER&gt; ) )?&lt;/IDENTIFIER&gt;&lt;/STRING_LITERAL&gt;</codeblock></stentry>
+            </strow>
+            <strow>
+               <stentry><codeblock>PathExpression</codeblock></stentry>
+               <stentry><codeblock>::=</codeblock></stentry>
+               <stentry><codeblock>( ObjectFacet | BuildInFunction ) ( "." ObjectFacet )*</codeblock></stentry>
+            </strow>
+            <strow>
+               <stentry><codeblock>EnvVarPathExpression</codeblock></stentry>
+               <stentry><codeblock>::=</codeblock></stentry>
+               <stentry><codeblock>( "$" &lt;IDENTIFIER&gt; ) ( "." ObjectFacet )*</codeblock></stentry>
+            </strow>
+            <strow>
+               <stentry><codeblock>ObjectFacet</codeblock></stentry>
+               <stentry><codeblock>::=</codeblock></stentry>
+               <stentry><codeblock>( ( "@" )? &lt;IDENTIFIER&gt; ( ParameterList )? )</codeblock></stentry>
+            </strow>
+            <strow>
+               <stentry><codeblock>ParameterList</codeblock></stentry>
+               <stentry><codeblock>::=</codeblock></stentry>
+               <stentry><codeblock>"(" ( ( PrimaryExpression ( "," PrimaryExpression )* ) )? ")"</codeblock></stentry>
+            </strow>
+            <strow>
+               <stentry><codeblock>FromClause</codeblock></stentry>
+               <stentry><codeblock>::=</codeblock></stentry>
+               <stentry><codeblock>"FROM" ( "OBJECTS" )? ( "INSTANCEOF" )? ( FromItem | "(" SelectStatement ")" ) ( &lt;IDENTIFIER&gt; )?</codeblock></stentry>
+            </strow>
+            <strow>
+               <stentry><codeblock>FromItem</codeblock></stentry>
+               <stentry><codeblock>::=</codeblock></stentry>
+               <stentry><codeblock>( ClassName | &lt;STRING_LITERAL&gt; | ObjectAddress ( "," ObjectAddress )* | ObjectId ( "," ObjectId )* | EnvVarPathExpression )</codeblock></stentry>
+            </strow>
+            <strow>
+               <stentry><codeblock>ClassName</codeblock></stentry>
+               <stentry><codeblock>::=</codeblock></stentry>
+               <stentry><codeblock>( &lt;IDENTIFIER&gt; ( "." &lt;IDENTIFIER&gt; )* ( "[]" )* )</codeblock></stentry>
+            </strow>
+            <strow>
+               <stentry><codeblock>ObjectAddress</codeblock></stentry>
+               <stentry><codeblock>::=</codeblock></stentry>
+               <stentry><codeblock>&lt;HEX_LITERAL&gt;</codeblock></stentry>
+            </strow>
+            <strow>
+               <stentry><codeblock>ObjectId</codeblock></stentry>
+               <stentry><codeblock>::=</codeblock></stentry>
+               <stentry><codeblock>&lt;INTEGER_LITERAL&gt;</codeblock></stentry>
+            </strow>
+            <strow>
+               <stentry><codeblock>WhereClause</codeblock></stentry>
+               <stentry><codeblock>::=</codeblock></stentry>
+               <stentry><codeblock>"WHERE" ConditionalOrExpression</codeblock></stentry>
+            </strow>
+            <strow>
+               <stentry><codeblock>ConditionalOrExpression</codeblock></stentry>
+               <stentry><codeblock>::=</codeblock></stentry>
+               <stentry><codeblock>ConditionalAndExpression ( "or" ConditionalAndExpression )*</codeblock></stentry>
+            </strow>
+            <strow>
+               <stentry><codeblock>ConditionalAndExpression</codeblock></stentry>
+               <stentry><codeblock>::=</codeblock></stentry>
+               <stentry><codeblock>EqualityExpression ( "and" EqualityExpression )*</codeblock></stentry>
+            </strow>
+            <strow>
+               <stentry><codeblock>EqualityExpression</codeblock></stentry>
+               <stentry><codeblock>::=</codeblock></stentry>
+               <stentry><codeblock>RelationalExpression ( ( "=" RelationalExpression | "!=" RelationalExpression ) )*</codeblock></stentry>
+            </strow>
+            <strow>
+               <stentry><codeblock>RelationalExpression</codeblock></stentry>
+               <stentry><codeblock>::=</codeblock></stentry>
+               <stentry><codeblock>( PrimaryExpression ( ( "&lt;" PrimaryExpression | "&gt;" PrimaryExpression | "&lt;=" PrimaryExpression | "&gt;=" PrimaryExpression | ( LikeClause | InClause ) | "implements" ClassName ) )? )</codeblock></stentry>
+            </strow>
+            <strow>
+               <stentry><codeblock>LikeClause</codeblock></stentry>
+               <stentry><codeblock>::=</codeblock></stentry>
+               <stentry><codeblock>( "NOT" )? "LIKE" &lt;STRING_LITERAL&gt;</codeblock></stentry>
+            </strow>
+            <strow>
+               <stentry><codeblock>InClause</codeblock></stentry>
+               <stentry><codeblock>::=</codeblock></stentry>
+               <stentry><codeblock>( "NOT" )? "IN" PrimaryExpression</codeblock></stentry>
+            </strow>
+            <strow>
+               <stentry><codeblock>PrimaryExpression</codeblock></stentry>
+               <stentry><codeblock>::=</codeblock></stentry>
+               <stentry><codeblock>Literal</codeblock></stentry>
+            </strow>
+            <strow>
+               <stentry><codeblock> </codeblock></stentry>
+               <stentry><codeblock>|</codeblock></stentry>
+               <stentry><codeblock>"(" ( ConditionalOrExpression | SubQuery ) ")</codeblock></stentry>
+            </strow>
+            <strow>
+               <stentry><codeblock> </codeblock></stentry>
+               <stentry><codeblock>|</codeblock></stentry>
+               <stentry><codeblock>PathExpression</codeblock></stentry>
+            </strow>
+            <strow>
+               <stentry><codeblock> </codeblock></stentry>
+               <stentry><codeblock>|</codeblock></stentry>
+               <stentry><codeblock>EnvVarPathExpression</codeblock></stentry>
+            </strow>
+            <strow>
+               <stentry><codeblock>SubQuery</codeblock></stentry>
+               <stentry><codeblock>::=</codeblock></stentry>
+               <stentry><codeblock>SelectStatement</codeblock></stentry>
+            </strow>
+            <strow>
+               <stentry><codeblock>Function</codeblock></stentry>
+               <stentry><codeblock>::=</codeblock></stentry>
+               <stentry><codeblock>( ( "toHex" | "toString" | "dominators" | "outbounds" | "inbounds" | "classof" | "dominatorof" ) "(" ConditionalOrExpression ")" )</codeblock></stentry>
+            </strow>
+            <strow>
+               <stentry><codeblock>Literal</codeblock></stentry>
+               <stentry><codeblock>::=</codeblock></stentry>
+               <stentry><codeblock>( &lt;INTEGER_LITERAL&gt; | &lt;LONG_LITERAL&gt; | &lt;FLOATING_POINT_LITERAL&gt; | &lt;CHARACTER_LITERAL&gt; | &lt;STRING_LITERAL&gt; | BooleanLiteral | NullLiteral )</codeblock></stentry>
+            </strow>
+            <strow>
+               <stentry><codeblock>BooleanLiteral</codeblock></stentry>
+               <stentry><codeblock>::=</codeblock></stentry>
+               <stentry><codeblock>"true"</codeblock></stentry>
+            </strow>
+            <strow>
+               <stentry><codeblock> </codeblock></stentry>
+               <stentry><codeblock>|</codeblock></stentry>
+               <stentry><codeblock>"false"</codeblock></stentry>
+            </strow>
+            <strow>
+               <stentry><codeblock>NullLiteral</codeblock></stentry>
+               <stentry><codeblock>::=</codeblock></stentry>
+               <stentry><codeblock>&lt;NULL&gt;</codeblock></stentry>
+            </strow>
+            <strow>
+               <stentry><codeblock>UnionClause</codeblock></stentry>
+               <stentry><codeblock>::=</codeblock></stentry>
+               <stentry><codeblock>( "UNION" "(" SelectStatement ")" )+</codeblock></stentry>
+            </strow>          
+        </simpletable>
+		</section>
+	</refbody>
+</reference>
