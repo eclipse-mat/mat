@@ -90,6 +90,13 @@
 		<pane id="MultiplePath2GCRootsPane" class="org.eclipse.mat.ui.snapshot.panes.MultiplePath2GCRootsPane">
 			<result type="org.eclipse.mat.snapshot.inspections.MultiplePath2GCRootsQuery$Tree"/>
 		</pane>
+  <pane
+        class="org.eclipse.mat.ui.snapshot.panes.BundlesPane"
+        id="BundlesPane">
+     <result
+           type="org.eclipse.mat.inspections.osgi.BundleRegistryQuery$BundleTreeResult">
+     </result>
+  </pane>
 	</extension>
    
 	<extension

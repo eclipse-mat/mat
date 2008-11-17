@@ -70,6 +70,10 @@
 		
 		<!-- eclipse -->
 		<query impl="org.eclipse.mat.inspections.eclipse.LeakingPlugins"/>
+  <query
+        impl="org.eclipse.mat.inspections.osgi.BundleRegistryQuery">
+  </query>
+  
 	</extension>
 	
 	<extension point="org.eclipse.mat.api.nameResolver">
