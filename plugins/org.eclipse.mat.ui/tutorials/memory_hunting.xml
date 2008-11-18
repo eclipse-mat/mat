@@ -57,7 +57,7 @@
    </item>
    <item title="3.2. Analyzing object groups" dialog="true" skip="false">
       <description>
-         One you have found a suspicious group of objects, you can use one of the following for further analysis
+         Once you have found a suspicious group of objects, you can use one of the following for further analysis
       </description>
       <subitem label="Calculate the retained size of the group" skip="true">
       </subitem>
