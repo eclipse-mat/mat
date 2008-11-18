@@ -95,6 +95,15 @@ public class GettingStartedWizard extends Wizard
         return true;
     }
 
+    @Override
+    public boolean performCancel()
+    {
+        Preferences prefs = MemoryAnalyserPlugin.getDefault().getPluginPreferences();
+        prefs.setValue(HIDE_WIZARD_KEY, !choicePage.askAgain.getSelection());
+
+        return true;
+    }
+
     // //////////////////////////////////////////////////////////////
     // internal classes
     // //////////////////////////////////////////////////////////////
