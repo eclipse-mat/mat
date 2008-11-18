@@ -54,9 +54,9 @@ public class BundleRegistryQuery implements IQuery
     public ISnapshot snapshot;
 
     @Argument(isMandatory = false)
-    public BringToTop topLevelBy = BringToTop.NONE;
+    public Grouping groupBy = Grouping.NONE;
 
-    public enum BringToTop
+    public enum Grouping
     {
         NONE("Bundles", Icons.BUNDLE), //
         BY_SERVICE("Services", Icons.SERVICE), //
@@ -65,7 +65,7 @@ public class BundleRegistryQuery implements IQuery
         String label;
         URL icon;
 
-        private BringToTop(String label, URL icon)
+        private Grouping(String label, URL icon)
         {
             this.label = label;
             this.icon = icon;
@@ -95,10 +95,10 @@ public class BundleRegistryQuery implements IQuery
 
     private BundleTreeResult create(OSGiModel model, IProgressListener listener) throws SnapshotException
     {
-        if (topLevelBy == null)
-            topLevelBy = BringToTop.NONE;
+        if (groupBy == null)
+            groupBy = Grouping.NONE;
 
-        switch (topLevelBy)
+        switch (groupBy)
         {
             case NONE:
                 return Factory.create(model);
@@ -210,7 +210,7 @@ public class BundleRegistryQuery implements IQuery
     {
 
         protected OSGiModel model;
-        protected BundleRegistryQuery.BringToTop topLevelBy;
+        protected BundleRegistryQuery.Grouping topLevelBy;
 
         public BundleTreeResult(OSGiModel model)
         {
@@ -490,9 +490,9 @@ public class BundleRegistryQuery implements IQuery
             return null;
         }
 
-        public BundleRegistryQuery.BringToTop getTopLevelBy()
+        public BundleRegistryQuery.Grouping getGroupBy()
         {
-            return BringToTop.NONE;
+            return Grouping.NONE;
         }
 
     }
@@ -570,9 +570,9 @@ public class BundleRegistryQuery implements IQuery
         }
 
         @Override
-        public BundleRegistryQuery.BringToTop getTopLevelBy()
+        public BundleRegistryQuery.Grouping getGroupBy()
         {
-            return BringToTop.BY_SERVICE;
+            return Grouping.BY_SERVICE;
         }
 
     }
@@ -636,9 +636,9 @@ public class BundleRegistryQuery implements IQuery
         }
 
         @Override
-        public BundleRegistryQuery.BringToTop getTopLevelBy()
+        public BundleRegistryQuery.Grouping getGroupBy()
         {
-            return BringToTop.BY_EXTENSION_POINT;
+            return Grouping.BY_EXTENSION_POINT;
         }
 
     }

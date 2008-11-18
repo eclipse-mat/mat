@@ -4,8 +4,8 @@ Bundle-Name: Memory Analyzer API (Incubation)
 Bundle-SymbolicName: org.eclipse.mat.api;singleton:=true
 Bundle-Version: 0.7.0.qualifier
 Bundle-Vendor: Eclipse.org
-Export-Package: org.eclipse.mat.inspections.osgi,
- org.eclipse.mat.inspections.osgi.model,
+Export-Package: org.eclipse.mat.inspections.osgi;x-friends:="org.eclipse.mat.ui",
+ org.eclipse.mat.inspections.osgi.model;x-friends:="org.eclipse.mat.ui",
  org.eclipse.mat.internal.snapshot;x-friends:="org.eclipse.mat.ui",
  org.eclipse.mat.snapshot,
  org.eclipse.mat.snapshot.extension,

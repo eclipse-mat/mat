@@ -18,7 +18,7 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.inspections.osgi.BundleRegistryQuery;
-import org.eclipse.mat.inspections.osgi.BundleRegistryQuery.BringToTop;
+import org.eclipse.mat.inspections.osgi.BundleRegistryQuery.Grouping;
 import org.eclipse.mat.inspections.osgi.BundleRegistryQuery.BundleTreeResult;
 import org.eclipse.mat.inspections.osgi.model.OSGiModel;
 import org.eclipse.mat.query.IResultTree;
@@ -34,14 +34,14 @@ import org.eclipse.ui.PlatformUI;
 
 public class BundlesPane extends QueryResultPane
 {
-    private BundleRegistryQuery.BringToTop topLevelBy;
+    private BundleRegistryQuery.Grouping groupBy;
     private OSGiModel model;
 
     private class TopLevelAction extends Action
     {
-        private BundleRegistryQuery.BringToTop target;
+        private BundleRegistryQuery.Grouping target;
 
-        public TopLevelAction(BundleRegistryQuery.BringToTop topLevelBy)
+        public TopLevelAction(BundleRegistryQuery.Grouping topLevelBy)
         {
             super(topLevelBy.toString(), AS_CHECK_BOX);
             this.setImageDescriptor(MemoryAnalyserPlugin.getDefault().getImageDescriptor(topLevelBy.getIcon()));  
@@ -74,7 +74,7 @@ public class BundlesPane extends QueryResultPane
                                 break;
                         }
 
-                        final QueryResult queryResult = new QueryResult(null, "bundle_registry -topLevelBy "
+                        final QueryResult queryResult = new QueryResult(null, "bundle_registry -groupBy "
                                         + target.name(), tree);
 
                         PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()
@@ -83,7 +83,7 @@ public class BundlesPane extends QueryResultPane
                             {
                                 deactivateViewer();
 
-                                topLevelBy = target;
+                                groupBy = target;
 
                                 RefinedResultViewer v = createViewer(queryResult);
 
@@ -111,7 +111,7 @@ public class BundlesPane extends QueryResultPane
     {
         QueryResult queryResult = (QueryResult) argument;
         BundleTreeResult tree = (BundleTreeResult) queryResult.getSubject();
-        topLevelBy = tree.getTopLevelBy();
+        groupBy = tree.getGroupBy();
         model = tree.getModel();
 
         super.initWithArgument(argument);
@@ -126,17 +126,17 @@ public class BundlesPane extends QueryResultPane
 
     private void addGroupingOptions(IToolBarManager manager)
     {
-        Action groupingAction = new EasyToolBarDropDown("Bring to Top...", //
+        Action groupingAction = new EasyToolBarDropDown("Group by...", //
                         MemoryAnalyserPlugin.getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.GROUPING), this)
         {
             @Override
             public void contribute(PopupMenu menu)
             {
-                for (BringToTop choice : BringToTop.values())
+                for (Grouping choice : Grouping.values())
                 {
                     Action action = new TopLevelAction(choice);                  
-                    action.setEnabled(choice != topLevelBy);
-                    action.setChecked(choice == topLevelBy);
+                    action.setEnabled(choice != groupBy);
+                    action.setChecked(choice == groupBy);
                     menu.add(action);
                 }
             }
