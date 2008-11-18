@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd" >
+<task id="task_runningleaksuspectreport" xml:lang="en-us">
+	<title>Running Leak Suspect Report</title>
+	<taskbody>
+		<context>
+			In the toolbar select the drop-down menu
+			<menucascade>
+				<uicontrol>Run Expert System Test</uicontrol>
+				<uicontrol>Leak Suspects</uicontrol>
+			</menucascade>
+			. As a result an HTML report will be opened. It contains an overview
+			of the heap dump and leak suspect info.
+			<image href="../mimes/leak_report.png" alt="screen shot of a leak suspect report"
+				placement="break"></image>
+			<p>This report will be stored together with the heap dump and is
+				displayed when you open the heap dump again.</p>
+		</context>
+	</taskbody>
+</task>

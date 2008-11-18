@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cheatsheet title="Unique Features">
+   <intro>
+      <description>
+         This cheat sheet familiarizes you of with the Memory Analyzer&apos;s
+			unique features for heap dump analysis. If you need more
+			detailed information, click on the (?) icon to the right of
+			each task.
+      </description>
+   </intro>
+   <item title="Open the heap dump" dialog="true" skip="false" href="/org.eclipse.mat.ui.help/tasks/basictutorial.html">
+      <description>
+         From the main menu, select
+			<br/>
+			<b>File &gt; Open Snapshot</b>,
+			<br/> then select a heap dump and press
+			<b>Open</b>.
+			<br/> In this cheat sheet we will use a sample heap dump. Please open it by
+			activating the action link below.
+      </description>
+      <action class="org.eclipse.mat.ui.snapshot.actions.OpenSampleHeapDumpAction" pluginId="org.eclipse.mat.ui" confirm="false" param1="org.eclipse.mat.ui.help/heapdump/HeapDumpSample.hprof">
+      </action>
+   </item>
+   <item title="Open Class Histogram" dialog="true" skip="false" href="/org.eclipse.mat.ui.help/tasks/basictutorial.html#N10001__class_histogram">
+      <description>
+         Class Histogram shows the classes found in the snapshot, 
+			the number of objects for each class, the heap memory consumption 
+			of these objects, and the minimum retained size of the objects. 
+			To open the view press
+			<br/>
+			<b>Open Class Histogram</b>
+			<br/> toolbar button.
+      </description>
+      <action class="org.eclipse.mat.ui.snapshot.actions.OpenSampleHeapDumpAction" pluginId="org.eclipse.mat.ui" confirm="false" param1="org.eclipse.mat.ui.help/heapdump/HeapDumpSample.hprof" param2="histogram">
+      </action>
+   </item>
+   <item title="Open Dominator Tree" dialog="true" skip="false" href="/org.eclipse.mat.ui.help/tasks/basictutorial.html#N10001__dominator">
+      <description>
+         Dominator tree shows for a particular object which other
+			objects depend on it and will be garbage collected if that
+			particular object becomes unreachable. To open the view
+			press
+			<br/>
+			<b>Open dominator tree</b>
+			<br/>
+			toolbar button.
+      </description>
+      <action class="org.eclipse.mat.ui.snapshot.actions.OpenSampleHeapDumpAction" pluginId="org.eclipse.mat.ui" confirm="false" param1="org.eclipse.mat.ui.help/heapdump/HeapDumpSample.hprof" param2="dominator_tree">
+      </action>
+   </item>
+   <item title="Paths from GC roots" dialog="true" skip="true" href="/org.eclipse.mat.ui.help/tasks/basictutorial.html#N10001__paths2gc">
+      <description>
+         This view find objects responsible for keeping the selected
+			object in the heap.
+      </description>
+      <subitem label="Select one of the first objects in the Dominator Tree (these objects have the biggest retained size)" skip="false">
+      </subitem>
+      <subitem label="Right click to open the context menu. Select &quot;Open in Paths to GC roots...&quot; and any of the sub options" skip="false">
+      </subitem>
+      <onCompletion>
+         Now you can perform the analysis in the newly opened &quot;Paths to GC roots&quot; view.
+      </onCompletion>
+   </item>
+</cheatsheet>

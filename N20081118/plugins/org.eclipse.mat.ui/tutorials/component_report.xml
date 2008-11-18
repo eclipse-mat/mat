@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cheatsheet title="Component Report">
+	<intro href="/org.eclipse.mat.ui.help/reference/inspections/component_report.html">
+		<description>
+			A heap dump contains many objects. But which of those belong to your component?
+			And what conclusions can you draw from them? This is where the <b>Component Report</b> can help.
+			<br/><br/>
+			Press the <b>Help</b> button for more detailed information.
+		</description>
+	</intro>
+	<item
+       href="/org.eclipse.mat.ui.help/tasks/acquiringheapdump.html"
+       skip="true"
+       title="Open a Heap Dump">
+		<description>
+			The anaylsis is based on heap dumps. Consult the help pages on how to acquire a heap dump of
+			your application.
+			<br/><br/>
+			If you do not already have a heap dump, use the link below to open a <b>sample heap dump</b>.
+		</description>
+		<action class="org.eclipse.mat.ui.snapshot.actions.OpenSampleHeapDumpAction"
+				pluginId="org.eclipse.mat.ui"
+				confirm="false"
+				param1="org.eclipse.mat.ui.help/heapdump/HeapDumpSample.hprof"/>
+	</item>
+	<item
+		title="Run the Component Report"
+		href="/org.eclipse.mat.ui.help/reference/inspections/component_report.html#ref_inspections_component_report__run">
+		<description>
+			Before starting, one has to decide what constitutes a component.
+			Typically, a component is either a set of classes in a <b>common root package</b> or classes loaded by the same <b>class loader</b>.
+			<br/><br/>
+			To select a set of packages:
+			<br/><br/>
+			Choose <b>Leak Identification -> Component Report</b> from the Query drop-down list in the toolbar.<br/><br/>
+			Provide a <b>class name pattern</b> (for example org.eclipse.mat.*) and hit Finish. 
+		</description>
+		<command
+				required="false"
+				serialization="org.eclipse.mat.ui.actions.executeInspection(org.eclipse.mat.ui.actions.executeInspection.commandName=component_report)"/>
+		<onCompletion>The Component Report consists of HTML pages. It is stored in a ZIP file next to the heap dump file.</onCompletion>
+	</item>
+	<item
+		title="Getting an Overview"
+		href="/org.eclipse.mat.ui.help/reference/inspections/component_report.html#ref_inspections_component_report__overview">
+		<description>
+			&#x00bb; The <b>size</b> of the component relative to the size of the whole heap.<br/>
+			&#x00bb; The <b>Top Consumer</b> section lists the biggest object, classes, class loader and packages.<br/>
+			&#x00bb; The <b>Retained Set</b> is a histogram of all objects kept alive by the component. 
+		</description>
+	</item>
+	<item
+		title="Duplicate Strings"
+		href="/org.eclipse.mat.ui.help/reference/inspections/component_report.html#ref_inspections_component_report__strings">
+		<description>
+			Duplicate Strings are a prime example for memory waste: multiple char arrays with identical content.
+			<br/><br/>
+			The content of the char arrays typically gives away ideas how to reduce the duplicates.
+		</description>
+	</item>
+	<item
+		title="Empty Collections"
+		href="/org.eclipse.mat.ui.help/reference/inspections/component_report.html#ref_inspections_component_report__emptycol">
+		<description>
+			Empty collections take up space without storing any data. If only a few collections actually hold data,
+			think about <b>lazy initialization</b>, i.e. create the collection only when needed.
+		</description>
+	</item>
+	<item
+		title="Collection Fill Ratios"
+		href="/org.eclipse.mat.ui.help/reference/inspections/component_report.html#ref_inspections_component_report__colfillratio">
+		<description>
+			Collections are typically created with a default initial capacity. Many collections with low fill ratios
+			indicate that the <b>initial capacity</b> could be <b>reduced</b>. 
+		</description>
+	</item>
+	<item
+		title="Soft Reference Statistics"
+		href="/org.eclipse.mat.ui.help/reference/inspections/component_report.html#ref_inspections_component_report__softref">
+		<description>
+			Softly referenced objects require more GC activity (possibly during a stop-the-world phase)
+			and should be used in small doses only. 
+		</description>
+	</item>
+	<item
+		title="Finalizer Statistics"
+		href="/org.eclipse.mat.ui.help/reference/inspections/component_report.html#ref_inspections_component_report__finalizer">
+		<description>
+			Finalizers come with a lot of drawbacks: For example, they require multiple Garbage Collections to run
+			until the objects are actually freed. Also, the time of the execution is up to the VM which makes
+			Finalizer unpredictable.
+		</description>
+	</item>
+	<item
+		title="Map Collision Ratios"
+		href="/org.eclipse.mat.ui.help/reference/inspections/component_report.html#ref_inspections_component_report__mapcollision">
+		<description>
+			Maps place the values in different buckets based on the hash code of the keys. High collision ratios
+			can indicate sub-optimal hash codes. This is not a memory problem (a better hash code does not save
+			space) but rather performance problem because of the (usually) linear access inside the buckets. 
+		</description>
+	</item>
+</cheatsheet>
