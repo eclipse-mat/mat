@@ -24,13 +24,10 @@ public class VersionIntroContentProvider implements IIntroContentProvider
 
     public void createContent(String id, PrintWriter out)
     {
-        final String buildId = System.getProperty("mat.buildId", "Unknown Build"); //$NON-NLS-1$ //$NON-NLS-2$
-        out.print(buildId);
-        
         Bundle bundle = Platform.getBundle("org.eclipse.mat.api");
         if (bundle != null)
         {
-            out.print(" (API ");
+            out.print("(API ");
             out.print(bundle.getHeaders().get("Bundle-Version"));
             out.print(")");
         }
