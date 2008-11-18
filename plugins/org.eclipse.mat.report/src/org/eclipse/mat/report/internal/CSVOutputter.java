@@ -105,21 +105,21 @@ public class CSVOutputter implements IOutputter
         }
     }
 
-    private String getStringValue(Object columnValue, Filter.ValueConverter format)
+    private String getStringValue(Object columnValue, Filter.ValueConverter converter)
     {
-        if (format != null)
-        {
-            Format fmt = null;
-            if (columnValue instanceof Long || columnValue instanceof Integer)
-                fmt = new DecimalFormat("0");
-            else
-                fmt = new DecimalFormat("0.#");
+        // check first the format: the converter can change the type to double!
+        Format fmt = null;
+        if (columnValue instanceof Long || columnValue instanceof Integer)
+            fmt = new DecimalFormat("0");
+        else if (columnValue instanceof Double || columnValue instanceof Float)
+            fmt = new DecimalFormat("0.#####");
 
-            return fmt.format(format.convert(((Number) columnValue).doubleValue()));
-        }
+        if (converter != null)
+            columnValue = converter.convert(((Number) columnValue).doubleValue());
+
+        if (fmt != null)
+            return fmt.format(columnValue);
         else
-        {
             return columnValue.toString();
-        }
     }
 }

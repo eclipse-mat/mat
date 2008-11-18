@@ -182,29 +182,42 @@ import org.eclipse.swt.widgets.TreeItem;
             ExportDialog dialog = new ExportDialog(control.getShell(), //
                             new String[] { "Comma Separated Values Files (*.csv)" }, //
                             new String[] { "*.csv" });
-            String fileName = dialog.open();
+            final String fileName = dialog.open();
             if (fileName == null)
                 return;
 
-            PrintWriter writer = null;
+            new Job("Export CSV")
+            {
 
-            try
-            {
-                IOutputter outputter = RendererRegistry.instance().match("csv", result.getClass());
-                writer = new PrintWriter(new FileWriter(fileName));
-                outputter.process(new ContextImpl(queryContext, new File(fileName).getParentFile()), result, writer);
-                writer.flush();
-                writer.close();
-            }
-            catch (IOException e)
-            {
-                throw new RuntimeException(e);
-            }
-            finally
-            {
-                if (writer != null)
-                    writer.close();
-            }
+                @Override
+                protected IStatus run(IProgressMonitor monitor)
+                {
+                    PrintWriter writer = null;
+
+                    try
+                    {
+                        IOutputter outputter = RendererRegistry.instance().match("csv", result.getClass());
+                        writer = new PrintWriter(new FileWriter(fileName));
+                        outputter.process(new ContextImpl(queryContext, //
+                                        new File(fileName).getParentFile()), result, writer);
+                        writer.flush();
+                        writer.close();
+                    }
+                    catch (IOException e)
+                    {
+                        return ErrorHelper.createErrorStatus(e);
+                    }
+                    finally
+                    {
+                        if (writer != null)
+                            writer.close();
+                    }
+
+                    return Status.OK_STATUS;
+                }
+
+            }.schedule();
+
         }
     }
 
@@ -261,7 +274,7 @@ import org.eclipse.swt.widgets.TreeItem;
         {
             return outputDir;
         }
-        
+
         public String getPathToRoot()
         {
             return "";
@@ -276,7 +289,7 @@ import org.eclipse.swt.widgets.TreeItem;
         {
             return null;
         }
-        
+
         public String addContextResult(String name, IResult result)
         {
             return null;
