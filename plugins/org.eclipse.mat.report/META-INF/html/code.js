@@ -1,33 +1,107 @@
-function hide(a) {
-	var div =  document.getElementById(a).style;
+function hide(obj, a)
+{
+	var imageBase = document.getElementById('$imageBase');
+	var div = document.getElementById(a).style;
+	
 	if (div.display == "none")
-		div.display="block";
+	{
+		div.display = "block";
+		obj.firstChild.src = imageBase.value + 'opened.gif'
+	}
 	else
-		div.display="none";
+	{
+		div.display = "none";
+		obj.firstChild.src = imageBase.value + 'closed.gif'
+	}
 }
 
 function preparepage()
 {
+	var W3CDOM = document.getElementById && document.createTextNode
+	if (!W3CDOM)
+		return;
+
+	rendertrees();
 	stripetables();
+	collapsible();
 }
 
-function stripetables()
+function rendertrees()
 {
-	if (document.getElementById && document.createTextNode)
+	var imageBase = document.getElementById('$imageBase');
+
+	var tables=document.getElementsByTagName('table');
+	for (var i=0;i<tables.length;i++)
 	{
-		var tables=document.getElementsByTagName('table');
-		for (var i=0;i<tables.length;i++)
+		if(tables[i].className!='result')
+			continue;
+			
+		var tbodies = tables[i].getElementsByTagName("tbody");
+		for (var h = 0; h < tbodies.length; h++)
 		{
-			if(tables[i].className=='result')
+			if (tbodies[h].className!='tree')
+				continue;
+
+			var trs = tbodies[h].getElementsByTagName("tr");
+			for (var ii = 0; ii < trs.length; ii++)
 			{
-				stripe(tables[i]);
+				treerow(imageBase.value, trs[ii]);
 			}
 		}
 	}
 }
 
-// this function is need to work around 
-// a bug in IE related to element attributes
+function treerow(imageBaseValue, element)
+{
+	var cell = element.firstChild;
+	var celltext = cell.firstChild;
+
+	var code = celltext.data;
+	
+	if (typeof code=='undefined')
+		return;
+	
+	for(var ii=0; ii<code.length; ii++)
+	{
+		var c = code.charAt(ii);
+		
+		var replace = document.createElement('img');
+		replace.alt = c;
+
+	
+		switch(c)
+		{
+		case "+":
+			replace.src = imageBaseValue + "fork.gif";
+			break;
+		case  ".":
+			replace.src = imageBaseValue + "empty.gif";
+			break;
+		case "\\":
+			replace.src = imageBaseValue + "corner.gif";
+			break;
+		case "|":
+			replace.src = imageBaseValue + "line.gif";
+			break;
+		}
+		cell.insertBefore(replace, celltext);
+	}
+	
+	cell.removeChild(celltext);
+}
+
+function stripetables()
+{
+	var tables=document.getElementsByTagName('table');
+	for (var i=0;i<tables.length;i++)
+	{
+		if(tables[i].className=='result')
+		{
+			stripe(tables[i]);
+		}
+	}
+}
+
 function hasClass(obj)
 {
 	var result = false;
@@ -68,5 +142,94 @@ function stripe(table)
 
 			even =  ! even;
 		}
-    	}
+   	}
+}
+
+
+//
+// collapsible list items
+//
+
+function collapsible()
+{
+	var imageBase = document.getElementById('$imageBase');
+	closedImage = imageBase.value + 'closed.gif';
+	openedImage = imageBase.value + 'opened.gif';
+	nochildrenImage = imageBase.value + 'nochildren.gif';
+	
+	var uls = document.getElementsByTagName('ul');
+	for (var i=0;i<uls.length;i++)
+	{
+		if(uls[i].className == 'collapsible_opened')
+		{
+			makeCollapsible(uls[i], 'block', 'collapsibleOpened', openedImage);
+		}
+		else if(uls[i].className == 'collapsible_closed')
+		{
+			makeCollapsible(uls[i], 'none', 'collapsibleClosed', closedImage);
+		}
+	}
+}
+
+function makeCollapsible(listElement, defaultState, defaultClass, defaultImage)
+{
+	listElement.style.listStyle = 'none';
+
+	var child = listElement.firstChild;
+	while (child != null)
+	{
+		if (child.nodeType == 1)
+		{
+			var list = new Array();
+			var grandchild = child.firstChild;
+			while (grandchild != null)
+			{
+				if (grandchild.tagName == 'OL' || grandchild.tagName == 'UL')
+				{
+					grandchild.style.display = defaultState;
+					list.push(grandchild);
+				}
+				grandchild = grandchild.nextSibling;
+			}
+			
+			var node = document.createElement('img');
+
+			if (list.length == 0)
+			{
+				node.setAttribute('src', nochildrenImage);
+			}
+			else
+			{
+				node.setAttribute('src', defaultImage);
+				node.setAttribute('class', defaultClass);
+				node.onclick = createToggleFunction(node,list);
+			}
+
+			child.insertBefore(node,child.firstChild);
+		}
+
+		child = child.nextSibling;
+	}
+}
+
+function createToggleFunction(toggleElement, sublistElements)
+{
+	return function()
+	{
+		if (toggleElement.getAttribute('class')=='collapsibleClosed')
+		{
+			toggleElement.setAttribute('class','collapsibleOpened');
+			toggleElement.setAttribute('src',openedImage);
+		}
+		else
+		{
+			toggleElement.setAttribute('class','collapsibleClosed');
+			toggleElement.setAttribute('src',closedImage);
+		}
+
+		for (var i=0;i<sublistElements.length;i++)
+		{
+			sublistElements[i].style.display = (sublistElements[i].style.display=='block') ? 'none' : 'block';
+		}
+	}
 }

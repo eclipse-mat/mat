@@ -47,9 +47,17 @@ import org.eclipse.mat.util.IProgressListener;
 
 public class QueryPart extends AbstractPart
 {
-    public QueryPart(AbstractPart parent, QuerySpec spec)
+    /* package */PartsFactory factory;
+    
+    public QueryPart(String id, AbstractPart parent, DataFile artefact, QuerySpec spec)
     {
-        super(parent, spec);
+        super(id, parent, artefact, spec);
+    }
+    
+    @Override
+    void init(PartsFactory factory)
+    {
+        this.factory = factory;
     }
 
     @Override
@@ -110,13 +118,8 @@ public class QueryPart extends AbstractPart
             Spec replacement = (Spec) result;
             replacement.setName(spec().getName());
 
-            AbstractPart part = AbstractPart.build(getParent(), replacement);
-            part.objects = objects;
-            part.filename = filename;
-
-            // overwrite all parameters explicitly given (but not to the spec)
-            part.params().putAll(spec().getParams());
-
+            AbstractPart part = factory.createClone(this, replacement);
+            
             return part.execute(context, renderer, listener);
         }
 

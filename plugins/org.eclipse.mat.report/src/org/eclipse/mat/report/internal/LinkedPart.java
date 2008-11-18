@@ -14,49 +14,28 @@ import java.io.IOException;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.IQueryContext;
-import org.eclipse.mat.report.Params;
-import org.eclipse.mat.report.SectionSpec;
 import org.eclipse.mat.report.Spec;
-import org.eclipse.mat.report.ITestResult.Status;
 import org.eclipse.mat.util.IProgressListener;
 
-public class SectionPart extends AbstractPart
+public class LinkedPart extends AbstractPart
 {
+    AbstractPart linkedTo;
 
-    /* package */SectionPart(String id, AbstractPart parent, DataFile artefact, SectionSpec spec)
+    public LinkedPart(String id, AbstractPart parent, DataFile artefact, Spec spec, AbstractPart linkedTo)
     {
         super(id, parent, artefact, spec);
-
-        this.status = spec.getStatus();
-
-        if (spec.getName() == null)
-        {
-            spec.setName("");
-            params().put(Params.Html.SHOW_HEADING, Boolean.FALSE.toString());
-        }
+        this.linkedTo = linkedTo;
     }
-    
-    /* package */void init(PartsFactory factory)
-    {
-        for (Spec child : ((SectionSpec) spec).getChildren())
-            children.add(factory.create(this, child));
-    }
+
+    @Override
+    void init(PartsFactory factory)
+    {}
 
     @Override
     public AbstractPart execute(IQueryContext context, ResultRenderer renderer, IProgressListener listener)
                     throws SnapshotException, IOException
     {
-        renderer.beginSection(this);
-
-        for (int ii = 0; ii < this.children.size(); ii++)
-        {
-            AbstractPart part = this.children.get(ii).execute(context, renderer, listener);
-            this.status = Status.max(this.status, part.status);
-            this.children.set(ii, part);
-        }
-
-        renderer.endSection(this);
-
+        renderer.processLink(this);
         return this;
     }
 

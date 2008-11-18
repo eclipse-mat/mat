@@ -199,10 +199,9 @@ public class HtmlOutputter implements IOutputter
                         artefact.append("<td>");
 
                         if (branches.length > 0)
-                        {
                             branches[branches.length - 1] = 3;
-                        }
-                        renderTreeIndentation(context, artefact, branches);
+                        
+                        renderTreeIndentation(artefact, branches);
 
                         artefact.append("<img src=\"").append(iconUrl).append("\"/>");
                         artefact.append("<ul><li>").append(totalsRow.getLabel(i)).append("</li></ul>").append("</td>");
@@ -234,7 +233,7 @@ public class HtmlOutputter implements IOutputter
 
         renderTableHeader(context, artefact, columns, hasDetailsLink);
 
-        artefact.append("<tbody>");
+        artefact.append("<tbody class=\"tree\">");
 
         renderFilterRow(context, artefact, tree, hasDetailsLink);
 
@@ -274,11 +273,9 @@ public class HtmlOutputter implements IOutputter
                 if (i == numberOfRowsToDisplay - 1 && (!totalsRow.isVisible() || !context.isTotalsRowVisible()))
                 {
                     if (branches.length > 0)
-                    {
                         branches[branches.length - 1] = 3;
-                    }
                 }
-                renderTreeIndentation(context, artefact, branches);
+                renderTreeIndentation(artefact, branches);
 
                 String iconUrl = context.addIcon(tree.getIcon(element));
                 if (iconUrl != null)
@@ -318,29 +315,25 @@ public class HtmlOutputter implements IOutputter
             renderTotalsRow(context, artefact, tree, elements, totalsRow, columns, branches, hasDetailsLink);
     }
 
-    private void renderTreeIndentation(Context context, Writer artefact, int[] branches) throws IOException
+    private void renderTreeIndentation(Writer artefact, int[] branches) throws IOException
     {
-        String pathToRoot = context.getPathToRoot();
-
         for (int branch : branches)
         {
-            artefact.append("<img src=\"").append(pathToRoot).append("img/");
             switch (branch)
             {
                 case 0:
-                    artefact.append("empty");
+                    artefact.append(".");
                     break;
                 case 1:
-                    artefact.append("line");
+                    artefact.append("|");
                     break;
                 case 2:
-                    artefact.append("fork");
+                    artefact.append("+");
                     break;
                 case 3:
-                    artefact.append("corner");
+                    artefact.append("\\");
                     break;
             }
-            artefact.append(".gif\"/>");
         }
     }
 

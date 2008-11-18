@@ -71,17 +71,30 @@ import org.eclipse.mat.report.Spec;
 
     public String addContextResult(String name, IResult result)
     {
-        if (result instanceof Spec)
-            name = ((Spec) result).getName();
-        
-        QuerySpec spec = new QuerySpec(name, result);
-        spec.set("$embedded", "true");
+        AbstractPart child = null;
 
-        QueryPart child = new QueryPart(this.part, spec);
-        String filename = ResultRenderer.DIR_PAGES + File.separator + child.getId() + ".html";
-        child.setFilename(filename);
-        part.children.add(child);
-        return resultRenderer.getPathToRoot(part) + filename.replace(File.separatorChar, '/');
+        if (result instanceof Spec)
+            child = part.factory.create(this.part, (Spec) result);
+        else
+            child = part.factory.create(this.part, new QuerySpec(name, result));
+
+        child.params().put("$embedded", "true");
+
+        DataFile dataFile = child.getDataFile();
+        String filename = dataFile.getUrl();
+        if (filename == null)
+            filename = dataFile.getSuggestedFile();
+
+        if (filename == null)
+        {
+            filename = ResultRenderer.DIR_PAGES + '/' + child.getId() + ".html";
+            dataFile.setSuggestedFile(filename);
+        }
+
+        if (!(child instanceof LinkedPart))
+            part.children.add(child);
+
+        return resultRenderer.getPathToRoot(part) + filename;
     }
 
     public boolean hasLimit()

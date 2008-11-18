@@ -20,6 +20,7 @@ import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.report.ITestResult.Status;
 import org.eclipse.mat.report.internal.AbstractPart;
+import org.eclipse.mat.report.internal.PartsFactory;
 import org.eclipse.mat.report.internal.ResultRenderer;
 import org.eclipse.mat.util.FileUtils;
 import org.eclipse.mat.util.IProgressListener;
@@ -116,7 +117,9 @@ public class TestSuite
 
     public Status execute(IProgressListener listener) throws IOException, SnapshotException
     {
-        AbstractPart part = AbstractPart.build(null, spec);
+        PartsFactory factory = new PartsFactory();
+
+        AbstractPart part = factory.createRoot(spec);
 
         ResultRenderer renderer = new ResultRenderer();
 

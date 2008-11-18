@@ -32,6 +32,9 @@ import org.eclipse.mat.util.HTMLUtils;
                         "code.js\" type=\"text/javascript\"></script>");
         artefact.append("</head><body onload=\"preparepage();\">");
 
+        artefact.append("<input type=\"hidden\" id=\"$imageBase\" value=\"").append(artefact.getPathToRoot()).append(
+                        "img/\"/>");
+
         artefact.append("<div id=\"header\"><ul>");
 
         if (part == null)
@@ -101,7 +104,11 @@ import org.eclipse.mat.util.HTMLUtils;
         artefact.append("</body></html>");
     }
 
-    public static void heading(HtmlArtefact artefact, AbstractPart part, int order, boolean expandable)
+    private static final String OPENED = "img/opened.gif";
+    private static final String CLOSED = "img/closed.gif";
+
+    public static void heading(HtmlArtefact artefact, AbstractPart part, int order, boolean isExpandable,
+                    boolean forceExpansion)
     {
         boolean showHeading = part.params().shallow().getBoolean(Params.Html.SHOW_HEADING, true);
         if (!showHeading)
@@ -113,6 +120,16 @@ import org.eclipse.mat.util.HTMLUtils;
             String v = String.valueOf(Math.min(order, 5));
             artefact.append("<h").append(v).append(">");
 
+            if (isExpandable)
+            {
+                boolean isExpanded = forceExpansion || !part.params().getBoolean(Params.Html.COLLAPSED, false);
+
+                artefact.append("<a href=\"#\" onclick=\"hide(this, 'exp").append(part.getId()) //
+                                .append("'); return false;\" title=\"hide / unhide\"><img src=\"") //
+                                .append(artefact.getPathToRoot()).append(isExpanded ? OPENED : CLOSED) //
+                                .append("\"></a> ");
+            }
+
             if (part.getStatus() != null)
                 artefact.append("<img src=\"").append(artefact.getPathToRoot()) //
                                 .append("img/").append(part.getStatus().name().toLowerCase() + ".gif\"> ");
@@ -120,11 +137,6 @@ import org.eclipse.mat.util.HTMLUtils;
             artefact.append("<a name=\"").append(part.getId()).append("\">");
             artefact.append(HTMLUtils.escapeText(part.spec().getName()));
             artefact.append("</a>");
-
-            if (expandable)
-                artefact.append(" <a href=\"#\" onclick=\"hide('exp").append(part.getId()) //
-                                .append("'); return false;\" title=\"hide / unhide\"><img src=\"") //
-                                .append(artefact.getPathToRoot()).append("img/hide.gif\"></a>");
 
             artefact.append("</h").append(v).append(">");
         }
@@ -144,7 +156,7 @@ import org.eclipse.mat.util.HTMLUtils;
         artefact.append("</a></h").append(v).append(">");
     }
 
-    public static void queryHeading(HtmlArtefact artefact, QueryPart query)
+    public static void queryHeading(HtmlArtefact artefact, QueryPart query, boolean forceExpansion)
     {
         boolean showHeading = query.params().shallow().getBoolean(Params.Html.SHOW_HEADING, true);
 
@@ -156,15 +168,18 @@ import org.eclipse.mat.util.HTMLUtils;
         {
             artefact.append("<h5>");
 
+            boolean isExpanded = forceExpansion || !query.params().getBoolean(Params.Html.COLLAPSED, false);
+            
+            artefact.append("<a href=\"#\" onclick=\"hide(this, 'exp").append(query.getId()) //
+                            .append("'); return false;\" title=\"hide / unhide\"><img src=\"") //
+                            .append(artefact.getPathToRoot()).append(isExpanded ? OPENED : CLOSED).append("\"></a> ");
+
             if (query.getStatus() != null)
                 artefact.append("<img src=\"").append(artefact.getPathToRoot()).append("img/").append(
                                 query.getStatus().name().toLowerCase() + ".gif\"> ");
 
             artefact.append("<a name=\"").append(query.getId()).append("\">");
             artefact.append(HTMLUtils.escapeText(query.spec().getName())).append("</a>");
-            artefact.append(" <a href=\"#\" onclick=\"hide('exp").append(query.getId()) //
-                            .append("'); return false;\" title=\"hide / unhide\"><img src=\"") //
-                            .append(artefact.getPathToRoot()).append("img/hide.gif\"></a>");
 
             if (query.getCommand() != null)
             {
@@ -181,7 +196,7 @@ import org.eclipse.mat.util.HTMLUtils;
                     cmdString = query.getCommand();
                 }
 
-                artefact.append("<a href=\"").append(QueryObjectLink.forQuery(query.getCommand())) //
+                artefact.append(" <a href=\"").append(QueryObjectLink.forQuery(query.getCommand())) //
                                 .append("\" title=\"Open in Memory Analyzer: ") //
                                 .append(cmdString).append("\"><img src=\"") //
                                 .append(artefact.getPathToRoot()).append("img/open.gif\"></a>");
@@ -208,10 +223,10 @@ import org.eclipse.mat.util.HTMLUtils;
         artefact.append("</a>");
     }
 
-    public static void beginExpandableDiv(HtmlArtefact artefact, AbstractPart part, boolean isExpanded)
+    public static void beginExpandableDiv(HtmlArtefact artefact, AbstractPart part, boolean forceExpanded)
     {
         artefact.append("<div id=\"exp").append(part.getId()).append("\"");
-        if (!isExpanded && part.params().getBoolean(Params.Html.COLLAPSED, false))
+        if (!forceExpanded && part.params().getBoolean(Params.Html.COLLAPSED, false))
             artefact.append(" style=\"display:none\"");
         artefact.append(">");
     }

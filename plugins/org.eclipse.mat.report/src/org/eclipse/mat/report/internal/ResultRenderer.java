@@ -29,14 +29,6 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerFactoryConfigurationError;
-import javax.xml.transform.sax.SAXTransformerFactory;
-import javax.xml.transform.sax.TransformerHandler;
-import javax.xml.transform.stream.StreamResult;
-
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.IResult;
@@ -44,11 +36,8 @@ import org.eclipse.mat.report.IOutputter;
 import org.eclipse.mat.report.Params;
 import org.eclipse.mat.report.RendererRegistry;
 import org.eclipse.mat.report.TestSuite;
-import org.eclipse.mat.report.ITestResult.Status;
 import org.eclipse.mat.util.FileUtils;
 import org.eclipse.mat.util.HTMLUtils;
-import org.xml.sax.SAXException;
-import org.xml.sax.helpers.AttributesImpl;
 
 public class ResultRenderer
 {
@@ -66,20 +55,19 @@ public class ResultRenderer
         private File file;
         private PrintWriter writer;
         private String pathToRoot;
-        private String relativePathName;
+        private String relativeURL;
 
-        private HtmlArtefact(AbstractPart part, File directory, String filename, String title) throws IOException
+        private HtmlArtefact(AbstractPart part, File directory, String relativeURL, String title) throws IOException
         {
-            this.file = new File(directory, filename);
+            this.file = new File(directory, relativeURL.replace('/', File.separatorChar));
             this.writer = new PrintWriter(file);
 
             this.pathToRoot = "";
-            for (int ii = 0; ii < filename.length(); ii++)
-                if (filename.charAt(ii) == File.separatorChar)
+            for (int ii = 0; ii < relativeURL.length(); ii++)
+                if (relativeURL.charAt(ii) == '/')
                     pathToRoot += "../";
 
-            this.relativePathName = this.file.getAbsolutePath().substring(directory.getAbsolutePath().length() + 1)
-                            .replace(File.separatorChar, '/');
+            this.relativeURL = relativeURL;
 
             artefacts.add(this);
 
@@ -100,7 +88,9 @@ public class ResultRenderer
             }
             finally
             {
+                writer.flush();
                 writer.close();
+                writer = null;
             }
         }
 
@@ -122,7 +112,7 @@ public class ResultRenderer
 
         public String getRelativePathName()
         {
-            return relativePathName;
+            return relativeURL;
         }
     }
 
@@ -130,6 +120,7 @@ public class ResultRenderer
     private IOutputter html;
 
     private List<HtmlArtefact> artefacts = new ArrayList<HtmlArtefact>();
+
     private File directory;
 
     private Map<URL, String> icon2name = new HashMap<URL, String>();
@@ -159,8 +150,6 @@ public class ResultRenderer
     public void endSuite(AbstractPart part) throws IOException
     {
         renderTableOfContents(part);
-
-        renderTOCXml(part);
 
         for (HtmlArtefact artefact : artefacts)
             artefact.close();
@@ -204,11 +193,11 @@ public class ResultRenderer
         // (b) it is a new file (e.g. the top-level element for a sub-page)
         if (order == 1 || srcArtefact != artefact)
         {
-            PageSnippets.heading(artefact, section, order, false);
+            PageSnippets.heading(artefact, section, order, false, true);
         }
         else
         {
-            PageSnippets.heading(artefact, section, order, true);
+            PageSnippets.heading(artefact, section, order, true, false);
             PageSnippets.beginExpandableDiv(artefact, section, false);
             section.putObject(Key.IS_EXPANDABLE, true);
         }
@@ -247,6 +236,17 @@ public class ResultRenderer
             doProcessAlien(format, outputter, test, result, rInfo);
     }
 
+    public void processLink(LinkedPart linkedPart)
+    {
+        HtmlArtefact srcArtefact = (HtmlArtefact) linkedPart.getObject(Key.ARTEFACT);
+        if (srcArtefact == null)
+            srcArtefact = (HtmlArtefact) linkedPart.getParent().getObject(Key.ARTEFACT);
+
+        String src = srcArtefact.getPathToRoot() + linkedPart.linkedTo.getDataFile().getUrl();
+
+        srcArtefact.append("<a href=\"").append(src).append("\">").append(linkedPart.spec().getName()).append("</a>");
+    }
+
     private void doProcessAlien(String format, IOutputter outputter, QueryPart test, IResult result, RenderingInfo info)
                     throws IOException
     {
@@ -254,11 +254,12 @@ public class ResultRenderer
         if (artefact == null)
             artefact = (HtmlArtefact) test.getParent().getObject(Key.ARTEFACT);
 
-        String filename = test.getFilename();
+        String filename = test.getDataFile().getSuggestedFile();
         if (filename == null)
             filename = test.params().shallow().get(Params.FILENAME);
         if (filename == null)
             filename = DIR_PAGES + File.separator + FileUtils.toFilename(test.spec().getName(), test.getId(), format);
+        test.getDataFile().setUrl(filename);
 
         PageSnippets.linkedHeading(artefact, test, 5, filename);
 
@@ -281,7 +282,7 @@ public class ResultRenderer
 
         if (!isOverviewDetailsPattern)
         {
-            PageSnippets.queryHeading(artefact, test);
+            PageSnippets.queryHeading(artefact, test, srcArtefact != artefact);
             PageSnippets.beginExpandableDiv(artefact, test, srcArtefact != artefact);
         }
 
@@ -295,15 +296,21 @@ public class ResultRenderer
 
         if (isOverviewDetailsPattern)
         {
-            String filename = DIR_PAGES + File.separator + test.getId() + ".html";
+            String filename = test.getDataFile().getSuggestedFile();
+            if (filename == null)
+                filename = DIR_PAGES + '/' + test.getId() + ".html";
 
             artefact.append("<div>");
             PageSnippets.link(artefact, filename, "Details \u00bb");
             artefact.append("</div>");
 
             // create new page for the details elements
-            HtmlArtefact details = new HtmlArtefact(test.getParent(), directory, filename, test.getParent().spec()
-                            .getName());
+            HtmlArtefact details = new HtmlArtefact(test.getParent(), //
+                            directory, //
+                            filename, //
+                            test.getParent().spec().getName());
+
+            test.getDataFile().setUrl(details.getRelativePathName());
 
             // assign output page to all other children
             for (AbstractPart part : test.getParent().getChildren())
@@ -376,7 +383,7 @@ public class ResultRenderer
 
         File imgDir = new File(directory, "img");
         imgDir.mkdir();
-        copyResource("/META-INF/html/img/hide.gif", new File(imgDir, "hide.gif"));
+
         copyResource("/META-INF/html/img/open.gif", new File(imgDir, "open.gif"));
         copyResource("/META-INF/html/img/success.gif", new File(imgDir, "success.gif"));
         copyResource("/META-INF/html/img/warning.gif", new File(imgDir, "warning.gif"));
@@ -385,6 +392,10 @@ public class ResultRenderer
         copyResource("/META-INF/html/img/fork.gif", new File(imgDir, "fork.gif"));
         copyResource("/META-INF/html/img/line.gif", new File(imgDir, "line.gif"));
         copyResource("/META-INF/html/img/corner.gif", new File(imgDir, "corner.gif"));
+
+        copyResource("/META-INF/html/img/opened.gif", new File(imgDir, "opened.gif"));
+        copyResource("/META-INF/html/img/closed.gif", new File(imgDir, "closed.gif"));
+        copyResource("/META-INF/html/img/nochildren.gif", new File(imgDir, "nochildren.gif"));
 
         File pagesDir = new File(directory, DIR_PAGES);
         pagesDir.mkdir();
@@ -427,12 +438,12 @@ public class ResultRenderer
         boolean isEmbedded = part.params().shallow().getBoolean("$embedded", false);
         if (isSeparateFile || isEmbedded)
         {
-            String filename = part.getFilename();
+            String filename = part.getDataFile().getSuggestedFile();
             if (filename == null)
                 filename = part.params().shallow().get(Params.FILENAME);
             if (filename == null)
-                filename = DIR_PAGES + File.separator
-                                + FileUtils.toFilename(part.spec().getName(), part.getId(), "html");
+                filename = DIR_PAGES + '/' + FileUtils.toFilename(part.spec().getName(), part.getId(), "html");
+            part.getDataFile().setUrl(filename);
 
             HtmlArtefact newArtefact = new HtmlArtefact(part, directory, filename, part.spec().getName());
 
@@ -440,10 +451,10 @@ public class ResultRenderer
                 PageSnippets.linkedHeading(artefact, part, order, newArtefact.getRelativePathName());
 
             artefact = newArtefact;
-
         }
 
         part.putObject(Key.ARTEFACT, artefact);
+        part.getDataFile().setUrl(artefact.getRelativePathName());
         return artefact;
     }
 
@@ -457,12 +468,13 @@ public class ResultRenderer
 
         toc.append("<h1>Table of Contents</h1>\n");
 
-        renderResult(toc, part);
+        renderResult(toc, part, 0);
     }
 
-    private void renderResult(HtmlArtefact toc, AbstractPart parent)
+    private void renderResult(HtmlArtefact toc, AbstractPart parent, int depth)
     {
-        toc.append("<ul>");
+        toc.append("<ul class=\"collapsible_").append(depth < 3 ? "opened" : "closed").append("\">");
+
         for (AbstractPart part : parent.getChildren())
         {
             toc.append("<li>");
@@ -480,108 +492,11 @@ public class ResultRenderer
             PageSnippets.endLink(toc);
 
             if (!part.children.isEmpty())
-                renderResult(toc, part);
+                renderResult(toc, part, depth + 1);
 
             toc.append("</li>");
         }
         toc.append("</ul>");
-    }
-
-    // //////////////////////////////////////////////////////////////
-    // render table of contents into XML file
-    // //////////////////////////////////////////////////////////////
-
-    private static final String URI = "http://www.eclipse.org/mat/report/";
-
-    private interface Attrib
-    {
-        String NAME = "name";
-        String STATUS = "status";
-        String FILE = "file";
-        String PART = "part";
-    }
-
-    private void renderTOCXml(AbstractPart part) throws IOException
-    {
-        PrintWriter out = null;
-
-        try
-        {
-            out = new PrintWriter(new File(directory, "toc.xml"));
-
-            SAXTransformerFactory tf = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
-            TransformerHandler handler = tf.newTransformerHandler();
-
-            Transformer xformer = handler.getTransformer();
-            xformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-            xformer.setOutputProperty(OutputKeys.INDENT, "yes");
-
-            handler.setResult(new StreamResult(out));
-
-            AttributesImpl atts = new AttributesImpl();
-
-            handler.startDocument();
-            renderTOCPart(handler, atts, part);
-            handler.endDocument();
-        }
-        catch (TransformerConfigurationException e)
-        {
-            IOException ioe = new IOException(e.getMessage());
-            ioe.initCause(e);
-            throw ioe;
-        }
-        catch (IllegalArgumentException e)
-        {
-            IOException ioe = new IOException(e.getMessage());
-            ioe.initCause(e);
-            throw ioe;
-        }
-        catch (TransformerFactoryConfigurationError e)
-        {
-            IOException ioe = new IOException(e.getMessage());
-            ioe.initCause(e);
-            throw ioe;
-        }
-        catch (SAXException e)
-        {
-            IOException ioe = new IOException(e.getMessage());
-            ioe.initCause(e);
-            throw ioe;
-        }
-        finally
-        {
-            if (out != null)
-            {
-                out.flush();
-                out.close();
-            }
-        }
-    }
-
-    private void renderTOCPart(TransformerHandler handler, AttributesImpl attrib, AbstractPart part)
-                    throws SAXException
-    {
-        attrib.clear();
-
-        String name = part.spec().getName();
-        if (name == null)
-            name = part.getId();
-        attrib.addAttribute(URI, Attrib.NAME, Attrib.NAME, "", name);
-
-        Status status = part.getStatus();
-        if (status != null)
-            attrib.addAttribute(URI, Attrib.STATUS, Attrib.STATUS, "", status.name());
-
-        HtmlArtefact page = (HtmlArtefact) part.getObject(Key.ARTEFACT);
-        AbstractPart p = part;
-        while (page == null)
-            page = (HtmlArtefact) (p = p.getParent()).getObject(Key.ARTEFACT);
-        attrib.addAttribute(URI, Attrib.FILE, Attrib.FILE, "", page.file.getName());
-
-        handler.startElement(URI, Attrib.PART, Attrib.PART, attrib);
-        for (AbstractPart child : part.getChildren())
-            renderTOCPart(handler, attrib, child);
-        handler.endElement(URI, Attrib.PART, Attrib.PART);
     }
 
     // //////////////////////////////////////////////////////////////

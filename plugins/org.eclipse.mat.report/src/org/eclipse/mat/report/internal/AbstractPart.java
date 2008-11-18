@@ -19,50 +19,34 @@ import java.util.Map;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.report.ITestResult;
-import org.eclipse.mat.report.QuerySpec;
-import org.eclipse.mat.report.SectionSpec;
 import org.eclipse.mat.report.Spec;
 import org.eclipse.mat.util.IProgressListener;
 
 public abstract class AbstractPart
 {
-    private static long ID_GENERATOR = 1;
-
-    // //////////////////////////////////////////////////////////////
-    // factory method
-    // //////////////////////////////////////////////////////////////
-
-    public static AbstractPart build(AbstractPart parent, Spec spec)
-    {
-        if (spec instanceof SectionSpec)
-            return new SectionPart(parent, (SectionSpec) spec);
-        else if (spec instanceof QuerySpec)
-            return new QueryPart(parent, (QuerySpec) spec);
-
-        throw new RuntimeException("Unable to construct part for type " + spec.getClass().getName());
-    }
-
     // //////////////////////////////////////////////////////////////
     // implementation
     // //////////////////////////////////////////////////////////////
 
-    protected final String id = String.valueOf(ID_GENERATOR++);
+    protected final String id;
+
     protected final AbstractPart parent;
+    protected final DataFile dataFile;
     protected final Spec spec;
-    protected final Parameters params;
+    protected Parameters params;
 
     protected final List<AbstractPart> children;
-
-    protected String filename;
 
     /** renderer can attach arbitrary objects to keep track of rendering status */
     protected Map<String, Object> objects = new HashMap<String, Object>();
 
     protected ITestResult.Status status;
 
-    protected AbstractPart(AbstractPart parent, Spec spec)
+    protected AbstractPart(String id, AbstractPart parent, DataFile artefact, Spec spec)
     {
+        this.id = id;
         this.parent = parent;
+        this.dataFile = artefact;
         this.spec = spec;
 
         if (parent != null)
@@ -72,6 +56,8 @@ public abstract class AbstractPart
 
         this.children = new ArrayList<AbstractPart>();
     }
+
+    /* package */abstract void init(PartsFactory factory);
 
     public String getId()
     {
@@ -86,6 +72,11 @@ public abstract class AbstractPart
     public AbstractPart getParent()
     {
         return parent;
+    }
+
+    /* package */DataFile getDataFile()
+    {
+        return dataFile;
     }
 
     public Spec spec()
@@ -111,16 +102,6 @@ public abstract class AbstractPart
     public List<AbstractPart> getChildren()
     {
         return children;
-    }
-
-    /* package */String getFilename()
-    {
-        return filename;
-    }
-
-    /* package */void setFilename(String filename)
-    {
-        this.filename = filename;
     }
 
     public abstract AbstractPart execute(IQueryContext context, ResultRenderer renderer, IProgressListener listener)
