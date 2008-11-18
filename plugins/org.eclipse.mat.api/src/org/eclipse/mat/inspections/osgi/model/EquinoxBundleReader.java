@@ -382,7 +382,7 @@ public class EquinoxBundleReader implements IBundleReader
             return bundleDescriptor;
 
         String bundleName = extractBundleName(bundleData);
-        String state = getState(snapshot, bundleHostObject);
+        String state = getState(bundleHostObject);
 
         BundleDescriptor descriptor = new BundleDescriptor(bundleHostObject.getObjectId(), id, bundleName, state, type);
         // add new bundle name to the map. Key is bundleId
@@ -487,7 +487,7 @@ public class EquinoxBundleReader implements IBundleReader
         }
     }
 
-    private String getState(ISnapshot snapshot, IObject obj) throws SnapshotException
+    private String getState(IObject obj) throws SnapshotException
     {
         IInstance bundleHostObject = (IInstance) obj.resolveValue("bundledata.bundle");//$NON-NLS-1$
         Field stateField = bundleHostObject.getField("state");//$NON-NLS-1$
@@ -718,6 +718,7 @@ public class EquinoxBundleReader implements IBundleReader
         {
             MATPlugin.log(MessageFormat.format("Expected contributorId: 0x{0}", Long.toHexString(instance
                             .getObjectAddress())));
+            return null;
         }
         BundleDescriptor contributedBy = bundleDescriptors.get(Long.valueOf(contributorObject.getClassSpecificName()));
 
@@ -735,8 +736,7 @@ public class EquinoxBundleReader implements IBundleReader
             MATPlugin.log(MessageFormat.format("Expected propertiesAndValues: 0x{0}", Long.toHexString(instance
                             .getObjectAddress())));
         }
-
-        if (propertiesObject.getClazz().isArrayType())
+        else if (propertiesObject.getClazz().isArrayType())
         {
             long[] addresses = ((IObjectArray) propertiesObject).getReferenceArray();
             String[] propertiesAndValues = new String[addresses.length];
@@ -764,8 +764,8 @@ public class EquinoxBundleReader implements IBundleReader
         {
             MATPlugin.log(MessageFormat.format("Expected propertiesAndValues in String[] format: 0x{0}", Long
                             .toHexString(instance.getObjectAddress())));
-            return null;
         }
+        return new ConfigurationElement(instance.getObjectId(), name, parentId, objectId, contributedBy, null);
 
     }
 

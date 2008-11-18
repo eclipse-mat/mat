@@ -90,10 +90,10 @@ public class BundleRegistryQuery implements IQuery
             return new TextResult("Only Equinox OSGi Framework is supported");
 
         OSGiModel model = bundleReader.readOSGiModel(listener);
-        return create(model, listener);
+        return create(model);
     }
 
-    private BundleTreeResult create(OSGiModel model, IProgressListener listener) throws SnapshotException
+    private BundleTreeResult create(OSGiModel model)
     {
         if (groupBy == null)
             groupBy = Grouping.NONE;
@@ -114,7 +114,7 @@ public class BundleRegistryQuery implements IQuery
 
     public static class Factory
     {
-        public static BundleTreeResult create(OSGiModel model) throws SnapshotException
+        public static BundleTreeResult create(OSGiModel model)
         {
             return new BundleTreeResult(model);
         }
@@ -124,7 +124,7 @@ public class BundleRegistryQuery implements IQuery
             return new ServicesTreeResult(model);
         }
 
-        public static BundleTreeResult extensionPointsOnTop(OSGiModel model) throws SnapshotException
+        public static BundleTreeResult extensionPointsOnTop(OSGiModel model)
         {
             return new ExtensionTreeResult(model);
         }
@@ -204,7 +204,7 @@ public class BundleRegistryQuery implements IQuery
     enum Type
     {
         LOCATION, EXTENSIONS, EXTENSION_POINTS, DEPENDENCIES, DEPENDENTS, REGISTERED_SERVICES, SERVICES_IN_USE, CONTRIBUTED_BY, FRAGMENTS, HOST, PROPERTIES, BUNDLES_USING, BUNDLE
-    };
+    }
 
     public static class BundleTreeResult implements IResultTree, IIconProvider
     {

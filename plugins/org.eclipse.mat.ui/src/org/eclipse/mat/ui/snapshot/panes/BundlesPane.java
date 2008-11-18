@@ -16,10 +16,9 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
-import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.inspections.osgi.BundleRegistryQuery;
-import org.eclipse.mat.inspections.osgi.BundleRegistryQuery.Grouping;
 import org.eclipse.mat.inspections.osgi.BundleRegistryQuery.BundleTreeResult;
+import org.eclipse.mat.inspections.osgi.BundleRegistryQuery.Grouping;
 import org.eclipse.mat.inspections.osgi.model.OSGiModel;
 import org.eclipse.mat.query.IResultTree;
 import org.eclipse.mat.query.registry.QueryResult;
@@ -28,7 +27,6 @@ import org.eclipse.mat.ui.editor.AbstractPaneJob;
 import org.eclipse.mat.ui.internal.panes.QueryResultPane;
 import org.eclipse.mat.ui.internal.viewer.RefinedResultViewer;
 import org.eclipse.mat.ui.util.EasyToolBarDropDown;
-import org.eclipse.mat.ui.util.ErrorHelper;
 import org.eclipse.mat.ui.util.PopupMenu;
 import org.eclipse.ui.PlatformUI;
 
@@ -44,7 +42,7 @@ public class BundlesPane extends QueryResultPane
         public TopLevelAction(BundleRegistryQuery.Grouping topLevelBy)
         {
             super(topLevelBy.toString(), AS_CHECK_BOX);
-            this.setImageDescriptor(MemoryAnalyserPlugin.getDefault().getImageDescriptor(topLevelBy.getIcon()));  
+            this.setImageDescriptor(MemoryAnalyserPlugin.getDefault().getImageDescriptor(topLevelBy.getIcon()));
             this.target = topLevelBy;
         }
 
@@ -58,47 +56,39 @@ public class BundlesPane extends QueryResultPane
             {
                 protected IStatus doRun(IProgressMonitor monitor)
                 {
-                    try
+                    IResultTree tree = null;
+                    switch (target)
                     {
-                        IResultTree tree = null;
-                        switch (target)
+                        case NONE:
+                            tree = BundleRegistryQuery.Factory.create(model);
+                            break;
+                        case BY_SERVICE:
+                            tree = BundleRegistryQuery.Factory.servicesOnTop(model);
+                            break;
+                        case BY_EXTENSION_POINT:
+                            tree = BundleRegistryQuery.Factory.extensionPointsOnTop(model);
+                            break;
+                    }
+
+                    final QueryResult queryResult = new QueryResult(null, "bundle_registry -groupBy " + target.name(),
+                                    tree);
+
+                    PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()
+                    {
+                        public void run()
                         {
-                            case NONE:
-                                tree = BundleRegistryQuery.Factory.create(model);
-                                break;
-                            case BY_SERVICE:
-                                tree = BundleRegistryQuery.Factory.servicesOnTop(model);
-                                break;
-                            case BY_EXTENSION_POINT:
-                                tree = BundleRegistryQuery.Factory.extensionPointsOnTop(model);
-                                break;
+                            deactivateViewer();
+
+                            groupBy = target;
+
+                            RefinedResultViewer v = createViewer(queryResult);
+
+                            activateViewer(v);
                         }
 
-                        final QueryResult queryResult = new QueryResult(null, "bundle_registry -groupBy "
-                                        + target.name(), tree);
+                    });
 
-                        PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()
-                        {
-                            public void run()
-                            {
-                                deactivateViewer();
-
-                                groupBy = target;
-
-                                RefinedResultViewer v = createViewer(queryResult);
-
-                                activateViewer(v);
-                            }
-
-                        });
-
-                        return Status.OK_STATUS;
-
-                    }
-                    catch (SnapshotException e)
-                    {
-                        return ErrorHelper.createErrorStatus(e);
-                    }
+                    return Status.OK_STATUS;
                 }
             };
             job.setUser(true);
@@ -134,7 +124,7 @@ public class BundlesPane extends QueryResultPane
             {
                 for (Grouping choice : Grouping.values())
                 {
-                    Action action = new TopLevelAction(choice);                  
+                    Action action = new TopLevelAction(choice);
                     action.setEnabled(choice != groupBy);
                     action.setChecked(choice == groupBy);
                     menu.add(action);

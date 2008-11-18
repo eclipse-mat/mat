@@ -21,7 +21,7 @@ public class BundleDescriptor
     public enum Type
     {
         BUNDLE, FRAGMENT
-    };
+    }
 
     public BundleDescriptor(int objectId, Long bundleId, String bundleName, String state, Type type)
     {
