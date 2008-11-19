@@ -203,6 +203,19 @@
 		<delete dir="${siteDirectory}" />
 	</target>
 
+	<target name="-init.extract-site" depends="-build.site">
+		
+		<delete includeEmptyDirs="true" quiet="true">
+			<fileset dir="${updateSiteDirectory}">
+			    <include name="**/*"/>
+			</fileset>
+		</delete>
+		
+		<unzip dest="${updateSiteDirectory}" src="${buildDirectory}/${buildLabel}/org.eclipse.mat-${buildId}-site.zip">
+		</unzip>
+
+	</target>
+	
 	<target name="-test.prepare" depends="-init">
 		<!-- -->
 		<delete dir="${testDirectory}" />
