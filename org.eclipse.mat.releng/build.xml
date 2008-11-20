@@ -1,11 +1,11 @@
 <project name="org.eclipse.mat.build" default="all">
 	<property file="build.properties" />
 
-	<target name="all" depends="-init.workspace,-init.copy-workspace,-init,-build.product,-build.features,-build.site,-init.extract-site,-test.prepare,-test.junit,-test.regression" />
+	<target name="all" depends="-init.workspace,-init.copy-workspace,-init,-build.product,-build.features,-build.site,-deploy.site,-test.prepare,-test.junit,-test.regression" />
 	
 	<target name="build-feature" depends="-init.workspace,-init.copy-workspace,-init,-build.features" />
 	<target name="build-product" depends="-init.workspace,-init,-build.product" />
-	<target name="build-site" depends="-init.workspace,-init,-build.site, -init.extract-site" />
+	<target name="build-site" depends="-init.workspace,-init,-build.site, -deploy.site" />
 	<target name="build-tests" depends="-init.workspace,-init,-test.prepare,-test.junit,-test.regression" />
 
 	<!--
@@ -203,15 +203,15 @@
 		<delete dir="${siteDirectory}" />
 	</target>
 
-	<target name="-init.extract-site" depends="-build.site">
+	<target name="-deploy.site" depends="-build.site" if="updateSiteLocation">
 		
 		<delete includeEmptyDirs="true" quiet="true">
-			<fileset dir="${updateSiteDirectory}">
+			<fileset dir="${updateSiteLocation}">
 			    <include name="**/*"/>
 			</fileset>
 		</delete>
 		
-		<unzip dest="${updateSiteDirectory}" src="${buildDirectory}/${buildLabel}/org.eclipse.mat-${buildId}-site.zip">
+		<unzip dest="${updateSiteLocation}" src="${buildDirectory}/${buildLabel}/org.eclipse.mat-${buildId}-site.zip">
 		</unzip>
 
 	</target>
