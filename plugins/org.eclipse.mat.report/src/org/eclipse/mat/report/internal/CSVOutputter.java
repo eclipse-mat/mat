@@ -13,6 +13,7 @@ package org.eclipse.mat.report.internal;
 import java.io.IOException;
 import java.io.Writer;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.Format;
 import java.util.List;
 
@@ -29,7 +30,7 @@ import org.eclipse.mat.report.Renderer;
 @Renderer(target = "csv", result = { IResultTree.class, IResultTable.class })
 public class CSVOutputter implements IOutputter
 {
-    private static final String SEPARATOR = ";";
+    private static final char SEPARATOR = new DecimalFormatSymbols().getDecimalSeparator() == ',' ? ';' : ',';
 
     public void process(Context context, IResult result, Writer writer) throws IOException
     {
@@ -107,6 +108,9 @@ public class CSVOutputter implements IOutputter
 
     private String getStringValue(Object columnValue, Filter.ValueConverter converter)
     {
+        if (columnValue == null)
+            return "";
+
         // check first the format: the converter can change the type to double!
         Format fmt = null;
         if (columnValue instanceof Long || columnValue instanceof Integer)
