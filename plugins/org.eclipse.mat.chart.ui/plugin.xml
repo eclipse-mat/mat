@@ -6,5 +6,4 @@
 			<result type="org.eclipse.mat.query.IResultPie" />
 		</pane>
 	</extension>
-
 </plugin>

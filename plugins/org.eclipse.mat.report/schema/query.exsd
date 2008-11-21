@@ -1,16 +1,25 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!-- Schema file written by PDE -->
-<schema targetNamespace="org.eclipse.mat.api">
+<schema targetNamespace="org.eclipse.mat.api" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
       <appInfo>
-         <meta.schema plugin="org.eclipse.mat.api" id="query" name="Heap Query"/>
+         <meta.schema plugin="org.eclipse.mat.api" id="query" name="Query"/>
       </appInfo>
       <documentation>
-         [Enter description of this extension point.]
+         The Memory Analyzer can be extended by Queries. Queries
+are pieces of Java Code that implement specific inspections
+on the heap dump. Depending on the input parameters,
+queries are shown in the Query Drop-Down menu and/or in the
+context menu of a heap object.
       </documentation>
    </annotation>
 
    <element name="extension">
+      <annotation>
+         <appInfo>
+            <meta.element />
+         </appInfo>
+      </annotation>
       <complexType>
          <sequence minOccurs="1" maxOccurs="unbounded">
             <element ref="query"/>
@@ -47,10 +56,10 @@
          <attribute name="impl" type="string" use="required">
             <annotation>
                <documentation>
-                  
+                  implementor of &lt;samp&gt;org.eclipse.mat.query.IQuery&lt;/samp&gt;
                </documentation>
                <appInfo>
-                  <meta.attribute kind="java" basedOn=":org.eclipse.mat.snapshot.model.IClassSpecificNameResolver"/>
+                  <meta.attribute kind="java" basedOn=":org.eclipse.mat.query.IQuery"/>
                </appInfo>
             </annotation>
          </attribute>
@@ -62,7 +71,7 @@
          <meta.section type="since"/>
       </appInfo>
       <documentation>
-         [Enter the first release in which this extension point appears.]
+         0.7.0
       </documentation>
    </annotation>
 
@@ -71,7 +80,14 @@
          <meta.section type="examples"/>
       </appInfo>
       <documentation>
-         [Enter extension point usage example here.]
+         Following is an example of a query declaration: 
+&lt;p&gt;
+&lt;pre&gt;
+   &lt;extension point=&quot;org.eclipse.mat.report.query&quot;&gt;
+      &lt;query impl=&quot;org.eclipse.mat.demo.DemoQuery&quot;/&gt;
+   &lt;/extension&gt;
+&lt;/pre&gt;
+&lt;/p&gt;
       </documentation>
    </annotation>
 
@@ -80,7 +96,7 @@
          <meta.section type="apiInfo"/>
       </appInfo>
       <documentation>
-         [Enter API information here.]
+         The value of the impl attribute must represent an implementor of &lt;samp&gt;org.eclipse.mat.query.IQuery&lt;/samp&gt;.
       </documentation>
    </annotation>
 
@@ -89,7 +105,7 @@
          <meta.section type="implementation"/>
       </appInfo>
       <documentation>
-         [Enter information about supplied implementation of this extension point.]
+         The Memory Analyzer supplies a number of queries itself. Check out the &lt;samp&gt;org.eclipse.mat.inspections&lt;/samp&gt; package for more samples.
       </documentation>
    </annotation>
 
@@ -98,7 +114,11 @@
          <meta.section type="copyright"/>
       </appInfo>
       <documentation>
-         
+         Copyright (c) 2008 SAP AG and others.&lt;br&gt;
+All rights reserved. This program and the accompanying materials are made 
+available under the terms of the Eclipse Public License v1.0 which 
+accompanies this distribution, and is available at 
+&lt;a href=&quot;http://www.eclipse.org/legal/epl-v10.html&quot;&gt;http://www.eclipse.org/legal/epl-v10.html&lt;/a&gt;
       </documentation>
    </annotation>
 

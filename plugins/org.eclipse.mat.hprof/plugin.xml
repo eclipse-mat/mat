@@ -2,6 +2,7 @@
 <?eclipse version="3.2"?>
 <plugin>
    <extension-point id="enhancer" name="HPROF Enhancement" schema="schema/enhancer.exsd"/>
+   
    <extension
          id="hprof"
          name="HPROF Formatted Dumps"

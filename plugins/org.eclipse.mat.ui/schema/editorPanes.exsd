@@ -2,19 +2,20 @@
 <!-- Schema file written by PDE -->
 <schema targetNamespace="org.eclipse.mat.ui" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
-      <appinfo>
+      <appInfo>
          <meta.schema plugin="org.eclipse.mat.ui" id="editorPanes" name="Heap Editor Panes"/>
-      </appinfo>
+      </appInfo>
       <documentation>
-         [Enter description of this extension point.]
+         &lt;p&gt;This extension point adds new panes to the heap editor.
+Each pane is tied to one or more implementations of IResult.&lt;/p&gt;
       </documentation>
    </annotation>
 
    <element name="extension">
       <annotation>
-         <appinfo>
+         <appInfo>
             <meta.element />
-         </appinfo>
+         </appInfo>
       </annotation>
       <complexType>
          <sequence>
@@ -39,9 +40,9 @@
                <documentation>
                   
                </documentation>
-               <appinfo>
+               <appInfo>
                   <meta.attribute translatable="true"/>
-               </appinfo>
+               </appInfo>
             </annotation>
          </attribute>
       </complexType>
@@ -55,29 +56,18 @@
          <attribute name="id" type="string" use="required">
             <annotation>
                <documentation>
-                  
+                  unique id of the editor pane
                </documentation>
             </annotation>
          </attribute>
          <attribute name="class" type="string" use="required">
             <annotation>
                <documentation>
-                  
+                  implementor of &lt;samp&gt;org.eclipse.mat.ui.editor.AbstractEditorPane&lt;/samp&gt;
                </documentation>
-            </annotation>
-         </attribute>
-         <attribute name="sequenceNr" type="string">
-            <annotation>
-               <documentation>
-                  
-               </documentation>
-            </annotation>
-         </attribute>
-         <attribute name="editorId" type="string">
-            <annotation>
-               <documentation>
-                  
-               </documentation>
+               <appInfo>
+                  <meta.attribute kind="java" basedOn="org.eclipse.mat.ui.editor.AbstractEditorPane:"/>
+               </appInfo>
             </annotation>
          </attribute>
       </complexType>
@@ -88,51 +78,76 @@
          <attribute name="type" type="string">
             <annotation>
                <documentation>
-                  
+                  the result of type &lt;samp&gt;org.eclipse.mat.ui.editor.AbstractEditorPane&lt;/samp&gt; which should be displayed by this pane
                </documentation>
-               <appinfo>
+               <appInfo>
                   <meta.attribute kind="java" basedOn=":org.eclipse.mat.query.IResult"/>
-               </appinfo>
+               </appInfo>
             </annotation>
          </attribute>
       </complexType>
    </element>
 
    <annotation>
-      <appinfo>
+      <appInfo>
          <meta.section type="since"/>
-      </appinfo>
+      </appInfo>
       <documentation>
-         [Enter the first release in which this extension point appears.]
+         0.7.0
       </documentation>
    </annotation>
 
    <annotation>
-      <appinfo>
+      <appInfo>
          <meta.section type="examples"/>
-      </appinfo>
+      </appInfo>
       <documentation>
-         [Enter extension point usage example here.]
+         Following is an example of a editor panbe declaration: 
+&lt;p&gt;
+&lt;pre&gt;
+   &lt;extension point=&quot;org.eclipse.mat.ui.editorPanes&quot;&gt;
+      &lt;pane id=&quot;PieChartPane&quot; class=&quot;org.eclipse.mat.ui.internal.chart.PieChartPane&quot;&gt;
+         &lt;result type=&quot;org.eclipse.mat.query.IResultPie&quot; /&gt;
+      &lt;/pane&gt;
+   &lt;/extension&gt;
+&lt;/pre&gt;
+&lt;/p&gt;
+
       </documentation>
    </annotation>
 
    <annotation>
-      <appinfo>
+      <appInfo>
          <meta.section type="apiInfo"/>
-      </appinfo>
+      </appInfo>
       <documentation>
-         [Enter API information here.]
+         The value of the class attribute must represent an implementor of &lt;samp&gt;org.eclipse.mat.ui.editor.AbstractEditorPane&lt;/samp&gt;.
+
+
+
       </documentation>
    </annotation>
 
    <annotation>
-      <appinfo>
+      <appInfo>
          <meta.section type="implementation"/>
-      </appinfo>
+      </appInfo>
       <documentation>
-         [Enter information about supplied implementation of this extension point.]
+         The Memory Analyzer supplies a number panes to display histograms, object lists, trees, tables, text, pie charts, etc. Check out the &lt;samp&gt;org.eclipse.mat.ui&lt;/samp&gt; plug-in for more samples.
       </documentation>
    </annotation>
 
+   <annotation>
+      <appInfo>
+         <meta.section type="copyright"/>
+      </appInfo>
+      <documentation>
+         Copyright (c) 2008 SAP AG and others.&lt;br&gt;
+All rights reserved. This program and the accompanying materials are made 
+available under the terms of the Eclipse Public License v1.0 which 
+accompanies this distribution, and is available at 
+&lt;a href=&quot;http://www.eclipse.org/legal/epl-v10.html&quot;&gt;http://www.eclipse.org/legal/epl-v10.html&lt;/a&gt;
+      </documentation>
+   </annotation>
 
 </schema>

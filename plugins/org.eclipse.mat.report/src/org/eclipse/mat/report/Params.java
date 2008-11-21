@@ -20,6 +20,12 @@ public interface Params
     String TIMESTAMP = "timestamp";
     String SNAPSHOT = "snapshot";
     String SNAPSHOT_PREFIX = "snapshot_prefix";
+    
+    /**
+     * The format parameter determines the renderer to be used.
+     * By default, the "html" is used, but one could use "csv"
+     * to create a comma separated file from the data.
+     */
     String FORMAT = "format";
 
     /**

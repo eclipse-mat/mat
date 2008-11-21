@@ -1,16 +1,25 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!-- Schema file written by PDE -->
-<schema targetNamespace="org.eclipse.mat.hprof">
+<schema targetNamespace="org.eclipse.mat.hprof" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
       <appInfo>
-         <meta.schema plugin="org.eclipse.mat.hprof" id="enhancer" name="Name Resolver"/>
+         <meta.schema plugin="org.eclipse.mat.hprof" id="enhancer" name="HPROF Enhancement"/>
       </appInfo>
       <documentation>
-         [Enter description of this extension point.]
+         &lt;p&gt;This extension point can be used to provide more details
+about the heap dump which are not contained in the HPROF format
+itself. For example, SAP has extended the Hotspot-based SAPJVM
+to write perm space information, OoM stack traces, interfaces
+and object generations whenever a HPROF dump is written.&lt;/p&gt;
       </documentation>
    </annotation>
 
    <element name="extension">
+      <annotation>
+         <appInfo>
+            <meta.element />
+         </appInfo>
+      </annotation>
       <complexType>
          <sequence minOccurs="1" maxOccurs="unbounded">
             <element ref="enhancer"/>
@@ -47,7 +56,7 @@
          <attribute name="parser" type="string" use="required">
             <annotation>
                <documentation>
-                  
+                  implementor of &lt;samp&gt;org.eclipse.mat.hprof.extension.IParsingEnhancer&lt;/samp&gt; called during the parsing of the HPROF dump to add information
                </documentation>
                <appInfo>
                   <meta.attribute kind="java" basedOn=":org.eclipse.mat.hprof.extension.IParsingEnhancer"/>
@@ -57,7 +66,7 @@
          <attribute name="runtime" type="string" use="required">
             <annotation>
                <documentation>
-                  
+                  implementor of &lt;samp&gt;org.eclipse.mat.hprof.extension.IRuntimeEnhancer&lt;/samp&gt; called when analysing the dump
                </documentation>
                <appInfo>
                   <meta.attribute kind="java" basedOn=":org.eclipse.mat.hprof.extension.IRuntimeEnhancer"/>
@@ -72,7 +81,7 @@
          <meta.section type="since"/>
       </appInfo>
       <documentation>
-         [Enter the first release in which this extension point appears.]
+         0.7.0
       </documentation>
    </annotation>
 
@@ -81,7 +90,15 @@
          <meta.section type="examples"/>
       </appInfo>
       <documentation>
-         [Enter extension point usage example here.]
+         Following is an example of a Hprof enhancer declaration: 
+&lt;p&gt;
+&lt;pre&gt;
+   &lt;extension point=&quot;org.eclipse.mat.hprof.enhancer&quot;&gt;
+      &lt;resolver impl=&quot;com.acme.HprofEnhancer&quot; /&gt;
+   &lt;/extension&gt;
+&lt;/pre&gt;
+&lt;/p&gt;
+
       </documentation>
    </annotation>
 
@@ -90,25 +107,21 @@
          <meta.section type="apiInfo"/>
       </appInfo>
       <documentation>
-         [Enter API information here.]
+         The value of the impl attribute must represent an implementor of &lt;samp&gt;org.eclipse.mat.snapshot.extension.IClassSpecificNameResolver&lt;/samp&gt;.
       </documentation>
    </annotation>
 
-   <annotation>
-      <appInfo>
-         <meta.section type="implementation"/>
-      </appInfo>
-      <documentation>
-         [Enter information about supplied implementation of this extension point.]
-      </documentation>
-   </annotation>
 
    <annotation>
       <appInfo>
          <meta.section type="copyright"/>
       </appInfo>
       <documentation>
-         
+         Copyright (c) 2008 SAP AG and others.&lt;br&gt;
+All rights reserved. This program and the accompanying materials are made 
+available under the terms of the Eclipse Public License v1.0 which 
+accompanies this distribution, and is available at 
+&lt;a href=&quot;http://www.eclipse.org/legal/epl-v10.html&quot;&gt;http://www.eclipse.org/legal/epl-v10.html&lt;/a&gt;
       </documentation>
    </annotation>
 

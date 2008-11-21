@@ -99,12 +99,11 @@
   </pane>
 	</extension>
    
-	<extension
-		point="org.eclipse.mat.ui.editorContributions">
+	<extension point="org.eclipse.mat.ui.editorContributions">
 		<contribution
 			class="org.eclipse.mat.ui.snapshot.editor.HeapEditorContributions"
 			editorClass="org.eclipse.mat.ui.snapshot.editor.HeapEditor"
-			sequenceNr="2" />
+			sequenceNr="1" />
 	</extension>
 
 	<extension point="org.eclipse.ui.actionSets">

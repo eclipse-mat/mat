@@ -1,16 +1,24 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!-- Schema file written by PDE -->
-<schema targetNamespace="org.eclipse.mat.api" xmlns="http://www.w3.org/2001/XMLSchema">
+<schema targetNamespace="org.eclipse.mat.parser" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
-      <appinfo>
-         <meta.schema plugin="org.eclipse.mat.api" id="parser" name="Heap Parser"/>
-      </appinfo>
+      <appInfo>
+         <meta.schema plugin="org.eclipse.mat.parser" id="parser" name="Heap Dump Parser"/>
+      </appInfo>
       <documentation>
-         [Enter description of this extension point.]
+         &lt;p&gt;The format of heap dumps is specific to the Virtual Machine used.
+This extensions allows to plug in new dump formats. Out of the box,
+the Memory Analyzer supports HPROF. An parser for IBM system dumps
+(read via DTFJ) is available from IBM Alphaworks.&lt;/p&gt;
       </documentation>
    </annotation>
 
    <element name="extension">
+      <annotation>
+         <appInfo>
+            <meta.element />
+         </appInfo>
+      </annotation>
       <complexType>
          <sequence>
             <element ref="parser"/>
@@ -34,9 +42,9 @@
                <documentation>
                   
                </documentation>
-               <appinfo>
+               <appInfo>
                   <meta.attribute translatable="true"/>
-               </appinfo>
+               </appInfo>
             </annotation>
          </attribute>
       </complexType>
@@ -47,76 +55,104 @@
          <attribute name="name" type="string" use="required">
             <annotation>
                <documentation>
-                  
+                  Name of the heap dump format. For example, shown in the file selection dialog.
                </documentation>
             </annotation>
          </attribute>
          <attribute name="fileExtension" type="string" use="required">
             <annotation>
                <documentation>
-                  
+                  The file extension typically associated witht the file format. Used to filter files in the file selection dialog.
                </documentation>
             </annotation>
          </attribute>
          <attribute name="indexBuilder" type="string" use="required">
             <annotation>
                <documentation>
-                  
+                  implementor of &lt;samp&gt;org.eclipse.mat.snapshot.adapter.IIndexBuilder&lt;/samp&gt; which creates the index files, i.e. the structural information of the heap dump like the reference graph
                </documentation>
-               <appinfo>
+               <appInfo>
                   <meta.attribute kind="java" basedOn=":org.eclipse.mat.snapshot.adapter.IIndexBuilder"/>
-               </appinfo>
+               </appInfo>
             </annotation>
          </attribute>
          <attribute name="objectReader" type="string" use="required">
             <annotation>
                <documentation>
-                  
+                  implementor of &lt;samp&gt;org.eclipse.mat.snapshot.adapter.IObjectReader&lt;/samp&gt; to read the object details from the heap dump file
                </documentation>
-               <appinfo>
+               <appInfo>
                   <meta.attribute kind="java" basedOn=":org.eclipse.mat.snapshot.adapter.IObjectReader"/>
-               </appinfo>
+               </appInfo>
             </annotation>
          </attribute>
       </complexType>
    </element>
 
    <annotation>
-      <appinfo>
+      <appInfo>
          <meta.section type="since"/>
-      </appinfo>
+      </appInfo>
       <documentation>
-         [Enter the first release in which this extension point appears.]
+         0.7.0
       </documentation>
    </annotation>
 
    <annotation>
-      <appinfo>
+      <appInfo>
          <meta.section type="examples"/>
-      </appinfo>
+      </appInfo>
       <documentation>
-         [Enter extension point usage example here.]
+         Following is an example of a name resolver declaration: 
+&lt;p&gt;
+&lt;pre&gt;
+   &lt;extension
+         id=&quot;hprof&quot;
+         name=&quot;HPROF Formatted Dumps&quot;
+         point=&quot;org.eclipse.mat.parser.parser&quot;&gt;
+      &lt;parser
+      		name=&quot;HPROF binary heap dumps&quot;
+            fileExtension=&quot;hprof,bin&quot;
+            indexBuilder=&quot;org.eclipse.mat.hprof.HprofIndexBuilder&quot;
+            objectReader=&quot;org.eclipse.mat.hprof.HprofHeapObjectReader&quot;&gt;
+      &lt;/parser&gt;
+   &lt;/extension&gt;
+&lt;/pre&gt;
+&lt;/p&gt;
+
       </documentation>
    </annotation>
 
    <annotation>
-      <appinfo>
+      <appInfo>
          <meta.section type="apiInfo"/>
-      </appinfo>
+      </appInfo>
       <documentation>
-         [Enter API information here.]
+         The value of the indexBuilder attribute must represent an implementor of &lt;samp&gt;org.eclipse.mat.parser.IIndexBuilder&lt;/samp&gt;,
+the objectReader attribute &lt;samp&gt;org.eclipse.mat.parser.IObjectReader&lt;/samp&gt;.
       </documentation>
    </annotation>
-
 
    <annotation>
-      <appinfo>
+      <appInfo>
          <meta.section type="implementation"/>
-      </appinfo>
+      </appInfo>
       <documentation>
-         [Enter information about supplied implementation of this extension point.]
+         The Memory Analyzer supplies an implementation for the HPROF format. Check out the &lt;samp&gt;org.eclipse.mat.hprof&lt;/samp&gt; plug-in.
       </documentation>
    </annotation>
 
+   <annotation>
+      <appInfo>
+         <meta.section type="copyright"/>
+      </appInfo>
+      <documentation>
+         Copyright (c) 2008 SAP AG and others.&lt;br&gt;
+All rights reserved. This program and the accompanying materials are made 
+available under the terms of the Eclipse Public License v1.0 which 
+accompanies this distribution, and is available at 
+&lt;a href=&quot;http://www.eclipse.org/legal/epl-v10.html&quot;&gt;http://www.eclipse.org/legal/epl-v10.html&lt;/a&gt;
+      </documentation>
+   </annotation>
 
 </schema>

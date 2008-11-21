@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
 <plugin>
 	<extension-point id="factory" name="Snapshot Factory" schema="schema/factory.exsd"/>
 	
@@ -70,9 +71,7 @@
 		
 		<!-- eclipse -->
 		<query impl="org.eclipse.mat.inspections.eclipse.LeakingPlugins"/>
-  <query
-        impl="org.eclipse.mat.inspections.osgi.BundleRegistryQuery">
-  </query>
+		<query impl="org.eclipse.mat.inspections.osgi.BundleRegistryQuery"/>
   
 	</extension>
 	
