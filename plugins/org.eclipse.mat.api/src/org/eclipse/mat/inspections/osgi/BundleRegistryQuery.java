@@ -352,7 +352,7 @@ public class BundleRegistryQuery implements IQuery
         public Column[] getColumns()
         {
             return new Column[] { new Column("Bundles"),//
-                            new Column("State").noTotals() };
+                            new Column("Bundle State").noTotals() };
 
         }
 
@@ -575,6 +575,15 @@ public class BundleRegistryQuery implements IQuery
             return Grouping.BY_SERVICE;
         }
 
+        @Override
+        public Column[] getColumns()
+        {
+            return new Column[] { new Column("Services"),//
+                            new Column("Bundle State").noTotals() };
+        }
+        
+        
+
     }
 
     public static class ExtensionTreeResult extends BundleTreeResult
@@ -641,6 +650,14 @@ public class BundleRegistryQuery implements IQuery
             return Grouping.BY_EXTENSION_POINT;
         }
 
+        
+        @Override
+        public Column[] getColumns()
+        {
+            return new Column[] { new Column("Extension Points"),//
+                            new Column("Bundle State").noTotals() };
+        }
+        
     }
 
 }

@@ -1429,7 +1429,7 @@ public final class SnapshotImpl implements ISnapshot
     {
         int objectId = indexManager.o2address().reverse(objectAddress);
         if (objectId < 0)
-            throw new SnapshotException(MessageFormat.format("Object {0} not found found.", new Object[] { "0x"
+            throw new SnapshotException(MessageFormat.format("Object {0} not found.", new Object[] { "0x"
                             + Long.toHexString(objectAddress) }));
         return objectId;
     }

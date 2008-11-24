@@ -239,7 +239,7 @@ public class EquinoxBundleReader implements IBundleReader
                                 }
                                 catch (SnapshotException e)
                                 {
-                                    MATPlugin.log(MessageFormat.format("Error reading ServiceInfo: 0x{0}", Long
+                                    MATPlugin.log(MessageFormat.format("Error reading service's name: 0x{0}", Long
                                                     .toHexString(l)));
                                 }
                             }
@@ -256,16 +256,7 @@ public class EquinoxBundleReader implements IBundleReader
                                 long[] keyAddresses = keysArray.getReferenceArray();
                                 if (keyAddresses != null)
                                 {
-                                    try
-                                    {
-                                        keys = getServiceProperties(new String[keyAddresses.length], keyAddresses);
-                                    }
-
-                                    catch (SnapshotException e)
-                                    {
-                                        MATPlugin.log(MessageFormat.format("Error reading Service property: 0x{0}",
-                                                        Long.toHexString(keysArray.getObjectAddress())));
-                                    }
+                                    keys = getServiceProperties(new String[keyAddresses.length], keyAddresses);
                                 }
                             }
                             IObjectArray valuesArray = (IObjectArray) propertiesObject.resolveValue("values");
@@ -274,15 +265,7 @@ public class EquinoxBundleReader implements IBundleReader
                                 long[] valueAddresses = valuesArray.getReferenceArray();
                                 if (valueAddresses != null)
                                 {
-                                    try
-                                    {
-                                        values = getServiceProperties(new String[valueAddresses.length], valueAddresses);
-                                    }
-                                    catch (SnapshotException e)
-                                    {
-                                        MATPlugin.log(MessageFormat.format("Error reading Service property: 0x{0}",
-                                                        Long.toHexString(valuesArray.getObjectAddress())));
-                                    }
+                                    values = getServiceProperties(new String[valueAddresses.length], valueAddresses);
                                 }
                             }
                         }
@@ -300,32 +283,42 @@ public class EquinoxBundleReader implements IBundleReader
         return services;
     }
 
-    private String[] getServiceProperties(String[] values, long[] valueAddresses) throws SnapshotException
+    private String[] getServiceProperties(String[] values, long[] valueAddresses)
     {
         for (int j = 0; j < valueAddresses.length; j++)
         {
-            int valueId = snapshot.mapAddressToId(valueAddresses[j]);
-            IObject valueObject = snapshot.getObject(valueId);
-            if (valueObject == null)
-                continue;
-            if (valueObject.getClazz().isArrayType())
+            try
             {
-                long[] addresses = ((IObjectArray) valueObject).getReferenceArray();
-
-                for (int k = 0; k < addresses.length; k++)
+                int valueId = snapshot.mapAddressToId(valueAddresses[j]);
+                IObject valueObject = snapshot.getObject(valueId);
+                if (valueObject == null)
+                    continue;
+                if (valueObject.getClazz().isArrayType())
                 {
-                    int id = snapshot.mapAddressToId(addresses[k]);
-                    IObject object = snapshot.getObject(id);
-                    if (object == null)
-                        continue;
-                    values[j] = object.getClassSpecificName();
-                    break; // is more than one element possible in that
-                    // array?
+                    long[] addresses = ((IObjectArray) valueObject).getReferenceArray();
+
+                    for (int k = 0; k < addresses.length; k++)
+                    {
+                        int id = snapshot.mapAddressToId(addresses[k]);
+                        IObject object = snapshot.getObject(id);
+                        if (object == null)
+                            continue;
+                        values[j] = object.getClassSpecificName();
+                        break; // is more than one element possible in that
+                        // array?
+                    }
+                }
+                else
+                {
+                    values[j] = valueObject.getClassSpecificName();
                 }
             }
-            else
+            catch (SnapshotException e)
             {
-                values[j] = valueObject.getClassSpecificName();
+                //TODO
+                values[j] = null;
+                MATPlugin.log(MessageFormat.format("Error reading Service property: 0x{0}",
+                                Long.toHexString(valueAddresses[j])));
             }
         }
         return values;
