@@ -187,11 +187,11 @@ import org.eclipse.mat.snapshot.model.ObjectReference;
         @Override
         protected Object createElement(IObjectArray array, int index)
         {
-            long refs[] = array.getReferenceArray();
+        	long refs[] = array.getReferenceArray(index, 1);
 
-            if (refs[index] != 0)
+            if (refs[0] != 0)
             {
-                NamedReference ref = new NamedReference(array.getSnapshot(), refs[index], "[" + index + "]");
+                NamedReference ref = new NamedReference(array.getSnapshot(), refs[0], "[" + index + "]");
                 return new NamedReferenceNode(ref, false);
             }
             else
