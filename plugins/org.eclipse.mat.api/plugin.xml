@@ -52,6 +52,7 @@
 		<query impl="org.eclipse.mat.inspections.collections.MapCollisionRatioQuery"/>
 		<query impl="org.eclipse.mat.inspections.collections.ExtractListValuesQuery"/>
 		<query impl="org.eclipse.mat.inspections.collections.HashSetValuesQuery"/>
+		<query impl="org.eclipse.mat.inspections.collections.PrimitiveArraysWithAConstantValueQuery"/>
 	
 		<!-- Referents -->
 		<query impl="org.eclipse.mat.inspections.WeakReferenceStatQuery"/>
