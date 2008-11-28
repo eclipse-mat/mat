@@ -96,44 +96,45 @@ public class EquinoxBundleReader implements IBundleReader
         Collection<IClass> classes = snapshot.getClassesByName(
                         "org.eclipse.osgi.framework.internal.core.BundleRepository", false); //$NON-NLS-1$
         List<BundleDescriptor> bundleDescriptors = new ArrayList<BundleDescriptor>();
-        if (classes != null)
+        if (classes == null)
+            return bundleDescriptors;
+
+        IClass clazz = classes.iterator().next();
+        int[] objs = clazz.getObjectIds();
+
+        for (int i = 0; i < objs.length; i++)
         {
-            IClass clazz = classes.iterator().next();
-            int[] objs = clazz.getObjectIds();
+            IInstance obj = (IInstance) snapshot.getObject(objs[i]);
 
-            for (int i = 0; i < objs.length; i++)
+            IObjectArray bundlesArray = (IObjectArray) obj.resolveValue("bundlesByInstallOrder.elementData");//$NON-NLS-1$
+            if (bundlesArray == null)
+                return null;
+            long[] bundleAddreses = bundlesArray.getReferenceArray();
+            if (bundleAddreses != null)
             {
-                if (listener.isCanceled())
-                    throw new IProgressListener.OperationCanceledException();
-
-                IInstance obj = (IInstance) snapshot.getObject(objs[i]);
-
-                IObjectArray bundlesArray = (IObjectArray) obj.resolveValue("bundlesByInstallOrder.elementData");//$NON-NLS-1$
-                if (bundlesArray == null)
-                    return null;
-                long[] bundleAddreses = bundlesArray.getReferenceArray();
-                if (bundleAddreses != null)
+                for (long address : bundleAddreses)
                 {
-                    for (long address : bundleAddreses)
-                    {
-                        if (address == 0)
-                            continue;
-                        int objectId = snapshot.mapAddressToId(address);
-                        IObject bundleObject = snapshot.getObject(objectId);
-                        BundleDescriptor.Type type = BundleDescriptor.Type.BUNDLE;
-                        if (bundleObject.getClazz().getName().equals(
-                                        "org.eclipse.osgi.framework.internal.core.BundleFragment"))//$NON-NLS-1$
-                        {
-                            type = BundleDescriptor.Type.FRAGMENT;
-                        }
-                        BundleDescriptor descriptor = getBundleDescriptor(bundleObject, type);
-                        bundleDescriptors.add(descriptor);
-                    }
-                }
+                    if (address == 0)
+                        continue;
 
+                    if (listener.isCanceled())
+                        throw new IProgressListener.OperationCanceledException();
+
+                    int objectId = snapshot.mapAddressToId(address);
+                    IObject bundleObject = snapshot.getObject(objectId);
+                    BundleDescriptor.Type type = BundleDescriptor.Type.BUNDLE;
+                    if (bundleObject.getClazz().getName().equals(
+                                    "org.eclipse.osgi.framework.internal.core.BundleFragment"))//$NON-NLS-1$
+                    {
+                        type = BundleDescriptor.Type.FRAGMENT;
+                    }
+                    BundleDescriptor descriptor = getBundleDescriptor(bundleObject, type);
+                    bundleDescriptors.add(descriptor);
+                }
             }
 
         }
+
         return bundleDescriptors;
     }
 
@@ -172,112 +173,106 @@ public class EquinoxBundleReader implements IBundleReader
         Collection<IClass> classes = snapshot.getClassesByName(
                         "org.eclipse.osgi.framework.internal.core.ServiceRegistryImpl", false); //$NON-NLS-1$
         List<Service> services = new ArrayList<Service>();
-        if (classes != null)
-        {
-            IClass clazz = classes.iterator().next();
-            int[] objs = clazz.getObjectIds();
+        if (classes == null)
+            return services;
+        
+        IClass clazz = classes.iterator().next();
+        int[] objs = clazz.getObjectIds();
 
-            for (int i = 0; i < objs.length; i++)
+        for (int i = 0; i < objs.length; i++)
+        {
+            IInstance obj = (IInstance) snapshot.getObject(objs[i]);
+
+            IObjectArray servicesArray = (IObjectArray) obj.resolveValue("allPublishedServices.elementData");//$NON-NLS-1$
+            if (servicesArray == null)
+                return null;
+            long[] serviceAddreses = servicesArray.getReferenceArray();
+            if (serviceAddreses == null)
+                continue;
+            for (long address : serviceAddreses)
             {
+                if (address == 0)
+                    continue;
                 if (listener.isCanceled())
                     throw new IProgressListener.OperationCanceledException();
+                int serviceInstanceId = snapshot.mapAddressToId(address);
+                IInstance serviceInstance = (IInstance) snapshot.getObject(serviceInstanceId);
+                IObject bundleObj = (IObject) serviceInstance.resolveValue("bundle"); //$NON-NLS-1$
+                BundleDescriptor bundleDescriptor = getBundleDescriptor(bundleObj, Type.BUNDLE);
 
-                IInstance obj = (IInstance) snapshot.getObject(objs[i]);
-
-                IObjectArray servicesArray = (IObjectArray) obj.resolveValue("allPublishedServices.elementData");//$NON-NLS-1$
-                if (servicesArray == null)
-                    return null;
-                long[] serviceAddreses = servicesArray.getReferenceArray();
-                if (serviceAddreses != null)
+                List<BundleDescriptor> bundlesUsing = null;
+                IObjectArray bundlesArray = (IObjectArray) serviceInstance.resolveValue("contextsUsing.elementData");//$NON-NLS-1$
+                if (bundlesArray != null)
                 {
-                    for (long address : serviceAddreses)
+                    long[] bundleAddresses = bundlesArray.getReferenceArray();
+                    if (bundleAddresses != null)
                     {
-                        if (address == 0)
-                            continue;
-                        int serviceInstanceId = snapshot.mapAddressToId(address);
-                        IInstance serviceInstance = (IInstance) snapshot.getObject(serviceInstanceId);
-                        IObject bundleObj = (IObject) serviceInstance.resolveValue("bundle"); //$NON-NLS-1$
-                        BundleDescriptor bundleDescriptor = getBundleDescriptor(bundleObj, Type.BUNDLE);
-
-                        List<BundleDescriptor> bundlesUsing = null;
-                        IObjectArray bundlesArray = (IObjectArray) serviceInstance
-                                        .resolveValue("contextsUsing.elementData");//$NON-NLS-1$
-                        if (bundlesArray != null)
+                        bundlesUsing = new ArrayList<BundleDescriptor>(bundleAddresses.length);
+                        for (long bundleAddress : bundleAddresses)
                         {
-                            long[] bundleAddresses = bundlesArray.getReferenceArray();
-                            if (bundleAddresses != null)
-                            {
-                                bundlesUsing = new ArrayList<BundleDescriptor>(bundleAddresses.length);
-                                for (long bundleAddress : bundleAddresses)
-                                {
-                                    int bundleId = snapshot.mapAddressToId(bundleAddress);
-                                    IInstance bundleInstance = (IInstance) snapshot.getObject(bundleId);
-                                    IObject bundleObject = (IObject) bundleInstance.resolveValue("bundle");//$NON-NLS-1$
-                                    if (bundleObject == null)
-                                        continue;
+                            int bundleId = snapshot.mapAddressToId(bundleAddress);
+                            IInstance bundleInstance = (IInstance) snapshot.getObject(bundleId);
+                            IObject bundleObject = (IObject) bundleInstance.resolveValue("bundle");//$NON-NLS-1$
+                            if (bundleObject == null)
+                                continue;
 
-                                    BundleDescriptor usingBundleDescriptor = getBundleDescriptor(bundleObject,
-                                                    Type.BUNDLE);
-                                    bundlesUsing.add(usingBundleDescriptor);
-                                }
-                            }
+                            BundleDescriptor usingBundleDescriptor = getBundleDescriptor(bundleObject, Type.BUNDLE);
+                            bundlesUsing.add(usingBundleDescriptor);
                         }
-                        // get service name
-                        IObjectArray clazzes = (IObjectArray) serviceInstance.resolveValue("clazzes");//$NON-NLS-1$
-                        String serviceName = null;
-                        if (clazzes != null)
+                    }
+                }
+                // get service name
+                IObjectArray clazzes = (IObjectArray) serviceInstance.resolveValue("clazzes");//$NON-NLS-1$
+                String serviceName = null;
+                if (clazzes != null)
+                {
+                    long[] serviceNameArray = clazzes.getReferenceArray();
+                    for (long l : serviceNameArray)
+                    {
+                        try
                         {
-                            long[] serviceNameArray = clazzes.getReferenceArray();
-                            for (long l : serviceNameArray)
-                            {
-                                try
-                                {
-                                    int id = snapshot.mapAddressToId(l);
-                                    IInstance instance = (IInstance) snapshot.getObject(id);
-                                    serviceName = instance.getClassSpecificName();
-                                    break; // only one element
-                                }
-                                catch (SnapshotException e)
-                                {
-                                    MATPlugin.log(MessageFormat.format("Error reading service's name: 0x{0}", Long
-                                                    .toHexString(l)));
-                                }
-                            }
+                            int id = snapshot.mapAddressToId(l);
+                            IInstance instance = (IInstance) snapshot.getObject(id);
+                            serviceName = instance.getClassSpecificName();
+                            break; // only one element
                         }
-                        // get properties
-                        IObject propertiesObject = (IObject) serviceInstance.resolveValue("properties");//$NON-NLS-1$
-                        String[] keys = null;
-                        String[] values = null;
-                        if (propertiesObject != null)
+                        catch (SnapshotException e)
                         {
-                            IObjectArray keysArray = (IObjectArray) propertiesObject.resolveValue("headers");
-                            if (keysArray != null)
-                            {
-                                long[] keyAddresses = keysArray.getReferenceArray();
-                                if (keyAddresses != null)
-                                {
-                                    keys = getServiceProperties(new String[keyAddresses.length], keyAddresses);
-                                }
-                            }
-                            IObjectArray valuesArray = (IObjectArray) propertiesObject.resolveValue("values");
-                            if (valuesArray != null)
-                            {
-                                long[] valueAddresses = valuesArray.getReferenceArray();
-                                if (valueAddresses != null)
-                                {
-                                    values = getServiceProperties(new String[valueAddresses.length], valueAddresses);
-                                }
-                            }
+                            MATPlugin.log(MessageFormat.format("Error reading service's name: 0x{0}", Long
+                                            .toHexString(l)));
                         }
-
-                        services.add(new Service(serviceName, serviceInstanceId, bundleDescriptor, bundlesUsing, keys,
-                                        values));
+                    }
+                }
+                // get properties
+                IObject propertiesObject = (IObject) serviceInstance.resolveValue("properties");//$NON-NLS-1$
+                String[] keys = null;
+                String[] values = null;
+                if (propertiesObject != null)
+                {
+                    IObjectArray keysArray = (IObjectArray) propertiesObject.resolveValue("headers");
+                    if (keysArray != null)
+                    {
+                        long[] keyAddresses = keysArray.getReferenceArray();
+                        if (keyAddresses != null)
+                        {
+                            keys = getServiceProperties(new String[keyAddresses.length], keyAddresses);
+                        }
+                    }
+                    IObjectArray valuesArray = (IObjectArray) propertiesObject.resolveValue("values");
+                    if (valuesArray != null)
+                    {
+                        long[] valueAddresses = valuesArray.getReferenceArray();
+                        if (valueAddresses != null)
+                        {
+                            values = getServiceProperties(new String[valueAddresses.length], valueAddresses);
+                        }
                     }
                 }
 
+                services.add(new Service(serviceName, serviceInstanceId, bundleDescriptor, bundlesUsing, keys, values));
             }
-
         }
+
         if (services.size() > 0)
             updateServiceMap(services);
         return services;
@@ -315,10 +310,10 @@ public class EquinoxBundleReader implements IBundleReader
             }
             catch (SnapshotException e)
             {
-                //TODO
+                // TODO
                 values[j] = null;
-                MATPlugin.log(MessageFormat.format("Error reading Service property: 0x{0}",
-                                Long.toHexString(valueAddresses[j])));
+                MATPlugin.log(MessageFormat.format("Error reading Service property: 0x{0}", Long
+                                .toHexString(valueAddresses[j])));
             }
         }
         return values;
@@ -546,9 +541,6 @@ public class EquinoxBundleReader implements IBundleReader
 
         for (int i = 0; i < objs.length; i++)
         {
-            if (listener.isCanceled())
-                throw new IProgressListener.OperationCanceledException();
-
             IInstance obj = (IInstance) snapshot.getObject(objs[i]);
 
             IObjectArray heldObjectsArray = (IObjectArray) obj.resolveValue("registryObjects.heldObjects.elements");//$NON-NLS-1$
@@ -561,6 +553,10 @@ public class EquinoxBundleReader implements IBundleReader
                 {
                     if (address == 0)
                         continue;
+
+                    if (listener.isCanceled())
+                        throw new IProgressListener.OperationCanceledException();
+
                     int objectId = snapshot.mapAddressToId(address);
                     IObject instance = snapshot.getObject(objectId);
 
