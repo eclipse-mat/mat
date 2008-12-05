@@ -283,6 +283,10 @@ public class BundleRegistryQuery implements IQuery
                         return folder.bundle.getFragments();
                     case HOST:
                         return getChildren(((BundleFragment) folder.bundle).getHost());
+                    case PROPERTIES:
+                        return ((PropertiesFolder) folder).service.getProperties();
+                    case BUNDLES_USING:
+                        return ((PropertiesFolder) folder).service.getBundlesUsing();
                 }
 
             }
@@ -315,7 +319,15 @@ public class BundleRegistryQuery implements IQuery
                 return children;
             }
             else if (parent instanceof Service)
-                return ((Service) parent).getProperties();
+            {
+                Service service = (Service) parent;
+                List<Object> children = new ArrayList<Object>(2);
+                if (service.getProperties() != null)
+                    children.add(new PropertiesFolder(service, "Properties", Type.PROPERTIES));
+                if (service.getBundlesUsing() != null && !service.getBundlesUsing().isEmpty())
+                    children.add(new PropertiesFolder(service, "Bundles Using", Type.BUNDLES_USING));
+                return children;
+            }
 
             return null;
         }
@@ -472,6 +484,10 @@ public class BundleRegistryQuery implements IQuery
                         return Icons.BUNDLE;
                     case BUNDLE:
                         return Icons.BUNDLE;
+                    case PROPERTIES:
+                        return Icons.PROPERTY;
+                    case BUNDLES_USING:
+                        return Icons.DEPENDENTS;
 
                 }
             }
@@ -521,15 +537,11 @@ public class BundleRegistryQuery implements IQuery
                 return children;
             }
 
-            else if (parent instanceof Folder)
+             else if (parent instanceof Folder)
             {
                 Folder folder = (Folder) parent;
                 switch (folder.type)
                 {
-                    case PROPERTIES:
-                        return ((PropertiesFolder) folder).service.getProperties();
-                    case BUNDLES_USING:
-                        return ((PropertiesFolder) folder).service.getBundlesUsing();
                     case BUNDLE:
                         return super.getChildren(((DescriptorFolder) folder).descriptor);
                 }
@@ -543,22 +555,6 @@ public class BundleRegistryQuery implements IQuery
         public List<?> getElements()
         {
             return model.getServices();
-        }
-
-        @Override
-        public URL getIcon(Object row)
-        {
-            if (row instanceof Folder)
-            {
-                switch (((Folder) row).type)
-                {
-                    case PROPERTIES:
-                        return Icons.PROPERTY;
-                    case BUNDLES_USING:
-                        return Icons.DEPENDENTS;
-                }
-            }
-            return super.getIcon(row);
         }
 
         @Override
@@ -581,8 +577,6 @@ public class BundleRegistryQuery implements IQuery
             return new Column[] { new Column("Services"),//
                             new Column("Bundle State").noTotals() };
         }
-        
-        
 
     }
 
@@ -650,14 +644,13 @@ public class BundleRegistryQuery implements IQuery
             return Grouping.BY_EXTENSION_POINT;
         }
 
-        
         @Override
         public Column[] getColumns()
         {
             return new Column[] { new Column("Extension Points"),//
                             new Column("Bundle State").noTotals() };
         }
-        
+
     }
 
 }
