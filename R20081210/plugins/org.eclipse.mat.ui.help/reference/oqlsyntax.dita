@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd" >
+<reference id="ref_oqlsyntax" xml:lang="en-us">
+	<title>OQL Syntax</title>
+	<shortdesc />
+
+	<prolog />
+
+	<refbody>
+		<section>
+			<p>
+				Memory Analyzer has a build-in object query language
+				(OQL) that allows to query the heap dump with custom
+				SQL-like queries. Just think of classes as tables,
+				objects as rows, and fields as columns. The basic syntax
+				is this:</p>
+				<codeblock>SELECT * FROM [ INSTANCEOF ]	&lt;class_name&gt; [ WHERE &lt;filter-expression&gt;]
+				</codeblock> 	
+		</section>
+	</refbody>
+</reference>

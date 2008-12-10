@@ -1,0 +1,3 @@
+<query name="Top Components">
+	<command>component_report_top -t 1</command>
+</query>

@@ -1,0 +1,161 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Schema file written by PDE -->
+<schema targetNamespace="org.eclipse.mat.api" xmlns="http://www.w3.org/2001/XMLSchema">
+<annotation>
+      <appInfo>
+         <meta.schema plugin="org.eclipse.mat.api" id="report" name="Report"/>
+      </appInfo>
+      <documentation>
+         Reports specify a number of queries which are executed
+in batch mode and are rendered into HTML files and zipped
+for easy distribution. Reports can be run from the command
+line by specifying the report id:
+
+MemoryAnalyzer.exe &lt;heap dump&gt; &lt;report id&gt;
+      </documentation>
+   </annotation>
+
+   <element name="extension">
+      <annotation>
+         <appInfo>
+            <meta.element />
+         </appInfo>
+      </annotation>
+      <complexType>
+         <sequence minOccurs="1" maxOccurs="unbounded">
+            <element ref="report"/>
+         </sequence>
+         <attribute name="point" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="id" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="name" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+               <appInfo>
+                  <meta.attribute translatable="true"/>
+               </appInfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="report">
+      <complexType>
+         <attribute name="id" type="string" use="required">
+            <annotation>
+               <documentation>
+                  The unique id of the report. Used when running the report from the command line or when includin the report into another report via the template element.
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="name" type="string" use="required">
+            <annotation>
+               <documentation>
+                  Display name to be displayed in menus.
+               </documentation>
+               <appInfo>
+                  <meta.attribute translatable="true"/>
+               </appInfo>
+            </annotation>
+         </attribute>
+         <attribute name="file" type="string" use="required">
+            <annotation>
+               <documentation>
+                  The XML file defining the report.
+               </documentation>
+               <appInfo>
+                  <meta.attribute kind="resource"/>
+               </appInfo>
+            </annotation>
+         </attribute>
+         <attribute name="description" type="string">
+            <annotation>
+               <documentation>
+                  Description to be displayed in the status line and/or welcome page.
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="since"/>
+      </appInfo>
+      <documentation>
+         0.7.0
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="examples"/>
+      </appInfo>
+      <documentation>
+         Following is an example of a report declaration: 
+&lt;p&gt;
+&lt;pre&gt;
+   &lt;extension point=&quot;org.eclipse.mat.report.report&quot;&gt;
+      &lt;report id=&quot;suspects&quot; name=&quot;Leak Suspects&quot;
+              description=&quot;includes leak suspects and a system overview&quot;
+              file=&quot;META-INF/reports/suspects.xml&quot; /&gt;
+	&lt;/extension&gt;
+&lt;/pre&gt;
+&lt;/p&gt;
+Following is a sample report:
+&lt;p&gt;
+&lt;pre&gt;
+&lt;section name=&quot;Leak Suspects&quot;&gt;
+   &lt;section name=&quot;System Overview&quot;&gt;
+      &lt;param key=&quot;html.separate_file&quot; value=&quot;true&quot; /&gt;
+      &lt;template&gt;org.eclipse.mat.api:overview&lt;/template&gt;
+   &lt;/section&gt;
+	
+   &lt;query name=&quot;Leaks&quot;&gt;
+      &lt;command&gt;leakhunter&lt;/command&gt;
+   &lt;/query&gt;
+&lt;/section&gt;
+&lt;/pre&gt;
+&lt;/p&gt;
+In short: sections contain other sections or queries. Queries specify the command to be run.
+Sections can contain a template element which specifies another report to be included here.
+      </documentation>
+   </annotation>
+
+
+   <annotation>
+      <appInfo>
+         <meta.section type="implementation"/>
+      </appInfo>
+      <documentation>
+         The Memory Analyzer supplies a number of reports itself. Check out the &lt;samp&gt;org.eclipse.mat.api&lt;/samp&gt; plug-in.
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="copyright"/>
+      </appInfo>
+      <documentation>
+         Copyright (c) 2008 SAP AG and others.&lt;br&gt;
+All rights reserved. This program and the accompanying materials are made 
+available under the terms of the Eclipse Public License v1.0 which 
+accompanies this distribution, and is available at 
+&lt;a href=&quot;http://www.eclipse.org/legal/epl-v10.html&quot;&gt;http://www.eclipse.org/legal/epl-v10.html&lt;/a&gt;
+      </documentation>
+   </annotation>
+
+</schema>

@@ -1,0 +1,319 @@
+<project name="org.eclipse.mat.build" default="all">
+	<property file="build.properties" />
+
+	<target name="all" depends="-init.workspace,-init.copy-workspace,-init,-build.product,-build.features,-build.site,-deploy.site,-test.prepare,-test.junit,-test.regression" />
+	
+	<target name="build-feature" depends="-init.workspace,-init.copy-workspace,-init,-build.features" />
+	<target name="build-product" depends="-init.workspace,-init,-build.product" />
+	<target name="build-site" depends="-init.workspace,-init,-build.site, -deploy.site" />
+	<target name="build-tests" depends="-init.workspace,-init,-test.prepare,-test.junit,-test.regression" />
+
+	<!--
+		The PDE builds assumes a ~/plugins and ~/features layout.
+		If you do NOT run the build on a fully checkout repository,
+		use the init-dev target to prepare the layout 
+	-->
+	<target name="-init.workspace" if="workspaceLocation">
+		<property name="buildDirectory" value="${basedir}/temp" />
+	</target>
+
+	<target name="-init.copy-workspace" depends="-init.workspace" if="workspaceLocation">
+		<delete dir="${buildDirectory}" />
+		<mkdir dir="${buildDirectory}" />
+		<mkdir dir="${buildDirectory}/plugins" />
+		<mkdir dir="${buildDirectory}/features" />
+
+		<copy todir="${buildDirectory}/plugins">
+			<fileset dir="${workspaceLocation}">
+				<include name="org.eclipse.mat*/**" />
+				<exclude name="org.eclipse.mat*feature/**" />
+				<exclude name="org.eclipse.mat*releng/**" />
+				<exclude name="org.eclipse.mat*build*/**" />
+			</fileset>
+		</copy>
+		<copy todir="${buildDirectory}/features">
+			<fileset dir="${workspaceLocation}">
+				<include name="org.eclipse.mat*feature/**" />
+			</fileset>
+		</copy>
+		<copy todir="${buildDirectory}">
+			<fileset dir="${workspaceLocation}">
+				<include name="org.eclipse.mat.releng/**" />
+				<exclude name="org.eclipse.mat.releng/temp/**" />
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="-init.directories" depends="-init.workspace">
+		<property name="buildDirectory" value="${basedir}/.." />
+		<property name="siteDirectory" value="${buildDirectory}/_site" />
+		<property name="testDirectory" value="${buildDirectory}/_tests" />
+
+		<!-- read all environment variables -> access to hudson -->
+		<property environment="env" />
+	</target>
+
+	<target name="-init.restart" if="restartLocation">
+		<echo message="Restarting with properties from ${restartLocation}" />
+		<property file="${restartLocation}/latest.properties" />
+		<echo message="Build Label: ${buildLabel}" />
+		<echo message="Qualifier: ${qualifier}" />
+	</target>
+
+	<target name="-init.buildLabel" if="env.BUILD_NUMBER">
+		<property name="buildLabel" value="N${env.BUILD_NUMBER}" />
+	</target>
+
+	<target name="-init" depends="-init.directories,-init.restart,-init.buildLabel">
+		<!-- set default properties (if not read from file) -->
+		<tstamp>
+			<format property="buildId" pattern="0.7.0.yyyyMMdd" />
+		</tstamp>
+		<tstamp>
+			<format property="qualifier" pattern="yyyyMMddHHmm" />
+		</tstamp>
+		<property name="buildLabel" value="N.${buildId}" />
+
+		<property name="restartLocation" value="${buildDirectory}" />
+		
+		<propertyfile file="${restartLocation}/latest.properties">
+			<entry key="buildId" value="${buildId}" />
+			<entry key="qualifier" value="${qualifier}" />
+			<entry key="buildLabel" value="${buildLabel}" />
+		</propertyfile>
+
+		<echo message="Build Directory: ${buildDirectory}" />
+		<echo message="Eclipse Base Location: ${baseLocation}" />
+		<echo message="Build Label: ${buildLabel}" />
+		<echo message="Qualifier: ${qualifier}" />
+	</target>
+
+	<target name="-build.product" depends="-init">
+		<java classname="org.eclipse.equinox.launcher.Main" fork="true" failonerror="true">
+			<arg value="-application" />
+			<arg value="org.eclipse.ant.core.antRunner" />
+			<arg value="-buildfile" />
+			<arg value="${eclipseLocation}/plugins/org.eclipse.pde.build_${pdeBuildPluginVersion}/scripts/productBuild/productBuild.xml" />
+			<arg value="-DbuildDirectory=${buildDirectory}" />
+			<arg value="-Dbuilder=${buildDirectory}/org.eclipse.mat.releng/product" />
+			<arg value="-DbaseLocation=${baseLocation}" />
+
+			<arg value="-DforceContextQualifier=${qualifier}" />
+			<arg value="-DbuildId=${buildId}" />
+			<arg value="-DbuildType=N" />
+			<arg value="-DbuildLabel=${buildLabel}" />
+
+			<arg value="-DJ2SE-1.5=${J2SE-1.5}" />
+			<classpath>
+				<pathelement location="${eclipseLocation}/plugins/org.eclipse.equinox.launcher_${equinoxLauncherPluginVersion}.jar" />
+			</classpath>
+		</java>
+	</target>
+
+	<target name="-build.features" depends="-init">
+		<java classname="org.eclipse.equinox.launcher.Main" fork="true" failonerror="true">
+			<arg value="-application" />
+			<arg value="org.eclipse.ant.core.antRunner" />
+			<arg value="-buildfile" />
+			<arg value="${eclipseLocation}/plugins/org.eclipse.pde.build_${pdeBuildPluginVersion}/scripts/build.xml" />
+			<arg value="-DbuildDirectory=${buildDirectory}" />
+			<arg value="-Dbuilder=${buildDirectory}/org.eclipse.mat.releng/features" />
+			<arg value="-DbaseLocation=${baseLocation}" />
+
+			<arg value="-DforceContextQualifier=${qualifier}" />
+			<arg value="-DbuildId=${buildId}" />
+			<arg value="-DbuildType=N" />
+			<arg value="-DbuildLabel=${buildLabel}" />
+
+			<arg value="-DJ2SE-1.5=${J2SE-1.5}" />
+			<classpath>
+				<pathelement location="${eclipseLocation}/plugins/org.eclipse.equinox.launcher_${equinoxLauncherPluginVersion}.jar" />
+			</classpath>
+		</java>
+
+		<unzip dest="${buildDirectory}/${buildLabel}/p2">
+			<fileset dir="${buildDirectory}/${buildLabel}">
+				<include name="*feature*" />
+			</fileset>
+		</unzip>
+	</target>
+
+	<target name="-build.site" depends="-init">
+		<delete dir="${siteDirectory}" />
+		<mkdir dir="${siteDirectory}" />
+
+		<!-- copy template from site directory -->
+		<copy todir="${siteDirectory}">
+			<fileset dir="${buildDirectory}/org.eclipse.mat.releng/site">
+				<include name="**/*" />
+			</fileset>
+		</copy>
+
+		<!-- adapt the site.xml -->
+		<replace file="${siteDirectory}/site.xml" token="@qualifier@" value="${qualifier}" />
+
+		<!-- unzip features -->
+		<unzip dest="${siteDirectory}">
+			<fileset dir="${buildDirectory}/${buildLabel}/">
+				<include name="*feature*" />
+				<exclude name="*test*" />
+			</fileset>
+		</unzip>
+
+		<!-- generate p2 meta data -->
+		<java classname="org.eclipse.equinox.launcher.Main" fork="true" failonerror="true">
+			<jvmarg value="-Xmx256m" />
+
+			<arg value="-consoleLog" />
+
+			<arg value="-application" />
+			<arg value="org.eclipse.equinox.p2.metadata.generator.EclipseGenerator" />
+
+			<arg value="-updateSite" />
+			<arg value="${siteDirectory}" />
+
+			<arg value="-site" />
+			<arg value="file:${siteDirectory}/site.xml" />
+
+			<arg value="-metadataRepository" />
+			<arg value="file:${siteDirectory}" />
+
+			<arg value="-metadataRepositoryName" />
+			<arg value="file:Memory Analyzer Update Site" />
+
+			<arg value="-artifactRepository" />
+			<arg value="file:${siteDirectory}" />
+
+			<arg value="-artifactRepositoryName" />
+			<arg value="Memory Analyzer Artifacts" />
+
+			<arg value="-compress" />
+			<arg value="-append" />
+
+			<arg value="-reusePack200Files" />
+			<arg value="-noDefaultIUs" />
+			<classpath>
+				<pathelement location="${eclipseLocation}/plugins/org.eclipse.equinox.launcher_${equinoxLauncherPluginVersion}.jar" />
+			</classpath>
+		</java>
+
+		<!-- zip site -->
+		<zip destfile="${buildDirectory}/${buildLabel}/org.eclipse.mat-${buildId}-site.zip" basedir="${siteDirectory}" />
+
+		<delete dir="${siteDirectory}" />
+	</target>
+
+	<target name="-deploy.site" depends="-build.site" if="updateSiteLocation">
+		
+		<delete includeEmptyDirs="true" quiet="true">
+			<fileset dir="${updateSiteLocation}">
+			    <include name="**/*"/>
+			</fileset>
+		</delete>
+		
+		<unzip dest="${updateSiteLocation}" src="${buildDirectory}/${buildLabel}/org.eclipse.mat-${buildId}-site.zip">
+		</unzip>
+
+	</target>
+	
+	<target name="-test.prepare" depends="-init">
+		<!-- -->
+		<delete dir="${testDirectory}" />
+		<mkdir dir="${testDirectory}/ws" />
+		<mkdir dir="${testDirectory}/eclipse" />
+
+		<copy todir="${testDirectory}/eclipse">
+			<fileset dir="${testLocation}">
+				<include name="**/*" />
+			</fileset>
+		</copy>
+		<!-- -->
+
+		<java classname="org.eclipse.equinox.launcher.Main" fork="true" failonerror="true" dir="${testDirectory}/eclipse">
+
+			<jvmarg value="-Declipse.p2.data.area=${testDirectory}/eclipse/p2" />
+
+			<arg value="-debug" />
+			<arg value="-consoleLog" />
+
+			<arg value="-data" />
+			<arg value="${testDirectory}/ws" />
+			<arg value="-application" />
+			<arg value="org.eclipse.equinox.p2.director.app.application" />
+
+			<arg value="-metadataRepository" />
+			<arg value="file:${buildDirectory}/${buildLabel}/p2" />
+			<arg value="-artifactRepository" />
+			<arg value="file:${buildDirectory}/${buildLabel}/p2" />
+
+			<arg value="-installIU" />
+			<arg value="org.eclipse.mat" />
+
+			<arg value="-destination" />
+			<arg value="${testDirectory}/eclipse" />
+
+			<arg value="-bundlepool" />
+			<arg value="${testDirectory}/eclipse" />
+
+			<arg value="-profile" />
+			<arg value="SDKProfile" />
+
+			<arg value="-profileProperties" />
+			<arg value="org.eclipse.update.install.features=true" />
+
+			<arg value="-roaming" />
+
+			<classpath>
+				<pathelement location="${testDirectory}/eclipse/plugins/org.eclipse.equinox.launcher_${equinoxLauncherPluginVersion}.jar" />
+			</classpath>
+		</java>
+	</target>
+
+	<target name="-test.junit" depends="-init">
+		<java classname="org.eclipse.equinox.launcher.Main" fork="true" failonerror="true" dir="${testDirectory}/eclipse">
+			<jvmarg value="-ea" />
+			<jvmarg value="-Xmx512m" />
+			<!--
+			<jvmarg value="-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000" />
+			<jvmarg value="-Xdebug" />
+			<jvmarg value="-Xnoagent" />
+			<jvmarg value="-Djava.compiler=NONE" />
+			-->
+			<arg value="-data" />
+			<arg value="${testDirectory}/ws" />
+			<arg value="-application" />
+			<arg value="org.eclipse.mat.tests.junit4Runner" />
+			<arg value="-classname" />
+			<arg value="org.eclipse.mat.tests.AllTests" />
+			<arg value="-testpluginname" />
+			<arg value="org.eclipse.mat.tests" />
+			<arg value="formatter=org.apache.tools.ant.taskdefs.optional.junit.XMLJUnitResultFormatter,${buildDirectory}/${buildLabel}/org.eclipse.mat.tests.xml" />
+
+			<classpath>
+				<pathelement location="${testDirectory}/eclipse/plugins/org.eclipse.equinox.launcher_${equinoxLauncherPluginVersion}.jar" />
+			</classpath>
+		</java>
+	</target>
+
+	<target name="-test.regression" depends="-init" if="regtestDumpsLocation">
+		<java classname="org.eclipse.equinox.launcher.Main" fork="true" failonerror="true" dir="${testDirectory}/eclipse">
+			<jvmarg value="-ea" />
+			<jvmarg value="-Xmx212m" />
+
+			<arg value="-data" />
+			<arg value="${testDirectory}/ws" />
+			<arg value="-application" />
+			<arg value="org.eclipse.mat.tests.application" />
+			<arg value="-regression" />
+			<arg value="${regtestDumpsLocation}" />
+			<arg value="-Xmx1g" />
+
+			<classpath>
+				<pathelement location="${testDirectory}/eclipse/plugins/org.eclipse.equinox.launcher_${equinoxLauncherPluginVersion}.jar" />
+			</classpath>
+		</java>
+
+		<copy file="${regtestDumpsLocation}/result.xml" tofile="${buildDirectory}/${buildLabel}/regtest.xml" />
+	</target>
+
+</project>

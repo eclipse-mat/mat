@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd" >
+<task id="task_analyzingjavacollectionusage" xml:lang="en-us">
+	<title>Analyzing Java Collection Usage</title>
+	<prolog></prolog>
+	<taskbody>
+		<context>
+			<p>A collection is an object that are used to store, retrieve and
+				manipulate the data. Memory Analyzer offers the following queries to
+				analyze java collections:</p>
+			<table>
+				<tgroup cols="2">
+					<tbody>
+						<row>
+							<entry>
+								<b>Array Fill Ratio Query</b>
+							</entry>
+							<entry>Prints a frequency distribution of fill ratios of
+								non-primitive arrays. The fill ratio is the proportion of
+								non-null elements in the array. The arrays are then accumulated
+								into as many segments as parameterized. Primitive arrays cannot
+								have null values so this query works only on object arrays.
+							</entry>
+						</row>
+						<row>
+							<entry>
+								<b>Arrays Grouped by Size Query</b>
+							</entry>
+							<entry>Distribution histogram of given arrays grouped
+								by the size.</entry>
+						</row>
+						<row>
+							<entry>
+								<b>Collection Fill Ratio Query</b>
+							</entry>
+							<entry>
+								<p>Prints a frequency distribution of fill ratios of given
+									collections. The following collections can be used for the
+									query:</p>
+								<ul>
+									<li>
+										<codeblock>java.util.ArrayList</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.HashMap</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.Hashtable</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.Properties</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.Vector</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.WeakHashMap</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.concurrent.ConcurrentHashMap$Segment</codeblock>
+									</li>
+								</ul>
+								<p>One additional custom collection (e.g. non-JDK) collection
+									can be specified by the 'collection', 'size_attribute' and
+									'array_attribute' argument.</p>
+							</entry>
+						</row>
+						<row>
+							<entry>
+								<b>Collections Grouped By Size Query</b>
+							</entry>
+							<entry>
+								<p>Distribution histogram of given collections by
+									their size. The following collections can be used for the
+									query. Known collections:</p>
+								<ul>
+									<li>
+										<codeblock>java.util.ArrayList</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.TreeMap</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.HashMap</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.Hashtable</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.Properties</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.Vector</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.WeakHashMap</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.concurrent.ConcurrentHashMap$Segment</codeblock>
+									</li>
+								</ul>
+								<p>One additional custom collection (e.g. non-JDK) collection
+									can be specified by the 'collection', 'size_attribute' and
+									'array_attribute' argument.</p>
+							</entry>
+						</row>
+						<row>
+							<entry>
+								<b>Extract List Values Query</b>
+							</entry>
+							<entry>
+								<p>Lists elements of a LinkedList, ArrayList or Vector
+									object.</p>
+							</entry>
+						</row>
+						<row>
+							<entry>
+								<b>Hash Entries Query</b>
+							</entry>
+							<entry>
+								<p>Extracts the key-value pairs from hash maps and
+									hashtables.</p>
+							</entry>
+						</row>
+						<row>
+							<entry>
+								<b>Extract Hash Set Value Query</b>
+							</entry>
+							<entry>
+								<p>Lists elements of a HashSet.</p>
+							</entry>
+						</row>
+						<row>
+							<entry>
+								<b>Map Collision Ratio Query</b>
+							</entry>
+							<entry>
+								<p>Prints a frequency distribution of the collision ratios
+									of map-like collections. The following map-like collections can
+									be used for the query.</p>
+								<ul>
+									<li>
+										<codeblock>java.util.HashMap</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.Properties</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.Hashtable</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.WeakHashMap</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.concurrent.ConcurrentHashMap$Segment</codeblock>
+									</li>
+								</ul>
+								<p> One additional custom map-like (e.g. non-JDK) collection can
+									be specified by the 'collection', 'size_attribute' and
+									'array_attribute' argument.</p>
+							</entry>
+						</row>
+					</tbody>
+				</tgroup>
+			</table>
+			<p>
+				All these queries are accessible from the toolbar drop-down menu:
+				<menucascade>
+					<uicontrol>Open Query Browser</uicontrol>
+					<uicontrol>Java Collections</uicontrol>
+				</menucascade>
+			</p>
+			<image href="../mimes/m33f9e094.png"></image>
+		</context>
+	</taskbody>
+</task>

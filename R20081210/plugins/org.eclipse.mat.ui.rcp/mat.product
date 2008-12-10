@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.4"?>
+
+<product name="Memory Analyzer Tool" id="org.eclipse.mat.ui.rcp.MemoryAnalyzer" application="org.eclipse.mat.ui.rcp.application" version="0.7.0" useFeatures="true">
+
+   <aboutInfo>
+      <image path="/org.eclipse.mat.ui.rcp/icons/memory_analyzer_16.gif"/>
+   </aboutInfo>
+
+   <configIni use="default">
+      <linux>/org.eclipse.mat.ui.rcp/config.ini</linux>
+      <macosx>/org.eclipse.mat.ui.rcp/config.ini</macosx>
+      <solaris>/org.eclipse.mat.ui.rcp/config.ini</solaris>
+      <win32>/org.eclipse.mat.ui.rcp/config.ini</win32>
+   </configIni>
+
+   <launcherArgs>
+      <vmArgs>-Xmx1024m</vmArgs>
+      <vmArgsMac>-Dorg.eclipse.swt.internal.carbon.smallFonts
+-XstartOnFirstThread</vmArgsMac>
+   </launcherArgs>
+
+   <windowImages i16="/org.eclipse.mat.ui.rcp/icons/memory_analyzer_16.gif"/>
+
+   <splash
+      location="org.eclipse.mat.ui.rcp" />
+   <launcher name="MemoryAnalyzer">
+      <macosx icon="/org.eclipse.mat.ui.rcp/product/macosx/MemoryAnalyzer.icns"/>
+      <solaris/>
+      <win useIco="false">
+         <bmp/>
+      </win>
+   </launcher>
+
+   <intro introId="org.eclipse.mat.ui.rcp.Intro"/>
+
+   <vm>
+   </vm>
+
+   <plugins>
+   </plugins>
+
+   <features>
+      <feature id="org.eclipse.mat.dependencies.feature" version="0.7.0.qualifier"/>
+      <feature id="org.eclipse.mat.feature" version="0.7.0.qualifier"/>
+      <feature id="org.eclipse.mat.chart.feature" version="0.7.0.qualifier"/>
+      <feature id="org.eclipse.mat.ui.rcp.feature" version="0.7.0.qualifier"/>
+   </features>
+
+</product>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cheatsheet title="How to find memory problems">
+   <intro>
+      <description>
+         This cheat sheet provides some guidlines how the Memory Analyzer tool could be used 
+			to find memory problems.
+      </description>
+   </intro>
+   <item title="Analysis steps overview" dialog="true" skip="true">
+      <description>
+         1. Get a quick overview of the heap<br/>
+			2. Search for single objects with big retained size - it is easy to analyze them afterwards<br/>
+			3. Search for groups of objects with big retained size - if there are no huge single objects, try to form different groups with as few as possible objects inside
+      </description>
+   </item>
+   <item title="1. Get a quick overview" dialog="true" skip="true">
+      <description>
+         As a starting point of the analysis get a quick overview.
+      </description>
+      <subitem label="Look at the class histogram and find the classes with biggest shallow heap size." skip="true">
+      </subitem>
+      <subitem label="Switch to classloader view and find the classesloaders with biggest shallow heap size." skip="true">
+      </subitem>
+      <subitem label="Execute the &quot;top_consumers&quot; query to get a summary of the top-level dominators" skip="true">
+      </subitem>
+   </item>
+   <item title="2. Search for and explore the biggest objects" dialog="true" skip="true">
+      <description>
+         Open the dominator tree and look at the biggest objects. If there are some objects with too big retained size, do the following:
+      </description>
+      <subitem label="Select one of the suspicious objects in the Dominator Tree and expand it&apos;s subtree. Repeat this until you  have reached a significant drop in the retained sizes between the parent and the child nodes. This is the point    where the memory accumulation has happened." skip="true">
+      </subitem>
+      <subitem label="Right click to open the context menu. Select &quot;Open in Paths to GC roots...&quot; and any of the sub options" skip="true">
+      </subitem>
+      <subitem label="Now you can see the real reference path with all the field names. From here on fine analysis could be done." skip="true">
+      </subitem>
+   </item>
+   <item title="3. No huge single objects? Try to find suspicious object groups" dialog="true" skip="true">
+      <description>
+         If the dominator tree does not contain any objects which have a
+			very big retained size, then try to find groups of objects which occupy a lot of memory.
+			<br/>Usually smaller groups are easier to further analyze.
+      </description>
+   </item>
+   <item title="3.1. Grouping objects" dialog="true" skip="false">
+      <description>
+         Here are several ideas of how to find interesting object groups
+      </description>
+      <subitem label="Open the dominator tree and group the objects by class. The sum of the retained sizes of the objects at the top-level of the dominator tree is equal to the total heap size. Therefore, there&apos;s a big chance to find an interesting group here." skip="true">
+      </subitem>
+      <subitem label="Go to the Histogram view, and find the dominators of the biggest class(es) - use the &quot;Immediate dominators&quot; context menu, filter out the java* package." skip="true">
+      </subitem>
+      <subitem label="Switch to classloaders view and calculate the retained size for the top ones - use the &quot;Calculate Retained Size&quot; context menu" skip="true">
+      </subitem>
+      <subitem label="If there is an array class in the Histogram which occupies too much memory, then try to find groups of arrays with one and the same size. Execute &quot;Java Collections-->Arrays Grouped By Size&quot; context menu query." skip="true">
+      </subitem>
+   </item>
+   <item title="3.2. Analyzing object groups" dialog="true" skip="false">
+      <description>
+         Once you have found a suspicious group of objects, you can use one of the following for further analysis
+      </description>
+      <subitem label="Calculate the retained size of the group" skip="true">
+      </subitem>
+      <subitem label="Display and analyze what objects are in the retained set of the group" skip="true">
+      </subitem>
+      <subitem label="Calculate the shortest path to each of the objects in the group, look at the paths together, and check if there is a common part (is possible via histogram&apos;s context menu &quot;open in multiple paths from GC root)" skip="true">
+      </subitem>
+   </item>
+</cheatsheet>

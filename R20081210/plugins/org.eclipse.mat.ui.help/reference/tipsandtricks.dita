@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd" >
+<reference id="ref_tips" xml:lang="en-us">
+	<title>Tips and Tricks</title>
+	<shortdesc />
+	<prolog />
+	<refbody>
+		<section>
+			<p> The following tips and tricks give some helpful ideas for
+				increasing your productivity and ease the work with Memory Analyzer.
+			</p>
+			<simpletable relcolwidth="1* 4*" id="tips_table">
+				<sthead>
+					<stentry>Tip</stentry>
+					<stentry>Description</stentry>
+				</sthead>
+				<strow>
+					<stentry>Shortcuts</stentry>
+					<stentry>
+						<p>Ctrl-Q - Opens the Query Browser</p>
+						<p>Ctrl-H - Opens the history of executed queries.</p>
+						<p>Alt-I - Opens a popup menu that explains the icons</p>
+					</stentry>
+				</strow>
+				<strow>
+					<stentry>Quick Search</stentry>
+					<stentry>
+						Just start to type while you are in the heap editor, all the
+						matches will be highlighted. This quick search starts is activated
+						when 3 or more letters are provided.
+						<image href="../mimes/m65d10c7b.png" align="left" placement="break" />
+					</stentry>
+				</strow>
+				<strow>
+					<stentry>Notes, Hyperlinks in Notes View</stentry>
+					<stentry>
+						Notes View recognizes and highlights object addresses. Activating
+						the hyperlink brings up a context menu which contains actions for
+						this particular object.
+						<image href="../mimes/m4d2fff8d.png" align="left" placement="break" />
+					</stentry>
+				</strow>
+				<strow>
+					<stentry>Copy To Clipboard</stentry>
+					<stentry>
+						Use Ctrl C to copy the selection to the clipboard. The data will
+						keep its structure:
+						<image href="../mimes/1af34c1.png" align="left" placement="break" />
+					</stentry>
+				</strow>
+				<strow>
+					<stentry> Manage the history of opened heap dumps</stentry>
+					<stentry>
+						Heap Dump History view offers a set of context menu actions to
+						manage the history of opened heap dumps:
+						<image href="../mimes/691a2594.png" align="left" placement="break" />
+						<p>
+							<cmdname>Delete Heap Dump</cmdname>
+							action removes the heap dump from the history, but not from the
+							file system. To find a heap dump in the file system use
+							<cmdname>Explore in File System</cmdname>
+							context menu action
+						</p>
+					</stentry>
+				</strow>
+				<strow>
+					<stentry>Manage editor tabs</stentry>
+					<stentry>
+						Right click on the Heap Editor tab will open a context menu to
+						manage the tabs. It might be very helpful when many tabs are open.
+						<image href="../mimes/7df38219.png" align="left" placement="break" />
+					</stentry>
+				</strow>
+				<strow>
+					<stentry> Link Inspector View with Heap Editor</stentry>
+					<stentry>
+						Object Inspector View shows the details for the single selected
+						object. The view updates itself with every change in the
+						selection. Sometimes it is interesting to compare two or more
+						objects or just to capture the view. To do so use
+						<cmdname>Link with Snapshot</cmdname>
+						context menu. The Inspector view will keep its data. To have
+						another Inspector view, open it via
+						<menucascade>
+							<uicontrol>View</uicontrol>
+							<uicontrol>Inspector</uicontrol>
+						</menucascade>
+						<image href="../mimes/m61978623.png" align="left" placement="break" />
+					</stentry>
+				</strow>
+			</simpletable>
+		</section>
+	</refbody>
+</reference>

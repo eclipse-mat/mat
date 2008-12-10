@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<introContent>
+	<extensionContent name="Memory Analyzer Tutorials"
+		path="tutorials/page-content/anchor">
+		<group id="overview-links" label="For Beginners">
+			<link label="Basic Analysis"
+				url="http://org.eclipse.ui.intro/showStandby?partId=org.eclipse.platform.cheatsheet&amp;input=org.eclipse.mat.tutorials.basicTutorial">
+				<img src="css/tutorial.gif" alt="Basic Analysis" />
+				<text> Get familiar with the basic features for memory analysis.
+				</text>
+			</link>
+			<link label="Feature Hightlights"
+				url="http://org.eclipse.ui.intro/showStandby?partId=org.eclipse.platform.cheatsheet&amp;input=org.eclipse.mat.tutorials.bestFeaturesTutorial">
+				<img src="css/tutorial.gif" alt="Feature Hightlights" />
+				<text> Get familiar with the unique features for memory analysis.
+				</text>
+			</link>
+		</group>
+		<group id="overview-links" label="For Experts">
+			<link label="OQL in 1 Minute"
+				url="http://org.eclipse.ui.intro/showStandby?partId=org.eclipse.platform.cheatsheet&amp;input=org.eclipse.mat.tutorials.object_query_language">
+				<img src="css/tutorial.gif" alt="OQL in 1 Minute" />
+				<text>Get an idea how simple it is to perform custom SQL-like queries.</text>
+			</link>
+			<link label="Component Report"
+				url="http://org.eclipse.ui.intro/showStandby?partId=org.eclipse.platform.cheatsheet&amp;input=org.eclipse.mat.tutorials.component_report">
+				<img src="css/tutorial.gif" alt="OQL in 1 Minute" />
+				<text>A heap dump contains many objects. But which of those belong to your component?
+						And what conclusions can you draw from them? This is where the Component Report can help.</text>
+			</link>
+			<link label="How to Find Memory Problems"
+				url="http://org.eclipse.ui.intro/showStandby?partId=org.eclipse.platform.cheatsheet&amp;input=org.eclipse.mat.tutorials.findingProblemsTutorial">
+				<img src="css/tutorial.gif" alt="How to Find Memory Problems" />
+				<text> Find out what's the best way to use the Memory Analyzer to
+					find memory problems</text>
+			</link>
+		</group>
+	</extensionContent>
+</introContent>

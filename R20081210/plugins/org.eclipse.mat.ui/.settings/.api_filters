@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<component id="org.eclipse.mat.ui" version="2">
+    <resource path="src/org/eclipse/mat/ui/internal/viewer/ExportActions.java" type="org.eclipse.mat.ui.internal.viewer.ExportActions$ContextImpl">
+        <filter id="574619656">
+            <message_arguments>
+                <message_argument value="Context"/>
+                <message_argument value="ContextImpl"/>
+            </message_arguments>
+        </filter>
+    </resource>
+</component>

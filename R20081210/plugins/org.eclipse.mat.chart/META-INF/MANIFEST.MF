@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Memory Analyzer - Chart (Incubation)
+Bundle-SymbolicName: org.eclipse.mat.chart;singleton:=true
+Bundle-Version: 0.7.0.qualifier
+Require-Bundle: org.eclipse.mat.api;bundle-version="[0.7.0.20080620,0.7.1)",
+ org.eclipse.birt.chart.engine;bundle-version="2.2.0"
+Export-Package: org.eclipse.mat.impl.chart;x-friends:="org.eclipse.mat.chart.ui"
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-ActivationPolicy: lazy
+Bundle-Vendor: Eclipse.org
