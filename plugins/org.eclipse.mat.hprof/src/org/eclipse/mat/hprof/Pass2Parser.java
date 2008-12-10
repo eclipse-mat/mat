@@ -75,12 +75,6 @@ public class Pass2Parser extends AbstractParser
                     throw new SnapshotException(MessageFormat
                                     .format("Illegal record length at byte {0}", in.position()));
 
-                if (curPos + length - 9 > fileSize)
-                    throw new SnapshotException(MessageFormat.format(
-                                    "Invalid HPROF file: Expected to read another {0,number} bytes,"
-                                                    + " but only {1,number} bytes are available.", length, fileSize
-                                                    - curPos - 9));
-
                 if (record == Constants.Record.HEAP_DUMP //
                                 || record == Constants.Record.HEAP_DUMP_SEGMENT)
                 {

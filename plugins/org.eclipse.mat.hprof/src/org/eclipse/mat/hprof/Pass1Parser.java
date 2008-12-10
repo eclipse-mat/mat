@@ -29,6 +29,7 @@ import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IPrimitiveArray;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.SimpleMonitor;
+import org.eclipse.mat.util.IProgressListener.Severity;
 
 public class Pass1Parser extends AbstractParser
 {
@@ -85,10 +86,10 @@ public class Pass1Parser extends AbstractParser
                                     .format("Illegal record length at byte {0}", in.position()));
 
                 if (curPos + length - 9 > fileSize)
-                    throw new SnapshotException(MessageFormat.format(
-                                    "Invalid HPROF file: Expected to read another {0,number} bytes,"
+                    monitor.sendUserMessage(Severity.WARNING, MessageFormat.format(
+                                    "(Possibly) Invalid HPROF file: Expected to read another {0,number} bytes,"
                                                     + " but only {1,number} bytes are available.", length, fileSize
-                                                    - curPos - 9));
+                                                    - curPos - 9), null);
 
                 switch (record)
                 {
