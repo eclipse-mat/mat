@@ -10,10 +10,7 @@
  *******************************************************************************/
 package org.eclipse.mat.ui.editor;
 
-import org.eclipse.jface.action.IToolBarManager;
-import org.eclipse.jface.action.Separator;
 import org.eclipse.swt.dnd.Clipboard;
-import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.part.EditorActionBarContributor;
 
@@ -61,18 +58,6 @@ public class MultiPaneEditorContributor extends EditorActionBarContributor
         if (part == null)
             return;
         activeEditorPart = part;
-
-        IActionBars actionBars = getActionBars();
-        if (actionBars != null)
-        {
-            contributeToToolBar(actionBars.getToolBarManager());
-            actionBars.updateActionBars();
-        }
-    }
-
-    public void contributeToToolBar(IToolBarManager toolBarManager)
-    {
-        toolBarManager.add(new Separator(org.eclipse.ui.console.IConsoleConstants.OUTPUT_GROUP));
     }
 
     public IEditorPart getActivePage()
