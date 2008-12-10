@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Chris Grindstaff
  *******************************************************************************/
 package org.eclipse.mat.inspections.eclipse;
 
@@ -29,7 +30,7 @@ public class EclipseNameResolver
 
     }
 
-	@Subject("org.eclipse.osgi.internal.baseadaptor.DefaultClassLoader")
+    @Subject("org.eclipse.osgi.internal.baseadaptor.DefaultClassLoader")
     public static class EclipseDefaultClassLoaderResolver implements IClassSpecificNameResolver
     {
 
@@ -40,9 +41,9 @@ public class EclipseNameResolver
         }
 
     }
-	
-	@Subject("org.eclipse.equinox.launcher.Main$StartupClassLoader")
-	public static class StartupClassLoaderResolver implements IClassSpecificNameResolver
+
+    @Subject("org.eclipse.equinox.launcher.Main$StartupClassLoader")
+    public static class StartupClassLoaderResolver implements IClassSpecificNameResolver
     {
 
         public String resolve(IObject obj) throws SnapshotException
@@ -50,5 +51,21 @@ public class EclipseNameResolver
             return "Equinox Startup Class Loader";
         }
 
+    }
+
+    @Subject("org.eclipse.swt.graphics.RGB")
+    public static class RGBResolver implements IClassSpecificNameResolver
+    {
+        public String resolve(IObject obj) throws SnapshotException
+        {
+            Integer red = (Integer) obj.resolveValue("red");
+            Integer blue = (Integer) obj.resolveValue("blue");
+            Integer green = (Integer) obj.resolveValue("green");
+
+            if (red == null || blue == null || green == null)
+                return null;
+
+            return String.format("(%03d,%03d,%03d)", red, blue, green);
+        }
     }
 }

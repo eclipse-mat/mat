@@ -89,6 +89,8 @@
 		<resolver impl="org.eclipse.mat.inspections.eclipse.EclipseNameResolver$EclipseClassLoaderResolver" />
 		<resolver impl="org.eclipse.mat.inspections.eclipse.EclipseNameResolver$EclipseDefaultClassLoaderResolver" />
 		<resolver impl="org.eclipse.mat.inspections.eclipse.EclipseNameResolver$StartupClassLoaderResolver" />
+		<resolver impl="org.eclipse.mat.inspections.eclipse.EclipseNameResolver$RGBResolver" />
+		
 		<!-- jetty -->
 		<resolver impl="org.eclipse.mat.inspections.jetty.JettyNameResolvers$WebAppClassLoaderResolver"/>
 		<resolver impl="org.eclipse.mat.inspections.jetty.JettyNameResolvers$JasperLoaderResolver"/>
