@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="org.eclipse.mat.chart.feature"
-      label="Memory Analyzer (Charts) (Incubation)"
+      label="Memory Analyzer (Charts) [optional] (Incubation)"
       version="0.7.0.qualifier"
       provider-name="Eclipse.org">
 
