@@ -86,5 +86,11 @@
                 <message_argument value="0.7.0.200808081658"/>
             </message_arguments>
         </filter>
+        <filter id="924844039">
+            <message_arguments>
+                <message_argument value="0.7.100.qualifier"/>
+                <message_argument value="0.7.0.200808081658"/>
+            </message_arguments>
+        </filter>
     </resource>
 </component>
