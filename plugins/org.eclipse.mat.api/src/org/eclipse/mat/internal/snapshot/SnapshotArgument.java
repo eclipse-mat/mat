@@ -10,7 +10,16 @@
  *******************************************************************************/
 package org.eclipse.mat.internal.snapshot;
 
-public class SnapshotArgument
+import java.io.File;
+
+import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.query.registry.ArgumentDescriptor;
+import org.eclipse.mat.query.registry.ArgumentFactory;
+import org.eclipse.mat.snapshot.ISnapshot;
+import org.eclipse.mat.snapshot.SnapshotFactory;
+import org.eclipse.mat.util.VoidProgressListener;
+
+public class SnapshotArgument implements ArgumentFactory
 {
     String filename;
 
@@ -23,4 +32,18 @@ public class SnapshotArgument
     {
         return filename;
     }
+
+    public void appendUsage(StringBuilder buf)
+    {
+        buf.append(filename);
+    }
+
+    public Object build(ArgumentDescriptor descriptor) throws SnapshotException
+    {
+        if (!ISnapshot.class.isAssignableFrom(descriptor.getType()))
+            throw new SnapshotException();
+
+        return SnapshotFactory.openSnapshot(new File(filename), new VoidProgressListener());
+    }
+
 }

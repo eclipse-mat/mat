@@ -19,12 +19,10 @@ import org.eclipse.mat.query.ContextDerivedData;
 import org.eclipse.mat.query.annotations.Argument.Advice;
 import org.eclipse.mat.query.registry.QueryContextImpl;
 import org.eclipse.mat.snapshot.ISnapshot;
-import org.eclipse.mat.snapshot.SnapshotFactory;
 import org.eclipse.mat.snapshot.SnapshotInfo;
 import org.eclipse.mat.snapshot.model.IObject;
-import org.eclipse.mat.snapshot.query.RetainedSizeDerivedData;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
-import org.eclipse.mat.util.VoidProgressListener;
+import org.eclipse.mat.snapshot.query.RetainedSizeDerivedData;
 
 public class SnapshotQueryContext extends QueryContextImpl
 {
@@ -142,7 +140,7 @@ public class SnapshotQueryContext extends QueryContextImpl
     {
         if (type.isAssignableFrom(ISnapshot.class) && advice == Advice.SECONDARY_SNAPSHOT)
         {
-            return ((ISnapshot) value).getSnapshotInfo().getPath();
+            return ((SnapshotArgument) value).getFilename();
         }
         else if (type.isAssignableFrom(int.class) && advice == Advice.HEAP_OBJECT)
         {
@@ -167,7 +165,7 @@ public class SnapshotQueryContext extends QueryContextImpl
     {
         if (type.isAssignableFrom(ISnapshot.class) && advice == Advice.SECONDARY_SNAPSHOT)
         {
-            return SnapshotFactory.openSnapshot(new File(value), new VoidProgressListener());
+            return new SnapshotArgument(value); 
         }
         else if (type.isAssignableFrom(int.class) && advice == Advice.HEAP_OBJECT)
         {
