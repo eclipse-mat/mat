@@ -91,6 +91,21 @@ public class ArgumentSet
 
                         parameter.getField().set(impl, array);
                     }
+                    else if (parameter.isList())
+                    {
+                        // handle ArgumentFactory inside list
+                        List<?> source = (List<?>) value;
+                        List<Object> target = new ArrayList<Object>(source.size());
+                        for (int ii = 0; ii < source.size(); ii++)
+                        {
+                            Object v = source.get(ii);
+                            if (v instanceof ArgumentFactory)
+                                v = ((ArgumentFactory) v).build(parameter);
+                            target.add(v);
+                        }
+
+                        parameter.getField().set(impl, target);
+                    }
                     else
                     {
                         parameter.getField().set(impl, value);

@@ -15,7 +15,6 @@ import java.util.List;
 
 import org.eclipse.mat.query.annotations.Argument;
 
-
 public class ArgumentDescriptor
 {
     private boolean isMandatory;
@@ -184,6 +183,8 @@ public class ArgumentDescriptor
     {
         if (value instanceof ArgumentFactory)
         {
+            if (flag != null)
+                buf.append("-").append(flag).append(" ");
             ((ArgumentFactory) value).appendUsage(buf);
             return;
         }
@@ -211,7 +212,21 @@ public class ArgumentDescriptor
             {
                 List<?> values = (List<?>) value;
                 for (Object v : values)
-                    buf.append(v == null ? "\"\"" : Converters.convertAndEscape(type, v)).append(" ");
+                {
+                    if (v == null)
+                    {
+                        buf.append("\"\"");
+                    }
+                    else if (v instanceof ArgumentFactory)
+                    {
+                        ((ArgumentFactory) v).appendUsage(buf);
+                        buf.append(" ");
+                    }
+                    else
+                    {
+                        buf.append(Converters.convertAndEscape(type, v)).append(" ");
+                    }
+                }
             }
             else
             {
