@@ -59,13 +59,13 @@ public class EclipseNameResolver
         public String resolve(IObject obj) throws SnapshotException
         {
             Integer red = (Integer) obj.resolveValue("red");
-            Integer blue = (Integer) obj.resolveValue("blue");
             Integer green = (Integer) obj.resolveValue("green");
+            Integer blue = (Integer) obj.resolveValue("blue");
 
-            if (red == null || blue == null || green == null)
+            if (red == null || green == null || blue == null)
                 return null;
 
-            return String.format("(%03d,%03d,%03d)", red, blue, green);
+            return String.format("(%03d,%03d,%03d)", red, green, blue);
         }
     }
 }
