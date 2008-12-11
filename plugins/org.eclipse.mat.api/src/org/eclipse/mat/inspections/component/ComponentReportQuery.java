@@ -745,7 +745,9 @@ public class ComponentReportQuery implements IQuery
         if (classes == null)
         {
             addEmptyResult(componentReport, "Finalizer Statistics",
-                            "Heap dumps contains no java.lang.ref.Finalizer objects.");
+                            "Heap dump contains no java.lang.ref.Finalizer objects.<br/>"
+                                            + "IBM VMs implement Finalizer differently and "
+                                            + "are currently not supported by this report.");
             return;
         }
 
