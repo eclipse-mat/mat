@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Chris Grindstaff
  *******************************************************************************/
 package org.eclipse.mat.ui.snapshot.views.inspector;
 
@@ -63,13 +64,20 @@ import org.eclipse.mat.ui.util.QueryContextMenu;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.MenuAdapter;
 import org.eclipse.swt.events.MenuEvent;
+import org.eclipse.swt.events.PaintEvent;
+import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.swt.graphics.PaletteData;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
@@ -92,6 +100,7 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
     /* package */ISnapshot snapshot;
 
     private Composite top;
+    private Composite visualViewer;
     private TableViewer topTableViewer;
     private CTabFolder tabFolder;
     private TableViewer attributesTable;
@@ -337,27 +346,59 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
     @Override
     public void createPartControl(final Composite parent)
     {
-        top = new Composite(parent, SWT.TOP);
+        SashForm form = new SashForm(parent, SWT.VERTICAL);
+        GridLayoutFactory.fillDefaults().numColumns(1).margins(0, 0).spacing(1, 1).applyTo(form);
+
+        top = new Composite(form, SWT.TOP);
         GridLayoutFactory.fillDefaults().numColumns(1).margins(0, 0).spacing(1, 1).applyTo(top);
 
         IToolBarManager mgr = getViewSite().getActionBars().getToolBarManager();
         mgr.add(createSyncAction());
-        
+
         FontData[] data = JFaceResources.getDefaultFont().getFontData();
         for (FontData fontData : data)
         {
             fontData.setStyle(SWT.BOLD);
-        }       
+        }
         this.font = new Font(top.getDisplay(), data);
 
         createTopTable(top);
         createTabFolder(top);
+        createVisualViewer(form);
+        form.setWeights(new int[] { 95, 5 });
 
         // add page listener
         getSite().getPage().addPartListener(this);
 
         hookContextMenu();
         showBootstrapPart();
+    }
+
+    private void createVisualViewer(Composite parent)
+    {
+        visualViewer = new Composite(parent, SWT.TOP);
+        visualViewer.addPaintListener(new PaintListener()
+        {
+            public void paintControl(PaintEvent paintEvent)
+            {
+                Object toShow = visualViewer.getData("toShow");
+                if (toShow == null)
+                    return;
+
+                if (toShow instanceof Image)
+                {
+                    paintEvent.gc.drawImage((Image) toShow, 0, 0);
+                }
+                else if (toShow instanceof RGB)
+                {
+                    Color color = new Color(paintEvent.display, (RGB) toShow);
+                    paintEvent.gc.setBackground(color);
+                    paintEvent.gc.fillRectangle(0, 0, visualViewer.getSize().x, visualViewer.getSize().y);
+                    color.dispose();
+                }
+            }
+        });
+        visualViewer.setVisible(false);
     }
 
     private Action createSyncAction()
@@ -431,7 +472,7 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
 
         ToolBar toolBar = new ToolBar(tabFolder, SWT.HORIZONTAL | SWT.FLAT);
         tabFolder.setTopRight(toolBar);
-        // set the height of the tab to display the toolbar correctly
+        // set the height of the tab to display the tool bar correctly
         tabFolder.setTabHeight(Math.max(toolBar.computeSize(SWT.DEFAULT, SWT.DEFAULT).y, tabFolder.getTabHeight()));
         final ToolItem pinItem = new ToolItem(toolBar, SWT.CHECK);
         pinItem.setImage(MemoryAnalyserPlugin.getImage(MemoryAnalyserPlugin.ISharedImages.PINNED));
@@ -497,13 +538,11 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
 
         getViewSite().getActionBars().setGlobalActionHandler(ActionFactory.COPY.getId(), new Action()
         {
-
             @Override
             public void run()
             {
                 Copy.copyToClipboard(viewer.getControl());
             }
-
         });
 
         TableColumn tableColumn = new TableColumn(table, SWT.LEFT);
@@ -615,7 +654,7 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
     }
 
     // //////////////////////////////////////////////////////////////
-    // view lifecycle
+    // view life-cycle
     // //////////////////////////////////////////////////////////////
 
     @Override
@@ -769,6 +808,9 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
                         // prepare attributes
                         final LazyFields<?> attributeFields = prepareAttributes(object);
 
+                        // update visual viewer
+                        final Object toShow = prepareVisualInfo(object);
+
                         PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()
                         {
                             public void run()
@@ -777,6 +819,8 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
                                 topTableViewer.setData("input", objectId);
                                 staticsTable.setInput(staticFields);
                                 attributesTable.setInput(attributeFields);
+                                updateVisualViewer(toShow);
+
                                 IClass input = object instanceof IClass ? (IClass) object : object.getClazz();
 
                                 try
@@ -805,6 +849,29 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
                                 }
 
                             }
+
+                            private void updateVisualViewer(Object toShow)
+                            {
+                                Object previous = visualViewer.getData("toShow");
+                                if (previous instanceof Image)
+                                    ((Image) previous).dispose();
+
+                                if (toShow != null)
+                                {
+                                    if (toShow instanceof ImageData)
+                                    {
+                                        Image image = new Image(visualViewer.getDisplay(), (ImageData) toShow);
+                                        visualViewer.setData("toShow", image);
+                                    }
+                                    else if (toShow instanceof RGB)
+                                    {
+                                        visualViewer.setData("toShow", toShow);
+                                    }
+                                    visualViewer.redraw();
+                                }
+                                visualViewer.setVisible(toShow != null);
+                                visualViewer.getParent().layout();
+                            }
                         });
 
                         return Status.OK_STATUS;
@@ -813,6 +880,60 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
                     {
                         return new Status(IStatus.ERROR, MemoryAnalyserPlugin.PLUGIN_ID, "Error updating Inspector", e);
                     }
+                }
+
+                private Object prepareVisualInfo(IObject object) throws SnapshotException
+                {
+                    String kind = object.getClazz().getName();
+
+                    if ("org.eclipse.swt.graphics.RGB".equals(kind))
+                    {
+                        Integer red = (Integer) object.resolveValue("red");
+                        Integer green = (Integer) object.resolveValue("green");
+                        Integer blue = (Integer) object.resolveValue("blue");
+
+                        if (red == null || green == null || blue == null)
+                            return null;
+
+                        return new RGB(red, green, blue);
+                    }
+                    else if ("org.eclipse.swt.graphics.ImageData".equals(kind))
+                    {
+                        IPrimitiveArray data = (IPrimitiveArray) object.resolveValue("data");
+                        Integer width = (Integer) object.resolveValue("width");
+                        Integer height = (Integer) object.resolveValue("height");
+                        Integer depth = (Integer) object.resolveValue("depth");
+                        Integer scanlinePad = (Integer) object.resolveValue("scanlinePad");
+                        Integer transparentPixel = (Integer) object.resolveValue("transparentPixel");
+
+                        if (data == null || width == null || height == null || depth == null || scanlinePad == null
+                                        || transparentPixel == null)
+                            return null;
+
+                        PaletteData paletteData = makePaletteData((IInstance) object.resolveValue("palette"));
+                        if (paletteData == null)
+                            return null;
+
+                        byte[] dataArray = (byte[]) data.getValueArray();
+                        byte[] dataCopy = new byte[dataArray.length];
+                        System.arraycopy(dataArray, 0, dataCopy, 0, dataArray.length);
+
+                        ImageData imageData = new ImageData(width, height, depth, paletteData, scanlinePad, dataCopy);
+                        imageData.transparentPixel = transparentPixel;
+
+                        IPrimitiveArray alphaBytes = (IPrimitiveArray) object.resolveValue("alphaData");
+                        if (alphaBytes != null)
+                        {
+                            byte[] alphaDataArray = (byte[]) alphaBytes.getValueArray();
+                            byte[] alphaDataCopy = new byte[alphaDataArray.length];
+                            System.arraycopy(alphaDataArray, 0, alphaDataCopy, 0, alphaDataArray.length);
+                            imageData.alphaData = alphaDataCopy;
+                        }
+
+                        return imageData;
+                    }
+
+                    return null;
                 }
 
                 private LazyFields<?> prepareAttributes(final IObject object)
@@ -902,6 +1023,51 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
                     return details;
                 }
 
+                private PaletteData makePaletteData(IInstance palette) throws SnapshotException
+                {
+                    Boolean isDirect = (Boolean) palette.resolveValue("isDirect");
+                    if (isDirect == null)
+                        return null;
+
+                    if (isDirect)
+                    {
+                        Integer redMask = (Integer) palette.resolveValue("redMask");
+                        Integer greenMask = (Integer) palette.resolveValue("greenMask");
+                        Integer blueMask = (Integer) palette.resolveValue("blueMask");
+
+                        if (redMask == null || greenMask == null || blueMask == null)
+                            return null;
+
+                        return new PaletteData(redMask, greenMask, blueMask);
+                    }
+                    else
+                    {
+                        IObjectArray array = (IObjectArray) palette.resolveValue("colors");
+                        if (array == null)
+                            return null;
+
+                        RGB[] rgbs = new RGB[array.getLength()];
+                        long[] refs = array.getReferenceArray();
+                        for (int ii = 0; ii < refs.length; ii++)
+                        {
+                            int id = snapshot.mapAddressToId(refs[ii]);
+                            IObject obj = snapshot.getObject(id);
+                            if (obj == null)
+                                return null;
+
+                            Integer red = (Integer) obj.resolveValue("red");
+                            Integer green = (Integer) obj.resolveValue("green");
+                            Integer blue = (Integer) obj.resolveValue("blue");
+
+                            if (red == null || green == null || blue == null)
+                                return null;
+
+                            rgbs[ii] = new RGB(red, green, blue);
+                        }
+
+                        return new PaletteData(rgbs);
+                    }
+                }
             };
             job.schedule();
         }
