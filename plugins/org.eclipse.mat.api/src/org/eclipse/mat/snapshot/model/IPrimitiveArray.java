@@ -66,12 +66,20 @@ public interface IPrimitiveArray extends IArray
      *     System.out.println(content.length);
      * }
      * </pre>
+     * 
+     * The return value must not be modified because it is cached by the heap
+     * dump adapter. This method does not return a copy of the array for
+     * performance reasons.
      */
     public Object getValueArray();
 
     /**
      * Get the primitive Java array, beginning at <code>offset</code> and
      * <code>length</code> number of elements.
+     * <p>
+     * The return value must not be modified because it is cached by the heap
+     * dump adapter. This method does not return a copy of the array for
+     * performance reasons.
      */
     public Object getValueArray(int offset, int length);
 }

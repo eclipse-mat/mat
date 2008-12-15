@@ -40,7 +40,7 @@ public class CommonNameResolver
                 return null;
             if (count == 0)
                 return "";
-            
+
             IPrimitiveArray charArray = (IPrimitiveArray) obj.resolveValue("value");
             if (charArray == null)
                 return null;
@@ -107,13 +107,16 @@ public class CommonNameResolver
             if (value == null)
                 return null;
 
-            byte dot = (byte) '.';
+            // must not modify the original byte array
+            StringBuilder r = new StringBuilder(value.length);
             for (int i = 0; i < value.length; i++)
             {
                 if (value[i] < 32 || value[i] > 127)
-                    value[i] = dot;
+                    r.append('.');
+                else
+                    r.append((char) value[i]);
             }
-            return new String(value);
+            return r.toString();
         }
     }
 
