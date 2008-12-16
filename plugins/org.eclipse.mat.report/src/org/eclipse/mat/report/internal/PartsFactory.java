@@ -71,7 +71,7 @@ public class PartsFactory
         answer.objects = template.objects;
         
         // overwrite all parameters explicitly given (but not to the spec)
-        answer.params = template.params;
+        answer.params = new Parameters.Deep(answer.params, template.params);
 
         answer.init(this);
 

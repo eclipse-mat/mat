@@ -15,6 +15,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @noimplement
+ */
 public abstract class Parameters
 {
     private static final String NONE = "<NONE>";
@@ -98,7 +101,7 @@ public abstract class Parameters
     // default implementations
     // //////////////////////////////////////////////////////////////
 
-    public static class Deep extends Parameters
+    public final static class Deep extends Parameters
     {
         private Parameters parent;
         private Map<String, String> base;
@@ -111,6 +114,11 @@ public abstract class Parameters
             this.base = new HashMap<String, String>(map);
 
             this.materialized = new HashMap<String, String>();
+        }
+        
+        public Deep(Parameters parent, Parameters map)
+        {
+            this(parent, ((Parameters.Deep) map).base);
         }
 
         public Deep(Map<String, String> map)
