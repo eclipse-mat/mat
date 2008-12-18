@@ -19,6 +19,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
@@ -60,6 +61,7 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IPathEditorInput;
+import org.eclipse.ui.IURIEditorInput;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -163,7 +165,7 @@ public class HistogramPane extends QueryResultPane
         if (histogram.isDefaultHistogram())
             viewer.showDerivedDataColumn(viewer.getQueryResult().getDefaultContextProvider(),
                             RetainedSizeDerivedData.APPROXIMATE);
-        
+
     }
 
     private Histogram unwrapHistogram(IResult subject)
@@ -356,11 +358,11 @@ public class HistogramPane extends QueryResultPane
                             RefinedResultViewer v = createViewer(queryResult);
 
                             activateViewer(v);
-                            
+
                             if (!isDeltaHistogram && histogram.isDefaultHistogram())
                                 v.showDerivedDataColumn(v.getQueryResult().getDefaultContextProvider(),
                                                 RetainedSizeDerivedData.APPROXIMATE);
-                            
+
                         }
 
                     });
@@ -499,13 +501,15 @@ public class HistogramPane extends QueryResultPane
                                 IFile file = ResourceUtil.getFile(input);
                                 if (file != null)
                                     resources.add(file.getLocation());
+                                else if (input instanceof IURIEditorInput)
+                                    resources.add(new Path(((IURIEditorInput) input).getURI().getRawPath()));
                                 else if (input instanceof IPathEditorInput)
                                     resources.add(((IPathEditorInput) input).getPath());
                             }
                         }
                         catch (PartInitException ignore)
                         {
-                            // $JL-EXC$
+                            // do not include into list of dumps
                         }
                     }
                 }
