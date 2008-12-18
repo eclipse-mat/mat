@@ -48,23 +48,8 @@ public final class ObjectListResult
         protected void fillInAttribute(LinkedNode node) throws SnapshotException
         {
             IObject heapObject = snapshot.getObject(node.objectId);
-
             long parentAddress = snapshot.mapIdToAddress(node.parent.objectId);
-
-            StringBuilder s = new StringBuilder(64);
-
-            List<NamedReference> refs = heapObject.getOutboundReferences();
-            for (NamedReference reference : refs)
-            {
-                if (reference.getObjectAddress() == parentAddress)
-                {
-                    if (s.length() > 0)
-                        s.append(", "); //$NON-NLS-1$
-                    s.append(reference.getName());
-                }
-            }
-
-            node.attribute = s.toString();
+            node.attribute = extractAttribute(heapObject, parentAddress);
         }
 
         public URL getIcon(Object row)
@@ -91,22 +76,8 @@ public final class ObjectListResult
         protected void fillInAttribute(LinkedNode node) throws SnapshotException
         {
             IObject heapObject = snapshot.getObject(node.parent.objectId);
-
             long parentAddress = snapshot.mapIdToAddress(node.objectId);
-
-            StringBuilder s = new StringBuilder(64);
-
-            List<NamedReference> refs = heapObject.getOutboundReferences();
-            for (NamedReference reference : refs)
-            {
-                if (reference.getObjectAddress() == parentAddress)
-                {
-                    if (s.length() > 0)
-                        s.append(", "); //$NON-NLS-1$
-                    s.append(reference.getName());
-                }
-            }
-            node.attribute = s.toString();
+            node.attribute = extractAttribute(heapObject, parentAddress);
         }
 
         public URL getIcon(Object row)
@@ -260,6 +231,24 @@ public final class ObjectListResult
             }
 
             return node.gcRoots == Node.NOT_A_GC_ROOT ? null : node.gcRoots;
+        }
+
+        protected String extractAttribute(IObject heapObject, long parentAddress)
+        {
+            StringBuilder s = new StringBuilder(64);
+        
+            List<NamedReference> refs = heapObject.getOutboundReferences();
+            for (NamedReference reference : refs)
+            {
+                if (reference.getObjectAddress() == parentAddress)
+                {
+                    if (s.length() > 0)
+                        s.append(", "); //$NON-NLS-1$
+                    s.append(reference.getName());
+                }
+            }
+        
+            return s.toString();
         }
     }
 

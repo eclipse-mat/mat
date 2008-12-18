@@ -28,6 +28,7 @@ import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.ContextDerivedData;
 import org.eclipse.mat.query.ContextProvider;
+import org.eclipse.mat.query.DetailResultProvider;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IContextObjectSet;
 import org.eclipse.mat.query.IDecorator;
@@ -53,9 +54,6 @@ public final class TQuantize
     // factory methods
     // //////////////////////////////////////////////////////////////
 
-    private static final String MSG_LABEL = "Group by {0}";
-    private static final String MSG_GROUPED = "Grouped ''{0}'' by {1}";
-
     /**
      * Well-known default aggregations.
      */
@@ -79,12 +77,12 @@ public final class TQuantize
 
         public String getLabel()
         {
-            return MessageFormat.format(MSG_LABEL, label);
+            return MessageFormat.format("Group by {0}", label);
         }
 
         public String getTitle(String command)
         {
-            return MessageFormat.format(MSG_GROUPED, command, label);
+            return MessageFormat.format("Grouped ''{0}'' by {1}", command, label);
         }
 
         public URL getIcon()
@@ -1248,13 +1246,9 @@ public final class TQuantize
         if (data == null)
             return null;
 
-        List<ContextProvider> providers = data.getContextProviders();
-        if (providers == null)
-            return null;
-
         ResultMetaData.Builder answer = new ResultMetaData.Builder();
 
-        for (final ContextProvider provider : providers)
+        for (final ContextProvider provider : data.getContextProviders())
         {
             answer.addContext(new ContextProvider(provider)
             {
@@ -1274,6 +1268,26 @@ public final class TQuantize
                     {
                         return provider.getContext(row);
                     }
+                }
+            });
+        }
+
+        for (final DetailResultProvider details : data.getDetailResultProviders())
+        {
+            answer.addDetailResult(new DetailResultProvider(details.getLabel())
+            {
+                @Override
+                public boolean hasResult(Object row)
+                {
+                    return (!(row instanceof GroupedRow)) && details.hasResult(row);
+                }
+
+                @Override
+                public IResult getResult(Object row, IProgressListener listener) throws SnapshotException
+                {
+                    if (row instanceof GroupedRow)
+                        return null;
+                    return details.getResult(row, listener);
                 }
             });
         }

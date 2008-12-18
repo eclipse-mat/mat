@@ -43,14 +43,12 @@ import org.eclipse.mat.util.IProgressListener;
     private static final Column COL_INSTANCE = new Column("Instance");
     private static final Column COL_SHALLOW = new Column("Shallow Heap", int.class);
     private static final Column COL_RETAINED = new Column("Retained Heap", long.class);
-    private static final Column COL_STATUS = new Column("Status", Integer.class);
     private static final Column COL_CONTEXTCL = new Column("Context Class Loader");
 
     private static final List<Column> defaultColumns = Arrays.asList(new Column[] { COL_NAME, //
                     COL_INSTANCE, //
                     COL_SHALLOW, //
                     COL_RETAINED, //
-                    COL_STATUS, //
                     COL_CONTEXTCL });
 
     // //////////////////////////////////////////////////////////////
@@ -110,9 +108,6 @@ import org.eclipse.mat.util.IProgressListener;
         info.shallowHeap = info.subject.getUsedHeapSize();
         info.retainedHeap = info.subject.getRetainedHeapSize();
 
-        Integer status = (Integer) info.subject.resolveValue("threadStatus");
-        info.status = status != null ? status : 0;
-
         IObject contextClassLoader = (IObject) info.subject.resolveValue("contextClassLoader");
         if (contextClassLoader != null)
         {
@@ -161,7 +156,6 @@ import org.eclipse.mat.util.IProgressListener;
     private String instance;
     private int shallowHeap;
     private long retainedHeap;
-    private Integer status;
     private String contextClassLoader;
     private int contextClassLoaderId;
 
@@ -202,11 +196,6 @@ import org.eclipse.mat.util.IProgressListener;
     public long getRetainedHeap()
     {
         return retainedHeap;
-    }
-
-    public Integer getStatus()
-    {
-        return status;
     }
 
     public String getContextClassLoader()
@@ -268,8 +257,6 @@ import org.eclipse.mat.util.IProgressListener;
             return getShallowHeap();
         else if (column == COL_RETAINED)
             return getRetainedHeap();
-        else if (column == COL_STATUS)
-            return getStatus();
         else if (column == COL_CONTEXTCL)
             return getContextClassLoader();
         else
