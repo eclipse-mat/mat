@@ -11,6 +11,8 @@
 package org.eclipse.mat.snapshot;
 
 import java.net.URL;
+import java.text.DecimalFormat;
+import java.text.Format;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -40,9 +42,10 @@ import org.eclipse.mat.util.SimpleStringTokenizer;
  */
 public class Histogram extends HistogramRecord implements IResultTable, IIconProvider
 {
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = 3L;
 
-    /* package */boolean isDefaultHistogram;
+    private boolean isDefaultHistogram = false;
+    private boolean showPlusMinus = false;
     private ArrayList<ClassHistogramRecord> classHistogramRecords;
     private ArrayList<ClassLoaderHistogramRecord> classLoaderHistogramRecords;
 
@@ -186,12 +189,14 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
             classLoaderDiffRecordsMerged.add(new ClassLoaderHistogramRecord(classDifferences.getKey(),
                             --classLoaderIdCurrent, records, numberOfObjects, usedHeapSize, 0));
         }
-        return new Histogram("Histogram difference between " + getLabel() + " and " + baseline.getLabel(),
-                        new ArrayList<ClassHistogramRecord>(classDiffRecordsMerged.values()),
+        Histogram histogram = new Histogram("Histogram difference between " + getLabel() + " and "
+                        + baseline.getLabel(), new ArrayList<ClassHistogramRecord>(classDiffRecordsMerged.values()),
                         classLoaderDiffRecordsMerged, //
                         Math.abs(this.getNumberOfObjects() - baseline.getNumberOfObjects()), //
                         Math.abs(this.getUsedHeapSize() - baseline.getUsedHeapSize()), //
                         Math.abs(this.getRetainedHeapSize() - baseline.getRetainedHeapSize()));
+        histogram.showPlusMinus = true;
+        return histogram;
     }
 
     /**
@@ -301,9 +306,11 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
                                 --classLoaderIdCurrent, records, numberOfObjects, usedHeapSize, 0));
             }
         }
-        return new Histogram("Histogram intersection of " + getLabel() + " and " + another.getLabel(),
+        Histogram histogram = new Histogram("Histogram intersection of " + getLabel() + " and " + another.getLabel(),
                         new ArrayList<ClassHistogramRecord>(classDiffRecordsMerged.values()),
                         classLoaderDiffRecordsMerged, numberOfObjectsOverall, usedHeapSizeOverall, 0);
+        histogram.showPlusMinus = true;
+        return histogram;
     }
 
     public boolean isDefaultHistogram()
@@ -641,11 +648,21 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
 
     public Column[] getColumns()
     {
-        return new Column[] { new Column("Class Name", String.class).comparing(HistogramRecord.COMPARATOR_FOR_LABEL), //
+        Column[] columns = new Column[] {
+                        new Column("Class Name", String.class).comparing(HistogramRecord.COMPARATOR_FOR_LABEL), //
                         new Column("Objects", long.class).comparing(HistogramRecord.COMPARATOR_FOR_NUMBEROFOBJECTS), //
                         new Column("Shallow Heap", long.class) //
                                         .sorting(Column.SortDirection.DESC) //
                                         .comparing(HistogramRecord.COMPARATOR_FOR_USEDHEAPSIZE) };
+
+        if (showPlusMinus)
+        {
+            Format formatter = new DecimalFormat("+#,##0;-#,##0");
+            columns[1].formatting(formatter);
+            columns[2].formatting(formatter);
+        }
+
+        return columns;
     }
 
     public int getRowCount()
@@ -1023,7 +1040,7 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
 
                     public String getOQL()
                     {
-                        if (histogram.isDefaultHistogram)
+                        if (histogram.isDefaultHistogram())
                             return OQL.forObjectsOfClass(record.getClassId());
                         else
                             return null;
