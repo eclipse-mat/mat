@@ -73,4 +73,12 @@
 		<command>immediate_dominators java.util.HashMap$Entry</command>
 		<param key="limit" value="1000" />
 	</query>		
+	<query name="Thread Overview">
+		<param key="filename" value="Thread_Overview.csv"/>
+		<param key="format" value="csv" />
+		<param key="html.separate_file" value="true" />
+		<command>thread_overview</command>
+		<param key="sort_column" value="Name,Instance"/>
+		<param key="limit" value="1000" />
+	</query>		
 </section>
