@@ -41,7 +41,6 @@ import org.eclipse.mat.query.IResultPie;
 import org.eclipse.mat.query.IResultPie.Slice;
 import org.eclipse.mat.util.Units;
 
-
 public class ChartBuilder
 {
 
@@ -79,7 +78,7 @@ public class ChartBuilder
 
         // title
         chart.getTitle().setVisible(false);
-        
+
         // total label
         long t = new Double(total).longValue();
         LabelBlock label = (LabelBlock) LabelBlockImpl.create();
@@ -88,7 +87,7 @@ public class ChartBuilder
         label.getLabel().getCaption().getFont().setSize(fontSize);
         label.getLabel().getCaption().getFont().setBold(true);
         label.setAnchor(Anchor.SOUTH_LITERAL);
-        chart.getBlock().add(label);
+        chart.getPlot().add(label);
 
         // legend
         if (isInteractive)
@@ -103,7 +102,9 @@ public class ChartBuilder
         }
 
         Plot p = chart.getPlot();
+        p.setBackground(ColorDefinitionImpl.WHITE());
         p.getClientArea().setBackground(ColorDefinitionImpl.WHITE());
+        chart.getBlock().setBackground(ColorDefinitionImpl.WHITE());
 
         Series seLabels = SeriesImpl.create();
         seLabels.setDataSet(TextDataSetImpl.create(labels));
