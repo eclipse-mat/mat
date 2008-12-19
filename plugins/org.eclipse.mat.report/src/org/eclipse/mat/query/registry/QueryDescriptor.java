@@ -133,6 +133,26 @@ public class QueryDescriptor
         return helpUrl;
     }
 
+    /**
+     * Indicates whether help is available for the query.
+     * 
+     * @return true if either the query or at least one of the arguments are
+     *         annotated with @Help
+     */
+    public boolean isHelpAvailable()
+    {
+        if (help != null)
+            return true;
+
+        for (ArgumentDescriptor arg : arguments)
+        {
+            if (arg.getHelp() != null)
+                return true;
+        }
+
+        return false;
+    }
+
     public String getShortDescription()
     {
         final int numChars = 80;
