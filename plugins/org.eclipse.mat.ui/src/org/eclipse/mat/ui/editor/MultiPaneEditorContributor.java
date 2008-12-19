@@ -10,14 +10,12 @@
  *******************************************************************************/
 package org.eclipse.mat.ui.editor;
 
-import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.part.EditorActionBarContributor;
 
 public class MultiPaneEditorContributor extends EditorActionBarContributor
 {
-    private Clipboard clipboard;
-    protected AbstractEditorPane activeEditorPart;
+    private AbstractEditorPane activeEditorPart;
 
     public MultiPaneEditorContributor()
     {
@@ -28,13 +26,6 @@ public class MultiPaneEditorContributor extends EditorActionBarContributor
     public void dispose()
     {
         super.dispose();
-
-        if (clipboard != null)
-        {
-            clipboard.clearContents();
-            clipboard.dispose();
-        }
-
         activeEditorPart = null;
     }
 
