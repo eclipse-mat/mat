@@ -120,6 +120,13 @@ public class OpenSampleHeapDumpAction extends Action implements ICheatSheetActio
                     ErrorHelper.logThrowableAndShowMessage(exp);
                 }
             }
+            if (PlatformUI.getWorkbench().getIntroManager().getIntro() != null)
+            {
+                // if this action was called with open welcome page - set it to
+                // standby mode.
+                PlatformUI.getWorkbench().getIntroManager().setIntroStandby(
+                                PlatformUI.getWorkbench().getIntroManager().getIntro(), true);
+            }
         }
     }
 
