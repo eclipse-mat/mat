@@ -23,6 +23,7 @@
 <topic label="Analyzing Java Collection Usage" href="tasks/analyzingjavacollectionusage.html"/>
 <topic label="Analyzing Finalizer" href="tasks/analyzingfinalizer.html"/>
 <topic label="Export Data" href="tasks/exportdata.html"/>
+<topic label="Memory Analyzer Configuration" href="tasks/configure_mat.html"/>
 </topic>
 <topic label="Reference">
 <topic label="Inspections">
@@ -46,4 +47,5 @@
 <topic label="Icons Assist" href="reference/iconassist.html"/>
 <topic label="Tips and Tricks" href="reference/tipsandtricks.html"/>
 </topic>
+<topic label="New &amp; Noteworthy" href="noteworthy.html"/>
 </toc>
