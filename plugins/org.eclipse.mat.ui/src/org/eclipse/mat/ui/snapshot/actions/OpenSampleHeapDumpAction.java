@@ -10,14 +10,16 @@
  *******************************************************************************/
 package org.eclipse.mat.ui.snapshot.actions;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URL;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.MessageFormat;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
@@ -26,6 +28,7 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.snapshot.ISnapshot;
+import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.QueryExecution;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
 import org.eclipse.mat.ui.editor.PathEditorInput;
@@ -56,7 +59,7 @@ public class OpenSampleHeapDumpAction extends Action implements ICheatSheetActio
     {
         try
         {
-            String absolutePath = getSnapshotPath(params[0]);
+            String absolutePath = getPathOfExtractedHeapDump(params[0]);
 
             String query = params[1];
             if (query != null && query.equals("oql"))
@@ -69,25 +72,6 @@ public class OpenSampleHeapDumpAction extends Action implements ICheatSheetActio
         {
             ErrorHelper.logThrowableAndShowMessage(e);
         }
-        catch (IOException e)
-        {
-            ErrorHelper.logThrowableAndShowMessage(e);
-        }
-
-    }
-
-    private String getSnapshotPath(String snapshotPath) throws IOException
-    {
-        int p = snapshotPath.indexOf('/');
-        String pluginId = snapshotPath.substring(0, p);
-        String path = snapshotPath.substring(p + 1);
-
-        Bundle bundle = Platform.getBundle(pluginId);
-        URL url = FileLocator.find(bundle, new Path(path), null);
-        // convert to absolute path here. Otherwise eclipse will interpret
-        // it as relative to projects
-        String absolutePath = (new File(FileLocator.resolve(url).getFile())).getAbsolutePath();
-        return absolutePath;
     }
 
     public static final void openEditor(final String snapshotPath, final String editorId, final Object arguments)
@@ -122,7 +106,6 @@ public class OpenSampleHeapDumpAction extends Action implements ICheatSheetActio
                         finalEditorPart.addNewPage(editorId, arguments);
                         snapshotInput.removeChangeListener(this);
                     }
-
                 });
             }
             else
@@ -137,9 +120,7 @@ public class OpenSampleHeapDumpAction extends Action implements ICheatSheetActio
                     ErrorHelper.logThrowableAndShowMessage(exp);
                 }
             }
-
         }
-
     }
 
     @Override
@@ -168,19 +149,75 @@ public class OpenSampleHeapDumpAction extends Action implements ICheatSheetActio
 
                 try
                 {
-                    String absolutePath = getSnapshotPath(heapDumpLocation);
-                    doOpenEditor(window, absolutePath);
-                }
-                catch (IOException e)
-                {
-                    ErrorHelper.logThrowableAndShowMessage(e);
+                    String extractedPath = getPathOfExtractedHeapDump(heapDumpLocation);
+                    doOpenEditor(window, extractedPath);
                 }
                 catch (PartInitException e)
                 {
                     ErrorHelper.logThrowableAndShowMessage(e);
                 }
             }
+
         });
+    }
+
+    private String getPathOfExtractedHeapDump(String snapshotPath)
+    {
+        int p = snapshotPath.indexOf('/');
+        String pluginId = snapshotPath.substring(0, p);
+        String path = snapshotPath.substring(p + 1);
+
+        int lastIndexOf = snapshotPath.lastIndexOf('/');
+        String localPath = snapshotPath.substring(0, lastIndexOf);
+        String fileName = snapshotPath.substring(lastIndexOf + 1);
+
+        IPath pluginPath = MemoryAnalyserPlugin.getDefault().getStateLocation();
+        File targetDir = pluginPath.append(localPath).toFile();
+        File extractedFile = new File(targetDir, fileName);
+        if (extractedFile.exists())
+            return extractedFile.getAbsolutePath();
+
+        targetDir.mkdirs();
+
+        InputStream in = null;
+        OutputStream out = null;
+        try
+        {
+            Bundle bundle = Platform.getBundle(pluginId);
+            in = bundle.getResource(path).openStream();
+            out = new BufferedOutputStream(new FileOutputStream(extractedFile));
+            byte[] buffer = new byte[2048];
+            for (;;)
+            {
+                int nBytes = in.read(buffer);
+                if (nBytes <= 0)
+                    break;
+                out.write(buffer, 0, nBytes);
+            }
+            out.flush();
+            out.close();
+            in.close();
+        }
+        catch (IOException e)
+        {
+            ErrorHelper.logThrowableAndShowMessage(e);
+        }
+        finally
+        {
+            try
+            {
+                if (in != null)
+                    in.close();
+                if (out != null)
+                    out.close();
+            }
+            catch (IOException ex)
+            {
+                // $JL-EXC$
+            }
+        }
+
+        return extractedFile.getAbsolutePath();
     }
 
     public void setInitializationString(String data)
