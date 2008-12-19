@@ -499,7 +499,7 @@ public class QueryBrowserPopup extends PopupDialog
             Element selectedElement = ((QueryBrowserItem) table.getItem(table.getSelectionIndex()).getData()).element;
             QueryDescriptor query = selectedElement != null ? selectedElement.getQuery() : null;
 
-            if (query != null && query.getHelp() != null)
+            if (query != null && query.isHelpAvailable())
             {
                 if (helpText == null || helpText.getQuery() != query)
                 {

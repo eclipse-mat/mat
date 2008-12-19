@@ -28,7 +28,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 
-
 public class QueryContextHelp extends PopupDialog
 {
     QueryDescriptor query;
@@ -69,7 +68,8 @@ public class QueryContextHelp extends PopupDialog
         List<StyleRange> ranges = new ArrayList<StyleRange>();
 
         StringBuilder buf = new StringBuilder(128);
-        buf.append(query.getHelp());
+        if (query.getHelp() != null)
+            buf.append(query.getHelp());
 
         boolean first = true;
 

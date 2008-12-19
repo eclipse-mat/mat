@@ -72,7 +72,7 @@ public class ArgumentsWizard extends Wizard
 
     public void relocateHelp(boolean create)
     {
-        if (argumentSet.getQueryDescriptor().getHelp() != null && //
+        if (argumentSet.getQueryDescriptor().isHelpAvailable() && //
                         (create || (helpPopup != null && helpPopup.getShell() != null)))
         {
             getShell().getDisplay().timerExec(100, new Runnable()
