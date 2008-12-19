@@ -39,7 +39,7 @@ public class CSVOutputter implements IOutputter
 
     public void embedd(Context context, IResult result, Writer writer) throws IOException
     {
-        // add Column titles
+        // add column names to first row
         Column[] columns = (result instanceof RefinedTable) ? ((RefinedTable) result).getColumns()
                         : ((RefinedTree) result).getColumns();
         Filter.ValueConverter[] filter = new Filter.ValueConverter[columns.length];
@@ -51,29 +51,29 @@ public class CSVOutputter implements IOutputter
             if (context.isColumnVisible(columnIndex))
             {
                 if (columns[columnIndex].getLabel() != null)
-                    writer.append(columns[columnIndex].getLabel());
+                    escape(writer, columns[columnIndex].getLabel());
                 writer.append(SEPARATOR);
             }
 
         }
         writer.append("\n");
-        // add data rows
+
+        // add data records
         if (result instanceof RefinedTable)
         {
             RefinedTable table = ((RefinedTable) result);
             int limit = context.hasLimit() ? Math.min(table.getRowCount(), context.getLimit()) : table.getRowCount();
 
-            for (int i = 0; i < limit; i++)
+            for (int row = 0; row < limit; row++)
             {
-                for (int columnIndex = 0; columnIndex < columns.length; columnIndex++)
+                for (int column = 0; column < columns.length; column++)
                 {
-                    if (context.isColumnVisible(columnIndex))
+                    if (context.isColumnVisible(column))
                     {
-                        Object columnValue = table.getColumnValue(table.getRow(i), columnIndex);
+                        Object columnValue = table.getColumnValue(table.getRow(row), column);
                         if (columnValue != null)
-                        {
-                            writer.append(getStringValue(columnValue, filter[columnIndex]));
-                        }
+                            escape(writer, getStringValue(columnValue, filter[column]));
+
                         writer.append(SEPARATOR);
                     }
                 }
@@ -82,27 +82,66 @@ public class CSVOutputter implements IOutputter
         }
         else if (result instanceof RefinedTree)
         {
-            RefinedTree tree = (RefinedTree) result;
             // export only first level of the RefinedTree
+            RefinedTree tree = (RefinedTree) result;
             List<?> elements = tree.getElements();
             int limit = context.hasLimit() ? Math.min(elements.size(), context.getLimit()) : elements.size();
 
-            for (int i = 0; i < limit; i++)
+            for (int row = 0; row < limit; row++)
             {
-                for (int columnIndex = 0; columnIndex < columns.length; columnIndex++)
+                for (int column = 0; column < columns.length; column++)
                 {
-                    if (context.isColumnVisible(columnIndex))
+                    if (context.isColumnVisible(column))
                     {
-                        Object columnValue = tree.getColumnValue(elements.get(i), columnIndex);
+                        Object columnValue = tree.getColumnValue(elements.get(row), column);
                         if (columnValue != null)
-                        {
-                            writer.append(getStringValue(columnValue, filter[columnIndex]));
-                        }
+                            escape(writer, getStringValue(columnValue, filter[column]));
+
                         writer.append(SEPARATOR);
                     }
                 }
                 writer.append("\n");
             }
+        }
+    }
+
+    /**
+     * Escape data for use in csv files.
+     * http://en.wikipedia.org/wiki/Comma-separated_values
+     */
+    private static void escape(Writer writer, String data) throws IOException
+    {
+        if (data == null)
+            return;
+
+        boolean hasSeparator = data.indexOf(SEPARATOR) >= 0;
+        boolean hasQuote = data.indexOf('"') >= 0;
+
+        if (hasSeparator || hasQuote)
+        {
+            writer.append('"');
+
+            if (hasQuote)
+            {
+                int len = data.length();
+                for (int ii = 0; ii < len; ii++)
+                {
+                    char c = data.charAt(ii);
+                    if (c == '"')
+                        writer.append('"');
+                    writer.append(c);
+                }
+            }
+            else
+            {
+                writer.append(data);
+            }
+
+            writer.append('"');
+        }
+        else
+        {
+            writer.append(data);
         }
     }
 
