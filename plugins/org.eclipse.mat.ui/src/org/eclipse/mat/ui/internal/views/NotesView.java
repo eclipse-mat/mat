@@ -63,8 +63,6 @@ import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
-import org.eclipse.swt.events.KeyAdapter;
-import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.RGB;
@@ -137,21 +135,6 @@ public class NotesView extends ViewPart implements IPartListener, Observer
             public void selectionChanged(SelectionChangedEvent event)
             {
                 updateActions();
-            }
-        });
-
-        textViewer.getTextWidget().addKeyListener(new KeyAdapter()
-        {
-            public void keyPressed(KeyEvent event)
-            {
-                if (event.keyCode == 'z' && (event.stateMask & SWT.MOD1) != 0)
-                {
-                    undo.run();
-                }
-                if (event.keyCode == 'y' && (event.stateMask & SWT.MOD1) != 0)
-                {
-                    redo.run();
-                }
             }
         });
 
