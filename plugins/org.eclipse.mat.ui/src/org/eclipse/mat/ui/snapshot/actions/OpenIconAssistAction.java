@@ -34,6 +34,7 @@ import org.eclipse.mat.query.registry.CategoryDescriptor;
 import org.eclipse.mat.query.registry.QueryDescriptor;
 import org.eclipse.mat.query.registry.QueryRegistry;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.snapshot.ImageHelper;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlEvent;
@@ -118,32 +119,32 @@ public class OpenIconAssistAction extends Action implements IWorkbenchWindowActi
 
         public IconAssist()
         {
-            icons.add(new Icon(null, "Heap objects"));
+            icons.add(new Icon(null, Messages.OpenIconAssistAction_HeapObjects));
             icons.add(new Icon(MemoryAnalyserPlugin.getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.CLASS),
-                            "Instances grouped by class"));
-            icons.add(new Icon(ImageHelper.getImageDescriptor(ImageHelper.Type.CLASS_INSTANCE), "Class object"));
+                            Messages.OpenIconAssistAction_InstancesGroupedByClass));
+            icons.add(new Icon(ImageHelper.getImageDescriptor(ImageHelper.Type.CLASS_INSTANCE), Messages.OpenIconAssistAction_ClassObject));
             icons.add(new Icon(ImageHelper.getImageDescriptor(ImageHelper.Type.CLASSLOADER_INSTANCE),
-                            "ClassLoader object"));
-            icons.add(new Icon(ImageHelper.getImageDescriptor(ImageHelper.Type.ARRAY_INSTANCE), "Array object"));
-            icons.add(new Icon(ImageHelper.getImageDescriptor(ImageHelper.Type.OBJECT_INSTANCE), "Other object"));
-            icons.add(new Icon(ImageHelper.getImageDescriptor(ImageHelper.Type.PACKAGE), "Package"));
+                            Messages.OpenIconAssistAction_ClassLoaderObject));
+            icons.add(new Icon(ImageHelper.getImageDescriptor(ImageHelper.Type.ARRAY_INSTANCE), Messages.OpenIconAssistAction_ArrayObject));
+            icons.add(new Icon(ImageHelper.getImageDescriptor(ImageHelper.Type.OBJECT_INSTANCE), Messages.OpenIconAssistAction_OtherObject));
+            icons.add(new Icon(ImageHelper.getImageDescriptor(ImageHelper.Type.PACKAGE), Messages.OpenIconAssistAction_Package));
             
-            icons.add(new Icon(null, "Indicators added to heap objects"));
+            icons.add(new Icon(null, Messages.OpenIconAssistAction_IndicatorsAdded));
             icons.add(new Icon(ImageHelper.getInboundImageDescriptor(ImageHelper.Type.OBJECT_INSTANCE),
-                            "This heap object references the one above"));
+                            Messages.OpenIconAssistAction_ReferenceAbove));
             icons.add(new Icon(ImageHelper.getOutboundImageDescriptor(ImageHelper.Type.OBJECT_INSTANCE),
-                            "This heap object references the one below"));
+                            Messages.OpenIconAssistAction_ReferenceBelow));
 
             icons.add(new Icon(ImageHelper.decorate(ImageHelper.Type.OBJECT_INSTANCE, MemoryAnalyserPlugin
-                            .getImageDescriptor("icons/decorations/gc_root.gif")),
-                            "This heap object is a Garbage Collection Root"));
+                            .getImageDescriptor("icons/decorations/gc_root.gif")), //$NON-NLS-1$
+                            Messages.OpenIconAssistAction_ThisObjectIsGCRoot));
 
-            icons.add(new Icon(null, "Query Views"));
+            icons.add(new Icon(null, Messages.OpenIconAssistAction_QueryViews));
             icons.addAll(getQueryIcons());
 
-            icons.add(new Icon(null, "Others"));
+            icons.add(new Icon(null, Messages.OpenIconAssistAction_Others));
             icons.add(new Icon(MemoryAnalyserPlugin.getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.QUERY),
-                            "Execute Query"));
+                            Messages.OpenIconAssistAction_ExecuteQuery));
 
         }
 
@@ -193,7 +194,7 @@ public class OpenIconAssistAction extends Action implements IWorkbenchWindowActi
                         if (icon != null)
                         {
                             String categoryName = cat.getFullName();
-                            String label = categoryName != null ? categoryName + " / " + query.getName() : query
+                            String label = categoryName != null ? categoryName + " / " + query.getName() : query//$NON-NLS-1$
                                             .getName();
                             answer.add(new Icon(MemoryAnalyserPlugin.getDefault().getImageDescriptor(icon), label));
                         }
@@ -401,12 +402,12 @@ public class OpenIconAssistAction extends Action implements IWorkbenchWindowActi
             switch (columnIndex)
             {
                 case 0:
-                    return "";
+                    return "";//$NON-NLS-1$
 
                 case 1:
                     return icon.getDescription();
             }
-            return "";
+            return "";//$NON-NLS-1$
         }
 
         public void addListener(ILabelProviderListener listener)

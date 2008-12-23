@@ -20,6 +20,7 @@ import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.snapshot.inspections.Path2GCRootsQuery;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.editor.AbstractEditorPane;
 import org.eclipse.mat.ui.editor.AbstractPaneJob;
 import org.eclipse.mat.ui.internal.panes.QueryResultPane;
@@ -53,7 +54,7 @@ public class Path2GCRootsPane extends QueryResultPane
 
         // label Status:
         Label label = new Label(composite, SWT.NONE);
-        label.setText("Status:");
+        label.setText(Messages.Path2GCRootsPane_Status);
         GridDataFactory.fillDefaults().grab(false, false).indent(5, 3).applyTo(label);
 
         // label actual text
@@ -62,7 +63,7 @@ public class Path2GCRootsPane extends QueryResultPane
 
         // next button
         nextPathButton = new Button(composite, SWT.NONE);
-        nextPathButton.setText("Fetch Next Paths");
+        nextPathButton.setText(Messages.Path2GCRootsPane_FetchNextPaths);
         nextPathButton.addSelectionListener(new SelectionAdapter()
         {
             public void widgetSelected(SelectionEvent event)
@@ -92,7 +93,7 @@ public class Path2GCRootsPane extends QueryResultPane
     private void updateStatusLabel()
     {
         Path2GCRootsQuery.Tree tree = (Path2GCRootsQuery.Tree) viewer.getResult().unwrap();
-        String message = tree.morePathsAvailable() ? "Found {0} paths so far." : "Found {0} paths. No more paths left.";
+        String message = tree.morePathsAvailable() ? Messages.Path2GCRootsPane_FoundSoFar : Messages.Path2GCRootsPane_NoMorePaths;
         String formatted = MessageFormat.format(message, tree.getNumberOfPaths());
         statusLabel.setText(formatted);
     }
@@ -104,7 +105,7 @@ public class Path2GCRootsPane extends QueryResultPane
 
         public ReadNextPathJob(AbstractEditorPane pane, Path2GCRootsQuery.Tree root, int noToFetch)
         {
-            super("Reading Next Paths", pane);
+            super(Messages.Path2GCRootsPane_ReadingNext, pane);
             this.tree = root;
             this.noToFetch = noToFetch;
 
@@ -123,7 +124,7 @@ public class Path2GCRootsPane extends QueryResultPane
                 }
             });
 
-            monitor.beginTask("Fetching next paths...", noToFetch);
+            monitor.beginTask(Messages.Path2GCRootsPane_FetchingNext, noToFetch);
 
             try
             {

@@ -16,6 +16,7 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.registry.ArgumentSet;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.internal.query.arguments.LinkEditor.Mode;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
@@ -32,7 +33,7 @@ public class ArgumentsWizardPage extends WizardPage implements ArgumentsTable.IT
 
     public ArgumentsWizardPage(IQueryContext context, ArgumentSet argumentSet)
     {
-        super("Query Arguments", argumentSet.getQueryDescriptor().getName(), null);
+        super(Messages.ArgumentsWizardPage_QueryArguments, argumentSet.getQueryDescriptor().getName(), null);
 
         setDescription(argumentSet.getQueryDescriptor().getShortDescription());
         
@@ -64,7 +65,7 @@ public class ArgumentsWizardPage extends WizardPage implements ArgumentsTable.IT
         tableComposite.layout();
         tableComposite.pack();
 
-        PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, "org.eclipse.mat.ui.help.query_arguments");
+        PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, "org.eclipse.mat.ui.help.query_arguments"); //$NON-NLS-1$
         composite.setContent(tableComposite);
         setControl(composite);
     }

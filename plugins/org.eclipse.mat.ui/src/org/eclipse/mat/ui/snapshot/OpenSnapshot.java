@@ -26,6 +26,7 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.mat.snapshot.SnapshotFactory;
 import org.eclipse.mat.snapshot.SnapshotFormat;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.FileDialog;
@@ -34,8 +35,8 @@ import org.eclipse.ui.PlatformUI;
 
 public class OpenSnapshot
 {
-    private static final String LAST_DIRECTORY_KEY = OpenSnapshot.class.getName() + ".lastDir";
-    private static final Pattern TIMESTAMP_PATTERN = Pattern.compile("(.*\\.)([a-zA-Z]*)\\.([0-9]*)");
+    private static final String LAST_DIRECTORY_KEY = OpenSnapshot.class.getName() + ".lastDir"; //$NON-NLS-1$
+    private static final Pattern TIMESTAMP_PATTERN = Pattern.compile("(.*\\.)([a-zA-Z]*)\\.([0-9]*)");//$NON-NLS-1$
 
     public static abstract class Visitor
     {
@@ -47,7 +48,7 @@ public class OpenSnapshot
             String lastDirectory = prefs.getString(LAST_DIRECTORY_KEY);
 
             FileDialog dialog = new FileDialog(shell, SWT.OPEN | SWT.MULTI);
-            dialog.setText("Open Snapshot");
+            dialog.setText(Messages.OpenSnapshot_OpenSnapshot);
 
             applyFilter(dialog);
 
@@ -95,9 +96,9 @@ public class OpenSnapshot
 
                 if (numberOfFilesNotFound > 0)
                 {
-                    String msgFmt = numberOfFilesNotFound == 1 ? "File {0} not found" : "Files {0} not found";
+                    String msgFmt = numberOfFilesNotFound == 1 ? Messages.OpenSnapshot_FileNotFound : Messages.OpenSnapshot_FilesNotFound;
                     String msg = MessageFormat.format(msgFmt, notFound.toString());
-                    MessageDialog.openError(shell, "Internal Error", msg);
+                    MessageDialog.openError(shell, Messages.ErrorHelper_InternalError, msg);
                 }
             }
 
@@ -117,7 +118,7 @@ public class OpenSnapshot
 
             // first element: all heap dump formats
             filterExtensions[0] = null;
-            filterNames[0] = "All Known Formats";
+            filterNames[0] = Messages.OpenSnapshot_AllKnownFormats;
 
             for (int ii = 0; ii < types.size(); ii++)
             {
@@ -128,8 +129,8 @@ public class OpenSnapshot
                 for (int jj = 0; jj < fileExtensions.length; jj++)
                 {
                     if (jj > 0)
-                        e.append(";");
-                    e.append("*.").append(fileExtensions[jj]);
+                        e.append(";");//$NON-NLS-1$
+                    e.append("*.").append(fileExtensions[jj]);//$NON-NLS-1$
                 }
 
                 filterExtensions[ii + 1] = e.toString();
@@ -138,7 +139,7 @@ public class OpenSnapshot
                 if (filterExtensions[0] == null)
                     filterExtensions[0] = filterExtensions[ii + 1];
                 else
-                    filterExtensions[0] += ";" + filterExtensions[ii + 1];
+                    filterExtensions[0] += ";" + filterExtensions[ii + 1];//$NON-NLS-1$
             }
 
             dialog.setFilterExtensions(filterExtensions);
@@ -152,28 +153,28 @@ public class OpenSnapshot
 
     private static String askForRename(final String path, final String filename, final String extension)
     {
-        final Pattern validFileName = Pattern.compile(".*\\.((?i)" + extension + ")");
+        final Pattern validFileName = Pattern.compile(".*\\.((?i)" + extension + ")");//$NON-NLS-1$//$NON-NLS-2$
         IInputValidator inputValidator = new IInputValidator()
         {
 
             public String isValid(String newText)
             {
                 if (!validFileName.matcher(newText).matches()) { return MessageFormat.format(
-                                "The file must have the extension ''{0}''", extension); }
+                                Messages.OpenSnapshot_FileMustHaveExtension, extension); }
 
                 File f = new File(path, newText);
                 if (f.exists())
-                    return MessageFormat.format("The file ''{0}'' already exists", f.getAbsolutePath());
+                    return MessageFormat.format(Messages.OpenSnapshot_FileAlreadyExists, f.getAbsolutePath());
 
                 return null;
             }
 
         };
 
-        String msg = "Due to technical reasons, the heap dump must have the extension ''{0}''. Please choose a new name.";
+        String msg = Messages.OpenSnapshot_Warning;
         InputDialog inputDialog = new InputDialog(PlatformUI.getWorkbench().getDisplay().getActiveShell(),
-                        "Rename Heap Dump File", //
-                        MessageFormat.format(msg, extension), filename + "." + extension, //
+                        Messages.OpenSnapshot_RenameHeapDump, //
+                        MessageFormat.format(msg, extension), filename + "." + extension, //$NON-NLS-1$
                         inputValidator)
         {
 

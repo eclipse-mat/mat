@@ -119,7 +119,7 @@ public class NotesView extends ViewPart implements IPartListener, Observer
         textViewer.setDocument(new Document());
         textViewer.getControl().setEnabled(false);
         textViewer.getTextWidget().setWordWrap(false);
-        font = new Font(parent.getDisplay(), "Courier New", 8, SWT.NORMAL);
+        font = new Font(parent.getDisplay(), "Courier New", 8, SWT.NORMAL);//$NON-NLS-1$
         textViewer.getControl().setFont(font);
 
         hyperlinkColor = new Color(null, new RGB(0, 0, 255));
@@ -289,13 +289,13 @@ public class NotesView extends ViewPart implements IPartListener, Observer
     private void makeActions()
     {
         // Install the standard text actions.
-        addAction(ActionFactory.CUT, ITextOperationTarget.CUT, "org.eclipse.ui.edit.cut");
-        addAction(ActionFactory.COPY, ITextOperationTarget.COPY, "org.eclipse.ui.edit.copy");
-        addAction(ActionFactory.PASTE, ITextOperationTarget.PASTE, "org.eclipse.ui.edit.paste");
-        addAction(ActionFactory.DELETE, ITextOperationTarget.DELETE, "org.eclipse.ui.edit.delete");
-        addAction(ActionFactory.SELECT_ALL, ITextOperationTarget.SELECT_ALL, "org.eclipse.ui.edit.selectAll");
-        undo = addAction(ActionFactory.UNDO, ITextOperationTarget.UNDO, "org.eclipse.ui.edit.undo");
-        redo = addAction(ActionFactory.REDO, ITextOperationTarget.REDO, "org.eclipse.ui.edit.redo");
+        addAction(ActionFactory.CUT, ITextOperationTarget.CUT, "org.eclipse.ui.edit.cut");//$NON-NLS-1$
+        addAction(ActionFactory.COPY, ITextOperationTarget.COPY, "org.eclipse.ui.edit.copy");//$NON-NLS-1$
+        addAction(ActionFactory.PASTE, ITextOperationTarget.PASTE, "org.eclipse.ui.edit.paste");//$NON-NLS-1$
+        addAction(ActionFactory.DELETE, ITextOperationTarget.DELETE, "org.eclipse.ui.edit.delete");//$NON-NLS-1$
+        addAction(ActionFactory.SELECT_ALL, ITextOperationTarget.SELECT_ALL, "org.eclipse.ui.edit.selectAll");//$NON-NLS-1$
+        undo = addAction(ActionFactory.UNDO, ITextOperationTarget.UNDO, "org.eclipse.ui.edit.undo");//$NON-NLS-1$
+        redo = addAction(ActionFactory.REDO, ITextOperationTarget.REDO, "org.eclipse.ui.edit.redo");//$NON-NLS-1$
     }
 
     public void update(Observable o, Object arg)
@@ -321,11 +321,11 @@ public class NotesView extends ViewPart implements IPartListener, Observer
                 revealEndOfDocument();
             }
             else
-                textViewer.setDocument(new Document(""));
+                textViewer.setDocument(new Document(""));//$NON-NLS-1$
         }
         else
         {
-            textViewer.setDocument(new Document(""));
+            textViewer.setDocument(new Document(""));//$NON-NLS-1$
             textViewer.getControl().setEnabled(false);
         }
     }
@@ -335,7 +335,7 @@ public class NotesView extends ViewPart implements IPartListener, Observer
         if (resource == null)
             return;
         Pattern addressPattern = Pattern.compile("0x\\p{XDigit}+");//$NON-NLS-1$        
-        String[] fields = allText.split("\\W", 0);
+        String[] fields = allText.split("\\W", 0);//$NON-NLS-1$
         List<IdHyperlink> hyperlinks = new ArrayList<IdHyperlink>();
 
         for (String field : fields)
@@ -371,7 +371,7 @@ public class NotesView extends ViewPart implements IPartListener, Observer
         if (resource != null)
         {
             String text = textViewer.getDocument().get();
-            if (text != null && text.trim() != "")
+            if (text != null && text.trim() != "")//$NON-NLS-1$
                 saveNotes(resource, text);
             resetUndoManager();
         }
@@ -611,7 +611,7 @@ public class NotesView extends ViewPart implements IPartListener, Observer
                         while ((s = myInput.readLine()) != null)
                         {
                             b.append(s);
-                            b.append("\n");
+                            b.append("\n");//$NON-NLS-1$
                         }
                         return b.toString();
                     }
@@ -648,7 +648,7 @@ public class NotesView extends ViewPart implements IPartListener, Observer
             File notesFile = getDefaultNotesFile(resource);
 
             fout = new FileOutputStream(notesFile);
-            OutputStreamWriter out = new OutputStreamWriter(new BufferedOutputStream(fout), "UTF8");
+            OutputStreamWriter out = new OutputStreamWriter(new BufferedOutputStream(fout), "UTF8");//$NON-NLS-1$
             out.write(notes);
             out.flush();
             out.close();
@@ -677,7 +677,7 @@ public class NotesView extends ViewPart implements IPartListener, Observer
     {
         String filename = resource.getAbsolutePath();
         int p = filename.lastIndexOf('.');
-        return new File(filename.substring(0, p + 1) + "notes.txt");
+        return new File(filename.substring(0, p + 1) + "notes.txt");//$NON-NLS-1$
     }
 
 }

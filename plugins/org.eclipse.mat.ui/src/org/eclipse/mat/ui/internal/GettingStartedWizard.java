@@ -34,6 +34,7 @@ import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.actions.ImportReportAction;
 import org.eclipse.mat.ui.internal.actions.ExecuteQueryAction;
 import org.eclipse.mat.ui.snapshot.editor.HeapEditor;
@@ -50,7 +51,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class GettingStartedWizard extends Wizard
 {
-    public static final String HIDE_WIZARD_KEY = "hideGettingStartedWizard";
+    public static final String HIDE_WIZARD_KEY = "hideGettingStartedWizard";//$NON-NLS-1$
 
     /* package */Action action;
     /* package */HeapEditor editor;
@@ -63,7 +64,7 @@ public class GettingStartedWizard extends Wizard
     {
         this.editor = editor;
 
-        setWindowTitle("Getting Started Wizard");
+        setWindowTitle(Messages.GettingStartedWizard_GettingStartedWizard);
     }
 
     @Override
@@ -117,10 +118,10 @@ public class GettingStartedWizard extends Wizard
 
         public ChoicePage()
         {
-            super("");
+            super("");//$NON-NLS-1$
 
-            setTitle("Getting Started");
-            setDescription("Choose one of the common reports below. Press Escape to close this dialog.");
+            setTitle(Messages.GettingStartedWizard_GettingStarted);
+            setDescription(Messages.GettingStartedWizard_ChooseOneOfReports);
         }
 
         public void createControl(Composite parent)
@@ -134,38 +135,36 @@ public class GettingStartedWizard extends Wizard
             GridLayoutFactory.fillDefaults().applyTo(choices);
 
             leakReport = new Button(choices, SWT.RADIO);
-            leakReport.setText("Leak Suspects Report");
+            leakReport.setText(Messages.GettingStartedWizard_LeakSuspectReport);
             leakReport.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DIALOG_FONT));
             leakReport.addListener(SWT.Selection, this);
 
             Label description = new Label(choices, SWT.WRAP);
-            description.setText("Automatically check the heap dump for leak suspects. "
-                            + "Report what objects are kept alive and why they are not garbage collected.");
+            description.setText(Messages.GettingStartedWizard_LeakSuspectReportDescription); 
             GridDataFactory.fillDefaults().indent(18, 0).hint(description.computeSize(300, SWT.DEFAULT)).applyTo(
                             description);
 
             componentReport = new Button(choices, SWT.RADIO);
-            componentReport.setText("Component Report");
+            componentReport.setText(Messages.GettingStartedWizard_ComponentReport);
             componentReport.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DIALOG_FONT));
             componentReport.addListener(SWT.Selection, this);
             description = new Label(choices, SWT.WRAP);
-            description.setText("Analyze a set of objects for suspected memory issues: "
-                            + "duplicate strings, empty collections, finalizer, weak references, etc.");
+            description.setText(Messages.GettingStartedWizard_ComponentReportDescription); 
             GridDataFactory.fillDefaults().indent(18, 0).hint(description.computeSize(300, SWT.DEFAULT)).applyTo(
                             description);
 
             openReports = new Button(choices, SWT.RADIO);
-            openReports.setText("Re-open previously run reports");
+            openReports.setText(Messages.GettingStartedWizard_ReOpenExistingReports);
             openReports.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DIALOG_FONT));
             openReports.addListener(SWT.Selection, this);
             description = new Label(choices, SWT.WRAP);
-            description.setText("Existing reports are stored in ZIP files next to the heap dump.");
+            description.setText(Messages.GettingStartedWizard_ExistingReportsLocation);
             GridDataFactory.fillDefaults().indent(18, 0).hint(description.computeSize(300, SWT.DEFAULT)).applyTo(
                             description);
 
             askAgain = new Button(composite, SWT.CHECK);
             askAgain.setSelection(true);
-            askAgain.setText("Show this dialog when opening an heap dump.");
+            askAgain.setText(Messages.GettingStartedWizard_ShowThisDialog);
 
             Preferences prefs = MemoryAnalyserPlugin.getDefault().getPluginPreferences();
             askAgain.setSelection(!prefs.getBoolean(HIDE_WIZARD_KEY));
@@ -210,7 +209,7 @@ public class GettingStartedWizard extends Wizard
             else if (event.widget == leakReport)
             {
                 getWizard().action = new ExecuteQueryAction(getWizard().editor,
-                                "default_report org.eclipse.mat.api:suspects");
+                                "default_report org.eclipse.mat.api:suspects");//$NON-NLS-1$
             }
 
             getWizard().getContainer().updateButtons();
@@ -236,11 +235,10 @@ public class GettingStartedWizard extends Wizard
     {
         public PackagePage()
         {
-            super("");
+            super("");//$NON-NLS-1$
 
-            setTitle("Select Classes");
-            setDescription("Specify a regular expression which matches the fully qualified class names of your component, "
-                            + "for example org\\.eclipse\\.mat\\.*.");
+            setTitle(Messages.GettingStartedWizard_SelectClasses);
+            setDescription(Messages.GettingStartedWizard_SpecifyRegularExpression); 
         }
 
         public void createControl(Composite parent)
@@ -249,7 +247,7 @@ public class GettingStartedWizard extends Wizard
             GridLayoutFactory.fillDefaults().applyTo(composite);
 
             Label label = new Label(composite, SWT.NONE);
-            label.setText("Package (regular expression):");
+            label.setText(Messages.GettingStartedWizard_Package);
 
             Text regex = new Text(composite, SWT.BORDER);
             GridDataFactory.fillDefaults().grab(true, false).applyTo(regex);
@@ -264,11 +262,11 @@ public class GettingStartedWizard extends Wizard
             try
             {
                 String text = ((Text) event.widget).getText();
-                if (!"".equals(text))
+                if (!"".equals(text))//$NON-NLS-1$
                 {
                     Pattern.compile(text);
 
-                    getWizard().action = new ExecuteQueryAction(getWizard().editor, "component_report " + text);
+                    getWizard().action = new ExecuteQueryAction(getWizard().editor, "component_report " + text);//$NON-NLS-1$
                 }
                 if (getErrorMessage() != null)
                     setErrorMessage(null);
@@ -302,11 +300,10 @@ public class GettingStartedWizard extends Wizard
 
         public OpenReportsPage()
         {
-            super("");
+            super("");//$NON-NLS-1$
 
-            setTitle("Re-Open Report");
-            setDescription("Re-open a report that has been created previously. "
-                            + "The reposts are stored as ZIP files next to the heap dump file.");
+            setTitle(Messages.GettingStartedWizard_ReOpenReport);
+            setDescription(Messages.GettingStartedWizard_ReOpenExistingReport); 
         }
 
         public void createControl(Composite parent)
@@ -318,7 +315,7 @@ public class GettingStartedWizard extends Wizard
             viewer = new TableViewer(composite, SWT.SINGLE | SWT.BORDER | SWT.FULL_SELECTION);
 
             TableColumn column = new TableColumn(viewer.getTable(), SWT.NONE);
-            column.setText("Report");
+            column.setText(Messages.GettingStartedWizard_Report);
             layout.setColumnData(column, new ColumnWeightData(100, true));
 
             viewer.setLabelProvider(new LabelProvider()
@@ -361,7 +358,7 @@ public class GettingStartedWizard extends Wizard
                                 prefix = prefix.substring(0, p);
 
                             final String fragment = prefix;
-                            final Pattern regex = Pattern.compile(".*\\.zip$");
+                            final Pattern regex = Pattern.compile(".*\\.zip$");//$NON-NLS-1$
 
                             fileList = new File(snapshot.getSnapshotInfo().getPath()).getParentFile().listFiles(
                                             new FilenameFilter()

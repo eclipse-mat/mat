@@ -40,7 +40,7 @@ public class MemoryAnalyserPlugin extends AbstractUIPlugin
     public interface ISharedImages
     {
         String HEAP = "icons/heapobjects/heapdump16.gif"; //$NON-NLS-1$        
-        String OPEN_SNAPSHOT = "icons/open_snapshot.gif";
+        String OPEN_SNAPSHOT = "icons/open_snapshot.gif";//$NON-NLS-1$
         String CONSOLE = "icons/console.gif"; //$NON-NLS-1$
         String CONSOLE_PLUS = "icons/console_plus.gif"; //$NON-NLS-1$
         String CONSOLE_REMOVE = "icons/remove_console.gif"; //$NON-NLS-1$
@@ -121,7 +121,7 @@ public class MemoryAnalyserPlugin extends AbstractUIPlugin
 
         // redirect logging from the analysis core into the Eclipse logging
         // facility
-        Logger logger = Logger.getLogger("org.eclipse.mat");
+        Logger logger = Logger.getLogger("org.eclipse.mat");//$NON-NLS-1$
         logger.setUseParentHandlers(false);
         logger.addHandler(new ErrorLogHandler());
     }
@@ -150,7 +150,7 @@ public class MemoryAnalyserPlugin extends AbstractUIPlugin
 
     public static ImageDescriptor getImageDescriptor(String path)
     {
-        return AbstractUIPlugin.imageDescriptorFromPlugin(PLUGIN_ID, path); //$NON-NLS-1$
+        return AbstractUIPlugin.imageDescriptorFromPlugin(PLUGIN_ID, path); 
     }
 
     public static Image getImage(String name)
@@ -251,7 +251,7 @@ public class MemoryAnalyserPlugin extends AbstractUIPlugin
 
     public static void log(Throwable e)
     {
-        log(e, "Internal Error");
+        log(e, Messages.MemoryAnalyserPlugin_InternalError);
     }
 
     public static void log(Throwable e, String message)

@@ -29,6 +29,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.window.Window;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.editor.PathEditorInput;
 import org.eclipse.mat.ui.snapshot.OpenSnapshot;
 import org.eclipse.ui.IEditorInput;
@@ -72,8 +73,8 @@ public class OpenSnapshotAction extends Action implements IWorkbenchWindowAction
                 catch (PartInitException e)
                 {
                     MemoryAnalyserPlugin.log(e.getStatus());
-                    String msg = MessageFormat.format("Error opening file {0}", fileStore.getName());
-                    MessageDialog.openError(fWindow.getShell(), "Internal Error", msg);
+                    String msg = MessageFormat.format(Messages.OpenSnapshotAction_ErrorOpeningFile, fileStore.getName());
+                    MessageDialog.openError(fWindow.getShell(), Messages.ErrorHelper_InternalError, msg);
                 }
             }
 
@@ -181,9 +182,8 @@ public class OpenSnapshotAction extends Action implements IWorkbenchWindowAction
     {
         ElementListSelectionDialog dialog = new ElementListSelectionDialog(fWindow.getShell(), new FileLabelProvider());
         dialog.setElements(files);
-        dialog.setTitle("Select workspace");
-        dialog.setMessage("The selected file is referenced by multiple linked resources in the workspace.\n"
-                        + "Select a workspace resource to open the file.");
+        dialog.setTitle(Messages.OpenSnapshotAction_SelectWorkspace);
+        dialog.setMessage(Messages.OpenSnapshotAction_Message); 
         if (dialog.open() == Window.OK)
             return (IFile) dialog.getFirstResult();
         return null;

@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.mat.ui.internal.views;
 
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
@@ -20,7 +21,7 @@ import org.eclipse.ui.part.PageBookView;
 
 public class NavigatorView extends PageBookView
 {
-    private static String defaultMessage = "A Navigator is not available";
+    private static String defaultMessage = Messages.NavigatorView_ViewNotAvailable;
 
     @Override
     protected IPage createDefaultPage(PageBook book)

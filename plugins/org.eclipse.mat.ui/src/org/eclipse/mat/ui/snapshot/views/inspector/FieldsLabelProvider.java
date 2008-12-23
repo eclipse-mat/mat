@@ -79,7 +79,7 @@ class FieldsLabelProvider extends LabelProvider implements ITableLabelProvider, 
             switch (columnIndex)
             {
                 case 0:
-                    return "ref";
+                    return "ref";//$NON-NLS-1$
                 case 1:
                     return node.getName();
                 case 2:
@@ -104,7 +104,7 @@ class FieldsLabelProvider extends LabelProvider implements ITableLabelProvider, 
         catch (SnapshotException e)
         {
             // $JL-EXC$
-            return "0x" + Long.toHexString(objectAddress);
+            return "0x" + Long.toHexString(objectAddress);//$NON-NLS-1$
         }
     }
 

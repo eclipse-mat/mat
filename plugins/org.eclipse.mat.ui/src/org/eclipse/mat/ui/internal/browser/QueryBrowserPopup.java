@@ -32,6 +32,7 @@ import org.eclipse.mat.query.registry.CategoryDescriptor;
 import org.eclipse.mat.query.registry.QueryDescriptor;
 import org.eclipse.mat.query.registry.QueryRegistry;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.QueryExecution;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
 import org.eclipse.mat.ui.util.ErrorHelper;
@@ -100,7 +101,7 @@ public class QueryBrowserPopup extends PopupDialog
     public QueryBrowserPopup(MultiPaneEditor editor, boolean onlyHistory)
     {
         super(editor.getEditorSite().getShell(), SWT.RESIZE, true, true, true, true, null,
-                        "Start typing to find matches");
+                        Messages.QueryBrowserPopup_StartTyping);
 
         this.editor = editor;
 
@@ -205,7 +206,7 @@ public class QueryBrowserPopup extends PopupDialog
         textLayout.setOrientation(getDefaultOrientation());
         Font boldFont = resourceManager.createFont(FontDescriptor.createFrom(table.getFont()).setStyle(SWT.BOLD));
         textLayout.setFont(table.getFont());
-        textLayout.setText("Categories");
+        textLayout.setText(Messages.QueryBrowserPopup_Categories);
         textLayout.setFont(boldFont);
 
         tableColumnLayout.setColumnData(new TableColumn(table, SWT.NONE), new ColumnWeightData(100, 100));
@@ -369,9 +370,9 @@ public class QueryBrowserPopup extends PopupDialog
         }
 
         if (filter.length() == 0)
-            setInfoText("Start typing to find matches");
+            setInfoText(Messages.QueryBrowserPopup_StartTyping);
         else
-            setInfoText("Press Strg-Enter to copy query into input field");
+            setInfoText(Messages.QueryBrowserPopup_PressCtrlEnter);
     }
 
     protected Control getFocusControl()
@@ -427,7 +428,7 @@ public class QueryBrowserPopup extends PopupDialog
     @Override
     protected void fillDialogMenu(IMenuManager dialogMenu)
     {
-        dialogMenu.add(new Action("Close")
+        dialogMenu.add(new Action(Messages.MultiPaneEditor_Close)
         {
             @Override
             public void run()

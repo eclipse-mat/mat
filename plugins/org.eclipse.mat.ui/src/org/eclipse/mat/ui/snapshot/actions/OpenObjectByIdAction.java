@@ -22,6 +22,7 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.QueryExecution;
 import org.eclipse.mat.ui.snapshot.editor.HeapEditor;
 import org.eclipse.mat.ui.snapshot.editor.ISnapshotEditorInput;
@@ -35,7 +36,7 @@ public class OpenObjectByIdAction extends Action
 
     public OpenObjectByIdAction()
     {
-        super("Find object by address", MemoryAnalyserPlugin.getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.FIND));
+        super(Messages.OpenObjectByIdAction_FindObjectByAddress, MemoryAnalyserPlugin.getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.FIND));
     }
 
     @Override
@@ -68,51 +69,51 @@ public class OpenObjectByIdAction extends Action
             ISnapshot snapshot = ((ISnapshotEditorInput)editor.getPaneEditorInput()).getSnapshot();
             if (snapshot == null)
             {
-                errorMessage = "Error getting heap dump. Not yet loaded?";
+                errorMessage = Messages.OpenObjectByIdAction_ErrorGettingHeapDump;
             }
             else
             {
                 int objectId = snapshot.mapAddressToId(objectAddress);
                 if (objectId < 0)
                 {
-                    errorMessage = MessageFormat.format("No object with address {0} found.",
+                    errorMessage = MessageFormat.format(Messages.OpenObjectByIdAction_NoObjectWithAddress,
                                     new Object[] { value });
                 }
                 else
                 {
-                    QueryExecution.executeCommandLine(editor, null, "list_objects " + value);
+                    QueryExecution.executeCommandLine(editor, null, "list_objects " + value); //$NON-NLS-1$
                 }
             }
         }
         catch (NumberFormatException e)
         {
             // $JL-EXC$
-            errorMessage = "Address is not a hexadecimal number.";
+            errorMessage = Messages.OpenObjectByIdAction_AddressIsNotHexNumber;
         }
         catch (SnapshotException e)
         {
             // $JL-EXC$
-            errorMessage = MessageFormat.format("Error reading object: {0}", new Object[] { e.getMessage() });
+            errorMessage = MessageFormat.format(Messages.OpenObjectByIdAction_ErrorReadingObject, new Object[] { e.getMessage() });
         }
 
         if (errorMessage != null)
         {
             MessageDialog.openError(PlatformUI.getWorkbench().getDisplay().getActiveShell(),
-                            "Error opening object", errorMessage);
+                            Messages.OpenObjectByIdAction_ErrorOpeningObject, errorMessage);
         }
     }
 
     private String askForAddress()
     {
-        final Pattern pattern = Pattern.compile("^0x\\p{XDigit}+$");
+        final Pattern pattern = Pattern.compile("^0x\\p{XDigit}+$");//$NON-NLS-1$
 
         InputDialog dialog = new InputDialog(PlatformUI.getWorkbench().getDisplay().getActiveShell(),
-                        "Find object by address", "Object address:", "0x", new IInputValidator()
+                        Messages.OpenObjectByIdAction_FindObjectByAddress, Messages.OpenObjectByIdAction_ObjectAddress, "0x", new IInputValidator() //$NON-NLS-1$
                         {
 
                             public String isValid(String newText)
                             {
-                                return !pattern.matcher(newText).matches() ? "Address must be a hex number, e.g. 0x6b93d8"
+                                return !pattern.matcher(newText).matches() ? Messages.OpenObjectByIdAction_AddressMustBeHexNumber
                                                 : null;
                             }
 

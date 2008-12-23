@@ -19,6 +19,7 @@ import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.mat.query.registry.QueryResult;
 import org.eclipse.mat.snapshot.inspections.MultiplePath2GCRootsQuery;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.internal.panes.QueryResultPane;
 import org.eclipse.mat.ui.internal.viewer.RefinedResultViewer;
 import org.eclipse.mat.ui.util.EasyToolBarDropDown;
@@ -53,7 +54,7 @@ public class MultiplePath2GCRootsPane extends QueryResultPane
     {
 
         Action groupingAction = new EasyToolBarDropDown(
-                        "Group result by...", //
+                        Messages.TableResultPane_GroupResultBy, //
                         MemoryAnalyserPlugin.getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.GROUPING),
                         this)
         {
@@ -91,10 +92,10 @@ public class MultiplePath2GCRootsPane extends QueryResultPane
             if (viewer.getResult().hasActiveFilter())
             {
                 StringBuilder buf = new StringBuilder();
-                buf.append("The original table is filtered. The WHOLE tree will be grouped.");
+                buf.append(Messages.DominatorPane_WholeTreeWillBeGrouped);
 
                 MessageBox msg = new MessageBox(viewer.getControl().getShell(), SWT.OK | SWT.CANCEL);
-                msg.setText("Info");
+                msg.setText(Messages.DominatorPane_Info);
                 msg.setMessage(buf.toString());
 
                 if (msg.open() != SWT.OK)
@@ -107,7 +108,7 @@ public class MultiplePath2GCRootsPane extends QueryResultPane
                 {
                     MultiplePath2GCRootsQuery.Tree original = (MultiplePath2GCRootsQuery.Tree) viewer.getResult().unwrap();
 
-                    final QueryResult queryResult = new QueryResult(null, "multiple_path -groupBy " + target.name(),
+                    final QueryResult queryResult = new QueryResult(null, "multiple_path -groupBy " + target.name(), //$NON-NLS-1$
                                     original.groupBy(target));
 
                     PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()

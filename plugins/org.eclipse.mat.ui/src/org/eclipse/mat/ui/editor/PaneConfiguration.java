@@ -22,7 +22,7 @@ public class PaneConfiguration
     /* package */PaneConfiguration(String id, IConfigurationElement configElement)
     {
         this.id = id;
-        this.className = configElement.getAttribute("class");
+        this.className = configElement.getAttribute("class");//$NON-NLS-1$
         this.confElement = configElement;
     }
 
@@ -43,7 +43,7 @@ public class PaneConfiguration
 
     public AbstractEditorPane build() throws CoreException
     {
-        AbstractEditorPane part = (AbstractEditorPane) confElement.createExecutableExtension("class");
+        AbstractEditorPane part = (AbstractEditorPane) confElement.createExecutableExtension("class");//$NON-NLS-1$
         part.setConfiguration(this);
         return part;
     }

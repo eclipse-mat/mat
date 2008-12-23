@@ -32,6 +32,7 @@ import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IPrimitiveArray;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
@@ -85,8 +86,8 @@ public class SaveValueAsQuery implements IQuery
                 {
                     MessageBox box = new MessageBox(PlatformUI.getWorkbench().getDisplay().getActiveShell(), //
                                     SWT.YES | SWT.NO);
-                    box.setText("Overwrite?");
-                    box.setMessage(MessageFormat.format("File {0} exists. Do you want to overwrite?", file
+                    box.setText(Messages.SaveValueAsQuery_Overwrite);
+                    box.setMessage(MessageFormat.format(Messages.SaveValueAsQuery_FileExists, file
                                     .getAbsolutePath()));
 
                     int retValue = box.open();
@@ -107,7 +108,7 @@ public class SaveValueAsQuery implements IQuery
         {
             out = new FileOutputStream(file);
             PrintWriter writer = new PrintWriter(new BufferedWriter(new OutputStreamWriter(out, System
-                            .getProperty("file.encoding"))));
+                            .getProperty("file.encoding")))); //$NON-NLS-1$
 
             boolean isFirst = true;
 
@@ -246,7 +247,7 @@ public class SaveValueAsQuery implements IQuery
                         break;
                     }
                     default:
-                        throw new SnapshotException(MessageFormat.format("Unrecognized primitive array type: {0}",
+                        throw new SnapshotException(MessageFormat.format(Messages.SaveValueAsQuery_UnrecognizedPrimitiveArrayType,
                                         array.getType()));
                 }
 

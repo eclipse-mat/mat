@@ -33,6 +33,7 @@ import org.eclipse.mat.query.registry.QueryResult;
 import org.eclipse.mat.query.results.DisplayFileResult;
 import org.eclipse.mat.query.results.TextResult;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.QueryExecution;
 import org.eclipse.mat.ui.actions.OpenHelpPageAction;
 import org.eclipse.mat.ui.editor.AbstractEditorPane;
@@ -98,7 +99,7 @@ public class QueryTextResultPane extends AbstractEditorPane implements ISelectio
             }
             else
             {
-                String html = "<pre>" + HTMLUtils.escapeText(textResult.getText()) + "</pre>";
+                String html = "<pre>" + HTMLUtils.escapeText(textResult.getText()) + "</pre>";  //$NON-NLS-1$//$NON-NLS-2$
                 browser.setText(html);
             }
         }
@@ -126,7 +127,7 @@ public class QueryTextResultPane extends AbstractEditorPane implements ISelectio
     public void contributeToToolBar(IToolBarManager manager)
     {
         if (queryResult.getQuery() != null && queryResult.getQuery().getHelpUrl() != null)
-            manager.appendToGroup("help", new OpenHelpPageAction(queryResult.getQuery().getHelpUrl()));
+            manager.appendToGroup("help", new OpenHelpPageAction(queryResult.getQuery().getHelpUrl())); //$NON-NLS-1$
 
         super.contributeToToolBar(manager);
     }
@@ -198,7 +199,7 @@ public class QueryTextResultPane extends AbstractEditorPane implements ISelectio
         catch (Exception e)
         {
             ErrorHelper.logThrowableAndShowMessage(e, MessageFormat.format(
-                            "Unable to map address {0} to an object on the heap.", url.getTarget()));
+                            Messages.QueryTextResultPane_UnableToMapAddress, url.getTarget()));
         }
     }
 
@@ -222,7 +223,7 @@ public class QueryTextResultPane extends AbstractEditorPane implements ISelectio
 
     public String getTitle()
     {
-        return queryResult != null ? queryResult.getTitle() : "Text";
+        return queryResult != null ? queryResult.getTitle() : Messages.QueryTextResultPane_Text;
     }
 
     @Override

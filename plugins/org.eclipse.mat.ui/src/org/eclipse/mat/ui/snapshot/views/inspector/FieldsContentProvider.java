@@ -19,6 +19,7 @@ import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.mat.ui.Messages;
 
 public class FieldsContentProvider implements IStructuredContentProvider, IDoubleClickListener
 {
@@ -81,7 +82,7 @@ public class FieldsContentProvider implements IStructuredContentProvider, IDoubl
 
         public String toString()
         {
-            return MessageFormat.format("{0} out of {1} displayed", limit, size);
+            return MessageFormat.format(Messages.FieldsContentProvider_Displayed, limit, size);
         }
     }
 

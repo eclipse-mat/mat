@@ -13,6 +13,7 @@ package org.eclipse.mat.ui.internal.query.arguments;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.registry.ArgumentDescriptor;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -27,7 +28,7 @@ public class LinkEditor extends ArgumentEditor
 {
     public enum Mode
     {
-        ADVANCED_MODE("simple mode..."), SIMPLE_MODE("more options...");
+        ADVANCED_MODE(Messages.LinkEditor_simpleMode), SIMPLE_MODE(Messages.LinkEditor_moreOptions);
 
         private String modeType;
 

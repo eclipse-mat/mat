@@ -22,6 +22,7 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.SnapshotHistoryService;
+import org.eclipse.mat.ui.rcp.Messages;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
@@ -38,8 +39,8 @@ import org.osgi.framework.Bundle;
 
 public class SnapshotHistoryIntroContentProvider implements IIntroContentProvider
 {
-    private static final String DUMP_ICON = "../intro/css/icons/heapdump.gif";
-    private static final String RESOURCE_ICON = "../intro/css/icons/resource.gif";
+    private static final String DUMP_ICON = "../intro/css/icons/heapdump.gif"; //$NON-NLS-1$
+    private static final String RESOURCE_ICON = "../intro/css/icons/resource.gif"; //$NON-NLS-1$
 
     private Image bulletImage;
     private boolean disposed;
@@ -56,43 +57,43 @@ public class SnapshotHistoryIntroContentProvider implements IIntroContentProvide
         List<SnapshotHistoryService.Entry> lastFiles = SnapshotHistoryService.getInstance().getVisitedEntries();
         if (lastFiles == null)
         {
-            out.print("<p class=\"status-text\">");
-            out.print("Please wait... the list is loading");
-            out.println("</p>");
+            out.print("<p class=\"status-text\">"); //$NON-NLS-1$
+            out.print(Messages.SnapshotHistoryIntroContentProvider_PleaseWait);
+            out.println("</p>"); //$NON-NLS-1$
         }
         else
         {
             if (!lastFiles.isEmpty())
             {
-                out.println("<ul id=\"snapshot_history\">");
+                out.println("<ul id=\"snapshot_history\">"); //$NON-NLS-1$
                 for (SnapshotHistoryService.Entry entry : lastFiles)
                 {
                     String icon = MemoryAnalyserPlugin.EDITOR_ID.equals(entry.getEditorId()) ? DUMP_ICON
                                     : RESOURCE_ICON;
 
-                    out.print("<li><img src =\"");
+                    out.print("<li><img src =\""); //$NON-NLS-1$
                     out.print(icon);
-                    out.print("\">");
+                    out.print("\">"); //$NON-NLS-1$
 
-                    out.print("<a class=\"topicList\" href=\"http://org.eclipse.ui.intro/runAction?"
-                                    + "pluginId=org.eclipse.mat.ui.rcp&amp;"
-                                    + "class=org.eclipse.mat.ui.rcp.actions.OpenEditorAction&amp;param=");
+                    out.print("<a class=\"topicList\" href=\"http://org.eclipse.ui.intro/runAction?" //$NON-NLS-1$
+                                    + "pluginId=org.eclipse.mat.ui.rcp&amp;" //$NON-NLS-1$
+                                    + "class=org.eclipse.mat.ui.rcp.actions.OpenEditorAction&amp;param="); //$NON-NLS-1$
                     out.print(entry.getFilePath());
-                    out.print("&amp;editorId=");
+                    out.print("&amp;editorId="); //$NON-NLS-1$
                     out.print(entry.getEditorId());
-                    out.print("\">");
+                    out.print("\">"); //$NON-NLS-1$
                     out.print(entry.getFilePath());
-                    out.print("</a>");
-                    out.println("</li>");
+                    out.print("</a>"); //$NON-NLS-1$
+                    out.println("</li>"); //$NON-NLS-1$
                 }
             }
             else
             {
-                out.print("<p class=\"status-text\">");
-                out.print("History is empty");
-                out.println("</p>");
+                out.print("<p class=\"status-text\">"); //$NON-NLS-1$
+                out.print(Messages.SnapshotHistoryIntroContentProvider_HistoryIsEmpty);
+                out.println("</p>"); //$NON-NLS-1$
             }
-            out.println("</ul>");
+            out.println("</ul>"); //$NON-NLS-1$
         }
     }
 
@@ -112,17 +113,17 @@ public class SnapshotHistoryIntroContentProvider implements IIntroContentProvide
                     openHeapDump((String) e.getHref());
                 }
             });
-            bulletImage = createImage(new Path("intro/css/icons/arrow.gif"));
+            bulletImage = createImage(new Path("intro/css/icons/arrow.gif")); //$NON-NLS-1$
             if (bulletImage != null)
-                formText.setImage("bullet", bulletImage);
+                formText.setImage("bullet", bulletImage); //$NON-NLS-1$
         }
         StringBuilder buffer = new StringBuilder();
-        buffer.append("<form>");
+        buffer.append("<form>"); //$NON-NLS-1$
         if (lastFiles == null)
         {
-            buffer.append("<p>");
-            buffer.append("Please wait... the list is loading");
-            buffer.append("</p>");
+            buffer.append("<p>");//$NON-NLS-1$
+            buffer.append(Messages.SnapshotHistoryIntroContentProvider_PleaseWait);
+            buffer.append("</p>");//$NON-NLS-1$
         }
         else
         {
@@ -133,34 +134,34 @@ public class SnapshotHistoryIntroContentProvider implements IIntroContentProvide
                     String icon = MemoryAnalyserPlugin.EDITOR_ID.equals(entry.getEditorId()) ? DUMP_ICON
                                     : RESOURCE_ICON;
 
-                    buffer.append("<li style=\"image\" value=\"bullet\">");
-                    buffer.append("<img src =\"").append(icon).append("\"/>");
-                    buffer.append("<a href=\"http://org.eclipse.ui.intro/runAction?"
-                                    + "standby=true&amp;pluginId=org.eclipse.mat.ui.rcp&amp;"
-                                    + "class=org.eclipse.mat.ui.rcp.actions.OpenEditorAction&amp;param=");
+                    buffer.append("<li style=\"image\" value=\"bullet\">"); //$NON-NLS-1$
+                    buffer.append("<img src =\"").append(icon).append("\"/>"); //$NON-NLS-1$ //$NON-NLS-2$
+                    buffer.append("<a href=\"http://org.eclipse.ui.intro/runAction?" //$NON-NLS-1$
+                                    + "standby=true&amp;pluginId=org.eclipse.mat.ui.rcp&amp;" //$NON-NLS-1$
+                                    + "class=org.eclipse.mat.ui.rcp.actions.OpenEditorAction&amp;param="); //$NON-NLS-1$
                     buffer.append(entry.getFilePath());
-                    buffer.append("&amp;editorId=");
+                    buffer.append("&amp;editorId="); //$NON-NLS-1$
                     buffer.append(entry.getEditorId());
-                    buffer.append("\">");
+                    buffer.append("\">"); //$NON-NLS-1$
                     buffer.append(entry.getFilePath());
-                    buffer.append("</a>");
-                    buffer.append("</li>");
+                    buffer.append("</a>");//$NON-NLS-1$
+                    buffer.append("</li>");//$NON-NLS-1$
                 }
             }
             else
             {
-                buffer.append("<p>");
-                buffer.append("History is empty");
-                buffer.append("</p>");
+                buffer.append("<p>");//$NON-NLS-1$
+                buffer.append(Messages.SnapshotHistoryIntroContentProvider_HistoryIsEmpty);
+                buffer.append("</p>");//$NON-NLS-1$
             }
         }
-        buffer.append("</form>");
+        buffer.append("</form>");//$NON-NLS-1$
         formText.setText(buffer.toString(), true, false);
     }
 
     private Image createImage(IPath path)
     {
-        Bundle bundle = Platform.getBundle("org.eclipse.mat.ui.rcp");
+        Bundle bundle = Platform.getBundle("org.eclipse.mat.ui.rcp");//$NON-NLS-1$
         URL url = FileLocator.find(bundle, path, null);
         if (url == null)
             return null;
@@ -173,7 +174,7 @@ public class SnapshotHistoryIntroContentProvider implements IIntroContentProvide
         }
         catch (IOException e)
         {
-            MemoryAnalyserPlugin.log(e, "Error creating image for intro page.");
+            MemoryAnalyserPlugin.log(e, Messages.SnapshotHistoryIntroContentProvider_ErrorCreatingImage);
             return null;
         }
     }

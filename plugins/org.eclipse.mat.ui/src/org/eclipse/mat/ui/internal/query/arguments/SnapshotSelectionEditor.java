@@ -19,6 +19,7 @@ import org.eclipse.mat.internal.snapshot.SnapshotArgument;
 import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.registry.ArgumentDescriptor;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.SnapshotHistoryService;
 import org.eclipse.mat.ui.snapshot.OpenSnapshot;
 import org.eclipse.swt.SWT;
@@ -81,7 +82,7 @@ public class SnapshotSelectionEditor extends ArgumentEditor
         createComboBox();
 
         button = new Button(this, SWT.NONE);
-        button.setText("...");
+        button.setText("...");//$NON-NLS-1$
         button.setFont(this.getParent().getFont());
 
         this.setLayout(new XLayout());
@@ -133,7 +134,7 @@ public class SnapshotSelectionEditor extends ArgumentEditor
 
         if (path.length() > 0 && !new File(path).exists())
         {
-            fireErrorEvent(MessageFormat.format("File does not exist.", path), this);
+            fireErrorEvent(MessageFormat.format(Messages.SnapshotSelectionEditor_FileDoesNotExist, path), this); 
         }
         else
         {

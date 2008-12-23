@@ -23,6 +23,7 @@ import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.SnapshotFactory;
 import org.eclipse.mat.snapshot.SnapshotInfo;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.SnapshotHistoryService;
 import org.eclipse.mat.ui.util.ErrorHelper;
 import org.eclipse.mat.ui.util.ProgressMonitorWrapper;
@@ -36,7 +37,7 @@ public abstract class ParseHeapDumpJob extends Job
 
     public ParseHeapDumpJob(IPath path)
     {
-        super(MessageFormat.format("Parsing heap dump from ''{0}''", path.toOSString()));
+        super(MessageFormat.format(Messages.ParseHeapDumpJob_ParsingHeapDumpFrom, path.toOSString()));
         this.path = path;
         this.setUser(true);
 

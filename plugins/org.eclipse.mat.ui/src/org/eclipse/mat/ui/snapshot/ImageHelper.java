@@ -43,16 +43,16 @@ public class ImageHelper
 
     public interface Decorations
     {
-        String GC_ROOT = PREFIX_OVERLAY + "gc_root.gif";
+        String GC_ROOT = PREFIX_OVERLAY + "gc_root.gif"; //$NON-NLS-1$
     }
 
-    private static final String[] IMAGES = new String[] { "class_obj", "instance_obj", "classloader_obj", "array_obj",
-                    "class_obj_gc_root", "instance_obj_gc_root", "classloader_obj_gc_root", "array_obj_gc_root",
-                    "class", "package" };
+    private static final String[] IMAGES = new String[] { "class_obj", "instance_obj", "classloader_obj", "array_obj",  //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$
+                    "class_obj_gc_root", "instance_obj_gc_root", "classloader_obj_gc_root", "array_obj_gc_root", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                    "class", "package" }; //$NON-NLS-1$ //$NON-NLS-2$
 
-    private static final String PREFIX_OVERLAY = "icons/decorations/";
+    private static final String PREFIX_OVERLAY = "icons/decorations/"; //$NON-NLS-1$
 
-    private static final String PREFIX = "icons/heapobjects/";
+    private static final String PREFIX = "icons/heapobjects/"; //$NON-NLS-1$
 
     private static HashMapIntObject<ImageDescriptor> IMAGES_BY_TYPE = new HashMapIntObject<ImageDescriptor>();
 
@@ -97,7 +97,7 @@ public class ImageHelper
         ImageDescriptor id = IMAGES_BY_TYPE.get(type);
         if (id == null)
         {
-            IMAGES_BY_TYPE.put(type, id = MemoryAnalyserPlugin.getImageDescriptor(PREFIX + IMAGES[type] + ".gif"));
+            IMAGES_BY_TYPE.put(type, id = MemoryAnalyserPlugin.getImageDescriptor(PREFIX + IMAGES[type] + ".gif")); //$NON-NLS-1$
         }
         return id;
     }
@@ -112,7 +112,7 @@ public class ImageHelper
         ImageDescriptor id = IMAGES_BY_TYPE.get(type + 10);
         if (id == null)
         {
-            id = createOverlay(IMAGES[type], "in.gif");
+            id = createOverlay(IMAGES[type], "in.gif"); //$NON-NLS-1$
             IMAGES_BY_TYPE.put(type + 10, id);
         }
         return id;
@@ -128,7 +128,7 @@ public class ImageHelper
         ImageDescriptor id = IMAGES_BY_TYPE.get(type + 20);
         if (id == null)
         {
-            id = createOverlay(IMAGES[type], "out.gif");
+            id = createOverlay(IMAGES[type], "out.gif"); //$NON-NLS-1$
             IMAGES_BY_TYPE.put(type + 20, id);
         }
         return id;
@@ -153,7 +153,7 @@ public class ImageHelper
 
     private static ImageDescriptor createOverlay(String baseName, String overlayName)
     {
-        Image base = MemoryAnalyserPlugin.getImage(PREFIX + baseName + ".gif");
+        Image base = MemoryAnalyserPlugin.getImage(PREFIX + baseName + ".gif"); //$NON-NLS-1$
         Image overlay = MemoryAnalyserPlugin.getImage(PREFIX_OVERLAY + overlayName);
 
         return new OverlayImageDescriptor(base, overlay);

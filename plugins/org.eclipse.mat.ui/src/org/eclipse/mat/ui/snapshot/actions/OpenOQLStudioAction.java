@@ -12,6 +12,7 @@ package org.eclipse.mat.ui.snapshot.actions;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.snapshot.editor.HeapEditor;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
@@ -22,7 +23,7 @@ public class OpenOQLStudioAction extends Action
 {
     public OpenOQLStudioAction()
     {
-        super("Open Object Query Language studio to execute statements", MemoryAnalyserPlugin
+        super(Messages.OpenOQLStudioAction_OpenOQLStudio, MemoryAnalyserPlugin
                         .getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.OQL));
     }
 
@@ -34,7 +35,7 @@ public class OpenOQLStudioAction extends Action
 
         if (part instanceof HeapEditor)
         {
-            ((HeapEditor) part).addNewPage("OQL", null);
+            ((HeapEditor) part).addNewPage("OQL", null);//$NON-NLS-1$
         }
     }
 

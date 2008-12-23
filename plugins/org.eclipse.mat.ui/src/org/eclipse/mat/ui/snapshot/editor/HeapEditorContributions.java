@@ -14,6 +14,7 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.actions.QueryDropDownMenuAction;
 import org.eclipse.mat.ui.actions.RunReportsDropDownAction;
 import org.eclipse.mat.ui.editor.IMultiPaneEditorContributor;
@@ -59,12 +60,12 @@ public class HeapEditorContributions implements IMultiPaneEditorContributor
     public void init(MultiPaneEditor editor)
     {
         this.editor = (HeapEditor) editor;
-        openOverview = new OpenPaneAction(editor, "OverviewPane");
+        openOverview = new OpenPaneAction(editor, "OverviewPane"); //$NON-NLS-1$
         openOverview.setImageDescriptor(MemoryAnalyserPlugin
                         .getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.INFO));
-        openOverview.setToolTipText("Open Overview Pane");
-        openHistogram = new ExecuteQueryAction(editor, "histogram");
-        openDominatorTree = new ExecuteQueryAction(editor, "dominator_tree");
+        openOverview.setToolTipText(Messages.HeapEditorContributions_OpenOverviewPane);
+        openHistogram = new ExecuteQueryAction(editor, "histogram");//$NON-NLS-1$
+        openDominatorTree = new ExecuteQueryAction(editor, "dominator_tree");//$NON-NLS-1$
         openOQLPane = new OpenOQLStudioAction();
 
         runExpertTest = new RunReportsDropDownAction(editor);

@@ -29,6 +29,7 @@ import org.eclipse.mat.snapshot.IOQLQuery;
 import org.eclipse.mat.snapshot.OQLParseException;
 import org.eclipse.mat.snapshot.SnapshotFactory;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.editor.AbstractEditorPane;
 import org.eclipse.mat.ui.editor.AbstractPaneJob;
 import org.eclipse.mat.ui.editor.CompositeHeapEditorPane;
@@ -74,7 +75,7 @@ public class OQLPane extends CompositeHeapEditorPane
 
         queryString = new StyledText(sash, SWT.MULTI);
         queryString.setFont(JFaceResources.getFont(JFaceResources.TEXT_FONT));
-        queryString.setText("/* Press F1 for help */");
+        queryString.setText(Messages.OQLPane_F1ForHelp);
         queryString.selectAll();
         queryString.addModifyListener(new ModifyListener()
         {
@@ -84,7 +85,7 @@ public class OQLPane extends CompositeHeapEditorPane
             }
         });
 
-        PlatformUI.getWorkbench().getHelpSystem().setHelp(queryString, "org.eclipse.mat.ui.help.oql");
+        PlatformUI.getWorkbench().getHelpSystem().setHelp(queryString, "org.eclipse.mat.ui.help.oql"); //$NON-NLS-1$
         queryString.addKeyListener(new KeyAdapter()
         {
             public void keyPressed(KeyEvent e)
@@ -260,9 +261,9 @@ public class OQLPane extends CompositeHeapEditorPane
         {
             try
             {
-                QueryDescriptor descriptor = QueryRegistry.instance().getQuery("oql");
+                QueryDescriptor descriptor = QueryRegistry.instance().getQuery("oql");//$NON-NLS-1$
                 ArgumentSet argumentSet = descriptor.createNewArgumentSet(getEditor().getQueryContext());
-                argumentSet.setArgumentValue("queryString", queryString);
+                argumentSet.setArgumentValue("queryString", queryString);//$NON-NLS-1$
                 final QueryResult result = argumentSet.execute(new ProgressMonitorWrapper(monitor));
 
                 PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()
@@ -298,13 +299,13 @@ public class OQLPane extends CompositeHeapEditorPane
     public void createExceptionPane(Exception cause, String queryString) throws PartInitException
     {
         StringBuilder buf = new StringBuilder(256);
-        buf.append("Executed Query:\n");
+        buf.append(Messages.OQLPane_ExecutedQuery);
         buf.append(queryString);
 
         Throwable t = null;
         if (cause instanceof SnapshotException)
         {
-            buf.append("\n\nProblem reported:\n");
+            buf.append(Messages.OQLPane_ProblemReported);
             buf.append(cause.getMessage());
             t = cause.getCause();
         }
@@ -315,7 +316,7 @@ public class OQLPane extends CompositeHeapEditorPane
 
         if (t != null)
         {
-            buf.append("\n\n");
+            buf.append("\n\n");//$NON-NLS-1$
             StringWriter w = new StringWriter();
             PrintWriter o = new PrintWriter(w);
             t.printStackTrace(o);
@@ -326,9 +327,9 @@ public class OQLPane extends CompositeHeapEditorPane
 
         try
         {
-            AbstractEditorPane pane = EditorPaneRegistry.instance().createNewPane("TextViewPane");
+            AbstractEditorPane pane = EditorPaneRegistry.instance().createNewPane("TextViewPane");//$NON-NLS-1$
             if (pane == null)
-                throw new PartInitException("TextViewPane not found.");
+                throw new PartInitException(Messages.OQLPane_PaneNotFound);
 
             // no pane state -> do not include in navigation history
             createResultPane(pane, buf.toString());
@@ -351,7 +352,7 @@ public class OQLPane extends CompositeHeapEditorPane
         public ExecuteQueryAction(PaneState state)
         {
             this.state = state;
-            setText("Execute Query");
+            setText(Messages.OQLPane_ExecuteQuery);
             setImageDescriptor(MemoryAnalyserPlugin
                             .getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.EXECUTE_QUERY));
         }
@@ -364,7 +365,7 @@ public class OQLPane extends CompositeHeapEditorPane
                 String query = queryString.getSelectionText();
                 Point queryRange = queryString.getSelectionRange();
 
-                if ("".equals(query))
+                if ("".equals(query))//$NON-NLS-1$
                 {
                     query = queryString.getText();
                     queryRange = new Point(0, queryString.getCharCount());
@@ -395,7 +396,7 @@ public class OQLPane extends CompositeHeapEditorPane
             }
             catch (PartInitException e1)
             {
-                ErrorHelper.logThrowableAndShowMessage(e1, "Error executing query");
+                ErrorHelper.logThrowableAndShowMessage(e1, Messages.OQLPane_ErrorExecutingQuery);
             }
         }
 
@@ -407,7 +408,7 @@ public class OQLPane extends CompositeHeapEditorPane
 
     public String getTitle()
     {
-        return "OQL";
+        return "OQL";//$NON-NLS-1$
     }
 
     @Override

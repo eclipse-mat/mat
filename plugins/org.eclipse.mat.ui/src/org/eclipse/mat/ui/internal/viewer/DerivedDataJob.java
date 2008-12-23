@@ -21,6 +21,7 @@ import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.query.ContextProvider;
 import org.eclipse.mat.query.ContextDerivedData.DerivedOperation;
 import org.eclipse.mat.query.refined.RefinedStructuredResult.ICalculationProgress;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.internal.viewer.RefinedResultViewer.ControlItem;
 import org.eclipse.mat.ui.util.ErrorHelper;
 import org.eclipse.mat.ui.util.ProgressMonitorWrapper;
@@ -41,7 +42,7 @@ import org.eclipse.ui.PlatformUI;
                     DerivedOperation operation, //
                     List<?> subjectItems)
     {
-        super("Calculating retained sizes...");
+        super(Messages.DerivedDataJob_CalculatingRetainedSizes);
         this.viewer = viewer;
         this.provider = provider;
         this.operation = operation;

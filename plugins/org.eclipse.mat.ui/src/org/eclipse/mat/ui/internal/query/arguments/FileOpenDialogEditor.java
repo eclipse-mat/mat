@@ -17,6 +17,7 @@ import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.registry.ArgumentDescriptor;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
@@ -36,7 +37,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class FileOpenDialogEditor extends ArgumentEditor
 {
-    private static final String LAST_DIRECTORY_KEY = FileOpenDialogEditor.class.getName() + ".lastDir";
+    private static final String LAST_DIRECTORY_KEY = FileOpenDialogEditor.class.getName() + ".lastDir"; //$NON-NLS-1$
 
     protected Object value;
     protected Text text;
@@ -105,7 +106,7 @@ public class FileOpenDialogEditor extends ArgumentEditor
         });
 
         openButton = new Button(this, SWT.NONE);
-        openButton.setText("...");
+        openButton.setText("..."); //$NON-NLS-1$
         openButton.addSelectionListener(new SelectionListener()
         {
 
@@ -118,7 +119,7 @@ public class FileOpenDialogEditor extends ArgumentEditor
                 String lastDirectory = prefs.getString(LAST_DIRECTORY_KEY);
 
                 FileDialog dialog = new FileDialog(getShell(), SWT.OPEN | SWT.MULTI);
-                dialog.setText("Choose File...");
+                dialog.setText(Messages.FileOpenDialogEditor_ChooseFile);
 
                 if (lastDirectory != null && lastDirectory.length() > 0)
                     dialog.setFilterPath(lastDirectory);

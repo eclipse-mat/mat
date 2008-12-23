@@ -221,8 +221,8 @@ public class SnapshotHistoryService
                         public void run()
                         {
                             MessageDialog.openWarning(PlatformUI.getWorkbench().getDisplay().getActiveShell(),
-                                            "Some Snapshot from the history list do not exist anymore",
-                                            "The following snapshots do not exist anymore. They will be deleted from the history list.\n\nAffected Snapshots:\n\n"
+                                            Messages.SnapshotHistoryService_SnapshotsDoNotExist,
+                                            Messages.SnapshotHistoryService_NonExistingSnapshotsWillBeDeleted
                                                             + buf.toString());
                         }
 

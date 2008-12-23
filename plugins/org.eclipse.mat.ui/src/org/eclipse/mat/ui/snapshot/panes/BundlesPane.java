@@ -23,6 +23,7 @@ import org.eclipse.mat.inspections.osgi.model.OSGiModel;
 import org.eclipse.mat.query.IResultTree;
 import org.eclipse.mat.query.registry.QueryResult;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.editor.AbstractPaneJob;
 import org.eclipse.mat.ui.internal.panes.QueryResultPane;
 import org.eclipse.mat.ui.internal.viewer.RefinedResultViewer;
@@ -70,7 +71,7 @@ public class BundlesPane extends QueryResultPane
                             break;
                     }
 
-                    final QueryResult queryResult = new QueryResult(null, "bundle_registry -groupBy " + target.name(),
+                    final QueryResult queryResult = new QueryResult(null, "bundle_registry -groupBy " + target.name(),//$NON-NLS-1$
                                     tree);
 
                     PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()
@@ -116,7 +117,7 @@ public class BundlesPane extends QueryResultPane
 
     private void addGroupingOptions(IToolBarManager manager)
     {
-        Action groupingAction = new EasyToolBarDropDown("Group by...", //
+        Action groupingAction = new EasyToolBarDropDown(Messages.BundlesPane_GroupBy, //
                         MemoryAnalyserPlugin.getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.GROUPING), this)
         {
             @Override

@@ -226,7 +226,7 @@ public abstract class SnapshotOutlinePage extends Page implements IContentOutlin
                     }
                     else if (obj instanceof Double)
                     {
-                        return new DecimalFormat("#,##0.0 M").format(obj);
+                        return new DecimalFormat("#,##0.0 M").format(obj);//$NON-NLS-1$
                     }
                     else if (obj instanceof Date)
                     {

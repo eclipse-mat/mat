@@ -28,6 +28,7 @@ import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.mat.snapshot.SnapshotInfo;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.SnapshotHistoryService;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin.ISharedImages;
 import org.eclipse.mat.ui.SnapshotHistoryService.Entry;
@@ -131,8 +132,7 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
 
         public DeleteSnapshotDialog(Shell parentShell, String dialogTitle)
         {
-            super(parentShell, //
-                            "Confirm Deletion", //
+            super(parentShell, Messages.SnapshotHistoryView_ConfirmDeletion, //
                             null, // accept the default window icon
                             dialogTitle, //
                             MessageDialog.QUESTION, //
@@ -147,12 +147,12 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
 
             deleteRadio = new Button(composite, SWT.RADIO);
             deleteRadio.addSelectionListener(selectionListener);
-            deleteRadio.setText("Also delete in file system (including index files)");
+            deleteRadio.setText(Messages.SnapshotHistoryView_DeleteInFileSystem);
             deleteRadio.setFont(parent.getFont());
 
             Button radio = new Button(composite, SWT.RADIO);
             radio.addSelectionListener(selectionListener);
-            radio.setText("Delete only from history");
+            radio.setText(Messages.SnapshotHistoryView_DeleteFromHistory);
             radio.setFont(parent.getFont());
 
             // set initial state
@@ -191,7 +191,7 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
     {
         this.table = new Table(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION);
         TableColumn tableColumn = new TableColumn(table, SWT.LEFT);
-        tableColumn.setText("Recently Used Files"); //$NON-NLS-1$
+        tableColumn.setText(Messages.SnapshotHistoryView_RecentlyUsedFiles); 
         tableColumn.setWidth(400);
         table.setHeaderVisible(true);
 
@@ -253,7 +253,7 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
                 openFile(selection);
             }
         };
-        actionOpen.setText("Open");
+        actionOpen.setText(Messages.SnapshotHistoryView_Open);
         actionOpen.setImageDescriptor(MemoryAnalyserPlugin.getImageDescriptor(ISharedImages.OPEN_SNAPSHOT));
 
         actionRemoveFromList = new Action()
@@ -272,7 +272,7 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
                     SnapshotHistoryService.getInstance().removePath(path);
             }
         };
-        actionRemoveFromList.setText("Remove from List");
+        actionRemoveFromList.setText(Messages.SnapshotHistoryView_RemoveFromList);
         actionRemoveFromList.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(
                         org.eclipse.ui.ISharedImages.IMG_TOOL_DELETE));
 
@@ -294,10 +294,10 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
 
                 String dialogTitle;
                 if (toDelete.size() > 1)
-                    dialogTitle = MessageFormat.format("Are you sure you want to delete these {0,number} file?",
-                                    toDelete.size());
+                    dialogTitle = MessageFormat.format(Messages.SnapshotHistoryView_AreYouSure4ManyFiles, toDelete
+                                    .size());
                 else
-                    dialogTitle = MessageFormat.format("Are you sure you want to delete ''{0}''?", //
+                    dialogTitle = MessageFormat.format(Messages.SnapshotHistoryView_AreYouSure4OneFile, //
                                     toDelete.get(0).getAbsolutePath());
 
                 DeleteSnapshotDialog deleteSnapshotDialog = new DeleteSnapshotDialog(table.getShell(), dialogTitle);
@@ -325,7 +325,7 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
             }
 
         };
-        actionDelete.setText("Delete File");
+        actionDelete.setText(Messages.SnapshotHistoryView_DeleteFile);
         actionDelete.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(
                         org.eclipse.ui.ISharedImages.IMG_TOOL_DELETE));
 
@@ -346,10 +346,10 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
                     // snapshot history view contains files only, additional
                     // checks are not needed
                     String osPath = path.toOSString();
-                    String osName = System.getProperty("os.name").toLowerCase();
-                    if (osName.indexOf("windows") != -1)
+                    String osName = System.getProperty("os.name").toLowerCase();//$NON-NLS-1$
+                    if (osName.indexOf("windows") != -1)//$NON-NLS-1$
                     {
-                        String command = "explorer.exe /SELECT," + "\"" + osPath + "\"";
+                        String command = "explorer.exe /SELECT," + "\"" + osPath + "\"";//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
                         try
                         {
                             Runtime.getRuntime().exec(command);
@@ -359,38 +359,39 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
                             ErrorHelper.showErrorMessage(ex);
                         }
                     }
-                    else if (osName.indexOf("mac") != -1)
+                    else if (osName.indexOf("mac") != -1)//$NON-NLS-1$
                     {
-                        execute("open", osPath, file);
+                        execute("open", osPath, file);//$NON-NLS-1$
                     }
-                    else if (osName.indexOf("linux") != -1)
+                    else if (osName.indexOf("linux") != -1)//$NON-NLS-1$
                     {
-                        String desktop = System.getProperty("sun.desktop");
-                        desktop = desktop == null ? "" : desktop.toLowerCase();
+                        String desktop = System.getProperty("sun.desktop");//$NON-NLS-1$
+                        desktop = desktop == null ? "" : desktop.toLowerCase();//$NON-NLS-1$
 
-                        if (desktop.indexOf("gnome") != -1)
+                        if (desktop.indexOf("gnome") != -1)//$NON-NLS-1$
                         {
-                            execute("gnome-open", osPath, file);
+                            execute("gnome-open", osPath, file);//$NON-NLS-1$
                         }
-                        else if (desktop.indexOf("konqueror") != -1 || desktop.indexOf("kde") != -1)
+                        else if (desktop.indexOf("konqueror") != -1 || desktop.indexOf("kde") != -1)//$NON-NLS-1$//$NON-NLS-2$
                         {
-                            execute("konqueror", osPath, file);
+                            execute("konqueror", osPath, file);//$NON-NLS-1$
                         }
                         else
                         {
-                            displayMessage(MessageFormat.format("I do not know how to open the file manager"
-                                            + " for your Linux desktop ''{0}''. I will try to use gnome", desktop));
-                            execute("gnome-open", osPath, file);
+                            displayMessage(MessageFormat.format(Messages.SnapshotHistoryView_TryToUseGnome, desktop));
+                            execute("gnome-open", osPath, file);//$NON-NLS-1$
                         }
                     }
                     else
                     {
-                        displayMessage(MessageFormat.format("Sorry, operation not implementation for OS: {0}", osName));
+                        displayMessage(MessageFormat.format(Messages.SnapshotHistoryView_OperationNotImplemented,
+                                        osName));
                     }
                 }
                 else
                 {
-                    displayMessage(MessageFormat.format("File {0} does not exist (anymore).", file.getAbsolutePath()));
+                    displayMessage(MessageFormat.format(Messages.SnapshotHistoryView_FileDoesNotExist, file
+                                    .getAbsolutePath()));
                 }
             }
 
@@ -412,14 +413,14 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
 
             private void displayMessage(String message)
             {
-                MessageDialog.openInformation(table.getParent().getShell(), "Explore File System", message);
+                MessageDialog.openInformation(table.getParent().getShell(),
+                                Messages.SnapshotHistoryView_ExploreFileSystem, message);
             }
         };
-        actionOpenFileInFileSystem.setText("Explore in File System");
-        actionOpenFileInFileSystem.setImageDescriptor(MemoryAnalyserPlugin
-                        .getImageDescriptor(ISharedImages.EXPLORE));
+        actionOpenFileInFileSystem.setText(Messages.SnapshotHistoryView_ExploreInFileSystem);
+        actionOpenFileInFileSystem.setImageDescriptor(MemoryAnalyserPlugin.getImageDescriptor(ISharedImages.EXPLORE));
 
-        actionDeleteIndeces = new Action("Delete Index Files")
+        actionDeleteIndeces = new Action(Messages.SnapshotHistoryView_DeleteIndexFiles)
         {
             @Override
             public void run()
@@ -435,9 +436,9 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
                 if (!problems.isEmpty())
                 {
                     StringBuilder msg = new StringBuilder();
-                    msg.append("Error deleting the following files:");
+                    msg.append(Messages.SnapshotHistoryView_ErrorDeletingFiles);
                     for (File f : problems)
-                        msg.append("\n\t").append(f.getAbsolutePath());
+                        msg.append("\n\t").append(f.getAbsolutePath());//$NON-NLS-1$
 
                     MessageBox box = new MessageBox(table.getShell(), SWT.OK | SWT.ICON_ERROR);
                     box.setMessage(msg.toString());
@@ -544,10 +545,10 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
             }
             else
             {
-                MessageDialog.openError(this.table.getParent().getShell(), "File does not exist anymore", MessageFormat
-                                .format("The selected file does not exist anymore. "
-                                                + "It will be deleted from the history list."
-                                                + "\n\nSelected File:\n{0}", path.toOSString()));
+                MessageDialog.openError(this.table.getParent().getShell(),
+                                Messages.SnapshotHistoryView_FileDoesNotExistAnymore, MessageFormat.format(
+                                                Messages.SnapshotHistoryView_SelectedFileDoesNotExist, path
+                                                                .toOSString()));
                 SnapshotHistoryService.getInstance().removePath(path);
             }
         }
@@ -560,7 +561,7 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
 
         int lastDot = name.lastIndexOf('.');
         final String prefix = lastDot >= 0 ? name.substring(0, lastDot) : name;
-        final Pattern pattern = Pattern.compile("\\.(.*\\.)?index$");
+        final Pattern pattern = Pattern.compile("\\.(.*\\.)?index$");//$NON-NLS-1$
 
         String[] indexFiles = directory.list(new FilenameFilter()
         {

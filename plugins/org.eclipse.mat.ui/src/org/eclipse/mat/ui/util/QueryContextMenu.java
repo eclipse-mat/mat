@@ -42,6 +42,7 @@ import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.QueryExecution;
 import org.eclipse.mat.ui.editor.AbstractEditorPane;
 import org.eclipse.mat.ui.editor.AbstractPaneJob;
@@ -67,7 +68,7 @@ public class QueryContextMenu
         this.queryResult = result;
 
         if (!(result.getSubject() instanceof IStructuredResult))
-            throw new UnsupportedOperationException("Subject of QueryResult must be of type IStructuredResult");
+            throw new UnsupportedOperationException(Messages.QueryContextMenu_SubjectMustBeOfType);
 
         resultProvider = result.getResultMetaData().getDetailResultProviders();
 
@@ -152,7 +153,7 @@ public class QueryContextMenu
 
         if (queryResult == null)
         {
-            label = "context";
+            label = Messages.QueryContextMenu_context;
         }
         else if (selection.size() == 1)
         {
@@ -160,7 +161,7 @@ public class QueryContextMenu
             Object value = result.getColumnValue(selection.getFirstElement(), 0);
             if (value == null)
             {
-                label = "selection of "
+                label = Messages.QueryContextMenu_selectionOf
                                 + (queryResult.getQuery() != null ? queryResult.getQuery().getName() : queryResult
                                                 .getCommand());
             }
@@ -168,17 +169,17 @@ public class QueryContextMenu
             {
                 Column col = result.getColumns()[0];
                 if (col.getFormatter() != null)
-                    label = "selection of '" + col.getFormatter().format(value) + "'";
+                    label = Messages.QueryContextMenu_selectionOf + "'" + col.getFormatter().format(value) + "'"; //$NON-NLS-2$ //$NON-NLS-1$
                 else
-                    label = "selection of '" + fixLabel(String.valueOf(value)) + "'";
+                    label = Messages.QueryContextMenu_selectionOf + "'" + fixLabel(String.valueOf(value)) + "'"; //$NON-NLS-2$ //$NON-NLS-1$
             }
         }
         else
         {
             if (queryResult.getQuery() != null)
-                label = "selection of " + queryResult.getQuery().getName();
+                label = Messages.QueryContextMenu_selectionOf + queryResult.getQuery().getName();
             else
-                label = "selection of " + queryResult.getCommand();
+                label = Messages.QueryContextMenu_selectionOf + queryResult.getCommand();
         }
 
         return label;
@@ -272,7 +273,8 @@ public class QueryContextMenu
                         @Override
                         public void run()
                         {
-                            new AbstractPaneJob(MessageFormat.format("Processing: {0}", r.getLabel()), null)
+                            new AbstractPaneJob(MessageFormat
+                                            .format(Messages.QueryContextMenu_Processing, r.getLabel()), null)
                             {
 
                                 @Override
@@ -281,8 +283,8 @@ public class QueryContextMenu
                                     try
                                     {
                                         IResult result = r.getResult(firstElement, new ProgressMonitorWrapper(monitor));
-                                        QueryResult qr = new QueryResult(null, MessageFormat.format("Details: {0}", r
-                                                        .getLabel()), result);
+                                        QueryResult qr = new QueryResult(null, MessageFormat.format(
+                                                        Messages.QueryContextMenu_Details, r.getLabel()), result);
                                         QueryExecution.displayResult(editor, originator, null, qr, false);
                                         return Status.OK_STATUS;
                                     }
@@ -348,13 +350,13 @@ public class QueryContextMenu
     // do nothing, to be overwritten
     }
 
-    private static final Pattern PATH_PATTERN = Pattern.compile("^[^ ]*\\.([A-Z][\\p{Alnum}$]([^ .])*.*)$");
+    private static final Pattern PATH_PATTERN = Pattern.compile("^[^ ]*\\.([A-Z][\\p{Alnum}$]([^ .])*.*)$"); //$NON-NLS-1$
 
     private static String fixLabel(String label)
     {
         Matcher matcher = PATH_PATTERN.matcher(label);
         label = matcher.matches() ? matcher.group(1) : label;
-        return (label.length() > 100) ? label.substring(0, 100) + "..." : label;
+        return (label.length() > 100) ? label.substring(0, 100) + "..." : label; //$NON-NLS-1$
     }
 
     private static final class QueryAction extends Action

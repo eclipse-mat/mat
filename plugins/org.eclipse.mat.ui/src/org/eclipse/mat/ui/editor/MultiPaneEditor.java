@@ -50,6 +50,7 @@ import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.snapshot.ImageHelper.ImageImageDescriptor;
 import org.eclipse.mat.ui.util.ErrorHelper;
 import org.eclipse.mat.ui.util.NavigatorState;
@@ -139,7 +140,7 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
         FormToolkit toolkit = new FormToolkit(parent.getDisplay());
 
         final Form form = toolkit.createForm(parent);
-        form.setText("Opening...");
+        form.setText(Messages.MultiPaneEditor_Opening);
         RowLayout layout = new RowLayout(SWT.VERTICAL);
         layout.marginLeft = 10;
         form.getBody().setLayout(layout);
@@ -148,7 +149,7 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
         text.setText(job.getName());
 
         final Button cancel = new Button(form.getBody(), SWT.FLAT);
-        cancel.setText("Cancel");
+        cancel.setText(Messages.MultiPaneEditor_Cancel);
         cancel.addSelectionListener(new SelectionAdapter()
         {
             @Override
@@ -275,7 +276,7 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
                         }
                     };
 
-                    action.setText(items[ii].isShowing() ? items[ii].getText() : items[ii].getText() + "*");
+                    action.setText(items[ii].isShowing() ? items[ii].getText() : items[ii].getText() + "*");//$NON-NLS-1$
                     action.setToolTipText(items[ii].getToolTipText());
                     if (items[ii].getImage() != null)
                         action.setImageDescriptor(new ImageImageDescriptor(items[ii].getImage()));
@@ -368,7 +369,7 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
                 {
                     try
                     {
-                        String editorClass = confElements[jj].getAttribute("editorClass");
+                        String editorClass = confElements[jj].getAttribute("editorClass");//$NON-NLS-1$
                         if (editorClass == null)
                             continue;
 
@@ -385,13 +386,13 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
                             continue;
 
                         // sequenceNr
-                        String sequenceNrStr = confElements[jj].getAttribute("sequenceNr");
+                        String sequenceNrStr = confElements[jj].getAttribute("sequenceNr");//$NON-NLS-1$
                         int sequenceNr = sequenceNrStr != null && sequenceNrStr.length() > 0 ? Integer
                                         .valueOf(sequenceNrStr) : Integer.MAX_VALUE;
 
                         // instantiate editor
                         IMultiPaneEditorContributor contributor = (IMultiPaneEditorContributor) confElements[jj]
-                                        .createExecutableExtension("class");
+                                        .createExecutableExtension("class");//$NON-NLS-1$
 
                         List<IMultiPaneEditorContributor> list = seq2contributors.get(sequenceNr);
                         if (list == null)
@@ -705,7 +706,7 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
         {
             URI uri = ((IURIEditorInput) input).getURI();
 
-            if ("file".equals(uri.getScheme()))
+            if ("file".equals(uri.getScheme())) //$NON-NLS-1$
             {
                 IPath path = new Path(uri.getPath());
                 this.resource = path.toFile();
@@ -713,12 +714,12 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
             }
             else
             {
-                throw new PartInitException(MessageFormat.format("Unsupported scheme: {0}", uri.toASCIIString()));
+                throw new PartInitException(MessageFormat.format(Messages.MultiPaneEditor_UnsupportedScheme, uri.toASCIIString()));
             }
         }
         else
         {
-            throw new PartInitException(MessageFormat.format("Unsupported editor input: {0}", input.getClass()
+            throw new PartInitException(MessageFormat.format(Messages.MultiPaneEditor_UnsupportedEditorInput, input.getClass()
                             .getName()));
         }
 
@@ -822,7 +823,7 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
 
         // close
         MenuItem menuItem = new MenuItem(menu, SWT.PUSH);
-        menuItem.setText("Close");
+        menuItem.setText(Messages.MultiPaneEditor_Close);
         menuItem.addListener(SWT.Selection, new Listener()
         {
             public void handleEvent(Event e)
@@ -834,7 +835,7 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
 
         // close others
         menuItem = new MenuItem(menu, SWT.PUSH);
-        menuItem.setText("Close Others");
+        menuItem.setText(Messages.MultiPaneEditor_CloseOthers);
         menuItem.addListener(SWT.Selection, new Listener()
         {
             public void handleEvent(Event e)
@@ -859,7 +860,7 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
 
         // close all
         menuItem = new MenuItem(menu, SWT.PUSH);
-        menuItem.setText("Close All");
+        menuItem.setText(Messages.MultiPaneEditor_CloseAll);
         menuItem.addListener(SWT.Selection, new Listener()
         {
             public void handleEvent(Event e)
@@ -1058,7 +1059,7 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
 
         public void appendToGroup(String groupName, IAction action)
         {
-            if ("help".equals(groupName))
+            if ("help".equals(groupName))//$NON-NLS-1$
                 help.add(action);
             else
                 delegate.appendToGroup(groupName, action);
@@ -1066,7 +1067,7 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
 
         public void appendToGroup(String groupName, IContributionItem item)
         {
-            if ("help".equals(groupName))
+            if ("help".equals(groupName))//$NON-NLS-1$
                 help.add(item);
             else
                 delegate.appendToGroup(groupName, item);
@@ -1124,7 +1125,7 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
 
         public void prependToGroup(String groupName, IAction action)
         {
-            if ("help".equals(groupName))
+            if ("help".equals(groupName))//$NON-NLS-1$
             {
                 if (help.isEmpty())
                     help.add(action);
@@ -1139,7 +1140,7 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
 
         public void prependToGroup(String groupName, IContributionItem item)
         {
-            if ("help".equals(groupName))
+            if ("help".equals(groupName))//$NON-NLS-1$
             {
                 if (help.isEmpty())
                     help.add(item);

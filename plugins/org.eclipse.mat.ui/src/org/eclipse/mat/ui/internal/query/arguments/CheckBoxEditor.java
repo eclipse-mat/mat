@@ -13,6 +13,7 @@ package org.eclipse.mat.ui.internal.query.arguments;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.registry.ArgumentDescriptor;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
@@ -34,14 +35,14 @@ public class CheckBoxEditor extends ArgumentEditor
 
     public enum Type
     {
-        INCLUDE_CLASS_INSTANCE("include class instance (if defined by a pattern)", null), //
-        INCLUDE_SUBCLASSES("include subclasses (if object is a class)", //
-                        "If specified together with <pattern> the subclasses of the classes matching the pattern will also be included"), //
-        INTEPRET_AS_CLASSLOADER("include loaded objects (if specified object is a classloader)",
-                        "If specified together with <object address> the address will be interpet as address of a classloader"), //
-        RETAINED("as retained set",
-                        "Specifies that the retained set of the described object set should be taken, and not the object set itself"), //
-        VERBOSE("verbose", "Prints information about added classes to the error log");
+        INCLUDE_CLASS_INSTANCE(Messages.CheckBoxEditor_includeClassInstance, null), //
+        INCLUDE_SUBCLASSES(Messages.CheckBoxEditor_includeSubclasses, //
+                        Messages.CheckBoxEditor_includeSubclassesAdditional), //
+        INTEPRET_AS_CLASSLOADER(Messages.CheckBoxEditor_includeLoadedObjects,
+                        Messages.CheckBoxEditor_includeLoadedObjectsAdditional), //
+        RETAINED(Messages.CheckBoxEditor_asRetainedSet,
+                        Messages.CheckBoxEditor_asRetainedSetAdditional), //
+        VERBOSE(Messages.CheckBoxEditor_verbose, Messages.CheckBoxEditor_verboseAdditional);
 
         private String label;
         private String helpText;

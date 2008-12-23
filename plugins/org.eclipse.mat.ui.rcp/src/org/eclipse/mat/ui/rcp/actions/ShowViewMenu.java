@@ -22,6 +22,7 @@ import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.mat.ui.internal.Perspective;
+import org.eclipse.mat.ui.rcp.Messages;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
@@ -66,7 +67,7 @@ public class ShowViewMenu extends ContributionItem
         if (items.length == 0)
         {
             MenuItem item = new MenuItem(menu, SWT.NONE, index++);
-            item.setText("No applicable view");
+            item.setText(Messages.ShowViewMenu_NoApplicableView);
             item.setEnabled(false);
         }
         else

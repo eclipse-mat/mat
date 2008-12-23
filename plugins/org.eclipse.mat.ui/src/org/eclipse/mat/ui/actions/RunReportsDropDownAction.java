@@ -18,6 +18,7 @@ import java.util.List;
 import org.eclipse.jface.action.Action;
 import org.eclipse.mat.report.SpecFactory;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
 import org.eclipse.mat.ui.internal.actions.ExecuteQueryAction;
 import org.eclipse.mat.ui.util.EasyToolBarDropDown;
@@ -32,7 +33,7 @@ public class RunReportsDropDownAction extends EasyToolBarDropDown
 
     public RunReportsDropDownAction(MultiPaneEditor editor)
     {
-        super("Run Expert System Test", MemoryAnalyserPlugin
+        super(Messages.RunReportsDropDownAction_RunExpertSystemTest, MemoryAnalyserPlugin
                         .getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.EXPERT_SYSTEM), editor);
 
         this.editor = editor;
@@ -46,7 +47,7 @@ public class RunReportsDropDownAction extends EasyToolBarDropDown
         List<Action> reportActions = new ArrayList<Action>();
         for (SpecFactory.Report report : SpecFactory.instance().delegates())
         {
-            Action action = new ExecuteQueryAction(editor, "default_report " + report.getExtensionIdentifier());
+            Action action = new ExecuteQueryAction(editor, "default_report " + report.getExtensionIdentifier());//$NON-NLS-1$
             action.setText(report.getName());
             reportActions.add(action);
         }

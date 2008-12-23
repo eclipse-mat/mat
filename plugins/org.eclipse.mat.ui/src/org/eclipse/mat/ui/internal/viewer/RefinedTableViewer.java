@@ -309,7 +309,7 @@ public class RefinedTableViewer extends RefinedResultViewer
                 return 26;
             if (Platform.OS_MACOSX.equals(Platform.getOS()))
                 return 20;
-            if (System.getProperty("os.name").indexOf("Vista") >= 0)
+            if (System.getProperty("os.name").indexOf("Vista") >= 0)//$NON-NLS-1$//$NON-NLS-2$
                 return 20;
             return 18;
         }

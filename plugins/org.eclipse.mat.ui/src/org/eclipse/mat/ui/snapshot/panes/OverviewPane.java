@@ -36,6 +36,7 @@ import org.eclipse.mat.report.SpecFactory;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.SnapshotInfo;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.QueryExecution;
 import org.eclipse.mat.ui.editor.AbstractEditorPane;
 import org.eclipse.mat.ui.editor.AbstractPaneJob;
@@ -112,7 +113,7 @@ public class OverviewPane extends HeapEditorPane implements IHyperlinkListener, 
         Section section = null;
         FormText text = null;
 
-        List<QueryDescriptor> queries = QueryRegistry.instance().getQueries(Pattern.compile("supplement_.*"));
+        List<QueryDescriptor> queries = QueryRegistry.instance().getQueries(Pattern.compile("supplement_.*")); //$NON-NLS-1$
         if (queries.isEmpty())
             return null;
 
@@ -125,7 +126,7 @@ public class OverviewPane extends HeapEditorPane implements IHyperlinkListener, 
         });
 
         StringBuilder buf = new StringBuilder();
-        buf.append("<form>");
+        buf.append("<form>");//$NON-NLS-1$
         for (QueryDescriptor query : queries)
         {
             if (query.accept(getQueryContext()))
@@ -134,7 +135,7 @@ public class OverviewPane extends HeapEditorPane implements IHyperlinkListener, 
                 {
                     section = toolkit.createSection(form.getBody(), Section.TITLE_BAR | Section.EXPANDED
                                     | Section.TWISTIE);
-                    section.setText("Additional Information");
+                    section.setText(Messages.OverviewPane_AdditionalInfo);
                     Composite sectionClient = toolkit.createComposite(section);
                     sectionClient.setLayout(new TableWrapLayout());
                     text = toolkit.createFormText(sectionClient, true);
@@ -147,7 +148,7 @@ public class OverviewPane extends HeapEditorPane implements IHyperlinkListener, 
                 addButton(buf, text, query.getIdentifier(), null, query.getName(), query.getHelp());
             }
         }
-        buf.append("</form>");
+        buf.append("</form>");//$NON-NLS-1$
 
         if (text != null)
             text.setText(buf.toString(), true, false);
@@ -158,7 +159,7 @@ public class OverviewPane extends HeapEditorPane implements IHyperlinkListener, 
     private Section createDetailsSection()
     {
         Section section = toolkit.createSection(form.getBody(), Section.TITLE_BAR | Section.EXPANDED | Section.TWISTIE);
-        section.setText("Details");
+        section.setText(Messages.OverviewPane_Details);
         Composite sectionClient = toolkit.createComposite(section);
         sectionClient.setLayout(new TableWrapLayout());
         FormText text = toolkit.createFormText(sectionClient, true);
@@ -167,23 +168,23 @@ public class OverviewPane extends HeapEditorPane implements IHyperlinkListener, 
         SnapshotInfo info = getSnapshotInput().getSnapshot().getSnapshotInfo();
 
         StringBuilder buf = new StringBuilder();
-        buf.append("<form>");
+        buf.append("<form>");//$NON-NLS-1$
 
-        buf.append("<p>Size: ");
+        buf.append("<p>" + Messages.OverviewPane_Size);//$NON-NLS-1$
         long heapSize = info.getUsedHeapSize();
         String size = Units.Storage.of(heapSize).format(heapSize);
-        buf.append("<b>" + size + "</b>");
+        buf.append("<b>" + size + "</b>");//$NON-NLS-1$//$NON-NLS-2$
 
-        buf.append("  Classes: ");
-        buf.append("<b>" + formatNumber(info.getNumberOfClasses()) + "</b>");
+        buf.append(Messages.OverviewPane_Classes);
+        buf.append("<b>" + formatNumber(info.getNumberOfClasses()) + "</b>");//$NON-NLS-1$//$NON-NLS-2$
 
-        buf.append("  Objects: ");
-        buf.append("<b>" + formatNumber(info.getNumberOfObjects()) + "</b>");
+        buf.append(Messages.OverviewPane_Objects);
+        buf.append("<b>" + formatNumber(info.getNumberOfObjects()) + "</b>");//$NON-NLS-1$//$NON-NLS-2$
 
-        buf.append("  Class Loader: ");
-        buf.append("<b>" + formatNumber(info.getNumberOfClassLoaders()) + "</b></p>");
+        buf.append(Messages.OverviewPane_ClassLoader);
+        buf.append("<b>" + formatNumber(info.getNumberOfClassLoaders()) + "</b></p>");//$NON-NLS-1$//$NON-NLS-2$
 
-        buf.append("</form>");
+        buf.append("</form>");//$NON-NLS-1$
         text.setText(buf.toString(), true, false);
         text.addHyperlinkListener(this);
 
@@ -203,7 +204,7 @@ public class OverviewPane extends HeapEditorPane implements IHyperlinkListener, 
     private Section createActionSection()
     {
         Section section = toolkit.createSection(form.getBody(), Section.TITLE_BAR | Section.EXPANDED | Section.TWISTIE);
-        section.setText("Actions");
+        section.setText(Messages.OverviewPane_Actions);
 
         Composite sectionClient = toolkit.createComposite(section);
         sectionClient.setLayout(new TableWrapLayout());
@@ -211,17 +212,17 @@ public class OverviewPane extends HeapEditorPane implements IHyperlinkListener, 
         FormText text = toolkit.createFormText(sectionClient, true);
         text.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
         StringBuilder buf = new StringBuilder();
-        buf.append("<form>");
+        buf.append("<form>");//$NON-NLS-1$
 
-        addButton(buf, text, "histogram", null, "Histogram", "Lists number of instances per class");
-        addButton(buf, text, "dominator_tree", null, "Dominator Tree",
-                        "List the <b>biggest objects</b> and what they keep alive.");
-        addButton(buf, text, "top_consumers_html", null, "Top Consumers",
-                        "Print the most <b>expensive objects</b> grouped by class and by package.");
-        addButton(buf, text, "duplicate_classes", null, "Duplicate Classes",
-                        "Detect classes loaded by multiple class loaders.");
+        addButton(buf, text, "histogram", null, "Histogram", Messages.OverviewPane_HistogramInfo); //$NON-NLS-1$ //$NON-NLS-2$
+        addButton(buf, text, "dominator_tree", null, "Dominator Tree", //$NON-NLS-1$ //$NON-NLS-2$
+                        Messages.OverviewPane_DominatorTreeInfo);
+        addButton(buf, text, "top_consumers_html", null, "Top Consumers", //$NON-NLS-1$ //$NON-NLS-2$
+                        Messages.OverviewPane_TopConsumersInfo);
+        addButton(buf, text, "duplicate_classes", null, "Duplicate Classes", //$NON-NLS-1$ //$NON-NLS-2$
+                        Messages.OverviewPane_DuplicateClassesInfo);
 
-        buf.append("</form>");
+        buf.append("</form>");//$NON-NLS-1$
         text.setText(buf.toString(), true, false);
         text.addHyperlinkListener(this);
 
@@ -232,19 +233,19 @@ public class OverviewPane extends HeapEditorPane implements IHyperlinkListener, 
     private Section createReportsSection()
     {
         Section section = toolkit.createSection(form.getBody(), Section.TITLE_BAR | Section.EXPANDED | Section.TWISTIE);
-        section.setText("Reports");
+        section.setText(Messages.OverviewPane_Reports);
 
         Composite sectionClient = toolkit.createComposite(section);
         sectionClient.setLayout(new TableWrapLayout());
 
         FormText text = toolkit.createFormText(sectionClient, true);
         StringBuilder buf = new StringBuilder();
-        buf.append("<form>");
+        buf.append("<form>");//$NON-NLS-1$
 
-        addReportsByPattern(text, buf, Pattern.compile(".*:suspects"));
-        addReportsByPattern(text, buf, Pattern.compile(".*:top_components"));
+        addReportsByPattern(text, buf, Pattern.compile(".*:suspects"));//$NON-NLS-1$
+        addReportsByPattern(text, buf, Pattern.compile(".*:top_components"));//$NON-NLS-1$
 
-        buf.append("</form>");
+        buf.append("</form>");//$NON-NLS-1$
         text.setText(buf.toString(), true, false);
         text.addHyperlinkListener(this);
 
@@ -257,7 +258,7 @@ public class OverviewPane extends HeapEditorPane implements IHyperlinkListener, 
         for (SpecFactory.Report report : SpecFactory.instance().delegates())
         {
             if (pattern.matcher(report.getExtensionIdentifier()).matches())
-                addButton(buf, text, "create_report", "default_report " + report.getExtensionIdentifier(), report
+                addButton(buf, text, "create_report", "default_report " + report.getExtensionIdentifier(), report//$NON-NLS-1$//$NON-NLS-2$
                                 .getName(), report.getDescription());
         }
     }
@@ -265,19 +266,19 @@ public class OverviewPane extends HeapEditorPane implements IHyperlinkListener, 
     private Section createStepByStepSection()
     {
         Section section = toolkit.createSection(form.getBody(), Section.TITLE_BAR | Section.EXPANDED | Section.TWISTIE);
-        section.setText("Step By Step");
+        section.setText(Messages.OverviewPane_StepByStep);
 
         Composite sectionClient = toolkit.createComposite(section);
         sectionClient.setLayout(new TableWrapLayout());
 
         FormText text = toolkit.createFormText(sectionClient, true);
         StringBuilder buf = new StringBuilder();
-        buf.append("<form>");
+        buf.append("<form>");//$NON-NLS-1$
 
-        addCheatSheetLink(buf, "org.eclipse.mat.tutorials.component_report", "Component Report",
-                        "Analyze objects which belong to a <b>common root package</b> or <b>class loader</b>.");
+        addCheatSheetLink(buf, "org.eclipse.mat.tutorials.component_report", "Component Report",//$NON-NLS-1$//$NON-NLS-2$
+                        Messages.OverviewPane_ComponentReportInfo);
 
-        buf.append("</form>");
+        buf.append("</form>");//$NON-NLS-1$
         text.setText(buf.toString(), true, false);
         text.addHyperlinkListener(new IHyperlinkListener()
         {
@@ -299,11 +300,11 @@ public class OverviewPane extends HeapEditorPane implements IHyperlinkListener, 
 
     private void addCheatSheetLink(StringBuilder buf, String cheatSheetId, String title, String help)
     {
-        buf.append("<li style=\"text\" value=\"\">");
-        buf.append("<a href=\"").append(cheatSheetId).append("\">").append(title).append("</a>");
+        buf.append("<li style=\"text\" value=\"\">");//$NON-NLS-1$
+        buf.append("<a href=\"").append(cheatSheetId).append("\">").append(title).append("</a>");//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
         if (help != null)
-            buf.append(": ").append(help);
-        buf.append("</li>");
+            buf.append(": ").append(help);//$NON-NLS-1$
+        buf.append("</li>");//$NON-NLS-1$
     }
 
     private void addButton(StringBuilder buf, FormText formText, String commandId, String command, String title,
@@ -319,18 +320,18 @@ public class OverviewPane extends HeapEditorPane implements IHyperlinkListener, 
         Image image = MemoryAnalyserPlugin.getDefault().getImage(descriptor);
         if (image != null)
         {
-            buf.append("<li style=\"image\" value=\"").append(descriptor.getIdentifier()).append("\">");
+            buf.append("<li style=\"image\" value=\"").append(descriptor.getIdentifier()).append("\">");//$NON-NLS-1$//$NON-NLS-2$
             formText.setImage(descriptor.getIdentifier(), image);
         }
         else
         {
-            buf.append("<li style=\"text\" value=\"\">");
+            buf.append("<li style=\"text\" value=\"\">");//$NON-NLS-1$
         }
 
-        buf.append("<a href=\"").append(command).append("\">").append(title).append("</a>");
+        buf.append("<a href=\"").append(command).append("\">").append(title).append("</a>");//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
         if (help != null)
-            buf.append(": ").append(help);
-        buf.append("</li>");
+            buf.append(": ").append(help);//$NON-NLS-1$
+        buf.append("</li>");//$NON-NLS-1$
     }
 
     // //////////////////////////////////////////////////////////////
@@ -341,21 +342,20 @@ public class OverviewPane extends HeapEditorPane implements IHyperlinkListener, 
     {
         final Section section = toolkit.createSection(form.getBody(), Section.TITLE_BAR | Section.EXPANDED
                         | Section.TWISTIE);
-        section.setText("Biggest Objects by Retained Size");
+        section.setText(Messages.OverviewPane_BiggestObjectsByRetainedSIze);
 
         final Composite sectionClient = toolkit.createComposite(section);
 
-        if (Platform.getBundle("org.eclipse.mat.chart.ui") == null)
+        if (Platform.getBundle("org.eclipse.mat.chart.ui") == null)//$NON-NLS-1$
         {
             sectionClient.setLayout(new TableWrapLayout());
 
             FormText text = toolkit.createFormText(sectionClient, true);
             StringBuilder buf = new StringBuilder(256);
 
-            buf.append("<form><li style=\"text\" value=\"\">BIRT Chart Engine (>2.2.2) not available. "
-                            + "No pie today. Check-out the <a href=\"");
-            buf.append("dominator_tree").append("\">Dominator Tree</a> or <a href=\"").append("top_consumers_html")
-                            .append("\">Top Consumers</a>.</li></form>");
+            buf.append("<form><li style=\"text\" value=\"\">" + Messages.OverviewPane_NoPie + "<a href=\""); //$NON-NLS-1$ //$NON-NLS-2$
+            buf.append("dominator_tree").append("\">Dominator Tree</a> or <a href=\"").append("top_consumers_html") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                            .append("\">Top Consumers</a>.</li></form>"); //$NON-NLS-1$
 
             text.setText(buf.toString(), true, false);
             text.addHyperlinkListener(this);
@@ -367,7 +367,7 @@ public class OverviewPane extends HeapEditorPane implements IHyperlinkListener, 
 
             final ISnapshot snapshot = getSnapshotInput().getSnapshot();
 
-            new AbstractPaneJob("Extracting Biggest Objects", this)
+            new AbstractPaneJob(Messages.OverviewPane_ExtractingBigObjects, this)
             {
                 @Override
                 protected IStatus doRun(IProgressMonitor monitor)
@@ -375,7 +375,7 @@ public class OverviewPane extends HeapEditorPane implements IHyperlinkListener, 
                     try
                     {
                         SnapshotQueryContext ctx = new SnapshotQueryContext(snapshot);
-                        final IResult result = CommandLine.execute(ctx, "pie_biggest_objects",
+                        final IResult result = CommandLine.execute(ctx, "pie_biggest_objects",//$NON-NLS-1$
                                         new ProgressMonitorWrapper(monitor));
 
                         PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()
@@ -388,7 +388,7 @@ public class OverviewPane extends HeapEditorPane implements IHyperlinkListener, 
 
                                     pane.init(getEditorSite(), getEditorInput());
                                     pane.createPartControl(sectionClient);
-                                    pane.initWithArgument(new QueryResult(null, "pie_biggest_objects", result));
+                                    pane.initWithArgument(new QueryResult(null, "pie_biggest_objects", result));//$NON-NLS-1$
                                     form.getBody().layout();
 
                                     if (pane instanceof ISelectionProvider)
@@ -456,7 +456,7 @@ public class OverviewPane extends HeapEditorPane implements IHyperlinkListener, 
 
     public String getTitle()
     {
-        return "Overview";
+        return Messages.OverviewPane_Overview;
     }
 
     @Override

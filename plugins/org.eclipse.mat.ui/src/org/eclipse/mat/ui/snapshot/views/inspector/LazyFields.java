@@ -24,6 +24,7 @@ import org.eclipse.mat.snapshot.model.IObjectArray;
 import org.eclipse.mat.snapshot.model.IPrimitiveArray;
 import org.eclipse.mat.snapshot.model.NamedReference;
 import org.eclipse.mat.snapshot.model.ObjectReference;
+import org.eclipse.mat.ui.Messages;
 
 /* package */abstract class LazyFields<O extends IObject>
 {
@@ -66,7 +67,7 @@ import org.eclipse.mat.snapshot.model.ObjectReference;
         {
             ISnapshot snapshot = this.snapshot.get();
             if (snapshot == null)
-                throw new RuntimeException("Error Reading arrays details: snapshot not available anymore.");
+                throw new RuntimeException(Messages.LazyFields_ErrorReadingArrayDetails);
 
             try
             {
@@ -164,7 +165,7 @@ import org.eclipse.mat.snapshot.model.ObjectReference;
         @Override
         protected Object createElement(IPrimitiveArray array, int index)
         {
-            Field field = new Field("[" + index + "]", array.getType(), array.getValueAt(index));
+            Field field = new Field("[" + index + "]", array.getType(), array.getValueAt(index));  //$NON-NLS-1$//$NON-NLS-2$
             return new FieldNode(field, false);
         }
     }
@@ -191,12 +192,12 @@ import org.eclipse.mat.snapshot.model.ObjectReference;
 
             if (refs[0] != 0)
             {
-                NamedReference ref = new NamedReference(array.getSnapshot(), refs[0], "[" + index + "]");
+                NamedReference ref = new NamedReference(array.getSnapshot(), refs[0], "[" + index + "]"); //$NON-NLS-1$ //$NON-NLS-2$
                 return new NamedReferenceNode(ref, false);
             }
             else
             {
-                Field f = new Field("[" + index + "]", IObject.Type.OBJECT, "null");
+                Field f = new Field("[" + index + "]", IObject.Type.OBJECT, "null");//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 return new FieldNode(f, false);
             }
         }
@@ -223,7 +224,7 @@ import org.eclipse.mat.snapshot.model.ObjectReference;
                 }
                 else
                 {
-                    Field f = new Field(field.getName(), field.getType(), "null");
+                    Field f = new Field(field.getName(), field.getType(), "null"); //$NON-NLS-1$
                     appendTo.add(new FieldNode(f, areStatics));
                 }
             }

@@ -36,6 +36,7 @@ import org.eclipse.mat.report.QuerySpec;
 import org.eclipse.mat.report.RendererRegistry;
 import org.eclipse.mat.report.TestSuite;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.internal.viewer.RefinedResultViewer.ControlItem;
 import org.eclipse.mat.ui.internal.viewer.RefinedResultViewer.Key;
 import org.eclipse.mat.ui.util.Copy;
@@ -59,7 +60,7 @@ import org.eclipse.swt.widgets.TreeItem;
 
         public HtmlExport(Control control, RefinedStructuredResult result, IQueryContext queryContext)
         {
-            super("Export to HTML...", MemoryAnalyserPlugin
+            super(Messages.ExportActions_ExportToHTML, MemoryAnalyserPlugin
                             .getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.EXPORT_HTML));
             this.control = control;
             this.result = result;
@@ -70,8 +71,8 @@ import org.eclipse.swt.widgets.TreeItem;
         public void run()
         {
             ExportDialog dialog = new ExportDialog(control.getShell(), //
-                            new String[] { "Zipped Web Page (*.zip)" }, //
-                            new String[] { "*.zip" });
+                            new String[] { Messages.ExportActions_ZippedWebPage }, //
+                            new String[] { "*.zip" });//$NON-NLS-1$
             final String fileName = dialog.open();
             if (fileName == null)
                 return;
@@ -132,14 +133,14 @@ import org.eclipse.swt.widgets.TreeItem;
                 });
             }
 
-            new Job("Export HTML")
+            new Job(Messages.ExportActions_ExportHTML)
             {
                 @Override
                 protected IStatus run(IProgressMonitor monitor)
                 {
                     try
                     {
-                        QuerySpec spec = new QuerySpec("Export", result);
+                        QuerySpec spec = new QuerySpec(Messages.ExportActions_Export, result);
                         spec.set(Params.Rendering.LIMIT, String.valueOf(limit));
                         TestSuite suite = new TestSuite.Builder(spec)//
                                         .output(new File(fileName)) //
@@ -169,7 +170,7 @@ import org.eclipse.swt.widgets.TreeItem;
 
         public CsvExport(Control control, IResult result, IQueryContext queryContext)
         {
-            super("Export to CSV...", MemoryAnalyserPlugin
+            super(Messages.ExportActions_ExportToCSV, MemoryAnalyserPlugin
                             .getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.EXPORT_CSV));
             this.control = control;
             this.result = result;
@@ -180,13 +181,13 @@ import org.eclipse.swt.widgets.TreeItem;
         public void run()
         {
             ExportDialog dialog = new ExportDialog(control.getShell(), //
-                            new String[] { "Comma Separated Values Files (*.csv)" }, //
-                            new String[] { "*.csv" });
+                            new String[] { Messages.ExportActions_CsvFiles }, //
+                            new String[] { "*.csv" });//$NON-NLS-1$
             final String fileName = dialog.open();
             if (fileName == null)
                 return;
 
-            new Job("Export CSV")
+            new Job(Messages.ExportActions_ExportCSV)
             {
 
                 @Override
@@ -196,7 +197,7 @@ import org.eclipse.swt.widgets.TreeItem;
 
                     try
                     {
-                        IOutputter outputter = RendererRegistry.instance().match("csv", result.getClass());
+                        IOutputter outputter = RendererRegistry.instance().match("csv", result.getClass());//$NON-NLS-1$
                         writer = new PrintWriter(new FileWriter(fileName));
                         outputter.process(new ContextImpl(queryContext, //
                                         new File(fileName).getParentFile()), result, writer);
@@ -227,7 +228,7 @@ import org.eclipse.swt.widgets.TreeItem;
 
         public TxtExport(Control control)
         {
-            super("Export to TXT...", MemoryAnalyserPlugin
+            super(Messages.ExportActions_ExportToTxt, MemoryAnalyserPlugin
                             .getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.EXPORT_TXT));
             this.control = control;
         }
@@ -236,8 +237,8 @@ import org.eclipse.swt.widgets.TreeItem;
         public void run()
         {
             ExportDialog dialog = new ExportDialog(control.getShell(), //
-                            new String[] { "Plain Text(*.txt)" }, //
-                            new String[] { "*.txt" });
+                            new String[] { Messages.ExportActions_PlainText }, //
+                            new String[] { "*.txt" });//$NON-NLS-1$
             String fileName = dialog.open();
             if (fileName == null)
                 return;
@@ -262,7 +263,7 @@ import org.eclipse.swt.widgets.TreeItem;
 
         public String getId()
         {
-            return "X";
+            return "X"; //$NON-NLS-1$
         }
 
         public int getLimit()
@@ -277,7 +278,7 @@ import org.eclipse.swt.widgets.TreeItem;
 
         public String getPathToRoot()
         {
-            return "";
+            return "";//$NON-NLS-1$
         }
 
         public IQueryContext getQueryContext()
@@ -362,7 +363,7 @@ import org.eclipse.swt.widgets.TreeItem;
                     {
                         // The file already exists; asks for confirmation
                         MessageBox mb = new MessageBox(dlg.getParent(), SWT.ICON_WARNING | SWT.YES | SWT.NO);
-                        mb.setMessage(MessageFormat.format("{0} already exists. Do you want to replace it?", fileName));
+                        mb.setMessage(MessageFormat.format(Messages.ExportActions_AlreadyExists, fileName));
 
                         // If they click Yes, we're done and we drop out. If
                         // they click No, we redisplay the File Dialog

@@ -55,6 +55,7 @@ import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IObjectArray;
 import org.eclipse.mat.snapshot.model.IPrimitiveArray;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.snapshot.ImageHelper;
 import org.eclipse.mat.ui.snapshot.editor.HeapEditor;
 import org.eclipse.mat.ui.snapshot.editor.ISnapshotEditorInput;
@@ -157,9 +158,9 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
             else if (element instanceof ObjectNode)
                 return ((ObjectNode) element).getLabel();
             else if (element instanceof GCRootInfo[])
-                return "GC root: " + GCRootInfo.getTypeSetAsString((GCRootInfo[]) element);
+                return "GC root: " + GCRootInfo.getTypeSetAsString((GCRootInfo[]) element); //$NON-NLS-1$
             else
-                return "";
+                return "";//$NON-NLS-1$
         }
 
         @Override
@@ -327,7 +328,7 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
         @Override
         public String getText(Object element)
         {
-            return (element instanceof IClass) ? ((IClass) element).getName() : "";
+            return (element instanceof IClass) ? ((IClass) element).getName() : "";//$NON-NLS-1$
         }
 
         public Font getFont(Object element)
@@ -381,7 +382,7 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
         {
             public void paintControl(PaintEvent paintEvent)
             {
-                Object toShow = visualViewer.getData("toShow");
+                Object toShow = visualViewer.getData("toShow");//$NON-NLS-1$
                 if (toShow == null)
                     return;
 
@@ -426,7 +427,7 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
         };
         syncAction.setImageDescriptor(MemoryAnalyserPlugin
                         .getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.SYNCED));
-        syncAction.setToolTipText("Link with Snapshot");
+        syncAction.setToolTipText(Messages.InspectorView_LinkWithSnapshot);
 
         return syncAction;
 
@@ -450,7 +451,7 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
             itemHeight = 17;
 
         int scrollbarHeight = 2;
-        if (!"win32".equals(Platform.getOS()))
+        if (!"win32".equals(Platform.getOS()))//$NON-NLS-1$
             scrollbarHeight = table.getHorizontalBar().getSize().y;
 
         int detailsHeight = 9 * itemHeight + scrollbarHeight;
@@ -476,7 +477,7 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
         tabFolder.setTabHeight(Math.max(toolBar.computeSize(SWT.DEFAULT, SWT.DEFAULT).y, tabFolder.getTabHeight()));
         final ToolItem pinItem = new ToolItem(toolBar, SWT.CHECK);
         pinItem.setImage(MemoryAnalyserPlugin.getImage(MemoryAnalyserPlugin.ISharedImages.PINNED));
-        pinItem.setToolTipText("Pin Tab");
+        pinItem.setToolTipText(Messages.InspectorView_PinTab);
         pinItem.addSelectionListener(new SelectionAdapter()
         {
             @Override
@@ -490,17 +491,17 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
         toolBar.pack();
 
         final CTabItem staticsTab = new CTabItem(tabFolder, SWT.NULL);
-        staticsTab.setText("Statics");
+        staticsTab.setText(Messages.InspectorView_Statics);
         staticsTable = createTable(tabFolder);
         staticsTab.setControl(staticsTable.getTable().getParent());
 
         CTabItem instancesTab = new CTabItem(tabFolder, SWT.NULL);
-        instancesTab.setText("Attributes");
+        instancesTab.setText(Messages.InspectorView_Attributes);
         attributesTable = createTable(tabFolder);
         instancesTab.setControl(attributesTable.getTable().getParent());
 
         CTabItem classHierarchyTab = new CTabItem(tabFolder, SWT.NULL);
-        classHierarchyTab.setText("Class Hierarchy");
+        classHierarchyTab.setText(Messages.InspectorView_ClassHierarchy);
         classHierarchyTree = createHierarchyTree(tabFolder);
         classHierarchyTab.setControl(classHierarchyTree.getTree().getParent());
 
@@ -546,18 +547,18 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
         });
 
         TableColumn tableColumn = new TableColumn(table, SWT.LEFT);
-        tableColumn.setText("Type");
+        tableColumn.setText(Messages.InspectorView_Type);
         tableColumn.setWidth(50);
         columnLayout.setColumnData(tableColumn, new ColumnWeightData(10, 50, false));
 
         tableColumn = new TableColumn(table, SWT.LEFT);
         tableColumn.setWidth(80);
-        tableColumn.setText("Name");
+        tableColumn.setText(Messages.InspectorView_Name);
         columnLayout.setColumnData(tableColumn, new ColumnWeightData(30, 80));
 
         tableColumn = new TableColumn(table, SWT.LEFT);
         tableColumn.setWidth(250);
-        tableColumn.setText("Value");
+        tableColumn.setText(Messages.InspectorView_Value);
         columnLayout.setColumnData(tableColumn, new ColumnWeightData(60, 250, true));
 
         table.setHeaderVisible(true);
@@ -600,7 +601,7 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
 
             if (isObject)
             {
-                manager.add(new Action("Go Into")
+                manager.add(new Action(Messages.InspectorView_GoInto)
                 {
                     @Override
                     public void run()
@@ -778,7 +779,7 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
             final int objectId = objectSet.getObjectId();
 
             // do not update if the selection has not changed (double click)
-            Object data = topTableViewer.getData("input");
+            Object data = topTableViewer.getData("input"); //$NON-NLS-1$
             if (data != null)
             {
                 int current = ((Integer) data).intValue();
@@ -786,7 +787,7 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
                     return;
             }
 
-            Job job = new Job("Update Object Details")
+            Job job = new Job(Messages.InspectorView_UpdateObjectDetails)
             {
 
                 @Override
@@ -816,7 +817,7 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
                             public void run()
                             {
                                 topTableViewer.setInput(classInfos);
-                                topTableViewer.setData("input", objectId);
+                                topTableViewer.setData("input", objectId);//$NON-NLS-1$
                                 staticsTable.setInput(staticFields);
                                 attributesTable.setInput(attributeFields);
                                 updateVisualViewer(toShow);
@@ -852,7 +853,7 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
 
                             private void updateVisualViewer(Object toShow)
                             {
-                                Object previous = visualViewer.getData("toShow");
+                                Object previous = visualViewer.getData("toShow");//$NON-NLS-1$
                                 if (previous instanceof Image)
                                     ((Image) previous).dispose();
 
@@ -861,11 +862,11 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
                                     if (toShow instanceof ImageData)
                                     {
                                         Image image = new Image(visualViewer.getDisplay(), (ImageData) toShow);
-                                        visualViewer.setData("toShow", image);
+                                        visualViewer.setData("toShow", image);//$NON-NLS-1$
                                     }
                                     else if (toShow instanceof RGB)
                                     {
-                                        visualViewer.setData("toShow", toShow);
+                                        visualViewer.setData("toShow", toShow);//$NON-NLS-1$
                                     }
                                     visualViewer.redraw();
                                 }
@@ -878,7 +879,7 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
                     }
                     catch (SnapshotException e)
                     {
-                        return new Status(IStatus.ERROR, MemoryAnalyserPlugin.PLUGIN_ID, "Error updating Inspector", e);
+                        return new Status(IStatus.ERROR, MemoryAnalyserPlugin.PLUGIN_ID, Messages.InspectorView_ErrorUpdatingInspector, e);
                     }
                 }
 
@@ -886,31 +887,31 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
                 {
                     String kind = object.getClazz().getName();
 
-                    if ("org.eclipse.swt.graphics.RGB".equals(kind))
+                    if ("org.eclipse.swt.graphics.RGB".equals(kind))//$NON-NLS-1$
                     {
-                        Integer red = (Integer) object.resolveValue("red");
-                        Integer green = (Integer) object.resolveValue("green");
-                        Integer blue = (Integer) object.resolveValue("blue");
+                        Integer red = (Integer) object.resolveValue("red");//$NON-NLS-1$
+                        Integer green = (Integer) object.resolveValue("green");//$NON-NLS-1$
+                        Integer blue = (Integer) object.resolveValue("blue");//$NON-NLS-1$
 
                         if (red == null || green == null || blue == null)
                             return null;
 
                         return new RGB(red, green, blue);
                     }
-                    else if ("org.eclipse.swt.graphics.ImageData".equals(kind))
+                    else if ("org.eclipse.swt.graphics.ImageData".equals(kind))//$NON-NLS-1$
                     {
-                        IPrimitiveArray data = (IPrimitiveArray) object.resolveValue("data");
-                        Integer width = (Integer) object.resolveValue("width");
-                        Integer height = (Integer) object.resolveValue("height");
-                        Integer depth = (Integer) object.resolveValue("depth");
-                        Integer scanlinePad = (Integer) object.resolveValue("scanlinePad");
-                        Integer transparentPixel = (Integer) object.resolveValue("transparentPixel");
+                        IPrimitiveArray data = (IPrimitiveArray) object.resolveValue("data");//$NON-NLS-1$
+                        Integer width = (Integer) object.resolveValue("width");//$NON-NLS-1$
+                        Integer height = (Integer) object.resolveValue("height");//$NON-NLS-1$
+                        Integer depth = (Integer) object.resolveValue("depth");//$NON-NLS-1$
+                        Integer scanlinePad = (Integer) object.resolveValue("scanlinePad");//$NON-NLS-1$
+                        Integer transparentPixel = (Integer) object.resolveValue("transparentPixel");//$NON-NLS-1$
 
                         if (data == null || width == null || height == null || depth == null || scanlinePad == null
                                         || transparentPixel == null)
                             return null;
 
-                        PaletteData paletteData = makePaletteData((IInstance) object.resolveValue("palette"));
+                        PaletteData paletteData = makePaletteData((IInstance) object.resolveValue("palette"));//$NON-NLS-1$
                         if (paletteData == null)
                             return null;
 
@@ -921,7 +922,7 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
                         ImageData imageData = new ImageData(width, height, depth, paletteData, scanlinePad, dataCopy);
                         imageData.transparentPixel = transparentPixel;
 
-                        IPrimitiveArray alphaBytes = (IPrimitiveArray) object.resolveValue("alphaData");
+                        IPrimitiveArray alphaBytes = (IPrimitiveArray) object.resolveValue("alphaData");//$NON-NLS-1$
                         if (alphaBytes != null)
                         {
                             byte[] alphaDataArray = (byte[]) alphaBytes.getValueArray();
@@ -969,7 +970,7 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
                     List<Object> details = new ArrayList<Object>();
 
                     details.add(new InfoItem(object.getObjectId(), MemoryAnalyserPlugin
-                                    .getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.ID), "0x"
+                                    .getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.ID), "0x"//$NON-NLS-1$
                                     + Long.toHexString(object.getObjectAddress())));
 
                     String className = object instanceof IClass ? ((IClass) object).getName() : object.getClazz()
@@ -982,7 +983,7 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
                                         .getType(object)), className);
                         details.add(item);
                         details.add(new InfoItem(MemoryAnalyserPlugin
-                                        .getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.PACKAGE), ""));
+                                        .getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.PACKAGE), ""));//$NON-NLS-1$
                     }
                     else
                     {
@@ -1012,28 +1013,28 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
 
                     details.add(new InfoItem(MemoryAnalyserPlugin
                                     .getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.SIZE), MessageFormat.format(
-                                    "{0,number} (shallow size)", object.getUsedHeapSize())));
+                                    Messages.InspectorView_shallowSize, object.getUsedHeapSize())));
                     details.add(new InfoItem(MemoryAnalyserPlugin
                                     .getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.SIZE), MessageFormat.format(
-                                    "{0,number} (retained size)", object.getRetainedHeapSize())));
+                                    Messages.InspectorView_retainedSize, object.getRetainedHeapSize())));
 
                     GCRootInfo[] gc = object.getGCRootInfo();
                     details.add(gc != null ? (Object) gc : new InfoItem(MemoryAnalyserPlugin
-                                    .getImageDescriptor(ImageHelper.Decorations.GC_ROOT), "no GC root"));
+                                    .getImageDescriptor(ImageHelper.Decorations.GC_ROOT), Messages.InspectorView_noGCRoot));
                     return details;
                 }
 
                 private PaletteData makePaletteData(IInstance palette) throws SnapshotException
                 {
-                    Boolean isDirect = (Boolean) palette.resolveValue("isDirect");
+                    Boolean isDirect = (Boolean) palette.resolveValue("isDirect");//$NON-NLS-1$
                     if (isDirect == null)
                         return null;
 
                     if (isDirect)
                     {
-                        Integer redMask = (Integer) palette.resolveValue("redMask");
-                        Integer greenMask = (Integer) palette.resolveValue("greenMask");
-                        Integer blueMask = (Integer) palette.resolveValue("blueMask");
+                        Integer redMask = (Integer) palette.resolveValue("redMask");//$NON-NLS-1$
+                        Integer greenMask = (Integer) palette.resolveValue("greenMask");//$NON-NLS-1$
+                        Integer blueMask = (Integer) palette.resolveValue("blueMask");//$NON-NLS-1$
 
                         if (redMask == null || greenMask == null || blueMask == null)
                             return null;
@@ -1042,7 +1043,7 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
                     }
                     else
                     {
-                        IObjectArray array = (IObjectArray) palette.resolveValue("colors");
+                        IObjectArray array = (IObjectArray) palette.resolveValue("colors");//$NON-NLS-1$
                         if (array == null)
                             return null;
 
@@ -1055,9 +1056,9 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
                             if (obj == null)
                                 return null;
 
-                            Integer red = (Integer) obj.resolveValue("red");
-                            Integer green = (Integer) obj.resolveValue("green");
-                            Integer blue = (Integer) obj.resolveValue("blue");
+                            Integer red = (Integer) obj.resolveValue("red");//$NON-NLS-1$
+                            Integer green = (Integer) obj.resolveValue("green");//$NON-NLS-1$
+                            Integer blue = (Integer) obj.resolveValue("blue");//$NON-NLS-1$
 
                             if (red == null || green == null || blue == null)
                                 return null;

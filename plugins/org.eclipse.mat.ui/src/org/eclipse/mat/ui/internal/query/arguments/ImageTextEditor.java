@@ -148,13 +148,13 @@ public class ImageTextEditor extends TextEditor
         button = new ImageHyperlink(parent, SWT.CENTER);
         button.setImage(JFaceResources.getImage(Dialog.DLG_IMG_HELP));
         button.setBackground(parent.getBackground());
-        button.setToolTipText(JFaceResources.getString("helpToolTip"));
+        button.setToolTipText(JFaceResources.getString("helpToolTip"));//$NON-NLS-1$
         button.addHyperlinkListener(new HyperlinkAdapter()
         {
             public void linkActivated(HyperlinkEvent e)
             {
                 PlatformUI.getWorkbench().getHelpSystem().displayHelpResource(
-                                "/org.eclipse.mat.ui.help/reference/selectingqueries.html#queryarguments__"
+                                "/org.eclipse.mat.ui.help/reference/selectingqueries.html#queryarguments__"//$NON-NLS-1$
                                                 + decorator.getHelpLink());
             }
         });

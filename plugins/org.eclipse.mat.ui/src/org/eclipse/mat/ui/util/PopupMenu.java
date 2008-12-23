@@ -18,6 +18,7 @@ import org.eclipse.jface.action.ExternalActionManager;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
@@ -39,7 +40,7 @@ public final class PopupMenu
 
     public PopupMenu()
     {
-        this.name = "NONE";
+        this.name = Messages.PopupMenu_NONE;
     }
 
     public PopupMenu(String name)
@@ -290,7 +291,7 @@ public final class PopupMenu
 
         public void handleEvent(Event event)
         {
-            statusLineManager.setMessage("");
+            statusLineManager.setMessage(""); //$NON-NLS-1$
         }
     }
 
@@ -305,7 +306,7 @@ public final class PopupMenu
 
         public void handleEvent(Event event)
         {
-            statusLineManager.setMessage("");
+            statusLineManager.setMessage("");//$NON-NLS-1$
         }
     }
 
@@ -329,7 +330,7 @@ public final class PopupMenu
                 tooltip = ((PopupMenu) data).toolTipText;
 
             if (tooltip == null)
-                tooltip = "";
+                tooltip = "";//$NON-NLS-1$
 
             statusLineManager.setMessage(tooltip);
         }

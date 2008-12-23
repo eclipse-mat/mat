@@ -17,6 +17,7 @@ import org.eclipse.mat.query.registry.CategoryDescriptor;
 import org.eclipse.mat.query.registry.QueryDescriptor;
 import org.eclipse.mat.query.registry.QueryRegistry;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
 import org.eclipse.mat.ui.internal.actions.ExecuteQueryAction;
 import org.eclipse.mat.ui.internal.browser.QueryBrowserPopup;
@@ -33,7 +34,7 @@ public class QueryDropDownMenuAction extends EasyToolBarDropDown
 
     public QueryDropDownMenuAction(MultiPaneEditor editor)
     {
-        super("Open Query Browser", MemoryAnalyserPlugin.getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.QUERY),
+        super(Messages.QueryDropDownMenuAction_OpenQueryBrowser, MemoryAnalyserPlugin.getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.QUERY),
                         editor);
 
         this.editor = editor;
@@ -43,7 +44,7 @@ public class QueryDropDownMenuAction extends EasyToolBarDropDown
 
     private void makeActions()
     {
-        queryBrowser = new Action("Search Queries...")
+        queryBrowser = new Action(Messages.QueryDropDownMenuAction_SearchQueries)
         {
             @Override
             public void run()
@@ -53,8 +54,8 @@ public class QueryDropDownMenuAction extends EasyToolBarDropDown
         };
         queryBrowser.setImageDescriptor(MemoryAnalyserPlugin
                         .getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.QUERY));
-        queryBrowser.setToolTipText("Search queries by name and description.");
-        queryBrowser.setActionDefinitionId("org.eclipse.mat.ui.query.browser.QueryBrowser");
+        queryBrowser.setToolTipText(Messages.QueryDropDownMenuAction_SeachQueriesByName);
+        queryBrowser.setActionDefinitionId("org.eclipse.mat.ui.query.browser.QueryBrowser");//$NON-NLS-1$
     }
 
     @Override
@@ -96,8 +97,8 @@ public class QueryDropDownMenuAction extends EasyToolBarDropDown
         {
             menu.addSeparator();
 
-            PopupMenu historyMenu = new PopupMenu("History");
-            historyMenu.setActionDefinitionId("org.eclipse.mat.ui.query.browser.QueryHistory");
+            PopupMenu historyMenu = new PopupMenu(Messages.QueryDropDownMenuAction_History);
+            historyMenu.setActionDefinitionId("org.eclipse.mat.ui.query.browser.QueryHistory");//$NON-NLS-1$
             menu.add(historyMenu);
 
             int count = 0;
@@ -109,7 +110,7 @@ public class QueryDropDownMenuAction extends EasyToolBarDropDown
                     break;
             }
 
-            Action action = new Action("All...")
+            Action action = new Action(Messages.QueryDropDownMenuAction_All)
             {
                 @Override
                 public void run()

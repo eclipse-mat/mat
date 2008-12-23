@@ -23,6 +23,7 @@ import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.registry.QueryResult;
 import org.eclipse.mat.query.results.DisplayFileResult;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.QueryExecution;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
 import org.eclipse.mat.ui.util.ErrorHelper;
@@ -43,7 +44,7 @@ public class ImportReportAction extends Action
 
     public ImportReportAction(MultiPaneEditor editor, File reportZipFile)
     {
-        super("Open Report...", MemoryAnalyserPlugin
+        super(Messages.ImportReportAction_OpenReport, MemoryAnalyserPlugin
                         .getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.IMPORT_REPORT));
 
         this.editor = editor;
@@ -59,9 +60,9 @@ public class ImportReportAction extends Action
             FileDialog dialog = new FileDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
                             SWT.OPEN | SWT.MULTI);
 
-            dialog.setText("Import Report");
-            dialog.setFilterExtensions(new String[] { "*.zip" });
-            dialog.setFilterNames(new String[] { "Memory Analyzer Reports" });
+            dialog.setText(Messages.ImportReportAction_ImportReport);
+            dialog.setFilterExtensions(new String[] { "*.zip" });//$NON-NLS-1$
+            dialog.setFilterNames(new String[] { Messages.ImportReportAction_MemoryAnalyzerReports });
 
             prepareFilterSelection(dialog);
 
@@ -99,7 +100,7 @@ public class ImportReportAction extends Action
     public static void openReport(MultiPaneEditor editor, File reportZipFile) throws IOException
     {
         IResult result = unzipAndOpen(reportZipFile);
-        QueryResult queryResult = new QueryResult(null, "Report: " + reportZipFile.getName(), result);
+        QueryResult queryResult = new QueryResult(null, Messages.ImportReportAction_Report + reportZipFile.getName(), result);
         QueryExecution.displayResult(editor, null, null, queryResult, false);
     }
 
@@ -108,7 +109,7 @@ public class ImportReportAction extends Action
         ZipFile zipFile = null;
         try
         {
-            File targetDir = FileUtils.createTempDirectory("report", null);
+            File targetDir = FileUtils.createTempDirectory("report", null);//$NON-NLS-1$
 
             zipFile = new ZipFile(reportZipFile);
 
@@ -159,7 +160,7 @@ public class ImportReportAction extends Action
                 }
             }
 
-            return new DisplayFileResult(new File(targetDir, "index.html"));
+            return new DisplayFileResult(new File(targetDir, "index.html"));//$NON-NLS-1$
         }
         finally
         {
@@ -185,7 +186,7 @@ public class ImportReportAction extends Action
         String prefix = p < 0 ? name : name.substring(0, p);
 
         dialog.setFilterPath(snapshot.getParentFile().getAbsolutePath());
-        dialog.setFileName(prefix + "*.zip");
+        dialog.setFileName(prefix + "*.zip");//$NON-NLS-1$
     }
 
 }

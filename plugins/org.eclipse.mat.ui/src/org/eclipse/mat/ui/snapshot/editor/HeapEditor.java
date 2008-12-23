@@ -34,6 +34,7 @@ import org.eclipse.mat.internal.snapshot.SnapshotQueryContext;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.SnapshotFactory;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.editor.AbstractEditorPane;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
 import org.eclipse.mat.ui.internal.GettingStartedWizard;
@@ -198,7 +199,7 @@ public class HeapEditor extends MultiPaneEditor implements ISelectionProvider
         {
             URI uri = ((IURIEditorInput) input).getURI();
 
-            if ("file".equals(uri.getScheme()))
+            if ("file".equals(uri.getScheme())) //$NON-NLS-1$
             {
                 IPath path = new Path(uri.getPath());
                 this.snapshotInput = new SnapshotEditorInput(path);
@@ -206,12 +207,12 @@ public class HeapEditor extends MultiPaneEditor implements ISelectionProvider
             }
             else
             {
-                throw new PartInitException(MessageFormat.format("Unsupported scheme: {0}", uri.toASCIIString()));
+                throw new PartInitException(MessageFormat.format(Messages.HeapEditor_UnsupportedScheme, uri.toASCIIString()));
             }
         }
         else
         {
-            throw new PartInitException(MessageFormat.format("Unsupported editor input: {0}", input.getClass()
+            throw new PartInitException(MessageFormat.format(Messages.HeapEditor_UnsupportedEditorInput, input.getClass()
                             .getName()));
         }
     }
@@ -248,7 +249,7 @@ public class HeapEditor extends MultiPaneEditor implements ISelectionProvider
     @Override
     protected void createInitialPanes()
     {
-        addNewPage("OverviewPane", null);
+        addNewPage("OverviewPane", null); //$NON-NLS-1$
 
         updateToolbar();
 

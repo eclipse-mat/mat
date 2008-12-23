@@ -41,6 +41,7 @@ import org.eclipse.mat.query.registry.QueryRegistry;
 import org.eclipse.mat.query.registry.QueryResult;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.QueryExecution;
 import org.eclipse.mat.ui.editor.AbstractEditorPane;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
@@ -101,7 +102,7 @@ public class QueryResultPane extends AbstractEditorPane implements ISelectionPro
 
     public String getTitle()
     {
-        return viewer != null ? viewer.getQueryResult().getTitle() : "Query Result";
+        return viewer != null ? viewer.getQueryResult().getTitle() : Messages.QueryResultPane_QueryResult;
     }
 
     @Override
@@ -168,15 +169,15 @@ public class QueryResultPane extends AbstractEditorPane implements ISelectionPro
                 }
                 if (ids.isEmpty())
                 {
-                    ErrorHelper.showInfoMessage("It is not possible to show the current result as histogram");
+                    ErrorHelper.showInfoMessage(Messages.QueryResultPane_InfoMessage);
                 }
 
                 try
                 {
                     IEditorPart editor = site.getPage().getActiveEditor();
-                    QueryDescriptor descriptor = QueryRegistry.instance().getQuery("histogram");
+                    QueryDescriptor descriptor = QueryRegistry.instance().getQuery("histogram"); //$NON-NLS-1$
                     ArgumentSet set = descriptor.createNewArgumentSet(getQueryContext());
-                    set.setArgumentValue(descriptor.getArgumentByName("objects"), new IHeapObjectArgument()
+                    set.setArgumentValue(descriptor.getArgumentByName("objects"), new IHeapObjectArgument() //$NON-NLS-1$
                     {
 
                         public int[] getIds(IProgressListener listener) throws SnapshotException
@@ -237,7 +238,7 @@ public class QueryResultPane extends AbstractEditorPane implements ISelectionPro
         };
         showAsHistogramAction.setImageDescriptor(MemoryAnalyserPlugin
                         .getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.SHOW_AS_HISTOGRAM));
-        showAsHistogramAction.setToolTipText("Show as Histogram");
+        showAsHistogramAction.setToolTipText(Messages.QueryResultPane_ShowAsHistogram);
         manager.add(showAsHistogramAction);
     }
 

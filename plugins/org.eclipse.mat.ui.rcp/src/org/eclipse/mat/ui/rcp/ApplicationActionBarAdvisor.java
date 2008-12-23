@@ -50,7 +50,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor
         register(exitAction);
         copyAction = ActionFactory.COPY.create(window);
         register(copyAction);
-        helpAction = new OpenHelp();// ActionFactory.HELP_CONTENTS.create(window);
+        helpAction = new OpenHelp();
         register(helpAction);
         welcomeAction = ActionFactory.INTRO.create(window);
         register(welcomeAction);
@@ -62,25 +62,25 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor
 
     protected void fillMenuBar(IMenuManager menuBar)
     {
-        MenuManager fileMenu = new MenuManager("&File", IWorkbenchActionConstants.M_FILE);
+        MenuManager fileMenu = new MenuManager(Messages.ApplicationActionBarAdvisor_File, IWorkbenchActionConstants.M_FILE);
         fileMenu.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
         fileMenu.add(historyAction);
         fileMenu.add(new GroupMarker(IWorkbenchActionConstants.MRU));
         fileMenu.add(exitAction);
         menuBar.add(fileMenu);
 
-        MenuManager editMenu = new MenuManager("&Edit", IWorkbenchActionConstants.M_EDIT);
+        MenuManager editMenu = new MenuManager(Messages.ApplicationActionBarAdvisor_Edit, IWorkbenchActionConstants.M_EDIT);
         editMenu.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
         editMenu.add(copyAction);
         menuBar.add(editMenu);
 
-        MenuManager windowMenu = new MenuManager("&Window", IWorkbenchActionConstants.M_WINDOW);
+        MenuManager windowMenu = new MenuManager(Messages.ApplicationActionBarAdvisor_Window, IWorkbenchActionConstants.M_WINDOW);
         windowMenu.add(openViewAction);
         windowMenu.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
         windowMenu.add(preferencesAction);
         menuBar.add(windowMenu);
 
-        MenuManager helpMenu = new MenuManager("&Help", IWorkbenchActionConstants.M_HELP);
+        MenuManager helpMenu = new MenuManager(Messages.ApplicationActionBarAdvisor_Help, IWorkbenchActionConstants.M_HELP);
         helpMenu.add(new Separator(IWorkbenchActionConstants.GROUP_HELP));
         helpMenu.add(welcomeAction);
         helpMenu.add(helpAction);

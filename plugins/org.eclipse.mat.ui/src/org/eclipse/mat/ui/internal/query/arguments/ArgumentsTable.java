@@ -40,6 +40,7 @@ import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.SnapshotFactory;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.internal.query.arguments.LinkEditor.Mode;
 import org.eclipse.mat.ui.internal.query.arguments.TextEditor.DecoratorType;
 import org.eclipse.swt.SWT;
@@ -56,15 +57,15 @@ import org.eclipse.swt.widgets.TableItem;
 public class ArgumentsTable implements ArgumentEditor.IEditorListener
 {
     private static final int MIN_EDITOR_WIDTH = 50;
-    private static final String ADDRESS_PREFIX = "0x";
+    private static final String ADDRESS_PREFIX = "0x";//$NON-NLS-1$
 
     /**
      * The end of line string for this machine.
      */
-    protected static final String EOL = System.getProperty("line.separator", "\n");
+    protected static final String EOL = System.getProperty("line.separator", "\n");//$NON-NLS-1$//$NON-NLS-2$
 
-    private static final String ARGUMENT = "Argument";
-    private static final String VALUE = "Value";
+    private static final String ARGUMENT = Messages.ArgumentsTable_Argument;
+    private static final String VALUE = Messages.ArgumentsTable_Value;
 
     private LocalResourceManager resourceManager = new LocalResourceManager(JFaceResources.getResources());
 
@@ -189,7 +190,7 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
             {
                 TableItem item = new TableItem(table, SWT.NONE);
                 item.setFont(normalFont);
-                item.setText(new String[] { flag, "selected rows" });
+                item.setText(new String[] { flag, Messages.ArgumentsTable_selectedRows });
             }
             else if (descriptor.isMultiple() && !isHeapObject)
             {
@@ -210,9 +211,9 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
                     while (valueIt.hasNext())
                     {
                         Object objValue = valueIt.next();
-                        addEditorRow(descriptor, "..\"..", objValue, -1);
+                        addEditorRow(descriptor, "..\"..", objValue, -1); //$NON-NLS-1$
                     }
-                    addEditorRow(descriptor, "..\"..", null, -1);
+                    addEditorRow(descriptor, "..\"..", null, -1); //$NON-NLS-1$
                 }
             }
             else if (isHeapObject && argumentValue instanceof HeapObjectContextArgument)
@@ -270,7 +271,7 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
         if (flag == null)
             return descriptor.getName();
         else
-            return "-" + flag;
+            return "-" + flag;//$NON-NLS-1$
     }
 
     private void addEditorRow(ArgumentDescriptor descriptor, String flag, Object value, int index)
@@ -374,7 +375,7 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
         }
         for (TextEditor.DecoratorType decorator : TextEditor.DecoratorType.values())
         {
-            String label = "";
+            String label = "";//$NON-NLS-1$
 
             if (decorator.equals(TextEditor.DecoratorType.PATTERN))
             {
@@ -395,7 +396,7 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
                         createHeapObjectRow(descriptor, pattern.toString(), decorator, label);
                         // a work around: to avoid "objects" label for each of
                         // the three editors
-                        label = "";
+                        label = "";//$NON-NLS-1$
                     }
                 }
             }
@@ -494,7 +495,7 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
     private void addLink(ArgumentDescriptor descriptor, Mode mode)
     {
         TableItem item = new TableItem(table, SWT.NONE);
-        item.setText("");
+        item.setText("");//$NON-NLS-1$
         TableEditor editor = createEditor();
 
         LinkEditor aec = new LinkEditor(table, context, descriptor, item, mode);
@@ -515,7 +516,7 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
     private void addCheckBoxRows(ArgumentDescriptor descriptor, CheckBoxEditor.Type type, boolean selected)
     {
         TableItem item = new TableItem(table, SWT.NONE);
-        item.setText("");
+        item.setText("");//$NON-NLS-1$
 
         TableEditor editor = createEditor();
 
@@ -582,7 +583,7 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
                 else if (descriptor.isMandatory())
                 {
                     // add error message on null argument
-                    onError(null, "Please provide a pattern, an object address or an OQL query");
+                    onError(null, Messages.ArgumentsTable_ProvidePattern);
                 }
 
             }
@@ -618,11 +619,11 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
 
             // warn a/b mandatory arguments
             if (descriptor.isMandatory() && values == null)
-                onError(argEditor, MessageFormat.format("''{0}'' is mandatory", descriptor.getName()));
+                onError(argEditor, MessageFormat.format(Messages.ArgumentsTable_isMandatory, descriptor.getName()));
 
             // insert new row at myIndex + 1
             if (isLastOne && value != null)
-                addEditorRow(descriptor, "..\"..", null, myIndex + 1);
+                addEditorRow(descriptor, "..\"..", null, myIndex + 1);//$NON-NLS-1$
         }
         else
         {
@@ -639,7 +640,7 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
 
             // warn a/b mandatory arguments
             if (descriptor.isMandatory() && value == null)
-                onError(argEditor, MessageFormat.format("''{0}'' is mandatory", descriptor.getName()));
+                onError(argEditor, MessageFormat.format(Messages.ArgumentsTable_isMandatory, descriptor.getName()));
         }
 
         // inform about value changes
@@ -656,7 +657,7 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
                             && ((ImageTextEditor) control).getDecorator().equals(decorator))
             {
                 notEmpty = notEmpty && ((ImageTextEditor) control).getValue() != null
-                                && !((ImageTextEditor) control).getValue().equals("");
+                                && !((ImageTextEditor) control).getValue().equals("");//$NON-NLS-1$
             }
         }
         return notEmpty;
@@ -711,7 +712,7 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
                 {
                     String line = ((ImageTextEditor) control).getValue().toString().trim();
 
-                    if (line.toLowerCase().startsWith("select"))
+                    if (line.toLowerCase().startsWith("select")) //$NON-NLS-1$
                     {
                         hoa.addOql(line);
                     }
@@ -723,7 +724,7 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
                     else
                     // Pattern
                     {
-                        if (!line.equals(""))
+                        if (!line.equals(""))//$NON-NLS-1$
                         {
                             hoa.addPattern(Pattern.compile(line));
                         }
@@ -747,7 +748,7 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
 
             if (decorator.equals(TextEditor.DecoratorType.QUERY))
             {
-                if (line.equals(""))
+                if (line.equals(""))//$NON-NLS-1$
                     return;
                 try
                 {
@@ -760,11 +761,11 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
                     // fix: reformat message for proper displaying
                     String msg = e.getMessage();
 
-                    if (msg.startsWith("Encountered"))
+                    if (msg.startsWith(Messages.ArgumentsTable_Encountered))
                     {
-                        int p = msg.indexOf("Was expecting");
+                        int p = msg.indexOf(Messages.ArgumentsTable_WasExpecting);
                         if (p >= 0)
-                            msg = msg.substring(p, msg.length()).replace(EOL, " ");
+                            msg = msg.substring(p, msg.length()).replace(EOL, " ");//$NON-NLS-1$
                     }
 
                     onError(editor, msg);
@@ -781,24 +782,24 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
                     catch (NumberFormatException e)
                     {
                         // $JL-EXC$
-                        onError(editor, "Invalid <address...> " + e.getMessage());
+                        onError(editor, Messages.ArgumentsTable_InvalidAddress + e.getMessage());
                     }
                 }
                 else if (line.length() < 2 && !line.startsWith(ADDRESS_PREFIX.substring(0, line.length()))
                                 || line.length() >= 2 && !line.startsWith(ADDRESS_PREFIX.substring(0, 2)))
                 {
 
-                    onError(editor, "Invalid <address...> " + line);
+                    onError(editor, Messages.ArgumentsTable_InvalidAddress + line);
                 }
                 else if (line.length() != 0)
                 {
-                    onError(editor, "<address> is not yet complete");
+                    onError(editor, Messages.ArgumentsTable_AddressNotComplete);
                 }
             }
             else
             // Pattern
             {
-                if (!line.equals(""))
+                if (!line.equals(""))//$NON-NLS-1$
                 {
                     try
                     {

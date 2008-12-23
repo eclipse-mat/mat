@@ -40,11 +40,11 @@ public class EditorPaneRegistry extends RegistryReader<PaneConfiguration>
     @Override
     protected synchronized PaneConfiguration createDelegate(IConfigurationElement configElement) throws CoreException
     {
-        PaneConfiguration cfg = new PaneConfiguration(configElement.getAttribute("id"), configElement);
+        PaneConfiguration cfg = new PaneConfiguration(configElement.getAttribute("id"), configElement);//$NON-NLS-1$
         panesById.put(cfg.getId(), cfg);
 
         for (IConfigurationElement child : configElement.getChildren())
-            panesByType.put(child.getAttribute("type"), cfg);
+            panesByType.put(child.getAttribute("type"), cfg);//$NON-NLS-1$
 
         return cfg;
     }
@@ -72,7 +72,7 @@ public class EditorPaneRegistry extends RegistryReader<PaneConfiguration>
     {
         try
         {
-            String ignoreClassName = ignore != null ? ignore.getName() : "";
+            String ignoreClassName = ignore != null ? ignore.getName() : "";//$NON-NLS-1$
 
             Class<?> clazz = subject.getClass();
 

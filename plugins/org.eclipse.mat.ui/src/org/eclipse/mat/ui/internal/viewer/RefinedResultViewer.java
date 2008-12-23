@@ -39,6 +39,7 @@ import org.eclipse.mat.query.refined.TotalsRow;
 import org.eclipse.mat.query.refined.RefinedStructuredResult.DerivedDataJobDefinition;
 import org.eclipse.mat.query.registry.QueryResult;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.actions.OpenHelpPageAction;
 import org.eclipse.mat.ui.editor.AbstractEditorPane;
 import org.eclipse.mat.ui.editor.AbstractPaneJob;
@@ -82,7 +83,7 @@ public abstract class RefinedResultViewer
 
     /* package */interface Key
     {
-        String CONTROL = "$control";
+        String CONTROL = "$control";//$NON-NLS-1$
     }
 
     /* package */static class ControlItem
@@ -103,7 +104,7 @@ public abstract class RefinedResultViewer
         @Override
         public String toString()
         {
-            return level + " " + hashCode() + " " + totals;
+            return level + " " + hashCode() + " " + totals;//$NON-NLS-1$//$NON-NLS-2$
         }
 
         public TotalsRow getTotals()
@@ -393,7 +394,7 @@ public abstract class RefinedResultViewer
 
     protected void applyUpdating(Item item)
     {
-        item.setText("updating...");
+        item.setText(Messages.RefinedResultViewer_updating);
         item.setImage(MemoryAnalyserPlugin.getImage(MemoryAnalyserPlugin.ISharedImages.REFRESHING));
         item.setData(null);
         item.setData(Key.CONTROL, null);
@@ -425,7 +426,7 @@ public abstract class RefinedResultViewer
             if (texts[ii] != null)
             {
                 if (buf.length() > 0)
-                    buf.append(" ");
+                    buf.append(" ");//$NON-NLS-1$
                 buf.append(texts[ii]);
             }
         }
@@ -652,7 +653,7 @@ public abstract class RefinedResultViewer
 
     public void contributeToToolBar(IToolBarManager manager)
     {
-        Action calculateRetainedSizeMenu = new EasyToolBarDropDown("Calculate retained size", //
+        Action calculateRetainedSizeMenu = new EasyToolBarDropDown(Messages.RefinedResultViewer_CalculateRetainedSize, //
                         MemoryAnalyserPlugin.getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.CALCULATOR), //
                         editor)
         {
@@ -713,7 +714,7 @@ public abstract class RefinedResultViewer
 
         };
 
-        Action exportMenu = new EasyToolBarDropDown("Export", MemoryAnalyserPlugin
+        Action exportMenu = new EasyToolBarDropDown(Messages.RefinedResultViewer_Export, MemoryAnalyserPlugin
                         .getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.EXPORT_MENU), //
                         editor)
         {
@@ -731,7 +732,7 @@ public abstract class RefinedResultViewer
         manager.add(exportMenu);
 
         if (queryResult.getQuery() != null && queryResult.getQuery().getHelpUrl() != null)
-            manager.appendToGroup("help", new OpenHelpPageAction(queryResult.getQuery().getHelpUrl()));
+            manager.appendToGroup("help", new OpenHelpPageAction(queryResult.getQuery().getHelpUrl()));//$NON-NLS-1$
 
     }
 
@@ -746,7 +747,7 @@ public abstract class RefinedResultViewer
     {
         menu.addSeparator();
 
-        PopupMenu filterMenu = new PopupMenu("Edit filter");
+        PopupMenu filterMenu = new PopupMenu(Messages.RefinedResultViewer_EditFilter);
         menu.add(filterMenu);
 
         for (int ii = 0; ii < columns.length; ii++)
@@ -798,7 +799,7 @@ public abstract class RefinedResultViewer
 
             if (!isRest)
             {
-                Action action = new Action("Next 25")
+                Action action = new Action(Messages.RefinedResultViewer_Next25)
                 {
                     @Override
                     public void run()
@@ -812,7 +813,7 @@ public abstract class RefinedResultViewer
                 menu.add(action);
             }
 
-            Action action = new Action("Expand All")
+            Action action = new Action(Messages.RefinedResultViewer_ExpandAll)
             {
                 @Override
                 public void run()
@@ -841,9 +842,7 @@ public abstract class RefinedResultViewer
         if (visible - ctrl.totals.getVisibleItems() > 5000)
         {
             MessageBox box = new MessageBox(control.getShell(), SWT.ICON_QUESTION | SWT.OK | SWT.CANCEL);
-            box.setMessage(MessageFormat.format("You are about to expand {0} elements.\n" //
-                            + "This can BLOCK YOUR UI for some time.\n" //
-                            + "Continue?", //
+            box.setMessage(MessageFormat.format(Messages.RefinedResultViewer_BlockingWarning, //
                             (visible - ctrl.totals.getVisibleItems())));
             if (box.open() != SWT.OK)
                 return;
@@ -942,7 +941,7 @@ public abstract class RefinedResultViewer
 
         adapter.setEditor(composite, item, columnIndex);
 
-        text.setText(filter.getCriteria() != null ? filter.getCriteria() : "");
+        text.setText(filter.getCriteria() != null ? filter.getCriteria() : "");//$NON-NLS-1$
         text.selectAll();
         text.setFocus();
 
@@ -1137,7 +1136,7 @@ public abstract class RefinedResultViewer
 
         protected RetrieveChildrenJob(RefinedResultViewer viewer, ControlItem ctrl, Item parentItem, Object parent)
         {
-            super("Retrieving view elements...", viewer.pane);
+            super(Messages.RefinedResultViewer_RetrieveViewElements, viewer.pane);
 
             this.viewer = viewer;
             this.ctrl = ctrl;
@@ -1325,7 +1324,7 @@ public abstract class RefinedResultViewer
 
         private SortingJob(RefinedResultViewer viewer, List<?> list)
         {
-            super("Sorting...", viewer.pane);
+            super(Messages.RefinedResultViewer_Sorting, viewer.pane);
             this.viewer = viewer;
             this.list = list;
 

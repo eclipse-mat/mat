@@ -29,6 +29,7 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.QueryExecution;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
 import org.eclipse.mat.ui.editor.PathEditorInput;
@@ -62,9 +63,9 @@ public class OpenSampleHeapDumpAction extends Action implements ICheatSheetActio
             String absolutePath = getPathOfExtractedHeapDump(params[0]);
 
             String query = params[1];
-            if (query != null && query.equals("oql"))
+            if (query != null && query.equals("oql"))//$NON-NLS-1$
             {
-                query = query + " \"" + params[2] + "\"";
+                query = query + " \"" + params[2] + "\"";//$NON-NLS-1$//$NON-NLS-2$
             }
             openEditor(absolutePath, query, params[2]);
         }
@@ -252,7 +253,7 @@ public class OpenSampleHeapDumpAction extends Action implements ICheatSheetActio
             else
             {
                 MessageDialog.openInformation(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
-                                "Error opening editor", MessageFormat.format("No editor available to open {0}",
+                                Messages.OpenSampleHeapDumpAction_ErrorOpeningEditor, MessageFormat.format(Messages.OpenSampleHeapDumpAction_NoEditorToOpen,
                                                 new Object[] { absolutePath }));
             }
         }

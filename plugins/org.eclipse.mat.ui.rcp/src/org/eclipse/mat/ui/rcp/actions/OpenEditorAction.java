@@ -37,14 +37,14 @@ public class OpenEditorAction extends Action implements IIntroAction
             if (params == null)
                 return;
 
-            String path = params.getProperty("param");
+            String path = params.getProperty("param");//$NON-NLS-1$
             if (path == null)
                 return;
 
             if (!new File(path).exists())
                 return;
 
-            String editorId = params.getProperty("editorId");
+            String editorId = params.getProperty("editorId"); //$NON-NLS-1$
             if (editorId == null)
                 editorId = MemoryAnalyserPlugin.EDITOR_ID;
 

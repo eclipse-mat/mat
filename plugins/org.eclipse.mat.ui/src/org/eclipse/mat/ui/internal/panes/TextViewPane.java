@@ -11,6 +11,7 @@
 package org.eclipse.mat.ui.internal.panes;
 
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.editor.AbstractEditorPane;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
@@ -58,7 +59,7 @@ public class TextViewPane extends AbstractEditorPane
 
     public String getTitle()
     {
-        return "Text Display";
+        return Messages.TextViewPane_TextDisplay;
     }
 
     @Override

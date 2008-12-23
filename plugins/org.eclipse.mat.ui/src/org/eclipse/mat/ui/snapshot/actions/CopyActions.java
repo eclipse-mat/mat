@@ -44,7 +44,7 @@ public abstract class CopyActions implements IQuery
         try
         {
             final StringBuilder buf = new StringBuilder(128);
-            String lineSeparator = System.getProperty("line.separator");
+            String lineSeparator = System.getProperty("line.separator"); //$NON-NLS-1$
 
             for (IContextObject argument : elements)
             {
@@ -98,7 +98,7 @@ public abstract class CopyActions implements IQuery
     {
         protected void appendValue(StringBuilder buf, IObject object)
         {
-            buf.append("0x").append(Long.toHexString(object.getObjectAddress()));
+            buf.append("0x").append(Long.toHexString(object.getObjectAddress()));//$NON-NLS-1$
         }
     }
 

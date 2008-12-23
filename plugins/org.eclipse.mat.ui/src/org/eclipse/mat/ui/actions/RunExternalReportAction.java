@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jface.action.Action;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.QueryExecution;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
 import org.eclipse.mat.ui.util.ErrorHelper;
@@ -25,13 +26,13 @@ import org.eclipse.ui.PlatformUI;
 
 public class RunExternalReportAction extends Action
 {
-    private static final String LAST_DIRECTORY_KEY = RunExternalReportAction.class.getName() + ".lastDir";
+    private static final String LAST_DIRECTORY_KEY = RunExternalReportAction.class.getName() + ".lastDir";//$NON-NLS-1$
 
     private MultiPaneEditor editor;
 
     public RunExternalReportAction(MultiPaneEditor editor)
     {
-        super("Run Report...");
+        super(Messages.RunExternalReportAction_RunReport);
 
         this.editor = editor;
     }
@@ -41,9 +42,9 @@ public class RunExternalReportAction extends Action
     {
         FileDialog dialog = new FileDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), //
                         SWT.OPEN | SWT.MULTI);
-        dialog.setText("Open Report Definition");
-        dialog.setFilterExtensions(new String[] { "*.xml" });
-        dialog.setFilterNames(new String[] { "Report Definitions" });
+        dialog.setText(Messages.RunExternalReportAction_OpenReportDefinition);
+        dialog.setFilterExtensions(new String[] { "*.xml" });//$NON-NLS-1$
+        dialog.setFilterNames(new String[] { Messages.RunExternalReportAction_ReportDefinitions });
 
         Preferences prefs = MemoryAnalyserPlugin.getDefault().getPluginPreferences();
         String lastDirectory = prefs.getString(LAST_DIRECTORY_KEY);
@@ -61,7 +62,7 @@ public class RunExternalReportAction extends Action
             {
                 try
                 {
-                    QueryExecution.executeCommandLine(editor, null, "create_report "
+                    QueryExecution.executeCommandLine(editor, null, "create_report "//$NON-NLS-1$
                                     + new File(dialog.getFilterPath(), name).getAbsolutePath());
                 }
                 catch (SnapshotException e)

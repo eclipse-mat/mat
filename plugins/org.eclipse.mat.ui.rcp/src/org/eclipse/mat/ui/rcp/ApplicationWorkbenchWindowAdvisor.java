@@ -45,7 +45,7 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor
         configurer.setShowCoolBar(false);
         configurer.setShowStatusLine(true);
         configurer.setShowProgressIndicator(true);
-        configurer.setTitle("Eclipse Memory Analyzer");
+        configurer.setTitle("Eclipse Memory Analyzer");//$NON-NLS-1$
     }
 
     @Override

@@ -17,6 +17,7 @@ import org.eclipse.jface.dialogs.PopupDialog;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.mat.query.registry.ArgumentDescriptor;
 import org.eclipse.mat.query.registry.QueryDescriptor;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
@@ -82,15 +83,15 @@ public class QueryContextHelp extends PopupDialog
                 if (first)
                 {
                     first = false;
-                    String heading = "\n\nArguments:\n";
+                    String heading = "\n\n"+Messages.QueryContextHelp_Arguments+"\n";//$NON-NLS-1$ //$NON-NLS-2$
                     ranges.add(new StyleRange(buf.length(), heading.length(), null, null, SWT.BOLD));
                     buf.append(heading);
                 }
 
-                buf.append("\n");
-                String name = argument.getFlag() != null ? "-" + argument.getFlag() : argument.getName();
+                buf.append("\n"); //$NON-NLS-1$
+                String name = argument.getFlag() != null ? "-" + argument.getFlag() : argument.getName();//$NON-NLS-1$
                 ranges.add(new StyleRange(buf.length(), name.length(), null, null, SWT.BOLD));
-                buf.append(name).append("\n");
+                buf.append(name).append("\n");//$NON-NLS-1$
                 buf.append(help);
             }
         }

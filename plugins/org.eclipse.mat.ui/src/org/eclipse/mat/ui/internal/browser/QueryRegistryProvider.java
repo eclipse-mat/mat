@@ -82,7 +82,7 @@ public class QueryRegistryProvider extends QueryBrowserProvider
 
                 String shortDescription = query.getShortDescription();
                 if (shortDescription != null)
-                    b.append("  -  ").append(shortDescription);
+                    b.append("  -  ").append(shortDescription);//$NON-NLS-1$
 
                 label = b.toString();
             }

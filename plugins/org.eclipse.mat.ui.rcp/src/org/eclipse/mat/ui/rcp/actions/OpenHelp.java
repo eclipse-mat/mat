@@ -11,6 +11,7 @@
 package org.eclipse.mat.ui.rcp.actions;
 
 import org.eclipse.jface.action.Action;
+import org.eclipse.mat.ui.rcp.Messages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.actions.ActionFactory.IWorkbenchAction;
@@ -18,20 +19,20 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 public class OpenHelp extends Action implements IWorkbenchAction
 {   
-    private static final String HELP = "icons/help.gif";
+    private static final String HELP = "icons/help.gif"; //$NON-NLS-1$
 
     public OpenHelp()
     {     
         setId(ActionFactory.HELP_CONTENTS.getId());
-        setText("&Help Contents");
-        setImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.mat.ui.rcp", HELP));
+        setText(Messages.OpenHelp_HelpContents);
+        setImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.mat.ui.rcp", HELP)); //$NON-NLS-1$
 
     } 
 
     public void run()
     {
         PlatformUI.getWorkbench().getHelpSystem().displayHelpResource(
-        "/org.eclipse.mat.ui.help/tasks/basictutorial.html");
+        "/org.eclipse.mat.ui.help/tasks/basictutorial.html"); //$NON-NLS-1$
     }
 
 

@@ -26,6 +26,7 @@ import org.eclipse.mat.query.registry.QueryResult;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.query.TQuantize;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.internal.viewer.RefinedResultViewer;
 import org.eclipse.mat.ui.internal.viewer.RefinedTableViewer;
 import org.eclipse.mat.ui.util.EasyToolBarDropDown;
@@ -63,7 +64,7 @@ public class TableResultPane extends QueryResultPane
 
     private void addGroupingOptions(IToolBarManager manager)
     {
-        Action groupingAction = new EasyToolBarDropDown("Group result by...", //
+        Action groupingAction = new EasyToolBarDropDown(Messages.TableResultPane_GroupResultBy, //
                         MemoryAnalyserPlugin.getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.GROUPING), this)
         {
 
@@ -101,7 +102,7 @@ public class TableResultPane extends QueryResultPane
 
             if (target == null)
             {
-                setText("No grouping");
+                setText(Messages.TableResultPane_NoGrouping);
             }
             else
             {
@@ -123,7 +124,7 @@ public class TableResultPane extends QueryResultPane
                 if (srcStructured.hasActiveFilter())
                 {
                     StringBuilder buf = new StringBuilder();
-                    buf.append("The original table is filtered. Only the remaining entries will be grouped.\n");
+                    buf.append(Messages.TableResultPane_TableIsFiltered);
 
                     Column[] columns = srcStructured.getColumns();
                     Filter[] filters = srcStructured.getFilter();
@@ -132,13 +133,13 @@ public class TableResultPane extends QueryResultPane
                     {
                         if (filters[index].isActive())
                         {
-                            buf.append("\n'").append(filters[index].getCriteria()) //
-                                            .append("' on column '").append(columns[index].getLabel()).append("'");
+                            buf.append("\n'").append(filters[index].getCriteria()) // //$NON-NLS-1$
+                                            .append(Messages.TableResultPane_onColumn).append(columns[index].getLabel()).append("'"); //$NON-NLS-1$
                         }
                     }
 
                     MessageBox msg = new MessageBox(viewer.getControl().getShell(), SWT.OK | SWT.CANCEL);
-                    msg.setText("Info");
+                    msg.setText(Messages.TableResultPane_Info);
                     msg.setMessage(buf.toString());
 
                     if (msg.open() != SWT.OK)

@@ -17,6 +17,7 @@ import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.registry.QueryDescriptor;
 import org.eclipse.mat.query.registry.QueryRegistry;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.QueryExecution;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
 
@@ -40,7 +41,7 @@ public class QueryHistoryProvider extends QueryBrowserProvider
     @Override
     public String getName()
     {
-        return "History";
+        return Messages.QueryHistoryProvider_History;
     }
 
     /** history is ordered by typing */

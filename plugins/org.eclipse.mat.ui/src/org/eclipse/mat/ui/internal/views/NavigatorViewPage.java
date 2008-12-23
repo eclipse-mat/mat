@@ -32,6 +32,7 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.QueryExecution;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin.ISharedImages;
 import org.eclipse.mat.ui.editor.AbstractEditorPane;
@@ -168,7 +169,7 @@ public class NavigatorViewPage extends Page implements ISelectionProvider, IDoub
                 bringToTop((IStructuredSelection) treeViewer.getSelection());
             }
         };
-        showPaneAction.setText("Activate");
+        showPaneAction.setText(Messages.NavigatorViewPage_Activate);
         showPaneAction.setImageDescriptor(MemoryAnalyserPlugin.getImageDescriptor(ISharedImages.SHOW_PANE));
 
         removeWithChildrenAction = new Action()
@@ -178,7 +179,7 @@ public class NavigatorViewPage extends Page implements ISelectionProvider, IDoub
                 close(true, true);
             }
         };
-        removeWithChildrenAction.setText("Remove from List");
+        removeWithChildrenAction.setText(Messages.NavigatorViewPage_RemoveFromList);
         removeWithChildrenAction.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(
                         org.eclipse.ui.ISharedImages.IMG_TOOL_DELETE));
 
@@ -189,7 +190,7 @@ public class NavigatorViewPage extends Page implements ISelectionProvider, IDoub
                 close(false, false);
             }
         };
-        closePaneAction.setText("Close");
+        closePaneAction.setText(Messages.NavigatorViewPage_Close);
         closePaneAction.setImageDescriptor(MemoryAnalyserPlugin.getImageDescriptor(ISharedImages.CLOSE_PANE));
 
         closeWithChildrenAction = new Action()
@@ -199,7 +200,7 @@ public class NavigatorViewPage extends Page implements ISelectionProvider, IDoub
                 close(false, true);
             }
         };
-        closeWithChildrenAction.setText("Close Branch");
+        closeWithChildrenAction.setText(Messages.NavigatorViewPage_CloseBranch);
         closeWithChildrenAction.setImageDescriptor(MemoryAnalyserPlugin.getImageDescriptor(ISharedImages.CLOSE_BRANCH));
 
         Action copyAction = new Action()

@@ -22,12 +22,12 @@ public class Perspective implements IPerspectiveFactory
 {
     public enum Views
     {
-        HISTORY_VIEW(MemoryAnalyserPlugin.PLUGIN_ID + ".views.SnapshotHistoryView"), 
-        DETAILS_VIEW(MemoryAnalyserPlugin.PLUGIN_ID + ".views.SnapshotDetailsView"), 
-        NOTES_VIEW(MemoryAnalyserPlugin.PLUGIN_ID + ".views.TextEditorView"), 
-        INSPECTOR_VIEW(MemoryAnalyserPlugin.PLUGIN_ID + ".views.InspectorView"), 
-        NAVIGATOR_VIEW(MemoryAnalyserPlugin.PLUGIN_ID + ".views.NavigatorView"), 
-        ERROR_VIEW("org.eclipse.pde.runtime.LogView");
+        HISTORY_VIEW(MemoryAnalyserPlugin.PLUGIN_ID + ".views.SnapshotHistoryView"),  //$NON-NLS-1$
+        DETAILS_VIEW(MemoryAnalyserPlugin.PLUGIN_ID + ".views.SnapshotDetailsView"), //$NON-NLS-1$
+        NOTES_VIEW(MemoryAnalyserPlugin.PLUGIN_ID + ".views.TextEditorView"), //$NON-NLS-1$
+        INSPECTOR_VIEW(MemoryAnalyserPlugin.PLUGIN_ID + ".views.InspectorView"), //$NON-NLS-1$
+        NAVIGATOR_VIEW(MemoryAnalyserPlugin.PLUGIN_ID + ".views.NavigatorView"), //$NON-NLS-1$
+        ERROR_VIEW("org.eclipse.pde.runtime.LogView");//$NON-NLS-1$
 
         private final String id;
 
@@ -47,15 +47,15 @@ public class Perspective implements IPerspectiveFactory
         String editorArea = layout.getEditorArea();
         layout.setEditorAreaVisible(true);
 
-        IFolderLayout topLeft = layout.createFolder("topLeft", IPageLayout.LEFT, (float) 0.26, editorArea);
+        IFolderLayout topLeft = layout.createFolder("topLeft", IPageLayout.LEFT, (float) 0.26, editorArea);//$NON-NLS-1$
         topLeft.addView(Views.INSPECTOR_VIEW.getId());
         topLeft.addPlaceholder(Views.DETAILS_VIEW.getId());
 
-        IPlaceholderFolderLayout bottomLeft = layout.createPlaceholderFolder("bottomLeft", IPageLayout.BOTTOM,
+        IPlaceholderFolderLayout bottomLeft = layout.createPlaceholderFolder("bottomLeft", IPageLayout.BOTTOM,//$NON-NLS-1$
                         (float) 0.60, Views.DETAILS_VIEW.getId());
         bottomLeft.addPlaceholder(Views.HISTORY_VIEW.getId());
 
-        IFolderLayout bottomMiddle = layout.createFolder("bottomMiddle", IPageLayout.BOTTOM, (float) 0.80, editorArea);
+        IFolderLayout bottomMiddle = layout.createFolder("bottomMiddle", IPageLayout.BOTTOM, (float) 0.80, editorArea);//$NON-NLS-1$
         bottomMiddle.addView(Views.NOTES_VIEW.getId());
         bottomMiddle.addPlaceholder(IPageLayout.ID_PROGRESS_VIEW);
         bottomMiddle.addView(Views.NAVIGATOR_VIEW.getId());
@@ -67,8 +67,8 @@ public class Perspective implements IPerspectiveFactory
         layout.addShowViewShortcut(Views.ERROR_VIEW.getId());
         layout.addShowViewShortcut(Views.NAVIGATOR_VIEW.getId());
 
-        Bundle bundle = Platform.getBundle("org.eclipse.jdt.ui");
+        Bundle bundle = Platform.getBundle("org.eclipse.jdt.ui");//$NON-NLS-1$
         if (bundle != null)
-            layout.addActionSet("org.eclipse.jdt.ui.JavaActionSet");
+            layout.addActionSet("org.eclipse.jdt.ui.JavaActionSet");//$NON-NLS-1$
     }
 }

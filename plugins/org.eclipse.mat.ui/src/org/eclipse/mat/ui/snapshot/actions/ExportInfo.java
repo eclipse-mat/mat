@@ -53,26 +53,26 @@ import org.eclipse.mat.snapshot.model.IPrimitiveArray;
         Integer count = 0;
         IPrimitiveArray charArray = null;
 
-        if ("java.lang.String".equals(object.getClazz().getName()))
+        if ("java.lang.String".equals(object.getClazz().getName()))//$NON-NLS-1$
         {
-            offset = (Integer) object.resolveValue("offset");
-            count = (Integer) object.resolveValue("count");
-            charArray = (IPrimitiveArray) object.resolveValue("value");
+            offset = (Integer) object.resolveValue("offset");//$NON-NLS-1$
+            count = (Integer) object.resolveValue("count");//$NON-NLS-1$
+            charArray = (IPrimitiveArray) object.resolveValue("value");//$NON-NLS-1$
         }
-        else if ("char[]".equals(object.getClazz().getName()))
+        else if ("char[]".equals(object.getClazz().getName()))//$NON-NLS-1$
         {
             charArray = (IPrimitiveArray) object;
             count = charArray.getLength();
         }
-        else if (object.getClazz().doesExtend("java.lang.AbstractStringBuilder"))
+        else if (object.getClazz().doesExtend("java.lang.AbstractStringBuilder"))//$NON-NLS-1$
         {
-            count = (Integer) object.resolveValue("count");
-            charArray = (IPrimitiveArray) object.resolveValue("value");
+            count = (Integer) object.resolveValue("count");//$NON-NLS-1$
+            charArray = (IPrimitiveArray) object.resolveValue("value");//$NON-NLS-1$
         }
-        else if (object.getClazz().doesExtend("java.io.StringWriter"))
+        else if (object.getClazz().doesExtend("java.io.StringWriter"))//$NON-NLS-1$
         {
-            count = (Integer) object.resolveValue("buf.count");
-            charArray = (IPrimitiveArray) object.resolveValue("buf.value");
+            count = (Integer) object.resolveValue("buf.count");//$NON-NLS-1$
+            charArray = (IPrimitiveArray) object.resolveValue("buf.value");//$NON-NLS-1$
         }
         else
         {

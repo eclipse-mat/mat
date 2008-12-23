@@ -67,7 +67,7 @@ public class AddHistoryToMenuAction extends ContributionItem
 
         int mnemonic = index + 1;
         sb.append(mnemonic);
-        sb.append(" ");
+        sb.append(" "); //$NON-NLS-1$
         if (mnemonic <= MAX_MNEMONIC_SIZE)
         {
             sb.insert(sb.length() - (mnemonic + "").length(), '&'); //$NON-NLS-1$

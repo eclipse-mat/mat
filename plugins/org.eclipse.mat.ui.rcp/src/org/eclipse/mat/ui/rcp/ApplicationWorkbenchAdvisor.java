@@ -18,7 +18,7 @@ import org.eclipse.ui.application.WorkbenchWindowAdvisor;
 public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor
 {
 
-    private static final String PERSPECTIVE_ID = "org.eclipse.mat.ui.perspective";
+    private static final String PERSPECTIVE_ID = "org.eclipse.mat.ui.perspective"; //$NON-NLS-1$
 
     public WorkbenchWindowAdvisor createWorkbenchWindowAdvisor(IWorkbenchWindowConfigurer configurer)
     {

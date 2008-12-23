@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.ui.PlatformUI;
 
 
@@ -26,7 +27,7 @@ public class ErrorHelper
 {
     public static void logThrowable(Throwable throwable)
     {
-        IStatus status = new Status(IStatus.ERROR, MemoryAnalyserPlugin.PLUGIN_ID, 1, "Internal Error", throwable);
+        IStatus status = new Status(IStatus.ERROR, MemoryAnalyserPlugin.PLUGIN_ID, 1, Messages.ErrorHelper_InternalError, throwable);
         MemoryAnalyserPlugin.getDefault().getLog().log(status);
     }
 
@@ -40,7 +41,7 @@ public class ErrorHelper
             public void run()
             {
                 ErrorDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
-                                "Error", message, status);
+                                Messages.ErrorHelper_Error, message, status);
             }
         });
 
@@ -67,7 +68,7 @@ public class ErrorHelper
         {
             public void run()
             {
-                ErrorDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Error", null,
+                ErrorDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), Messages.ErrorHelper_Error, null,
                                 status);
             }
         });
@@ -80,7 +81,7 @@ public class ErrorHelper
             public void run()
             {
                 MessageDialog.openInformation(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
-                                "Information", message);
+                                Messages.ErrorHelper_Information, message);
             }
         });
     }
@@ -130,17 +131,17 @@ public class ErrorHelper
     public static String enrichErrorMessage(String message, String exceptionType)
     {
 
-        if ("java.lang.RuntimeException".equals(exceptionType))
-            return MessageFormat.format("Internal Runtime Error ({0})", new Object[] { message });
-        else if ("java.lang.ClassNotFoundException".equals(exceptionType))
-            return MessageFormat.format("Class {0} not found", new Object[] { message });
-        else if ("java.lang.NoClassDefFoundError".equals(exceptionType))
-            return MessageFormat.format("Definition of class {0} not found (NoClassDefFoundError)",
+        if ("java.lang.RuntimeException".equals(exceptionType))//$NON-NLS-1$
+            return MessageFormat.format(Messages.ErrorHelper_InternalRuntimeError, new Object[] { message });
+        else if ("java.lang.ClassNotFoundException".equals(exceptionType))//$NON-NLS-1$
+            return MessageFormat.format(Messages.ErrorHelper_ClassNotFound, new Object[] { message });
+        else if ("java.lang.NoClassDefFoundError".equals(exceptionType))//$NON-NLS-1$
+            return MessageFormat.format(Messages.ErrorHelper_DefinitionNotFound,
                             new Object[] { message });
-        else if ("java.lang.NoSuchMethodError".equals(exceptionType))
-            return MessageFormat.format("No such method: {0}", new Object[] { message });
+        else if ("java.lang.NoSuchMethodError".equals(exceptionType))//$NON-NLS-1$
+            return MessageFormat.format(Messages.ErrorHelper_NoSuchMethod, new Object[] { message });
         else if (message == null)
-            return MessageFormat.format("Exception of type {0}", new Object[] { exceptionType });
+            return MessageFormat.format(Messages.ErrorHelper_Exception, new Object[] { exceptionType });
         else
             return message;
 

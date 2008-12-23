@@ -23,6 +23,7 @@ import org.eclipse.jface.dialogs.PopupDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.mat.collect.ArrayInt;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
@@ -60,7 +61,7 @@ public class SearchOnTyping
         else if (control instanceof Table)
             control.addKeyListener(new SearchKeyListener(new TableImpl((Table) control, null, columnIndex)));
         else
-            throw new RuntimeException("Search on typing is only availabe in trees and tables, not for "
+            throw new RuntimeException(Messages.SearchOnTyping_Exception
                             + control.getClass().getName());
     }
 
@@ -319,7 +320,7 @@ public class SearchOnTyping
 
         private SearchJob(SearchThingy thingy, String text, Text filterText)
         {
-            super("searching...");
+            super(Messages.SearchOnTyping_searching);
             setSystem(true);
 
             this.thingy = thingy;

@@ -24,6 +24,7 @@ import org.eclipse.mat.query.registry.QueryResult;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.inspections.DominatorQuery;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.editor.AbstractPaneJob;
 import org.eclipse.mat.ui.internal.panes.QueryResultPane;
 import org.eclipse.mat.ui.internal.viewer.RefinedResultViewer;
@@ -84,7 +85,7 @@ public class DominatorPane extends QueryResultPane
 
     private void addGroupingOptions(IToolBarManager manager)
     {
-        Action groupingAction = new EasyToolBarDropDown("Group result by...", //
+        Action groupingAction = new EasyToolBarDropDown(Messages.TableResultPane_GroupResultBy, //
                         MemoryAnalyserPlugin.getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.GROUPING), this)
         {
 
@@ -116,7 +117,7 @@ public class DominatorPane extends QueryResultPane
 
         public GroupingAction(DominatorQuery.Grouping group)
         {
-            super("Group", AS_CHECK_BOX);
+            super(Messages.DominatorPane_Group, AS_CHECK_BOX);
             this.target = group;
         }
 
@@ -128,10 +129,10 @@ public class DominatorPane extends QueryResultPane
             if (viewer.getResult().hasActiveFilter())
             {
                 StringBuilder buf = new StringBuilder();
-                buf.append("The original table is filtered. The WHOLE tree will be grouped.");
+                buf.append(Messages.DominatorPane_WholeTreeWillBeGrouped);
 
                 MessageBox msg = new MessageBox(viewer.getControl().getShell(), SWT.OK | SWT.CANCEL);
-                msg.setText("Info");
+                msg.setText(Messages.DominatorPane_Info);
                 msg.setMessage(buf.toString());
 
                 if (msg.open() != SWT.OK)
@@ -164,7 +165,7 @@ public class DominatorPane extends QueryResultPane
                                 break;
                         }
 
-                        final QueryResult queryResult = new QueryResult(null, "dominator_tree -groupBy "
+                        final QueryResult queryResult = new QueryResult(null, "dominator_tree -groupBy " //$NON-NLS-1$
                                         + target.name(), tree);
 
                         PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()

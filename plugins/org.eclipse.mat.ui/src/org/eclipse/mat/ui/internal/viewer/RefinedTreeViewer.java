@@ -25,6 +25,7 @@ import org.eclipse.mat.query.ContextDerivedData.DerivedOperation;
 import org.eclipse.mat.query.refined.RefinedTree;
 import org.eclipse.mat.query.refined.TotalsRow;
 import org.eclipse.mat.query.registry.QueryResult;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.editor.AbstractEditorPane;
 import org.eclipse.mat.ui.editor.AbstractPaneJob;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
@@ -215,7 +216,7 @@ public class RefinedTreeViewer extends RefinedResultViewer
 
         private void calculateTotals(final List<?> elements)
         {
-            new AbstractPaneJob("Calculate Totals", viewer.pane)
+            new AbstractPaneJob(Messages.RefinedTreeViewer_CalculateTotals, viewer.pane)
             {
                 @Override
                 protected IStatus doRun(IProgressMonitor monitor)
@@ -639,7 +640,7 @@ public class RefinedTreeViewer extends RefinedResultViewer
                 return 26;
             if (Platform.OS_MACOSX.equals(Platform.getOS()))
                 return 20;
-            if (System.getProperty("os.name").indexOf("Vista") >= 0)
+            if (System.getProperty("os.name").indexOf("Vista") >= 0)//$NON-NLS-1$//$NON-NLS-2$
                 return 19;
             return 18;
         }

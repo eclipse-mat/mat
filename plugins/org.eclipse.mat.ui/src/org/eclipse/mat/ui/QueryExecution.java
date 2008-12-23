@@ -105,7 +105,7 @@ public class QueryExecution
             // dialog has to be created to be able to set help to its shell
             dialog.create();
 
-            PlatformUI.getWorkbench().getHelpSystem().setHelp(dialog.getShell(), "org.eclipse.mat.ui.query.arguments");
+            PlatformUI.getWorkbench().getHelpSystem().setHelp(dialog.getShell(), "org.eclipse.mat.ui.query.arguments");//$NON-NLS-1$
             dialog.open();
 
             if (dialog.getReturnCode() == Window.CANCEL)
@@ -181,7 +181,7 @@ public class QueryExecution
                 }
                 else
                 {
-                    ErrorHelper.showInfoMessage("Query did not return any result");
+                    ErrorHelper.showInfoMessage(Messages.QueryExecution_NoResult);
                     return Status.OK_STATUS;
                 }
             }
@@ -282,7 +282,7 @@ public class QueryExecution
         {
             String label = r.getName();
             if (label == null)
-                label = result.getCommand() + " " + count;
+                label = result.getCommand() + " " + count;//$NON-NLS-1$
 
             QuerySpec spec = new QuerySpec(label);
             spec.setResult(r.getResult());
@@ -303,7 +303,7 @@ public class QueryExecution
 
             for (File f : suite.getResults())
             {
-                if ("index.html".equals(f.getName()))
+                if ("index.html".equals(f.getName()))//$NON-NLS-1$
                     return new QueryResult(result.getQuery(), result.getCommand(), new DisplayFileResult(f));
 
             }
@@ -313,7 +313,7 @@ public class QueryExecution
             throw new RuntimeException(e);
         }
 
-        throw new RuntimeException(section.getName() + " did not produce any HTML output.");
+        throw new RuntimeException(section.getName() + Messages.QueryExecution_NoHTMLOutput);
     }
 
 }

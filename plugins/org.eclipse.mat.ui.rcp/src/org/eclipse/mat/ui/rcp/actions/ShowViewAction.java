@@ -28,7 +28,7 @@ public class ShowViewAction extends Action implements IPluginContribution
 
     protected ShowViewAction(IWorkbenchWindow window, IViewDescriptor desc)
     {
-        super("");
+        super(""); //$NON-NLS-1$
         
         setText('&' + desc.getLabel());
         setImageDescriptor(desc.getImageDescriptor());
@@ -44,7 +44,7 @@ public class ShowViewAction extends Action implements IPluginContribution
         {
             try
             {
-                if ("org.eclipse.mat.ui.views.InspectorView".equals(desc.getId()))
+                if ("org.eclipse.mat.ui.views.InspectorView".equals(desc.getId())) //$NON-NLS-1$
                 {
                     page.showView(desc.getId(), desc.getId() + counter++, IWorkbenchPage.VIEW_ACTIVATE);
                 }

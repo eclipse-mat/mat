@@ -19,7 +19,7 @@ import org.osgi.framework.BundleContext;
 public class RCPPlugin extends AbstractUIPlugin
 {
 
-    public static final String PLUGIN_ID = "org.eclipse.mat.ui.rcp";
+    public static final String PLUGIN_ID = "org.eclipse.mat.ui.rcp"; //$NON-NLS-1$
 
     private static RCPPlugin plugin;
 

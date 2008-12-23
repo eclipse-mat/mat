@@ -20,6 +20,7 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.preference.PreferenceDialog;
 import org.eclipse.jface.preference.PreferenceManager;
 import org.eclipse.jface.preference.PreferenceNode;
+import org.eclipse.mat.ui.rcp.Messages;
 import org.eclipse.mat.ui.rcp.RCPPlugin;
 import org.eclipse.mat.util.RegistryReader;
 import org.eclipse.ui.IWorkbenchPreferencePage;
@@ -32,14 +33,14 @@ import org.eclipse.ui.PlatformUI;
 public class OpenPreferenceAction extends Action
 {
     private static final Set<String> ALLOWED_IDS = new HashSet<String>(Arrays.asList(new String[] {
-                    "org.eclipse.ui.net.NetPreferences",
-                    "org.eclipse.update.internal.ui.preferences.MainPreferencePage" }));
+                    "org.eclipse.ui.net.NetPreferences", //$NON-NLS-1$
+                    "org.eclipse.update.internal.ui.preferences.MainPreferencePage" })); //$NON-NLS-1$
 
     PreferenceRegistry reg;
 
     public OpenPreferenceAction()
     {
-        super("Preferences...");
+        super(Messages.OpenPreferenceAction_Preferences);
     }
 
     @Override
@@ -69,7 +70,7 @@ public class OpenPreferenceAction extends Action
 
         public String getLabelText()
         {
-            return configElement.getAttribute("name");
+            return configElement.getAttribute("name"); //$NON-NLS-1$
         }
 
         public void createPage()
@@ -77,7 +78,7 @@ public class OpenPreferenceAction extends Action
             IWorkbenchPreferencePage page;
             try
             {
-                page = (IWorkbenchPreferencePage) configElement.createExecutableExtension("class");
+                page = (IWorkbenchPreferencePage) configElement.createExecutableExtension("class"); //$NON-NLS-1$
             }
             catch (CoreException e)
             {
@@ -99,13 +100,13 @@ public class OpenPreferenceAction extends Action
 
         public PreferenceRegistry()
         {
-            init(RCPPlugin.getDefault().getExtensionTracker(), PlatformUI.PLUGIN_ID + ".preferencePages");
+            init(RCPPlugin.getDefault().getExtensionTracker(), PlatformUI.PLUGIN_ID + ".preferencePages"); //$NON-NLS-1$
         }
 
         @Override
         protected Node createDelegate(IConfigurationElement configElement) throws CoreException
         {
-            String id = configElement.getAttribute("id");
+            String id = configElement.getAttribute("id"); //$NON-NLS-1$
             return ALLOWED_IDS.contains(id) ? new Node(id, configElement) : null;
         }
 

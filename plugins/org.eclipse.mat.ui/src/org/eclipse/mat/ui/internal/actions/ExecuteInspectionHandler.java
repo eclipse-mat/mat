@@ -18,6 +18,7 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.registry.QueryDescriptor;
 import org.eclipse.mat.query.registry.QueryRegistry;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.QueryExecution;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
 import org.eclipse.ui.IEditorPart;
@@ -32,26 +33,26 @@ public class ExecuteInspectionHandler extends AbstractHandler
     {
         try
         {
-            String commandName = event.getParameter("org.eclipse.mat.ui.actions.executeInspection.commandName");
+            String commandName = event.getParameter("org.eclipse.mat.ui.actions.executeInspection.commandName"); //$NON-NLS-1$
             QueryDescriptor query = QueryRegistry.instance().getQuery(commandName);
             if (query == null)
-                throw new ExecutionException(MessageFormat.format("Unknown inspection: {0}", commandName));
+                throw new ExecutionException(MessageFormat.format(Messages.ExecuteInspectionHandler_UnknownInspection, commandName));
 
             // pick active editor
             IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
             if (window == null)
                 throw new ExecutionException(
-                                "No active workbench window found. Run command with an heap dump window active.");
+                                Messages.ExecuteInspectionHandler_NoActiveWorkbenchWindow);
 
             IWorkbenchPage page = window.getActivePage();
             if (page == null)
-                throw new ExecutionException("No active page found. Run command with an heap dump window active.");
+                throw new ExecutionException(Messages.ExecuteInspectionHandler_NoActivePage);
 
             IEditorPart editor = page.getActiveEditor();
             if (editor == null)
-                throw new ExecutionException("No active editor found. Run command with an heap dump window active.");
+                throw new ExecutionException(Messages.ExecuteInspectionHandler_NoActiveEditor);
             if (!(editor instanceof MultiPaneEditor))
-                throw new ExecutionException("Not a heap editor. Run command with an heap dump window active.");
+                throw new ExecutionException(Messages.ExecuteInspectionHandler_NotHeapEditor);
 
             QueryExecution.executeQuery((MultiPaneEditor) editor, query);
 

@@ -15,6 +15,7 @@ import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.registry.ArgumentDescriptor;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.util.PatternUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
@@ -39,9 +40,9 @@ public class TextEditor extends ArgumentEditor
 
     public enum DecoratorType
     {
-        PATTERN(MemoryAnalyserPlugin.ISharedImages.CLASS, "Enter a class name pattern (java.util.*)", "pattern"), OBJECT_ADDRESS(
-                        MemoryAnalyserPlugin.ISharedImages.ID, "Enter an address (0x4711)", "address"), QUERY(
-                        MemoryAnalyserPlugin.ISharedImages.OQL, "Enter an OQL query (select * from ...)", "oql_query");
+        PATTERN(MemoryAnalyserPlugin.ISharedImages.CLASS, Messages.TextEditor_EnterPattern, "pattern"), OBJECT_ADDRESS( //$NON-NLS-1$
+                        MemoryAnalyserPlugin.ISharedImages.ID, Messages.TextEditor_EnterAddress, "address"), QUERY( //$NON-NLS-1$
+                        MemoryAnalyserPlugin.ISharedImages.OQL, Messages.TextEditor_EnterOQLQuery, "oql_query"); //$NON-NLS-1$
 
         private String imageType;
         private String helpText;

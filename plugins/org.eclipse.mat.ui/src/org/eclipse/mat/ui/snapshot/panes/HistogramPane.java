@@ -43,6 +43,7 @@ import org.eclipse.mat.snapshot.query.HistogramResult;
 import org.eclipse.mat.snapshot.query.Icons;
 import org.eclipse.mat.snapshot.query.RetainedSizeDerivedData;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
 import org.eclipse.mat.ui.editor.MultiPaneEditorSite;
 import org.eclipse.mat.ui.internal.panes.QueryResultPane;
@@ -74,9 +75,9 @@ public class HistogramPane extends QueryResultPane
 {
     public enum Grouping
     {
-        BY_CLASS("Group by class", Icons.CLASS), //
-        BY_CLASSLOADER("Group by class loader", Icons.CLASSLOADER_INSTANCE), //
-        BY_PACKAGE("Group by package", Icons.PACKAGE);
+        BY_CLASS(Messages.HistogramPane_GroupByClass, Icons.CLASS), //
+        BY_CLASSLOADER(Messages.HistogramPane_GroupByClassLoader, Icons.CLASSLOADER_INSTANCE), //
+        BY_PACKAGE(Messages.HistogramPane_GroupByPackage, Icons.PACKAGE);
 
         String label;
         URL icon;
@@ -130,7 +131,7 @@ public class HistogramPane extends QueryResultPane
         {
             try
             {
-                QueryDescriptor histogram = QueryRegistry.instance().getQuery("histogram");
+                QueryDescriptor histogram = QueryRegistry.instance().getQuery("histogram"); //$NON-NLS-1$
                 argument = histogram.createNewArgumentSet(getEditor().getQueryContext()) //
                                 .execute(new VoidProgressListener());
             }
@@ -177,7 +178,7 @@ public class HistogramPane extends QueryResultPane
         else if (subject instanceof Histogram.PackageTree)
             return ((Histogram.PackageTree) subject).getHistogram();
         else
-            throw new RuntimeException(MessageFormat.format("Illegal type for HistogramPane: {0}", //
+            throw new RuntimeException(MessageFormat.format(Messages.HistogramPane_IllegalType, //
                             subject.getClass().getName()));
     }
 
@@ -195,7 +196,7 @@ public class HistogramPane extends QueryResultPane
 
     private void addGroupingOptions(IToolBarManager manager)
     {
-        Action groupingAction = new EasyToolBarDropDown("Group result by...", //
+        Action groupingAction = new EasyToolBarDropDown(Messages.TableResultPane_GroupResultBy, //
                         MemoryAnalyserPlugin.getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.GROUPING), this)
         {
             @Override
@@ -217,7 +218,7 @@ public class HistogramPane extends QueryResultPane
 
     private void updateDeltaHistogram()
     {
-        Job job = new Job("Calculating intersecting histograms")
+        Job job = new Job(Messages.HistogramPane_CalculatingIntersectingHistograms)
         {
 
             @Override
@@ -246,18 +247,17 @@ public class HistogramPane extends QueryResultPane
                             switch (HistogramPane.this.groupedBy)
                             {
                                 case BY_CLASS:
-                                    qr = new QueryResult(null, "[diff]", delta);
+                                    qr = new QueryResult(null, "[diff]", delta);//$NON-NLS-1$
                                     break;
                                 case BY_CLASSLOADER:
-                                    qr = new QueryResult(null, "[diff]", delta.groupByClassLoader());
+                                    qr = new QueryResult(null, "[diff]", delta.groupByClassLoader());//$NON-NLS-1$
                                     break;
                                 case BY_PACKAGE:
-                                    qr = new QueryResult(null, "[diff]", delta.groupByPackage());
+                                    qr = new QueryResult(null, "[diff]", delta.groupByPackage());//$NON-NLS-1$
                                     break;
                                 default:
-                                    throw new RuntimeException(MessageFormat
-                                                    .format("Illegal type for HistogramPane: {0}",
-                                                                    HistogramPane.this.groupedBy));
+                                    throw new RuntimeException(MessageFormat.format(Messages.HistogramPane_IllegalType,
+                                                    HistogramPane.this.groupedBy));
                             }
 
                             RefinedResultViewer v = createViewer(qr);
@@ -306,10 +306,10 @@ public class HistogramPane extends QueryResultPane
             if (viewer.getResult().hasActiveFilter())
             {
                 StringBuilder buf = new StringBuilder();
-                buf.append("The original table is filtered. The WHOLE tree will be grouped.");
+                buf.append(Messages.DominatorPane_WholeTreeWillBeGrouped);
 
                 MessageBox msg = new MessageBox(viewer.getControl().getShell(), SWT.OK | SWT.CANCEL);
-                msg.setText("Info");
+                msg.setText(Messages.DominatorPane_Info);
                 msg.setMessage(buf.toString());
 
                 if (msg.open() != SWT.OK)
@@ -336,16 +336,16 @@ public class HistogramPane extends QueryResultPane
                             result = current.groupByPackage();
                             break;
                         default:
-                            throw new RuntimeException(MessageFormat.format("Illegal type for HistogramPane: {0}",
-                                            groupBy));
+                            throw new RuntimeException(MessageFormat
+                                            .format(Messages.HistogramPane_IllegalType, groupBy));
 
                     }
 
                     final boolean isDeltaHistogram = current != HistogramPane.this.histogram;
 
-                    final QueryResult queryResult = isDeltaHistogram ? new QueryResult(null, "[diff]", result)
-                                    : new QueryResult(QueryRegistry.instance().getQuery("histogram"),
-                                                    "histogram -groupBy " + groupBy.name(), result);
+                    final QueryResult queryResult = isDeltaHistogram ? new QueryResult(null, "[diff]", result)//$NON-NLS-1$
+                                    : new QueryResult(QueryRegistry.instance().getQuery("histogram"),//$NON-NLS-1$
+                                                    "histogram -groupBy " + groupBy.name(), result);//$NON-NLS-1$
 
                     PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()
                     {
@@ -381,7 +381,7 @@ public class HistogramPane extends QueryResultPane
     {
         private DeltaAction()
         {
-            super("Compare to another Heap Dump", IAction.AS_CHECK_BOX);
+            super(Messages.HistogramPane_CompareToAnotherHeapDump, IAction.AS_CHECK_BOX);
             setImageDescriptor(MemoryAnalyserPlugin.getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.COMPARE));
         }
 
@@ -399,9 +399,9 @@ public class HistogramPane extends QueryResultPane
                     ISnapshot baseline = snapshotInput.getBaseline();
 
                     MessageBox box = new MessageBox(getSite().getShell(), SWT.OK | SWT.CANCEL);
-                    box.setText("Select Baseline");
-                    box.setMessage(MessageFormat.format("Compare against ''{0}''?", baseline.getSnapshotInfo()
-                                    .getPath()));
+                    box.setText(Messages.HistogramPane_SelectBaseline);
+                    box.setMessage(MessageFormat.format(Messages.HistogramPane_CompareAgainst, baseline
+                                    .getSnapshotInfo().getPath()));
 
                     if (box.open() == SWT.OK)
                         updateDeltaHistogram();
@@ -427,12 +427,11 @@ public class HistogramPane extends QueryResultPane
                         result = histogram.groupByPackage();
                         break;
                     default:
-                        throw new RuntimeException(MessageFormat.format("Illegal type for HistogramPane: {0}",
-                                        groupedBy));
+                        throw new RuntimeException(MessageFormat.format(Messages.HistogramPane_IllegalType, groupedBy));
                 }
 
-                QueryResult qr = new QueryResult(QueryRegistry.instance().getQuery("histogram"), //
-                                "histogram -groupBy " + groupedBy.name(), //
+                QueryResult qr = new QueryResult(QueryRegistry.instance().getQuery("histogram"), //$NON-NLS-1$
+                                "histogram -groupBy " + groupedBy.name(), //$NON-NLS-1$
                                 result);
 
                 activateViewer(createViewer(qr));
@@ -517,8 +516,8 @@ public class HistogramPane extends QueryResultPane
 
             if (resources.isEmpty())
             {
-                MessageDialog.openInformation(getSite().getShell(), "Select baseline",
-                                "No other heap dump opened in editor.");
+                MessageDialog.openInformation(getSite().getShell(), Messages.HistogramPane_SelectBaseline,
+                                Messages.HistogramPane_NoOtherHeapDump);
                 return null;
             }
 
@@ -552,8 +551,8 @@ public class HistogramPane extends QueryResultPane
 
             });
             dialog.setInput(resources);
-            dialog.setTitle("Select baseline");
-            dialog.setMessage("Select a heap dump from the open editors as baseline");
+            dialog.setTitle(Messages.HistogramPane_SelectBaseline);
+            dialog.setMessage(Messages.HistogramPane_SelectHeapDump);
             dialog.open();
 
             Object[] result = dialog.getResult();

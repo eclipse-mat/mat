@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.mat.query.refined.Filter;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
@@ -51,7 +52,7 @@ public class Copy
         }
         catch (IOException e)
         {
-            throw new RuntimeException("Error in export to .txt: data type not supported for export.", e);
+            throw new RuntimeException(Messages.Copy_ErrorInExport, e);
         }
         finally
         {
@@ -115,7 +116,7 @@ public class Copy
                 boolean addLineBreak = true;
                 for (int columnIndex = 0; columnIndex < numberOfColumns; columnIndex++)
                 {
-                    String value = "";
+                    String value = "";//$NON-NLS-1$
                     if (item instanceof TableItem)
                     {
                         value = ((TableItem) item).getText(columnIndex);
@@ -132,13 +133,13 @@ public class Copy
                     for (String filterName : Filter.FILTER_TYPES)
                     {
                         if (value.equals(filterName))
-                            value = "";
+                            value = "";//$NON-NLS-1$
                     }
 
                     if (columnIndex == 0)
                         rowBuffer.append(align(value, true, columnLengths.get(0)));
                     else
-                        rowBuffer.append("|" + align(value, false, columnLengths.get(columnIndex)));
+                        rowBuffer.append("|" + align(value, false, columnLengths.get(columnIndex)));//$NON-NLS-1$
 
                 }
                 if (addLineBreak)
@@ -178,7 +179,7 @@ public class Copy
         {
             boolean addLineBreak = true;
 
-            String value = "";
+            String value = "";//$NON-NLS-1$
             if (item instanceof TableItem)
             {
                 value = ((TableItem) item).getText();
@@ -307,7 +308,7 @@ public class Copy
 
         // length of all the columns included empty spaces
         for (int i = 0; i < dashesLength + numberOfColumns * 2; i++)
-            dashes.append('-'); //$NON-NLS-1$
+            dashes.append('-');
         return dashes.toString();
     }
 
