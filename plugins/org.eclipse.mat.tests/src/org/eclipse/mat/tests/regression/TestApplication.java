@@ -126,86 +126,79 @@ public class TestApplication
         List<File> dumpList = RegTestUtils.collectDumps(dumpDir, new ArrayList<File>());
 
         if (dumpList.isEmpty())
+            throw new IOException(MessageFormat.format("{0} contains no heap dumps", dumpDir.getAbsolutePath()));
+
+        List<TestSuiteResult> testResults = new ArrayList<TestSuiteResult>(dumpList.size());
+        for (File dump : dumpList)
         {
-            System.err.println("This directory contains no heap dumps");
-            // $JL-SYS_OUT_ERR$
-            System.err.println();
-            return;
+            TestSuiteResult result = new TestSuiteResult(dump);
+            testResults.add(result);
+
+            try
+            {
+                // prepare test environment
+                cleanIndexFiles(dump, result, true);
+            }
+            catch (Exception e)
+            {
+                // skip test suite for this heap dump
+                continue;
+            }
+
+            try
+            {
+                // parse the heap dump and execute the test suite
+                parse(dump, jvmFlags, result, !compare);
+            }
+            catch (Exception e)
+            {
+                System.err.println("ERROR: " + e.getMessage());
+                result.addErrorMessage(e.getMessage());
+                continue;
+            }
+
+            // process the result (compare to the baseline)
+            if (compare)
+                processResults(dump, result);
+
+            // do the cleanup only if all the tests succeeded
+            boolean succeed = true;
+            for (SingleTestResult entry : result.getTestData())
+            {
+                if (entry.getResult().equals("Failed"))
+                {
+                    succeed = false;
+                    break;
+                }
+            }
+            if (succeed && result.getErrorMessages().isEmpty())
+                cleanIndexFiles(dump, result, false);
+
+        }
+
+        if (!testResults.isEmpty())
+        {
+            System.out.println("-------------------------------------------------------------------");
+
+            if (compare)
+                generateXMLReport(testResults);
+            else
+                generatePerformanceReport(testResults);
+
+            System.out.println("-------------------------------------------------------------------");
+
+            boolean isSuccessful = true;
+            for (int ii = 0; isSuccessful && ii < testResults.size(); ii++)
+                isSuccessful = testResults.get(ii).isSuccessful();
+
+            if (isSuccessful)
+                System.out.println("Tests finished successfully");
+            else
+                throw new IOException("Tests failed with errors.");
         }
         else
         {
-            List<TestSuiteResult> testResults = new ArrayList<TestSuiteResult>(dumpList.size());
-            for (File dump : dumpList)
-            {
-                TestSuiteResult result = new TestSuiteResult(dump);
-                testResults.add(result);
-
-                try
-                {
-                    // prepare test environment
-                    cleanIndexFiles(dump, result, true);
-                }
-                catch (Exception e)
-                {
-                    // skip test suite for this heap dump
-                    continue;
-                }
-
-                try
-                {
-                    // parse the heap dump and execute the test suite
-                    parse(dump, jvmFlags, result, !compare);
-                }
-                catch (Exception e)
-                {
-                    System.err.println("ERROR: " + e.getMessage());
-                    result.addErrorMessage(e.getMessage());
-                    continue;
-                }
-
-                // process the result (compare to the baseline)
-                if (compare)
-                    processResults(dump, result);
-
-                // do the cleanup only if all the tests succeeded
-                boolean succeed = true;
-                for (SingleTestResult entry : result.getTestData())
-                {
-                    if (entry.getResult().equals("Failed"))
-                    {
-                        succeed = false;
-                        break;
-                    }
-                }
-                if (succeed && result.getErrorMessages().isEmpty())
-                    cleanIndexFiles(dump, result, false);
-
-            }
-
-            if (!testResults.isEmpty())
-            {
-                System.out.println("-------------------------------------------------------------------");
-
-                if (compare)
-                    generateXMLReport(testResults);
-                else
-                    generatePerformanceReport(testResults);
-
-                System.out.println("-------------------------------------------------------------------");
-
-                boolean isSuccessful = true;
-                for (int ii = 0; isSuccessful && ii < testResults.size(); ii++)
-                    isSuccessful = testResults.get(ii).isSuccessful();
-
-                if (isSuccessful)
-                    System.out.println("Tests finished successfully");
-                else
-                    System.out.println("Tests finished with errors");
-            }
-            else
-            {
-                System.out.println("Failed");
-            }
+            throw new IOException("No test results collected.");
         }
     }
 
