@@ -973,7 +973,14 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
             switch (columnIndex)
             {
                 case 0:
-                    return record.getLabel();
+                    String label = record.getLabel();
+                    if (!(record instanceof PackageNode))
+                    {
+                        int p = label.lastIndexOf('.');
+                        if (p > 0)
+                            label = label.substring(p + 1);
+                    }
+                    return label;
                 case 1:
                     return record.getNumberOfObjects();
                 case 2:
