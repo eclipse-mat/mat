@@ -21,7 +21,9 @@
 	</target>
 
 	<target name="-init" depends="-init.workspace">
+		<property name="buildDirectory" value="${basedir}/.." />
 		<property file="${buildDirectory}/latest.properties" />
+		
 		<echo message="Build Directory: ${buildDirectory}" />
 		<echo message="Eclipse Base Location: ${baseLocation}" />
 		<echo message="Build Label: ${buildLabel}" />
