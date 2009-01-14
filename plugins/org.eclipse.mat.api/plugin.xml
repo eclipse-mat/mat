@@ -33,6 +33,9 @@
 		<query impl="org.eclipse.mat.inspections.BiggestObjectsPieQuery"/>
 		<query impl="org.eclipse.mat.inspections.ClassLoaderExplorerQuery"/>
 		<query impl="org.eclipse.mat.inspections.GCRootsQuery"/>
+
+		<!-- basics -->		
+		<query impl="org.eclipse.mat.inspections.WasteInCharArraysQuery" />
 		
 		<!-- leak identification -->
 		<query impl="org.eclipse.mat.inspections.LeakHunterQuery"/>
