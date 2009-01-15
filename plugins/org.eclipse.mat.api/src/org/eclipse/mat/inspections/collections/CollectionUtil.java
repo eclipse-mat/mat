@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 SAP AG.
+ * Copyright (c) 2008 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation - detect IBM 1.4/1.5/1.6 VM
  *******************************************************************************/
 package org.eclipse.mat.inspections.collections;
 
@@ -236,10 +237,10 @@ public final class CollectionUtil
 
     private static int resolveVersion(ISnapshot snapshot) throws SnapshotException
     {
-        if (snapshot.getClassesByName("com.ibm.oti.vm.AbstractClassLoader$CacheLock", false) != null)
-            return Version.IBM16;
-        else if (snapshot.getClassesByName("com.ibm.oti.vm.BootstrapClassLoader", false) != null)
+        if (snapshot.getClassesByName("com.ibm.misc.JavaRuntimeVersion", false) != null)
             return Version.IBM15;
+        else if (snapshot.getClassesByName("com.ibm.oti.vm.BootstrapClassLoader", false) != null)
+            return Version.IBM16;
         else if (snapshot.getClassesByName("com.ibm.jvm.Trace", false) != null)
             return Version.IBM14;
 
