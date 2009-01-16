@@ -26,6 +26,7 @@ import org.eclipse.mat.collect.ArrayIntCompressed;
 import org.eclipse.mat.collect.ArrayLong;
 import org.eclipse.mat.collect.ArrayLongCompressed;
 import org.eclipse.mat.collect.ArrayUtils;
+import org.eclipse.mat.collect.BitField;
 import org.eclipse.mat.collect.HashMapIntLong;
 import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.collect.IteratorInt;
@@ -641,9 +642,7 @@ public abstract class IndexWriter
                 }
             }
             catch (IOException ignore)
-            {
-                // $JL-EXC$
-            }
+            {}
             finally
             {
                 if (indexFile.exists())
@@ -745,7 +744,7 @@ public abstract class IndexWriter
                 for (int segment = 0; segment < segments.length; segment++)
                 {
                     if (monitor.isCanceled())
-                        return null;
+                        throw new IProgressListener.OperationCanceledException();
 
                     File segmentFile = new File(this.indexFile.getAbsolutePath() + segment + ".log");
                     if (!segmentFile.exists())
@@ -773,66 +772,13 @@ public abstract class IndexWriter
                     segmentIn = null;
 
                     if (monitor.isCanceled())
-                        return null;
+                        throw new IProgressListener.OperationCanceledException();
 
                     // delete segment log
                     segmentFile.delete();
                     segmentFile = null;
 
-                    // sort (only by objIndex though)
-                    ArrayUtils.sort(objIndex, refIndex);
-
-                    // write index body
-                    int start = 0;
-                    int previous = -1;
-
-                    for (int ii = 0; ii <= objIndex.length; ii++)
-                    {
-                        if (ii == 0)
-                        {
-                            start = ii;
-                            previous = objIndex[ii];
-                        }
-                        else if (ii == objIndex.length || previous != objIndex[ii])
-                        {
-                            if (monitor.isCanceled())
-                                return null;
-
-                            header[previous] = body.size() + 1;
-
-                            Arrays.sort(refIndex, start, ii);
-
-                            SetInt duplicates = new SetInt();
-                            int endPseudo = start;
-
-                            for (int jj = start; jj < ii; jj++)
-                            {
-                                if (refIndex[jj] < 0)
-                                {
-                                    endPseudo++;
-                                    refIndex[jj] = -refIndex[jj] - 1;
-                                }
-
-                                if (duplicates.add(refIndex[jj]))
-                                {
-                                    body.add(refIndex[jj]);
-                                }
-
-                            }
-
-                            if (endPseudo > start)
-                            {
-                                keyWriter.storeKey(previous, new int[] { header[previous] - 1, endPseudo - start });
-                            }
-
-                            if (ii < objIndex.length)
-                            {
-                                previous = objIndex[ii];
-                                start = ii;
-                            }
-                        }
-                    }
-
+                    processSegment(monitor, keyWriter, header, body, objIndex, refIndex);
                 }
 
                 // write header
@@ -857,9 +803,7 @@ public abstract class IndexWriter
                         index.close();
                 }
                 catch (IOException ignore)
-                {
-                    // $JL-EXC$
-                }
+                {}
 
                 try
                 {
@@ -867,12 +811,114 @@ public abstract class IndexWriter
                         segmentIn.close();
                 }
                 catch (IOException ignore)
-                {
-                    // $JL-EXC$
-                }
+                {}
 
                 if (monitor.isCanceled())
                     cancel();
+            }
+        }
+
+        private void processSegment(IProgressListener monitor, KeyWriter keyWriter, int[] header,
+                        IntIndexStreamer body, int[] objIndex, int[] refIndex) throws IOException
+        {
+            // sort (only by objIndex though)
+            ArrayUtils.sort(objIndex, refIndex);
+
+            // write index body
+            int start = 0;
+            int previous = -1;
+
+            for (int ii = 0; ii <= objIndex.length; ii++)
+            {
+                if (ii == 0)
+                {
+                    start = ii;
+                    previous = objIndex[ii];
+                }
+                else if (ii == objIndex.length || previous != objIndex[ii])
+                {
+                    if (monitor.isCanceled())
+                        throw new IProgressListener.OperationCanceledException();
+
+                    header[previous] = body.size() + 1;
+
+                    processObject(keyWriter, header, body, previous, refIndex, start, ii);
+
+                    if (ii < objIndex.length)
+                    {
+                        previous = objIndex[ii];
+                        start = ii;
+                    }
+                }
+            }
+        }
+
+        private void processObject(KeyWriter keyWriter, int[] header, IntIndexStreamer body, int objectId,
+                        int[] refIndex, int fromIndex, int toIndex) throws IOException
+        {
+            Arrays.sort(refIndex, fromIndex, toIndex);
+
+            int endPseudo = fromIndex;
+
+            if ((toIndex - fromIndex) > 100000)
+            {
+                BitField duplicates = new BitField(size);
+
+                int jj = fromIndex;
+
+                for (; jj < toIndex; jj++) // pseudo references
+                {
+                    if (refIndex[jj] >= 0)
+                        break;
+
+                    endPseudo++;
+                    refIndex[jj] = -refIndex[jj] - 1;
+
+                    if (!duplicates.get(refIndex[jj]))
+                    {
+                        body.add(refIndex[jj]);
+                        duplicates.set(refIndex[jj]);
+                    }
+                }
+
+                for (; jj < toIndex; jj++) // other references
+                {
+                    if ((jj == fromIndex || refIndex[jj - 1] != refIndex[jj]) && !duplicates.get(refIndex[jj]))
+                    {
+                        body.add(refIndex[jj]);
+                    }
+                }
+            }
+            else
+            {
+                SetInt duplicates = new SetInt(toIndex - fromIndex);
+
+                int jj = fromIndex;
+
+                for (; jj < toIndex; jj++) // pseudo references
+                {
+                    if (refIndex[jj] >= 0)
+                        break;
+
+                    endPseudo++;
+                    refIndex[jj] = -refIndex[jj] - 1;
+
+                    if (duplicates.add(refIndex[jj]))
+                        body.add(refIndex[jj]);
+                }
+
+                for (; jj < toIndex; jj++) // other references
+                {
+                    if ((jj == fromIndex || refIndex[jj - 1] != refIndex[jj]) && !duplicates.contains(refIndex[jj]))
+                    {
+                        body.add(refIndex[jj]);
+                    }
+                }
+            }
+
+            if (endPseudo > fromIndex)
+            {
+                keyWriter.storeKey(objectId, new int[] { header[objectId] - 1, endPseudo - fromIndex });
             }
         }
 
@@ -891,9 +937,7 @@ public abstract class IndexWriter
                 }
             }
             catch (IOException ignore)
-            {
-                // $JL-EXC$
-            }
+            {}
             finally
             {
                 indexFile.delete();
@@ -1075,8 +1119,6 @@ public abstract class IndexWriter
                     }
                     catch (NoSuchElementException e)
                     {
-                        // $JL-EXC$
-
                         int p = mid / pageSize;
                         if (p != page)
                             array = getPage(page = p);
@@ -1446,9 +1488,7 @@ public abstract class IndexWriter
                 }
             }
             catch (IOException ignore)
-            {
-                // $JL-EXC$
-            }
+            {}
             finally
             {
                 if (indexFile.exists())
