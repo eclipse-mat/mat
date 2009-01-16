@@ -82,8 +82,14 @@ public class SnapshotInfo implements Serializable
     public SnapshotInfo(String path, String jvmInfo, int identifierSize, Date creationDate, int numberOfObjects,
                     int numberOfGCRoots, int numberOfClasses, int numberOfClassLoaders, long usedHeapSize)
     {
-        this(path, path.substring(0, path.lastIndexOf('.') + 1), jvmInfo, identifierSize, creationDate,
-                        numberOfObjects, numberOfGCRoots, numberOfClasses, numberOfClassLoaders, usedHeapSize);
+        this(path, prefix(path), jvmInfo, identifierSize, creationDate, numberOfObjects, numberOfGCRoots,
+                        numberOfClasses, numberOfClassLoaders, usedHeapSize);
+    }
+
+    private static String prefix(String path)
+    {
+        int p = path.lastIndexOf('.');
+        return p >= 0 ? path.substring(0, p + 1) : path + ".";
     }
 
     public Serializable getProperty(String name)
@@ -97,15 +103,21 @@ public class SnapshotInfo implements Serializable
     }
 
     /**
-     * Get path from where the snapshot was acquired.
+     * Get the absolute path of the heap dump file.
      * 
-     * @return path from where the snapshot was acquired
+     * @return absolute path of the heap dump file.
      */
-    public String getPath()
+	public String getPath()
     {
         return path;
     }
 
+    /**
+     * Get the common prefix used to name all additional (e.g. index) files. The
+     * prefix includes the directory path.
+     * 
+     * @return common prefix used to name additional files
+     */
     public String getPrefix()
     {
         return prefix;
