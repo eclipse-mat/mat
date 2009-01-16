@@ -300,7 +300,8 @@ public abstract class SnapshotOutlinePage extends Page implements IContentOutlin
             Category category = new Category(Messages.general_info);
             elements.add(category);
 
-            category.addChild(new Label(Messages.format, info.getJvmInfo(), bInfo.getJvmInfo()));
+            category.addChild(new Label(Messages.format, info.getProperty("$heapFormat"), bInfo
+                            .getProperty("$heapFormat")));
             category.addChild(new Label(Messages.time, info.getCreationDate(), bInfo.getCreationDate()));
             category.addChild(new Label(Messages.date, info.getCreationDate(), bInfo.getCreationDate()));
             category.addChild(new Label(Messages.identifier_size, info.getIdentifierSize(), bInfo.getIdentifierSize()));
@@ -327,18 +328,19 @@ public abstract class SnapshotOutlinePage extends Page implements IContentOutlin
         {
             // create tree from file information
             IPath path = getSnapshotPath();
+            File osFile = path.toFile();
 
             elements.add(new Label(Messages.resource, path.lastSegment(), null));
 
             Category category = new Category(Messages.general_info);
             elements.add(category);
-            category.addChild(new Label(Messages.format, path.getFileExtension().toUpperCase(), null));
-            category.addChild(new Label(Messages.time, null, null));
-            category.addChild(new Label(Messages.date, null, null));
+            category.addChild(new Label(Messages.format, null, null));
+            category.addChild(new Label(Messages.time, new Date(osFile.lastModified()), null));
+            category.addChild(new Label(Messages.date, new Date(osFile.lastModified()), null));
             category.addChild(new Label(Messages.identifier_size, null, null));
             category.addChild(new Label(Messages.file_path, path.toOSString(), null));
 
-            final Double fileLength = new Double((double) new File(path.toOSString()).length() / (1024 * 1024));
+            final Double fileLength = new Double((double) osFile.length() / (1024 * 1024));
             category.addChild(new Label(Messages.file_length, fileLength, null));
 
         }
