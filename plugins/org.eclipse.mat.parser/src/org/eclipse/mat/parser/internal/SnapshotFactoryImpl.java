@@ -74,7 +74,7 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
         String name = file.getAbsolutePath();
 
         int p = name.lastIndexOf('.');
-        String prefix = p >= 0 ? name.substring(0, p + 1) : name;
+        String prefix = p >= 0 ? name.substring(0, p + 1) : name + ".";
 
         try
         {
