@@ -8,7 +8,7 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.mat.inspections.util;
+package org.eclipse.mat.snapshot.query;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -20,35 +20,130 @@ import org.eclipse.mat.query.IResultPie;
 import org.eclipse.mat.query.ResultMetaData;
 import org.eclipse.mat.query.IResultPie.Slice;
 import org.eclipse.mat.snapshot.ISnapshot;
+import org.eclipse.mat.snapshot.SnapshotInfo;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.util.HTMLUtils;
 import org.eclipse.mat.util.Units;
 
-
-public class PieFactory
+/**
+ * Helper class to create pie chart results for heap objects.
+ * <p>
+ * Usage:
+ * 
+ * <pre>
+ * public class PieQuery implements IQuery
+ * {
+ *     &#064;Argument
+ *     public ISnapshot snapshot;
+ * 
+ *     public IResult execute(IProgressListener listener) throws Exception
+ *     {
+ *         PieFactory f = new PieFactory(snapshot);
+ * 
+ *         int[] topDominators = snapshot.getImmediateDominatedIds(-1);
+ * 
+ *         for (int ii = 0; ii &lt; 5 &amp;&amp; ii &lt; topDominators.length; ii++)
+ *             f.addSlice(topDominators[ii]);
+ * 
+ *         return f.build();
+ *     }
+ * 
+ * }
+ * </pre>
+ * 
+ * @since 0.7
+ */
+public final class PieFactory
 {
     private ISnapshot snapshot;
     private long totalHeap;
     private long retainedHeapBySlices;
     private List<SliceImpl> slices = new ArrayList<SliceImpl>();
 
+    /**
+     * Create a pie factory for the given snapshot. The size of the pie is the
+     * total heap size {@link SnapshotInfo#getUsedHeapSize()}.
+     * 
+     * @param snapshot
+     */
     public PieFactory(ISnapshot snapshot)
     {
         this(snapshot, snapshot.getSnapshotInfo().getUsedHeapSize());
     }
 
-    public PieFactory(ISnapshot snapshot, long totalHeap)
+    /**
+     * Create a pie factory for the given snapshot.
+     * 
+     * @param snapshot
+     *            snapshot containing the objects
+     * @param pieSize
+     *            total size of the pie
+     */
+    public PieFactory(ISnapshot snapshot, long pieSize)
     {
         this.snapshot = snapshot;
-        this.totalHeap = totalHeap;
+        this.totalHeap = pieSize;
     }
 
+    /**
+     * Create a pie factory for objects. Objects must be added either via
+     * {@link #addSlice(IObject)} or {@link #addSlice(int, String, long, long)}
+     * methods.
+     * 
+     * @param pieSize
+     *            total size of the pie
+     */
+    public PieFactory(long pieSize)
+    {
+        this(null, pieSize);
+    }
+
+    /**
+     * Create and add a new slice for the given object. The size of the slice is
+     * determined by the retained size.
+     * <p>
+     * To use this method, one needs to pass a {@link ISnapshot} to the
+     * constructor.
+     * 
+     * @param objectId
+     *            object id
+     * @return a new slice
+     */
     public Slice addSlice(int objectId) throws SnapshotException
     {
+        if (snapshot == null)
+            throw new NullPointerException("No snapshot available. Use new PieFactory(snapshot) instead.");
+
         IObject obj = snapshot.getObject(objectId);
-        return addSlice(obj.getObjectId(), obj.getDisplayName(), obj.getUsedHeapSize(), obj.getRetainedHeapSize());
+        return addSlice(obj);
     }
 
+    /**
+     * Create and add a new slice for the given object. The size of the slice is
+     * determined by the retained size.
+     * 
+     * @param object
+     * @return a new slice
+     */
+    public Slice addSlice(IObject object)
+    {
+        return addSlice(object.getObjectId(), object.getDisplayName(), object.getUsedHeapSize(), object
+                        .getRetainedHeapSize());
+    }
+
+    /**
+     *Create and add a new slice for the given object.
+     * 
+     * @param objectId
+     *            object id
+     * @param label
+     *            (optionally) a label describing the object (for display)
+     * @param usedHeapSize
+     *            (optionally) the used heap size (for display)
+     * @param retainedHeapSize
+     *            the retained size which determines the size of the slice
+     * @return a new slice
+     */
     public Slice addSlice(int objectId, String label, long usedHeapSize, long retainedHeapSize)
     {
         SliceImpl slice = new SliceImpl(objectId);
@@ -62,6 +157,11 @@ public class PieFactory
         return slice;
     }
 
+    /**
+     * Create and return the pie result object.
+     * 
+     * @return the pie result object
+     */
     public IResultPie build()
     {
         if (retainedHeapBySlices < totalHeap)

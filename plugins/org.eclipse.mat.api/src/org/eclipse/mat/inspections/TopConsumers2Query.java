@@ -25,7 +25,6 @@ import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.collect.ArrayLong;
 import org.eclipse.mat.collect.ArrayUtils;
 import org.eclipse.mat.collect.HashMapIntObject;
-import org.eclipse.mat.inspections.util.PieFactory;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IIconProvider;
@@ -54,6 +53,7 @@ import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.query.Icons;
 import org.eclipse.mat.snapshot.query.ObjectListResult;
+import org.eclipse.mat.snapshot.query.PieFactory;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.SimpleStringTokenizer;
 

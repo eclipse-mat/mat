@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.mat.inspections;
 
-import org.eclipse.mat.inspections.util.PieFactory;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResultPie;
 import org.eclipse.mat.query.IResultPie.Slice;
@@ -18,7 +17,7 @@ import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.Category;
 import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.snapshot.ISnapshot;
-import org.eclipse.mat.snapshot.model.IObject;
+import org.eclipse.mat.snapshot.query.PieFactory;
 import org.eclipse.mat.util.IProgressListener;
 
 @CommandName("pie_biggest_objects")
@@ -44,15 +43,13 @@ public class BiggestObjectsPieQuery implements IQuery
                         && (count < 3 //
                         || (retainedHeapBySlices < totalHeapSize / 4 && count < 10)))
         {
-            IObject obj = snapshot.getObject(objects[index++]);
-
-            Slice slice = pie.addSlice(obj.getObjectId());
+            Slice slice = pie.addSlice(objects[index++]);
             retainedHeapBySlices += slice.getValue();
             count++;
-            
+
             if (slice.getValue() < totalHeapSize / 100)
                 break;
-            
+
             if (listener.isCanceled())
                 break;
         }
