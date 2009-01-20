@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+
+	<extension-point id="editorPanes" name="Heap Editor Panes"
+		schema="schema/editorPanes.exsd" />
+	<extension-point id="editorContributions"
+		name="Multi Pane Editor Contributions"
+		schema="schema/editorContributions.exsd" />
+	
+	<extension point="org.eclipse.ui.perspectives">
+		<perspective
+        class="org.eclipse.mat.ui.internal.Perspective"
+        icon="icons/memory_analyzer_perspective.gif"
+        id="org.eclipse.mat.ui.perspective"
+        name="Memory Analysis">
+		</perspective>
+	</extension>
+
+	<extension point="org.eclipse.ui.editors">
+		<editor id="org.eclipse.mat.ui.editors.HeapEditor"
+		        name="Eclipse Memory Analyzer"
+		        class="org.eclipse.mat.ui.snapshot.editor.HeapEditor"
+		        contributorClass="org.eclipse.mat.ui.editor.MultiPaneEditorContributor"
+		        icon="icons/heapobjects/heapdump16.gif">
+			<contentTypeBinding contentTypeId="org.eclipse.mat.JavaHeapDump" />
+		</editor>
+	</extension>
+
+	<extension point="org.eclipse.ui.views">
+		<category id="org.eclipse.mat"
+			name="Memory Analyzer Views" />
+		<view category="org.eclipse.mat"
+			class="org.eclipse.mat.ui.internal.views.SnapshotHistoryView"
+			icon="icons/heapdump_history.gif"
+			id="org.eclipse.mat.ui.views.SnapshotHistoryView"
+			name="Heap Dump History" />
+		<view category="org.eclipse.mat"
+			class="org.eclipse.mat.ui.internal.views.SnapshotDetailsView"
+			icon="icons/heapdump_details.gif"
+			id="org.eclipse.mat.ui.views.SnapshotDetailsView"
+			name="Heap Dump Details" />
+		<view allowMultiple="true" category="org.eclipse.mat"
+			class="org.eclipse.mat.ui.snapshot.views.inspector.InspectorView"
+			icon="icons/inspector_view.gif"
+			id="org.eclipse.mat.ui.views.InspectorView"
+			name="Inspector" />
+		<view allowMultiple="true" category="org.eclipse.mat"
+			class="org.eclipse.mat.ui.internal.views.NotesView"
+			icon="icons/notepad.gif"
+			id="org.eclipse.mat.ui.views.TextEditorView" name="Notes" />
+		<view allowMultiple="false"
+        	category="org.eclipse.mat"
+        	class="org.eclipse.mat.ui.internal.views.NavigatorView"
+        	icon="icons/navigator_view.gif"
+       	    id="org.eclipse.mat.ui.views.NavigatorView"
+            name="Navigation History"/>        
+	</extension>
+
+	<extension point="org.eclipse.mat.ui.editorPanes">
+		<pane id="QueryResult" class="org.eclipse.mat.ui.internal.panes.QueryResultPane">
+			<result type="org.eclipse.mat.query.IResultTree"/>
+		</pane>
+		<pane id="QueryResultTable" class="org.eclipse.mat.ui.internal.panes.TableResultPane">
+			<result type="org.eclipse.mat.query.IResultTable"/>
+		</pane>
+		<pane id="QueryTextResult" class="org.eclipse.mat.ui.internal.panes.QueryTextResultPane">
+			<result type="org.eclipse.mat.query.IResult"/>
+			<result type="org.eclipse.mat.query.results.TextResult"/>
+			<result type="org.eclipse.mat.query.results.DisplayFileResult"/>
+		</pane>
+		<pane id="TextViewPane" class="org.eclipse.mat.ui.internal.panes.TextViewPane"/>
+		
+		<pane id="OverviewPane" class="org.eclipse.mat.ui.snapshot.panes.OverviewPane"/>
+		<pane id="OQL" class="org.eclipse.mat.ui.snapshot.panes.OQLPane">
+			<result type="org.eclipse.mat.snapshot.IOQLQuery$Result"/>
+		</pane>
+		<pane id="HistogramPane" class="org.eclipse.mat.ui.snapshot.panes.HistogramPane">
+			<result type="org.eclipse.mat.snapshot.Histogram"/>
+			<result type="org.eclipse.mat.snapshot.Histogram$ClassLoaderTree"/>
+			<result type="org.eclipse.mat.snapshot.Histogram$PackageTree"/>
+			<result type="org.eclipse.mat.snapshot.query.HistogramResult"/>
+		</pane>
+		<pane id="DominatorTreePane" class="org.eclipse.mat.ui.snapshot.panes.DominatorPane">
+			<result type="org.eclipse.mat.snapshot.inspections.DominatorQuery$Tree"/>
+		</pane>
+		<pane id="Path2GCRootsPane" class="org.eclipse.mat.ui.snapshot.panes.Path2GCRootsPane">
+			<result type="org.eclipse.mat.snapshot.inspections.Path2GCRootsQuery$Tree"/>
+		</pane>
+		<pane id="MultiplePath2GCRootsPane" class="org.eclipse.mat.ui.snapshot.panes.MultiplePath2GCRootsPane">
+			<result type="org.eclipse.mat.snapshot.inspections.MultiplePath2GCRootsQuery$Tree"/>
+		</pane>
+  <pane
+        class="org.eclipse.mat.ui.snapshot.panes.BundlesPane"
+        id="BundlesPane">
+     <result
+           type="org.eclipse.mat.inspections.osgi.BundleRegistryQuery$BundleTreeResult">
+     </result>
+  </pane>
+	</extension>
+   
+	<extension point="org.eclipse.mat.ui.editorContributions">
+		<contribution
+			class="org.eclipse.mat.ui.snapshot.editor.HeapEditorContributions"
+			editorClass="org.eclipse.mat.ui.snapshot.editor.HeapEditor"
+			sequenceNr="1" />
+	</extension>
+
+	<extension point="org.eclipse.ui.actionSets">
+		<actionSet
+			id="org.eclipse.mat.ui.actionSet.openIconAssist"
+			label="Icon Assist..." visible="false">
+			<action
+				class="org.eclipse.mat.ui.snapshot.actions.OpenIconAssistAction"
+				definitionId="org.eclipse.mat.ui.actions.IconAssist"
+				id="org.eclipse.mat.ui.openIconAssist"
+				label="Icon Assist..." menubarPath="help/additions" style="push"
+				tooltip="Open Icon Assist" />
+		</actionSet>
+		<actionSet label="Open Heap Dump" visible="false"
+			id="org.eclipse.mat.ui.actionSet.openExternalFile">
+			<action icon="icons/open_snapshot.gif"
+				label="Open Heap Dump..."
+				class="org.eclipse.mat.ui.snapshot.actions.OpenSnapshotAction"
+				tooltip="Open Heap Dump" menubarPath="file/new.ext" style="push"
+				toolbarPath="org.eclipse.ui.workbench.file/new.ext"
+				id="org.eclipse.mat.ui.openExternalFile">
+			</action>
+		</actionSet>
+	</extension>
+	
+	<extension point="org.eclipse.ui.perspectiveExtensions">
+		<perspectiveExtension
+			targetID="org.eclipse.mat.ui.perspective">
+			<actionSet
+				id="org.eclipse.mat.ui.actionSet.openExternalFile">
+			</actionSet>
+			<actionSet
+				id="org.eclipse.mat.ui.actionSet.openIconAssist">
+			</actionSet>
+		</perspectiveExtension>
+	</extension>
+
+	<extension point="org.eclipse.ui.commands">
+		<command
+			id="org.eclipse.mat.ui.query.browser.QueryBrowser"
+			name="Query Browser">
+		</command>
+		<command
+			id="org.eclipse.mat.ui.query.browser.QueryHistory"
+			name="Query History">
+		</command>
+		<command
+			id="org.eclipse.mat.ui.actions.IconAssist"
+			name="Icon Assist">
+		</command>
+		<command
+			id="org.eclipse.mat.ui.actions.executeInspection"
+			name="Excecute Inspection">
+			<commandParameter
+				id="org.eclipse.mat.ui.actions.executeInspection.commandName"
+				name="commandName"
+				optional="false">
+			</commandParameter>
+		</command>
+	</extension>
+
+	<extension point="org.eclipse.ui.handlers">
+		<handler
+			class="org.eclipse.mat.ui.internal.browser.QueryBrowserHandler"
+			commandId="org.eclipse.mat.ui.query.browser.QueryBrowser">
+		</handler>
+		<handler
+			class="org.eclipse.mat.ui.internal.browser.QueryHistoryHandler"
+			commandId="org.eclipse.mat.ui.query.browser.QueryHistory">
+		</handler>
+		<handler
+			class="org.eclipse.mat.ui.snapshot.actions.OpenIconAssistAction$Handler"
+			commandId="org.eclipse.mat.ui.actions.IconAssist">
+		</handler>
+		<handler
+			class="org.eclipse.mat.ui.internal.actions.ExecuteInspectionHandler"
+			commandId="org.eclipse.mat.ui.actions.executeInspection">
+		</handler>
+	</extension>
+
+	<extension point="org.eclipse.ui.bindings">
+		<key
+			commandId="org.eclipse.mat.ui.query.browser.QueryBrowser"
+			contextId="org.eclipse.ui.contexts.window"
+			schemeId="org.eclipse.mat.scheme" sequence="M1+Q">
+		</key>
+		<key
+			commandId="org.eclipse.mat.ui.query.browser.QueryHistory"
+			contextId="org.eclipse.ui.contexts.window"
+			schemeId="org.eclipse.mat.scheme" sequence="M1+H">
+		</key>
+		<key
+			commandId="org.eclipse.mat.ui.actions.IconAssist"
+			contextId="org.eclipse.ui.contexts.window"
+			schemeId="org.eclipse.mat.scheme" sequence="Alt+I">
+		</key>
+	</extension>
+
+	<extension point="org.eclipse.ui.intro.configExtension">
+		<!-- config extendsions to the RCP welcome page -->		
+		<configExtension configId="org.eclipse.mat.ui.rcp.introConfig" content="intro/all_tutorials.xml" />
+		
+		<!-- config extensions to the universal (IDE) Welcome Page -->
+		<configExtension configId="org.eclipse.ui.intro.universalConfig" content="intro/overview_ide.xml" />
+		<configExtension configId="org.eclipse.ui.intro.universalConfig" content="intro/tutorials_ide.xml" />
+    </extension>
+	
+	<extension point="org.eclipse.mat.report.query">
+		<query impl="org.eclipse.mat.ui.snapshot.actions.CopyActions$Address" />
+		<query impl="org.eclipse.mat.ui.snapshot.actions.CopyActions$FQClassName" />
+		<query impl="org.eclipse.mat.ui.snapshot.actions.CopyActions$Value" />
+		<query impl="org.eclipse.mat.ui.snapshot.actions.SaveValueAsQuery" />
+	</extension>
+
+	<extension point="org.eclipse.ui.cheatsheets.cheatSheetContent">
+		<category id="org.eclipse.mat.tutorials" name="Memory Analyzer"/>
+		
+		<cheatsheet 
+				id="org.eclipse.mat.tutorials.object_query_language"
+				contentFile="tutorials/object_query_language.xml"
+				category="org.eclipse.mat.tutorials"            
+				name="OQL Tutorial" />
+
+		<cheatsheet
+				id="org.eclipse.mat.tutorials.basicTutorial"
+				contentFile="tutorials/basic_tutorial.xml"
+				category="org.eclipse.mat.tutorials"
+				composite="false"
+				name="Basics"/>
+
+		<cheatsheet
+				id="org.eclipse.mat.tutorials.component_report"
+				contentFile="tutorials/component_report.xml"
+				category="org.eclipse.mat.tutorials"
+				composite="false"
+				name="Component Report"/>
+
+		<cheatsheet
+				id="org.eclipse.mat.tutorials.bestFeaturesTutorial"
+				contentFile="tutorials/best_features_tutorial.xml"
+				category="org.eclipse.mat.tutorials"
+				name="Best Features Tutorial"/>
+
+		<cheatsheet
+				id="org.eclipse.mat.tutorials.findingProblemsTutorial"
+				contentFile="tutorials/memory_hunting.xml"
+				category="org.eclipse.mat.tutorials"
+				name="Finding Memory Problems Tutorial"/>
+	</extension>
+
+</plugin>

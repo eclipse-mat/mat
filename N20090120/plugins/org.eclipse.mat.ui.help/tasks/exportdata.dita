@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd" >
+<task id="task_exportdata" xml:lang="en-us">
+	<title>Export Data</title>
+	<prolog></prolog>
+	<taskbody>
+		<context>
+			<p>Analyzed data can be exported from the heap editor either
+				by:</p>
+			<ul>
+				<li>
+					Using the toolbar export menu (you can choose between export to
+					.csv and .txt)
+					<p>
+						<image href="../mimes/m68786788.png"
+							alt="screen shot of context menu showing csv and txt selection"></image>
+					</p>
+				</li>
+				<li>Copy and paste to Notes view, e-mail or any text-based file.
+				</li>
+				<li>
+					Using context menu
+					<cmdname>Copy</cmdname>
+					to copy and paste address, class name or value.
+					<p>
+						<image href="../mimes/3f41747b.png" alt="screen shot showing Copy options"></image>
+					</p>
+				</li>
+			</ul>
+		</context>
+	</taskbody>
+</task>

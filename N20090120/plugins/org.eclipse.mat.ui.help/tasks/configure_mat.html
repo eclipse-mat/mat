@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en-us" xml:lang="en-us">
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<meta name="copyright" content="(C) Copyright 2005" />
+<meta name="DC.rights.owner" content="(C) Copyright 2005" />
+<meta content="task" name="DC.Type" />
+<meta name="DC.Title" content="Memory Analyzer Configuration" />
+<meta content="XHTML" name="DC.Format" />
+<meta content="task_configure_mat" name="DC.Identifier" />
+<meta content="en-us" name="DC.Language" />
+<link href="..\styles/commonltr.css" type="text/css" rel="stylesheet" />
+<title>Memory Analyzer Configuration</title>
+</head>
+<body id="task_configure_mat"><a name="task_configure_mat"><!-- --></a>
+
+
+	<h1 class="topictitle1">Memory Analyzer Configuration</h1>
+
+	
+	<div>
+		<div class="section">
+			<p>
+				Well, analyzing big heap dumps can also require more heap space.
+				Give it
+				some more memory (possible by running on a 64-bit machine):
+			</p>
+
+
+			<samp class="codeph">MemoryAnalyzer.exe -vmargs -Xmx4g</samp>
+
+			<p>Alternatively, edit the MemoryAnalyzer.ini to
+				contain:</p>
+
+
+			<div class="p">
+				<pre class="codeblock">-vmargs
+-Xmx2g</pre>
+
+			</div>
+
+
+			<p>
+				For more details, check out the section
+				<a href="http://help.eclipse.org/ganymede/topic/org.eclipse.platform.doc.user/tasks/running_eclipse.htm">Running Eclipse</a>
+				in the Help Center. It also contains more details if you are running
+				on Mac OS X.
+			</p>
+
+
+			<p>If you are running the Memory Analyzer inside your Eclipse SDK,
+				you need to edit the eclipse.ini file.</p>
+
+
+			<p>The memory intensive parts is the parsing. Try parsing the heap
+				dump from the command line. Once it has been parsed, it usually can
+				be opened with less memory in the GUI.</p>
+
+		</div>
+
+	</div>
+
+<div />
+
+</body>
+</html>

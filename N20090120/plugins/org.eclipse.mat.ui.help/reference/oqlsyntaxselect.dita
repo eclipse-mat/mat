@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd" >
+<reference id="ref_oqlsyntaxselect" xml:lang="en-us">
+	<title>SELECT Clause</title>
+	<shortdesc />
+
+	<prolog />
+	<refbody>
+		<section>
+			<p>
+				The SELECT clause determines what to extract from the
+				heap dump. To display objects and be able to browse the
+				outgoing references, use the
+				<cmdname>*</cmdname>
+				symbol:
+			</p>
+			<codeblock>SELECT * FROM java.lang.String</codeblock>
+
+			<p><b>Select specific columns</b></p>
+			<p>
+				Alternatively, one can select the fields to be
+				displayed:
+			</p>
+			<codeblock>SELECT toString(s), s.count, s.value FROM java.lang.String s</codeblock>
+			<p>
+				The resulting table knows about the underlying object.
+				So you can use the context menu to open further views on
+				the object at hand. Use the @ symbol to access Java
+				attributes and methods of the objects. There are also a
+				number of build-in function available to extract common
+				information:
+			</p>
+			<codeblock>SELECT toString(s), s.@usedHeapSize,
+				s.@retainedHeapSize FROM java.lang.String s</codeblock>
+			<p>
+				The section on
+				<xref href="propertyaccessors.dita">
+					Property Accessors
+				</xref>
+				contains details on the commonly available attributes.
+			</p>
+			<p><b>Provide column names</b></p>
+			<p>Use the AS keyword to name the columns:</p>
+			<codeblock>SELECT toString(s) AS Value,
+       		s.@usedHeapSize AS "Shallow Size",
+      		 s.@retainedHeapSize AS "Retained Size"
+			FROM java.lang.String s</codeblock>
+			<p>
+				Use the
+				<cmdname>AS RETAINED SET</cmdname>
+				keyword to get the set of objects retained by your
+				selection:
+			</p>
+			<codeblock>SELECT AS RETAINED SET * FROM java.lang.String</codeblock>
+			<p><b>Flatten select items into an object list</b></p>
+			<p>
+				Use the
+				<cmdname>OBJECTS</cmdname>
+				to interpret the items in the
+				<cmdname>SELECT</cmdname>
+				clause as objects:
+			</p>
+			<codeblock>SELECT OBJECTS dominators(s) FROM java.lang.String s</codeblock>
+			<p>
+				The function
+				<cmdname>dominators()</cmdname>
+				returns an array of objects. Therefore the query returns
+				a list of object lists, i.e. arrays. By using the
+				keyword
+				<cmdname>OBJECTS</cmdname>
+				, we force the OQL to reduce this into a single list of
+				objects.
+			</p>
+			<p><b>Select unique objects</b></p>
+			<p>
+				Use the
+				<cmdname>DISTINCT</cmdname>
+				keyword to only select unique objects:
+			</p>
+			<codeblock>SELECT DISTINCT classof(s) FROM java.lang.String s</codeblock>
+			<p>
+				The function
+				<cmdname>classof</cmdname>
+				returns the class object. Of course, all Strings have
+				the same class. Without the
+				<cmdname>DISTINCT</cmdname>
+				keyword, the query would result in a list with as many
+				rows with the same class as there are Strings.
+			</p>
+		</section>
+	</refbody>
+</reference>

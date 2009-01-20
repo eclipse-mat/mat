@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Memory Analyzer API (Incubation)
+Bundle-SymbolicName: org.eclipse.mat.api;singleton:=true
+Bundle-Version: 0.7.100.qualifier
+Bundle-Vendor: Eclipse.org
+Export-Package: org.eclipse.mat.inspections.osgi;x-friends:="org.eclipse.mat.ui",
+ org.eclipse.mat.inspections.osgi.model;x-friends:="org.eclipse.mat.ui",
+ org.eclipse.mat.internal.snapshot;x-friends:="org.eclipse.mat.ui",
+ org.eclipse.mat.snapshot,
+ org.eclipse.mat.snapshot.extension,
+ org.eclipse.mat.snapshot.inspections,
+ org.eclipse.mat.snapshot.model,
+ org.eclipse.mat.snapshot.query,
+ org.eclipse.mat.snapshot.registry
+Require-Bundle: org.eclipse.core.runtime;bundle-version="3.3.100",
+ org.eclipse.mat.report;bundle-version="[0.7.0.20080620,0.8.0]";visibility:=reexport
+Bundle-Activator: org.eclipse.mat.internal.MATPlugin
+Eclipse-LazyStart: true
+Bundle-ActivationPolicy: lazy
+Eclipse-BuddyPolicy: registered
+Bundle-RequiredExecutionEnvironment: J2SE-1.5

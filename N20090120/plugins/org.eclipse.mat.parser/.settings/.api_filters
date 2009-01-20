@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<component id="org.eclipse.mat.parser" version="2">
+    <resource path="src/org/eclipse/mat/parser/model/PrimitiveArrayImpl.java" type="org.eclipse.mat.parser.model.PrimitiveArrayImpl">
+        <filter id="574619656">
+            <message_arguments>
+                <message_argument value="IPrimitiveArray"/>
+                <message_argument value="PrimitiveArrayImpl"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/mat/parser/internal/snapshot/MultiplePathsFromGCRootsComputerImpl.java" type="org.eclipse.mat.parser.internal.snapshot.MultiplePathsFromGCRootsComputerImpl">
+        <filter id="574619656">
+            <message_arguments>
+                <message_argument value="IMultiplePathsFromGCRootsComputer"/>
+                <message_argument value="MultiplePathsFromGCRootsComputerImpl"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/mat/parser/internal/SnapshotImpl.java" type="org.eclipse.mat.parser.internal.SnapshotImpl">
+        <filter id="572522506">
+            <message_arguments>
+                <message_argument value="DominatorsSummary"/>
+                <message_argument value="SnapshotImpl"/>
+            </message_arguments>
+        </filter>
+        <filter id="574619656">
+            <message_arguments>
+                <message_argument value="ISnapshot"/>
+                <message_argument value="SnapshotImpl"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/mat/parser/internal/SnapshotImpl.java" type="org.eclipse.mat.parser.internal.SnapshotImpl$PathsFromGCRootsComputerImpl">
+        <filter id="574619656">
+            <message_arguments>
+                <message_argument value="IPathsFromGCRootsComputer"/>
+                <message_argument value="PathsFromGCRootsComputerImpl"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/mat/parser/internal/oql/OQLQueryImpl.java" type="org.eclipse.mat.parser.internal.oql.OQLQueryImpl">
+        <filter id="574619656">
+            <message_arguments>
+                <message_argument value="IOQLQuery"/>
+                <message_argument value="OQLQueryImpl"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/mat/parser/model/ObjectArrayImpl.java" type="org.eclipse.mat.parser.model.ObjectArrayImpl">
+        <filter id="574619656">
+            <message_arguments>
+                <message_argument value="IObjectArray"/>
+                <message_argument value="ObjectArrayImpl"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/mat/parser/model/InstanceImpl.java" type="org.eclipse.mat.parser.model.InstanceImpl">
+        <filter id="574619656">
+            <message_arguments>
+                <message_argument value="IInstance"/>
+                <message_argument value="InstanceImpl"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/mat/parser/model/ClassImpl.java" type="org.eclipse.mat.parser.model.ClassImpl">
+        <filter id="574619656">
+            <message_arguments>
+                <message_argument value="IClass"/>
+                <message_argument value="ClassImpl"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/mat/parser/model/AbstractArrayImpl.java" type="org.eclipse.mat.parser.model.AbstractArrayImpl">
+        <filter id="574619656">
+            <message_arguments>
+                <message_argument value="IArray"/>
+                <message_argument value="AbstractArrayImpl"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/mat/parser/model/AbstractObjectImpl.java" type="org.eclipse.mat.parser.model.AbstractObjectImpl">
+        <filter id="574619656">
+            <message_arguments>
+                <message_argument value="IObject"/>
+                <message_argument value="AbstractObjectImpl"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/mat/parser/model/ClassLoaderImpl.java" type="org.eclipse.mat.parser.model.ClassLoaderImpl">
+        <filter id="574619656">
+            <message_arguments>
+                <message_argument value="IClassLoader"/>
+                <message_argument value="ClassLoaderImpl"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/mat/parser/internal/util/ParserRegistry.java" type="org.eclipse.mat.parser.internal.util.ParserRegistry">
+        <filter id="572522506">
+            <message_arguments>
+                <message_argument value="SnapshotFormat"/>
+                <message_argument value="ParserRegistry"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="META-INF/MANIFEST.MF">
+        <filter id="924844039">
+            <message_arguments>
+                <message_argument value="0.7.0.qualifier"/>
+                <message_argument value="0.7.0.200806271307"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/mat/parser/internal/snapshot/PathsFromGCRootsTreeBuilder.java" type="org.eclipse.mat.parser.internal.snapshot.PathsFromGCRootsTreeBuilder">
+        <filter id="572522506">
+            <message_arguments>
+                <message_argument value="PathsFromGCRootsTree"/>
+                <message_argument value="PathsFromGCRootsTreeBuilder"/>
+            </message_arguments>
+        </filter>
+    </resource>
+</component>

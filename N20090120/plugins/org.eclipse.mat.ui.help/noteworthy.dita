@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd" >
+<reference id="ref_noteworthy" xml:lang="en-us">
+	<title>New &amp; Noteworthy</title>
+	<shortdesc>Here are descriptions of some of the more interesting or
+	significant changes made to the Memory Analyzer for the 0.8 release.</shortdesc>
+	<refbody>
+		<section>
+			<title>Inspector View Enhancements</title>
+			<p>When analyzing a dump from a SWT application, the inspector recreates
+			   colors and images and displays the information in the lower left corner.</p>
+		</section>
+	</refbody>
+</reference>

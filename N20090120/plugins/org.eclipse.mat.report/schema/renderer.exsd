@@ -1,0 +1,146 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Schema file written by PDE -->
+<schema targetNamespace="org.eclipse.mat.api" xmlns="http://www.w3.org/2001/XMLSchema">
+<annotation>
+      <appInfo>
+         <meta.schema plugin="org.eclipse.mat.api" id="renderer" name="Query Result Renderer"/>
+      </appInfo>
+      <documentation>
+         The Memory Analyzer reports utilize the renderer to create
+a textual representation of the query results, e.g. the table,
+trees, histograms, etc. Out of the box, HTML and CSV are supported.
+This is the extension point to add alternative renderer.
+      </documentation>
+   </annotation>
+
+   <element name="extension">
+      <annotation>
+         <appInfo>
+            <meta.element />
+         </appInfo>
+      </annotation>
+      <complexType>
+         <sequence minOccurs="1" maxOccurs="unbounded">
+            <element ref="renderer"/>
+         </sequence>
+         <attribute name="point" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="id" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="name" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+               <appInfo>
+                  <meta.attribute translatable="true"/>
+               </appInfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="renderer">
+      <complexType>
+         <attribute name="impl" type="string" use="required">
+            <annotation>
+               <documentation>
+                  implementor of &lt;samp&gt;org.eclipse.mat.impl.test.IOutputter&lt;/samp&gt;
+               </documentation>
+               <appInfo>
+                  <meta.attribute kind="java" basedOn=":org.eclipse.mat.impl.test.IOutputter"/>
+               </appInfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="since"/>
+      </appInfo>
+      <documentation>
+         0.7.0
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="examples"/>
+      </appInfo>
+      <documentation>
+         Following is an example of a renderer declaration: 
+&lt;p&gt;
+&lt;pre&gt;
+   &lt;extension point=&quot;org.eclipse.mat.report.renderer&quot;&gt;
+      &lt;renderer impl=&quot;org.eclipse.mat.report.internal.CsvRenderer&quot; /&gt;
+   &lt;/extension&gt;
+&lt;/pre&gt;
+&lt;/p&gt;
+The renderer must implement &lt;samp&gt;org.eclipse.mat.report.IOutputter&lt;/samp&gt;.
+The &lt;samp&gt;@Renderer&lt;/samp&gt; annotation declares the target format and,
+optionally, the applicable result type.
+&lt;p&gt;
+&lt;pre&gt;
+@Renderer(target = &quot;csv&quot;, result = IResult.class)
+public class CsvRenderer implements IOutputter
+{
+   [...]
+}
+&lt;/pre&gt;
+&lt;/p&gt;
+In the report, use the &quot;format&quot; parameter to specify the output format:
+&lt;p&gt;
+&lt;pre&gt;
+   &lt;query name=&quot;Class Histogram&quot;&gt;
+      &lt;param key=&quot;format&quot; value=&quot;csv&quot; /&gt;
+      &lt;command&gt;histogram&lt;/command&gt;
+   &lt;/query&gt;
+&lt;/pre&gt;
+&lt;/p&gt;
+
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="apiInfo"/>
+      </appInfo>
+      <documentation>
+         The value of the impl attribute must represent an implementor of &lt;samp&gt;org.eclipse.mat.report.IOutputter&lt;/samp&gt;.
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="implementation"/>
+      </appInfo>
+      <documentation>
+         The Memory Analyzer supplies two renderer: one for HTML, one for CSV (comma separated values).
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="copyright"/>
+      </appInfo>
+      <documentation>
+         Copyright (c) 2008 SAP AG and others.&lt;br&gt;
+All rights reserved. This program and the accompanying materials are made 
+available under the terms of the Eclipse Public License v1.0 which 
+accompanies this distribution, and is available at 
+&lt;a href=&quot;http://www.eclipse.org/legal/epl-v10.html&quot;&gt;http://www.eclipse.org/legal/epl-v10.html&lt;/a&gt;
+      </documentation>
+   </annotation>
+
+</schema>

@@ -1,0 +1,157 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Schema file written by PDE -->
+<schema targetNamespace="org.eclipse.mat.api" xmlns="http://www.w3.org/2001/XMLSchema">
+<annotation>
+      <appInfo>
+         <meta.schema plugin="org.eclipse.mat.api" id="requestResolver" name="Request Details Resolver"/>
+      </appInfo>
+      <documentation>
+         &lt;p&gt;The Leak Suspect report tries to display the current activity of a
+suspicious thread. For example, a HTTP worker thread used by a web container
+usually contains information about the request URL currently processed.
+This information is helpful to better understand the current problem.&lt;/p&gt;
+
+&lt;p&gt;This is how it works: The heap dump contains information about which
+objects are currently on the call stack of a thread (so called &quot;Java Locals&quot;).
+If some &quot;HTTP request&quot; object is on the call stack, one can pretty savely
+assume that the thread is executing this HTTP request. Of course, this
+requires some implementation knowlege and may change from version to
+version. The Memory Analyzer checks if a request details resolver is
+configured for one of the Java local objects and asks the resolver to
+provide a summary and detail page.&lt;/p&gt;
+      </documentation>
+   </annotation>
+
+   <element name="extension">
+      <annotation>
+         <appInfo>
+            <meta.element />
+         </appInfo>
+      </annotation>
+      <complexType>
+         <sequence minOccurs="1" maxOccurs="unbounded">
+            <element ref="resolver"/>
+         </sequence>
+         <attribute name="point" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="id" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="name" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+               <appInfo>
+                  <meta.attribute translatable="true"/>
+               </appInfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="resolver">
+      <complexType>
+         <attribute name="impl" type="string" use="required">
+            <annotation>
+               <documentation>
+                  implementor of &lt;samp&gt;org.eclipse.mat.snapshot.extension.IRequestDetailsResolver&lt;/samp&gt; annotated with &lt;samp&gt;@Subject&lt;/samp&gt; or &lt;samp&gt;@Subjects&lt;/samp&gt;
+               </documentation>
+               <appInfo>
+                  <meta.attribute kind="java" basedOn=":org.eclipse.mat.snapshot.extension.IRequestDetailsResolver"/>
+               </appInfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="since"/>
+      </appInfo>
+      <documentation>
+         0.7.0
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="examples"/>
+      </appInfo>
+      <documentation>
+         Following is an example of a request resolver declaration: 
+&lt;p&gt;
+&lt;pre&gt;
+   &lt;extension point=&quot;org.eclipse.mat.api.requestResolver&quot;&gt;
+      &lt;resolver impl=&quot;org.eclipse.mat.inspections.jetty.JettyRequestResolver&quot;/&gt;
+   &lt;/extension&gt;
+&lt;/pre&gt;
+&lt;/p&gt;
+The implemenation could look like this:
+&lt;p&gt;
+&lt;pre&gt;
+   @Subject(&quot;org.mortbay.jetty.Request&quot;)
+   public class JettyRequestResolver implements IRequestDetailsResolver
+   {
+      public void complement(ISnapshot snapshot,
+                             IThreadInfo thread,
+                             int[] javaLocals,
+                             int thisJavaLocal,
+                             IProgressListener listener)
+                  throws SnapshotException
+    {
+       IObject httpRequest = snapshot.getObject(thisJavaLocal);
+       IObject requestURI = (IObject) httpRequest.resolveValue(&quot;_requestURI&quot;);
+        
+       [...]
+        
+       thread.addRequest(summary, details);
+   }
+&lt;/pre&gt;
+&lt;/p&gt;
+The &lt;samp&gt;@Subject&lt;/samp&gt; tells the Memory Analyzer, to use this request details
+resolver for all instances of type &quot;org.mortbay.jetty.Request&quot;. In this
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="apiInfo"/>
+      </appInfo>
+      <documentation>
+         The value of the impl attribute must represent an implementor of &lt;samp&gt;org.eclipse.mat.snapshot.extension.IRequestDetailsResolver&lt;/samp&gt;.
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="implementation"/>
+      </appInfo>
+      <documentation>
+         The Memory Analyzer supplies a sample request details resolver for Jetty: &lt;samp&gt;org.eclipse.mat.inspections.jetty.JettyRequestResolver&lt;/samp&gt;.
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="copyright"/>
+      </appInfo>
+      <documentation>
+         Copyright (c) 2008 SAP AG and others.&lt;br&gt;
+All rights reserved. This program and the accompanying materials are made 
+available under the terms of the Eclipse Public License v1.0 which 
+accompanies this distribution, and is available at 
+&lt;a href=&quot;http://www.eclipse.org/legal/epl-v10.html&quot;&gt;http://www.eclipse.org/legal/epl-v10.html&lt;/a&gt;
+      </documentation>
+   </annotation>
+
+</schema>

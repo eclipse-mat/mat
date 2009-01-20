@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+	<extension-point id="factory" name="Snapshot Factory" schema="schema/factory.exsd"/>
+	
+	<extension-point id="nameResolver" name="Class Specific Name Resolver" schema="schema/nameResolver.exsd"/>
+	<extension-point id="threadResolver" name="Thread Details Resolver" schema="schema/threadResolver.exsd"/>
+	<extension-point id="requestResolver" name="Request Details Resolver" schema="schema/requestResolver.exsd"/>
+	<extension-point id="ticketResolver" name="Trouble Ticket Resolver" schema="schema/ticketResolver.exsd"/>
+	
+	<extension point="org.eclipse.mat.report.query">
+		<!-- public -->
+		<query impl="org.eclipse.mat.snapshot.inspections.DominatorQuery"/>
+		<query impl="org.eclipse.mat.snapshot.inspections.DominatorQuery$ShowInDominatorQuery"/>
+		<query impl="org.eclipse.mat.snapshot.inspections.Path2GCRootsQuery"/>
+		<query impl="org.eclipse.mat.snapshot.inspections.MultiplePath2GCRootsQuery"/>
+		
+		<!-- core -->
+		<query impl="org.eclipse.mat.inspections.HistogramQuery"/>
+		<query impl="org.eclipse.mat.inspections.RetainedSetQuery"/>
+		<query impl="org.eclipse.mat.inspections.CustomizedRetainedSetQuery"/>
+		<query impl="org.eclipse.mat.inspections.DuplicatedClassesQuery"/>
+		<query impl="org.eclipse.mat.inspections.GroupByValueQuery"/>
+		<query impl="org.eclipse.mat.inspections.OQLQuery"/>
+		<query impl="org.eclipse.mat.inspections.ImmediateDominatorsQuery"/>
+		<query impl="org.eclipse.mat.inspections.TopConsumersQuery"/>
+		<query impl="org.eclipse.mat.inspections.TopConsumers2Query"/>
+		<query impl="org.eclipse.mat.inspections.FindStringsQuery"/>
+		<query impl="org.eclipse.mat.inspections.SystemPropertiesQuery"/>
+		<query impl="org.eclipse.mat.inspections.HeapDumpInfoQuery"/>
+		<query impl="org.eclipse.mat.inspections.ObjectListQuery"/>
+		<query impl="org.eclipse.mat.inspections.ClassReferrersQuery"/>
+		<query impl="org.eclipse.mat.inspections.BiggestObjectsPieQuery"/>
+		<query impl="org.eclipse.mat.inspections.ClassLoaderExplorerQuery"/>
+		<query impl="org.eclipse.mat.inspections.GCRootsQuery"/>
+
+		<!-- basics -->		
+		<query impl="org.eclipse.mat.inspections.WasteInCharArraysQuery" />
+		
+		<!-- leak identification -->
+		<query impl="org.eclipse.mat.inspections.LeakHunterQuery"/>
+		<query impl="org.eclipse.mat.inspections.FindLeaksQuery"/>
+		<query impl="org.eclipse.mat.inspections.BigDropsQuery"/>
+	
+		<!-- Threads -->
+		<query impl="org.eclipse.mat.inspections.threads.ThreadOverviewQuery"/>
+		<query impl="org.eclipse.mat.inspections.threads.ThreadInfoQuery"/>
+		
+		<!-- Collections -->
+		<query impl="org.eclipse.mat.inspections.collections.ArrayFillRatioQuery"/>
+		<query impl="org.eclipse.mat.inspections.collections.ArraysBySizeQuery"/>
+		<query impl="org.eclipse.mat.inspections.collections.CollectionFillRatioQuery"/>
+		<query impl="org.eclipse.mat.inspections.collections.CollectionsBySizeQuery"/>
+		<query impl="org.eclipse.mat.inspections.collections.HashEntriesQuery"/>
+		<query impl="org.eclipse.mat.inspections.collections.MapCollisionRatioQuery"/>
+		<query impl="org.eclipse.mat.inspections.collections.ExtractListValuesQuery"/>
+		<query impl="org.eclipse.mat.inspections.collections.HashSetValuesQuery"/>
+		<query impl="org.eclipse.mat.inspections.collections.PrimitiveArraysWithAConstantValueQuery"/>
+	
+		<!-- Referents -->
+		<query impl="org.eclipse.mat.inspections.WeakReferenceStatQuery"/>
+		<query impl="org.eclipse.mat.inspections.SoftReferenceStatQuery"/>
+		<query impl="org.eclipse.mat.inspections.FinalizerReferenceStatQuery"/>
+	
+		<query impl="org.eclipse.mat.inspections.finalizer.FinalizerQuery"/>
+		<query impl="org.eclipse.mat.inspections.finalizer.FinalizerInProcessingQuery"/>
+		<query impl="org.eclipse.mat.inspections.finalizer.FinalizerQueueQuery"/>
+		<query impl="org.eclipse.mat.inspections.finalizer.FinalizerThreadLocalsQuery"/>
+		<query impl="org.eclipse.mat.inspections.finalizer.FinalizerThreadQuery"/>
+	
+		<!-- Extra Information (this queries will appear on the toolbar or inside the overview pane) -->
+		
+		<query impl="org.eclipse.mat.inspections.component.ComponentReportQuery"/>
+		<query impl="org.eclipse.mat.inspections.component.TopComponentsReportQuery"/>
+		
+		<!-- eclipse -->
+		<query impl="org.eclipse.mat.inspections.eclipse.LeakingPlugins"/>
+		<query impl="org.eclipse.mat.inspections.osgi.BundleRegistryQuery"/>
+  
+	</extension>
+	
+	<extension point="org.eclipse.mat.api.nameResolver">
+		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$StringResolver" />
+		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$StringBufferResolver" />
+		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$ThreadResolver" />
+		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$ThreadGroupResolver" />
+		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$ValueResolver" />
+		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$CharArrayResolver" />
+		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$ByteArrayResolver" />
+
+		<!-- eclipse -->
+		<resolver impl="org.eclipse.mat.inspections.eclipse.EclipseNameResolver$EclipseClassLoaderResolver" />
+		<resolver impl="org.eclipse.mat.inspections.eclipse.EclipseNameResolver$EclipseDefaultClassLoaderResolver" />
+		<resolver impl="org.eclipse.mat.inspections.eclipse.EclipseNameResolver$StartupClassLoaderResolver" />
+		<resolver impl="org.eclipse.mat.inspections.eclipse.EclipseNameResolver$RGBResolver" />
+		
+		<!-- jetty -->
+		<resolver impl="org.eclipse.mat.inspections.jetty.JettyNameResolvers$WebAppClassLoaderResolver"/>
+		<resolver impl="org.eclipse.mat.inspections.jetty.JettyNameResolvers$JasperLoaderResolver"/>
+	</extension>
+
+	<extension point="org.eclipse.mat.api.requestResolver">
+		<!-- jetty -->
+		<resolver impl="org.eclipse.mat.inspections.jetty.JettyRequestResolver"/>
+	</extension>
+	
+	<extension point="org.eclipse.mat.report.report">
+		<report id="suspects" name="Leak Suspects"
+				description="includes leak suspects and a system overview"
+				file="META-INF/reports/suspects.xml" />
+		<report id="overview" name="Heap Dump Overview"
+				description="includes class histogram, system properties and top consumers."
+				file="META-INF/reports/overview.xml" />
+		<report id="top_components" name="Top Components"
+				description="list reports for components bigger than 1 percent of the total heap."
+				file="META-INF/reports/top_components.xml" />
+	</extension>
+
+	<extension point="org.eclipse.core.contenttype.contentTypes">
+	    <content-type
+		      id="org.eclipse.mat.JavaHeapDump"
+		      name="Java Heap Dump"
+		      priority="normal">
+		</content-type>
+	</extension>
+	
+	<extension id="parse" point="org.eclipse.core.runtime.applications">
+		<application
+		      cardinality="singleton-global"
+		      thread="main"
+		      visible="true">
+			<run class="org.eclipse.mat.internal.apps.ParseSnapshotApp" />
+		</application>
+	</extension>
+	
+</plugin>

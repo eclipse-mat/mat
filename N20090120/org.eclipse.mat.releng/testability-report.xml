@@ -1,0 +1,41 @@
+<project name="org.eclipse.mat.build" default="all">
+	<property file="build.properties" />
+	
+	<!--
+		inlcude testability tasks				
+	-->
+	<taskdef name="testability" classname="com.google.ant.TestabilityTask">
+		<classpath>
+			<fileset dir="${testabilityExplorerLocation}" includes="*.jar"/>
+		</classpath>
+	</taskdef>
+	
+	
+	<!--
+		The PDE builds assumes a ~/plugins and ~/features layout.
+		If you do NOT run the build on a fully checkout repository,
+		use the init-dev target to prepare the layout 
+	-->
+	<target name="-init.workspace" if="workspaceLocation">
+		<property name="buildDirectory" value="${basedir}/temp" />
+	</target>
+
+	<target name="-init" depends="-init.workspace">
+		<property name="buildDirectory" value="${basedir}/.." />
+		<property file="${buildDirectory}/latest.properties" />
+		
+		<echo message="Build Directory: ${buildDirectory}" />
+		<echo message="Eclipse Base Location: ${baseLocation}" />
+		<echo message="Build Label: ${buildLabel}" />
+		<echo message="Qualifier: ${qualifier}" />
+	</target>
+
+	<target name="all" depends="-init" if="testabilityExplorerLocation">
+		<testability print="xml" resultfile="${buildDirectory}/${buildLabel}/org.eclipse.mat.testability-report.xml" filter="org.eclipse.mat">
+			<classpath>
+				<fileset dir="${buildDirectory}/${buildLabel}/p2/plugins" includes="*.jar"/>
+			</classpath>
+		</testability>
+	</target>
+
+</project>

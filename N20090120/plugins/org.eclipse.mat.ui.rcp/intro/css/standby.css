@@ -1,0 +1,92 @@
+body {
+	min-width : 230px;
+	background-color :  #d7e5f0;
+	/* since IE doesn't support min-width, use expression */
+	width:expression(document.body.clientWidth < 230? "230px": "auto" );
+	
+	border-style: solid;
+	border-width: 1px;
+	border-top-color: #ffffff;
+	border-left-color: #ffffff;
+	border-right-color : #ebf0f7;
+	border-bottom-color : #ebf0f7;
+
+
+	margin: 0px;
+} 	
+	
+/* ###########   TITLE BAR  ########## */
+#title 
+{
+	height : 30 px;
+	background-image : url(graphics/icons/gradient_minimization.gif); background-repeat : horizontal; min-width : 10 px;
+	overflow: hidden;
+	border-bottom-color : #ffffff;
+	border-bottom-width : 1 px;
+	border-bottom-style : solid;
+	
+}
+
+#titleimg img#nwdstxt 
+{
+	height : 30 px;
+
+}
+
+
+.page { 
+	min-width : 230px;
+	/* since IE doesn't support min-width, use expression */
+	width:expression(document.body.clientWidth < 230? "230px": "auto" );
+ 	min-height : 610px;
+	height : 100%;
+	height : expression(document.body.clientHeight < 450? "450px": "100%" );
+}
+
+#page-links-standby
+{
+	margin-top : 27 px;
+	margin-left : 12 px;
+	margin-right : 12 px;
+}
+
+#page-links-standby a {
+	display : block;
+	width : 206 px;
+	margin-top : 0px;
+
+	
+}
+
+#page-links-standby a span, #page-links a p {
+	display : block;
+	width : 160px;
+	margin : 0px;
+	padding : 0px;
+}
+
+#page-links-standby a .link-label {
+	position : relative;
+	left : 41 px;
+	top : -22px;
+	padding-top: 12px; 
+		/* TESTING
+	border-style: solid;
+	border-color: #555555;
+	border-width: 1px;
+	*/
+}
+
+#page-links-standby a p .text {
+	position : relative;
+	left : 41 px; 
+	top : -20 px;
+	padding-bottom : 15 px;	
+}
+
+#page-links-standby #overview { background-image : url(icons/overview_on.gif); background-repeat : no-repeat ;  background-position: top-left;}
+
+#page-links-standby #tutorials { background-image : url(icons/tutorials_on.gif); background-repeat : no-repeat ; background-position: top-left;}
+
+#page-links-standby #workbench { background-image : url(icons/workbench_off.gif); background-repeat : no-repeat ; background-position: top-left;}
+

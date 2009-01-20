@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd" >
+<task id="task_configure_mat" xml:lang="en-us">
+	<title>Memory Analyzer Configuration</title>
+	<prolog />
+	<taskbody>
+		<context>
+			<p>
+				Well, analyzing big heap dumps can also require more heap space.
+				Give it
+				some more memory (possible by running on a 64-bit machine):
+			</p>
+
+			<codeph>MemoryAnalyzer.exe -vmargs -Xmx4g</codeph>
+
+			<p>Alternatively, edit the MemoryAnalyzer.ini to
+				contain:</p>
+
+			<p>
+				<codeblock>-vmargs
+-Xmx2g</codeblock>
+			</p>
+
+			<p>
+				For more details, check out the section
+				<xref
+					href="http://help.eclipse.org/ganymede/topic/org.eclipse.platform.doc.user/tasks/running_eclipse.htm">Running Eclipse</xref>
+				in the Help Center. It also contains more details if you are running
+				on Mac OS X.
+			</p>
+
+			<p>If you are running the Memory Analyzer inside your Eclipse SDK,
+				you need to edit the eclipse.ini file.</p>
+
+			<p>The memory intensive parts is the parsing. Try parsing the heap
+				dump from the command line. Once it has been parsed, it usually can
+				be opened with less memory in the GUI.</p>
+		</context>
+	</taskbody>
+</task>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd" >
+<task id="task_analyzingthreads" xml:lang="en-us">
+	<title>Analyzing Threads</title>
+	<prolog></prolog>
+	<taskbody>
+		<context>
+			<p>
+				A thread is the path a program is executed. Multithreaded
+				applications run many threads concurrently within a single program.
+				To analyze all the threads in the heap dump use the
+				<menucascade>
+					<uicontrol>Query Browser</uicontrol>
+					<uicontrol>Thread Overview</uicontrol>
+				</menucascade>
+				query:
+			</p>
+			<image href="../mimes/m6c0b0970.png" alt="screen shot of thread overview"></image>
+			<p>
+				You can proceed with the analysis of a single thread by using
+				<menucascade>
+					<uicontrol>Java Basics</uicontrol>
+					<uicontrol>Thread Details</uicontrol>
+				</menucascade>
+				context menu.
+			</p>
+		</context>
+	</taskbody>
+</task>
