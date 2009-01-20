@@ -19,7 +19,6 @@ import org.eclipse.mat.parser.model.ClassImpl;
 import org.eclipse.mat.parser.model.XGCRootInfo;
 import org.eclipse.mat.parser.model.XSnapshotInfo;
 
-
 /* package */class PreliminaryIndexImpl implements IPreliminaryIndex
 {
     XSnapshotInfo snapshotInfo;
@@ -89,7 +88,5 @@ import org.eclipse.mat.parser.model.XSnapshotInfo;
     }
 
     public void delete()
-    {
-        // TODO delete preliminary indices (if stored)
-    }
+    {}
 }

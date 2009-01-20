@@ -33,8 +33,7 @@ public class BundleReaderFactory
             // Equinox OSGi framework
             return new EquinoxBundleReader(snapshot);
         else
-            // TODO to be implemented for other OSGI frameworks
-            return null;
+            throw new SnapshotException("Could not find Equinox OSGi Framework.");
 
     }
 

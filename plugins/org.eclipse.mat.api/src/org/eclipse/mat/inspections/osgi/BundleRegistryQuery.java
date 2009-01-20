@@ -40,7 +40,6 @@ import org.eclipse.mat.query.annotations.Category;
 import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.query.annotations.Name;
-import org.eclipse.mat.query.results.TextResult;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.util.IProgressListener;
 
@@ -86,9 +85,6 @@ public class BundleRegistryQuery implements IQuery
     public IResult execute(IProgressListener listener) throws Exception
     {
         IBundleReader bundleReader = BundleReaderFactory.getBundleReader(snapshot);
-        if (bundleReader == null)
-            return new TextResult("Only Equinox OSGi Framework is supported");
-
         OSGiModel model = bundleReader.readOSGiModel(listener);
         return create(model);
     }
