@@ -262,14 +262,52 @@ public class RefinedTreeViewer extends RefinedResultViewer
     {
         if (parent == null)
         {
-            doUpdateChildren(null, (ControlItem) tree.getData(Key.CONTROL));
+            ControlItem ctrl = (ControlItem) tree.getData(Key.CONTROL);
+            int nrItems = tree.getItemCount();
+            
+            // dispose "old" totals line
+            tree.getItem(nrItems - 1).dispose();
+
+            int currentlyVisible = nrItems - 2;
+
+            int visible = ctrl.totals.getVisibleItems();
+            for (int ii = currentlyVisible; ii < visible; ii++)
+            {
+                TreeItem item = new TreeItem(tree, SWT.NONE, ii + 1);
+                doUpdateChild(item, ctrl, ctrl.children.get(ii));
+            }
+
+            boolean isTotalsRowVisible = ctrl.totals.isVisible();
+
+            if (isTotalsRowVisible)
+                applyTotals(new TreeItem(tree, SWT.NONE, visible + 1), ctrl.totals);
         }
         else
         {
-            doUpdateChildren(parent, (ControlItem) parent.getData(Key.CONTROL));
+            ControlItem ctrl = (ControlItem) parent.getData(Key.CONTROL);
+            TreeItem parentItem = (TreeItem) parent;
+
+            int nrItems = parentItem.getItemCount();
+
+            // dispose "old" totals line
+            parentItem.getItem(nrItems - 1).dispose();
+
+            int currentlyVisible = nrItems - 1;
+
+            int visible = ctrl.totals.getVisibleItems();
+            for (int ii = currentlyVisible; ii < visible; ii++)
+            {
+                TreeItem item = new TreeItem(parentItem, SWT.NONE, ii);
+                doUpdateChild(item, ctrl, ctrl.children.get(ii));
+            }
+
+            boolean isTotalsRowVisible = ctrl.totals.isVisible();
+
+            if (isTotalsRowVisible)
+                applyTotals(new TreeItem(parentItem, SWT.NONE, visible), ctrl.totals);
         }
     }
-
+    
     @Override
     protected List<?> getElements(Object parent)
     {
