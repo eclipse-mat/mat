@@ -20,7 +20,6 @@ import org.eclipse.mat.query.IResultPie;
 import org.eclipse.mat.query.ResultMetaData;
 import org.eclipse.mat.query.IResultPie.Slice;
 import org.eclipse.mat.snapshot.ISnapshot;
-import org.eclipse.mat.snapshot.SnapshotInfo;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.util.HTMLUtils;
 import org.eclipse.mat.util.Units;
@@ -62,7 +61,8 @@ public final class PieFactory
 
     /**
      * Create a pie factory for the given snapshot. The size of the pie is the
-     * total heap size {@link SnapshotInfo#getUsedHeapSize()}.
+     * total heap size
+     * {@link org.eclipse.mat.snapshot.SnapshotInfo#getUsedHeapSize()}.
      * 
      * @param snapshot
      */
