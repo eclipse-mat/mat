@@ -32,7 +32,7 @@ import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.util.IProgressListener;
 
 @Name("Thread Details")
-@Category(Category.HIDDEN)
+@Category("Java Basics")
 @Icon("/META-INF/icons/threads.gif")
 public class ThreadInfoQuery implements IQuery
 {
