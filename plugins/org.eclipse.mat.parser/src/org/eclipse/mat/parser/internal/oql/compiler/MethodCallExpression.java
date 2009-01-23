@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.parser.internal.Messages;
 import org.eclipse.mat.parser.internal.oql.compiler.CompilerImpl.ConstantExpression;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.util.PatternUtil;
@@ -50,7 +51,7 @@ class MethodCallExpression extends Expression
             arguments[ii] = parameters.get(ii).compute(ctx);
 
         // special handling for #toString() and IObjects
-        if (subject instanceof IObject && "toString".equals(this.name) && parameters.isEmpty())
+        if (subject instanceof IObject && "toString".equals(this.name) && parameters.isEmpty()) //$NON-NLS-1$
         {
             String name = ((IObject) subject).getClassSpecificName();
             return name != null ? name : ((IObject) subject).getTechnicalName();
@@ -100,7 +101,7 @@ class MethodCallExpression extends Expression
             }
         }
 
-        throw new SnapshotException(MessageFormat.format("Method {0} not found in object {1}", new Object[] {
+        throw new SnapshotException(MessageFormat.format(Messages.MethodCallExpression_Error_MethodNotFound, new Object[] {
                         this.name, subject }));
     }
 
@@ -124,7 +125,7 @@ class MethodCallExpression extends Expression
         StringBuilder buf = new StringBuilder(256);
 
         buf.append(name);
-        buf.append("(");
+        buf.append("(");//$NON-NLS-1$
 
         for (Iterator<Expression> iter = this.parameters.iterator(); iter.hasNext();)
         {
@@ -132,10 +133,10 @@ class MethodCallExpression extends Expression
             buf.append(element);
 
             if (iter.hasNext())
-                buf.append(",");
+                buf.append(",");//$NON-NLS-1$
         }
 
-        buf.append(")");
+        buf.append(")");//$NON-NLS-1$
 
         return buf.toString();
     }

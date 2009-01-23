@@ -73,7 +73,7 @@ public class QueryExpression extends Expression
     @Override
     public String toString()
     {
-        return "(" + query.toString() + ")";
+        return "(" + query.toString() + ")";//$NON-NLS-1$//$NON-NLS-2$
     }
 
 }

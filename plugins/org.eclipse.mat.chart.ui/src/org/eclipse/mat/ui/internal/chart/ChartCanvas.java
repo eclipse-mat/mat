@@ -57,7 +57,7 @@ public class ChartCanvas extends Canvas
         try
         {
             PluginSettings ps = PluginSettings.instance();
-            renderer = ps.getDevice("dv.SWT");
+            renderer = ps.getDevice("dv.SWT"); //$NON-NLS-1$
         }
         catch (ChartException e)
         {
@@ -96,7 +96,7 @@ public class ChartCanvas extends Canvas
             private void handleError(Throwable t)
             {
                 isDisabled = true;
-                MemoryAnalyserPlugin.log(t, MessageFormat.format("Disabling chart rendering. Error: {0}", t
+                MemoryAnalyserPlugin.log(t, MessageFormat.format(Messages.ChartCanvas_Error_DisableChartRendering, t
                                 .getMessage()));
             }
         });

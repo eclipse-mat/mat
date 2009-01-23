@@ -53,7 +53,7 @@ public class OpenSourceFileJob extends Job
 
     public OpenSourceFileJob(String className)
     {
-        super(MessageFormat.format("Looking for {0}...", className));
+        super(MessageFormat.format(Messages.OpenSourceFileJob_LookingFor, className));
         this.className = className;
         this.setUser(true);
     }
@@ -71,7 +71,7 @@ public class OpenSourceFileJob extends Job
         }
         catch (JavaModelException e)
         {
-            return new Status(Status.ERROR, "org.eclipse.mat.jdt", 0, e.getMessage(), e);
+            return new Status(Status.ERROR, "org.eclipse.mat.jdt", 0, e.getMessage(), e); //$NON-NLS-1$
         }
     }
 
@@ -197,8 +197,8 @@ public class OpenSourceFileJob extends Job
                 {
                     MessageBox box = new MessageBox(PlatformUI.getWorkbench().getDisplay().getActiveShell(),
                                     SWT.ICON_INFORMATION);
-                    box.setText("Not found.");
-                    box.setMessage(MessageFormat.format("Type {0} not found in workspace.", className));
+                    box.setText(Messages.OpenSourceFileJob_NotFound);
+                    box.setMessage(MessageFormat.format(Messages.OpenSourceFileJob_TypeNotFound, className));
                     box.open();
                 }
                 else if (matches.size() == 1)
@@ -233,9 +233,9 @@ public class OpenSourceFileJob extends Job
                 StringBuilder buf = new StringBuilder(256);
                 buf.append(type.getElementName());
                 if (type.getPackageFragment() != null)
-                    buf.append(" - ").append(type.getPackageFragment().getElementName());
+                    buf.append(" - ").append(type.getPackageFragment().getElementName()); //$NON-NLS-1$
                 if (type.getJavaProject() != null)
-                    buf.append(" - ").append(type.getJavaProject().getElementName());
+                    buf.append(" - ").append(type.getJavaProject().getElementName()); //$NON-NLS-1$
                 return buf.toString();
             }
         });
@@ -255,8 +255,8 @@ public class OpenSourceFileJob extends Job
 
         });
         dialog.setInput(matches);
-        dialog.setTitle("Select Source File");
-        dialog.setMessage("Select source file to open.");
+        dialog.setTitle(Messages.OpenSourceFileJob_SelectFile);
+        dialog.setMessage(Messages.OpenSourceFileJob_SelectFileToOpen);
         dialog.open();
 
         Object[] result = dialog.getResult();

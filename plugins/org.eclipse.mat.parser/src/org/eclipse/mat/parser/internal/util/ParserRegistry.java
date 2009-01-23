@@ -22,6 +22,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.dynamichelpers.IExtensionTracker;
+import org.eclipse.mat.parser.internal.Messages;
 import org.eclipse.mat.parser.internal.ParserPlugin;
 import org.eclipse.mat.snapshot.SnapshotFormat;
 import org.eclipse.mat.util.RegistryReader;
@@ -29,8 +30,8 @@ import org.eclipse.mat.util.SimpleStringTokenizer;
 
 public class ParserRegistry extends RegistryReader<ParserRegistry.Parser>
 {
-    public static final String INDEX_BUILDER = "indexBuilder";
-    public static final String OBJECT_READER = "objectReader";
+    public static final String INDEX_BUILDER = "indexBuilder";//$NON-NLS-1$
+    public static final String OBJECT_READER = "objectReader";//$NON-NLS-1$
 
     public class Parser
     {
@@ -74,8 +75,8 @@ public class ParserRegistry extends RegistryReader<ParserRegistry.Parser>
             {
                 Logger.getLogger(getClass().getName()).log(
                                 Level.SEVERE,
-                                MessageFormat.format("Error while creating {0} ''{1}''", type.getSimpleName(),
-                                                configElement.getAttribute("addonBuilder")), e);
+                                MessageFormat.format(Messages.ParserRegistry_ErrorWhileCreating, type.getSimpleName(),
+                                                configElement.getAttribute("addonBuilder")), e);//$NON-NLS-1$
                 return null;
             }
         }
@@ -83,13 +84,13 @@ public class ParserRegistry extends RegistryReader<ParserRegistry.Parser>
 
     public ParserRegistry(IExtensionTracker tracker)
     {
-        init(tracker, ParserPlugin.PLUGIN_ID + ".parser");
+        init(tracker, ParserPlugin.PLUGIN_ID + ".parser");//$NON-NLS-1$
     }
 
     @Override
     public Parser createDelegate(IConfigurationElement configElement)
     {
-        String fileExtensions = configElement.getAttribute("fileExtension");
+        String fileExtensions = configElement.getAttribute("fileExtension");//$NON-NLS-1$
         if (fileExtensions == null || fileExtensions.length() == 0)
             return null;
 
@@ -98,16 +99,16 @@ public class ParserRegistry extends RegistryReader<ParserRegistry.Parser>
             String[] extensions = SimpleStringTokenizer.split(fileExtensions, ',');
             Pattern[] patterns = new Pattern[extensions.length];
             for (int ii = 0; ii < extensions.length; ii++)
-                patterns[ii] = Pattern.compile("(.*\\.)((?i)" + extensions[ii] + ")(\\.[0-9]*)?");
+                patterns[ii] = Pattern.compile("(.*\\.)((?i)" + extensions[ii] + ")(\\.[0-9]*)?");//$NON-NLS-1$//$NON-NLS-2$
 
-            SnapshotFormat snapshotFormat = new SnapshotFormat(configElement.getAttribute("name"), extensions);
+            SnapshotFormat snapshotFormat = new SnapshotFormat(configElement.getAttribute("name"), extensions);//$NON-NLS-1$
             return new Parser(configElement, snapshotFormat, patterns);
         }
         catch (PatternSyntaxException e)
         {
             Logger.getLogger(getClass().getName()).log(
                             Level.SEVERE,
-                            MessageFormat.format("Error compiling file name pattern of extension {0}", configElement
+                            MessageFormat.format(Messages.ParserRegistry_ErrorCompilingFileNamePattern, configElement
                                             .getNamespaceIdentifier()), e);
             return null;
         }

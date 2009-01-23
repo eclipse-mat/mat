@@ -19,6 +19,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.parser.internal.Messages;
 import org.eclipse.mat.parser.internal.oql.compiler.CompilerImpl.ConstantExpression;
 import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.snapshot.model.IObject;
@@ -28,8 +29,8 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
 
 abstract class Operation extends Expression
 {
-    static final String ERR_NO_COMPARABLE = "''{0}'' yields ''{1}'' of type ''{2}'' which does not implement Comparable and hence does not support the {3} operation.";
-    static final String ERR_NOT_A_NUMBER = "''{0}'' yields ''{1}'' of type ''{2}'' which is not a number and hence does not support the {3} operation";
+    static final String ERR_NO_COMPARABLE = Messages.Operation_ErrorNoComparable;
+    static final String ERR_NOT_A_NUMBER = Messages.Operation_ErrorNotNumber;
 
     protected Expression args[];
 
@@ -61,7 +62,7 @@ abstract class Operation extends Expression
     public String toString()
     {
         StringBuilder buf = new StringBuilder();
-        buf.append("(");
+        buf.append("(");//$NON-NLS-1$
 
         for (int ii = 0; ii < args.length; ii++)
         {
@@ -70,7 +71,7 @@ abstract class Operation extends Expression
 
             buf.append(args[ii]);
         }
-        buf.append(")");
+        buf.append(")");//$NON-NLS-1$
         return buf.toString();
     }
 
@@ -165,7 +166,7 @@ abstract class Operation extends Expression
 
         public String getSymbol()
         {
-            return "=";
+            return "=";//$NON-NLS-1$
         }
     }
 
@@ -214,7 +215,7 @@ abstract class Operation extends Expression
 
         public String getSymbol()
         {
-            return "!=";
+            return "!=";//$NON-NLS-1$
         }
     }
 
@@ -259,7 +260,7 @@ abstract class Operation extends Expression
 
         public String getSymbol()
         {
-            return ">";
+            return ">";//$NON-NLS-1$
         }
     }
 
@@ -304,7 +305,7 @@ abstract class Operation extends Expression
 
         public String getSymbol()
         {
-            return ">=";
+            return ">=";//$NON-NLS-1$
         }
     }
 
@@ -349,7 +350,7 @@ abstract class Operation extends Expression
 
         public String getSymbol()
         {
-            return "<";
+            return "<";//$NON-NLS-1$
         }
     }
 
@@ -394,7 +395,7 @@ abstract class Operation extends Expression
 
         public String getSymbol()
         {
-            return "<=";
+            return "<=";//$NON-NLS-1$
         }
     }
 
@@ -438,7 +439,7 @@ abstract class Operation extends Expression
                     leftId = ((IObject) obj1).getObjectId();
                 else
                     throw new RuntimeException(MessageFormat.format(
-                                    "IN: cannot compare left argument of type {0} to int[]", new Object[] { obj1
+                                    Messages.Operation_Error_CannotCompare, new Object[] { obj1
                                                     .getClass().getName() }));
 
                 for (int objectId : (int[]) obj2)
@@ -465,14 +466,14 @@ abstract class Operation extends Expression
             }
             else
             {
-                throw new RuntimeException("left argument to IN of unknown class " + obj2.getClass().getName());
+                throw new RuntimeException(MessageFormat.format(Messages.Operation_Error_ArgumentOfUnknownClass, obj2.getClass().getName()));
             }
         }
 
         @Override
         public String getSymbol()
         {
-            return " IN ";
+            return " IN ";//$NON-NLS-1$
         }
 
     }
@@ -517,7 +518,7 @@ abstract class Operation extends Expression
                     leftId = ((IObject) obj1).getObjectId();
                 else
                     throw new RuntimeException(MessageFormat.format(
-                                    "NOT IN: cannot compare left argument of type {0} to int[]", obj1.getClass()
+                                    Messages.Operation_Error_NotInCannotCompare, obj1.getClass()
                                                     .getName()));
 
                 for (int objectId : (int[]) obj2)
@@ -544,14 +545,14 @@ abstract class Operation extends Expression
             }
             else
             {
-                throw new RuntimeException("left argument to NOT IN of unknown class " + obj2.getClass().getName());
+                throw new RuntimeException(MessageFormat.format(Messages.Operation_Error_NotInArgumentOfUnknownClass, obj2.getClass().getName()));
             }
         }
 
         @Override
         public String getSymbol()
         {
-            return " NOT IN ";
+            return " NOT IN ";//$NON-NLS-1$
         }
 
     }
@@ -578,7 +579,7 @@ abstract class Operation extends Expression
 
         public String getSymbol()
         {
-            return "and";
+            return "and";//$NON-NLS-1$
         }
     }
 
@@ -604,7 +605,7 @@ abstract class Operation extends Expression
 
         public String getSymbol()
         {
-            return "or";
+            return "or";//$NON-NLS-1$
         }
     }
 
@@ -632,14 +633,14 @@ abstract class Operation extends Expression
 
         public String getSymbol()
         {
-            return " LIKE ";
+            return " LIKE ";//$NON-NLS-1$
         }
 
         @Override
         public String toString()
         {
-            return new StringBuilder().append("(").append(args[0]).append(getSymbol()).append("\"").append(
-                            pattern.toString()).append("\"").append(")").toString();
+            return new StringBuilder().append("(").append(args[0]).append(getSymbol()).append("\"").append(//$NON-NLS-1$//$NON-NLS-2$
+                            pattern.toString()).append("\"").append(")").toString();//$NON-NLS-1$//$NON-NLS-2$
         }
 
     }
@@ -667,14 +668,14 @@ abstract class Operation extends Expression
 
         public String getSymbol()
         {
-            return " NOT LIKE ";
+            return " NOT LIKE ";//$NON-NLS-1$
         }
 
         @Override
         public String toString()
         {
-            return new StringBuilder().append("(").append(args[0]).append(getSymbol()).append("\"").append(
-                            pattern.toString()).append("\"").append(")").toString();
+            return new StringBuilder().append("(").append(args[0]).append(getSymbol()).append("\"").append( //$NON-NLS-1$//$NON-NLS-2$
+                            pattern.toString()).append("\"").append(")").toString();//$NON-NLS-1$//$NON-NLS-2$
         }
 
     }
@@ -709,13 +710,13 @@ abstract class Operation extends Expression
 
         public String getSymbol()
         {
-            return " INSTANCEOF ";
+            return " INSTANCEOF ";//$NON-NLS-1$
         }
 
         @Override
         public String toString()
         {
-            return new StringBuilder().append("(").append(args[0]).append(getSymbol()).append(className).append(")")
+            return new StringBuilder().append("(").append(args[0]).append(getSymbol()).append(className).append(")")//$NON-NLS-1$//$NON-NLS-2$
                             .toString();
         }
 
@@ -763,11 +764,11 @@ abstract class Operation extends Expression
 
             if (obj1 == null || !(obj1 instanceof Number))
                 throw new UnsupportedOperationException(MessageFormat.format(ERR_NOT_A_NUMBER, new Object[] { args[0],
-                                obj1, obj1 != null ? obj1.getClass().getName() : "unknown", getSymbol() }));
+                                obj1, obj1 != null ? obj1.getClass().getName() : Messages.Function_unknown, getSymbol() }));
 
             if (obj2 == null || !(obj2 instanceof Number))
                 throw new UnsupportedOperationException(MessageFormat.format(ERR_NOT_A_NUMBER, new Object[] { args[1],
-                                obj2, obj2 != null ? obj2.getClass().getName() : "unknown", getSymbol() }));
+                                obj2, obj2 != null ? obj2.getClass().getName() : Messages.Function_unknown, getSymbol() }));
 
             if (obj1 instanceof Double || obj1 instanceof Float || obj2 instanceof Double || obj2 instanceof Float)
             {
@@ -808,7 +809,7 @@ abstract class Operation extends Expression
         @Override
         public String getSymbol()
         {
-            return "+";
+            return "+";//$NON-NLS-1$
         }
     }
 
@@ -835,7 +836,7 @@ abstract class Operation extends Expression
         @Override
         public String getSymbol()
         {
-            return "-";
+            return "-";//$NON-NLS-1$
         }
     }
 
@@ -862,7 +863,7 @@ abstract class Operation extends Expression
         @Override
         public String getSymbol()
         {
-            return "*";
+            return "*";//$NON-NLS-1$
         }
     }
 
@@ -889,7 +890,7 @@ abstract class Operation extends Expression
         @Override
         public String getSymbol()
         {
-            return "/";
+            return "/";//$NON-NLS-1$
         }
     }
 

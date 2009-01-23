@@ -91,7 +91,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
 
         // informational messages to the user
         monitor.sendUserMessage(IProgressListener.Severity.INFO, MessageFormat.format(
-                        "Heap {0} contains {1,number} objects", info.getPath(), identifiers.size()), null);
+                        Messages.HprofParserHandlerImpl_HeapContainsObjects, info.getPath(), identifiers.size()), null);
 
         int maxClassId = 0;
 
@@ -110,7 +110,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
 
         // create index writers
         outbound = new IndexWriter.IntArray1NWriter(this.identifiers.size(), Index.OUTBOUND.getFile(info.getPrefix()
-                        + "temp."));
+                        + "temp."));//$NON-NLS-1$
         object2classId = new IndexWriter.IntIndexCollector(this.identifiers.size(), IndexWriter
                         .mostSignificantBit(maxClassId));
         object2position = new IndexWriter.LongIndexCollector(this.identifiers.size(), IndexWriter
@@ -180,13 +180,12 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
                 {
                     int objectId = identifiers.reverse(arrayClassID);
                     if (objectId >= 0)
-                    {
-                        final String MSG = "Error: Found instance segment but expected class segment (see FAQ): 0x{0}";
-                        String msg = MessageFormat.format(MSG, Long.toHexString(arrayClassID));
+                    {                      
+                        String msg = MessageFormat.format(Messages.HprofParserHandlerImpl_Error_ExpectedClassSegment, Long.toHexString(arrayClassID));
                         throw new SnapshotException(msg);
                     }
 
-                    arrayType = new ClassImpl(arrayClassID, "unknown-class[]", 0, 0, new Field[0],
+                    arrayType = new ClassImpl(arrayClassID, "unknown-class[]", 0, 0, new Field[0], //$NON-NLS-1$
                                     new FieldDescriptor[0]);
                     addClass((ClassImpl) arrayType, -1);
                 }
@@ -306,13 +305,13 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
 
         index.setIdentifiers(identifiers);
 
-        index.setArray2size(array2size.writeTo(Index.A2SIZE.getFile(info.getPrefix() + "temp.")));
+        index.setArray2size(array2size.writeTo(Index.A2SIZE.getFile(info.getPrefix() + "temp."))); //$NON-NLS-1$
 
         index.setObject2classId(object2classId);
 
         index.setOutbound(outbound.flush());
 
-        return object2position.writeTo(new File(info.getPrefix() + "temp.o2hprof.index"));
+        return object2position.writeTo(new File(info.getPrefix() + "temp.o2hprof.index")); //$NON-NLS-1$
     }
 
     private HashMapIntObject<List<XGCRootInfo>> map2ids(HashMapLongObject<List<XGCRootInfo>> source)
@@ -484,7 +483,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
         if (list == null)
             return null;
         if (failOnMultipleInstances && list.size() != 1)
-            throw new RuntimeException("multiple class instances exist for " + name);
+            throw new RuntimeException(MessageFormat.format(Messages.HprofParserHandlerImpl_Error_MultipleClassInstancesExist, name));
         return list.get(0);
     }
 

@@ -16,6 +16,7 @@ import java.util.Comparator;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayLong;
+import org.eclipse.mat.parser.internal.Messages;
 import org.eclipse.mat.parser.internal.SnapshotImpl;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.Field;
@@ -114,15 +115,15 @@ public abstract class AbstractObjectImpl implements IObject, Serializable
     {
         StringBuffer s = new StringBuffer(256);
         s.append(this.getClazz().getName());
-        s.append(" [");
+        s.append(" [");//$NON-NLS-1$
         appendFields(s);
-        s.append("]");
+        s.append("]");//$NON-NLS-1$
         return s.toString();
     }
 
     protected StringBuffer appendFields(StringBuffer buf)
     {
-        return buf.append("id=0x").append(Long.toHexString(getObjectAddress()));
+        return buf.append("id=0x").append(Long.toHexString(getObjectAddress()));//$NON-NLS-1$
     }
 
     public String getClassSpecificName()
@@ -134,7 +135,7 @@ public abstract class AbstractObjectImpl implements IObject, Serializable
     {
         StringBuilder builder = new StringBuilder(256);
         builder.append(getClazz().getName());
-        builder.append(" @ 0x");
+        builder.append(" @ 0x");//$NON-NLS-1$
         builder.append(Long.toHexString(getObjectAddress()));
         return builder.toString();
     }
@@ -146,7 +147,7 @@ public abstract class AbstractObjectImpl implements IObject, Serializable
             return getTechnicalName();
         else
         {
-            StringBuilder s = new StringBuilder(256).append(getTechnicalName()).append("  ");
+            StringBuilder s = new StringBuilder(256).append(getTechnicalName()).append("  "); //$NON-NLS-1$
             if (label.length() <= 256)
             {
                 s.append(label);
@@ -154,7 +155,7 @@ public abstract class AbstractObjectImpl implements IObject, Serializable
             else
             {
                 s.append(label.substring(0, 256));
-                s.append("...");
+                s.append("...");//$NON-NLS-1$
             }
             return s.toString();
         }
@@ -180,7 +181,7 @@ public abstract class AbstractObjectImpl implements IObject, Serializable
         if (!(f.getValue() instanceof ObjectReference))
         {
             String msg = MessageFormat.format(
-                            "Field ''{0}'' of ''{1}'' is not an object reference. It cannot have a field ''{2}''",
+                            Messages.AbstractObjectImpl_Error_FieldIsNotReference,
                             new Object[] { n, getTechnicalName(), name.substring(p + 1) });
             throw new SnapshotException(msg);
         }
@@ -192,7 +193,7 @@ public abstract class AbstractObjectImpl implements IObject, Serializable
         int objectId = ref.getObjectId();
         if (objectId < 0)
         {
-            String msg = MessageFormat.format("Field ''{0}'' of ''{1}'' contains an illegal object reference: 0x{2}",
+            String msg = MessageFormat.format(Messages.AbstractObjectImpl_Error_FieldContainsIllegalReference,
                             new Object[] { n, getTechnicalName(), Long.toHexString(ref.getObjectAddress()) });
             throw new SnapshotException(msg);
         }

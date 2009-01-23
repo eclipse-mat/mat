@@ -20,14 +20,14 @@ public class IndexManager
 {
     public enum Index
     {
-        INBOUND("inbound", IndexReader.InboundReader.class), //
-        OUTBOUND("outbound", IndexReader.IntIndex1NSortedReader.class), //
-        O2CLASS("o2c", IndexReader.IntIndexReader.class), //
-        IDENTIFIER("idx", IndexReader.LongIndexReader.class), //
-        A2SIZE("a2s", IndexReader.IntIndexReader.class), //
-        DOMINATED("domOut", IndexReader.IntIndex1NReader.class), //
-        O2RETAINED("o2ret", IndexReader.LongIndexReader.class), //
-        DOMINATOR("domIn", IndexReader.IntIndexReader.class);
+        INBOUND("inbound", IndexReader.InboundReader.class), //$NON-NLS-1$
+        OUTBOUND("outbound", IndexReader.IntIndex1NSortedReader.class), //$NON-NLS-1$
+        O2CLASS("o2c", IndexReader.IntIndexReader.class), //$NON-NLS-1$
+        IDENTIFIER("idx", IndexReader.LongIndexReader.class), //$NON-NLS-1$
+        A2SIZE("a2s", IndexReader.IntIndexReader.class), //$NON-NLS-1$
+        DOMINATED("domOut", IndexReader.IntIndex1NReader.class), //$NON-NLS-1$
+        O2RETAINED("o2ret", IndexReader.LongIndexReader.class), //$NON-NLS-1$
+        DOMINATOR("domIn", IndexReader.IntIndexReader.class);//$NON-NLS-1$
 
         public String filename;
         Class<? extends IIndexReader> impl;
@@ -40,7 +40,7 @@ public class IndexManager
 
         public File getFile(String prefix)
         {
-            return new File(new StringBuilder(prefix).append(filename).append(".index").toString());
+            return new File(new StringBuilder(prefix).append(filename).append(".index").toString());//$NON-NLS-1$
         }
 
     }
@@ -122,7 +122,7 @@ public class IndexManager
                 catch (InvocationTargetException e)
                 {
                     Throwable cause = e.getCause();
-                    IOException ioe = new IOException(MessageFormat.format("{0}: {1}", cause.getClass().getName(),
+                    IOException ioe = new IOException(MessageFormat.format("{0}: {1}", cause.getClass().getName(), //$NON-NLS-1$
                                     cause.getMessage()));
                     ioe.initCause(cause);
                     throw ioe;

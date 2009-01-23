@@ -17,6 +17,8 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.eclipse.mat.parser.internal.Messages;
+
 public class PositionInputStream extends FilterInputStream implements DataInput
 {
     private final byte[] readBuffer = new byte[32];
@@ -57,12 +59,12 @@ public class PositionInputStream extends FilterInputStream implements DataInput
 
     public void mark(int readLimit)
     {
-        throw new UnsupportedOperationException("mark");
+        throw new UnsupportedOperationException(Messages.PositionInputStream_mark);
     }
 
     public void reset()
     {
-        throw new UnsupportedOperationException("reset");
+        throw new UnsupportedOperationException(Messages.PositionInputStream_reset);
     }
 
     public final int skipBytes(int n) throws IOException
@@ -127,7 +129,7 @@ public class PositionInputStream extends FilterInputStream implements DataInput
         }
         else
         {
-            throw new UnsupportedOperationException("seek");
+            throw new UnsupportedOperationException(Messages.PositionInputStream_seek);
         }
     }
 

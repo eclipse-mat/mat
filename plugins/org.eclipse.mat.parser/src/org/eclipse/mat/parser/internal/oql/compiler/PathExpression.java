@@ -20,6 +20,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.parser.internal.Messages;
 import org.eclipse.mat.snapshot.model.IObject;
 
 
@@ -68,14 +69,14 @@ class PathExpression extends Expression
                         // special: we support the 'length' property for arrays
                         if (current.getClass().isArray())
                         {
-                            if ("length".equals(attribute.getName()))
+                            if ("length".equals(attribute.getName())) //$NON-NLS-1$
                             {
                                 current = Array.getLength(current);
                             }
                             else
                             {
                                 throw new SnapshotException(MessageFormat.format(
-                                                "The array of type {0} has no property {1}", new Object[] {
+                                                Messages.PathExpression_Error_ArrayHasNoProperty, new Object[] {
                                                                 current.getClass().getComponentType().getName(),
                                                                 attribute.name }));
                             }
@@ -98,7 +99,7 @@ class PathExpression extends Expression
                             }
 
                             if (!didFindProperty) { throw new SnapshotException(MessageFormat.format(
-                                            "Type {0} has no property {1}", new Object[] {
+                                            Messages.PathExpression_Error_TypeHasNoProperty, new Object[] {
                                                             current.getClass().getName(), attribute.name })); }
                         }
 
@@ -118,7 +119,7 @@ class PathExpression extends Expression
                 }
                 else
                 {
-                    throw new SnapshotException(MessageFormat.format("Unknown element in path {0}",
+                    throw new SnapshotException(MessageFormat.format(Messages.PathExpression_Error_UnknownElementInPath,
                                     new Object[] { element }));
                 }
 
@@ -175,7 +176,7 @@ class PathExpression extends Expression
             buf.append(element);
 
             if (iter.hasNext())
-                buf.append(".");
+                buf.append(".");//$NON-NLS-1$
         }
 
         return buf.toString();

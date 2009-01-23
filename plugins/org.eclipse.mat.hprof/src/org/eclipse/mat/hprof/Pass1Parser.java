@@ -33,8 +33,8 @@ import org.eclipse.mat.util.IProgressListener.Severity;
 
 public class Pass1Parser extends AbstractParser
 {
-    private static final Pattern PATTERN_OBJ_ARRAY = Pattern.compile("^(\\[+)L(.*);$");
-    private static final Pattern PATTERN_PRIMITIVE_ARRAY = Pattern.compile("^(\\[+)(.)$");
+    private static final Pattern PATTERN_OBJ_ARRAY = Pattern.compile("^(\\[+)L(.*);$"); //$NON-NLS-1$
+    private static final Pattern PATTERN_PRIMITIVE_ARRAY = Pattern.compile("^(\\[+)(.)$"); //$NON-NLS-1$
 
     private HashMapLongObject<String> class2name = new HashMapLongObject<String>();
     private HashMapLongObject<Long> thread2id = new HashMapLongObject<Long>();
@@ -60,7 +60,7 @@ public class Pass1Parser extends AbstractParser
             // identifierSize (32 or 64 bit)
             idSize = in.readInt();
             if (idSize != 4 && idSize != 8)
-                throw new SnapshotException("Only 32bit and 64bit dumps are supported.");
+                throw new SnapshotException(Messages.Pass1Parser_Error_SupportedDumps);
             handler.addProperty(IHprofParserHandler.IDENTIFIER_SIZE, String.valueOf(idSize));
 
             // creation date
@@ -83,12 +83,11 @@ public class Pass1Parser extends AbstractParser
                 long length = readUnsignedInt();
                 if (length < 0)
                     throw new SnapshotException(MessageFormat
-                                    .format("Illegal record length at byte {0}", in.position()));
+                                    .format(Messages.Pass1Parser_Error_IllegalRecordLength, in.position()));
 
                 if (curPos + length - 9 > fileSize)
                     monitor.sendUserMessage(Severity.WARNING, MessageFormat.format(
-                                    "(Possibly) Invalid HPROF file: Expected to read another {0,number} bytes,"
-                                                    + " but only {1,number} bytes are available.", length, fileSize
+                                    Messages.Pass1Parser_Error_invalidHPROFFile, length, fileSize
                                                     - curPos - 9), null);
 
                 switch (record)
@@ -199,8 +198,7 @@ public class Pass1Parser extends AbstractParser
                     readPrimitiveArrayDump(segmentStartPos);
                     break;
                 default:
-                    throw new SnapshotException(MessageFormat.format("Error: Invalid heap dump file.\n"
-                                    + "Unsupported segment type {0} at position {1}", segmentType, segmentStartPos));
+                    throw new SnapshotException(MessageFormat.format(Messages.Pass1Parser_Error_InvalidHeapDumpFile, segmentType, segmentStartPos));
             }
 
             segmentStartPos = in.position();
@@ -285,7 +283,7 @@ public class Pass1Parser extends AbstractParser
         // get name
         String className = class2name.get(address);
         if (className == null)
-            className = "unknown-name@0x" + Long.toHexString(address);
+            className = "unknown-name@0x" + Long.toHexString(address); //$NON-NLS-1$
 
         if (className.charAt(0) == '[') // quick check if array at hand
         {
@@ -296,7 +294,7 @@ public class Pass1Parser extends AbstractParser
                 int l = matcher.group(1).length();
                 className = matcher.group(2);
                 for (int ii = 0; ii < l; ii++)
-                    className += "[]";
+                    className += "[]"; //$NON-NLS-1$
             }
 
             // primitive arrays
@@ -304,7 +302,7 @@ public class Pass1Parser extends AbstractParser
             if (matcher.matches())
             {
                 int count = matcher.group(1).length() - 1;
-                className = "unknown[]";
+                className = "unknown[]"; //$NON-NLS-1$
 
                 char signature = matcher.group(2).charAt(0);
                 for (int ii = 0; ii < IPrimitiveArray.SIGNATURES.length; ii++)
@@ -317,7 +315,7 @@ public class Pass1Parser extends AbstractParser
                 }
 
                 for (int ii = 0; ii < count; ii++)
-                    className += "[]";
+                    className += "[]"; //$NON-NLS-1$
             }
         }
 
@@ -361,7 +359,7 @@ public class Pass1Parser extends AbstractParser
         byte elementType = in.readByte();
 
         if ((elementType < IPrimitiveArray.Type.BOOLEAN) || (elementType > IPrimitiveArray.Type.LONG))
-            throw new SnapshotException("Illegal primitive object array type");
+            throw new SnapshotException(Messages.Pass1Parser_Error_IllegalType);
 
         // check if class needs to be created
         String name = IPrimitiveArray.TYPE[elementType];
@@ -376,10 +374,10 @@ public class Pass1Parser extends AbstractParser
     private String getStringConstant(long address)
     {
         if (address == 0L)
-            return "";
+            return ""; //$NON-NLS-1$
 
         String result = handler.getConstantPool().get(address);
-        return result == null ? "Unresolved Name 0x" + Long.toHexString(address) : result;
+        return result == null ? Messages.Pass1Parser_Error_UnresolvedName + Long.toHexString(address) : result;
     }
 
 }

@@ -13,6 +13,7 @@ package org.eclipse.mat.parser.internal.oql.compiler;
 import java.text.MessageFormat;
 
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.parser.internal.Messages;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.registry.ClassSpecificNameResolverRegistry;
 import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
@@ -20,7 +21,7 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
 
 abstract class Function extends Expression
 {
-    static final String ERR_NO_FUNCTION = "''{0}'' yields ''{1}'' of type ''{2}'' which is not supported by the build-in function ''{3}''.";
+    static final String ERR_NO_FUNCTION = Messages.Function_ErrorNoFunction;
 
     Expression argument;
 
@@ -40,7 +41,7 @@ abstract class Function extends Expression
     @Override
     public String toString()
     {
-        return getSymbol() + "(" + argument + ")";
+        return getSymbol() + "(" + argument + ")";//$NON-NLS-1$//$NON-NLS-2$
     }
 
     static class ToHex extends Function
@@ -57,15 +58,15 @@ abstract class Function extends Expression
             Object s = this.argument.compute(ctx);
 
             if (!(s instanceof Number))
-                throw new RuntimeException("toHex needs Number as input");
+                throw new RuntimeException(Messages.Function_Error_NeedsNumberAsInput);
 
-            return "0x" + Long.toHexString(((Number) s).longValue());
+            return "0x" + Long.toHexString(((Number) s).longValue());//$NON-NLS-1$
         }
 
         @Override
         public String getSymbol()
         {
-            return "toHex";
+            return "toHex";//$NON-NLS-1$
         }
     }
 
@@ -85,7 +86,7 @@ abstract class Function extends Expression
             if (s instanceof IObject)
             {
                 String name = ClassSpecificNameResolverRegistry.resolve((IObject) s);
-                return name != null ? name : "";
+                return name != null ? name : "";//$NON-NLS-1$
             }
             else
             {
@@ -96,7 +97,7 @@ abstract class Function extends Expression
         @Override
         public String getSymbol()
         {
-            return "toString";
+            return "toString";//$NON-NLS-1$
         }
 
     }
@@ -125,14 +126,14 @@ abstract class Function extends Expression
             else
             {
                 throw new SnapshotException(MessageFormat.format(ERR_NO_FUNCTION, argument, s, s != null ? s.getClass()
-                                .getName() : "unknown", getSymbol()));
+                                .getName() : Messages.Function_unknown, getSymbol()));
             }
         }
 
         @Override
         public String getSymbol()
         {
-            return "outbounds";
+            return "outbounds";//$NON-NLS-1$
         }
 
     }
@@ -161,14 +162,14 @@ abstract class Function extends Expression
             else
             {
                 throw new SnapshotException(MessageFormat.format(ERR_NO_FUNCTION, argument, s, s != null ? s.getClass()
-                                .getName() : "unknown", getSymbol()));
+                                .getName() : Messages.Function_unknown, getSymbol()));
             }
         }
 
         @Override
         public String getSymbol()
         {
-            return "inbounds";
+            return "inbounds";//$NON-NLS-1$
         }
 
     }
@@ -197,14 +198,14 @@ abstract class Function extends Expression
             else
             {
                 throw new SnapshotException(MessageFormat.format(ERR_NO_FUNCTION, argument, s, s != null ? s.getClass()
-                                .getName() : "unknown", getSymbol()));
+                                .getName() : Messages.Function_unknown, getSymbol()));
             }
         }
 
         @Override
         public String getSymbol()
         {
-            return "dominators";
+            return "dominators";//$NON-NLS-1$
         }
 
     }
@@ -233,14 +234,14 @@ abstract class Function extends Expression
             else
             {
                 throw new SnapshotException(MessageFormat.format(ERR_NO_FUNCTION, argument, s, s != null ? s.getClass()
-                                .getName() : "unknown", getSymbol()));
+                                .getName() : Messages.Function_unknown, getSymbol()));
             }
         }
 
         @Override
         public String getSymbol()
         {
-            return "classof";
+            return "classof";//$NON-NLS-1$
         }
 
     }
@@ -271,7 +272,7 @@ abstract class Function extends Expression
             else
             {
                 throw new SnapshotException(MessageFormat.format(ERR_NO_FUNCTION, argument, s, s != null ? s.getClass()
-                                .getName() : "unknown", getSymbol()));
+                                .getName() : Messages.Function_unknown, getSymbol()));
             }
 
             return dominatorId >= 0 ? ctx.getSnapshot().getObject(dominatorId) : null;
@@ -280,7 +281,7 @@ abstract class Function extends Expression
         @Override
         public String getSymbol()
         {
-            return "dominatorof";
+            return "dominatorof";//$NON-NLS-1$
         }
 
     }

@@ -15,6 +15,7 @@ import java.util.Iterator;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.HashMapIntObject;
+import org.eclipse.mat.parser.internal.Messages;
 import org.eclipse.mat.parser.internal.SnapshotImpl;
 import org.eclipse.mat.parser.model.ClassImpl;
 import org.eclipse.mat.parser.model.ClassLoaderImpl;
@@ -43,7 +44,7 @@ public class HistogramBuilder extends HistogramRecord
 
         if (previous != null)
             throw new IllegalArgumentException(
-                            "Failed to store class data in histogram! Class data for this class id already stored in histogram!");
+                            Messages.HistogramBuilder_Error_FailedToStoreInHistogram);
     }
 
     public void add(int classId, int objectId, long heapSize)

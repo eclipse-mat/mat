@@ -102,14 +102,14 @@ public class PieChartPane extends AbstractEditorPane implements ISelectionProvid
     public void contributeToToolBar(IToolBarManager manager)
     {
         if (queryResult.getQuery() != null && queryResult.getQuery().getHelpUrl() != null)
-            manager.appendToGroup("help", new OpenHelpPageAction(queryResult.getQuery().getHelpUrl()));
+            manager.appendToGroup("help", new OpenHelpPageAction(queryResult.getQuery().getHelpUrl())); //$NON-NLS-1$
 
         super.contributeToToolBar(manager);
     }
 
     public String getTitle()
     {
-        return "Chart";
+        return Messages.PieChartPane_Chart;
     }
 
     @Override
@@ -129,12 +129,12 @@ public class PieChartPane extends AbstractEditorPane implements ISelectionProvid
 
             if (current != slice)
             {
-                label.setText("<form>" + slice.getDescription() + "</form>", true, false);
+                label.setText("<form>" + slice.getDescription() + "</form>", true, false);  //$NON-NLS-1$//$NON-NLS-2$
                 current = slice;
                 fireSelectionEvent();
             }
 
-            if (slice != null && "click".equals(value.getIdentifier()))
+            if (slice != null && "click".equals(value.getIdentifier())) //$NON-NLS-1$
             {
                 IContextObject ctx = slice.getContext();
                 if (ctx != null)

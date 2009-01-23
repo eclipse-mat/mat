@@ -74,11 +74,11 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
         String name = file.getAbsolutePath();
 
         int p = name.lastIndexOf('.');
-        String prefix = p >= 0 ? name.substring(0, p + 1) : name + ".";
+        String prefix = p >= 0 ? name.substring(0, p + 1) : name + ".";//$NON-NLS-1$
 
         try
         {
-            File indexFile = new File(prefix + "index");
+            File indexFile = new File(prefix + "index");//$NON-NLS-1$
             if (indexFile.exists())
             {
                 // check if hprof file is newer than index file
@@ -92,7 +92,7 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
         {
             String text = ignore_and_reparse.getMessage() != null ? ignore_and_reparse.getMessage()
                             : ignore_and_reparse.getClass().getName();
-            String message = MessageFormat.format("Reparsing heap dump file due to {0}", text);
+            String message = MessageFormat.format(Messages.SnapshotFactoryImpl_Error_ReparsingHeapDump, text);
             listener.sendUserMessage(Severity.WARNING, message, ignore_and_reparse);
         }
 
@@ -178,7 +178,7 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
                 XSnapshotInfo snapshotInfo = new XSnapshotInfo();
                 snapshotInfo.setPath(file.getAbsolutePath());
                 snapshotInfo.setPrefix(prefix);
-                snapshotInfo.setProperty("$heapFormat", parser.getId());
+                snapshotInfo.setProperty("$heapFormat", parser.getId());//$NON-NLS-1$
                 PreliminaryIndexImpl idx = new PreliminaryIndexImpl(snapshotInfo);
 
                 indexBuilder.fill(idx, listener);
@@ -210,17 +210,17 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
 
         if (!errors.isEmpty())
         {
-            MultiStatus status = new MultiStatus(ParserPlugin.PLUGIN_ID, 0, "Error opening heap dump", null);
+            MultiStatus status = new MultiStatus(ParserPlugin.PLUGIN_ID, 0, Messages.SnapshotFactoryImpl_ErrorOpeningHeapDump, null);
             for (IOException error : errors)
                 status.add(new Status(IStatus.ERROR, ParserPlugin.PLUGIN_ID, 0, error.getMessage(), error));
             ParserPlugin.getDefault().getLog().log(status);
 
-            throw new SnapshotException(MessageFormat.format("Error opening heap dump ''{0}''. Check log for details.",
+            throw new SnapshotException(MessageFormat.format(Messages.SnapshotFactoryImpl_Error_OpeningHeapDump,
                             file.getName()));
         }
         else
         {
-            throw new SnapshotException(MessageFormat.format("No parser registered for file ''{0}''", file.getName()));
+            throw new SnapshotException(MessageFormat.format(Messages.SnapshotFactoryImpl_Error_NoParserRegistered, file.getName()));
         }
     }
 
@@ -228,14 +228,14 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
     {
         File directory = file.getParentFile();
         if (directory == null)
-            directory = new File(".");
+            directory = new File("."); //$NON-NLS-1$
 
         String filename = file.getName();
 
         int p = filename.lastIndexOf('.');
         final String fragment = p >= 0 ? filename.substring(0, p) : filename;
-        final Pattern indexPattern = Pattern.compile("\\.(.*\\.)?index$");
-        final Pattern logPattern = Pattern.compile("\\.inbound\\.index.*\\.log$");
+        final Pattern indexPattern = Pattern.compile("\\.(.*\\.)?index$");//$NON-NLS-1$
+        final Pattern logPattern = Pattern.compile("\\.inbound\\.index.*\\.log$");//$NON-NLS-1$
 
         File[] files = directory.listFiles(new FileFilter()
         {

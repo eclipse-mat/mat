@@ -20,6 +20,7 @@ import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayIntCompressed;
 import org.eclipse.mat.collect.ArrayLongCompressed;
 import org.eclipse.mat.collect.HashMapIntObject;
+import org.eclipse.mat.parser.internal.Messages;
 import org.eclipse.mat.parser.io.SimpleBufferedRandomAccessInputStream;
 
 
@@ -53,7 +54,7 @@ public abstract class IndexReader
         public IntIndexReader(File indexFile) throws IOException
         {
             this(new SimpleBufferedRandomAccessInputStream(
-                            new RandomAccessFile(indexFile, "r")), 0, indexFile.length());
+                            new RandomAccessFile(indexFile, "r")), 0, indexFile.length());//$NON-NLS-1$
             this.indexFile = indexFile;
         }
 
@@ -83,9 +84,9 @@ public abstract class IndexReader
                     return;
 
                 if (indexFile == null)
-                    throw new IOException("Index is embedded; stream must be set externally");
+                    throw new IOException(Messages.IndexReader_Error_IndexIsEmbedded);
 
-                in = new SimpleBufferedRandomAccessInputStream(new RandomAccessFile(this.indexFile, "r"));
+                in = new SimpleBufferedRandomAccessInputStream(new RandomAccessFile(this.indexFile, "r"));//$NON-NLS-1$
             }
             catch (IOException e)
             {
@@ -225,7 +226,7 @@ public abstract class IndexReader
                 if (in == null)
                 {
 
-                    in = new SimpleBufferedRandomAccessInputStream(new RandomAccessFile(this.indexFile, "r"));
+                    in = new SimpleBufferedRandomAccessInputStream(new RandomAccessFile(this.indexFile, "r"));//$NON-NLS-1$
 
                     if (this.header != null)
                         this.header.in = in;
@@ -379,7 +380,7 @@ public abstract class IndexReader
 
         public LongIndexReader(File indexFile) throws IOException
         {
-            this(new SimpleBufferedRandomAccessInputStream(new RandomAccessFile(indexFile,"r")), 0, indexFile.length());
+            this(new SimpleBufferedRandomAccessInputStream(new RandomAccessFile(indexFile,"r")), 0, indexFile.length());//$NON-NLS-1$
             this.indexFile = indexFile;
             
             open();
@@ -409,9 +410,9 @@ public abstract class IndexReader
                 return;
 
             if (indexFile == null)
-                throw new IOException("Index is embedded; stream must be set externally");
+                throw new IOException(Messages.IndexReader_Error_IndexIsEmbedded);
 
-            in = new SimpleBufferedRandomAccessInputStream(new RandomAccessFile(this.indexFile, "r"));
+            in = new SimpleBufferedRandomAccessInputStream(new RandomAccessFile(this.indexFile, "r"));//$NON-NLS-1$
         }
 
         public synchronized void close()
@@ -530,7 +531,7 @@ public abstract class IndexReader
                 if (in == null)
                 {
 
-                    in = new SimpleBufferedRandomAccessInputStream(new RandomAccessFile(this.indexFile, "r"));
+                    in = new SimpleBufferedRandomAccessInputStream(new RandomAccessFile(this.indexFile, "r"));//$NON-NLS-1$
 
                     if (this.header != null)
                         this.header.in = in;

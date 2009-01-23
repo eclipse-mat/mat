@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.mat.impl.chart;
 
+import java.text.MessageFormat;
 import java.util.List;
 
 import org.eclipse.birt.chart.model.Chart;
@@ -82,8 +83,8 @@ public class ChartBuilder
         // total label
         long t = new Double(total).longValue();
         LabelBlock label = (LabelBlock) LabelBlockImpl.create();
-        label.getLabel().getCaption().setValue("Total: " + Units.Storage.of(t).format(t));
-        label.getLabel().getCaption().getFont().setName("Arial");
+        label.getLabel().getCaption().setValue(MessageFormat.format(Messages.ChartBuilder_Total, Units.Storage.of(t).format(t)));
+        label.getLabel().getCaption().getFont().setName("Arial");//$NON-NLS-1$
         label.getLabel().getCaption().getFont().setSize(fontSize);
         label.getLabel().getCaption().getFont().setBold(true);
         label.setAnchor(Anchor.SOUTH_LITERAL);
@@ -140,11 +141,11 @@ public class ChartBuilder
         {
             pieSeries.getTriggers().add(
                             TriggerImpl.create(TriggerCondition.ONCLICK_LITERAL, ActionImpl.create(
-                                            ActionType.CALL_BACK_LITERAL, CallBackValueImpl.create("click"))));
+                                            ActionType.CALL_BACK_LITERAL, CallBackValueImpl.create("click"))));//$NON-NLS-1$
 
             pieSeries.getTriggers().add(
                             TriggerImpl.create(TriggerCondition.ONMOUSEOVER_LITERAL, ActionImpl.create(
-                                            ActionType.CALL_BACK_LITERAL, CallBackValueImpl.create("tooltip"))));
+                                            ActionType.CALL_BACK_LITERAL, CallBackValueImpl.create("tooltip"))));//$NON-NLS-1$
         }
 
         SeriesDefinition sdBase = SeriesDefinitionImpl.create();
@@ -154,18 +155,18 @@ public class ChartBuilder
         return chart;
     }
 
-    private static final String CHARS = "abcdefghijklmnopqrstuvwxyz";
+    private static final String CHARS = "abcdefghijklmnopqrstuvwxyz";//$NON-NLS-1$
 
     public static final String withPrefix(int index, String label)
     {
         StringBuilder buf = new StringBuilder();
 
-        buf.append("(");
+        buf.append("("); //$NON-NLS-1$
         int d = index / CHARS.length();
         if (d > 0)
             buf.append(CHARS.charAt(d % CHARS.length()));
         buf.append(CHARS.charAt(index % CHARS.length()));
-        buf.append(")  ");
+        buf.append(")  ");//$NON-NLS-1$
         buf.append(label);
 
         return buf.toString();

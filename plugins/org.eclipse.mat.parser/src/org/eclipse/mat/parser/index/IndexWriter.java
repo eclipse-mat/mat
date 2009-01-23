@@ -713,7 +713,7 @@ public abstract class IndexWriter
             int segment = objectIndex / pageSize;
             if (segments[segment] == null)
             {
-                File segmentFile = new File(this.indexFile.getAbsolutePath() + segment + ".log");
+                File segmentFile = new File(this.indexFile.getAbsolutePath() + segment + ".log");//$NON-NLS-1$
                 segments[segment] = new BitOutputStream(new FileOutputStream(segmentFile));
             }
 
@@ -746,7 +746,7 @@ public abstract class IndexWriter
                     if (monitor.isCanceled())
                         throw new IProgressListener.OperationCanceledException();
 
-                    File segmentFile = new File(this.indexFile.getAbsolutePath() + segment + ".log");
+                    File segmentFile = new File(this.indexFile.getAbsolutePath() + segment + ".log");//$NON-NLS-1$
                     if (!segmentFile.exists())
                         continue;
 
@@ -932,7 +932,7 @@ public abstract class IndexWriter
                 {
                     for (int ii = 0; ii < segments.length; ii++)
                     {
-                        new File(this.indexFile.getAbsolutePath() + ii + ".log").delete();
+                        new File(this.indexFile.getAbsolutePath() + ii + ".log").delete();//$NON-NLS-1$
                     }
                 }
             }

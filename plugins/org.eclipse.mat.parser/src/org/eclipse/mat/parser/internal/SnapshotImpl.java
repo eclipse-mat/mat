@@ -82,7 +82,7 @@ public final class SnapshotImpl implements ISnapshot
     // factory methods
     // //////////////////////////////////////////////////////////////
 
-    private static final String VERSION = "MAT_01";
+    private static final String VERSION = "MAT_01";//$NON-NLS-1$
 
     @SuppressWarnings("unchecked")
     public static SnapshotImpl readFromFile(File file, String prefix, IProgressListener listener)
@@ -92,21 +92,21 @@ public final class SnapshotImpl implements ISnapshot
 
         try
         {
-            fis = new FileInputStream(prefix + "index");
+            fis = new FileInputStream(prefix + "index");//$NON-NLS-1$
             ObjectInputStream in = new ObjectInputStream(new BufferedInputStream(fis));
 
             String version = in.readUTF();
             if (!VERSION.equals(version))
-                throw new IOException(MessageFormat.format("Unknown version: {0}", version));
+                throw new IOException(MessageFormat.format(Messages.SnapshotImpl_Error_UnknownVersion, version));
 
             String objectReaderUniqueIdentifier = in.readUTF();
             Parser parser = ParserPlugin.getDefault().getParserRegistry().lookupParser(objectReaderUniqueIdentifier);
             if (parser == null)
-                throw new IOException("Heap Parser not found: " + objectReaderUniqueIdentifier);
+                throw new IOException(Messages.SnapshotImpl_Error_ParserNotFound + objectReaderUniqueIdentifier);
             IObjectReader heapObjectReader = parser.create(IObjectReader.class, ParserRegistry.OBJECT_READER);
 
             XSnapshotInfo snapshotInfo = (XSnapshotInfo) in.readObject();
-            snapshotInfo.setProperty("$heapFormat", parser.getId());
+            snapshotInfo.setProperty("$heapFormat", parser.getId()); //$NON-NLS-1$
             HashMapIntObject<ClassImpl> classCache = (HashMapIntObject<ClassImpl>) in.readObject();
 
             if (listener.isCanceled())
@@ -169,7 +169,7 @@ public final class SnapshotImpl implements ISnapshot
 
         try
         {
-            fos = new FileOutputStream(snapshotInfo.getPrefix() + "index");
+            fos = new FileOutputStream(snapshotInfo.getPrefix() + "index");//$NON-NLS-1$
             out = new ObjectOutputStream(new BufferedOutputStream(fos));
             out.writeUTF(VERSION);
             out.writeUTF(objectReaderUniqueIdentifier);
@@ -290,7 +290,7 @@ public final class SnapshotImpl implements ISnapshot
 
             if (classLoaderId == systemClassLoaderId)
             {
-                label = "<system class loader>";
+                label = "<system class loader>";//$NON-NLS-1$
             }
             else
             {
@@ -305,7 +305,7 @@ public final class SnapshotImpl implements ISnapshot
 
         // now, let's go through all instances of all sub classes to attach
         // labels
-        for (IClass clazz : getClassesByName("java.lang.ClassLoader", true))
+        for (IClass clazz : getClassesByName("java.lang.ClassLoader", true))//$NON-NLS-1$
         {
             for (int classLoaderId : clazz.getObjectIds())
             {
@@ -315,7 +315,7 @@ public final class SnapshotImpl implements ISnapshot
 
                 if (classLoaderId == systemClassLoaderId)
                 {
-                    label = "<system class loader>";
+                    label = "<system class loader>";//$NON-NLS-1$
                 }
                 else
                 {
@@ -405,7 +405,7 @@ public final class SnapshotImpl implements ISnapshot
         if (listener == null)
             listener = new VoidProgressListener();
 
-        HistogramBuilder histogramBuilder = new HistogramBuilder("Histogram");
+        HistogramBuilder histogramBuilder = new HistogramBuilder(Messages.SnapshotImpl_Histogram);
 
         Object[] classes = classCache.getAllValues();
         for (int i = 0; i < classes.length; i++)
@@ -424,9 +424,9 @@ public final class SnapshotImpl implements ISnapshot
         if (progressMonitor == null)
             progressMonitor = new VoidProgressListener();
 
-        HistogramBuilder histogramBuilder = new HistogramBuilder("Histogram");
+        HistogramBuilder histogramBuilder = new HistogramBuilder(Messages.SnapshotImpl_Histogram);
 
-        progressMonitor.beginTask("building histogram", objectIds.length >>> 8);
+        progressMonitor.beginTask(Messages.SnapshotImpl_BuildingHistogram, objectIds.length >>> 8);
 
         // Arrays.sort(objectIds);
         // int[] classIds = indexManager.o2class().getAll(objectIds);
@@ -486,7 +486,7 @@ public final class SnapshotImpl implements ISnapshot
         IIndexReader.IOne2ManyIndex inbound = indexManager.inbound();
 
         SetInt result = new SetInt();
-        progressMonitor.beginTask("reading inbound referrers", objectIds.length / 100);
+        progressMonitor.beginTask(Messages.SnapshotImpl_ReadingInboundReferrers, objectIds.length / 100);
 
         for (int ii = 0; ii < objectIds.length; ii++)
         {
@@ -520,7 +520,7 @@ public final class SnapshotImpl implements ISnapshot
         IIndexReader.IOne2ManyIndex outbound = indexManager.outbound();
 
         SetInt result = new SetInt();
-        progressMonitor.beginTask("reading outbound referrers", objectIds.length / 100);
+        progressMonitor.beginTask(Messages.SnapshotImpl_ReadingOutboundReferrers, objectIds.length / 100);
 
         for (int ii = 0; ii < objectIds.length; ii++)
         {
@@ -948,7 +948,7 @@ public final class SnapshotImpl implements ISnapshot
     public int[] getTopAncestorsInDominatorTree(int[] objectIds, IProgressListener listener) throws SnapshotException
     {
         if (!isDominatorTreeCalculated())
-            throw new SnapshotException("Dominator tree not available. Delete indices and parse again.");
+            throw new SnapshotException(Messages.SnapshotImpl_Error_DomTreeNotAvailable);
 
         if (listener == null)
             listener = new VoidProgressListener();
@@ -1187,14 +1187,14 @@ public final class SnapshotImpl implements ISnapshot
     public int[] getImmediateDominatedIds(int objectId) throws SnapshotException
     {
         if (!isDominatorTreeCalculated())
-            throw new SnapshotException("Dominator tree not available. Delete indices and parse again.");
+            throw new SnapshotException(Messages.SnapshotImpl_Error_DomTreeNotAvailable);
         return indexManager.dominated().get(objectId + 1);
     }
 
     public int getImmediateDominatorId(int objectId) throws SnapshotException
     {
         if (!isDominatorTreeCalculated())
-            throw new SnapshotException("Dominator tree not available. Delete indices and parse again.");
+            throw new SnapshotException(Messages.SnapshotImpl_Error_DomTreeNotAvailable);
         return indexManager.dominator().get(objectId) - 2;
     }
 
@@ -1202,7 +1202,7 @@ public final class SnapshotImpl implements ISnapshot
                     throws SnapshotException
     {
         if (!isDominatorTreeCalculated())
-            throw new SnapshotException("Dominator tree not available. Delete indices and parse again.");
+            throw new SnapshotException(Messages.SnapshotImpl_Error_DomTreeNotAvailable);
 
         if (progressListener == null)
             progressListener = new VoidProgressListener();
@@ -1213,7 +1213,7 @@ public final class SnapshotImpl implements ISnapshot
         SetInt excludeSet = new SetInt();
         SetInt includeSet = new SetInt();
 
-        progressListener.beginTask("Retrieving dominators...", objectIds.length / 10);
+        progressListener.beginTask(Messages.SnapshotImpl_RetrievingDominators, objectIds.length / 10);
 
         Map<IClass, DominatorsSummary.ClassDominatorRecord> map = new HashMap<IClass, DominatorsSummary.ClassDominatorRecord>();
         for (int ii = 0; ii < objectIds.length; ii++)
@@ -1229,7 +1229,7 @@ public final class SnapshotImpl implements ISnapshot
             if (dominatorId == -1)
             {
                 clasz = null;
-                domClassName = "<ROOT>";
+                domClassName = "<ROOT>";//$NON-NLS-1$
                 domClassId = -1;
             }
             else
@@ -1255,7 +1255,7 @@ public final class SnapshotImpl implements ISnapshot
                         if (dominatorId == -1)
                         {
                             clasz = null;
-                            domClassName = "<ROOT>";
+                            domClassName = "<ROOT>";//$NON-NLS-1$
                             domClassId = -1;
                         }
                         else
@@ -1429,7 +1429,7 @@ public final class SnapshotImpl implements ISnapshot
     {
         int objectId = indexManager.o2address().reverse(objectAddress);
         if (objectId < 0)
-            throw new SnapshotException(MessageFormat.format("Object {0} not found.", new Object[] { "0x"
+            throw new SnapshotException(MessageFormat.format(Messages.SnapshotImpl_Error_ObjectNotFound, new Object[] { "0x" //$NON-NLS-1$
                             + Long.toHexString(objectAddress) }));
         return objectId;
     }
@@ -1499,11 +1499,11 @@ public final class SnapshotImpl implements ISnapshot
     public void setClassLoaderLabel(int objectId, String label)
     {
         if (label == null)
-            throw new NullPointerException("label");
+            throw new NullPointerException(Messages.SnapshotImpl_Label);
 
         String old = loaderLabels.put(objectId, label);
         if (old == null)
-            throw new RuntimeException("Replacing a non-existent class loader label.");
+            throw new RuntimeException(Messages.SnapshotImpl_Error_ReplacingNonExistentClassLoader);
     }
 
     private int dfs2(BitField bits, BitField exclude, String[] fieldNames) throws SnapshotException
@@ -1811,7 +1811,7 @@ public final class SnapshotImpl implements ISnapshot
                 }
 
                 default:
-                    throw new RuntimeException("Unrecognized state : " + state);
+                    throw new RuntimeException(Messages.SnapshotImpl_Error_UnrecognizedState + state);
             }
 
         }

@@ -174,7 +174,7 @@ public class InstanceImpl extends AbstractObjectImpl implements IInstance
     {
         List<NamedReference> list = new ArrayList<NamedReference>();
 
-        list.add(new PseudoReference(source, classInstance.getObjectAddress(), "<class>"));
+        list.add(new PseudoReference(source, classInstance.getObjectAddress(), "<class>"));//$NON-NLS-1$
 
         HashMapIntObject<HashMapIntObject<XGCRootInfo[]>> threadToLocalVars = source.getRootsPerThread();
         if (threadToLocalVars != null)
@@ -187,8 +187,8 @@ public class InstanceImpl extends AbstractObjectImpl implements IInstance
                 {
                     int localId = localsIds.next();
                     GCRootInfo[] rootInfo = localVars.get(localId);
-                    ThreadToLocalReference ref = new ThreadToLocalReference(source, rootInfo[0].getObjectAddress(), "<"
-                                    + GCRootInfo.getTypeSetAsString(rootInfo) + ">", localId, rootInfo);
+                    ThreadToLocalReference ref = new ThreadToLocalReference(source, rootInfo[0].getObjectAddress(), "<"//$NON-NLS-1$
+                                    + GCRootInfo.getTypeSetAsString(rootInfo) + ">", localId, rootInfo);//$NON-NLS-1$
                     list.add(ref);
                 }
             }

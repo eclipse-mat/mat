@@ -11,6 +11,7 @@ import org.eclipse.mat.parser.internal.oql.compiler.Attribute;
 import org.eclipse.mat.parser.internal.oql.compiler.Query;
 import org.eclipse.mat.parser.internal.oql.compiler.Expression;
 
+@SuppressWarnings("nls")
 public class OQLParser implements OQLParserConstants
 {
     ICompiler compiler;

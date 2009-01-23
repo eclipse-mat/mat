@@ -19,7 +19,7 @@ import org.osgi.framework.BundleContext;
 
 public class ParserPlugin extends Plugin
 {
-    public static final String PLUGIN_ID = "org.eclipse.mat.parser";
+    public static final String PLUGIN_ID = "org.eclipse.mat.parser"; //$NON-NLS-1$
 
     private static ParserPlugin plugin;
     

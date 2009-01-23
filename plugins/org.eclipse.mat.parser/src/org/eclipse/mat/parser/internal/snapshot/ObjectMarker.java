@@ -16,6 +16,7 @@ import java.util.Set;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.BitField;
 import org.eclipse.mat.parser.index.IIndexReader;
+import org.eclipse.mat.parser.internal.Messages;
 import org.eclipse.mat.parser.internal.util.IntStack;
 import org.eclipse.mat.snapshot.ExcludedReferencesDescriptor;
 import org.eclipse.mat.snapshot.ISnapshot;
@@ -68,7 +69,7 @@ public class ObjectMarker
             }
         }
 
-        progressListener.beginTask("Calculate Retained Size", rootsToProcess);
+        progressListener.beginTask(Messages.ObjectMarker_CalculateRetainedSize, rootsToProcess);
 
         int current;
 
@@ -158,7 +159,7 @@ public class ObjectMarker
         }
 
         /* now do the real marking */
-        progressListener.beginTask("Calculate Retained Size", rootsToProcess);
+        progressListener.beginTask(Messages.ObjectMarker_CalculateRetainedSize, rootsToProcess);
 
         int current;
 
@@ -217,7 +218,7 @@ public class ObjectMarker
             }
         }
 
-        progressListener.beginTask("Calculate Retained Size", rootsStack.size());
+        progressListener.beginTask(Messages.ObjectMarker_CalculateRetainedSize, rootsStack.size());
 
         // create and start as much marker threads as specified
         DfsThread[] dfsthreads = new DfsThread[numberOfThreads];
@@ -227,7 +228,7 @@ public class ObjectMarker
         {
             DfsThread dfsthread = new DfsThread(rootsStack);
             dfsthreads[i] = dfsthread;
-            Thread thread = new Thread(dfsthread, "ObjectMarkerThread-" + (i + 1));
+            Thread thread = new Thread(dfsthread, "ObjectMarkerThread-" + (i + 1));//$NON-NLS-1$
             thread.start();
             threads[i] = thread;
         }

@@ -113,31 +113,31 @@ public class CompilerImpl implements ICompiler
     
     public Function function(String name, Object subject)
     {
-        if ("toHex".equals(name))
+        if ("toHex".equals(name))//$NON-NLS-1$
         {
             return new Function.ToHex((Expression)subject);
         }
-        else if ("toString".equals(name))
+        else if ("toString".equals(name))//$NON-NLS-1$
         {
             return new Function.ToString((Expression)subject);
         }
-        else if ("inbounds".equals(name))
+        else if ("inbounds".equals(name))//$NON-NLS-1$
         {
             return new Function.Inbounds((Expression)subject);
         }
-        else if ("outbounds".equals(name))
+        else if ("outbounds".equals(name))//$NON-NLS-1$
         {
             return new Function.Outbounds((Expression)subject);
         }
-        else if ("dominators".equals(name))
+        else if ("dominators".equals(name))//$NON-NLS-1$
         {
             return new Function.Dominators((Expression)subject);
         }
-        else if ("classof".equals(name))
+        else if ("classof".equals(name))//$NON-NLS-1$
         {
             return new Function.ClassOf((Expression)subject);
         }
-        else if ("dominatorof".equals(name))
+        else if ("dominatorof".equals(name))//$NON-NLS-1$
         {
             return new Function.DominatorOf((Expression)subject);
         }
@@ -204,15 +204,15 @@ public class CompilerImpl implements ICompiler
         public String toString()
         {
             if (literal instanceof String)
-                return "\"" + literal + "\"";
+                return "\"" + literal + "\"";//$NON-NLS-1$//$NON-NLS-2$
             else if (literal instanceof Character)
-                return "'" + literal + "'";
+                return "'" + literal + "'";//$NON-NLS-1$//$NON-NLS-2$
             else if (literal instanceof Integer)
                 return literal.toString();
             else if (literal instanceof Long)
-                return literal + "L";
+                return literal + "L";//$NON-NLS-1$
             else if (literal == NULL)
-                return "null";
+                return "null";//$NON-NLS-1$
             else
                 return String.valueOf(literal);
         }

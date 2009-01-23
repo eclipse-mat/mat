@@ -22,6 +22,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.eclipse.mat.collect.HashMapIntLong;
+import org.eclipse.mat.parser.internal.Messages;
 import org.eclipse.mat.parser.model.XSnapshotInfo;
 
 
@@ -33,7 +34,7 @@ public class RetainedSizeCache
 
     public RetainedSizeCache(XSnapshotInfo snapshotInfo)
     {
-        this.filename = snapshotInfo.getPrefix() + "i2sv2.index";
+        this.filename = snapshotInfo.getPrefix() + "i2sv2.index"; //$NON-NLS-1$
         readId2Size(snapshotInfo.getPrefix());
     }
 
@@ -80,7 +81,7 @@ public class RetainedSizeCache
         catch (IOException e)
         {
             Logger.getLogger(RetainedSizeCache.class.getName()).log(Level.WARNING,
-                            "Ignoring error while storing calculated retained size", e);
+                            Messages.RetainedSizeCache_Warning_IgnoreError, e);
         }
     }
 
@@ -107,7 +108,7 @@ public class RetainedSizeCache
         catch (IOException e)
         {
             Logger.getLogger(RetainedSizeCache.class.getName()).log(Level.WARNING,
-                            "Error reading pre-calculated retained sizes. Re-calculing...", e);
+                            Messages.RetainedSizeCache_ErrorReadingRetainedSizes, e);
 
             // might have read corrupt data
             id2size.clear();
@@ -149,7 +150,7 @@ public class RetainedSizeCache
         }
         else
         {
-            File legacyFile = new File(prefix + "i2s.index");
+            File legacyFile = new File(prefix + "i2s.index");//$NON-NLS-1$
             if (legacyFile.exists())
             {
                 doRead(legacyFile, true);

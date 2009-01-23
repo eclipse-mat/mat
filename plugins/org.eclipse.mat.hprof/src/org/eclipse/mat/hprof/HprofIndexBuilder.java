@@ -50,16 +50,16 @@ public class HprofIndexBuilder implements IIndexBuilder
 
     public void fill(IPreliminaryIndex preliminary, IProgressListener listener) throws SnapshotException, IOException
     {
-        SimpleMonitor monitor = new SimpleMonitor(MessageFormat.format("Parsing {0}", new Object[] { file
+        SimpleMonitor monitor = new SimpleMonitor(MessageFormat.format(Messages.HprofIndexBuilder_Parsing, new Object[] { file
                         .getAbsolutePath() }), listener, new int[] { 500, 1500 });
 
-        listener.beginTask(MessageFormat.format("Parsing {0}", file.getName()), 3000);
+        listener.beginTask(MessageFormat.format(Messages.HprofIndexBuilder_Parsing, file.getName()), 3000);
 
         IHprofParserHandler handler = new HprofParserHandlerImpl();
         handler.beforePass1(preliminary.getSnapshotInfo());
 
         SimpleMonitor.Listener mon = (SimpleMonitor.Listener) monitor.nextMonitor();
-        mon.beginTask(MessageFormat.format("Scanning {0}", new Object[] { file.getAbsolutePath() }), (int) (file
+        mon.beginTask(MessageFormat.format(Messages.HprofIndexBuilder_Scanning, new Object[] { file.getAbsolutePath() }), (int) (file
                         .length() / 1000));
         Pass1Parser pass1 = new Pass1Parser(handler, mon);
         pass1.read(file);
@@ -72,7 +72,7 @@ public class HprofIndexBuilder implements IIndexBuilder
         handler.beforePass2(listener);
 
         mon = (SimpleMonitor.Listener) monitor.nextMonitor();
-        mon.beginTask(MessageFormat.format("Extracting objects from {0}", new Object[] { file.getAbsolutePath() }),
+        mon.beginTask(MessageFormat.format(Messages.HprofIndexBuilder_ExtractingObjects, new Object[] { file.getAbsolutePath() }),
                         (int) (file.length() / 1000));
 
         Pass2Parser pass2 = new Pass2Parser(handler, mon);
@@ -99,8 +99,8 @@ public class HprofIndexBuilder implements IIndexBuilder
         // object 2 hprof position
         // //////////////////////////////////////////////////////////////
 
-        File indexFile = new File(prefix + "o2hprof.index");
-        listener.subTask(MessageFormat.format("Writing {0}", new Object[] { indexFile.getAbsolutePath() }));
+        File indexFile = new File(prefix + "o2hprof.index"); //$NON-NLS-1$
+        listener.subTask(MessageFormat.format(Messages.HprofIndexBuilder_Writing, new Object[] { indexFile.getAbsolutePath() }));
         IOne2LongIndex newIndex = new IndexWriter.LongIndexStreamer().writeTo(indexFile, new IndexIterator(id2position,
                         purgedMapping));
 

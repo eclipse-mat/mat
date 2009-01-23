@@ -3,7 +3,7 @@
 package org.eclipse.mat.parser.internal.oql.parser;
 
 /** Token Manager Error. */
-@SuppressWarnings("serial")
+@SuppressWarnings({"serial", "nls"})
 public class TokenMgrError extends Error
 {
 

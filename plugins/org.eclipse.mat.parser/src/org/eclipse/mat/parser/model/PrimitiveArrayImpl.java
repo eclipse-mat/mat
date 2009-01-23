@@ -101,14 +101,14 @@ public class PrimitiveArrayImpl extends AbstractArrayImpl implements IPrimitiveA
     public List<NamedReference> getOutboundReferences()
     {
         List<NamedReference> references = new ArrayList<NamedReference>(1);
-        references.add(new PseudoReference(source, classInstance.getObjectAddress(), "<class>"));
+        references.add(new PseudoReference(source, classInstance.getObjectAddress(), "<class>"));//$NON-NLS-1$
         return references;
     }
 
     @Override
     protected StringBuffer appendFields(StringBuffer buf)
     {
-        return super.appendFields(buf).append(";size=").append(getUsedHeapSize());
+        return super.appendFields(buf).append(";size=").append(getUsedHeapSize());//$NON-NLS-1$
     }
 
     @Override

@@ -64,7 +64,7 @@ public class DominatorTree
             this.snapshot = snapshot;
             inboundIndex = snapshot.getIndexManager().inbound();
             outboundIndex = snapshot.getIndexManager().outbound();
-            this.monitor = new SimpleMonitor("Calculating Dominator Tree", listener, new int[] { 300, 300, 200, 200,
+            this.monitor = new SimpleMonitor(Messages.DominatorTree_CalculatingDominatorTree, listener, new int[] { 300, 300, 200, 200,
                             200 });
             gcRootsArray = snapshot.getGCRoots();
             gcRootsSet = new BitField(snapshot.getSnapshotInfo().getNumberOfObjects());
@@ -103,7 +103,7 @@ public class DominatorTree
         public void compute() throws IOException, SnapshotException, IProgressListener.OperationCanceledException
         {
             IProgressListener progressListener = this.monitor.nextMonitor();
-            progressListener.beginTask("Dominator Tree calculation", 1);
+            progressListener.beginTask(Messages.DominatorTree_DominatorTreeCalculation, 1);
 
             n = 0;
             dfs(r);
@@ -111,7 +111,7 @@ public class DominatorTree
             snapshot.getIndexManager().outbound().unload();
 
             progressListener = this.monitor.nextMonitor();
-            progressListener.beginTask("Computing dominators", n >> 16);
+            progressListener.beginTask(Messages.DominatorTree_ComputingDominators, n >> 16);
 
             for (int i = n; i >= 2; i--)
             {
@@ -218,7 +218,7 @@ public class DominatorTree
         private void dfs(int root) throws UnsupportedOperationException
         {
             IProgressListener progressListener = this.monitor.nextMonitor();
-            progressListener.beginTask("Depth-first search", snapshot.getSnapshotInfo().getNumberOfObjects() >> 16);
+            progressListener.beginTask(Messages.DominatorTree_DepthFirstSearch, snapshot.getSnapshotInfo().getNumberOfObjects() >> 16);
 
             // a stack for each parameter - stack code is inlined for
             // performance
@@ -378,7 +378,7 @@ public class DominatorTree
             int numberOfObjects = snapshot.getSnapshotInfo().getNumberOfObjects();
 
             IProgressListener progressListener = this.monitor.nextMonitor();
-            progressListener.beginTask("Create dominators index file", numberOfObjects / 1000);
+            progressListener.beginTask(Messages.DominatorTree_CreateDominatorsIndexFile, numberOfObjects / 1000);
 
             for (int i = -1; i < numberOfObjects; i++)
             {
@@ -527,7 +527,7 @@ public class DominatorTree
                 size++;
 
                 IProgressListener progressListener = Calculator.this.monitor.nextMonitor();
-                progressListener.beginTask("Calculate retained sizes",
+                progressListener.beginTask(Messages.DominatorTree_CalculateRetainedSizes,
                                 dump.getSnapshotInfo().getNumberOfObjects() / 1000);
                 int counter = 0;
 

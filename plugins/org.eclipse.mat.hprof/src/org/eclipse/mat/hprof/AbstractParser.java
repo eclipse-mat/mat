@@ -27,9 +27,9 @@ import org.eclipse.mat.snapshot.model.ObjectReference;
 {
     /* package */enum Version
     {
-        JDK12BETA3("JAVA PROFILE 1.0"), //
-        JDK12BETA4("JAVA PROFILE 1.0.1"), //
-        JDK6("JAVA PROFILE 1.0.2");
+        JDK12BETA3("JAVA PROFILE 1.0"), //$NON-NLS-1$
+        JDK12BETA4("JAVA PROFILE 1.0.1"),  //$NON-NLS-1$
+        JDK6("JAVA PROFILE 1.0.2");//$NON-NLS-1$
 
         private String label;
 
@@ -119,18 +119,18 @@ import org.eclipse.mat.snapshot.model.ObjectReference;
                 if (answer == null)
                 {
                     if (bytesRead <= 13) // did not read "JAVA PROFILE "
-                        throw new IOException("Not a HPROF heap dump");
+                        throw new IOException(Messages.AbstractParser_Error_NotHeapDump);
                     else
-                        throw new IOException(MessageFormat.format("Unknown HPROF Version ({0})", version.toString()));
+                        throw new IOException(MessageFormat.format(Messages.AbstractParser_Error_UnknownHPROFVersion, version.toString()));
                 }
 
                 if (answer == Version.JDK12BETA3) // not supported by MAT
-                    throw new IOException(MessageFormat.format("Unsupported HPROF Version {0}", answer.getLabel()));
+                    throw new IOException(MessageFormat.format(Messages.AbstractParser_Error_UnsupportedHPROFVersion, answer.getLabel()));
                 return answer;
             }
         }
 
-        throw new IOException("Invalid HPROF file header.");
+        throw new IOException(Messages.AbstractParser_Error_InvalidHPROFHeader);
     }
 
     protected long readUnsignedInt() throws IOException
@@ -173,7 +173,7 @@ import org.eclipse.mat.snapshot.model.ObjectReference;
             case IObject.Type.LONG:
                 return in.readLong();
             default:
-                throw new IOException("Illegal Type:  " + type);
+                throw new IOException(MessageFormat.format(Messages.AbstractParser_Error_IllegalType, type));
         }
     }
 

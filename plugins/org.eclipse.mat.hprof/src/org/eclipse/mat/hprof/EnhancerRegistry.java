@@ -36,14 +36,14 @@ public class EnhancerRegistry extends RegistryReader<EnhancerRegistry.Enhancer>
         {
             try
             {
-                return (IParsingEnhancer) configElement.createExecutableExtension("parser");
+                return (IParsingEnhancer) configElement.createExecutableExtension("parser"); //$NON-NLS-1$
             }
             catch (CoreException e)
             {
                 Logger.getLogger(getClass().getName()).log(
                                 Level.SEVERE,
-                                MessageFormat.format("Error creating parser for {0}", configElement
-                                                .getAttribute("parser")), e);
+                                MessageFormat.format(Messages.EnhancerRegistry_ErrorCreatingParser, configElement
+                                                .getAttribute("parser")), e); //$NON-NLS-1$
                 return null;
             }
         }
@@ -52,14 +52,14 @@ public class EnhancerRegistry extends RegistryReader<EnhancerRegistry.Enhancer>
         {
             try
             {
-                return (IRuntimeEnhancer) configElement.createExecutableExtension("runtime");
+                return (IRuntimeEnhancer) configElement.createExecutableExtension("runtime"); //$NON-NLS-1$
             }
             catch (CoreException e)
             {
                 Logger.getLogger(getClass().getName()).log(
                                 Level.SEVERE,
-                                MessageFormat.format("Error creating runtime for {0}", configElement
-                                                .getAttribute("runtime")), e);
+                                MessageFormat.format(Messages.EnhancerRegistry_ErrorCreatingRuntime, configElement
+                                                .getAttribute("runtime")), e); //$NON-NLS-1$
                 return null;
             }
         }
@@ -75,7 +75,7 @@ public class EnhancerRegistry extends RegistryReader<EnhancerRegistry.Enhancer>
 
     private EnhancerRegistry()
     {
-        init(null, "org.eclipse.mat.hprof.enhancer");
+        init(null, "org.eclipse.mat.hprof.enhancer"); //$NON-NLS-1$
     }
 
     @Override

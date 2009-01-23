@@ -54,7 +54,7 @@ public class Pass2Parser extends AbstractParser
             version = readVersion(in);
             idSize = in.readInt();
             if (idSize != 4 && idSize != 8)
-                throw new SnapshotException("Only 32bit and 64bit dumps are supported.");
+                throw new SnapshotException(Messages.Pass1Parser_Error_SupportedDumps);
             in.skipBytes(8); // creation date
 
             long fileSize = file.length();
@@ -72,8 +72,8 @@ public class Pass2Parser extends AbstractParser
 
                 long length = readUnsignedInt();
                 if (length < 0)
-                    throw new SnapshotException(MessageFormat
-                                    .format("Illegal record length at byte {0}", in.position()));
+                    throw new SnapshotException(MessageFormat.format(Messages.Pass1Parser_Error_IllegalRecordLength, in
+                                    .position()));
 
                 if (record == Constants.Record.HEAP_DUMP //
                                 || record == Constants.Record.HEAP_DUMP_SEGMENT)
@@ -147,8 +147,8 @@ public class Pass2Parser extends AbstractParser
                     readPrimitveArrayDump(segmentStartPos);
                     break;
                 default:
-                    throw new SnapshotException(MessageFormat.format("Invalid heap dump file.\n"
-                                    + "Unsupported segment type {0} at position {1}", segmentType, segmentStartPos));
+                    throw new SnapshotException(MessageFormat.format(Messages.Pass1Parser_Error_InvalidHeapDumpFile,
+                                    segmentType, segmentStartPos));
             }
             segmentStartPos = in.position();
         }
@@ -212,7 +212,7 @@ public class Pass2Parser extends AbstractParser
         }
 
         if (endPos != in.position())
-            throw new IOException("Insufficient bytes read for instance at " + segmentStartPos);
+            throw new IOException(MessageFormat.format(Messages.Pass2Parser_Error_InsufficientBytesRead, segmentStartPos));
 
         handler.addObject(heapObject, segmentStartPos);
     }
@@ -227,7 +227,7 @@ public class Pass2Parser extends AbstractParser
 
         ClassImpl arrayType = (ClassImpl) handler.lookupClass(arrayClassObjectID);
         if (arrayType == null)
-            throw new RuntimeException("handler must create fake class for 0x" + Long.toHexString(arrayClassObjectID));
+            throw new RuntimeException(MessageFormat.format(Messages.Pass2Parser_Error_HandlerMustCreateFakeClassForAddress, Long.toHexString(arrayClassObjectID)));
 
         HeapObject heapObject = new HeapObject(handler.mapAddressToId(id), id, arrayType, ObjectArrayImpl
                         .doGetUsedHeapSize(arrayType, size));
@@ -253,12 +253,12 @@ public class Pass2Parser extends AbstractParser
         byte elementType = in.readByte();
 
         if ((elementType < IPrimitiveArray.Type.BOOLEAN) || (elementType > IPrimitiveArray.Type.LONG))
-            throw new SnapshotException("Illegal primitive object array type");
+            throw new SnapshotException(Messages.Pass1Parser_Error_IllegalType);
 
         String name = IPrimitiveArray.TYPE[elementType];
         ClassImpl clazz = (ClassImpl) handler.lookupClassByName(name, true);
         if (clazz == null)
-            throw new RuntimeException("handler must create fake class for " + name);
+            throw new RuntimeException(MessageFormat.format(Messages.Pass2Parser_Error_HandleMustCreateFakeClassForName, name));
 
         HeapObject heapObject = new HeapObject(handler.mapAddressToId(id), id, clazz, PrimitiveArrayImpl
                         .doGetUsedHeapSize(clazz, size, elementType));

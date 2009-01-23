@@ -40,7 +40,7 @@ public class HprofRandomAccessParser extends AbstractParser
 
     public HprofRandomAccessParser(File file, Version version, int identifierSize) throws IOException
     {
-        this.in = new PositionInputStream(new BufferedRandomAccessInputStream(new RandomAccessFile(file, "r"), 512));
+        this.in = new PositionInputStream(new BufferedRandomAccessInputStream(new RandomAccessFile(file, "r"), 512)); //$NON-NLS-1$
         this.version = version;
         this.idSize = identifierSize;
     }
@@ -63,7 +63,7 @@ public class HprofRandomAccessParser extends AbstractParser
             case Constants.DumpSegment.PRIMITIVE_ARRAY_DUMP:
                 return readPrimitiveArrayDump(objectId, dump);
             default:
-                throw new IOException(MessageFormat.format("Illegal dump segment {0}", segmentType));
+                throw new IOException(MessageFormat.format(Messages.HprofRandomAccessParser_Error_IllegalDumpSegment, segmentType));
         }
 
     }
@@ -93,7 +93,7 @@ public class HprofRandomAccessParser extends AbstractParser
         List<IClass> hierarchy = resolveClassHierarchy(dump, dump.getClassOf(objectId));
         if (hierarchy == null)
         {
-            throw new IOException("need to create dummy class. dump incomplete");
+            throw new IOException(Messages.HprofRandomAccessParser_Error_DumpIncomplete);
         }
         else
         {
@@ -130,7 +130,7 @@ public class HprofRandomAccessParser extends AbstractParser
 
         IClass arrayType = (IClass) dump.getObject(dump.mapAddressToId(arrayClassObjectID));
         if (arrayType == null)
-            throw new RuntimeException("missing fake class");
+            throw new RuntimeException(Messages.HprofRandomAccessParser_Error_MissingFakeClass);
 
         Object content = null;
         if (size * idSize < LAZY_LOADING_LIMIT)
@@ -159,7 +159,7 @@ public class HprofRandomAccessParser extends AbstractParser
 
         long elementType = in.readByte();
         if ((elementType < IPrimitiveArray.Type.BOOLEAN) || (elementType > IPrimitiveArray.Type.LONG))
-            throw new IOException("Illegal primitive object array type");
+            throw new IOException(Messages.Pass1Parser_Error_IllegalType);
 
         int elementSize = IPrimitiveArray.ELEMENT_SIZE[(int) elementType];
         int len = elementSize * arraySize;
@@ -181,9 +181,9 @@ public class HprofRandomAccessParser extends AbstractParser
         String name = IPrimitiveArray.TYPE[(int) elementType];
         Collection<IClass> classes = dump.getClassesByName(name, false);
         if (classes == null || classes.isEmpty())
-            throw new IOException("missing fake class " + name);
+            throw new IOException(MessageFormat.format(Messages.HprofRandomAccessParser_Error_MissingClass, name));
         else if (classes.size() > 1)
-            throw new IOException("Duplicate class: " + name);
+            throw new IOException(MessageFormat.format(Messages.HprofRandomAccessParser_Error_DuplicateClass, name));
         else
             clazz = classes.iterator().next();
 

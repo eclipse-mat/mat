@@ -41,12 +41,12 @@ public class HtmlPieChartRenderer implements IOutputter
         {
             IResultPie pie = (IResultPie) result;
 
-            String imageFile = "chart" + context.getId() + ".png";
+            String imageFile = "chart" + context.getId() + ".png"; //$NON-NLS-1$ //$NON-NLS-2$
 
             Chart chart = ChartBuilder.create(pie, false);
 
             PluginSettings ps = PluginSettings.instance();
-            IDeviceRenderer render = ps.getDevice("dv.PNG");
+            IDeviceRenderer render = ps.getDevice("dv.PNG"); //$NON-NLS-1$
             render.setProperty(IDeviceRenderer.FILE_IDENTIFIER, new File(context.getOutputDirectory(), imageFile));
 
             Bounds bo = BoundsImpl.create(0, 0, 800, 350);
@@ -66,7 +66,7 @@ public class HtmlPieChartRenderer implements IOutputter
             GeneratedChartState state = gr.build(render.getDisplayServer(), chart, bo, null, rtc, null);
             gr.render(render, state);
 
-            writer.append("<img src=\"").append(imageFile).append("\" width=\"800\" height=\"350\">");
+            writer.append("<img src=\"").append(imageFile).append("\" width=\"800\" height=\"350\">"); //$NON-NLS-1$ //$NON-NLS-2$
         }
         catch (LinkageError e)
         {
@@ -81,15 +81,15 @@ public class HtmlPieChartRenderer implements IOutputter
     private void handleError(Throwable e, Writer writer) throws IOException
     {
         StringBuilder message = new StringBuilder();
-        message.append("Error rendering chart: ");
+        message.append(Messages.HtmlPieChartRenderer_ErrorRenderingChart);
         message.append(e.getClass().getName());
 
         if (e.getMessage() != null)
-            message.append(": ").append(e.getMessage());
+            message.append(": ").append(e.getMessage()); //$NON-NLS-1$
 
         String msg = message.toString();
 
-        writer.append(msg).append(" (See Log for Details)");
+        writer.append(msg).append(Messages.HtmlPieChartRenderer_SeeLogForDetails);
         Logger.getLogger(getClass().getName()).log(Level.SEVERE, msg, e);
     }
 

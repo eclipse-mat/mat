@@ -17,6 +17,7 @@ import java.util.List;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayLong;
+import org.eclipse.mat.parser.internal.Messages;
 import org.eclipse.mat.snapshot.model.Field;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IObjectArray;
@@ -107,7 +108,7 @@ public class ObjectArrayImpl extends AbstractArrayImpl implements IObjectArray
             int index = Integer.parseInt(name.substring(1, name.length() - 1));
             if (index < 0 || index > length)
                 throw new IndexOutOfBoundsException(MessageFormat
-                                .format("{0} for array {1}", index, getTechnicalName()));
+                                .format(Messages.ObjectArrayImpl_forArray, index, getTechnicalName()));
 
             long[] references = source.getHeapObjectReader().readObjectArrayContent(this, index, 1);
             return new Field(name, IObject.Type.OBJECT, new ObjectReference(source, references[0]));
@@ -126,7 +127,7 @@ public class ObjectArrayImpl extends AbstractArrayImpl implements IObjectArray
     {
         List<NamedReference> answer = new ArrayList<NamedReference>(getLength() + 1);
 
-        answer.add(new PseudoReference(source, classInstance.getObjectAddress(), "<class>"));
+        answer.add(new PseudoReference(source, classInstance.getObjectAddress(), "<class>"));//$NON-NLS-1$
 
         long refs[] = getReferenceArray();
         for (int i = 0; i < refs.length; i++)

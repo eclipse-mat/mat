@@ -21,6 +21,7 @@ import org.eclipse.mat.collect.BitField;
 import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.collect.SetInt;
 import org.eclipse.mat.parser.index.IIndexReader;
+import org.eclipse.mat.parser.internal.Messages;
 import org.eclipse.mat.parser.internal.SnapshotImpl;
 import org.eclipse.mat.parser.internal.util.IntStack;
 import org.eclipse.mat.snapshot.IMultiplePathsFromGCRootsComputer;
@@ -81,7 +82,7 @@ public class MultiplePathsFromGCRootsComputerImpl implements IMultiplePathsFromG
     private void computePaths(IProgressListener progressListener) throws SnapshotException
     {
         int reportFrequency = Math.max(10, objectIds.length / 100);
-        progressListener.beginTask("Finding paths", 100);
+        progressListener.beginTask(Messages.MultiplePathsFromGCRootsComputerImpl_FindingPaths, 100);
         
         ArrayList<int[]> pathsList = new ArrayList<int[]>();
 
@@ -358,7 +359,7 @@ public class MultiplePathsFromGCRootsComputerImpl implements IMultiplePathsFromG
             catch (ArrayIndexOutOfBoundsException e)
             {
                 // $JL-EXC$
-                System.out.println(depthToObject + " ");
+                System.out.println(depthToObject + " ");//$NON-NLS-1$
                 // $JL-SYS_OUT_ERR$
             }
             // move towards the GC root

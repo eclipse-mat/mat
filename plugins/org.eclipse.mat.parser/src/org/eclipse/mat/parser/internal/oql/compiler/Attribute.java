@@ -41,7 +41,7 @@ public class Attribute
     @Override
     public String toString()
     {
-        return isNative ? "@" + name : isEnvVar ? "${" + name + "}" : name;
+        return isNative ? "@" + name : isEnvVar ? "${" + name + "}" : name; //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
     }
 
 }

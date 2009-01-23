@@ -15,6 +15,8 @@ import java.io.Flushable;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import org.eclipse.mat.parser.internal.Messages;
+
 public class BitOutputStream implements Flushable, Closeable
 {
 
@@ -65,7 +67,7 @@ public class BitOutputStream implements Flushable, Closeable
             if (os == null)
             {
                 avail = 0;
-                throw new IOException("Array full");
+                throw new IOException(Messages.BitOutputStream_Error_ArrayFull);
             }
 
             if (buffer == null)

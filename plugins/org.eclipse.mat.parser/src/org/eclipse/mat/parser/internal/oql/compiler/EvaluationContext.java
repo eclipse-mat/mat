@@ -55,7 +55,7 @@ public class EvaluationContext
         if (name.equals(alias))
             return subject;
 
-        if ("snapshot".equals(name))
+        if ("snapshot".equals(name))//$NON-NLS-1$
             return snapshot;
 
         if (parent != null)

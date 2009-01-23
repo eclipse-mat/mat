@@ -11,6 +11,7 @@
 package org.eclipse.mat.parser.internal.snapshot;
 
 import org.eclipse.mat.collect.ArrayIntBig;
+import org.eclipse.mat.parser.internal.Messages;
 import org.eclipse.mat.snapshot.ClassHistogramRecord;
 import org.eclipse.mat.snapshot.HistogramRecord;
 
@@ -57,7 +58,7 @@ public class ClassHistogramRecordBuilder extends HistogramRecord
     public ClassHistogramRecord toClassHistogramRecord()
     {
         if (objectIds.length() > 0 && this.numberOfObjects != objectIds.length())
-            throw new RuntimeException("illegal use of class histogram record builder");
+            throw new RuntimeException(Messages.ClassHistogramRecordBuilder_Error_IllegalUseOfHistogramBuilder);
         
         if (objectIds.length() > 0)
             return new ClassHistogramRecord(getLabel(), classId, objectIds.toArray(), getUsedHeapSize(), getRetainedHeapSize());

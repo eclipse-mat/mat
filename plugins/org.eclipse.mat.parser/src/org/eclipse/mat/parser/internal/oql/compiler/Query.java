@@ -218,14 +218,14 @@ public class Query
             StringBuilder buf = new StringBuilder(128);
 
             if (includeObjects)
-                buf.append("OBJECTS ");
+                buf.append("OBJECTS ");//$NON-NLS-1$
             
             if (includeSubClasses)
-                buf.append("INSTANCEOF ");
+                buf.append("INSTANCEOF ");//$NON-NLS-1$
 
             if (subSelect != null)
             {
-                buf.append("( ").append(subSelect).append(" )");
+                buf.append("( ").append(subSelect).append(" )");//$NON-NLS-1$//$NON-NLS-2$
             }
             else if (call != null)
             {
@@ -237,7 +237,7 @@ public class Query
             }
             else if (classNamePattern != null)
             {
-                buf.append("\"").append(classNamePattern).append("\"");
+                buf.append("\"").append(classNamePattern).append("\"");//$NON-NLS-1$//$NON-NLS-2$
             }
             else if (objectIds != null)
             {
@@ -245,21 +245,21 @@ public class Query
                 {
                     buf.append(ee.next());
                     if (ee.hasNext())
-                        buf.append(",");
+                        buf.append(",");//$NON-NLS-1$
                 }
             }
             else
             {
                 for (IteratorLong ee = objectAddresses.iterator(); ee.hasNext();)
                 {
-                    buf.append("0x").append(Long.toHexString(ee.next()));
+                    buf.append("0x").append(Long.toHexString(ee.next()));//$NON-NLS-1$
                     if (ee.hasNext())
-                        buf.append(",");
+                        buf.append(",");//$NON-NLS-1$
                 }
             }
             
             if (alias != null)
-                buf.append(" ").append(alias);
+                buf.append(" ").append(alias);//$NON-NLS-1$
 
             return buf.toString();
         }
@@ -320,17 +320,17 @@ public class Query
         StringBuilder buf = new StringBuilder(256);
 
         // select clause
-        buf.append("SELECT ");
+        buf.append("SELECT ");//$NON-NLS-1$
 
         if (selectClause.isDistinct())
-            buf.append("DISTINCT ");
+            buf.append("DISTINCT ");//$NON-NLS-1$
 
         if (selectClause.isRetainedSet())
-            buf.append("AS RETAINED SET ");
+            buf.append("AS RETAINED SET ");//$NON-NLS-1$
 
         if (selectClause.getSelectList().isEmpty())
         {
-            buf.append("* ");
+            buf.append("* ");//$NON-NLS-1$
         }
         else
         {
@@ -341,30 +341,30 @@ public class Query
                 
                 if (column.getName() != null)
                 {
-                    buf.append(" AS ");
+                    buf.append(" AS ");//$NON-NLS-1$
                     buf.append(column.getName());
                 }
 
                 if (iter.hasNext())
-                    buf.append(", ");
+                    buf.append(", ");//$NON-NLS-1$
                 else
-                    buf.append(" ");
+                    buf.append(" ");//$NON-NLS-1$
             }
         }
 
         // from clause
-        buf.append("FROM ");
-        buf.append(fromClause).append(" ");
+        buf.append("FROM ");//$NON-NLS-1$
+        buf.append(fromClause).append(" ");//$NON-NLS-1$
 
         // where clause
         if (whereClause != null)
-            buf.append("WHERE ").append(whereClause);
+            buf.append("WHERE ").append(whereClause);//$NON-NLS-1$
 
         if (unionQueries != null)
         {
             for (Query q : unionQueries)
             {
-                buf.append(" UNION ( ").append(q).append(" )");
+                buf.append(" UNION ( ").append(q).append(" )");//$NON-NLS-1$//$NON-NLS-2$
             }
         }
 

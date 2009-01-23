@@ -30,7 +30,7 @@ import org.eclipse.mat.snapshot.model.IPrimitiveArray;
 
 public class HprofHeapObjectReader implements IObjectReader
 {
-    public static final String VERSION_PROPERTY = "hprof.version";
+    public static final String VERSION_PROPERTY = "hprof.version"; //$NON-NLS-1$
 
     private ISnapshot snapshot;
     private HprofRandomAccessParser hprofDump;
@@ -48,7 +48,7 @@ public class HprofHeapObjectReader implements IObjectReader
                         version, //
                         snapshot.getSnapshotInfo().getIdentifierSize());
         this.o2hprof = new IndexReader.LongIndexReader(new File(snapshot.getSnapshotInfo().getPrefix()
-                        + "o2hprof.index"));
+                        + "o2hprof.index")); //$NON-NLS-1$
 
         this.enhancers = new ArrayList<IRuntimeEnhancer>();
         for (EnhancerRegistry.Enhancer enhancer : EnhancerRegistry.instance().delegates())

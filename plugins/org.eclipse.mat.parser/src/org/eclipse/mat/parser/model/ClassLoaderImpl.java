@@ -31,7 +31,7 @@ public class ClassLoaderImpl extends InstanceImpl implements IClassLoader
 {
     private static final long serialVersionUID = 1L;
 
-    public static final String NO_LABEL = "__none__";
+    public static final String NO_LABEL = "__none__";//$NON-NLS-1$
 
     private volatile transient List<IClass> definedClasses = null;
 

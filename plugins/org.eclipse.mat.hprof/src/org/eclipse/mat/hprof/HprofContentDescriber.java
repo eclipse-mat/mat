@@ -19,8 +19,8 @@ import org.eclipse.core.runtime.content.IContentDescription;
 
 public class HprofContentDescriber implements IContentDescriber
 {
-    private static final QualifiedName[] QUALIFIED_NAMES = new QualifiedName[] { new QualifiedName("java-heap-dump",
-                    "hprof") };
+    private static final QualifiedName[] QUALIFIED_NAMES = new QualifiedName[] { new QualifiedName("java-heap-dump", //$NON-NLS-1$
+                    "hprof") }; //$NON-NLS-1$
 
     public int describe(InputStream contents, IContentDescription description) throws IOException
     {
