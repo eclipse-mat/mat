@@ -180,7 +180,7 @@ public class HtmlOutputter implements IOutputter
             }
 
             if (hasDetailsLink)
-                artefact.append("<th>" + "Details" + "</th>"); // FIXME
+                artefact.append("<th>" + Messages.HtmlOutputter_Label_Details + "</th>");
 
             artefact.append("</tr></thead>");
         }
@@ -350,7 +350,7 @@ public class HtmlOutputter implements IOutputter
     {
         artefact.append("<tr class=\"totals\">");
         artefact.append("<td style=\"padding-left:1000px\">") //
-                        .append("&raquo; " + "Depth of the tree is limited to 100").append("</td>"); // FIXME
+                        .append("&raquo; " + Messages.HtmlOutputter_Msg_TreeIsLimited).append("</td>");
         artefact.append("</tr>");
     }
 

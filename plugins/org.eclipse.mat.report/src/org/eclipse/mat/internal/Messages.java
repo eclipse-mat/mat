@@ -31,7 +31,11 @@ public final class Messages extends NLS
     public static String Filter_Label_Numeric;
     public static String Filter_Label_Regex;
     public static String HtmlOutputter_Error_MovingFile;
+    public static String HtmlOutputter_Label_Details;
+
     public static String HtmlOutputter_Label_NotApplicable;
+
+    public static String HtmlOutputter_Msg_TreeIsLimited;
     public static String PageSnippets_Label_HideUnhide;
     public static String PageSnippets_Label_CreatedBy;
     public static String PageSnippets_Label_OpenInMemoryAnalyzer;
