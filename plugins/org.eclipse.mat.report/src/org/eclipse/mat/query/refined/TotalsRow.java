@@ -12,12 +12,15 @@ package org.eclipse.mat.query.refined;
 
 import java.net.URL;
 import java.text.DecimalFormat;
+import java.text.MessageFormat;
 import java.text.NumberFormat;
+
+import org.eclipse.mat.internal.Messages;
 
 public class TotalsRow
 {
-    private static final URL SUM = TotalsRow.class.getResource("/META-INF/icons/misc/sum.gif");
-    private static final URL SUM_PLUS = TotalsRow.class.getResource("/META-INF/icons/misc/sum_plus.gif");
+    private static final URL SUM = TotalsRow.class.getResource("/META-INF/icons/misc/sum.gif"); //$NON-NLS-1$
+    private static final URL SUM_PLUS = TotalsRow.class.getResource("/META-INF/icons/misc/sum_plus.gif"); //$NON-NLS-1$
 
     private static final NumberFormat fmt = DecimalFormat.getInstance();
 
@@ -85,15 +88,15 @@ public class TotalsRow
         {
             // not calculated?
             if (totals == null)
-                return "";
+                return ""; //$NON-NLS-1$
 
             // maybe for a row added later?
             if (columnIndex < 1 || columnIndex >= totals.length)
-                return "";
+                return ""; //$NON-NLS-1$
 
             // no value present
             if (totals[columnIndex] == null)
-                return "";
+                return ""; //$NON-NLS-1$
 
             return fmt.format(totals[columnIndex].doubleValue());
         }
@@ -101,30 +104,24 @@ public class TotalsRow
 
     private String getFirstItemText()
     {
-        NumberFormat fmt = DecimalFormat.getInstance();
+        boolean hasMore = numberOfItems > visibleItems;
+        boolean hasTotals = totals != null && totals[0] != null;
+        boolean hasFiltered = filteredItems > 0;
 
-        StringBuilder buf = new StringBuilder();
-        buf.append("Total: ");
+        String msg = null;
 
-        if (numberOfItems > visibleItems)
-            buf.append(fmt.format(visibleItems)).append(" of ");
+        if (hasMore)
+            msg = MessageFormat.format(Messages.TotalsRow_Label_TotalVisible,
+                            visibleItems, numberOfItems);
+        else
+            msg = MessageFormat.format(Messages.TotalsRow_Label_Total, numberOfItems);
 
-        buf.append(fmt.format(numberOfItems));
-        buf.append(numberOfItems == 1 ? " entry" : " entries");
+        if (hasTotals)
+            msg += " / " + fmt.format(totals[0].doubleValue()); //$NON-NLS-1$
 
-        if (numberOfItems > visibleItems)
-            buf.append(" displayed");
+        if (hasFiltered)
+            msg += MessageFormat.format(" " + Messages.TotalsRow_Label_Filtered, filteredItems); //$NON-NLS-1$
 
-        if (totals != null)
-        {
-            Double total = totals[0];
-            if (total != null)
-                buf.append(" / ").append(fmt.format(total.doubleValue()));
-        }
-
-        if (filteredItems > 0)
-            buf.append(" (").append(fmt.format(filteredItems)).append(" filtered)");
-
-        return buf.toString();
+        return msg;
     }
 }

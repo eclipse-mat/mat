@@ -16,10 +16,10 @@ public abstract class Units
 {
     public enum Storage
     {
-        BYTE("B", 1L), //
-        KILOBYTE("KB", 1L << 10), //
-        MEGABYTE("MB", 1L << 20), //
-        GIGABYTE("GB", 1L << 30);
+        BYTE("B", 1L), //$NON-NLS-1$
+        KILOBYTE("KB", 1L << 10), //$NON-NLS-1$
+        MEGABYTE("MB", 1L << 20), //$NON-NLS-1$
+        GIGABYTE("GB", 1L << 30); //$NON-NLS-1$
 
         private final String symbol;
         private final long divider; // divider of BASE unit
@@ -53,15 +53,15 @@ public abstract class Units
 
         public String format(long number)
         {
-            return nf.format((double) number / divider) + " " + symbol;
+            return nf.format((double) number / divider) + " " + symbol; //$NON-NLS-1$
         }
     }
 
     public enum Plain
     {
         BASE(null, 1L), //
-        THOUSANDS("k", 1000L), //
-        MILLIONS("m", 1000000L);
+        THOUSANDS("k", 1000L), //$NON-NLS-1$
+        MILLIONS("m", 1000000L); //$NON-NLS-1$
 
         private final String symbol;
         private final long divider; // divider of BASE unit

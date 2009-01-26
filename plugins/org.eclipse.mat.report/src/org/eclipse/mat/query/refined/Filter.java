@@ -12,12 +12,14 @@ package org.eclipse.mat.query.refined;
 
 import java.text.DecimalFormat;
 import java.text.Format;
+import java.text.MessageFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.ParsePosition;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.util.PatternUtil;
 
@@ -61,7 +63,8 @@ public abstract class Filter
         void filterChanged(Filter filter);
     }
 
-    public static final String[] FILTER_TYPES = new String[] { "<Regex>", "<Numeric>" };
+    public static final String[] FILTER_TYPES = new String[] { Messages.Filter_Label_Regex,
+                    Messages.Filter_Label_Numeric };
 
     /**
      * if an exceptions is thrown, the internal state stays untouched. Hence, no
@@ -101,10 +104,7 @@ public abstract class Filter
 
     private static class NumericFilter extends Filter
     {
-        private static final String ERROR_MSG = "Error parsing the filter expression.\n\nUse one of the following:"//
-                        + "\nIntervals: 1000..10000  1%..10%" //
-                        + "\nUpper Boundary: <=10000 <1%" //
-                        + "\nLower Boundary: >1000 >=5%\n\n";
+        private static final String ERROR_MSG = Messages.Filter_Error_Parsing;
 
         String criteria;
 
@@ -166,11 +166,11 @@ public abstract class Filter
 
             try
             {
-                int indexOfDots = criteria.indexOf("..");
+                int indexOfDots = criteria.indexOf(".."); //$NON-NLS-1$
                 if (indexOfDots >= 0)
                 {
                     Double lowerBound = number(criteria.substring(0, indexOfDots).trim());
-                    int lastIndexOfDots = criteria.lastIndexOf("..");
+                    int lastIndexOfDots = criteria.lastIndexOf(".."); //$NON-NLS-1$
                     Double upperBound = number(criteria.substring(lastIndexOfDots + 2).trim());
 
                     if (lowerBound != null && upperBound != null)
@@ -224,7 +224,8 @@ public abstract class Filter
             Double result = f.parse(string, pos).doubleValue();
 
             if (pos.getIndex() < string.length())
-                throw new ParseException("Illegal characters: " + string.substring(pos.getIndex()), pos.getIndex());
+                throw new ParseException(MessageFormat.format(Messages.Filter_Error_IllegalCharacters, //
+                                string.substring(pos.getIndex())), pos.getIndex());
 
             return result;
         }
@@ -416,7 +417,7 @@ public abstract class Filter
                 }
                 catch (PatternSyntaxException e)
                 {
-                    throw new IllegalArgumentException("Invalid regular expression:\n\n" + e.getMessage(), e);
+                    throw new IllegalArgumentException(Messages.Filter_Error_InvalidRegex + "\n\n" + e.getMessage(), e); //$NON-NLS-1$
                 }
             }
         }

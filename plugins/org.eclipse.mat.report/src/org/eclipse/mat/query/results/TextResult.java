@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.DetailResultProvider;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.ResultMetaData;
@@ -35,7 +36,7 @@ public class TextResult implements IResult
 
     public TextResult()
     {
-        this("", true);
+        this("", true); //$NON-NLS-1$
     }
 
     public TextResult(String text)
@@ -83,11 +84,11 @@ public class TextResult implements IResult
         }
 
         StringBuilder buf = new StringBuilder();
-        buf.append("<a href=\"");
+        buf.append("<a href=\""); //$NON-NLS-1$
         buf.append(links.add(result));
-        buf.append("\">");
+        buf.append("\">"); //$NON-NLS-1$
         buf.append(label);
-        buf.append("</a>");
+        buf.append("</a>"); //$NON-NLS-1$
 
         return buf.toString();
     }
@@ -102,7 +103,7 @@ public class TextResult implements IResult
 
         public LinkedResults()
         {
-            super("Links");
+            super(Messages.TextResult_Label_Links);
         }
 
         public String add(IResult result)

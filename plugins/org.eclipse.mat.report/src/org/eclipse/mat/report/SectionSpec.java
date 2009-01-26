@@ -16,6 +16,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.mat.internal.Messages;
+
 public class SectionSpec extends Spec
 {
     private ITestResult.Status status;
@@ -54,8 +56,8 @@ public class SectionSpec extends Spec
     public synchronized void merge(Spec otherSpec)
     {
         if (!(otherSpec instanceof SectionSpec))
-            throw new RuntimeException(MessageFormat.format("Incompatible types: {0} and {1}", otherSpec.getName(),
-                            getName()));
+            throw new RuntimeException(MessageFormat.format(Messages.QuerySpec_Error_IncompatibleTypes, otherSpec
+                            .getName(), getName()));
 
         super.merge(otherSpec);
 

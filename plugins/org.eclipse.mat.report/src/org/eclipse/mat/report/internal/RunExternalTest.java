@@ -42,7 +42,7 @@ public class RunExternalTest implements IQuery
 
         for (File f : suite.getResults())
         {
-            if ("index.html".equals(f.getName()))
+            if ("index.html".equals(f.getName())) //$NON-NLS-1$
                 return new DisplayFileResult(f);
         }
 

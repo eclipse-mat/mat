@@ -31,7 +31,7 @@ public class SectionPart extends AbstractPart
 
         if (spec.getName() == null)
         {
-            spec.setName("");
+            spec.setName(""); //$NON-NLS-1$
             params().put(Params.Html.SHOW_HEADING, Boolean.FALSE.toString());
         }
     }

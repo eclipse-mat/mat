@@ -16,11 +16,12 @@ import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.dynamichelpers.ExtensionTracker;
 import org.eclipse.core.runtime.dynamichelpers.IExtensionTracker;
+import org.eclipse.mat.internal.Messages;
 import org.osgi.framework.BundleContext;
 
 public class ReportPlugin extends Plugin
 {
-    public static final String PLUGIN_ID = "org.eclipse.mat.report";
+    public static final String PLUGIN_ID = "org.eclipse.mat.report"; //$NON-NLS-1$
 
     private static ReportPlugin plugin;
 
@@ -60,7 +61,7 @@ public class ReportPlugin extends Plugin
 
     public static void log(Throwable e)
     {
-        log(e, "Internal Error");
+        log(e, Messages.ReportPlugin_InternalError);
     }
 
     public static void log(Throwable e, String message)

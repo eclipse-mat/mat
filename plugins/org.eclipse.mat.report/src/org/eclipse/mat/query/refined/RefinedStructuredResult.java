@@ -428,7 +428,7 @@ public abstract class RefinedStructuredResult implements IStructuredResult, //
     {
         Object v = getColumnValue(row, columnIndex);
         if (v == null)
-            return "";
+            return ""; //$NON-NLS-1$
         else if (v.getClass() == String.class) // is this shortcut okay?
             return (String) v;
         else
@@ -542,7 +542,7 @@ public abstract class RefinedStructuredResult implements IStructuredResult, //
     private String format(Object value, int columnIndex)
     {
         if (value == null)
-            return "";
+            return ""; //$NON-NLS-1$
 
         Format f = columns.get(columnIndex).getFormatter();
         return f != null ? f.format(value) : String.valueOf(value);

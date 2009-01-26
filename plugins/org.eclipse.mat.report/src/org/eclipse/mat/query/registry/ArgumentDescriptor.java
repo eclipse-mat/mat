@@ -145,6 +145,7 @@ public class ArgumentDescriptor
         this.advice = advice;
     }
 
+    @SuppressWarnings("nls")
     @Override
     public String toString()
     {
@@ -152,6 +153,7 @@ public class ArgumentDescriptor
                         flag).append(",type=").append(type.getName()).append(")").toString();
     }
 
+    @SuppressWarnings("nls")
     void appendUsage(StringBuilder buf)
     {
         buf.append(" ");
@@ -179,6 +181,7 @@ public class ArgumentDescriptor
             buf.append("]");
     }
 
+    @SuppressWarnings("nls")
     void appendUsage(StringBuilder buf, Object value)
     {
         if (value instanceof ArgumentFactory)

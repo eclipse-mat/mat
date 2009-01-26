@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.mat.report;
 
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -17,6 +18,7 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.report.internal.ReportPlugin;
 import org.eclipse.mat.util.RegistryReader;
@@ -34,19 +36,19 @@ public class RendererRegistry extends RegistryReader<IOutputter>
 
     private RendererRegistry()
     {
-        init(ReportPlugin.getDefault().getExtensionTracker(), ReportPlugin.PLUGIN_ID + ".renderer");
+        init(ReportPlugin.getDefault().getExtensionTracker(), ReportPlugin.PLUGIN_ID + ".renderer"); //$NON-NLS-1$
     }
 
     @Override
     protected synchronized IOutputter createDelegate(IConfigurationElement configElement) throws CoreException
     {
-        IOutputter subject = (IOutputter) configElement.createExecutableExtension("impl");
+        IOutputter subject = (IOutputter) configElement.createExecutableExtension("impl"); //$NON-NLS-1$
 
         Renderer annotation = subject.getClass().getAnnotation(Renderer.class);
         if (annotation == null)
         {
-            ReportPlugin.log(new RuntimeException("Class must be annotated as Renderer: "
-                            + subject.getClass().getName()));
+            ReportPlugin.log(new RuntimeException(MessageFormat.format(
+                            Messages.RendererRegistry_Error_MissingAnnotation, subject.getClass().getName())));
             return null;
         }
 

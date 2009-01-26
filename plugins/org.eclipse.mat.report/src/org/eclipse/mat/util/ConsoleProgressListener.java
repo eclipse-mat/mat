@@ -13,8 +13,8 @@ package org.eclipse.mat.util;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.util.IProgressListener;
-
 
 /**
  * Class used as progress listener for the console. You can obtain one instance
@@ -40,8 +40,8 @@ public class ConsoleProgressListener implements IProgressListener
 
     public void beginTask(String name, int totalWork)
     {
-        out.write("Task: " + name + "\n");
-        out.write("[");
+        out.write(Messages.ConsoleProgressListener_Label_Task + " " + name + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
+        out.write("["); //$NON-NLS-1$
         workPerDot = totalWork > 80 ? (totalWork / 80) : 1;
         workAccumulated = 0;
         dotsPrinted = 0;
@@ -52,7 +52,7 @@ public class ConsoleProgressListener implements IProgressListener
     {
         if (!isDone)
         {
-            out.write("]\n");
+            out.write("]\n"); //$NON-NLS-1$
             out.flush();
             isDone = true;
         }
@@ -71,9 +71,9 @@ public class ConsoleProgressListener implements IProgressListener
 
     public void subTask(String name)
     {
-        out.write("\nSubtask: " + name + "\n[");
+        out.write("\n" + Messages.ConsoleProgressListener_Label_Subtask + " " + name + "\n["); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         for (int ii = 0; ii < dotsPrinted; ii++)
-            out.write(".");
+            out.write("."); //$NON-NLS-1$
         out.flush();
     }
 
@@ -86,7 +86,7 @@ public class ConsoleProgressListener implements IProgressListener
         {
             dotsPrinted += dotsToPrint;
             for (int ii = 0; ii < dotsToPrint; ii++)
-                out.write(".");
+                out.write("."); //$NON-NLS-1$
             workAccumulated -= (dotsToPrint * workPerDot);
             out.flush();
         }
@@ -94,34 +94,34 @@ public class ConsoleProgressListener implements IProgressListener
 
     public void sendUserMessage(Severity severity, String message, Throwable exception)
     {
-        out.write("\n");
+        out.write("\n"); //$NON-NLS-1$
 
         switch (severity)
         {
             case INFO:
-                out.write("[INFO] ");
+                out.write("[INFO] "); //$NON-NLS-1$
                 break;
             case WARNING:
-                out.write("[WARNING] ");
+                out.write("[WARNING] "); //$NON-NLS-1$
                 break;
             case ERROR:
-                out.write("[ERROR] ");
+                out.write("[ERROR] "); //$NON-NLS-1$
                 break;
             default:
-                out.write("[UNKNOWN] ");
+                out.write("[UNKNOWN] "); //$NON-NLS-1$
         }
 
         out.write(message);
 
         if (exception != null)
         {
-            out.write("\n");
+            out.write("\n"); //$NON-NLS-1$
             exception.printStackTrace(out);
         }
 
-        out.write("\n[");
+        out.write("\n["); //$NON-NLS-1$
         for (int ii = 0; ii < dotsPrinted; ii++)
-            out.write(".");
+            out.write("."); //$NON-NLS-1$
     }
 
 }

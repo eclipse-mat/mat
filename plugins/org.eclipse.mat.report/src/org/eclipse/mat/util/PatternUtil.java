@@ -28,6 +28,7 @@ public class PatternUtil
         return smartFix(pattern, true);
     }
 
+    @SuppressWarnings("nls")
     public static String smartFix(String pattern, boolean addDotStars)
     {
         if (pattern == null || pattern.trim().length() == 0)

@@ -28,6 +28,7 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.dynamichelpers.ExtensionTracker;
 import org.eclipse.core.runtime.dynamichelpers.IExtensionChangeHandler;
 import org.eclipse.core.runtime.dynamichelpers.IExtensionTracker;
+import org.eclipse.mat.internal.Messages;
 
 public abstract class RegistryReader<D> implements IExtensionChangeHandler
 {
@@ -68,8 +69,8 @@ public abstract class RegistryReader<D> implements IExtensionChangeHandler
         for (int i = 0; i < configs.length; ++i)
         {
             String name = extension.getNamespaceIdentifier();
-            if ("org.eclipse.mat.eclipse".equals(name) || //
-                            "org.eclipse.mat.jetty".equals(name))
+            if ("org.eclipse.mat.eclipse".equals(name) || //$NON-NLS-1$
+                            "org.eclipse.mat.jetty".equals(name)) //$NON-NLS-1$
                 continue;
 
             try
@@ -85,7 +86,7 @@ public abstract class RegistryReader<D> implements IExtensionChangeHandler
             catch (CoreException e)
             {
                 Logger.getLogger(getClass().getName()).log(Level.SEVERE,
-                                MessageFormat.format("Error while creating: ''{0}''", configs[i]), e);
+                                MessageFormat.format(Messages.RegistryReader_Error_Registry, configs[i]), e);
             }
 
         }

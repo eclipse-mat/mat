@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IIconProvider;
@@ -144,7 +145,7 @@ public class PropertyResult implements IResultTable, IIconProvider
 
     public final Column[] getColumns()
     {
-        return new Column[] { new Column("Name", String.class), new Column("Value", String.class) };
+        return new Column[] { new Column(Messages.PropertyResult_Column_Name, String.class), new Column(Messages.PropertyResult_Column_Value, String.class) };
     }
 
     public final int getRowCount()

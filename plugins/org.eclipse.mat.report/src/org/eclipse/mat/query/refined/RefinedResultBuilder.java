@@ -11,12 +11,14 @@
 
 package org.eclipse.mat.query.refined;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.ContextDerivedData;
 import org.eclipse.mat.query.ContextProvider;
@@ -60,14 +62,15 @@ public final class RefinedResultBuilder
     public RefinedResultBuilder(IQueryContext context, IStructuredResult subject)
     {
         if (context == null)
-            throw new NullPointerException("context is null");
+            throw new NullPointerException("context is null"); //$NON-NLS-1$
 
         if (subject instanceof IResultTable)
             this.refinedResult = new RefinedTable();
         else if (subject instanceof IResultTree)
             this.refinedResult = new RefinedTree();
         else
-            throw new IllegalArgumentException("Unsupported type: " + subject.getClass().getName());
+            throw new IllegalArgumentException(MessageFormat.format(Messages.RefinedResultBuilder_Error_UnsupportedType, subject.getClass()
+                            .getName()));
 
         this.refinedResult.subject = subject;
 
@@ -183,8 +186,8 @@ public final class RefinedResultBuilder
     public void setSortOrder(int[] indices, SortDirection[] directions)
     {
         if (indices.length != directions.length)
-            throw new IllegalArgumentException("Same number of columns and sort directions must be provided.");
-        
+            throw new IllegalArgumentException(Messages.RefinedResultBuilder_Error_ColumnsSorting);
+
         if (indices.length == 1)
         {
             setSortOrder(indices[0], directions[0]);
@@ -196,10 +199,10 @@ public final class RefinedResultBuilder
                 direction = Column.SortDirection.defaultFor(refinedResult.columns.get(indices[0]));
 
             List<Comparator<Object>> comparators = new ArrayList<Comparator<Object>>(indices.length);
-            
+
             for (int ii = 0; ii < indices.length; ii++)
                 comparators.add(refinedResult.buildComparator(indices[ii], directions[ii]));
-            
+
             Comparator<Object> cmp = new RefinedStructuredResult.MultiColumnComparator(comparators);
             refinedResult.internalSetSortOrder(indices[0], direction, false, cmp);
         }

@@ -23,7 +23,7 @@ import java.lang.annotation.Target;
 @Retention(RUNTIME)
 public @interface Category
 {
-    public static final String HIDDEN = "__hidden__";
+    public static final String HIDDEN = "__hidden__"; //$NON-NLS-1$
     
     String value();
 }

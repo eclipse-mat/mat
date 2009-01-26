@@ -56,7 +56,7 @@ public class CSVOutputter implements IOutputter
             }
 
         }
-        writer.append("\n");
+        writer.append("\n"); //$NON-NLS-1$
 
         // add data records
         if (result instanceof RefinedTable)
@@ -77,7 +77,7 @@ public class CSVOutputter implements IOutputter
                         writer.append(SEPARATOR);
                     }
                 }
-                writer.append("\n");
+                writer.append("\n"); //$NON-NLS-1$
             }
         }
         else if (result instanceof RefinedTree)
@@ -100,7 +100,7 @@ public class CSVOutputter implements IOutputter
                         writer.append(SEPARATOR);
                     }
                 }
-                writer.append("\n");
+                writer.append("\n"); //$NON-NLS-1$
             }
         }
     }
@@ -148,14 +148,14 @@ public class CSVOutputter implements IOutputter
     private String getStringValue(Object columnValue, Filter.ValueConverter converter)
     {
         if (columnValue == null)
-            return "";
+            return ""; //$NON-NLS-1$
 
         // check first the format: the converter can change the type to double!
         Format fmt = null;
         if (columnValue instanceof Long || columnValue instanceof Integer)
-            fmt = new DecimalFormat("0");
+            fmt = new DecimalFormat("0"); //$NON-NLS-1$
         else if (columnValue instanceof Double || columnValue instanceof Float)
-            fmt = new DecimalFormat("0.#####");
+            fmt = new DecimalFormat("0.#####"); //$NON-NLS-1$
 
         if (converter != null)
             columnValue = converter.convert(((Number) columnValue).doubleValue());

@@ -20,6 +20,7 @@ import java.util.Map;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.ContextDerivedData;
 import org.eclipse.mat.query.IContextObject;
@@ -183,7 +184,7 @@ public final class Quantize
     public static Builder linearFrequencyDistribution(String label, double lowerBound, double upperBound, double step)
     {
         return new Builder(new Quantize(new KeyCalculator.LinearDistributionDouble(lowerBound, upperBound, step)))
-                        .addKeyColumn(new Column(label, Double.class).formatting(new DecimalFormat("<= #,##0.00"))
+                        .addKeyColumn(new Column(label, Double.class).formatting(new DecimalFormat("<= #,##0.00")) //$NON-NLS-1$
                                         .noTotals());
     }
 
@@ -195,7 +196,7 @@ public final class Quantize
     public static Builder linearFrequencyDistribution(String label, long lowerBound, long upperBound, long step)
     {
         return new Builder(new Quantize(new KeyCalculator.LinearDistributionLong(lowerBound, upperBound, step)))
-                        .addKeyColumn(new Column(label, Long.class).formatting(new DecimalFormat("<= #,##0.00"))
+                        .addKeyColumn(new Column(label, Long.class).formatting(new DecimalFormat("<= #,##0.00")) //$NON-NLS-1$
                                         .noTotals());
     }
 
@@ -326,7 +327,7 @@ public final class Quantize
     private BucketImpl internalAddValue(Object[] columnValues) throws SnapshotException
     {
         if (columnValues.length != columns.size())
-            throw new UnsupportedOperationException("Mismatch between number of arguments and number of columns");
+            throw new UnsupportedOperationException(Messages.Quantize_Error_MismatchArgumentsColumns);
 
         try
         {

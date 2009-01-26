@@ -10,9 +10,11 @@
  *******************************************************************************/
 package org.eclipse.mat.report.internal;
 
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.report.QuerySpec;
 import org.eclipse.mat.report.SectionSpec;
 import org.eclipse.mat.report.Spec;
@@ -47,10 +49,11 @@ public class PartsFactory
             answer = new QueryPart(String.valueOf(nextId++), parent, artefact, (QuerySpec) spec);
 
         if (answer == null)
-            throw new RuntimeException("Unable to construct part for type " + spec.getClass().getName());
+            throw new RuntimeException(MessageFormat.format(Messages.PartsFactory_Error_Construction, spec.getClass()
+                            .getName()));
 
         answer.init(this);
-        
+
         parts.put(spec, answer);
         return answer;
     }
@@ -66,17 +69,18 @@ public class PartsFactory
             answer = new QueryPart(template.getId(), template.getParent(), artefact, (QuerySpec) spec);
 
         if (answer == null)
-            throw new RuntimeException("Unable to construct part for type " + spec.getClass().getName());
+            throw new RuntimeException(MessageFormat.format(Messages.PartsFactory_Error_Construction, spec.getClass()
+                            .getName()));
 
         answer.objects = template.objects;
-        
+
         // overwrite all parameters explicitly given (but not to the spec)
         answer.params = new Parameters.Deep(answer.params, template.params);
 
         answer.init(this);
 
         parts.put(spec, answer);
-        
+
         return answer;
     }
 

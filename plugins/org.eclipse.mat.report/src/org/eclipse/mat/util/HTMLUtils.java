@@ -14,6 +14,7 @@ package org.eclipse.mat.util;
 public final class HTMLUtils
 {
 
+    @SuppressWarnings("nls")
     public static String escapeText(String text)
     {
         final StringBuilder result = new StringBuilder(text.length() * 120 / 100);

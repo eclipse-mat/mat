@@ -78,7 +78,7 @@ import org.eclipse.mat.report.Spec;
         else
             child = part.factory.create(this.part, new QuerySpec(name, result));
 
-        child.params().put("$embedded", "true");
+        child.params().put("$embedded", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 
         DataFile dataFile = child.getDataFile();
         String filename = dataFile.getUrl();
@@ -87,7 +87,7 @@ import org.eclipse.mat.report.Spec;
 
         if (filename == null)
         {
-            filename = ResultRenderer.DIR_PAGES + '/' + child.getId() + ".html";
+            filename = ResultRenderer.DIR_PAGES + '/' + child.getId() + ".html"; //$NON-NLS-1$
             dataFile.setSuggestedFile(filename);
         }
 

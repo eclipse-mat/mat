@@ -17,6 +17,7 @@ import java.text.MessageFormat;
 import java.util.List;
 
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.DetailResultProvider;
 import org.eclipse.mat.query.IContextObject;
@@ -43,7 +44,7 @@ public class HtmlOutputter implements IOutputter
 
     public void embedd(Context context, IResult result, Writer writer) throws IOException
     {
-        boolean hasDetailsLink = "true".equals(context.param(Params.Html.RENDER_DETAILS, "true")) // 
+        boolean hasDetailsLink = "true".equals(context.param(Params.Html.RENDER_DETAILS, "true")) //$NON-NLS-1$ //$NON-NLS-2$
                         && result != null //
                         && result.getResultMetaData() != null //
                         && !result.getResultMetaData().getDetailResultProviders().isEmpty();
@@ -66,12 +67,12 @@ public class HtmlOutputter implements IOutputter
             File dest = new File(context.getOutputDirectory(), src.getName());
 
             if (!src.renameTo(dest))
-                throw new IOException(MessageFormat.format("Error moving file {0} to {1}", //
+                throw new IOException(MessageFormat.format(Messages.HtmlOutputter_Error_MovingFile, //
                                 src.getAbsolutePath(), dest.getAbsolutePath()));
         }
         else if (result == null)
         {
-            writer.append("n/a");
+            writer.append(Messages.HtmlOutputter_Label_NotApplicable);
         }
         else
         {
@@ -88,6 +89,7 @@ public class HtmlOutputter implements IOutputter
     // 
     // //////////////////////////////////////////////////////////////
 
+    @SuppressWarnings("nls")
     private void renderTable(Context context, RefinedTable table, Writer artefact, boolean hasDetailsLink)
                     throws IOException
     {
@@ -137,6 +139,7 @@ public class HtmlOutputter implements IOutputter
         artefact.append("</tbody></table>");
     }
 
+    @SuppressWarnings("nls")
     private void renderFilterRow(Context context, Writer artefact, RefinedStructuredResult result,
                     boolean hasDetailsLink) throws IOException
     {
@@ -162,6 +165,7 @@ public class HtmlOutputter implements IOutputter
         artefact.append("</tr>");
     }
 
+    @SuppressWarnings("nls")
     private void renderTableHeader(Context context, Writer artefact, Column[] columns, boolean hasDetailsLink)
                     throws IOException
     {
@@ -176,12 +180,13 @@ public class HtmlOutputter implements IOutputter
             }
 
             if (hasDetailsLink)
-                artefact.append("<th>Details</th>");
+                artefact.append("<th>" + "Details" + "</th>"); // FIXME
 
             artefact.append("</tr></thead>");
         }
     }
 
+    @SuppressWarnings("nls")
     private void renderTotalsRow(Context context, Writer artefact, RefinedStructuredResult result, List<?> elements,
                     TotalsRow totalsRow, Column[] columns, int[] branches, boolean hasDetailsLink) throws IOException
     {
@@ -200,7 +205,7 @@ public class HtmlOutputter implements IOutputter
 
                         if (branches.length > 0)
                             branches[branches.length - 1] = 3;
-                        
+
                         renderTreeIndentation(artefact, branches);
 
                         artefact.append("<img src=\"").append(iconUrl).append("\"/>");
@@ -224,6 +229,7 @@ public class HtmlOutputter implements IOutputter
         }
     }
 
+    @SuppressWarnings("nls")
     private void renderTree(Context context, RefinedTree tree, Writer artefact, boolean hasDetailsLink)
                     throws IOException
     {
@@ -242,6 +248,7 @@ public class HtmlOutputter implements IOutputter
         artefact.append("</tbody></table>");
     }
 
+    @SuppressWarnings("nls")
     private void renderChildren(Context context, Writer artefact, RefinedTree tree, Column[] columns, List<?> elements,
                     int level, int[] branches, boolean hasDetailsLink) throws IOException
     {
@@ -315,6 +322,7 @@ public class HtmlOutputter implements IOutputter
             renderTotalsRow(context, artefact, tree, elements, totalsRow, columns, branches, hasDetailsLink);
     }
 
+    @SuppressWarnings("nls")
     private void renderTreeIndentation(Writer artefact, int[] branches) throws IOException
     {
         for (int branch : branches)
@@ -337,14 +345,16 @@ public class HtmlOutputter implements IOutputter
         }
     }
 
+    @SuppressWarnings("nls")
     private void renderDepthRow(Writer artefact) throws IOException
     {
         artefact.append("<tr class=\"totals\">");
         artefact.append("<td style=\"padding-left:1000px\">") //
-                        .append("&raquo; Depth of the tree is limited to 100").append("</td>");
+                        .append("&raquo; " + "Depth of the tree is limited to 100").append("</td>"); // FIXME
         artefact.append("</tr>");
     }
 
+    @SuppressWarnings("nls")
     private void renderDataColumns(Context context, Writer artefact, RefinedStructuredResult structured,
                     Column[] columns, Object row, boolean hasDetailsLink) throws IOException
     {
@@ -392,6 +402,7 @@ public class HtmlOutputter implements IOutputter
         }
     }
 
+    @SuppressWarnings("nls")
     private void renderColumnValue(Context context, Writer artefact, RefinedStructuredResult structured,
                     Column[] columns, Object row, int columnIndex) throws IOException
     {
@@ -423,6 +434,7 @@ public class HtmlOutputter implements IOutputter
         }
     }
 
+    @SuppressWarnings("nls")
     private void renderLink(Context context, Writer artefact, IStructuredResult thing, Object row, String label)
                     throws IOException
     {

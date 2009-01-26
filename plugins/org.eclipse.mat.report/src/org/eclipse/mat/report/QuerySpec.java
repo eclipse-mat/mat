@@ -12,8 +12,8 @@ package org.eclipse.mat.report;
 
 import java.text.MessageFormat;
 
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IResult;
-
 
 public class QuerySpec extends Spec
 {
@@ -58,8 +58,8 @@ public class QuerySpec extends Spec
     public void merge(Spec other)
     {
         if (!(other instanceof QuerySpec))
-            throw new RuntimeException(MessageFormat.format("Incompatible types: {0} and {1}", other.getName(),
-                            getName()));
+            throw new RuntimeException(MessageFormat.format(Messages.QuerySpec_Error_IncompatibleTypes,
+                            other.getName(), getName()));
 
         super.merge(other);
         if (command == null)

@@ -14,11 +14,13 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.LinkedList;
 
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.registry.QueryObjectLink;
 import org.eclipse.mat.report.Params;
 import org.eclipse.mat.report.internal.ResultRenderer.HtmlArtefact;
 import org.eclipse.mat.util.HTMLUtils;
 
+@SuppressWarnings("nls")
 /* package */class PageSnippets
 {
 
@@ -40,7 +42,7 @@ import org.eclipse.mat.util.HTMLUtils;
         if (part == null)
         {
             artefact.append("<li><a href=\"").append(artefact.getPathToRoot()).append(
-                            "index.html\">Start Page</a></li>");
+                            "index.html\">" + Messages.PageSnippets_Label_StartPage + "</a></li>");
         }
         else
         {
@@ -92,11 +94,10 @@ import org.eclipse.mat.util.HTMLUtils;
         artefact.append("<div id=\"footer\">");
 
         artefact.append("<div class=\"toc\"><a href=\"").append(artefact.getPathToRoot()).append(
-                        "toc.html\">Table Of Contents</a></div>");
+                        "toc.html\">" + Messages.PageSnippets_Label_TableOfContents + "</a></div>");
 
         artefact.append("<div class=\"mat\">");
-        artefact.append("Created by <a href=\"http://www.eclipse.org/mat/\" "
-                        + "target=\"_blank\">Eclipse Memory Analyzer</a>");
+        artefact.append(Messages.PageSnippets_Label_CreatedBy);
         artefact.append("</div>");
 
         artefact.append("</div>\n");
@@ -125,7 +126,9 @@ import org.eclipse.mat.util.HTMLUtils;
                 boolean isExpanded = forceExpansion || !part.params().getBoolean(Params.Html.COLLAPSED, false);
 
                 artefact.append("<a href=\"#\" onclick=\"hide(this, 'exp").append(part.getId()) //
-                                .append("'); return false;\" title=\"hide / unhide\"><img src=\"") //
+                                .append("'); return false;\" title=\"") //
+                                .append(Messages.PageSnippets_Label_HideUnhide) //
+                                .append("\"><img src=\"") //
                                 .append(artefact.getPathToRoot()).append(isExpanded ? OPENED : CLOSED) //
                                 .append("\"></a> ");
             }
@@ -169,9 +172,11 @@ import org.eclipse.mat.util.HTMLUtils;
             artefact.append("<h5>");
 
             boolean isExpanded = forceExpansion || !query.params().getBoolean(Params.Html.COLLAPSED, false);
-            
+
             artefact.append("<a href=\"#\" onclick=\"hide(this, 'exp").append(query.getId()) //
-                            .append("'); return false;\" title=\"hide / unhide\"><img src=\"") //
+                            .append("'); return false;\" title=\"") //
+                            .append(Messages.PageSnippets_Label_HideUnhide) //
+                            .append("\"><img src=\"") //
                             .append(artefact.getPathToRoot()).append(isExpanded ? OPENED : CLOSED).append("\"></a> ");
 
             if (query.getStatus() != null)
@@ -197,7 +202,7 @@ import org.eclipse.mat.util.HTMLUtils;
                 }
 
                 artefact.append(" <a href=\"").append(QueryObjectLink.forQuery(query.getCommand())) //
-                                .append("\" title=\"Open in Memory Analyzer: ") //
+                                .append("\" title=\"" + Messages.PageSnippets_Label_OpenInMemoryAnalyzer + " ") //
                                 .append(cmdString).append("\"><img src=\"") //
                                 .append(artefact.getPathToRoot()).append("img/open.gif\"></a>");
             }

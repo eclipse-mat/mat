@@ -13,6 +13,7 @@ package org.eclipse.mat.query.registry;
 import java.text.MessageFormat;
 
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.util.IProgressListener;
 
@@ -23,7 +24,7 @@ public class Queries
     {
         QueryDescriptor query = QueryRegistry.instance().getQuery(name);
         if (query == null)
-            throw new SnapshotException(MessageFormat.format("Query not available: {0}", name));
+            throw new SnapshotException(MessageFormat.format(Messages.Queries_Error_NotAvialable, name));
 
         if (!query.accept(context))
             throw new SnapshotException(query.explain(context));
@@ -52,7 +53,7 @@ public class Queries
     {
         ArgumentDescriptor argument = query.getArgumentByName(name);
         if (argument == null)
-            throw new SnapshotException(MessageFormat.format("Unknown argument: {0} for query {1}", name, query
+            throw new SnapshotException(MessageFormat.format(Messages.Queries_Error_UnknownArgument, name, query
                             .getIdentifier()));
 
         arguments.setArgumentValue(argument, value);

@@ -23,6 +23,7 @@ import java.util.logging.Logger;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.report.internal.ReportPlugin;
 import org.eclipse.mat.util.RegistryReader;
 import org.osgi.framework.Bundle;
@@ -45,13 +46,13 @@ public final class SpecFactory extends RegistryReader<SpecFactory.Report>
         public Report(IConfigurationElement configElement)
         {
             this.configElement = configElement;
-            this.name = configElement.getAttribute("name");
-            this.description = configElement.getAttribute("description");
+            this.name = configElement.getAttribute("name"); //$NON-NLS-1$
+            this.description = configElement.getAttribute("description"); //$NON-NLS-1$
         }
 
         public String getExtensionIdentifier()
         {
-            return configElement.getNamespaceIdentifier() + ":" + configElement.getAttribute("id");
+            return configElement.getNamespaceIdentifier() + ":" + configElement.getAttribute("id"); //$NON-NLS-1$ //$NON-NLS-2$
         }
 
         protected URL getURL()
@@ -60,7 +61,7 @@ public final class SpecFactory extends RegistryReader<SpecFactory.Report>
             if (bundle == null)
                 return null;
 
-            return bundle.getResource(configElement.getAttribute("file"));
+            return bundle.getResource(configElement.getAttribute("file")); //$NON-NLS-1$
         }
 
         public String getName()
@@ -83,7 +84,7 @@ public final class SpecFactory extends RegistryReader<SpecFactory.Report>
 
     private SpecFactory()
     {
-        init(ReportPlugin.getDefault().getExtensionTracker(), ReportPlugin.PLUGIN_ID + ".report");
+        init(ReportPlugin.getDefault().getExtensionTracker(), ReportPlugin.PLUGIN_ID + ".report"); //$NON-NLS-1$
     }
 
     @Override
@@ -153,7 +154,7 @@ public final class SpecFactory extends RegistryReader<SpecFactory.Report>
             else
             {
                 Logger.getLogger(getClass().getName()).log(Level.SEVERE,
-                                MessageFormat.format("Template not found: {0}", template));
+                                MessageFormat.format(Messages.SpecFactory_Error_MissingTemplate, template));
             }
         }
 
@@ -195,9 +196,10 @@ public final class SpecFactory extends RegistryReader<SpecFactory.Report>
         private SpecHandler()
         {
             stack = new LinkedList<Spec>();
-            stack.add(new SectionSpec("root"));
+            stack.add(new SectionSpec("root")); //$NON-NLS-1$
         }
 
+        @SuppressWarnings("nls")
         @Override
         public void startElement(String uri, String localName, String name, Attributes attributes) throws SAXException
         {
@@ -227,6 +229,7 @@ public final class SpecFactory extends RegistryReader<SpecFactory.Report>
             }
         }
 
+        @SuppressWarnings("nls")
         @Override
         public void endElement(String uri, String localName, String name) throws SAXException
         {

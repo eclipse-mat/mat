@@ -30,6 +30,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.report.IOutputter;
@@ -41,13 +42,13 @@ import org.eclipse.mat.util.HTMLUtils;
 
 public class ResultRenderer
 {
-    /* package */static final String DIR_PAGES = "pages";
-    /* package */static final String DIR_ICONS = "icons";
+    /* package */static final String DIR_PAGES = "pages"; //$NON-NLS-1$
+    /* package */static final String DIR_ICONS = "icons"; //$NON-NLS-1$
 
     private interface Key
     {
-        String IS_EXPANDABLE = "isExpandable";
-        String ARTEFACT = "artefact";
+        String IS_EXPANDABLE = "isExpandable"; //$NON-NLS-1$
+        String ARTEFACT = "artefact"; //$NON-NLS-1$
     }
 
     /* package */class HtmlArtefact
@@ -62,10 +63,10 @@ public class ResultRenderer
             this.file = new File(directory, relativeURL.replace('/', File.separatorChar));
             this.writer = new PrintWriter(file);
 
-            this.pathToRoot = "";
+            this.pathToRoot = ""; //$NON-NLS-1$
             for (int ii = 0; ii < relativeURL.length(); ii++)
                 if (relativeURL.charAt(ii) == '/')
-                    pathToRoot += "../";
+                    pathToRoot += "../"; //$NON-NLS-1$
 
             this.relativeURL = relativeURL;
 
@@ -127,7 +128,7 @@ public class ResultRenderer
 
     public ResultRenderer()
     {
-        html = RendererRegistry.instance().match("html", IResult.class);
+        html = RendererRegistry.instance().match("html", IResult.class); //$NON-NLS-1$
     }
 
     public TestSuite getSuite()
@@ -141,7 +142,7 @@ public class ResultRenderer
 
         prepareTempDirectory();
 
-        HtmlArtefact index = new HtmlArtefact(part, directory, "index.html", part.spec().getName());
+        HtmlArtefact index = new HtmlArtefact(part, directory, "index.html", part.spec().getName()); //$NON-NLS-1$
         suite.addResult(index.getFile());
 
         part.putObject(Key.ARTEFACT, index);
@@ -215,7 +216,7 @@ public class ResultRenderer
     public void process(QueryPart test, IResult result, RenderingInfo rInfo) throws IOException
     {
         // determine output formatter
-        String format = test.params().get(Params.FORMAT, "html");
+        String format = test.params().get(Params.FORMAT, "html"); //$NON-NLS-1$
         IOutputter outputter = html;
 
         if (result != null)
@@ -223,14 +224,13 @@ public class ResultRenderer
             outputter = RendererRegistry.instance().match(format, result.getClass());
             if (outputter == null)
             {
-                ReportPlugin.log(IStatus.WARNING, MessageFormat.format(
-                                "No outputter found for format ''{0}'' and type ''{1}''", format, result.getClass()
-                                                .getName()));
+                ReportPlugin.log(IStatus.WARNING, MessageFormat.format(Messages.ResultRenderer_Error_OutputterNotFound,
+                                format, result.getClass().getName()));
                 outputter = html;
             }
         }
 
-        if ("html".equals(format))
+        if ("html".equals(format)) //$NON-NLS-1$
             doProcess(outputter, test, result, rInfo, true);
         else
             doProcessAlien(format, outputter, test, result, rInfo);
@@ -244,7 +244,8 @@ public class ResultRenderer
 
         String src = srcArtefact.getPathToRoot() + linkedPart.linkedTo.getDataFile().getUrl();
 
-        srcArtefact.append("<a href=\"").append(src).append("\">").append(linkedPart.spec().getName()).append("</a>");
+        srcArtefact.append("<a href=\"").append(src).append("\">") // //$NON-NLS-1$ //$NON-NLS-2$
+                        .append(linkedPart.spec().getName()).append("</a>"); //$NON-NLS-1$ 
     }
 
     private void doProcessAlien(String format, IOutputter outputter, QueryPart test, IResult result, RenderingInfo info)
@@ -289,7 +290,7 @@ public class ResultRenderer
         boolean isImportant = test.params().shallow().getBoolean(Params.Html.IS_IMPORTANT, false);
         if (isImportant)
         {
-            artefact.append("<div class=\"important\">");
+            artefact.append("<div class=\"important\">"); //$NON-NLS-1$
         }
 
         outputter.embedd(rInfo, result, artefact.writer);
@@ -298,11 +299,11 @@ public class ResultRenderer
         {
             String filename = test.getDataFile().getSuggestedFile();
             if (filename == null)
-                filename = DIR_PAGES + '/' + test.getId() + ".html";
+                filename = DIR_PAGES + '/' + test.getId() + ".html"; //$NON-NLS-1$
 
-            artefact.append("<div>");
-            PageSnippets.link(artefact, filename, "Details \u00bb");
-            artefact.append("</div>");
+            artefact.append("<div>"); //$NON-NLS-1$
+            PageSnippets.link(artefact, filename, Messages.ResultRenderer_Label_Details);
+            artefact.append("</div>"); //$NON-NLS-1$
 
             // create new page for the details elements
             HtmlArtefact details = new HtmlArtefact(test.getParent(), //
@@ -321,7 +322,7 @@ public class ResultRenderer
         }
 
         if (isImportant)
-            artefact.append("</div>");
+            artefact.append("</div>"); //$NON-NLS-1$
 
         if (!isOverviewDetailsPattern)
         {
@@ -345,12 +346,12 @@ public class ResultRenderer
             int p = f.lastIndexOf('.');
 
             String extension = p < 0 ? f : f.substring(p);
-            icon2name.put(icon, name = "i" + icon2name.size() + extension);
+            icon2name.put(icon, name = "i" + icon2name.size() + extension); //$NON-NLS-1$
         }
 
         HtmlArtefact artefact = ((HtmlArtefact) part.getObject(Key.ARTEFACT));
 
-        return artefact.getPathToRoot() + DIR_ICONS + "/" + name;
+        return artefact.getPathToRoot() + DIR_ICONS + "/" + name; //$NON-NLS-1$
     }
 
     /* package */File getOutputDirectory(AbstractPart part)
@@ -362,7 +363,7 @@ public class ResultRenderer
     /* package */String getPathToRoot(AbstractPart part)
     {
         HtmlArtefact artefact = (HtmlArtefact) part.getObject(Key.ARTEFACT);
-        return artefact == null ? "" : artefact.getPathToRoot();
+        return artefact == null ? "" : artefact.getPathToRoot(); //$NON-NLS-1$
     }
 
     /* package */IQueryContext getQueryContext()
@@ -374,6 +375,7 @@ public class ResultRenderer
     // private parts
     // //////////////////////////////////////////////////////////////
 
+    @SuppressWarnings("nls")
     private void prepareTempDirectory() throws IOException
     {
         directory = FileUtils.createTempDirectory("report", null);
@@ -435,14 +437,14 @@ public class ResultRenderer
                     throws IOException
     {
         boolean isSeparateFile = part.params().shallow().getBoolean(Params.Html.SEPARATE_FILE, false);
-        boolean isEmbedded = part.params().shallow().getBoolean("$embedded", false);
+        boolean isEmbedded = part.params().shallow().getBoolean("$embedded", false); //$NON-NLS-1$
         if (isSeparateFile || isEmbedded)
         {
             String filename = part.getDataFile().getSuggestedFile();
             if (filename == null)
                 filename = part.params().shallow().get(Params.FILENAME);
             if (filename == null)
-                filename = DIR_PAGES + '/' + FileUtils.toFilename(part.spec().getName(), part.getId(), "html");
+                filename = DIR_PAGES + '/' + FileUtils.toFilename(part.spec().getName(), part.getId(), "html"); //$NON-NLS-1$
             part.getDataFile().setUrl(filename);
 
             HtmlArtefact newArtefact = new HtmlArtefact(part, directory, filename, part.spec().getName());
@@ -464,13 +466,14 @@ public class ResultRenderer
 
     private void renderTableOfContents(AbstractPart part) throws IOException
     {
-        HtmlArtefact toc = new HtmlArtefact(null, directory, "toc.html", "Table Of Contents");
+        HtmlArtefact toc = new HtmlArtefact(null, directory, "toc.html", Messages.ResultRenderer_Label_TableOfContents); //$NON-NLS-1$
 
-        toc.append("<h1>Table of Contents</h1>\n");
+        toc.append("<h1>" + Messages.ResultRenderer_Label_TableOfContents + "</h1>\n"); //$NON-NLS-1$ //$NON-NLS-2$
 
         renderResult(toc, part, 0);
     }
 
+    @SuppressWarnings("nls")
     private void renderResult(HtmlArtefact toc, AbstractPart parent, int depth)
     {
         toc.append("<ul class=\"collapsible_").append(depth < 3 ? "opened" : "closed").append("\">");

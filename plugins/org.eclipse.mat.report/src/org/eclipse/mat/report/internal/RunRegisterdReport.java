@@ -13,6 +13,7 @@ package org.eclipse.mat.report.internal;
 import java.io.File;
 import java.text.MessageFormat;
 
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.IResult;
@@ -40,7 +41,8 @@ public class RunRegisterdReport implements IQuery
         SpecFactory factory = SpecFactory.instance();
         Spec spec = factory.create(extensionIdentifier);
         if (spec == null)
-            throw new Exception(MessageFormat.format("Unknown report: {0}", extensionIdentifier));
+            throw new Exception(MessageFormat.format(Messages.RunRegisterdReport_Error_UnknownReport,
+                            extensionIdentifier));
 
         factory.resolve(spec);
 
@@ -50,7 +52,7 @@ public class RunRegisterdReport implements IQuery
 
         for (File f : suite.getResults())
         {
-            if ("index.html".equals(f.getName()))
+            if ("index.html".equals(f.getName())) //$NON-NLS-1$
                 return new DisplayFileResult(f);
         }
 

@@ -18,6 +18,7 @@ import java.util.List;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.report.internal.ReportPlugin;
@@ -172,9 +173,9 @@ public class QueryDescriptor
                 {
                     p = help.lastIndexOf(' ', numChars);
                     if (p >= 0)
-                        description = help.substring(0, p) + " ...";
+                        description = help.substring(0, p) + " ..."; //$NON-NLS-1$
                     else
-                        description = help.substring(0, numChars) + " ...";
+                        description = help.substring(0, numChars) + " ..."; //$NON-NLS-1$
                 }
                 else
                 {
@@ -189,7 +190,7 @@ public class QueryDescriptor
     @Override
     public String toString()
     {
-        return new StringBuilder(128).append(identifier).append(" (").append(subject.getName()).append(")").toString();
+        return new StringBuilder(128).append(identifier).append(" (").append(subject.getName()).append(")").toString(); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     public boolean accept(IQueryContext context)
@@ -200,7 +201,7 @@ public class QueryDescriptor
                             !context.converts(argument.getType(), argument.getAdvice()))
             {
                 if (ReportPlugin.getDefault().isDebugging())
-                    ReportPlugin.log(IStatus.INFO, MessageFormat.format("Ingoring query {0} due to argument {1}",
+                    ReportPlugin.log(IStatus.INFO, MessageFormat.format(Messages.QueryDescriptor_Error_IgnoringQuery,
                                     getIdentifier(), argument.getName()));
                 return false;
             }
@@ -220,7 +221,7 @@ public class QueryDescriptor
             {
                 if (buf.length() > 0)
                     buf.append('\n');
-                buf.append("Not supported: ").append(argument.toString());
+                buf.append(MessageFormat.format(Messages.QueryDescriptor_Error_NotSupported, argument.toString()));
             }
         }
 

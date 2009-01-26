@@ -20,6 +20,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.IResult;
@@ -59,7 +60,7 @@ public class ArgumentSet
                 {
                     value = parameter.getDefaultValue();
                     if (value == null)
-                        throw new SnapshotException(MessageFormat.format("Missing required parameter: {0}", parameter
+                        throw new SnapshotException(MessageFormat.format(Messages.ArgumentSet_Error_MissingMandatoryArgument, parameter
                                         .getName()));
                 }
 
@@ -68,7 +69,7 @@ public class ArgumentSet
                     if (values.containsKey(parameter))
                     {
                         Logger.getLogger(getClass().getName()).log(Level.INFO,
-                                        "Setting null value for: " + parameter.getName());
+                                        MessageFormat.format(Messages.ArgumentSet_Msg_NullValue, parameter.getName()));
                         parameter.getField().set(impl, null);
                     }
                     continue;
@@ -114,14 +115,14 @@ public class ArgumentSet
                 catch (IllegalArgumentException e)
                 {
                     throw new SnapshotException(MessageFormat.format(
-                                    "Illegal argument: {0} of type {1} cannot be set to field {2} of type {3}", value,
+                                    Messages.ArgumentSet_Error_IllegalArgument, value,
                                     value.getClass().getName(), parameter.getName(), parameter.getType().getName()), e);
                 }
                 catch (IllegalAccessException e)
                 {
                     // should not happen as we check accessibility when
                     // registering queries
-                    throw new SnapshotException(MessageFormat.format("Unable to access field {0} of type {1}",
+                    throw new SnapshotException(MessageFormat.format(Messages.ArgumentSet_Error_Inaccessible,
                                     parameter.getName(), parameter.getType().getName()), e);
                 }
             }
@@ -132,11 +133,13 @@ public class ArgumentSet
         }
         catch (InstantiationException e)
         {
-            throw new SnapshotException("Unable to instantiate command " + query.getCommandType().getName(), e);
+            throw new SnapshotException(MessageFormat.format(Messages.ArgumentSet_Error_Instantiation, query
+                            .getCommandType().getName()), e);
         }
         catch (IllegalAccessException e)
         {
-            throw new SnapshotException("Unable to set field of " + query.getCommandType().getName(), e);
+            throw new SnapshotException(MessageFormat.format(Messages.ArgumentSet_Error_SetField, query.getCommandType()
+                            .getName()), e);
         }
         catch (IProgressListener.OperationCanceledException e)
         {
@@ -155,7 +158,7 @@ public class ArgumentSet
     public String writeToLine()
     {
         StringBuilder answer = new StringBuilder(128);
-        answer.append(query.getIdentifier()).append(" ");
+        answer.append(query.getIdentifier()).append(" "); //$NON-NLS-1$
         for (ArgumentDescriptor arg : query.getArguments())
         {
             Object value = values.get(arg);
@@ -188,7 +191,7 @@ public class ArgumentSet
     {
         ArgumentDescriptor argument = query.getArgumentByName(name);
         if (argument == null)
-            throw new RuntimeException(MessageFormat.format("Query ''{0}'' has no argument named ''{1}''", query
+            throw new RuntimeException(MessageFormat.format(Messages.ArgumentSet_Error_NoSuchArgument, query
                             .getIdentifier(), name));
         setArgumentValue(argument, value);
     }
@@ -261,7 +264,7 @@ public class ArgumentSet
 
         if (!values.isEmpty())
             for (Map.Entry<ArgumentDescriptor, Object> entry : values.entrySet())
-                buf.append(" ").append(entry.getKey()).append(" = ").append(entry.getValue());
+                buf.append(" ").append(entry.getKey()).append(" = ").append(entry.getValue()); //$NON-NLS-1$ //$NON-NLS-2$
 
         return buf.toString();
     }

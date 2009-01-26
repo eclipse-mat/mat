@@ -13,6 +13,7 @@ package org.eclipse.mat.query;
 import java.text.MessageFormat;
 
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.util.IProgressListener;
 
 public abstract class ContextDerivedData
@@ -83,7 +84,7 @@ public abstract class ContextDerivedData
                     return column;
             }
 
-        throw new RuntimeException(MessageFormat.format("Mismatch: Operation ''{0}'' not found in ''{1}''", operation
+        throw new RuntimeException(MessageFormat.format(Messages.ContextDerivedData_Error_OperationNotFound, operation
                         .getLabel(), this.getClass().getName()));
     }
 }

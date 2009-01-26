@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.ContextProvider;
 import org.eclipse.mat.query.IQueryContext;
@@ -48,12 +49,12 @@ import org.eclipse.mat.util.IProgressListener;
 public class QueryPart extends AbstractPart
 {
     /* package */PartsFactory factory;
-    
+
     public QueryPart(String id, AbstractPart parent, DataFile artefact, QuerySpec spec)
     {
         super(id, parent, artefact, spec);
     }
-    
+
     @Override
     void init(PartsFactory factory)
     {
@@ -76,8 +77,8 @@ public class QueryPart extends AbstractPart
     public AbstractPart execute(IQueryContext context, ResultRenderer renderer, IProgressListener listener)
                     throws SnapshotException, IOException
     {
-        String sectionName = parent != null ? parent.spec().getName() : "none";
-        listener.subTask(MessageFormat.format("Test ''{0}'' of section ''{1}''", spec().getName(), sectionName));
+        String sectionName = parent != null ? parent.spec().getName() : Messages.QueryPart_Label_ReportRoot;
+        listener.subTask(MessageFormat.format(Messages.QueryPart_Msg_TestProgress, spec().getName(), sectionName));
 
         IResult result = spec().getResult();
 
@@ -85,8 +86,7 @@ public class QueryPart extends AbstractPart
         {
             if (getCommand() == null)
             {
-                ReportPlugin.log(IStatus.ERROR, MessageFormat.format(
-                                "No command specified for test ''{0}'' of section ''{1}''", //
+                ReportPlugin.log(IStatus.ERROR, MessageFormat.format(Messages.QueryPart_Error_NoCommand, //
                                 spec().getName(), sectionName));
             }
             else
@@ -101,7 +101,7 @@ public class QueryPart extends AbstractPart
                     if (msg == null)
                         msg = e.getClass().getName();
 
-                    ReportPlugin.log(e, MessageFormat.format("Ignoring result of ''{0}'' due to {1}", spec().getName(),
+                    ReportPlugin.log(e, MessageFormat.format(Messages.QueryPart_Error_IgnoringResult, spec().getName(),
                                     msg));
                     return this;
                 }
@@ -119,7 +119,7 @@ public class QueryPart extends AbstractPart
             replacement.setName(spec().getName());
 
             AbstractPart part = factory.createClone(this, replacement);
-            
+
             return part.execute(context, renderer, listener);
         }
 
@@ -150,7 +150,7 @@ public class QueryPart extends AbstractPart
             RefinedResultBuilder builder = new RefinedResultBuilder(context, (IResultTree) result);
             readParamsAndProcess(renderer, context, result, builder);
         }
-        else if (result instanceof IResultPie && Platform.getBundle("org.eclipse.mat.chart.ui") == null)
+        else if (result instanceof IResultPie && Platform.getBundle("org.eclipse.mat.chart.ui") == null) //$NON-NLS-1$
         {
             // do not render the result if pie charts are not available
         }
@@ -211,7 +211,7 @@ public class QueryPart extends AbstractPart
             if (label == null && entry.getResult() instanceof Spec)
                 label = ((Spec) entry.getResult()).getName();
             if (label == null)
-                label = spec().getName() + " " + index;
+                label = spec().getName() + " " + index; //$NON-NLS-1$
 
             QuerySpec q = new QuerySpec(label);
             q.setResult(entry.getResult());
@@ -280,7 +280,7 @@ public class QueryPart extends AbstractPart
             if (columnIndex < 0)
             {
                 Logger.getLogger(getClass().getName()).log(Level.SEVERE,
-                                MessageFormat.format("Column not found: {0}", column));
+                                MessageFormat.format(Messages.QueryPart_Error_ColumnNotFound, column));
             }
             else
             {
@@ -307,15 +307,17 @@ public class QueryPart extends AbstractPart
             if (p < 0)
             {
                 Logger.getLogger(getClass().getName()).log(Level.SEVERE,
-                                MessageFormat.format("Missing ''='' sign in filter ''{0}''", filter));
+                                MessageFormat.format(Messages.QueryPart_Error_MissingEqualsSign, filter));
             }
             else
             {
                 int columnIndex = builder.getColumnIndexByName(filter.substring(0, p));
                 if (columnIndex < 0)
                 {
-                    Logger.getLogger(getClass().getName()).log(Level.SEVERE,
-                                    MessageFormat.format("Column not found: {0}", filter.substring(0, p)));
+                    Logger.getLogger(getClass().getName()).log(
+                                    Level.SEVERE,
+                                    MessageFormat.format(Messages.QueryPart_Error_ColumnNotFound, filter
+                                                    .substring(0, p)));
                 }
                 else
                 {
@@ -326,7 +328,8 @@ public class QueryPart extends AbstractPart
                     catch (IllegalArgumentException e)
                     {
                         Logger.getLogger(getClass().getName()).log(Level.SEVERE,
-                                        MessageFormat.format("Error in filter: {0}", filter.substring(p + 1)), e);
+                                        MessageFormat.format(Messages.QueryPart_Error_Filter, filter.substring(p + 1)),
+                                        e);
                     }
                 }
             }
@@ -351,8 +354,7 @@ public class QueryPart extends AbstractPart
             int p = provider.indexOf('=');
             if (p < 0)
             {
-                ReportPlugin.log(IStatus.WARNING, MessageFormat.format(
-                                "Invalid configuration parameter {0}: expected <provider>=<operation>: {1}",
+                ReportPlugin.log(IStatus.WARNING, MessageFormat.format(Messages.QueryPart_Error_InvalidProvider,
                                 Params.Rendering.DERIVED_DATA_COLUMN, provider));
                 continue;
             }
@@ -376,7 +378,7 @@ public class QueryPart extends AbstractPart
             if (operation == null)
             {
                 ReportPlugin.log(IStatus.WARNING, MessageFormat.format(
-                                "Invalid configuration paramter {0}: unknown operation: {1}",
+                                Messages.QueryPart_Error_InvalidProviderOperation,
                                 Params.Rendering.DERIVED_DATA_COLUMN, code));
                 continue;
             }
@@ -385,7 +387,7 @@ public class QueryPart extends AbstractPart
 
             boolean added = false;
 
-            if ("_default_".equals(provider))
+            if ("_default_".equals(provider)) //$NON-NLS-1$
             {
                 builder.addDefaultContextDerivedColumn(operation);
                 added = true;
@@ -408,7 +410,7 @@ public class QueryPart extends AbstractPart
 
             if (!added)
             {
-                String msg = "Error added retained size column for ''{0}'' - no context provider found.";
+                String msg = Messages.QueryPart_Error_RetainedSizeColumnNotFound;
                 Logger.getLogger(QueryPart.class.getName()).log(Level.WARNING, MessageFormat.format(msg, provider));
             }
 
@@ -435,7 +437,7 @@ public class QueryPart extends AbstractPart
             if (columnIndex < 0)
             {
                 Logger.getLogger(getClass().getName()).log(Level.WARNING,
-                                MessageFormat.format("Sort column not found: {0}", name));
+                                MessageFormat.format(Messages.QueryPart_Error_SortColumnNotFound, name));
                 continue;
             }
 

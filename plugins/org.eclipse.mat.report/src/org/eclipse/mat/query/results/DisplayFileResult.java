@@ -12,6 +12,7 @@ package org.eclipse.mat.query.results;
 
 import java.io.File;
 
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.ResultMetaData;
 
@@ -38,7 +39,7 @@ public class DisplayFileResult implements IResult
     @Override
     public String toString()
     {
-        return file != null ? file.getAbsolutePath() : "<no file>";
+        return file != null ? file.getAbsolutePath() : Messages.DisplayFileResult_Label_NoFile;
     }
 
 }

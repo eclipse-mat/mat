@@ -15,6 +15,7 @@ package org.eclipse.mat.report;
  * 
  * @noimplement
  */
+@SuppressWarnings("nls")
 public interface Params
 {
     String TIMESTAMP = "timestamp";

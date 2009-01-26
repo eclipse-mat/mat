@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.Argument.Advice;
 import org.eclipse.mat.util.PatternUtil;
@@ -88,16 +89,16 @@ public class Converters
         for (int ii = 0; ii < result.length(); ii++)
         {
             if (hasSpace && ii == 0)
-                buf.append("\"");
+                buf.append("\""); //$NON-NLS-1$
 
             if (hasQuote && result.charAt(ii) == '"')
-                buf.append("\\");
+                buf.append("\\"); //$NON-NLS-1$
 
             buf.append(result.charAt(ii));
         }
 
         if (hasSpace)
-            buf.append("\"");
+            buf.append("\""); //$NON-NLS-1$
 
         return buf.toString();
     }
@@ -117,7 +118,7 @@ public class Converters
 
             try
             {
-                Method nameMethod = enumClass.getMethod("name");
+                Method nameMethod = enumClass.getMethod("name"); //$NON-NLS-1$
                 this.names = new String[this.values.length];
 
                 for (int ii = 0; ii < this.values.length; ii++)
@@ -147,7 +148,7 @@ public class Converters
                     return values[ii];
             }
 
-            throw new RuntimeException(MessageFormat.format("Must be one of {0}", Arrays.toString(names)));
+            throw new RuntimeException(MessageFormat.format(Messages.Converters_Error_InvalidEnumValue, Arrays.toString(names)));
         }
 
         public String toString(Object object)

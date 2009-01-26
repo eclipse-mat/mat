@@ -65,19 +65,19 @@ public final class QueryObjectLink
 
     public static final String forDetailResult(DetailResultProvider provider, String identifier)
     {
-        return forType(Type.DETAIL_RESULT, provider.getLabel() + "/" + identifier);
+        return forType(Type.DETAIL_RESULT, provider.getLabel() + "/" + identifier); //$NON-NLS-1$
     }
 
     public static final String forType(Type type, String target)
     {
         try
         {
-            return PROTOCOL + type.name().toLowerCase() + "/" + URLEncoder.encode(target, ENC);
+            return PROTOCOL + type.name().toLowerCase() + "/" + URLEncoder.encode(target, ENC); //$NON-NLS-1$
         }
         catch (UnsupportedEncodingException ignore)
         {
             // never thrown as the UTF-8 is supported by all VMs
-            return PROTOCOL + type.name().toLowerCase() + "/" + target;
+            return PROTOCOL + type.name().toLowerCase() + "/" + target; //$NON-NLS-1$
         }
     }
 

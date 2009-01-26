@@ -20,7 +20,7 @@ import java.util.Map;
  */
 public abstract class Parameters
 {
-    private static final String NONE = "<NONE>";
+    private static final String NONE = "<NONE>"; //$NON-NLS-1$
 
     public abstract Parameters shallow();
 
@@ -42,7 +42,7 @@ public abstract class Parameters
 
         while (true)
         {
-            int p1 = value.indexOf("${");
+            int p1 = value.indexOf("${"); //$NON-NLS-1$
             if (p1 < 0)
                 return value;
 
@@ -67,7 +67,7 @@ public abstract class Parameters
     public boolean getBoolean(String key, boolean defaultValue)
     {
         String value = get(key);
-        return value == null ? defaultValue : "true".equals(value.toLowerCase());
+        return value == null ? defaultValue : "true".equals(value.toLowerCase()); //$NON-NLS-1$
     }
 
     public String[] getStringArray(String key)

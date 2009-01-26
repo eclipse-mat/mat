@@ -30,6 +30,7 @@ import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.Category;
@@ -59,7 +60,7 @@ public class QueryRegistry extends RegistryReader<IQuery>
 
     public QueryRegistry()
     {
-        init(ReportPlugin.getDefault().getExtensionTracker(), ReportPlugin.PLUGIN_ID + ".query");
+        init(ReportPlugin.getDefault().getExtensionTracker(), ReportPlugin.PLUGIN_ID + ".query"); //$NON-NLS-1$
     }
 
     @Override
@@ -67,11 +68,11 @@ public class QueryRegistry extends RegistryReader<IQuery>
     {
         try
         {
-            IQuery query = (IQuery) configElement.createExecutableExtension("impl");
+            IQuery query = (IQuery) configElement.createExecutableExtension("impl"); //$NON-NLS-1$
             QueryDescriptor descriptor = registerQuery(query);
 
             if (ReportPlugin.getDefault().isDebugging())
-                ReportPlugin.log(IStatus.INFO, MessageFormat.format("Query registered: {0}", descriptor));
+                ReportPlugin.log(IStatus.INFO, MessageFormat.format(Messages.QueryRegistry_Msg_QueryRegistered, descriptor));
 
             rootCategory = null;
             return descriptor != null ? query : null;
@@ -79,7 +80,7 @@ public class QueryRegistry extends RegistryReader<IQuery>
         catch (SnapshotException e)
         {
             throw new CoreException(new Status(IStatus.ERROR, ReportPlugin.PLUGIN_ID, MessageFormat.format(
-                            "Error registering query: {0}", configElement.getAttribute("impl")), e));
+                            Messages.QueryRegistry_Error_Registering, configElement.getAttribute("impl")), e)); //$NON-NLS-1$
         }
     }
 
@@ -123,7 +124,7 @@ public class QueryRegistry extends RegistryReader<IQuery>
             LinkedList<QueryDescriptor> stack = new LinkedList<QueryDescriptor>();
             stack.addAll(commandsByIdentifier.values());
 
-            rootCategory = new CategoryDescriptor("<root>");
+            rootCategory = new CategoryDescriptor("<root>"); //$NON-NLS-1$
             while (!stack.isEmpty())
             {
                 QueryDescriptor descriptor = stack.removeFirst();
@@ -185,7 +186,7 @@ public class QueryRegistry extends RegistryReader<IQuery>
 
         // do NOT overwrite command names
         if (commandsByIdentifier.containsKey(identifier))
-            throw new SnapshotException(MessageFormat.format("Query name ''{0}'' is already bound to {1}!", identifier,
+            throw new SnapshotException(MessageFormat.format(Messages.QueryRegistry_Error_NameBound, identifier,
                             commandsByIdentifier.get(identifier).getCommandType().getName()));
 
         Category c = queryClass.getAnnotation(Category.class);
@@ -281,12 +282,12 @@ public class QueryRegistry extends RegistryReader<IQuery>
             }
             catch (IllegalAccessException e)
             {
-                String msg = "Unable to access argument ''{0}'' of class ''{1}''. Make sure the attribute is PUBLIC.";
+                String msg = Messages.QueryRegistry_Error_Inaccessible;
                 throw new SnapshotException(MessageFormat.format(msg, field.getName(), clazz.getName()), e);
             }
             catch (Exception e)
             {
-                throw new SnapshotException(MessageFormat.format("Error get argument ''{0}'' of class ''{1}''", field
+                throw new SnapshotException(MessageFormat.format(Messages.QueryRegistry_Error_Argument, field
                                 .getName(), clazz.getName()), e);
             }
         }
@@ -302,7 +303,7 @@ public class QueryRegistry extends RegistryReader<IQuery>
         String flag = annotation.flag();
         if (flag.length() == 0)
             flag = field.getName().toLowerCase();
-        if ("none".equals(flag))
+        if ("none".equals(flag)) //$NON-NLS-1$
             flag = null;
         d.setFlag(flag);
 
@@ -335,7 +336,7 @@ public class QueryRegistry extends RegistryReader<IQuery>
 
         if (advice == Argument.Advice.CLASS_NAME_PATTERN && !Pattern.class.isAssignableFrom(d.getType()))
         {
-            String msg = MessageFormat.format("Field {0} of {1} has advice {2} but is not of type {3}.", field
+            String msg = MessageFormat.format(Messages.QueryRegistry_Error_Advice, field
                             .getName(), clazz.getName(), Argument.Advice.CLASS_NAME_PATTERN, Pattern.class.getName());
             throw new SnapshotException(msg);
         }

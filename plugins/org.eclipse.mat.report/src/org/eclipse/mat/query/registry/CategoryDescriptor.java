@@ -15,6 +15,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import org.eclipse.mat.internal.Messages;
+
 public final class CategoryDescriptor
 {
     private CategoryDescriptor parent;
@@ -28,7 +30,7 @@ public final class CategoryDescriptor
     {
         if (identifier == null)
         {
-            this.name = "<uncategorized>";
+            this.name = Messages.CategoryDescriptor_Label_NoCategory;
             this.sortOrder = Integer.MAX_VALUE;
         }
         else
@@ -52,7 +54,7 @@ public final class CategoryDescriptor
             return null;
 
         String prefix = parent.getFullName();
-        return prefix != null ? prefix + " / " + getName() : getName();
+        return prefix != null ? prefix + " / " + getName() : getName(); //$NON-NLS-1$
     }
 
     public List<Object> getChildren()
