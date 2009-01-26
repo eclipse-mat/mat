@@ -237,7 +237,7 @@ public final class Column
      */
     public boolean isNumeric()
     {
-        return (type.isPrimitive() && !(char.class == type || boolean.class == type))
+        return (type.isPrimitive() && !(type.equals(char.class) || type.equals(boolean.class)))
                         || Number.class.isAssignableFrom(type);
     }
 

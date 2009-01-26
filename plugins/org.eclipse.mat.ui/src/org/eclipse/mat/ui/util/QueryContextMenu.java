@@ -339,7 +339,7 @@ public class QueryContextMenu
 
     /**
      * To be overwritten by sub-classes.
-     * 
+     *
      * @param menu
      * @param menuContext
      * @param provider
@@ -401,9 +401,12 @@ public class QueryContextMenu
         {
             ISnapshot snapshot = (ISnapshot) editor.getQueryContext().get(ISnapshot.class, null);
 
+			// avoid JavaNCSS parsing error
+            final Class<?> intClass = int.class;
+
             for (ArgumentDescriptor argument : query.getArguments())
             {
-                if ((int.class.isAssignableFrom(argument.getType()) && argument.getAdvice() == Argument.Advice.HEAP_OBJECT) //
+                if ((intClass.isAssignableFrom(argument.getType()) && argument.getAdvice() == Argument.Advice.HEAP_OBJECT) //
                                 || IObject.class.isAssignableFrom(argument.getType()) //
                                 || IHeapObjectArgument.class.isAssignableFrom(argument.getType()))
                 {
