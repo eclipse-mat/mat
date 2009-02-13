@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.mat.util;
 
-
 /**
  * Empty implementation of {@link IProgressListener} which is frequently used
  * throughout the snapshot API in ISnapshot to get feedback for long running

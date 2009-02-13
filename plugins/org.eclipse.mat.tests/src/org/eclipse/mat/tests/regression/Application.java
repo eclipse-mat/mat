@@ -12,13 +12,13 @@ package org.eclipse.mat.tests.regression;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.text.MessageFormat;
 
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.report.Spec;
 import org.eclipse.mat.report.SpecFactory;
+import org.eclipse.mat.util.MessageUtil;
 
 public class Application implements IApplication
 {
@@ -41,7 +41,7 @@ public class Application implements IApplication
             File dumpDir = new File(args[1]);
             if (!dumpDir.exists() || !dumpDir.isDirectory())
             {
-                printUsage(MessageFormat.format("{0} is not a directory", dumpDir.getAbsolutePath()));
+                printUsage(MessageUtil.format("{0} is not a directory", dumpDir.getAbsolutePath()));
                 return -1;
             }
 
@@ -65,7 +65,7 @@ public class Application implements IApplication
             }
             else
             {
-                printUsage(MessageFormat.format("Unknown application: {0}", application));
+                printUsage(MessageUtil.format("Unknown application: {0}", application));
                 return IApplication.EXIT_RELAUNCH;
             }
         }
@@ -103,7 +103,7 @@ public class Application implements IApplication
 
         Spec report = SpecFactory.instance().create(args[2]);
         if (report == null)
-            throw new SnapshotException(MessageFormat.format("Report not found: {0}", args[2]));
+            throw new SnapshotException(MessageUtil.format("Report not found: {0}", args[2]));
 
         new TestParseApp(snapshotFile, report).run();
 

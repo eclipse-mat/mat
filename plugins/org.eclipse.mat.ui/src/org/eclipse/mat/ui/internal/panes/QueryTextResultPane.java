@@ -11,7 +11,6 @@
 package org.eclipse.mat.ui.internal.panes;
 
 import java.net.MalformedURLException;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -41,6 +40,7 @@ import org.eclipse.mat.ui.util.ErrorHelper;
 import org.eclipse.mat.ui.util.PopupMenu;
 import org.eclipse.mat.ui.util.QueryContextMenu;
 import org.eclipse.mat.util.HTMLUtils;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.browser.LocationEvent;
@@ -99,7 +99,7 @@ public class QueryTextResultPane extends AbstractEditorPane implements ISelectio
             }
             else
             {
-                String html = "<pre>" + HTMLUtils.escapeText(textResult.getText()) + "</pre>";  //$NON-NLS-1$//$NON-NLS-2$
+                String html = "<pre>" + HTMLUtils.escapeText(textResult.getText()) + "</pre>"; //$NON-NLS-1$//$NON-NLS-2$
                 browser.setText(html);
             }
         }
@@ -122,7 +122,7 @@ public class QueryTextResultPane extends AbstractEditorPane implements ISelectio
 
         firePropertyChange(IWorkbenchPart.PROP_TITLE);
     }
-    
+
     @Override
     public void contributeToToolBar(IToolBarManager manager)
     {
@@ -198,7 +198,7 @@ public class QueryTextResultPane extends AbstractEditorPane implements ISelectio
         }
         catch (Exception e)
         {
-            ErrorHelper.logThrowableAndShowMessage(e, MessageFormat.format(
+            ErrorHelper.logThrowableAndShowMessage(e, MessageUtil.format(
                             Messages.QueryTextResultPane_UnableToMapAddress, url.getTarget()));
         }
     }

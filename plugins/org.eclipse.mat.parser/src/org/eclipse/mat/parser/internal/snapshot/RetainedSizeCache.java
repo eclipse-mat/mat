@@ -25,7 +25,6 @@ import org.eclipse.mat.collect.HashMapIntLong;
 import org.eclipse.mat.parser.internal.Messages;
 import org.eclipse.mat.parser.model.XSnapshotInfo;
 
-
 public class RetainedSizeCache
 {
     private String filename;

@@ -19,20 +19,20 @@ package org.eclipse.mat.util;
  * <p>
  * All activity is broken down into a linear sequence of tasks against which
  * progress is reported. When a task begins, a <code>beginTask(String, int)
- * </code>
- * notification is reported, followed by any number and mixture of progress
- * reports (<code>worked()</code>) and subtask notifications (<code>subTask(String)</code>).
- * When the task is eventually completed, a <code>done()</code> notification
- * is reported. After the <code>done()</code> notification, the progress
- * monitor cannot be reused; i.e., <code>
- * beginTask(String, int)</code> cannot
- * be called again after the call to <code>done()</code>.
+ * </code> notification is reported,
+ * followed by any number and mixture of progress reports (<code>worked()</code>
+ * ) and subtask notifications (<code>subTask(String)</code>). When the task is
+ * eventually completed, a <code>done()</code> notification is reported. After
+ * the <code>done()</code> notification, the progress monitor cannot be reused;
+ * i.e., <code>
+ * beginTask(String, int)</code> cannot be called again after the call to
+ * <code>done()</code>.
  * <p>
  * A request to cancel an operation can be signaled using the
  * <code>setCanceled</code> method. Operations taking a progress monitor are
- * expected to poll the monitor (using <code>isCanceled</code>) periodically
- * and abort at their earliest convenience. Operation can however choose to
- * ignore cancellation requests.
+ * expected to poll the monitor (using <code>isCanceled</code>) periodically and
+ * abort at their earliest convenience. Operation can however choose to ignore
+ * cancellation requests.
  * <p>
  * Since notification is synchronous with the activity itself, the listener
  * should provide a fast and robust implementation. If the handling of
@@ -125,10 +125,9 @@ public interface IProgressListener
     /**
      * Defines the severites possible for a user message.
      * <ul>
-     * <li><code>ERROR</code> - a serious error (most severe)</li>
-     * <li><code>WARNING</code> - a warning (less severe)</li>
-     * <li><code>INFO</code> - an informational ("fyi") message (least
-     * severe)</li>
+     * <li><code>ERROR</code> - a serious error (most severe)</li> <li><code>
+     * WARNING</code> - a warning (less severe)</li> <li><code>INFO</code> - an
+     * informational ("fyi") message (least severe)</li>
      * </ul>
      * <p>
      */
@@ -145,10 +144,14 @@ public interface IProgressListener
     /**
      * Sends a message to the user.
      * 
-     * @param severity Severity as defined in {@link Severity}
-     * @param message The message localized to the current locale.
-     * @param exception The relevant low-level exception, or <code>null</code> if none.
+     * @param severity
+     *            Severity as defined in {@link Severity}
+     * @param message
+     *            The message localized to the current locale.
+     * @param exception
+     *            The relevant low-level exception, or <code>null</code> if
+     *            none.
      */
     public void sendUserMessage(Severity severity, String message, Throwable exception);
-    
+
 }

@@ -16,7 +16,6 @@ import org.eclipse.mat.internal.MATPlugin;
 import org.eclipse.mat.snapshot.extension.IThreadDetailsResolver;
 import org.eclipse.mat.util.RegistryReader;
 
-
 public final class ThreadDetailResolverRegistry extends RegistryReader<IThreadDetailsResolver>
 {
     private static final ThreadDetailResolverRegistry INSTANCE = new ThreadDetailResolverRegistry();

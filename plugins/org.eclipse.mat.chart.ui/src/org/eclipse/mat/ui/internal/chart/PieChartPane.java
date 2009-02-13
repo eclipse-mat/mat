@@ -44,7 +44,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.forms.widgets.FormText;
 
-
 public class PieChartPane extends AbstractEditorPane implements ISelectionProvider
 {
     List<ISelectionChangedListener> listeners = new ArrayList<ISelectionChangedListener>();
@@ -97,7 +96,7 @@ public class PieChartPane extends AbstractEditorPane implements ISelectionProvid
 
         canvas.renderer.setProperty(IDeviceRenderer.UPDATE_NOTIFIER, new CallBackListener());
     }
-    
+
     @Override
     public void contributeToToolBar(IToolBarManager manager)
     {
@@ -129,7 +128,7 @@ public class PieChartPane extends AbstractEditorPane implements ISelectionProvid
 
             if (current != slice)
             {
-                label.setText("<form>" + slice.getDescription() + "</form>", true, false);  //$NON-NLS-1$//$NON-NLS-2$
+                label.setText("<form>" + slice.getDescription() + "</form>", true, false); //$NON-NLS-1$//$NON-NLS-2$
                 current = slice;
                 fireSelectionEvent();
             }

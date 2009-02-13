@@ -20,7 +20,7 @@ import java.lang.ref.SoftReference;
         long position;
         int arraySize;
         int elementSize;
-        
+
         SoftReference<Object> lazyReadContent = new SoftReference<Object>(null);
 
         public Offline(boolean isPrimitive, long position, int elementSize, int arraySize)
@@ -60,8 +60,7 @@ import java.lang.ref.SoftReference;
         {
             this.lazyReadContent = new SoftReference<Object>(content);
         }
-        
-        
+
     }
 
     /* package */static class Raw extends ArrayDescription

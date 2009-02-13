@@ -18,7 +18,6 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.views.IViewDescriptor;
 
-
 public class ShowViewAction extends Action implements IPluginContribution
 {
     private static int counter = 0;
@@ -29,7 +28,7 @@ public class ShowViewAction extends Action implements IPluginContribution
     protected ShowViewAction(IWorkbenchWindow window, IViewDescriptor desc)
     {
         super(""); //$NON-NLS-1$
-        
+
         setText('&' + desc.getLabel());
         setImageDescriptor(desc.getImageDescriptor());
         setToolTipText('&' + desc.getLabel());

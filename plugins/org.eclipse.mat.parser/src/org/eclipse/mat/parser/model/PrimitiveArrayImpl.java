@@ -41,7 +41,7 @@ public class PrimitiveArrayImpl extends AbstractArrayImpl implements IPrimitiveA
     {
         return type;
     }
-    
+
     public Class<?> getComponentType()
     {
         return COMPONENT_TYPE[type];

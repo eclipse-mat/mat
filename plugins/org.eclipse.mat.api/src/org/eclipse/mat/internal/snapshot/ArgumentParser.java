@@ -11,7 +11,6 @@
 package org.eclipse.mat.internal.snapshot;
 
 import java.math.BigInteger;
-import java.text.MessageFormat;
 import java.text.ParsePosition;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -19,6 +18,7 @@ import java.util.regex.PatternSyntaxException;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.registry.CommandLine;
 import org.eclipse.mat.snapshot.ISnapshot;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.PatternUtil;
 
 public final class ArgumentParser
@@ -40,7 +40,7 @@ public final class ArgumentParser
                 pos.setIndex(pos.getIndex() + 1);
             }
 
-            throw new SnapshotException(MessageFormat.format("Remaining unparsed line: {0}", new Object[] { buf
+            throw new SnapshotException(MessageUtil.format("Remaining unparsed line: {0}", new Object[] { buf
                             .toString() }));
         }
 
@@ -142,8 +142,8 @@ public final class ArgumentParser
                 }
                 catch (PatternSyntaxException e)
                 {
-                    throw new SnapshotException(
-                                    MessageFormat.format("Error parsing ''{0}'': {1}", arg, e.getMessage()), e);
+                    throw new SnapshotException(MessageUtil.format("Error parsing ''{0}'': {1}", arg, e.getMessage()),
+                                    e);
                 }
             }
         }

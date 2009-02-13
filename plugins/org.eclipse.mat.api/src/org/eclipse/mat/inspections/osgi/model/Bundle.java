@@ -15,10 +15,10 @@ import java.util.List;
 import org.eclipse.mat.inspections.osgi.model.eclipse.Extension;
 import org.eclipse.mat.inspections.osgi.model.eclipse.ExtensionPoint;
 
-public class Bundle 
+public class Bundle
 {
-    private BundleDescriptor descriptor;   
-    private String location;    
+    private BundleDescriptor descriptor;
+    private String location;
     private List<ExtensionPoint> extensionPoints;
     private List<Extension> extensions;
     private List<BundleDescriptor> dependencies;
@@ -28,11 +28,12 @@ public class Bundle
     private List<BundleDescriptor> fragments;
 
     public Bundle(BundleDescriptor descriptor, String location, List<BundleDescriptor> dependencies,
-                    List<BundleDescriptor> dependents, List<ExtensionPoint> extensionPoints, List<Extension> extensions,
-                    List<Service> registeredServices, List<Service> usedServices, List<BundleDescriptor> fragments)
+                    List<BundleDescriptor> dependents, List<ExtensionPoint> extensionPoints,
+                    List<Extension> extensions, List<Service> registeredServices, List<Service> usedServices,
+                    List<BundleDescriptor> fragments)
     {
-        this.descriptor = descriptor;        
-        this.location = location;        
+        this.descriptor = descriptor;
+        this.location = location;
         this.dependencies = dependencies;
         this.dependents = dependents;
         this.extensionPoints = extensionPoints;
@@ -45,7 +46,7 @@ public class Bundle
     public BundleDescriptor getBundleDescriptor()
     {
         return descriptor;
-    }      
+    }
 
     public List<ExtensionPoint> getExtentionPoints()
     {
@@ -81,7 +82,7 @@ public class Bundle
     {
         return usedServices;
     }
-    
+
     public List<BundleDescriptor> getFragments()
     {
         return fragments;

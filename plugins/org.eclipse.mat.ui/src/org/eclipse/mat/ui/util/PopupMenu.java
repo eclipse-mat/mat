@@ -247,7 +247,7 @@ public final class PopupMenu
                 return false;
             }
         }
-        
+
         return true;
     }
 

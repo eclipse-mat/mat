@@ -21,7 +21,6 @@ import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.QueryExecution;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
 
-
 public class QueryHistoryProvider extends QueryBrowserProvider
 {
 

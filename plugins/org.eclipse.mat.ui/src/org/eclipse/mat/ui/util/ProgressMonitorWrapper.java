@@ -16,7 +16,6 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.util.IProgressListener;
 
-
 /**
  * Notes on tuning:
  * <p>

@@ -112,7 +112,7 @@ public class ClassImpl extends AbstractObjectImpl implements IClass, Comparable<
 
         if (answer > 0 || !calculateIfNotAvailable)
             return answer;
-        
+
         if (answer < 0 && approximation)
             return answer;
 
@@ -125,7 +125,7 @@ public class ClassImpl extends AbstractObjectImpl implements IClass, Comparable<
 
         int[] retainedSet;
         long retainedSize = 0;
-        
+
         if (!approximation)
         {
             retainedSet = source.getRetainedSet(ids.toArray(), listener);
@@ -225,7 +225,7 @@ public class ClassImpl extends AbstractObjectImpl implements IClass, Comparable<
     {
         return name;
     }
-    
+
     public void setName(String name)
     {
         this.name = name;
@@ -364,20 +364,20 @@ public class ClassImpl extends AbstractObjectImpl implements IClass, Comparable<
 
         return hasSuperClass() ? ((ClassImpl) source.getObject(this.superClassId)).doesExtend(className) : false;
     }
-    
+
     @Override
     public void setSnapshot(ISnapshot dump)
     {
         super.setSnapshot(dump);
-        
+
         // object reference need (for convenience) a reference to the snapshot
         // inject after restoring class objects
-        
+
         for (Field f : this.staticFields)
         {
             if (f.getValue() instanceof ObjectReference)
             {
-                ObjectReference ref = (ObjectReference)f.getValue();
+                ObjectReference ref = (ObjectReference) f.getValue();
                 f.setValue(new ObjectReference(dump, ref.getObjectAddress()));
             }
         }

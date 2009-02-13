@@ -29,7 +29,6 @@ import org.eclipse.mat.snapshot.SnapshotFactory;
 import org.eclipse.mat.snapshot.query.ObjectListResult;
 import org.eclipse.mat.util.IProgressListener;
 
-
 @Name("OQL")
 @Category(Category.HIDDEN)
 @Icon("/META-INF/icons/oql.gif")

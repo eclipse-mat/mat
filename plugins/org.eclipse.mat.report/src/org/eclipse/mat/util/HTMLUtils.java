@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.mat.util;
 
-
 public final class HTMLUtils
 {
 
@@ -18,7 +17,7 @@ public final class HTMLUtils
     public static String escapeText(String text)
     {
         final StringBuilder result = new StringBuilder(text.length() * 120 / 100);
-        
+
         for (int ii = 0; ii < text.length(); ii++)
         {
             char ch = text.charAt(ii);
@@ -33,7 +32,7 @@ public final class HTMLUtils
             else
                 result.append(ch);
         }
-        
+
         return result.toString();
     }
 

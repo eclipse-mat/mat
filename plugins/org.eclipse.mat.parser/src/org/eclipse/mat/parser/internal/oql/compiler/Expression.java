@@ -13,12 +13,11 @@ package org.eclipse.mat.parser.internal.oql.compiler;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
 
-
 public abstract class Expression
 {
 
     abstract public Object compute(EvaluationContext ctx) throws SnapshotException, OperationCanceledException;
 
     abstract public boolean isContextDependent(EvaluationContext ctx);
-    
+
 }

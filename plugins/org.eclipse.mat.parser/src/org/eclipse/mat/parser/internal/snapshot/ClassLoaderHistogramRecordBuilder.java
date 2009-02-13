@@ -17,7 +17,6 @@ import org.eclipse.mat.snapshot.ClassHistogramRecord;
 import org.eclipse.mat.snapshot.ClassLoaderHistogramRecord;
 import org.eclipse.mat.snapshot.HistogramRecord;
 
-
 public class ClassLoaderHistogramRecordBuilder extends HistogramRecord
 {
     private static final long serialVersionUID = 1L;

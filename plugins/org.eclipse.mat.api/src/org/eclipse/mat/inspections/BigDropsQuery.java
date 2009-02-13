@@ -32,7 +32,6 @@ import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.util.IProgressListener;
 
-
 @Name("Big Drops in Dominator Tree")
 @Category("Leak Identification")
 @Help("Display memory accumulation points in the dominator tree.\n\n"

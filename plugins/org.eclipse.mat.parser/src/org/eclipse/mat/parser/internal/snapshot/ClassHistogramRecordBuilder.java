@@ -59,10 +59,12 @@ public class ClassHistogramRecordBuilder extends HistogramRecord
     {
         if (objectIds.length() > 0 && this.numberOfObjects != objectIds.length())
             throw new RuntimeException(Messages.ClassHistogramRecordBuilder_Error_IllegalUseOfHistogramBuilder);
-        
+
         if (objectIds.length() > 0)
-            return new ClassHistogramRecord(getLabel(), classId, objectIds.toArray(), getUsedHeapSize(), getRetainedHeapSize());
+            return new ClassHistogramRecord(getLabel(), classId, objectIds.toArray(), getUsedHeapSize(),
+                            getRetainedHeapSize());
         else
-            return new ClassHistogramRecord(getLabel(), classId, getNumberOfObjects(), getUsedHeapSize(), getRetainedHeapSize());
+            return new ClassHistogramRecord(getLabel(), classId, getNumberOfObjects(), getUsedHeapSize(),
+                            getRetainedHeapSize());
     }
 }

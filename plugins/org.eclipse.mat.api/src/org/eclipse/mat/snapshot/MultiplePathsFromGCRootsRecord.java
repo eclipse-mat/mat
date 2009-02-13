@@ -17,7 +17,6 @@ import java.util.List;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.HashMapIntObject;
 
-
 /**
  * This class represents a set of paths from the GC roots to different objects,
  * which go through one and the same object.
@@ -51,12 +50,12 @@ public class MultiplePathsFromGCRootsRecord
     /**
      * A constructor to create the record
      * 
-     * @param objectId -
-     *            the ID of the object which is common for all the paths
-     * @param level -
-     *            the level (depth) in the paths where this objects appears
-     * @param snapshot -
-     *            an ISnapshot object used for further calculation
+     * @param objectId
+     *            - the ID of the object which is common for all the paths
+     * @param level
+     *            - the level (depth) in the paths where this objects appears
+     * @param snapshot
+     *            - an ISnapshot object used for further calculation
      */
     public MultiplePathsFromGCRootsRecord(int objectId, int level, ISnapshot snapshot)
     {

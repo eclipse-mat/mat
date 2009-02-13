@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.mat.inspections.collections;
 
-import java.text.MessageFormat;
-
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.inspections.InspectionAssert;
@@ -29,6 +27,7 @@ import org.eclipse.mat.snapshot.model.NamedReference;
 import org.eclipse.mat.snapshot.model.PseudoReference;
 import org.eclipse.mat.snapshot.query.ObjectListResult;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.MessageUtil;
 
 @Name("Extract List Values")
 @CommandName("extract_list_values")
@@ -56,7 +55,7 @@ public class ExtractListValuesQuery implements IQuery
                 return extractLinkedList(info, listener);
         }
 
-        throw new IllegalArgumentException(MessageFormat.format("Not a (well-known) list: {0}", list.getDisplayName()));
+        throw new IllegalArgumentException(MessageUtil.format("Not a (well-known) list: {0}", list.getDisplayName()));
     }
 
     private IResult extractArrayList(CollectionUtil.Info info, IProgressListener listener) throws SnapshotException
@@ -66,7 +65,7 @@ public class ExtractListValuesQuery implements IQuery
         if (size == 0)
             return new ObjectListResult.Outbound(snapshot, new int[0]);
 
-        String taskMsg = MessageFormat.format("Collecting {0} element(s) of {1}", size, list.getTechnicalName());
+        String taskMsg = MessageUtil.format("Collecting {0} element(s) of {1}", size, list.getTechnicalName());
 
         listener.beginTask(taskMsg, size);
 
@@ -97,7 +96,7 @@ public class ExtractListValuesQuery implements IQuery
         if (size == 0)
             return new ObjectListResult.Outbound(snapshot, new int[0]);
 
-        String taskMsg = MessageFormat.format("collecting {0} element(s) of {1}", new Object[] { size,
+        String taskMsg = MessageUtil.format("collecting {0} element(s) of {1}", new Object[] { size,
                         list.getTechnicalName() });
         listener.beginTask(taskMsg, size);
 

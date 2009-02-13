@@ -16,7 +16,6 @@ import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.ResultMetaData;
 
-
 public class DisplayFileResult implements IResult
 {
     private File file;

@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.mat.util;
 
-import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -86,7 +85,7 @@ public abstract class RegistryReader<D> implements IExtensionChangeHandler
             catch (CoreException e)
             {
                 Logger.getLogger(getClass().getName()).log(Level.SEVERE,
-                                MessageFormat.format(Messages.RegistryReader_Error_Registry, configs[i]), e);
+                                MessageUtil.format(Messages.RegistryReader_Error_Registry, configs[i]), e);
             }
 
         }

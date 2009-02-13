@@ -11,7 +11,7 @@
 package org.eclipse.mat.snapshot.inspections;
 
 import java.net.URL;
-import java.text.DecimalFormat;
+import com.ibm.icu.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;

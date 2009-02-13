@@ -61,8 +61,8 @@ public class ArrayLongCompressed
     }
 
     /**
-     * Create <code>LongArrayCompressed</code> from longs representing the
-     * data to be stored in compressed form.
+     * Create <code>LongArrayCompressed</code> from longs representing the data
+     * to be stored in compressed form.
      * 
      * @param longs
      *            longs representing the data to be stored in compressed form
@@ -74,8 +74,8 @@ public class ArrayLongCompressed
     }
 
     /**
-     * Create <code>LongArrayCompressed</code> from longs representing the
-     * data to be stored in compressed form (from offset to offset+length).
+     * Create <code>LongArrayCompressed</code> from longs representing the data
+     * to be stored in compressed form (from offset to offset+length).
      * 
      * @param longs
      *            longs representing the data to be stored in compressed form

@@ -17,7 +17,6 @@ import java.lang.ref.SoftReference;
 
 import org.eclipse.mat.collect.HashMapLongObject;
 
-
 public class BufferedRandomAccessInputStream extends InputStream
 {
     RandomAccessFile raf;
@@ -81,9 +80,9 @@ public class BufferedRandomAccessInputStream extends InputStream
 
         if (reported_pos == fileLength)
             return -1;
-        
+
         int copied = 0;
-        
+
         while (copied < len)
         {
             if (reported_pos == fileLength)
@@ -92,14 +91,14 @@ public class BufferedRandomAccessInputStream extends InputStream
             if (current == null || (reported_pos - current.real_pos_start) >= current.buf_end)
                 current = getPage(reported_pos);
 
-            int buf_pos = (int)(reported_pos - current.real_pos_start);
+            int buf_pos = (int) (reported_pos - current.real_pos_start);
             int length = Math.min(len - copied, current.buf_end - buf_pos);
             System.arraycopy(current.buffer, buf_pos, b, off + copied, length);
-            
+
             reported_pos += length;
             copied += length;
         }
-        
+
         return copied;
     }
 

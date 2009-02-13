@@ -9,7 +9,7 @@ package org.eclipse.mat.parser.internal.oql.parser;
  * customize your error reporting mechanisms so long as you retain the public
  * fields.
  */
-@SuppressWarnings({ "serial", "nls" })
+@SuppressWarnings( { "serial", "nls" })
 public class ParseException extends Exception
 {
 

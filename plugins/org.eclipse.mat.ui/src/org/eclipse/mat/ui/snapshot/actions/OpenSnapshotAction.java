@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.mat.ui.snapshot.actions;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 
 import org.eclipse.core.filesystem.EFS;
@@ -32,6 +31,7 @@ import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.editor.PathEditorInput;
 import org.eclipse.mat.ui.snapshot.OpenSnapshot;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
@@ -42,14 +42,12 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 import org.eclipse.ui.part.FileEditorInput;
 
-
 public class OpenSnapshotAction extends Action implements IWorkbenchWindowActionDelegate
 {
     private IWorkbenchWindow fWindow;
 
     public OpenSnapshotAction()
     {}
-
 
     public void run(IAction action)
     {
@@ -73,7 +71,7 @@ public class OpenSnapshotAction extends Action implements IWorkbenchWindowAction
                 catch (PartInitException e)
                 {
                     MemoryAnalyserPlugin.log(e.getStatus());
-                    String msg = MessageFormat.format(Messages.OpenSnapshotAction_ErrorOpeningFile, fileStore.getName());
+                    String msg = MessageUtil.format(Messages.OpenSnapshotAction_ErrorOpeningFile, fileStore.getName());
                     MessageDialog.openError(fWindow.getShell(), Messages.ErrorHelper_InternalError, msg);
                 }
             }
@@ -93,7 +91,8 @@ public class OpenSnapshotAction extends Action implements IWorkbenchWindowAction
     static class FileLabelProvider extends LabelProvider
     {
         /*
-         * @see org.eclipse.jface.viewers.LabelProvider#getText(java.lang.Object)
+         * @see
+         * org.eclipse.jface.viewers.LabelProvider#getText(java.lang.Object)
          */
         public String getText(Object element)
         {
@@ -122,7 +121,6 @@ public class OpenSnapshotAction extends Action implements IWorkbenchWindowAction
     // //////////////////////////////////////////////////////////////
     // internal helper methods
     // //////////////////////////////////////////////////////////////
-    
 
     private IWorkbenchWindow getWindow()
     {
@@ -183,7 +181,7 @@ public class OpenSnapshotAction extends Action implements IWorkbenchWindowAction
         ElementListSelectionDialog dialog = new ElementListSelectionDialog(fWindow.getShell(), new FileLabelProvider());
         dialog.setElements(files);
         dialog.setTitle(Messages.OpenSnapshotAction_SelectWorkspace);
-        dialog.setMessage(Messages.OpenSnapshotAction_Message); 
+        dialog.setMessage(Messages.OpenSnapshotAction_Message);
         if (dialog.open() == Window.OK)
             return (IFile) dialog.getFirstResult();
         return null;

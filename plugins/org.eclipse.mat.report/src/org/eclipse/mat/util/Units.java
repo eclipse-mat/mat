@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.mat.util;
 
-import java.text.NumberFormat;
+import com.ibm.icu.text.NumberFormat;
 
 public abstract class Units
 {

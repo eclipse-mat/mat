@@ -41,7 +41,6 @@ import org.eclipse.mat.snapshot.model.ObjectReference;
 import org.eclipse.mat.snapshot.query.ObjectListResult;
 import org.eclipse.mat.util.IProgressListener;
 
-
 @Name("Finalizer Thread Locals")
 @Category(Category.HIDDEN)
 @Icon("/META-INF/icons/finalizer.gif")

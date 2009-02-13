@@ -15,7 +15,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.net.URL;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -42,6 +41,7 @@ import org.eclipse.mat.query.annotations.Menu;
 import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.query.annotations.Usage;
 import org.eclipse.mat.report.internal.ReportPlugin;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.RegistryReader;
 
 public class QueryRegistry extends RegistryReader<IQuery>
@@ -72,14 +72,15 @@ public class QueryRegistry extends RegistryReader<IQuery>
             QueryDescriptor descriptor = registerQuery(query);
 
             if (ReportPlugin.getDefault().isDebugging())
-                ReportPlugin.log(IStatus.INFO, MessageFormat.format(Messages.QueryRegistry_Msg_QueryRegistered, descriptor));
+                ReportPlugin.log(IStatus.INFO, MessageUtil.format(Messages.QueryRegistry_Msg_QueryRegistered,
+                                descriptor));
 
             rootCategory = null;
             return descriptor != null ? query : null;
         }
         catch (SnapshotException e)
         {
-            throw new CoreException(new Status(IStatus.ERROR, ReportPlugin.PLUGIN_ID, MessageFormat.format(
+            throw new CoreException(new Status(IStatus.ERROR, ReportPlugin.PLUGIN_ID, MessageUtil.format(
                             Messages.QueryRegistry_Error_Registering, configElement.getAttribute("impl")), e)); //$NON-NLS-1$
         }
     }
@@ -186,7 +187,7 @@ public class QueryRegistry extends RegistryReader<IQuery>
 
         // do NOT overwrite command names
         if (commandsByIdentifier.containsKey(identifier))
-            throw new SnapshotException(MessageFormat.format(Messages.QueryRegistry_Error_NameBound, identifier,
+            throw new SnapshotException(MessageUtil.format(Messages.QueryRegistry_Error_NameBound, identifier,
                             commandsByIdentifier.get(identifier).getCommandType().getName()));
 
         Category c = queryClass.getAnnotation(Category.class);
@@ -283,12 +284,12 @@ public class QueryRegistry extends RegistryReader<IQuery>
             catch (IllegalAccessException e)
             {
                 String msg = Messages.QueryRegistry_Error_Inaccessible;
-                throw new SnapshotException(MessageFormat.format(msg, field.getName(), clazz.getName()), e);
+                throw new SnapshotException(MessageUtil.format(msg, field.getName(), clazz.getName()), e);
             }
             catch (Exception e)
             {
-                throw new SnapshotException(MessageFormat.format(Messages.QueryRegistry_Error_Argument, field
-                                .getName(), clazz.getName()), e);
+                throw new SnapshotException(MessageUtil.format(Messages.QueryRegistry_Error_Argument, field.getName(),
+                                clazz.getName()), e);
             }
         }
     }
@@ -336,8 +337,8 @@ public class QueryRegistry extends RegistryReader<IQuery>
 
         if (advice == Argument.Advice.CLASS_NAME_PATTERN && !Pattern.class.isAssignableFrom(d.getType()))
         {
-            String msg = MessageFormat.format(Messages.QueryRegistry_Error_Advice, field
-                            .getName(), clazz.getName(), Argument.Advice.CLASS_NAME_PATTERN, Pattern.class.getName());
+            String msg = MessageUtil.format(Messages.QueryRegistry_Error_Advice, field.getName(), clazz.getName(),
+                            Argument.Advice.CLASS_NAME_PATTERN, Pattern.class.getName());
             throw new SnapshotException(msg);
         }
 

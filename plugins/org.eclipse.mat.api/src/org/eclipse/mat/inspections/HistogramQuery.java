@@ -11,7 +11,6 @@
 package org.eclipse.mat.inspections;
 
 import java.net.URL;
-import java.text.MessageFormat;
 
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
@@ -26,6 +25,7 @@ import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.snapshot.query.Icons;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.MessageUtil;
 
 @Name("Show As Histogram")
 @CommandName("histogram")
@@ -84,7 +84,7 @@ public class HistogramQuery implements IQuery
             throw new IProgressListener.OperationCanceledException();
 
         if (objects != null)
-            histogram.setLabel(MessageFormat.format("Histogram of {0}", objects.getLabel()));
+            histogram.setLabel(MessageUtil.format("Histogram of {0}", objects.getLabel()));
 
         if (byClassLoader)
             groupBy = Grouping.BY_CLASSLOADER;
@@ -98,7 +98,7 @@ public class HistogramQuery implements IQuery
             case BY_PACKAGE:
                 return histogram.groupByPackage();
             default:
-                throw new RuntimeException(MessageFormat.format("Illegal groupBy argument: {0}", groupBy));
+                throw new RuntimeException(MessageUtil.format("Illegal groupBy argument: {0}", groupBy));
         }
     }
 

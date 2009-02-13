@@ -20,7 +20,6 @@ public class BitInputStream implements Flushable, Closeable
 {
     public final static int DEFAULT_BUFFER_SIZE = 16 * 1024;
 
-    
     private InputStream is;
     private int current;
     private byte[] buffer;

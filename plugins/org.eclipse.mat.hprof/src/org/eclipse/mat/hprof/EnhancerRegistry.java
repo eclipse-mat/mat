@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.mat.hprof;
 
-import java.text.MessageFormat;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -18,8 +17,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.mat.hprof.extension.IParsingEnhancer;
 import org.eclipse.mat.hprof.extension.IRuntimeEnhancer;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.RegistryReader;
-
 
 public class EnhancerRegistry extends RegistryReader<EnhancerRegistry.Enhancer>
 {
@@ -42,7 +41,7 @@ public class EnhancerRegistry extends RegistryReader<EnhancerRegistry.Enhancer>
             {
                 Logger.getLogger(getClass().getName()).log(
                                 Level.SEVERE,
-                                MessageFormat.format(Messages.EnhancerRegistry_ErrorCreatingParser, configElement
+                                MessageUtil.format(Messages.EnhancerRegistry_ErrorCreatingParser, configElement
                                                 .getAttribute("parser")), e); //$NON-NLS-1$
                 return null;
             }
@@ -58,7 +57,7 @@ public class EnhancerRegistry extends RegistryReader<EnhancerRegistry.Enhancer>
             {
                 Logger.getLogger(getClass().getName()).log(
                                 Level.SEVERE,
-                                MessageFormat.format(Messages.EnhancerRegistry_ErrorCreatingRuntime, configElement
+                                MessageUtil.format(Messages.EnhancerRegistry_ErrorCreatingRuntime, configElement
                                                 .getAttribute("runtime")), e); //$NON-NLS-1$
                 return null;
             }

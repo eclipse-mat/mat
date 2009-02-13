@@ -11,7 +11,6 @@
  *******************************************************************************/
 package org.eclipse.mat.ui.snapshot.views.inspector;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -62,6 +61,7 @@ import org.eclipse.mat.ui.snapshot.editor.ISnapshotEditorInput;
 import org.eclipse.mat.ui.util.Copy;
 import org.eclipse.mat.ui.util.PopupMenu;
 import org.eclipse.mat.ui.util.QueryContextMenu;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -879,7 +879,8 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
                     }
                     catch (SnapshotException e)
                     {
-                        return new Status(IStatus.ERROR, MemoryAnalyserPlugin.PLUGIN_ID, Messages.InspectorView_ErrorUpdatingInspector, e);
+                        return new Status(IStatus.ERROR, MemoryAnalyserPlugin.PLUGIN_ID,
+                                        Messages.InspectorView_ErrorUpdatingInspector, e);
                     }
                 }
 
@@ -1012,15 +1013,16 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
                         details.add(new ObjectNode(snapshot.getObject(object.getClazz().getClassLoaderId())));
 
                     details.add(new InfoItem(MemoryAnalyserPlugin
-                                    .getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.SIZE), MessageFormat.format(
+                                    .getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.SIZE), MessageUtil.format(
                                     Messages.InspectorView_shallowSize, object.getUsedHeapSize())));
                     details.add(new InfoItem(MemoryAnalyserPlugin
-                                    .getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.SIZE), MessageFormat.format(
+                                    .getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.SIZE), MessageUtil.format(
                                     Messages.InspectorView_retainedSize, object.getRetainedHeapSize())));
 
                     GCRootInfo[] gc = object.getGCRootInfo();
                     details.add(gc != null ? (Object) gc : new InfoItem(MemoryAnalyserPlugin
-                                    .getImageDescriptor(ImageHelper.Decorations.GC_ROOT), Messages.InspectorView_noGCRoot));
+                                    .getImageDescriptor(ImageHelper.Decorations.GC_ROOT),
+                                    Messages.InspectorView_noGCRoot));
                     return details;
                 }
 

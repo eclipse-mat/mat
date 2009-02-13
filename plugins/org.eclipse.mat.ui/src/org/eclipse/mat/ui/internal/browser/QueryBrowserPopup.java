@@ -63,7 +63,6 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-
 public class QueryBrowserPopup extends PopupDialog
 {
     public interface Element

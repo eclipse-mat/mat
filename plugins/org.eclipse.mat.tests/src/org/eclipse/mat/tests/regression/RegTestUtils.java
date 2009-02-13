@@ -55,7 +55,7 @@ public class RegTestUtils
     }
 
     protected static List<File> collectDumps(File dumpsFolder, List<File> dumpList)
-    {        
+    {
         File[] dumps = dumpsFolder.listFiles(filter);
         for (File file : dumps)
         {
@@ -79,5 +79,5 @@ public class RegTestUtils
 
         return dumpList;
     }
-   
+
 }

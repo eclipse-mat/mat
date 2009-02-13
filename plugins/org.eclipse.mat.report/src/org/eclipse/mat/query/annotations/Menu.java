@@ -16,19 +16,24 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-@Target({ TYPE })
+@Target( { TYPE })
 @Retention(RUNTIME)
 public @interface Menu
 {
     public @interface Entry
     {
         String category() default "";
+
         String icon() default "";
+
         String label();
+
         String help() default "";
+
         String helpUrl() default "";
+
         String options() default "";
     }
-    
+
     Entry[] value();
 }

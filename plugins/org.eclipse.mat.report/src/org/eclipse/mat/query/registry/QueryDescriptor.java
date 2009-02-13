@@ -11,7 +11,6 @@
 package org.eclipse.mat.query.registry;
 
 import java.net.URL;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -22,6 +21,7 @@ import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.report.internal.ReportPlugin;
+import org.eclipse.mat.util.MessageUtil;
 
 public class QueryDescriptor
 {
@@ -201,7 +201,7 @@ public class QueryDescriptor
                             !context.converts(argument.getType(), argument.getAdvice()))
             {
                 if (ReportPlugin.getDefault().isDebugging())
-                    ReportPlugin.log(IStatus.INFO, MessageFormat.format(Messages.QueryDescriptor_Error_IgnoringQuery,
+                    ReportPlugin.log(IStatus.INFO, MessageUtil.format(Messages.QueryDescriptor_Error_IgnoringQuery,
                                     getIdentifier(), argument.getName()));
                 return false;
             }
@@ -221,7 +221,7 @@ public class QueryDescriptor
             {
                 if (buf.length() > 0)
                     buf.append('\n');
-                buf.append(MessageFormat.format(Messages.QueryDescriptor_Error_NotSupported, argument.toString()));
+                buf.append(MessageUtil.format(Messages.QueryDescriptor_Error_NotSupported, argument.toString()));
             }
         }
 

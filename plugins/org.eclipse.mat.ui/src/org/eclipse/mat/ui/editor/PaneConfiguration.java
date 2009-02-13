@@ -30,7 +30,7 @@ public class PaneConfiguration
     {
         return id;
     }
-    
+
     public String getClassName()
     {
         return className;

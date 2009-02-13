@@ -24,7 +24,6 @@ import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.NamedReference;
 import org.eclipse.mat.util.IProgressListener;
 
-
 public class ObjectMarker
 {
     int[] roots;
@@ -113,8 +112,8 @@ public class ObjectMarker
         return count;
     }
 
-    public int markSingleThreaded(ExcludedReferencesDescriptor[] excludeSets, ISnapshot snapshot) throws SnapshotException,
-                    IProgressListener.OperationCanceledException
+    public int markSingleThreaded(ExcludedReferencesDescriptor[] excludeSets, ISnapshot snapshot)
+                    throws SnapshotException, IProgressListener.OperationCanceledException
     {
         /*
          * prepare the exclude stuff
@@ -134,7 +133,6 @@ public class ObjectMarker
         /* a stack of int structure */
         int size = 0; // # of elements in the stack
         int[] data = new int[10 * 1024]; // data for the stack - start with 10k
-        
 
         /* first put all "roots" in the stack, and mark them as processed */
         for (int rootId : roots)
@@ -199,7 +197,7 @@ public class ObjectMarker
                 }
             }
         }
-        
+
         progressListener.done();
 
         return count;
@@ -315,8 +313,9 @@ public class ObjectMarker
         }
     }
 
-    private boolean refersOnlyThroughExcluded(int referrerId, int referentId, ExcludedReferencesDescriptor[] excludeSets,
-                    BitField excludeObjectsBF, ISnapshot snapshot) throws SnapshotException
+    private boolean refersOnlyThroughExcluded(int referrerId, int referentId,
+                    ExcludedReferencesDescriptor[] excludeSets, BitField excludeObjectsBF, ISnapshot snapshot)
+                    throws SnapshotException
     {
         if (!excludeObjectsBF.get(referrerId))
             return false;

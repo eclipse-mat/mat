@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.mat.snapshot.registry;
 
-import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -26,6 +25,7 @@ import org.eclipse.mat.snapshot.extension.Subject;
 import org.eclipse.mat.snapshot.extension.Subjects;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.RegistryReader;
 
 /**
@@ -69,7 +69,7 @@ public final class ClassSpecificNameResolverRegistry
                 {
                     Logger.getLogger(getClass().getName()).log(
                                     Level.WARNING,
-                                    MessageFormat.format("Resolver without subjects: ''{0}''", resolver.getClass()
+                                    MessageUtil.format("Resolver without subjects: ''{0}''", resolver.getClass()
                                                     .getName()));
                 }
 
@@ -79,7 +79,7 @@ public final class ClassSpecificNameResolverRegistry
             {
                 Logger.getLogger(getClass().getName()).log(
                                 Level.SEVERE,
-                                MessageFormat.format("Error while creating name resolver ''{0}''", configElement
+                                MessageUtil.format("Error while creating name resolver ''{0}''", configElement
                                                 .getAttribute("impl")), e);
                 return null;
 
@@ -96,7 +96,7 @@ public final class ClassSpecificNameResolverRegistry
                     iter.remove();
             }
         }
-        
+
         private String doResolve(IObject object)
         {
             try
@@ -113,17 +113,17 @@ public final class ClassSpecificNameResolverRegistry
             catch (RuntimeException e)
             {
                 Logger.getLogger(ClassSpecificNameResolverRegistry.class.getName()).log(Level.SEVERE,
-                                MessageFormat.format("Error resolving name of {0}", object.getTechnicalName()), e);
+                                MessageUtil.format("Error resolving name of {0}", object.getTechnicalName()), e);
                 return null;
             }
             catch (SnapshotException e)
             {
                 Logger.getLogger(ClassSpecificNameResolverRegistry.class.getName()).log(Level.SEVERE,
-                                MessageFormat.format("Error resolving name of {0}", object.getTechnicalName()), e);
+                                MessageUtil.format("Error resolving name of {0}", object.getTechnicalName()), e);
                 return null;
             }
         }
-        
+
         private String[] extractSubjects(IClassSpecificNameResolver instance)
         {
             Subjects subjects = instance.getClass().getAnnotation(Subjects.class);
@@ -135,7 +135,7 @@ public final class ClassSpecificNameResolverRegistry
         }
 
     }
-    
+
     private static ClassSpecificNameResolverRegistry instance = new ClassSpecificNameResolverRegistry();
 
     public static ClassSpecificNameResolverRegistry instance()

@@ -14,7 +14,6 @@ import java.net.URL;
 
 import org.eclipse.mat.snapshot.ISnapshot;
 
-
 /**
  * A factory class for well-known icons, e.g. object, class loader etc.
  */
@@ -37,11 +36,11 @@ public final class Icons
     public static final URL CLASS_IN_OLD = build("in/class_in_old");
 
     public static final URL CLASS_OUT_OLD = build("out/class_out_old");
-    
+
     public static final URL CLASS_IN_MIXED = build("in/class_mixed");
 
     public static final URL CLASS_OUT_MIXED = build("out/class_mixed");
-    
+
     /**
      * A Java object.
      */

@@ -16,7 +16,6 @@ import java.util.List;
 
 import org.eclipse.mat.collect.HashMapIntObject;
 
-
 abstract public class ObjectCache<E>
 {
     static class Entry<E>
@@ -75,7 +74,7 @@ abstract public class ObjectCache<E>
         lfu(e.numUsages).addFirst(e);
         Entry<?> p = map.put(e.key, e);
         lowestNonEmptyLfu = 0;
-        
+
         if (p != null)
             lfu(p.numUsages).remove(p);
     }

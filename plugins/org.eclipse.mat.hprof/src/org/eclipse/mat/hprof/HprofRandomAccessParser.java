@@ -13,7 +13,6 @@ package org.eclipse.mat.hprof;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -33,6 +32,7 @@ import org.eclipse.mat.snapshot.model.IArray;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IPrimitiveArray;
+import org.eclipse.mat.util.MessageUtil;
 
 public class HprofRandomAccessParser extends AbstractParser
 {
@@ -63,7 +63,8 @@ public class HprofRandomAccessParser extends AbstractParser
             case Constants.DumpSegment.PRIMITIVE_ARRAY_DUMP:
                 return readPrimitiveArrayDump(objectId, dump);
             default:
-                throw new IOException(MessageFormat.format(Messages.HprofRandomAccessParser_Error_IllegalDumpSegment, segmentType));
+                throw new IOException(MessageUtil.format(Messages.HprofRandomAccessParser_Error_IllegalDumpSegment,
+                                segmentType));
         }
 
     }
@@ -181,9 +182,9 @@ public class HprofRandomAccessParser extends AbstractParser
         String name = IPrimitiveArray.TYPE[(int) elementType];
         Collection<IClass> classes = dump.getClassesByName(name, false);
         if (classes == null || classes.isEmpty())
-            throw new IOException(MessageFormat.format(Messages.HprofRandomAccessParser_Error_MissingClass, name));
+            throw new IOException(MessageUtil.format(Messages.HprofRandomAccessParser_Error_MissingClass, name));
         else if (classes.size() > 1)
-            throw new IOException(MessageFormat.format(Messages.HprofRandomAccessParser_Error_DuplicateClass, name));
+            throw new IOException(MessageUtil.format(Messages.HprofRandomAccessParser_Error_DuplicateClass, name));
         else
             clazz = classes.iterator().next();
 

@@ -22,7 +22,6 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.TableItem;
 
-
 public class EnumComboEditor extends ArgumentEditor
 {
     private CCombo combo;

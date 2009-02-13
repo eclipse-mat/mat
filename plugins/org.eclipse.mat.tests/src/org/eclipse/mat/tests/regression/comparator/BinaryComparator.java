@@ -13,12 +13,12 @@ package org.eclipse.mat.tests.regression.comparator;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.mat.tests.regression.Difference;
+import org.eclipse.mat.util.MessageUtil;
 
 public class BinaryComparator implements IComparator
 {
@@ -31,19 +31,19 @@ public class BinaryComparator implements IComparator
     public List<Difference> compare(File baseline, File testFile) throws Exception
     {
         String testName = baseline.getName().substring(0, baseline.getName().lastIndexOf("."));
-        System.out.println(MessageFormat.format("Comparing: {0}", testName));
+        System.out.println(MessageUtil.format("Comparing: {0}", testName));
 
         List<Difference> differences = new ArrayList<Difference>();
-        
+
         InputStream baselineStream = null;
         InputStream testStream = null;
         if (baseline.length() != testFile.length())
         {
-            String errorMessage = MessageFormat.format(
+            String errorMessage = MessageUtil.format(
                             "Files have different lengths: baseline file length = {0}, test file length = {1}",
                             baseline.length(), testFile.length());
             differences.add(new Difference(errorMessage));
-            System.err.println(MessageFormat.format("ERROR: ({0}) {1}", testName, errorMessage));
+            System.err.println(MessageUtil.format("ERROR: ({0}) {1}", testName, errorMessage));
             return differences;
         }
 
@@ -59,14 +59,14 @@ public class BinaryComparator implements IComparator
             else
             {
                 differences.add(new Difference(FAILED_MESSAGE));
-                System.err.println(MessageFormat.format("ERROR: ({0}) {1}", testName, FAILED_MESSAGE));
+                System.err.println(MessageUtil.format("ERROR: ({0}) {1}", testName, FAILED_MESSAGE));
                 return differences;
             }
 
         }
         catch (Exception e)
         {
-            System.err.println(MessageFormat.format("ERROR: ({0}) Error comparing binary files: {0}", testName, e
+            System.err.println(MessageUtil.format("ERROR: ({0}) Error comparing binary files: {0}", testName, e
                             .getMessage()));
             return null;
         }
@@ -134,7 +134,7 @@ public class BinaryComparator implements IComparator
         }
         catch (Exception e)
         {
-            System.err.println(MessageFormat.format("ERROR: ({0}) Error comparing binary files: {0}", testName, e
+            System.err.println(MessageUtil.format("ERROR: ({0}) Error comparing binary files: {0}", testName, e
                             .getMessage()));
             return false;
         }

@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.mat.ui.snapshot;
 
-import java.text.MessageFormat;
-
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -28,6 +26,7 @@ import org.eclipse.mat.ui.SnapshotHistoryService;
 import org.eclipse.mat.ui.util.ErrorHelper;
 import org.eclipse.mat.ui.util.ProgressMonitorWrapper;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.progress.IProgressConstants;
 
@@ -37,7 +36,7 @@ public abstract class ParseHeapDumpJob extends Job
 
     public ParseHeapDumpJob(IPath path)
     {
-        super(MessageFormat.format(Messages.ParseHeapDumpJob_ParsingHeapDumpFrom, path.toOSString()));
+        super(MessageUtil.format(Messages.ParseHeapDumpJob_ParsingHeapDumpFrom, path.toOSString()));
         this.path = path;
         this.setUser(true);
 

@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.mat.ui.snapshot.views.inspector;
 
-import java.text.MessageFormat;
 import java.util.List;
 
 import org.eclipse.jface.viewers.DoubleClickEvent;
@@ -20,6 +19,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.mat.ui.Messages;
+import org.eclipse.mat.util.MessageUtil;
 
 public class FieldsContentProvider implements IStructuredContentProvider, IDoubleClickListener
 {
@@ -82,7 +82,7 @@ public class FieldsContentProvider implements IStructuredContentProvider, IDoubl
 
         public String toString()
         {
-            return MessageFormat.format(Messages.FieldsContentProvider_Displayed, limit, size);
+            return MessageUtil.format(Messages.FieldsContentProvider_Displayed, limit, size);
         }
     }
 

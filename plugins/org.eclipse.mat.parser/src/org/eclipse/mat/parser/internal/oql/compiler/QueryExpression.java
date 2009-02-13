@@ -14,7 +14,6 @@ import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.parser.internal.oql.OQLQueryImpl;
 import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
 
-
 public class QueryExpression extends Expression
 {
     Query query;
@@ -35,14 +34,14 @@ public class QueryExpression extends Expression
         {
             isQueryContextDependent = this.isContextDependent(ctx);
             isDependencyCalculated = true;
-            
+
             if (!isQueryContextDependent)
             {
                 OQLQueryImpl q = new OQLQueryImpl(ctx, query);
                 queryResult = q.execute(ctx.getSnapshot(), null);
             }
         }
-        
+
         if (isQueryContextDependent)
         {
             OQLQueryImpl q = new OQLQueryImpl(ctx, query);

@@ -28,7 +28,7 @@ public class BitOutputStream implements Flushable, Closeable
     private int free;
     private int pos;
     private int avail;
-    
+
     final static int TEMP_BUFFER_SIZE = 128;
     private byte[] tempBuffer = new byte[TEMP_BUFFER_SIZE];
 

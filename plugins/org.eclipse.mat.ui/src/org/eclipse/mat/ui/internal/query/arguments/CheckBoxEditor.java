@@ -26,7 +26,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.TableItem;
 
-
 public class CheckBoxEditor extends ArgumentEditor
 {
     private Button checkBox;
@@ -40,8 +39,7 @@ public class CheckBoxEditor extends ArgumentEditor
                         Messages.CheckBoxEditor_includeSubclassesAdditional), //
         INTEPRET_AS_CLASSLOADER(Messages.CheckBoxEditor_includeLoadedObjects,
                         Messages.CheckBoxEditor_includeLoadedObjectsAdditional), //
-        RETAINED(Messages.CheckBoxEditor_asRetainedSet,
-                        Messages.CheckBoxEditor_asRetainedSetAdditional), //
+        RETAINED(Messages.CheckBoxEditor_asRetainedSet, Messages.CheckBoxEditor_asRetainedSetAdditional), //
         VERBOSE(Messages.CheckBoxEditor_verbose, Messages.CheckBoxEditor_verboseAdditional);
 
         private String label;

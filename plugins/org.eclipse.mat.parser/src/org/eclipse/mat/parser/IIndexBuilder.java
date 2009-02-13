@@ -16,18 +16,17 @@ import java.io.IOException;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.util.IProgressListener;
 
-
 public interface IIndexBuilder
 {
     /* initialize with file and prefix (needed for naming conventions) */
     void init(File file, String prefix) throws SnapshotException, IOException;
-    
+
     /* hprof: pass1 and pass2 parsing */
     void fill(IPreliminaryIndex index, IProgressListener listener) throws SnapshotException, IOException;
-    
+
     /* hprof: update object 2 file position index */
     void clean(final int[] purgedMapping, IProgressListener listener) throws IOException;
-    
+
     /* called in case of error to delete any files / close any file handles */
     void cancel();
 }

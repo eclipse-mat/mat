@@ -64,9 +64,9 @@ public class NavigatorState
     {
         if (state == null)
             return;
-        
+
         state.setActive(true);
-        
+
         if (state.getParentPaneState() == null && !rootEntries.contains(state))
         {
             rootEntries.add(state);
@@ -90,7 +90,7 @@ public class NavigatorState
 
         state.setActive(false);
         notifyListeners(state);
-        
+
         if (state.getType() == PaneType.COMPOSITE_PARENT)
         {
             for (PaneState child : state.getChildren())

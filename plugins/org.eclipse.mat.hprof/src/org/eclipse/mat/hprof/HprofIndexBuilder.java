@@ -12,7 +12,6 @@ package org.eclipse.mat.hprof;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +23,7 @@ import org.eclipse.mat.parser.IPreliminaryIndex;
 import org.eclipse.mat.parser.index.IndexWriter;
 import org.eclipse.mat.parser.index.IIndexReader.IOne2LongIndex;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.SimpleMonitor;
 
 public class HprofIndexBuilder implements IIndexBuilder
@@ -50,17 +50,17 @@ public class HprofIndexBuilder implements IIndexBuilder
 
     public void fill(IPreliminaryIndex preliminary, IProgressListener listener) throws SnapshotException, IOException
     {
-        SimpleMonitor monitor = new SimpleMonitor(MessageFormat.format(Messages.HprofIndexBuilder_Parsing, new Object[] { file
-                        .getAbsolutePath() }), listener, new int[] { 500, 1500 });
+        SimpleMonitor monitor = new SimpleMonitor(MessageUtil.format(Messages.HprofIndexBuilder_Parsing,
+                        new Object[] { file.getAbsolutePath() }), listener, new int[] { 500, 1500 });
 
-        listener.beginTask(MessageFormat.format(Messages.HprofIndexBuilder_Parsing, file.getName()), 3000);
+        listener.beginTask(MessageUtil.format(Messages.HprofIndexBuilder_Parsing, file.getName()), 3000);
 
         IHprofParserHandler handler = new HprofParserHandlerImpl();
         handler.beforePass1(preliminary.getSnapshotInfo());
 
         SimpleMonitor.Listener mon = (SimpleMonitor.Listener) monitor.nextMonitor();
-        mon.beginTask(MessageFormat.format(Messages.HprofIndexBuilder_Scanning, new Object[] { file.getAbsolutePath() }), (int) (file
-                        .length() / 1000));
+        mon.beginTask(MessageUtil.format(Messages.HprofIndexBuilder_Scanning, new Object[] { file.getAbsolutePath() }),
+                        (int) (file.length() / 1000));
         Pass1Parser pass1 = new Pass1Parser(handler, mon);
         pass1.read(file);
 
@@ -72,8 +72,8 @@ public class HprofIndexBuilder implements IIndexBuilder
         handler.beforePass2(listener);
 
         mon = (SimpleMonitor.Listener) monitor.nextMonitor();
-        mon.beginTask(MessageFormat.format(Messages.HprofIndexBuilder_ExtractingObjects, new Object[] { file.getAbsolutePath() }),
-                        (int) (file.length() / 1000));
+        mon.beginTask(MessageUtil.format(Messages.HprofIndexBuilder_ExtractingObjects, new Object[] { file
+                        .getAbsolutePath() }), (int) (file.length() / 1000));
 
         Pass2Parser pass2 = new Pass2Parser(handler, mon);
         pass2.read(file);
@@ -100,7 +100,8 @@ public class HprofIndexBuilder implements IIndexBuilder
         // //////////////////////////////////////////////////////////////
 
         File indexFile = new File(prefix + "o2hprof.index"); //$NON-NLS-1$
-        listener.subTask(MessageFormat.format(Messages.HprofIndexBuilder_Writing, new Object[] { indexFile.getAbsolutePath() }));
+        listener.subTask(MessageUtil.format(Messages.HprofIndexBuilder_Writing, new Object[] { indexFile
+                        .getAbsolutePath() }));
         IOne2LongIndex newIndex = new IndexWriter.LongIndexStreamer().writeTo(indexFile, new IndexIterator(id2position,
                         purgedMapping));
 

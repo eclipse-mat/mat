@@ -23,7 +23,6 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
 
-
 class FieldsLabelProvider extends LabelProvider implements ITableLabelProvider, ITableFontProvider
 {
     private final InspectorView inspectorView;

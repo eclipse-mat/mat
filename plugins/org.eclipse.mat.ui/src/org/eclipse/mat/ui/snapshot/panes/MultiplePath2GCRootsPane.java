@@ -28,7 +28,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.ui.PlatformUI;
 
-
 public class MultiplePath2GCRootsPane extends QueryResultPane
 {
     private MultiplePath2GCRootsQuery.Grouping groupedBy;
@@ -53,10 +52,8 @@ public class MultiplePath2GCRootsPane extends QueryResultPane
     private void addGroupingOptions(IToolBarManager manager)
     {
 
-        Action groupingAction = new EasyToolBarDropDown(
-                        Messages.TableResultPane_GroupResultBy, //
-                        MemoryAnalyserPlugin.getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.GROUPING),
-                        this)
+        Action groupingAction = new EasyToolBarDropDown(Messages.TableResultPane_GroupResultBy, //
+                        MemoryAnalyserPlugin.getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.GROUPING), this)
         {
 
             @Override
@@ -73,7 +70,7 @@ public class MultiplePath2GCRootsPane extends QueryResultPane
                 }
             }
         };
-        
+
         manager.add(groupingAction);
 
     }
@@ -106,7 +103,8 @@ public class MultiplePath2GCRootsPane extends QueryResultPane
             {
                 protected IStatus run(IProgressMonitor monitor)
                 {
-                    MultiplePath2GCRootsQuery.Tree original = (MultiplePath2GCRootsQuery.Tree) viewer.getResult().unwrap();
+                    MultiplePath2GCRootsQuery.Tree original = (MultiplePath2GCRootsQuery.Tree) viewer.getResult()
+                                    .unwrap();
 
                     final QueryResult queryResult = new QueryResult(null, "multiple_path -groupBy " + target.name(), //$NON-NLS-1$
                                     original.groupBy(target));

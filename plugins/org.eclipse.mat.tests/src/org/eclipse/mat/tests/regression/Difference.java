@@ -16,16 +16,16 @@ public class Difference
     private String baseline;
     private String testLine;
     private String problem;
-    
+
     public Difference(String lineNumber, String baseline, String testLine)
     {
         this.lineNumber = lineNumber;
         this.baseline = baseline;
         this.testLine = testLine;
     }
-        
+
     public Difference(String problem)
-    {       
+    {
         this.problem = problem;
     }
 
@@ -48,6 +48,5 @@ public class Difference
     {
         return testLine;
     }
-    
-    
+
 }

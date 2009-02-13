@@ -12,7 +12,6 @@ package org.eclipse.mat.ui.editor;
 
 import java.io.File;
 import java.net.URI;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -57,6 +56,7 @@ import org.eclipse.mat.ui.util.NavigatorState;
 import org.eclipse.mat.ui.util.PaneState;
 import org.eclipse.mat.ui.util.PopupMenu;
 import org.eclipse.mat.ui.util.PaneState.PaneType;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabFolder2Listener;
@@ -714,13 +714,14 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
             }
             else
             {
-                throw new PartInitException(MessageFormat.format(Messages.MultiPaneEditor_UnsupportedScheme, uri.toASCIIString()));
+                throw new PartInitException(MessageUtil.format(Messages.MultiPaneEditor_UnsupportedScheme, uri
+                                .toASCIIString()));
             }
         }
         else
         {
-            throw new PartInitException(MessageFormat.format(Messages.MultiPaneEditor_UnsupportedEditorInput, input.getClass()
-                            .getName()));
+            throw new PartInitException(MessageUtil.format(Messages.MultiPaneEditor_UnsupportedEditorInput, input
+                            .getClass().getName()));
         }
 
     }
@@ -890,7 +891,7 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
     {
         toolbarMgr.removeAll();
         toolbarMgrHelp.removeAll();
-        
+
         ToolbarMgr mgr = new ToolbarMgr(toolbarMgr, toolbarMgrHelp);
 
         for (IMultiPaneEditorContributor contributor : this.contributors)

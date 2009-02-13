@@ -25,7 +25,7 @@ public final class XGCRootInfo extends GCRootInfo
     {
         this.objectId = objectId;
     }
-    
+
     public void setContextId(int objectId)
     {
         this.contextId = objectId;

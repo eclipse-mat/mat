@@ -107,7 +107,7 @@ public class SnapshotInfo implements Serializable
      * 
      * @return absolute path of the heap dump file.
      */
-	public String getPath()
+    public String getPath()
     {
         return path;
     }

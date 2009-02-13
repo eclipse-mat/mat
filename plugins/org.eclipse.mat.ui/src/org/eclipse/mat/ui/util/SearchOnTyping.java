@@ -41,7 +41,6 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.PlatformUI;
 
-
 public class SearchOnTyping
 {
     public static final void attachTo(Table table, ITableLabelProvider labelProvider, int columnIndex)
@@ -61,8 +60,7 @@ public class SearchOnTyping
         else if (control instanceof Table)
             control.addKeyListener(new SearchKeyListener(new TableImpl((Table) control, null, columnIndex)));
         else
-            throw new RuntimeException(Messages.SearchOnTyping_Exception
-                            + control.getClass().getName());
+            throw new RuntimeException(Messages.SearchOnTyping_Exception + control.getClass().getName());
     }
 
     private SearchOnTyping()
@@ -337,7 +335,7 @@ public class SearchOnTyping
                 {
                     if (filterText.isDisposed())
                         return;
-                    
+
                     String t = filterText.getText();
                     if (text.equals(t))
                         thingy.select(text.toLowerCase());

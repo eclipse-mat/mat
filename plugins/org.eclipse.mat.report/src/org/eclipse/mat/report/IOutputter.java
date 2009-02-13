@@ -26,15 +26,15 @@ public interface IOutputter
     public interface Context
     {
         String getId();
-        
+
         IQueryContext getQueryContext();
 
         File getOutputDirectory();
-        
+
         String getPathToRoot();
-        
+
         String addIcon(URL icon);
-        
+
         String addContextResult(String name, IResult result);
 
         boolean hasLimit();
@@ -46,7 +46,7 @@ public interface IOutputter
         boolean isTotalsRowVisible();
 
         String param(String key);
-        
+
         String param(String key, String defaultValue);
     }
 

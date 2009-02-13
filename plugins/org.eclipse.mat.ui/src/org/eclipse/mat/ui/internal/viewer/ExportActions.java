@@ -15,7 +15,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
-import java.text.MessageFormat;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
@@ -42,6 +41,7 @@ import org.eclipse.mat.ui.internal.viewer.RefinedResultViewer.Key;
 import org.eclipse.mat.ui.util.Copy;
 import org.eclipse.mat.ui.util.ErrorHelper;
 import org.eclipse.mat.ui.util.ProgressMonitorWrapper;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.FileDialog;
@@ -363,7 +363,7 @@ import org.eclipse.swt.widgets.TreeItem;
                     {
                         // The file already exists; asks for confirmation
                         MessageBox mb = new MessageBox(dlg.getParent(), SWT.ICON_WARNING | SWT.YES | SWT.NO);
-                        mb.setMessage(MessageFormat.format(Messages.ExportActions_AlreadyExists, fileName));
+                        mb.setMessage(MessageUtil.format(Messages.ExportActions_AlreadyExists, fileName));
 
                         // If they click Yes, we're done and we drop out. If
                         // they click No, we redisplay the File Dialog

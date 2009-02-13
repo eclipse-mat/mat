@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.mat.inspections.osgi.model;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -32,6 +31,7 @@ import org.eclipse.mat.snapshot.model.IInstance;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IObjectArray;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.MessageUtil;
 
 public class EquinoxBundleReader implements IBundleReader
 {
@@ -160,7 +160,7 @@ public class EquinoxBundleReader implements IBundleReader
         }
         else
         {
-            MATPlugin.log(MessageFormat.format("Expected array type: 0x{0}", Long.toHexString(fragmentObject
+            MATPlugin.log(MessageUtil.format("Expected array type: 0x{0}", Long.toHexString(fragmentObject
                             .getObjectAddress())));
             return null;
         }
@@ -241,7 +241,7 @@ public class EquinoxBundleReader implements IBundleReader
                             }
                             catch (SnapshotException e)
                             {
-                                MATPlugin.log(MessageFormat.format("Error reading service's name: 0x{0}", Long
+                                MATPlugin.log(MessageUtil.format("Error reading service's name: 0x{0}", Long
                                                 .toHexString(l)));
                             }
                         }
@@ -316,7 +316,7 @@ public class EquinoxBundleReader implements IBundleReader
             catch (SnapshotException e)
             {
                 values[j] = null;
-                MATPlugin.log(MessageFormat.format("Error reading Service property: 0x{0}", Long
+                MATPlugin.log(MessageUtil.format("Error reading Service property: 0x{0}", Long
                                 .toHexString(valueAddresses[j])));
             }
         }
@@ -473,7 +473,7 @@ public class EquinoxBundleReader implements IBundleReader
         }
         else
         {
-            MATPlugin.log(MessageFormat.format("Expected array type: 0x{0}", Long.toHexString(fragmentObject
+            MATPlugin.log(MessageUtil.format("Expected array type: 0x{0}", Long.toHexString(fragmentObject
                             .getObjectAddress())));
             return null;
         }
@@ -543,7 +543,7 @@ public class EquinoxBundleReader implements IBundleReader
         for (IClass clazz : classes)
         {
             int[] objs = clazz.getObjectIds();
-            
+
             for (int i = 0; i < objs.length; i++)
             {
                 IInstance obj = (IInstance) snapshot.getObject(objs[i]);
@@ -574,7 +574,7 @@ public class EquinoxBundleReader implements IBundleReader
                             if (extensionPoint != null && !extensionPoints.containsValue(extensionPoint))
                                 extensionPoints.put(extensionPoint.getName(), extensionPoint);
                             else if (extensionPoint != null)
-                                MATPlugin.log(MessageFormat.format(" Duplicate extension point: {0}", extensionPoint
+                                MATPlugin.log(MessageUtil.format(" Duplicate extension point: {0}", extensionPoint
                                                 .getName()));
                         }
                         else if (className.equals("org.eclipse.core.internal.registry.ConfigurationElement"))
@@ -584,7 +584,7 @@ public class EquinoxBundleReader implements IBundleReader
                                 configElements.put(configElement.getElementId(), configElement);
                             else if (configElement != null)
                                 MATPlugin
-                                                .log(MessageFormat.format(
+                                                .log(MessageUtil.format(
                                                                 " Duplicate configuration element: {0}, objectId: {1}",
                                                                 new Object[] { configElement.getName(),
                                                                                 configElement.getObjectId() }));
@@ -595,11 +595,11 @@ public class EquinoxBundleReader implements IBundleReader
                             if (extension != null && !extensions.containsValue(extension))
                                 extensions.put(extension.getExtensionId(), extension);
                             else if (extension != null)
-                                MATPlugin.log(MessageFormat.format(" Duplicate extension: {0}", extension.getName()));
+                                MATPlugin.log(MessageUtil.format(" Duplicate extension: {0}", extension.getName()));
                         }
                         else
                         {
-                            MATPlugin.log(MessageFormat
+                            MATPlugin.log(MessageUtil
                                             .format("Unknown element type: 0x{0}", Long.toHexString(address)));
                             continue;
                         }
@@ -695,7 +695,7 @@ public class EquinoxBundleReader implements IBundleReader
         Field idField = ((IInstance) instance).getField("parentId");
         if (idField == null)
         {
-            MATPlugin.log(MessageFormat.format("Expected field parentId: 0x{0}", Long.toHexString(instance
+            MATPlugin.log(MessageUtil.format("Expected field parentId: 0x{0}", Long.toHexString(instance
                             .getObjectAddress())));
             return null;
         }
@@ -705,7 +705,7 @@ public class EquinoxBundleReader implements IBundleReader
         Field objectIdField = ((IInstance) instance).getField("objectId");
         if (objectIdField == null)
         {
-            MATPlugin.log(MessageFormat.format("Expected field objectId: 0x{0}", Long.toHexString(instance
+            MATPlugin.log(MessageUtil.format("Expected field objectId: 0x{0}", Long.toHexString(instance
                             .getObjectAddress())));
             return null;
         }
@@ -715,7 +715,7 @@ public class EquinoxBundleReader implements IBundleReader
         IObject contributorObject = (IObject) instance.resolveValue("contributorId");//$NON-NLS-1$
         if (contributorObject == null)
         {
-            MATPlugin.log(MessageFormat.format("Expected contributorId: 0x{0}", Long.toHexString(instance
+            MATPlugin.log(MessageUtil.format("Expected contributorId: 0x{0}", Long.toHexString(instance
                             .getObjectAddress())));
             return null;
         }
@@ -732,7 +732,7 @@ public class EquinoxBundleReader implements IBundleReader
         IObject propertiesObject = (IObject) instance.resolveValue("propertiesAndValue");//$NON-NLS-1$
         if (propertiesObject == null)
         {
-            MATPlugin.log(MessageFormat.format("Expected propertiesAndValues: 0x{0}", Long.toHexString(instance
+            MATPlugin.log(MessageUtil.format("Expected propertiesAndValues: 0x{0}", Long.toHexString(instance
                             .getObjectAddress())));
         }
         else if (propertiesObject.getClazz().isArrayType())
@@ -750,7 +750,7 @@ public class EquinoxBundleReader implements IBundleReader
                 }
                 catch (SnapshotException e)
                 {
-                    MATPlugin.log(MessageFormat.format("Error reading property of ConfigurationElement: 0x{0}", Long
+                    MATPlugin.log(MessageUtil.format("Error reading property of ConfigurationElement: 0x{0}", Long
                                     .toHexString(addresses[i])));
                     propertiesAndValues[i] = null;
                 }
@@ -761,7 +761,7 @@ public class EquinoxBundleReader implements IBundleReader
         }
         else
         {
-            MATPlugin.log(MessageFormat.format("Expected propertiesAndValues in String[] format: 0x{0}", Long
+            MATPlugin.log(MessageUtil.format("Expected propertiesAndValues in String[] format: 0x{0}", Long
                             .toHexString(instance.getObjectAddress())));
         }
         return new ConfigurationElement(instance.getObjectId(), name, parentId, objectId, contributedBy, null);
@@ -777,7 +777,7 @@ public class EquinoxBundleReader implements IBundleReader
         Field id = ((IInstance) instance).getField("objectId");
         if (id == null)
         {
-            MATPlugin.log(MessageFormat.format("Expected field objectId: 0x{0}", Long.toHexString(instance
+            MATPlugin.log(MessageUtil.format("Expected field objectId: 0x{0}", Long.toHexString(instance
                             .getObjectAddress())));
             return null;
         }
@@ -795,7 +795,7 @@ public class EquinoxBundleReader implements IBundleReader
         IObject extraInfoObject = (IObject) instance.resolveValue("extraInformation");//$NON-NLS-1$
         if (extraInfoObject == null)
         {
-            MATPlugin.log(MessageFormat.format("Expected extraInformation: 0x{0}", Long.toHexString(instance
+            MATPlugin.log(MessageUtil.format("Expected extraInformation: 0x{0}", Long.toHexString(instance
                             .getObjectAddress())));
             return null;
         }
@@ -819,7 +819,7 @@ public class EquinoxBundleReader implements IBundleReader
             // null. Log, if otherwise.
             IObject referentObject = (IObject) extraInfoObject.resolveValue("referent");
             if (referentObject != null)
-                MATPlugin.log(MessageFormat.format(
+                MATPlugin.log(MessageUtil.format(
                                 "Extension 0x{0} has properties in the form of SoftReference. Not handled.", Long
                                                 .toHexString(instance.getObjectAddress())));
             return null;
@@ -835,7 +835,7 @@ public class EquinoxBundleReader implements IBundleReader
         Field id = ((IInstance) instance).getField("objectId");
         if (id == null)
         {
-            MATPlugin.log(MessageFormat.format("Expected field objectId: 0x{0}", Long.toHexString(instance
+            MATPlugin.log(MessageUtil.format("Expected field objectId: 0x{0}", Long.toHexString(instance
                             .getObjectAddress())));
             return null;
         }

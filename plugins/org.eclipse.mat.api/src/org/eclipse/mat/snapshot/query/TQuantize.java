@@ -13,7 +13,6 @@ package org.eclipse.mat.snapshot.query;
 import java.net.URL;
 import java.text.FieldPosition;
 import java.text.Format;
-import java.text.MessageFormat;
 import java.text.ParsePosition;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -44,6 +43,7 @@ import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.MessageUtil;
 
 /**
  * Create a value or frequency distribution out of {@link IResultTable}.
@@ -77,12 +77,12 @@ public final class TQuantize
 
         public String getLabel()
         {
-            return MessageFormat.format("Group by {0}", label);
+            return MessageUtil.format("Group by {0}", label);
         }
 
         public String getTitle(String command)
         {
-            return MessageFormat.format("Grouped ''{0}'' by {1}", command, label);
+            return MessageUtil.format("Grouped ''{0}'' by {1}", command, label);
         }
 
         public URL getIcon()

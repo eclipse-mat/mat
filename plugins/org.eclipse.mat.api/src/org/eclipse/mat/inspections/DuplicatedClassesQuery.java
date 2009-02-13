@@ -11,7 +11,6 @@
 package org.eclipse.mat.inspections;
 
 import java.net.URL;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -40,6 +39,7 @@ import org.eclipse.mat.snapshot.model.IClassLoader;
 import org.eclipse.mat.snapshot.model.ObjectComparators;
 import org.eclipse.mat.snapshot.query.Icons;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.MessageUtil;
 
 @Name("Duplicate Classes")
 @Category("Java Basics")
@@ -183,8 +183,8 @@ public class DuplicatedClassesQuery implements IQuery, IResultTree, IIconProvide
                 }
                 catch (SnapshotException e)
                 {
-                    throw new RuntimeException(MessageFormat.format("ClassLoader of 0x{0} not found",
-                                    new Object[] { Long.toHexString(((IClass) element).getObjectAddress()) }), e);
+                    throw new RuntimeException(MessageUtil.format("ClassLoader of 0x{0} not found", new Object[] { Long
+                                    .toHexString(((IClass) element).getObjectAddress()) }), e);
                 }
             }
         }

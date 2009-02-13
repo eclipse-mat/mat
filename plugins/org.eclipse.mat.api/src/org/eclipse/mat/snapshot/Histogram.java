@@ -11,9 +11,7 @@
 package org.eclipse.mat.snapshot;
 
 import java.net.URL;
-import java.text.DecimalFormat;
 import java.text.Format;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -34,6 +32,9 @@ import org.eclipse.mat.query.IResultTree;
 import org.eclipse.mat.query.ResultMetaData;
 import org.eclipse.mat.snapshot.query.Icons;
 import org.eclipse.mat.util.SimpleStringTokenizer;
+
+import com.ibm.icu.text.DecimalFormat;
+import com.ibm.icu.text.NumberFormat;
 
 /**
  * Class histogram - heap objects aggregated by their class. It holds the number

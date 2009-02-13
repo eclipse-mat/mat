@@ -24,7 +24,6 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.PlatformUI;
 
-
 public class ArgumentsWizardPage extends WizardPage implements ArgumentsTable.ITableListener
 {
     private IQueryContext context;
@@ -36,7 +35,7 @@ public class ArgumentsWizardPage extends WizardPage implements ArgumentsTable.IT
         super(Messages.ArgumentsWizardPage_QueryArguments, argumentSet.getQueryDescriptor().getName(), null);
 
         setDescription(argumentSet.getQueryDescriptor().getShortDescription());
-        
+
         this.context = context;
         this.argumentSet = argumentSet;
     }

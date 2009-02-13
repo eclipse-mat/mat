@@ -11,7 +11,6 @@
 package org.eclipse.mat.parser.model;
 
 import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +23,7 @@ import org.eclipse.mat.snapshot.model.IObjectArray;
 import org.eclipse.mat.snapshot.model.NamedReference;
 import org.eclipse.mat.snapshot.model.ObjectReference;
 import org.eclipse.mat.snapshot.model.PseudoReference;
+import org.eclipse.mat.util.MessageUtil;
 
 /**
  * @noextend
@@ -63,7 +63,7 @@ public class ObjectArrayImpl extends AbstractArrayImpl implements IObjectArray
             throw new RuntimeException(e);
         }
     }
-    
+
     public long[] getReferenceArray(int offset, int length)
     {
         try
@@ -107,8 +107,8 @@ public class ObjectArrayImpl extends AbstractArrayImpl implements IObjectArray
         {
             int index = Integer.parseInt(name.substring(1, name.length() - 1));
             if (index < 0 || index > length)
-                throw new IndexOutOfBoundsException(MessageFormat
-                                .format(Messages.ObjectArrayImpl_forArray, index, getTechnicalName()));
+                throw new IndexOutOfBoundsException(MessageUtil.format(Messages.ObjectArrayImpl_forArray, index,
+                                getTechnicalName()));
 
             long[] references = source.getHeapObjectReader().readObjectArrayContent(this, index, 1);
             return new Field(name, IObject.Type.OBJECT, new ObjectReference(source, references[0]));

@@ -11,7 +11,6 @@
 package org.eclipse.mat.ui.internal.query.arguments;
 
 import java.math.BigInteger;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -43,6 +42,7 @@ import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.internal.query.arguments.LinkEditor.Mode;
 import org.eclipse.mat.ui.internal.query.arguments.TextEditor.DecoratorType;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.TableEditor;
 import org.eclipse.swt.graphics.Font;
@@ -619,7 +619,7 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
 
             // warn a/b mandatory arguments
             if (descriptor.isMandatory() && values == null)
-                onError(argEditor, MessageFormat.format(Messages.ArgumentsTable_isMandatory, descriptor.getName()));
+                onError(argEditor, MessageUtil.format(Messages.ArgumentsTable_isMandatory, descriptor.getName()));
 
             // insert new row at myIndex + 1
             if (isLastOne && value != null)
@@ -640,7 +640,7 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
 
             // warn a/b mandatory arguments
             if (descriptor.isMandatory() && value == null)
-                onError(argEditor, MessageFormat.format(Messages.ArgumentsTable_isMandatory, descriptor.getName()));
+                onError(argEditor, MessageUtil.format(Messages.ArgumentsTable_isMandatory, descriptor.getName()));
         }
 
         // inform about value changes

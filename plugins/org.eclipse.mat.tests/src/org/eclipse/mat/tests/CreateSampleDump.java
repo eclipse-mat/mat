@@ -20,12 +20,12 @@ public class CreateSampleDump
     public static void main(String[] args) throws Exception
     {
         DominatorTestData dominatorTestData = new DominatorTestData();
-        
+
         ReferenceTestData referenceTestData = new ReferenceTestData();
 
         System.out.println("Acquire Heap Dump NOW (then press any key to terminate program)");
         System.in.read();
-        
+
         System.out.println(dominatorTestData);
         System.out.println(referenceTestData);
     }

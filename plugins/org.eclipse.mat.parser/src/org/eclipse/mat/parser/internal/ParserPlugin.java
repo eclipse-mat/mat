@@ -22,7 +22,7 @@ public class ParserPlugin extends Plugin
     public static final String PLUGIN_ID = "org.eclipse.mat.parser"; //$NON-NLS-1$
 
     private static ParserPlugin plugin;
-    
+
     private IExtensionTracker tracker;
     private ParserRegistry registry;
 
@@ -34,7 +34,7 @@ public class ParserPlugin extends Plugin
         super.start(context);
         tracker = new ExtensionTracker(Platform.getExtensionRegistry());
         plugin = this;
-        
+
         registry = new ParserRegistry(tracker);
     }
 
@@ -54,7 +54,7 @@ public class ParserPlugin extends Plugin
     {
         return tracker;
     }
-    
+
     public ParserRegistry getParserRegistry()
     {
         return registry;

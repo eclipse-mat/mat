@@ -27,7 +27,6 @@ import org.eclipse.mat.parser.model.XSnapshotInfo;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.util.IProgressListener;
 
-
 public class SnapshotImplBuilder
 {
     private XSnapshotInfo snapshotInfo;

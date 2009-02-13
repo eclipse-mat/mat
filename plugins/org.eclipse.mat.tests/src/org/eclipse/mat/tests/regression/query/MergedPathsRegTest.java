@@ -53,14 +53,14 @@ public class MergedPathsRegTest implements IQuery
         for (int i = 0; i < numberOfPaths; i++)
         {
             int[] path = (int[]) paths[i];
-            
+
             StringBuilder buffer = new StringBuilder(path.length * 20);
             for (int j = 0; j < path.length; j++)
             {
                 if (j > 0)
                     buffer.append(", ");
 
-                buffer.append("0x").append(Long.toHexString(snapshot.mapIdToAddress(path[j])));               
+                buffer.append("0x").append(Long.toHexString(snapshot.mapIdToAddress(path[j])));
             }
             stringResult.add(buffer.toString());
         }

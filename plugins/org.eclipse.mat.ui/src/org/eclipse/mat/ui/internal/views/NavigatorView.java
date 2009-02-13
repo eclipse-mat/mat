@@ -69,6 +69,6 @@ public class NavigatorView extends PageBookView
     protected boolean isImportant(IWorkbenchPart part)
     {
         return (part instanceof MultiPaneEditor);
-    } 
+    }
 
 }

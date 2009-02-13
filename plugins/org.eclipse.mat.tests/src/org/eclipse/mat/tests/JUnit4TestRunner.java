@@ -14,7 +14,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,6 +29,7 @@ import org.apache.tools.ant.taskdefs.optional.junit.JUnitTest;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.osgi.util.ManifestElement;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
@@ -219,7 +219,7 @@ public class JUnit4TestRunner implements IApplication
 
         Bundle bundle = Platform.getBundle(bundleName);
         if (bundle == null)
-            throw new ClassNotFoundException(suiteClassName, new Exception(MessageFormat.format(
+            throw new ClassNotFoundException(suiteClassName, new Exception(MessageUtil.format(
                             "Could not find bundle \"{0}\"", bundleName)));
 
         String hostHeader = (String) bundle.getHeaders().get("Fragment-Host");
@@ -232,7 +232,7 @@ public class JUnit4TestRunner implements IApplication
             }
             catch (BundleException e)
             {
-                throw new RuntimeException(MessageFormat.format("Could not find host for fragment: {0}", bundleName), e);
+                throw new RuntimeException(MessageUtil.format("Could not find host for fragment: {0}", bundleName), e);
             }
         }
 
@@ -275,7 +275,7 @@ public class JUnit4TestRunner implements IApplication
             Class<?> clazz = getClass().getClassLoader().loadClass(classname);
             Object instance = clazz.newInstance();
             if (!(instance instanceof JUnitResultFormatter))
-                throw new BuildException(MessageFormat.format("{0} is not a JUnitResultFormatter", classname));
+                throw new BuildException(MessageUtil.format("{0} is not a JUnitResultFormatter", classname));
 
             JUnitResultFormatter formatter = (JUnitResultFormatter) instance;
             formatter.setOutput(outfile != null ? new FileOutputStream(outfile) : System.out);

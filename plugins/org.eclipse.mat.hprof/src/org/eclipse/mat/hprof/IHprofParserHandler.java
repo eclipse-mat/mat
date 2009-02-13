@@ -23,13 +23,12 @@ import org.eclipse.mat.parser.model.XSnapshotInfo;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.util.IProgressListener;
 
-
 public interface IHprofParserHandler
 {
     String IDENTIFIER_SIZE = "ID_SIZE"; //$NON-NLS-1$
     String CREATION_DATE = "CREATION_DATE"; //$NON-NLS-1$
     String VERSION = "VERSION";//$NON-NLS-1$
-    
+
     public class HeapObject
     {
         public int objectId;

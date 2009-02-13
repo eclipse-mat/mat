@@ -24,6 +24,6 @@ import java.lang.annotation.Target;
 public @interface Category
 {
     public static final String HIDDEN = "__hidden__"; //$NON-NLS-1$
-    
+
     String value();
 }

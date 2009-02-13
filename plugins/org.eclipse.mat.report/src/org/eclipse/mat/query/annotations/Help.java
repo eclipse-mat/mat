@@ -10,7 +10,8 @@
  *******************************************************************************/
 package org.eclipse.mat.query.annotations;
 
-import static java.lang.annotation.ElementType.*;
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import java.lang.annotation.Retention;
@@ -19,7 +20,7 @@ import java.lang.annotation.Target;
 /**
  * Annotates a help message to the argument and/or query.
  */
-@Target({ TYPE, FIELD })
+@Target( { TYPE, FIELD })
 @Retention(RUNTIME)
 public @interface Help
 {

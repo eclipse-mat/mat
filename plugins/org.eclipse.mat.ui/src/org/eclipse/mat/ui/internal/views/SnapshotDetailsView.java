@@ -14,7 +14,6 @@ import org.eclipse.mat.ui.editor.MultiPaneEditor;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.views.contentoutline.ContentOutline;
 
-
 public class SnapshotDetailsView extends ContentOutline
 {
     protected boolean isImportant(IWorkbenchPart part)

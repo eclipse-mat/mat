@@ -12,7 +12,6 @@ package org.eclipse.mat.hprof;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -39,6 +38,7 @@ import org.eclipse.mat.snapshot.model.GCRootInfo;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IPrimitiveArray;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.MessageUtil;
 
 public class HprofParserHandlerImpl implements IHprofParserHandler
 {
@@ -90,7 +90,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
         }
 
         // informational messages to the user
-        monitor.sendUserMessage(IProgressListener.Severity.INFO, MessageFormat.format(
+        monitor.sendUserMessage(IProgressListener.Severity.INFO, MessageUtil.format(
                         Messages.HprofParserHandlerImpl_HeapContainsObjects, info.getPath(), identifiers.size()), null);
 
         int maxClassId = 0;
@@ -180,8 +180,9 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
                 {
                     int objectId = identifiers.reverse(arrayClassID);
                     if (objectId >= 0)
-                    {                      
-                        String msg = MessageFormat.format(Messages.HprofParserHandlerImpl_Error_ExpectedClassSegment, Long.toHexString(arrayClassID));
+                    {
+                        String msg = MessageUtil.format(Messages.HprofParserHandlerImpl_Error_ExpectedClassSegment,
+                                        Long.toHexString(arrayClassID));
                         throw new SnapshotException(msg);
                     }
 
@@ -483,7 +484,8 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
         if (list == null)
             return null;
         if (failOnMultipleInstances && list.size() != 1)
-            throw new RuntimeException(MessageFormat.format(Messages.HprofParserHandlerImpl_Error_MultipleClassInstancesExist, name));
+            throw new RuntimeException(MessageUtil.format(
+                            Messages.HprofParserHandlerImpl_Error_MultipleClassInstancesExist, name));
         return list.get(0);
     }
 

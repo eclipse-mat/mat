@@ -11,7 +11,6 @@
 package org.eclipse.mat.ui.snapshot.editor;
 
 import java.net.URI;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -40,6 +39,7 @@ import org.eclipse.mat.ui.editor.MultiPaneEditor;
 import org.eclipse.mat.ui.internal.GettingStartedWizard;
 import org.eclipse.mat.ui.snapshot.ParseHeapDumpJob;
 import org.eclipse.mat.ui.snapshot.views.SnapshotOutlinePage;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IFileEditorInput;
@@ -207,12 +207,13 @@ public class HeapEditor extends MultiPaneEditor implements ISelectionProvider
             }
             else
             {
-                throw new PartInitException(MessageFormat.format(Messages.HeapEditor_UnsupportedScheme, uri.toASCIIString()));
+                throw new PartInitException(MessageUtil.format(Messages.HeapEditor_UnsupportedScheme, uri
+                                .toASCIIString()));
             }
         }
         else
         {
-            throw new PartInitException(MessageFormat.format(Messages.HeapEditor_UnsupportedEditorInput, input.getClass()
+            throw new PartInitException(MessageUtil.format(Messages.HeapEditor_UnsupportedEditorInput, input.getClass()
                             .getName()));
         }
     }

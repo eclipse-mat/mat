@@ -54,7 +54,7 @@ public class RetainedSizeForHistogramQuery implements IQuery
                 {
                     counter++;
                     if (counter == 10)// calculate precise retained sizes only
-                                      // for first 10 records
+                        // for first 10 records
                         break;
                 }
             }
@@ -69,7 +69,7 @@ public class RetainedSizeForHistogramQuery implements IQuery
                 {
                     counter++;
                     if (counter == 10)// calculate precise retained sizes only
-                                      // for first 10 records
+                        // for first 10 records
                         break;
                 }
             }

@@ -533,7 +533,7 @@ public class BundleRegistryQuery implements IQuery
                 return children;
             }
 
-             else if (parent instanceof Folder)
+            else if (parent instanceof Folder)
             {
                 Folder folder = (Folder) parent;
                 switch (folder.type)

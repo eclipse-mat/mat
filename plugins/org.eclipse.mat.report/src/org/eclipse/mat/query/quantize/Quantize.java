@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.mat.query.quantize;
 
-import java.text.DecimalFormat;
+import com.ibm.icu.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -251,7 +251,7 @@ public final class Quantize
         public Builder addDerivedData(ContextDerivedData.DerivedOperation operation)
         {
             metaDataBuilder.addDerivedData(operation);
-            
+
             return this;
         }
 
@@ -264,7 +264,7 @@ public final class Quantize
             quantize = null; // builder must not change quantize
 
             answer.resultMetaData = metaDataBuilder.build();
-            
+
             answer.init();
             return answer;
         }

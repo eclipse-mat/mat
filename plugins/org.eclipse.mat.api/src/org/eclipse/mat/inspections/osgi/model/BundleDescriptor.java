@@ -99,8 +99,8 @@ public class BundleDescriptor
     }
 
     /**
-     * Get bundle's state (installed, resolved, starting, active,
-     * stopping, uninstalled)
+     * Get bundle's state (installed, resolved, starting, active, stopping,
+     * uninstalled)
      * 
      * @return String state
      */
@@ -109,6 +109,4 @@ public class BundleDescriptor
         return state;
     }
 
-    
-    
 }

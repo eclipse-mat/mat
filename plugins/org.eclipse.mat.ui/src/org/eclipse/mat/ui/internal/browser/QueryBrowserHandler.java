@@ -18,7 +18,6 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 
-
 public class QueryBrowserHandler extends AbstractHandler
 {
 
@@ -28,17 +27,17 @@ public class QueryBrowserHandler extends AbstractHandler
     public Object execute(ExecutionEvent executionEvent)
     {
         IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-        
+
         IWorkbenchPage page = window.getActivePage();
         if (page == null)
             return null;
-        
+
         IEditorPart activeEditor = page.getActiveEditor();
         if (!(activeEditor instanceof MultiPaneEditor))
             return null;
 
         new QueryBrowserPopup((MultiPaneEditor) activeEditor).open();
-        
+
         return null;
     }
 }

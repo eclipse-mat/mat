@@ -15,24 +15,23 @@ import java.io.Serializable;
 
 import org.eclipse.mat.SnapshotException;
 
-
 public interface IIndexReader
 {
     public interface IOne2OneIndex extends IIndexReader
     {
         int get(int index);
-        
+
         int[] getAll(int index[]);
-        
+
         int[] getNext(int index, int length);
     }
 
     public interface IOne2LongIndex extends IIndexReader
     {
         long get(int index);
-    
+
         int reverse(long value);
-        
+
         long[] getNext(int index, int length);
     }
 
@@ -51,6 +50,6 @@ public interface IIndexReader
     void unload() throws IOException;
 
     void close() throws IOException;
-    
+
     void delete();
 }

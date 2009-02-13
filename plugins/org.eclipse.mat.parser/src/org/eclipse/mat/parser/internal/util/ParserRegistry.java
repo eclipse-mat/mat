@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.mat.parser.internal.util;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -25,6 +24,7 @@ import org.eclipse.core.runtime.dynamichelpers.IExtensionTracker;
 import org.eclipse.mat.parser.internal.Messages;
 import org.eclipse.mat.parser.internal.ParserPlugin;
 import org.eclipse.mat.snapshot.SnapshotFormat;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.RegistryReader;
 import org.eclipse.mat.util.SimpleStringTokenizer;
 
@@ -47,7 +47,7 @@ public class ParserRegistry extends RegistryReader<ParserRegistry.Parser>
             this.snapshotFormat = snapshotFormat;
             this.pattern = pattern;
         }
-        
+
         public String getId()
         {
             return id;
@@ -75,7 +75,7 @@ public class ParserRegistry extends RegistryReader<ParserRegistry.Parser>
             {
                 Logger.getLogger(getClass().getName()).log(
                                 Level.SEVERE,
-                                MessageFormat.format(Messages.ParserRegistry_ErrorWhileCreating, type.getSimpleName(),
+                                MessageUtil.format(Messages.ParserRegistry_ErrorWhileCreating, type.getSimpleName(),
                                                 configElement.getAttribute("addonBuilder")), e);//$NON-NLS-1$
                 return null;
             }
@@ -108,7 +108,7 @@ public class ParserRegistry extends RegistryReader<ParserRegistry.Parser>
         {
             Logger.getLogger(getClass().getName()).log(
                             Level.SEVERE,
-                            MessageFormat.format(Messages.ParserRegistry_ErrorCompilingFileNamePattern, configElement
+                            MessageUtil.format(Messages.ParserRegistry_ErrorCompilingFileNamePattern, configElement
                                             .getNamespaceIdentifier()), e);
             return null;
         }

@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.mat.query.registry;
 
-import java.text.MessageFormat;
 import java.text.ParsePosition;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +19,7 @@ import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.MessageUtil;
 
 public class CommandLine
 {
@@ -99,12 +99,12 @@ public class CommandLine
         String[] args = CommandLine.tokenize(line);
 
         if (args.length == 0)
-            throw new SnapshotException(MessageFormat.format(Messages.CommandLine_Error_InvalidCommand, line));
+            throw new SnapshotException(MessageUtil.format(Messages.CommandLine_Error_InvalidCommand, line));
 
         // determine query
         QueryDescriptor descriptor = QueryRegistry.instance().getQuery(args[0].toLowerCase());
         if (descriptor == null)
-            throw new SnapshotException(MessageFormat.format(Messages.CommandLine_Error_NotFound, args[0]));
+            throw new SnapshotException(MessageUtil.format(Messages.CommandLine_Error_NotFound, args[0]));
 
         ArgumentSet arguments = descriptor.createNewArgumentSet(context);
 
@@ -130,7 +130,7 @@ public class CommandLine
         String[] args = CommandLine.tokenize(line);
 
         if (args.length == 0)
-            throw new SnapshotException(MessageFormat.format(Messages.CommandLine_Error_InvalidCommand, line));
+            throw new SnapshotException(MessageUtil.format(Messages.CommandLine_Error_InvalidCommand, line));
 
         ParsePosition pos = new ParsePosition(0);
 
@@ -159,7 +159,7 @@ public class CommandLine
                 String flag = arg.substring(1).toLowerCase();
                 ArgumentDescriptor argDescriptor = descriptor.byFlag(flag);
                 if (argDescriptor == null)
-                    throw new SnapshotException(MessageFormat.format(Messages.CommandLine_Error_MissingArgument,
+                    throw new SnapshotException(MessageUtil.format(Messages.CommandLine_Error_MissingArgument,
                                     descriptor.getName(), flag));
 
                 Object value;
@@ -201,8 +201,7 @@ public class CommandLine
                     throw new SnapshotException(Messages.CommandLine_Error_NoUnflaggedArguments);
 
                 if (mandatoryUnflaggedArgumentIsSet)
-                    throw new SnapshotException(MessageFormat.format(
-                                    Messages.CommandLine_Error_AssignmentFailed,
+                    throw new SnapshotException(MessageUtil.format(Messages.CommandLine_Error_AssignmentFailed,
                                     args[pos.getIndex()], argDescriptor.getName()));
 
                 Object value;
@@ -280,7 +279,7 @@ public class CommandLine
     private static SnapshotException error(ArgumentDescriptor descriptor)
     {
         String flag = descriptor.getFlag() != null ? "( -" + descriptor.getFlag() + " )" : ""; //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
-        return new SnapshotException(MessageFormat.format(Messages.CommandLine_Error_MissingValue, //
+        return new SnapshotException(MessageUtil.format(Messages.CommandLine_Error_MissingValue, //
                         descriptor.getName(), flag));
     }
 

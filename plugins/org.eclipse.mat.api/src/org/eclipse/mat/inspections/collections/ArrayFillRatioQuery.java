@@ -20,8 +20,8 @@ import org.eclipse.mat.query.quantize.Quantize;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IObjectArray;
-import org.eclipse.mat.snapshot.query.RetainedSizeDerivedData;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
+import org.eclipse.mat.snapshot.query.RetainedSizeDerivedData;
 import org.eclipse.mat.util.IProgressListener;
 
 @Name("Array Fill Ratio")
@@ -47,7 +47,7 @@ public class ArrayFillRatioQuery implements IQuery
     public IResult execute(IProgressListener listener) throws Exception
     {
         listener.subTask("Extracting fill ratios...");
-        
+
         // create frequency distribution
         Quantize.Builder builder = Quantize.linearFrequencyDistribution("Fill Ratio", 0, 1, (double) 1
                         / (double) segments);
@@ -62,7 +62,7 @@ public class ArrayFillRatioQuery implements IQuery
             {
                 if (listener.isCanceled())
                     throw new IProgressListener.OperationCanceledException();
-                
+
                 if (!snapshot.isArray(objectId))
                     continue;
 

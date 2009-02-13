@@ -20,7 +20,6 @@ import org.eclipse.mat.snapshot.model.IClassLoader;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.util.IProgressListener;
 
-
 public final class XClassLoaderHistogramRecord extends ClassLoaderHistogramRecord
 {
     private static final long serialVersionUID = 1L;

@@ -11,7 +11,6 @@
 package org.eclipse.mat.ui.internal.query.arguments;
 
 import java.io.File;
-import java.text.MessageFormat;
 
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.mat.SnapshotException;
@@ -22,6 +21,7 @@ import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.SnapshotHistoryService;
 import org.eclipse.mat.ui.snapshot.OpenSnapshot;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyEvent;
@@ -134,7 +134,7 @@ public class SnapshotSelectionEditor extends ArgumentEditor
 
         if (path.length() > 0 && !new File(path).exists())
         {
-            fireErrorEvent(MessageFormat.format(Messages.SnapshotSelectionEditor_FileDoesNotExist, path), this); 
+            fireErrorEvent(MessageUtil.format(Messages.SnapshotSelectionEditor_FileDoesNotExist, path), this);
         }
         else
         {

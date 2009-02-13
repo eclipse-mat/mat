@@ -134,7 +134,8 @@ public class TableResultPane extends QueryResultPane
                         if (filters[index].isActive())
                         {
                             buf.append("\n'").append(filters[index].getCriteria()) // //$NON-NLS-1$
-                                            .append(Messages.TableResultPane_onColumn).append(columns[index].getLabel()).append("'"); //$NON-NLS-1$
+                                            .append(Messages.TableResultPane_onColumn)
+                                            .append(columns[index].getLabel()).append("'"); //$NON-NLS-1$
                         }
                     }
 

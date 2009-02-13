@@ -25,7 +25,7 @@ public interface IOQLQuery
     {
         String getOQLQuery();
     }
-    
+
     /**
      * Execute the OQL query. Returns a result object, either a primitive
      * integer array containing object ids or IResultTable.

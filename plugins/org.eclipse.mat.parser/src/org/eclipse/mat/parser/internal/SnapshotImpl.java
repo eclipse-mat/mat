@@ -18,7 +18,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -72,6 +71,7 @@ import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.NamedReference;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.VoidProgressListener;
 import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
 
@@ -97,7 +97,7 @@ public final class SnapshotImpl implements ISnapshot
 
             String version = in.readUTF();
             if (!VERSION.equals(version))
-                throw new IOException(MessageFormat.format(Messages.SnapshotImpl_Error_UnknownVersion, version));
+                throw new IOException(MessageUtil.format(Messages.SnapshotImpl_Error_UnknownVersion, version));
 
             String objectReaderUniqueIdentifier = in.readUTF();
             Parser parser = ParserPlugin.getDefault().getParserRegistry().lookupParser(objectReaderUniqueIdentifier);
@@ -1361,7 +1361,7 @@ public final class SnapshotImpl implements ISnapshot
                 return clazz.getUsedHeapSize();
             }
             else
-            {   
+            {
                 // it is an instance
                 clazz = classCache.get(indexManager.o2class().get(objectId));
                 return clazz.getHeapSizePerInstance();
@@ -1429,8 +1429,9 @@ public final class SnapshotImpl implements ISnapshot
     {
         int objectId = indexManager.o2address().reverse(objectAddress);
         if (objectId < 0)
-            throw new SnapshotException(MessageFormat.format(Messages.SnapshotImpl_Error_ObjectNotFound, new Object[] { "0x" //$NON-NLS-1$
-                            + Long.toHexString(objectAddress) }));
+            throw new SnapshotException(MessageUtil.format(Messages.SnapshotImpl_Error_ObjectNotFound,
+                            new Object[] { "0x" //$NON-NLS-1$
+                                            + Long.toHexString(objectAddress) }));
         return objectId;
     }
 

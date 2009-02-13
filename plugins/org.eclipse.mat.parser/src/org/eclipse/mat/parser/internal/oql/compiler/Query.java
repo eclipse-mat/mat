@@ -19,7 +19,6 @@ import org.eclipse.mat.collect.ArrayLong;
 import org.eclipse.mat.collect.IteratorInt;
 import org.eclipse.mat.collect.IteratorLong;
 
-
 public class Query
 {
     public static class SelectItem
@@ -81,7 +80,7 @@ public class Query
         {
             this.isRetainedSet = isRetainedSet;
         }
-        
+
         public boolean isAsObjects()
         {
             return asObjects;
@@ -151,7 +150,7 @@ public class Query
         {
             this.className = className;
         }
-        
+
         public String getClassNamePattern()
         {
             return classNamePattern;
@@ -161,7 +160,7 @@ public class Query
         {
             this.classNamePattern = classNamePattern;
         }
-        
+
         public Expression getCall()
         {
             return call;
@@ -201,7 +200,7 @@ public class Query
         {
             this.includeObjects = includeObjects;
         }
-        
+
         public Query getSubSelect()
         {
             return subSelect;
@@ -219,7 +218,7 @@ public class Query
 
             if (includeObjects)
                 buf.append("OBJECTS ");//$NON-NLS-1$
-            
+
             if (includeSubClasses)
                 buf.append("INSTANCEOF ");//$NON-NLS-1$
 
@@ -257,7 +256,7 @@ public class Query
                         buf.append(",");//$NON-NLS-1$
                 }
             }
-            
+
             if (alias != null)
                 buf.append(" ").append(alias);//$NON-NLS-1$
 
@@ -338,7 +337,7 @@ public class Query
             {
                 SelectItem column = iter.next();
                 buf.append(column.getExpression());
-                
+
                 if (column.getName() != null)
                 {
                     buf.append(" AS ");//$NON-NLS-1$

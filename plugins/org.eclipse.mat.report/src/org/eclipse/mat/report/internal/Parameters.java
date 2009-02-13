@@ -115,7 +115,7 @@ public abstract class Parameters
 
             this.materialized = new HashMap<String, String>();
         }
-        
+
         public Deep(Parameters parent, Parameters map)
         {
             this(parent, ((Parameters.Deep) map).base);
@@ -189,7 +189,7 @@ public abstract class Parameters
                 {
                     base.putAll(params);
                 }
-                
+
                 @Override
                 public void put(String key, String value)
                 {

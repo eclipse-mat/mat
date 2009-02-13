@@ -11,7 +11,6 @@
 package org.eclipse.mat.ui.snapshot;
 
 import java.io.File;
-import java.text.MessageFormat;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -27,6 +26,7 @@ import org.eclipse.mat.snapshot.SnapshotFactory;
 import org.eclipse.mat.snapshot.SnapshotFormat;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.Messages;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.FileDialog;
@@ -96,8 +96,9 @@ public class OpenSnapshot
 
                 if (numberOfFilesNotFound > 0)
                 {
-                    String msgFmt = numberOfFilesNotFound == 1 ? Messages.OpenSnapshot_FileNotFound : Messages.OpenSnapshot_FilesNotFound;
-                    String msg = MessageFormat.format(msgFmt, notFound.toString());
+                    String msgFmt = numberOfFilesNotFound == 1 ? Messages.OpenSnapshot_FileNotFound
+                                    : Messages.OpenSnapshot_FilesNotFound;
+                    String msg = MessageUtil.format(msgFmt, notFound.toString());
                     MessageDialog.openError(shell, Messages.ErrorHelper_InternalError, msg);
                 }
             }
@@ -159,12 +160,12 @@ public class OpenSnapshot
 
             public String isValid(String newText)
             {
-                if (!validFileName.matcher(newText).matches()) { return MessageFormat.format(
+                if (!validFileName.matcher(newText).matches()) { return MessageUtil.format(
                                 Messages.OpenSnapshot_FileMustHaveExtension, extension); }
 
                 File f = new File(path, newText);
                 if (f.exists())
-                    return MessageFormat.format(Messages.OpenSnapshot_FileAlreadyExists, f.getAbsolutePath());
+                    return MessageUtil.format(Messages.OpenSnapshot_FileAlreadyExists, f.getAbsolutePath());
 
                 return null;
             }
@@ -174,7 +175,7 @@ public class OpenSnapshot
         String msg = Messages.OpenSnapshot_Warning;
         InputDialog inputDialog = new InputDialog(PlatformUI.getWorkbench().getDisplay().getActiveShell(),
                         Messages.OpenSnapshot_RenameHeapDump, //
-                        MessageFormat.format(msg, extension), filename + "." + extension, //$NON-NLS-1$
+                        MessageUtil.format(msg, extension), filename + "." + extension, //$NON-NLS-1$
                         inputValidator)
         {
 

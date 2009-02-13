@@ -14,7 +14,6 @@ import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Array;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -22,7 +21,7 @@ import java.util.List;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.parser.internal.Messages;
 import org.eclipse.mat.snapshot.model.IObject;
-
+import org.eclipse.mat.util.MessageUtil;
 
 class PathExpression extends Expression
 {
@@ -75,7 +74,7 @@ class PathExpression extends Expression
                             }
                             else
                             {
-                                throw new SnapshotException(MessageFormat.format(
+                                throw new SnapshotException(MessageUtil.format(
                                                 Messages.PathExpression_Error_ArrayHasNoProperty, new Object[] {
                                                                 current.getClass().getComponentType().getName(),
                                                                 attribute.name }));
@@ -98,7 +97,7 @@ class PathExpression extends Expression
                                 }
                             }
 
-                            if (!didFindProperty) { throw new SnapshotException(MessageFormat.format(
+                            if (!didFindProperty) { throw new SnapshotException(MessageUtil.format(
                                             Messages.PathExpression_Error_TypeHasNoProperty, new Object[] {
                                                             current.getClass().getName(), attribute.name })); }
                         }
@@ -119,7 +118,7 @@ class PathExpression extends Expression
                 }
                 else
                 {
-                    throw new SnapshotException(MessageFormat.format(Messages.PathExpression_Error_UnknownElementInPath,
+                    throw new SnapshotException(MessageUtil.format(Messages.PathExpression_Error_UnknownElementInPath,
                                     new Object[] { element }));
                 }
 

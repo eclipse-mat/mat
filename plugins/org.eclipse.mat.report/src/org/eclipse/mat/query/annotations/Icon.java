@@ -19,7 +19,7 @@ import java.lang.annotation.Target;
 /**
  * Annotates the icon of the query.
  */
-@Target({ TYPE })
+@Target( { TYPE })
 @Retention(RUNTIME)
 public @interface Icon
 {

@@ -178,5 +178,4 @@ public class ConfigurationElement
         return true;
     }
 
-    
 }

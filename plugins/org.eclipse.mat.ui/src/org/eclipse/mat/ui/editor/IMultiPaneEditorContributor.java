@@ -15,8 +15,8 @@ import org.eclipse.jface.action.IToolBarManager;
 public interface IMultiPaneEditorContributor
 {
     void init(MultiPaneEditor editor);
-    
+
     void contributeToToolbar(IToolBarManager manager);
-    
+
     void dispose();
 }

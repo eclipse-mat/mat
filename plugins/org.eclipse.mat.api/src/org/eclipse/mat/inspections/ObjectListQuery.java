@@ -23,7 +23,6 @@ import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.snapshot.query.ObjectListResult;
 import org.eclipse.mat.util.IProgressListener;
 
-
 @Name("List Objects")
 @Category(Category.HIDDEN)
 @CommandName("list_objects")

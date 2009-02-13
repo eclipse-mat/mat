@@ -76,7 +76,7 @@ public class PatternUtil
                     answer = ".*" + answer + ".*";
                 }
             }
-            
+
             return answer;
         }
     }

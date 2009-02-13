@@ -10,10 +10,7 @@
  *******************************************************************************/
 package org.eclipse.mat.query.refined;
 
-import java.text.DecimalFormat;
 import java.text.Format;
-import java.text.MessageFormat;
-import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.ParsePosition;
 import java.util.regex.Pattern;
@@ -21,7 +18,11 @@ import java.util.regex.PatternSyntaxException;
 
 import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.Column;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.PatternUtil;
+
+import com.ibm.icu.text.DecimalFormat;
+import com.ibm.icu.text.NumberFormat;
 
 public abstract class Filter
 {
@@ -224,7 +225,7 @@ public abstract class Filter
             Double result = f.parse(string, pos).doubleValue();
 
             if (pos.getIndex() < string.length())
-                throw new ParseException(MessageFormat.format(Messages.Filter_Error_IllegalCharacters, //
+                throw new ParseException(MessageUtil.format(Messages.Filter_Error_IllegalCharacters, //
                                 string.substring(pos.getIndex())), pos.getIndex());
 
             return result;

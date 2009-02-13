@@ -80,6 +80,18 @@
                 <message_argument value="0.7.0.200806271307"/>
             </message_arguments>
         </filter>
+        <filter id="924844039">
+            <message_arguments>
+                <message_argument value="0.7.100.qualifier"/>
+                <message_argument value="0.7.0.200810071154"/>
+            </message_arguments>
+        </filter>
+        <filter id="923795461">
+            <message_arguments>
+                <message_argument value="0.7.100.qualifier"/>
+                <message_argument value="0.7.0.200810071154"/>
+            </message_arguments>
+        </filter>
         <filter id="923795461">
             <message_arguments>
                 <message_argument value="0.7.0.qualifier"/>

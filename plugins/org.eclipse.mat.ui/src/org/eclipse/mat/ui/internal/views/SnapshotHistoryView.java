@@ -13,7 +13,6 @@ package org.eclipse.mat.ui.internal.views;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -35,6 +34,7 @@ import org.eclipse.mat.ui.SnapshotHistoryService.Entry;
 import org.eclipse.mat.ui.editor.PathEditorInput;
 import org.eclipse.mat.ui.snapshot.views.SnapshotOutlinePage;
 import org.eclipse.mat.ui.util.ErrorHelper;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
@@ -191,7 +191,7 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
     {
         this.table = new Table(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION);
         TableColumn tableColumn = new TableColumn(table, SWT.LEFT);
-        tableColumn.setText(Messages.SnapshotHistoryView_RecentlyUsedFiles); 
+        tableColumn.setText(Messages.SnapshotHistoryView_RecentlyUsedFiles);
         tableColumn.setWidth(400);
         table.setHeaderVisible(true);
 
@@ -294,10 +294,10 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
 
                 String dialogTitle;
                 if (toDelete.size() > 1)
-                    dialogTitle = MessageFormat.format(Messages.SnapshotHistoryView_AreYouSure4ManyFiles, toDelete
-                                    .size());
+                    dialogTitle = MessageUtil
+                                    .format(Messages.SnapshotHistoryView_AreYouSure4ManyFiles, toDelete.size());
                 else
-                    dialogTitle = MessageFormat.format(Messages.SnapshotHistoryView_AreYouSure4OneFile, //
+                    dialogTitle = MessageUtil.format(Messages.SnapshotHistoryView_AreYouSure4OneFile, //
                                     toDelete.get(0).getAbsolutePath());
 
                 DeleteSnapshotDialog deleteSnapshotDialog = new DeleteSnapshotDialog(table.getShell(), dialogTitle);
@@ -378,19 +378,18 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
                         }
                         else
                         {
-                            displayMessage(MessageFormat.format(Messages.SnapshotHistoryView_TryToUseGnome, desktop));
+                            displayMessage(MessageUtil.format(Messages.SnapshotHistoryView_TryToUseGnome, desktop));
                             execute("gnome-open", osPath, file);//$NON-NLS-1$
                         }
                     }
                     else
                     {
-                        displayMessage(MessageFormat.format(Messages.SnapshotHistoryView_OperationNotImplemented,
-                                        osName));
+                        displayMessage(MessageUtil.format(Messages.SnapshotHistoryView_OperationNotImplemented, osName));
                     }
                 }
                 else
                 {
-                    displayMessage(MessageFormat.format(Messages.SnapshotHistoryView_FileDoesNotExist, file
+                    displayMessage(MessageUtil.format(Messages.SnapshotHistoryView_FileDoesNotExist, file
                                     .getAbsolutePath()));
                 }
             }
@@ -546,7 +545,7 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
             else
             {
                 MessageDialog.openError(this.table.getParent().getShell(),
-                                Messages.SnapshotHistoryView_FileDoesNotExistAnymore, MessageFormat.format(
+                                Messages.SnapshotHistoryView_FileDoesNotExistAnymore, MessageUtil.format(
                                                 Messages.SnapshotHistoryView_SelectedFileDoesNotExist, path
                                                                 .toOSString()));
                 SnapshotHistoryService.getInstance().removePath(path);

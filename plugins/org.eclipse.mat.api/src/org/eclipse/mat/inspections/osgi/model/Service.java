@@ -10,11 +10,11 @@
  *******************************************************************************/
 package org.eclipse.mat.inspections.osgi.model;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.mat.internal.MATPlugin;
+import org.eclipse.mat.util.MessageUtil;
 
 public class Service
 {
@@ -105,7 +105,7 @@ public class Service
             return null;
         if (keys.length != values.length)
         {
-            MATPlugin.log(MessageFormat.format(
+            MATPlugin.log(MessageUtil.format(
                             "Number of keys does not correspond to the number of values for the service: 0x{0}", Long
                                             .toHexString(this.objectId)));
             return null;

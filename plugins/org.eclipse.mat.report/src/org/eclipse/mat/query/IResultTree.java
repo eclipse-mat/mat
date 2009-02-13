@@ -26,7 +26,7 @@ public interface IResultTree extends IStructuredResult
      * Returns whether the given element has children.
      */
     boolean hasChildren(Object element);
-    
+
     /**
      * Returns the child elements of the given parent.
      */

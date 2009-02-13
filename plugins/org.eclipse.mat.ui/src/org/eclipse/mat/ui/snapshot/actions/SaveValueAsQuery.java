@@ -17,7 +17,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.text.MessageFormat;
 import java.util.List;
 
 import org.eclipse.mat.SnapshotException;
@@ -34,6 +33,7 @@ import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IPrimitiveArray;
 import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.ui.PlatformUI;
@@ -61,7 +61,7 @@ public class SaveValueAsQuery implements IQuery
             writeStringData();
         else if (objects.size() == 1)
             writeRawData();
-      
+
         // let the UI ignore this query
         throw new IProgressListener.OperationCanceledException();
     }
@@ -87,8 +87,7 @@ public class SaveValueAsQuery implements IQuery
                     MessageBox box = new MessageBox(PlatformUI.getWorkbench().getDisplay().getActiveShell(), //
                                     SWT.YES | SWT.NO);
                     box.setText(Messages.SaveValueAsQuery_Overwrite);
-                    box.setMessage(MessageFormat.format(Messages.SaveValueAsQuery_FileExists, file
-                                    .getAbsolutePath()));
+                    box.setMessage(MessageUtil.format(Messages.SaveValueAsQuery_FileExists, file.getAbsolutePath()));
 
                     int retValue = box.open();
                     goAhead[0] = retValue == SWT.YES;
@@ -247,8 +246,8 @@ public class SaveValueAsQuery implements IQuery
                         break;
                     }
                     default:
-                        throw new SnapshotException(MessageFormat.format(Messages.SaveValueAsQuery_UnrecognizedPrimitiveArrayType,
-                                        array.getType()));
+                        throw new SnapshotException(MessageUtil.format(
+                                        Messages.SaveValueAsQuery_UnrecognizedPrimitiveArrayType, array.getType()));
                 }
 
                 offset += read;

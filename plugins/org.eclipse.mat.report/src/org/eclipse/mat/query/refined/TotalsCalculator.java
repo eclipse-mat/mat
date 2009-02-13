@@ -17,7 +17,6 @@ import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.IStructuredResult;
 import org.eclipse.mat.util.IProgressListener;
 
-
 /* package */class TotalsCalculator
 {
     /* package */static final TotalsCalculator create(RefinedStructuredResult refined)

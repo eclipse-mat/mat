@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.mat.ui.internal.actions;
 
-import java.text.MessageFormat;
-
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -21,6 +19,7 @@ import org.eclipse.mat.query.registry.QueryRegistry;
 import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.QueryExecution;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -28,7 +27,7 @@ import org.eclipse.ui.PlatformUI;
 
 public class ExecuteInspectionHandler extends AbstractHandler
 {
-    
+
     public Object execute(ExecutionEvent event) throws ExecutionException
     {
         try
@@ -36,13 +35,13 @@ public class ExecuteInspectionHandler extends AbstractHandler
             String commandName = event.getParameter("org.eclipse.mat.ui.actions.executeInspection.commandName"); //$NON-NLS-1$
             QueryDescriptor query = QueryRegistry.instance().getQuery(commandName);
             if (query == null)
-                throw new ExecutionException(MessageFormat.format(Messages.ExecuteInspectionHandler_UnknownInspection, commandName));
+                throw new ExecutionException(MessageUtil.format(Messages.ExecuteInspectionHandler_UnknownInspection,
+                                commandName));
 
             // pick active editor
             IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
             if (window == null)
-                throw new ExecutionException(
-                                Messages.ExecuteInspectionHandler_NoActiveWorkbenchWindow);
+                throw new ExecutionException(Messages.ExecuteInspectionHandler_NoActiveWorkbenchWindow);
 
             IWorkbenchPage page = window.getActivePage();
             if (page == null)

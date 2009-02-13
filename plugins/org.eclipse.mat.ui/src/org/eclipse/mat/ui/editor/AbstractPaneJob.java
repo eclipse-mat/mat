@@ -16,7 +16,6 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.mat.util.IProgressListener;
 
-
 public abstract class AbstractPaneJob extends Job
 {
     private AbstractEditorPane pane;
@@ -52,7 +51,7 @@ public abstract class AbstractPaneJob extends Job
     {
         return this.pane == family;
     }
-    
+
     protected AbstractEditorPane getPane()
     {
         return this.pane;

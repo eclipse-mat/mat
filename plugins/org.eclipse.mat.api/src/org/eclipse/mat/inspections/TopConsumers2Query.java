@@ -11,8 +11,7 @@
 package org.eclipse.mat.inspections;
 
 import java.net.URL;
-import java.text.DecimalFormat;
-import java.text.MessageFormat;
+import com.ibm.icu.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -55,6 +54,7 @@ import org.eclipse.mat.snapshot.query.Icons;
 import org.eclipse.mat.snapshot.query.ObjectListResult;
 import org.eclipse.mat.snapshot.query.PieFactory;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.SimpleStringTokenizer;
 
 @Name("Top Consumers")
@@ -168,7 +168,7 @@ public class TopConsumers2Query implements IQuery
 
             if (suspects.isEmpty())
             {
-                String msg = MessageFormat.format("No objects bigger than {0}%.", thresholdPercent);
+                String msg = MessageUtil.format("No objects bigger than {0}%.", thresholdPercent);
                 composite.add(new QuerySpec("Biggest Objects", new TextResult(msg, true)));
             }
             else
@@ -196,7 +196,7 @@ public class TopConsumers2Query implements IQuery
 
             if (suspects.isEmpty())
             {
-                String msg = MessageFormat.format("No objects bigger than {0}%.", thresholdPercent);
+                String msg = MessageUtil.format("No objects bigger than {0}%.", thresholdPercent);
                 composite.add(new QuerySpec("Biggest Objects", new TextResult(msg, true)));
             }
             else
@@ -242,7 +242,7 @@ public class TopConsumers2Query implements IQuery
 
         if (suspects.isEmpty())
         {
-            String msg = MessageFormat.format("No classes bigger than {0}%.", thresholdPercent);
+            String msg = MessageUtil.format("No classes bigger than {0}%.", thresholdPercent);
             composite.add(new QuerySpec("Biggest Top-Level Dominator Classes", new TextResult(msg, true)));
         }
         else
@@ -291,7 +291,7 @@ public class TopConsumers2Query implements IQuery
 
         PieFactory pie = new PieFactory(snapshot, totalHeap);
         ArrayList<ClassLoaderHistogramRecord> suspects = new ArrayList<ClassLoaderHistogramRecord>();
-        
+
         if (listener.isCanceled())
             throw new IProgressListener.OperationCanceledException();
 
@@ -306,7 +306,7 @@ public class TopConsumers2Query implements IQuery
 
         if (suspects.isEmpty())
         {
-            String msg = MessageFormat.format("No class loader bigger than {0}%.", thresholdPercent);
+            String msg = MessageUtil.format("No class loader bigger than {0}%.", thresholdPercent);
             composite.add(new QuerySpec("Biggest Top-Level Dominator Class Loaders", new TextResult(msg, true)));
         }
         else

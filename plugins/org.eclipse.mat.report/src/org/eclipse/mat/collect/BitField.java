@@ -13,16 +13,16 @@ package org.eclipse.mat.collect;
 import java.io.Serializable;
 
 /**
- * This class manages huge bit fields. It is much faster than {@link
- * java.util.BitSet} and was specifically developed to be used with huge bit
- * sets in ISnapshot (e.g. needed in virtual GC traces). Out of performance
+ * This class manages huge bit fields. It is much faster than
+ * {@link java.util.BitSet} and was specifically developed to be used with huge
+ * bit sets in ISnapshot (e.g. needed in virtual GC traces). Out of performance
  * reasons no method does any parameter checking, i.e. only valid values are
  * expected.
  */
 public final class BitField implements Serializable
 {
     private static final long serialVersionUID = 1L;
-    
+
     private int[] bits;
 
     /**

@@ -11,7 +11,6 @@
 package org.eclipse.mat.report.internal;
 
 import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -45,6 +44,7 @@ import org.eclipse.mat.report.SectionSpec;
 import org.eclipse.mat.report.Spec;
 import org.eclipse.mat.report.ITestResult.Status;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.MessageUtil;
 
 public class QueryPart extends AbstractPart
 {
@@ -78,7 +78,7 @@ public class QueryPart extends AbstractPart
                     throws SnapshotException, IOException
     {
         String sectionName = parent != null ? parent.spec().getName() : Messages.QueryPart_Label_ReportRoot;
-        listener.subTask(MessageFormat.format(Messages.QueryPart_Msg_TestProgress, spec().getName(), sectionName));
+        listener.subTask(MessageUtil.format(Messages.QueryPart_Msg_TestProgress, spec().getName(), sectionName));
 
         IResult result = spec().getResult();
 
@@ -86,7 +86,7 @@ public class QueryPart extends AbstractPart
         {
             if (getCommand() == null)
             {
-                ReportPlugin.log(IStatus.ERROR, MessageFormat.format(Messages.QueryPart_Error_NoCommand, //
+                ReportPlugin.log(IStatus.ERROR, MessageUtil.format(Messages.QueryPart_Error_NoCommand, //
                                 spec().getName(), sectionName));
             }
             else
@@ -101,7 +101,7 @@ public class QueryPart extends AbstractPart
                     if (msg == null)
                         msg = e.getClass().getName();
 
-                    ReportPlugin.log(e, MessageFormat.format(Messages.QueryPart_Error_IgnoringResult, spec().getName(),
+                    ReportPlugin.log(e, MessageUtil.format(Messages.QueryPart_Error_IgnoringResult, spec().getName(),
                                     msg));
                     return this;
                 }
@@ -280,7 +280,7 @@ public class QueryPart extends AbstractPart
             if (columnIndex < 0)
             {
                 Logger.getLogger(getClass().getName()).log(Level.SEVERE,
-                                MessageFormat.format(Messages.QueryPart_Error_ColumnNotFound, column));
+                                MessageUtil.format(Messages.QueryPart_Error_ColumnNotFound, column));
             }
             else
             {
@@ -307,17 +307,18 @@ public class QueryPart extends AbstractPart
             if (p < 0)
             {
                 Logger.getLogger(getClass().getName()).log(Level.SEVERE,
-                                MessageFormat.format(Messages.QueryPart_Error_MissingEqualsSign, filter));
+                                MessageUtil.format(Messages.QueryPart_Error_MissingEqualsSign, filter));
             }
             else
             {
                 int columnIndex = builder.getColumnIndexByName(filter.substring(0, p));
                 if (columnIndex < 0)
                 {
-                    Logger.getLogger(getClass().getName()).log(
-                                    Level.SEVERE,
-                                    MessageFormat.format(Messages.QueryPart_Error_ColumnNotFound, filter
-                                                    .substring(0, p)));
+                    Logger.getLogger(getClass().getName())
+                                    .log(
+                                                    Level.SEVERE,
+                                                    MessageUtil.format(Messages.QueryPart_Error_ColumnNotFound, filter
+                                                                    .substring(0, p)));
                 }
                 else
                 {
@@ -327,9 +328,11 @@ public class QueryPart extends AbstractPart
                     }
                     catch (IllegalArgumentException e)
                     {
-                        Logger.getLogger(getClass().getName()).log(Level.SEVERE,
-                                        MessageFormat.format(Messages.QueryPart_Error_Filter, filter.substring(p + 1)),
-                                        e);
+                        Logger.getLogger(getClass().getName())
+                                        .log(
+                                                        Level.SEVERE,
+                                                        MessageUtil.format(Messages.QueryPart_Error_Filter, filter
+                                                                        .substring(p + 1)), e);
                     }
                 }
             }
@@ -354,7 +357,7 @@ public class QueryPart extends AbstractPart
             int p = provider.indexOf('=');
             if (p < 0)
             {
-                ReportPlugin.log(IStatus.WARNING, MessageFormat.format(Messages.QueryPart_Error_InvalidProvider,
+                ReportPlugin.log(IStatus.WARNING, MessageUtil.format(Messages.QueryPart_Error_InvalidProvider,
                                 Params.Rendering.DERIVED_DATA_COLUMN, provider));
                 continue;
             }
@@ -377,8 +380,7 @@ public class QueryPart extends AbstractPart
 
             if (operation == null)
             {
-                ReportPlugin.log(IStatus.WARNING, MessageFormat.format(
-                                Messages.QueryPart_Error_InvalidProviderOperation,
+                ReportPlugin.log(IStatus.WARNING, MessageUtil.format(Messages.QueryPart_Error_InvalidProviderOperation,
                                 Params.Rendering.DERIVED_DATA_COLUMN, code));
                 continue;
             }
@@ -411,7 +413,7 @@ public class QueryPart extends AbstractPart
             if (!added)
             {
                 String msg = Messages.QueryPart_Error_RetainedSizeColumnNotFound;
-                Logger.getLogger(QueryPart.class.getName()).log(Level.WARNING, MessageFormat.format(msg, provider));
+                Logger.getLogger(QueryPart.class.getName()).log(Level.WARNING, MessageUtil.format(msg, provider));
             }
 
         }
@@ -437,7 +439,7 @@ public class QueryPart extends AbstractPart
             if (columnIndex < 0)
             {
                 Logger.getLogger(getClass().getName()).log(Level.WARNING,
-                                MessageFormat.format(Messages.QueryPart_Error_SortColumnNotFound, name));
+                                MessageUtil.format(Messages.QueryPart_Error_SortColumnNotFound, name));
                 continue;
             }
 

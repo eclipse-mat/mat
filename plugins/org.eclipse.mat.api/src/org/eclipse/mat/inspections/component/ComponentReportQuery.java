@@ -10,8 +10,7 @@
  *******************************************************************************/
 package org.eclipse.mat.inspections.component;
 
-import java.text.MessageFormat;
-import java.text.NumberFormat;
+import com.ibm.icu.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -50,6 +49,7 @@ import org.eclipse.mat.snapshot.query.PieFactory;
 import org.eclipse.mat.snapshot.query.RetainedSizeDerivedData;
 import org.eclipse.mat.snapshot.query.SnapshotQuery;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.Units;
 
 @Name("Component Report")
@@ -68,7 +68,7 @@ public class ComponentReportQuery implements IQuery
 
     public IResult execute(IProgressListener listener) throws Exception
     {
-        SectionSpec componentReport = new SectionSpec(MessageFormat.format("Component Report {0}", objects.getLabel()));
+        SectionSpec componentReport = new SectionSpec(MessageUtil.format("Component Report {0}", objects.getLabel()));
 
         Ticks ticks = new Ticks(listener, componentReport.getName(), 31);
 
@@ -701,7 +701,7 @@ public class ComponentReportQuery implements IQuery
         CompositeResult referents = ReferenceQuery.execute("softly", instanceSet, referentSet, snapshot, ticks);
 
         StringBuilder comment = new StringBuilder();
-        comment.append(MessageFormat.format("A total of {0} java.lang.ref.SoftReference "
+        comment.append(MessageUtil.format("A total of {0} java.lang.ref.SoftReference "
                         + "object{0,choice,0#s|1#|2#s} have been found, "
                         + "which softly reference {1,choice,0#no objects|1#one object|2#{1,number} objects}.<br/>",
                         instanceSet.size(), referentSet.size()));
@@ -714,7 +714,7 @@ public class ComponentReportQuery implements IQuery
             numObjects += r.getNumberOfObjects();
             heapSize += r.getUsedHeapSize();
         }
-        comment.append(MessageFormat.format("{0,choice,0#none object|1#one object|2#{0,number} objects} totaling {1} "
+        comment.append(MessageUtil.format("{0,choice,0#none object|1#one object|2#{0,number} objects} totaling {1} "
                         + "are retained (kept alive) only via soft references.", //
                         numObjects, //
                         Units.Storage.of(heapSize).format(heapSize)));
@@ -784,7 +784,7 @@ public class ComponentReportQuery implements IQuery
 
         SectionSpec overview = new SectionSpec("Finalizer Statistics");
         StringBuilder comment = new StringBuilder();
-        comment.append(MessageFormat.format("A total of {0} object{0,choice,0#s|1#|2#s} "
+        comment.append(MessageUtil.format("A total of {0} object{0,choice,0#s|1#|2#s} "
                         + "implement the finalize method.", finalizers.size()));
 
         QuerySpec commentSpec = new QuerySpec("Comment", new TextResult(comment.toString(), true));

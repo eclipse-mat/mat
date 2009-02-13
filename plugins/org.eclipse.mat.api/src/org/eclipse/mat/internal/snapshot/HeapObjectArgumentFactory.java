@@ -12,7 +12,6 @@
 package org.eclipse.mat.internal.snapshot;
 
 import java.lang.reflect.Array;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -24,6 +23,7 @@ import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.VoidProgressListener;
 
 public abstract class HeapObjectArgumentFactory implements ArgumentFactory
@@ -83,7 +83,7 @@ public abstract class HeapObjectArgumentFactory implements ArgumentFactory
         }
         catch (Exception e)
         {
-            throw new SnapshotException(MessageFormat.format("{0}: Error setting heap objects to field ''{1}''", e
+            throw new SnapshotException(MessageUtil.format("{0}: Error setting heap objects to field ''{1}''", e
                             .getClass().getCanonicalName(), argument.getName()), e);
         }
     }
@@ -142,14 +142,14 @@ public abstract class HeapObjectArgumentFactory implements ArgumentFactory
             }
             else
             {
-                throw new SnapshotException(MessageFormat.format("Type ''{0}'' of argument ''{1}'' not supported.",
+                throw new SnapshotException(MessageUtil.format("Type ''{0}'' of argument ''{1}'' not supported.",
                                 argument.getType().getName(), argument.getName()));
             }
         }
         else
         {
             if (objectIds.length != 1)
-                throw new SnapshotException(MessageFormat.format(
+                throw new SnapshotException(MessageUtil.format(
                                 "Argument ''{0}'' does not allow to assign multiple objects", argument.getName()));
 
             if (argument.getType() == int.class)
@@ -166,7 +166,7 @@ public abstract class HeapObjectArgumentFactory implements ArgumentFactory
             }
             else
             {
-                throw new SnapshotException(MessageFormat.format("Type ''{0}'' of argument ''{1}'' not supported.",
+                throw new SnapshotException(MessageUtil.format("Type ''{0}'' of argument ''{1}'' not supported.",
                                 argument.getType().getName(), argument.getName()));
             }
         }

@@ -19,7 +19,6 @@ import org.eclipse.mat.ui.QueryExecution;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
 import org.eclipse.mat.ui.util.ErrorHelper;
 
-
 public class ExecuteQueryAction extends Action
 {
     private MultiPaneEditor editor;

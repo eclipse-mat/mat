@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.mat.tests.snapshot;
 
-import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -23,6 +22,7 @@ import org.eclipse.mat.snapshot.OQLParseException;
 import org.eclipse.mat.snapshot.SnapshotFactory;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.tests.TestSnapshots;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.VoidProgressListener;
 import org.junit.Test;
 
@@ -54,7 +54,7 @@ public class OQLTest
             try
             {
                 SnapshotFactory.createQuery(statement);
-                throw new SnapshotException(MessageFormat.format("Statement should generated error: {0}", statement));
+                throw new SnapshotException(MessageUtil.format("Statement should generated error: {0}", statement));
             }
             catch (OQLParseException expected)
             {}
@@ -165,7 +165,7 @@ public class OQLTest
 
         Set<IClass> classes = new HashSet<IClass>(snapshot.getClassesByName("java.lang.ref.Reference", true));
         for (int id : objectIds)
-            assert classes.contains(snapshot.getClassOf(id)) : MessageFormat.format(
+            assert classes.contains(snapshot.getClassOf(id)) : MessageUtil.format(
                             "Object {0} not an instance of java.lang.ref.Reference ", id);
     }
 

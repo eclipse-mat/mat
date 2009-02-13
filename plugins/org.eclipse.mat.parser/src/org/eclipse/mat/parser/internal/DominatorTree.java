@@ -26,7 +26,6 @@ import org.eclipse.mat.parser.internal.util.IntStack;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.SimpleMonitor;
 
-
 public class DominatorTree
 {
 
@@ -64,8 +63,8 @@ public class DominatorTree
             this.snapshot = snapshot;
             inboundIndex = snapshot.getIndexManager().inbound();
             outboundIndex = snapshot.getIndexManager().outbound();
-            this.monitor = new SimpleMonitor(Messages.DominatorTree_CalculatingDominatorTree, listener, new int[] { 300, 300, 200, 200,
-                            200 });
+            this.monitor = new SimpleMonitor(Messages.DominatorTree_CalculatingDominatorTree, listener, new int[] {
+                            300, 300, 200, 200, 200 });
             gcRootsArray = snapshot.getGCRoots();
             gcRootsSet = new BitField(snapshot.getSnapshotInfo().getNumberOfObjects());
             for (int id : gcRootsArray)
@@ -218,7 +217,8 @@ public class DominatorTree
         private void dfs(int root) throws UnsupportedOperationException
         {
             IProgressListener progressListener = this.monitor.nextMonitor();
-            progressListener.beginTask(Messages.DominatorTree_DepthFirstSearch, snapshot.getSnapshotInfo().getNumberOfObjects() >> 16);
+            progressListener.beginTask(Messages.DominatorTree_DepthFirstSearch, snapshot.getSnapshotInfo()
+                            .getNumberOfObjects() >> 16);
 
             // a stack for each parameter - stack code is inlined for
             // performance
@@ -399,12 +399,12 @@ public class DominatorTree
         public class FlatDominatorTree
         {
             private static final int TEMP_ARR_LENGTH = 1000000;
-            
+
             int[] dom;
             int[] elements;
             long[] ts;
             SnapshotImpl dump;
-            
+
             // temp arrays to pass for the radix sort
             long[] tempLongArray = new long[TEMP_ARR_LENGTH];
             int[] tempIntArray = new int[TEMP_ARR_LENGTH];
@@ -527,8 +527,8 @@ public class DominatorTree
                 size++;
 
                 IProgressListener progressListener = Calculator.this.monitor.nextMonitor();
-                progressListener.beginTask(Messages.DominatorTree_CalculateRetainedSizes,
-                                dump.getSnapshotInfo().getNumberOfObjects() / 1000);
+                progressListener.beginTask(Messages.DominatorTree_CalculateRetainedSizes, dump.getSnapshotInfo()
+                                .getNumberOfObjects() / 1000);
                 int counter = 0;
 
                 while (size > 0)

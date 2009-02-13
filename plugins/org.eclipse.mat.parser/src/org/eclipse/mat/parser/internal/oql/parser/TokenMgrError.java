@@ -3,7 +3,7 @@
 package org.eclipse.mat.parser.internal.oql.parser;
 
 /** Token Manager Error. */
-@SuppressWarnings({"serial", "nls"})
+@SuppressWarnings( { "serial", "nls" })
 public class TokenMgrError extends Error
 {
 
@@ -103,8 +103,7 @@ public class TokenMgrError extends Error
      * this method.
      */
     protected static String LexicalError(boolean EOFSeen, @SuppressWarnings("unused") int lexState, int errorLine,
-                    int errorColumn,
-                    String errorAfter, char curChar)
+                    int errorColumn, String errorAfter, char curChar)
     {
         return ("Lexical error at line "
                         + errorLine

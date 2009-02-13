@@ -17,14 +17,14 @@ import java.util.List;
 public class ForceNewBaselineApplication
 {
     private File dumpDir;
-    
+
     public ForceNewBaselineApplication(File dumpDir)
     {
         this.dumpDir = dumpDir;
     }
 
     public void run()
-    {   
+    {
 
         List<File> dumps = RegTestUtils.collectDumps(dumpDir, new ArrayList<File>());
         for (File dump : dumps)
@@ -59,8 +59,8 @@ public class ForceNewBaselineApplication
                     boolean succeed = baselineFile.renameTo(newBaselineFile);
                     if (succeed)
                     {
-                        System.out.println("New baseline was created for heap dump: " + dump.getName()
-                                        + " file: " + baselineFile.getName());
+                        System.out.println("New baseline was created for heap dump: " + dump.getName() + " file: "
+                                        + baselineFile.getName());
                     }
                     else
                     {

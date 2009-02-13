@@ -24,7 +24,6 @@ import org.eclipse.mat.ui.internal.actions.ExecuteQueryAction;
 import org.eclipse.mat.ui.util.EasyToolBarDropDown;
 import org.eclipse.mat.ui.util.PopupMenu;
 
-
 public class RunReportsDropDownAction extends EasyToolBarDropDown
 {
     private MultiPaneEditor editor;

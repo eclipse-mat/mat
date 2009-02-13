@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.mat.report;
 
-import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -21,6 +20,7 @@ import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.report.internal.ReportPlugin;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.RegistryReader;
 
 public class RendererRegistry extends RegistryReader<IOutputter>
@@ -47,8 +47,8 @@ public class RendererRegistry extends RegistryReader<IOutputter>
         Renderer annotation = subject.getClass().getAnnotation(Renderer.class);
         if (annotation == null)
         {
-            ReportPlugin.log(new RuntimeException(MessageFormat.format(
-                            Messages.RendererRegistry_Error_MissingAnnotation, subject.getClass().getName())));
+            ReportPlugin.log(new RuntimeException(MessageUtil.format(Messages.RendererRegistry_Error_MissingAnnotation,
+                            subject.getClass().getName())));
             return null;
         }
 

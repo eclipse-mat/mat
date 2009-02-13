@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.mat.parser.internal.oql.compiler;
 
-import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -23,9 +22,9 @@ import org.eclipse.mat.parser.internal.Messages;
 import org.eclipse.mat.parser.internal.oql.compiler.CompilerImpl.ConstantExpression;
 import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.snapshot.model.IObject;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.PatternUtil;
 import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
-
 
 abstract class Operation extends Expression
 {
@@ -249,10 +248,10 @@ abstract class Operation extends Expression
         Object eval(Object left, Object right)
         {
             if (!(left instanceof Comparable))
-                throw new UnsupportedOperationException(MessageFormat.format(ERR_NO_COMPARABLE, this.args[0], left
+                throw new UnsupportedOperationException(MessageUtil.format(ERR_NO_COMPARABLE, this.args[0], left
                                 .getClass().getName(), getSymbol()));
             if (!(left instanceof Comparable))
-                throw new UnsupportedOperationException(MessageFormat.format(ERR_NO_COMPARABLE, this.args[1], right
+                throw new UnsupportedOperationException(MessageUtil.format(ERR_NO_COMPARABLE, this.args[1], right
                                 .getClass().getName(), getSymbol()));
 
             return ((Comparable) left).compareTo(right) > 0;
@@ -294,10 +293,10 @@ abstract class Operation extends Expression
         Object eval(Object left, Object right)
         {
             if (!(left instanceof Comparable))
-                throw new UnsupportedOperationException(MessageFormat.format(ERR_NO_COMPARABLE, this.args[0], left
+                throw new UnsupportedOperationException(MessageUtil.format(ERR_NO_COMPARABLE, this.args[0], left
                                 .getClass().getName(), getSymbol()));
             if (!(left instanceof Comparable))
-                throw new UnsupportedOperationException(MessageFormat.format(ERR_NO_COMPARABLE, this.args[1], right
+                throw new UnsupportedOperationException(MessageUtil.format(ERR_NO_COMPARABLE, this.args[1], right
                                 .getClass().getName(), getSymbol()));
 
             return ((Comparable) left).compareTo(right) >= 0;
@@ -339,10 +338,10 @@ abstract class Operation extends Expression
         Object eval(Object left, Object right)
         {
             if (!(left instanceof Comparable))
-                throw new UnsupportedOperationException(MessageFormat.format(ERR_NO_COMPARABLE, this.args[0], left
+                throw new UnsupportedOperationException(MessageUtil.format(ERR_NO_COMPARABLE, this.args[0], left
                                 .getClass().getName(), getSymbol()));
             if (!(left instanceof Comparable))
-                throw new UnsupportedOperationException(MessageFormat.format(ERR_NO_COMPARABLE, this.args[1], right
+                throw new UnsupportedOperationException(MessageUtil.format(ERR_NO_COMPARABLE, this.args[1], right
                                 .getClass().getName(), getSymbol()));
 
             return ((Comparable) left).compareTo(right) < 0;
@@ -384,10 +383,10 @@ abstract class Operation extends Expression
         Object eval(Object left, Object right)
         {
             if (!(left instanceof Comparable))
-                throw new UnsupportedOperationException(MessageFormat.format(ERR_NO_COMPARABLE, this.args[0], left
+                throw new UnsupportedOperationException(MessageUtil.format(ERR_NO_COMPARABLE, this.args[0], left
                                 .getClass().getName(), getSymbol()));
             if (!(left instanceof Comparable))
-                throw new UnsupportedOperationException(MessageFormat.format(ERR_NO_COMPARABLE, this.args[1], right
+                throw new UnsupportedOperationException(MessageUtil.format(ERR_NO_COMPARABLE, this.args[1], right
                                 .getClass().getName(), getSymbol()));
 
             return ((Comparable) left).compareTo(right) <= 0;
@@ -438,9 +437,8 @@ abstract class Operation extends Expression
                 else if (obj1 instanceof IObject)
                     leftId = ((IObject) obj1).getObjectId();
                 else
-                    throw new RuntimeException(MessageFormat.format(
-                                    Messages.Operation_Error_CannotCompare, new Object[] { obj1
-                                                    .getClass().getName() }));
+                    throw new RuntimeException(MessageUtil.format(Messages.Operation_Error_CannotCompare,
+                                    new Object[] { obj1.getClass().getName() }));
 
                 for (int objectId : (int[]) obj2)
                 {
@@ -466,7 +464,8 @@ abstract class Operation extends Expression
             }
             else
             {
-                throw new RuntimeException(MessageFormat.format(Messages.Operation_Error_ArgumentOfUnknownClass, obj2.getClass().getName()));
+                throw new RuntimeException(MessageUtil.format(Messages.Operation_Error_ArgumentOfUnknownClass, obj2
+                                .getClass().getName()));
             }
         }
 
@@ -517,9 +516,8 @@ abstract class Operation extends Expression
                 else if (obj1 instanceof IObject)
                     leftId = ((IObject) obj1).getObjectId();
                 else
-                    throw new RuntimeException(MessageFormat.format(
-                                    Messages.Operation_Error_NotInCannotCompare, obj1.getClass()
-                                                    .getName()));
+                    throw new RuntimeException(MessageUtil.format(Messages.Operation_Error_NotInCannotCompare, obj1
+                                    .getClass().getName()));
 
                 for (int objectId : (int[]) obj2)
                 {
@@ -545,7 +543,8 @@ abstract class Operation extends Expression
             }
             else
             {
-                throw new RuntimeException(MessageFormat.format(Messages.Operation_Error_NotInArgumentOfUnknownClass, obj2.getClass().getName()));
+                throw new RuntimeException(MessageUtil.format(Messages.Operation_Error_NotInArgumentOfUnknownClass,
+                                obj2.getClass().getName()));
             }
         }
 
@@ -763,12 +762,16 @@ abstract class Operation extends Expression
             Object obj2 = this.args[1].compute(ctx);
 
             if (obj1 == null || !(obj1 instanceof Number))
-                throw new UnsupportedOperationException(MessageFormat.format(ERR_NOT_A_NUMBER, new Object[] { args[0],
-                                obj1, obj1 != null ? obj1.getClass().getName() : Messages.Function_unknown, getSymbol() }));
+                throw new UnsupportedOperationException(MessageUtil.format(ERR_NOT_A_NUMBER,
+                                new Object[] { args[0], obj1,
+                                                obj1 != null ? obj1.getClass().getName() : Messages.Function_unknown,
+                                                getSymbol() }));
 
             if (obj2 == null || !(obj2 instanceof Number))
-                throw new UnsupportedOperationException(MessageFormat.format(ERR_NOT_A_NUMBER, new Object[] { args[1],
-                                obj2, obj2 != null ? obj2.getClass().getName() : Messages.Function_unknown, getSymbol() }));
+                throw new UnsupportedOperationException(MessageUtil.format(ERR_NOT_A_NUMBER,
+                                new Object[] { args[1], obj2,
+                                                obj2 != null ? obj2.getClass().getName() : Messages.Function_unknown,
+                                                getSymbol() }));
 
             if (obj1 instanceof Double || obj1 instanceof Float || obj2 instanceof Double || obj2 instanceof Float)
             {

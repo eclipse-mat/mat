@@ -16,7 +16,6 @@ import org.eclipse.mat.internal.MATPlugin;
 import org.eclipse.mat.snapshot.extension.ITroubleTicketResolver;
 import org.eclipse.mat.util.RegistryReader;
 
-
 public class TroubleTicketResolverRegistry extends RegistryReader<ITroubleTicketResolver>
 {
     private static final TroubleTicketResolverRegistry instance = new TroubleTicketResolverRegistry();

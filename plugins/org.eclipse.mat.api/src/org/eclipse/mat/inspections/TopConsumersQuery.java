@@ -12,7 +12,7 @@ package org.eclipse.mat.inspections;
 
 import java.io.CharArrayWriter;
 import java.io.PrintWriter;
-import java.text.NumberFormat;
+import com.ibm.icu.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -39,7 +39,6 @@ import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.ObjectComparators;
 import org.eclipse.mat.util.IProgressListener;
 
-
 @Name("Top Consumers")
 @Category(Category.HIDDEN)
 @Help("Print biggest objects grouped by class, class loader, and package. "
@@ -53,7 +52,7 @@ public class TopConsumersQuery implements IQuery
         percentFormatter.setMaximumFractionDigits(2);
         percentFormatter.setMinimumFractionDigits(2);
     }
-    
+
     static final String SEPARATOR = "--------------------------------------------------------------------------------";
 
     @Argument

@@ -43,9 +43,9 @@ public class ArrayIntCompressed
     }
 
     /**
-     * Create <code>IntArrayCompressed</code> from number of ints to be
-     * stored, the number of leading and trailing clear bits. Everything else is
-     * stored in the internal data structure.
+     * Create <code>IntArrayCompressed</code> from number of ints to be stored,
+     * the number of leading and trailing clear bits. Everything else is stored
+     * in the internal data structure.
      * 
      * @param size
      *            number of ints to be stored
@@ -61,8 +61,8 @@ public class ArrayIntCompressed
     }
 
     /**
-     * Create <code>IntArrayCompressed</code> from ints representing the data
-     * to be stored in compressed form.
+     * Create <code>IntArrayCompressed</code> from ints representing the data to
+     * be stored in compressed form.
      * 
      * @param ints
      *            ints representing the data to be stored in compressed form
@@ -74,8 +74,8 @@ public class ArrayIntCompressed
     }
 
     /**
-     * Create <code>IntArrayCompressed</code> from ints representing the data
-     * to be stored in compressed form (from offset to offset+length).
+     * Create <code>IntArrayCompressed</code> from ints representing the data to
+     * be stored in compressed form (from offset to offset+length).
      * 
      * @param ints
      *            ints representing the data to be stored in compressed form

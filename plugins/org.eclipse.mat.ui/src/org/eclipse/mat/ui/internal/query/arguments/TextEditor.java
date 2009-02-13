@@ -30,7 +30,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-
 public class TextEditor extends ArgumentEditor
 {
     protected Object value;
@@ -150,7 +149,7 @@ public class TextEditor extends ArgumentEditor
             {
                 value = context.convertToValue(descriptor.getType(), descriptor.getAdvice(), t);
             }
-            
+
             fireValueChangedEvent(value, this);
         }
         catch (SnapshotException e)

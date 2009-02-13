@@ -134,7 +134,7 @@ public class OQLPane extends CompositeHeapEditorPane
             @Override
             public void run()
             {
-               queryString.copy();
+                queryString.copy();
             }
         };
         copyQueryStringAction.setAccelerator(globalAction.getAccelerator());
@@ -208,7 +208,7 @@ public class OQLPane extends CompositeHeapEditorPane
         IOQLQuery.Result subject = (IOQLQuery.Result) (queryResult).getSubject();
         queryString.setText(subject.getOQLQuery());
 
-        AbstractEditorPane pane = EditorPaneRegistry.instance().createNewPane(subject, this.getClass()); 
+        AbstractEditorPane pane = EditorPaneRegistry.instance().createNewPane(subject, this.getClass());
 
         if (state == null)
         {
@@ -236,7 +236,7 @@ public class OQLPane extends CompositeHeapEditorPane
     @Override
     public void setFocus()
     {
-        queryString.setFocus();        
+        queryString.setFocus();
     }
 
     // //////////////////////////////////////////////////////////////

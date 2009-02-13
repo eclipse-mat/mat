@@ -98,7 +98,7 @@ public abstract class CompositeHeapEditorPane extends AbstractEditorPane impleme
             embeddedPane = null;
         }
     }
-    
+
     public void closePage(PaneState state)
     {
         if (embeddedPane != null && embeddedPane.getPaneState() == state)

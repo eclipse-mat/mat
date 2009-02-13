@@ -18,7 +18,6 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
-
 public class TextViewPane extends AbstractEditorPane
 {
     Text text;
@@ -27,18 +26,16 @@ public class TextViewPane extends AbstractEditorPane
     {
         text = new Text(parent, SWT.MULTI);
         text.setEditable(false);
-        
+
         makeActions();
         hookContextMenu();
     }
 
     private void makeActions()
-    {
-    }
+    {}
 
     private void hookContextMenu()
-    {
-    }
+    {}
 
     @Override
     public void contributeToToolBar(IToolBarManager manager)
@@ -50,7 +47,7 @@ public class TextViewPane extends AbstractEditorPane
         if (!(param instanceof String))
             return;
 
-        text.setText((String)param);
+        text.setText((String) param);
     }
 
     // //////////////////////////////////////////////////////////////

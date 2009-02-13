@@ -12,13 +12,13 @@ package org.eclipse.mat.hprof;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.MessageFormat;
 
 import org.eclipse.mat.parser.io.PositionInputStream;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IPrimitiveArray;
 import org.eclipse.mat.snapshot.model.ObjectReference;
+import org.eclipse.mat.util.MessageUtil;
 
 // Hprof binary format as defined here:
 // https://heap-snapshot.dev.java.net/files/documents/4282/31543/hprof-binary-format.html
@@ -28,7 +28,7 @@ import org.eclipse.mat.snapshot.model.ObjectReference;
     /* package */enum Version
     {
         JDK12BETA3("JAVA PROFILE 1.0"), //$NON-NLS-1$
-        JDK12BETA4("JAVA PROFILE 1.0.1"),  //$NON-NLS-1$
+        JDK12BETA4("JAVA PROFILE 1.0.1"), //$NON-NLS-1$
         JDK6("JAVA PROFILE 1.0.2");//$NON-NLS-1$
 
         private String label;
@@ -121,11 +121,13 @@ import org.eclipse.mat.snapshot.model.ObjectReference;
                     if (bytesRead <= 13) // did not read "JAVA PROFILE "
                         throw new IOException(Messages.AbstractParser_Error_NotHeapDump);
                     else
-                        throw new IOException(MessageFormat.format(Messages.AbstractParser_Error_UnknownHPROFVersion, version.toString()));
+                        throw new IOException(MessageUtil.format(Messages.AbstractParser_Error_UnknownHPROFVersion,
+                                        version.toString()));
                 }
 
                 if (answer == Version.JDK12BETA3) // not supported by MAT
-                    throw new IOException(MessageFormat.format(Messages.AbstractParser_Error_UnsupportedHPROFVersion, answer.getLabel()));
+                    throw new IOException(MessageUtil.format(Messages.AbstractParser_Error_UnsupportedHPROFVersion,
+                                    answer.getLabel()));
                 return answer;
             }
         }
@@ -173,7 +175,7 @@ import org.eclipse.mat.snapshot.model.ObjectReference;
             case IObject.Type.LONG:
                 return in.readLong();
             default:
-                throw new IOException(MessageFormat.format(Messages.AbstractParser_Error_IllegalType, type));
+                throw new IOException(MessageUtil.format(Messages.AbstractParser_Error_IllegalType, type));
         }
     }
 

@@ -12,7 +12,6 @@ package org.eclipse.mat.parser.internal.oql;
 
 import java.io.StringReader;
 import java.lang.reflect.Array;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -47,10 +46,10 @@ import org.eclipse.mat.snapshot.OQLParseException;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.PatternUtil;
 import org.eclipse.mat.util.SimpleMonitor;
 import org.eclipse.mat.util.VoidProgressListener;
-
 
 public class OQLQueryImpl implements IOQLQuery
 {
@@ -683,12 +682,13 @@ public class OQLQueryImpl implements IOQLQuery
             if (this.query.getSelectClause().getSelectList().isEmpty() || this.query.getSelectClause().isAsObjects())
             {
                 if (!q.getSelectClause().getSelectList().isEmpty() && !q.getSelectClause().isAsObjects()) { throw new SnapshotException(
-                                MessageFormat.format(Messages.OQLQueryImpl_Error_QueryMustReturnObjects, new Object[] { q })); }
+                                MessageUtil.format(Messages.OQLQueryImpl_Error_QueryMustReturnObjects,
+                                                new Object[] { q })); }
             }
             else
             {
                 if (q.getSelectClause().getSelectList().size() != this.query.getSelectClause().getSelectList().size()) { throw new SnapshotException(
-                                MessageFormat.format(Messages.OQLQueryImpl_Error_QueryMustHaveIdenticalSelectItems,
+                                MessageUtil.format(Messages.OQLQueryImpl_Error_QueryMustHaveIdenticalSelectItems,
                                                 new Object[] { q })); }
             }
 
@@ -717,7 +717,7 @@ public class OQLQueryImpl implements IOQLQuery
         Object result = subQuery.internalExecute(monitor);
 
         if (!(result instanceof IntResult))
-            throw new SnapshotException(MessageFormat.format(Messages.OQLQueryImpl_Error_MustReturnObjectList,
+            throw new SnapshotException(MessageUtil.format(Messages.OQLQueryImpl_Error_MustReturnObjectList,
                             new Object[] { query.getFromClause().getSubSelect() }));
 
         IntResult baseSet = (IntResult) result;
@@ -744,8 +744,7 @@ public class OQLQueryImpl implements IOQLQuery
             }
             catch (ClassCastException e)
             {
-                throw new SnapshotException(
-                                Messages.OQLQueryImpl_Error_ClassCastExceptionOccured, e); 
+                throw new SnapshotException(Messages.OQLQueryImpl_Error_ClassCastExceptionOccured, e);
             }
 
         }
@@ -772,8 +771,8 @@ public class OQLQueryImpl implements IOQLQuery
             }
             catch (PatternSyntaxException e)
             {
-                throw new SnapshotException(MessageFormat.format(Messages.OQLQueryImpl_Error_InvalidClassNamePattern, new Object[] { query
-                                .getFromClause().getClassNamePattern() }), e);
+                throw new SnapshotException(MessageUtil.format(Messages.OQLQueryImpl_Error_InvalidClassNamePattern,
+                                new Object[] { query.getFromClause().getClassNamePattern() }), e);
             }
         }
         else if (query.getFromClause().getObjectIds() != null)
@@ -794,7 +793,7 @@ public class OQLQueryImpl implements IOQLQuery
                     }
                     else
                     {
-                        throw new SnapshotException(MessageFormat.format(Messages.OQLQueryImpl_Errot_IsNotClass,
+                        throw new SnapshotException(MessageUtil.format(Messages.OQLQueryImpl_Errot_IsNotClass,
                                         new Object[] { Long.toHexString(subject.getObjectAddress()) }));
                     }
 
@@ -825,7 +824,7 @@ public class OQLQueryImpl implements IOQLQuery
                     }
                     else
                     {
-                        throw new SnapshotException(MessageFormat.format(Messages.OQLQueryImpl_Errot_IsNotClass,
+                        throw new SnapshotException(MessageUtil.format(Messages.OQLQueryImpl_Errot_IsNotClass,
                                         new Object[] { Long.toHexString(subject.getObjectAddress()) }));
                     }
 
@@ -953,8 +952,8 @@ public class OQLQueryImpl implements IOQLQuery
             }
             catch (ClassCastException e)
             {
-                throw new SnapshotException(MessageFormat.format(Messages.OQLQueryImpl_Error_ElementIsNotClass, new Object[] { e
-                                .getMessage() }), e);
+                throw new SnapshotException(MessageUtil.format(Messages.OQLQueryImpl_Error_ElementIsNotClass,
+                                new Object[] { e.getMessage() }), e);
             }
 
             return filterClasses(listener, classes);
@@ -987,7 +986,8 @@ public class OQLQueryImpl implements IOQLQuery
             IntResult filteredSet = createIntResult(classes.size() * 100);
             for (IClass clasz : classes)
             {
-                listener.subTask(MessageFormat.format(Messages.OQLQueryImpl_CheckingClass, new Object[] { clasz.getName() }));
+                listener.subTask(MessageUtil.format(Messages.OQLQueryImpl_CheckingClass,
+                                new Object[] { clasz.getName() }));
 
                 int[] ids = clasz.getObjectIds();
                 for (int id : ids)
@@ -1142,7 +1142,7 @@ public class OQLQueryImpl implements IOQLQuery
             }
             else
             {
-                throw new SnapshotException(MessageFormat.format(Messages.OQLQueryImpl_Error_CannotCalculateRetainedSet,
+                throw new SnapshotException(MessageUtil.format(Messages.OQLQueryImpl_Error_CannotCalculateRetainedSet,
                                 new Object[] { object }));
             }
         }
@@ -1153,7 +1153,7 @@ public class OQLQueryImpl implements IOQLQuery
     private void convertToObjects(CustomTableResultSet set, IntResult resultSet, IProgressListener listener)
                     throws SnapshotException
     {
-        if (set.getColumns().length != 1) { throw new SnapshotException(MessageFormat.format(
+        if (set.getColumns().length != 1) { throw new SnapshotException(MessageUtil.format(
                         Messages.OQLQueryImpl_Error_QueryCannotBeConverted, new Object[] { set.getOQLQuery() })); }
 
         int count = set.getRowCount();
@@ -1181,9 +1181,8 @@ public class OQLQueryImpl implements IOQLQuery
             }
             else
             {
-                throw new SnapshotException(MessageFormat.format(
-                                Messages.OQLQueryImpl_Error_ResultMustReturnObjectList, new Object[] {
-                                                set.getOQLQuery(), String.valueOf(object) }));
+                throw new SnapshotException(MessageUtil.format(Messages.OQLQueryImpl_Error_ResultMustReturnObjectList,
+                                new Object[] { set.getOQLQuery(), String.valueOf(object) }));
             }
         }
     }

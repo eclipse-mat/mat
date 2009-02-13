@@ -36,7 +36,6 @@ import org.eclipse.ui.forms.events.HyperlinkAdapter;
 import org.eclipse.ui.forms.events.HyperlinkEvent;
 import org.eclipse.ui.forms.widgets.ImageHyperlink;
 
-
 public class ImageTextEditor extends TextEditor
 {
     private ControlDecoration field;

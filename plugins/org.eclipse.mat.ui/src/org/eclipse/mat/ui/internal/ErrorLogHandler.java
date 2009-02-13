@@ -18,25 +18,22 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 
-
 public class ErrorLogHandler extends Handler
 {
-    
+
     @Override
     public void close() throws SecurityException
-    {
-    }
+    {}
 
     @Override
     public void flush()
-    {
-    }
+    {}
 
     @Override
     public void publish(LogRecord record)
     {
         int severity = IStatus.OK;
-        
+
         if (record.getLevel().intValue() >= Level.SEVERE.intValue())
             severity = IStatus.ERROR;
         else if (record.getLevel().intValue() >= Level.WARNING.intValue())

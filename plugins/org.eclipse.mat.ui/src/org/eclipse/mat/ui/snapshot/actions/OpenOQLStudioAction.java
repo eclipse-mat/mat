@@ -18,7 +18,6 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 
-
 public class OpenOQLStudioAction extends Action
 {
     public OpenOQLStudioAction()

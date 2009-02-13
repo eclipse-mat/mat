@@ -43,7 +43,7 @@ public class SnapshotQueryContext extends QueryContextImpl
         long address = snapshot.mapIdToAddress(objectId);
         return "0x" + Long.toHexString(address);
     }
-    
+
     public int mapToObjectId(String externalIdentifier) throws SnapshotException
     {
         long objectAddress = new BigInteger(externalIdentifier.substring(2), 16).longValue();
@@ -165,7 +165,7 @@ public class SnapshotQueryContext extends QueryContextImpl
     {
         if (type.isAssignableFrom(ISnapshot.class) && advice == Advice.SECONDARY_SNAPSHOT)
         {
-            return new SnapshotArgument(value); 
+            return new SnapshotArgument(value);
         }
         else if (type.isAssignableFrom(int.class) && advice == Advice.HEAP_OBJECT)
         {
@@ -214,7 +214,6 @@ public class SnapshotQueryContext extends QueryContextImpl
     // synthetic columns
     // //////////////////////////////////////////////////////////////
 
-    
     public ContextDerivedData getContextDerivedData()
     {
         return new RetainedSizeDerivedData(snapshot);

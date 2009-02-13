@@ -16,7 +16,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.text.MessageFormat;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -36,6 +35,7 @@ import org.eclipse.mat.ui.editor.PathEditorInput;
 import org.eclipse.mat.ui.snapshot.editor.HeapEditor;
 import org.eclipse.mat.ui.snapshot.editor.ISnapshotEditorInput;
 import org.eclipse.mat.ui.util.ErrorHelper;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorDescriptor;
@@ -253,7 +253,8 @@ public class OpenSampleHeapDumpAction extends Action implements ICheatSheetActio
             else
             {
                 MessageDialog.openInformation(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
-                                Messages.OpenSampleHeapDumpAction_ErrorOpeningEditor, MessageFormat.format(Messages.OpenSampleHeapDumpAction_NoEditorToOpen,
+                                Messages.OpenSampleHeapDumpAction_ErrorOpeningEditor, MessageUtil.format(
+                                                Messages.OpenSampleHeapDumpAction_NoEditorToOpen,
                                                 new Object[] { absolutePath }));
             }
         }

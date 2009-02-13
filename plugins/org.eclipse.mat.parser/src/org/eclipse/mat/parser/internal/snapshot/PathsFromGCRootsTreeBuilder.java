@@ -16,7 +16,6 @@ import java.util.Map;
 
 import org.eclipse.mat.snapshot.PathsFromGCRootsTree;
 
-
 public class PathsFromGCRootsTreeBuilder
 {
     private int ownId;
@@ -36,8 +35,8 @@ public class PathsFromGCRootsTreeBuilder
 
     public PathsFromGCRootsTree toPathsFromGCRootsTree()
     {
-        HashMap<Integer, PathsFromGCRootsTree> data = new HashMap<Integer, PathsFromGCRootsTree>(
-                        objectInboundReferers.size());
+        HashMap<Integer, PathsFromGCRootsTree> data = new HashMap<Integer, PathsFromGCRootsTree>(objectInboundReferers
+                        .size());
         for (Map.Entry<Integer, PathsFromGCRootsTreeBuilder> entry : objectInboundReferers.entrySet())
         {
             data.put(entry.getKey(), entry.getValue().toPathsFromGCRootsTree());
@@ -54,7 +53,7 @@ public class PathsFromGCRootsTreeBuilder
     {
         return ownId;
     }
-    
+
     public void addObjectReferer(PathsFromGCRootsTreeBuilder referer)
     {
         if (objectInboundReferers.put(referer.getOwnId(), referer) == null)

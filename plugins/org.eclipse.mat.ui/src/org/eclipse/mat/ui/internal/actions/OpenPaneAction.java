@@ -13,7 +13,6 @@ package org.eclipse.mat.ui.internal.actions;
 import org.eclipse.jface.action.Action;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
 
-
 public class OpenPaneAction extends Action
 {
 
@@ -24,7 +23,7 @@ public class OpenPaneAction extends Action
     {
         super();
         this.editor = editor;
-        this.paneId = paneId;        
+        this.paneId = paneId;
     }
 
     @Override

@@ -22,7 +22,6 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.Point;
 
-
 public class ImageHelper
 {
     public interface Type
@@ -46,7 +45,7 @@ public class ImageHelper
         String GC_ROOT = PREFIX_OVERLAY + "gc_root.gif"; //$NON-NLS-1$
     }
 
-    private static final String[] IMAGES = new String[] { "class_obj", "instance_obj", "classloader_obj", "array_obj",  //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$
+    private static final String[] IMAGES = new String[] { "class_obj", "instance_obj", "classloader_obj", "array_obj", //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$
                     "class_obj_gc_root", "instance_obj_gc_root", "classloader_obj_gc_root", "array_obj_gc_root", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
                     "class", "package" }; //$NON-NLS-1$ //$NON-NLS-2$
 

@@ -17,11 +17,11 @@ public interface IResultPie extends IResult
     public interface Slice
     {
         String getLabel();
-        
+
         double getValue();
-        
+
         String getDescription();
-        
+
         IContextObject getContext();
     }
 

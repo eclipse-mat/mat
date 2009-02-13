@@ -14,7 +14,6 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -36,6 +35,7 @@ import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.SnapshotFactory;
 import org.eclipse.mat.snapshot.SnapshotFormat;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.IProgressListener.Severity;
 
 public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
@@ -92,7 +92,7 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
         {
             String text = ignore_and_reparse.getMessage() != null ? ignore_and_reparse.getMessage()
                             : ignore_and_reparse.getClass().getName();
-            String message = MessageFormat.format(Messages.SnapshotFactoryImpl_Error_ReparsingHeapDump, text);
+            String message = MessageUtil.format(Messages.SnapshotFactoryImpl_Error_ReparsingHeapDump, text);
             listener.sendUserMessage(Severity.WARNING, message, ignore_and_reparse);
         }
 
@@ -210,17 +210,19 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
 
         if (!errors.isEmpty())
         {
-            MultiStatus status = new MultiStatus(ParserPlugin.PLUGIN_ID, 0, Messages.SnapshotFactoryImpl_ErrorOpeningHeapDump, null);
+            MultiStatus status = new MultiStatus(ParserPlugin.PLUGIN_ID, 0,
+                            Messages.SnapshotFactoryImpl_ErrorOpeningHeapDump, null);
             for (IOException error : errors)
                 status.add(new Status(IStatus.ERROR, ParserPlugin.PLUGIN_ID, 0, error.getMessage(), error));
             ParserPlugin.getDefault().getLog().log(status);
 
-            throw new SnapshotException(MessageFormat.format(Messages.SnapshotFactoryImpl_Error_OpeningHeapDump,
-                            file.getName()));
+            throw new SnapshotException(MessageUtil.format(Messages.SnapshotFactoryImpl_Error_OpeningHeapDump, file
+                            .getName()));
         }
         else
         {
-            throw new SnapshotException(MessageFormat.format(Messages.SnapshotFactoryImpl_Error_NoParserRegistered, file.getName()));
+            throw new SnapshotException(MessageUtil.format(Messages.SnapshotFactoryImpl_Error_NoParserRegistered, file
+                            .getName()));
         }
     }
 

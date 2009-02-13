@@ -69,7 +69,7 @@ public class Paths2GCRootsRegTest extends Path2GCRootsQuery
                 if (j > 0)
                     buffer.append(", ");
 
-                buffer.append("0x").append(Long.toHexString(snapshot.mapIdToAddress(path[j])));                
+                buffer.append("0x").append(Long.toHexString(snapshot.mapIdToAddress(path[j])));
             }
             stringResult.add(buffer.toString());
 

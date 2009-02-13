@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.mat.inspections.collections;
 
-import java.text.MessageFormat;
 import java.util.Collection;
 
 import org.eclipse.mat.SnapshotException;
@@ -27,9 +26,10 @@ import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IObjectArray;
-import org.eclipse.mat.snapshot.query.RetainedSizeDerivedData;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
+import org.eclipse.mat.snapshot.query.RetainedSizeDerivedData;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.MessageUtil;
 
 @Name("Map Collision Ratio")
 @Category("Java Collections")
@@ -94,7 +94,7 @@ public class MapCollisionRatioQuery implements IQuery
             Collection<IClass> classes = snapshot.getClassesByName(collection, true);
 
             if (classes.isEmpty())
-                listener.sendUserMessage(IProgressListener.Severity.WARNING, MessageFormat.format(
+                listener.sendUserMessage(IProgressListener.Severity.WARNING, MessageUtil.format(
                                 "Class ''{0}'' not found in heap dump.", collection), null);
 
             for (IClass clasz : classes)

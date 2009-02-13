@@ -53,7 +53,6 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.eclipse.ui.PlatformUI;
 
-
 public class OpenIconAssistAction extends Action implements IWorkbenchWindowActionDelegate
 {
     private IWorkbenchWindow window;
@@ -122,13 +121,17 @@ public class OpenIconAssistAction extends Action implements IWorkbenchWindowActi
             icons.add(new Icon(null, Messages.OpenIconAssistAction_HeapObjects));
             icons.add(new Icon(MemoryAnalyserPlugin.getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.CLASS),
                             Messages.OpenIconAssistAction_InstancesGroupedByClass));
-            icons.add(new Icon(ImageHelper.getImageDescriptor(ImageHelper.Type.CLASS_INSTANCE), Messages.OpenIconAssistAction_ClassObject));
+            icons.add(new Icon(ImageHelper.getImageDescriptor(ImageHelper.Type.CLASS_INSTANCE),
+                            Messages.OpenIconAssistAction_ClassObject));
             icons.add(new Icon(ImageHelper.getImageDescriptor(ImageHelper.Type.CLASSLOADER_INSTANCE),
                             Messages.OpenIconAssistAction_ClassLoaderObject));
-            icons.add(new Icon(ImageHelper.getImageDescriptor(ImageHelper.Type.ARRAY_INSTANCE), Messages.OpenIconAssistAction_ArrayObject));
-            icons.add(new Icon(ImageHelper.getImageDescriptor(ImageHelper.Type.OBJECT_INSTANCE), Messages.OpenIconAssistAction_OtherObject));
-            icons.add(new Icon(ImageHelper.getImageDescriptor(ImageHelper.Type.PACKAGE), Messages.OpenIconAssistAction_Package));
-            
+            icons.add(new Icon(ImageHelper.getImageDescriptor(ImageHelper.Type.ARRAY_INSTANCE),
+                            Messages.OpenIconAssistAction_ArrayObject));
+            icons.add(new Icon(ImageHelper.getImageDescriptor(ImageHelper.Type.OBJECT_INSTANCE),
+                            Messages.OpenIconAssistAction_OtherObject));
+            icons.add(new Icon(ImageHelper.getImageDescriptor(ImageHelper.Type.PACKAGE),
+                            Messages.OpenIconAssistAction_Package));
+
             icons.add(new Icon(null, Messages.OpenIconAssistAction_IndicatorsAdded));
             icons.add(new Icon(ImageHelper.getInboundImageDescriptor(ImageHelper.Type.OBJECT_INSTANCE),
                             Messages.OpenIconAssistAction_ReferenceAbove));

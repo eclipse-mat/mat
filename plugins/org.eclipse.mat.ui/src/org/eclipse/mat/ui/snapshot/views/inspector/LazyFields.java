@@ -133,7 +133,7 @@ import org.eclipse.mat.ui.Messages;
             super(object);
             fixObjectReferences(object.getSnapshot(), cache, object.getFields(), false);
         }
-        
+
         @Override
         protected Object createElement(IInstance array, int index)
         {
@@ -165,7 +165,7 @@ import org.eclipse.mat.ui.Messages;
         @Override
         protected Object createElement(IPrimitiveArray array, int index)
         {
-            Field field = new Field("[" + index + "]", array.getType(), array.getValueAt(index));  //$NON-NLS-1$//$NON-NLS-2$
+            Field field = new Field("[" + index + "]", array.getType(), array.getValueAt(index)); //$NON-NLS-1$//$NON-NLS-2$
             return new FieldNode(field, false);
         }
     }
@@ -188,7 +188,7 @@ import org.eclipse.mat.ui.Messages;
         @Override
         protected Object createElement(IObjectArray array, int index)
         {
-        	long refs[] = array.getReferenceArray(index, 1);
+            long refs[] = array.getReferenceArray(index, 1);
 
             if (refs[0] != 0)
             {

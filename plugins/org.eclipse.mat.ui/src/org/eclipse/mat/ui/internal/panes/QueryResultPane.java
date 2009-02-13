@@ -62,7 +62,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPart;
 
-
 public class QueryResultPane extends AbstractEditorPane implements ISelectionProvider
 {
     private List<ISelectionChangedListener> listeners = Collections
@@ -178,55 +177,56 @@ public class QueryResultPane extends AbstractEditorPane implements ISelectionPro
                     QueryDescriptor descriptor = QueryRegistry.instance().getQuery("histogram"); //$NON-NLS-1$
                     ArgumentSet set = descriptor.createNewArgumentSet(getQueryContext());
                     set.setArgumentValue(descriptor.getArgumentByName("objects"), new IHeapObjectArgument() //$NON-NLS-1$
-                    {
+                                    {
 
-                        public int[] getIds(IProgressListener listener) throws SnapshotException
-                        {
-                            return ids.toArray();
-                        }
+                                        public int[] getIds(IProgressListener listener) throws SnapshotException
+                                        {
+                                            return ids.toArray();
+                                        }
 
-                        public String getLabel()
-                        {
-                            return getTitle();
-                        }
+                                        public String getLabel()
+                                        {
+                                            return getTitle();
+                                        }
 
-                        public Iterator<int[]> iterator()
-                        {
-                            return new Iterator<int[]>()
-                            {
-                                Iterator<IContextObject> iter = contextObjects.iterator();
+                                        public Iterator<int[]> iterator()
+                                        {
+                                            return new Iterator<int[]>()
+                                            {
+                                                Iterator<IContextObject> iter = contextObjects.iterator();
 
-                                public boolean hasNext()
-                                {
-                                    return iter.hasNext();
-                                }
+                                                public boolean hasNext()
+                                                {
+                                                    return iter.hasNext();
+                                                }
 
-                                public int[] next()
-                                {
-                                    IContextObject ctx = iter.next();
+                                                public int[] next()
+                                                {
+                                                    IContextObject ctx = iter.next();
 
-                                    if (ctx instanceof IContextObjectSet)
-                                        return ((IContextObjectSet) ctx).getObjectIds();
-                                    else
-                                        return new int[] { ctx.getObjectId() };
-                                }
+                                                    if (ctx instanceof IContextObjectSet)
+                                                        return ((IContextObjectSet) ctx).getObjectIds();
+                                                    else
+                                                        return new int[] { ctx.getObjectId() };
+                                                }
 
-                                public void remove()
-                                {
-                                    throw new UnsupportedOperationException();
-                                }
-                            };
-                        }
+                                                public void remove()
+                                                {
+                                                    throw new UnsupportedOperationException();
+                                                }
+                                            };
+                                        }
 
-                        @Override
-                        public String toString()
-                        {
-                            return getLabel();
-                        }
+                                        @Override
+                                        public String toString()
+                                        {
+                                            return getLabel();
+                                        }
 
-                    });
+                                    });
 
-                    QueryExecution.execute((HeapEditor) editor, ((HeapEditor) editor).getActiveEditor().getPaneState(), null, set, false, false);
+                    QueryExecution.execute((HeapEditor) editor, ((HeapEditor) editor).getActiveEditor().getPaneState(),
+                                    null, set, false, false);
 
                 }
                 catch (SnapshotException e)

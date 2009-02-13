@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.mat.jdt;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -33,6 +32,7 @@ import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.SimpleStringTokenizer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
@@ -53,7 +53,7 @@ public class OpenSourceFileJob extends Job
 
     public OpenSourceFileJob(String className)
     {
-        super(MessageFormat.format(Messages.OpenSourceFileJob_LookingFor, className));
+        super(MessageUtil.format(Messages.OpenSourceFileJob_LookingFor, className));
         this.className = className;
         this.setUser(true);
     }
@@ -198,7 +198,7 @@ public class OpenSourceFileJob extends Job
                     MessageBox box = new MessageBox(PlatformUI.getWorkbench().getDisplay().getActiveShell(),
                                     SWT.ICON_INFORMATION);
                     box.setText(Messages.OpenSourceFileJob_NotFound);
-                    box.setMessage(MessageFormat.format(Messages.OpenSourceFileJob_TypeNotFound, className));
+                    box.setMessage(MessageUtil.format(Messages.OpenSourceFileJob_TypeNotFound, className));
                     box.open();
                 }
                 else if (matches.size() == 1)

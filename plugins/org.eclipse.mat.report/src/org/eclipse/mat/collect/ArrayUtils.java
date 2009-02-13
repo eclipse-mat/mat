@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.mat.collect;
 
-
 public class ArrayUtils
 {
 
@@ -52,7 +51,6 @@ public class ArrayUtils
         hybridsortDesc(keys, values, null, null, 0, keys.length - 1);
     }
 
-    
     /**
      * Sorts the keys in an decreasing order. Elements key[i] and values[i] are
      * always swapped together in the corresponding arrays.
@@ -94,13 +92,10 @@ public class ArrayUtils
     {
         hybridsort(keys, values, offset, offset + length - 1);
     }
-    
 
-    /* *********************************************
-     * 
-     * PRIVATE METHODS IMPLEMENTING THE SORTING 
-     * 
-     * ********************************************/
+    /*
+     * PRIVATE METHODS IMPLEMENTING THE SORTING
+     */
 
     private static void swap(int keys[], int values[], int a, int b)
     {
@@ -133,13 +128,13 @@ public class ArrayUtils
         int v1 = x[pos1];
         int v2 = x[pos2];
         int v3 = x[pos3];
-        
+
         if (v1 < v2)
             if (v2 <= v3)
                 return pos2;
             else
-                return v1 < v3 ? pos3 : pos1; 
-        
+                return v1 < v3 ? pos3 : pos1;
+
         /* else -> v1 > v2 */
         if (v1 <= v3)
             return pos1;
@@ -152,18 +147,18 @@ public class ArrayUtils
         long v1 = x[pos1];
         long v2 = x[pos2];
         long v3 = x[pos3];
-        
+
         if (v1 < v2)
             if (v2 <= v3)
                 return pos2;
             else
-                return v1 < v3 ? pos3 : pos1; 
-        
+                return v1 < v3 ? pos3 : pos1;
+
         /* else -> v1 > v2 */
         if (v1 <= v3)
             return pos1;
         else
-            return v2 < v3 ? pos3 : pos2;    
+            return v2 < v3 ? pos3 : pos2;
     }
 
     private static int[] split(int[] keys, int[] values, int left, int right)
@@ -183,9 +178,9 @@ public class ArrayUtils
             {
                 i++;
                 swap(keys, values, i, j);
-                
+
                 // if there are duplicates, keep them next to each other
-                if (c > 0) 
+                if (c > 0)
                     swap(keys, values, i + c, j);
             }
             else if (keys[j] == splittingValue)
@@ -196,7 +191,7 @@ public class ArrayUtils
         }
         swap(keys, values, left, i);
 
-        return new int[] {i, i + c};
+        return new int[] { i, i + c };
     }
 
     private static int[] splitDesc(long[] keys, int[] values, int left, int right)
@@ -216,9 +211,9 @@ public class ArrayUtils
             {
                 i++;
                 swap(keys, values, i, j);
-                
+
                 // if there are duplicates, keep them next to each other
-                if (c > 0) 
+                if (c > 0)
                     swap(keys, values, i + c, j);
             }
             else if (keys[j] == splittingValue)
@@ -229,7 +224,7 @@ public class ArrayUtils
         }
         swap(keys, values, left, i);
 
-        return new int[] {i, i + c};
+        return new int[] { i, i + c };
     }
 
     private static void hybridsort(int[] keys, int[] values, int left, int right)
@@ -242,15 +237,18 @@ public class ArrayUtils
             }
             else
             {
-                // split the array - the elements between i[0] and i[1] are equal.
+                // split the array - the elements between i[0] and i[1] are
+                // equal.
                 // the elements on the left are smaller, on the right - bigger
                 int[] i = split(keys, values, left, right);
-                
+
                 // sort all keys smaller than keys[i]
-                if (left < i[0] - 1) hybridsort(keys, values, left, i[0] - 1);
-                
+                if (left < i[0] - 1)
+                    hybridsort(keys, values, left, i[0] - 1);
+
                 // sort all keys bigger than keys[i]
-                if (right > i[1] + 1) hybridsort(keys, values, i[1] + 1, right);
+                if (right > i[1] + 1)
+                    hybridsort(keys, values, i[1] + 1, right);
             }
         }
     }
@@ -274,16 +272,18 @@ public class ArrayUtils
             }
             else
             {
-                // split the array - the elements between i[0] and i[1] are equal.
+                // split the array - the elements between i[0] and i[1] are
+                // equal.
                 // the elements on the left are bigger, on the right - smaller
                 int[] i = splitDesc(keys, values, left, right);
-                
+
                 // sort all keys bigger than keys[i]
                 if (left < i[0] - 1)
                     hybridsortDesc(keys, values, tmpKeys, tmpValues, left, i[0] - 1);
-                
+
                 // sort all keys smaller than keys[i]
-                if (right > i[1] + 1) hybridsortDesc(keys, values, tmpKeys, tmpValues, i[1] + 1, right);
+                if (right > i[1] + 1)
+                    hybridsortDesc(keys, values, tmpKeys, tmpValues, i[1] + 1, right);
             }
         }
     }

@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.mat.ui.snapshot.panes;
 
-import java.text.MessageFormat;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -26,6 +25,7 @@ import org.eclipse.mat.ui.editor.AbstractPaneJob;
 import org.eclipse.mat.ui.internal.panes.QueryResultPane;
 import org.eclipse.mat.ui.internal.viewer.RefinedTreeViewer;
 import org.eclipse.mat.ui.util.ErrorHelper;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -35,7 +35,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.PlatformUI;
-
 
 public class Path2GCRootsPane extends QueryResultPane
 {
@@ -93,8 +92,9 @@ public class Path2GCRootsPane extends QueryResultPane
     private void updateStatusLabel()
     {
         Path2GCRootsQuery.Tree tree = (Path2GCRootsQuery.Tree) viewer.getResult().unwrap();
-        String message = tree.morePathsAvailable() ? Messages.Path2GCRootsPane_FoundSoFar : Messages.Path2GCRootsPane_NoMorePaths;
-        String formatted = MessageFormat.format(message, tree.getNumberOfPaths());
+        String message = tree.morePathsAvailable() ? Messages.Path2GCRootsPane_FoundSoFar
+                        : Messages.Path2GCRootsPane_NoMorePaths;
+        String formatted = MessageUtil.format(message, tree.getNumberOfPaths());
         statusLabel.setText(formatted);
     }
 

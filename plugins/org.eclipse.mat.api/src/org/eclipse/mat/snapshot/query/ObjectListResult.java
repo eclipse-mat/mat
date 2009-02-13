@@ -236,7 +236,7 @@ public final class ObjectListResult
         protected String extractAttribute(IObject heapObject, long parentAddress)
         {
             StringBuilder s = new StringBuilder(64);
-        
+
             List<NamedReference> refs = heapObject.getOutboundReferences();
             for (NamedReference reference : refs)
             {
@@ -247,7 +247,7 @@ public final class ObjectListResult
                     s.append(reference.getName());
                 }
             }
-        
+
             return s.toString();
         }
     }

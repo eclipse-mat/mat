@@ -26,7 +26,6 @@ import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.query.ObjectListResult;
 import org.eclipse.mat.util.IProgressListener;
 
-
 @Name("Leaking Bundles")
 @Category("Eclipse")
 public class LeakingPlugins implements IQuery
@@ -37,26 +36,27 @@ public class LeakingPlugins implements IQuery
     public IResult execute(IProgressListener listener) throws Exception
     {
         // collect stale all class loaders
-        Collection<IClass> classes = snapshot.getClassesByName("org.eclipse.osgi.framework.internal.core.BundleLoaderProxy", true);
+        Collection<IClass> classes = snapshot.getClassesByName(
+                        "org.eclipse.osgi.framework.internal.core.BundleLoaderProxy", true);
         if (classes == null)
             return null;
-        
+
         ArrayInt result = new ArrayInt();
-        
+
         for (IClass clazz : classes)
         {
             for (int objectId : clazz.getObjectIds())
             {
                 IObject proxy = snapshot.getObject(objectId);
-                boolean isStale = (Boolean)proxy.resolveValue("stale");
+                boolean isStale = (Boolean) proxy.resolveValue("stale");
                 if (isStale)
                 {
-                    IClassLoader classLoader = (IClassLoader)proxy.resolveValue("loader.classloader");
+                    IClassLoader classLoader = (IClassLoader) proxy.resolveValue("loader.classloader");
                     result.add(classLoader.getObjectId());
                 }
             }
         }
-        
+
         if (result.isEmpty())
             return new TextResult("No leaking plug-ins detected.");
 

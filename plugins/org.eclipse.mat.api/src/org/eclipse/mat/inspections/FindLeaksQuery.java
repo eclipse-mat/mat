@@ -10,8 +10,7 @@
  *******************************************************************************/
 package org.eclipse.mat.inspections;
 
-import java.text.MessageFormat;
-import java.text.NumberFormat;
+import com.ibm.icu.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -48,6 +47,7 @@ import org.eclipse.mat.snapshot.MultiplePathsFromGCRootsRecord;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.VoidProgressListener;
 
 @CommandName("find_leaks")
@@ -215,8 +215,8 @@ public class FindLeaksQuery implements IQuery
         return null;
     }
 
-    private SuspectRecord buildSuspectRecordGroupOfObjects(ClassHistogramRecord record,
-                    IProgressListener listener) throws SnapshotException
+    private SuspectRecord buildSuspectRecordGroupOfObjects(ClassHistogramRecord record, IProgressListener listener)
+                    throws SnapshotException
     {
         int[] objectIds = getRandomIds(record.getObjectIds());
         IObject suspectClass = snapshot.getObject(record.getClassId());
@@ -242,7 +242,7 @@ public class FindLeaksQuery implements IQuery
         int diff = objectIds.length - numPaths;
         if (diff > 0)
         {
-            listener.sendUserMessage(IProgressListener.Severity.INFO, MessageFormat.format(
+            listener.sendUserMessage(IProgressListener.Severity.INFO, MessageUtil.format(
                             "Couldn't find paths for {0} of the {1} objects", new Object[] { diff, objectIds.length }),
                             null);
         }
@@ -250,13 +250,13 @@ public class FindLeaksQuery implements IQuery
         Arrays.sort(records, MultiplePathsFromGCRootsRecord.getComparatorByNumberOfReferencedObjects());
 
         MultiplePathsFromGCRootsRecord parentRecord = records[0];
-        
-//        parentRecord.getReferencedRetainedSize()
-        int threshold = (int)(0.8 * objectIds.length);
+
+        // parentRecord.getReferencedRetainedSize()
+        int threshold = (int) (0.8 * objectIds.length);
 
         while (parentRecord.getCount() > threshold)
         {
-//            System.out.println("count: " + parentRecord.getCount());
+            // System.out.println("count: " + parentRecord.getCount());
             commonPath.add(parentRecord.getObjectId());
 
             MultiplePathsFromGCRootsRecord[] children = parentRecord.nextLevel();
@@ -327,7 +327,12 @@ public class FindLeaksQuery implements IQuery
             if (listener.isCanceled())
                 throw new IProgressListener.OperationCanceledException();
 
-            SuspectRecord r = buildSuspectRecordGroupOfObjects(record, /*(long) (threshold * 0.7),*/ listener);
+            SuspectRecord r = buildSuspectRecordGroupOfObjects(record, /*
+                                                                        * (long)
+                                                                        * (
+                                                                        * threshold
+                                                                        * 0.7),
+                                                                        */listener);
             allSuspects[j++] = r;
         }
 
@@ -339,9 +344,11 @@ public class FindLeaksQuery implements IQuery
         if (objectIds.length < max_paths)
             return objectIds;
 
-        Logger.getLogger(getClass().getName()).log(Level.INFO,
-                        "Too many suspect instances ("+ objectIds.length +"). Will use " + max_paths + " random from them to search for common path.");
-        
+        Logger.getLogger(getClass().getName()).log(
+                        Level.INFO,
+                        "Too many suspect instances (" + objectIds.length + "). Will use " + max_paths
+                                        + " random from them to search for common path.");
+
         Random random = new Random();
         int length = objectIds.length - 1;
         BitField visited = new BitField(length);

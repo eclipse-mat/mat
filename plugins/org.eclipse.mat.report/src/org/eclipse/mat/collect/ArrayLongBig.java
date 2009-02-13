@@ -27,8 +27,8 @@ public final class ArrayLongBig
     private int length;
 
     /**
-     * Create an <code>LongArray</code>. Memory consumption is equal to
-     * creating a new <code>ArrayList</code>.
+     * Create an <code>LongArray</code>. Memory consumption is equal to creating
+     * a new <code>ArrayList</code>.
      */
     public ArrayLongBig()
     {
@@ -113,10 +113,9 @@ public final class ArrayLongBig
     }
 
     /**
-     * Convert <code>LongArray</code> to long[]. This operation is the only
-     * one where the internal data is copied. It is directly copied to the
-     * long[] which is returned, so don't call this method more than once when
-     * done.
+     * Convert <code>LongArray</code> to long[]. This operation is the only one
+     * where the internal data is copied. It is directly copied to the long[]
+     * which is returned, so don't call this method more than once when done.
      * 
      * @return long[] representing the <code>LongArray</code>
      */

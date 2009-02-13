@@ -22,7 +22,8 @@ public class PathEditorInput implements IPathEditorInput
     private class WorkbenchAdapter implements IWorkbenchAdapter
     {
         /*
-         * @see org.eclipse.ui.model.IWorkbenchAdapter#getChildren(java.lang.Object)
+         * @see
+         * org.eclipse.ui.model.IWorkbenchAdapter#getChildren(java.lang.Object)
          */
         public Object[] getChildren(Object o)
         {
@@ -30,7 +31,9 @@ public class PathEditorInput implements IPathEditorInput
         }
 
         /*
-         * @see org.eclipse.ui.model.IWorkbenchAdapter#getImageDescriptor(java.lang.Object)
+         * @see
+         * org.eclipse.ui.model.IWorkbenchAdapter#getImageDescriptor(java.lang
+         * .Object)
          */
         public ImageDescriptor getImageDescriptor(Object object)
         {
@@ -38,7 +41,8 @@ public class PathEditorInput implements IPathEditorInput
         }
 
         /*
-         * @see org.eclipse.ui.model.IWorkbenchAdapter#getLabel(java.lang.Object)
+         * @see
+         * org.eclipse.ui.model.IWorkbenchAdapter#getLabel(java.lang.Object)
          */
         public String getLabel(Object o)
         {
@@ -46,7 +50,8 @@ public class PathEditorInput implements IPathEditorInput
         }
 
         /*
-         * @see org.eclipse.ui.model.IWorkbenchAdapter#getParent(java.lang.Object)
+         * @see
+         * org.eclipse.ui.model.IWorkbenchAdapter#getParent(java.lang.Object)
          */
         public Object getParent(Object o)
         {

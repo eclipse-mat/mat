@@ -15,7 +15,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.text.MessageFormat;
 import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -25,6 +24,7 @@ import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.report.internal.ReportPlugin;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.RegistryReader;
 import org.osgi.framework.Bundle;
 import org.xml.sax.Attributes;
@@ -33,7 +33,6 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.helpers.XMLReaderFactory;
-
 
 public final class SpecFactory extends RegistryReader<SpecFactory.Report>
 {
@@ -154,7 +153,7 @@ public final class SpecFactory extends RegistryReader<SpecFactory.Report>
             else
             {
                 Logger.getLogger(getClass().getName()).log(Level.SEVERE,
-                                MessageFormat.format(Messages.SpecFactory_Error_MissingTemplate, template));
+                                MessageUtil.format(Messages.SpecFactory_Error_MissingTemplate, template));
             }
         }
 

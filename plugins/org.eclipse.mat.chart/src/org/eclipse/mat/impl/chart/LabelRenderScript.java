@@ -17,7 +17,6 @@ import org.eclipse.birt.chart.script.ChartEventHandlerAdapter;
 import org.eclipse.birt.chart.script.IChartScriptContext;
 import org.eclipse.mat.util.Units;
 
-
 public class LabelRenderScript extends ChartEventHandlerAdapter
 {
 

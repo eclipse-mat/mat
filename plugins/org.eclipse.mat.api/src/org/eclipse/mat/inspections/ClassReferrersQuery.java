@@ -39,7 +39,6 @@ import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.snapshot.query.Icons;
 import org.eclipse.mat.util.IProgressListener;
 
-
 @Name("Show Objects By Class")
 @Category(Category.HIDDEN)
 @CommandName("class_references")

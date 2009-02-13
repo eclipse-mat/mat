@@ -11,7 +11,6 @@
 package org.eclipse.mat.ui.snapshot.panes;
 
 import java.net.URL;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,6 +53,7 @@ import org.eclipse.mat.ui.util.EasyToolBarDropDown;
 import org.eclipse.mat.ui.util.ErrorHelper;
 import org.eclipse.mat.ui.util.PopupMenu;
 import org.eclipse.mat.ui.util.ProgressMonitorWrapper;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.VoidProgressListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
@@ -178,7 +178,7 @@ public class HistogramPane extends QueryResultPane
         else if (subject instanceof Histogram.PackageTree)
             return ((Histogram.PackageTree) subject).getHistogram();
         else
-            throw new RuntimeException(MessageFormat.format(Messages.HistogramPane_IllegalType, //
+            throw new RuntimeException(MessageUtil.format(Messages.HistogramPane_IllegalType, //
                             subject.getClass().getName()));
     }
 
@@ -256,7 +256,7 @@ public class HistogramPane extends QueryResultPane
                                     qr = new QueryResult(null, "[diff]", delta.groupByPackage());//$NON-NLS-1$
                                     break;
                                 default:
-                                    throw new RuntimeException(MessageFormat.format(Messages.HistogramPane_IllegalType,
+                                    throw new RuntimeException(MessageUtil.format(Messages.HistogramPane_IllegalType,
                                                     HistogramPane.this.groupedBy));
                             }
 
@@ -336,7 +336,7 @@ public class HistogramPane extends QueryResultPane
                             result = current.groupByPackage();
                             break;
                         default:
-                            throw new RuntimeException(MessageFormat
+                            throw new RuntimeException(MessageUtil
                                             .format(Messages.HistogramPane_IllegalType, groupBy));
 
                     }
@@ -400,8 +400,8 @@ public class HistogramPane extends QueryResultPane
 
                     MessageBox box = new MessageBox(getSite().getShell(), SWT.OK | SWT.CANCEL);
                     box.setText(Messages.HistogramPane_SelectBaseline);
-                    box.setMessage(MessageFormat.format(Messages.HistogramPane_CompareAgainst, baseline
-                                    .getSnapshotInfo().getPath()));
+                    box.setMessage(MessageUtil.format(Messages.HistogramPane_CompareAgainst, baseline.getSnapshotInfo()
+                                    .getPath()));
 
                     if (box.open() == SWT.OK)
                         updateDeltaHistogram();
@@ -427,7 +427,7 @@ public class HistogramPane extends QueryResultPane
                         result = histogram.groupByPackage();
                         break;
                     default:
-                        throw new RuntimeException(MessageFormat.format(Messages.HistogramPane_IllegalType, groupedBy));
+                        throw new RuntimeException(MessageUtil.format(Messages.HistogramPane_IllegalType, groupedBy));
                 }
 
                 QueryResult qr = new QueryResult(QueryRegistry.instance().getQuery("histogram"), //$NON-NLS-1$

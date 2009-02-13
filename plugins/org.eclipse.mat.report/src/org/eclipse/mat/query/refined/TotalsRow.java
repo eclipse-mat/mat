@@ -11,11 +11,11 @@
 package org.eclipse.mat.query.refined;
 
 import java.net.URL;
-import java.text.DecimalFormat;
-import java.text.MessageFormat;
-import java.text.NumberFormat;
+import com.ibm.icu.text.DecimalFormat;
+import com.ibm.icu.text.NumberFormat;
 
 import org.eclipse.mat.internal.Messages;
+import org.eclipse.mat.util.MessageUtil;
 
 public class TotalsRow
 {
@@ -111,16 +111,15 @@ public class TotalsRow
         String msg = null;
 
         if (hasMore)
-            msg = MessageFormat.format(Messages.TotalsRow_Label_TotalVisible,
-                            visibleItems, numberOfItems);
+            msg = MessageUtil.format(Messages.TotalsRow_Label_TotalVisible, visibleItems, numberOfItems);
         else
-            msg = MessageFormat.format(Messages.TotalsRow_Label_Total, numberOfItems);
+            msg = MessageUtil.format(Messages.TotalsRow_Label_Total, numberOfItems);
 
         if (hasTotals)
             msg += " / " + fmt.format(totals[0].doubleValue()); //$NON-NLS-1$
 
         if (hasFiltered)
-            msg += MessageFormat.format(" " + Messages.TotalsRow_Label_Filtered, filteredItems); //$NON-NLS-1$
+            msg += MessageUtil.format(" " + Messages.TotalsRow_Label_Filtered, filteredItems); //$NON-NLS-1$
 
         return msg;
     }

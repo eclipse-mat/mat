@@ -17,7 +17,7 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
-import java.text.NumberFormat;
+import com.ibm.icu.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,7 +29,6 @@ import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IIconProvider;
 import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.query.ResultMetaData;
-
 
 public class PropertyResult implements IResultTable, IIconProvider
 {
@@ -112,10 +111,10 @@ public class PropertyResult implements IResultTable, IIconProvider
     {
         if (v == null)
             return null;
-        
+
         if (v instanceof Number)
             return NumberFormat.getNumberInstance().format(v);
-        
+
         return String.valueOf(v);
     }
 
@@ -145,7 +144,8 @@ public class PropertyResult implements IResultTable, IIconProvider
 
     public final Column[] getColumns()
     {
-        return new Column[] { new Column(Messages.PropertyResult_Column_Name, String.class), new Column(Messages.PropertyResult_Column_Value, String.class) };
+        return new Column[] { new Column(Messages.PropertyResult_Column_Name, String.class),
+                        new Column(Messages.PropertyResult_Column_Value, String.class) };
     }
 
     public final int getRowCount()
@@ -160,7 +160,7 @@ public class PropertyResult implements IResultTable, IIconProvider
 
     public final Object getColumnValue(Object row, int columnIndex)
     {
-        Pair pair = (Pair)row;
+        Pair pair = (Pair) row;
         switch (columnIndex)
         {
             case 0:

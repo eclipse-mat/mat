@@ -264,7 +264,7 @@ public class RefinedTreeViewer extends RefinedResultViewer
         {
             ControlItem ctrl = (ControlItem) tree.getData(Key.CONTROL);
             int nrItems = tree.getItemCount();
-            
+
             // dispose "old" totals line
             tree.getItem(nrItems - 1).dispose();
 
@@ -307,7 +307,7 @@ public class RefinedTreeViewer extends RefinedResultViewer
                 applyTotals(new TreeItem(parentItem, SWT.NONE, visible), ctrl.totals);
         }
     }
-    
+
     @Override
     protected List<?> getElements(Object parent)
     {

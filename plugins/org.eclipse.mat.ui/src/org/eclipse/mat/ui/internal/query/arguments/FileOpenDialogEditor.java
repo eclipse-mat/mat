@@ -34,7 +34,6 @@ import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-
 public class FileOpenDialogEditor extends ArgumentEditor
 {
     private static final String LAST_DIRECTORY_KEY = FileOpenDialogEditor.class.getName() + ".lastDir"; //$NON-NLS-1$
@@ -43,7 +42,7 @@ public class FileOpenDialogEditor extends ArgumentEditor
     protected Text text;
     protected Button openButton;
     protected Composite parent;
-    
+
     private class FileOpenDialogEditorLayout extends Layout
     {
         public void layout(Composite editor, boolean force)

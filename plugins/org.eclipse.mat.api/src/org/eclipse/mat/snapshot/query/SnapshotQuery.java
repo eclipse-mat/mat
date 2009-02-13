@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.mat.snapshot.query;
 
-import java.text.MessageFormat;
-
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.internal.snapshot.HeapObjectArgumentFactory;
@@ -31,6 +29,7 @@ import org.eclipse.mat.query.registry.QueryResult;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.MessageUtil;
 
 /**
  * Lookup, parameterize and run queries on a given heap dump.
@@ -51,7 +50,7 @@ public class SnapshotQuery
     {
         QueryDescriptor query = QueryRegistry.instance().getQuery(name);
         if (query == null)
-            throw new SnapshotException(MessageFormat.format("Query not available: {0}", name));
+            throw new SnapshotException(MessageUtil.format("Query not available: {0}", name));
 
         IQueryContext context = new SnapshotQueryContext(snapshot);
         if (!query.accept(context))
@@ -93,7 +92,7 @@ public class SnapshotQuery
     {
         ArgumentDescriptor argument = query.getArgumentByName(name);
         if (argument == null)
-            throw new SnapshotException(MessageFormat.format("Unknown argument: {0} for query {1}", name, query
+            throw new SnapshotException(MessageUtil.format("Unknown argument: {0} for query {1}", name, query
                             .getIdentifier()));
 
         // special checks: support heap objects
@@ -128,7 +127,7 @@ public class SnapshotQuery
             }
             else
             {
-                throw new SnapshotException(MessageFormat.format("Unsupported type for argument {0}: {1}\n"
+                throw new SnapshotException(MessageUtil.format("Unsupported type for argument {0}: {1}\n"
                                 + "(Use: IObject, Integer, int[], ArrayInt, IHeapObjectArgument)", name, value
                                 .getClass().getName()));
             }
@@ -156,7 +155,7 @@ public class SnapshotQuery
     {
         IResult result = execute(listener);
         if (result == null)
-            throw new SnapshotException(MessageFormat.format("Query {0} did not produce a result.", arguments
+            throw new SnapshotException(MessageUtil.format("Query {0} did not produce a result.", arguments
                             .getQueryDescriptor().getIdentifier()));
         return new RefinedResultBuilder(new SnapshotQueryContext(snapshot), (IStructuredResult) result);
     }

@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.mat.impl.chart;
 
-import java.text.MessageFormat;
 import java.util.List;
 
 import org.eclipse.birt.chart.model.Chart;
@@ -40,6 +39,7 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.mat.query.IResultPie;
 import org.eclipse.mat.query.IResultPie.Slice;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.Units;
 
 public class ChartBuilder
@@ -83,7 +83,8 @@ public class ChartBuilder
         // total label
         long t = new Double(total).longValue();
         LabelBlock label = (LabelBlock) LabelBlockImpl.create();
-        label.getLabel().getCaption().setValue(MessageFormat.format(Messages.ChartBuilder_Total, Units.Storage.of(t).format(t)));
+        label.getLabel().getCaption().setValue(
+                        MessageUtil.format(Messages.ChartBuilder_Total, Units.Storage.of(t).format(t)));
         label.getLabel().getCaption().getFont().setName("Arial");//$NON-NLS-1$
         label.getLabel().getCaption().getFont().setSize(fontSize);
         label.getLabel().getCaption().getFont().setBold(true);

@@ -42,7 +42,7 @@ public class FinalizerQuery implements IQuery
     public IResult execute(IProgressListener listener) throws Exception
     {
         InspectionAssert.heapFormatIsNot(snapshot, "phd", "dtfj");
-        
+
         SectionSpec spec = new SectionSpec("Finalizers");
 
         IResult result = SnapshotQuery.lookup("finalizer_in_processing", snapshot).execute(listener);

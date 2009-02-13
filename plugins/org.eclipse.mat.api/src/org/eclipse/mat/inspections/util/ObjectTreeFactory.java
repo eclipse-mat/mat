@@ -11,7 +11,7 @@
 package org.eclipse.mat.inspections.util;
 
 import java.net.URL;
-import java.text.DecimalFormat;
+import com.ibm.icu.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +25,6 @@ import org.eclipse.mat.query.ISelectionProvider;
 import org.eclipse.mat.query.ResultMetaData;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.query.Icons;
-
 
 public final class ObjectTreeFactory
 {

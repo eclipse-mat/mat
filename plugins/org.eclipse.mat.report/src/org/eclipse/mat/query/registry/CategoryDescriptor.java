@@ -97,7 +97,7 @@ public final class CategoryDescriptor
                 {
                     boolean isCat1 = o1 instanceof CategoryDescriptor;
                     boolean isCat2 = o2 instanceof CategoryDescriptor;
-                    
+
                     int s1 = isCat1 ? ((CategoryDescriptor) o1).sortOrder : ((QueryDescriptor) o1).sortOrder;
                     int s2 = isCat2 ? ((CategoryDescriptor) o2).sortOrder : ((QueryDescriptor) o2).sortOrder;
 
@@ -108,7 +108,7 @@ public final class CategoryDescriptor
 
                     if (isCat1 ^ isCat2)
                         return isCat1 ? -1 : 1;
-                    
+
                     String name1 = isCat1 ? ((CategoryDescriptor) o1).name : ((QueryDescriptor) o1).name;
                     String name2 = isCat2 ? ((CategoryDescriptor) o2).name : ((QueryDescriptor) o2).name;
 

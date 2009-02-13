@@ -15,7 +15,6 @@ import java.io.Serializable;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.snapshot.ISnapshot;
 
-
 /**
  * The value of a field if it is an object reference.
  */

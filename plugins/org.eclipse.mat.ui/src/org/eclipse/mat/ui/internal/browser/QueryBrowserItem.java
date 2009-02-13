@@ -23,7 +23,6 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 
-
 class QueryBrowserItem
 {
     boolean lastInCategory;

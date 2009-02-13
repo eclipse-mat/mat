@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.mat.inspections.collections;
 
-import java.text.MessageFormat;
-
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.inspections.InspectionAssert;
@@ -29,6 +27,7 @@ import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.ObjectReference;
 import org.eclipse.mat.snapshot.query.ObjectListResult;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.MessageUtil;
 
 @Name("Extract Hash Set Values")
 @CommandName("hash_set_values")
@@ -47,7 +46,7 @@ public class HashSetValuesQuery implements IQuery
         InspectionAssert.heapFormatIsNot(snapshot, "phd");
 
         if (!hashSet.getClazz().doesExtend("java.util.HashSet"))
-            throw new IllegalArgumentException(MessageFormat.format("Not a hash set: {0}", hashSet.getDisplayName()));
+            throw new IllegalArgumentException(MessageUtil.format("Not a hash set: {0}", hashSet.getDisplayName()));
 
         CollectionUtil.Info info = CollectionUtil.getInfo(hashSet);
 

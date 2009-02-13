@@ -41,7 +41,7 @@ public class TestParseApp
         try
         {
             snapshot = SnapshotFactory.openSnapshot(snapshotFile, listener);
-            
+
             TestSuite suite = new TestSuite.Builder(report) //
                             .build(new SnapshotQueryContext(snapshot));
 

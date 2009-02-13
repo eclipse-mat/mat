@@ -23,8 +23,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.PrintWriter;
-import java.text.MessageFormat;
-import java.text.SimpleDateFormat;
+import com.ibm.icu.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -46,6 +45,7 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.mat.tests.regression.comparator.BinaryComparator;
 import org.eclipse.mat.tests.regression.comparator.CSVComparator;
 import org.eclipse.mat.tests.regression.comparator.IComparator;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.SimpleStringTokenizer;
 import org.osgi.framework.Bundle;
 import org.xml.sax.helpers.AttributesImpl;
@@ -126,7 +126,7 @@ public class TestApplication
         List<File> dumpList = RegTestUtils.collectDumps(dumpDir, new ArrayList<File>());
 
         if (dumpList.isEmpty())
-            throw new IOException(MessageFormat.format("{0} contains no heap dumps", dumpDir.getAbsolutePath()));
+            throw new IOException(MessageUtil.format("{0} contains no heap dumps", dumpDir.getAbsolutePath()));
 
         List<TestSuiteResult> testResults = new ArrayList<TestSuiteResult>(dumpList.size());
         for (File dump : dumpList)
@@ -377,7 +377,7 @@ public class TestApplication
             }
         }
 
-        System.out.println(MessageFormat.format("Saved performance data to {0}", report.getAbsolutePath()));
+        System.out.println(MessageUtil.format("Saved performance data to {0}", report.getAbsolutePath()));
     }
 
     private void processResults(File dump, TestSuiteResult result) throws Exception
@@ -417,7 +417,7 @@ public class TestApplication
                 });
                 if (matchingFiles.length == 0)
                 {
-                    String errorMessage = MessageFormat.format(
+                    String errorMessage = MessageUtil.format(
                                     "ERROR: Baseline result {0} has no corresponding test result", baselineFile);
 
                     System.err.println(errorMessage);
@@ -496,7 +496,7 @@ public class TestApplication
                 // delete old index and report files, throw exception if fails
                 if (!f.delete())
                 {
-                    String message = MessageFormat.format("Failed removing file {0} from the file system", //
+                    String message = MessageUtil.format("Failed removing file {0} from the file system", //
                                     f.getAbsolutePath());
                     result.addErrorMessage(message);
                     System.err.println(message);
@@ -661,8 +661,8 @@ public class TestApplication
         int status = process.waitFor();
         if (status != 0) // something went wrong
         {
-            System.err.println(MessageFormat.format("ERROR: Exit Status {0}", status));
-            throw new IOException(MessageFormat.format("Parsing finished with exit status {0}.\nOutput:\n{1}\n\n {2}", //
+            System.err.println(MessageUtil.format("ERROR: Exit Status {0}", status));
+            throw new IOException(MessageUtil.format("Parsing finished with exit status {0}.\nOutput:\n{1}\n\n {2}", //
                             status, outputGobbler.getMessage(), errorGobbler.getMessage()));
         }
         // extract parsing time

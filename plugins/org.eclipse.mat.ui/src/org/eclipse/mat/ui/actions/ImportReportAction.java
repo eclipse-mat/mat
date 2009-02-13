@@ -100,7 +100,8 @@ public class ImportReportAction extends Action
     public static void openReport(MultiPaneEditor editor, File reportZipFile) throws IOException
     {
         IResult result = unzipAndOpen(reportZipFile);
-        QueryResult queryResult = new QueryResult(null, Messages.ImportReportAction_Report + reportZipFile.getName(), result);
+        QueryResult queryResult = new QueryResult(null, Messages.ImportReportAction_Report + reportZipFile.getName(),
+                        result);
         QueryExecution.displayResult(editor, null, null, queryResult, false);
     }
 

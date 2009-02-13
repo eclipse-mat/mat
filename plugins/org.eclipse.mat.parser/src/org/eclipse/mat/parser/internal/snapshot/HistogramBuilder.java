@@ -43,8 +43,7 @@ public class HistogramBuilder extends HistogramRecord
         Object previous = data.put(record.getClassId(), record);
 
         if (previous != null)
-            throw new IllegalArgumentException(
-                            Messages.HistogramBuilder_Error_FailedToStoreInHistogram);
+            throw new IllegalArgumentException(Messages.HistogramBuilder_Error_FailedToStoreInHistogram);
     }
 
     public void add(int classId, int objectId, long heapSize)
@@ -112,7 +111,7 @@ public class HistogramBuilder extends HistogramRecord
             usedHeapSizeOverall += builder.getUsedHeapSize();
             retainedHeapSizeOverall += builder.getRetainedHeapSize();
         }
-        
+
         if (isDefaultHistogram)
         {
             VoidProgressListener listener = new VoidProgressListener();

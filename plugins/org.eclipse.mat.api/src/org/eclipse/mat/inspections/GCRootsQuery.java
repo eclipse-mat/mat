@@ -48,7 +48,7 @@ import org.eclipse.mat.util.IProgressListener;
 public class GCRootsQuery implements IQuery
 {
     private static final URL ICON = GCRootsQuery.class.getResource("/META-INF/icons/roots.gif");
-    
+
     @Argument
     public ISnapshot snapshot;
 

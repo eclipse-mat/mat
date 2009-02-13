@@ -23,7 +23,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.TableItem;
 
-
 public class LinkEditor extends ArgumentEditor
 {
     public enum Mode
@@ -77,11 +76,11 @@ public class LinkEditor extends ArgumentEditor
 
             private void changeMode()
             {
-                if(mode.equals(Mode.ADVANCED_MODE))
+                if (mode.equals(Mode.ADVANCED_MODE))
                     mode = Mode.SIMPLE_MODE;
                 else
                     mode = Mode.ADVANCED_MODE;
-                
+
             }
         });
     }
@@ -94,10 +93,10 @@ public class LinkEditor extends ArgumentEditor
 
     @Override
     public void setValue(Object value) throws SnapshotException
-    {}   
-        
+    {}
+
     private void editingDone()
-    {        
+    {
         fireValueChangedEvent(null, this);
     }
 }

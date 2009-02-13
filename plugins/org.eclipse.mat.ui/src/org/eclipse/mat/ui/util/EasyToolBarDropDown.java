@@ -24,7 +24,6 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
-
 /**
  * Using this class one can create a tool bar button that drops down its menu
  * also when the button itself was clicked (user don't have to aim at the small

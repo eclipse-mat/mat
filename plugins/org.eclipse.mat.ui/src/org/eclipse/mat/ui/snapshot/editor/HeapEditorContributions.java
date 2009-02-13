@@ -24,7 +24,6 @@ import org.eclipse.mat.ui.internal.actions.OpenPaneAction;
 import org.eclipse.mat.ui.snapshot.actions.OpenOQLStudioAction;
 import org.eclipse.mat.ui.snapshot.actions.OpenObjectByIdAction;
 
-
 public class HeapEditorContributions implements IMultiPaneEditorContributor
 {
     HeapEditor editor;
@@ -32,7 +31,7 @@ public class HeapEditorContributions implements IMultiPaneEditorContributor
     Action openHistogram;
     Action openDominatorTree;
     Action openOQLPane;
-  
+
     Action runExpertTest;
     Action openQueries;
 

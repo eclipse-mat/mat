@@ -2,14 +2,15 @@
 package org.eclipse.mat.parser.internal.oql.parser;
 
 import java.math.BigInteger;
-import java.util.List;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
 import org.eclipse.mat.parser.internal.oql.ICompiler;
 import org.eclipse.mat.parser.internal.oql.compiler.Attribute;
-import org.eclipse.mat.parser.internal.oql.compiler.Query;
 import org.eclipse.mat.parser.internal.oql.compiler.Expression;
+import org.eclipse.mat.parser.internal.oql.compiler.Query;
+import org.eclipse.mat.util.MessageUtil;
 
 @SuppressWarnings("nls")
 public class OQLParser implements OQLParserConstants
@@ -69,8 +70,7 @@ public class OQLParser implements OQLParserConstants
         for (String keyword : keywords)
             buf.append("\n\t\"").append(keyword).append('"');
 
-        String msg = java.text.MessageFormat.format(
-                        "Encountered \"{0}\" at line {1}, column {2}.\nWas expecting one of: {3}",
+        String msg = MessageUtil.format("Encountered \"{0}\" at line {1}, column {2}.\nWas expecting one of: {3}",
                         currentToken.next.image, currentToken.next.beginLine, currentToken.next.beginColumn, buf
                                         .toString());
 

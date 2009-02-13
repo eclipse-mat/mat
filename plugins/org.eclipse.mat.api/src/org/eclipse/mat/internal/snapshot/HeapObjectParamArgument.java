@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.mat.internal.snapshot;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -33,6 +32,7 @@ import org.eclipse.mat.snapshot.model.IClassLoader;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.VoidProgressListener;
 
 public final class HeapObjectParamArgument extends HeapObjectArgumentFactory
@@ -59,9 +59,6 @@ public final class HeapObjectParamArgument extends HeapObjectArgumentFactory
     // //////////////////////////////////////////////////////////////
     // inspect & assign value
     // //////////////////////////////////////////////////////////////
-
-    
-    
 
     @Override
     public String toString()
@@ -341,8 +338,8 @@ public final class HeapObjectParamArgument extends HeapObjectArgumentFactory
         {
             if (hopa.isVerbose)
             {
-                logger.log(Level.INFO, MessageFormat.format("Looking up objects for class name pattern ''{0}''",
-                                pattern.toString()));
+                logger.log(Level.INFO, MessageUtil.format("Looking up objects for class name pattern ''{0}''", pattern
+                                .toString()));
             }
 
             int[] answer;
@@ -355,7 +352,7 @@ public final class HeapObjectParamArgument extends HeapObjectArgumentFactory
                 answer = clazz.getObjectIds();
                 if (hopa.isVerbose)
                 {
-                    logger.log(Level.INFO, MessageFormat.format("Added class {0} and {1} instances of it", clazz
+                    logger.log(Level.INFO, MessageUtil.format("Added class {0} and {1} instances of it", clazz
                                     .getName(), answer.length));
                 }
 
@@ -387,14 +384,14 @@ public final class HeapObjectParamArgument extends HeapObjectArgumentFactory
 
                     if (hopa.isVerbose)
                     {
-                        logger.log(Level.INFO, MessageFormat.format("Added class {0} and {1} instances of it", clazz
+                        logger.log(Level.INFO, MessageUtil.format("Added class {0} and {1} instances of it", clazz
                                         .getName(), toAdd.length));
                     }
                 }
 
                 if (hopa.isVerbose)
                 {
-                    logger.log(Level.INFO, MessageFormat.format("{0} classes ({1} instances) are matching the pattern",
+                    logger.log(Level.INFO, MessageUtil.format("{0} classes ({1} instances) are matching the pattern",
                                     classCount, instanceCount));
                 }
 
@@ -409,7 +406,7 @@ public final class HeapObjectParamArgument extends HeapObjectArgumentFactory
             int objectId = snapshot.mapAddressToId(address);
 
             if (objectId < 0)
-                throw new SnapshotException(MessageFormat.format("Object 0x{0} not found", Long.toHexString(address)));
+                throw new SnapshotException(MessageUtil.format("Object 0x{0} not found", Long.toHexString(address)));
 
             return evalIncludeSubClassesAndInstances(new int[] { objectId });
 
@@ -425,11 +422,11 @@ public final class HeapObjectParamArgument extends HeapObjectArgumentFactory
             }
             else if (result == null)
             {
-                throw new SnapshotException(MessageFormat.format("OQL Query does not yield a result: {0}", queryString));
+                throw new SnapshotException(MessageUtil.format("OQL Query does not yield a result: {0}", queryString));
             }
             else
             {
-                throw new SnapshotException(MessageFormat.format("OQL query does not return a list of objects: {0}",
+                throw new SnapshotException(MessageUtil.format("OQL query does not return a list of objects: {0}",
                                 queryString));
             }
         }
@@ -448,8 +445,8 @@ public final class HeapObjectParamArgument extends HeapObjectArgumentFactory
                     if (!(object instanceof IClass))
                     {
                         String msg = "Not a class: 0x{0} ({2}). If specifying ''{3}'', the selected objects all must be classes.";
-                        throw new SnapshotException(MessageFormat.format(msg, Long.toHexString(object
-                                        .getObjectAddress()), id, object.getClazz().getName(),
+                        throw new SnapshotException(MessageUtil.format(msg,
+                                        Long.toHexString(object.getObjectAddress()), id, object.getClazz().getName(),
                                         Flags.INCLUDE_CLASS_INSTANCE));
                     }
 
@@ -488,9 +485,9 @@ public final class HeapObjectParamArgument extends HeapObjectArgumentFactory
                 if (!(classLoader instanceof IClassLoader))
                 {
                     String msg = "Not a class loader: 0x{0} ({2}). If specifying ''{3}'', the selected objects all must be class loaders.";
-                    throw new SnapshotException(MessageFormat.format(msg, Long.toHexString(classLoader
-                                    .getObjectAddress()), objectId, classLoader.getClazz().getName(),
-                                    Flags.INCLUDE_LOADED_INSTANCES));
+                    throw new SnapshotException(MessageUtil.format(msg, Long
+                                    .toHexString(classLoader.getObjectAddress()), objectId, classLoader.getClazz()
+                                    .getName(), Flags.INCLUDE_LOADED_INSTANCES));
                 }
 
                 objIdxs.add(objectId);
@@ -506,8 +503,8 @@ public final class HeapObjectParamArgument extends HeapObjectArgumentFactory
 
                         if (hopa.isVerbose)
                         {
-                            logger.log(Level.INFO, MessageFormat.format("Added class {0} and {1} instances of it",
-                                            clazz.getName(), toAdd.length));
+                            logger.log(Level.INFO, MessageUtil.format("Added class {0} and {1} instances of it", clazz
+                                            .getName(), toAdd.length));
                         }
 
                     }

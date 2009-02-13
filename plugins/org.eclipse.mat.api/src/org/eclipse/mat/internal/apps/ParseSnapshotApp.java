@@ -13,7 +13,6 @@ package org.eclipse.mat.internal.apps;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +27,7 @@ import org.eclipse.mat.report.TestSuite;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.SnapshotFactory;
 import org.eclipse.mat.util.ConsoleProgressListener;
+import org.eclipse.mat.util.MessageUtil;
 
 public class ParseSnapshotApp implements IApplication
 {
@@ -41,7 +41,7 @@ public class ParseSnapshotApp implements IApplication
 
         File file = new File(args[0]);
         if (!file.exists())
-            throw new FileNotFoundException(MessageFormat.format("File not found: {0}", file.getAbsolutePath()));
+            throw new FileNotFoundException(MessageUtil.format("File not found: {0}", file.getAbsolutePath()));
 
         List<Spec> reports = new ArrayList<Spec>();
 
@@ -67,7 +67,7 @@ public class ParseSnapshotApp implements IApplication
             }
             else
             {
-                System.err.println(MessageFormat.format("Report not found: {0}", args[ii]));
+                System.err.println(MessageUtil.format("Report not found: {0}", args[ii]));
             }
         }
 

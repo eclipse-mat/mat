@@ -14,23 +14,22 @@ public class IntStack
 {
     private int[] data;
     private int size;
-    
-    
+
     public IntStack()
     {
         this(16);
     }
-    
+
     public IntStack(int capacity)
     {
         data = new int[capacity];
     }
-    
+
     public final int pop()
     {
         return data[--size];
     }
-    
+
     public final void push(int i)
     {
         if (size == data.length)
@@ -41,21 +40,20 @@ public class IntStack
         }
         data[size++] = i;
     }
-    
+
     public final int peek()
     {
         return data[size - 1];
     }
-    
-    public final int size() {
+
+    public final int size()
+    {
         return size;
     }
-    
+
     public final int capacity()
     {
         return data.length;
     }
-    
-    
 
 }

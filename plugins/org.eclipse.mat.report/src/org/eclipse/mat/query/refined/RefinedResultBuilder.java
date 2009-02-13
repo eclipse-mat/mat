@@ -11,7 +11,6 @@
 
 package org.eclipse.mat.query.refined;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -37,6 +36,7 @@ import org.eclipse.mat.query.ContextDerivedData.DerivedOperation;
 import org.eclipse.mat.query.refined.RefinedStructuredResult.CalculatedColumnAccessor;
 import org.eclipse.mat.query.refined.RefinedStructuredResult.DerivedDataJobDefinition;
 import org.eclipse.mat.query.refined.RefinedStructuredResult.ValueAccessor;
+import org.eclipse.mat.util.MessageUtil;
 
 public final class RefinedResultBuilder
 {
@@ -69,8 +69,8 @@ public final class RefinedResultBuilder
         else if (subject instanceof IResultTree)
             this.refinedResult = new RefinedTree();
         else
-            throw new IllegalArgumentException(MessageFormat.format(Messages.RefinedResultBuilder_Error_UnsupportedType, subject.getClass()
-                            .getName()));
+            throw new IllegalArgumentException(MessageUtil.format(Messages.RefinedResultBuilder_Error_UnsupportedType,
+                            subject.getClass().getName()));
 
         this.refinedResult.subject = subject;
 

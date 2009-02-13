@@ -11,7 +11,6 @@
 package org.eclipse.mat.ui.internal.viewer;
 
 import java.net.URL;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,6 +51,7 @@ import org.eclipse.mat.ui.util.ProgressMonitorWrapper;
 import org.eclipse.mat.ui.util.QueryContextMenu;
 import org.eclipse.mat.ui.util.SearchOnTyping;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ControlEditor;
 import org.eclipse.swt.events.FocusEvent;
@@ -842,7 +842,7 @@ public abstract class RefinedResultViewer
         if (visible - ctrl.totals.getVisibleItems() > 5000)
         {
             MessageBox box = new MessageBox(control.getShell(), SWT.ICON_QUESTION | SWT.OK | SWT.CANCEL);
-            box.setMessage(MessageFormat.format(Messages.RefinedResultViewer_BlockingWarning, //
+            box.setMessage(MessageUtil.format(Messages.RefinedResultViewer_BlockingWarning, //
                             (visible - ctrl.totals.getVisibleItems())));
             if (box.open() != SWT.OK)
                 return;

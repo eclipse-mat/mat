@@ -34,8 +34,8 @@ public class QueryDropDownMenuAction extends EasyToolBarDropDown
 
     public QueryDropDownMenuAction(MultiPaneEditor editor)
     {
-        super(Messages.QueryDropDownMenuAction_OpenQueryBrowser, MemoryAnalyserPlugin.getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.QUERY),
-                        editor);
+        super(Messages.QueryDropDownMenuAction_OpenQueryBrowser, MemoryAnalyserPlugin
+                        .getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.QUERY), editor);
 
         this.editor = editor;
 

@@ -10,10 +10,8 @@
  *******************************************************************************/
 package org.eclipse.mat.snapshot.query;
 
-import java.text.DecimalFormat;
 import java.text.FieldPosition;
 import java.text.Format;
-import java.text.MessageFormat;
 import java.text.ParsePosition;
 import java.util.Comparator;
 import java.util.LinkedList;
@@ -35,7 +33,10 @@ import org.eclipse.mat.snapshot.ClassLoaderHistogramRecord;
 import org.eclipse.mat.snapshot.Histogram;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.VoidProgressListener;
+
+import com.ibm.icu.text.DecimalFormat;
 
 public class RetainedSizeDerivedData extends ContextDerivedData
 {
@@ -159,8 +160,8 @@ public class RetainedSizeDerivedData extends ContextDerivedData
                         String msg = "Context provider ''{0}'' returned an illegal context object set for ''{1}}'' with content ''{{2}}'''. Return null instead.";
                         Logger.getLogger(getClass().getName()).log(
                                         Level.SEVERE,
-                                        MessageFormat.format(msg, provider.getClass().getName(), row.getClass()
-                                                        .getName(), row.toString()));
+                                        MessageUtil.format(msg, provider.getClass().getName(),
+                                                        row.getClass().getName(), row.toString()));
                         return;
                     }
                     else
@@ -197,7 +198,7 @@ public class RetainedSizeDerivedData extends ContextDerivedData
                 {
                     String msg = "Context provider ''{0}'' returned an context object with an illegeal object id for ''{1}}''. Return null instead.";
                     Logger.getLogger(getClass().getName()).log(Level.SEVERE,
-                                    MessageFormat.format(msg, provider.getClass().getName(), row.toString()));
+                                    MessageUtil.format(msg, provider.getClass().getName(), row.toString()));
                 }
                 else
                 {

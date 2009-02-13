@@ -10,11 +10,10 @@
  *******************************************************************************/
 package org.eclipse.mat.query;
 
-import java.text.MessageFormat;
-
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.MessageUtil;
 
 public abstract class ContextDerivedData
 {
@@ -50,7 +49,7 @@ public abstract class ContextDerivedData
             this.code = code;
             this.label = label;
         }
-        
+
         public String getCode()
         {
             return code;
@@ -72,7 +71,7 @@ public abstract class ContextDerivedData
     public abstract DerivedColumn[] getDerivedColumns();
 
     public abstract String labelFor(DerivedColumn derivedColumn, ContextProvider provider);
-    
+
     public abstract Column columnFor(DerivedColumn derivedColumn, IResult result, ContextProvider provider);
 
     public final DerivedColumn lookup(DerivedOperation operation)
@@ -84,7 +83,7 @@ public abstract class ContextDerivedData
                     return column;
             }
 
-        throw new RuntimeException(MessageFormat.format(Messages.ContextDerivedData_Error_OperationNotFound, operation
+        throw new RuntimeException(MessageUtil.format(Messages.ContextDerivedData_Error_OperationNotFound, operation
                         .getLabel(), this.getClass().getName()));
     }
 }

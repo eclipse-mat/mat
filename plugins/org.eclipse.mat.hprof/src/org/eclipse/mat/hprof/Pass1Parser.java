@@ -14,7 +14,6 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -28,6 +27,7 @@ import org.eclipse.mat.snapshot.model.GCRootInfo;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IPrimitiveArray;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.SimpleMonitor;
 import org.eclipse.mat.util.IProgressListener.Severity;
 
@@ -82,13 +82,12 @@ public class Pass1Parser extends AbstractParser
 
                 long length = readUnsignedInt();
                 if (length < 0)
-                    throw new SnapshotException(MessageFormat
-                                    .format(Messages.Pass1Parser_Error_IllegalRecordLength, in.position()));
+                    throw new SnapshotException(MessageUtil.format(Messages.Pass1Parser_Error_IllegalRecordLength, in
+                                    .position()));
 
                 if (curPos + length - 9 > fileSize)
-                    monitor.sendUserMessage(Severity.WARNING, MessageFormat.format(
-                                    Messages.Pass1Parser_Error_invalidHPROFFile, length, fileSize
-                                                    - curPos - 9), null);
+                    monitor.sendUserMessage(Severity.WARNING, MessageUtil.format(
+                                    Messages.Pass1Parser_Error_invalidHPROFFile, length, fileSize - curPos - 9), null);
 
                 switch (record)
                 {
@@ -198,7 +197,8 @@ public class Pass1Parser extends AbstractParser
                     readPrimitiveArrayDump(segmentStartPos);
                     break;
                 default:
-                    throw new SnapshotException(MessageFormat.format(Messages.Pass1Parser_Error_InvalidHeapDumpFile, segmentType, segmentStartPos));
+                    throw new SnapshotException(MessageUtil.format(Messages.Pass1Parser_Error_InvalidHeapDumpFile,
+                                    segmentType, segmentStartPos));
             }
 
             segmentStartPos = in.position();

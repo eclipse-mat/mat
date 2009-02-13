@@ -11,10 +11,9 @@
 package org.eclipse.mat.ui.snapshot.views;
 
 import java.io.File;
-import java.text.DateFormat;
-import java.text.DecimalFormat;
-import java.text.MessageFormat;
-import java.text.NumberFormat;
+import com.ibm.icu.text.DateFormat;
+import com.ibm.icu.text.DecimalFormat;
+import com.ibm.icu.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -30,6 +29,7 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.SnapshotInfo;
 import org.eclipse.mat.ui.snapshot.editor.ISnapshotEditorInput;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
@@ -218,7 +218,7 @@ public abstract class SnapshotOutlinePage extends Page implements IContentOutlin
                     else if (Messages.identifier_size.equals(label.getText()))
                     {
                         int identifierSize = ((Integer) obj).intValue();
-                        return MessageFormat.format(Messages.identifier_format, identifierSize);
+                        return MessageUtil.format(Messages.identifier_format, identifierSize);
                     }
                     else if ((obj instanceof Long) || (obj instanceof Integer))
                     {

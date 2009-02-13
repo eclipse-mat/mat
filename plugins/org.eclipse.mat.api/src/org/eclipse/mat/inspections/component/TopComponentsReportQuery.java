@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.mat.inspections.component;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -33,6 +32,7 @@ import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.query.SnapshotQuery;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.MessageUtil;
 
 @Name("Top Components Report")
 @CommandName("component_report_top")
@@ -67,7 +67,7 @@ public class TopComponentsReportQuery implements IQuery
                             .set("objects", record.objects) //
                             .execute(listener);
 
-            QuerySpec spec = new QuerySpec(MessageFormat.format("{0} ({1,number,percent})", record.name,
+            QuerySpec spec = new QuerySpec(MessageUtil.format("{0} ({1,number,percent})", record.name,
                             (double) record.retainedSize / (double) totalHeapSize), report);
             spec.set(Params.Html.SEPARATE_FILE, Boolean.TRUE.toString());
             result.add(spec);

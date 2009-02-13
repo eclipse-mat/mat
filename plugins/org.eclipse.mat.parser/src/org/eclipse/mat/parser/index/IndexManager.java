@@ -14,7 +14,8 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.text.MessageFormat;
+
+import org.eclipse.mat.util.MessageUtil;
 
 public class IndexManager
 {
@@ -122,7 +123,7 @@ public class IndexManager
                 catch (InvocationTargetException e)
                 {
                     Throwable cause = e.getCause();
-                    IOException ioe = new IOException(MessageFormat.format("{0}: {1}", cause.getClass().getName(), //$NON-NLS-1$
+                    IOException ioe = new IOException(MessageUtil.format("{0}: {1}", cause.getClass().getName(), //$NON-NLS-1$
                                     cause.getMessage()));
                     ioe.initCause(cause);
                     throw ioe;

@@ -22,7 +22,7 @@ public class Perspective implements IPerspectiveFactory
 {
     public enum Views
     {
-        HISTORY_VIEW(MemoryAnalyserPlugin.PLUGIN_ID + ".views.SnapshotHistoryView"),  //$NON-NLS-1$
+        HISTORY_VIEW(MemoryAnalyserPlugin.PLUGIN_ID + ".views.SnapshotHistoryView"), //$NON-NLS-1$
         DETAILS_VIEW(MemoryAnalyserPlugin.PLUGIN_ID + ".views.SnapshotDetailsView"), //$NON-NLS-1$
         NOTES_VIEW(MemoryAnalyserPlugin.PLUGIN_ID + ".views.TextEditorView"), //$NON-NLS-1$
         INSPECTOR_VIEW(MemoryAnalyserPlugin.PLUGIN_ID + ".views.InspectorView"), //$NON-NLS-1$

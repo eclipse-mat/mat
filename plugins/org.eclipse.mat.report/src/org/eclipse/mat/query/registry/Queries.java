@@ -10,12 +10,11 @@
  *******************************************************************************/
 package org.eclipse.mat.query.registry;
 
-import java.text.MessageFormat;
-
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.MessageUtil;
 
 public class Queries
 {
@@ -24,7 +23,7 @@ public class Queries
     {
         QueryDescriptor query = QueryRegistry.instance().getQuery(name);
         if (query == null)
-            throw new SnapshotException(MessageFormat.format(Messages.Queries_Error_NotAvialable, name));
+            throw new SnapshotException(MessageUtil.format(Messages.Queries_Error_NotAvialable, name));
 
         if (!query.accept(context))
             throw new SnapshotException(query.explain(context));
@@ -53,7 +52,7 @@ public class Queries
     {
         ArgumentDescriptor argument = query.getArgumentByName(name);
         if (argument == null)
-            throw new SnapshotException(MessageFormat.format(Messages.Queries_Error_UnknownArgument, name, query
+            throw new SnapshotException(MessageUtil.format(Messages.Queries_Error_UnknownArgument, name, query
                             .getIdentifier()));
 
         arguments.setArgumentValue(argument, value);

@@ -21,7 +21,6 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.net.URL;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,6 +38,7 @@ import org.eclipse.mat.report.RendererRegistry;
 import org.eclipse.mat.report.TestSuite;
 import org.eclipse.mat.util.FileUtils;
 import org.eclipse.mat.util.HTMLUtils;
+import org.eclipse.mat.util.MessageUtil;
 
 public class ResultRenderer
 {
@@ -224,7 +224,7 @@ public class ResultRenderer
             outputter = RendererRegistry.instance().match(format, result.getClass());
             if (outputter == null)
             {
-                ReportPlugin.log(IStatus.WARNING, MessageFormat.format(Messages.ResultRenderer_Error_OutputterNotFound,
+                ReportPlugin.log(IStatus.WARNING, MessageUtil.format(Messages.ResultRenderer_Error_OutputterNotFound,
                                 format, result.getClass().getName()));
                 outputter = html;
             }

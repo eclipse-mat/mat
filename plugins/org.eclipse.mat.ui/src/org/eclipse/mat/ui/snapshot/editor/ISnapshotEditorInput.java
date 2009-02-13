@@ -14,7 +14,6 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.ui.IEditorInput;
 
-
 public interface ISnapshotEditorInput extends IEditorInput
 {
     interface IChangeListener
@@ -27,11 +26,11 @@ public interface ISnapshotEditorInput extends IEditorInput
     IPath getPath();
 
     ISnapshot getSnapshot();
-    
+
     boolean hasSnapshot();
 
     ISnapshot getBaseline();
-    
+
     void setBaseline(ISnapshot snapshot);
 
     boolean hasBaseline();

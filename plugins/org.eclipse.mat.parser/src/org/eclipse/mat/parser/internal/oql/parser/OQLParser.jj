@@ -77,7 +77,7 @@ public class OQLParser
     	for(String keyword : keywords)
     		buf.append("\n\t\"").append(keyword).append('"');
     		
-    	String msg = java.text.MessageFormat.format(
+    	String msg = java.text.MessageUtil.format(
     		"Encountered \"{0}\" at line {1}, column {2}.\nWas expecting one of: {3}",
     		currentToken.next.image,
     		currentToken.next.beginLine,

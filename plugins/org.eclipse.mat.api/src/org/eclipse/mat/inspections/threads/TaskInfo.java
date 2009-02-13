@@ -18,7 +18,6 @@ import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IResultTree;
 import org.eclipse.mat.query.ResultMetaData;
 
-
 public class TaskInfo
 {
     private static final String[] STATES = { "N/A", "idle", "waiting for a task", "processing", "waiting for sync. I/O" };

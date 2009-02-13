@@ -18,7 +18,6 @@ import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.TableItem;
 
-
 public class TableEditorFactory
 {
     public static ArgumentEditor createTableEditor(Composite parent, IQueryContext context,

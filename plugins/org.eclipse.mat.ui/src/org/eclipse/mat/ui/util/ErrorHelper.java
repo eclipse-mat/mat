@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.mat.ui.util;
 
-import java.text.MessageFormat;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
@@ -20,14 +18,15 @@ import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.Messages;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.ui.PlatformUI;
-
 
 public class ErrorHelper
 {
     public static void logThrowable(Throwable throwable)
     {
-        IStatus status = new Status(IStatus.ERROR, MemoryAnalyserPlugin.PLUGIN_ID, 1, Messages.ErrorHelper_InternalError, throwable);
+        IStatus status = new Status(IStatus.ERROR, MemoryAnalyserPlugin.PLUGIN_ID, 1,
+                        Messages.ErrorHelper_InternalError, throwable);
         MemoryAnalyserPlugin.getDefault().getLog().log(status);
     }
 
@@ -68,8 +67,8 @@ public class ErrorHelper
         {
             public void run()
             {
-                ErrorDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), Messages.ErrorHelper_Error, null,
-                                status);
+                ErrorDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
+                                Messages.ErrorHelper_Error, null, status);
             }
         });
     }
@@ -132,16 +131,15 @@ public class ErrorHelper
     {
 
         if ("java.lang.RuntimeException".equals(exceptionType))//$NON-NLS-1$
-            return MessageFormat.format(Messages.ErrorHelper_InternalRuntimeError, new Object[] { message });
+            return MessageUtil.format(Messages.ErrorHelper_InternalRuntimeError, new Object[] { message });
         else if ("java.lang.ClassNotFoundException".equals(exceptionType))//$NON-NLS-1$
-            return MessageFormat.format(Messages.ErrorHelper_ClassNotFound, new Object[] { message });
+            return MessageUtil.format(Messages.ErrorHelper_ClassNotFound, new Object[] { message });
         else if ("java.lang.NoClassDefFoundError".equals(exceptionType))//$NON-NLS-1$
-            return MessageFormat.format(Messages.ErrorHelper_DefinitionNotFound,
-                            new Object[] { message });
+            return MessageUtil.format(Messages.ErrorHelper_DefinitionNotFound, new Object[] { message });
         else if ("java.lang.NoSuchMethodError".equals(exceptionType))//$NON-NLS-1$
-            return MessageFormat.format(Messages.ErrorHelper_NoSuchMethod, new Object[] { message });
+            return MessageUtil.format(Messages.ErrorHelper_NoSuchMethod, new Object[] { message });
         else if (message == null)
-            return MessageFormat.format(Messages.ErrorHelper_Exception, new Object[] { exceptionType });
+            return MessageUtil.format(Messages.ErrorHelper_Exception, new Object[] { exceptionType });
         else
             return message;
 

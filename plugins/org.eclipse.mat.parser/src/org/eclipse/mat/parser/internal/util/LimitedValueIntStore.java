@@ -33,7 +33,7 @@ public class LimitedValueIntStore
             // empty
         }
 
-        /* sz, , NEXT_SZ, n*value entries bits next; */
+        /* sz, , NEXT_SZ, nvalue entries bits next; */
         entrySize = SIZE_SZ + PREV_SZ + NUM_VALUES * numBits;
 
         size = initialCapacity;
@@ -47,9 +47,10 @@ public class LimitedValueIntStore
 
     public final int add(int index, int value)
     {
-// removed the check intentionally
-//        if (value > maxValue)
-//            throw new IllegalArgumentException("Value: " + value + " is bigger than the defined maximum: " + maxValue);
+        // removed the check intentionally
+        // if (value > maxValue)
+        // throw new IllegalArgumentException("Value: " + value +
+        // " is bigger than the defined maximum: " + maxValue);
 
         int count = readBits(index * entrySize, SIZE_SZ);
         if (count == NUM_VALUES)
@@ -108,12 +109,12 @@ public class LimitedValueIntStore
             size *= 2;
         }
         int index = used.nextClearBit(0);
-        
+
         used.set(index);
         usedCount++;
         setBits(index * entrySize, SIZE_SZ, 0); // clear the size bits
         setBits(index * entrySize + SIZE_SZ, PREV_SZ, END_MARKER); // clear the
-                                                                    // prev bits
+        // prev bits
 
         return index;
     }
@@ -131,19 +132,19 @@ public class LimitedValueIntStore
 
     private int readBits(int pos, int length)
     {
-            // calculate the index
-            int idx = pos >>> 5;
-            
-            // does it fit into one int?
-            int off = pos & 0x1f;
-            if ((off + length) <= 0x20)
-            {
-                return ((data[idx] << off) >>> (0x20 - length));
-            }
-            else
-            {
-                return ((data[idx] << off) >>> (0x20 - length)) | data[idx + 1] >>> (0x40 - length - off);
-            }
+        // calculate the index
+        int idx = pos >>> 5;
+
+        // does it fit into one int?
+        int off = pos & 0x1f;
+        if ((off + length) <= 0x20)
+        {
+            return ((data[idx] << off) >>> (0x20 - length));
+        }
+        else
+        {
+            return ((data[idx] << off) >>> (0x20 - length)) | data[idx + 1] >>> (0x40 - length - off);
+        }
     }
 
     private void setBits(int pos, int length, int value)
@@ -166,21 +167,24 @@ public class LimitedValueIntStore
 
             value <<= 0x20 - off - length;
 
-            data[idx] &= clear;  // clear only the bits which will be set
+            data[idx] &= clear; // clear only the bits which will be set
             data[idx] |= value; // set the bits
         }
-        else // have to set two ints
+        else
+        // have to set two ints
         {
             int tmp = data[idx]; // take the int
             tmp >>>= 0x20 - off; // clear the needed trailing bits
             tmp <<= 0x20 - off;
-            tmp |= (value >>> (length - (0x20 - off))); // set the cleared bits with data
+            tmp |= (value >>> (length - (0x20 - off))); // set the cleared bits
+                                                        // with data
             data[idx] = tmp;
 
-            tmp = data[idx + 1];  // take the second int
+            tmp = data[idx + 1]; // take the second int
             tmp <<= (length - (0x20 - off)); // clear the leading needed bits
             tmp >>>= (length - (0x20 - off));
-            tmp |= value << (0x20 - (length - (0x20 - off))); // set the cleared bits with data
+            tmp |= value << (0x20 - (length - (0x20 - off))); // set the cleared
+                                                              // bits with data
             data[idx + 1] = tmp;
 
         }

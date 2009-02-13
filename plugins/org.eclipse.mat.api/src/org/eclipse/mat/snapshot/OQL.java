@@ -10,10 +10,10 @@
  *******************************************************************************/
 package org.eclipse.mat.snapshot;
 
-import java.text.MessageFormat;
 import java.util.regex.Pattern;
 
 import org.eclipse.mat.snapshot.model.IClass;
+import org.eclipse.mat.util.MessageUtil;
 
 /**
  * Factory for often-used OQL queries.
@@ -178,9 +178,9 @@ public final class OQL
      */
     public static String classesByClassLoaderId(int classLoaderId)
     {
-        return MessageFormat.format(OQL_classesByClassLoaderId, new Object[] { classLoaderId });
+        return MessageUtil.format(OQL_classesByClassLoaderId, new Object[] { classLoaderId });
     }
-    
+
     private OQL()
     {}
 }

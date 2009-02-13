@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.mat.inspections;
 
-import java.text.MessageFormat;
-
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
@@ -22,7 +20,7 @@ import org.eclipse.mat.snapshot.Histogram;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.util.IProgressListener;
-
+import org.eclipse.mat.util.MessageUtil;
 
 @Name("Show Retained Set")
 @Icon("/META-INF/icons/show_retained_set.gif")
@@ -53,13 +51,13 @@ public class RetainedSetQuery implements IQuery
 
         if (listener.isCanceled())
             throw new IProgressListener.OperationCanceledException();
-        
+
         Histogram histogram = snapshot.getHistogram(retainedSet, listener);
 
         if (listener.isCanceled())
             throw new IProgressListener.OperationCanceledException();
 
-        histogram.setLabel(MessageFormat.format("Retained by ''{0}''", new Object[] { objects.getLabel() }));
+        histogram.setLabel(MessageUtil.format("Retained by ''{0}''", new Object[] { objects.getLabel() }));
         return histogram;
     }
 

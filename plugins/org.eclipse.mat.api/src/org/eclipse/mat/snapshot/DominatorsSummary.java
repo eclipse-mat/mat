@@ -34,25 +34,31 @@ public final class DominatorsSummary
     private ClassloaderDominatorRecord[] classloaderDominatorRecords;
 
     private ISnapshot snapshot;
-    
+
     private Object data;
 
     public DominatorsSummary(ClassDominatorRecord[] classDominatorRecords, ISnapshot snapshot)
     {
         this.classDominatorRecords = classDominatorRecords;
         this.snapshot = snapshot;
-        
+
         for (ClassDominatorRecord record : classDominatorRecords)
             record.summary = this;
     }
 
-    /** Returns data object attached to the summary. Needed for UI elements to store context. */
+    /**
+     * Returns data object attached to the summary. Needed for UI elements to
+     * store context.
+     */
     public Object getData()
     {
         return data;
     }
 
-    /** Attaches arbitrary data object to the summary. Needed for UI elements to store context. */
+    /**
+     * Attaches arbitrary data object to the summary. Needed for UI elements to
+     * store context.
+     */
     public void setData(Object data)
     {
         this.data = data;
@@ -236,7 +242,7 @@ public final class DominatorsSummary
     public static class ClassDominatorRecord
     {
         DominatorsSummary summary;
-        
+
         String className;
         int classloaderId;
         int classId;

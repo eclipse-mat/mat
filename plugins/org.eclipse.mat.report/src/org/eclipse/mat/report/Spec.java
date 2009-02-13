@@ -16,7 +16,6 @@ import java.util.Map;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.ResultMetaData;
 
-
 public class Spec implements IResult
 {
     private String name;
@@ -60,7 +59,7 @@ public class Spec implements IResult
     {
         return params;
     }
-    
+
     public void putAll(Map<String, String> map)
     {
         this.params.putAll(map);

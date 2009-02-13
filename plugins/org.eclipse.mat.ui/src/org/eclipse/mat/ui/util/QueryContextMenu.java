@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.mat.ui.util;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -47,6 +46,7 @@ import org.eclipse.mat.ui.QueryExecution;
 import org.eclipse.mat.ui.editor.AbstractEditorPane;
 import org.eclipse.mat.ui.editor.AbstractPaneJob;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
+import org.eclipse.mat.util.MessageUtil;
 
 public class QueryContextMenu
 {
@@ -273,7 +273,7 @@ public class QueryContextMenu
                         @Override
                         public void run()
                         {
-                            new AbstractPaneJob(MessageFormat
+                            new AbstractPaneJob(MessageUtil
                                             .format(Messages.QueryContextMenu_Processing, r.getLabel()), null)
                             {
 
@@ -283,7 +283,7 @@ public class QueryContextMenu
                                     try
                                     {
                                         IResult result = r.getResult(firstElement, new ProgressMonitorWrapper(monitor));
-                                        QueryResult qr = new QueryResult(null, MessageFormat.format(
+                                        QueryResult qr = new QueryResult(null, MessageUtil.format(
                                                         Messages.QueryContextMenu_Details, r.getLabel()), result);
                                         QueryExecution.displayResult(editor, originator, null, qr, false);
                                         return Status.OK_STATUS;
@@ -339,7 +339,7 @@ public class QueryContextMenu
 
     /**
      * To be overwritten by sub-classes.
-     *
+     * 
      * @param menu
      * @param menuContext
      * @param provider
@@ -401,7 +401,7 @@ public class QueryContextMenu
         {
             ISnapshot snapshot = (ISnapshot) editor.getQueryContext().get(ISnapshot.class, null);
 
-			// avoid JavaNCSS parsing error
+            // avoid JavaNCSS parsing error
             final Class<?> intClass = int.class;
 
             for (ArgumentDescriptor argument : query.getArguments())

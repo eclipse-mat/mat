@@ -35,7 +35,7 @@ public class SectionPart extends AbstractPart
             params().put(Params.Html.SHOW_HEADING, Boolean.FALSE.toString());
         }
     }
-    
+
     /* package */void init(PartsFactory factory)
     {
         for (Spec child : ((SectionSpec) spec).getChildren())

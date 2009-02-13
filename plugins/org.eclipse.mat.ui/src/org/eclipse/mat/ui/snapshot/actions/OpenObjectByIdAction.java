@@ -11,7 +11,6 @@
 package org.eclipse.mat.ui.snapshot.actions;
 
 import java.math.BigInteger;
-import java.text.MessageFormat;
 import java.util.regex.Pattern;
 
 import org.eclipse.jface.action.Action;
@@ -26,17 +25,18 @@ import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.QueryExecution;
 import org.eclipse.mat.ui.snapshot.editor.HeapEditor;
 import org.eclipse.mat.ui.snapshot.editor.ISnapshotEditorInput;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
-
 
 public class OpenObjectByIdAction extends Action
 {
 
     public OpenObjectByIdAction()
     {
-        super(Messages.OpenObjectByIdAction_FindObjectByAddress, MemoryAnalyserPlugin.getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.FIND));
+        super(Messages.OpenObjectByIdAction_FindObjectByAddress, MemoryAnalyserPlugin
+                        .getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.FIND));
     }
 
     @Override
@@ -47,10 +47,10 @@ public class OpenObjectByIdAction extends Action
 
         if (part instanceof HeapEditor)
         {
-            HeapEditor editor = (HeapEditor)part;
+            HeapEditor editor = (HeapEditor) part;
 
             String value = askForAddress();
-            
+
             if (value != null)
             {
                 retrieveObjectAndOpenPane(editor, value);
@@ -66,7 +66,7 @@ public class OpenObjectByIdAction extends Action
         {
             // Long.parseLong works only for positive hex
             long objectAddress = new BigInteger(value.substring(2), 16).longValue();
-            ISnapshot snapshot = ((ISnapshotEditorInput)editor.getPaneEditorInput()).getSnapshot();
+            ISnapshot snapshot = ((ISnapshotEditorInput) editor.getPaneEditorInput()).getSnapshot();
             if (snapshot == null)
             {
                 errorMessage = Messages.OpenObjectByIdAction_ErrorGettingHeapDump;
@@ -76,7 +76,7 @@ public class OpenObjectByIdAction extends Action
                 int objectId = snapshot.mapAddressToId(objectAddress);
                 if (objectId < 0)
                 {
-                    errorMessage = MessageFormat.format(Messages.OpenObjectByIdAction_NoObjectWithAddress,
+                    errorMessage = MessageUtil.format(Messages.OpenObjectByIdAction_NoObjectWithAddress,
                                     new Object[] { value });
                 }
                 else
@@ -93,7 +93,8 @@ public class OpenObjectByIdAction extends Action
         catch (SnapshotException e)
         {
             // $JL-EXC$
-            errorMessage = MessageFormat.format(Messages.OpenObjectByIdAction_ErrorReadingObject, new Object[] { e.getMessage() });
+            errorMessage = MessageUtil.format(Messages.OpenObjectByIdAction_ErrorReadingObject, new Object[] { e
+                            .getMessage() });
         }
 
         if (errorMessage != null)
@@ -108,7 +109,8 @@ public class OpenObjectByIdAction extends Action
         final Pattern pattern = Pattern.compile("^0x\\p{XDigit}+$");//$NON-NLS-1$
 
         InputDialog dialog = new InputDialog(PlatformUI.getWorkbench().getDisplay().getActiveShell(),
-                        Messages.OpenObjectByIdAction_FindObjectByAddress, Messages.OpenObjectByIdAction_ObjectAddress, "0x", new IInputValidator() //$NON-NLS-1$
+                        Messages.OpenObjectByIdAction_FindObjectByAddress, Messages.OpenObjectByIdAction_ObjectAddress,
+                        "0x", new IInputValidator() //$NON-NLS-1$
                         {
 
                             public String isValid(String newText)

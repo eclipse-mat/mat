@@ -13,11 +13,10 @@
                 <message_argument value="0.7.0.200808081658"/>
             </message_arguments>
         </filter>
-    </resource>
-    <resource path="src/org/eclipse/mat/report/IOutputter.java" type="org.eclipse.mat.report.IOutputter$Context">
-        <filter id="1211105284">
+        <filter id="924844039">
             <message_arguments>
-                <message_argument value="org.eclipse.mat.report.IOutputter.Context"/>
+                <message_argument value="0.7.0.qualifier"/>
+                <message_argument value="0.7.0.200810071154"/>
             </message_arguments>
         </filter>
     </resource>
@@ -28,10 +27,10 @@
             </message_arguments>
         </filter>
     </resource>
-    <resource path="src/org/eclipse/mat/query/annotations/HelpUrl.java" type="org.eclipse.mat.query.annotations.HelpUrl">
-        <filter id="1110441988">
+    <resource path="src/org/eclipse/mat/report/IOutputter.java" type="org.eclipse.mat.report.IOutputter$Context">
+        <filter id="1211105284">
             <message_arguments>
-                <message_argument value="org.eclipse.mat.query.annotations.HelpUrl"/>
+                <message_argument value="org.eclipse.mat.report.IOutputter.Context"/>
             </message_arguments>
         </filter>
     </resource>
@@ -40,6 +39,13 @@
             <message_arguments>
                 <message_argument value="org.eclipse.mat.collect.SetInt"/>
                 <message_argument value="main(String[])"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/mat/query/annotations/HelpUrl.java" type="org.eclipse.mat.query.annotations.HelpUrl">
+        <filter id="1110441988">
+            <message_arguments>
+                <message_argument value="org.eclipse.mat.query.annotations.HelpUrl"/>
             </message_arguments>
         </filter>
     </resource>

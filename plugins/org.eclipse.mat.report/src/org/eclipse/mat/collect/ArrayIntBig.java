@@ -23,14 +23,14 @@ import java.util.ArrayList;
 public final class ArrayIntBig implements Serializable
 {
     private static final long serialVersionUID = 1L;
-    
+
     private ArrayList<int[]> pages;
     private int[] page;
     private int length;
 
     /**
-     * Create an <code>IntArray</code>. Memory consumption is equal to
-     * creating a new <code>ArrayList</code>.
+     * Create an <code>IntArray</code>. Memory consumption is equal to creating
+     * a new <code>ArrayList</code>.
      */
     public ArrayIntBig()
     {
@@ -106,7 +106,7 @@ public final class ArrayIntBig implements Serializable
 
     /**
      * Returns <tt>true</tt> if this list contains no elements.
-     *
+     * 
      * @return <tt>true</tt> if this list contains no elements.
      */
     public boolean isEmpty()

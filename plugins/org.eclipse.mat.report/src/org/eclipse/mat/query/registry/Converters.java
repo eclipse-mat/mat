@@ -13,7 +13,6 @@ package org.eclipse.mat.query.registry;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,6 +21,7 @@ import java.util.regex.Pattern;
 import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.Argument.Advice;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.PatternUtil;
 
 public class Converters
@@ -148,7 +148,8 @@ public class Converters
                     return values[ii];
             }
 
-            throw new RuntimeException(MessageFormat.format(Messages.Converters_Error_InvalidEnumValue, Arrays.toString(names)));
+            throw new RuntimeException(MessageUtil.format(Messages.Converters_Error_InvalidEnumValue, Arrays
+                            .toString(names)));
         }
 
         public String toString(Object object)

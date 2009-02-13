@@ -19,7 +19,7 @@ import java.lang.annotation.Target;
 /**
  * Annotates the name of the query.
  */
-@Target({ TYPE })
+@Target( { TYPE })
 @Retention(RUNTIME)
 public @interface Name
 {

@@ -83,7 +83,7 @@ public class QueryContextHelp extends PopupDialog
                 if (first)
                 {
                     first = false;
-                    String heading = "\n\n"+Messages.QueryContextHelp_Arguments+"\n";//$NON-NLS-1$ //$NON-NLS-2$
+                    String heading = "\n\n" + Messages.QueryContextHelp_Arguments + "\n";//$NON-NLS-1$ //$NON-NLS-2$
                     ranges.add(new StyleRange(buf.length(), heading.length(), null, null, SWT.BOLD));
                     buf.append(heading);
                 }

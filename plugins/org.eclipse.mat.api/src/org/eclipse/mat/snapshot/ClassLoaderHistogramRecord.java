@@ -17,7 +17,6 @@ import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayIntBig;
 import org.eclipse.mat.util.IProgressListener;
 
-
 /**
  * This class holds the histogram data on the objects found in the object set
  * for which a histogram was computed (aggregated per class loader).

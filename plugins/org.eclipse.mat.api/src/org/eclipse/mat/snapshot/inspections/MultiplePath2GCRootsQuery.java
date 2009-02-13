@@ -48,7 +48,6 @@ import org.eclipse.mat.snapshot.query.Icons;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.VoidProgressListener;
 
-
 @Name("exclude custom field...")
 @CommandName("merge_shortest_paths")
 @Category("4|Merge Shortest Paths to GC Roots")
@@ -264,7 +263,7 @@ public class MultiplePath2GCRootsQuery implements IQuery
 
     }
 
-    /* package */ static class TreeByObject extends Tree implements IIconProvider, IDecorator
+    /* package */static class TreeByObject extends Tree implements IIconProvider, IDecorator
     {
         private TreeByObject(ISnapshot snapshot, List<int[]> paths)
         {
@@ -422,7 +421,7 @@ public class MultiplePath2GCRootsQuery implements IQuery
         }
     }
 
-    /* package */ static class TreeByObjectSelected extends TreeByObject implements ISelectionProvider
+    /* package */static class TreeByObjectSelected extends TreeByObject implements ISelectionProvider
     {
         int[] selection;
 
@@ -463,7 +462,7 @@ public class MultiplePath2GCRootsQuery implements IQuery
         }
     }
 
-    /* package */ static class TreeByClass extends Tree implements IIconProvider
+    /* package */static class TreeByClass extends Tree implements IIconProvider
     {
         boolean mergeFromRoots = true;
 

@@ -14,7 +14,6 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 
 import org.eclipse.mat.internal.Messages;
-import org.eclipse.mat.util.IProgressListener;
 
 /**
  * Class used as progress listener for the console. You can obtain one instance

@@ -13,7 +13,6 @@ package org.eclipse.mat.inspections;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -36,6 +35,7 @@ import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.MessageUtil;
 
 @Name("Customized Retained Set")
 @Category("Java Basics")
@@ -120,7 +120,7 @@ public class CustomizedRetainedSetQuery implements IQuery
         if (listener.isCanceled())
             throw new IProgressListener.OperationCanceledException();
 
-        histogram.setLabel(MessageFormat.format("Retained by ''{0}''", new Object[] { objects.getLabel() }));
+        histogram.setLabel(MessageUtil.format("Retained by ''{0}''", new Object[] { objects.getLabel() }));
         return histogram;
     }
 

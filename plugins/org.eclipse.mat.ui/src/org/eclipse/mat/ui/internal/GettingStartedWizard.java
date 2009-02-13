@@ -140,7 +140,7 @@ public class GettingStartedWizard extends Wizard
             leakReport.addListener(SWT.Selection, this);
 
             Label description = new Label(choices, SWT.WRAP);
-            description.setText(Messages.GettingStartedWizard_LeakSuspectReportDescription); 
+            description.setText(Messages.GettingStartedWizard_LeakSuspectReportDescription);
             GridDataFactory.fillDefaults().indent(18, 0).hint(description.computeSize(300, SWT.DEFAULT)).applyTo(
                             description);
 
@@ -149,7 +149,7 @@ public class GettingStartedWizard extends Wizard
             componentReport.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DIALOG_FONT));
             componentReport.addListener(SWT.Selection, this);
             description = new Label(choices, SWT.WRAP);
-            description.setText(Messages.GettingStartedWizard_ComponentReportDescription); 
+            description.setText(Messages.GettingStartedWizard_ComponentReportDescription);
             GridDataFactory.fillDefaults().indent(18, 0).hint(description.computeSize(300, SWT.DEFAULT)).applyTo(
                             description);
 
@@ -238,7 +238,7 @@ public class GettingStartedWizard extends Wizard
             super("");//$NON-NLS-1$
 
             setTitle(Messages.GettingStartedWizard_SelectClasses);
-            setDescription(Messages.GettingStartedWizard_SpecifyRegularExpression); 
+            setDescription(Messages.GettingStartedWizard_SpecifyRegularExpression);
         }
 
         public void createControl(Composite parent)
@@ -303,7 +303,7 @@ public class GettingStartedWizard extends Wizard
             super("");//$NON-NLS-1$
 
             setTitle(Messages.GettingStartedWizard_ReOpenReport);
-            setDescription(Messages.GettingStartedWizard_ReOpenExistingReport); 
+            setDescription(Messages.GettingStartedWizard_ReOpenExistingReport);
         }
 
         public void createControl(Composite parent)
@@ -352,7 +352,7 @@ public class GettingStartedWizard extends Wizard
                             int p = prefix.lastIndexOf(File.separatorChar);
                             if (p >= 0)
                                 prefix = prefix.substring(p + 1);
-                            
+
                             p = prefix.lastIndexOf('.');
                             if (p >= 0)
                                 prefix = prefix.substring(0, p);

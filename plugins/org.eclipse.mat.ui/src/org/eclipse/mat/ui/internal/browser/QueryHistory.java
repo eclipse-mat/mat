@@ -23,7 +23,6 @@ import java.util.List;
 
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 
-
 public class QueryHistory
 {
     private final static int HISTORY_LIMIT = 50;

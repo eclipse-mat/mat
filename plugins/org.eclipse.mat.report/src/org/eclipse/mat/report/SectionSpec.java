@@ -10,13 +10,13 @@
  *******************************************************************************/
 package org.eclipse.mat.report;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.mat.internal.Messages;
+import org.eclipse.mat.util.MessageUtil;
 
 public class SectionSpec extends Spec
 {
@@ -56,7 +56,7 @@ public class SectionSpec extends Spec
     public synchronized void merge(Spec otherSpec)
     {
         if (!(otherSpec instanceof SectionSpec))
-            throw new RuntimeException(MessageFormat.format(Messages.QuerySpec_Error_IncompatibleTypes, otherSpec
+            throw new RuntimeException(MessageUtil.format(Messages.QuerySpec_Error_IncompatibleTypes, otherSpec
                             .getName(), getName()));
 
         super.merge(otherSpec);

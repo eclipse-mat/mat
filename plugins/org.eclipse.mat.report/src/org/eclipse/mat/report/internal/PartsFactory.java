@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.mat.report.internal;
 
-import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,6 +17,7 @@ import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.report.QuerySpec;
 import org.eclipse.mat.report.SectionSpec;
 import org.eclipse.mat.report.Spec;
+import org.eclipse.mat.util.MessageUtil;
 
 public class PartsFactory
 {
@@ -49,7 +49,7 @@ public class PartsFactory
             answer = new QueryPart(String.valueOf(nextId++), parent, artefact, (QuerySpec) spec);
 
         if (answer == null)
-            throw new RuntimeException(MessageFormat.format(Messages.PartsFactory_Error_Construction, spec.getClass()
+            throw new RuntimeException(MessageUtil.format(Messages.PartsFactory_Error_Construction, spec.getClass()
                             .getName()));
 
         answer.init(this);
@@ -69,7 +69,7 @@ public class PartsFactory
             answer = new QueryPart(template.getId(), template.getParent(), artefact, (QuerySpec) spec);
 
         if (answer == null)
-            throw new RuntimeException(MessageFormat.format(Messages.PartsFactory_Error_Construction, spec.getClass()
+            throw new RuntimeException(MessageUtil.format(Messages.PartsFactory_Error_Construction, spec.getClass()
                             .getName()));
 
         answer.objects = template.objects;

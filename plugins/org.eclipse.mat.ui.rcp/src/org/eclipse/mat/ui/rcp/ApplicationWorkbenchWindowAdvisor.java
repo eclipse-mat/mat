@@ -24,7 +24,6 @@ import org.eclipse.ui.application.IWorkbenchWindowConfigurer;
 import org.eclipse.ui.application.WorkbenchWindowAdvisor;
 import org.eclipse.ui.ide.IDE;
 
-
 public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor
 {
 
@@ -76,8 +75,9 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor
 
     @Override
     public void openIntro()
-    {      
-        boolean isStandby =  PlatformUI.getWorkbench().getIntroManager().isIntroStandby(PlatformUI.getWorkbench().getIntroManager().getIntro());
+    {
+        boolean isStandby = PlatformUI.getWorkbench().getIntroManager().isIntroStandby(
+                        PlatformUI.getWorkbench().getIntroManager().getIntro());
         PlatformUI.getWorkbench().getIntroManager().showIntro(getWindowConfigurer().getWindow(), isStandby);
     }
 }

@@ -16,7 +16,6 @@ public class Messages extends NLS
 {
     private static final String BUNDLE_NAME = "org.eclipse.mat.ui.snapshot.views.messages"; //$NON-NLS-1$
 
-
     public static String resource;
     public static String general_info;
     public static String statistic_info;

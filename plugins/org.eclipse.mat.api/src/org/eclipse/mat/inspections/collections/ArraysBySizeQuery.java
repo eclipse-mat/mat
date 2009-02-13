@@ -20,8 +20,8 @@ import org.eclipse.mat.query.annotations.Help;
 import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.query.quantize.Quantize;
 import org.eclipse.mat.snapshot.ISnapshot;
-import org.eclipse.mat.snapshot.query.RetainedSizeDerivedData;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
+import org.eclipse.mat.snapshot.query.RetainedSizeDerivedData;
 import org.eclipse.mat.util.IProgressListener;
 
 @Name("Arrays Grouped By Size")
@@ -40,7 +40,7 @@ public class ArraysBySizeQuery implements IQuery
     public IResult execute(IProgressListener listener) throws Exception
     {
         listener.subTask("Extracting array sizes...");
-        
+
         // group by size attribute
         Quantize.Builder builder = Quantize.valueDistribution(new Column("Length", int.class));
         builder.column("# Objects", Quantize.COUNT);

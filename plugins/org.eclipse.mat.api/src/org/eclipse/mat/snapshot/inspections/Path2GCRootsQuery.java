@@ -47,13 +47,11 @@ import org.eclipse.mat.snapshot.model.NamedReference;
 import org.eclipse.mat.snapshot.query.Icons;
 import org.eclipse.mat.util.IProgressListener;
 
-
 @Name("exclude custom field...")
 @CommandName("path2gc")
 @Category("3|Path To GC Roots")
 @Icon("/META-INF/icons/path2gc.gif")
-@Menu( { @Entry(label = "1|with all references",
-                options = "-excludes \"\""), //
+@Menu( { @Entry(label = "1|with all references", options = "-excludes \"\""), //
 
                 @Entry(label = "2|exclude weak references", //
                 options = "-excludes java.lang.ref.WeakReference:referent"), //

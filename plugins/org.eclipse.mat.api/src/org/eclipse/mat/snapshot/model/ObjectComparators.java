@@ -13,7 +13,7 @@ package org.eclipse.mat.snapshot.model;
 import java.util.Comparator;
 
 /**
- * Factory of heap object comparators. 
+ * Factory of heap object comparators.
  */
 public class ObjectComparators
 {
@@ -67,7 +67,7 @@ public class ObjectComparators
                 String name1 = o1.getClassSpecificName();
                 if (name1 == null)
                     return 1;
-                
+
                 String name2 = o2.getClassSpecificName();
                 if (name2 == null)
                     return -1;

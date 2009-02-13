@@ -13,7 +13,6 @@ package org.eclipse.mat.report.internal;
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
-import java.text.MessageFormat;
 import java.util.List;
 
 import org.eclipse.mat.SnapshotException;
@@ -36,6 +35,7 @@ import org.eclipse.mat.report.IOutputter;
 import org.eclipse.mat.report.Params;
 import org.eclipse.mat.report.Renderer;
 import org.eclipse.mat.util.HTMLUtils;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.VoidProgressListener;
 
 @Renderer(target = "html")
@@ -67,7 +67,7 @@ public class HtmlOutputter implements IOutputter
             File dest = new File(context.getOutputDirectory(), src.getName());
 
             if (!src.renameTo(dest))
-                throw new IOException(MessageFormat.format(Messages.HtmlOutputter_Error_MovingFile, //
+                throw new IOException(MessageUtil.format(Messages.HtmlOutputter_Error_MovingFile, //
                                 src.getAbsolutePath(), dest.getAbsolutePath()));
         }
         else if (result == null)

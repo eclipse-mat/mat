@@ -97,7 +97,7 @@ public class MemoryAnalyserPlugin extends AbstractUIPlugin
         String SHOW_PANE = "icons/show_pane.gif"; //$NON-NLS-1$  
         String CLOSE_PANE = "icons/close_pane.gif"; //$NON-NLS-1$  
         String CLOSE_BRANCH = "icons/close_branch.gif"; //$NON-NLS-1$  
-        
+
         String PINNED = "icons/pinned.gif"; //$NON-NLS-1$  
     }
 
@@ -150,14 +150,14 @@ public class MemoryAnalyserPlugin extends AbstractUIPlugin
 
     public static ImageDescriptor getImageDescriptor(String path)
     {
-        return AbstractUIPlugin.imageDescriptorFromPlugin(PLUGIN_ID, path); 
+        return AbstractUIPlugin.imageDescriptorFromPlugin(PLUGIN_ID, path);
     }
 
     public static Image getImage(String name)
     {
         return MemoryAnalyserPlugin.getDefault().getImage(getImageDescriptor(name));
     }
-    
+
     public Image getImage(ImageDescriptor descriptor)
     {
         Image image = imageCache.get(descriptor);
@@ -185,7 +185,7 @@ public class MemoryAnalyserPlugin extends AbstractUIPlugin
 
         return descriptor;
     }
-    
+
     public Image getImage(URL path)
     {
         return getImage(getImageDescriptor(path));
@@ -222,7 +222,7 @@ public class MemoryAnalyserPlugin extends AbstractUIPlugin
             }
         }
     }
-    
+
     public ImageDescriptor getImageDescriptor(QueryDescriptor query)
     {
         URL url = query != null ? query.getIcon() : null;

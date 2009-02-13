@@ -32,7 +32,6 @@ import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.NamedReference;
 import org.eclipse.mat.util.IProgressListener;
 
-
 public class MultiplePathsFromGCRootsComputerImpl implements IMultiplePathsFromGCRootsComputer
 {
 
@@ -78,12 +77,12 @@ public class MultiplePathsFromGCRootsComputerImpl implements IMultiplePathsFromG
             }
         }
     }
-    
+
     private void computePaths(IProgressListener progressListener) throws SnapshotException
     {
         int reportFrequency = Math.max(10, objectIds.length / 100);
         progressListener.beginTask(Messages.MultiplePathsFromGCRootsComputerImpl_FindingPaths, 100);
-        
+
         ArrayList<int[]> pathsList = new ArrayList<int[]>();
 
         for (int i = 0; i < objectIds.length; i++)
@@ -97,7 +96,7 @@ public class MultiplePathsFromGCRootsComputerImpl implements IMultiplePathsFromG
             {
                 pathsList.add(path);
             }
-            
+
             if (progressListener.isCanceled())
                 throw new IProgressListener.OperationCanceledException();
             if (i % reportFrequency == 0)
@@ -108,7 +107,6 @@ public class MultiplePathsFromGCRootsComputerImpl implements IMultiplePathsFromG
         pathsCalculated = true;
         paths = pathsList.toArray();
     }
-    
 
     public MultiplePathsFromGCRootsRecord[] getPathsByGCRoot(IProgressListener progressListener)
                     throws SnapshotException
@@ -117,7 +115,7 @@ public class MultiplePathsFromGCRootsComputerImpl implements IMultiplePathsFromG
         {
             computePaths(progressListener);
         }
-        
+
         MultiplePathsFromGCRootsRecord dummy = new MultiplePathsFromGCRootsRecord(-1, -1, snapshot);
         for (int i = 0; i < paths.length; i++)
         {
@@ -135,15 +133,17 @@ public class MultiplePathsFromGCRootsComputerImpl implements IMultiplePathsFromG
         }
         return paths;
     }
-    
-    public MultiplePathsFromGCRootsClassRecord[] getPathsGroupedByClass(boolean startFromTheGCRoots, IProgressListener progressListener) throws SnapshotException
+
+    public MultiplePathsFromGCRootsClassRecord[] getPathsGroupedByClass(boolean startFromTheGCRoots,
+                    IProgressListener progressListener) throws SnapshotException
     {
         if (!pathsCalculated)
         {
             computePaths(progressListener);
         }
-        
-        MultiplePathsFromGCRootsClassRecord dummy = new MultiplePathsFromGCRootsClassRecord(null, -1, startFromTheGCRoots, snapshot);
+
+        MultiplePathsFromGCRootsClassRecord dummy = new MultiplePathsFromGCRootsClassRecord(null, -1,
+                        startFromTheGCRoots, snapshot);
         for (int i = 0; i < paths.length; i++)
         {
             dummy.addPath((int[]) paths[i]);

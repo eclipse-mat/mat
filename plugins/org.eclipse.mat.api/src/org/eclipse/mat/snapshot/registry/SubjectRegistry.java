@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.mat.snapshot.registry;
 
-import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -22,6 +21,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.mat.snapshot.extension.Subject;
 import org.eclipse.mat.snapshot.extension.Subjects;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.RegistryReader;
 
 public abstract class SubjectRegistry<D> extends RegistryReader<D>
@@ -43,13 +43,13 @@ public abstract class SubjectRegistry<D> extends RegistryReader<D>
         {
             Logger.getLogger(getClass().getName()).log(
                             Level.WARNING,
-                            MessageFormat.format("Missing or empty @Subject(s) annotation: ''{0}''", resolver
-                                            .getClass().getName()));
+                            MessageUtil.format("Missing or empty @Subject(s) annotation: ''{0}''", resolver.getClass()
+                                            .getName()));
         }
 
         return resolver;
     }
-    
+
     // //////////////////////////////////////////////////////////////
     // helper methods
     // //////////////////////////////////////////////////////////////

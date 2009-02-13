@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.mat.ui.internal.chart;
 
-import java.text.MessageFormat;
-
 import org.eclipse.birt.chart.device.IDeviceRenderer;
 import org.eclipse.birt.chart.exception.ChartException;
 import org.eclipse.birt.chart.factory.GeneratedChartState;
@@ -23,6 +21,7 @@ import org.eclipse.birt.chart.model.attribute.impl.BoundsImpl;
 import org.eclipse.birt.chart.script.IScriptClassLoader;
 import org.eclipse.birt.chart.util.PluginSettings;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.PaintEvent;
@@ -96,7 +95,7 @@ public class ChartCanvas extends Canvas
             private void handleError(Throwable t)
             {
                 isDisabled = true;
-                MemoryAnalyserPlugin.log(t, MessageFormat.format(Messages.ChartCanvas_Error_DisableChartRendering, t
+                MemoryAnalyserPlugin.log(t, MessageUtil.format(Messages.ChartCanvas_Error_DisableChartRendering, t
                                 .getMessage()));
             }
         });

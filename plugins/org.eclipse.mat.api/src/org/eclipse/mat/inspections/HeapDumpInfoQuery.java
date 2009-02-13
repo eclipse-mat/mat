@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.mat.inspections;
 
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
+import com.ibm.icu.text.DecimalFormat;
+import com.ibm.icu.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +25,6 @@ import org.eclipse.mat.query.results.ListResult;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.SnapshotInfo;
 import org.eclipse.mat.util.IProgressListener;
-
 
 @Name("Heap Dump Overview")
 @Category(Category.HIDDEN)

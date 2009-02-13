@@ -10,14 +10,12 @@
  *******************************************************************************/
 package org.eclipse.mat.parser.internal.oql.compiler;
 
-import java.text.MessageFormat;
-
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.parser.internal.Messages;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.registry.ClassSpecificNameResolverRegistry;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
-
 
 abstract class Function extends Expression
 {
@@ -125,7 +123,7 @@ abstract class Function extends Expression
             }
             else
             {
-                throw new SnapshotException(MessageFormat.format(ERR_NO_FUNCTION, argument, s, s != null ? s.getClass()
+                throw new SnapshotException(MessageUtil.format(ERR_NO_FUNCTION, argument, s, s != null ? s.getClass()
                                 .getName() : Messages.Function_unknown, getSymbol()));
             }
         }
@@ -161,7 +159,7 @@ abstract class Function extends Expression
             }
             else
             {
-                throw new SnapshotException(MessageFormat.format(ERR_NO_FUNCTION, argument, s, s != null ? s.getClass()
+                throw new SnapshotException(MessageUtil.format(ERR_NO_FUNCTION, argument, s, s != null ? s.getClass()
                                 .getName() : Messages.Function_unknown, getSymbol()));
             }
         }
@@ -197,7 +195,7 @@ abstract class Function extends Expression
             }
             else
             {
-                throw new SnapshotException(MessageFormat.format(ERR_NO_FUNCTION, argument, s, s != null ? s.getClass()
+                throw new SnapshotException(MessageUtil.format(ERR_NO_FUNCTION, argument, s, s != null ? s.getClass()
                                 .getName() : Messages.Function_unknown, getSymbol()));
             }
         }
@@ -233,7 +231,7 @@ abstract class Function extends Expression
             }
             else
             {
-                throw new SnapshotException(MessageFormat.format(ERR_NO_FUNCTION, argument, s, s != null ? s.getClass()
+                throw new SnapshotException(MessageUtil.format(ERR_NO_FUNCTION, argument, s, s != null ? s.getClass()
                                 .getName() : Messages.Function_unknown, getSymbol()));
             }
         }
@@ -271,7 +269,7 @@ abstract class Function extends Expression
             }
             else
             {
-                throw new SnapshotException(MessageFormat.format(ERR_NO_FUNCTION, argument, s, s != null ? s.getClass()
+                throw new SnapshotException(MessageUtil.format(ERR_NO_FUNCTION, argument, s, s != null ? s.getClass()
                                 .getName() : Messages.Function_unknown, getSymbol()));
             }
 

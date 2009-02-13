@@ -15,7 +15,6 @@ import java.util.List;
 
 import org.eclipse.mat.parser.internal.oql.ICompiler;
 
-
 public class CompilerImpl implements ICompiler
 {
 
@@ -58,37 +57,37 @@ public class CompilerImpl implements ICompiler
     {
         return new Operation.LessThanOrEqual((Expression) left, (Expression) right);
     }
-    
+
     public Object like(Object ex, String regex)
     {
-        return new Operation.Like((Expression)ex, regex);
+        return new Operation.Like((Expression) ex, regex);
     }
 
     public Object notLike(Object ex, String regex)
     {
-        return new Operation.NotLike((Expression)ex, regex);
+        return new Operation.NotLike((Expression) ex, regex);
     }
 
     public Object in(Object left, Object right)
     {
-        return new Operation.In((Expression)left, (Expression)right);
+        return new Operation.In((Expression) left, (Expression) right);
     }
-    
+
     public Object notIn(Object left, Object right)
     {
-        return new Operation.NotIn((Expression)left, (Expression)right);
+        return new Operation.NotIn((Expression) left, (Expression) right);
     }
-    
+
     public Object instanceOf(Object left, String className)
     {
-        return new Operation.InstanceOf((Expression)left, className);
+        return new Operation.InstanceOf((Expression) left, className);
     }
 
     public Object literal(Object object)
     {
         return new ConstantExpression(object);
     }
-    
+
     public Object nullLiteral()
     {
         return new ConstantExpression(ConstantExpression.NULL);
@@ -98,7 +97,7 @@ public class CompilerImpl implements ICompiler
     {
         return new PathExpression(attributes);
     }
-    
+
     public Object method(String name, List<Expression> parameters, boolean isFirstInPath)
     {
         if (isFirstInPath && parameters.size() == 1)
@@ -110,36 +109,36 @@ public class CompilerImpl implements ICompiler
 
         return new MethodCallExpression(name, parameters);
     }
-    
+
     public Function function(String name, Object subject)
     {
         if ("toHex".equals(name))//$NON-NLS-1$
         {
-            return new Function.ToHex((Expression)subject);
+            return new Function.ToHex((Expression) subject);
         }
         else if ("toString".equals(name))//$NON-NLS-1$
         {
-            return new Function.ToString((Expression)subject);
+            return new Function.ToString((Expression) subject);
         }
         else if ("inbounds".equals(name))//$NON-NLS-1$
         {
-            return new Function.Inbounds((Expression)subject);
+            return new Function.Inbounds((Expression) subject);
         }
         else if ("outbounds".equals(name))//$NON-NLS-1$
         {
-            return new Function.Outbounds((Expression)subject);
+            return new Function.Outbounds((Expression) subject);
         }
         else if ("dominators".equals(name))//$NON-NLS-1$
         {
-            return new Function.Dominators((Expression)subject);
+            return new Function.Dominators((Expression) subject);
         }
         else if ("classof".equals(name))//$NON-NLS-1$
         {
-            return new Function.ClassOf((Expression)subject);
+            return new Function.ClassOf((Expression) subject);
         }
         else if ("dominatorof".equals(name))//$NON-NLS-1$
         {
-            return new Function.DominatorOf((Expression)subject);
+            return new Function.DominatorOf((Expression) subject);
         }
         else
         {
@@ -151,28 +150,27 @@ public class CompilerImpl implements ICompiler
     {
         return new QueryExpression(q);
     }
-    
+
     public Object divide(Object left, Object right)
     {
-        return new Operation.Divide((Expression)left, (Expression)right);
+        return new Operation.Divide((Expression) left, (Expression) right);
     }
-    
+
     public Object minus(Object left, Object right)
     {
-        return new Operation.Minus((Expression)left, (Expression)right);
+        return new Operation.Minus((Expression) left, (Expression) right);
     }
-    
+
     public Object multiply(Object left, Object right)
     {
-        return new Operation.Multiply((Expression)left, (Expression)right);
+        return new Operation.Multiply((Expression) left, (Expression) right);
     }
-    
+
     public Object plus(Object left, Object right)
     {
-        return new Operation.Plus((Expression)left, (Expression)right);
+        return new Operation.Plus((Expression) left, (Expression) right);
     }
-    
-    
+
     // //////////////////////////////////////////////////////////////
     // helper classes
     // //////////////////////////////////////////////////////////////
@@ -180,7 +178,7 @@ public class CompilerImpl implements ICompiler
     static class ConstantExpression extends Expression
     {
         public static final Object NULL = new Object();
-        
+
         Object literal;
 
         public ConstantExpression(Object literal)
@@ -193,7 +191,7 @@ public class CompilerImpl implements ICompiler
         {
             return literal;
         }
-        
+
         @Override
         public boolean isContextDependent(EvaluationContext ctx)
         {
@@ -217,5 +215,5 @@ public class CompilerImpl implements ICompiler
                 return String.valueOf(literal);
         }
     }
-    
+
 }

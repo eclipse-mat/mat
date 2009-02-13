@@ -23,7 +23,6 @@ import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.parser.internal.Messages;
 import org.eclipse.mat.parser.io.SimpleBufferedRandomAccessInputStream;
 
-
 public abstract class IndexReader
 {
     public static final boolean DEBUG = false;
@@ -46,15 +45,14 @@ public abstract class IndexReader
 
             this.indexFile = indexFile;
             this.pageStart = pageStart;
-            
+
             if (indexFile != null)
                 open();
         }
 
         public IntIndexReader(File indexFile) throws IOException
         {
-            this(new SimpleBufferedRandomAccessInputStream(
-                            new RandomAccessFile(indexFile, "r")), 0, indexFile.length());//$NON-NLS-1$
+            this(new SimpleBufferedRandomAccessInputStream(new RandomAccessFile(indexFile, "r")), 0, indexFile.length());//$NON-NLS-1$
             this.indexFile = indexFile;
         }
 
@@ -97,7 +95,7 @@ public abstract class IndexReader
         public synchronized void close()
         {
             unload();
-            
+
             if (in != null)
             {
                 try
@@ -185,12 +183,11 @@ public abstract class IndexReader
                 in.seek(indexLength - 8);
                 long divider = in.readLong();
 
-                this.header = new IntIndexReader(in, divider, indexLength - divider
-                                - 8);
+                this.header = new IntIndexReader(in, divider, indexLength - divider - 8);
                 this.body = new IntIndexReader(in, 0, divider);
-                
+
                 this.body.LOCK = this.header.LOCK;
-                
+
             }
             catch (RuntimeException e)
             {
@@ -206,7 +203,7 @@ public abstract class IndexReader
             this.body = ((IntIndexReader) body);
 
             this.body.LOCK = this.header.LOCK;
-            
+
             open();
         }
 
@@ -245,7 +242,7 @@ public abstract class IndexReader
         {
             header.unload();
             body.unload();
-            
+
             if (in != null)
             {
                 try
@@ -366,7 +363,8 @@ public abstract class IndexReader
         SimpleBufferedRandomAccessInputStream in;
         long[] pageStart;
 
-        public LongIndexReader(File indexFile, HashMapIntObject<Object> pages, int size, int pageSize, long[] pageStart) throws IOException
+        public LongIndexReader(File indexFile, HashMapIntObject<Object> pages, int size, int pageSize, long[] pageStart)
+                        throws IOException
         {
             this.size = size;
             this.pageSize = pageSize;
@@ -374,15 +372,15 @@ public abstract class IndexReader
 
             this.indexFile = indexFile;
             this.pageStart = pageStart;
-            
+
             open();
         }
 
         public LongIndexReader(File indexFile) throws IOException
         {
-            this(new SimpleBufferedRandomAccessInputStream(new RandomAccessFile(indexFile,"r")), 0, indexFile.length());//$NON-NLS-1$
+            this(new SimpleBufferedRandomAccessInputStream(new RandomAccessFile(indexFile, "r")), 0, indexFile.length());//$NON-NLS-1$
             this.indexFile = indexFile;
-            
+
             open();
         }
 
@@ -418,7 +416,7 @@ public abstract class IndexReader
         public synchronized void close()
         {
             unload();
-            
+
             if (in != null)
             {
                 try
@@ -505,21 +503,20 @@ public abstract class IndexReader
             in.seek(indexLength - 8);
             long divider = in.readLong();
 
-            this.header = new IntIndexReader(in, divider, indexLength - divider
-                            - 8);
+            this.header = new IntIndexReader(in, divider, indexLength - divider - 8);
             this.body = new LongIndexReader(in, 0, divider);
-            
+
             this.body.LOCK = this.header.LOCK;
         }
 
         public long[] get(int index)
         {
             int p = header.get(index);
-            
+
             if (p == 0)
                 return new long[0];
 
-            int length = (int)body.get(p - 1);
+            int length = (int) body.get(p - 1);
 
             return body.getNext(p, length);
         }
@@ -549,7 +546,7 @@ public abstract class IndexReader
         public synchronized void close()
         {
             unload();
-            
+
             if (in != null)
             {
                 try

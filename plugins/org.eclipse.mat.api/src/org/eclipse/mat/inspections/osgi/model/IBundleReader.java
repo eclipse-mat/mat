@@ -16,16 +16,21 @@ import org.eclipse.mat.util.IProgressListener;
 public interface IBundleReader
 {
 
-    /** get a model describing the OSGi framework
+    /**
+     * get a model describing the OSGi framework
+     * 
      * @param listener
      * @return OSGi model
      * @throws SnapshotException
      */
     public OSGiModel readOSGiModel(IProgressListener listener) throws SnapshotException;
 
-    /** Load the bundle by its descriptor
+    /**
+     * Load the bundle by its descriptor
+     * 
      * @param descriptor
-     * @return Bundle, which contains full information (dependencies, dependents, services, extension points, extensions)
+     * @return Bundle, which contains full information (dependencies,
+     *         dependents, services, extension points, extensions)
      * @throws SnapshotException
      */
     public Bundle getBundle(BundleDescriptor descriptor) throws SnapshotException;

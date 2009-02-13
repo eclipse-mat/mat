@@ -47,7 +47,6 @@ import org.eclipse.mat.snapshot.model.ThreadToLocalReference;
 import org.eclipse.mat.snapshot.query.ObjectListResult;
 import org.eclipse.mat.util.IProgressListener;
 
-
 @Name("Finalizer In Processing")
 @Category(Category.HIDDEN)
 @Icon("/META-INF/icons/finalizer.gif")
@@ -99,7 +98,7 @@ public class FinalizerInProcessingQuery implements IQuery
 
         return new ObjectListResult.Outbound(snapshot, result.toArray());
     }
-    
+
     private static IObject[] getLocalVarsForThread(IObject thread) throws SnapshotException
     {
         List<NamedReference> refs = thread.getOutboundReferences();

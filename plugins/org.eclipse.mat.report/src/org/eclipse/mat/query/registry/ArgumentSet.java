@@ -11,7 +11,6 @@
 package org.eclipse.mat.query.registry;
 
 import java.lang.reflect.Array;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,6 +24,7 @@ import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.MessageUtil;
 
 public class ArgumentSet
 {
@@ -60,8 +60,8 @@ public class ArgumentSet
                 {
                     value = parameter.getDefaultValue();
                     if (value == null)
-                        throw new SnapshotException(MessageFormat.format(Messages.ArgumentSet_Error_MissingMandatoryArgument, parameter
-                                        .getName()));
+                        throw new SnapshotException(MessageUtil.format(
+                                        Messages.ArgumentSet_Error_MissingMandatoryArgument, parameter.getName()));
                 }
 
                 if (value == null)
@@ -69,7 +69,7 @@ public class ArgumentSet
                     if (values.containsKey(parameter))
                     {
                         Logger.getLogger(getClass().getName()).log(Level.INFO,
-                                        MessageFormat.format(Messages.ArgumentSet_Msg_NullValue, parameter.getName()));
+                                        MessageUtil.format(Messages.ArgumentSet_Msg_NullValue, parameter.getName()));
                         parameter.getField().set(impl, null);
                     }
                     continue;
@@ -114,16 +114,15 @@ public class ArgumentSet
                 }
                 catch (IllegalArgumentException e)
                 {
-                    throw new SnapshotException(MessageFormat.format(
-                                    Messages.ArgumentSet_Error_IllegalArgument, value,
+                    throw new SnapshotException(MessageUtil.format(Messages.ArgumentSet_Error_IllegalArgument, value,
                                     value.getClass().getName(), parameter.getName(), parameter.getType().getName()), e);
                 }
                 catch (IllegalAccessException e)
                 {
                     // should not happen as we check accessibility when
                     // registering queries
-                    throw new SnapshotException(MessageFormat.format(Messages.ArgumentSet_Error_Inaccessible,
-                                    parameter.getName(), parameter.getType().getName()), e);
+                    throw new SnapshotException(MessageUtil.format(Messages.ArgumentSet_Error_Inaccessible, parameter
+                                    .getName(), parameter.getType().getName()), e);
                 }
             }
 
@@ -133,12 +132,12 @@ public class ArgumentSet
         }
         catch (InstantiationException e)
         {
-            throw new SnapshotException(MessageFormat.format(Messages.ArgumentSet_Error_Instantiation, query
+            throw new SnapshotException(MessageUtil.format(Messages.ArgumentSet_Error_Instantiation, query
                             .getCommandType().getName()), e);
         }
         catch (IllegalAccessException e)
         {
-            throw new SnapshotException(MessageFormat.format(Messages.ArgumentSet_Error_SetField, query.getCommandType()
+            throw new SnapshotException(MessageUtil.format(Messages.ArgumentSet_Error_SetField, query.getCommandType()
                             .getName()), e);
         }
         catch (IProgressListener.OperationCanceledException e)
@@ -191,7 +190,7 @@ public class ArgumentSet
     {
         ArgumentDescriptor argument = query.getArgumentByName(name);
         if (argument == null)
-            throw new RuntimeException(MessageFormat.format(Messages.ArgumentSet_Error_NoSuchArgument, query
+            throw new RuntimeException(MessageUtil.format(Messages.ArgumentSet_Error_NoSuchArgument, query
                             .getIdentifier(), name));
         setArgumentValue(argument, value);
     }

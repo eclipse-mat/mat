@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.mat.inspections;
 
-import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.regex.Pattern;
 
@@ -25,12 +24,13 @@ import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IInstance;
 import org.eclipse.mat.snapshot.model.ObjectReference;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.MessageUtil;
 
 public class ReferenceQuery
 {
 
-    public static IResult execute(String adverb, String className, ISnapshot snapshot,
-                    IProgressListener listener) throws SnapshotException
+    public static IResult execute(String adverb, String className, ISnapshot snapshot, IProgressListener listener)
+                    throws SnapshotException
     {
         listener.subTask("Computing Referent Set (objects referenced by the Reference objects)...");
 
@@ -59,8 +59,8 @@ public class ReferenceQuery
         return execute(adverb, instanceSet, referentSet, snapshot, listener);
     }
 
-    public static CompositeResult execute(String adverb, ArrayInt instanceSet, SetInt referentSet,
-                    ISnapshot snapshot, IProgressListener listener) throws SnapshotException
+    public static CompositeResult execute(String adverb, ArrayInt instanceSet, SetInt referentSet, ISnapshot snapshot,
+                    IProgressListener listener) throws SnapshotException
     {
         CompositeResult result = new CompositeResult();
 
@@ -68,7 +68,7 @@ public class ReferenceQuery
         if (listener.isCanceled())
             throw new IProgressListener.OperationCanceledException();
 
-        String l = MessageFormat.format("Histogram of {0} Referenced", adverb);
+        String l = MessageUtil.format("Histogram of {0} Referenced", adverb);
         histogram.setLabel(l);
         result.addResult(l, histogram);
 
@@ -81,7 +81,7 @@ public class ReferenceQuery
         if (listener.isCanceled())
             throw new IProgressListener.OperationCanceledException();
 
-        l = MessageFormat.format("Only {0} Retained", adverb);
+        l = MessageUtil.format("Only {0} Retained", adverb);
         histogram.setLabel(l);
         result.addResult(l, histogram);
 

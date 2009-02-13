@@ -15,7 +15,6 @@ import java.util.Comparator;
 
 import org.eclipse.mat.ui.internal.browser.QueryBrowserPopup.Element;
 
-
 public abstract class QueryBrowserProvider
 {
     protected QueryBrowserPopup.Element[] sortedElements;
@@ -23,7 +22,7 @@ public abstract class QueryBrowserProvider
     public abstract String getName();
 
     public abstract QueryBrowserPopup.Element[] getElements();
-    
+
     public QueryBrowserPopup.Element[] getElementsSorted()
     {
         if (sortedElements == null)

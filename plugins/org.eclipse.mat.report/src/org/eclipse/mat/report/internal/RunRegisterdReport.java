@@ -11,7 +11,6 @@
 package org.eclipse.mat.report.internal;
 
 import java.io.File;
-import java.text.MessageFormat;
 
 import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IQuery;
@@ -25,6 +24,7 @@ import org.eclipse.mat.report.Spec;
 import org.eclipse.mat.report.SpecFactory;
 import org.eclipse.mat.report.TestSuite;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.MessageUtil;
 
 @CommandName("default_report")
 @Category(Category.HIDDEN)
@@ -41,8 +41,8 @@ public class RunRegisterdReport implements IQuery
         SpecFactory factory = SpecFactory.instance();
         Spec spec = factory.create(extensionIdentifier);
         if (spec == null)
-            throw new Exception(MessageFormat.format(Messages.RunRegisterdReport_Error_UnknownReport,
-                            extensionIdentifier));
+            throw new Exception(MessageUtil
+                            .format(Messages.RunRegisterdReport_Error_UnknownReport, extensionIdentifier));
 
         factory.resolve(spec);
 

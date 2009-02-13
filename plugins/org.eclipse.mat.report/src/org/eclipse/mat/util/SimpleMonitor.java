@@ -10,14 +10,13 @@
  *******************************************************************************/
 package org.eclipse.mat.util;
 
-
 public class SimpleMonitor
 {
     String task;
     IProgressListener delegate;
     int currentMonitor;
     int[] percentages;
-    
+
     public SimpleMonitor(String task, IProgressListener monitor, int[] percentages)
     {
         this.task = task;
@@ -34,14 +33,14 @@ public class SimpleMonitor
                 total += ii;
             delegate.beginTask(task, total);
         }
-        
+
         return new Listener(percentages[currentMonitor++]);
     }
-    
+
     public class Listener implements IProgressListener
     {
         long counter;
-        
+
         int majorUnits;
         int unitsReported;
         long workDone;
@@ -58,10 +57,10 @@ public class SimpleMonitor
         {
             if (name != null)
                 delegate.subTask(name);
-            
+
             if (totalWork == 0)
                 return;
-            
+
             isSmaller = totalWork < majorUnits;
             workPerUnit = isSmaller ? majorUnits / totalWork : totalWork / majorUnits;
             unitsReported = 0;
@@ -82,20 +81,20 @@ public class SimpleMonitor
         {
             return delegate.isCanceled();
         }
-        
+
         public boolean isProbablyCanceled()
         {
             return counter++ % 5000 == 0 ? isCanceled() : false;
         }
-        
+
         public void totalWorkDone(long work)
         {
             if (workDone == work)
                 return;
-            
+
             if (workPerUnit == 0)
                 return;
-            
+
             workDone = work;
             int unitsWorked = isSmaller ? (int) (work * workPerUnit) : (int) (work / workPerUnit);
             int unitsToReport = unitsWorked - unitsReported;

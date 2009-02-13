@@ -12,7 +12,6 @@ package org.eclipse.mat.parser.internal.oql.compiler;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.text.MessageFormat;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -21,6 +20,7 @@ import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.parser.internal.Messages;
 import org.eclipse.mat.parser.internal.oql.compiler.CompilerImpl.ConstantExpression;
 import org.eclipse.mat.snapshot.model.IObject;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.PatternUtil;
 import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
 
@@ -101,8 +101,8 @@ class MethodCallExpression extends Expression
             }
         }
 
-        throw new SnapshotException(MessageFormat.format(Messages.MethodCallExpression_Error_MethodNotFound, new Object[] {
-                        this.name, subject }));
+        throw new SnapshotException(MessageUtil.format(Messages.MethodCallExpression_Error_MethodNotFound,
+                        new Object[] { this.name, subject }));
     }
 
     @Override

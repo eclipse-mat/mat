@@ -20,7 +20,7 @@ public abstract class AbstractArrayImpl extends AbstractObjectImpl implements IA
     private static final long serialVersionUID = 2L;
 
     protected int length;
-    
+
     private Object info;
 
     public AbstractArrayImpl(int objectId, long address, ClassImpl classInstance, int length)
@@ -28,7 +28,7 @@ public abstract class AbstractArrayImpl extends AbstractObjectImpl implements IA
         super(objectId, address, classInstance);
         this.length = length;
     }
-    
+
     public Object getInfo()
     {
         return info;

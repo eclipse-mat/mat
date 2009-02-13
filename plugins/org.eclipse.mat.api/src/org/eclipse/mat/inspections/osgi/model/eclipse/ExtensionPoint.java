@@ -52,10 +52,10 @@ public class ExtensionPoint
     {
         return objectId;
     }
-    
+
     /**
-     * Get extension point's unique identifier. This extension point is assigned a unique
-     * identifier by the OSGi framework.
+     * Get extension point's unique identifier. This extension point is assigned
+     * a unique identifier by the OSGi framework.
      * 
      * @return Integer extension's unique identifier
      */
@@ -82,7 +82,7 @@ public class ExtensionPoint
     public void setContributedBy(BundleDescriptor contributedBy)
     {
         this.contributedBy = contributedBy;
-    }  
+    }
 
     /**
      * Get descriptor of the bundle contributing this extension point
@@ -150,5 +150,4 @@ public class ExtensionPoint
         return true;
     }
 
-   
 }

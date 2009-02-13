@@ -90,7 +90,7 @@ public final class CollectionUtil
         {
             return (IObjectArray) collection.resolveValue(arrayField);
         }
-        
+
         public String getBackingArrayField()
         {
             return arrayField;
@@ -213,7 +213,7 @@ public final class CollectionUtil
                     new Info("java.util.TreeMap", "size", null), //
 
                     new Info("java.util.TreeSet", ~Version.IBM16, "m.size", null), // 
-                    new Info("java.util.TreeSet", Version.IBM16, "backingMap.size", null), 
+                    new Info("java.util.TreeSet", Version.IBM16, "backingMap.size", null),
 
                     new Info("java.util.Hashtable", ~(Version.IBM15 | Version.IBM16), "count", "table", "key", "value"), //
                     new Info("java.util.Hashtable", Version.IBM15 | Version.IBM16, //

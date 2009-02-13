@@ -13,7 +13,6 @@ package org.eclipse.mat.parser.internal;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -33,6 +32,7 @@ import org.eclipse.mat.parser.internal.snapshot.ObjectMarker;
 import org.eclipse.mat.parser.model.ClassImpl;
 import org.eclipse.mat.parser.model.XGCRootInfo;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.VoidProgressListener;
 import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
 
@@ -203,7 +203,7 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
             // //////////////////////////////////////////////////////////////
 
             File indexFile = Index.IDENTIFIER.getFile(idx.snapshotInfo.getPrefix());
-            listener.subTask(MessageFormat.format(Messages.GarbageCleaner_Writing, indexFile.getAbsolutePath()));
+            listener.subTask(MessageUtil.format(Messages.GarbageCleaner_Writing, indexFile.getAbsolutePath()));
             idxManager.setReader(Index.IDENTIFIER, new IndexWriter.LongIndexStreamer().writeTo(indexFile, id2a));
 
             if (listener.isCanceled())
@@ -215,7 +215,7 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
             // //////////////////////////////////////////////////////////////
 
             indexFile = Index.O2CLASS.getFile(idx.snapshotInfo.getPrefix());
-            listener.subTask(MessageFormat.format(Messages.GarbageCleaner_Writing, indexFile.getAbsolutePath()));
+            listener.subTask(MessageUtil.format(Messages.GarbageCleaner_Writing, indexFile.getAbsolutePath()));
             idxManager.setReader(Index.O2CLASS, new IndexWriter.IntIndexStreamer().writeTo(indexFile,
                             new NewObjectIntIterator()
                             {
@@ -247,7 +247,8 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
             // //////////////////////////////////////////////////////////////
 
             indexFile = Index.A2SIZE.getFile(idx.snapshotInfo.getPrefix());
-            listener.subTask(MessageFormat.format(Messages.GarbageCleaner_Writing, new Object[] { indexFile.getAbsolutePath() }));
+            listener.subTask(MessageUtil.format(Messages.GarbageCleaner_Writing, new Object[] { indexFile
+                            .getAbsolutePath() }));
             final BitField arrayObjects = new BitField(newNoOfObjects);
             // arrayObjects
             idxManager.setReader(Index.A2SIZE, new IndexWriter.IntIndexStreamer().writeTo(indexFile,
@@ -325,7 +326,9 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
             }
             listener.worked(1); // 10
 
-            listener.subTask(MessageFormat.format(Messages.GarbageCleaner_Writing, w_in.getIndexFile().getAbsolutePath()));
+            listener
+                            .subTask(MessageUtil.format(Messages.GarbageCleaner_Writing, w_in.getIndexFile()
+                                            .getAbsolutePath()));
 
             idxManager.setReader(Index.INBOUND, w_in.flush(listener, new KeyWriterImpl(classesByNewId)));
             w_in = null;
@@ -337,8 +340,8 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
 
             listener.worked(1); // 11
 
-            listener.subTask(MessageFormat.format(Messages.GarbageCleaner_Writing,
-                            new Object[] { w_out.getIndexFile().getAbsolutePath() }));
+            listener.subTask(MessageUtil.format(Messages.GarbageCleaner_Writing, new Object[] { w_out.getIndexFile()
+                            .getAbsolutePath() }));
             idxManager.setReader(Index.OUTBOUND, w_out.flush());
             w_out = null;
             if (listener.isCanceled())
@@ -533,13 +536,17 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
             records.add(iter.next());
         Collections.sort(records);
 
-        System.out.println(String.format("%-58s %10s %10s", Messages.GarbageCleaner_Class, Messages.GarbageCleaner_Count, Messages.GarbageCleaner_Size)); //$NON-NLS-1$
+        System.out
+                        .println(String
+                                        .format(
+                                                        "%-58s %10s %10s", Messages.GarbageCleaner_Class, Messages.GarbageCleaner_Count, Messages.GarbageCleaner_Size)); //$NON-NLS-1$
         for (Record record : records)
         {
             System.out.println(String.format("%-58s %10d %10d", //$NON-NLS-1$
                             record.clazz.getName(), record.objectCount, record.size));
         }
-        System.out.println(String.format("%-58s %10d %10d", Messages.GarbageCleaner_Totals, totalObjectCount, totalSize));//$NON-NLS-1$
+        System.out.println(String
+                        .format("%-58s %10d %10d", Messages.GarbageCleaner_Totals, totalObjectCount, totalSize));//$NON-NLS-1$
     }
 
 }

@@ -11,7 +11,6 @@
 package org.eclipse.mat.parser.model;
 
 import java.io.Serializable;
-import java.text.MessageFormat;
 import java.util.Comparator;
 
 import org.eclipse.mat.SnapshotException;
@@ -24,6 +23,7 @@ import org.eclipse.mat.snapshot.model.GCRootInfo;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.ObjectReference;
 import org.eclipse.mat.snapshot.registry.ClassSpecificNameResolverRegistry;
+import org.eclipse.mat.util.MessageUtil;
 
 /**
  * @noextend
@@ -174,15 +174,14 @@ public abstract class AbstractObjectImpl implements IObject, Serializable
         {
             Object answer = f.getValue();
             if (answer instanceof ObjectReference)
-                answer = ((ObjectReference)answer).getObject();
+                answer = ((ObjectReference) answer).getObject();
             return answer;
         }
 
         if (!(f.getValue() instanceof ObjectReference))
         {
-            String msg = MessageFormat.format(
-                            Messages.AbstractObjectImpl_Error_FieldIsNotReference,
-                            new Object[] { n, getTechnicalName(), name.substring(p + 1) });
+            String msg = MessageUtil.format(Messages.AbstractObjectImpl_Error_FieldIsNotReference, new Object[] { n,
+                            getTechnicalName(), name.substring(p + 1) });
             throw new SnapshotException(msg);
         }
 
@@ -193,7 +192,7 @@ public abstract class AbstractObjectImpl implements IObject, Serializable
         int objectId = ref.getObjectId();
         if (objectId < 0)
         {
-            String msg = MessageFormat.format(Messages.AbstractObjectImpl_Error_FieldContainsIllegalReference,
+            String msg = MessageUtil.format(Messages.AbstractObjectImpl_Error_FieldContainsIllegalReference,
                             new Object[] { n, getTechnicalName(), Long.toHexString(ref.getObjectAddress()) });
             throw new SnapshotException(msg);
         }

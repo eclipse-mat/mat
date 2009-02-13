@@ -36,7 +36,6 @@ import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.snapshot.query.Icons;
 import org.eclipse.mat.util.IProgressListener;
 
-
 @Name("Immediate Dominators")
 @Icon("/META-INF/icons/immediate_dominators.gif")
 @Help("Find and aggregate on class level all objects dominating a given set of objects.\n\n"

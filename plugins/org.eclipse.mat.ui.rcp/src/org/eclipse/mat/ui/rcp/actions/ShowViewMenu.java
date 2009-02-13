@@ -86,7 +86,7 @@ public class ShowViewMenu extends ContributionItem
         innerMgr.removeAll();
 
         List<IAction> actions = new ArrayList<IAction>(Perspective.Views.values().length);
-        
+
         // adding all views out of Perspective.Views to the menu
         for (Perspective.Views view : Perspective.Views.values())
         {
