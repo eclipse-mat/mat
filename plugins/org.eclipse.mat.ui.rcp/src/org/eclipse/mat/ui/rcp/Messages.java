@@ -16,7 +16,6 @@ public class Messages extends NLS
     public static String SnapshotHistoryIntroContentProvider_ErrorCreatingImage;
     public static String SnapshotHistoryIntroContentProvider_HistoryIsEmpty;
     public static String SnapshotHistoryIntroContentProvider_PleaseWait;
-    public static String VersionIntroContentProvider_BundleVersion;
     static
     {
         // initialize resource bundle

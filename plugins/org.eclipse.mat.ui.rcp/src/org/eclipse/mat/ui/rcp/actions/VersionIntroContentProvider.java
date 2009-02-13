@@ -13,7 +13,6 @@ package org.eclipse.mat.ui.rcp.actions;
 import java.io.PrintWriter;
 
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.mat.ui.rcp.Messages;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.intro.config.IIntroContentProvider;
@@ -29,7 +28,7 @@ public class VersionIntroContentProvider implements IIntroContentProvider
         if (bundle != null)
         {
             out.print("(API "); //$NON-NLS-1$
-            out.print(bundle.getHeaders().get(Messages.VersionIntroContentProvider_BundleVersion));
+            out.print(bundle.getHeaders().get("Bundle-Version")); //$NON-NLS-1$
             out.print(")");//$NON-NLS-1$
         }
     }
