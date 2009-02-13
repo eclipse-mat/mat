@@ -37,7 +37,7 @@
 		<param key="format" value="csv" />
 		<param key="filename" value="Dominator_Tree.csv"/>
 		<param key="html.separate_file" value="true" />
-		<param key="sort_column" value="Retained Heap"/>
+		<param key="sort_column" value="Retained Heap=DESC,Shallow Heap=DESC,Class name"/>
 		<param key="limit" value="50000" />	
 		<command>dominator_tree</command>
 	</query>
@@ -69,7 +69,8 @@
 	<query name="Immediate Dominators of java.util.HashMap$Entry">
 		<param key="filename" value="Immediate_Dominators_of_java.util.HashMap$Entry.csv"/>
 		<param key="format" value="csv" />
-		<param key="html.separate_file" value="true" />
+		<param key="html.separate_file" value="true" />		
+		<param key="sort_column" value="Dom. Shallow Heap=DESC,Shallow Heap=DESC,Dom. Objects=DESC,Objects=DESC,Class name" />
 		<command>immediate_dominators java.util.HashMap$Entry</command>
 		<param key="limit" value="1000" />
 	</query>		
