@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.mat.internal.Messages;
+import org.eclipse.mat.report.internal.Messages;
 import org.eclipse.mat.util.MessageUtil;
 
 public class SectionSpec extends Spec

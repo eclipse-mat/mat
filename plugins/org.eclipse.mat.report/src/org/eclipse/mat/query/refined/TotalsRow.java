@@ -14,7 +14,7 @@ import java.net.URL;
 import com.ibm.icu.text.DecimalFormat;
 import com.ibm.icu.text.NumberFormat;
 
-import org.eclipse.mat.internal.Messages;
+import org.eclipse.mat.report.internal.Messages;
 import org.eclipse.mat.util.MessageUtil;
 
 public class TotalsRow

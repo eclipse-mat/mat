@@ -19,10 +19,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.eclipse.mat.SnapshotException;
-import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.IResult;
+import org.eclipse.mat.report.internal.Messages;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 

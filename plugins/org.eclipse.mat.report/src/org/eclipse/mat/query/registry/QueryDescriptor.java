@@ -17,9 +17,9 @@ import java.util.List;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.mat.SnapshotException;
-import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IQueryContext;
+import org.eclipse.mat.report.internal.Messages;
 import org.eclipse.mat.report.internal.ReportPlugin;
 import org.eclipse.mat.util.MessageUtil;
 

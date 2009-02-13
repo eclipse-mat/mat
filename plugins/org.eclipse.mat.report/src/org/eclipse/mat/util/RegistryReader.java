@@ -27,7 +27,7 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.dynamichelpers.ExtensionTracker;
 import org.eclipse.core.runtime.dynamichelpers.IExtensionChangeHandler;
 import org.eclipse.core.runtime.dynamichelpers.IExtensionTracker;
-import org.eclipse.mat.internal.Messages;
+import org.eclipse.mat.report.internal.Messages;
 
 public abstract class RegistryReader<D> implements IExtensionChangeHandler
 {

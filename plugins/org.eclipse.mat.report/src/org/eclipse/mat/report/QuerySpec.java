@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.mat.report;
 
-import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IResult;
+import org.eclipse.mat.report.internal.Messages;
 import org.eclipse.mat.util.MessageUtil;
 
 public class QuerySpec extends Spec

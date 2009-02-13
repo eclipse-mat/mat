@@ -18,9 +18,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.Argument.Advice;
+import org.eclipse.mat.report.internal.Messages;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.PatternUtil;
 

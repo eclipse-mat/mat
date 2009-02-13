@@ -12,9 +12,9 @@ package org.eclipse.mat.query.results;
 
 import java.io.File;
 
-import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.ResultMetaData;
+import org.eclipse.mat.report.internal.Messages;
 
 public class DisplayFileResult implements IResult
 {

@@ -16,8 +16,8 @@ import java.text.ParsePosition;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.Column;
+import org.eclipse.mat.report.internal.Messages;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.PatternUtil;
 

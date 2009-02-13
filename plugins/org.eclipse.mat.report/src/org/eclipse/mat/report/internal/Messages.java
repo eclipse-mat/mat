@@ -1,10 +1,10 @@
-package org.eclipse.mat.internal;
+package org.eclipse.mat.report.internal;
 
 import org.eclipse.osgi.util.NLS;
 
 public final class Messages extends NLS
 {
-    private static final String BUNDLE_NAME = "org.eclipse.mat.internal.messages"; //$NON-NLS-1$
+    private static final String BUNDLE_NAME = "org.eclipse.mat.report.internal.messages"; //$NON-NLS-1$
 
     public static String ArgumentSet_Error_IllegalArgument;
     public static String ArgumentSet_Error_Inaccessible;
@@ -32,9 +32,7 @@ public final class Messages extends NLS
     public static String Filter_Label_Regex;
     public static String HtmlOutputter_Error_MovingFile;
     public static String HtmlOutputter_Label_Details;
-
     public static String HtmlOutputter_Label_NotApplicable;
-
     public static String HtmlOutputter_Msg_TreeIsLimited;
     public static String PageSnippets_Label_HideUnhide;
     public static String PageSnippets_Label_CreatedBy;

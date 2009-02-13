@@ -13,7 +13,6 @@ package org.eclipse.mat.report.internal;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.report.QuerySpec;
 import org.eclipse.mat.report.SectionSpec;
 import org.eclipse.mat.report.Spec;

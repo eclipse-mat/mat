@@ -15,7 +15,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import org.eclipse.mat.internal.Messages;
+import org.eclipse.mat.report.internal.Messages;
 
 public final class CategoryDescriptor
 {

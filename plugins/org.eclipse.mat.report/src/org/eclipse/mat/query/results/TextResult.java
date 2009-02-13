@@ -14,11 +14,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.mat.SnapshotException;
-import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.DetailResultProvider;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.ResultMetaData;
 import org.eclipse.mat.query.registry.QueryObjectLink;
+import org.eclipse.mat.report.internal.Messages;
 import org.eclipse.mat.util.IProgressListener;
 
 /**

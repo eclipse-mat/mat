@@ -17,7 +17,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.ContextDerivedData;
 import org.eclipse.mat.query.ContextProvider;
@@ -36,6 +35,7 @@ import org.eclipse.mat.query.ContextDerivedData.DerivedOperation;
 import org.eclipse.mat.query.refined.RefinedStructuredResult.CalculatedColumnAccessor;
 import org.eclipse.mat.query.refined.RefinedStructuredResult.DerivedDataJobDefinition;
 import org.eclipse.mat.query.refined.RefinedStructuredResult.ValueAccessor;
+import org.eclipse.mat.report.internal.Messages;
 import org.eclipse.mat.util.MessageUtil;
 
 public final class RefinedResultBuilder

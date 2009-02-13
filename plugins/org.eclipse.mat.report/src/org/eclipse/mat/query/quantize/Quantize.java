@@ -20,7 +20,6 @@ import java.util.Map;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
-import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.ContextDerivedData;
 import org.eclipse.mat.query.IContextObject;
@@ -30,6 +29,7 @@ import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.query.ResultMetaData;
 import org.eclipse.mat.query.Column.SortDirection;
 import org.eclipse.mat.query.quantize.Quantize.Function.Factory;
+import org.eclipse.mat.report.internal.Messages;
 
 /**
  * Create a value or frequency distribution out of arbitrary values.

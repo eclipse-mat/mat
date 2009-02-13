@@ -12,7 +12,6 @@ package org.eclipse.mat.report.internal;
 
 import java.io.File;
 
-import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.IResult;

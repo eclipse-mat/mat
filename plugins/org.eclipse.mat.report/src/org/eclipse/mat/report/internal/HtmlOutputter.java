@@ -16,7 +16,6 @@ import java.io.Writer;
 import java.util.List;
 
 import org.eclipse.mat.SnapshotException;
-import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.DetailResultProvider;
 import org.eclipse.mat.query.IContextObject;

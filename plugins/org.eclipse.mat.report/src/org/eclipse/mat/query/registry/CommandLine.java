@@ -15,9 +15,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.mat.SnapshotException;
-import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.IResult;
+import org.eclipse.mat.report.internal.Messages;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 

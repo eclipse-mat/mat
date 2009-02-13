@@ -11,8 +11,8 @@
 package org.eclipse.mat.query.registry;
 
 import org.eclipse.mat.SnapshotException;
-import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IQueryContext;
+import org.eclipse.mat.report.internal.Messages;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 
