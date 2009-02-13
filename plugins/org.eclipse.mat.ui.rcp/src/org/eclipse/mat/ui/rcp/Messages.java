@@ -8,6 +8,7 @@ public class Messages extends NLS
     public static String ApplicationActionBarAdvisor_Edit;
     public static String ApplicationActionBarAdvisor_File;
     public static String ApplicationActionBarAdvisor_Help;
+    public static String ApplicationActionBarAdvisor_NotRunningAsAProduct;
     public static String ApplicationActionBarAdvisor_Window;
     public static String OpenHelp_HelpContents;
     public static String OpenPreferenceAction_Preferences;

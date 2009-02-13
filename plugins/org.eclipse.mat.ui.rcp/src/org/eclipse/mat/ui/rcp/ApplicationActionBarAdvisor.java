@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.mat.ui.rcp;
 
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.GroupMarker;
 import org.eclipse.jface.action.IContributionItem;
@@ -34,7 +35,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor
     private IWorkbenchAction copyAction;
     private IWorkbenchAction helpAction;
     private IWorkbenchAction welcomeAction;
-    
+
     private Action preferencesAction;
     private IContributionItem openViewAction;
     private IContributionItem historyAction;
@@ -52,8 +53,18 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor
         register(copyAction);
         helpAction = new OpenHelp();
         register(helpAction);
-        welcomeAction = ActionFactory.INTRO.create(window);
-        register(welcomeAction);
+
+        if (window.getWorkbench().getIntroManager().hasIntro())
+        {
+            welcomeAction = ActionFactory.INTRO.create(window);
+            register(welcomeAction);
+        }
+        else
+        {
+            RCPPlugin.getDefault().getLog().log(
+                            new Status(Status.WARNING, RCPPlugin.PLUGIN_ID,
+                                            Messages.ApplicationActionBarAdvisor_NotRunningAsAProduct));
+        }
 
         preferencesAction = new OpenPreferenceAction();
         openViewAction = new ShowViewMenu(window);
@@ -62,27 +73,33 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor
 
     protected void fillMenuBar(IMenuManager menuBar)
     {
-        MenuManager fileMenu = new MenuManager(Messages.ApplicationActionBarAdvisor_File, IWorkbenchActionConstants.M_FILE);
+        MenuManager fileMenu = new MenuManager(Messages.ApplicationActionBarAdvisor_File,
+                        IWorkbenchActionConstants.M_FILE);
         fileMenu.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
         fileMenu.add(historyAction);
         fileMenu.add(new GroupMarker(IWorkbenchActionConstants.MRU));
         fileMenu.add(exitAction);
         menuBar.add(fileMenu);
 
-        MenuManager editMenu = new MenuManager(Messages.ApplicationActionBarAdvisor_Edit, IWorkbenchActionConstants.M_EDIT);
+        MenuManager editMenu = new MenuManager(Messages.ApplicationActionBarAdvisor_Edit,
+                        IWorkbenchActionConstants.M_EDIT);
         editMenu.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
         editMenu.add(copyAction);
         menuBar.add(editMenu);
 
-        MenuManager windowMenu = new MenuManager(Messages.ApplicationActionBarAdvisor_Window, IWorkbenchActionConstants.M_WINDOW);
+        MenuManager windowMenu = new MenuManager(Messages.ApplicationActionBarAdvisor_Window,
+                        IWorkbenchActionConstants.M_WINDOW);
         windowMenu.add(openViewAction);
         windowMenu.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
         windowMenu.add(preferencesAction);
         menuBar.add(windowMenu);
 
-        MenuManager helpMenu = new MenuManager(Messages.ApplicationActionBarAdvisor_Help, IWorkbenchActionConstants.M_HELP);
+        MenuManager helpMenu = new MenuManager(Messages.ApplicationActionBarAdvisor_Help,
+                        IWorkbenchActionConstants.M_HELP);
         helpMenu.add(new Separator(IWorkbenchActionConstants.GROUP_HELP));
-        helpMenu.add(welcomeAction);
+
+        if (welcomeAction != null)
+            helpMenu.add(welcomeAction);
         helpMenu.add(helpAction);
         menuBar.add(helpMenu);
 
