@@ -1,0 +1,10 @@
+#file needed for Babel. It points to the source of each plugin.
+plugin@org.eclipse.mat.api=SVN,trunk,http://dev.eclipse.org/svnroot/technology/org.eclipse.mat,,trunk/plugins/org.eclipse.mat.api
+plugin@org.eclipse.mat.chart=SVN,trunk,http://dev.eclipse.org/svnroot/technology/org.eclipse.mat,,trunk/plugins/org.eclipse.mat.chart
+plugin@org.eclipse.mat.chart.ui=SVN,trunk,http://dev.eclipse.org/svnroot/technology/org.eclipse.mat,,trunk/plugins/org.eclipse.mat.chart.ui
+plugin@org.eclipse.mat.hprof=SVN,trunk,http://dev.eclipse.org/svnroot/technology/org.eclipse.mat,,trunk/plugins/org.eclipse.mat.hprof
+plugin@org.eclipse.mat.jdt=SVN,trunk,http://dev.eclipse.org/svnroot/technology/org.eclipse.mat,,trunk/plugins/org.eclipse.mat.jdt
+plugin@org.eclipse.mat.parser=SVN,trunk,http://dev.eclipse.org/svnroot/technology/org.eclipse.mat,,trunk/plugins/org.eclipse.mat.parser
+plugin@org.eclipse.mat.report=SVN,trunk,http://dev.eclipse.org/svnroot/technology/org.eclipse.mat,,trunk/plugins/org.eclipse.mat.report
+plugin@org.eclipse.mat.ui=SVN,trunk,http://dev.eclipse.org/svnroot/technology/org.eclipse.mat,,trunk/plugins/org.eclipse.mat.ui
+plugin@org.eclipse.mat.ui.rcp=SVN,trunk,http://dev.eclipse.org/svnroot/technology/org.eclipse.mat,,trunk/plugins/org.eclipse.mat.ui.rcp
