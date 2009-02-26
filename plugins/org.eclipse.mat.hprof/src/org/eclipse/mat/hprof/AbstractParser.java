@@ -193,4 +193,20 @@ import org.eclipse.mat.util.MessageUtil;
             in.skipBytes(IPrimitiveArray.ELEMENT_SIZE[type]);
     }
 
+    /**
+     * Usually the HPROF file contains exactly one heap dump. However, when
+     * acquiring heap dumps via the legacy HPROF agent, the dump file can
+     * possibly contain multiple heap dumps. Currently there is no API and no UI
+     * to determine which dump to use. As this happens very rarely, we decided
+     * to go with the following mechanism: use only the first dump unless the
+     * user provides a dump number via environment variable. Once the dump has
+     * been parsed, the same dump is reopened regardless of the environment
+     * variable.
+     */
+    protected int determineDumpNumber()
+    {
+        String dumpNr = System.getProperty("MAT_HPROF_DUMP_NR"); //$NON-NLS-1$
+        return dumpNr == null ? 0 : Integer.parseInt(dumpNr);
+    }
+
 }

@@ -49,6 +49,9 @@ public class Pass2Parser extends AbstractParser
     {
         in = new PositionInputStream(new BufferedInputStream(new FileInputStream(file)));
 
+        final int dumpNrToRead = determineDumpNumber();
+        int currentDumpNr = 0;
+
         try
         {
             version = readVersion(in);
@@ -75,14 +78,24 @@ public class Pass2Parser extends AbstractParser
                     throw new SnapshotException(MessageUtil.format(Messages.Pass1Parser_Error_IllegalRecordLength, in
                                     .position()));
 
-                if (record == Constants.Record.HEAP_DUMP //
-                                || record == Constants.Record.HEAP_DUMP_SEGMENT)
+                switch (record)
                 {
-                    readDumpSegments(length);
-                }
-                else
-                {
-                    in.skipBytes(length);
+                    case Constants.Record.HEAP_DUMP:
+                    case Constants.Record.HEAP_DUMP_SEGMENT:
+                        if (dumpNrToRead == currentDumpNr)
+                            readDumpSegments(length);
+                        else
+                            in.skipBytes(length);
+
+                        if (record == Constants.Record.HEAP_DUMP)
+                            currentDumpNr++;
+
+                        break;
+                    case Constants.Record.HEAP_DUMP_END:
+                        currentDumpNr++;
+                    default:
+                        in.skipBytes(length);
+                        break;
                 }
 
                 curPos = in.position();

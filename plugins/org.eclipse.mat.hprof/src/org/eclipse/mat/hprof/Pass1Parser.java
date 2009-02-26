@@ -51,6 +51,9 @@ public class Pass1Parser extends AbstractParser
     {
         in = new PositionInputStream(new BufferedInputStream(new FileInputStream(file)));
 
+        final int dumpNrToRead = determineDumpNumber();
+        int currentDumpNr = 0;
+
         try
         {
             // header & version
@@ -99,8 +102,17 @@ public class Pass1Parser extends AbstractParser
                         break;
                     case Constants.Record.HEAP_DUMP:
                     case Constants.Record.HEAP_DUMP_SEGMENT:
-                        readDumpSegments(length);
+                        if (dumpNrToRead == currentDumpNr)
+                            readDumpSegments(length);
+                        else
+                            in.skipBytes(length);
+
+                        if (record == Constants.Record.HEAP_DUMP)
+                            currentDumpNr++;
+
                         break;
+                    case Constants.Record.HEAP_DUMP_END:
+                        currentDumpNr++;
                     default:
                         in.skipBytes(length);
                         break;
@@ -118,6 +130,12 @@ public class Pass1Parser extends AbstractParser
             catch (IOException ignore)
             {}
         }
+
+        if (currentDumpNr > 1)
+            monitor.sendUserMessage(IProgressListener.Severity.WARNING, MessageUtil.format(
+                            "Parser found {0} HPROF dumps in file {1}. Using dump index {2}. See FAQ.", currentDumpNr,
+                            file.getName(), dumpNrToRead), null);
+
     }
 
     private void readString(long length) throws IOException
