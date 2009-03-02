@@ -11,6 +11,7 @@
 package org.eclipse.mat.inspections.collections;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,25 +32,52 @@ import org.eclipse.mat.query.annotations.Help;
 import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.Field;
+import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IInstance;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.ObjectReference;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.MessageUtil;
 
 @Name("Hash Entries")
 @CommandName("hash_entries")
 @Category("Java Collections")
-@Help("Extracts the key-value pairs from hash maps and hashtables.")
+@Help("Extracts the key-value pairs from hash maps and hashtables."
+                + "The below mentioned maps are known to the query. "
+                + "One additional custom map (e.g. non-JDK) map "
+                + "can be specified by the 'collection', 'array_attribute', 'key_attribute' and 'value_attribute' arguments.\n" //
+                + "Known collections:\n" //
+                + "java.util.HashMap\n" // 
+                + "java.util.Hashtable\n" //
+                + "java.util.Properties\n" // //
+                + "java.util.WeakHashMap\n" //
+                + "java.util.concurrent.ConcurrentHashMap$Segment")
 public class HashEntriesQuery implements IQuery
 {
-    private static final String NULL = "<null>";
+    private static final String NULL = "<null>"; //$NON-NLS-1$
 
     @Argument
     public ISnapshot snapshot;
 
     @Argument(flag = "none")
     public IHeapObjectArgument objects;
+
+    @Argument(isMandatory = false)
+    @Help("Optional: fully qualified class name of a custom (e.g. non-JDK) map class.")
+    public String collection;
+
+    @Argument(isMandatory = false)
+    @Help("The array attribute of an (optionally) specified custom (e.g. non-JDK) map class.")
+    public String array_attribute;
+
+    @Argument(isMandatory = false)
+    @Help("The key attribute of an array entry of an (optionally) specified custom (e.g. non-JDK) map class.")
+    public String key_attribute;
+
+    @Argument(isMandatory = false)
+    @Help("The value attribute of an array entry of an (optionally) specified custom (e.g. non-JDK) map class.")
+    public String value_attribute;
 
     static class Entry
     {
@@ -271,6 +299,32 @@ public class HashEntriesQuery implements IQuery
         // prepare meta-data of known collections
         HashMapIntObject<CollectionUtil.Info> hashes = CollectionUtil.getKnownMaps(snapshot);
 
+        if (collection != null)
+        {
+            if (array_attribute == null || key_attribute == null || value_attribute == null)
+            {
+                String msg = "If the map argument is set to a custom (e.g. non-JDK) collection class, "
+                                + "the array_attribute, key_attribute and value_attribute arguments must be set. "
+                                + "Otherwise, the query cannot determine the contents of the map.";
+                throw new SnapshotException(msg);
+            }
+
+            CollectionUtil.Info info = new CollectionUtil.Info(collection, null, array_attribute, key_attribute,
+                            value_attribute);
+            Collection<IClass> classes = snapshot.getClassesByName(collection, true);
+
+            if (classes == null || classes.isEmpty())
+            {
+                listener.sendUserMessage(IProgressListener.Severity.WARNING, MessageUtil.format(
+                                "Class ''{0}'' not found in heap dump.", collection), null);
+            }
+            else
+            {
+                for (IClass clasz : classes)
+                    hashes.put(clasz.getObjectId(), info);
+            }
+        }
+
         List<Entry> hashEntries = new ArrayList<Entry>();
         for (int[] ids : objects)
         {
@@ -288,12 +342,20 @@ public class HashEntriesQuery implements IQuery
                 int p = arrayField.lastIndexOf('.');
                 IInstance map = p < 0 ? (IInstance) collection : (IInstance) collection.resolveValue(arrayField
                                 .substring(0, p));
-                Field table = map.getField(p < 0 ? arrayField : arrayField.substring(p + 1));
-                int tableObjectId = ((ObjectReference) table.getValue()).getObjectId();
+                Field tableField = map.getField(p < 0 ? arrayField : arrayField.substring(p + 1));
+                if (tableField != null)
+                {
+                    final ObjectReference tableFieldValue = (ObjectReference) tableField.getValue();
+                    if (tableFieldValue != null)
+                    {
+                        int tableObjectId = tableFieldValue.getObjectId();
 
-                int[] outbounds = snapshot.getOutboundReferentIds(tableObjectId);
-                for (int ii = 0; ii < outbounds.length; ii++)
-                    collectEntry(hashEntries, info, collection.getObjectId(), collectionName, outbounds[ii], listener);
+                        int[] outbounds = snapshot.getOutboundReferentIds(tableObjectId);
+                        for (int ii = 0; ii < outbounds.length; ii++)
+                            collectEntry(hashEntries, info, collection.getObjectId(), collectionName, outbounds[ii],
+                                            listener);
+                    }
+                }
 
                 if (listener.isCanceled())
                     throw new IProgressListener.OperationCanceledException();

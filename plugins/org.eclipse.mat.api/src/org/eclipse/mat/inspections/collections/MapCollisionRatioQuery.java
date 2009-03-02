@@ -93,12 +93,16 @@ public class MapCollisionRatioQuery implements IQuery
             CollectionUtil.Info info = new CollectionUtil.Info(collection, size_attribute, array_attribute);
             Collection<IClass> classes = snapshot.getClassesByName(collection, true);
 
-            if (classes.isEmpty())
+            if (classes == null || classes.isEmpty())
+            {
                 listener.sendUserMessage(IProgressListener.Severity.WARNING, MessageUtil.format(
                                 "Class ''{0}'' not found in heap dump.", collection), null);
-
-            for (IClass clasz : classes)
-                metadata.put(clasz.getObjectId(), info);
+            }
+            else
+            {
+                for (IClass clasz : classes)
+                    metadata.put(clasz.getObjectId(), info);
+            }
         }
 
         // create frequency distribution

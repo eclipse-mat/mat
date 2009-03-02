@@ -41,14 +41,43 @@ public class HashSetValuesQuery implements IQuery
     @Argument(flag = "none")
     public IObject hashSet;
 
+    @Argument(isMandatory = false)
+    @Help("Optional: fully qualified class name of a custom (e.g. non-JDK) hash set class.")
+    public String collection;
+
+    @Argument(isMandatory = false)
+    @Help("The array attribute of an (optionally) specified custom (e.g. non-JDK) hash set class.")
+    public String array_attribute;
+
+    @Argument(isMandatory = false)
+    @Help("The key attribute of an array entry of an (optionally) specified custom (e.g. non-JDK) hash set class.")
+    public String key_attribute;
+
     public IResult execute(IProgressListener listener) throws Exception
     {
         InspectionAssert.heapFormatIsNot(snapshot, "phd");
 
-        if (!hashSet.getClazz().doesExtend("java.util.HashSet"))
-            throw new IllegalArgumentException(MessageUtil.format("Not a hash set: {0}", hashSet.getDisplayName()));
+        CollectionUtil.Info info = null;
 
-        CollectionUtil.Info info = CollectionUtil.getInfo(hashSet);
+        if (collection != null && hashSet.getClazz().doesExtend(collection))
+        {
+            if (array_attribute == null || key_attribute == null)
+            {
+                String msg = "If the collection argument is set to a custom (e.g. non-JDK) collection class, "
+                                + "the array_attribute and key_attribute arguments must be set. "
+                                + "Otherwise, the query cannot determine the contents of the hash set.";
+                throw new SnapshotException(msg);
+            }
+            info = new CollectionUtil.Info(collection, null, array_attribute, key_attribute, null);
+        }
+        else if (hashSet.getClazz().doesExtend("java.util.HashSet"))
+        {
+            info = CollectionUtil.getInfo(hashSet);
+        }
+        else
+        {
+            throw new IllegalArgumentException(MessageUtil.format("Not a hash set: {0}", hashSet.getDisplayName()));
+        }
 
         ArrayInt hashEntries = new ArrayInt();
 
