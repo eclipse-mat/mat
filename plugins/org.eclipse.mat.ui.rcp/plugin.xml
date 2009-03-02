@@ -101,7 +101,11 @@
           </property>
           <property
                 name="aboutImage"
-                value="icons/memory_analyzer_16.gif">
+                value="icons/eclipse_lg.gif">
+          </property>
+          <property
+                name="aboutText"
+                value="Eclipse Memory Analyzer&#x0A;&#x0A;Version: 0.0.7&#x0A;&#x0A;(c) Copyright Eclipse contributors 2008.  All rights reserved.&#x0A;Visit http://www.eclipse.org/mat">
           </property> 
       </product>
    </extension>

@@ -4,7 +4,15 @@
 <product name="Memory Analyzer Tool" id="org.eclipse.mat.ui.rcp.MemoryAnalyzer" application="org.eclipse.mat.ui.rcp.application" version="0.7.0" useFeatures="true">
 
    <aboutInfo>
-      <image path="/org.eclipse.mat.ui.rcp/icons/memory_analyzer_16.gif"/>
+      <image path="/org.eclipse.mat.ui.rcp/icons/eclipse_lg.gif"/>
+      <text>
+         Eclipse Memory Analyzer
+
+Version: 0.0.7
+
+(c) Copyright Eclipse contributors 2008.  All rights reserved.
+Visit http://www.eclipse.org/mat
+      </text>
    </aboutInfo>
 
    <configIni use="default">

@@ -39,6 +39,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor
     private Action preferencesAction;
     private IContributionItem openViewAction;
     private IContributionItem historyAction;
+    private IWorkbenchAction aboutAction;
 
     public ApplicationActionBarAdvisor(IActionBarConfigurer configurer)
     {
@@ -53,7 +54,9 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor
         register(copyAction);
         helpAction = new OpenHelp();
         register(helpAction);
-
+        aboutAction = ActionFactory.ABOUT.create(window);
+        register(aboutAction);
+      
         if (window.getWorkbench().getIntroManager().hasIntro())
         {
             welcomeAction = ActionFactory.INTRO.create(window);
@@ -101,9 +104,13 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor
         if (welcomeAction != null)
             helpMenu.add(welcomeAction);
         helpMenu.add(helpAction);
+        helpMenu.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
+        helpMenu.add(new Separator(ActionFactory.ABOUT.getId()));
+        helpMenu.add(aboutAction);
         menuBar.add(helpMenu);
 
         menuBar.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
+
     }
 
 }
