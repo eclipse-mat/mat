@@ -29,7 +29,6 @@ public class WeakReferenceStatQuery implements IQuery
 
     public IResult execute(IProgressListener listener) throws Exception
     {
-        InspectionAssert.heapFormatIsNot(snapshot, "phd");
         return ReferenceQuery.execute("Weakly", "java\\.lang\\.ref\\.WeakReference", snapshot, listener);
     }
 

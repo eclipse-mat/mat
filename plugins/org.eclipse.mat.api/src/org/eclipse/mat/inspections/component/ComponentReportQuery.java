@@ -681,7 +681,7 @@ public class ComponentReportQuery implements IQuery
                 {
                     IInstance obj = (IInstance) snapshot.getObject(objectId);
 
-                    ObjectReference ref = (ObjectReference) obj.getField("referent").getValue();
+                    ObjectReference ref = ReferenceQuery.getReferent(obj);
                     if (ref != null)
                         referentSet.add(ref.getObjectId());
                 }
@@ -763,7 +763,7 @@ public class ComponentReportQuery implements IQuery
             {
                 IInstance obj = (IInstance) snapshot.getObject(objectId);
 
-                ObjectReference ref = (ObjectReference) obj.getField("referent").getValue();
+                ObjectReference ref = ReferenceQuery.getReferent(obj);
                 if (ref != null)
                 {
                     int referentId = ref.getObjectId();
