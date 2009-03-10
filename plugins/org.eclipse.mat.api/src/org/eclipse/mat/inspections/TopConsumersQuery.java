@@ -323,7 +323,7 @@ public class TopConsumersQuery implements IQuery
 
             // for classes take their name instead of java.lang.Class
             IClass objClass = snapshot.getClassOf(dominatorId);
-            if ("java.lang.Class".equals(objClass.getName()))
+            if (IClass.JAVA_LANG_CLASS.equals(objClass.getName()))
             {
                 IObject dominatorObj = snapshot.getObject(dominatorId);
                 if (dominatorObj instanceof IClass)

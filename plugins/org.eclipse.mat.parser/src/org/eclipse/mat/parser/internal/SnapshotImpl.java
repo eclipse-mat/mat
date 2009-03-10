@@ -305,27 +305,31 @@ public final class SnapshotImpl implements ISnapshot
 
         // now, let's go through all instances of all sub classes to attach
         // labels
-        for (IClass clazz : getClassesByName("java.lang.ClassLoader", true))//$NON-NLS-1$
+        Collection<IClass> loaderClasses = getClassesByName(IClass.JAVA_LANG_CLASSLOADER, true);
+        if (loaderClasses != null)
         {
-            for (int classLoaderId : clazz.getObjectIds())
+            for (IClass clazz : loaderClasses)
             {
-                String label = loaderLabels.get(classLoaderId);
-                if (label != null)
-                    continue;
-
-                if (classLoaderId == systemClassLoaderId)
+                for (int classLoaderId : clazz.getObjectIds())
                 {
-                    label = "<system class loader>";//$NON-NLS-1$
-                }
-                else
-                {
-                    IObject classLoader = getObject(classLoaderId);
-                    label = classLoader.getClassSpecificName();
-                    if (label == null)
-                        label = ClassLoaderImpl.NO_LABEL;
-                }
+                    String label = loaderLabels.get(classLoaderId);
+                    if (label != null)
+                        continue;
 
-                loaderLabels.put(classLoaderId, label);
+                    if (classLoaderId == systemClassLoaderId)
+                    {
+                        label = "<system class loader>";//$NON-NLS-1$
+                    }
+                    else
+                    {
+                        IObject classLoader = getObject(classLoaderId);
+                        label = classLoader.getClassSpecificName();
+                        if (label == null)
+                            label = ClassLoaderImpl.NO_LABEL;
+                    }
+
+                    loaderLabels.put(classLoaderId, label);
+                }
             }
         }
 

@@ -793,7 +793,7 @@ public final class TQuantize
                 return root.getOrCreateChild("<none>");
 
             IClass objClass = quantize.snapshot.getClassOf(objectId);
-            if ("java.lang.Class".equals(objClass.getName()))
+            if (IClass.JAVA_LANG_CLASS.equals(objClass.getName()))
             {
                 IObject obj = quantize.snapshot.getObject(objectId);
                 if (obj instanceof IClass)

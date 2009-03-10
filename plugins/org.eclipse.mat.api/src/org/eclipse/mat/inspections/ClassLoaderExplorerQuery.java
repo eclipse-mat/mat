@@ -57,7 +57,7 @@ public class ClassLoaderExplorerQuery implements IQuery
 
         // collect all class loader instances
         HashMapIntObject<Node> classLoader = new HashMapIntObject<Node>();
-        for (IClass clazz : snapshot.getClassesByName("java.lang.ClassLoader", true))
+        for (IClass clazz : snapshot.getClassesByName(IClass.JAVA_LANG_CLASSLOADER, true))
             for (int objectId : clazz.getObjectIds())
                 classLoader.put(objectId, new Node(objectId));
 
@@ -65,6 +65,14 @@ public class ClassLoaderExplorerQuery implements IQuery
         for (IClass clazz : snapshot.getClasses())
         {
             Node node = classLoader.get(clazz.getClassLoaderId());
+            if (node == null)
+            {
+                // node can be null, if the class hierarchy information is not
+                // contained in the heap dump (e.g. PHD)
+                int objectId = clazz.getClassLoaderId();
+                node = new Node(objectId);
+                classLoader.put(objectId, node);
+            }
             if (node.definedClasses == null)
                 node.definedClasses = new ArrayList<IClass>();
             node.definedClasses.add(clazz);
