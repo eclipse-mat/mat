@@ -145,7 +145,7 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
 
     public List<SnapshotFormat> getSupportedFormats()
     {
-        List<SnapshotFormat> answer = new ArrayList<SnapshotFormat>(5);
+        List<SnapshotFormat> answer = new ArrayList<SnapshotFormat>();
 
         for (Parser parser : ParserPlugin.getDefault().getParserRegistry().delegates())
             answer.add(parser.getSnapshotFormat());

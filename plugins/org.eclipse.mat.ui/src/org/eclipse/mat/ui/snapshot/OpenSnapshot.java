@@ -11,6 +11,8 @@
 package org.eclipse.mat.ui.snapshot;
 
 import java.io.File;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -113,6 +115,13 @@ public class OpenSnapshot
         private void applyFilter(FileDialog dialog)
         {
             List<SnapshotFormat> types = SnapshotFactory.getSupportedFormats();
+            Collections.sort(types, new Comparator<SnapshotFormat>()
+            {
+                public int compare(SnapshotFormat f1, SnapshotFormat f2)
+                {
+                    return f1.getName().compareTo(f2.getName());
+                }
+            });
 
             String[] filterExtensions = new String[types.size() + 1];
             String[] filterNames = new String[types.size() + 1];
