@@ -131,8 +131,13 @@ public class Pass1Parser extends AbstractParser
             {}
         }
 
+        if (currentDumpNr <= dumpNrToRead)
+            throw new SnapshotException(MessageUtil.format(
+                            "Parser found {0} HPROF dumps in file {1}. No heap dump index {2} found. See FAQ.",
+                            currentDumpNr, file.getName(), dumpNrToRead));
+
         if (currentDumpNr > 1)
-            monitor.sendUserMessage(IProgressListener.Severity.WARNING, MessageUtil.format(
+            monitor.sendUserMessage(IProgressListener.Severity.INFO, MessageUtil.format(
                             "Parser found {0} HPROF dumps in file {1}. Using dump index {2}. See FAQ.", currentDumpNr,
                             file.getName(), dumpNrToRead), null);
 
