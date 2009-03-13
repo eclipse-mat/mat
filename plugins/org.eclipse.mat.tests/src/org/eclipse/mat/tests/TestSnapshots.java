@@ -47,6 +47,11 @@ public class TestSnapshots
 
     public static ISnapshot getSnapshot(String name, boolean pristine)
     {
+        return getSnapshot(name, new HashMap<String, String>(), pristine);
+    }
+
+    public static ISnapshot getSnapshot(String name, Map<String, String> options, boolean pristine)
+    {
         try
         {
             testAssertionsEnabled();
@@ -80,7 +85,7 @@ public class TestSnapshots
                 copyFile(sourceAddon, addon);
             }
 
-            ISnapshot answer = SnapshotFactory.openSnapshot(snapshot, new VoidProgressListener());
+            ISnapshot answer = SnapshotFactory.openSnapshot(snapshot, options, new VoidProgressListener());
             snapshots.put(name, answer);
             return answer;
         }

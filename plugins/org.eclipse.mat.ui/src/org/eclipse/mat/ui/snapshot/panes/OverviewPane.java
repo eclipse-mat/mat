@@ -175,16 +175,23 @@ public class OverviewPane extends HeapEditorPane implements IHyperlinkListener, 
         String size = Units.Storage.of(heapSize).format(heapSize);
         buf.append("<b>" + size + "</b>");//$NON-NLS-1$//$NON-NLS-2$
 
-        buf.append(Messages.OverviewPane_Classes);
+        buf.append("  " + Messages.OverviewPane_Classes); //$NON-NLS-1$
         buf.append("<b>" + formatNumber(info.getNumberOfClasses()) + "</b>");//$NON-NLS-1$//$NON-NLS-2$
 
-        buf.append(Messages.OverviewPane_Objects);
+        buf.append("  " + Messages.OverviewPane_Objects); //$NON-NLS-1$
         buf.append("<b>" + formatNumber(info.getNumberOfObjects()) + "</b>");//$NON-NLS-1$//$NON-NLS-2$
 
-        buf.append(Messages.OverviewPane_ClassLoader);
-        buf.append("<b>" + formatNumber(info.getNumberOfClassLoaders()) + "</b></p>");//$NON-NLS-1$//$NON-NLS-2$
+        buf.append("  " + Messages.OverviewPane_ClassLoader); //$NON-NLS-1$
+        buf.append("<b>" + formatNumber(info.getNumberOfClassLoaders()) + "</b>");//$NON-NLS-1$//$NON-NLS-2$
 
-        buf.append("</form>");//$NON-NLS-1$
+        QueryDescriptor descriptor = QueryRegistry.instance().getQuery("unreachable_objects"); //$NON-NLS-1$
+        if (descriptor != null && descriptor.accept(getQueryContext()))
+        {
+            buf.append("  <a href=\"").append(descriptor.getIdentifier()) // //$NON-NLS-1$
+                            .append("\">").append(descriptor.getName()).append("</a>");//$NON-NLS-1$//$NON-NLS-2$
+        }
+
+        buf.append("</p></form>");//$NON-NLS-1$
         text.setText(buf.toString(), true, false);
         text.addHyperlinkListener(this);
 

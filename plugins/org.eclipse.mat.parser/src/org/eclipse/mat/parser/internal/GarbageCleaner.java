@@ -14,9 +14,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.collect.BitField;
@@ -31,16 +31,19 @@ import org.eclipse.mat.parser.index.IndexManager.Index;
 import org.eclipse.mat.parser.internal.snapshot.ObjectMarker;
 import org.eclipse.mat.parser.model.ClassImpl;
 import org.eclipse.mat.parser.model.XGCRootInfo;
+import org.eclipse.mat.snapshot.UnreachableObjectsHistogram;
+import org.eclipse.mat.snapshot.model.GCRootInfo;
+import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
-import org.eclipse.mat.util.VoidProgressListener;
+import org.eclipse.mat.util.SilentProgressListener;
 import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
 
 /* package */class GarbageCleaner
 {
 
     public static int[] clean(final PreliminaryIndexImpl idx, final SnapshotImplBuilder builder,
-                    IProgressListener listener) throws IOException
+                    Map<String, String> arguments, IProgressListener listener) throws IOException
     {
         IndexManager idxManager = new IndexManager();
 
@@ -66,7 +69,8 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
              * objects if more than 1 CPUs are available - use multithreading
              */
             int numProcessors = Runtime.getRuntime().availableProcessors();
-            ObjectMarker marker = new ObjectMarker(newRoots, reachable, preOutbound, new VoidProgressListener());
+            ObjectMarker marker = new ObjectMarker(newRoots, reachable, preOutbound, new SilentProgressListener(
+                            listener));
             if (numProcessors > 1)
             {
                 try
@@ -101,8 +105,21 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
             marker = null;
             /* END - marking objects */
 
-            if (ParserPlugin.getDefault().isDebugging())
-                printHistogramOfUnreachableObjects(idx, reachable);
+            // check if unreachable objects exist, then either mark as GC root
+            // unknown (keep objects) or store a histogram of unreachable
+            // objects
+            if (newNoOfObjects < oldNoOfObjects)
+            {
+                if (Boolean.parseBoolean(arguments.get("keep_unreachable_objects"))) //$NON-NLS-1$
+                {
+                    markUnreachbleAsGCUnknown(idx, reachable, newNoOfObjects, listener);
+                    newNoOfObjects = oldNoOfObjects;
+                }
+                else
+                {
+                    createHistogramOfUnreachableObjects(idx, reachable);
+                }
+            }
 
             if (listener.isCanceled())
                 throw new IProgressListener.OperationCanceledException();
@@ -460,10 +477,10 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
     }
 
     // //////////////////////////////////////////////////////////////
-    // debugging
+    // create histogram of unreachable objects
     // //////////////////////////////////////////////////////////////
 
-    private static final class Record implements Comparable<Record>
+    private static final class Record
     {
         ClassImpl clazz;
         int objectCount;
@@ -473,24 +490,9 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
         {
             this.clazz = clazz;
         }
-
-        public int compareTo(Record o)
-        {
-            if (size > o.size)
-                return -1;
-            if (size < o.size)
-                return 1;
-
-            if (objectCount > o.objectCount)
-                return -1;
-            if (objectCount < o.objectCount)
-                return 1;
-
-            return clazz.getName().compareTo(o.clazz.getName());
-        }
     }
 
-    private static void printHistogramOfUnreachableObjects(PreliminaryIndexImpl idx, boolean[] reachable)
+    private static void createHistogramOfUnreachableObjects(PreliminaryIndexImpl idx, boolean[] reachable)
     {
         IOne2OneIndex array2size = idx.array2size;
 
@@ -515,38 +517,103 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
 
                 r.objectCount++;
                 totalObjectCount++;
+                int s = 0;
 
                 if (r.clazz.isArrayType())
                 {
-                    int s = array2size.get(ii);
-                    r.size += s;
-                    totalSize += s;
+                    s = array2size.get(ii);                    
+                }
+                else if (IClass.JAVA_LANG_CLASS.equals(r.clazz.getName()))
+                {
+                    ClassImpl classImpl = idx.classesById.get(ii);
+                    if (classImpl == null)
+                    {
+                        s = r.clazz.getHeapSizePerInstance();                                       
+                    }
+                    else
+                    {
+                        s = classImpl.getUsedHeapSize();                        
+                    }
                 }
                 else
                 {
-                    int s = r.clazz.getHeapSizePerInstance();
-                    r.size += s;
-                    totalSize += s;
+                    s = r.clazz.getHeapSizePerInstance();
+                }
+                r.size += s;
+                totalSize += s;
+            }
+        }
+
+        List<UnreachableObjectsHistogram.Record> records = new ArrayList<UnreachableObjectsHistogram.Record>();
+        for (Iterator<Record> iter = histogram.values(); iter.hasNext();)
+        {
+            Record r = iter.next();
+            records.add(new UnreachableObjectsHistogram.Record(r.clazz.getName(), r.objectCount, r.size));
+        }
+
+        UnreachableObjectsHistogram deadObjectHistogram = new UnreachableObjectsHistogram(records);
+        idx.getSnapshotInfo().setProperty(UnreachableObjectsHistogram.class.getName(), deadObjectHistogram);
+    }
+
+    // //////////////////////////////////////////////////////////////
+    // mark unreachable objects as GC unknown
+    // //////////////////////////////////////////////////////////////
+
+    private static void markUnreachbleAsGCUnknown(final PreliminaryIndexImpl idx, //
+                    boolean[] reachable, //
+                    int noReachableObjects, //
+                    IProgressListener listener)
+    {
+        final int noOfObjects = reachable.length;
+        final IOne2LongIndex identifiers = idx.identifiers;
+        final IOne2ManyIndex preOutbound = idx.outbound;
+
+        int root[] = new int[1];
+        ObjectMarker marker = new ObjectMarker(root, reachable, preOutbound, new SilentProgressListener(listener));
+
+        // find objects not referenced by any other object
+        boolean inbounds[] = new boolean[noOfObjects];
+        for (int ii = 0; ii < noOfObjects; ++ii)
+        {
+            if (!reachable[ii])
+            {
+                // We only need search the unreachable objects as
+                // the reachable ones will have already marked
+                // its outbound refs.
+                for (int out : preOutbound.get(ii))
+                    inbounds[out] = true;
+            }
+        }
+
+        for (int pass = 0; pass < 2; ++pass)
+        {
+            // First pass mark only the unreferenced objects, second
+            // pass do everything else
+            for (int ii = 0; ii < noOfObjects && noReachableObjects < noOfObjects; ++ii)
+            {
+                // Do the objects with no inbounds first
+                if (!reachable[ii] && (pass == 1 || !inbounds[ii]))
+                {
+                    // Identify this unreachable object as a root,
+                    // and see what else is now reachable
+                    // No need to mark it as the marker will do that
+                    root[0] = ii;
+
+                    XGCRootInfo xgc = new XGCRootInfo(identifiers.get(ii), 0, GCRootInfo.Type.UNKNOWN);
+                    xgc.setObjectId(ii);
+
+                    ArrayList<XGCRootInfo> xgcs = new ArrayList<XGCRootInfo>(1);
+                    xgcs.add(xgc);
+                    idx.gcRoots.put(ii, xgcs);
+
+                    int marked = marker.markSingleThreaded();
+                    noReachableObjects += marked;
                 }
             }
         }
 
-        List<Record> records = new ArrayList<Record>();
-        for (Iterator<Record> iter = histogram.values(); iter.hasNext();)
-            records.add(iter.next());
-        Collections.sort(records);
-
-        System.out
-                        .println(String
-                                        .format(
-                                                        "%-58s %10s %10s", Messages.GarbageCleaner_Class, Messages.GarbageCleaner_Count, Messages.GarbageCleaner_Size)); //$NON-NLS-1$
-        for (Record record : records)
-        {
-            System.out.println(String.format("%-58s %10d %10d", //$NON-NLS-1$
-                            record.clazz.getName(), record.objectCount, record.size));
-        }
-        System.out.println(String
-                        .format("%-58s %10d %10d", Messages.GarbageCleaner_Totals, totalObjectCount, totalSize));//$NON-NLS-1$
+        // update GC root information
+        idx.setGcRoots(idx.gcRoots);
+        idx.getSnapshotInfo().setNumberOfGCRoots(idx.gcRoots.size());
     }
-
 }

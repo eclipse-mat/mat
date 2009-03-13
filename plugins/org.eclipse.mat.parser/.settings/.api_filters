@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <component id="org.eclipse.mat.parser" version="2">
+    <resource path="src/org/eclipse/mat/parser/internal/SnapshotFactoryImpl.java" type="org.eclipse.mat.parser.internal.SnapshotFactoryImpl">
+        <filter id="574619656">
+            <message_arguments>
+                <message_argument value="Implementation"/>
+                <message_argument value="SnapshotFactoryImpl"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="src/org/eclipse/mat/parser/model/PrimitiveArrayImpl.java" type="org.eclipse.mat.parser.model.PrimitiveArrayImpl">
         <filter id="574619656">
             <message_arguments>
@@ -107,6 +115,12 @@
             <message_arguments>
                 <message_argument value="0.7.0.qualifier"/>
                 <message_argument value="0.7.0.200806271307"/>
+            </message_arguments>
+        </filter>
+        <filter id="924844039">
+            <message_arguments>
+                <message_argument value="0.7.100.qualifier"/>
+                <message_argument value="0.7.0.200812101332"/>
             </message_arguments>
         </filter>
     </resource>

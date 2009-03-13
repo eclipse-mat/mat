@@ -58,6 +58,7 @@ import org.eclipse.mat.parser.model.InstanceImpl;
 import org.eclipse.mat.parser.model.XClassHistogramRecord;
 import org.eclipse.mat.parser.model.XGCRootInfo;
 import org.eclipse.mat.parser.model.XSnapshotInfo;
+import org.eclipse.mat.snapshot.UnreachableObjectsHistogram;
 import org.eclipse.mat.snapshot.DominatorsSummary;
 import org.eclipse.mat.snapshot.ExcludedReferencesDescriptor;
 import org.eclipse.mat.snapshot.Histogram;
@@ -1957,9 +1958,17 @@ public final class SnapshotImpl implements ISnapshot
         return rootsPerThread;
     }
 
+    @SuppressWarnings("unchecked")
     public <A> A getSnapshotAddons(Class<A> addon) throws SnapshotException
     {
-        return heapObjectReader.getAddon(addon);
+        if (addon == UnreachableObjectsHistogram.class)
+        {
+            return (A) this.getSnapshotInfo().getProperty(UnreachableObjectsHistogram.class.getName());
+        }
+        else
+        {
+            return heapObjectReader.getAddon(addon);
+        }
     }
 
     // //////////////////////////////////////////////////////////////

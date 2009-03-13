@@ -36,6 +36,7 @@
 
 		<!-- basics -->		
 		<query impl="org.eclipse.mat.inspections.WasteInCharArraysQuery" />
+  		<query impl="org.eclipse.mat.inspections.UnreachableObjectsQuery"/>
 		
 		<!-- leak identification -->
 		<query impl="org.eclipse.mat.inspections.LeakHunterQuery"/>

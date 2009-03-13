@@ -54,7 +54,7 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
 
     private Map<File, SnapshotEntry> snapshotCache = new HashMap<File, SnapshotEntry>();
 
-    public ISnapshot openSnapshot(File file, IProgressListener listener) throws SnapshotException
+    public ISnapshot openSnapshot(File file, Map<String, String> args, IProgressListener listener) throws SnapshotException
     {
         ISnapshot answer = null;
 
@@ -99,7 +99,7 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
         if (answer == null)
         {
             deleteIndexFiles(file);
-            answer = parse(file, prefix, listener);
+            answer = parse(file, prefix, args, listener);
         }
 
         entry = new SnapshotEntry(1, answer);
@@ -157,7 +157,7 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
     // Internal implementations
     // //////////////////////////////////////////////////////////////
 
-    private final ISnapshot parse(File file, String prefix, IProgressListener listener) throws SnapshotException
+    private final ISnapshot parse(File file, String prefix, Map<String, String> args, IProgressListener listener) throws SnapshotException
     {
         ParserRegistry registry = ParserPlugin.getDefault().getParserRegistry();
 
@@ -185,7 +185,7 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
 
                 SnapshotImplBuilder builder = new SnapshotImplBuilder(idx.getSnapshotInfo());
 
-                int[] purgedMapping = GarbageCleaner.clean(idx, builder, listener);
+                int[] purgedMapping = GarbageCleaner.clean(idx, builder, args, listener);
 
                 indexBuilder.clean(purgedMapping, listener);
 

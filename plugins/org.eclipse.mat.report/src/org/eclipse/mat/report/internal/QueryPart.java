@@ -44,6 +44,7 @@ import org.eclipse.mat.report.Spec;
 import org.eclipse.mat.report.ITestResult.Status;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
+import org.eclipse.mat.util.SilentProgressListener;
 
 public class QueryPart extends AbstractPart
 {
@@ -92,7 +93,7 @@ public class QueryPart extends AbstractPart
             {
                 try
                 {
-                    result = CommandLine.execute(context, getCommand(), new SilentListener(listener));
+                    result = CommandLine.execute(context, getCommand(), new SilentProgressListener(listener));
                 }
                 catch (Exception e)
                 {
@@ -448,40 +449,5 @@ public class QueryPart extends AbstractPart
 
         builder.setSortOrder(indices.toArray(), directions.toArray(new Column.SortDirection[0]));
     }
-
-    private static final class SilentListener implements IProgressListener
-    {
-        IProgressListener delegate;
-
-        public SilentListener(IProgressListener delegate)
-        {
-            this.delegate = delegate;
-        }
-
-        public void beginTask(String name, int totalWork)
-        {}
-
-        public void done()
-        {}
-
-        public boolean isCanceled()
-        {
-            return delegate.isCanceled();
-        }
-
-        public void sendUserMessage(Severity severity, String message, Throwable exception)
-        {
-            delegate.sendUserMessage(severity, message, exception);
-        }
-
-        public void setCanceled(boolean value)
-        {}
-
-        public void subTask(String name)
-        {}
-
-        public void worked(int work)
-        {}
-
-    }
+    
 }

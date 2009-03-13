@@ -14,7 +14,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
@@ -37,41 +39,58 @@ public class ParseSnapshotApp implements IApplication
         String[] args = (String[]) context.getArguments().get(IApplicationContext.APPLICATION_ARGS);
 
         if (args == null || args.length < 1)
-            throw new IllegalArgumentException("Usage: <snapshot> [(<report id>)*]");
-
-        File file = new File(args[0]);
-        if (!file.exists())
-            throw new FileNotFoundException(MessageUtil.format("File not found: {0}", file.getAbsolutePath()));
-
-        List<Spec> reports = new ArrayList<Spec>();
+            throw new IllegalArgumentException("Usage: [options] <snapshot> [(<report id>)*]");
 
         SpecFactory factory = SpecFactory.instance();
-        for (int ii = 1; ii < args.length; ii++)
+
+        File file = null;
+        Map<String, String> options = new HashMap<String, String>();
+        List<Spec> reports = new ArrayList<Spec>();
+
+        for (int ii = 0; ii < args.length; ii++)
         {
-            Spec spec = null;
-
-            File specFile = new File(args[ii]);
-            if (specFile.exists())
+            if (args[ii].length() > 0 && args[ii].charAt(0) == '-')
             {
-                spec = factory.create(specFile);
+                int p = args[ii].indexOf('=');
+                if (p < 0)
+                    options.put(args[ii].substring(1), Boolean.TRUE.toString());
+                else
+                    options.put(args[ii].substring(1, p), args[ii].substring(p + 1));
+            }
+            else if (file == null)
+            {
+                file = new File(args[ii]);
+                if (!file.exists())
+                    throw new FileNotFoundException(MessageUtil.format("File not found: {0}", file.getAbsolutePath()));
             }
             else
             {
-                spec = factory.create(args[ii]);
+                Spec spec = null;
+
+                File specFile = new File(args[ii]);
+                if (specFile.exists())
+                {
+                    spec = factory.create(specFile);
+                }
+                else
+                {
+                    spec = factory.create(args[ii]);
+                }
+
+                if (spec != null)
+                {
+                    factory.resolve(spec);
+                    reports.add(spec);
+                }
+                else
+                {
+                    System.err.println(MessageUtil.format("Report not found: {0}", args[ii]));
+                }
             }
 
-            if (spec != null)
-            {
-                factory.resolve(spec);
-                reports.add(spec);
-            }
-            else
-            {
-                System.err.println(MessageUtil.format("Report not found: {0}", args[ii]));
-            }
         }
 
-        parse(file, reports);
+        parse(file, options, reports);
 
         return IApplication.EXIT_OK;
     }
@@ -79,10 +98,10 @@ public class ParseSnapshotApp implements IApplication
     public void stop()
     {}
 
-    private void parse(File file, List<Spec> reports) throws SnapshotException
+    private void parse(File file, Map<String, String> arguments, List<Spec> reports) throws SnapshotException
     {
         ConsoleProgressListener listener = new ConsoleProgressListener(System.out);
-        ISnapshot snapshot = SnapshotFactory.openSnapshot(file, listener);
+        ISnapshot snapshot = SnapshotFactory.openSnapshot(file, arguments, listener);
         listener.done();
 
         try
