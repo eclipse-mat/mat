@@ -18,6 +18,7 @@ import org.eclipse.mat.query.annotations.Category;
 import org.eclipse.mat.query.annotations.Help;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.query.annotations.Name;
+import org.eclipse.mat.report.Params;
 import org.eclipse.mat.report.QuerySpec;
 import org.eclipse.mat.report.SectionSpec;
 import org.eclipse.mat.snapshot.ISnapshot;
@@ -33,7 +34,7 @@ import org.eclipse.mat.util.IProgressListener;
                 + "avoid finalizers. Long running tasks in the finalizer can block garbage "
                 + "collection, because the memory can only be freed after the finalize method finished."
                 + "This query shows the the finalizer currently processed, the finalizer queue, "
-                + "the demon finalizer thread and the thread local variables.")
+                + "the demon finalizer thread or threads and the thread local variables.")
 public class FinalizerQuery implements IQuery
 {
     @Argument
@@ -41,7 +42,7 @@ public class FinalizerQuery implements IQuery
 
     public IResult execute(IProgressListener listener) throws Exception
     {
-        InspectionAssert.heapFormatIsNot(snapshot, "phd", "dtfj");
+        InspectionAssert.heapFormatIsNot(snapshot, "phd");
 
         SectionSpec spec = new SectionSpec("Finalizers");
 
@@ -49,7 +50,9 @@ public class FinalizerQuery implements IQuery
         spec.add(new QuerySpec("In processing by Finalizer Thread", result));
 
         result = SnapshotQuery.lookup("finalizer_queue", snapshot).execute(listener);
-        spec.add(new QuerySpec("Ready for Finalizer Thread", result));
+        QuerySpec finalizerQueue = new QuerySpec("Ready for Finalizer Thread", result);
+        spec.add(finalizerQueue);
+        finalizerQueue.set(Params.Html.SHOW_HEADING, "false");
 
         result = SnapshotQuery.lookup("finalizer_thread", snapshot).execute(listener);
         spec.add(new QuerySpec("Finalizer Thread", result));

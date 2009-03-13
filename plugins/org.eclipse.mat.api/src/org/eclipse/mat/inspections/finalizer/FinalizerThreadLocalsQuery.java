@@ -24,9 +24,8 @@
 
 package org.eclipse.mat.inspections.finalizer;
 
-import java.util.Collection;
-
 import org.eclipse.mat.collect.SetInt;
+import org.eclipse.mat.inspections.finalizer.FinalizerThreadQuery;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
@@ -35,7 +34,6 @@ import org.eclipse.mat.query.annotations.Help;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.snapshot.ISnapshot;
-import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IInstance;
 import org.eclipse.mat.snapshot.model.ObjectReference;
 import org.eclipse.mat.snapshot.query.ObjectListResult;
@@ -49,10 +47,10 @@ import org.eclipse.mat.util.IProgressListener;
                 + "Due to the lack of control over the finalizer execution, it is recommended to "
                 + "avoid finalizers. Long running tasks in the finalizer can block garbage "
                 + "collection, because the memory can only be freed after the finalize method finished."
-                + "This query shows the thread locals of the daemon thread which is performing"
-                + "the object finalizations. If there are any, this indicates miss-use in at least"
+                + "This query shows the thread locals of the daemon thread or threads which are performing"
+                + "the object finalizations. If there are any, this indicates misuse in at least"
                 + "one of the processed finalizers (finalize() implemented wrong) and might cause"
-                + "severe problems (e.g. unreclaimed memory always hold by the finalizer thread or"
+                + "severe problems (e.g. unreclaimed memory always held by the finalizer thread or"
                 + "finalizer processed under no meaningful thread locals harming application logic).")
 public class FinalizerThreadLocalsQuery implements IQuery
 {
@@ -61,29 +59,20 @@ public class FinalizerThreadLocalsQuery implements IQuery
 
     public IResult execute(IProgressListener listener) throws Exception
     {
-        Collection<IClass> finalizerThreadClasses = snapshot.getClassesByName(
-                        "java.lang.ref.Finalizer$FinalizerThread", false);
-        if (finalizerThreadClasses == null)
-            throw new Exception("Class java.lang.ref.Finalizer$FinalizerThread not found in heap dump.");
-        if (finalizerThreadClasses.size() != 1)
-            throw new Exception("Error: Snapshot contains multiple java.lang.ref.Finalizer$FinalizerThread classes.");
-
-        int[] finalizerThreadObjects = finalizerThreadClasses.iterator().next().getObjectIds();
-        if (finalizerThreadObjects == null)
-            throw new Exception("Instance of class java.lang.ref.Finalizer$FinalizerThread not found in heap dump.");
-        if (finalizerThreadObjects.length != 1)
-            throw new Exception(
-                            "Error: Snapshot contains multiple instances of java.lang.ref.Finalizer$FinalizerThread class.");
+        int[] finalizerThreadObjects = FinalizerThreadQuery.getFinalizerThreads(snapshot);
 
         SetInt result = new SetInt();
 
-        ObjectReference ref = (ObjectReference) ((IInstance) snapshot.getObject(finalizerThreadObjects[0])).getField(
+        for (int finalizerThreadObject : finalizerThreadObjects)
+        {	
+        	ObjectReference ref = (ObjectReference) ((IInstance) snapshot.getObject(finalizerThreadObject)).getField(
                         "threadLocals").getValue();
-        if (ref != null)
-        {
-            // TODO Don't add the thread locals object, but the pairs of
-            // referent and value stored in the thread locals
-            result.add(ref.getObjectId());
+        	if (ref != null)
+        	{
+        		// TODO Don't add the thread locals object, but the pairs of
+        		// referent and value stored in the thread locals
+        		result.add(ref.getObjectId());
+        	}
         }
 
         return new ObjectListResult.Outbound(snapshot, result.toArray());

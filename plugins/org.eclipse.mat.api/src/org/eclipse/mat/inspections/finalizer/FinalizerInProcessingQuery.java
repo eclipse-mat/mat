@@ -25,7 +25,6 @@
 package org.eclipse.mat.inspections.finalizer;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.mat.SnapshotException;
@@ -38,7 +37,6 @@ import org.eclipse.mat.query.annotations.Help;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.snapshot.ISnapshot;
-import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IInstance;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.NamedReference;
@@ -55,7 +53,7 @@ import org.eclipse.mat.util.IProgressListener;
                 + "Due to the lack of control over the finalizer execution, it is recommended to "
                 + "avoid finalizers. Long running tasks in the finalizer can block garbage "
                 + "collection, because the memory can only be freed after the finalize method finished."
-                + "This query shows the currently processed object by the Finalizer Thread if any."
+                + "This query shows the currently processed object by each of the Finalizer Thread or threads if any."
                 + "Be aware that there could be many reasons for this object to be currently processed:"
                 + "a.) it could be blocking, b.) it could be long running, or c.) it could be ok,"
                 + "but the queue was or is still full (please use our finalizer queue query to check).")
@@ -66,34 +64,40 @@ public class FinalizerInProcessingQuery implements IQuery
 
     public IResult execute(IProgressListener listener) throws Exception
     {
-        Collection<IClass> finalizerThreadClasses = snapshot.getClassesByName(
-                        "java.lang.ref.Finalizer$FinalizerThread", false);
-        if (finalizerThreadClasses == null)
-            throw new Exception("Class java.lang.ref.Finalizer$FinalizerThread not found in heap dump.");
-        if (finalizerThreadClasses.size() != 1)
-            throw new Exception("Error: Snapshot contains multiple java.lang.ref.Finalizer$FinalizerThread classes.");
-
-        int[] finalizerThreadObjects = finalizerThreadClasses.iterator().next().getObjectIds();
-        if (finalizerThreadObjects == null)
-            throw new Exception("Instance of class java.lang.ref.Finalizer$FinalizerThread not found in heap dump.");
-        if (finalizerThreadObjects.length != 1)
-            throw new Exception(
-                            "Error: Snapshot contains multiple instances of java.lang.ref.Finalizer$FinalizerThread class.");
+        int[] finalizerThreadObjects = FinalizerThreadQuery.getFinalizerThreads(snapshot);
 
         SetInt result = new SetInt();
 
-        IObject finalizerThreadObject = snapshot.getObject(finalizerThreadObjects[0]);
-        IObject[] localVars = getLocalVarsForThread(finalizerThreadObject);
-        for (IObject object : localVars)
-        {
-            if ("java.lang.ref.Finalizer".equals(object.getClazz().getName()))
-            {
-                ObjectReference ref = (ObjectReference) ((IInstance) object).getField("referent").getValue();
-                if (ref != null)
-                {
-                    result.add(ref.getObjectId());
-                }
-            }
+        for (int i: finalizerThreadObjects) {
+        	IObject finalizerThreadObject = snapshot.getObject(i);        
+        	IObject[] localVars = getLocalVarsForThread(finalizerThreadObject);
+        	boolean foundFinalizer = false;
+        	for (IObject object : localVars)
+        	{
+        		if ("java.lang.ref.Finalizer".equals(object.getClazz().getName()))
+        		{
+        			foundFinalizer = true;
+        			ObjectReference ref = (ObjectReference) ((IInstance) object).getField("referent").getValue();
+        			if (ref != null)
+        			{
+        				result.add(ref.getObjectId());
+        			}
+        		}
+        	}
+        	if (!foundFinalizer)
+        	{
+        		// No java.lang.ref.Finalizer object found found, so add all the thread locals
+        		// to ensure the finalizable object is found. 
+            	for (IObject object : localVars)
+            	{
+            		if ((object.getObjectId() != i) // shouldn't be the finalizer thread itself
+            				&& !object.getClazz().getName().equals("java.lang.ref.ReferenceQueue") // exclude the queue also
+            				&& !object.getClazz().getName().equals("java.lang.ref.ReferenceQueue$Lock")) // exclude also the queue lock
+            		{
+            			result.add(object.getObjectId());
+            		}
+            	}
+        	}
         }
 
         return new ObjectListResult.Outbound(snapshot, result.toArray());

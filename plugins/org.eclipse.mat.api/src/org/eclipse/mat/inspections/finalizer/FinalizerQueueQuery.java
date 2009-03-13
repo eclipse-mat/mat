@@ -34,7 +34,10 @@ import org.eclipse.mat.query.annotations.Category;
 import org.eclipse.mat.query.annotations.Help;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.query.annotations.Name;
+import org.eclipse.mat.report.QuerySpec;
+import org.eclipse.mat.report.SectionSpec;
 import org.eclipse.mat.snapshot.ISnapshot;
+import org.eclipse.mat.snapshot.model.GCRootInfo;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IInstance;
 import org.eclipse.mat.snapshot.model.IObject;
@@ -63,52 +66,79 @@ public class FinalizerQueueQuery implements IQuery
     public IResult execute(IProgressListener listener) throws Exception
     {
         Collection<IClass> finalizerClasses = snapshot.getClassesByName("java.lang.ref.Finalizer", false);
-        if (finalizerClasses == null)
-            throw new Exception("Class java.lang.ref.Finalizer not found in heap dump.");
-        if (finalizerClasses.size() != 1)
-            throw new Exception("Error: Snapshot contains multiple java.lang.ref.Finalizer classes.");
 
         ArrayInt result = new ArrayInt();
-
-        // Extracting objects ready for finalization from queue
-        IClass finalizerClass = finalizerClasses.iterator().next();
-        IObject queue = (IObject) finalizerClass.resolveValue("queue");
-
-        if (queue == null)
-            return null;
-
-        IInstance item = (IInstance) queue.resolveValue("head");
-        int length = ((Long) queue.resolveValue("queueLength")).intValue();
-        int threshold = length / 100;
-        int worked = 0;
-        listener.beginTask("Extracting objects ready for finalization from queue...", length);
-
-        while (item != null)
+        
+        if (finalizerClasses == null)
         {
-            if (listener.isCanceled()) { throw new IProgressListener.OperationCanceledException(); }
+        	// Ignore as there may be finalizable objects marked via GC roots
+        }
+        else
+        {
+        	if (finalizerClasses.size() != 1)
+        		throw new Exception("Error: Snapshot contains multiple java.lang.ref.Finalizer classes.");
 
-            ObjectReference ref = (ObjectReference) item.getField("referent").getValue();
-            if (ref != null)
-            {
-                result.add(ref.getObjectId());
-            }
 
-            IInstance next = (IInstance) item.resolveValue("next");
-            if (next == item)
-            {
-                next = null;
-            }
-            item = next;
+        	// Extracting objects ready for finalization from queue
+        	IClass finalizerClass = finalizerClasses.iterator().next();
+        	IObject queue = (IObject) finalizerClass.resolveValue("queue");
 
-            if (++worked >= threshold)
-            {
-                listener.worked(worked);
-                worked = 0;
-            }
+        	if (queue != null) {
+
+        		IInstance item = (IInstance) queue.resolveValue("head");
+        		int length = ((Long) queue.resolveValue("queueLength")).intValue();
+        		int threshold = length / 100;
+        		int worked = 0;
+        		listener.beginTask("Extracting objects ready for finalization from queue...", length);
+
+        		while (item != null)
+        		{
+        			if (listener.isCanceled()) { throw new IProgressListener.OperationCanceledException(); }
+
+        			ObjectReference ref = (ObjectReference) item.getField("referent").getValue();
+        			if (ref != null)
+        			{
+        				result.add(ref.getObjectId());
+        			}
+
+        			IInstance next = (IInstance) item.resolveValue("next");
+        			if (next == item)
+        			{
+        				next = null;
+        			}
+        			item = next;
+
+        			if (++worked >= threshold)
+        			{
+        				listener.worked(worked);
+        				worked = 0;
+        			}
+        		}
+
+        		listener.done();
+        	}
+        }
+        
+        // Add other objects marked as finalizable 
+        for (int root : snapshot.getGCRoots()) {
+        	GCRootInfo ifo[] = snapshot.getGCRootInfo(root);
+        	for (GCRootInfo rootInfo : ifo) {
+        		if (rootInfo.getType() == GCRootInfo.Type.FINALIZABLE) {
+        			result.add(rootInfo.getObjectId());
+        			break;
+        		}
+        	}
         }
 
-        listener.done();
-
-        return new ObjectListResult.Outbound(snapshot, result.toArray());
+        SectionSpec spec = new SectionSpec("Ready for Finalizer Thread");
+        QuerySpec objList = new QuerySpec("Ready for Finalizer Thread - Object List", new ObjectListResult.Outbound(snapshot, result.toArray()));
+        spec.add(objList);
+        
+        QuerySpec histogram = new QuerySpec("Ready for Finalizer Thread - Histogram", snapshot.getHistogram(result.toArray(), listener));
+        histogram.set("sort_column", "Retained Heap");
+        histogram.set("derived_data_column", "_default_=APPROXIMATE");
+        spec.add(histogram);
+        return spec;
+//        return new ObjectListResult.Outbound(snapshot, result.toArray());
     }
 }
