@@ -67,7 +67,7 @@
 	<target name="-init" depends="-init.directories,-init.restart,-init.buildLabel">
 		<!-- set default properties (if not read from file) -->
 		<tstamp>
-			<format property="buildId" pattern="0.7.0.yyyyMMdd" />
+			<format property="buildId" pattern="${version}.yyyyMMdd" />
 		</tstamp>
 		<tstamp>
 			<format property="qualifier" pattern="yyyyMMddHHmm" />
