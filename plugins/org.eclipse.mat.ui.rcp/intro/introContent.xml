@@ -39,7 +39,7 @@
 				<anchor id="anchor" />
 				<link label="New and Noteworthy" url="http://org.eclipse.ui.intro/showHelpTopic?id=/org.eclipse.mat.ui.help/noteworthy.html">
 					<img src="css/pictograms/new.gif" alt="New and Noteworthy" />
-					<text>Check out the new features in Analyzer 0.7.0</text>
+					<text>Check out the new features in Eclipse Memory Analyzer</text>
 				</link>
 				<link label="Help"
 					url="http://org.eclipse.ui.intro/showHelpTopic?id=/org.eclipse.mat.ui.help/tasks/basictutorial.html">

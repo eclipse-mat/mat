@@ -20,9 +20,21 @@
 	<h1 class="topictitle1">New &amp; Noteworthy</h1>
 
 	
-	<div><p>Here are descriptions of some of the more interesting or
-	significant changes made to the Memory Analyzer for the 0.8 release.</p>
+	<div><p>Here are the descriptions of some of the more interesting or
+	significant changes made to Eclipse Memory Analyzer.</p>
 
+		<div class="section"><h2 class="sectiontitle">Unreachable objects</h2>
+			
+			<p>By default unreachable objects are removed from the heap dump while parsing and will not appear 
+			in class histogram, dominator tree, etc. Yet it is possible to open a histogram of unreachable objects via 
+			"Java Basics --> Unreachable Objects Histogram" query. For more details please check 
+			our wiki page <a href="http://wiki.eclipse.org/MemoryAnalyzer/FAQ#How_to_analyse_unreachable_objects"> 
+			http://wiki.eclipse.org/MemoryAnalyzer/FAQ#How_to_analyse_unreachable_objects</a>
+			
+			</p>
+			
+		</div>
+	
 		<div class="section"><h2 class="sectiontitle">Inspector View Enhancements</h2>
 			
 			<p>When analyzing a dump from a SWT application, the inspector recreates
