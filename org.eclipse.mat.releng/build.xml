@@ -196,6 +196,27 @@
 				<pathelement location="${eclipseLocation}/plugins/org.eclipse.equinox.launcher_${equinoxLauncherPluginVersion}.jar" />
 			</classpath>
 		</java>
+		
+		<!-- optimizing site -->
+		<java classname="org.eclipse.equinox.launcher.Main" fork="true" failonerror="true" dir="${buildDirectory}">
+			<jvmarg value="-Xmx256m" />
+			<classpath>
+				<pathelement location="${eclipseLocation}/plugins/org.eclipse.equinox.launcher_${equinoxLauncherPluginVersion}.jar" />
+			</classpath>
+			
+		    <arg value="-application" /> 
+			<arg value="org.eclipse.update.core.siteOptimizer" />
+			
+		    <arg value="-jarProcessor" />
+			        
+			<arg value="-verbose" />
+			<arg value="-processAll" />
+			<arg value="-repack" />
+			<arg value="-outputDir" />
+			<arg value="${outSite}" />
+			
+		    <arg value="${siteDirectory}" /> 
+		</java> 
 
 		<!-- zip site -->
 		<zip destfile="${buildDirectory}/${buildLabel}/org.eclipse.mat-${buildId}-site.zip" basedir="${siteDirectory}" />
