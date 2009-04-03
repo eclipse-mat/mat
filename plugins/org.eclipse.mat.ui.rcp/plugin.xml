@@ -11,9 +11,9 @@
    <extension
          point="org.eclipse.ui.activities">
       <activity
-            description="Menus which should not be shown inside the Memory Analyzer RCP"
+            description="%activity.description.Menus_which_should_not_shown"
             id="org.eclipse.mat.digger.modification"
-            name="Memory Analyzer (don&apos;t enable)"/>
+            name="%activity.name.Memory_Analyzer_don_t_enable"/>
       <activityPatternBinding
             activityId="org.eclipse.mat.digger.modification"
             pattern="org\.eclipse\.debug\.ui/*"/>
@@ -90,22 +90,22 @@
          point="org.eclipse.core.runtime.products">
       <product
             application="org.eclipse.mat.ui.rcp.application"
-            name="Memory Analyzer Tool">
+            name="%product.name.Memory_Analyzer_Tool">
          <property
                name="windowImages"
                value="icons/memory_analyzer_16.gif"/>
           <property name="preferenceCustomization" value="plugin_customization.ini"/>
           <property
                 name="appName"
-                value="Memory Analyzer Tool">
+                value="%product.value.Memory_Analyzer_Tool">
           </property>
           <property
                 name="aboutImage"
-                value="icons/eclipse_lg.gif">
-          </property>
+                value="icons/memory_analyzer_16.gif">
+          </property> 
           <property
                 name="aboutText"
-                value="Eclipse Memory Analyzer&#x0A;&#x0A;Version: 0.7.100&#x0A;&#x0A;(c) Copyright Eclipse contributors 2008.  All rights reserved.&#x0A;Visit http://www.eclipse.org/mat">
+                value="%product.value.Eclipse_Memory_Analyzer">
           </property> 
       </product>
    </extension>
@@ -114,7 +114,7 @@
          point="org.eclipse.ui.bindings">
       <scheme
             id="org.eclipse.mat.scheme"
-            name="Memory Analyzer Default" />
+            name="%scheme.name.Memory_Analyzer_Default" />
       <key
             commandId="org.eclipse.ui.edit.copy"
             contextId="org.eclipse.ui.contexts.window"

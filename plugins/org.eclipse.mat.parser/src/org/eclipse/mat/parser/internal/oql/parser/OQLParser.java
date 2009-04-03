@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.eclipse.mat.parser.internal.Messages;
 import org.eclipse.mat.parser.internal.oql.ICompiler;
 import org.eclipse.mat.parser.internal.oql.compiler.Attribute;
 import org.eclipse.mat.parser.internal.oql.compiler.Expression;
@@ -70,7 +71,8 @@ public class OQLParser implements OQLParserConstants
         for (String keyword : keywords)
             buf.append("\n\t\"").append(keyword).append('"');
 
-        String msg = MessageUtil.format("Encountered \"{0}\" at line {1}, column {2}.\nWas expecting one of: {3}",
+        String msg = MessageUtil.format(
+                        Messages.OQLParser_Encountered_X_at_line_X_column_X_Was_expecting_one_of_X,
                         currentToken.next.image, currentToken.next.beginLine, currentToken.next.beginColumn, buf
                                         .toString());
 
@@ -91,7 +93,7 @@ public class OQLParser implements OQLParserConstants
             if (true)
                 return q;
         }
-        throw new Error("Missing return statement in function");
+        throw new Error(Messages.OQLParser_Missing_return_statement_in_function);
     }
 
     final public Query ParseQueryFromInputLine() throws ParseException
@@ -103,7 +105,7 @@ public class OQLParser implements OQLParserConstants
             if (true)
                 return q;
         }
-        throw new Error("Missing return statement in function");
+        throw new Error(Messages.OQLParser_Missing_return_statement_in_function);
     }
 
     final public Query SelectStatement() throws ParseException
@@ -151,7 +153,7 @@ public class OQLParser implements OQLParserConstants
             if (true)
                 return q;
         }
-        throw new Error("Missing return statement in function");
+        throw new Error(Messages.OQLParser_Missing_return_statement_in_function);
     }
 
     /* ---------------- select --------------------- */
@@ -283,7 +285,7 @@ public class OQLParser implements OQLParserConstants
             if (true)
                 return new Query.SelectItem(name, (Expression) ex);
         }
-        throw new Error("Missing return statement in function");
+        throw new Error(Messages.OQLParser_Missing_return_statement_in_function);
     }
 
     final public Object PathExpression() throws ParseException
@@ -311,7 +313,7 @@ public class OQLParser implements OQLParserConstants
             if (true)
                 return compiler.path(elements);
         }
-        throw new Error("Missing return statement in function");
+        throw new Error(Messages.OQLParser_Missing_return_statement_in_function);
     }
 
     final public Object EnvVarPathExpression() throws ParseException
@@ -343,7 +345,7 @@ public class OQLParser implements OQLParserConstants
             if (true)
                 return compiler.path(elements);
         }
-        throw new Error("Missing return statement in function");
+        throw new Error(Messages.OQLParser_Missing_return_statement_in_function);
     }
 
     final public Object ObjectFacet(boolean isFirstInPath) throws ParseException
@@ -377,7 +379,7 @@ public class OQLParser implements OQLParserConstants
             if (true)
                 return ex;
         }
-        throw new Error("Missing return statement in function");
+        throw new Error(Messages.OQLParser_Missing_return_statement_in_function);
     }
 
     final public List<Expression> ParameterList() throws ParseException
@@ -428,7 +430,7 @@ public class OQLParser implements OQLParserConstants
             if (true)
                 return parameters;
         }
-        throw new Error("Missing return statement in function");
+        throw new Error(Messages.OQLParser_Missing_return_statement_in_function);
     }
 
     /* ---------------- from --------------------- */
@@ -620,7 +622,7 @@ public class OQLParser implements OQLParserConstants
             if (true)
                 return b.toString();
         }
-        throw new Error("Missing return statement in function");
+        throw new Error(Messages.OQLParser_Missing_return_statement_in_function);
     }
 
     final public long ObjectAddress() throws ParseException
@@ -631,7 +633,7 @@ public class OQLParser implements OQLParserConstants
             if (true)
                 return new BigInteger(t.image.substring(2), 16).longValue();
         }
-        throw new Error("Missing return statement in function");
+        throw new Error(Messages.OQLParser_Missing_return_statement_in_function);
     }
 
     final public int ObjectId() throws ParseException
@@ -642,7 +644,7 @@ public class OQLParser implements OQLParserConstants
             if (true)
                 return Integer.parseInt(t.image);
         }
-        throw new Error("Missing return statement in function");
+        throw new Error(Messages.OQLParser_Missing_return_statement_in_function);
     }
 
     /* ---------------- where --------------------- */
@@ -696,7 +698,7 @@ public class OQLParser implements OQLParserConstants
             if (true)
                 return ex;
         }
-        throw new Error("Missing return statement in function");
+        throw new Error(Messages.OQLParser_Missing_return_statement_in_function);
     }
 
     final public Object ConditionalAndExpression() throws ParseException
@@ -732,7 +734,7 @@ public class OQLParser implements OQLParserConstants
             if (true)
                 return ex;
         }
-        throw new Error("Missing return statement in function");
+        throw new Error(Messages.OQLParser_Missing_return_statement_in_function);
     }
 
     final public Object EqualityExpression() throws ParseException
@@ -773,7 +775,7 @@ public class OQLParser implements OQLParserConstants
             if (true)
                 return ex;
         }
-        throw new Error("Missing return statement in function");
+        throw new Error(Messages.OQLParser_Missing_return_statement_in_function);
     }
 
     final public Object RelationalExpression() throws ParseException
@@ -843,7 +845,7 @@ public class OQLParser implements OQLParserConstants
             if (true)
                 return ex;
         }
-        throw new Error("Missing return statement in function");
+        throw new Error(Messages.OQLParser_Missing_return_statement_in_function);
     }
 
     // only identifer (see [2]
@@ -869,7 +871,7 @@ public class OQLParser implements OQLParserConstants
             if (true)
                 return ex;
         }
-        throw new Error("Missing return statement in function");
+        throw new Error(Messages.OQLParser_Missing_return_statement_in_function);
     }
 
     final public Object LikeClause(Object left, boolean isLike) throws ParseException
@@ -882,7 +884,7 @@ public class OQLParser implements OQLParserConstants
             if (true)
                 return isLike ? compiler.like(left, pattern) : compiler.notLike(left, pattern);
         }
-        throw new Error("Missing return statement in function");
+        throw new Error(Messages.OQLParser_Missing_return_statement_in_function);
     }
 
     final public Object InClause(Object left, boolean isIn) throws ParseException
@@ -894,7 +896,7 @@ public class OQLParser implements OQLParserConstants
             if (true)
                 return isIn ? compiler.in(left, r) : compiler.notIn(left, r);
         }
-        throw new Error("Missing return statement in function");
+        throw new Error(Messages.OQLParser_Missing_return_statement_in_function);
     }
 
     final public Object SimpleExpression() throws ParseException
@@ -935,7 +937,7 @@ public class OQLParser implements OQLParserConstants
             if (true)
                 return ex;
         }
-        throw new Error("Missing return statement in function");
+        throw new Error(Messages.OQLParser_Missing_return_statement_in_function);
     }
 
     final public Object MultiplicativeExpression() throws ParseException
@@ -976,7 +978,7 @@ public class OQLParser implements OQLParserConstants
             if (true)
                 return ex;
         }
-        throw new Error("Missing return statement in function");
+        throw new Error(Messages.OQLParser_Missing_return_statement_in_function);
     }
 
     final public Object PrimaryExpression() throws ParseException
@@ -1058,7 +1060,7 @@ public class OQLParser implements OQLParserConstants
                 jj_consume_token(-1);
                 throw new ParseException();
         }
-        throw new Error("Missing return statement in function");
+        throw new Error(Messages.OQLParser_Missing_return_statement_in_function);
     }
 
     final public Object SubQuery() throws ParseException
@@ -1069,7 +1071,7 @@ public class OQLParser implements OQLParserConstants
             if (true)
                 return compiler.subQuery(q);
         }
-        throw new Error("Missing return statement in function");
+        throw new Error(Messages.OQLParser_Missing_return_statement_in_function);
     }
 
     final public Object Literal() throws ParseException
@@ -1109,7 +1111,7 @@ public class OQLParser implements OQLParserConstants
             if (true)
                 return ex;
         }
-        throw new Error("Missing return statement in function");
+        throw new Error(Messages.OQLParser_Missing_return_statement_in_function);
     }
 
     final public Object NumberLiteral() throws ParseException
@@ -1173,7 +1175,7 @@ public class OQLParser implements OQLParserConstants
             if (true)
                 return ex;
         }
-        throw new Error("Missing return statement in function");
+        throw new Error(Messages.OQLParser_Missing_return_statement_in_function);
     }
 
     final public Object BooleanLiteral() throws ParseException
@@ -1199,7 +1201,7 @@ public class OQLParser implements OQLParserConstants
                 jj_consume_token(-1);
                 throw new ParseException();
         }
-        throw new Error("Missing return statement in function");
+        throw new Error(Messages.OQLParser_Missing_return_statement_in_function);
     }
 
     final public Object NullLiteral() throws ParseException
@@ -1209,7 +1211,7 @@ public class OQLParser implements OQLParserConstants
             if (true)
                 return compiler.nullLiteral();
         }
-        throw new Error("Missing return statement in function");
+        throw new Error(Messages.OQLParser_Missing_return_statement_in_function);
     }
 
     /* ---------------- union --------------------- */

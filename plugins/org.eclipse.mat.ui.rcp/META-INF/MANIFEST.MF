@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Memory Analyzer RCP (Incubation)
+Bundle-Name: %Bundle-Name
 Bundle-SymbolicName: org.eclipse.mat.ui.rcp;singleton:=true
 Bundle-Version: 0.7.100.qualifier
-Bundle-Vendor: Eclipse.org
+Bundle-Vendor: %Bundle-Vendor
 Require-Bundle: org.eclipse.mat.ui.help;bundle-version="0.7.100",
  org.eclipse.mat.ui;bundle-version="0.7.100",
  org.eclipse.ui.intro;bundle-version="3.2.100",
@@ -21,3 +21,4 @@ Eclipse-LazyStart: true
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-Activator: org.eclipse.mat.ui.rcp.RCPPlugin
+Bundle-Localization: plugin

@@ -90,7 +90,11 @@ public class Messages extends NLS
     public static String PositionInputStream_seek;
     public static String RetainedSizeCache_ErrorReadingRetainedSizes;
     public static String RetainedSizeCache_Warning_IgnoreError;
-    static
+
+	public static String OQLParser_Encountered_X_at_line_X_column_X_Was_expecting_one_of_X;
+	public static String OQLParser_Missing_return_statement_in_function;
+
+	static
     {
         // initialize resource bundle
         NLS.initializeMessages(BUNDLE_NAME, Messages.class);

@@ -21,7 +21,7 @@
 		      base-type="org.eclipse.mat.JavaHeapDump"
 	          describer="org.eclipse.mat.hprof.HprofContentDescriber"
 	          file-extensions="hprof,bin,dmp"
-		      name="Hprof Heap Dump"
+		      name="%content-type.name.Hprof_Heap_Dump"
 		      priority="normal">
 		</content-type>
 	</extension>

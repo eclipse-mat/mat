@@ -1,10 +1,10 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Memory Analyzer - Parser (Incubation)
+Bundle-Name: %Bundle-Name
 Bundle-SymbolicName: org.eclipse.mat.parser;singleton:=true
 Bundle-Version: 0.7.100.qualifier
 Bundle-Activator: org.eclipse.mat.parser.internal.ParserPlugin
-Bundle-Vendor: Eclipse.org
+Bundle-Vendor: %Bundle-Vendor
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.3.100",
  org.eclipse.mat.api;bundle-version="[0.7.0.20080620,0.8.0]";visibility:=reexport
 Eclipse-LazyStart: true
@@ -15,3 +15,4 @@ Export-Package: org.eclipse.mat.parser,
  org.eclipse.mat.parser.model
 Eclipse-BuddyPolicy: dependent
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-Localization: plugin

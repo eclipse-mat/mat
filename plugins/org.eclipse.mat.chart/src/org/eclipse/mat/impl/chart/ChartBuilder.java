@@ -37,6 +37,7 @@ import org.eclipse.birt.chart.model.type.PieSeries;
 import org.eclipse.birt.chart.model.type.impl.PieSeriesImpl;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.emf.common.util.EList;
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.mat.query.IResultPie;
 import org.eclipse.mat.query.IResultPie.Slice;
 import org.eclipse.mat.util.MessageUtil;
@@ -85,7 +86,7 @@ public class ChartBuilder
         LabelBlock label = (LabelBlock) LabelBlockImpl.create();
         label.getLabel().getCaption().setValue(
                         MessageUtil.format(Messages.ChartBuilder_Total, Units.Storage.of(t).format(t)));
-        label.getLabel().getCaption().getFont().setName("Arial");//$NON-NLS-1$
+        label.getLabel().getCaption().getFont().setName(JFaceResources.getDefaultFont().getFontData()[0].getName() );
         label.getLabel().getCaption().getFont().setSize(fontSize);
         label.getLabel().getCaption().getFont().setBold(true);
         label.setAnchor(Anchor.SOUTH_LITERAL);
