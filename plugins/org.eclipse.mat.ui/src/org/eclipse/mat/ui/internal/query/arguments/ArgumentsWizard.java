@@ -44,13 +44,15 @@ public class ArgumentsWizard extends Wizard
     {
         super.createPageControls(pageContainer);
 
-        getShell().addListener(SWT.Resize, new Listener()
+        Listener listener = new Listener()
         {
             public void handleEvent(Event event)
             {
                 relocateHelp(false);
             }
-        });
+        };
+        getShell().addListener(SWT.Resize, listener);
+        getShell().addListener(SWT.Move, listener);
     }
 
     @Override
@@ -81,12 +83,16 @@ public class ArgumentsWizard extends Wizard
                 {
                     if (getShell() != null && !getShell().isDisposed())
                     {
-                        if (helpPopup != null && helpPopup != null)
-                            helpPopup.close();
-
                         Rectangle myBounds = getShell().getBounds();
                         Rectangle helpBounds = new Rectangle(myBounds.x, myBounds.y + myBounds.height, myBounds.width,
                                         SWT.DEFAULT);
+
+                        if (helpPopup != null)
+                        {
+                            helpPopup.resize(helpBounds);
+                            return;
+                        }
+
                         helpPopup = new QueryContextHelp(getShell(), argumentSet.getQueryDescriptor(), helpBounds);
                         helpPopup.open();
                     }

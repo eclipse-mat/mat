@@ -38,7 +38,7 @@ public class QueryContextHelp extends PopupDialog
 
     public QueryContextHelp(Shell parent, QueryDescriptor query, Rectangle bounds)
     {
-        super(parent, HOVER_SHELLSTYLE, false, false, false, false, null, null);
+        super(parent, /* HOVER_SHELLSTYLE */SWT.NO_FOCUS | SWT.TOOL, false, false, false, false, null, null);
         this.query = query;
         this.bounds = bounds;
     }
@@ -110,5 +110,39 @@ public class QueryContextHelp extends PopupDialog
     public QueryDescriptor getQuery()
     {
         return query;
+    }
+
+    @Override
+    protected void configureShell(Shell shell)
+    {
+        GridLayoutFactory.fillDefaults().margins(0, 0).spacing(5, 5).applyTo(shell);
+    }
+ 
+    public void resize(Rectangle rectangle)
+    {
+        boolean resizing = false;
+        if (bounds.x != rectangle.x || bounds.y != rectangle.y)
+        {
+            this.bounds.x = rectangle.x;
+            this.bounds.y = rectangle.y;
+            getShell().setLocation(bounds.x, bounds.y);
+            resizing = true;
+        }
+
+        if (bounds.width != rectangle.width)
+        {
+            this.bounds.width = rectangle.width;
+            Point p = helpText.computeSize(bounds.width - 10, SWT.DEFAULT);
+            bounds.height = p.y + 10;
+
+            helpText.setLayoutData(new FormData(bounds.width, bounds.height));
+            getShell().setSize(bounds.width, bounds.height);
+            resizing = true;
+        }
+
+        if (resizing)
+        {
+            getShell().layout();
+        }
     }
 }
