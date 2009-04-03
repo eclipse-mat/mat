@@ -28,15 +28,11 @@ public class Messages extends NLS
     public static String Function_Error_NeedsNumberAsInput;
     public static String Function_ErrorNoFunction;
     public static String Function_unknown;
-    public static String GarbageCleaner_Class;
-    public static String GarbageCleaner_Count;
     public static String GarbageCleaner_ReIndexingClasses;
     public static String GarbageCleaner_ReIndexingObjects;
     public static String GarbageCleaner_ReIndexingOutboundIndex;
     public static String GarbageCleaner_RemovingUnreachableObjects;
     public static String GarbageCleaner_SearchingForUnreachableObjects;
-    public static String GarbageCleaner_Size;
-    public static String GarbageCleaner_Totals;
     public static String GarbageCleaner_Writing;
     public static String HistogramBuilder_Error_FailedToStoreInHistogram;
     public static String IndexReader_Error_IndexIsEmbedded;
