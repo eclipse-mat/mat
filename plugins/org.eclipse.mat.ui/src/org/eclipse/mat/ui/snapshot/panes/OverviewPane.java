@@ -221,12 +221,12 @@ public class OverviewPane extends HeapEditorPane implements IHyperlinkListener, 
         StringBuilder buf = new StringBuilder();
         buf.append("<form>");//$NON-NLS-1$
 
-        addButton(buf, text, "histogram", null, "Histogram", Messages.OverviewPane_HistogramInfo); //$NON-NLS-1$ //$NON-NLS-2$
-        addButton(buf, text, "dominator_tree", null, "Dominator Tree", //$NON-NLS-1$ //$NON-NLS-2$
+        addButton(buf, text, "histogram", null, Messages.OverviewPane_Histogram, Messages.OverviewPane_HistogramInfo); //$NON-NLS-1$
+        addButton(buf, text, "dominator_tree", null, Messages.OverviewPane_DominatorTree, //$NON-NLS-1$
                         Messages.OverviewPane_DominatorTreeInfo);
-        addButton(buf, text, "top_consumers_html", null, "Top Consumers", //$NON-NLS-1$ //$NON-NLS-2$
+        addButton(buf, text, "top_consumers_html", null, Messages.OverviewPane_TopConsumers, //$NON-NLS-1$
                         Messages.OverviewPane_TopConsumersInfo);
-        addButton(buf, text, "duplicate_classes", null, "Duplicate Classes", //$NON-NLS-1$ //$NON-NLS-2$
+        addButton(buf, text, "duplicate_classes", null, Messages.OverviewPane_DuplicateClasses, //$NON-NLS-1$
                         Messages.OverviewPane_DuplicateClassesInfo);
 
         buf.append("</form>");//$NON-NLS-1$
@@ -282,7 +282,7 @@ public class OverviewPane extends HeapEditorPane implements IHyperlinkListener, 
         StringBuilder buf = new StringBuilder();
         buf.append("<form>");//$NON-NLS-1$
 
-        addCheatSheetLink(buf, "org.eclipse.mat.tutorials.component_report", "Component Report",//$NON-NLS-1$//$NON-NLS-2$
+        addCheatSheetLink(buf, "org.eclipse.mat.tutorials.component_report", Messages.OverviewPane_ComponentReport, //$NON-NLS-1$
                         Messages.OverviewPane_ComponentReportInfo);
 
         buf.append("</form>");//$NON-NLS-1$
@@ -361,8 +361,9 @@ public class OverviewPane extends HeapEditorPane implements IHyperlinkListener, 
             StringBuilder buf = new StringBuilder(256);
 
             buf.append("<form><li style=\"text\" value=\"\">" + Messages.OverviewPane_NoPie + "<a href=\""); //$NON-NLS-1$ //$NON-NLS-2$
-            buf.append("dominator_tree").append("\">Dominator Tree</a> or <a href=\"").append("top_consumers_html") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                            .append("\">Top Consumers</a>.</li></form>"); //$NON-NLS-1$
+            buf
+                            .append("dominator_tree").append("\">" + Messages.OverviewPane_DominatorTree + "</a> or <a href=\"").append("top_consumers_html") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                            .append("\">" + Messages.OverviewPane_TopConsumers + "</a>.</li></form>"); //$NON-NLS-1$ //$NON-NLS-2$
 
             text.setText(buf.toString(), true, false);
             text.addHyperlinkListener(this);

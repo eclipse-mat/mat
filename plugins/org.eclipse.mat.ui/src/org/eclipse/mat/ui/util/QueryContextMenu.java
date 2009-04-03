@@ -161,25 +161,25 @@ public class QueryContextMenu
             Object value = result.getColumnValue(selection.getFirstElement(), 0);
             if (value == null)
             {
-                label = Messages.QueryContextMenu_selectionOf
-                                + (queryResult.getQuery() != null ? queryResult.getQuery().getName() : queryResult
-                                                .getCommand());
+                label = MessageUtil.format(Messages.QueryContextMenu_selectionOf,
+                                (queryResult.getQuery() != null ? queryResult.getQuery().getName() : queryResult
+                                                .getCommand()));
             }
             else
             {
                 Column col = result.getColumns()[0];
                 if (col.getFormatter() != null)
-                    label = Messages.QueryContextMenu_selectionOf + "'" + col.getFormatter().format(value) + "'"; //$NON-NLS-2$ //$NON-NLS-1$
+                    label = MessageUtil.format(Messages.QueryContextMenu_selectionOf, "'" + col.getFormatter().format(value) + "'"); //$NON-NLS-2$ //$NON-NLS-1$
                 else
-                    label = Messages.QueryContextMenu_selectionOf + "'" + fixLabel(String.valueOf(value)) + "'"; //$NON-NLS-2$ //$NON-NLS-1$
+                    label = MessageUtil.format(Messages.QueryContextMenu_selectionOf, "'" + fixLabel(String.valueOf(value)) + "'"); //$NON-NLS-2$ //$NON-NLS-1$
             }
         }
         else
         {
             if (queryResult.getQuery() != null)
-                label = Messages.QueryContextMenu_selectionOf + queryResult.getQuery().getName();
+                label = MessageUtil.format(Messages.QueryContextMenu_selectionOf, queryResult.getQuery().getName());
             else
-                label = Messages.QueryContextMenu_selectionOf + queryResult.getCommand();
+                label = MessageUtil.format(Messages.QueryContextMenu_selectionOf, queryResult.getCommand());
         }
 
         return label;

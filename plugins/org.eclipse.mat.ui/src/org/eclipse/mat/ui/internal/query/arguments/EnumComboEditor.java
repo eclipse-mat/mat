@@ -32,6 +32,7 @@ public class EnumComboEditor extends ArgumentEditor
     {
         super(parent, context, descriptor, item);
         enumConstants = descriptor.getType().getEnumConstants();
+        setFont(parent.getFont());
         setBackground(parent.getBackground());
         setLayout(new FillLayout());
         createContents(parent);
@@ -40,6 +41,7 @@ public class EnumComboEditor extends ArgumentEditor
     private void createContents(Composite parent)
     {
         combo = new CCombo(this, SWT.READ_ONLY | SWT.SIMPLE);
+        combo.setFont(parent.getFont());
         combo.setBackground(parent.getBackground());
         for (Object obj : enumConstants)
         {

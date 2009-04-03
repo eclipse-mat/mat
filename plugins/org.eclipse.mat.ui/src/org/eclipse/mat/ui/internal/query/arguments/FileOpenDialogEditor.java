@@ -72,6 +72,7 @@ public class FileOpenDialogEditor extends ArgumentEditor
     public FileOpenDialogEditor(Composite parent, IQueryContext context, ArgumentDescriptor descriptor, TableItem item)
     {
         super(parent, context, descriptor, item);
+        this.setFont(parent.getFont());
         this.setBackground(parent.getBackground());
         this.parent = parent;
 
@@ -82,6 +83,7 @@ public class FileOpenDialogEditor extends ArgumentEditor
     {
         this.setLayout(new FileOpenDialogEditorLayout());
         text = new Text(this, SWT.LEFT);
+        text.setFont(parent.getFont());
         text.addKeyListener(new KeyAdapter()
         {
             @Override
@@ -105,6 +107,7 @@ public class FileOpenDialogEditor extends ArgumentEditor
         });
 
         openButton = new Button(this, SWT.NONE);
+        openButton.setFont(parent.getFont());
         openButton.setText("..."); //$NON-NLS-1$
         openButton.addSelectionListener(new SelectionListener()
         {

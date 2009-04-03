@@ -32,6 +32,7 @@ public class BooleanComboEditor extends ArgumentEditor
     public BooleanComboEditor(Composite parent, IQueryContext context, ArgumentDescriptor descriptor, TableItem item)
     {
         super(parent, context, descriptor, item);
+        setFont(parent.getFont());
         setBackground(parent.getBackground());
         setLayout(new FillLayout());
         createContents(parent);
@@ -40,6 +41,7 @@ public class BooleanComboEditor extends ArgumentEditor
     private void createContents(Composite parent)
     {
         combo = new CCombo(this, SWT.READ_ONLY | SWT.SIMPLE);
+        combo.setFont(parent.getFont());
         combo.setBackground(parent.getBackground());
         combo.add(BOOLEAN_TRUE, 0);
         combo.add(BOOLEAN_FALSE, 1);

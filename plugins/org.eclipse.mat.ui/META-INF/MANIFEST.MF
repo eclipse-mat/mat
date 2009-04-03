@@ -1,10 +1,10 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Memory Analyzer UI (Incubation)
+Bundle-Name: %Bundle-Name
 Bundle-SymbolicName: org.eclipse.mat.ui;singleton:=true
 Bundle-Version: 0.7.100.qualifier
 Bundle-Activator: org.eclipse.mat.ui.MemoryAnalyserPlugin
-Bundle-Vendor: Eclipse.org
+Bundle-Vendor: %Bundle-Vendor
 Require-Bundle: org.eclipse.mat.api;bundle-version="[0.7.0.20080620,0.8.0]";visibility:=reexport,
  org.eclipse.core.runtime;bundle-version="3.3.100",
  org.eclipse.core.resources;bundle-version="3.3.0",
@@ -29,3 +29,4 @@ Export-Package: org.eclipse.mat.ui;x-friends:="org.eclipse.mat.chart.ui,org.ecli
  org.eclipse.mat.ui.util;x-friends:="org.eclipse.mat.chart.ui,org.eclipse.mat.ui.rcp"
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Import-Package: com.ibm.icu.text;version="3.6.1"
+Bundle-Localization: plugin

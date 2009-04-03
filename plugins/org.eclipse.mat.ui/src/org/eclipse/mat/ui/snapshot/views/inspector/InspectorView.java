@@ -158,7 +158,7 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
             else if (element instanceof ObjectNode)
                 return ((ObjectNode) element).getLabel();
             else if (element instanceof GCRootInfo[])
-                return "GC root: " + GCRootInfo.getTypeSetAsString((GCRootInfo[]) element); //$NON-NLS-1$
+                return Messages.InspectorView_GCroot + GCRootInfo.getTypeSetAsString((GCRootInfo[]) element);
             else
                 return "";//$NON-NLS-1$
         }

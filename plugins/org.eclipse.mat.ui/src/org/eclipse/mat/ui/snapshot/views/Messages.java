@@ -36,16 +36,10 @@ public class Messages extends NLS
 
     public static String col_property;
     public static String col_file;
-    public static String col_baseline;
-    public static String col_name;
-    public static String col_usages;
-    public static String col_time;
-    public static String col_avg_time;
-    public static String col_filesize;
-    public static String col_header;
-    public static String col_body;
+    
+	public static String baseline;
 
-    static
+	static
     {
         // initialize resource bundle
         NLS.initializeMessages(BUNDLE_NAME, Messages.class);

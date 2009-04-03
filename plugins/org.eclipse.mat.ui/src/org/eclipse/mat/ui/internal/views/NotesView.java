@@ -33,6 +33,7 @@ import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
@@ -119,7 +120,7 @@ public class NotesView extends ViewPart implements IPartListener, Observer
         textViewer.setDocument(new Document());
         textViewer.getControl().setEnabled(false);
         textViewer.getTextWidget().setWordWrap(false);
-        font = new Font(parent.getDisplay(), "Courier New", 8, SWT.NORMAL);//$NON-NLS-1$
+        font = new Font(parent.getDisplay(), JFaceResources.getDefaultFont().getFontData()[0].getName(), 8, SWT.NORMAL);
         textViewer.getControl().setFont(font);
 
         hyperlinkColor = new Color(null, new RGB(0, 0, 255));

@@ -99,6 +99,7 @@ public class SnapshotSelectionEditor extends ArgumentEditor
     private void createComboBox()
     {
         combo = new CCombo(this, SWT.SIMPLE);
+        combo.setFont(this.getParent().getFont());
         combo.setBackground(this.getParent().getBackground());
 
         for (SnapshotHistoryService.Entry entry : SnapshotHistoryService.getInstance().getVisitedEntries())

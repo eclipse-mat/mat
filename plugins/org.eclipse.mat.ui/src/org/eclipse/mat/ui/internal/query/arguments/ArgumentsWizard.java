@@ -76,7 +76,12 @@ public class ArgumentsWizard extends Wizard
     {
         if (argumentSet.getQueryDescriptor().isHelpAvailable() && //
                         (create || (helpPopup != null && helpPopup.getShell() != null)))
-        {
+        {            
+            if (getShell()==null)
+            {
+                helpPopup.close();
+                return;
+            }
             getShell().getDisplay().timerExec(100, new Runnable()
             {
                 public void run()

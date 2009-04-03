@@ -101,6 +101,7 @@ public class ImageTextEditor extends TextEditor
         this.setBackground(bg);
 
         text = new Text(this, SWT.LEFT);
+        text.setFont(font);
         // Create a decorated field for a text control
         field = new ControlDecoration(text, SWT.BEGINNING);
         field.setImage(decorator.getImage());
@@ -146,6 +147,7 @@ public class ImageTextEditor extends TextEditor
     {
         button = new ImageHyperlink(parent, SWT.CENTER);
         button.setImage(JFaceResources.getImage(Dialog.DLG_IMG_HELP));
+        button.setFont(parent.getFont());
         button.setBackground(parent.getBackground());
         button.setToolTipText(JFaceResources.getString("helpToolTip"));//$NON-NLS-1$
         button.addHyperlinkListener(new HyperlinkAdapter()

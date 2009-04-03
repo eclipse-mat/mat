@@ -50,6 +50,7 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
@@ -103,6 +104,7 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
         parent.setLayout(tableColumnLayout);
 
         table = new Table(parent, style);
+        table.setFont(parent.getFont());
         table.setLinesVisible(true);
         table.setHeaderVisible(true);
 
@@ -116,8 +118,6 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
 
         boldFont = resourceManager.createFont(FontDescriptor.createFrom(table.getFont()).setStyle(SWT.BOLD));
         normalFont = resourceManager.createFont(FontDescriptor.createFrom(table.getFont()).setStyle(SWT.NORMAL));
-        Font newFont = resourceManager.createFont(FontDescriptor.createFrom(table.getFont()).increaseHeight(2));
-        table.setFont(newFont);
 
         modeMap = new HashMap<ArgumentDescriptor, Mode>(argumentSet.getQueryDescriptor().getArguments().size());
         for (ArgumentDescriptor descriptor : argumentSet.getQueryDescriptor().getArguments())
@@ -289,6 +289,7 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
         TableEditor editor = createEditor();
 
         ArgumentEditor aec = TableEditorFactory.createTableEditor(table, context, descriptor, item);
+        aec.setFont(table.getFont());
         editor.setEditor(aec, item, 1);
         item.setData(aec);
 
@@ -355,6 +356,7 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
         TableEditor editor = createEditor();
 
         ImageTextEditor aec = new ImageTextEditor(table, context, descriptor, item, decorator);
+        aec.setFont(table.getFont());
         editor.setEditor(aec, item, 1);
         item.setData(aec);
 
@@ -475,6 +477,7 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
         TableEditor editor = createEditor();
 
         ImageTextEditor aec = new ImageTextEditor(table, context, descriptor, item, decorator);
+        aec.setFont(table.getFont());
         editor.setEditor(aec, item, 1);
         item.setData(aec);
 
@@ -499,6 +502,7 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
         TableEditor editor = createEditor();
 
         LinkEditor aec = new LinkEditor(table, context, descriptor, item, mode);
+        aec.setFont(table.getFont());
         editor.setEditor(aec, item, 1);
         item.setData(aec);
     }
@@ -521,6 +525,7 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
         TableEditor editor = createEditor();
 
         CheckBoxEditor aec = new CheckBoxEditor(table, context, descriptor, item, type);
+        aec.setFont(table.getFont());
         editor.setEditor(aec, item, 1);
         item.setData(aec);
 

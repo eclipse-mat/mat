@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.mat.ui.internal.query.arguments;
 
+import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -58,6 +59,7 @@ public class ArgumentsWizardPage extends WizardPage implements ArgumentsTable.IT
         {
             mode = Mode.ADVANCED_MODE;
         }
+        Dialog.applyDialogFont(composite);
         table = new ArgumentsTable(tableComposite, SWT.FULL_SELECTION | SWT.SINGLE, context, argumentSet, mode);
         table.addListener(this);
 

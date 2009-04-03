@@ -57,7 +57,7 @@ public abstract class SnapshotOutlinePage extends Page implements IContentOutlin
         {
             super.createColumns();
             TreeColumn column = new TreeColumn(treeViewer.getTree(), SWT.LEFT);
-            column.setText("Baseline"); //$NON-NLS-1$
+            column.setText(Messages.baseline);
             column.setWidth(80);
         }
 
@@ -300,8 +300,8 @@ public abstract class SnapshotOutlinePage extends Page implements IContentOutlin
             Category category = new Category(Messages.general_info);
             elements.add(category);
 
-            category.addChild(new Label(Messages.format, info.getProperty("$heapFormat"), bInfo
-                            .getProperty("$heapFormat")));
+            category.addChild(new Label(Messages.format, info.getProperty("$heapFormat"), bInfo //$NON-NLS-1$
+                            .getProperty("$heapFormat"))); //$NON-NLS-1$
             category.addChild(new Label(Messages.time, info.getCreationDate(), bInfo.getCreationDate()));
             category.addChild(new Label(Messages.date, info.getCreationDate(), bInfo.getCreationDate()));
             category.addChild(new Label(Messages.identifier_size, info.getIdentifierSize(), bInfo.getIdentifierSize()));

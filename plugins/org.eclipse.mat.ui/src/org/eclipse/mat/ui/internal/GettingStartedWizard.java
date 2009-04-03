@@ -143,6 +143,7 @@ public class GettingStartedWizard extends Wizard
             description.setText(Messages.GettingStartedWizard_LeakSuspectReportDescription);
             GridDataFactory.fillDefaults().indent(18, 0).hint(description.computeSize(300, SWT.DEFAULT)).applyTo(
                             description);
+            description.setFont(JFaceResources.getFontRegistry().get(JFaceResources.DIALOG_FONT));
 
             componentReport = new Button(choices, SWT.RADIO);
             componentReport.setText(Messages.GettingStartedWizard_ComponentReport);
@@ -152,6 +153,7 @@ public class GettingStartedWizard extends Wizard
             description.setText(Messages.GettingStartedWizard_ComponentReportDescription);
             GridDataFactory.fillDefaults().indent(18, 0).hint(description.computeSize(300, SWT.DEFAULT)).applyTo(
                             description);
+            description.setFont(JFaceResources.getFontRegistry().get(JFaceResources.DIALOG_FONT));
 
             openReports = new Button(choices, SWT.RADIO);
             openReports.setText(Messages.GettingStartedWizard_ReOpenExistingReports);
@@ -161,10 +163,12 @@ public class GettingStartedWizard extends Wizard
             description.setText(Messages.GettingStartedWizard_ExistingReportsLocation);
             GridDataFactory.fillDefaults().indent(18, 0).hint(description.computeSize(300, SWT.DEFAULT)).applyTo(
                             description);
+            description.setFont(JFaceResources.getFontRegistry().get(JFaceResources.DIALOG_FONT));
 
             askAgain = new Button(composite, SWT.CHECK);
             askAgain.setSelection(true);
             askAgain.setText(Messages.GettingStartedWizard_ShowThisDialog);
+            askAgain.setFont(JFaceResources.getFontRegistry().get(JFaceResources.DIALOG_FONT));
 
             Preferences prefs = MemoryAnalyserPlugin.getDefault().getPluginPreferences();
             askAgain.setSelection(!prefs.getBoolean(HIDE_WIZARD_KEY));

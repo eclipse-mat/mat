@@ -33,6 +33,7 @@ import org.eclipse.mat.ui.util.EasyToolBarDropDown;
 import org.eclipse.mat.ui.util.ErrorHelper;
 import org.eclipse.mat.ui.util.PopupMenu;
 import org.eclipse.mat.ui.util.ProgressMonitorWrapper;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.ui.PlatformUI;
@@ -133,9 +134,10 @@ public class TableResultPane extends QueryResultPane
                     {
                         if (filters[index].isActive())
                         {
-                            buf.append("\n'").append(filters[index].getCriteria()) // //$NON-NLS-1$
-                                            .append(Messages.TableResultPane_onColumn)
-                                            .append(columns[index].getLabel()).append("'"); //$NON-NLS-1$
+                            buf.append("\n").append( //$NON-NLS-1$
+                            		MessageUtil.format(Messages.TableResultPane_onColumn,
+                            				filters[index].getCriteria(),
+                            				columns[index].getLabel()));
                         }
                     }
 

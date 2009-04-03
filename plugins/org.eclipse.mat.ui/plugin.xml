@@ -13,13 +13,13 @@
         class="org.eclipse.mat.ui.internal.Perspective"
         icon="icons/memory_analyzer_perspective.gif"
         id="org.eclipse.mat.ui.perspective"
-        name="Memory Analysis">
+        name="%perspective.name.Memory_Analysis">
 		</perspective>
 	</extension>
 
 	<extension point="org.eclipse.ui.editors">
 		<editor id="org.eclipse.mat.ui.editors.HeapEditor"
-		        name="Eclipse Memory Analyzer"
+		        name="%editor.name.Eclipse_Memory_Analyzer"
 		        class="org.eclipse.mat.ui.snapshot.editor.HeapEditor"
 		        contributorClass="org.eclipse.mat.ui.editor.MultiPaneEditorContributor"
 		        icon="icons/heapobjects/heapdump16.gif">
@@ -29,32 +29,32 @@
 
 	<extension point="org.eclipse.ui.views">
 		<category id="org.eclipse.mat"
-			name="Memory Analyzer Views" />
+			name="%category.name.Memory_Analyzer_Views" />
 		<view category="org.eclipse.mat"
 			class="org.eclipse.mat.ui.internal.views.SnapshotHistoryView"
 			icon="icons/heapdump_history.gif"
 			id="org.eclipse.mat.ui.views.SnapshotHistoryView"
-			name="Heap Dump History" />
+			name="%view.name.Heap_Dump_History" />
 		<view category="org.eclipse.mat"
 			class="org.eclipse.mat.ui.internal.views.SnapshotDetailsView"
 			icon="icons/heapdump_details.gif"
 			id="org.eclipse.mat.ui.views.SnapshotDetailsView"
-			name="Heap Dump Details" />
+			name="%view.name.Heap_Dump_Details" />
 		<view allowMultiple="true" category="org.eclipse.mat"
 			class="org.eclipse.mat.ui.snapshot.views.inspector.InspectorView"
 			icon="icons/inspector_view.gif"
 			id="org.eclipse.mat.ui.views.InspectorView"
-			name="Inspector" />
+			name="%view.name.Inspector" />
 		<view allowMultiple="true" category="org.eclipse.mat"
 			class="org.eclipse.mat.ui.internal.views.NotesView"
 			icon="icons/notepad.gif"
-			id="org.eclipse.mat.ui.views.TextEditorView" name="Notes" />
+			id="org.eclipse.mat.ui.views.TextEditorView" name="%view.name.Notes" />
 		<view allowMultiple="false"
         	category="org.eclipse.mat"
         	class="org.eclipse.mat.ui.internal.views.NavigatorView"
         	icon="icons/navigator_view.gif"
        	    id="org.eclipse.mat.ui.views.NavigatorView"
-            name="Navigation History"/>        
+            name="%view.name.Navigation_History"/>        
 	</extension>
 
 	<extension point="org.eclipse.mat.ui.editorPanes">
@@ -109,20 +109,20 @@
 	<extension point="org.eclipse.ui.actionSets">
 		<actionSet
 			id="org.eclipse.mat.ui.actionSet.openIconAssist"
-			label="Icon Assist..." visible="false">
+			label="%actionSet.label.Icon_Assist___" visible="false">
 			<action
 				class="org.eclipse.mat.ui.snapshot.actions.OpenIconAssistAction"
 				definitionId="org.eclipse.mat.ui.actions.IconAssist"
 				id="org.eclipse.mat.ui.openIconAssist"
-				label="Icon Assist..." menubarPath="help/additions" style="push"
-				tooltip="Open Icon Assist" />
+				label="%action.label.Icon_Assist___" menubarPath="help/additions" style="push"
+				tooltip="%action.tooltip.Open_Icon_Assist" />
 		</actionSet>
-		<actionSet label="Open Heap Dump" visible="false"
+		<actionSet label="%actionSet.label.Open_Heap_Dump" visible="false"
 			id="org.eclipse.mat.ui.actionSet.openExternalFile">
 			<action icon="icons/open_snapshot.gif"
-				label="Open Heap Dump..."
+				label="%action.label.Open_Heap_DUMP___"
 				class="org.eclipse.mat.ui.snapshot.actions.OpenSnapshotAction"
-				tooltip="Open Heap Dump" menubarPath="file/new.ext" style="push"
+				tooltip="%action.tooltip.Open_Heap_Dump" menubarPath="file/new.ext" style="push"
 				toolbarPath="org.eclipse.ui.workbench.file/new.ext"
 				id="org.eclipse.mat.ui.openExternalFile">
 			</action>
@@ -144,22 +144,22 @@
 	<extension point="org.eclipse.ui.commands">
 		<command
 			id="org.eclipse.mat.ui.query.browser.QueryBrowser"
-			name="Query Browser">
+			name="%command.name.Query_Browser">
 		</command>
 		<command
 			id="org.eclipse.mat.ui.query.browser.QueryHistory"
-			name="Query History">
+			name="%command.name.Query_History">
 		</command>
 		<command
 			id="org.eclipse.mat.ui.actions.IconAssist"
-			name="Icon Assist">
+			name="%command.name.Icon_Assist">
 		</command>
 		<command
 			id="org.eclipse.mat.ui.actions.executeInspection"
-			name="Excecute Inspection">
+			name="%command.name.Execute_Inspection">
 			<commandParameter
 				id="org.eclipse.mat.ui.actions.executeInspection.commandName"
-				name="commandName"
+				name="%commandParameter.name.commandName"
 				optional="false">
 			</commandParameter>
 		</command>

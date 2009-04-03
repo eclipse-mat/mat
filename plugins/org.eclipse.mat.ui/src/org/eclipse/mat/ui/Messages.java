@@ -259,6 +259,14 @@ public class Messages extends NLS
     public static String TextEditor_EnterOQLQuery;
     public static String TextEditor_EnterPattern;
     public static String TextViewPane_TextDisplay;
+
+	public static String OverviewPane_Histogram;
+	public static String OverviewPane_DominatorTree;
+	public static String OverviewPane_TopConsumers;
+	public static String OverviewPane_DuplicateClasses;
+	public static String OverviewPane_ComponentReport;
+	public static String InspectorView_GCroot;
+
     static
     {
         // initialize resource bundle
