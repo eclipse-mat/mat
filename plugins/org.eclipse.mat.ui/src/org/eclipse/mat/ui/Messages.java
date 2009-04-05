@@ -173,7 +173,6 @@ public class Messages extends NLS
     public static String OverviewPane_DuplicateClassesInfo;
     public static String OverviewPane_ExtractingBigObjects;
     public static String OverviewPane_HistogramInfo;
-    public static String OverviewPane_NoPie;
     public static String OverviewPane_Objects;
     public static String OverviewPane_Overview;
     public static String OverviewPane_Reports;
@@ -265,6 +264,7 @@ public class Messages extends NLS
 	public static String OverviewPane_TopConsumers;
 	public static String OverviewPane_DuplicateClasses;
 	public static String OverviewPane_ComponentReport;
+    public static String OverviewPane_NoPieChartAvailable;
 	public static String InspectorView_GCroot;
 
     static

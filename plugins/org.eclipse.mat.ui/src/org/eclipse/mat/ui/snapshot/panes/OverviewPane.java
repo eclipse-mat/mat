@@ -46,6 +46,7 @@ import org.eclipse.mat.ui.snapshot.editor.HeapEditor;
 import org.eclipse.mat.ui.snapshot.editor.HeapEditorPane;
 import org.eclipse.mat.ui.util.ErrorHelper;
 import org.eclipse.mat.ui.util.ProgressMonitorWrapper;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.Units;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
@@ -360,10 +361,10 @@ public class OverviewPane extends HeapEditorPane implements IHyperlinkListener, 
             FormText text = toolkit.createFormText(sectionClient, true);
             StringBuilder buf = new StringBuilder(256);
 
-            buf.append("<form><li style=\"text\" value=\"\">" + Messages.OverviewPane_NoPie + "<a href=\""); //$NON-NLS-1$ //$NON-NLS-2$
-            buf
-                            .append("dominator_tree").append("\">" + Messages.OverviewPane_DominatorTree + "</a> or <a href=\"").append("top_consumers_html") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-                            .append("\">" + Messages.OverviewPane_TopConsumers + "</a>.</li></form>"); //$NON-NLS-1$ //$NON-NLS-2$
+            buf.append("<form><li style=\"text\" value=\"\">"); //$NON-NLS-1$
+            buf.append(MessageUtil.format(Messages.OverviewPane_NoPieChartAvailable,
+                            "dominator_tree", "top_consumers_html")); //$NON-NLS-1$ //$NON-NLS-2$
+            buf.append("</li></form>"); //$NON-NLS-1$
 
             text.setText(buf.toString(), true, false);
             text.addHyperlinkListener(this);
