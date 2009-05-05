@@ -77,6 +77,7 @@
 		<!-- eclipse -->
 		<query impl="org.eclipse.mat.inspections.eclipse.LeakingPlugins"/>
 		<query impl="org.eclipse.mat.inspections.osgi.BundleRegistryQuery"/>
+		<query impl="org.eclipse.mat.inspections.threads.ThreadStackQuery"/>
   
 	</extension>
 	

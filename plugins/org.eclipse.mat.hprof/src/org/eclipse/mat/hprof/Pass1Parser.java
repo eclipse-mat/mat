@@ -13,7 +13,12 @@ package org.eclipse.mat.hprof;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,6 +43,10 @@ public class Pass1Parser extends AbstractParser
 
     private HashMapLongObject<String> class2name = new HashMapLongObject<String>();
     private HashMapLongObject<Long> thread2id = new HashMapLongObject<Long>();
+    private HashMapLongObject<StackFrame> id2frame = new HashMapLongObject<StackFrame>();
+    private HashMapLongObject<StackTrace> serNum2stackTrace = new HashMapLongObject<StackTrace>();
+    private HashMapLongObject<Long> classSerNum2id = new HashMapLongObject<Long>();
+    private HashMapLongObject<List<JavaLocal>> thread2locals = new HashMapLongObject<List<JavaLocal>>();
     private IHprofParserHandler handler;
     private SimpleMonitor.Listener monitor;
 
@@ -100,6 +109,12 @@ public class Pass1Parser extends AbstractParser
                     case Constants.Record.LOAD_CLASS:
                         readLoadClass();
                         break;
+                    case Constants.Record.STACK_FRAME:
+                    	readStackFrame(length);
+                    	break;
+                    case Constants.Record.STACK_TRACE:
+                    	readStackTrace(length);
+                    	break;
                     case Constants.Record.HEAP_DUMP:
                     case Constants.Record.HEAP_DUMP_SEGMENT:
                         if (dumpNrToRead == currentDumpNr)
@@ -140,6 +155,9 @@ public class Pass1Parser extends AbstractParser
             monitor.sendUserMessage(IProgressListener.Severity.INFO, MessageUtil.format(
                             "Parser found {0} HPROF dumps in file {1}. Using dump index {2}. See FAQ.", currentDumpNr,
                             file.getName(), dumpNrToRead), null);
+        
+        if (serNum2stackTrace.size() > 0)
+        	dumpThreads();
 
     }
 
@@ -153,13 +171,40 @@ public class Pass1Parser extends AbstractParser
 
     private void readLoadClass() throws IOException
     {
-        in.skipBytes(4);
+    	long classSerNum = readUnsignedInt(); // used in stacks frames
         long classID = readID();
         in.skipBytes(4);
         long nameID = readID();
 
         String className = getStringConstant(nameID).replace('/', '.');
         class2name.put(classID, className);
+        classSerNum2id.put(classSerNum, classID);
+    }
+    
+    private void readStackFrame(long length) throws IOException
+    {
+    	long frameId = readID();
+    	long methodName = readID();
+    	long methodSig = readID();
+    	long srcFile = readID();
+    	long classSerNum = readUnsignedInt();
+    	int lineNr = in.readInt(); // can be negative
+    	StackFrame frame = new StackFrame(frameId, lineNr, getStringConstant(methodName), getStringConstant(methodSig), getStringConstant(srcFile), classSerNum);
+    	id2frame.put(frameId, frame);
+    }
+    
+    private void readStackTrace(long length) throws IOException
+    {
+    	long stackTraceNr = readUnsignedInt();
+    	long threadNr = readUnsignedInt();
+    	long frameCount = readUnsignedInt();
+    	long[] frameIds = new long[(int)frameCount];
+    	for (int i = 0; i < frameCount; i++)
+    	{
+    		frameIds[i] = readID();
+    	}
+    	StackTrace stackTrace = new StackTrace(stackTraceNr, threadNr, frameIds);
+    	serNum2stackTrace.put(stackTraceNr, stackTrace);
     }
 
     private void readDumpSegments(long length) throws IOException, SnapshotException
@@ -190,13 +235,13 @@ public class Pass1Parser extends AbstractParser
                     readGC(GCRootInfo.Type.NATIVE_STACK, idSize);
                     break;
                 case Constants.DumpSegment.ROOT_JNI_LOCAL:
-                    readGCWithThreadContext(GCRootInfo.Type.NATIVE_LOCAL, 4);
+                    readGCWithThreadContext(GCRootInfo.Type.NATIVE_LOCAL, true);
                     break;
                 case Constants.DumpSegment.ROOT_JAVA_FRAME:
-                    readGCWithThreadContext(GCRootInfo.Type.JAVA_LOCAL, 4);
+                    readGCWithThreadContext(GCRootInfo.Type.JAVA_LOCAL, true);
                     break;
                 case Constants.DumpSegment.ROOT_NATIVE_STACK:
-                    readGCWithThreadContext(GCRootInfo.Type.NATIVE_STACK, 0);
+                    readGCWithThreadContext(GCRootInfo.Type.NATIVE_STACK, false);
                     break;
                 case Constants.DumpSegment.ROOT_STICKY_CLASS:
                     readGC(GCRootInfo.Type.SYSTEM_CLASS, 0);
@@ -247,16 +292,25 @@ public class Pass1Parser extends AbstractParser
             in.skipBytes(skip);
     }
 
-    private void readGCWithThreadContext(int gcType, int skip) throws IOException
+    private void readGCWithThreadContext(int gcType, boolean hasLineInfo) throws IOException
     {
         long id = readID();
         int threadSerialNo = in.readInt();
         handler.addGCRoot(id, thread2id.get(threadSerialNo), gcType);
 
-        if (skip > 0)
-            in.skipBytes(skip);
+        if (hasLineInfo)
+        {
+        	int lineNumber = in.readInt();
+        	List<JavaLocal> locals = thread2locals.get(threadSerialNo);
+        	if (locals == null)
+        	{
+        		locals = new ArrayList<JavaLocal>();
+        		thread2locals.put(threadSerialNo, locals);
+        	}
+        	locals.add(new JavaLocal(id, lineNumber, gcType));
+        }
     }
-
+    
     private void readClassDump(long segmentStartPos) throws IOException
     {
         long address = readID();
@@ -402,5 +456,178 @@ public class Pass1Parser extends AbstractParser
         String result = handler.getConstantPool().get(address);
         return result == null ? Messages.Pass1Parser_Error_UnresolvedName + Long.toHexString(address) : result;
     }
+    
+    private void dumpThreads()
+	{
+		// noticed that one stack trace with empty stack is always reported,
+		// even if the dump has no call stacks info
+    	if (serNum2stackTrace == null || serNum2stackTrace.size() <= 1)
+			return;
+    	
+    	PrintWriter out = null;
+		String outputName = handler.getSnapshotInfo().getPrefix() + "threads";
+		try
+		{
+			out = new PrintWriter(new FileWriter(outputName));
 
+			Iterator<StackTrace> it = serNum2stackTrace.values();
+			while (it.hasNext())
+			{
+				StackTrace stack = it.next();
+				Long tid = thread2id.get(stack.threadSerialNr);
+				if (tid == null) continue;
+				String threadId = tid == null ? "<unknown>" : "0x" + Long.toHexString(tid);
+				out.println("Thread " + threadId);
+				out.println(stack);
+				out.println("  locals:");
+				List<JavaLocal> locals = thread2locals.get(stack.threadSerialNr);
+				if (locals != null)
+				{
+					for (JavaLocal javaLocal : locals)
+					{
+						out.println("    objecId=0x" + Long.toHexString(javaLocal.objectId) + ", line=" + javaLocal.lineNumber);
+
+					}
+				}
+				out.println();
+			}
+			out.flush();
+			this.monitor.sendUserMessage(Severity.INFO, MessageUtil.format(Messages.Pass1Parser_Info_WroteThreadsTo, outputName), null);
+		}
+		catch (IOException e)
+		{
+			this.monitor.sendUserMessage(Severity.WARNING, MessageUtil.format(Messages.Pass1Parser_Error_WritingThreadsInformation), e);
+		}
+		finally
+		{
+			if (out != null)
+			{
+				try
+				{
+					out.close();
+				}
+				catch (Exception ignore)
+				{
+					 // $JL-EXC$
+				}
+			}
+		}
+
+	}
+    
+    private class StackFrame
+    {
+    	long frameId;
+    	String method;
+    	String methodSignature;
+    	String sourceFile;
+    	long classSerNum;
+    	
+    	/*
+    	 * > 0	line number
+    	 * 0	no line info
+    	 * -1	unknown location
+    	 * -2	compiled method
+    	 * -3	native method
+    	 */
+    	int lineNr;
+
+    	public StackFrame(long frameId, int lineNr, String method, String methodSignature, String sourceFile, long classSerNum)
+		{
+			super();
+			this.frameId = frameId;
+			this.lineNr = lineNr;
+			this.method = method;
+			this.methodSignature = methodSignature;
+			this.sourceFile = sourceFile;
+			this.classSerNum = classSerNum;
+		}
+    	
+    	@Override
+    	public String toString()
+    	{
+    		String className = null; 
+    		Long classId = classSerNum2id.get(classSerNum);
+    		if (classId == null)
+    		{
+    			className = "<UNKNOWN CLASS>";
+    		}
+    		else
+    		{
+    			className = class2name.get(classId);
+    		}
+    		
+    		String sourceLocation = "";
+    		if (lineNr > 0)
+    		{
+    			sourceLocation = "(" + sourceFile + ":" + String.valueOf(lineNr) + ")";
+    		}
+    		else if (lineNr == 0 || lineNr == -1) 
+    		{
+    			sourceLocation = "(Unknown Source)"; 
+    		}
+    		else if (lineNr == -2) 
+    		{
+    			sourceLocation = "(Compiled method)"; 
+    		}
+    		else if (lineNr == -3) 
+    		{
+    			sourceLocation = "(Native Method)"; 
+    		}
+    		
+    		return "  at " + className + "." + method + methodSignature + " " + sourceLocation;
+    	}
+
+    }
+    
+    private class StackTrace
+    {
+    	private long threadSerialNr;
+    	private long[] frameIds;
+    	
+    	public StackTrace(long serialNr, long threadSerialNr, long[] frameIds)
+    	{
+    		super();
+    		this.frameIds = frameIds;
+    		this.threadSerialNr = threadSerialNr;
+    	}
+    	
+    	@Override
+    	public String toString()
+    	{
+    		StringBuilder b = new StringBuilder();
+    		for (long frameId : frameIds)
+			{
+    			StackFrame frame = id2frame.get(frameId);
+    			if (frame != null)
+    			{
+    				b.append(frame.toString());
+    				b.append("\r\n");
+    			}
+				
+			}
+    		return b.toString();
+    	}
+    	
+    }
+    
+    private class JavaLocal
+    {
+    	private long objectId;
+    	private int lineNumber;
+    	private int type;
+    	
+		public JavaLocal(long objectId, int lineNumber, int type)
+		{
+			super();
+			this.lineNumber = lineNumber;
+			this.objectId = objectId;
+			this.type = type;
+		}
+
+		public int getType()
+		{
+			return type;
+		}
+    }
 }

@@ -19,6 +19,7 @@ import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.snapshot.model.GCRootInfo;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
+import org.eclipse.mat.snapshot.model.IThreadStack;
 import org.eclipse.mat.util.IProgressListener;
 
 /**
@@ -606,5 +607,18 @@ public interface ISnapshot
      * @throws SnapshotException
      */
     public <A> A getSnapshotAddons(Class<A> addon) throws SnapshotException;
+    
+    /**
+	 * Get a the stack trace information for a given thread object, if thread
+	 * stack information is available in this snapshot.
+	 * <p>
+	 * 
+	 * @return IThreadStack - an object representing the call stack of the
+	 *         thread. Returns null if no info is available for the object, or
+	 *         no stack info is available at all
+	 * 
+	 * @throws SnapshotException
+	 */
+    public IThreadStack getThreadStack(int objectId) throws SnapshotException;
 
 }

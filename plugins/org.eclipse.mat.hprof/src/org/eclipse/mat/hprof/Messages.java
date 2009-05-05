@@ -33,6 +33,9 @@ public class Messages extends NLS
     public static String Pass2Parser_Error_HandleMustCreateFakeClassForName;
     public static String Pass2Parser_Error_HandlerMustCreateFakeClassForAddress;
     public static String Pass2Parser_Error_InsufficientBytesRead;
+    public static String Pass1Parser_Info_WroteThreadsTo;
+    public static String Pass1Parser_Error_WritingThreadsInformation;
+    
     static
     {
         // initialize resource bundle

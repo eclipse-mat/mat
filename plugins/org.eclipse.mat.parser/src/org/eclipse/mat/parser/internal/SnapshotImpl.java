@@ -70,6 +70,7 @@ import org.eclipse.mat.snapshot.DominatorsSummary.ClassDominatorRecord;
 import org.eclipse.mat.snapshot.model.GCRootInfo;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
+import org.eclipse.mat.snapshot.model.IThreadStack;
 import org.eclipse.mat.snapshot.model.NamedReference;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
@@ -223,6 +224,9 @@ public final class SnapshotImpl implements ISnapshot
     private boolean dominatorTreeCalculated;
     private Map<String, List<IClass>> classCacheByName;
     private ObjectCache<IObject> objectCache;
+    
+    private boolean parsedThreads = false;
+    HashMapIntObject<IThreadStack> threadId2stack;
 
     // //////////////////////////////////////////////////////////////
     // constructor
@@ -1969,6 +1973,21 @@ public final class SnapshotImpl implements ISnapshot
         {
             return heapObjectReader.getAddon(addon);
         }
+    }
+    
+    public IThreadStack getThreadStack(int objectId) throws SnapshotException
+    {
+    	if (!parsedThreads)
+    	{
+    		threadId2stack = ThreadStackHelper.loadThreadsData(this);
+    		parsedThreads = true;
+    	}
+    	
+    	if (threadId2stack != null)
+    	{
+    		return threadId2stack.get(objectId);
+    	}
+    	return null;
     }
 
     // //////////////////////////////////////////////////////////////
