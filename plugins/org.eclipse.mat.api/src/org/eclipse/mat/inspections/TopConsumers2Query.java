@@ -404,7 +404,7 @@ public class TopConsumers2Query implements IQuery
             {
                 listener.worked(1);
                 if (listener.isCanceled())
-                    new IProgressListener.OperationCanceledException();
+                    throw new IProgressListener.OperationCanceledException();
             }
         }
 
@@ -484,7 +484,7 @@ public class TopConsumers2Query implements IQuery
             {
                 listener.worked(1);
                 if (listener.isCanceled())
-                    new IProgressListener.OperationCanceledException();
+                    throw new IProgressListener.OperationCanceledException();
             }
         }
 

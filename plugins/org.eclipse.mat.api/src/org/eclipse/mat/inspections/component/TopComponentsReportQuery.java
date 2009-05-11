@@ -102,7 +102,7 @@ public class TopComponentsReportQuery implements IQuery
             {
                 listener.worked(1);
                 if (listener.isCanceled())
-                    new IProgressListener.OperationCanceledException();
+                    throw new IProgressListener.OperationCanceledException();
             }
         }
 
