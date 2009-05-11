@@ -141,7 +141,7 @@ public class LeakHunterQuery implements IQuery
                 AccumulationPoint ap = rec.getAccumulationPoint();
                 if (ap != null)
                 {
-                    List<Integer> numbers = accPoint2ProblemNr.get(ap);
+                    List<Integer> numbers = accPoint2ProblemNr.get(ap.getObject().getObjectId());
                     if (numbers == null)
                     {
                         numbers = new ArrayList<Integer>(2);
