@@ -334,7 +334,8 @@ public final class HashMapObjectLong<E> implements Serializable
 
     private int hashOf(Object obj)
     {
-        return Math.abs(obj.hashCode());
+    	// Math.abs isn't safe for Integer.MIN_VALUE as it returns Integer.MIN_VALUE 
+        return obj.hashCode() & Integer.MAX_VALUE;
     }
 
 }
