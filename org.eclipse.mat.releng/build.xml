@@ -159,6 +159,27 @@
 				<exclude name="*test*" />
 			</fileset>
 		</unzip>
+		
+		<!-- optimizing site -->
+		<java classname="org.eclipse.equinox.launcher.Main" fork="true" failonerror="true" dir="${buildDirectory}">
+			<jvmarg value="-Xmx256m" />
+			<classpath>
+				<pathelement location="${eclipseLocation}/plugins/org.eclipse.equinox.launcher_${equinoxLauncherPluginVersion}.jar" />
+			</classpath>
+			
+		    <arg value="-application" /> 
+			<arg value="org.eclipse.update.core.siteOptimizer" />
+			
+		    <arg value="-jarProcessor" />
+			        
+			<arg value="-verbose" />
+			<arg value="-processAll" />
+			<arg value="-pack" />
+			<arg value="-outputDir" />
+			<arg value="${siteDirectory}" />
+			
+		    <arg value="${siteDirectory}" /> 
+		</java>
 
 		<!-- generate p2 meta data -->
 		<java classname="org.eclipse.equinox.launcher.Main" fork="true" failonerror="true">
