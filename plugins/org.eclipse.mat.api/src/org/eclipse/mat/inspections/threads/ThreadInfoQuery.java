@@ -23,11 +23,15 @@ import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.query.results.CompositeResult;
 import org.eclipse.mat.query.results.ListResult;
+import org.eclipse.mat.query.results.TextResult;
 import org.eclipse.mat.report.Params;
 import org.eclipse.mat.report.QuerySpec;
 import org.eclipse.mat.report.SectionSpec;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.extension.IThreadInfo;
+import org.eclipse.mat.snapshot.model.IObject;
+import org.eclipse.mat.snapshot.model.IStackFrame;
+import org.eclipse.mat.snapshot.model.IThreadStack;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.util.IProgressListener;
 
@@ -104,6 +108,14 @@ public class ThreadInfoQuery implements IQuery
         }
         properties.setResult(new ListResult(NameValuePair.class, pairs, "name", "value"));
         spec.add(properties);
+        
+        // thread stack
+        QuerySpec stackResult = getStackTraceAsSpec(threadId);
+        if (stackResult != null)
+        {
+        	spec.add(stackResult);
+        }
+
 
         // tasks information
         CompositeResult details = tInfo.getDetails();
@@ -136,5 +148,22 @@ public class ThreadInfoQuery implements IQuery
 
         return tInfo;
     }
+    
+    private QuerySpec getStackTraceAsSpec(int threadId) throws SnapshotException
+	{
+		IThreadStack stack = snapshot.getThreadStack(threadId);
+		if (stack == null) return null;
+
+		StringBuilder builder = new StringBuilder();
+		IObject threadObject = snapshot.getObject(threadId);
+		builder.append(threadObject.getClassSpecificName()).append("\r\n");
+		for (IStackFrame frame : stack.getStackFrames())
+		{
+			builder.append("  ").append(frame.getText()).append("\r\n");
+		}
+		
+		return new QuerySpec("Thread Stack", new TextResult(builder.toString()));
+
+	}
 
 }

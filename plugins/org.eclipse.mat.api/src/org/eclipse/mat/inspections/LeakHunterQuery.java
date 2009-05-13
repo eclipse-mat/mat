@@ -65,6 +65,8 @@ import org.eclipse.mat.snapshot.model.GCRootInfo;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IClassLoader;
 import org.eclipse.mat.snapshot.model.IObject;
+import org.eclipse.mat.snapshot.model.IStackFrame;
+import org.eclipse.mat.snapshot.model.IThreadStack;
 import org.eclipse.mat.snapshot.query.Icons;
 import org.eclipse.mat.snapshot.query.PieFactory;
 import org.eclipse.mat.snapshot.query.SnapshotQuery;
@@ -225,6 +227,7 @@ public class LeakHunterQuery implements IQuery
                     throws SnapshotException
     {
         StringBuilder overview = new StringBuilder(256);
+        TextResult overviewResult = new TextResult(); // used to create links from it to other results
         Set<String> keywords = new HashSet<String>();
         List<IClassLoader> involvedClassloaders = new ArrayList<IClassLoader>(2);
         int suspectId = suspect.getSuspect().getObjectId();
@@ -373,7 +376,7 @@ public class LeakHunterQuery implements IQuery
         ThreadInfoQuery.Result threadDetails = null;
         if (isThreadRelated)
         {
-            threadDetails = extractThreadData(suspectId, keywords, involvedClassloaders, overview);
+            threadDetails = extractThreadData(suspectId, keywords, involvedClassloaders, overview, overviewResult);
         }
 
         /* append keywords */
@@ -386,7 +389,8 @@ public class LeakHunterQuery implements IQuery
          * Prepare the composite result from the different pieces
          */
         CompositeResult composite = new CompositeResult();
-        composite.addResult("Description", new TextResult(overview.toString(), true));
+        overviewResult.setText(overview.toString());
+        composite.addResult("Description", overviewResult);
         IObject describedObject = (suspect.getAccumulationPoint() != null) ? suspect.getAccumulationPoint().getObject()
                         : suspect.getSuspect();
 
@@ -694,7 +698,7 @@ public class LeakHunterQuery implements IQuery
     }
 
     private ThreadInfoQuery.Result extractThreadData(int threadId, Set<String> keywords,
-                    List<IClassLoader> involvedClassloaders, StringBuilder builder)
+                    List<IClassLoader> involvedClassloaders, StringBuilder builder, TextResult textResult)
     {
         ThreadInfoQuery.Result threadDetails = null;
 
@@ -714,10 +718,30 @@ public class LeakHunterQuery implements IQuery
                 builder.append("<p>");
 
                 for (CompositeResult.Entry requestInfo : requestInfos.getResultEntries())
-                    builder.append(requestInfo.getName()).append("<br>");
+                    builder.append(requestInfo.getName()).append(" ").append(textResult.linkTo("Request Details", requestInfo.getResult())).append("<br>");
 
                 builder.append("</p>");
             }
+            
+            // Add stacktrace information if available
+            // TODO may be the stack result should be moved to IThreadInfo
+			IThreadStack stack = snapshot.getThreadStack(threadId);
+			if (stack != null)
+			{
+				StringBuilder stackBuilder = new StringBuilder();
+				IObject threadObject = snapshot.getObject(threadId);
+				stackBuilder.append(threadObject.getClassSpecificName()).append("\r\n");
+				for (IStackFrame frame : stack.getStackFrames())
+				{
+					stackBuilder.append("  ").append(frame.getText()).append("\r\n");
+				}
+				QuerySpec stackResult = new QuerySpec("Thread Stack", new TextResult(stackBuilder.toString()));
+				
+				builder.append("<p>");
+				builder.append("The stacktrace of this Thread is available. ").append(textResult.linkTo("See stacktrace", stackResult)).append('.');
+				builder.append("</p>");
+			}
+            
 
             // add context class loader
             int contextClassloaderId = threadInfo.getContextClassLoaderId();
