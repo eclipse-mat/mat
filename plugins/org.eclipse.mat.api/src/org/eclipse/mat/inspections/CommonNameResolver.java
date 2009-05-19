@@ -111,7 +111,8 @@ public class CommonNameResolver
             StringBuilder r = new StringBuilder(value.length);
             for (int i = 0; i < value.length; i++)
             {
-                if (value[i] < 32 || value[i] > 127)
+                // ASCII/Unicode 127 is not printable
+                if (value[i] < 32 || value[i] > 126)
                     r.append('.');
                 else
                     r.append((char) value[i]);
