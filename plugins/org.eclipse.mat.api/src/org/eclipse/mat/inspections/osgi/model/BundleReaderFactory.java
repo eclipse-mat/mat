@@ -28,7 +28,8 @@ public class BundleReaderFactory
     public static IBundleReader getBundleReader(ISnapshot snapshot) throws SnapshotException
     {
 
-        Collection<IClass> classes = snapshot.getClassesByName("org.eclipse.equinox.launcher.Main", false); //$NON-NLS-1$
+        Collection<IClass> classes = snapshot.getClassesByName(
+                        "org.eclipse.osgi.framework.internal.core.BundleRepository", false); //$NON-NLS-1$
         if (classes != null)
             // Equinox OSGi framework
             return new EquinoxBundleReader(snapshot);
