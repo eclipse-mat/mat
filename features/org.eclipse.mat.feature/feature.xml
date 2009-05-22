@@ -11,7 +11,7 @@
    </description>
 
    <copyright>
-      Copyright (c) 2008 SAP AG
+      Copyright (c) 2009 SAP AG, IBM Corporation, and others.
    </copyright>
 
    <license>
@@ -96,6 +96,13 @@ Java and all Java-based trademarks are trademarks of Sun Microsystems, Inc. in t
 
    <plugin
          id="org.eclipse.mat.hprof"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.mat.dtfj"
          download-size="0"
          install-size="0"
          version="0.0.0"

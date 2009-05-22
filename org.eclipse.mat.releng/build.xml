@@ -11,7 +11,8 @@
 	<!--
 		The PDE builds assumes a ~/plugins and ~/features layout.
 		If you do NOT run the build on a fully checkout repository,
-		use the init-dev target to prepare the layout 
+		provide the workspaceLocation and the init.workspace target
+		will prepare (e.g. copy) the space
 	-->
 	<target name="-init.workspace" if="workspaceLocation">
 		<property name="buildDirectory" value="${basedir}/temp" />

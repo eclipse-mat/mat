@@ -51,6 +51,9 @@
                      <resource>
                        <directory>${basedir}/plugins/org.eclipse.mat.ui.rcp/src</directory>
                      </resource>
+                     <resource>
+                       <directory>${basedir}/plugins/org.eclipse.mat.dtfj/src</directory>
+                     </resource>
                    </resources>
                  </configuration>
            </plugin>
