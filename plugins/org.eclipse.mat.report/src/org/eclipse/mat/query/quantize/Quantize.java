@@ -133,6 +133,8 @@ public final class Quantize
     public static final Function.Factory AVERAGE = new FnFactoryImpl(Average.class, Double.class, true);
     /**
      * Function to find the average long value.
+     * 
+     * @since 0.8
      */
     public static final Function.Factory AVERAGE_LONG = new FnFactoryImpl(AverageLong.class, Double.class, true);
 

@@ -2,7 +2,7 @@
 <feature
       id="org.eclipse.mat.feature"
       label="Memory Analyzer (Incubation)"
-      version="0.7.0.qualifier"
+      version="0.8.0.qualifier"
       provider-name="Eclipse.org">
    <install-handler/>
 

@@ -26,7 +26,7 @@ import org.eclipse.mat.query.Column.SortDirection;
 import org.eclipse.mat.snapshot.query.Icons;
 
 /**
- * @since 0.7
+ * @since 0.8
  */
 public class UnreachableObjectsHistogram implements IResultTable, IIconProvider, Serializable
 {

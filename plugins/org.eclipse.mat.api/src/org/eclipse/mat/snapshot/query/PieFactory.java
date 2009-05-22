@@ -50,7 +50,7 @@ import org.eclipse.mat.util.Units;
  * }
  * </pre>
  * 
- * @since 0.7
+ * @since 0.8
  */
 public final class PieFactory
 {

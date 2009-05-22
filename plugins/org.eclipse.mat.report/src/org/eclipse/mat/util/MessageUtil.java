@@ -3,7 +3,7 @@ package org.eclipse.mat.util;
 import com.ibm.icu.text.MessageFormat;
 
 /**
- * @since 0.7
+ * @since 0.8
  */
 public final class MessageUtil
 {

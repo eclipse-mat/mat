@@ -607,18 +607,18 @@ public interface ISnapshot
      * @throws SnapshotException
      */
     public <A> A getSnapshotAddons(Class<A> addon) throws SnapshotException;
-    
+
     /**
-	 * Get a the stack trace information for a given thread object, if thread
-	 * stack information is available in this snapshot.
-	 * <p>
-	 * 
-	 * @return IThreadStack - an object representing the call stack of the
-	 *         thread. Returns null if no info is available for the object, or
-	 *         no stack info is available at all
-	 * 
-	 * @throws SnapshotException
-	 */
+     * Get a the stack trace information for a given thread object, if thread
+     * stack information is available in this snapshot.
+     * <p>
+     * 
+     * @return IThreadStack - an object representing the call stack of the
+     *         thread. Returns null if no info is available for the object, or
+     *         no stack info is available at all
+     * @throws SnapshotException
+     * @since 0.8
+     */
     public IThreadStack getThreadStack(int objectId) throws SnapshotException;
 
 }

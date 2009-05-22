@@ -11,7 +11,7 @@
 package org.eclipse.mat.util;
 
 /**
- * @since 0.7
+ * @since 0.8
  */
 public class SilentProgressListener implements IProgressListener
 {

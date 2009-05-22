@@ -11,15 +11,16 @@
 package org.eclipse.mat.snapshot.model;
 
 /**
- * @noimplement
- * 
  * May be subject of change
+ * 
+ * @noimplement
+ * @since 0.8
  */
 public interface IStackFrame
 {
-	
-	public int[] getLocalObjectsIds();
 
-	public String getText();
+    public int[] getLocalObjectsIds();
+
+    public String getText();
 
 }

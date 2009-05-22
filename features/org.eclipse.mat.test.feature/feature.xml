@@ -2,7 +2,7 @@
 <feature
       id="org.eclipse.mat.test.feature"
       label="Memory Analyzer Tests (Incubation)"
-      version="0.7.0.qualifier"
+      version="0.8.0.qualifier"
       provider-name="Eclipse.Org">
 
    <description url="http://www.eclipse.org/mat/">
@@ -60,7 +60,7 @@ Java and all Java-based trademarks are trademarks of Sun Microsystems, Inc. in t
 
    <requires>
       <import plugin="org.junit4" version="4.3.1" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.mat.api" version="0.7.0.20080620" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.mat.api" version="0.8.0" match="greaterOrEqual"/>
    </requires>
 
    <plugin

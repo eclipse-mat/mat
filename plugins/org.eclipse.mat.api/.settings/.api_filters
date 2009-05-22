@@ -1,5 +1,55 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <component id="org.eclipse.mat.api" version="2">
+    <resource path="META-INF/MANIFEST.MF">
+        <filter id="923795461">
+            <message_arguments>
+                <message_argument value="0.7.100.qualifier"/>
+                <message_argument value="0.7.0.200812101332"/>
+            </message_arguments>
+        </filter>
+        <filter id="923795461">
+            <message_arguments>
+                <message_argument value="0.7.0.qualifier"/>
+                <message_argument value="0.7.0.200808081658"/>
+            </message_arguments>
+        </filter>
+        <filter id="923795461">
+            <message_arguments>
+                <message_argument value="0.7.100.qualifier"/>
+                <message_argument value="0.7.0.200810071154"/>
+            </message_arguments>
+        </filter>
+        <filter id="924844039">
+            <message_arguments>
+                <message_argument value="0.7.0.qualifier"/>
+                <message_argument value="0.7.0.200808081658"/>
+            </message_arguments>
+        </filter>
+        <filter id="924844039">
+            <message_arguments>
+                <message_argument value="0.7.100.qualifier"/>
+                <message_argument value="0.7.0.200810071154"/>
+            </message_arguments>
+        </filter>
+        <filter id="924844039">
+            <message_arguments>
+                <message_argument value="0.7.0.qualifier"/>
+                <message_argument value="0.7.0.200806271307"/>
+            </message_arguments>
+        </filter>
+        <filter id="924844039">
+            <message_arguments>
+                <message_argument value="0.7.100.qualifier"/>
+                <message_argument value="0.7.0.200812101332"/>
+            </message_arguments>
+        </filter>
+        <filter id="924844039">
+            <message_arguments>
+                <message_argument value="0.7.100.qualifier"/>
+                <message_argument value="0.7.0.200808081658"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="src/org/eclipse/mat/inspections/OQLQuery.java" type="org.eclipse.mat.inspections.OQLQuery$OQLTextResult">
         <filter id="571473929">
             <message_arguments>
@@ -20,6 +70,13 @@
             </message_arguments>
         </filter>
     </resource>
+    <resource path="src/org/eclipse/mat/snapshot/Histogram.java" type="org.eclipse.mat.snapshot.Histogram">
+        <filter id="1143996420">
+            <message_arguments>
+                <message_argument value="org.eclipse.mat.snapshot.Histogram"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="src/org/eclipse/mat/snapshot/Histogram.java" type="org.eclipse.mat.snapshot.Histogram$ClassLoaderTree">
         <filter id="337768515">
             <message_arguments>
@@ -34,86 +91,10 @@
             </message_arguments>
         </filter>
     </resource>
-    <resource path="src/org/eclipse/mat/snapshot/Histogram.java" type="org.eclipse.mat.snapshot.Histogram">
+    <resource path="src/org/eclipse/mat/snapshot/SnapshotFactory.java" type="org.eclipse.mat.snapshot.SnapshotFactory">
         <filter id="1143996420">
             <message_arguments>
-                <message_argument value="org.eclipse.mat.snapshot.Histogram"/>
-            </message_arguments>
-        </filter>
-    </resource>
-    <resource path="src/org/eclipse/mat/snapshot/model/GCRootInfo.java" type="org.eclipse.mat.snapshot.model.GCRootInfo$Type">
-        <filter id="403767336">
-            <message_arguments>
-                <message_argument value="org.eclipse.mat.snapshot.model.GCRootInfo.Type"/>
-                <message_argument value="FINALIZABLE"/>
-            </message_arguments>
-        </filter>
-        <filter id="1211105284">
-            <message_arguments>
-                <message_argument value="org.eclipse.mat.snapshot.model.GCRootInfo.Type"/>
-            </message_arguments>
-        </filter>
-        <filter id="403767336">
-            <message_arguments>
-                <message_argument value="org.eclipse.mat.snapshot.model.GCRootInfo.Type"/>
-                <message_argument value="UNFINALIZED"/>
-            </message_arguments>
-        </filter>
-    </resource>
-    <resource path="src/org/eclipse/mat/snapshot/model/GCRootInfo.java" type="org.eclipse.mat.snapshot.model.GCRootInfo">
-        <filter id="1143996420">
-            <message_arguments>
-                <message_argument value="org.eclipse.mat.snapshot.model.GCRootInfo"/>
-            </message_arguments>
-        </filter>
-    </resource>
-    <resource path="META-INF/MANIFEST.MF">
-        <filter id="923795461">
-            <message_arguments>
-                <message_argument value="0.7.100.qualifier"/>
-                <message_argument value="0.7.0.200812101332"/>
-            </message_arguments>
-        </filter>
-        <filter id="924844039">
-            <message_arguments>
-                <message_argument value="0.7.0.qualifier"/>
-                <message_argument value="0.7.0.200808081658"/>
-            </message_arguments>
-        </filter>
-        <filter id="924844039">
-            <message_arguments>
-                <message_argument value="0.7.0.qualifier"/>
-                <message_argument value="0.7.0.200806271307"/>
-            </message_arguments>
-        </filter>
-        <filter id="924844039">
-            <message_arguments>
-                <message_argument value="0.7.100.qualifier"/>
-                <message_argument value="0.7.0.200810071154"/>
-            </message_arguments>
-        </filter>
-        <filter id="924844039">
-            <message_arguments>
-                <message_argument value="0.7.100.qualifier"/>
-                <message_argument value="0.7.0.200812101332"/>
-            </message_arguments>
-        </filter>
-        <filter id="923795461">
-            <message_arguments>
-                <message_argument value="0.7.100.qualifier"/>
-                <message_argument value="0.7.0.200810071154"/>
-            </message_arguments>
-        </filter>
-        <filter id="923795461">
-            <message_arguments>
-                <message_argument value="0.7.0.qualifier"/>
-                <message_argument value="0.7.0.200808081658"/>
-            </message_arguments>
-        </filter>
-        <filter id="924844039">
-            <message_arguments>
-                <message_argument value="0.7.100.qualifier"/>
-                <message_argument value="0.7.0.200808081658"/>
+                <message_argument value="openSnapshot(File, Map&lt;String,String&gt;, IProgressListener)"/>
             </message_arguments>
         </filter>
     </resource>
@@ -126,7 +107,33 @@
         </filter>
         <filter id="1211105284">
             <message_arguments>
-                <message_argument value="org.eclipse.mat.snapshot.SnapshotFactory.Implementation"/>
+                <message_argument value="openSnapshot(File, Map&lt;String,String&gt;, IProgressListener)"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/mat/snapshot/model/GCRootInfo.java" type="org.eclipse.mat.snapshot.model.GCRootInfo">
+        <filter id="1143996420">
+            <message_arguments>
+                <message_argument value="org.eclipse.mat.snapshot.model.GCRootInfo"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/mat/snapshot/model/GCRootInfo.java" type="org.eclipse.mat.snapshot.model.GCRootInfo$Type">
+        <filter id="403767336">
+            <message_arguments>
+                <message_argument value="org.eclipse.mat.snapshot.model.GCRootInfo.Type"/>
+                <message_argument value="FINALIZABLE"/>
+            </message_arguments>
+        </filter>
+        <filter id="403767336">
+            <message_arguments>
+                <message_argument value="org.eclipse.mat.snapshot.model.GCRootInfo.Type"/>
+                <message_argument value="UNFINALIZED"/>
+            </message_arguments>
+        </filter>
+        <filter id="1211105284">
+            <message_arguments>
+                <message_argument value="org.eclipse.mat.snapshot.model.GCRootInfo.Type"/>
             </message_arguments>
         </filter>
     </resource>

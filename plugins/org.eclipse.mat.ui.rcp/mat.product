@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?pde version="3.4"?>
+<?pde version="3.5"?>
 
-<product name="Memory Analyzer Tool" id="org.eclipse.mat.ui.rcp.MemoryAnalyzer" application="org.eclipse.mat.ui.rcp.application" version="0.8.0" useFeatures="true">
+<product name="Memory Analyzer Tool" id="org.eclipse.mat.ui.rcp.MemoryAnalyzer" application="org.eclipse.mat.ui.rcp.application" version="0.8.0" useFeatures="true" includeLaunchers="true">
 
    <aboutInfo>
       <image path="/org.eclipse.mat.ui.rcp/icons/eclipse_lg.gif"/>
@@ -49,10 +49,11 @@ Visit http://www.eclipse.org/mat
    </plugins>
 
    <features>
-      <feature id="org.eclipse.mat.dependencies.feature" version="0.7.0.qualifier"/>
-      <feature id="org.eclipse.mat.feature" version="0.7.0.qualifier"/>
-      <feature id="org.eclipse.mat.chart.feature" version="0.7.0.qualifier"/>
-      <feature id="org.eclipse.mat.ui.rcp.feature" version="0.7.0.qualifier"/>
+      <feature id="org.eclipse.mat.dependencies.feature" version="0.8.0.qualifier"/>
+      <feature id="org.eclipse.mat.feature" version="0.8.0.qualifier"/>
+      <feature id="org.eclipse.mat.chart.feature" version="0.8.0.qualifier"/>
+      <feature id="org.eclipse.mat.ui.rcp.feature" version="0.8.0.qualifier"/>
    </features>
+
 
 </product>

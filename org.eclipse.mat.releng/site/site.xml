@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site pack200="true">
-   <feature url="features/org.eclipse.mat.chart.feature_0.7.0.@qualifier@.jar" id="org.eclipse.mat.chart.feature" version="0.7.0.@qualifier@">
+   <feature url="features/org.eclipse.mat.chart.feature_0.8.0.@qualifier@.jar" id="org.eclipse.mat.chart.feature" version="0.8.0.@qualifier@">
       <category name="Memory Analyzer Incubation"/>
    </feature>
-   <feature url="features/org.eclipse.mat.feature_0.7.0.@qualifier@.jar" id="org.eclipse.mat.feature" version="0.7.0.@qualifier@">
+   <feature url="features/org.eclipse.mat.feature_0.8.0.@qualifier@.jar" id="org.eclipse.mat.feature" version="0.8.0.@qualifier@">
       <category name="Memory Analyzer Incubation"/>
    </feature>
    <category-def name="Memory Analyzer Incubation" label="Memory Analyzer Incubation"/>
