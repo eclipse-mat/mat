@@ -55,6 +55,7 @@ public class GroupByValueQuery implements IQuery
         Quantize quantize = Quantize.valueDistribution("String Value") //
                         .column("Objects", Quantize.COUNT) //
                         .column("Shallow Heap", Quantize.SUM_LONG, SortDirection.DESC) //
+                        .column("Avg. Retained Size", Quantize.AVERAGE_LONG) //
                         .addDerivedData(RetainedSizeDerivedData.APPROXIMATE) //
                         .build();
 
@@ -79,7 +80,7 @@ public class GroupByValueQuery implements IQuery
                 if (subject instanceof IObject)
                     subject = ((IObject) subject).getClassSpecificName();
 
-                quantize.addValue(objectId, subject, null, object.getUsedHeapSize());
+                quantize.addValue(objectId, subject, null, object.getUsedHeapSize(), object.getRetainedHeapSize());
             }
             if (canceled)
             	break;

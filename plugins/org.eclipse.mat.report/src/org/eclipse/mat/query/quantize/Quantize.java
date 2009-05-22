@@ -131,6 +131,10 @@ public final class Quantize
      * Function to find the average value.
      */
     public static final Function.Factory AVERAGE = new FnFactoryImpl(Average.class, Double.class, true);
+    /**
+     * Function to find the average long value.
+     */
+    public static final Function.Factory AVERAGE_LONG = new FnFactoryImpl(AverageLong.class, Double.class, true);
 
     // //////////////////////////////////////////////////////////////
     // factory methods
@@ -674,6 +678,26 @@ public final class Quantize
         public Object getValue()
         {
             return count > 0 ? sum / count : 0;
+        }
+    }
+
+    /* package */static class AverageLong implements Function
+    {
+        int count;
+        long sum;
+
+        public void add(Object object)
+        {
+            if (object == null)
+                return;
+
+            sum += ((Number) object).longValue();
+            count++;
+        }
+
+        public Object getValue()
+        {
+            return count > 0 ? sum / count : 0L;
         }
     }
 
