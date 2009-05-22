@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         id="dtfj"
+         name="DTFJ dumps"
+         point="org.eclipse.core.contenttype.contentTypes">
+         <content-type
+               base-type="org.eclipse.mat.JavaHeapDump"
+               id="com.ibm.dtfj.base"
+               name="Base DTFJ">
+         </content-type>   
+   </extension>
+   <extension
+         id="dtfj"
+         point="org.eclipse.ui.startup">
+      <startup
+            class="org.eclipse.mat.dtfj.InitDTFJ2">
+      </startup>
+   </extension>
+</plugin>
