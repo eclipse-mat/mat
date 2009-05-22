@@ -58,12 +58,16 @@ public class GroupByValueQuery implements IQuery
                         .addDerivedData(RetainedSizeDerivedData.APPROXIMATE) //
                         .build();
 
+        boolean canceled = false;
         for (int[] objectIds : objects)
         {
             for (int ii = 0; ii < objectIds.length; ii++)
             {
                 if (listener.isCanceled())
-                    throw new IProgressListener.OperationCanceledException();
+                {
+                	canceled = true;
+                	break;
+                }
 
                 int objectId = objectIds[ii];
                 IObject object = snapshot.getObject(objectId);
@@ -77,6 +81,8 @@ public class GroupByValueQuery implements IQuery
 
                 quantize.addValue(objectId, subject, null, object.getUsedHeapSize());
             }
+            if (canceled)
+            	break;
         }
 
         return quantize.getResult();
