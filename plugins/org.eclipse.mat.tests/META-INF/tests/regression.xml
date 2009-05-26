@@ -19,7 +19,7 @@
 	    <param key="format" value="csv" />
 		<param key="filename" value="Class_Histogram.csv"/>
 		<param key="html.separate_file" value="true" />
-		<param key="sort_column" value="Retained Heap=DESC,Shallow Heap=DESC,Objects=DESC,Class Name" />
+		<param key="sort_column" value="#3=DESC,#2=DESC,#1=DESC,#0" />
 		<param key="derived_data_column" value="_default_=APPROXIMATE"/>
 		<param key="limit" value="50000" />
 		<command>histogram</command>
@@ -28,7 +28,7 @@
 	    <param key="format" value="csv" />
 		<param key="filename" value="Class_Loader_Histogram.csv"/>
 		<param key="html.separate_file" value="true" />
-		<param key="sort_column" value="Retained Heap=DESC,Shallow Heap=DESC,Objects=DESC,Class Name" />
+		<param key="sort_column" value="#3=DESC,#2=DESC,#1=DESC,#0" />
 		<param key="derived_data_column" value="_default_=APPROXIMATE"/>
 		<param key="limit" value="50000" />
 		<command>histogram -groupBy BY_CLASSLOADER</command>
@@ -37,7 +37,7 @@
 		<param key="format" value="csv" />
 		<param key="filename" value="Dominator_Tree.csv"/>
 		<param key="html.separate_file" value="true" />
-		<param key="sort_column" value="Retained Heap=DESC,Shallow Heap=DESC,Class name"/>
+		<param key="sort_column" value="#2=DESC,#1=DESC,#0"/>
 		<param key="limit" value="50000" />	
 		<command>dominator_tree</command>
 	</query>
@@ -70,7 +70,7 @@
 		<param key="filename" value="Immediate_Dominators_of_java.util.HashMap$Entry.csv"/>
 		<param key="format" value="csv" />
 		<param key="html.separate_file" value="true" />		
-		<param key="sort_column" value="Dom. Shallow Heap=DESC,Shallow Heap=DESC,Dom. Objects=DESC,Objects=DESC,Class name" />
+		<param key="sort_column" value="#4=DESC,#3=DESC,#2=DESC,#1=DESC,#0" />
 		<command>immediate_dominators java.util.HashMap$Entry</command>
 		<param key="limit" value="1000" />
 	</query>		
