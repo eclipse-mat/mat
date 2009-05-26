@@ -15,13 +15,13 @@ import org.eclipse.mat.query.IContextObjectSet;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
-import org.eclipse.mat.query.annotations.Name;
+import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.util.IProgressListener;
 
-@Name("101|Open Source File")
+@CommandName("open_source_file")
 public class OpenSourceFileQuery implements IQuery
 {
     @Argument
