@@ -17,10 +17,7 @@ import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
-import org.eclipse.mat.query.annotations.Category;
-import org.eclipse.mat.query.annotations.Help;
 import org.eclipse.mat.query.annotations.Icon;
-import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
@@ -90,9 +87,6 @@ public abstract class CopyActions implements IQuery
     // several copy actions
     // //////////////////////////////////////////////////////////////
 
-    @Name("1|Address")
-    @Category("101|Copy")
-    @Help("Copy address of the current object to the clipboard.")
     @Icon("/icons/copy.gif")
     public static class Address extends CopyActions
     {
@@ -102,9 +96,6 @@ public abstract class CopyActions implements IQuery
         }
     }
 
-    @Name("2|Class Name")
-    @Category("101|Copy")
-    @Help("Copy the fully qualified class name of the current object to the clipboard.")
     @Icon("/icons/copy.gif")
     public static class FQClassName extends CopyActions
     {
@@ -117,9 +108,6 @@ public abstract class CopyActions implements IQuery
         }
     }
 
-    @Name("3|Value")
-    @Category("101|Copy")
-    @Help("Copy the fully qualified class name of the current object to the clipboard.")
     @Icon("/icons/copy.gif")
     public static class Value extends CopyActions
     {

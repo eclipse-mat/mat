@@ -24,10 +24,7 @@ import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
-import org.eclipse.mat.query.annotations.Category;
-import org.eclipse.mat.query.annotations.Help;
 import org.eclipse.mat.query.annotations.Icon;
-import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IPrimitiveArray;
@@ -38,9 +35,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.ui.PlatformUI;
 
-@Name("10|Save Value To File")
-@Category("101|Copy")
-@Help("Save the value of char[], String, StringBuffer or StringBuilder into a text file.")
 @Icon("/icons/copy.gif")
 public class SaveValueAsQuery implements IQuery
 {
