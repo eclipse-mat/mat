@@ -18,12 +18,10 @@ import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.Category;
 import org.eclipse.mat.query.annotations.CommandName;
-import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.query.results.DisplayFileResult;
 import org.eclipse.mat.report.TestSuite;
 import org.eclipse.mat.util.IProgressListener;
 
-@Name("Run Expert System Test")
 @CommandName("create_report")
 @Category(Category.HIDDEN)
 public class RunExternalTest implements IQuery

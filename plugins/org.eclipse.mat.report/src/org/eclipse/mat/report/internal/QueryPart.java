@@ -276,7 +276,7 @@ public class QueryPart extends AbstractPart
 
         for (String column : hidden)
         {
-            int columnIndex = builder.getColumnIndexByName(column);
+            int columnIndex = getColumnIndex(builder, column);
             if (columnIndex < 0)
             {
                 Logger.getLogger(getClass().getName()).log(Level.SEVERE,
@@ -287,6 +287,21 @@ public class QueryPart extends AbstractPart
                 rInfo.setColumnVisible(columnIndex, false);
             }
         }
+    }
+
+    private int getColumnIndex(RefinedResultBuilder builder, String column)
+    {
+        try
+        {
+            if (column.charAt(0) == '#')
+                return Integer.parseInt(column.substring(1));
+        }
+        catch (NumberFormatException ignore)
+        {
+            // fall back: lookup by name
+        }
+
+        return builder.getColumnIndexByName(column);
     }
 
     private void addHardLimit(RenderingInfo info)
@@ -311,7 +326,7 @@ public class QueryPart extends AbstractPart
             }
             else
             {
-                int columnIndex = builder.getColumnIndexByName(filter.substring(0, p));
+                int columnIndex = getColumnIndex(builder, filter.substring(0, p));
                 if (columnIndex < 0)
                 {
                     Logger.getLogger(getClass().getName())
@@ -435,7 +450,7 @@ public class QueryPart extends AbstractPart
             String name = p < 0 ? column : column.substring(0, p);
             Column.SortDirection direction = p < 0 ? null : Column.SortDirection.valueOf(column.substring(p + 1));
 
-            int columnIndex = builder.getColumnIndexByName(name);
+            int columnIndex = getColumnIndex(builder, name);
             if (columnIndex < 0)
             {
                 Logger.getLogger(getClass().getName()).log(Level.WARNING,
@@ -449,5 +464,5 @@ public class QueryPart extends AbstractPart
 
         builder.setSortOrder(indices.toArray(), directions.toArray(new Column.SortDirection[0]));
     }
-    
+
 }

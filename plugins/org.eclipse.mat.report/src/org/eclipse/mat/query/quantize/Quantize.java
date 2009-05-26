@@ -49,19 +49,9 @@ public final class Quantize
             this.functions = functions;
         }
 
-        Function[] getFunctions()
-        {
-            return functions;
-        }
-
         public Object getKey()
         {
             return key;
-        }
-
-        public ArrayInt getObjectIds()
-        {
-            return objectIds;
         }
     }
 

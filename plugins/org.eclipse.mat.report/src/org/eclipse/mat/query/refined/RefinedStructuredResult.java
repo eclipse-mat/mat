@@ -233,7 +233,7 @@ public abstract class RefinedStructuredResult implements IStructuredResult, //
 
     public int getFilteredCount(List<?> elements)
     {
-        return elements instanceof FilteredList ? ((FilteredList<?>) elements).getFilteredCount() : 0;
+        return elements instanceof FilteredList<?> ? ((FilteredList<?>) elements).getFilteredCount() : 0;
     }
 
     public void filterChanged(Filter filter)

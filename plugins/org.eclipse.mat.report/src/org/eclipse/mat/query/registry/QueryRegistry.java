@@ -18,10 +18,14 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.CoreException;
@@ -180,8 +184,11 @@ public class QueryRegistry extends RegistryReader<IQuery>
     {
         Class<? extends IQuery> queryClass = query.getClass();
 
+        String key = queryClass.getSimpleName();
+        ResourceBundle i18n = getBundle(queryClass);
+
         Name n = queryClass.getAnnotation(Name.class);
-        String name = n != null ? n.value() : queryClass.getSimpleName();
+        String name = translate(i18n, key + ".name", n != null ? n.value() : queryClass.getSimpleName()); //$NON-NLS-1$
 
         String identifier = getIdentifier(query);
 
@@ -191,13 +198,13 @@ public class QueryRegistry extends RegistryReader<IQuery>
                             commandsByIdentifier.get(identifier).getCommandType().getName()));
 
         Category c = queryClass.getAnnotation(Category.class);
-        String category = c != null ? c.value() : null;
+        String category = translate(i18n, key + ".category", c != null ? c.value() : null); //$NON-NLS-1$
 
         Usage u = queryClass.getAnnotation(Usage.class);
         String usage = u != null ? u.value() : null;
 
         Help h = queryClass.getAnnotation(Help.class);
-        String help = h != null ? h.value() : null;
+        String help = translate(i18n, key + ".help", h != null ? h.value() : null); //$NON-NLS-1$
 
         HelpUrl hu = queryClass.getAnnotation(HelpUrl.class);
         String helpUrl = hu != null ? hu.value() : null;
@@ -211,33 +218,77 @@ public class QueryRegistry extends RegistryReader<IQuery>
         Class<?> clazz = queryClass;
         while (!clazz.equals(Object.class))
         {
-            addArguments(query, clazz, descriptor);
+            addArguments(query, clazz, descriptor, i18n);
             clazz = clazz.getSuperclass();
         }
 
-        readMenuEntries(queryClass, descriptor);
+        readMenuEntries(queryClass, descriptor, i18n);
 
         commandsByIdentifier.put(identifier, descriptor);
         commandsByClass.put(query.getClass().getName().toLowerCase(), descriptor);
         return descriptor;
     }
 
-    private void readMenuEntries(Class<? extends IQuery> queryClass, QueryDescriptor descriptor)
+    private String translate(ResourceBundle i18n, String key, String defaultValue)
+    {
+        try
+        {
+            return i18n.getString(key);
+        }
+        catch (MissingResourceException e)
+        {
+            return defaultValue;
+        }
+    }
+
+    private ResourceBundle getBundle(Class<? extends IQuery> queryClass)
+    {
+        try
+        {
+            return ResourceBundle.getBundle(queryClass.getPackage().getName() + ".annotations", //$NON-NLS-1$
+                            Locale.getDefault(), queryClass.getClassLoader());
+        }
+        catch (MissingResourceException e)
+        {
+            return new ResourceBundle()
+            {
+                @Override
+                protected Object handleGetObject(String key)
+                {
+                    return null;
+                }
+
+                @Override
+                public Enumeration<String> getKeys()
+                {
+                    return null;
+                }
+            };
+        }
+    }
+
+    private void readMenuEntries(Class<? extends IQuery> queryClass, QueryDescriptor descriptor, ResourceBundle i18n)
     {
         Menu menu = queryClass.getAnnotation(Menu.class);
         if (menu == null || menu.value() == null || menu.value().length == 0)
             return;
 
+        String key = queryClass.getSimpleName() + ".menu."; //$NON-NLS-1$
+
+        int index = 0;
         for (Menu.Entry entry : menu.value())
         {
-            String label = entry.label();
+            String label = translate(i18n, key + index + ".label", entry.label()); //$NON-NLS-1$
+            if (label == null || label.length() == 0)
+                label = MessageUtil.format(Messages.QueryRegistry_MissingLabel, queryClass.getName(),
+                                String.valueOf(index + 1));
 
-            String category = entry.category();
-            if (category.length() == 0)
+            String category = translate(i18n, key + index + ".category", entry.category()); //$NON-NLS-1$
+            if (category == null || category.length() == 0)
                 category = descriptor.getCategory();
 
-            String help = entry.help();
-            if (help.length() == 0)
+            String help = translate(i18n, key + index + ".help", entry.help()); //$NON-NLS-1$
+            if (help == null || help.length() == 0)
                 help = descriptor.getHelp();
 
             String helpUrl = entry.helpUrl();
@@ -251,11 +302,16 @@ public class QueryRegistry extends RegistryReader<IQuery>
 
             String options = entry.options();
 
+            if (i18n != null)
+            {}
+
             descriptor.addMenuEntry(label, category, help, helpUrl, icon, options);
+            index++;
         }
     }
 
-    private void addArguments(IQuery query, Class<?> clazz, QueryDescriptor descriptor) throws SnapshotException
+    private void addArguments(IQuery query, Class<?> clazz, QueryDescriptor descriptor, ResourceBundle i18n)
+                    throws SnapshotException
     {
         Field[] fields = clazz.getDeclaredFields();
 
@@ -270,9 +326,11 @@ public class QueryRegistry extends RegistryReader<IQuery>
                     ArgumentDescriptor argDescriptor = fromAnnotation(clazz, argument, field, field.get(query));
 
                     // add help (if available)
-                    Help help = field.getAnnotation(Help.class);
+                    Help h = field.getAnnotation(Help.class);
+                    String help = translate(i18n, clazz.getSimpleName() + "." + argDescriptor.getName() + ".help", //$NON-NLS-1$//$NON-NLS-2$
+                                    h != null ? h.value() : null);
                     if (help != null)
-                        argDescriptor.setHelp(help.value());
+                        argDescriptor.setHelp(help);
 
                     descriptor.addParamter(argDescriptor);
                 }

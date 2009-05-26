@@ -106,7 +106,7 @@ public final class SpecFactory extends RegistryReader<SpecFactory.Report>
         try
         {
             in = url.openStream();
-            return read(in);
+            return read(in, Platform.getBundle(report.configElement.getNamespaceIdentifier()));
         }
         finally
         {
@@ -131,7 +131,7 @@ public final class SpecFactory extends RegistryReader<SpecFactory.Report>
 
         try
         {
-            return read(in);
+            return read(in, null);
         }
         finally
         {
@@ -168,11 +168,11 @@ public final class SpecFactory extends RegistryReader<SpecFactory.Report>
     // XML reading
     // //////////////////////////////////////////////////////////////
 
-    private static final Spec read(InputStream input) throws IOException
+    private static final Spec read(InputStream input, Bundle bundle) throws IOException
     {
         try
         {
-            SpecHandler handler = new SpecHandler();
+            SpecHandler handler = new SpecHandler(bundle);
             XMLReader saxXmlReader = XMLReaderFactory.createXMLReader();
             saxXmlReader.setContentHandler(handler);
             saxXmlReader.setErrorHandler(handler);
@@ -189,13 +189,15 @@ public final class SpecFactory extends RegistryReader<SpecFactory.Report>
 
     private static class SpecHandler extends DefaultHandler
     {
+        private Bundle bundle;
         private LinkedList<Spec> stack;
         private StringBuilder buf;
 
-        private SpecHandler()
+        private SpecHandler(Bundle bundle)
         {
-            stack = new LinkedList<Spec>();
-            stack.add(new SectionSpec("root")); //$NON-NLS-1$
+            this.bundle = bundle;
+            this.stack = new LinkedList<Spec>();
+            this.stack.add(new SectionSpec("root")); //$NON-NLS-1$
         }
 
         @SuppressWarnings("nls")
@@ -204,13 +206,22 @@ public final class SpecFactory extends RegistryReader<SpecFactory.Report>
         {
             if ("section".equals(localName))
             {
-                SectionSpec spec = new SectionSpec(attributes.getValue("name"));
+                String n = attributes.getValue("name");
+
+                if (bundle != null && n != null && n.length() > 0 && n.charAt(0) == '%')
+                    n = Platform.getResourceString(bundle, n);
+
+                SectionSpec spec = new SectionSpec(n);
                 ((SectionSpec) stack.getLast()).add(spec);
                 stack.add(spec);
             }
             else if ("query".equals(localName))
             {
-                QuerySpec spec = new QuerySpec(attributes.getValue("name"));
+                String n = attributes.getValue("name");
+                if (bundle != null && n != null && n.length() > 0 && n.charAt(0) == '%')
+                    n = Platform.getResourceString(bundle, n);
+
+                QuerySpec spec = new QuerySpec(n);
                 ((SectionSpec) stack.getLast()).add(spec);
                 stack.add(spec);
             }

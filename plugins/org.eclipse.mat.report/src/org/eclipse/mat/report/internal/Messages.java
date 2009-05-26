@@ -63,6 +63,8 @@ public final class Messages extends NLS
     public static String QueryRegistry_Error_Inaccessible;
     public static String QueryRegistry_Error_NameBound;
     public static String QueryRegistry_Error_Registering;
+    public static String QueryRegistry_MissingLabel;
+
     public static String QueryRegistry_Msg_QueryRegistered;
     public static String QuerySpec_Error_IncompatibleTypes;
     public static String RefinedResultBuilder_Error_ColumnsSorting;

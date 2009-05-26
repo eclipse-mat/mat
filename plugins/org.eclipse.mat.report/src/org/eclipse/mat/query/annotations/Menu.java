@@ -26,7 +26,7 @@ public @interface Menu
 
         String icon() default "";
 
-        String label();
+        String label() default "";
 
         String help() default "";
 
