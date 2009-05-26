@@ -14,13 +14,13 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResultTree;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.Category;
-import org.eclipse.mat.query.annotations.Help;
+import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.Icon;
-import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.query.annotations.Usage;
 import org.eclipse.mat.query.results.TextResult;
 import org.eclipse.mat.snapshot.IOQLQuery;
@@ -29,11 +29,10 @@ import org.eclipse.mat.snapshot.SnapshotFactory;
 import org.eclipse.mat.snapshot.query.ObjectListResult;
 import org.eclipse.mat.util.IProgressListener;
 
-@Name("OQL")
+@CommandName("oql")
 @Category(Category.HIDDEN)
 @Icon("/META-INF/icons/oql.gif")
 @Usage("oql \"select * from ...\"")
-@Help("Execute an OQL Statement.")
 public class OQLQuery implements IQuery
 {
     @Argument
@@ -52,7 +51,7 @@ public class OQLQuery implements IQuery
 
             if (result == null)
             {
-                return new OQLTextResult("Your Query did not yield any result.\n\n" + query, queryString);
+                return new OQLTextResult(Messages.OQLQuery_NoResult + "\n\n" + query, queryString); //$NON-NLS-1$
             }
             else if (result instanceof IOQLQuery.Result)
             {
@@ -74,13 +73,13 @@ public class OQLQuery implements IQuery
         catch (Exception e)
         {
             StringBuilder buf = new StringBuilder(256);
-            buf.append("Executed Query:\n");
+            buf.append(Messages.OQLQuery_ExecutedQuery + "\n"); //$NON-NLS-1$
             buf.append(queryString);
 
             Throwable t = null;
             if (e instanceof SnapshotException)
             {
-                buf.append("\n\nProblem reported:\n");
+                buf.append("\n\n" + Messages.OQLQuery_ProblemReported + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
                 buf.append(e.getMessage());
                 t = e.getCause();
             }
@@ -91,7 +90,7 @@ public class OQLQuery implements IQuery
 
             if (t != null)
             {
-                buf.append("\n\n");
+                buf.append("\n\n"); //$NON-NLS-1$
                 StringWriter w = new StringWriter();
                 PrintWriter o = new PrintWriter(w);
                 t.printStackTrace(o);

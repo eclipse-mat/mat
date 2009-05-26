@@ -21,6 +21,7 @@ import java.util.logging.Logger;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.HashMapObjectLong;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.ContextDerivedData;
 import org.eclipse.mat.query.ContextProvider;
@@ -40,11 +41,12 @@ import com.ibm.icu.text.DecimalFormat;
 
 public class RetainedSizeDerivedData extends ContextDerivedData
 {
-    public static final DerivedOperation APPROXIMATE = new DerivedOperation("APPROXIMATE",
-                    "Calculate Minimum Retained Size (quick approx.)");
-    public static final DerivedOperation PRECISE = new DerivedOperation("PRECISE", "Calculate Precise Retained Size");
+    public static final DerivedOperation APPROXIMATE = new DerivedOperation("APPROXIMATE", //$NON-NLS-1$
+                    Messages.RetainedSizeDerivedData_Label_Approximate);
+    public static final DerivedOperation PRECISE = new DerivedOperation("PRECISE", //$NON-NLS-1$
+                    Messages.RetainedSizeDerivedData_Label_Precise);
 
-    private static final DerivedColumn COLUMN = new DerivedColumn("Retained Heap", APPROXIMATE, PRECISE);
+    private static final DerivedColumn COLUMN = new DerivedColumn(Messages.Column_RetainedHeap, APPROXIMATE, PRECISE);
 
     private ISnapshot snapshot;
 
@@ -62,7 +64,7 @@ public class RetainedSizeDerivedData extends ContextDerivedData
     @Override
     public String labelFor(DerivedColumn derivedColumn, ContextProvider provider)
     {
-        return provider.getLabel() == null ? derivedColumn.getLabel() : derivedColumn.getLabel() + " - "
+        return provider.getLabel() == null ? derivedColumn.getLabel() : derivedColumn.getLabel() + " - " //$NON-NLS-1$
                         + provider.getLabel();
     }
 
@@ -157,7 +159,7 @@ public class RetainedSizeDerivedData extends ContextDerivedData
                 {
                     if (retainedSet.length == 1 && retainedSet[0] == -1)
                     {
-                        String msg = "Context provider ''{0}'' returned an illegal context object set for ''{1}}'' with content ''{{2}}'''. Return null instead.";
+                        String msg = Messages.RetainedSizeDerivedData_ErrorMsg_IllegalContextObject;
                         Logger.getLogger(getClass().getName()).log(
                                         Level.SEVERE,
                                         MessageUtil.format(msg, provider.getClass().getName(),
@@ -196,7 +198,7 @@ public class RetainedSizeDerivedData extends ContextDerivedData
                 int objectId = contextObject.getObjectId();
                 if (objectId < 0)
                 {
-                    String msg = "Context provider ''{0}'' returned an context object with an illegeal object id for ''{1}}''. Return null instead.";
+                    String msg = Messages.RetainedSizeDerivedData_ErrorMsg_IllegalObjectId;
                     Logger.getLogger(getClass().getName()).log(Level.SEVERE,
                                     MessageUtil.format(msg, provider.getClass().getName(), row.toString()));
                 }
@@ -315,7 +317,7 @@ public class RetainedSizeDerivedData extends ContextDerivedData
     private static final class RetainedSizeFormat extends Format
     {
         private static final long serialVersionUID = 1L;
-        private static final Format formatter = new DecimalFormat("#,##0");
+        private static final Format formatter = new DecimalFormat("#,##0"); //$NON-NLS-1$
 
         @Override
         public StringBuffer format(Object obj, StringBuffer toAppendTo, FieldPosition pos)
@@ -324,7 +326,7 @@ public class RetainedSizeDerivedData extends ContextDerivedData
 
             if (v.longValue() < 0)
             {
-                toAppendTo.append(">= ");
+                toAppendTo.append(">= "); //$NON-NLS-1$
                 formatter.format(-v.longValue(), toAppendTo, pos);
             }
             else

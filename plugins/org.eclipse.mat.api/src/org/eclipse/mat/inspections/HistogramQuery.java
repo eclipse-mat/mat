@@ -12,14 +12,12 @@ package org.eclipse.mat.inspections;
 
 import java.net.URL;
 
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
-import org.eclipse.mat.query.annotations.Category;
 import org.eclipse.mat.query.annotations.CommandName;
-import org.eclipse.mat.query.annotations.Help;
 import org.eclipse.mat.query.annotations.Icon;
-import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.snapshot.Histogram;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
@@ -27,19 +25,15 @@ import org.eclipse.mat.snapshot.query.Icons;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 
-@Name("Show As Histogram")
 @CommandName("histogram")
-@Category("Java Basics")
 @Icon("/META-INF/icons/show_histogram.gif")
-@Help("Create a histogram from an arbitrary set of objects.\n\n"
-                + "If you need the retained set as an histogram, use the retained_set query.")
 public class HistogramQuery implements IQuery
 {
     public enum Grouping
     {
-        BY_CLASS("Group by class", Icons.CLASS), //
-        BY_CLASSLOADER("Group by class loader", Icons.CLASSLOADER_INSTANCE), //
-        BY_PACKAGE("Group by package", Icons.PACKAGE);
+        BY_CLASS(Messages.HistogramQuery_GroupByClass, Icons.CLASS), //
+        BY_CLASSLOADER(Messages.HistogramQuery_GroupByClassLoader, Icons.CLASSLOADER_INSTANCE), //
+        BY_PACKAGE(Messages.HistogramQuery_GroupByPackage, Icons.PACKAGE);
 
         String label;
         URL icon;
@@ -68,11 +62,6 @@ public class HistogramQuery implements IQuery
     public IHeapObjectArgument objects;
 
     @Argument(isMandatory = false)
-    @Help("Deprecated. Use groupBy instead.")
-    @Deprecated
-    public boolean byClassLoader = false;
-
-    @Argument(isMandatory = false)
     public Grouping groupBy = Grouping.BY_CLASS;
 
     public IResult execute(IProgressListener listener) throws Exception
@@ -84,10 +73,7 @@ public class HistogramQuery implements IQuery
             throw new IProgressListener.OperationCanceledException();
 
         if (objects != null)
-            histogram.setLabel(MessageUtil.format("Histogram of {0}", objects.getLabel()));
-
-        if (byClassLoader)
-            groupBy = Grouping.BY_CLASSLOADER;
+            histogram.setLabel(MessageUtil.format(Messages.HistogramQuery_HistogramOf, objects.getLabel()));
 
         switch (groupBy)
         {
@@ -98,7 +84,7 @@ public class HistogramQuery implements IQuery
             case BY_PACKAGE:
                 return histogram.groupByPackage();
             default:
-                throw new RuntimeException(MessageUtil.format("Illegal groupBy argument: {0}", groupBy));
+                throw new RuntimeException(MessageUtil.format(Messages.HistogramQuery_IllegalArgument, groupBy));
         }
     }
 

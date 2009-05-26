@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IIconProvider;
@@ -86,9 +87,9 @@ public class UnreachableObjectsHistogram implements IResultTable, IIconProvider,
 
     public Column[] getColumns()
     {
-        return new Column[] { new Column("Class Name"), //
-                        new Column("Objects", long.class), //
-                        new Column("Shallow Heap", long.class).sorting(SortDirection.DESC) };
+        return new Column[] { new Column(Messages.Column_ClassName), //
+                        new Column(Messages.Column_Objects, long.class), //
+                        new Column(Messages.Column_ShallowHeap, long.class).sorting(SortDirection.DESC) };
     }
 
     public int getRowCount()

@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IDecorator;
@@ -64,7 +65,7 @@ public final class ObjectTreeFactory
         public TreePathBuilder addChild(int objectId, boolean select)
         {
             if (branch == null)
-                throw new RuntimeException("#addChild must be called after a root object has been added.");
+                throw new RuntimeException(Messages.ObjectTreeFactory_ErrorMsg_addChild);
 
             branch.isExpanded = true;
 
@@ -77,7 +78,7 @@ public final class ObjectTreeFactory
         public TreePathBuilder addChildren(int[] objectIds)
         {
             if (branch == null)
-                throw new RuntimeException("#addChildren must be called after a root object has been added.");
+                throw new RuntimeException(Messages.ObjectTreeFactory_ErrorMsg_addChildren);
 
             branch.isExpanded = true;
 
@@ -90,7 +91,7 @@ public final class ObjectTreeFactory
         public TreePathBuilder addSibling(int objectId, boolean select)
         {
             if (branch == null)
-                throw new RuntimeException("#addChild must be called after a root object has been added.");
+                throw new RuntimeException(Messages.ObjectTreeFactory_ErrorMsg_addChild);
 
             branch.isExpanded = true;
             branch.getOrCreateChild(objectId);
@@ -156,10 +157,10 @@ public final class ObjectTreeFactory
 
     private static class NodeResult implements IResultTree, IIconProvider, ISelectionProvider
     {
-        private static final Column COL_HEAP = new Column("Shallow Heap", long.class);
-        private static final Column COL_RETAINED = new Column("Retained Heap", long.class);
-        private static final Column COL_PERCENT = new Column("Percentage", double.class).formatting(new DecimalFormat(
-                        "0.00%"));
+        private static final Column COL_HEAP = new Column(Messages.Column_ShallowHeap, long.class);
+        private static final Column COL_RETAINED = new Column(Messages.Column_RetainedHeap, long.class);
+        private static final Column COL_PERCENT = new Column(Messages.ObjectTreeFactory_Column_Percentage, double.class) //
+                        .formatting(new DecimalFormat("0.00%")); //$NON-NLS-1$
 
         private ISnapshot snapshot;
         private Node invisibleRoot;
@@ -183,7 +184,7 @@ public final class ObjectTreeFactory
 
         public Column[] getColumns()
         {
-            Column classNameCol = new Column("Class name", String.class);
+            Column classNameCol = new Column(Messages.Column_ClassName, String.class);
             if (decorateWithAttributeName)
                 classNameCol.decorator(new IDecorator()
                 {

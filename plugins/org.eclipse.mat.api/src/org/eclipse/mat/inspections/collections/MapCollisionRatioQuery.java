@@ -15,12 +15,11 @@ import java.util.Collection;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.inspections.InspectionAssert;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
-import org.eclipse.mat.query.annotations.Category;
-import org.eclipse.mat.query.annotations.Help;
-import org.eclipse.mat.query.annotations.Name;
+import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.quantize.Quantize;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IClass;
@@ -31,19 +30,7 @@ import org.eclipse.mat.snapshot.query.RetainedSizeDerivedData;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 
-@Name("Map Collision Ratio")
-@Category("Java Collections")
-@Help("Prints a frequency distribution of the collistion ratios of map-like collections.\n\n"
-                + "The below listed map-like collections are known to the query. "
-                + "One additional custom map-like (e.g. non-JDK) collection "
-                + "can be specified by the 'collection', 'size_attribute' and " // 
-                + "'array_attribute' argument.\n" //
-                + "Known collections:\n" //
-                + "java.util.HashMap\n" // 
-                + "java.util.Properties\n" //
-                + "java.util.Hashtable\n" //
-                + "java.util.WeakHashMap\n" //
-                + "java.util.concurrent.ConcurrentHashMap$Segment")
+@CommandName("map_collision_ratio")
 public class MapCollisionRatioQuery implements IQuery
 {
 
@@ -51,30 +38,25 @@ public class MapCollisionRatioQuery implements IQuery
     public ISnapshot snapshot;
 
     @Argument(flag = "none")
-    @Help("The hashtable objects. Non-hashtable objects will be ignored.")
     public IHeapObjectArgument objects;
 
     @Argument(isMandatory = false)
-    @Help("Number of segments used for the frequency distribution.")
     public int segments = 5;
 
     @Argument(isMandatory = false)
-    @Help("Optional: fully qualified class name of a custom (e.g. non-JDK) map-like collection class.")
     public String collection;
 
     @Argument(isMandatory = false)
-    @Help("The size attribute of the (optionally) specified map-like collection. Must be of type int or Integer.")
     public String size_attribute;
 
     @Argument(isMandatory = false)
-    @Help("The array attribute of the (optionally) specified map-like collection. Must be a Java array.")
     public String array_attribute;
 
     public IResult execute(IProgressListener listener) throws Exception
     {
-        InspectionAssert.heapFormatIsNot(snapshot, "phd");
+        InspectionAssert.heapFormatIsNot(snapshot, "phd"); //$NON-NLS-1$
 
-        listener.subTask("Calculating Map Collision Ratios...");
+        listener.subTask(Messages.MapCollisionRatioQuery_CalculatingCollisionRatios);
 
         // prepare meta-data of known collections
         HashMapIntObject<CollectionUtil.Info> metadata = CollectionUtil.getKnownMaps(snapshot);
@@ -84,9 +66,7 @@ public class MapCollisionRatioQuery implements IQuery
         {
             if (size_attribute == null || array_attribute == null)
             {
-                String msg = "If the collection argument is set to a custom (e.g. non-JDK) collection class, "
-                                + "the size_attribute and array_attribute argument must be set. Otherwise, the query "
-                                + "cannot calculate the collision ratio.";
+                String msg = Messages.MapCollisionRatioQuery_ErrorMsg_MissingArgument;
                 throw new SnapshotException(msg);
             }
 
@@ -96,7 +76,7 @@ public class MapCollisionRatioQuery implements IQuery
             if (classes == null || classes.isEmpty())
             {
                 listener.sendUserMessage(IProgressListener.Severity.WARNING, MessageUtil.format(
-                                "Class ''{0}'' not found in heap dump.", collection), null);
+                                Messages.MapCollisionRatioQuery_ErrorMsg_ClassNotFound, collection), null);
             }
             else
             {
@@ -106,10 +86,10 @@ public class MapCollisionRatioQuery implements IQuery
         }
 
         // create frequency distribution
-        Quantize.Builder builder = Quantize.linearFrequencyDistribution("Collision Ratio", 0, 1, (double) 1
-                        / (double) segments);
-        builder.column("# Objects", Quantize.COUNT);
-        builder.column("Shallow Heap", Quantize.SUM_LONG);
+        Quantize.Builder builder = Quantize.linearFrequencyDistribution(
+                        Messages.MapCollisionRatioQuery_Column_CollisionRatio, 0, 1, (double) 1 / (double) segments);
+        builder.column(Messages.MapCollisionRatioQuery_Column_NumObjects, Quantize.COUNT);
+        builder.column(Messages.Column_ShallowHeap, Quantize.SUM_LONG);
         builder.addDerivedData(RetainedSizeDerivedData.APPROXIMATE);
         Quantize quantize = builder.build();
 

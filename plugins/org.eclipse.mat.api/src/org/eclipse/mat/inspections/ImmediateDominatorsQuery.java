@@ -13,6 +13,7 @@ package org.eclipse.mat.inspections;
 import java.net.URL;
 import java.util.regex.Pattern;
 
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.ContextProvider;
 import org.eclipse.mat.query.IContextObject;
@@ -24,10 +25,9 @@ import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.query.ResultMetaData;
 import org.eclipse.mat.query.Column.SortDirection;
 import org.eclipse.mat.query.annotations.Argument;
-import org.eclipse.mat.query.annotations.Help;
+import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Icon;
-import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.query.annotations.Argument.Advice;
 import org.eclipse.mat.snapshot.DominatorsSummary;
 import org.eclipse.mat.snapshot.ISnapshot;
@@ -36,13 +36,8 @@ import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.snapshot.query.Icons;
 import org.eclipse.mat.util.IProgressListener;
 
-@Name("Immediate Dominators")
+@CommandName("immediate_dominators")
 @Icon("/META-INF/icons/immediate_dominators.gif")
-@Help("Find and aggregate on class level all objects dominating a given set of objects.\n\n"
-                + "The immediate dominators of all char arrays (immediate_dominators char[]) "
-                + "are all objects responsible for keeping the char[] alive. The result will "
-                + "contain most likely java.lang.String objects. Now add the skip pattern java.*, "
-                + "and you will see the non-JDK classes responsible for the char arrays.")
 @HelpUrl("/org.eclipse.mat.ui.help/reference/inspections/immediate_dominators.html#ref_inspections_immediate_dominators__result")
 public class ImmediateDominatorsQuery implements IQuery
 {
@@ -54,11 +49,7 @@ public class ImmediateDominatorsQuery implements IQuery
     public IHeapObjectArgument objects;
 
     @Argument(isMandatory = false, advice = Advice.CLASS_NAME_PATTERN, flag = "skip")
-    @Help("A regular expression specifying which dominators to skip while going up the dominator tree. "
-                    + "If the dominator of an object matches the pattern, then the dominator of the "
-                    + "dominator will be taken, and so on, until an object not matching the skip pattern "
-                    + "is reached.")
-    public Pattern skipPattern = Pattern.compile("java.*|com\\.sun\\..*");
+    public Pattern skipPattern = Pattern.compile("java.*|com\\.sun\\..*"); //$NON-NLS-1$
 
     public IResult execute(IProgressListener listener) throws Exception
     {
@@ -80,7 +71,7 @@ public class ImmediateDominatorsQuery implements IQuery
         {
             return new ResultMetaData.Builder() //
 
-                            .addContext(new ContextProvider("Objects")
+                            .addContext(new ContextProvider(Messages.ImmediateDominatorsQuery_Objects)
                             {
                                 @Override
                                 public IContextObject getContext(Object row)
@@ -89,7 +80,7 @@ public class ImmediateDominatorsQuery implements IQuery
                                 }
                             }) //
 
-                            .addContext(new ContextProvider("Dominated Objects")
+                            .addContext(new ContextProvider(Messages.ImmediateDominatorsQuery_DominatedObjects)
                             {
                                 @Override
                                 public IContextObject getContext(Object row)
@@ -103,11 +94,13 @@ public class ImmediateDominatorsQuery implements IQuery
 
         public Column[] getColumns()
         {
-            return new Column[] { new Column("Class name"), //
-                            new Column("Objects", Long.class), //
-                            new Column("Dom. Objects", Long.class), //
-                            new Column("Shallow Heap", Long.class), //
-                            new Column("Dom. Shallow Heap", Long.class).sorting(SortDirection.DESC) };
+            return new Column[] {
+                            new Column(Messages.Column_ClassName), //
+                            new Column(Messages.Column_Objects, Long.class), //
+                            new Column(Messages.ImmediateDominatorsQuery_ColumnDominatedObjects, Long.class), //
+                            new Column(Messages.Column_ShallowHeap, Long.class), //
+                            new Column(Messages.ImmediateDominatorsQuery_Column_DominatedShallowHeap, Long.class)
+                                            .sorting(SortDirection.DESC) };
         }
 
         public int getRowCount()

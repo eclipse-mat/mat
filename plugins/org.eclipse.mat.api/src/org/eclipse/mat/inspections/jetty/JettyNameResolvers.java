@@ -10,7 +10,10 @@
  *******************************************************************************/
 package org.eclipse.mat.inspections.jetty;
 
+import java.text.MessageFormat;
+
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.snapshot.extension.IClassSpecificNameResolver;
 import org.eclipse.mat.snapshot.extension.Subject;
 import org.eclipse.mat.snapshot.model.IObject;
@@ -23,11 +26,11 @@ public class JettyNameResolvers
     {
         public String resolve(IObject object) throws SnapshotException
         {
-            IObject name = (IObject) object.resolveValue("_name");
+            IObject name = (IObject) object.resolveValue("_name"); //$NON-NLS-1$
             if (name != null)
                 return name.getClassSpecificName();
 
-            IObject contextPath = (IObject) object.resolveValue("_context._contextPath");
+            IObject contextPath = (IObject) object.resolveValue("_context._contextPath"); //$NON-NLS-1$
             return contextPath != null ? contextPath.getClassSpecificName() : null;
         }
     }
@@ -37,8 +40,9 @@ public class JettyNameResolvers
     {
         public String resolve(IObject object) throws SnapshotException
         {
-            IObject parent = (IObject) object.resolveValue("parent");
-            return parent != null ? "JSPs of " + parent.getClassSpecificName() : null;
+            IObject parent = (IObject) object.resolveValue("parent"); //$NON-NLS-1$
+            return parent != null ? MessageFormat.format(Messages.JettyNameResolvers_JSPofWebApp, parent
+                            .getClassSpecificName()) : null;
         }
     }
 }

@@ -16,17 +16,15 @@ import org.eclipse.mat.inspections.collections.HashEntriesQuery;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.Category;
-import org.eclipse.mat.query.annotations.Help;
-import org.eclipse.mat.query.annotations.Name;
+import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.query.SnapshotQuery;
 import org.eclipse.mat.util.IProgressListener;
 
-@Name("System Properties")
+@CommandName("system_properties")
 @Category("Java Basics")
-@Help("Displays the Java system properties.")
 public class SystemPropertiesQuery implements IQuery
 {
     @Argument
@@ -34,8 +32,6 @@ public class SystemPropertiesQuery implements IQuery
 
     public HashEntriesQuery.Result execute(IProgressListener listener) throws Exception
     {
-        InspectionAssert.heapFormatIsNot(snapshot, "phd");
-
         Collection<IClass> classes = snapshot.getClassesByName("java.lang.System", false); //$NON-NLS-1$
         IClass systemClass = classes.iterator().next();
 
@@ -45,8 +41,8 @@ public class SystemPropertiesQuery implements IQuery
         if (properties == null)
             return null;
 
-        return (HashEntriesQuery.Result) SnapshotQuery.lookup("hash_entries", snapshot) //
-                        .set("objects", properties) //
+        return (HashEntriesQuery.Result) SnapshotQuery.lookup("hash_entries", snapshot) //$NON-NLS-1$
+                        .set("objects", properties) //$NON-NLS-1$
                         .execute(listener);
     }
 

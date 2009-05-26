@@ -16,24 +16,16 @@ import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.Category;
 import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.Menu;
-import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.query.annotations.Menu.Entry;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.snapshot.query.ObjectListResult;
 import org.eclipse.mat.util.IProgressListener;
 
-@Name("List Objects")
 @Category(Category.HIDDEN)
 @CommandName("list_objects")
-@Menu( { @Entry(category = "1|List objects", //
-                label = "1|with outgoing references", //
-                icon = "/META-INF/icons/list_outbound.gif"), //
-
-                @Entry(category = "1|List objects", //
-                label = "2|with incoming references", //
-                options = "-inbound", //
-                icon = "/META-INF/icons/list_inbound.gif") //
+@Menu( { @Entry(icon = "/META-INF/icons/list_outbound.gif"), //
+                @Entry(options = "-inbound", icon = "/META-INF/icons/list_inbound.gif") //
 })
 public class ObjectListQuery implements IQuery
 {

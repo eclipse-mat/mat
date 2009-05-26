@@ -20,7 +20,7 @@ import org.osgi.framework.BundleContext;
 
 public class MATPlugin extends Plugin
 {
-    public static final String PLUGIN_ID = "org.eclipse.mat.api";
+    public static final String PLUGIN_ID = "org.eclipse.mat.api"; //$NON-NLS-1$
 
     private static MATPlugin plugin;
 
@@ -60,7 +60,7 @@ public class MATPlugin extends Plugin
 
     public static void log(Throwable e)
     {
-        log(e, "Internal Error");
+        log(e, Messages.MATPlugin_InternalError);
     }
 
     public static void log(Throwable e, String message)

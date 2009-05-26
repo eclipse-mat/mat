@@ -10,18 +10,15 @@
  *******************************************************************************/
 package org.eclipse.mat.inspections;
 
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
-import org.eclipse.mat.query.annotations.Category;
-import org.eclipse.mat.query.annotations.Help;
-import org.eclipse.mat.query.annotations.Name;
+import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.util.IProgressListener;
 
-@Name("Finalizer References Statistics")
-@Category("Java Basics/References")
-@Help("Statistics on Finalizers.")
+@CommandName("finalizer_references_statistics")
 public class FinalizerReferenceStatQuery implements IQuery
 {
     @Argument
@@ -29,7 +26,9 @@ public class FinalizerReferenceStatQuery implements IQuery
 
     public IResult execute(IProgressListener listener) throws Exception
     {
-        return ReferenceQuery.execute("'Finalizely'", "java\\.lang\\.ref\\.Finalizer", snapshot, listener);
+        return ReferenceQuery.execute("java\\.lang\\.ref\\.Finalizer", snapshot, //$NON-NLS-1$
+                        Messages.FinalizerReferenceStatQuery_Label_Referenced,
+                        Messages.FinalizerReferenceStatQuery_Label_Retained, listener);
     }
 
 }

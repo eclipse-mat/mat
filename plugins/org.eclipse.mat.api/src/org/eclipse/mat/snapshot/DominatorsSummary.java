@@ -115,7 +115,7 @@ public final class DominatorsSummary
 
                     if (clr.getId() == -1)
                     {
-                        clr.name = "<ROOT>";
+                        clr.name = "<ROOT>"; //$NON-NLS-1$
                     }
                     else
                     {

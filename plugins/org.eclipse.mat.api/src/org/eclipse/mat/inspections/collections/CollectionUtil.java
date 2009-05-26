@@ -190,6 +190,7 @@ public final class CollectionUtil
         int IBM16 = 1 << 3;
     }
 
+    @SuppressWarnings("nls")
     private static Info[] knownCollections = new Info[] {
                     new Info("java.util.AbstractList", null, null), //
 
@@ -235,6 +236,7 @@ public final class CollectionUtil
                     new Info("com.sap.engine.lib.util.AbstractDataStructure", null, null) //
     };
 
+    @SuppressWarnings("nls")
     private static int resolveVersion(ISnapshot snapshot) throws SnapshotException
     {
         if (snapshot.getClassesByName("com.ibm.misc.JavaRuntimeVersion", false) != null)

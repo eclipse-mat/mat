@@ -11,8 +11,6 @@
 package org.eclipse.mat.inspections;
 
 import java.net.URL;
-import com.ibm.icu.text.DecimalFormat;
-import com.ibm.icu.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -36,14 +34,12 @@ import org.eclipse.mat.inspections.FindLeaksQuery.SuspectRecord;
 import org.eclipse.mat.inspections.FindLeaksQuery.SuspectRecordGroupOfObjects;
 import org.eclipse.mat.inspections.threads.ThreadInfoQuery;
 import org.eclipse.mat.inspections.util.ObjectTreeFactory;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
-import org.eclipse.mat.query.annotations.Category;
 import org.eclipse.mat.query.annotations.CommandName;
-import org.eclipse.mat.query.annotations.Help;
-import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.query.annotations.Argument.Advice;
 import org.eclipse.mat.query.results.CompositeResult;
 import org.eclipse.mat.query.results.ListResult;
@@ -72,25 +68,22 @@ import org.eclipse.mat.snapshot.query.PieFactory;
 import org.eclipse.mat.snapshot.query.SnapshotQuery;
 import org.eclipse.mat.snapshot.registry.TroubleTicketResolverRegistry;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.VoidProgressListener;
 
-@Name("Find Leaks")
+import com.ibm.icu.text.DecimalFormat;
+import com.ibm.icu.text.NumberFormat;
+
 @CommandName("leakhunter")
-@Category("Leak Identification")
-@Help("Report potential memory leaks.\n\n"
-                + "The query analyzes the dominator tree and searches for big memory chunks "
-                + "(by default more than 10% of the total heap). These could be single objects "
-                + "or groups of objects from the same class. Then it tries to automatically find the exact "
-                + "accumulation point - usually an array or a collection.")
 public class LeakHunterQuery implements IQuery
 {
 
     private final static Set<String> REFERENCE_FIELD_SET = new HashSet<String>(Arrays
-                    .asList(new String[] { "referent" }));
+                    .asList(new String[] { "referent" })); //$NON-NLS-1$
 
-    static final String SYSTEM_CLASSLOADER = "&lt;system class loader&gt;";
+    static final String SYSTEM_CLASSLOADER = Messages.LeakHunterQuery_SystemClassLoader;
 
-    static NumberFormat percentFormatter = new DecimalFormat("0.00%");
+    static NumberFormat percentFormatter = new DecimalFormat("0.00%"); //$NON-NLS-1$
     static NumberFormat numberFormatter = NumberFormat.getNumberInstance();
 
     @Argument
@@ -103,8 +96,7 @@ public class LeakHunterQuery implements IQuery
     public int max_paths = 10000;
 
     @Argument(isMandatory = false, advice = Advice.CLASS_NAME_PATTERN, flag = "skip")
-    @Help("A regular expression specifying which dominators/referers to skip when a problematic object is described.")
-    public Pattern skipPattern = Pattern.compile("java.*|com\\.sun\\..*");
+    public Pattern skipPattern = Pattern.compile("java.*|com\\.sun\\..*"); //$NON-NLS-1$
 
     private long totalHeap;
 
@@ -117,12 +109,12 @@ public class LeakHunterQuery implements IQuery
         totalHeap = snapshot.getSnapshotInfo().getUsedHeapSize();
 
         /* call find_leaks */
-        listener.subTask("Finding problem suspects");
+        listener.subTask(Messages.LeakHunterQuery_FindingProblemSuspects);
         FindLeaksQuery.SuspectsResultTable findLeaksResult = callFindLeaks(voidListener);
         SuspectRecord[] leakSuspects = findLeaksResult.getData();
 
-        SectionSpec result = new SectionSpec("Leak Hunter");
-        listener.subTask("Preparing results");
+        SectionSpec result = new SectionSpec(Messages.LeakHunterQuery_LeakHunter);
+        listener.subTask(Messages.LeakHunterQuery_PreparingResults);
 
         if (leakSuspects.length > 0)
         {
@@ -130,9 +122,10 @@ public class LeakHunterQuery implements IQuery
             for (int num = 0; num < leakSuspects.length; num++)
             {
                 SuspectRecord rec = leakSuspects[num];
-                pie.addSlice(-1, "Problem Suspect " + (num + 1), 0, rec.suspectRetained);
+                pie.addSlice(-1, MessageUtil.format(Messages.LeakHunterQuery_ProblemSuspect, (num + 1)), 0,
+                                rec.suspectRetained);
             }
-            result.add(new QuerySpec("Overview", pie.build()));
+            result.add(new QuerySpec(Messages.LeakHunterQuery_Overview, pie.build()));
 
             HashMap<Integer, List<Integer>> accPoint2ProblemNr = new HashMap<Integer, List<Integer>>();
             int problemNum = 0;
@@ -155,10 +148,10 @@ public class LeakHunterQuery implements IQuery
                 CompositeResult suspectDetails = getLeakSuspectDescription(rec, listener);
                 suspectDetails.setStatus(ITestResult.Status.ERROR);
 
-                QuerySpec spec = new QuerySpec("Problem Suspect " + problemNum);
+                QuerySpec spec = new QuerySpec(MessageUtil.format(Messages.LeakHunterQuery_ProblemSuspect, problemNum));
                 spec.setResult(suspectDetails);
                 spec.set(Params.Rendering.PATTERN, Params.Rendering.PATTERN_OVERVIEW_DETAILS);
-                spec.set(Params.Html.IS_IMPORTANT, "true");
+                spec.set(Params.Html.IS_IMPORTANT, Boolean.TRUE.toString());
                 result.add(spec);
             }
 
@@ -166,10 +159,10 @@ public class LeakHunterQuery implements IQuery
             List<CompositeResult> hints = findCommonPathForSuspects(accPoint2ProblemNr);
             for (int k = 0; k < hints.size(); k++)
             {
-                QuerySpec spec = new QuerySpec("Hint " + (k + 1));
+                QuerySpec spec = new QuerySpec(MessageUtil.format(Messages.LeakHunterQuery_Hint, (k + 1)));
                 spec.setResult(hints.get(k));
                 spec.set(Params.Rendering.PATTERN, Params.Rendering.PATTERN_OVERVIEW_DETAILS);
-                spec.set(Params.Html.IS_IMPORTANT, "true");
+                spec.set(Params.Html.IS_IMPORTANT, Boolean.TRUE.toString());
                 result.add(spec);
             }
         }
@@ -180,15 +173,15 @@ public class LeakHunterQuery implements IQuery
         }
         else
         {
-            return new TextResult("No leak suspect was found");
+            return new TextResult(Messages.LeakHunterQuery_NothingFound);
         }
     }
 
     private FindLeaksQuery.SuspectsResultTable callFindLeaks(IProgressListener listener) throws Exception
     {
-        return (FindLeaksQuery.SuspectsResultTable) SnapshotQuery.lookup("find_leaks", snapshot) //
-                        .set("threshold_percent", threshold_percent) //
-                        .set("max_paths", max_paths) //
+        return (FindLeaksQuery.SuspectsResultTable) SnapshotQuery.lookup("find_leaks", snapshot) //$NON-NLS-1$
+                        .set("threshold_percent", threshold_percent) //$NON-NLS-1$
+                        .set("max_paths", max_paths) //$NON-NLS-1$
                         .execute(listener);
     }
 
@@ -227,7 +220,9 @@ public class LeakHunterQuery implements IQuery
                     throws SnapshotException
     {
         StringBuilder overview = new StringBuilder(256);
-        TextResult overviewResult = new TextResult(); // used to create links from it to other results
+        TextResult overviewResult = new TextResult(); // used to create links
+        // from it to other
+        // results
         Set<String> keywords = new HashSet<String>();
         List<IClassLoader> involvedClassloaders = new ArrayList<IClassLoader>(2);
         int suspectId = suspect.getSuspect().getObjectId();
@@ -236,11 +231,11 @@ public class LeakHunterQuery implements IQuery
         boolean isThreadRelated = isThreadRelated(suspect);
         if (isThreadRelated) // a thread bound problem
         {
-            overview.append("<p>");
-            overview.append("The thread <b>").append(suspect.getSuspect().getDisplayName()).append(
-                            "</b> keeps local variables with total size ").append("<b>").append(
-                            formatRetainedHeap(suspect.getSuspectRetained(), totalHeap)).append("</b> bytes.");
-            overview.append("</p>");
+            overview.append("<p>"); //$NON-NLS-1$
+            overview.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_Thread, //
+                            suspect.getSuspect().getDisplayName(), //
+                            formatRetainedHeap(suspect.getSuspectRetained(), totalHeap)));
+            overview.append("</p>"); //$NON-NLS-1$
         }
         else if (snapshot.isClassLoader(suspectId))
         {
@@ -249,8 +244,8 @@ public class LeakHunterQuery implements IQuery
 
             String classloaderName = getClassloarerName(suspectClassloader, keywords);
 
-            overview.append("The classloader/component <b>&quot;" + classloaderName + "&quot;</b> occupies <b>"
-                            + formatRetainedHeap(suspect.getSuspectRetained(), totalHeap) + "</b> bytes. ");
+            overview.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_ClassLoader, //
+                            classloaderName, formatRetainedHeap(suspect.getSuspectRetained(), totalHeap)));
         }
         else if (snapshot.isClass(suspectId))
         {
@@ -263,9 +258,8 @@ public class LeakHunterQuery implements IQuery
 
             String classloaderName = getClassloarerName(suspectClassloader, keywords);
 
-            overview.append("The class <b>&quot;" + className + "&quot;</b>, loaded by <b>&quot;" + classloaderName
-                            + "&quot;</b>, occupies <b>" + formatRetainedHeap(suspect.getSuspectRetained(), totalHeap)
-                            + "</b> bytes. ");
+            overview.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_Class, //
+                            className, classloaderName, formatRetainedHeap(suspect.getSuspectRetained(), totalHeap)));
         }
         else
         {
@@ -278,9 +272,8 @@ public class LeakHunterQuery implements IQuery
 
             String classloaderName = getClassloarerName(suspectClassloader, keywords);
 
-            overview.append("One instance of <b>&quot;" + className + "&quot;</b> loaded by <b>&quot;"
-                            + classloaderName + "&quot;</b> occupies <b>"
-                            + formatRetainedHeap(suspect.getSuspectRetained(), totalHeap) + "</b> bytes. ");
+            overview.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_Instance, //
+                            className, classloaderName, formatRetainedHeap(suspect.getSuspectRetained(), totalHeap)));
 
             /*
              * if the class name matches the skip pattern, try to find the first
@@ -292,23 +285,22 @@ public class LeakHunterQuery implements IQuery
                 if (referrerId != -1)
                 {
                     IObject referrer = snapshot.getObject(referrerId);
-                    overview.append("The instance is referenced by ");
                     IObject referrerClassloader = null;
                     if (snapshot.isClassLoader(referrerId))
                     {
                         referrerClassloader = referrer;
                         involvedClassloaders.add(suspectClassloader);
                         String referrerClassloaderName = getClassloarerName(referrerClassloader, keywords);
-                        overview.append("classloader/component. <b>&quot;").append(referrerClassloaderName).append(
-                                        "&quot;</b>. ");
+                        overview.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_ReferencedBy,
+                                        referrerClassloaderName));
                     }
                     else if (snapshot.isClass(referrerId))
                     {
                         referrerClassloader = snapshot.getObject(((IClass) referrer).getClassLoaderId());
                         involvedClassloaders.add(suspectClassloader);
                         String referrerClassloaderName = getClassloarerName(referrerClassloader, keywords);
-                        overview.append("class <b>&quot;" + className + "&quot;</b>, loaded by <b>&quot;"
-                                        + referrerClassloaderName + "&quot;</b>. ");
+                        overview.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_ReferencedByClass, className,
+                                        referrerClassloaderName));
                     }
                     else
                     {
@@ -320,8 +312,8 @@ public class LeakHunterQuery implements IQuery
                         referrerClassloader = snapshot.getObject(referrer.getClazz().getClassLoaderId());
                         involvedClassloaders.add(suspectClassloader);
                         String referrerClassloaderName = getClassloarerName(referrerClassloader, keywords);
-                        overview.append("<b>").append(referrer.getDisplayName()).append("</b>&nbsp;").append(
-                                        ", loaded by <b>&quot;" + referrerClassloaderName + "&quot;</b>. ");
+                        overview.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_ReferencedByInstance, referrer
+                                        .getDisplayName(), referrerClassloaderName));
 
                     }
                 }
@@ -340,8 +332,7 @@ public class LeakHunterQuery implements IQuery
                 involvedClassloaders.add(accPointClassloader);
 
                 String classloaderName = getClassloarerName(accPointClassloader, keywords);
-                overview.append("The memory is accumulated in classloader/component <b>&quot;" + classloaderName
-                                + "&quot;</b>.");
+                overview.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_AccumulatedBy, classloaderName));
 
             }
             else if (snapshot.isClass(accumulationPointId))
@@ -353,8 +344,8 @@ public class LeakHunterQuery implements IQuery
 
                 String classloaderName = getClassloarerName(accPointClassloader, keywords);
 
-                overview.append("The memory is accumulated in class <b>&quot;" + clazz.getName()
-                                + "&quot;</b>, loaded by <b>&quot;" + classloaderName + "&quot;</b>.");
+                overview.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_AccumulatedByLoadedBy, clazz.getName(),
+                                classloaderName));
             }
             else
             {
@@ -366,11 +357,11 @@ public class LeakHunterQuery implements IQuery
                 involvedClassloaders.add(accPointClassloader);
 
                 String classloaderName = getClassloarerName(accPointClassloader, keywords);
-                overview.append("The memory is accumulated in one instance of <b>&quot;" + className
-                                + "&quot;</b> loaded by <b>&quot;" + classloaderName + "&quot;</b>.");
+                overview.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_AccumulatedByInstance, className,
+                                classloaderName));
             }
         }
-        overview.append("</p>");
+        overview.append("</p>"); //$NON-NLS-1$
 
         /* extract request information for thread related problems */
         ThreadInfoQuery.Result threadDetails = null;
@@ -390,36 +381,36 @@ public class LeakHunterQuery implements IQuery
          */
         CompositeResult composite = new CompositeResult();
         overviewResult.setText(overview.toString());
-        composite.addResult("Description", overviewResult);
+        composite.addResult(Messages.LeakHunterQuery_Description, overviewResult);
         IObject describedObject = (suspect.getAccumulationPoint() != null) ? suspect.getAccumulationPoint().getObject()
                         : suspect.getSuspect();
 
         // add a path to the accumulation point
         try
         {
-            IResult result = SnapshotQuery.lookup("path2gc", snapshot) //
-                            .set("object", describedObject) //
+            IResult result = SnapshotQuery.lookup("path2gc", snapshot) //$NON-NLS-1$
+                            .set("object", describedObject) //$NON-NLS-1$
                             .execute(listener);
-            composite.addResult("Shortest Paths To the Accumulation Point", result);
+            composite.addResult(Messages.LeakHunterQuery_ShortestPaths, result);
         }
         catch (Exception e)
         {
-            throw new SnapshotException("Error creating shortest paths to accumulation point.", e);
+            throw new SnapshotException(Messages.LeakHunterQuery_ErrorShortestPaths, e);
         }
 
         // show the acc. point in the dominator tree
         IResult objectInDominatorTree = showInDominatorTree(describedObject.getObjectId());
-        composite.addResult("Accumulated Objects", objectInDominatorTree);
+        composite.addResult(Messages.LeakHunterQuery_AccumulatedObjects, objectInDominatorTree);
 
         // add histogram of dominated.
         IResult histogramOfDominated = getHistogramOfDominated(describedObject.getObjectId());
         if (histogramOfDominated != null)
         {
-            composite.addResult("Accumulated Objects by Class", histogramOfDominated);
+            composite.addResult(Messages.LeakHunterQuery_AccumulatedObjectsByClass, histogramOfDominated);
         }
 
         if (threadDetails != null)
-            composite.addResult("Thread Details", threadDetails);
+            composite.addResult(Messages.LeakHunterQuery_ThreadDetails, threadDetails);
 
         return composite;
     }
@@ -442,9 +433,8 @@ public class LeakHunterQuery implements IQuery
         String classloaderName = getClassloarerName(classloader, keywords);
 
         String numberOfInstances = numberFormatter.format(suspect.getSuspectInstances().length);
-        builder.append(numberOfInstances + " instances of <b>&quot;" + className + "&quot;</b>, loaded by <b>&quot;"
-                        + classloaderName + "&quot;</b> occupy <b>"
-                        + formatRetainedHeap(suspect.getSuspectRetained(), totalHeap) + "</b> bytes. ");
+        builder.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_InstancesOccupy, numberOfInstances, className,
+                        classloaderName, formatRetainedHeap(suspect.getSuspectRetained(), totalHeap)));
 
         int[] suspectInstances = suspect.getSuspectInstances();
         List<IObject> bigSuspectInstances = new ArrayList<IObject>();
@@ -457,14 +447,17 @@ public class LeakHunterQuery implements IQuery
         }
         if (bigSuspectInstances.size() > 0)
         {
-            builder.append("<p>Biggest instances:");
+            builder.append("<p>").append(Messages.LeakHunterQuery_BiggestInstances); //$NON-NLS-1$
             for (IObject inst : bigSuspectInstances)
             {
-                builder.append("<li>").append(inst.getDisplayName());
-                builder.append("&nbsp;-&nbsp").append(
-                                formatRetainedHeap(inst.getRetainedHeapSize(), totalHeap) + " bytes. ");
+                builder.append("<li>").append(inst.getDisplayName()); //$NON-NLS-1$
+                builder.append("&nbsp;-&nbsp") //$NON-NLS-1$
+                                .append(
+                                                MessageUtil.format(Messages.LeakHunterQuery_Msg_Bytes,
+                                                                formatRetainedHeap(inst.getRetainedHeapSize(),
+                                                                                totalHeap)));
             }
-            builder.append("</p>");
+            builder.append("</p>"); //$NON-NLS-1$
         }
 
         /* get accumulation point info */
@@ -475,8 +468,8 @@ public class LeakHunterQuery implements IQuery
             {
                 involvedClassLoaders.add((IClassLoader) suspect.getAccumulationPoint().getObject());
                 classloaderName = getClassloarerName(suspect.getAccumulationPoint().getObject(), keywords);
-                builder.append("These instances are referenced from classloader/component <b>&quot;" + classloaderName
-                                + "&quot;</b>");
+                builder.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_ReferencedFromClassLoader,
+                                classloaderName));
             }
             else if (snapshot.isClass(accumulationPointId))
             {
@@ -488,8 +481,8 @@ public class LeakHunterQuery implements IQuery
                 involvedClassLoaders.add(accPointClassloader);
                 classloaderName = getClassloarerName(accPointClassloader, keywords);
 
-                builder.append("These instances are referenced from the class <b>&quot;" + className
-                                + "&quot;</b>, loaded by <b>&quot;" + classloaderName + "&quot;</b>");
+                builder.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_ReferencedFromClass, className,
+                                classloaderName));
             }
             else
             {
@@ -501,11 +494,11 @@ public class LeakHunterQuery implements IQuery
                 involvedClassLoaders.add(accPointClassloader);
                 classloaderName = getClassloarerName(accPointClassloader, keywords);
 
-                builder.append("These instances are referenced from one instance of <b>&quot;" + className
-                                + "&quot;</b>, loaded by <b>&quot;" + classloaderName + "&quot;</b>");
+                builder.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_ReferencedFromInstance, className,
+                                classloaderName));
             }
         }
-        builder.append("<br><br>");
+        builder.append("<br><br>"); //$NON-NLS-1$
 
         // append keywords
         appendKeywords(keywords, builder);
@@ -517,12 +510,12 @@ public class LeakHunterQuery implements IQuery
          * Prepare the composite result from the different pieces
          */
         CompositeResult composite = new CompositeResult();
-        composite.addResult("Description", new TextResult(builder.toString(), true));
+        composite.addResult(Messages.LeakHunterQuery_Description, new TextResult(builder.toString(), true));
 
         AccumulationPoint accPoint = suspect.getAccumulationPoint();
         if (accPoint != null)
         {
-            composite.addResult("Common Path To the Accumulation Point", //
+            composite.addResult(Messages.LeakHunterQuery_CommonPath, //
                             MultiplePath2GCRootsQuery.create(snapshot, suspect.getPathsComputer(), suspect
                                             .getCommonPath()));
         }
@@ -530,7 +523,7 @@ public class LeakHunterQuery implements IQuery
         {
             IResult result = findReferencePattern(suspect);
             if (result != null)
-                composite.addResult("Reference Pattern", result);
+                composite.addResult(Messages.LeakHunterQuery_ReferencePattern, result);
         }
 
         return composite;
@@ -538,8 +531,8 @@ public class LeakHunterQuery implements IQuery
 
     private String formatRetainedHeap(long retained, long totalHeap)
     {
-        return numberFormatter.format(retained) + " ("
-                        + percentFormatter.format((double) retained / (double) totalHeap) + ")";
+        return numberFormatter.format(retained) + " (" //$NON-NLS-1$
+                        + percentFormatter.format((double) retained / (double) totalHeap) + ")"; //$NON-NLS-1$
     }
 
     private Map<String, String> getTroubleTicketMapping(ITroubleTicketResolver resolver, List<IClassLoader> classloaders)
@@ -549,7 +542,7 @@ public class LeakHunterQuery implements IQuery
         for (IClassLoader classloader : classloaders)
         {
             String ticket = resolver.resolve(classloader, new VoidProgressListener());
-            if (ticket != null && !"".equals(ticket.trim()))
+            if (ticket != null && !"".equals(ticket.trim())) //$NON-NLS-1$
             {
                 String classloaderName = classloader.getClassSpecificName();
                 if (classloaderName == null)
@@ -557,7 +550,7 @@ public class LeakHunterQuery implements IQuery
 
                 String old = mapping.put(ticket, classloaderName);
                 if (old != null)
-                    mapping.put(ticket, classloaderName + ", " + old);
+                    mapping.put(ticket, classloaderName + ", " + old); //$NON-NLS-1$
             }
         }
         return mapping;
@@ -643,8 +636,8 @@ public class LeakHunterQuery implements IQuery
             limit++;
         }
 
-        ListResult result = new ListResult(ClassHistogramRecord.class, suspects, "label", "numberOfObjects",
-                        "usedHeapSize", "retainedHeapSize")
+        ListResult result = new ListResult(ClassHistogramRecord.class, suspects, "label", //$NON-NLS-1$
+                        "numberOfObjects", "usedHeapSize", "retainedHeapSize") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         {
             @Override
             public URL getIcon(Object row)
@@ -671,11 +664,9 @@ public class LeakHunterQuery implements IQuery
 
     private void appendKeywords(Set<String> keywords, StringBuilder builder)
     {
-        builder.append("<b>Keywords</b><br>");
+        builder.append("<b>").append(Messages.LeakHunterQuery_Keywords).append("</b><br>"); //$NON-NLS-1$ //$NON-NLS-2$
         for (String s : keywords)
-        {
-            builder.append(s).append("<br>");
-        }
+            builder.append(s).append("<br>"); //$NON-NLS-1$
     }
 
     private void appendTroubleTicketInformation(List<IClassLoader> classloaders, StringBuilder builder)
@@ -687,12 +678,14 @@ public class LeakHunterQuery implements IQuery
 
             if (!mapping.isEmpty())
             {
-                builder.append("<p><b>").append(resolver.getTicketSystem()).append("</b><br>");
+                builder.append("<p><b>").append(resolver.getTicketSystem()).append("</b><br>"); //$NON-NLS-1$ //$NON-NLS-2$
                 for (Map.Entry<String, String> entry : mapping.entrySet())
                 {
-                    builder.append(entry.getKey()).append(" for \"").append(entry.getValue()).append("\"<br>");
+                    builder.append(
+                                    MessageUtil.format(Messages.LeakHunterQuery_TicketForSuspect, entry.getKey(), entry
+                                                    .getValue())).append("<br>"); //$NON-NLS-1$
                 }
-                builder.append("</p>");
+                builder.append("</p>"); //$NON-NLS-1$
             }
         }
     }
@@ -704,8 +697,8 @@ public class LeakHunterQuery implements IQuery
 
         try
         {
-            threadDetails = (ThreadInfoQuery.Result) SnapshotQuery.lookup("thread_details", snapshot) //
-                            .set("threadIds", threadId) //
+            threadDetails = (ThreadInfoQuery.Result) SnapshotQuery.lookup("thread_details", snapshot) //$NON-NLS-1$
+                            .set("threadIds", threadId) //$NON-NLS-1$
                             .execute(listener);
 
             // append overview & keywords
@@ -715,33 +708,36 @@ public class LeakHunterQuery implements IQuery
             CompositeResult requestInfos = threadInfo.getRequests();
             if (requestInfos != null && !requestInfos.isEmpty())
             {
-                builder.append("<p>");
+                builder.append("<p>"); //$NON-NLS-1$
 
                 for (CompositeResult.Entry requestInfo : requestInfos.getResultEntries())
-                    builder.append(requestInfo.getName()).append(" ").append(textResult.linkTo("Request Details", requestInfo.getResult())).append("<br>");
+                    builder.append(requestInfo.getName()).append(" ").append( //$NON-NLS-1$
+                                                    textResult.linkTo(Messages.LeakHunterQuery_RequestDetails,
+                                                                    requestInfo.getResult())).append("<br>"); //$NON-NLS-1$
 
-                builder.append("</p>");
+                builder.append("</p>"); //$NON-NLS-1$
             }
-            
+
             // Add stacktrace information if available
             // TODO may be the stack result should be moved to IThreadInfo
-			IThreadStack stack = snapshot.getThreadStack(threadId);
-			if (stack != null)
-			{
-				StringBuilder stackBuilder = new StringBuilder();
-				IObject threadObject = snapshot.getObject(threadId);
-				stackBuilder.append(threadObject.getClassSpecificName()).append("\r\n");
-				for (IStackFrame frame : stack.getStackFrames())
-				{
-					stackBuilder.append("  ").append(frame.getText()).append("\r\n");
-				}
-				QuerySpec stackResult = new QuerySpec("Thread Stack", new TextResult(stackBuilder.toString()));
-				
-				builder.append("<p>");
-				builder.append("The stacktrace of this Thread is available. ").append(textResult.linkTo("See stacktrace", stackResult)).append('.');
-				builder.append("</p>");
-			}
-            
+            IThreadStack stack = snapshot.getThreadStack(threadId);
+            if (stack != null)
+            {
+                StringBuilder stackBuilder = new StringBuilder();
+                IObject threadObject = snapshot.getObject(threadId);
+                stackBuilder.append(threadObject.getClassSpecificName()).append("\r\n"); //$NON-NLS-1$
+                for (IStackFrame frame : stack.getStackFrames())
+                {
+                    stackBuilder.append("  ").append(frame.getText()).append("\r\n"); //$NON-NLS-1$ //$NON-NLS-2$
+                }
+                QuerySpec stackResult = new QuerySpec(Messages.LeakHunterQuery_ThreadStack, new TextResult(stackBuilder
+                                .toString()));
+
+                builder.append("<p>"); //$NON-NLS-1$
+                builder.append(Messages.LeakHunterQuery_StackTraceAvailable + " ").append( //$NON-NLS-1$
+                                textResult.linkTo(Messages.LeakHunterQuery_SeeStackstrace, stackResult)).append('.');
+                builder.append("</p>"); //$NON-NLS-1$
+            }
 
             // add context class loader
             int contextClassloaderId = threadInfo.getContextClassLoaderId();
@@ -752,7 +748,8 @@ public class LeakHunterQuery implements IQuery
         }
         catch (Exception e)
         {
-            Logger.getLogger(getClass().getName()).log(Level.SEVERE, "Error retrieving request details", e);
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE,
+                            Messages.LeakHunterQuery_ErrorRetrievingRequestDetails, e);
         }
 
         return threadDetails;
@@ -819,7 +816,7 @@ public class LeakHunterQuery implements IQuery
         // calculate the shortest paths to all accumulation points
         // avoid weak paths
         Map<IClass, Set<String>> excludeMap = new HashMap<IClass, Set<String>>();
-        Collection<IClass> classes = snapshot.getClassesByName("java.lang.ref.WeakReference", true);
+        Collection<IClass> classes = snapshot.getClassesByName("java.lang.ref.WeakReference", true); //$NON-NLS-1$
         for (IClass clazz : classes)
         {
             excludeMap.put(clazz, REFERENCE_FIELD_SET);
@@ -849,22 +846,19 @@ public class LeakHunterQuery implements IQuery
             Collections.sort(problemIds);
 
             StringBuilder overview = new StringBuilder(256);
-            overview.append("The problem suspects ");
-            for (int k = 0; k < problemIds.size(); k++)
-            {
-                overview.append(problemIds.get(k));
-                if (k == problemIds.size() - 2)
-                {
-                    overview.append(" and ");
-                }
-                else if (k < problemIds.size() - 2)
-                {
-                    overview.append(", ");
-                }
-            }
-            overview.append(" may be related, because the reference chains to them have a common beginning.");
 
-            composite.addResult("Overview", new TextResult(overview.toString(), true));
+            StringBuilder left = new StringBuilder();
+            for (int k = 0; k < problemIds.size() - 1; k++)
+            {
+                if (left.length() > 0)
+                    left.append(", "); //$NON-NLS-1$
+                left.append(problemIds.get(k));
+            }
+            overview.append(MessageUtil.format(
+
+            Messages.LeakHunterQuery_Msg_SuspectsRelated, left.toString(), problemIds.get(problemIds.size() - 1)));
+
+            composite.addResult(Messages.LeakHunterQuery_Overview, new TextResult(overview.toString(), true));
             // END build overview
 
             // find the path which ALL acc.points share
@@ -885,7 +879,7 @@ public class LeakHunterQuery implements IQuery
             }
 
             // provide the common path as details
-            composite.addResult("Common Path To the Accumulation Point", //
+            composite.addResult(Messages.LeakHunterQuery_CommonPath, //
                             MultiplePath2GCRootsQuery.create(snapshot, comp, commonPath.toArray()));
 
             result.add(composite);

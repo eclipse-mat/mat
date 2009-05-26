@@ -27,13 +27,13 @@ public class TroubleTicketResolverRegistry extends RegistryReader<ITroubleTicket
 
     private TroubleTicketResolverRegistry()
     {
-        init(MATPlugin.getDefault().getExtensionTracker(), MATPlugin.PLUGIN_ID + ".ticketResolver");
+        init(MATPlugin.getDefault().getExtensionTracker(), MATPlugin.PLUGIN_ID + ".ticketResolver"); //$NON-NLS-1$
     }
 
     @Override
     protected ITroubleTicketResolver createDelegate(IConfigurationElement configElement) throws CoreException
     {
-        return (ITroubleTicketResolver) configElement.createExecutableExtension("impl");
+        return (ITroubleTicketResolver) configElement.createExecutableExtension("impl"); //$NON-NLS-1$
     }
 
     @Override

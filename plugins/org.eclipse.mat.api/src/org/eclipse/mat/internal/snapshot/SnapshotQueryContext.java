@@ -41,7 +41,7 @@ public class SnapshotQueryContext extends QueryContextImpl
     public String mapToExternalIdentifier(int objectId) throws SnapshotException
     {
         long address = snapshot.mapIdToAddress(objectId);
-        return "0x" + Long.toHexString(address);
+        return "0x" + Long.toHexString(address); //$NON-NLS-1$
     }
 
     public int mapToObjectId(String externalIdentifier) throws SnapshotException

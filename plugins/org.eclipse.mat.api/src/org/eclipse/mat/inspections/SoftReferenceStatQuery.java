@@ -10,18 +10,15 @@
  *******************************************************************************/
 package org.eclipse.mat.inspections;
 
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
-import org.eclipse.mat.query.annotations.Category;
-import org.eclipse.mat.query.annotations.Help;
-import org.eclipse.mat.query.annotations.Name;
+import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.util.IProgressListener;
 
-@Name("Soft References Statistics")
-@Category("Java Basics/References")
-@Help("Statistics to Soft References.")
+@CommandName("soft_references_statistics")
 public class SoftReferenceStatQuery implements IQuery
 {
     @Argument
@@ -29,7 +26,9 @@ public class SoftReferenceStatQuery implements IQuery
 
     public IResult execute(IProgressListener listener) throws Exception
     {
-        return ReferenceQuery.execute("Softly", "java\\.lang\\.ref\\.SoftReference", snapshot, listener);
+        return ReferenceQuery.execute("java\\.lang\\.ref\\.SoftReference", snapshot, //$NON-NLS-1$
+                        Messages.SoftReferenceStatQuery_Label_Referenced,
+                        Messages.SoftReferenceStatQuery_Label_Retained, listener);
     }
 
 }

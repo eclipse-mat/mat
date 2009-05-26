@@ -48,6 +48,6 @@ public class ObjectReference implements Serializable
 
     public String toString()
     {
-        return "0x" + Long.toHexString(address);
+        return "0x" + Long.toHexString(address); //$NON-NLS-1$
     }
 }

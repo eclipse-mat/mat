@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.mat.internal.MATPlugin;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.util.MessageUtil;
 
 public class Service
@@ -105,9 +106,8 @@ public class Service
             return null;
         if (keys.length != values.length)
         {
-            MATPlugin.log(MessageUtil.format(
-                            "Number of keys does not correspond to the number of values for the service: 0x{0}", Long
-                                            .toHexString(this.objectId)));
+            MATPlugin.log(MessageUtil.format(Messages.Service_ErrorMsg_MismatchKeysServices, Long
+                            .toHexString(this.objectId)));
             return null;
         }
         List<ServiceProperty> properties = new ArrayList<ServiceProperty>(keys.length);

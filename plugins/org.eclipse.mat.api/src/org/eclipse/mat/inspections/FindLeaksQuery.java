@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.mat.inspections;
 
-import com.ibm.icu.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -19,13 +18,14 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
+import org.eclipse.core.runtime.Status;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.collect.ArrayIntBig;
 import org.eclipse.mat.collect.BitField;
+import org.eclipse.mat.internal.MATPlugin;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.ContextProvider;
 import org.eclipse.mat.query.IContextObject;
@@ -37,7 +37,6 @@ import org.eclipse.mat.query.ResultMetaData;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.Category;
 import org.eclipse.mat.query.annotations.CommandName;
-import org.eclipse.mat.query.annotations.Help;
 import org.eclipse.mat.snapshot.ClassHistogramRecord;
 import org.eclipse.mat.snapshot.ClassLoaderHistogramRecord;
 import org.eclipse.mat.snapshot.Histogram;
@@ -49,6 +48,8 @@ import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.VoidProgressListener;
+
+import com.ibm.icu.text.NumberFormat;
 
 @CommandName("find_leaks")
 @Category(Category.HIDDEN)
@@ -62,7 +63,7 @@ public class FindLeaksQuery implements IQuery
     // ///////////////////////////////////////////
 
     private final static Set<String> REFERENCE_FIELD_SET = new HashSet<String>(Arrays
-                    .asList(new String[] { "referent" }));
+                    .asList(new String[] { "referent" })); //$NON-NLS-1$
     private final static int MAX_DEPTH = 1000;
 
     // ////////////////////////////////////////////
@@ -75,7 +76,6 @@ public class FindLeaksQuery implements IQuery
     public ISnapshot snapshot;
 
     @Argument(isMandatory = false)
-    @Help("Objects/classes retaining more than this threshold are considered suspicious")
     public int threshold_percent = 20;
 
     @Argument(isMandatory = false)
@@ -96,7 +96,7 @@ public class FindLeaksQuery implements IQuery
         /*
          * find suspect single objects
          */
-        listener.subTask("Searching suspicious single objects ...");
+        listener.subTask(Messages.FindLeaksQuery_SearchingSingleObjects);
 
         ArrayInt suspiciousObjects = new ArrayInt();
         Set<String> suspectNames = new HashSet<String>();
@@ -114,7 +114,7 @@ public class FindLeaksQuery implements IQuery
         /*
          * Find suspect classes
          */
-        listener.subTask("Searching suspicious groups of objects ...");
+        listener.subTask(Messages.FindLeaksQuery_SearchingGroupsOfObjects);
 
         Histogram histogram = groupByClasses(topDominators, listener);
         ArrayList<ClassHistogramRecord> suspiciousClasses = new ArrayList<ClassHistogramRecord>();
@@ -224,7 +224,7 @@ public class FindLeaksQuery implements IQuery
         // calculate the shortest paths to all
         // avoid weak paths
         Map<IClass, Set<String>> excludeMap = new HashMap<IClass, Set<String>>();
-        Collection<IClass> classes = snapshot.getClassesByName("java.lang.ref.WeakReference", true);
+        Collection<IClass> classes = snapshot.getClassesByName("java.lang.ref.WeakReference", true); //$NON-NLS-1$
         for (IClass clazz : classes)
         {
             excludeMap.put(clazz, REFERENCE_FIELD_SET);
@@ -243,8 +243,7 @@ public class FindLeaksQuery implements IQuery
         if (diff > 0)
         {
             listener.sendUserMessage(IProgressListener.Severity.INFO, MessageUtil.format(
-                            "Couldn't find paths for {0} of the {1} objects", new Object[] { diff, objectIds.length }),
-                            null);
+                            Messages.FindLeaksQuery_PathNotFound, diff, objectIds.length), null);
         }
         setRetainedSizesForMPaths(records, snapshot);
         Arrays.sort(records, MultiplePathsFromGCRootsRecord.getComparatorByNumberOfReferencedObjects());
@@ -344,10 +343,9 @@ public class FindLeaksQuery implements IQuery
         if (objectIds.length < max_paths)
             return objectIds;
 
-        Logger.getLogger(getClass().getName()).log(
-                        Level.INFO,
-                        "Too many suspect instances (" + objectIds.length + "). Will use " + max_paths
-                                        + " random from them to search for common path.");
+        MATPlugin.log(new Status(Status.INFO, MATPlugin.PLUGIN_ID, MessageUtil.format(
+                        Messages.FindLeaksQuery_TooManySuspects,
+                        objectIds.length, max_paths)));
 
         Random random = new Random();
         int length = objectIds.length - 1;
@@ -483,7 +481,7 @@ public class FindLeaksQuery implements IQuery
         {
             return new ResultMetaData.Builder() //
 
-                            .addContext(new ContextProvider("Leak Suspect")
+                            .addContext(new ContextProvider(Messages.FindLeaksQuery_LeakSuspect)
                             {
                                 @Override
                                 public IContextObject getContext(Object row)
@@ -492,7 +490,7 @@ public class FindLeaksQuery implements IQuery
                                 }
                             }) //
 
-                            .addContext(new ContextProvider("Accumulation Point")
+                            .addContext(new ContextProvider(Messages.FindLeaksQuery_AccumulationPoint)
                             {
                                 @Override
                                 public IContextObject getContext(Object row)
@@ -506,13 +504,13 @@ public class FindLeaksQuery implements IQuery
 
         public Column[] getColumns()
         {
-            return new Column[] { new Column("Leak Suspect"), //
-                            new Column("# Objects", Long.class), //
-                            new Column("Suspect's Retained Heap", Long.class), //
-                            new Column("Suspect's %", Double.class).formatting(NumberFormat.getPercentInstance()), //
-                            new Column("Accumulation Point"), //
-                            new Column("Acc. Point Retained Heap", Long.class), //
-                            new Column("Acc. Point %", Double.class).formatting(NumberFormat.getPercentInstance()) };
+            return new Column[] { new Column(Messages.FindLeaksQuery_ColumnLeakSuspect), //
+                            new Column(Messages.FindLeaksQuery_Column_NumObjects, Long.class), //
+                            new Column(Messages.FindLeaksQuery_Column_SuspectRetainedHeap, Long.class), //
+                            new Column(Messages.FindLeaksQuery_Column_SuspectPercent, Double.class).formatting(NumberFormat.getPercentInstance()), //
+                            new Column(Messages.FindLeaksQuery_Column_AccumulationPoint), //
+                            new Column(Messages.FindLeaksQuery_Column_AccPointRetainedHeap, Long.class), //
+                            new Column(Messages.FindLeaksQuery_Column_AccPointPercent, Double.class).formatting(NumberFormat.getPercentInstance()) };
         }
 
         public int getRowCount()
@@ -540,7 +538,7 @@ public class FindLeaksQuery implements IQuery
                 case 3:
                     return Double.valueOf((double) suspect.suspectRetained / (double) totalHeap);
                 case 4:
-                    return suspect.accumulationPoint == null ? "<not found>" : suspect.accumulationPoint.getObject()
+                    return suspect.accumulationPoint == null ? Messages.FindLeaksQuery_NotFound : suspect.accumulationPoint.getObject()
                                     .getTechnicalName();
                 case 5:
                     return suspect.accumulationPoint == null ? 0 : suspect.accumulationPoint.getObject()
@@ -549,9 +547,9 @@ public class FindLeaksQuery implements IQuery
                     return suspect.accumulationPoint == null ? 0 : Double.valueOf((double) suspect.accumulationPoint
                                     .getObject().getRetainedHeapSize()
                                     / (double) totalHeap);
-                default:
-                    throw new IllegalArgumentException("invalid column index");
             }
+
+            return null;
         }
 
         public IContextObject getContext(final Object row)

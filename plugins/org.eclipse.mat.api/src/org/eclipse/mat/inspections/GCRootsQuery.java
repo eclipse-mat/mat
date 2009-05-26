@@ -19,6 +19,7 @@ import java.util.List;
 import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.collect.HashMapIntObject.Entry;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IContextObjectSet;
@@ -30,8 +31,6 @@ import org.eclipse.mat.query.IResultTree;
 import org.eclipse.mat.query.ResultMetaData;
 import org.eclipse.mat.query.Column.SortDirection;
 import org.eclipse.mat.query.annotations.Argument;
-import org.eclipse.mat.query.annotations.Category;
-import org.eclipse.mat.query.annotations.Help;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.snapshot.ISnapshot;
@@ -41,13 +40,11 @@ import org.eclipse.mat.snapshot.query.Icons;
 import org.eclipse.mat.snapshot.query.ObjectListResult;
 import org.eclipse.mat.util.IProgressListener;
 
-@Name("GC Roots")
-@Category("Java Basics")
+@Name("gc_roots")
 @Icon("/META-INF/icons/roots.gif")
-@Help("List Garbage Collection (GC) Roots by GC Root type.")
 public class GCRootsQuery implements IQuery
 {
-    private static final URL ICON = GCRootsQuery.class.getResource("/META-INF/icons/roots.gif");
+    private static final URL ICON = GCRootsQuery.class.getResource("/META-INF/icons/roots.gif"); //$NON-NLS-1$
 
     @Argument
     public ISnapshot snapshot;
@@ -171,10 +168,10 @@ public class GCRootsQuery implements IQuery
 
         public Column[] getColumns()
         {
-            return new Column[] { new Column("Class Name").decorator(this), //
-                            new Column("Objects", int.class), //
-                            new Column("Shallow Heap", long.class).noTotals(), //
-                            new Column("Retained Heap", long.class).noTotals() };
+            return new Column[] { new Column(Messages.Column_ClassName).decorator(this), //
+                            new Column(Messages.Column_Objects, int.class), //
+                            new Column(Messages.Column_ShallowHeap, long.class).noTotals(), //
+                            new Column(Messages.Column_RetainedHeap, long.class).noTotals() };
         }
 
         public List<?> getElements()

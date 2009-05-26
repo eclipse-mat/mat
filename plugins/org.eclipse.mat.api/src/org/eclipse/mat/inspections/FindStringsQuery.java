@@ -13,12 +13,11 @@ package org.eclipse.mat.inspections;
 import java.util.regex.Pattern;
 
 import org.eclipse.mat.collect.ArrayInt;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
-import org.eclipse.mat.query.annotations.Category;
-import org.eclipse.mat.query.annotations.Help;
-import org.eclipse.mat.query.annotations.Name;
+import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
@@ -26,16 +25,13 @@ import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.snapshot.query.ObjectListResult;
 import org.eclipse.mat.util.IProgressListener;
 
-@Name("Find Strings")
-@Category("Java Basics")
-@Help("Find Strings matching the regular expression.")
+@CommandName("find_strings")
 public class FindStringsQuery implements IQuery
 {
     @Argument
     public ISnapshot snapshot;
 
     @Argument(isMandatory = false)
-    @Help("Optionally limit the search to Strings in this object set.")
     public IHeapObjectArgument objects;
 
     @Argument
@@ -43,15 +39,13 @@ public class FindStringsQuery implements IQuery
 
     public IResult execute(IProgressListener listener) throws Exception
     {
-        InspectionAssert.heapFormatIsNot(snapshot, "phd");
-
-        listener.subTask("Searching Strings...");
+        listener.subTask(Messages.FindStringsQuery_SearchingStrings);
 
         ArrayInt result = new ArrayInt();
 
         if (objects == null)
         {
-            ClassesLoop: for (IClass clasz : snapshot.getClassesByName("java.lang.String", false))
+            ClassesLoop: for (IClass clasz : snapshot.getClassesByName("java.lang.String", false)) //$NON-NLS-1$
             {
                 int[] objectIds = clasz.getObjectIds();
 
@@ -68,7 +62,7 @@ public class FindStringsQuery implements IQuery
         }
         else
         {
-            IClass javaLangString = snapshot.getClassesByName("java.lang.String", false).iterator().next();
+            IClass javaLangString = snapshot.getClassesByName("java.lang.String", false).iterator().next(); //$NON-NLS-1$
 
             ObjectsLoop: for (int[] objectIds : objects)
             {

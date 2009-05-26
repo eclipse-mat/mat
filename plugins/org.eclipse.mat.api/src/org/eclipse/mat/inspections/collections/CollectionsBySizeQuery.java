@@ -15,14 +15,13 @@ import java.util.Collection;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.inspections.InspectionAssert;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.Column.SortDirection;
 import org.eclipse.mat.query.annotations.Argument;
-import org.eclipse.mat.query.annotations.Category;
-import org.eclipse.mat.query.annotations.Help;
-import org.eclipse.mat.query.annotations.Name;
+import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.quantize.Quantize;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IClass;
@@ -32,21 +31,7 @@ import org.eclipse.mat.snapshot.query.RetainedSizeDerivedData;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 
-@Name("Collections Grouped By Size")
-@Category("Java Collections")
-@Help("Distribution histogram of given collections by their size.\n\n"
-                + "The below mentioned collections are known to the query. "
-                + "One additional custom collection (e.g. non-JDK) collection "
-                + "can be specified by the 'collection' and 'size_attribute' argument.\n" //
-                + "Known collections:\n" //
-                + "java.util.ArrayList\n" //
-                + "java.util.TreeMap\n" // 
-                + "java.util.HashMap\n" // 
-                + "java.util.Hashtable\n" //
-                + "java.util.Properties\n" //
-                + "java.util.Vector\n" //
-                + "java.util.WeakHashMap\n" //
-                + "java.util.concurrent.ConcurrentHashMap$Segment")
+@CommandName("collections_grouped_by_size")
 public class CollectionsBySizeQuery implements IQuery
 {
 
@@ -54,22 +39,19 @@ public class CollectionsBySizeQuery implements IQuery
     public ISnapshot snapshot;
 
     @Argument(flag = "none")
-    @Help("The collection objects. Non-collection objects will be ignored.")
     public IHeapObjectArgument objects;
 
     @Argument(isMandatory = false)
-    @Help("Optional: fully qualified class name of a custom (e.g. non-JDK) collection class.")
     public String collection;
 
     @Argument(isMandatory = false)
-    @Help("The size attribute of the (optionally) specified collection class. Must be of type int or Integer.")
     public String size_attribute;
 
     public IResult execute(IProgressListener listener) throws Exception
     {
-        InspectionAssert.heapFormatIsNot(snapshot, "phd");
+        InspectionAssert.heapFormatIsNot(snapshot, "phd"); //$NON-NLS-1$
 
-        listener.subTask("Collecting collection sizes...");
+        listener.subTask(Messages.CollectionsBySizeQuery_CollectingSizes);
 
         HashMapIntObject<CollectionUtil.Info> metadata = new HashMapIntObject<CollectionUtil.Info>();
 
@@ -90,9 +72,7 @@ public class CollectionsBySizeQuery implements IQuery
         {
             if (size_attribute == null)
             {
-                String msg = "If the collection argument is set to a custom (e.g. non-JDK) collection class, "
-                                + "the size_attribute must be set. Otherwise, the query cannot determine the "
-                                + "size of the collection.";
+                String msg = Messages.CollectionsBySizeQuery_ErrorMsg_ArgumentMissing;
                 throw new SnapshotException(msg);
             }
 
@@ -101,16 +81,17 @@ public class CollectionsBySizeQuery implements IQuery
 
             if (classes.isEmpty())
                 listener.sendUserMessage(IProgressListener.Severity.WARNING, MessageUtil.format(
-                                "Class ''{0}'' not found in heap dump.", collection), null);
+                                Messages.CollectionsBySizeQuery_ClassNotFound, collection), null);
 
             for (IClass clasz : classes)
                 metadata.put(clasz.getObjectId(), info);
         }
 
         // group by length attribute
-        Quantize.Builder builder = Quantize.valueDistribution(new Column("Length", int.class));
-        builder.column("# Objects", Quantize.COUNT);
-        builder.column("Shallow Heap", Quantize.SUM_LONG, SortDirection.DESC);
+        Quantize.Builder builder = Quantize.valueDistribution(new Column(Messages.CollectionsBySizeQuery_Column_Length,
+                        int.class));
+        builder.column(Messages.CollectionsBySizeQuery_Column_NumObjects, Quantize.COUNT);
+        builder.column(Messages.Column_ShallowHeap, Quantize.SUM_LONG, SortDirection.DESC);
         builder.addDerivedData(RetainedSizeDerivedData.APPROXIMATE);
         Quantize quantize = builder.build();
 

@@ -11,7 +11,6 @@
 package org.eclipse.mat.snapshot.inspections;
 
 import java.net.URL;
-import com.ibm.icu.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -25,6 +24,7 @@ import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.collect.IteratorInt;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IContextObjectSet;
@@ -37,7 +37,6 @@ import org.eclipse.mat.query.Column.SortDirection;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.Category;
 import org.eclipse.mat.query.annotations.CommandName;
-import org.eclipse.mat.query.annotations.Help;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.snapshot.ISnapshot;
@@ -49,19 +48,19 @@ import org.eclipse.mat.snapshot.query.Icons;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.VoidProgressListener;
 
-@Name("Dominator Tree")
+import com.ibm.icu.text.DecimalFormat;
+
 @CommandName("dominator_tree")
 @Category(Category.HIDDEN)
 @Icon("/META-INF/icons/dominator_tree.gif")
-@Help("Open Dominator Tree")
 public class DominatorQuery implements IQuery
 {
     public enum Grouping
     {
-        NONE("No Grouping (objects)", Icons.OBJECT_INSTANCE), //
-        BY_CLASS("Group by class", Icons.CLASS), //
-        BY_CLASSLOADER("Group by class loader", Icons.CLASSLOADER_INSTANCE), //
-        BY_PACKAGE("Group by package", Icons.PACKAGE);
+        NONE(Messages.DominatorQuery_Group_None, Icons.OBJECT_INSTANCE), //
+        BY_CLASS(Messages.DominatorQuery_Group_ByClass, Icons.CLASS), //
+        BY_CLASSLOADER(Messages.DominatorQuery_Group_ByClassLoader, Icons.CLASSLOADER_INSTANCE), //
+        BY_PACKAGE(Messages.DominatorQuery_Group_ByPackage, Icons.PACKAGE);
 
         String label;
         URL icon;
@@ -343,10 +342,12 @@ public class DominatorQuery implements IQuery
 
         public Column[] getColumns()
         {
-            return new Column[] { new Column("Class name", String.class).decorator(this), //
-                            new Column("Shallow Heap", int.class).noTotals(), //
-                            new Column("Retained Heap", long.class).noTotals(), //
-                            new Column("Percentage", double.class).formatting(new DecimalFormat("0.00%")).noTotals() };
+            return new Column[] {
+                            new Column(Messages.Column_ClassName, String.class).decorator(this), //
+                            new Column(Messages.Column_ShallowHeap, int.class).noTotals(), //
+                            new Column(Messages.Column_RetainedHeap, long.class).noTotals(), //
+                            new Column(Messages.Column_Percentage, double.class)
+                                            .formatting(new DecimalFormat("0.00%")).noTotals() }; //$NON-NLS-1$
         }
 
         public List<?> getElements()
@@ -525,11 +526,11 @@ public class DominatorQuery implements IQuery
 
         public Column[] getColumns()
         {
-            return new Column[] { new Column("Class name", String.class), //
-                            new Column("Objects", int.class), //
-                            new Column("Shallow Heap", int.class), //
-                            new Column("Retained Heap", long.class).sorting(SortDirection.DESC), //
-                            new Column("Percentage", double.class).formatting(new DecimalFormat("0.00%")) };
+            return new Column[] { new Column(Messages.Column_ClassName, String.class), //
+                            new Column(Messages.Column_Objects, int.class), //
+                            new Column(Messages.Column_ShallowHeap, int.class), //
+                            new Column(Messages.Column_RetainedHeap, long.class).sorting(SortDirection.DESC), //
+                            new Column(Messages.Column_Percentage, double.class).formatting(new DecimalFormat("0.00%")) }; //$NON-NLS-1$
         }
 
         public List<?> getElements()
@@ -648,11 +649,11 @@ public class DominatorQuery implements IQuery
 
         public Column[] getColumns()
         {
-            return new Column[] { new Column("Class Loader", String.class), //
-                            new Column("Objects", int.class), //
-                            new Column("Shallow Heap", int.class), //
-                            new Column("Retained Heap", long.class).sorting(SortDirection.DESC), //
-                            new Column("Percentage", double.class).formatting(new DecimalFormat("0.00%")) };
+            return new Column[] { new Column(Messages.Column_ClassLoaderName, String.class), //
+                            new Column(Messages.Column_Objects, int.class), //
+                            new Column(Messages.Column_ShallowHeap, int.class), //
+                            new Column(Messages.Column_RetainedHeap, long.class).sorting(SortDirection.DESC), //
+                            new Column(Messages.Column_Percentage, double.class).formatting(new DecimalFormat("0.00%")) }; //$NON-NLS-1$
         }
 
         public List<?> getElements()
@@ -820,10 +821,10 @@ public class DominatorQuery implements IQuery
         public static PackageNode prepareSet(ISnapshot snapshot, int[] roots, IProgressListener listener)
                         throws SnapshotException
         {
-            PackageNode root = new PackageNode("<all>");
+            PackageNode root = new PackageNode(Messages.DominatorQuery_LabelAll);
             PackageNode current;
 
-            listener.beginTask("Grouping by package", roots.length / 100);
+            listener.beginTask(Messages.DominatorQuery_Msg_Grouping, roots.length / 100);
             int index = 0;
             for (int dominatorId : roots)
             {
@@ -841,7 +842,7 @@ public class DominatorQuery implements IQuery
 
                 String className = objClass.getName();
 
-                StringTokenizer tokenizer = new StringTokenizer(className, ".");
+                StringTokenizer tokenizer = new StringTokenizer(className, "."); //$NON-NLS-1$
 
                 while (tokenizer.hasMoreTokens())
                 {
@@ -879,11 +880,11 @@ public class DominatorQuery implements IQuery
 
         public Column[] getColumns()
         {
-            return new Column[] { new Column("Class name", String.class), //
-                            new Column("Objects", int.class), //
-                            new Column("Shallow Heap", int.class), //
-                            new Column("Retained Heap", long.class).sorting(SortDirection.DESC), //
-                            new Column("Percentage", double.class).formatting(new DecimalFormat("0.00%")) };
+            return new Column[] { new Column(Messages.Column_ClassName, String.class), //
+                            new Column(Messages.Column_Objects, int.class), //
+                            new Column(Messages.Column_ShallowHeap, int.class), //
+                            new Column(Messages.Column_RetainedHeap, long.class).sorting(SortDirection.DESC), //
+                            new Column(Messages.Column_Percentage, double.class).formatting(new DecimalFormat("0.00%")) }; //$NON-NLS-1$
         }
 
         public List<?> getElements()

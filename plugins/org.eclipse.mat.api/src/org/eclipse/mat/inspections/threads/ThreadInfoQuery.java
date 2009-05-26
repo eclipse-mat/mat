@@ -15,12 +15,12 @@ import java.util.List;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.inspections.InspectionAssert;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.annotations.Argument;
-import org.eclipse.mat.query.annotations.Category;
+import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.Icon;
-import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.query.results.CompositeResult;
 import org.eclipse.mat.query.results.ListResult;
 import org.eclipse.mat.query.results.TextResult;
@@ -34,9 +34,9 @@ import org.eclipse.mat.snapshot.model.IStackFrame;
 import org.eclipse.mat.snapshot.model.IThreadStack;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.MessageUtil;
 
-@Name("Thread Details")
-@Category("Java Basics")
+@CommandName("thread_details")
 @Icon("/META-INF/icons/threads.gif")
 public class ThreadInfoQuery implements IQuery
 {
@@ -69,9 +69,9 @@ public class ThreadInfoQuery implements IQuery
 
     public Result execute(IProgressListener listener) throws Exception
     {
-        InspectionAssert.heapFormatIsNot(snapshot, "phd");
+        InspectionAssert.heapFormatIsNot(snapshot, "phd"); //$NON-NLS-1$
 
-        Result spec = new Result("Thread Details");
+        Result spec = new Result(Messages.ThreadInfoQuery_ThreadDetails);
         List<ThreadInfoImpl> infos = new ArrayList<ThreadInfoImpl>();
 
         for (int[] ids : threadIds)
@@ -90,23 +90,23 @@ public class ThreadInfoQuery implements IQuery
     {
         ThreadInfoImpl tInfo = ThreadInfoImpl.build(snapshot.getObject(threadId), true, listener);
 
-        SectionSpec spec = new SectionSpec("Thread " + tInfo.getName());
+        SectionSpec spec = new SectionSpec(MessageUtil.format(Messages.ThreadInfoQuery_ThreadLabel, tInfo.getName()));
         parent.add(spec, tInfo);
 
         // general properties
-        QuerySpec properties = new QuerySpec("Thread Properties");
-        properties.set(Params.Html.SHOW_TABLE_HEADER, "false");
-        properties.setCommand("list_objects 0x" + Long.toHexString(tInfo.getThreadObject().getObjectAddress()));
+        QuerySpec properties = new QuerySpec(Messages.ThreadInfoQuery_ThreadProperties);
+        properties.set(Params.Html.SHOW_TABLE_HEADER, Boolean.FALSE.toString());
+        properties.setCommand("list_objects 0x" + Long.toHexString(tInfo.getThreadObject().getObjectAddress())); //$NON-NLS-1$
 
         List<NameValuePair> pairs = new ArrayList<NameValuePair>();
         for (Column column : ThreadInfoImpl.getColumns())
         {
             Object value = tInfo.getValue(column);
-            String f = value == null ? "" : column.getFormatter() != null ? column.getFormatter().format(value)
+            String f = value == null ? "" : column.getFormatter() != null ? column.getFormatter().format(value) //$NON-NLS-1$
                             : String.valueOf(value);
             pairs.add(new NameValuePair(column.getLabel(), f));
         }
-        properties.setResult(new ListResult(NameValuePair.class, pairs, "name", "value"));
+        properties.setResult(new ListResult(NameValuePair.class, pairs, "name", "value")); //$NON-NLS-1$ //$NON-NLS-2$
         spec.add(properties);
         
         // thread stack
@@ -133,13 +133,13 @@ public class ThreadInfoQuery implements IQuery
         CompositeResult requests = tInfo.getRequests();
         if (requests != null && !requests.isEmpty())
         {
-            SectionSpec rSpec = new SectionSpec("Requests");
+            SectionSpec rSpec = new SectionSpec(Messages.ThreadInfoQuery_Requests);
             spec.add(rSpec);
 
             for (CompositeResult.Entry rInfo : requests.getResultEntries())
             {
                 QuerySpec thread = new QuerySpec(rInfo.getName());
-                thread.set(Params.Html.SHOW_HEADING, "false");
+                thread.set(Params.Html.SHOW_HEADING, Boolean.FALSE.toString());
                 thread.set(Params.Rendering.PATTERN, Params.Rendering.PATTERN_OVERVIEW_DETAILS);
                 thread.setResult(rInfo.getResult());
                 rSpec.add(thread);
@@ -156,13 +156,13 @@ public class ThreadInfoQuery implements IQuery
 
 		StringBuilder builder = new StringBuilder();
 		IObject threadObject = snapshot.getObject(threadId);
-		builder.append(threadObject.getClassSpecificName()).append("\r\n");
+        builder.append(threadObject.getClassSpecificName()).append("\r\n"); //$NON-NLS-1$
 		for (IStackFrame frame : stack.getStackFrames())
 		{
-			builder.append("  ").append(frame.getText()).append("\r\n");
+            builder.append("  ").append(frame.getText()).append("\r\n"); //$NON-NLS-1$//$NON-NLS-2$
 		}
 		
-		return new QuerySpec("Thread Stack", new TextResult(builder.toString()));
+		return new QuerySpec(Messages.ThreadInfoQuery_ThreadStack, new TextResult(builder.toString()));
 
 	}
 

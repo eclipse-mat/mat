@@ -12,6 +12,8 @@ package org.eclipse.mat.snapshot.model;
 
 import java.io.Serializable;
 
+import org.eclipse.mat.internal.Messages;
+
 /**
  * Describes a garbage collection root.
  */
@@ -70,9 +72,17 @@ abstract public class GCRootInfo implements Serializable
         int UNFINALIZED = 1024;
     }
 
-    private final static String[] TYPE_STRING = new String[] { "Unknown", "System Class", "JNI Local", "JNI Global",
-                    "Thread Block", "Busy Monitor", "Java Local", "Native Stack", "Thread", "Finalizable",
-                    "Unfinalized" };
+    private final static String[] TYPE_STRING = new String[] { Messages.GCRootInfo_Unkown, //
+                    Messages.GCRootInfo_SystemClass, //
+                    Messages.GCRootInfo_JNILocal, //
+                    Messages.GCRootInfo_JNIGlobal, //
+                    Messages.GCRootInfo_ThreadBlock, //
+                    Messages.GCRootInfo_BusyMonitor, //
+                    Messages.GCRootInfo_JavaLocal, //
+                    Messages.GCRootInfo_NativeStack, //
+                    Messages.GCRootInfo_Thread, //
+                    Messages.GCRootInfo_Finalizable, //
+                    Messages.GCRootInfo_Unfinalized };
 
     protected int objectId;
     private long objectAddress;
@@ -137,7 +147,7 @@ abstract public class GCRootInfo implements Serializable
             {
                 if (!first)
                 {
-                    buf.append(", ");
+                    buf.append(", "); //$NON-NLS-1$
                 }
                 else
                 {

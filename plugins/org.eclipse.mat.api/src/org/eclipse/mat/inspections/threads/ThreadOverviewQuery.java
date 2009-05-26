@@ -19,6 +19,7 @@ import java.util.List;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.inspections.InspectionAssert;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.DetailResultProvider;
 import org.eclipse.mat.query.IContextObject;
@@ -28,17 +29,15 @@ import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.query.ResultMetaData;
 import org.eclipse.mat.query.annotations.Argument;
-import org.eclipse.mat.query.annotations.Category;
+import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.Icon;
-import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.query.Icons;
 import org.eclipse.mat.snapshot.query.SnapshotQuery;
 import org.eclipse.mat.util.IProgressListener;
 
-@Name("Thread Overview")
-@Category("Java Basics")
+@CommandName("thread_overview")
 @Icon("/META-INF/icons/threads.gif")
 public class ThreadOverviewQuery implements IQuery
 {
@@ -47,11 +46,11 @@ public class ThreadOverviewQuery implements IQuery
 
     public IResult execute(IProgressListener listener) throws Exception
     {
-        listener.subTask("Searching Threads...");
+        listener.subTask(Messages.ThreadOverviewQuery_SearchingThreads);
 
         List<ThreadInfoImpl> result = new ArrayList<ThreadInfoImpl>();
 
-        Collection<IClass> classes = snapshot.getClassesByName("java.lang.Thread", true);
+        Collection<IClass> classes = snapshot.getClassesByName("java.lang.Thread", true); //$NON-NLS-1$
         for (IClass clasz : classes)
         {
             for (int id : clasz.getObjectIds())
@@ -93,14 +92,14 @@ public class ThreadOverviewQuery implements IQuery
         public ResultMetaData getResultMetaData()
         {
             return new ResultMetaData.Builder() //
-                            .addDetailResult(new DetailResultProvider("Thread Details")
+                            .addDetailResult(new DetailResultProvider(Messages.ThreadOverviewQuery_ThreadDetails)
                             {
                                 @Override
                                 public boolean hasResult(Object row)
                                 {
                                     try
                                     {
-                                        InspectionAssert.heapFormatIsNot(snapshot, "phd");
+                                        InspectionAssert.heapFormatIsNot(snapshot, "phd"); //$NON-NLS-1$
                                         return true;
                                     }
                                     catch (UnsupportedOperationException e)
@@ -115,8 +114,8 @@ public class ThreadOverviewQuery implements IQuery
                                 {
                                     int threadId = ((ThreadInfoImpl) row).getThreadId();
 
-                                    return SnapshotQuery.lookup("thread_details", snapshot) //
-                                                    .set("threadIds", threadId) //
+                                    return SnapshotQuery.lookup("thread_details", snapshot) //$NON-NLS-1$
+                                                    .set("threadIds", threadId) //$NON-NLS-1$
                                                     .execute(listener);
                                 }
 

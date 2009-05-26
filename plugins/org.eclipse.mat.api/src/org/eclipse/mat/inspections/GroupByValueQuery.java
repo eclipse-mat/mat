@@ -10,13 +10,12 @@
  *******************************************************************************/
 package org.eclipse.mat.inspections;
 
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.Column.SortDirection;
 import org.eclipse.mat.query.annotations.Argument;
-import org.eclipse.mat.query.annotations.Category;
-import org.eclipse.mat.query.annotations.Help;
-import org.eclipse.mat.query.annotations.Name;
+import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.quantize.Quantize;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IObject;
@@ -24,15 +23,7 @@ import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.snapshot.query.RetainedSizeDerivedData;
 import org.eclipse.mat.util.IProgressListener;
 
-@Name("Group By Value")
-@Category("Java Basics")
-@Help("Group objects by their string representation.\n\n"
-                + "By default, the objects are grouped by the the class specific name resolver. "
-                + "Alternatively, one can specify a field using the dot notation, whose name "
-                + "resolver is then used.\n\n" //
-                + "Examples:\n" //
-                + "To find duplicate strings, run:\n\tgroup_by_value java.lang.String\n"
-                + "To group array lists by their size, run:\n\tgroup_by_value java.util.ArrayList -field size\n")
+@CommandName("group_by_value")
 public class GroupByValueQuery implements IQuery
 {
     @Argument
@@ -42,20 +33,16 @@ public class GroupByValueQuery implements IQuery
     public IHeapObjectArgument objects;
 
     @Argument(isMandatory = false)
-    @Help("An optional dot notation to specify a field which is used to group the objects, "
-                    + "e.g. modCount to group HashMaps by their modifications.")
     public String field;
 
     public IResult execute(IProgressListener listener) throws Exception
     {
-        InspectionAssert.heapFormatIsNot(snapshot, "phd");
+        listener.subTask(Messages.GroupByValueQuery_GroupingObjects);
 
-        listener.subTask("Grouping objects ...");
-
-        Quantize quantize = Quantize.valueDistribution("String Value") //
-                        .column("Objects", Quantize.COUNT) //
-                        .column("Shallow Heap", Quantize.SUM_LONG, SortDirection.DESC) //
-                        .column("Avg. Retained Size", Quantize.AVERAGE_LONG) //
+        Quantize quantize = Quantize.valueDistribution(Messages.GroupByValueQuery_Column_StringValue) //
+                        .column(Messages.GroupByValueQuery_Column_Objects, Quantize.COUNT) //
+                        .column(Messages.Column_ShallowHeap, Quantize.SUM_LONG, SortDirection.DESC) //
+                        .column(Messages.GroupByValueQuery_Column_AvgRetainedSize, Quantize.AVERAGE_LONG) //
                         .addDerivedData(RetainedSizeDerivedData.APPROXIMATE) //
                         .build();
 
@@ -66,8 +53,8 @@ public class GroupByValueQuery implements IQuery
             {
                 if (listener.isCanceled())
                 {
-                	canceled = true;
-                	break;
+                    canceled = true;
+                    break;
                 }
 
                 int objectId = objectIds[ii];
@@ -83,7 +70,7 @@ public class GroupByValueQuery implements IQuery
                 quantize.addValue(objectId, subject, null, object.getUsedHeapSize(), object.getRetainedHeapSize());
             }
             if (canceled)
-            	break;
+                break;
         }
 
         return quantize.getResult();

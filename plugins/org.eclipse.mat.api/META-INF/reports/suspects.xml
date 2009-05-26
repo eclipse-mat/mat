@@ -1,12 +1,12 @@
-<section name="Leak Suspects">
+<section name="%suspects.title">
 	<param key="html.collapsed" value="false" />
 
-	<section name="System Overview">
+	<section name="%overview.title">
 		<param key="html.separate_file" value="true" />
 		<template>org.eclipse.mat.api:overview</template>
 	</section>
 	
-	<query name="Leaks">
+	<query name="%suspects.leaks">
 		<command>leakhunter</command>
 	</query>
 

@@ -16,12 +16,11 @@ import java.util.Map;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.inspections.InspectionAssert;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
-import org.eclipse.mat.query.annotations.Category;
-import org.eclipse.mat.query.annotations.Help;
-import org.eclipse.mat.query.annotations.Name;
+import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.quantize.Quantize;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IClass;
@@ -32,21 +31,7 @@ import org.eclipse.mat.snapshot.query.RetainedSizeDerivedData;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 
-@Name("Collection Fill Ratio")
-@Category("Java Collections")
-@Help("Prints a frequency distribution of fill ratios of given collections.\n\n"
-                + "The below mentioned collections are known to the query. "
-                + "One additional custom collection (e.g. non-JDK) collection "
-                + "can be specified by the 'collection', 'size_attribute' and " // 
-                + "'array_attribute' argument.\n" //
-                + "Known collections:\n" //
-                + "java.util.ArrayList\n" //
-                + "java.util.HashMap\n" // 
-                + "java.util.Hashtable\n" //
-                + "java.util.Properties\n" //
-                + "java.util.Vector\n" //
-                + "java.util.WeakHashMap\n" //
-                + "java.util.concurrent.ConcurrentHashMap$Segment")
+@CommandName("collection_fill_ratio")
 public class CollectionFillRatioQuery implements IQuery
 {
 
@@ -54,30 +39,25 @@ public class CollectionFillRatioQuery implements IQuery
     public ISnapshot snapshot;
 
     @Argument(flag = "none")
-    @Help("The collection objects. Non-collection objects will be ignored.")
     public IHeapObjectArgument objects;
 
     @Argument(isMandatory = false)
-    @Help("Number of ranges used for the frequency distribution.")
     public int segments = 5;
 
     @Argument(isMandatory = false)
-    @Help("Optional: fully qualified class name of a custom (e.g. non-JDK) collection class.")
     public String collection;
 
     @Argument(isMandatory = false)
-    @Help("The size attribute of the (optionally) specified collection class. Must be of type int or Integer.")
     public String size_attribute;
 
     @Argument(isMandatory = false)
-    @Help("The array attribute of the (optionally) specified collection class. Must be a Java array.")
     public String array_attribute;
 
     public IResult execute(IProgressListener listener) throws Exception
     {
-        InspectionAssert.heapFormatIsNot(snapshot, "phd");
+        InspectionAssert.heapFormatIsNot(snapshot, "phd"); //$NON-NLS-1$
 
-        listener.subTask("Extracting collection fill ratios...");
+        listener.subTask(Messages.CollectionFillRatioQuery_ExtractingFillRatios);
 
         Map<Integer, CollectionUtil.Info> metadata = new HashMap<Integer, CollectionUtil.Info>();
 
@@ -98,9 +78,7 @@ public class CollectionFillRatioQuery implements IQuery
         {
             if (size_attribute == null || array_attribute == null)
             {
-                String msg = "If the collection argument is set to a custom (e.g. non-JDK) collection class, "
-                                + "the size_attribute and array_attribute argument must be set. Otherwise, the query "
-                                + "cannot calculate the fill ratio.";
+                String msg = Messages.CollectionFillRatioQuery_ErrorMsg_AllArgumentsMustBeSet;
                 throw new SnapshotException(msg);
             }
 
@@ -109,17 +87,17 @@ public class CollectionFillRatioQuery implements IQuery
 
             if (classes.isEmpty())
                 listener.sendUserMessage(IProgressListener.Severity.WARNING, MessageUtil.format(
-                                "Class ''{0}'' not found in heap dump.", new Object[] { collection }), null);
+                                Messages.CollectionFillRatioQuery_ClassNotFound, collection), null);
 
             for (IClass clasz : classes)
                 metadata.put(clasz.getObjectId(), info);
         }
 
         // create frequency distribution
-        Quantize.Builder builder = Quantize.linearFrequencyDistribution("Fill Ratio", 0, 1, (double) 1
-                        / (double) segments);
-        builder.column("# Objects", Quantize.COUNT);
-        builder.column("Shallow Heap", Quantize.SUM_LONG);
+        Quantize.Builder builder = Quantize.linearFrequencyDistribution(
+                        Messages.CollectionFillRatioQuery_Column_FillRatio, 0, 1, (double) 1 / (double) segments);
+        builder.column(Messages.CollectionFillRatioQuery_ColumnNumObjects, Quantize.COUNT);
+        builder.column(Messages.Column_ShallowHeap, Quantize.SUM_LONG);
         builder.addDerivedData(RetainedSizeDerivedData.APPROXIMATE);
         Quantize quantize = builder.build();
 

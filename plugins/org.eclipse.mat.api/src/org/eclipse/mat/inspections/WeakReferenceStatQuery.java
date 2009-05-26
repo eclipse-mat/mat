@@ -10,18 +10,15 @@
  *******************************************************************************/
 package org.eclipse.mat.inspections;
 
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
-import org.eclipse.mat.query.annotations.Category;
-import org.eclipse.mat.query.annotations.Help;
-import org.eclipse.mat.query.annotations.Name;
+import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.util.IProgressListener;
 
-@Name("Weak References Statistics")
-@Category("Java Basics/References")
-@Help("Statistics to Weak References.")
+@CommandName("weak_references_statistics")
 public class WeakReferenceStatQuery implements IQuery
 {
     @Argument
@@ -29,7 +26,9 @@ public class WeakReferenceStatQuery implements IQuery
 
     public IResult execute(IProgressListener listener) throws Exception
     {
-        return ReferenceQuery.execute("Weakly", "java\\.lang\\.ref\\.WeakReference", snapshot, listener);
+        return ReferenceQuery.execute("java\\.lang\\.ref\\.WeakReference", snapshot, //$NON-NLS-1$
+                        Messages.WeakReferenceStatQuery_Label_Referenced,
+                        Messages.WeakReferenceStatQuery_Label_Retained, listener);
     }
 
 }

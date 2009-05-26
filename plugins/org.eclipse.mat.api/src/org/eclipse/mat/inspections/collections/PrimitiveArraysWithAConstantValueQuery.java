@@ -11,12 +11,12 @@
 package org.eclipse.mat.inspections.collections;
 
 import org.eclipse.mat.collect.ArrayInt;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
-import org.eclipse.mat.query.annotations.Category;
+import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.Help;
-import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IObjectArray;
@@ -25,9 +25,7 @@ import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.snapshot.query.ObjectListResult;
 import org.eclipse.mat.util.IProgressListener;
 
-@Name("Primitive Arrays With a Constant Value")
-@Category("Java Collections")
-@Help("List primitive arrays with a constant value.")
+@CommandName("primitive_arrays_with_a_constant_value")
 public class PrimitiveArraysWithAConstantValueQuery implements IQuery
 {
     @Argument
@@ -39,7 +37,7 @@ public class PrimitiveArraysWithAConstantValueQuery implements IQuery
 
     public IResult execute(IProgressListener listener) throws Exception
     {
-        listener.subTask("Searching array values...");
+        listener.subTask(Messages.PrimitiveArraysWithAConstantValueQuery_SearchingArrayValues);
 
         ArrayInt result = new ArrayInt();
 

@@ -27,13 +27,13 @@ public final class ThreadDetailResolverRegistry extends RegistryReader<IThreadDe
 
     private ThreadDetailResolverRegistry()
     {
-        init(MATPlugin.getDefault().getExtensionTracker(), MATPlugin.PLUGIN_ID + ".threadResolver");
+        init(MATPlugin.getDefault().getExtensionTracker(), MATPlugin.PLUGIN_ID + ".threadResolver"); //$NON-NLS-1$
     }
 
     @Override
     protected IThreadDetailsResolver createDelegate(IConfigurationElement configElement) throws CoreException
     {
-        return (IThreadDetailsResolver) configElement.createExecutableExtension("impl");
+        return (IThreadDetailsResolver) configElement.createExecutableExtension("impl"); //$NON-NLS-1$
     }
 
     @Override

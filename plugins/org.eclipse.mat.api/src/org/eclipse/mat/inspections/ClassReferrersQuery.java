@@ -18,6 +18,7 @@ import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.collect.SetInt;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IContextObjectSet;
@@ -31,7 +32,6 @@ import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.Category;
 import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.Menu;
-import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.query.annotations.Menu.Entry;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IClass;
@@ -39,17 +39,10 @@ import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.snapshot.query.Icons;
 import org.eclipse.mat.util.IProgressListener;
 
-@Name("Show Objects By Class")
 @Category(Category.HIDDEN)
 @CommandName("class_references")
-@Menu( { @Entry(category = "2|Show objects by class", //
-                label = "1|by outgoing references", //
-                icon = "/META-INF/icons/class_refs_outbound.gif"), //
-
-                @Entry(category = "2|Show objects by class", //
-                label = "2|by incoming references", //
-                options = "-inbound", //
-                icon = "/META-INF/icons/class_refs_inbound.gif") //
+@Menu( { @Entry(icon = "/META-INF/icons/class_refs_outbound.gif"), //
+                @Entry(options = "-inbound", icon = "/META-INF/icons/class_refs_inbound.gif") //
 })
 public class ClassReferrersQuery implements IQuery
 {
@@ -147,9 +140,9 @@ public class ClassReferrersQuery implements IQuery
 
         public final Column[] getColumns()
         {
-            return new Column[] { new Column("Class Name"), //
-                            new Column("Objects", int.class), //
-                            new Column("Shallow Heap", long.class).sorting(SortDirection.DESC) }; //                           
+            return new Column[] { new Column(Messages.Column_ClassName), //
+                            new Column(Messages.Column_Objects, int.class), //
+                            new Column(Messages.Column_ShallowHeap, long.class).sorting(SortDirection.DESC) }; //                           
         }
 
         public final List<?> getElements()

@@ -11,13 +11,12 @@
 package org.eclipse.mat.inspections.finalizer;
 
 import org.eclipse.mat.inspections.InspectionAssert;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
-import org.eclipse.mat.query.annotations.Category;
-import org.eclipse.mat.query.annotations.Help;
+import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.Icon;
-import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.report.Params;
 import org.eclipse.mat.report.QuerySpec;
 import org.eclipse.mat.report.SectionSpec;
@@ -25,16 +24,8 @@ import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.query.SnapshotQuery;
 import org.eclipse.mat.util.IProgressListener;
 
-@Name("Finalizer Overview")
-@Category("Java Basics")
+@CommandName("finalizer_overview")
 @Icon("/META-INF/icons/finalizer.gif")
-@Help("Finalizer Overview.\n\n" //
-                + "Finalizers are executed when the internal garbage collection frees the objects. "
-                + "Due to the lack of control over the finalizer execution, it is recommended to "
-                + "avoid finalizers. Long running tasks in the finalizer can block garbage "
-                + "collection, because the memory can only be freed after the finalize method finished."
-                + "This query shows the the finalizer currently processed, the finalizer queue, "
-                + "the demon finalizer thread or threads and the thread local variables.")
 public class FinalizerQuery implements IQuery
 {
     @Argument
@@ -42,23 +33,23 @@ public class FinalizerQuery implements IQuery
 
     public IResult execute(IProgressListener listener) throws Exception
     {
-        InspectionAssert.heapFormatIsNot(snapshot, "phd");
+        InspectionAssert.heapFormatIsNot(snapshot, "phd"); //$NON-NLS-1$
 
-        SectionSpec spec = new SectionSpec("Finalizers");
+        SectionSpec spec = new SectionSpec(Messages.FinalizerQuery_Finalizers);
 
-        IResult result = SnapshotQuery.lookup("finalizer_in_processing", snapshot).execute(listener);
-        spec.add(new QuerySpec("In processing by Finalizer Thread", result));
+        IResult result = SnapshotQuery.lookup("finalizer_in_processing", snapshot).execute(listener); //$NON-NLS-1$
+        spec.add(new QuerySpec(Messages.FinalizerQuery_InProcessing, result));
 
-        result = SnapshotQuery.lookup("finalizer_queue", snapshot).execute(listener);
-        QuerySpec finalizerQueue = new QuerySpec("Ready for Finalizer Thread", result);
+        result = SnapshotQuery.lookup("finalizer_queue", snapshot).execute(listener); //$NON-NLS-1$
+        QuerySpec finalizerQueue = new QuerySpec(Messages.FinalizerQuery_ReadyForFinalizer, result);
         spec.add(finalizerQueue);
-        finalizerQueue.set(Params.Html.SHOW_HEADING, "false");
+        finalizerQueue.set(Params.Html.SHOW_HEADING, Boolean.FALSE.toString());
 
-        result = SnapshotQuery.lookup("finalizer_thread", snapshot).execute(listener);
-        spec.add(new QuerySpec("Finalizer Thread", result));
+        result = SnapshotQuery.lookup("finalizer_thread", snapshot).execute(listener); //$NON-NLS-1$
+        spec.add(new QuerySpec(Messages.FinalizerQuery_FinalizerThread, result));
 
-        result = SnapshotQuery.lookup("finalizer_thread_locals", snapshot).execute(listener);
-        spec.add(new QuerySpec("Finalizer Thread Locals", result));
+        result = SnapshotQuery.lookup("finalizer_thread_locals", snapshot).execute(listener); //$NON-NLS-1$
+        spec.add(new QuerySpec(Messages.FinalizerQuery_FinalizerThreadLocals, result));
 
         return spec;
     }

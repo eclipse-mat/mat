@@ -19,6 +19,7 @@ import java.util.logging.Logger;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.snapshot.extension.Subject;
 import org.eclipse.mat.snapshot.extension.Subjects;
 import org.eclipse.mat.util.MessageUtil;
@@ -43,8 +44,8 @@ public abstract class SubjectRegistry<D> extends RegistryReader<D>
         {
             Logger.getLogger(getClass().getName()).log(
                             Level.WARNING,
-                            MessageUtil.format("Missing or empty @Subject(s) annotation: ''{0}''", resolver.getClass()
-                                            .getName()));
+                            MessageUtil.format(Messages.SubjectRegistry_ErrorMsg_MissingSubjectAnnotation, resolver
+                                            .getClass().getName()));
         }
 
         return resolver;

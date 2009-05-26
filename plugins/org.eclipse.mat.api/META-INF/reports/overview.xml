@@ -1,32 +1,32 @@
-<section name="System Overview">
+<section name="%overview.title">
 	<param key="html.collapsed" value="false" />
-	
-	<query name="Heap Dump Overview">
+
+	<query name="%overview.heap_dump_overview">
 		<param key="html.show_table_header" value="false" />
 		<command>heap_dump_overview</command>
-	</query>	
-	<query name="System Properties">
-		<param key="html.separate_file" value="true" />		
+	</query>
+	<query name="%overview.system_properties">
+		<param key="html.separate_file" value="true" />
 		<param key="sort_column" value="Key" />
 		<param key="sort_order" value="ASC" />
-		<param key="hide_column" value="Collection" />
-		<param key="limit" value="1000" />		
+		<param key="hide_column" value="#0" />
+		<param key="limit" value="1000" />
 		<command>system_properties</command>
 	</query>
-	<query name="Thread Overview">
+	<query name="%overview.threads">
 		<param key="limit" value="1000" />
 		<param key="html.separate_file" value="true" />
 		<param key="html.render_details" value="false" />
 		<command>thread_overview</command>
-	</query>	
-	<query name="Top Consumers">
+	</query>
+	<query name="%overview.top_consumers">
 		<param key="html.separate_file" value="true" />
 		<command>top_consumers_html</command>
 	</query>
-	<query name="Class Histogram">
+	<query name="%overview.class_histogram">
 		<param key="html.separate_file" value="true" />
-		<param key="sort_column" value="Retained Heap" />
-		<param key="derived_data_column" value="_default_=APPROXIMATE"/>
+		<param key="sort_column" value="#3" />
+		<param key="derived_data_column" value="_default_=APPROXIMATE" />
 		<command>histogram</command>
-	</query>	
+	</query>
 </section>

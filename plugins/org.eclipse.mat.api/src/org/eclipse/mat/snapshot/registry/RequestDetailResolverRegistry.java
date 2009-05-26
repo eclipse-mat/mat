@@ -26,13 +26,13 @@ public final class RequestDetailResolverRegistry extends SubjectRegistry<IReques
 
     private RequestDetailResolverRegistry()
     {
-        init(MATPlugin.getDefault().getExtensionTracker(), MATPlugin.PLUGIN_ID + ".requestResolver");
+        init(MATPlugin.getDefault().getExtensionTracker(), MATPlugin.PLUGIN_ID + ".requestResolver"); //$NON-NLS-1$
     }
 
     @Override
     protected IRequestDetailsResolver doCreateDelegate(IConfigurationElement configElement) throws CoreException
     {
-        return (IRequestDetailsResolver) configElement.createExecutableExtension("impl");
+        return (IRequestDetailsResolver) configElement.createExecutableExtension("impl"); //$NON-NLS-1$
     }
 
 }

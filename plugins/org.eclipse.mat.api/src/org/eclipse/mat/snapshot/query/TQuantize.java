@@ -24,6 +24,7 @@ import java.util.StringTokenizer;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.ContextDerivedData;
 import org.eclipse.mat.query.ContextProvider;
@@ -60,29 +61,33 @@ public final class TQuantize
     public enum Target
     {
         /** Aggregate by class loader */
-        CLASSLOADER("class loader", Icons.CLASSLOADER_INSTANCE, ByClassloader.class),
+        CLASSLOADER(Messages.TQuantize_Label_GroupByClassLoader, Messages.TQuantize_Label_GroupedByClassLoader,
+                        Icons.CLASSLOADER_INSTANCE, ByClassloader.class),
         /** Aggregate by package */
-        PACKAGE("package", Icons.PACKAGE, ByPackage.class);
+        PACKAGE(Messages.TQuantize_Label_GroupByPackage, Messages.TQuantize_Label_GroupedByPackage, Icons.PACKAGE,
+                        ByPackage.class);
 
         private final String label;
+        private final String title;
         private final URL icon;
         private final Class<? extends Calculator> calculatorClass;
 
-        private Target(String label, URL icon, Class<? extends Calculator> calculatorClass)
+        private Target(String label, String title, URL icon, Class<? extends Calculator> calculatorClass)
         {
             this.label = label;
+            this.title = title;
             this.icon = icon;
             this.calculatorClass = calculatorClass;
         }
 
         public String getLabel()
         {
-            return MessageUtil.format("Group by {0}", label);
+            return label;
         }
 
         public String getTitle(String command)
         {
-            return MessageUtil.format("Grouped ''{0}'' by {1}", command, label);
+            return MessageUtil.format(title, command);
         }
 
         public URL getIcon()
@@ -104,7 +109,7 @@ public final class TQuantize
                     throws SnapshotException
     {
         if (columns == null || columns.length == 0)
-            throw new NullPointerException("columns");
+            throw new NullPointerException("columns"); //$NON-NLS-1$
 
         if (columns.length > 1)
         {
@@ -712,12 +717,12 @@ public final class TQuantize
 
         public String label(Object key) throws SnapshotException
         {
-            if (key == null) { return "<NONE>"; }
+            if (key == null) { return Messages.TQuantize_None; }
 
             int objectId = ((Integer) key).intValue();
             if (objectId < 0)
             {
-                return "<NONE>";
+                return Messages.TQuantize_None;
             }
             else
             {
@@ -748,7 +753,7 @@ public final class TQuantize
 
     static class ByPackage extends Calculator
     {
-        Package root = new Package("<ROOT>", null);
+        Package root = new Package("<ROOT>", null); //$NON-NLS-1$
 
         public IResult result(Map<Object, GroupedRowImpl> result)
         {
@@ -786,11 +791,11 @@ public final class TQuantize
         {
             IContextObject ctx = quantize.table.getContext(row);
             if (ctx == null)
-                return root.getOrCreateChild("<none>");
+                return root.getOrCreateChild(Messages.TQuantize_None);
 
             int objectId = ctx.getObjectId();
             if (objectId < 0)
-                return root.getOrCreateChild("<none>");
+                return root.getOrCreateChild(Messages.TQuantize_None);
 
             IClass objClass = quantize.snapshot.getClassOf(objectId);
             if (IClass.JAVA_LANG_CLASS.equals(objClass.getName()))
@@ -805,7 +810,7 @@ public final class TQuantize
             if (p < 0)
                 return root;
 
-            StringTokenizer tokenizer = new StringTokenizer(className.substring(0, p), ".");
+            StringTokenizer tokenizer = new StringTokenizer(className.substring(0, p), "."); //$NON-NLS-1$
 
             Package current = root;
 

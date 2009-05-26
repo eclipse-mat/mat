@@ -28,6 +28,7 @@ import org.eclipse.mat.inspections.osgi.model.eclipse.Extension;
 import org.eclipse.mat.inspections.osgi.model.eclipse.ExtensionPoint;
 import org.eclipse.mat.inspections.osgi.model.eclipse.ConfigurationElement.PropertyPair;
 import org.eclipse.mat.internal.MATPlugin;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IIconProvider;
@@ -36,16 +37,13 @@ import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.IResultTree;
 import org.eclipse.mat.query.ResultMetaData;
 import org.eclipse.mat.query.annotations.Argument;
-import org.eclipse.mat.query.annotations.Category;
 import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.Icon;
-import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.MessageUtil;
 
-@Name("Equinox Bundle Explorer (beta)")
 @CommandName("bundle_registry")
-@Category("Eclipse")
 @Icon("/META-INF/icons/osgi/registry.gif")
 public class BundleRegistryQuery implements IQuery
 {
@@ -57,9 +55,9 @@ public class BundleRegistryQuery implements IQuery
 
     public enum Grouping
     {
-        NONE("Bundles", Icons.BUNDLE), //
-        BY_SERVICE("Services", Icons.SERVICE), //
-        BY_EXTENSION_POINT("Extension Points", Icons.EXTENSION_POINTS);
+        NONE(Messages.BundleRegistryQuery_Bundles, Icons.BUNDLE), //
+        BY_SERVICE(Messages.BundleRegistryQuery_Services, Icons.SERVICE), //
+        BY_EXTENSION_POINT(Messages.BundleRegistryQuery_ExtensionPoints, Icons.EXTENSION_POINTS);
 
         String label;
         URL icon;
@@ -129,22 +127,22 @@ public class BundleRegistryQuery implements IQuery
 
     interface Icons
     {
-        URL BUNDLE = BundleTreeResult.class.getResource("/META-INF/icons/osgi/bundle.gif");
-        URL LOCATION = BundleTreeResult.class.getResource("/META-INF/icons/osgi/location.gif");
-        URL DEPENDENTS = BundleTreeResult.class.getResource("/META-INF/icons/osgi/dependents.gif");
-        URL DEPENDENCIES = BundleTreeResult.class.getResource("/META-INF/icons/osgi/dependencies.gif");
-        URL USED_SERVICES = BundleTreeResult.class.getResource("/META-INF/icons/osgi/used_services.gif");
-        URL REGISTERED_SERVICES = BundleTreeResult.class.getResource("/META-INF/icons/osgi/registered_services.gif");
-        URL SERVICE = BundleTreeResult.class.getResource("/META-INF/icons/osgi/int_obj.gif");
-        URL EXTENSION_POINTS = BundleTreeResult.class.getResource("/META-INF/icons/osgi/ext_points_obj.gif");
-        URL EXTENSION_POINT = BundleTreeResult.class.getResource("/META-INF/icons/osgi/ext_point_obj.gif");
-        URL EXTENSIONS = BundleTreeResult.class.getResource("/META-INF/icons/osgi/extensions_obj.gif");
-        URL EXTENSION = BundleTreeResult.class.getResource("/META-INF/icons/osgi/extension_obj.gif");
-        URL PROPERTY_PAIR = BundleTreeResult.class.getResource("/META-INF/icons/osgi/attr_xml_obj.gif");
-        URL ATTRIBUTE = BundleTreeResult.class.getResource("/META-INF/icons/osgi/generic_xml_obj.gif");
-        URL FRAGMENTS = BundleTreeResult.class.getResource("/META-INF/icons/osgi/frgmts_obj.gif");
-        URL FRAGMENT = BundleTreeResult.class.getResource("/META-INF/icons/osgi/frgmt_obj.gif");
-        URL PROPERTY = BundleTreeResult.class.getResource("/META-INF/icons/osgi/property.gif");
+        URL BUNDLE = BundleTreeResult.class.getResource("/META-INF/icons/osgi/bundle.gif"); //$NON-NLS-1$
+        URL LOCATION = BundleTreeResult.class.getResource("/META-INF/icons/osgi/location.gif"); //$NON-NLS-1$
+        URL DEPENDENTS = BundleTreeResult.class.getResource("/META-INF/icons/osgi/dependents.gif"); //$NON-NLS-1$
+        URL DEPENDENCIES = BundleTreeResult.class.getResource("/META-INF/icons/osgi/dependencies.gif"); //$NON-NLS-1$
+        URL USED_SERVICES = BundleTreeResult.class.getResource("/META-INF/icons/osgi/used_services.gif"); //$NON-NLS-1$
+        URL REGISTERED_SERVICES = BundleTreeResult.class.getResource("/META-INF/icons/osgi/registered_services.gif"); //$NON-NLS-1$
+        URL SERVICE = BundleTreeResult.class.getResource("/META-INF/icons/osgi/int_obj.gif"); //$NON-NLS-1$
+        URL EXTENSION_POINTS = BundleTreeResult.class.getResource("/META-INF/icons/osgi/ext_points_obj.gif"); //$NON-NLS-1$
+        URL EXTENSION_POINT = BundleTreeResult.class.getResource("/META-INF/icons/osgi/ext_point_obj.gif"); //$NON-NLS-1$
+        URL EXTENSIONS = BundleTreeResult.class.getResource("/META-INF/icons/osgi/extensions_obj.gif"); //$NON-NLS-1$
+        URL EXTENSION = BundleTreeResult.class.getResource("/META-INF/icons/osgi/extension_obj.gif"); //$NON-NLS-1$
+        URL PROPERTY_PAIR = BundleTreeResult.class.getResource("/META-INF/icons/osgi/attr_xml_obj.gif"); //$NON-NLS-1$
+        URL ATTRIBUTE = BundleTreeResult.class.getResource("/META-INF/icons/osgi/generic_xml_obj.gif"); //$NON-NLS-1$
+        URL FRAGMENTS = BundleTreeResult.class.getResource("/META-INF/icons/osgi/frgmts_obj.gif"); //$NON-NLS-1$
+        URL FRAGMENT = BundleTreeResult.class.getResource("/META-INF/icons/osgi/frgmt_obj.gif"); //$NON-NLS-1$
+        URL PROPERTY = BundleTreeResult.class.getResource("/META-INF/icons/osgi/property.gif"); //$NON-NLS-1$
     }
 
     private static class Folder
@@ -230,29 +228,32 @@ public class BundleRegistryQuery implements IQuery
                 }
                 catch (SnapshotException e)
                 {
-                    MATPlugin.log(e, "Failed reading bundle from OSGiModel");
+                    MATPlugin.log(e, Messages.BundleRegistryQuery_ErrorMsg_FailedReadingModel);
                     return null;
                 }
                 List<Object> children = new ArrayList<Object>(2);
                 if (bundle.getLocation() != null)
                     children.add(new Folder(bundle, bundle.getLocation(), Type.LOCATION));
                 if (bundle.getDependencies() != null && !bundle.getDependencies().isEmpty())
-                    children.add(new Folder(bundle, "Dependencies", Type.DEPENDENCIES));
+                    children.add(new Folder(bundle, Messages.BundleRegistryQuery_Dependencies, Type.DEPENDENCIES));
                 if (bundle.getDependents() != null && !bundle.getDependents().isEmpty())
-                    children.add(new Folder(bundle, "Dependents", Type.DEPENDENTS));
+                    children.add(new Folder(bundle, Messages.BundleRegistryQuery_Dependents, Type.DEPENDENTS));
                 if (bundle.getExtentionPoints() != null && !bundle.getExtentionPoints().isEmpty())
-                    children.add(new Folder(bundle, "Extension Points", Type.EXTENSION_POINTS));
+                    children
+                                    .add(new Folder(bundle, Messages.BundleRegistryQuery_ExtensionPoints,
+                                                    Type.EXTENSION_POINTS));
                 if (bundle.getExtentions() != null && !bundle.getExtentions().isEmpty())
-                    children.add(new Folder(bundle, "Extensions", Type.EXTENSIONS));
+                    children.add(new Folder(bundle, Messages.BundleRegistryQuery_Extensions, Type.EXTENSIONS));
                 if (bundle.getRegisteredServices() != null && !bundle.getRegisteredServices().isEmpty())
-                    children.add(new Folder(bundle, "Registered Services", Type.REGISTERED_SERVICES));
+                    children.add(new Folder(bundle, Messages.BundleRegistryQuery_RegisteredServices,
+                                    Type.REGISTERED_SERVICES));
                 if (bundle.getUsedServices() != null && !bundle.getUsedServices().isEmpty())
-                    children.add(new Folder(bundle, "Used Services", Type.SERVICES_IN_USE));
+                    children.add(new Folder(bundle, Messages.BundleRegistryQuery_UserServices, Type.SERVICES_IN_USE));
                 if (bundle.getFragments() != null && !bundle.getFragments().isEmpty())
-                    children.add(new Folder(bundle, "Fragments", Type.FRAGMENTS));
+                    children.add(new Folder(bundle, Messages.BundleRegistryQuery_Fragments, Type.FRAGMENTS));
                 if (bundle instanceof BundleFragment && ((BundleFragment) bundle).getHost() != null)
-                    children.add(new Folder(bundle,
-                                    "hosted by: " + ((BundleFragment) bundle).getHost().getBundleName(), Type.HOST));
+                    children.add(new Folder(bundle, MessageUtil.format(Messages.BundleRegistryQuery_HostedBy,
+                                    ((BundleFragment) bundle).getHost().getBundleName()), Type.HOST));
 
                 return children;
             }
@@ -294,8 +295,9 @@ public class BundleRegistryQuery implements IQuery
                 for (Extension extension : extensions)
                 {
                     String bundleName = (extension.getContributedBy() != null) ? extension.getContributedBy()
-                                    .getBundleName() : "";
-                    children.add(new ExtensionFolder(extension, "contributed by: " + bundleName, Type.CONTRIBUTED_BY));
+                                    .getBundleName() : ""; //$NON-NLS-1$
+                    children.add(new ExtensionFolder(extension, MessageUtil.format(
+                                    Messages.BundleRegistryQuery_ContributedBy, bundleName), Type.CONTRIBUTED_BY));
                 }
                 return children;
             }
@@ -319,9 +321,12 @@ public class BundleRegistryQuery implements IQuery
                 Service service = (Service) parent;
                 List<Object> children = new ArrayList<Object>(2);
                 if (service.getProperties() != null)
-                    children.add(new PropertiesFolder(service, "Properties", Type.PROPERTIES));
+                    children
+                                    .add(new PropertiesFolder(service, Messages.BundleRegistryQuery_Properties,
+                                                    Type.PROPERTIES));
                 if (service.getBundlesUsing() != null && !service.getBundlesUsing().isEmpty())
-                    children.add(new PropertiesFolder(service, "Bundles Using", Type.BUNDLES_USING));
+                    children.add(new PropertiesFolder(service, Messages.BundleRegistryQuery_BundlesUsing,
+                                    Type.BUNDLES_USING));
                 return children;
             }
 
@@ -359,8 +364,8 @@ public class BundleRegistryQuery implements IQuery
 
         public Column[] getColumns()
         {
-            return new Column[] { new Column("Bundles"),//
-                            new Column("Bundle State").noTotals() };
+            return new Column[] { new Column(Messages.BundleRegistryQuery_Bundles),//
+                            new Column(Messages.BundleRegistryQuery_BundleState).noTotals() };
 
         }
 
@@ -382,9 +387,9 @@ public class BundleRegistryQuery implements IQuery
                     if (row instanceof ConfigurationElement)
                         return ((ConfigurationElement) row).getName();
                     if (row instanceof PropertyPair)
-                        return ((PropertyPair) row).property + " = " + ((PropertyPair) row).value;
+                        return ((PropertyPair) row).property + " = " + ((PropertyPair) row).value; //$NON-NLS-1$
                     if (row instanceof ServiceProperty)
-                        return ((ServiceProperty) row).property + " = " + ((ServiceProperty) row).value;
+                        return ((ServiceProperty) row).property + " = " + ((ServiceProperty) row).value; //$NON-NLS-1$
                 case 1:
                     if (row instanceof BundleDescriptor)
                         return ((BundleDescriptor) row).getState();
@@ -525,11 +530,15 @@ public class BundleRegistryQuery implements IQuery
                 Service service = (Service) parent;
                 List<Object> children = new ArrayList<Object>(2);
                 if (service.getProperties() != null)
-                    children.add(new PropertiesFolder(service, "Properties", Type.PROPERTIES));
-                children.add(new DescriptorFolder(service.getBundleDescriptor(), "registered by: "
-                                + service.getBundleDescriptor().getBundleName(), Type.BUNDLE));
+                    children
+                                    .add(new PropertiesFolder(service, Messages.BundleRegistryQuery_Properties,
+                                                    Type.PROPERTIES));
+                children.add(new DescriptorFolder(service.getBundleDescriptor(), MessageUtil.format(
+                                Messages.BundleRegistryQuery_RegisteredBy, service.getBundleDescriptor()
+                                                .getBundleName()), Type.BUNDLE));
                 if (service.getBundlesUsing() != null && !service.getBundlesUsing().isEmpty())
-                    children.add(new PropertiesFolder(service, "Bundles Using", Type.BUNDLES_USING));
+                    children.add(new PropertiesFolder(service, Messages.BundleRegistryQuery_BundlesUsing,
+                                    Type.BUNDLES_USING));
                 return children;
             }
 
@@ -570,8 +579,8 @@ public class BundleRegistryQuery implements IQuery
         @Override
         public Column[] getColumns()
         {
-            return new Column[] { new Column("Services"),//
-                            new Column("Bundle State").noTotals() };
+            return new Column[] { new Column(Messages.BundleRegistryQuery_Services),//
+                            new Column(Messages.BundleRegistryQuery_BundleState).noTotals() };
         }
 
     }
@@ -595,12 +604,14 @@ public class BundleRegistryQuery implements IQuery
                 for (Extension extension : extensions)
                 {
                     if (extension.getContributedBy() != null)
-                        children.add(new ExtensionFolder(extension, "contributed by: "
-                                        + extension.getContributedBy().getBundleName(), Type.CONTRIBUTED_BY));
+                        children.add(new ExtensionFolder(extension, MessageUtil.format(
+                                        Messages.BundleRegistryQuery_ContributedBy, extension.getContributedBy()
+                                                        .getBundleName()), Type.CONTRIBUTED_BY));
                 }
                 if (point.getContributedBy() != null)
-                    children.add(new DescriptorFolder(point.getContributedBy(), "registered by: "
-                                    + point.getContributedBy().getBundleName(), Type.BUNDLE));
+                    children.add(new DescriptorFolder(point.getContributedBy(), MessageUtil
+                                    .format(Messages.BundleRegistryQuery_RegisteredBy, point.getContributedBy()
+                                                    .getBundleName()), Type.BUNDLE));
 
                 return children;
             }
@@ -643,8 +654,8 @@ public class BundleRegistryQuery implements IQuery
         @Override
         public Column[] getColumns()
         {
-            return new Column[] { new Column("Extension Points"),//
-                            new Column("Bundle State").noTotals() };
+            return new Column[] { new Column(Messages.BundleRegistryQuery_ExtensionPoints),//
+                            new Column(Messages.BundleRegistryQuery_BundleState).noTotals() };
         }
 
     }

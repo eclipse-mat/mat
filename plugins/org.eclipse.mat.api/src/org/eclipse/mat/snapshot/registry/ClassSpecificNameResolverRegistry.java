@@ -20,6 +20,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.internal.MATPlugin;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.snapshot.extension.IClassSpecificNameResolver;
 import org.eclipse.mat.snapshot.extension.Subject;
 import org.eclipse.mat.snapshot.extension.Subjects;
@@ -48,7 +49,7 @@ public final class ClassSpecificNameResolverRegistry
         public RegistryImpl()
         {
             resolvers = new HashMap<String, IClassSpecificNameResolver>();
-            init(MATPlugin.getDefault().getExtensionTracker(), MATPlugin.PLUGIN_ID + ".nameResolver");
+            init(MATPlugin.getDefault().getExtensionTracker(), MATPlugin.PLUGIN_ID + ".nameResolver"); //$NON-NLS-1$
         }
 
         @Override
@@ -57,7 +58,7 @@ public final class ClassSpecificNameResolverRegistry
             try
             {
                 IClassSpecificNameResolver resolver = (IClassSpecificNameResolver) configElement
-                                .createExecutableExtension("impl");
+                                .createExecutableExtension("impl"); //$NON-NLS-1$
 
                 String[] subjects = extractSubjects(resolver);
                 if (subjects != null && subjects.length > 0)
@@ -67,20 +68,19 @@ public final class ClassSpecificNameResolverRegistry
                 }
                 else
                 {
-                    Logger.getLogger(getClass().getName()).log(
-                                    Level.WARNING,
-                                    MessageUtil.format("Resolver without subjects: ''{0}''", resolver.getClass()
-                                                    .getName()));
+                    String msg = MessageUtil.format(Messages.ClassSpecificNameResolverRegistry_ErrorMsg_MissingSubject,
+                                    resolver.getClass().getName());
+                    Logger.getLogger(getClass().getName()).log(Level.WARNING, msg);
                 }
 
                 return resolver;
             }
             catch (CoreException e)
             {
-                Logger.getLogger(getClass().getName()).log(
-                                Level.SEVERE,
-                                MessageUtil.format("Error while creating name resolver ''{0}''", configElement
-                                                .getAttribute("impl")), e);
+                String msg = MessageUtil.format(
+                                Messages.ClassSpecificNameResolverRegistry_ErrorMsg_WhileCreatingResolver,
+                                configElement.getAttribute("impl")); //$NON-NLS-1$
+                Logger.getLogger(getClass().getName()).log(Level.SEVERE, msg, e);
                 return null;
 
             }
@@ -112,14 +112,18 @@ public final class ClassSpecificNameResolverRegistry
             }
             catch (RuntimeException e)
             {
-                Logger.getLogger(ClassSpecificNameResolverRegistry.class.getName()).log(Level.SEVERE,
-                                MessageUtil.format("Error resolving name of {0}", object.getTechnicalName()), e);
+                Logger.getLogger(ClassSpecificNameResolverRegistry.class.getName()).log(
+                                Level.SEVERE,
+                                MessageUtil.format(Messages.ClassSpecificNameResolverRegistry_ErrorMsg_DuringResolving,
+                                                object.getTechnicalName()), e);
                 return null;
             }
             catch (SnapshotException e)
             {
-                Logger.getLogger(ClassSpecificNameResolverRegistry.class.getName()).log(Level.SEVERE,
-                                MessageUtil.format("Error resolving name of {0}", object.getTechnicalName()), e);
+                Logger.getLogger(ClassSpecificNameResolverRegistry.class.getName()).log(
+                                Level.SEVERE,
+                                MessageUtil.format(Messages.ClassSpecificNameResolverRegistry_ErrorMsg_DuringResolving,
+                                                object.getTechnicalName()), e);
                 return null;
             }
         }
@@ -182,7 +186,7 @@ public final class ClassSpecificNameResolverRegistry
     public static String resolve(IObject object)
     {
         if (object == null)
-            throw new NullPointerException("No object given to resolve class specific name for.");
+            throw new NullPointerException(Messages.ClassSpecificNameResolverRegistry_Error_MissingObject);
 
         return instance().registry.doResolve(object);
     }

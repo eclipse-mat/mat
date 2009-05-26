@@ -16,6 +16,7 @@ import java.util.regex.Pattern;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.collect.SetInt;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.results.CompositeResult;
 import org.eclipse.mat.snapshot.Histogram;
@@ -39,17 +40,18 @@ public class ReferenceQuery
      * java.lang.ref.Reference or one of its subclasses. It is not possible to
      * check this, as some heap dumps lack class hierarchy information.
      */
-    public static IResult execute(String adverb, String className, ISnapshot snapshot, IProgressListener listener)
-                    throws SnapshotException
+    public static IResult execute(String className, ISnapshot snapshot, String labelHistogramReferenced,
+                    String labelHistogramRetained, IProgressListener listener) throws SnapshotException
     {
-        listener.subTask("Computing Referent Set (objects referenced by the Reference objects)...");
+        listener.subTask(Messages.ReferenceQuery_Msg_ComputingReferentSet);
 
         ArrayInt instanceSet = new ArrayInt();
         SetInt referentSet = new SetInt();
 
         Collection<IClass> classes = snapshot.getClassesByName(Pattern.compile(className), true);
         if (classes == null)
-            throw new SnapshotException(MessageUtil.format("No classes matching pattern {0}", className));
+            throw new SnapshotException(MessageUtil.format(Messages.ReferenceQuery_ErrorMsg_NoMatchingClassesFound,
+                            className));
 
         for (IClass clazz : classes)
         {
@@ -69,11 +71,12 @@ public class ReferenceQuery
                 throw new IProgressListener.OperationCanceledException();
         }
 
-        return execute(adverb, instanceSet, referentSet, snapshot, listener);
+        return execute(instanceSet, referentSet, snapshot, labelHistogramReferenced, labelHistogramRetained, listener);
     }
 
-    public static CompositeResult execute(String adverb, ArrayInt instanceSet, SetInt referentSet, ISnapshot snapshot,
-                    IProgressListener listener) throws SnapshotException
+    public static CompositeResult execute(ArrayInt instanceSet, SetInt referentSet, ISnapshot snapshot,
+                    String labelHistogramReferenced, String labelHistogramRetained, IProgressListener listener)
+                    throws SnapshotException
     {
         CompositeResult result = new CompositeResult();
 
@@ -81,12 +84,10 @@ public class ReferenceQuery
         if (listener.isCanceled())
             throw new IProgressListener.OperationCanceledException();
 
-        String l = MessageUtil.format("Histogram of {0} Referenced", adverb);
-        histogram.setLabel(l);
-        result.addResult(l, histogram);
+        histogram.setLabel(labelHistogramReferenced);
+        result.addResult(labelHistogramReferenced, histogram);
 
-        listener.subTask("Computing retained set of reference set (assuming only the "
-                        + "referents are no longer referenced by the Reference objects)...");
+        listener.subTask(Messages.ReferenceQuery_Msg_ComputingRetainedSet);
         int[] retainedSet = snapshot.getRetainedSet(instanceSet.toArray(), new String[] { "referent" }, listener); //$NON-NLS-1$
         if (listener.isCanceled())
             throw new IProgressListener.OperationCanceledException();
@@ -94,9 +95,8 @@ public class ReferenceQuery
         if (listener.isCanceled())
             throw new IProgressListener.OperationCanceledException();
 
-        l = MessageUtil.format("Only {0} Retained", adverb);
-        histogram.setLabel(l);
-        result.addResult(l, histogram);
+        histogram.setLabel(labelHistogramRetained);
+        result.addResult(labelHistogramRetained, histogram);
 
         return result;
     }

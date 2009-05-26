@@ -103,6 +103,7 @@ public class ClassLoaderHistogramRecord extends HistogramRecord
         return retainedHeapSize;
     }
 
+    @SuppressWarnings("nls")
     @Override
     public String toString()
     {
@@ -123,7 +124,7 @@ public class ClassLoaderHistogramRecord extends HistogramRecord
             for (ClassHistogramRecord record : classHistogramRecords)
             {
                 summary.append(record);
-                summary.append("\r\n");
+                summary.append("\r\n"); //$NON-NLS-1$
             }
         }
         return summary.toString();

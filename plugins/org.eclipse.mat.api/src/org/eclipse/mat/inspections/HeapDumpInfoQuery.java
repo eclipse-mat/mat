@@ -10,25 +10,25 @@
  *******************************************************************************/
 package org.eclipse.mat.inspections;
 
-import com.ibm.icu.text.DecimalFormat;
-import com.ibm.icu.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.Category;
-import org.eclipse.mat.query.annotations.Help;
-import org.eclipse.mat.query.annotations.Name;
+import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.results.ListResult;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.SnapshotInfo;
 import org.eclipse.mat.util.IProgressListener;
 
-@Name("Heap Dump Overview")
+import com.ibm.icu.text.DecimalFormat;
+import com.ibm.icu.text.NumberFormat;
+
+@CommandName("heap_dump_overview")
 @Category(Category.HIDDEN)
-@Help("Displays heap dump details: number of objects, etc.")
 public class HeapDumpInfoQuery implements IQuery
 {
     public static class TextEntry
@@ -67,21 +67,25 @@ public class HeapDumpInfoQuery implements IQuery
             throw new IProgressListener.OperationCanceledException();
 
         List<TextEntry> entries = new ArrayList<TextEntry>(6);
-        entries.add(new TextEntry("Used heap dump", getUsedHeapInMb(info.getUsedHeapSize())));
-        entries.add(new TextEntry("Number of objects", numberFormatter.format(info.getNumberOfObjects()).toString()));
-        entries.add(new TextEntry("Number of classes", numberFormatter.format(info.getNumberOfClasses()).toString()));
-        entries.add(new TextEntry("Number of classloaders", numberFormatter.format(info.getNumberOfClassLoaders())
-                        .toString()));
-        entries.add(new TextEntry("Number of GC roots", numberFormatter.format(info.getNumberOfGCRoots()).toString()));
-        entries.add(new TextEntry("Identifier size", getSize(info.getIdentifierSize())));
+        entries.add(new TextEntry(Messages.HeapDumpInfoQuery_Column_UsedHeapDump, getUsedHeapInMb(info
+                        .getUsedHeapSize())));
+        entries.add(new TextEntry(Messages.HeapDumpInfoQuery_Column_NumObjects, numberFormatter.format(
+                        info.getNumberOfObjects()).toString()));
+        entries.add(new TextEntry(Messages.HeapDumpInfoQuery_Column_NumClasses, numberFormatter.format(
+                        info.getNumberOfClasses()).toString()));
+        entries.add(new TextEntry(Messages.HeapDumpInfoQuery_Column_NumClassLoaders, numberFormatter.format(
+                        info.getNumberOfClassLoaders()).toString()));
+        entries.add(new TextEntry(Messages.HeapDumpInfoQuery_Column_NumGCRoots, numberFormatter.format(
+                        info.getNumberOfGCRoots()).toString()));
+        entries.add(new TextEntry(Messages.HeapDumpInfoQuery_Column_IdentifierSize, getSize(info.getIdentifierSize())));
 
-        return new ListResult(TextEntry.class, entries, "propertyName", "propertyValue");
+        return new ListResult(TextEntry.class, entries, "propertyName", "propertyValue"); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     private String getUsedHeapInMb(long usedHeapSize)
     {
         double roundedHeapSize = Math.round(usedHeapSize / 10000);
-        return new DecimalFormat("#,##0.0 M").format(roundedHeapSize / 100);
+        return new DecimalFormat("#,##0.0 M").format(roundedHeapSize / 100); //$NON-NLS-1$
 
     }
 
@@ -92,9 +96,9 @@ public class HeapDumpInfoQuery implements IQuery
             case 0:
                 return null;
             case 4:
-                return "32bit";
+                return Messages.HeapDumpInfoQuery_32bit;
             case 8:
-                return "64bit";
+                return Messages.HeapDumpInfoQuery_64bit;
             default:
                 return String.valueOf(identifierSize);
         }

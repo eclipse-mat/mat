@@ -31,6 +31,7 @@ public interface IPrimitiveArray extends IArray
     /**
      * Display string of the type.
      */
+    @SuppressWarnings("nls")
     public static final String[] TYPE = { null, null, null, null, "boolean[]", "char[]", "float[]", "double[]",
                     "byte[]", "short[]", "int[]", "long[]" };
 

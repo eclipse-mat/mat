@@ -16,6 +16,7 @@ import java.util.Stack;
 import java.util.regex.Pattern;
 
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.ContextProvider;
 import org.eclipse.mat.query.IContextObject;
@@ -24,32 +25,23 @@ import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.IResultTree;
 import org.eclipse.mat.query.ResultMetaData;
 import org.eclipse.mat.query.annotations.Argument;
-import org.eclipse.mat.query.annotations.Category;
-import org.eclipse.mat.query.annotations.Help;
-import org.eclipse.mat.query.annotations.Name;
+import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.Argument.Advice;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.util.IProgressListener;
 
-@Name("Big Drops in Dominator Tree")
-@Category("Leak Identification")
-@Help("Display memory accumulation points in the dominator tree.\n\n"
-                + "Displayed are objects where the difference in the retained size of the parent"
-                + " and the children is very big. These are places where the memory of many small"
-                + " objects is accumulated under one object. The first \"interesting\" dominator "
-                + "of the accumulation point is also shown.")
+@CommandName("big_drops_in_dominator_tree")
 public class BigDropsQuery implements IQuery, IResultTree
 {
     private final static int ROOT_ID = -1;
-    private final static String ROOT_LABEL = "<ROOT>";
+    private final static String ROOT_LABEL = Messages.BigDropsQuery_Root;
 
     @Argument
     public ISnapshot snapshot;
 
     @Argument(advice = Advice.CLASS_NAME_PATTERN, isMandatory = false, flag = "skip")
-    @Help("Specifies which dominators of the big drop object (accumulation point) should be skipped")
-    public Pattern pattern = Pattern.compile("java.*|com\\.sun.\\.*");
+    public Pattern pattern = Pattern.compile("java.*|com\\.sun.\\.*"); //$NON-NLS-1$
 
     // @Argument(isMandatory = false, flag = "t")
     // @Help("Differences in the retained sizes of the parent and the children
@@ -76,7 +68,7 @@ public class BigDropsQuery implements IQuery, IResultTree
         Stack<StackEntry> stack = new Stack<StackEntry>();
         stack.push(entry);
 
-        rootEntry = new BigDropEntry(ROOT_ID, "<root>", snapshot.getSnapshotInfo().getUsedHeapSize(),
+        rootEntry = new BigDropEntry(ROOT_ID, ROOT_LABEL, snapshot.getSnapshotInfo().getUsedHeapSize(),
                         entry.children.length, ROOT_ID, ROOT_LABEL, snapshot.getSnapshotInfo().getUsedHeapSize());
         Stack<BigDropEntry> dropsStack = new Stack<BigDropEntry>();
         dropsStack.push(rootEntry);
@@ -252,11 +244,11 @@ public class BigDropsQuery implements IQuery, IResultTree
 
     public Column[] getColumns()
     {
-        return new Column[] { new Column("Accumulation Point"), //
-                        new Column("Acc.Pt. Size", Long.class), //
-                        new Column("# Children", Long.class), //
-                        new Column("Dominator"), //
-                        new Column("Dom. Retained Size", Long.class) };
+        return new Column[] { new Column(Messages.BigDropsQuery_Column_AccumulationPoint), //
+                        new Column(Messages.BigDropsQuery_Column_AccPtSize, Long.class), //
+                        new Column(Messages.BigDropsQuery_Column_NumChildren, Long.class), //
+                        new Column(Messages.BigDropsQuery_Column_Dominator), //
+                        new Column(Messages.BigDropsQuery_Column_DomRetainedSize, Long.class) };
     }
 
     public List<?> getChildren(Object parent)
@@ -307,7 +299,7 @@ public class BigDropsQuery implements IQuery, IResultTree
 
     public ContextProvider[] getContextProviders()
     {
-        return new ContextProvider[] { new ContextProvider("Accumulation Point")
+        return new ContextProvider[] { new ContextProvider(Messages.BigDropsQuery_AccumulationPoint)
         {
             @Override
             public IContextObject getContext(Object row)
@@ -315,7 +307,7 @@ public class BigDropsQuery implements IQuery, IResultTree
                 return getAccumulationPoint(row);
             }
 
-        }, new ContextProvider("Dominator")
+        }, new ContextProvider(Messages.BigDropsQuery_Dominator)
         {
             @Override
             public IContextObject getContext(Object row)

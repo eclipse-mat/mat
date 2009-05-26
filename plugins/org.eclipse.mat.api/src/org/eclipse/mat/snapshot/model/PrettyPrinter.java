@@ -22,17 +22,17 @@ public final class PrettyPrinter
      */
     public static String objectAsString(IObject stringObject, int limit) throws SnapshotException
     {
-        Integer count = (Integer) stringObject.resolveValue("count");
+        Integer count = (Integer) stringObject.resolveValue("count"); //$NON-NLS-1$
         if (count == null)
             return null;
         if (count.intValue() == 0)
-            return "";
+            return ""; //$NON-NLS-1$
 
-        IPrimitiveArray charArray = (IPrimitiveArray) stringObject.resolveValue("value");
+        IPrimitiveArray charArray = (IPrimitiveArray) stringObject.resolveValue("value"); //$NON-NLS-1$
         if (charArray == null)
             return null;
 
-        Integer offset = (Integer) stringObject.resolveValue("offset");
+        Integer offset = (Integer) stringObject.resolveValue("offset"); //$NON-NLS-1$
         if (offset == null)
             return null;
 
@@ -69,10 +69,10 @@ public final class PrettyPrinter
             if (val >= 32 && val < 127)
                 result.append(val);
             else
-                result.append("\\u").append(String.format("%04x", 0xFFFF & val));
+                result.append("\\u").append(String.format("%04x", 0xFFFF & val)); //$NON-NLS-1$//$NON-NLS-2$
         }
         if (limit < count)
-            result.append("...");
+            result.append("..."); //$NON-NLS-1$
         return result.toString();
     }
 

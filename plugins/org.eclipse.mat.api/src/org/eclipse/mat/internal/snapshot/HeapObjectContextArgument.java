@@ -15,6 +15,7 @@ import java.util.List;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayIntBig;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IContextObjectSet;
 import org.eclipse.mat.snapshot.ISnapshot;
@@ -37,7 +38,7 @@ public class HeapObjectContextArgument extends HeapObjectArgumentFactory
     @Override
     public String toString()
     {
-        return label != null ? "[" + label + "]" : "[context]";
+        return label != null ? "[" + label + "]" : Messages.HeapObjectContextArgument_Label_Context; //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     public void appendUsage(StringBuilder buf)

@@ -13,11 +13,11 @@ package org.eclipse.mat.inspections.eclipse;
 import java.util.Collection;
 
 import org.eclipse.mat.collect.ArrayInt;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
-import org.eclipse.mat.query.annotations.Category;
-import org.eclipse.mat.query.annotations.Name;
+import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.results.TextResult;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IClass;
@@ -26,8 +26,7 @@ import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.query.ObjectListResult;
 import org.eclipse.mat.util.IProgressListener;
 
-@Name("Leaking Bundles")
-@Category("Eclipse")
+@CommandName("leaking_bundles")
 public class LeakingPlugins implements IQuery
 {
     @Argument
@@ -37,7 +36,7 @@ public class LeakingPlugins implements IQuery
     {
         // collect stale all class loaders
         Collection<IClass> classes = snapshot.getClassesByName(
-                        "org.eclipse.osgi.framework.internal.core.BundleLoaderProxy", true);
+                        "org.eclipse.osgi.framework.internal.core.BundleLoaderProxy", true); //$NON-NLS-1$
         if (classes == null)
             return null;
 
@@ -48,17 +47,17 @@ public class LeakingPlugins implements IQuery
             for (int objectId : clazz.getObjectIds())
             {
                 IObject proxy = snapshot.getObject(objectId);
-                boolean isStale = (Boolean) proxy.resolveValue("stale");
+                boolean isStale = (Boolean) proxy.resolveValue("stale"); //$NON-NLS-1$
                 if (isStale)
                 {
-                    IClassLoader classLoader = (IClassLoader) proxy.resolveValue("loader.classloader");
+                    IClassLoader classLoader = (IClassLoader) proxy.resolveValue("loader.classloader"); //$NON-NLS-1$
                     result.add(classLoader.getObjectId());
                 }
             }
         }
 
         if (result.isEmpty())
-            return new TextResult("No leaking plug-ins detected.");
+            return new TextResult(Messages.LeakingPlugins_NoLeakingPlugInsDetected);
 
         return new ObjectListResult.Inbound(snapshot, result.toArray());
     }

@@ -10,12 +10,11 @@
  *******************************************************************************/
 package org.eclipse.mat.inspections.collections;
 
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
-import org.eclipse.mat.query.annotations.Category;
-import org.eclipse.mat.query.annotations.Help;
-import org.eclipse.mat.query.annotations.Name;
+import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.quantize.Quantize;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IObject;
@@ -24,12 +23,7 @@ import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.snapshot.query.RetainedSizeDerivedData;
 import org.eclipse.mat.util.IProgressListener;
 
-@Name("Array Fill Ratio")
-@Category("Java Collections")
-@Help("Prints a frequency distribution of fill ratios of non-primitive arrays.\n\n"
-                + "The fill ratio is the proportion of non-null elements in the array. "
-                + "The arrays are then accumulated into as many segments as parameterized.\n\n"
-                + "This query works only on object arrays because primitive arrays cannot have null values.")
+@CommandName("array_fill_ratio")
 public class ArrayFillRatioQuery implements IQuery
 {
 
@@ -37,22 +31,20 @@ public class ArrayFillRatioQuery implements IQuery
     public ISnapshot snapshot;
 
     @Argument(flag = "none")
-    @Help("The array objects. Non-array objects and primitive arrays will be ignored.")
     public IHeapObjectArgument objects;
 
     @Argument(isMandatory = false)
-    @Help("Number of ranges used for the frequency distribution.")
     public int segments = 5;
 
     public IResult execute(IProgressListener listener) throws Exception
     {
-        listener.subTask("Extracting fill ratios...");
+        listener.subTask(Messages.ArrayFillRatioQuery_ExtractingFillRatios);
 
         // create frequency distribution
-        Quantize.Builder builder = Quantize.linearFrequencyDistribution("Fill Ratio", 0, 1, (double) 1
-                        / (double) segments);
-        builder.column("# Objects", Quantize.COUNT);
-        builder.column("Shallow Heap", Quantize.SUM_LONG);
+        Quantize.Builder builder = Quantize.linearFrequencyDistribution(Messages.ArrayFillRatioQuery_ColumnFillRatio,
+                        0, 1, (double) 1 / (double) segments);
+        builder.column(Messages.ArrayFillRatioQuery_ColumnNumObjects, Quantize.COUNT);
+        builder.column(Messages.Column_ShallowHeap, Quantize.SUM_LONG);
         builder.addDerivedData(RetainedSizeDerivedData.APPROXIMATE);
         Quantize quantize = builder.build();
 

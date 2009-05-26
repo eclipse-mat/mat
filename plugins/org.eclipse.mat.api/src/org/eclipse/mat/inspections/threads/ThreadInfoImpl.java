@@ -19,6 +19,7 @@ import java.util.Map;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.results.CompositeResult;
@@ -39,11 +40,11 @@ import org.eclipse.mat.util.IProgressListener;
     // column meta-data
     // //////////////////////////////////////////////////////////////
 
-    private static final Column COL_NAME = new Column("Name");
-    private static final Column COL_INSTANCE = new Column("Instance");
-    private static final Column COL_SHALLOW = new Column("Shallow Heap", int.class);
-    private static final Column COL_RETAINED = new Column("Retained Heap", long.class);
-    private static final Column COL_CONTEXTCL = new Column("Context Class Loader");
+    private static final Column COL_NAME = new Column(Messages.ThreadInfoImpl_Column_Name);
+    private static final Column COL_INSTANCE = new Column(Messages.ThreadInfoImpl_Column_Instance);
+    private static final Column COL_SHALLOW = new Column(Messages.Column_ShallowHeap, int.class);
+    private static final Column COL_RETAINED = new Column(Messages.Column_RetainedHeap, long.class);
+    private static final Column COL_CONTEXTCL = new Column(Messages.ThreadInfoImpl_Column_ContextClassLoader);
 
     private static final List<Column> defaultColumns = Arrays.asList(new Column[] { COL_NAME, //
                     COL_INSTANCE, //
@@ -108,7 +109,7 @@ import org.eclipse.mat.util.IProgressListener;
         info.shallowHeap = info.subject.getUsedHeapSize();
         info.retainedHeap = info.subject.getRetainedHeapSize();
 
-        IObject contextClassLoader = (IObject) info.subject.resolveValue("contextClassLoader");
+        IObject contextClassLoader = (IObject) info.subject.resolveValue("contextClassLoader"); //$NON-NLS-1$
         if (contextClassLoader != null)
         {
             info.contextClassLoader = contextClassLoader.getClassSpecificName();

@@ -10,24 +10,20 @@
  *******************************************************************************/
 package org.eclipse.mat.inspections;
 
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
-import org.eclipse.mat.query.annotations.Help;
+import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.Icon;
-import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.snapshot.Histogram;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 
-@Name("Show Retained Set")
+@CommandName("show_retained_set")
 @Icon("/META-INF/icons/show_retained_set.gif")
-@Help("Calculate the retained set of an arbitrary set of objects.\n\n"
-                + "Optionally one can provide a list field names. If this parameter is specified, "
-                + "instead of assuming that the whole instance is not available, just the references "
-                + "with the specified name are considered non-existing.")
 public class RetainedSetQuery implements IQuery
 {
     @Argument
@@ -37,7 +33,6 @@ public class RetainedSetQuery implements IQuery
     public IHeapObjectArgument objects;
 
     @Argument(isMandatory = false, flag = "f")
-    @Help("List of field names")
     public String[] fieldNames;
 
     public IResult execute(IProgressListener listener) throws Exception
@@ -57,7 +52,7 @@ public class RetainedSetQuery implements IQuery
         if (listener.isCanceled())
             throw new IProgressListener.OperationCanceledException();
 
-        histogram.setLabel(MessageUtil.format("Retained by ''{0}''", new Object[] { objects.getLabel() }));
+        histogram.setLabel(MessageUtil.format(Messages.RetainedSetQuery_RetainedBy, objects.getLabel()));
         return histogram;
     }
 

@@ -17,6 +17,7 @@ import org.eclipse.mat.snapshot.ISnapshot;
 /**
  * A factory class for well-known icons, e.g. object, class loader etc.
  */
+@SuppressWarnings("nls")
 public final class Icons
 {
     private static final String PREFIX = "/META-INF/icons/heapobjects/";

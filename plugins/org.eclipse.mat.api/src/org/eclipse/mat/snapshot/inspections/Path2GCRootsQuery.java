@@ -22,6 +22,7 @@ import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IDecorator;
@@ -71,6 +72,7 @@ public class Path2GCRootsQuery implements IQuery
     @Argument(flag = "none", advice = Argument.Advice.HEAP_OBJECT)
     public int object;
 
+    @SuppressWarnings("nls")
     @Argument(isMandatory = false)
     public List<String> excludes = Arrays.asList( //
                     new String[] { "java.lang.ref.WeakReference:referent", "java.lang.ref.SoftReference:referent" });
@@ -110,7 +112,7 @@ public class Path2GCRootsQuery implements IQuery
                 {
                     fields = new HashSet<String>();
 
-                    StringTokenizer tokens = new StringTokenizer(entry.substring(colon + 1), ",");
+                    StringTokenizer tokens = new StringTokenizer(entry.substring(colon + 1), ","); //$NON-NLS-1$
                     while (tokens.hasMoreTokens())
                         fields.add(tokens.nextToken());
 
@@ -312,9 +314,9 @@ public class Path2GCRootsQuery implements IQuery
 
         public final Column[] getColumns()
         {
-            return new Column[] { new Column("Class Name").decorator(this), //
-                            new Column("Shallow Heap", long.class).noTotals(), //
-                            new Column("Retained Heap", long.class).noTotals() };
+            return new Column[] { new Column(Messages.Column_ClassName).decorator(this), //
+                            new Column(Messages.Column_ShallowHeap, long.class).noTotals(), //
+                            new Column(Messages.Column_RetainedHeap, long.class).noTotals() };
         }
 
         public List<?> getElements()

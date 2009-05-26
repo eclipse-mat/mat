@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IContextObjectSet;
@@ -27,9 +28,7 @@ import org.eclipse.mat.query.IResultTree;
 import org.eclipse.mat.query.ISelectionProvider;
 import org.eclipse.mat.query.ResultMetaData;
 import org.eclipse.mat.query.annotations.Argument;
-import org.eclipse.mat.query.annotations.Category;
-import org.eclipse.mat.query.annotations.Help;
-import org.eclipse.mat.query.annotations.Name;
+import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.report.ITestResult;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.OQL;
@@ -41,9 +40,7 @@ import org.eclipse.mat.snapshot.query.Icons;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 
-@Name("Duplicate Classes")
-@Category("Java Basics")
-@Help("Extract classes loaded multiple times.")
+@CommandName("duplicate_classes")
 public class DuplicatedClassesQuery implements IQuery, IResultTree, IIconProvider, ITestResult, IDecorator,
                 ISelectionProvider
 {
@@ -58,11 +55,11 @@ public class DuplicatedClassesQuery implements IQuery, IResultTree, IIconProvide
 
     public IResult execute(IProgressListener listener) throws Exception
     {
-        InspectionAssert.heapFormatIsNot(snapshot, "phd");
+        InspectionAssert.heapFormatIsNot(snapshot, "phd"); //$NON-NLS-1$
 
         IClass[] allClasses = snapshot.getClasses().toArray(new IClass[0]);
         int length = allClasses.length;
-        listener.beginTask("Checking for duplicate Classes", length / 100);
+        listener.beginTask(Messages.DuplicatedClassesQuery_Checking, length / 100);
 
         Arrays.sort(allClasses, ObjectComparators.getComparatorForTechnicalNameAscending());
 
@@ -116,10 +113,12 @@ public class DuplicatedClassesQuery implements IQuery, IResultTree, IIconProvide
 
     public Column[] getColumns()
     {
-        return new Column[] { new Column("Name").decorator(this), //
-                        new Column("Count", int.class).sorting(Column.SortDirection.DESC), //
-                        new Column("Defined Classes", int.class).noTotals(), //
-                        new Column("No. of Instances", int.class).noTotals() };
+        return new Column[] {
+                        new Column(Messages.Column_ClassName).decorator(this), //
+                        new Column(Messages.DuplicatedClassesQuery_Column_Count, int.class)
+                                        .sorting(Column.SortDirection.DESC), //
+                        new Column(Messages.DuplicatedClassesQuery_Column_DefinedClasses, int.class).noTotals(), //
+                        new Column(Messages.DuplicatedClassesQuery_Column_NoInstances, int.class).noTotals() };
     }
 
     public List<?> getElements()
@@ -129,12 +128,12 @@ public class DuplicatedClassesQuery implements IQuery, IResultTree, IIconProvide
 
     public boolean hasChildren(Object parent)
     {
-        return parent instanceof List;
+        return parent instanceof List<?>;
     }
 
     public List<?> getChildren(Object parent)
     {
-        if (parent instanceof List)
+        if (parent instanceof List<?>)
             return (List<?>) parent;
         else
             return null;
@@ -142,7 +141,7 @@ public class DuplicatedClassesQuery implements IQuery, IResultTree, IIconProvide
 
     public Object getColumnValue(Object element, int columnIndex)
     {
-        if (element instanceof List)
+        if (element instanceof List<?>)
         {
             switch (columnIndex)
             {
@@ -166,7 +165,7 @@ public class DuplicatedClassesQuery implements IQuery, IResultTree, IIconProvide
                             String loaderName = classLoader.getClassSpecificName();
 
                             if (loaderName != null)
-                                return loaderName + " @ 0x" + Long.toHexString(classLoader.getObjectAddress());
+                                return loaderName + " @ 0x" + Long.toHexString(classLoader.getObjectAddress()); //$NON-NLS-1$
                             else
                                 return classLoader.getTechnicalName();
                         case 1:
@@ -183,8 +182,8 @@ public class DuplicatedClassesQuery implements IQuery, IResultTree, IIconProvide
                 }
                 catch (SnapshotException e)
                 {
-                    throw new RuntimeException(MessageUtil.format("ClassLoader of 0x{0} not found", new Object[] { Long
-                                    .toHexString(((IClass) element).getObjectAddress()) }), e);
+                    throw new RuntimeException(MessageUtil.format(Messages.DuplicatedClassesQuery_ClassLoaderNotFound,
+                                    new Object[] { Long.toHexString(((IClass) element).getObjectAddress()) }), e);
                 }
             }
         }
@@ -215,7 +214,7 @@ public class DuplicatedClassesQuery implements IQuery, IResultTree, IIconProvide
 
     public URL getIcon(Object element)
     {
-        if (element instanceof List)
+        if (element instanceof List<?>)
             return Icons.CLASS;
         else if (element instanceof IClass)
             return Icons.forObject(snapshot, ((IClass) element).getClassLoaderId());
@@ -225,7 +224,7 @@ public class DuplicatedClassesQuery implements IQuery, IResultTree, IIconProvide
 
     public IContextObject getContext(final Object element)
     {
-        if (element instanceof List)
+        if (element instanceof List<?>)
         {
             return new IContextObjectSet()
             {

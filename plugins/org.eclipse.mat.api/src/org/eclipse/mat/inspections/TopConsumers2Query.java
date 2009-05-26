@@ -11,7 +11,6 @@
 package org.eclipse.mat.inspections;
 
 import java.net.URL;
-import com.ibm.icu.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -24,6 +23,7 @@ import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.collect.ArrayLong;
 import org.eclipse.mat.collect.ArrayUtils;
 import org.eclipse.mat.collect.HashMapIntObject;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IIconProvider;
@@ -35,8 +35,6 @@ import org.eclipse.mat.query.ResultMetaData;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.Category;
 import org.eclipse.mat.query.annotations.CommandName;
-import org.eclipse.mat.query.annotations.Help;
-import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.query.annotations.Argument.Advice;
 import org.eclipse.mat.query.results.ListResult;
 import org.eclipse.mat.query.results.TextResult;
@@ -57,24 +55,21 @@ import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.SimpleStringTokenizer;
 
-@Name("Top Consumers")
+import com.ibm.icu.text.DecimalFormat;
+
 @CommandName("top_consumers_html")
 @Category("Leak Identification")
-@Help("Print biggest objects grouped by class, class loader, and package. "
-                + "By default, the total heap is included in the analysis.")
 public class TopConsumers2Query implements IQuery
 {
-    private static final Column COL_RETAINED_HEAP = new Column("Retained Heap, %", double.class).formatting(
-                    new DecimalFormat("0.00%")).noTotals();
+    private static final Column COL_RETAINED_HEAP = new Column(Messages.TopConsumers2Query_Column_RetainedHeapPercent,
+                    double.class).formatting(new DecimalFormat("0.00%")).noTotals(); //$NON-NLS-1$
 
     @Argument
     public ISnapshot snapshot;
 
-    @Help("Set of objects to include in the analysis.")
     @Argument(advice = Advice.HEAP_OBJECT, isMandatory = false, flag = "none")
     public int[] objects;
 
-    @Help("Threshold (in percent of the total heap size) which objects have to exceed to be included in the analysis")
     @Argument(isMandatory = false, flag = "t")
     public int thresholdPercent = 1;
 
@@ -86,9 +81,9 @@ public class TopConsumers2Query implements IQuery
     public IResult execute(IProgressListener listener) throws Exception
     {
         if (objects != null && objects.length == 0)
-            return new TextResult("There are no objects matching the specified criteria");
+            return new TextResult(Messages.TopConsumers2Query_MsgNoObjects);
 
-        SectionSpec spec = new SectionSpec("Top Consumers");
+        SectionSpec spec = new SectionSpec(Messages.TopConsumers2Query_TopConsumers);
 
         setup(listener);
 
@@ -168,14 +163,14 @@ public class TopConsumers2Query implements IQuery
 
             if (suspects.isEmpty())
             {
-                String msg = MessageUtil.format("No objects bigger than {0}%.", thresholdPercent);
-                composite.add(new QuerySpec("Biggest Objects", new TextResult(msg, true)));
+                String msg = MessageUtil.format(Messages.TopConsumers2Query_NoObjectsBiggerThan, thresholdPercent);
+                composite.add(new QuerySpec(Messages.TopConsumers2Query_BiggestObjects, new TextResult(msg, true)));
             }
             else
             {
-                composite.add(new QuerySpec("Biggest Objects (Overview)", pie.build()));
-                QuerySpec spec = new QuerySpec("Biggest Objects", new ObjectListResult.Outbound(snapshot, suspects
-                                .toArray()));
+                composite.add(new QuerySpec(Messages.TopConsumers2Query_BiggestObjectsOverview, pie.build()));
+                QuerySpec spec = new QuerySpec(Messages.TopConsumers2Query_BiggestObjects,
+                                new ObjectListResult.Outbound(snapshot, suspects.toArray()));
                 spec.set(Params.Html.COLLAPSED, Boolean.TRUE.toString());
                 composite.add(spec);
             }
@@ -196,8 +191,8 @@ public class TopConsumers2Query implements IQuery
 
             if (suspects.isEmpty())
             {
-                String msg = MessageUtil.format("No objects bigger than {0}%.", thresholdPercent);
-                composite.add(new QuerySpec("Biggest Objects", new TextResult(msg, true)));
+                String msg = MessageUtil.format(Messages.TopConsumers2Query_NoObjectsBiggerThan, thresholdPercent);
+                composite.add(new QuerySpec(Messages.TopConsumers2Query_BiggestObjects, new TextResult(msg, true)));
             }
             else
             {
@@ -209,8 +204,9 @@ public class TopConsumers2Query implements IQuery
                 for (int ii = 0; ii < ids.length; ii++)
                     pie.addSlice(ids[ii]);
 
-                composite.add(new QuerySpec("Biggest Objects (Overview)", pie.build()));
-                QuerySpec spec = new QuerySpec("Biggest Objects", new ObjectListResult.Outbound(snapshot, ids));
+                composite.add(new QuerySpec(Messages.TopConsumers2Query_BiggestObjectsOverview, pie.build()));
+                QuerySpec spec = new QuerySpec(Messages.TopConsumers2Query_BiggestObjects,
+                                new ObjectListResult.Outbound(snapshot, ids));
                 spec.set(Params.Html.COLLAPSED, Boolean.TRUE.toString());
                 composite.add(spec);
             }
@@ -242,14 +238,14 @@ public class TopConsumers2Query implements IQuery
 
         if (suspects.isEmpty())
         {
-            String msg = MessageUtil.format("No classes bigger than {0}%.", thresholdPercent);
-            composite.add(new QuerySpec("Biggest Top-Level Dominator Classes", new TextResult(msg, true)));
+            String msg = MessageUtil.format(Messages.TopConsumers2Query_NoClassesBiggerThan, thresholdPercent);
+            composite.add(new QuerySpec(Messages.TopConsumers2Query_BiggestClasses, new TextResult(msg, true)));
         }
         else
         {
 
-            ListResult result = new ListResult(ClassHistogramRecord.class, suspects, "label", "numberOfObjects",
-                            "usedHeapSize", "retainedHeapSize")
+            ListResult result = new ListResult(ClassHistogramRecord.class, suspects, //
+                            "label", "numberOfObjects", "usedHeapSize", "retainedHeapSize") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
             {
                 @Override
                 public URL getIcon(Object row)
@@ -274,9 +270,9 @@ public class TopConsumers2Query implements IQuery
 
             result.addColumn(COL_RETAINED_HEAP, new PercentageValueProvider(totalHeap));
 
-            composite.add(new QuerySpec("Biggest Top-Level Dominator Classes (Overview)", pie.build()));
+            composite.add(new QuerySpec(Messages.TopConsumers2Query_BiggestClassesOverview, pie.build()));
 
-            QuerySpec spec = new QuerySpec("Biggest Top-Level Dominator Classes", result);
+            QuerySpec spec = new QuerySpec(Messages.TopConsumers2Query_BiggestClasses, result);
             spec.set(Params.Html.COLLAPSED, Boolean.TRUE.toString());
             composite.add(spec);
         }
@@ -306,13 +302,13 @@ public class TopConsumers2Query implements IQuery
 
         if (suspects.isEmpty())
         {
-            String msg = MessageUtil.format("No class loader bigger than {0}%.", thresholdPercent);
-            composite.add(new QuerySpec("Biggest Top-Level Dominator Class Loaders", new TextResult(msg, true)));
+            String msg = MessageUtil.format(Messages.TopConsumers2Query_NoClassLoaderBiggerThan, thresholdPercent);
+            composite.add(new QuerySpec(Messages.TopConsumers2Query_BiggestClassLoaders, new TextResult(msg, true)));
         }
         else
         {
-            ListResult result = new ListResult(ClassLoaderHistogramRecord.class, suspects, "label", "numberOfObjects",
-                            "usedHeapSize", "retainedHeapSize")
+            ListResult result = new ListResult(ClassLoaderHistogramRecord.class, suspects, //
+                            "label", "numberOfObjects", "usedHeapSize", "retainedHeapSize") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
             {
                 @Override
                 public URL getIcon(Object row)
@@ -336,9 +332,9 @@ public class TopConsumers2Query implements IQuery
             };
             result.addColumn(COL_RETAINED_HEAP, new PercentageValueProvider(totalHeap));
 
-            composite.add(new QuerySpec("Biggest Top-Level Dominator Class Loaders (Overview)", pie.build()));
+            composite.add(new QuerySpec(Messages.TopConsumers2Query_BiggestClassLoadersOverview, pie.build()));
 
-            QuerySpec spec = new QuerySpec("Biggest Top-Level Dominator Class Loaders", result);
+            QuerySpec spec = new QuerySpec(Messages.TopConsumers2Query_BiggestClassLoaders, result);
             spec.set(Params.Html.COLLAPSED, Boolean.TRUE.toString());
             composite.add(spec);
         }
@@ -353,7 +349,7 @@ public class TopConsumers2Query implements IQuery
 
         pruneTree(root);
 
-        spec.add(new QuerySpec("Biggest Top-Level Dominator Packages", new PackageTreeResult(root, totalHeap)));
+        spec.add(new QuerySpec(Messages.TopConsumers2Query_BiggestPackages, new PackageTreeResult(root, totalHeap)));
     }
 
     // //////////////////////////////////////////////////////////////
@@ -362,7 +358,7 @@ public class TopConsumers2Query implements IQuery
 
     private Histogram getDominatedHistogramWithRetainedSizes(IProgressListener listener) throws SnapshotException
     {
-        listener.beginTask("Creating histogram", topDominators.length / 1000);
+        listener.beginTask(Messages.TopConsumers2Query_CreatingHistogram, topDominators.length / 1000);
 
         // calculate histogram ourselves -> keep id:retained size relation
         HashMapIntObject<ClassHistogramRecord> id2class = new HashMapIntObject<ClassHistogramRecord>();
@@ -445,10 +441,10 @@ public class TopConsumers2Query implements IQuery
 
     private PackageTreeNode groupByPackage(IProgressListener listener) throws SnapshotException
     {
-        PackageTreeNode root = new PackageTreeNode("<all>");
+        PackageTreeNode root = new PackageTreeNode(Messages.TopConsumers2Query_Label_all);
         PackageTreeNode current;
 
-        listener.beginTask("Grouping by package", topDominators.length / 1000);
+        listener.beginTask(Messages.TopConsumers2Query_GroupingByPackage, topDominators.length / 1000);
 
         for (int ii = 0; ii < topDominators.length; ii++)
         {
@@ -540,10 +536,10 @@ public class TopConsumers2Query implements IQuery
 
         public Column[] getColumns()
         {
-            return new Column[] { new Column("Package"), //
-                            new Column("Retained Heap Size", long.class).sorting(Column.SortDirection.DESC), //
+            return new Column[] { new Column(Messages.TopConsumers2Query_Column_Package), //
+                            new Column(Messages.Column_RetainedHeap, long.class).sorting(Column.SortDirection.DESC), //
                             COL_RETAINED_HEAP, //
-                            new Column("# Top Dominators", int.class) };
+                            new Column(Messages.TopConsumers2Query_Column_TopDominators, int.class) };
         }
 
         public List<?> getElements()

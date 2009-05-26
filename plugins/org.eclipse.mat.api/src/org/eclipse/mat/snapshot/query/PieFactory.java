@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IResultPie;
 import org.eclipse.mat.query.ResultMetaData;
@@ -112,7 +113,7 @@ public final class PieFactory
     public Slice addSlice(int objectId) throws SnapshotException
     {
         if (snapshot == null)
-            throw new NullPointerException("No snapshot available. Use new PieFactory(snapshot) instead.");
+            throw new NullPointerException(Messages.PieFactory_ErrorMsg_NoSnapshotAvailable);
 
         IObject obj = snapshot.getObject(objectId);
         return addSlice(obj);
@@ -147,7 +148,7 @@ public final class PieFactory
     public Slice addSlice(int objectId, String label, long usedHeapSize, long retainedHeapSize)
     {
         SliceImpl slice = new SliceImpl(objectId);
-        slice.label = label != null ? label : "";
+        slice.label = label != null ? label : ""; //$NON-NLS-1$
         slice.shallowSize = usedHeapSize;
         slice.retainedSize = retainedHeapSize;
         slices.add(slice);
@@ -215,15 +216,15 @@ public final class PieFactory
         {
             StringBuilder buf = new StringBuilder();
 
-            buf.append("<p>").append("<b>").append(HTMLUtils.escapeText(getLabel())).append("</b></p>");
+            buf.append("<p>").append("<b>").append(HTMLUtils.escapeText(getLabel())).append("</b></p>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
             if (label != null)
             {
-                buf.append("<br/><p>Shallow Size: <b>");
+                buf.append("<br/><p>").append(Messages.PieFactory_Label_ShallowSize).append(" <b>"); //$NON-NLS-1$ //$NON-NLS-2$
                 buf.append(Units.Storage.of(shallowSize).format(shallowSize));
-                buf.append("</b>     Retained Size: <b>");
+                buf.append("</b>     ").append(Messages.PieFactory_Label_RetainedSize).append(" <b>"); //$NON-NLS-1$ //$NON-NLS-2$
                 buf.append(Units.Storage.of(retainedSize).format(retainedSize));
-                buf.append("</b></p>");
+                buf.append("</b></p>"); //$NON-NLS-1$
             }
 
             return buf.toString();
@@ -231,7 +232,7 @@ public final class PieFactory
 
         public String getLabel()
         {
-            return label != null ? label : "Remainder";
+            return label != null ? label : Messages.PieFactory_Label_Remainder;
         }
 
         public double getValue()

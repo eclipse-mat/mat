@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.mat.inspections.component;
 
-import com.ibm.icu.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -21,14 +20,12 @@ import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.collect.SetInt;
 import org.eclipse.mat.inspections.ReferenceQuery;
 import org.eclipse.mat.inspections.collections.CollectionUtil;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
-import org.eclipse.mat.query.annotations.Category;
 import org.eclipse.mat.query.annotations.CommandName;
-import org.eclipse.mat.query.annotations.Help;
 import org.eclipse.mat.query.annotations.HelpUrl;
-import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.query.refined.RefinedResultBuilder;
 import org.eclipse.mat.query.refined.RefinedTable;
 import org.eclipse.mat.query.refined.TotalsRow;
@@ -52,10 +49,7 @@ import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.Units;
 
-@Name("Component Report")
 @CommandName("component_report")
-@Category("Leak Identification")
-@Help("Analyze a component for possible memory waste and other inefficiencies.")
 @HelpUrl("/org.eclipse.mat.ui.help/reference/inspections/component_report.html")
 public class ComponentReportQuery implements IQuery
 {
@@ -68,7 +62,8 @@ public class ComponentReportQuery implements IQuery
 
     public IResult execute(IProgressListener listener) throws Exception
     {
-        SectionSpec componentReport = new SectionSpec(MessageUtil.format("Component Report {0}", objects.getLabel()));
+        SectionSpec componentReport = new SectionSpec(MessageUtil.format(Messages.ComponentReportQuery_ComponentReport,
+                        objects.getLabel()));
 
         Ticks ticks = new Ticks(listener, componentReport.getName(), 31);
 
@@ -85,7 +80,7 @@ public class ComponentReportQuery implements IQuery
 
         addOverview(componentReport, totalSize, retained, histogram, ticks);
 
-        SectionSpec possibleWaste = new SectionSpec("Possible Memory Waste");
+        SectionSpec possibleWaste = new SectionSpec(Messages.ComponentReportQuery_PossibleMemoryWaste);
         componentReport.add(possibleWaste);
 
         try
@@ -109,7 +104,7 @@ public class ComponentReportQuery implements IQuery
         catch (UnsupportedOperationException e)
         { /* ignore, if not supported by heap format */}
 
-        SectionSpec miscellaneous = new SectionSpec("Miscellaneous");
+        SectionSpec miscellaneous = new SectionSpec(Messages.ComponentReportQuery_Miscellaneous);
         componentReport.add(miscellaneous);
 
         try
@@ -200,9 +195,9 @@ public class ComponentReportQuery implements IQuery
 
         List<ExcludedReferencesDescriptor> excludes = new ArrayList<ExcludedReferencesDescriptor>();
 
-        addExcludes(excludes, "java.lang.ref.Finalizer", "referent");
-        addExcludes(excludes, "java.lang.ref.WeakReference", "referent");
-        addExcludes(excludes, "java.lang.ref.SoftReference", "referent");
+        addExcludes(excludes, "java.lang.ref.Finalizer", "referent"); //$NON-NLS-1$ //$NON-NLS-2$
+        addExcludes(excludes, "java.lang.ref.WeakReference", "referent"); //$NON-NLS-1$ //$NON-NLS-2$
+        addExcludes(excludes, "java.lang.ref.SoftReference", "referent"); //$NON-NLS-1$ //$NON-NLS-2$
 
         if (excludes.isEmpty())
         {
@@ -238,7 +233,7 @@ public class ComponentReportQuery implements IQuery
     private void addOverview(SectionSpec componentReport, long totalSize, int[] retained, Histogram histogram,
                     Ticks listener) throws Exception
     {
-        SectionSpec overview = new SectionSpec("Overview");
+        SectionSpec overview = new SectionSpec(Messages.ComponentReportQuery_Overview);
         overview.set(Params.Html.SHOW_HEADING, Boolean.FALSE.toString());
 
         addOverviewNumbers(retained, histogram, overview, totalSize);
@@ -260,12 +255,15 @@ public class ComponentReportQuery implements IQuery
         int noOfClassLoaders = histogram.getClassLoaderHistogramRecords().size();
 
         StringBuilder buf = new StringBuilder();
-        buf.append("Size: <strong>").append(Units.Storage.of(totalSize).format(totalSize)).append("</strong>");
-        buf.append(" Classes: <strong>").append(Units.Plain.of(noOfClasses).format(noOfClasses)).append("</strong>");
-        buf.append(" Objects: <strong>").append(Units.Plain.of(noOfObjects).format(noOfObjects)).append("</strong>");
-        buf.append(" Class Loader: <strong>").append(Units.Plain.of(noOfClassLoaders).format(noOfClassLoaders)).append(
-                        "</strong>");
-        QuerySpec spec = new QuerySpec("Details", new TextResult(buf.toString(), true));
+        buf.append(Messages.ComponentReportQuery_Size + " <strong>") //$NON-NLS-1$
+                        .append(Units.Storage.of(totalSize).format(totalSize)).append("</strong> "); //$NON-NLS-1$
+        buf.append(Messages.ComponentReportQuery_Classes + " <strong>") //$NON-NLS-1$
+                        .append(Units.Plain.of(noOfClasses).format(noOfClasses)).append("</strong> "); //$NON-NLS-1$
+        buf.append(Messages.ComponentReportQuery_Objects + " <strong>") //$NON-NLS-1$
+                        .append(Units.Plain.of(noOfObjects).format(noOfObjects)).append("</strong> "); //$NON-NLS-1$
+        buf.append(Messages.ComponentReportQuery_ClassLoader + " <strong>") //$NON-NLS-1$
+                        .append(Units.Plain.of(noOfClassLoaders).format(noOfClassLoaders)).append("</strong>"); //$NON-NLS-1$
+        QuerySpec spec = new QuerySpec(Messages.ComponentReportQuery_Details, new TextResult(buf.toString(), true));
         spec.set(Params.Html.SHOW_HEADING, Boolean.FALSE.toString());
         overview.add(spec);
     }
@@ -274,7 +272,7 @@ public class ComponentReportQuery implements IQuery
     {
         PieFactory pie = new PieFactory(snapshot);
         pie.addSlice(-1, objects.getLabel(), totalSize, totalSize);
-        QuerySpec spec = new QuerySpec("Distribution", pie.build());
+        QuerySpec spec = new QuerySpec(Messages.ComponentReportQuery_Distribution, pie.build());
         spec.set(Params.Html.SHOW_HEADING, Boolean.FALSE.toString());
         overview.add(spec);
     }
@@ -282,11 +280,11 @@ public class ComponentReportQuery implements IQuery
     private void addTopConsumer(SectionSpec componentReport, int[] retained, IProgressListener listener)
                     throws Exception
     {
-        IResult result = SnapshotQuery.lookup("top_consumers_html", snapshot) //
-                        .set("objects", retained) //
+        IResult result = SnapshotQuery.lookup("top_consumers_html", snapshot) //$NON-NLS-1$
+                        .set("objects", retained) //$NON-NLS-1$
                         .execute(listener);
 
-        QuerySpec topConsumers = new QuerySpec("Top Consumers");
+        QuerySpec topConsumers = new QuerySpec(Messages.ComponentReportQuery_TopConsumers);
         topConsumers.set(Params.Html.SEPARATE_FILE, Boolean.TRUE.toString());
         topConsumers.set(Params.Html.COLLAPSED, Boolean.FALSE.toString());
         topConsumers.setResult(result);
@@ -295,7 +293,7 @@ public class ComponentReportQuery implements IQuery
 
     private void addRetainedSet(SectionSpec componentReport, Histogram histogram)
     {
-        QuerySpec retainedSet = new QuerySpec("Retained Set");
+        QuerySpec retainedSet = new QuerySpec(Messages.ComponentReportQuery_RetainedSet);
         retainedSet.set(Params.Html.SEPARATE_FILE, Boolean.TRUE.toString());
         retainedSet.setResult(histogram);
         componentReport.add(retainedSet);
@@ -309,7 +307,7 @@ public class ComponentReportQuery implements IQuery
     {
         for (ClassHistogramRecord record : histogram.getClassHistogramRecords())
         {
-            if (!"char[]".equals(record.getLabel()))
+            if (!"char[]".equals(record.getLabel())) //$NON-NLS-1$
                 continue;
 
             int[] objectIds = record.getObjectIds();
@@ -320,47 +318,46 @@ public class ComponentReportQuery implements IQuery
                 objectIds = copy;
             }
 
-            RefinedResultBuilder builder = SnapshotQuery.lookup("group_by_value", snapshot) //
-                            .set("objects", objectIds) //
+            RefinedResultBuilder builder = SnapshotQuery.lookup("group_by_value", snapshot) //$NON-NLS-1$
+                            .set("objects", objectIds) //$NON-NLS-1$
                             .refine(listener);
 
-            builder.setFilter(1, ">=10");
+            builder.setFilter(1, ">=10"); //$NON-NLS-1$
             builder.setInlineRetainedSizeCalculation(true);
             RefinedTable table = (RefinedTable) builder.build();
             TotalsRow totals = new TotalsRow();
             table.calculateTotals(table.getRows(), totals, listener);
 
             StringBuilder comment = new StringBuilder();
-            comment.append("Found ");
-            comment.append(NumberFormat.getInstance().format(table.getRowCount()));
-            comment.append(" occurrences of char[] with at least 10 instances having identical content.");
-            comment.append(" Total size is ").append(totals.getLabel(2)).append(" bytes.");
-            comment.append("<p>Top elements include:<ul>");
+            comment.append(MessageUtil.format(Messages.ComponentReportQuery_Msg_FoundOccurrences, table.getRowCount(),
+                            totals.getLabel(2)));
+            comment.append("<p>" + Messages.ComponentReportQuery_TopElementsInclude + "<ul>"); //$NON-NLS-1$ //$NON-NLS-2$
 
             for (int rowId = 0; rowId < table.getRowCount() && rowId < 5; rowId++)
             {
                 Object row = table.getRow(rowId);
                 String value = table.getFormattedColumnValue(row, 0);
                 if (value.length() > 50)
-                    value = value.substring(0, 50) + "...";
+                    value = value.substring(0, 50) + "..."; //$NON-NLS-1$
 
                 String size = table.getFormattedColumnValue(row, 3);
 
-                comment.append("<li>").append(table.getFormattedColumnValue(row, 1));
-                comment.append(" x <strong>").append(value).append("</strong> (");
-                comment.append(size).append(" bytes)  </li>");
+                comment.append("<li>").append(table.getFormattedColumnValue(row, 1)); //$NON-NLS-1$
+                comment.append(" x <strong>").append(value).append("</strong>"); //$NON-NLS-1$ //$NON-NLS-2$
+                comment.append(MessageUtil.format(Messages.ComponentReportQuery_Label_Bytes, size)).append("</li>"); //$NON-NLS-1$
             }
-            comment.append("</ul>");
+            comment.append("</ul>"); //$NON-NLS-1$
 
             // build result
-            SectionSpec duplicateStrings = new SectionSpec("Duplicate Strings");
+            SectionSpec duplicateStrings = new SectionSpec(Messages.ComponentReportQuery_DuplicateStrings);
             componentReport.add(duplicateStrings);
 
-            QuerySpec spec = new QuerySpec("Comment", new TextResult(comment.toString(), true));
+            QuerySpec spec = new QuerySpec(Messages.ComponentReportQuery_Comment, new TextResult(comment.toString(),
+                            true));
             spec.set(Params.Rendering.PATTERN, Params.Rendering.PATTERN_OVERVIEW_DETAILS);
             duplicateStrings.add(spec);
 
-            spec = new QuerySpec("Histogram");
+            spec = new QuerySpec(Messages.ComponentReportQuery_Histogram);
             spec.setResult(table);
             duplicateStrings.add(spec);
 
@@ -379,10 +376,10 @@ public class ComponentReportQuery implements IQuery
     {
         long threshold = totalSize / 20;
 
-        SectionSpec overview = new SectionSpec("Empty Collections");
+        SectionSpec overview = new SectionSpec(Messages.ComponentReportQuery_EmptyCollections);
 
         StringBuilder comment = new StringBuilder();
-        SectionSpec collectionbySizeSpec = new SectionSpec("Details");
+        SectionSpec collectionbySizeSpec = new SectionSpec(Messages.ComponentReportQuery_Details);
         collectionbySizeSpec.set(Params.Html.COLLAPSED, Boolean.TRUE.toString());
 
         // prepare meta-data of known collections
@@ -405,8 +402,8 @@ public class ComponentReportQuery implements IQuery
                 IClass clazz = (IClass) snapshot.getObject(record.getClassId());
 
                 // run the query: collections by size
-                RefinedResultBuilder builder = SnapshotQuery.lookup("collections_grouped_by_size", snapshot) //
-                                .set("objects", record.getObjectIds()) //
+                RefinedResultBuilder builder = SnapshotQuery.lookup("collections_grouped_by_size", snapshot) //$NON-NLS-1$
+                                .set("objects", record.getObjectIds()) //$NON-NLS-1$
                                 .refine(listener);
 
                 // refine result: sort & evaluate
@@ -428,12 +425,12 @@ public class ComponentReportQuery implements IQuery
                             String retainedSize = refinedTable.getFormattedColumnValue(row, 3);
 
                             if (comment.length() == 0)
-                                comment.append("Detected the following empty collections:<ul>");
+                                comment.append(Messages.ComponentReportQuery_DetectedEmptyCollections + "<ul>"); //$NON-NLS-1$
 
-                            comment.append("<li>").append(NumberFormat.getInstance().format(numberOfObjects)) //
-                                            .append(" instances of <strong>").append(clazz.getName()) //
-                                            .append("</strong> retain <strong>") //
-                                            .append(retainedSize).append("</strong> bytes.</li>");
+                            comment.append("<li>"); //$NON-NLS-1$
+                            comment.append(MessageUtil.format(Messages.ComponentReportQuery_Msg_InstancesRetainBytes,
+                                            numberOfObjects, clazz.getName(), retainedSize));
+                            comment.append("</li>"); //$NON-NLS-1$
                         }
 
                         break;
@@ -452,11 +449,11 @@ public class ComponentReportQuery implements IQuery
             return;
 
         if (comment.length() == 0)
-            comment.append("No excessive usage of empty collections found.");
+            comment.append(Messages.ComponentReportQuery_Msg_NoExcessiveEmptyCollectionsFound);
         else
-            comment.append("</ul>");
+            comment.append("</ul>"); //$NON-NLS-1$
 
-        QuerySpec spec = new QuerySpec("Comment", new TextResult(comment.toString(), true));
+        QuerySpec spec = new QuerySpec(Messages.ComponentReportQuery_Comment, new TextResult(comment.toString(), true));
         spec.set(Params.Rendering.PATTERN, Params.Rendering.PATTERN_OVERVIEW_DETAILS);
         overview.add(spec);
 
@@ -474,10 +471,10 @@ public class ComponentReportQuery implements IQuery
     {
         long threshold = totalSize / 20;
 
-        SectionSpec overview = new SectionSpec("Collection Fill Ratios");
+        SectionSpec overview = new SectionSpec(Messages.ComponentReportQuery_CollectionFillRatios);
 
         StringBuilder comment = new StringBuilder();
-        SectionSpec detailsSpec = new SectionSpec("Details");
+        SectionSpec detailsSpec = new SectionSpec(Messages.ComponentReportQuery_Details);
         detailsSpec.set(Params.Html.COLLAPSED, Boolean.TRUE.toString());
 
         // prepare meta-data of known collections
@@ -500,8 +497,8 @@ public class ComponentReportQuery implements IQuery
                 IClass clazz = (IClass) snapshot.getObject(record.getClassId());
 
                 // run the query: collections by size
-                RefinedResultBuilder builder = SnapshotQuery.lookup("collection_fill_ratio", snapshot) //
-                                .set("objects", record.getObjectIds()) //
+                RefinedResultBuilder builder = SnapshotQuery.lookup("collection_fill_ratio", snapshot) //$NON-NLS-1$
+                                .set("objects", record.getObjectIds()) //$NON-NLS-1$
                                 .refine(listener);
 
                 // refine result: sort & evaluate
@@ -523,12 +520,12 @@ public class ComponentReportQuery implements IQuery
                             String retainedSize = refinedTable.getFormattedColumnValue(row, 3);
 
                             if (comment.length() == 0)
-                                comment.append("Detected the following collections with fill ratios below 20%:<ul>");
+                                comment.append(Messages.ComponentReportQuery_Msg_DetectedCollectionFillRatios + "<ul>"); //$NON-NLS-1$
 
-                            comment.append("<li>").append(NumberFormat.getInstance().format(numberOfObjects)) //
-                                            .append(" instances of <strong>").append(clazz.getName()) //
-                                            .append("</strong> retain <strong>") //
-                                            .append(retainedSize).append("</strong> bytes.</li>");
+                            comment.append("<li>"); //$NON-NLS-1$
+                            comment.append(MessageUtil.format(Messages.ComponentReportQuery_Msg_InstancesRetainBytes,
+                                            numberOfObjects, clazz.getName(), retainedSize));
+                            comment.append("</li>"); //$NON-NLS-1$
                         }
 
                         break;
@@ -547,11 +544,12 @@ public class ComponentReportQuery implements IQuery
             return;
 
         if (comment.length() == 0)
-            comment.append("No serious amount of collections with low fill ratios found.");
+            comment.append(Messages.ComponentReportQuery_Msg_NoLowFillRatiosFound);
         else
-            comment.append("</ul>");
+            comment.append("</ul>"); //$NON-NLS-1$
 
-        QuerySpec commentSpec = new QuerySpec("Comment", new TextResult(comment.toString(), true));
+        QuerySpec commentSpec = new QuerySpec(Messages.ComponentReportQuery_Comment, new TextResult(comment.toString(),
+                        true));
         commentSpec.set(Params.Rendering.PATTERN, Params.Rendering.PATTERN_OVERVIEW_DETAILS);
 
         overview.add(commentSpec);
@@ -566,10 +564,10 @@ public class ComponentReportQuery implements IQuery
     private void addHashMapsCollisionRatios(SectionSpec componentReport, Histogram histogram, Ticks listener)
                     throws Exception
     {
-        SectionSpec overview = new SectionSpec("Map Collision Ratios");
+        SectionSpec overview = new SectionSpec(Messages.ComponentReportQuery_MapCollisionRatios);
 
         StringBuilder comment = new StringBuilder();
-        SectionSpec detailsSpec = new SectionSpec("Details");
+        SectionSpec detailsSpec = new SectionSpec(Messages.ComponentReportQuery_Details);
         detailsSpec.set(Params.Html.COLLAPSED, Boolean.TRUE.toString());
 
         // prepare meta-data of known collections
@@ -590,8 +588,8 @@ public class ComponentReportQuery implements IQuery
                     objectIds = copy;
                 }
 
-                RefinedResultBuilder builder = SnapshotQuery.lookup("map_collision_ratio", snapshot) //
-                                .set("objects", objectIds) //
+                RefinedResultBuilder builder = SnapshotQuery.lookup("map_collision_ratio", snapshot) //$NON-NLS-1$
+                                .set("objects", objectIds) //$NON-NLS-1$
                                 .refine(listener);
 
                 // refine result: sort & evaluate
@@ -610,12 +608,12 @@ public class ComponentReportQuery implements IQuery
                         String retainedSize = refinedTable.getFormattedColumnValue(row, 3);
 
                         if (comment.length() == 0)
-                            comment.append("Detected the following maps with collision ratios above 80%:<ul>");
+                            comment.append(Messages.ComponentReportQuery_Msg_DetectedCollisionRatios + "<ul>"); //$NON-NLS-1$
 
-                        comment.append("<li>").append(NumberFormat.getInstance().format(numberOfObjects)) //
-                                        .append(" instances of <strong>").append(clazz.getName()) //
-                                        .append("</strong> retain <strong>") //
-                                        .append(retainedSize).append("</strong> bytes.</li>");
+                        comment.append("<li>"); //$NON-NLS-1$
+                        comment.append(MessageUtil.format(Messages.ComponentReportQuery_Msg_InstancesRetainBytes,
+                                        numberOfObjects, clazz.getName(), retainedSize));
+                        comment.append("</li>"); //$NON-NLS-1$
                         break;
                     }
                 }
@@ -632,11 +630,12 @@ public class ComponentReportQuery implements IQuery
             return;
 
         if (comment.length() == 0)
-            comment.append("No maps found with collision ratios greater than 80%.");
+            comment.append(Messages.ComponentReportQuery_Msg_NoCollisionRatiosFound);
         else
-            comment.append("</ul>");
+            comment.append("</ul>"); //$NON-NLS-1$
 
-        QuerySpec commentSpec = new QuerySpec("Comment", new TextResult(comment.toString(), true));
+        QuerySpec commentSpec = new QuerySpec(Messages.ComponentReportQuery_Comment, new TextResult(comment.toString(),
+                        true));
         commentSpec.set(Params.Rendering.PATTERN, Params.Rendering.PATTERN_OVERVIEW_DETAILS);
 
         overview.add(commentSpec);
@@ -651,10 +650,11 @@ public class ComponentReportQuery implements IQuery
     private void addSoftReferenceStatistic(SectionSpec componentReport, Histogram histogram, Ticks ticks)
                     throws SnapshotException
     {
-        Collection<IClass> classes = snapshot.getClassesByName("java.lang.ref.SoftReference", true);
+        Collection<IClass> classes = snapshot.getClassesByName("java.lang.ref.SoftReference", true); //$NON-NLS-1$
         if (classes == null)
         {
-            addEmptyResult(componentReport, "Soft Reference Statistics", "Heap dumps contains no soft references.");
+            addEmptyResult(componentReport, Messages.ComponentReportQuery_SoftReferenceStatistics,
+                            Messages.ComponentReportQuery_Msg_NoSoftReferencesFound);
             return;
         }
 
@@ -690,21 +690,21 @@ public class ComponentReportQuery implements IQuery
 
         if (instanceSet.isEmpty())
         {
-            addEmptyResult(componentReport, "Soft Reference Statistics",
-                            "Component does not keep Soft References alive.");
+            addEmptyResult(componentReport, Messages.ComponentReportQuery_SoftReferenceStatistics,
+                            Messages.ComponentReportQuery_Msg_NoAliveSoftReferences);
             return;
         }
 
-        Histogram softRefHistogram = new Histogram("Histogram of Soft References", softRefs, null, numObjects,
-                        heapSize, 0);
+        Histogram softRefHistogram = new Histogram(Messages.ComponentReportQuery_HistogramOfSoftReferences, softRefs,
+                        null, numObjects, heapSize, 0);
 
-        CompositeResult referents = ReferenceQuery.execute("softly", instanceSet, referentSet, snapshot, ticks);
+        CompositeResult referents = ReferenceQuery.execute(instanceSet, referentSet, snapshot,
+                        Messages.SoftReferenceStatQuery_Label_Referenced,
+                        Messages.SoftReferenceStatQuery_Label_Retained, ticks);
 
         StringBuilder comment = new StringBuilder();
-        comment.append(MessageUtil.format("A total of {0} java.lang.ref.SoftReference "
-                        + "object{0,choice,0#s|1#|2#s} have been found, "
-                        + "which softly reference {1,choice,0#no objects|1#one object|2#{1,number} objects}.<br/>",
-                        instanceSet.size(), referentSet.size()));
+        comment.append(MessageUtil.format(Messages.ComponentReportQuery_Msg_SoftReferencesFound, instanceSet.size(),
+                        referentSet.size()));
 
         Histogram onlySoftlyReachable = (Histogram) referents.getResultEntries().get(1).getResult();
         numObjects = 0;
@@ -714,18 +714,18 @@ public class ComponentReportQuery implements IQuery
             numObjects += r.getNumberOfObjects();
             heapSize += r.getUsedHeapSize();
         }
-        comment.append(MessageUtil.format("{0,choice,0#none object|1#one object|2#{0,number} objects} totaling {1} "
-                        + "are retained (kept alive) only via soft references.", //
+        comment.append(MessageUtil.format(Messages.ComponentReportQuery_Msg_SoftReferencesRetained, //
                         numObjects, //
                         Units.Storage.of(heapSize).format(heapSize)));
 
-        SectionSpec overview = new SectionSpec("Soft Reference Statistics");
-        QuerySpec commentSpec = new QuerySpec("Comment", new TextResult(comment.toString(), true));
+        SectionSpec overview = new SectionSpec(Messages.ComponentReportQuery_SoftReferenceStatistics);
+        QuerySpec commentSpec = new QuerySpec(Messages.ComponentReportQuery_Comment, new TextResult(comment.toString(),
+                        true));
         commentSpec.set(Params.Rendering.PATTERN, Params.Rendering.PATTERN_OVERVIEW_DETAILS);
         overview.add(commentSpec);
 
         QuerySpec child = new QuerySpec(softRefHistogram.getLabel(), softRefHistogram);
-        child.set(Params.Rendering.DERIVED_DATA_COLUMN, "_default_=" + RetainedSizeDerivedData.APPROXIMATE.getCode());
+        child.set(Params.Rendering.DERIVED_DATA_COLUMN, "_default_=" + RetainedSizeDerivedData.APPROXIMATE.getCode()); //$NON-NLS-1$
         overview.add(child);
 
         for (CompositeResult.Entry entry : referents.getResultEntries())
@@ -741,13 +741,11 @@ public class ComponentReportQuery implements IQuery
     private void addFinalizerStatistic(SectionSpec componentReport, int[] retained, Ticks ticks)
                     throws SnapshotException
     {
-        Collection<IClass> classes = snapshot.getClassesByName("java.lang.ref.Finalizer", true);
+        Collection<IClass> classes = snapshot.getClassesByName("java.lang.ref.Finalizer", true); //$NON-NLS-1$
         if (classes == null)
         {
-            addEmptyResult(componentReport, "Finalizer Statistics",
-                            "Heap dump contains no java.lang.ref.Finalizer objects.<br/>"
-                                            + "IBM VMs implement Finalizer differently and "
-                                            + "are currently not supported by this report.");
+            addEmptyResult(componentReport, Messages.ComponentReportQuery_FinalizerStatistics,
+                            Messages.ComponentReportQuery_Msg_NoFinalizerObjects);
             return;
         }
 
@@ -777,22 +775,22 @@ public class ComponentReportQuery implements IQuery
 
         if (finalizers.isEmpty())
         {
-            addEmptyResult(componentReport, "Finalizer Statistics",
-                            "Component does not keep object with Finalizer methods alive.");
+            addEmptyResult(componentReport, Messages.ComponentReportQuery_FinalizerStatistics,
+                            Messages.ComponentReportQuery_Msg_NoFinalizerFound);
             return;
         }
 
-        SectionSpec overview = new SectionSpec("Finalizer Statistics");
+        SectionSpec overview = new SectionSpec(Messages.ComponentReportQuery_FinalizerStatistics);
         StringBuilder comment = new StringBuilder();
-        comment.append(MessageUtil.format("A total of {0} object{0,choice,0#s|1#|2#s} "
-                        + "implement the finalize method.", finalizers.size()));
+        comment.append(MessageUtil.format(Messages.ComponentReportQuery_Msg_TotalFinalizerMethods, finalizers.size()));
 
-        QuerySpec commentSpec = new QuerySpec("Comment", new TextResult(comment.toString(), true));
+        QuerySpec commentSpec = new QuerySpec(Messages.ComponentReportQuery_Comment, new TextResult(comment.toString(),
+                        true));
         commentSpec.set(Params.Rendering.PATTERN, Params.Rendering.PATTERN_OVERVIEW_DETAILS);
         overview.add(commentSpec);
 
         Histogram histogram = snapshot.getHistogram(finalizers.toArray(), ticks);
-        histogram.setLabel("Histogram of Objects with Finalize Method");
+        histogram.setLabel(Messages.ComponentReportQuery_HistogramFinalizeMethod);
         overview.add(new QuerySpec(histogram.getLabel(), histogram));
 
         componentReport.add(overview);
@@ -805,7 +803,7 @@ public class ComponentReportQuery implements IQuery
     private void addEmptyResult(SectionSpec report, String sectionLabel, String message)
     {
         SectionSpec section = new SectionSpec(sectionLabel);
-        QuerySpec commentSpec = new QuerySpec("Comment", new TextResult(message, true));
+        QuerySpec commentSpec = new QuerySpec(Messages.ComponentReportQuery_Comment, new TextResult(message, true));
         commentSpec.set(Params.Rendering.PATTERN, Params.Rendering.PATTERN_OVERVIEW_DETAILS);
         section.add(commentSpec);
         report.add(section);

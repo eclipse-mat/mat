@@ -16,6 +16,7 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.registry.CommandLine;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.util.MessageUtil;
@@ -23,7 +24,7 @@ import org.eclipse.mat.util.PatternUtil;
 
 public final class ArgumentParser
 {
-    private static final Pattern ADDRESS_PATTERN = Pattern.compile("^0x\\p{XDigit}+$");
+    private static final Pattern ADDRESS_PATTERN = Pattern.compile("^0x\\p{XDigit}+$"); //$NON-NLS-1$
 
     public static HeapObjectParamArgument consumeHeapObjects(ISnapshot snapshot, String line) throws SnapshotException
     {
@@ -36,11 +37,11 @@ public final class ArgumentParser
             StringBuilder buf = new StringBuilder();
             while (pos.getIndex() < args.length)
             {
-                buf.append(args[pos.getIndex()]).append(" ");
+                buf.append(args[pos.getIndex()]).append(" "); //$NON-NLS-1$
                 pos.setIndex(pos.getIndex() + 1);
             }
 
-            throw new SnapshotException(MessageUtil.format("Remaining unparsed line: {0}", new Object[] { buf
+            throw new SnapshotException(MessageUtil.format(Messages.ArgumentParser_ErrorMsg_Unparsed, new Object[] { buf
                             .toString() }));
         }
 
@@ -103,7 +104,7 @@ public final class ArgumentParser
                 proxy.addObjectAddress(address);
                 pos.setIndex(pos.getIndex() + 1);
             }
-            else if ("select".equals(arg.toLowerCase()))
+            else if ("select".equals(arg.toLowerCase())) //$NON-NLS-1$
             {
                 StringBuilder query = new StringBuilder(128);
                 query.append(arg);
@@ -119,7 +120,7 @@ public final class ArgumentParser
                     }
                     else if (arg.charAt(arg.length() - 1) == ';')
                     {
-                        query.append(" ").append(arg.substring(0, arg.length() - 1));
+                        query.append(" ").append(arg.substring(0, arg.length() - 1)); //$NON-NLS-1$
                         pos.setIndex(pos.getIndex() + 1);
                         break;
                     }
@@ -127,7 +128,7 @@ public final class ArgumentParser
                     {
                         break;
                     }
-                    query.append(" ").append(arg);
+                    query.append(" ").append(arg); //$NON-NLS-1$
                     pos.setIndex(pos.getIndex() + 1);
                 }
                 proxy.addOql(query.toString());
@@ -142,7 +143,7 @@ public final class ArgumentParser
                 }
                 catch (PatternSyntaxException e)
                 {
-                    throw new SnapshotException(MessageUtil.format("Error parsing ''{0}'': {1}", arg, e.getMessage()),
+                    throw new SnapshotException(MessageUtil.format(Messages.ArgumentParser_ErrorMsg_ParsingError, arg, e.getMessage()),
                                     e);
                 }
             }

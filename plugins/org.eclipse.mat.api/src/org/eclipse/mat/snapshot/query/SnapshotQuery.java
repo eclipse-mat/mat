@@ -12,6 +12,7 @@ package org.eclipse.mat.snapshot.query;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.internal.snapshot.HeapObjectArgumentFactory;
 import org.eclipse.mat.internal.snapshot.SnapshotQueryContext;
 import org.eclipse.mat.query.IQueryContext;
@@ -50,7 +51,7 @@ public class SnapshotQuery
     {
         QueryDescriptor query = QueryRegistry.instance().getQuery(name);
         if (query == null)
-            throw new SnapshotException(MessageUtil.format("Query not available: {0}", name));
+            throw new SnapshotException(MessageUtil.format(Messages.SnapshotQuery_ErrorMsg_QueryNotAvailable, name));
 
         IQueryContext context = new SnapshotQueryContext(snapshot);
         if (!query.accept(context))
@@ -92,7 +93,7 @@ public class SnapshotQuery
     {
         ArgumentDescriptor argument = query.getArgumentByName(name);
         if (argument == null)
-            throw new SnapshotException(MessageUtil.format("Unknown argument: {0} for query {1}", name, query
+            throw new SnapshotException(MessageUtil.format(Messages.SnapshotQuery_ErrorMsg_UnkownArgument, name, query
                             .getIdentifier()));
 
         // special checks: support heap objects
@@ -127,9 +128,8 @@ public class SnapshotQuery
             }
             else
             {
-                throw new SnapshotException(MessageUtil.format("Unsupported type for argument {0}: {1}\n"
-                                + "(Use: IObject, Integer, int[], ArrayInt, IHeapObjectArgument)", name, value
-                                .getClass().getName()));
+                throw new SnapshotException(MessageUtil.format(Messages.SnapshotQuery_ErrorMsg_UnsupportedTyp, name,
+                                value.getClass().getName()));
             }
         }
 
@@ -155,7 +155,7 @@ public class SnapshotQuery
     {
         IResult result = execute(listener);
         if (result == null)
-            throw new SnapshotException(MessageUtil.format("Query {0} did not produce a result.", arguments
+            throw new SnapshotException(MessageUtil.format(Messages.SnapshotQuery_ErrorMsg_NoResult, arguments
                             .getQueryDescriptor().getIdentifier()));
         return new RefinedResultBuilder(new SnapshotQueryContext(snapshot), (IStructuredResult) result);
     }

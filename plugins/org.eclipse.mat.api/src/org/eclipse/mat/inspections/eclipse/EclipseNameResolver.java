@@ -12,6 +12,7 @@
 package org.eclipse.mat.inspections.eclipse;
 
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.snapshot.extension.IClassSpecificNameResolver;
 import org.eclipse.mat.snapshot.extension.Subject;
 import org.eclipse.mat.snapshot.model.IObject;
@@ -24,7 +25,7 @@ public class EclipseNameResolver
 
         public String resolve(IObject obj) throws SnapshotException
         {
-            IObject s = (IObject) obj.resolveValue("hostdata.symbolicName");
+            IObject s = (IObject) obj.resolveValue("hostdata.symbolicName"); //$NON-NLS-1$
             return s != null ? s.getClassSpecificName() : null;
         }
 
@@ -36,7 +37,7 @@ public class EclipseNameResolver
 
         public String resolve(IObject obj) throws SnapshotException
         {
-            IObject s = (IObject) obj.resolveValue("manager.data.symbolicName");
+            IObject s = (IObject) obj.resolveValue("manager.data.symbolicName"); //$NON-NLS-1$
             return s != null ? s.getClassSpecificName() : null;
         }
 
@@ -48,7 +49,7 @@ public class EclipseNameResolver
 
         public String resolve(IObject obj) throws SnapshotException
         {
-            return "Equinox Startup Class Loader";
+            return Messages.EclipseNameResolver_EquinoxStartupClassLoader;
         }
 
     }
@@ -58,14 +59,14 @@ public class EclipseNameResolver
     {
         public String resolve(IObject obj) throws SnapshotException
         {
-            Integer red = (Integer) obj.resolveValue("red");
-            Integer green = (Integer) obj.resolveValue("green");
-            Integer blue = (Integer) obj.resolveValue("blue");
+            Integer red = (Integer) obj.resolveValue("red"); //$NON-NLS-1$
+            Integer green = (Integer) obj.resolveValue("green"); //$NON-NLS-1$
+            Integer blue = (Integer) obj.resolveValue("blue"); //$NON-NLS-1$
 
             if (red == null || green == null || blue == null)
                 return null;
 
-            return String.format("(%03d,%03d,%03d)", red, green, blue);
+            return String.format("(%03d,%03d,%03d)", red, green, blue); //$NON-NLS-1$
         }
     }
 }

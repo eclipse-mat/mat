@@ -86,6 +86,7 @@ public class ClassHistogramRecord extends HistogramRecord
         return retainedHeapSize;
     }
 
+    @SuppressWarnings("nls")
     @Override
     public String toString()
     {

@@ -17,6 +17,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.registry.ArgumentDescriptor;
 import org.eclipse.mat.query.registry.ArgumentFactory;
 import org.eclipse.mat.snapshot.ISnapshot;
@@ -35,7 +36,7 @@ public abstract class HeapObjectArgumentFactory implements ArgumentFactory
 
     public static final ArgumentFactory build(ISnapshot snapshot, IHeapObjectArgument argument)
     {
-        return new AsObjectArgumentImpl(snapshot, argument, "[objects]");
+        return new AsObjectArgumentImpl(snapshot, argument, Messages.HeapObjectArgumentFactory_Label_Objects);
     }
 
     protected final ISnapshot snapshot;
@@ -83,7 +84,7 @@ public abstract class HeapObjectArgumentFactory implements ArgumentFactory
         }
         catch (Exception e)
         {
-            throw new SnapshotException(MessageUtil.format("{0}: Error setting heap objects to field ''{1}''", e
+            throw new SnapshotException(MessageUtil.format(Messages.HeapObjectArgumentFactory_ErrorMsg_SettingField, e
                             .getClass().getCanonicalName(), argument.getName()), e);
         }
     }
@@ -142,15 +143,16 @@ public abstract class HeapObjectArgumentFactory implements ArgumentFactory
             }
             else
             {
-                throw new SnapshotException(MessageUtil.format("Type ''{0}'' of argument ''{1}'' not supported.",
-                                argument.getType().getName(), argument.getName()));
+                throw new SnapshotException(MessageUtil.format(
+                                Messages.HeapObjectArgumentFactory_ErrorMsg_TypeNotSupported, argument.getType()
+                                                .getName(), argument.getName()));
             }
         }
         else
         {
             if (objectIds.length != 1)
                 throw new SnapshotException(MessageUtil.format(
-                                "Argument ''{0}'' does not allow to assign multiple objects", argument.getName()));
+                                Messages.HeapObjectArgumentFactory_ErrorMsg_MultipleObjects, argument.getName()));
 
             if (argument.getType() == int.class)
             {
@@ -166,8 +168,9 @@ public abstract class HeapObjectArgumentFactory implements ArgumentFactory
             }
             else
             {
-                throw new SnapshotException(MessageUtil.format("Type ''{0}'' of argument ''{1}'' not supported.",
-                                argument.getType().getName(), argument.getName()));
+                throw new SnapshotException(MessageUtil.format(
+                                Messages.HeapObjectArgumentFactory_ErrorMsg_TypeNotSupported, argument.getType()
+                                                .getName(), argument.getName()));
             }
         }
     }
@@ -227,7 +230,7 @@ public abstract class HeapObjectArgumentFactory implements ArgumentFactory
 
         public void appendUsage(StringBuilder buf)
         {
-            buf.append("[objects]");
+            buf.append(Messages.HeapObjectArgumentFactory_Label_Objects);
         }
 
         @Override
@@ -243,7 +246,7 @@ public abstract class HeapObjectArgumentFactory implements ArgumentFactory
 
                 public String getLabel()
                 {
-                    return "Objects";
+                    return Messages.HeapObjectArgumentFactory_Objects;
                 }
 
                 public Iterator<int[]> iterator()

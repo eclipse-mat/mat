@@ -43,12 +43,12 @@ public final class OQL
     public static String forObjectIds(int[] objectIds)
     {
         StringBuilder buf = new StringBuilder(512);
-        buf.append("SELECT * FROM OBJECTS ");
+        buf.append("SELECT * FROM OBJECTS "); //$NON-NLS-1$
 
         for (int ii = 0; ii < objectIds.length; ii++)
         {
             if (ii > 0)
-                buf.append(",");
+                buf.append(","); //$NON-NLS-1$
             buf.append(objectIds[ii]);
         }
 
@@ -60,7 +60,7 @@ public final class OQL
      */
     public static final String retainedBy(String oqlQuery)
     {
-        return "SELECT AS RETAINED SET * FROM OBJECTS (" + oqlQuery + ")";//$NON-NLS-1$
+        return "SELECT AS RETAINED SET * FROM OBJECTS (" + oqlQuery + ")";//$NON-NLS-1$ //$NON-NLS-2$
     }
 
     /**
@@ -93,7 +93,7 @@ public final class OQL
     public static void union(StringBuilder query, String other)
     {
         if ((query.length() > 0))
-            query.append(" UNION (").append(other).append(")"); //$NON-NLS-1$
+            query.append(" UNION (").append(other).append(")"); //$NON-NLS-1$ //$NON-NLS-2$
         else
             query.append(other);
     }
@@ -128,8 +128,8 @@ public final class OQL
         return buf.toString();
     }
 
-    private static final String OQL_classesByClassLoaderId = "select * from java.lang.Class c where c implements "
-                    + IClass.class.getName() + " and c.@classLoaderId = {0, number, 0}";
+    private static final String OQL_classesByClassLoaderId = "select * from java.lang.Class c where c implements " //$NON-NLS-1$
+                    + IClass.class.getName() + " and c.@classLoaderId = {0, number, 0}"; //$NON-NLS-1$
 
     /**
      * Returns an OQL query string to select all objects loaded by the given
@@ -154,9 +154,9 @@ public final class OQL
     public static String instancesByClassLoaderId(int classLoaderId)
     {
         StringBuilder buf = new StringBuilder(256);
-        buf.append("select * from (");
+        buf.append("select * from ("); //$NON-NLS-1$
         buf.append(classesByClassLoaderId(classLoaderId));
-        buf.append(")");
+        buf.append(")"); //$NON-NLS-1$
         return buf.toString();
     }
 

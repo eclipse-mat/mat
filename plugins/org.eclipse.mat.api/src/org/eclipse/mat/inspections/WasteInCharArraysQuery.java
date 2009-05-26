@@ -16,12 +16,11 @@ import java.util.List;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
-import org.eclipse.mat.query.annotations.Category;
-import org.eclipse.mat.query.annotations.Help;
-import org.eclipse.mat.query.annotations.Name;
+import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IArray;
 import org.eclipse.mat.snapshot.model.IClass;
@@ -29,27 +28,24 @@ import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.query.ObjectListResult;
 import org.eclipse.mat.util.IProgressListener;
 
-@Name("Waste in Char Arrays")
-@Category("Java Basics")
-@Help("Find strings that retain wasteful char arrays, likely due to substring")
+@CommandName("waste_in_char_arrays")
 public class WasteInCharArraysQuery implements IQuery
 {
     @Argument
     public ISnapshot snapshot;
 
     @Argument
-    @Help("Minimum number of characters that must be wasted in a char array to be included in the result list.")
     public int minimumWaste = 50;
 
     public IResult execute(IProgressListener listener) throws Exception
     {
         ArrayInt result = new ArrayInt();
 
-        for (IClass clasz : snapshot.getClassesByName("char[]", false))
+        for (IClass clasz : snapshot.getClassesByName("char[]", false)) //$NON-NLS-1$
         {
             int[] objectIds = clasz.getObjectIds();
 
-            listener.beginTask("Checking char[]...", objectIds.length / 1000);
+            listener.beginTask(Messages.WasteInCharArraysQuery_CheckingCharArrays, objectIds.length / 1000);
 
             for (int ii = 0; ii < objectIds.length; ii++)
             {
@@ -91,7 +87,7 @@ public class WasteInCharArraysQuery implements IQuery
                 return false;
 
             IObject string = snapshot.getObject(inbound);
-            Integer count = (Integer) string.resolveValue("count");
+            Integer count = (Integer) string.resolveValue("count"); //$NON-NLS-1$
             if (count == null)
                 continue;
             // string length already uses enough of the char[]
@@ -102,7 +98,7 @@ public class WasteInCharArraysQuery implements IQuery
             if (inbounds.length == 1)
                 return true;
 
-            Integer offset = (Integer) string.resolveValue("offset");
+            Integer offset = (Integer) string.resolveValue("offset"); //$NON-NLS-1$
             if (offset == null)
                 continue;
 
@@ -149,7 +145,7 @@ public class WasteInCharArraysQuery implements IQuery
     private boolean isString(int inbound) throws SnapshotException
     {
         IClass clazz = snapshot.getClassOf(inbound);
-        return "java.lang.String".equals(clazz.getName());
+        return "java.lang.String".equals(clazz.getName()); //$NON-NLS-1$
     }
 
     private static class Fragment

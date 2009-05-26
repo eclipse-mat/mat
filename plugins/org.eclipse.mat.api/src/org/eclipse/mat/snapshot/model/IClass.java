@@ -22,8 +22,8 @@ import org.eclipse.mat.util.IProgressListener;
  */
 public interface IClass extends IObject
 {
-    String JAVA_LANG_CLASS = "java.lang.Class";
-    String JAVA_LANG_CLASSLOADER = "java.lang.ClassLoader";
+    String JAVA_LANG_CLASS = "java.lang.Class"; //$NON-NLS-1$
+    String JAVA_LANG_CLASSLOADER = "java.lang.ClassLoader"; //$NON-NLS-1$
 
     /**
      * Returns the fully qualified class name of this class.

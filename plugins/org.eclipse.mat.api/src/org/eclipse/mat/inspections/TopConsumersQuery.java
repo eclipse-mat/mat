@@ -12,7 +12,6 @@ package org.eclipse.mat.inspections;
 
 import java.io.CharArrayWriter;
 import java.io.PrintWriter;
-import com.ibm.icu.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -22,12 +21,12 @@ import java.util.StringTokenizer;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.Category;
-import org.eclipse.mat.query.annotations.Help;
-import org.eclipse.mat.query.annotations.Name;
+import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.Argument.Advice;
 import org.eclipse.mat.query.results.TextResult;
 import org.eclipse.mat.snapshot.ClassHistogramRecord;
@@ -39,10 +38,10 @@ import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.ObjectComparators;
 import org.eclipse.mat.util.IProgressListener;
 
-@Name("Top Consumers")
+import com.ibm.icu.text.NumberFormat;
+
+@CommandName("top_consumers")
 @Category(Category.HIDDEN)
-@Help("Print biggest objects grouped by class, class loader, and package. "
-                + "By default, the total heap is included in the analysis.")
 public class TopConsumersQuery implements IQuery
 {
     static NumberFormat percentFormatter = NumberFormat.getIntegerInstance();
@@ -53,16 +52,14 @@ public class TopConsumersQuery implements IQuery
         percentFormatter.setMinimumFractionDigits(2);
     }
 
-    static final String SEPARATOR = "--------------------------------------------------------------------------------";
+    static final String SEPARATOR = "--------------------------------------------------------------------------------"; //$NON-NLS-1$
 
     @Argument
     public ISnapshot snapshot;
 
-    @Help("Set of objects to include in the analysis.")
     @Argument(advice = Advice.HEAP_OBJECT, isMandatory = false, flag = "none")
     public int[] objects;
 
-    @Help("Threshold (in percent of the total heap size) which objects have to exceed to be included in the analysis")
     @Argument(isMandatory = false, flag = "t")
     public int thresholdPercent = 1;
 
@@ -83,7 +80,7 @@ public class TopConsumersQuery implements IQuery
         }
         else if (objects.length == 0)
         {
-            return new TextResult("There are no objects matching the specified criteria");
+            return new TextResult(Messages.TopConsumers2Query_MsgNoObjects);
         }
         else
         {
@@ -160,7 +157,7 @@ public class TopConsumersQuery implements IQuery
 
         // Print the results
         out.println();
-        out.println("Biggest objects:");
+        out.println(Messages.TopConsumers2Query_BiggestObjects + ":"); //$NON-NLS-1$
         out.println(SEPARATOR);
         int[] suspectsArr = suspects.toArray();
         IObject[] objectArr = new IObject[suspectsArr.length];
@@ -174,55 +171,55 @@ public class TopConsumersQuery implements IQuery
         {
             long retained = snapshot.getRetainedHeapSize(obj.getObjectId());
             out.print(percentFormatter.format((double) (retained * 100) / (double) totalHeap));
-            out.print("%  ");
+            out.print("%  "); //$NON-NLS-1$
             out.print(numberFormatter.format(retained));
-            out.print("  ");
+            out.print("  "); //$NON-NLS-1$
             out.print(obj.getTechnicalName());
             String details = obj.getClassSpecificName();
             if (details != null)
             {
-                out.print("  ");
+                out.print("  "); //$NON-NLS-1$
                 out.print(details);
             }
             out.println();
         }
 
         out.println();
-        out.println("Biggest top-level dominator classes:");
+        out.println(Messages.TopConsumers2Query_BiggestClasses + ":"); //$NON-NLS-1$
         out.println(SEPARATOR);
         for (ClassHistogramRecord rec : suspectRecords)
         {
             long retained = rec.getRetainedHeapSize();
             out.print(percentFormatter.format((double) (retained * 100) / (double) totalHeap));
-            out.print("%  ");
+            out.print("%  "); //$NON-NLS-1$
             out.print(numberFormatter.format(retained));
-            out.print("  ");
+            out.print("  "); //$NON-NLS-1$
             out.print(numberFormatter.format(rec.getNumberOfObjects()));
-            out.print("  ");
+            out.print("  "); //$NON-NLS-1$
             out.print(rec.getLabel());
             out.println();
         }
 
         out.println();
-        out.println("Biggest top-level dominator classloaders:");
+        out.println(Messages.TopConsumers2Query_BiggestClassLoaders + ":"); //$NON-NLS-1$
         out.println(SEPARATOR);
         for (ClassLoaderHistogramRecord rec : classloaderSuspectRecords)
         {
             long retained = rec.getRetainedHeapSize();
             out.print(percentFormatter.format((double) (retained * 100) / (double) totalHeap));
-            out.print("%  ");
+            out.print("%  "); //$NON-NLS-1$
             out.print(numberFormatter.format(retained));
-            out.print("  ");
+            out.print("  "); //$NON-NLS-1$
             out.print(numberFormatter.format(rec.getNumberOfObjects()));
-            out.print("  ");
+            out.print("  "); //$NON-NLS-1$
             out.print(rec.getLabel());
             out.println();
         }
 
         out.println();
-        out.println("Biggest top-level dominator packages:");
+        out.println(Messages.TopConsumers2Query_BiggestPackages + ":"); //$NON-NLS-1$
         out.println(SEPARATOR);
-        out.println("package,  retained%,  retained bytes, #top-dominators");
+        out.println(Messages.TopConsumersQuery_ColumnLabels);
         out.println(SEPARATOR);
         printPackageTree(root, new StringBuilder(), totalHeap, threshold, out, snapshot);
 
@@ -307,10 +304,10 @@ public class TopConsumersQuery implements IQuery
     private PackageTreeNode groupByPackage(int[] dominators, ISnapshot snapshot, IProgressListener listener)
                     throws SnapshotException
     {
-        PackageTreeNode root = new PackageTreeNode("<all>");
+        PackageTreeNode root = new PackageTreeNode(Messages.TopConsumers2Query_Label_all);
         PackageTreeNode current;
 
-        listener.beginTask("Grouping by package", dominators.length / 1000);
+        listener.beginTask(Messages.TopConsumers2Query_GroupingByPackage, dominators.length / 1000);
         int counter = 0;
 
         for (int dominatorId : dominators)
@@ -330,7 +327,7 @@ public class TopConsumersQuery implements IQuery
                     objClass = (IClass) dominatorObj;
             }
             String className = objClass.getName();
-            StringTokenizer tokenizer = new StringTokenizer(className, ".");
+            StringTokenizer tokenizer = new StringTokenizer(className, "."); //$NON-NLS-1$
 
             while (tokenizer.hasMoreTokens())
             {
@@ -368,12 +365,12 @@ public class TopConsumersQuery implements IQuery
 
         /* print the object technical name */
         output.append(node.packageName);
-        output.append("  (");
+        output.append("  ("); //$NON-NLS-1$
         double percent = (double) (node.retainedSize * 100) / (double) totalHeap;
         output.append(percentFormatter.format(percent));
-        output.append("%)  ");
+        output.append("%)  "); //$NON-NLS-1$
         output.append(numberFormatter.format(node.retainedSize));
-        output.append("  ");
+        output.append("  "); //$NON-NLS-1$
         output.append(numberFormatter.format(node.dominators.size()));
 
         out.println(output);
@@ -389,17 +386,17 @@ public class TopConsumersQuery implements IQuery
                 {
                     break;
                 }
-                int k = level.indexOf("'-");
+                int k = level.indexOf("'-"); //$NON-NLS-1$
                 if (k != -1)
                 {
-                    level.replace(k, k + 2, "  ");
+                    level.replace(k, k + 2, "  "); //$NON-NLS-1$
                 }
                 else
                 {
-                    k = level.indexOf("|-");
+                    k = level.indexOf("|-"); //$NON-NLS-1$
                     if (k != -1)
                     {
-                        level.replace(k + 1, k + 2, " ");
+                        level.replace(k + 1, k + 2, " "); //$NON-NLS-1$
                     }
                 }
 
@@ -411,7 +408,7 @@ public class TopConsumersQuery implements IQuery
                 {
                     level.append('|');
                 }
-                level.append("- ");
+                level.append("- "); //$NON-NLS-1$
 
                 printPackageTree(children[i], level, totalHeap, threshold, out, snapshot);
 

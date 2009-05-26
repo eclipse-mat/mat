@@ -39,6 +39,6 @@ public final class Field extends FieldDescriptor implements Serializable
 
     public String toString()
     {
-        return type + " " + name + ": \t" + value;
+        return type + " " + name + ": \t" + value; //$NON-NLS-1$//$NON-NLS-2$
     }
 }

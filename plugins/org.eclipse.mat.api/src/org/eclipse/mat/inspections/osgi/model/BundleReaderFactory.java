@@ -13,6 +13,7 @@ package org.eclipse.mat.inspections.osgi.model;
 import java.util.Collection;
 
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IClass;
 
@@ -34,7 +35,7 @@ public class BundleReaderFactory
             // Equinox OSGi framework
             return new EquinoxBundleReader(snapshot);
         else
-            throw new SnapshotException("Could not find Equinox OSGi Framework.");
+            throw new SnapshotException(Messages.BundleReaderFactory_ErrorMsg_EquinoxNotFound);
 
     }
 

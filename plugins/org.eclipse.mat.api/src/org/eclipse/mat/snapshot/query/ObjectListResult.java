@@ -20,6 +20,7 @@ import java.util.ListIterator;
 import java.util.RandomAccess;
 
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IDecorator;
@@ -104,9 +105,9 @@ public final class ObjectListResult
 
         public final Column[] getColumns()
         {
-            return new Column[] { new Column("Class Name").decorator(this), //
-                            new Column("Shallow Heap", long.class).noTotals(), //
-                            new Column("Retained Heap", long.class).noTotals() };
+            return new Column[] { new Column(Messages.Column_ClassName).decorator(this), //
+                            new Column(Messages.Column_ShallowHeap, long.class).noTotals(), //
+                            new Column(Messages.Column_RetainedHeap, long.class).noTotals() };
         }
 
         public final List<?> getElements()
@@ -258,7 +259,7 @@ public final class ObjectListResult
 
     private static class Node
     {
-        public static final String NOT_A_GC_ROOT = "$ not a gc root $";
+        public static final String NOT_A_GC_ROOT = "$ not a gc root $"; //$NON-NLS-1$
 
         int objectId;
         String label;

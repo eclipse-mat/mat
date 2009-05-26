@@ -13,17 +13,11 @@ package org.eclipse.mat.inspections;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
-import org.eclipse.mat.query.annotations.Category;
 import org.eclipse.mat.query.annotations.CommandName;
-import org.eclipse.mat.query.annotations.Help;
-import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.snapshot.UnreachableObjectsHistogram;
 import org.eclipse.mat.util.IProgressListener;
 
-@Name("Unreachable Objects Histogram")
 @CommandName("unreachable_objects")
-@Category("Java Basics")
-@Help("Displays histogram of unreachable objects.")
 public class UnreachableObjectsQuery implements IQuery
 {
     @Argument

@@ -15,16 +15,18 @@ import java.io.Serializable;
 import java.io.StringWriter;
 import java.util.StringTokenizer;
 
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.registry.QueryDescriptor;
 import org.eclipse.mat.query.registry.QueryRegistry;
 import org.eclipse.mat.snapshot.ISnapshot;
+import org.eclipse.mat.util.MessageUtil;
 
 public class InspectionAssert
 {
 
     public static void heapFormatIsNot(ISnapshot snapshot, String... heapFormat)
     {
-        Serializable currentHeapFormat = snapshot.getSnapshotInfo().getProperty("$heapFormat");
+        Serializable currentHeapFormat = snapshot.getSnapshotInfo().getProperty("$heapFormat"); //$NON-NLS-1$
 
         for (String f : heapFormat)
         {
@@ -32,7 +34,7 @@ public class InspectionAssert
             {
                 StringWriter sw = new StringWriter();
                 new Throwable().printStackTrace(new PrintWriter(sw));
-                StringTokenizer st = new StringTokenizer(sw.toString(), "\n");
+                StringTokenizer st = new StringTokenizer(sw.toString(), "\n"); //$NON-NLS-1$
                 st.nextToken(); // error message
                 st.nextToken(); // our own stack
 
@@ -42,8 +44,8 @@ public class InspectionAssert
 
                 String name = descriptor == null ? className : descriptor.getName();
 
-                throw new UnsupportedOperationException(String.format(
-                                "Dump format '%s' does not support inspection '%s'.", currentHeapFormat, name));
+                throw new UnsupportedOperationException(MessageUtil.format(Messages.InspectionAssert_NotSupported,
+                                currentHeapFormat, name));
             }
         }
     }

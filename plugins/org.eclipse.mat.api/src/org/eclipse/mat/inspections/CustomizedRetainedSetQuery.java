@@ -22,13 +22,12 @@ import java.util.StringTokenizer;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayIntBig;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
-import org.eclipse.mat.query.annotations.Category;
-import org.eclipse.mat.query.annotations.Help;
+import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.Icon;
-import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.snapshot.ExcludedReferencesDescriptor;
 import org.eclipse.mat.snapshot.Histogram;
 import org.eclipse.mat.snapshot.ISnapshot;
@@ -37,46 +36,20 @@ import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 
-@Name("Customized Retained Set")
-@Category("Java Basics")
+@CommandName("customized_retained_set")
 @Icon("/META-INF/icons/show_retained_set.gif")
-@Help("Calculate the retained set of objects excluding references via given fields.\n\n" //
-
-                + "The custom retained set comprises all objects included in the normal retained set. " //
-                + "Additionally, it adds objects which are (a) reachable from the root set and (b) " //
-                + "would be garbage collected if the references defined by the excludes would not exist.\n\n" //
-
-                + "In terms of set operations, one could put it this way: the customized retained set contains "
-                + "all objects which are unreachable if all references to the root set and all references "
-                + "defined by the excludes are removed. From the resulting set, the objects of the retained set "
-                + "derived only through the excludes are removed.\n\n"
-
-                + "For example, to calculate the retained set of all classes in a package including those "
-                + "objects that would be freed only after the finalizer run (only on Sun's VM!), one could say:\n" //
-                + "\tcustom_retained_set sample\\.package.* -x java.lang.ref.Finalizer:referent\n\n" //
-
-                + "The excludes are specified as follows:\n" //
-                + "\texclude ::= ( <objectAddress> | <className> ) [: <field> [, <field> ]]\n" //
-                + "Example:\n" //
-                + "\tjava.lang.ref.WeakReference:referent\n" //
-                + "\t0x4711:attrib1,attrib2\n\n" //
-
-                + "Use the argument 'xfile' to read excludes from the file. Each lines must have the same format.")
 public class CustomizedRetainedSetQuery implements IQuery
 {
     @Argument
     public ISnapshot snapshot;
 
     @Argument(flag = "none")
-    @Help("Root set of objects for the retained set calculation")
     public IHeapObjectArgument objects;
 
     @Argument(isMandatory = false, flag = "x")
-    @Help("Exclude definitions")
     public String[] excludedReferences;
 
     @Argument(isMandatory = false, flag = "xfile")
-    @Help("File containing exclude definitions")
     public File excludedReferencesListFile;
 
     public IResult execute(IProgressListener listener) throws Exception
@@ -120,7 +93,7 @@ public class CustomizedRetainedSetQuery implements IQuery
         if (listener.isCanceled())
             throw new IProgressListener.OperationCanceledException();
 
-        histogram.setLabel(MessageUtil.format("Retained by ''{0}''", new Object[] { objects.getLabel() }));
+        histogram.setLabel(MessageUtil.format(Messages.CustomizedRetainedSetQuery_RetainedBy, objects.getLabel()));
         return histogram;
     }
 
@@ -132,11 +105,11 @@ public class CustomizedRetainedSetQuery implements IQuery
         for (String s : excludedRefs)
         {
             // fields are separated by ":"
-            StringTokenizer tokenizer = new StringTokenizer(s, ":");
+            StringTokenizer tokenizer = new StringTokenizer(s, ":"); //$NON-NLS-1$
 
             String objectsDescription = tokenizer.nextToken();
             ArrayIntBig objectIds = new ArrayIntBig();
-            if (objectsDescription.startsWith("0x"))
+            if (objectsDescription.startsWith("0x")) //$NON-NLS-1$
             {
                 long objAddress = Long.parseLong(objectsDescription.substring(2), 16);
                 objectIds.add(snapshot.mapAddressToId(objAddress));
@@ -153,7 +126,7 @@ public class CustomizedRetainedSetQuery implements IQuery
             if (tokenizer.hasMoreTokens())
             {
                 fields = new HashSet<String>();
-                StringTokenizer fieldTokenizer = new StringTokenizer(tokenizer.nextToken(), ",");
+                StringTokenizer fieldTokenizer = new StringTokenizer(tokenizer.nextToken(), ","); //$NON-NLS-1$
                 while (fieldTokenizer.hasMoreTokens())
                 {
                     fields.add(fieldTokenizer.nextToken());

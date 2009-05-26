@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.collect.ArrayIntBig;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.registry.Converters;
 import org.eclipse.mat.snapshot.IOQLQuery;
 import org.eclipse.mat.snapshot.ISnapshot;
@@ -39,11 +40,11 @@ public final class HeapObjectParamArgument extends HeapObjectArgumentFactory
 {
     public interface Flags
     {
-        String INCLUDE_SUBCLASSES = "-include_subclasses";
-        String INCLUDE_CLASS_INSTANCE = "-include_class_instance";
-        String INCLUDE_LOADED_INSTANCES = "-include_loaded_instances";
-        String VERBOSE = "-verbose";
-        String RETAINED = "-retained";
+        String INCLUDE_SUBCLASSES = "-include_subclasses"; //$NON-NLS-1$
+        String INCLUDE_CLASS_INSTANCE = "-include_class_instance"; //$NON-NLS-1$
+        String INCLUDE_LOADED_INSTANCES = "-include_loaded_instances"; //$NON-NLS-1$
+        String VERBOSE = "-verbose"; //$NON-NLS-1$
+        String RETAINED = "-retained"; //$NON-NLS-1$
     }
 
     private boolean isRetained = false;
@@ -66,28 +67,28 @@ public final class HeapObjectParamArgument extends HeapObjectArgumentFactory
         StringBuilder buf = new StringBuilder(128);
 
         for (Pattern p : patterns)
-            buf.append(Converters.convertAndEscape(Pattern.class, p)).append(" ");
+            buf.append(Converters.convertAndEscape(Pattern.class, p)).append(" "); //$NON-NLS-1$
 
         for (Long a : addresses)
-            buf.append("0x").append(Long.toHexString(a)).append(" ");
+            buf.append("0x").append(Long.toHexString(a)).append(" "); //$NON-NLS-1$ //$NON-NLS-2$
 
         for (String o : oqls)
-            buf.append(escape(o)).append(";").append(" ");
+            buf.append(escape(o)).append(";").append(" "); //$NON-NLS-1$ //$NON-NLS-2$
 
         if (includeClassInstance)
-            buf.append(" " + Flags.INCLUDE_CLASS_INSTANCE);
+            buf.append(" " + Flags.INCLUDE_CLASS_INSTANCE); //$NON-NLS-1$
 
         if (includeSubclasses)
-            buf.append(" " + Flags.INCLUDE_SUBCLASSES);
+            buf.append(" " + Flags.INCLUDE_SUBCLASSES); //$NON-NLS-1$
 
         if (includeLoadedInstances)
-            buf.append(" " + Flags.INCLUDE_LOADED_INSTANCES);
+            buf.append(" " + Flags.INCLUDE_LOADED_INSTANCES); //$NON-NLS-1$
 
         if (isRetained)
-            buf.append(" " + Flags.RETAINED);
+            buf.append(" " + Flags.RETAINED); //$NON-NLS-1$
 
         if (isVerbose)
-            buf.append(" " + Flags.VERBOSE);
+            buf.append(" " + Flags.VERBOSE); //$NON-NLS-1$
 
         return buf.toString();
     }
@@ -126,7 +127,7 @@ public final class HeapObjectParamArgument extends HeapObjectArgumentFactory
         {
             char c = query.charAt(ii);
             if (c == '"')
-                buf.append("\\");
+                buf.append("\\"); //$NON-NLS-1$
             buf.append(c);
         }
 
@@ -306,7 +307,9 @@ public final class HeapObjectParamArgument extends HeapObjectArgumentFactory
                 }
                 else
                 {
-                    throw new SnapshotException("Unknown argument type:" + argument.getClass().getName());
+                    throw new SnapshotException(MessageUtil.format(
+                                    Messages.HeapObjectParamArgument_ErrorMsg_UnknownArgument, argument.getClass()
+                                                    .getName()));
                 }
             }
             catch (SnapshotException e)
@@ -338,8 +341,8 @@ public final class HeapObjectParamArgument extends HeapObjectArgumentFactory
         {
             if (hopa.isVerbose)
             {
-                logger.log(Level.INFO, MessageUtil.format("Looking up objects for class name pattern ''{0}''", pattern
-                                .toString()));
+                logger.log(Level.INFO, MessageUtil.format(Messages.HeapObjectParamArgument_Msg_SearchingByPattern,
+                                pattern.toString()));
             }
 
             int[] answer;
@@ -352,8 +355,8 @@ public final class HeapObjectParamArgument extends HeapObjectArgumentFactory
                 answer = clazz.getObjectIds();
                 if (hopa.isVerbose)
                 {
-                    logger.log(Level.INFO, MessageUtil.format("Added class {0} and {1} instances of it", clazz
-                                    .getName(), answer.length));
+                    logger.log(Level.INFO, MessageUtil.format(Messages.HeapObjectParamArgument_Msg_AddedInstances,
+                                    clazz.getName(), answer.length));
                 }
 
                 if (hopa.includeClassInstance)
@@ -384,14 +387,14 @@ public final class HeapObjectParamArgument extends HeapObjectArgumentFactory
 
                     if (hopa.isVerbose)
                     {
-                        logger.log(Level.INFO, MessageUtil.format("Added class {0} and {1} instances of it", clazz
-                                        .getName(), toAdd.length));
+                        logger.log(Level.INFO, MessageUtil.format(Messages.HeapObjectParamArgument_Msg_AddedInstances,
+                                        clazz.getName(), toAdd.length));
                     }
                 }
 
                 if (hopa.isVerbose)
                 {
-                    logger.log(Level.INFO, MessageUtil.format("{0} classes ({1} instances) are matching the pattern",
+                    logger.log(Level.INFO, MessageUtil.format(Messages.HeapObjectParamArgument_Msg_MatchingPattern,
                                     classCount, instanceCount));
                 }
 
@@ -406,7 +409,8 @@ public final class HeapObjectParamArgument extends HeapObjectArgumentFactory
             int objectId = snapshot.mapAddressToId(address);
 
             if (objectId < 0)
-                throw new SnapshotException(MessageUtil.format("Object 0x{0} not found", Long.toHexString(address)));
+                throw new SnapshotException(MessageUtil.format(Messages.HeapObjectParamArgument_Msg_ObjectFound, Long
+                                .toHexString(address)));
 
             return evalIncludeSubClassesAndInstances(new int[] { objectId });
 
@@ -422,12 +426,13 @@ public final class HeapObjectParamArgument extends HeapObjectArgumentFactory
             }
             else if (result == null)
             {
-                throw new SnapshotException(MessageUtil.format("OQL Query does not yield a result: {0}", queryString));
+                throw new SnapshotException(MessageUtil.format(Messages.HeapObjectParamArgument_ErrorMsg_NorResult,
+                                queryString));
             }
             else
             {
-                throw new SnapshotException(MessageUtil.format("OQL query does not return a list of objects: {0}",
-                                queryString));
+                throw new SnapshotException(MessageUtil.format(
+                                Messages.HeapObjectParamArgument_ErrorMsg_NotAListOfObjects, queryString));
             }
         }
 
@@ -444,7 +449,7 @@ public final class HeapObjectParamArgument extends HeapObjectArgumentFactory
                     IObject object = snapshot.getObject(id);
                     if (!(object instanceof IClass))
                     {
-                        String msg = "Not a class: 0x{0} ({2}). If specifying ''{3}'', the selected objects all must be classes.";
+                        String msg = Messages.HeapObjectParamArgument_ErrorMsg_NotAClass;
                         throw new SnapshotException(MessageUtil.format(msg,
                                         Long.toHexString(object.getObjectAddress()), id, object.getClazz().getName(),
                                         Flags.INCLUDE_CLASS_INSTANCE));
@@ -484,7 +489,7 @@ public final class HeapObjectParamArgument extends HeapObjectArgumentFactory
                 IObject classLoader = snapshot.getObject(objectId);
                 if (!(classLoader instanceof IClassLoader))
                 {
-                    String msg = "Not a class loader: 0x{0} ({2}). If specifying ''{3}'', the selected objects all must be class loaders.";
+                    String msg = Messages.HeapObjectParamArgument_ErrorMsg_NotAClassLoader;
                     throw new SnapshotException(MessageUtil.format(msg, Long
                                     .toHexString(classLoader.getObjectAddress()), objectId, classLoader.getClazz()
                                     .getName(), Flags.INCLUDE_LOADED_INSTANCES));
@@ -503,8 +508,9 @@ public final class HeapObjectParamArgument extends HeapObjectArgumentFactory
 
                         if (hopa.isVerbose)
                         {
-                            logger.log(Level.INFO, MessageUtil.format("Added class {0} and {1} instances of it", clazz
-                                            .getName(), toAdd.length));
+                            logger.log(Level.INFO, MessageUtil.format(
+                                            Messages.HeapObjectParamArgument_Msg_AddedInstances, clazz.getName(),
+                                            toAdd.length));
                         }
 
                     }

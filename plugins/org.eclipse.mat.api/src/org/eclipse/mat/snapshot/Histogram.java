@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IContextObjectSet;
@@ -31,9 +32,11 @@ import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.query.IResultTree;
 import org.eclipse.mat.query.ResultMetaData;
 import org.eclipse.mat.snapshot.query.Icons;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.SimpleStringTokenizer;
 
 import com.ibm.icu.text.DecimalFormat;
+import com.ibm.icu.text.DecimalFormatSymbols;
 import com.ibm.icu.text.NumberFormat;
 
 /**
@@ -190,8 +193,10 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
             classLoaderDiffRecordsMerged.add(new ClassLoaderHistogramRecord(classDifferences.getKey(),
                             --classLoaderIdCurrent, records, numberOfObjects, usedHeapSize, 0));
         }
-        Histogram histogram = new Histogram("Histogram difference between " + getLabel() + " and "
-                        + baseline.getLabel(), new ArrayList<ClassHistogramRecord>(classDiffRecordsMerged.values()),
+        Histogram histogram = new Histogram(
+                        MessageUtil.format(Messages.Histogram_Difference, getLabel(), baseline
+                                        .getLabel()), //
+                        new ArrayList<ClassHistogramRecord>(classDiffRecordsMerged.values()),
                         classLoaderDiffRecordsMerged, //
                         Math.abs(this.getNumberOfObjects() - baseline.getNumberOfObjects()), //
                         Math.abs(this.getUsedHeapSize() - baseline.getUsedHeapSize()), //
@@ -227,6 +232,9 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
         int classIdCurrent = classIdBase;
         int classLoaderIdCurrent = classLoaderIdBase;
         Map<String, Map<String, ClassHistogramRecord>> classLoaderDifferences = new HashMap<String, Map<String, ClassHistogramRecord>>();
+
+        final String prefix = "Class$%"; //$NON-NLS-1$
+
         for (ClassLoaderHistogramRecord classLoaderHistogramRecord : classLoaderHistogramRecords)
         {
             String classLoaderName = classLoaderHistogramRecord.getLabel();
@@ -238,7 +246,7 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
             }
             for (ClassHistogramRecord classHistogramRecord : classLoaderHistogramRecord.getClassHistogramRecords())
             {
-                String className = "Class$%" + classHistogramRecord.getLabel();
+                String className = prefix + classHistogramRecord.getLabel();
                 ClassHistogramRecord classDifference = classDifferences.get(className);
                 if (classDifference == null)
                 {
@@ -261,7 +269,7 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
             for (ClassHistogramRecord classHistogramRecord : classLoaderHistogramRecord.getClassHistogramRecords())
             {
                 String className = classHistogramRecord.getLabel();
-                ClassHistogramRecord classDifference = classDifferences.get("Class$%" + className);
+                ClassHistogramRecord classDifference = classDifferences.get(prefix + className);
                 if ((classDifference != null) && (classDifference.getNumberOfObjects() > 0)
                                 && (classDifference.getNumberOfObjects() == classHistogramRecord.getNumberOfObjects()))
                 {
@@ -283,7 +291,7 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
             long usedHeapSize = 0;
             for (ClassHistogramRecord classDifference : classDifferences.getValue().values())
             {
-                if (!classDifference.getLabel().startsWith("Class$%"))
+                if (!classDifference.getLabel().startsWith(prefix))
                 {
                     ClassHistogramRecord classDifferenceMerged = classDiffRecordsMerged.get(classDifference.getLabel());
                     if (classDifferenceMerged == null)
@@ -307,8 +315,8 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
                                 --classLoaderIdCurrent, records, numberOfObjects, usedHeapSize, 0));
             }
         }
-        Histogram histogram = new Histogram("Histogram intersection of " + getLabel() + " and " + another.getLabel(),
-                        new ArrayList<ClassHistogramRecord>(classDiffRecordsMerged.values()),
+        Histogram histogram = new Histogram(MessageUtil.format(Messages.Histogram_Intersection, getLabel(),
+                        another.getLabel()), new ArrayList<ClassHistogramRecord>(classDiffRecordsMerged.values()),
                         classLoaderDiffRecordsMerged, numberOfObjectsOverall, usedHeapSizeOverall, 0);
         histogram.showPlusMinus = true;
         return histogram;
@@ -323,40 +331,36 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
     public String toString()
     {
         StringBuilder buf = new StringBuilder(1024);
-        buf.append("Histogram ");
-        buf.append(label);
-        buf.append(" with ");
-        buf.append((classLoaderHistogramRecords != null) ? classLoaderHistogramRecords.size() : 0);
-        buf.append(" class loaders, ");
-        buf.append((classHistogramRecords != null) ? classHistogramRecords.size() : 0);
-        buf.append(" classes, ");
-        buf.append(numberOfObjects);
-        buf.append(" objects, ");
-        buf.append(usedHeapSize);
-        buf.append(" used heap bytes:");
+        buf.append(MessageUtil.format(
+                        Messages.Histogram_Description, //
+                        label, //
+                        (classLoaderHistogramRecords != null) ? classLoaderHistogramRecords.size() : 0, //
+                        (classHistogramRecords != null) ? classHistogramRecords.size() : 0, //
+                        numberOfObjects, //
+                        usedHeapSize));
 
         if (classHistogramRecords != null)
         {
-            buf.append("\n\nCLASS STATISTICS:\n");
-            buf.append(alignRight("Objects", 17));
-            buf.append(alignRight("Shallow Heap", 17));
-            buf.append(alignRight("Retained Heap", 17));
-            buf.append("  ");
-            buf.append(alignLeft("Class Name", 0));
-            buf.append("\n");
+            buf.append("\n\n" + Messages.Histogram_ClassStatistics + ":\n"); //$NON-NLS-1$//$NON-NLS-2$
+            buf.append(alignRight(Messages.Column_Objects, 17));
+            buf.append(alignRight(Messages.Column_ShallowHeap, 17));
+            buf.append(alignRight(Messages.Column_RetainedHeap, 17));
+            buf.append("  "); //$NON-NLS-1$
+            buf.append(alignLeft(Messages.Column_ClassName, 0));
+            buf.append("\n"); //$NON-NLS-1$
 
             appendRecords(buf, classHistogramRecords);
         }
 
         if (classLoaderHistogramRecords != null)
         {
-            buf.append("\n\nCLASSLOADER STATISTICS:\n");
-            buf.append(alignRight("Objects", 17));
-            buf.append(alignRight("Shallow Heap", 17));
-            buf.append(alignRight("Retained Heap", 17));
-            buf.append("  ");
-            buf.append(alignLeft("Class Name", 0));
-            buf.append("\n");
+            buf.append("\n\n" + Messages.Histogram_ClassLoaderStatistics + ":\n"); //$NON-NLS-1$ //$NON-NLS-2$
+            buf.append(alignRight(Messages.Column_Objects, 17));
+            buf.append(alignRight(Messages.Column_ShallowHeap, 17));
+            buf.append(alignRight(Messages.Column_RetainedHeap, 17));
+            buf.append("  "); //$NON-NLS-1$
+            buf.append(alignLeft(Messages.Column_ClassName, 0));
+            buf.append("\n"); //$NON-NLS-1$
 
             appendRecords(buf, classLoaderHistogramRecords);
         }
@@ -372,12 +376,12 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
             summary.append(alignRight(formatter.format(record.getNumberOfObjects()), 17));
             summary.append(alignRight(formatter.format(record.getUsedHeapSize()), 17));
             if (record.getRetainedHeapSize() < 0)
-                summary.append(alignRight(">=" + formatter.format(-record.getRetainedHeapSize()), 17));
+                summary.append(alignRight(">=" + formatter.format(-record.getRetainedHeapSize()), 17)); //$NON-NLS-1$
             else
                 summary.append(alignRight(formatter.format(record.getRetainedHeapSize()), 17));
-            summary.append("  ");
+            summary.append("  "); //$NON-NLS-1$
             summary.append(alignLeft(record.getLabel(), 0));
-            summary.append("\n");
+            summary.append("\n"); //$NON-NLS-1$
         }
     }
 
@@ -421,7 +425,7 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
                     Comparator<HistogramRecord> comparator)
     {
         return generateHistogramRecordTextReport(new ArrayList<HistogramRecord>(histogram.getClassHistogramRecords()),
-                        comparator, new String[] { "Class Name", "Objects", "Heap", "Retained Heap" });
+                        comparator, new String[] { Messages.Column_ClassName, Messages.Column_Objects, Messages.Column_Heap, Messages.Column_RetainedHeap });
     }
 
     private static String generateHistogramRecordTextReport(List<HistogramRecord> records,
@@ -456,34 +460,34 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
                                         + retainedHeapSizeLength + 2 + 2));
         appendStringAndFillUp(report, null, '-', 2 + labelLength + 3 + numberOfObjectsLength + 3 + usedHeapSizeLength
                         + 3 + retainedHeapSizeLength + 2);
-        report.append("\r\n");
-        report.append("| ");
+        report.append("\r\n"); //$NON-NLS-1$
+        report.append("| "); //$NON-NLS-1$
         appendStringAndFillUp(report, headers[0], ' ', labelLength);
-        report.append(" | ");
+        report.append(" | "); //$NON-NLS-1$
         appendStringAndFillUp(report, headers[1], ' ', numberOfObjectsLength);
-        report.append(" | ");
+        report.append(" | "); //$NON-NLS-1$
         appendStringAndFillUp(report, headers[2], ' ', usedHeapSizeLength);
-        report.append(" | ");
+        report.append(" | "); //$NON-NLS-1$
         appendStringAndFillUp(report, headers[3], ' ', retainedHeapSizeLength);
-        report.append(" |\r\n");
+        report.append(" |\r\n"); //$NON-NLS-1$
         appendStringAndFillUp(report, null, '-', 2 + labelLength + 3 + numberOfObjectsLength + 3 + usedHeapSizeLength
                         + 3 + retainedHeapSizeLength + 2);
-        report.append("\r\n");
+        report.append("\r\n"); //$NON-NLS-1$
         for (HistogramRecord record : records)
         {
-            report.append("| ");
+            report.append("| "); //$NON-NLS-1$
             appendStringAndFillUp(report, record.getLabel(), ' ', labelLength);
-            report.append(" | ");
+            report.append(" | "); //$NON-NLS-1$
             appendPreFillAndString(report, Long.toString(record.getNumberOfObjects()), ' ', numberOfObjectsLength);
-            report.append(" | ");
+            report.append(" | "); //$NON-NLS-1$
             appendPreFillAndString(report, Long.toString(record.getUsedHeapSize()), ' ', usedHeapSizeLength);
-            report.append(" | ");
+            report.append(" | "); //$NON-NLS-1$
             appendPreFillAndString(report, Long.toString(record.getRetainedHeapSize()), ' ', retainedHeapSizeLength);
-            report.append(" |\r\n");
+            report.append(" |\r\n"); //$NON-NLS-1$
         }
         appendStringAndFillUp(report, null, '-', 2 + labelLength + 3 + numberOfObjectsLength + 3 + usedHeapSizeLength
                         + 3 + retainedHeapSizeLength + 2);
-        report.append("\r\n");
+        report.append("\r\n"); //$NON-NLS-1$
         return report.toString();
     }
 
@@ -503,8 +507,8 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
                     Comparator<HistogramRecord> comparator)
     {
         return generateHistogramRecordCsvReport(new ArrayList<ClassHistogramRecord>(histogram
-                        .getClassHistogramRecords()), comparator, new String[] { "Class Name", "Objects",
-                        "Shallow Heap", "Retained Heap" });
+                        .getClassHistogramRecords()), comparator, new String[] { Messages.Column_ClassName, Messages.Column_Objects,
+                        Messages.Column_ShallowHeap, Messages.Column_RetainedHeap });
     }
 
     /**
@@ -523,24 +527,26 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
                     Comparator<HistogramRecord> comparator)
     {
         return generateClassloaderHistogramCsvReport(new ArrayList<ClassLoaderHistogramRecord>(histogram
-                        .getClassLoaderHistogramRecords()), comparator, new String[] { "ClassLoader Name",
-                        "Class Name", "Objects", "Shallow Heap", "Retained Heap" });
+                        .getClassLoaderHistogramRecords()), comparator, new String[] { Messages.Column_ClassLoaderName,
+                        Messages.Column_ClassName, Messages.Column_Objects, Messages.Column_ShallowHeap, Messages.Column_RetainedHeap });
     }
+
+    private static final char SEPARATOR_CHAR = new DecimalFormatSymbols().getDecimalSeparator() == ',' ? ';' : ',';
 
     private static String generateClassloaderHistogramCsvReport(List<ClassLoaderHistogramRecord> records,
                     Comparator<HistogramRecord> comparator, String[] headers)
     {
         StringBuilder report = new StringBuilder((1 + records.size()) * 256);
         report.append(headers[0]);
-        report.append(";");
+        report.append(SEPARATOR_CHAR);
         report.append(headers[1]);
-        report.append(";");
+        report.append(SEPARATOR_CHAR);
         report.append(headers[2]);
-        report.append(";");
+        report.append(SEPARATOR_CHAR);
         report.append(headers[3]);
-        report.append(";");
+        report.append(SEPARATOR_CHAR);
         report.append(headers[4]);
-        report.append(";\r\n");
+        report.append(SEPARATOR_CHAR + "\r\n"); //$NON-NLS-1$
 
         Collections.sort(records, comparator);
 
@@ -553,18 +559,18 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
             {
                 ClassHistogramRecord record = list.get(i);
                 report.append(classloaderRecord.getLabel());
-                report.append(";");
+                report.append(SEPARATOR_CHAR);
                 report.append(record.getLabel());
-                report.append(";");
+                report.append(SEPARATOR_CHAR);
                 report.append(record.getNumberOfObjects());
-                report.append(";");
+                report.append(SEPARATOR_CHAR);
                 report.append(record.getUsedHeapSize());
-                report.append(";");
+                report.append(SEPARATOR_CHAR);
                 if (record.getRetainedHeapSize() < 0)
-                    report.append(">=" + (-record.getRetainedHeapSize()));
+                    report.append(">=" + (-record.getRetainedHeapSize())); //$NON-NLS-1$
                 else
                     report.append(record.getRetainedHeapSize());
-                report.append(";\r\n");
+                report.append(SEPARATOR_CHAR + "\r\n"); //$NON-NLS-1$
             }
         }
         return report.toString();
@@ -576,26 +582,26 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
         Collections.sort(records, comparator);
         StringBuilder report = new StringBuilder((1 + records.size()) * 256);
         report.append(headers[0]);
-        report.append(";");
+        report.append(SEPARATOR_CHAR);
         report.append(headers[1]);
-        report.append(";");
+        report.append(SEPARATOR_CHAR);
         report.append(headers[2]);
-        report.append(";");
+        report.append(SEPARATOR_CHAR);
         report.append(headers[3]);
-        report.append(";\r\n");
+        report.append(SEPARATOR_CHAR + "\r\n"); //$NON-NLS-1$
         for (HistogramRecord record : records)
         {
             report.append(record.getLabel());
-            report.append(";");
+            report.append(SEPARATOR_CHAR);
             report.append(record.getNumberOfObjects());
-            report.append(";");
+            report.append(SEPARATOR_CHAR);
             report.append(record.getUsedHeapSize());
-            report.append(";");
+            report.append(SEPARATOR_CHAR);
             if (record.getRetainedHeapSize() < 0)
-                report.append(">=" + (-record.getRetainedHeapSize()));
+                report.append(">=" + (-record.getRetainedHeapSize())); //$NON-NLS-1$
             else
                 report.append(record.getRetainedHeapSize());
-            report.append(";\r\n");
+            report.append(SEPARATOR_CHAR + "\r\n"); //$NON-NLS-1$
         }
         return report.toString();
     }
@@ -650,15 +656,15 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
     public Column[] getColumns()
     {
         Column[] columns = new Column[] {
-                        new Column("Class Name", String.class).comparing(HistogramRecord.COMPARATOR_FOR_LABEL), //
-                        new Column("Objects", long.class).comparing(HistogramRecord.COMPARATOR_FOR_NUMBEROFOBJECTS), //
-                        new Column("Shallow Heap", long.class) //
+                        new Column(Messages.Column_ClassName, String.class).comparing(HistogramRecord.COMPARATOR_FOR_LABEL), //
+                        new Column(Messages.Column_Objects, long.class).comparing(HistogramRecord.COMPARATOR_FOR_NUMBEROFOBJECTS), //
+                        new Column(Messages.Column_ShallowHeap, long.class) //
                                         .sorting(Column.SortDirection.DESC) //
                                         .comparing(HistogramRecord.COMPARATOR_FOR_USEDHEAPSIZE) };
 
         if (showPlusMinus)
         {
-            Format formatter = new DecimalFormat("+#,##0;-#,##0");
+            Format formatter = new DecimalFormat("+#,##0;-#,##0"); //$NON-NLS-1$
             columns[1].formatting(formatter);
             columns[2].formatting(formatter);
         }
@@ -753,11 +759,11 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
         public Column[] getColumns()
         {
             return new Column[] {
-                            new Column("Class Loader / Class", String.class)
+                            new Column(Messages.Histogram_Column_ClassLoaderPerClass, String.class)
                                             .comparing(HistogramRecord.COMPARATOR_FOR_LABEL), //
-                            new Column("Objects", long.class) //
+                            new Column(Messages.Column_Objects, long.class) //
                                             .comparing(HistogramRecord.COMPARATOR_FOR_NUMBEROFOBJECTS), //
-                            new Column("Shallow Heap", long.class) //
+                            new Column(Messages.Column_ShallowHeap, long.class) //
                                             .sorting(Column.SortDirection.DESC)//
                                             .comparing(HistogramRecord.COMPARATOR_FOR_USEDHEAPSIZE) };
         }
@@ -906,7 +912,7 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
 
         private void buildTree(Histogram histogram)
         {
-            root = new PackageNode("<ROOT>");
+            root = new PackageNode("<ROOT>"); //$NON-NLS-1$
 
             for (ClassHistogramRecord record : histogram.getClassHistogramRecords())
             {
@@ -941,10 +947,10 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
         public Column[] getColumns()
         {
             return new Column[] {
-                            new Column("Package / Class", String.class).comparing(HistogramRecord.COMPARATOR_FOR_LABEL), //
-                            new Column("Objects", long.class) //
+                            new Column(Messages.Histogram_Colun_PackagePerClass, String.class).comparing(HistogramRecord.COMPARATOR_FOR_LABEL), //
+                            new Column(Messages.Column_Objects, long.class) //
                                             .comparing(HistogramRecord.COMPARATOR_FOR_NUMBEROFOBJECTS), //
-                            new Column("Shallow Heap", long.class) //
+                            new Column(Messages.Column_ShallowHeap, long.class) //
                                             .sorting(Column.SortDirection.DESC)//
                                             .comparing(HistogramRecord.COMPARATOR_FOR_USEDHEAPSIZE) };
         }

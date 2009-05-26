@@ -19,6 +19,7 @@ import java.util.List;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.HashMapIntObject;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.ContextProvider;
 import org.eclipse.mat.query.IContextObject;
@@ -30,10 +31,7 @@ import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.IResultTree;
 import org.eclipse.mat.query.ResultMetaData;
 import org.eclipse.mat.query.annotations.Argument;
-import org.eclipse.mat.query.annotations.Category;
-import org.eclipse.mat.query.annotations.Help;
 import org.eclipse.mat.query.annotations.Icon;
-import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.OQL;
 import org.eclipse.mat.snapshot.model.IClass;
@@ -42,10 +40,7 @@ import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.query.Icons;
 import org.eclipse.mat.util.IProgressListener;
 
-@Name("Class Loader Explorer")
-@Category("Java Basics")
 @Icon("/META-INF/icons/heapobjects/classloader_obj.gif")
-@Help("Lists all class loaders including its defined classes. Drill-down to so the parent class loader.")
 public class ClassLoaderExplorerQuery implements IQuery
 {
     @Argument
@@ -53,8 +48,6 @@ public class ClassLoaderExplorerQuery implements IQuery
 
     public IResult execute(IProgressListener listener) throws Exception
     {
-        InspectionAssert.heapFormatIsNot(snapshot, "phd");
-
         // collect all class loader instances
         HashMapIntObject<Node> classLoader = new HashMapIntObject<Node>();
         for (IClass clazz : snapshot.getClassesByName(IClass.JAVA_LANG_CLASSLOADER, true))
@@ -107,7 +100,7 @@ public class ClassLoaderExplorerQuery implements IQuery
             if (node.name == null)
                 node.name = cl.getTechnicalName();
 
-            IObject parent = (IObject) cl.resolveValue("parent");
+            IObject parent = (IObject) cl.resolveValue("parent"); //$NON-NLS-1$
             if (parent != null)
                 node.parent = classLoader.get(parent.getObjectId());
 
@@ -157,7 +150,7 @@ public class ClassLoaderExplorerQuery implements IQuery
         public ResultMetaData getResultMetaData()
         {
             return new ResultMetaData.Builder() //
-                            .addContext(new ContextProvider("Class Loader")
+                            .addContext(new ContextProvider(Messages.ClassLoaderExplorerQuery_ClassLoader)
                             {
                                 @Override
                                 public IContextObject getContext(Object row)
@@ -165,7 +158,7 @@ public class ClassLoaderExplorerQuery implements IQuery
                                     return !(row instanceof IClass) ? Result.this.getContext(row) : null;
                                 }
                             }) //
-                            .addContext(new ContextProvider("Class")
+                            .addContext(new ContextProvider(Messages.ClassLoaderExplorerQuery_Class)
                             {
                                 @Override
                                 public IContextObject getContext(Object row)
@@ -173,7 +166,7 @@ public class ClassLoaderExplorerQuery implements IQuery
                                     return row instanceof IClass ? Result.this.getContext(row) : null;
                                 }
                             }) //
-                            .addContext(new ContextProvider("Defined Classes")
+                            .addContext(new ContextProvider(Messages.ClassLoaderExplorerQuery_DefinedClasses)
                             {
                                 @Override
                                 public IContextObject getContext(Object row)
@@ -209,7 +202,7 @@ public class ClassLoaderExplorerQuery implements IQuery
                                     };
                                 }
                             }) //
-                            .addContext(new ContextProvider("Instances")
+                            .addContext(new ContextProvider(Messages.ClassLoaderExplorerQuery_Instances)
                             {
                                 @Override
                                 public IContextObject getContext(Object row)
@@ -252,9 +245,11 @@ public class ClassLoaderExplorerQuery implements IQuery
 
         public Column[] getColumns()
         {
-            return new Column[] { new Column("Name").decorator(this), //
-                            new Column("Defined Classes", int.class).sorting(Column.SortDirection.DESC), //
-                            new Column("No. of Instances", int.class) };
+            return new Column[] {
+                            new Column(Messages.Column_ClassName).decorator(this), //
+                            new Column(Messages.ClassLoaderExplorerQuery_Column_DefinedClasses, int.class)
+                                            .sorting(Column.SortDirection.DESC), //
+                            new Column(Messages.ClassLoaderExplorerQuery_Column_NoInstances, int.class) };
         }
 
         public List<?> getElements()
@@ -348,7 +343,7 @@ public class ClassLoaderExplorerQuery implements IQuery
 
         public String prefix(Object row)
         {
-            return row instanceof Parent ? "parent" : null;
+            return row instanceof Parent ? "parent" : null; //$NON-NLS-1$
         }
 
         public String suffix(Object row)

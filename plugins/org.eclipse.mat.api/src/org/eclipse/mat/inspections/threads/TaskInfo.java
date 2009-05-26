@@ -13,6 +13,7 @@ package org.eclipse.mat.inspections.threads;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IResultTree;
@@ -20,7 +21,11 @@ import org.eclipse.mat.query.ResultMetaData;
 
 public class TaskInfo
 {
-    private static final String[] STATES = { "N/A", "idle", "waiting for a task", "processing", "waiting for sync. I/O" };
+    private static final String[] STATES = { Messages.TaskInfo_State_NotApplicable, //
+                    Messages.TaskInfo_State_Idle, //
+                    Messages.TaskInfo_State_Waiting, //
+                    Messages.TaskInfo_State_Processing, //
+                    Messages.TaskInfo_State_WaitingSyncIO };
 
     /* package */static class Result implements IResultTree
     {
@@ -38,10 +43,10 @@ public class TaskInfo
 
         public Column[] getColumns()
         {
-            return new Column[] { new Column("#", String.class), //
-                            new Column("Name", String.class), //
-                            new Column("State", String.class), //
-                            new Column("Id", String.class) };
+            return new Column[] { new Column(Messages.TaskInfo_Column_Number, String.class), //
+                            new Column(Messages.TaskInfo_Column_Name, String.class), //
+                            new Column(Messages.TaskInfo_Column_State, String.class), //
+                            new Column(Messages.TaskInfo_Column_Id, String.class) };
         }
 
         public List<?> getElements()
@@ -95,7 +100,7 @@ public class TaskInfo
     {
         this.sequence = sequence;
         this.id = id;
-        this.name = name != null ? name : "<>";
+        this.name = name != null ? name : "<>"; //$NON-NLS-1$
         this.state = state;
     }
 
@@ -118,7 +123,7 @@ public class TaskInfo
     {
         if (state >= 0 && state < STATES.length)
             return STATES[state];
-        return "N/A";
+        return Messages.TaskInfo_State_NotApplicable;
     }
 
     public void addSubtask(TaskInfo subtask)

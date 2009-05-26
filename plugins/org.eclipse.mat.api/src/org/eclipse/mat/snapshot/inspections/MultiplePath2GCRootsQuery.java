@@ -20,6 +20,7 @@ import java.util.Set;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.collect.SetInt;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IContextObjectSet;
@@ -31,11 +32,9 @@ import org.eclipse.mat.query.IResultTree;
 import org.eclipse.mat.query.ISelectionProvider;
 import org.eclipse.mat.query.ResultMetaData;
 import org.eclipse.mat.query.annotations.Argument;
-import org.eclipse.mat.query.annotations.Category;
 import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.query.annotations.Menu;
-import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.query.annotations.Menu.Entry;
 import org.eclipse.mat.snapshot.IMultiplePathsFromGCRootsComputer;
 import org.eclipse.mat.snapshot.ISnapshot;
@@ -48,29 +47,23 @@ import org.eclipse.mat.snapshot.query.Icons;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.VoidProgressListener;
 
-@Name("exclude custom field...")
 @CommandName("merge_shortest_paths")
-@Category("4|Merge Shortest Paths to GC Roots")
 @Icon("/META-INF/icons/mpaths_from_gc.gif")
-@Menu( { @Entry(label = "1|with all references", //
-                options = "-excludes \"\""), //
-
-                @Entry(label = "2|exclude weak references", //
-                options = "-excludes java.lang.ref.WeakReference:referent"), //
-
-                @Entry(label = "3|exclude soft references", //
-                options = "-excludes java.lang.ref.SoftReference:referent"), //
-
-                @Entry(label = "4|exclude weak/soft references", //
-                options = "-excludes java.lang.ref.WeakReference:referent java.lang.ref.SoftReference:referent") //
+@Menu( { @Entry(options = "-excludes \"\""), //
+                @Entry(options = "-excludes java.lang.ref.WeakReference:referent"), //
+                @Entry(options = "-excludes java.lang.ref.SoftReference:referent"), //
+                @Entry(options = "-excludes java.lang.ref.WeakReference:referent java.lang.ref.SoftReference:referent") //
 })
 public class MultiplePath2GCRootsQuery implements IQuery
 {
     public enum Grouping
     {
-        FROM_GC_ROOTS("Merge Paths from GC Roots", Icons.getURL("mpaths_from_gc.gif")), //
-        FROM_GC_ROOTS_BY_CLASS("Merge Paths from GC Roots on Class", Icons.getURL("mpaths_from_gc_by_class.gif")), //
-        FROM_OBJECTS_BY_CLASS("Merge to GC Roots on Class", Icons.getURL("mpaths_to_gc_by_class.gif"));
+        FROM_GC_ROOTS(Messages.MultiplePath2GCRootsQuery_Group_FromGCRoots, //
+                        Icons.getURL("mpaths_from_gc.gif")), //$NON-NLS-1$
+        FROM_GC_ROOTS_BY_CLASS(Messages.MultiplePath2GCRootsQuery_Group_FromGCRootsOnClass, Icons
+                        .getURL("mpaths_from_gc_by_class.gif")), //$NON-NLS-1$
+        FROM_OBJECTS_BY_CLASS(Messages.MultiplePath2GCRootsQuery_Group_ToGCRoots, Icons
+                        .getURL("mpaths_to_gc_by_class.gif")); //$NON-NLS-1$
 
         String label;
         URL icon;
@@ -101,7 +94,7 @@ public class MultiplePath2GCRootsQuery implements IQuery
 
     @Argument(isMandatory = false)
     public List<String> excludes = Arrays.asList( //
-                    new String[] { "java.lang.ref.WeakReference:referent", "java.lang.ref.SoftReference:referent" });
+                    new String[] { "java.lang.ref.WeakReference:referent", "java.lang.ref.SoftReference:referent" }); //$NON-NLS-1$ //$NON-NLS-2$
 
     @Argument(isMandatory = false)
     public Grouping groupBy = Grouping.FROM_GC_ROOTS;
@@ -272,11 +265,13 @@ public class MultiplePath2GCRootsQuery implements IQuery
 
         public Column[] getColumns()
         {
-            return new Column[] { new Column("Class Name").decorator(this), //
-                            new Column("Ref. Objects", int.class), //
-                            new Column("Shallow Heap", long.class), //
-                            new Column("Ref. Shallow Heap", long.class).sorting(Column.SortDirection.DESC), //
-                            new Column("Retained Heap", long.class).noTotals() };
+            return new Column[] {
+                            new Column(Messages.Column_ClassName).decorator(this), //
+                            new Column(Messages.MultiplePath2GCRootsQuery_Column_RefObjects, int.class), //
+                            new Column(Messages.Column_ShallowHeap, long.class), //
+                            new Column(Messages.MultiplePath2GCRootsQuery_Column_RefShallowHeap, long.class)
+                                            .sorting(Column.SortDirection.DESC), //
+                            new Column(Messages.Column_RetainedHeap, long.class).noTotals() };
         }
 
         protected List<Node> prepare(int level, List<int[]> paths)
@@ -474,10 +469,12 @@ public class MultiplePath2GCRootsQuery implements IQuery
 
         public Column[] getColumns()
         {
-            return new Column[] { new Column("Class Name"), //
-                            new Column("Objects", int.class).noTotals(), //
-                            new Column("Ref. Objects", int.class), //
-                            new Column("Ref. Shallow Heap", long.class).sorting(Column.SortDirection.DESC) };
+            return new Column[] {
+                            new Column(Messages.Column_ClassName), //
+                            new Column(Messages.Column_Objects, int.class).noTotals(), //
+                            new Column(Messages.MultiplePath2GCRootsQuery_Column_RefObjects, int.class), //
+                            new Column(Messages.MultiplePath2GCRootsQuery_Column_RefShallowHeap, long.class)
+                                            .sorting(Column.SortDirection.DESC) };
         }
 
         protected List<Node> prepare(int level, List<int[]> paths)

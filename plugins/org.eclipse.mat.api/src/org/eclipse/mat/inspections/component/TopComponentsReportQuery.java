@@ -18,13 +18,11 @@ import java.util.List;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.collect.HashMapIntObject;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
-import org.eclipse.mat.query.annotations.Category;
 import org.eclipse.mat.query.annotations.CommandName;
-import org.eclipse.mat.query.annotations.Help;
-import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.report.Params;
 import org.eclipse.mat.report.QuerySpec;
 import org.eclipse.mat.report.SectionSpec;
@@ -34,16 +32,12 @@ import org.eclipse.mat.snapshot.query.SnapshotQuery;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 
-@Name("Top Components Report")
 @CommandName("component_report_top")
-@Category("Leak Identification")
-@Help("Creates a component report for every component (class loader) which occupies more memory than the specified threshold")
 public class TopComponentsReportQuery implements IQuery
 {
     @Argument
     public ISnapshot snapshot;
 
-    @Help("Threshold (in percent of the total heap size) which class loaders have to exceed to be included in the analysis")
     @Argument(isMandatory = false, flag = "t")
     public int thresholdPercent = 1;
 
@@ -53,7 +47,7 @@ public class TopComponentsReportQuery implements IQuery
 
         List<Record> loaders = createClassLoaderRecords(listener, topDominators);
 
-        SectionSpec result = new SectionSpec("Top Component Reports");
+        SectionSpec result = new SectionSpec(Messages.TopComponentsReportQuery_TopComponentReports);
 
         long totalHeapSize = snapshot.getSnapshotInfo().getUsedHeapSize();
         long threshold = totalHeapSize / 100 * thresholdPercent;
@@ -63,12 +57,12 @@ public class TopComponentsReportQuery implements IQuery
             if (record.retainedSize < threshold)
                 break;
 
-            IResult report = SnapshotQuery.lookup("component_report", snapshot) //
-                            .set("objects", record.objects) //
+            IResult report = SnapshotQuery.lookup("component_report", snapshot) //$NON-NLS-1$
+                            .set("objects", record.objects) //$NON-NLS-1$
                             .execute(listener);
 
-            QuerySpec spec = new QuerySpec(MessageUtil.format("{0} ({1,number,percent})", record.name,
-                            (double) record.retainedSize / (double) totalHeapSize), report);
+            QuerySpec spec = new QuerySpec(MessageUtil.format("{0} ({1,number,percent})", //$NON-NLS-1$
+                            record.name, (double) record.retainedSize / (double) totalHeapSize), report);
             spec.set(Params.Html.SEPARATE_FILE, Boolean.TRUE.toString());
             result.add(spec);
         }
@@ -92,7 +86,7 @@ public class TopComponentsReportQuery implements IQuery
                 String name = loader.getClassSpecificName();
                 if (name == null)
                     name = loader.getTechnicalName();
-                loaderRecord = new Record(loader.getObjectId(), name);
+                loaderRecord = new Record(name);
                 id2loader.put(classLoaderId, loaderRecord);
             }
             loaderRecord.objects.add(topDominators[ii]);
@@ -121,14 +115,12 @@ public class TopComponentsReportQuery implements IQuery
 
     private static class Record implements Comparable<Record>
     {
-        int classLoaderId;
         String name;
         ArrayInt objects = new ArrayInt();
         long retainedSize;
 
-        public Record(int classLoaderId, String name)
+        public Record(String name)
         {
-            this.classLoaderId = classLoaderId;
             this.name = name;
         }
 

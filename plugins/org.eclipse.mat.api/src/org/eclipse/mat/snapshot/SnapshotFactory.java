@@ -24,6 +24,7 @@ import org.eclipse.core.runtime.InvalidRegistryObjectException;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.internal.MATPlugin;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.util.IProgressListener;
 
 /**
@@ -32,7 +33,7 @@ import org.eclipse.mat.util.IProgressListener;
 public final class SnapshotFactory
 {
     /**
-     * @noimplement 
+     * @noimplement
      */
     public interface Implementation
     {
@@ -67,12 +68,12 @@ public final class SnapshotFactory
         catch (InvalidRegistryObjectException e)
         {
             Logger.getLogger(SnapshotFactory.class.getName()).log(Level.SEVERE,
-                            "Error during creation of snapshot factory.", e);
+                            Messages.SnapshotFactory_ErrorMsg_FactoryCreation, e);
         }
         catch (CoreException e)
         {
             Logger.getLogger(SnapshotFactory.class.getName()).log(Level.SEVERE,
-                            "Error during creation of snapshot factory.", e);
+                            Messages.SnapshotFactory_ErrorMsg_FactoryCreation, e);
         }
     }
 

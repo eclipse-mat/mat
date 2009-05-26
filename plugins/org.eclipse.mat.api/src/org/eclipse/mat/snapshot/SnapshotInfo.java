@@ -89,7 +89,7 @@ public class SnapshotInfo implements Serializable
     private static String prefix(String path)
     {
         int p = path.lastIndexOf('.');
-        return p >= 0 ? path.substring(0, p + 1) : path + ".";
+        return p >= 0 ? path.substring(0, p + 1) : path + '.';
     }
 
     public Serializable getProperty(String name)
@@ -206,6 +206,7 @@ public class SnapshotInfo implements Serializable
         return usedHeapSize;
     }
 
+    @SuppressWarnings("nls")
     @Override
     public String toString()
     {

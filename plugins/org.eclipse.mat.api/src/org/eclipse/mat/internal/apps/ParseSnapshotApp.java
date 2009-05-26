@@ -22,6 +22,7 @@ import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.internal.MATPlugin;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.internal.snapshot.SnapshotQueryContext;
 import org.eclipse.mat.report.Spec;
 import org.eclipse.mat.report.SpecFactory;
@@ -39,7 +40,7 @@ public class ParseSnapshotApp implements IApplication
         String[] args = (String[]) context.getArguments().get(IApplicationContext.APPLICATION_ARGS);
 
         if (args == null || args.length < 1)
-            throw new IllegalArgumentException("Usage: [options] <snapshot> [(<report id>)*]");
+            throw new IllegalArgumentException(Messages.ParseSnapshotApp_Usage);
 
         SpecFactory factory = SpecFactory.instance();
 
@@ -61,7 +62,8 @@ public class ParseSnapshotApp implements IApplication
             {
                 file = new File(args[ii]);
                 if (!file.exists())
-                    throw new FileNotFoundException(MessageUtil.format("File not found: {0}", file.getAbsolutePath()));
+                    throw new FileNotFoundException(MessageUtil.format(Messages.ParseSnapshotApp_ErrorMsg_FileNotFond,
+                                    file.getAbsolutePath()));
             }
             else
             {
@@ -84,7 +86,7 @@ public class ParseSnapshotApp implements IApplication
                 }
                 else
                 {
-                    System.err.println(MessageUtil.format("Report not found: {0}", args[ii]));
+                    System.err.println(MessageUtil.format(Messages.ParseSnapshotApp_ErrorMsg_ReportNotFound, args[ii]));
                 }
             }
 

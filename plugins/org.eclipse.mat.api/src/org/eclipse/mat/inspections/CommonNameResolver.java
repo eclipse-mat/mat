@@ -35,13 +35,13 @@ public class CommonNameResolver
     {
         public String resolve(IObject obj) throws SnapshotException
         {
-            Integer count = (Integer) obj.resolveValue("count");
+            Integer count = (Integer) obj.resolveValue("count"); //$NON-NLS-1$
             if (count == null)
                 return null;
             if (count == 0)
-                return "";
+                return ""; //$NON-NLS-1$
 
-            IPrimitiveArray charArray = (IPrimitiveArray) obj.resolveValue("value");
+            IPrimitiveArray charArray = (IPrimitiveArray) obj.resolveValue("value"); //$NON-NLS-1$
             if (charArray == null)
                 return null;
 
@@ -54,7 +54,7 @@ public class CommonNameResolver
     {
         public String resolve(IObject obj) throws SnapshotException
         {
-            IObject name = (IObject) obj.resolveValue("name");
+            IObject name = (IObject) obj.resolveValue("name"); //$NON-NLS-1$
             return name != null ? name.getClassSpecificName() : null;
         }
     }
@@ -64,7 +64,7 @@ public class CommonNameResolver
     {
         public String resolve(IObject object) throws SnapshotException
         {
-            IObject nameString = (IObject) object.resolveValue("name");
+            IObject nameString = (IObject) object.resolveValue("name"); //$NON-NLS-1$
             if (nameString == null)
                 return null;
             return nameString.getClassSpecificName();
@@ -83,7 +83,7 @@ public class CommonNameResolver
     {
         public String resolve(IObject heapObject) throws SnapshotException
         {
-            return String.valueOf(heapObject.resolveValue("value"));
+            return String.valueOf(heapObject.resolveValue("value")); //$NON-NLS-1$
         }
     }
 

@@ -19,6 +19,7 @@ import java.util.Map;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.inspections.InspectionAssert;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.ContextProvider;
 import org.eclipse.mat.query.IContextObject;
@@ -26,10 +27,7 @@ import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.query.ResultMetaData;
 import org.eclipse.mat.query.annotations.Argument;
-import org.eclipse.mat.query.annotations.Category;
 import org.eclipse.mat.query.annotations.CommandName;
-import org.eclipse.mat.query.annotations.Help;
-import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.Field;
 import org.eclipse.mat.snapshot.model.IClass;
@@ -40,19 +38,7 @@ import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 
-@Name("Hash Entries")
 @CommandName("hash_entries")
-@Category("Java Collections")
-@Help("Extracts the key-value pairs from hash maps and hashtables."
-                + "The below mentioned maps are known to the query. "
-                + "One additional custom map (e.g. non-JDK) map "
-                + "can be specified by the 'collection', 'array_attribute', 'key_attribute' and 'value_attribute' arguments.\n" //
-                + "Known collections:\n" //
-                + "java.util.HashMap\n" // 
-                + "java.util.Hashtable\n" //
-                + "java.util.Properties\n" // //
-                + "java.util.WeakHashMap\n" //
-                + "java.util.concurrent.ConcurrentHashMap$Segment")
 public class HashEntriesQuery implements IQuery
 {
     private static final String NULL = "<null>"; //$NON-NLS-1$
@@ -64,19 +50,15 @@ public class HashEntriesQuery implements IQuery
     public IHeapObjectArgument objects;
 
     @Argument(isMandatory = false)
-    @Help("Optional: fully qualified class name of a custom (e.g. non-JDK) map class.")
     public String collection;
 
     @Argument(isMandatory = false)
-    @Help("The array attribute of an (optionally) specified custom (e.g. non-JDK) map class.")
     public String array_attribute;
 
     @Argument(isMandatory = false)
-    @Help("The key attribute of an array entry of an (optionally) specified custom (e.g. non-JDK) map class.")
     public String key_attribute;
 
     @Argument(isMandatory = false)
-    @Help("The value attribute of an array entry of an (optionally) specified custom (e.g. non-JDK) map class.")
     public String value_attribute;
 
     static class Entry
@@ -114,7 +96,7 @@ public class HashEntriesQuery implements IQuery
         {
             return new ResultMetaData.Builder() //
 
-                            .addContext(new ContextProvider("Key")
+                            .addContext(new ContextProvider(Messages.HashEntriesQuery_Column_Key)
                             {
                                 public IContextObject getContext(Object row)
                                 {
@@ -122,7 +104,7 @@ public class HashEntriesQuery implements IQuery
                                 }
                             }) //
 
-                            .addContext(new ContextProvider("Value")
+                            .addContext(new ContextProvider(Messages.HashEntriesQuery_Column_Value)
                             {
                                 public IContextObject getContext(Object row)
                                 {
@@ -135,9 +117,10 @@ public class HashEntriesQuery implements IQuery
 
         public Column[] getColumns()
         {
-            return new Column[] { new Column("Collection").sorting(Column.SortDirection.ASC), //
-                            new Column("Key"), //
-                            new Column("Value") };
+            return new Column[] {
+                            new Column(Messages.HashEntriesQuery_Column_Collection).sorting(Column.SortDirection.ASC), //
+                            new Column(Messages.HashEntriesQuery_Column_Key), //
+                            new Column(Messages.HashEntriesQuery_Column_Value) };
         }
 
         public Object getColumnValue(Object row, int columnIndex)
@@ -293,8 +276,8 @@ public class HashEntriesQuery implements IQuery
 
     public Result execute(IProgressListener listener) throws Exception
     {
-        InspectionAssert.heapFormatIsNot(snapshot, "phd");
-        listener.subTask("Extracting Key Value Pairs...");
+        InspectionAssert.heapFormatIsNot(snapshot, "phd"); //$NON-NLS-1$
+        listener.subTask(Messages.HashEntriesQuery_Msg_Extracting);
 
         // prepare meta-data of known collections
         HashMapIntObject<CollectionUtil.Info> hashes = CollectionUtil.getKnownMaps(snapshot);
@@ -303,9 +286,7 @@ public class HashEntriesQuery implements IQuery
         {
             if (array_attribute == null || key_attribute == null || value_attribute == null)
             {
-                String msg = "If the map argument is set to a custom (e.g. non-JDK) collection class, "
-                                + "the array_attribute, key_attribute and value_attribute arguments must be set. "
-                                + "Otherwise, the query cannot determine the contents of the map.";
+                String msg = Messages.HashEntriesQuery_ErrorMsg_MissingArguments;
                 throw new SnapshotException(msg);
             }
 
@@ -316,7 +297,7 @@ public class HashEntriesQuery implements IQuery
             if (classes == null || classes.isEmpty())
             {
                 listener.sendUserMessage(IProgressListener.Severity.WARNING, MessageUtil.format(
-                                "Class ''{0}'' not found in heap dump.", collection), null);
+                                Messages.HashEntriesQuery_ErrorMsg_ClassNotFound, collection), null);
             }
             else
             {
@@ -392,7 +373,7 @@ public class HashEntriesQuery implements IQuery
 
             for (Field field : entry.getFields())
             {
-                if (!nextFieldProcessed && "next".equals(field.getName()))
+                if (!nextFieldProcessed && "next".equals(field.getName())) //$NON-NLS-1$
                 {
                     nextFieldProcessed = true;
 
