@@ -85,28 +85,12 @@
              label="Welcome"/>
     </extension>
 
-   <extension
-         id="MemoryAnalyzer"
-         point="org.eclipse.core.runtime.products">
-      <product
-            application="org.eclipse.mat.ui.rcp.application"
-            name="%product.name.Memory_Analyzer_Tool">
-         <property
-               name="windowImages"
-               value="icons/memory_analyzer_16.gif"/>
-          <property name="preferenceCustomization" value="plugin_customization.ini"/>
-          <property
-                name="appName"
-                value="%product.value.Memory_Analyzer_Tool">
-          </property>
-          <property
-                name="aboutImage"
-                value="icons/memory_analyzer_16.gif">
-          </property> 
-          <property
-                name="aboutText"
-                value="%product.value.Eclipse_Memory_Analyzer">
-          </property> 
+	<extension id="MemoryAnalyzer" point="org.eclipse.core.runtime.products">
+		<product name="%product.name.Memory_Analyzer_Tool" application="org.eclipse.mat.ui.rcp.application">
+			<property name="appName" value="%product.appName"/>
+			<property name="windowImages" value="icons/memory_analyzer_16.gif"/>
+			<property name="aboutText" value="%product.aboutText"/>
+			<property name="preferenceCustomization" value="plugin_customization.ini"/>
       </product>
    </extension>
 
