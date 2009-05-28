@@ -86,7 +86,7 @@
     </extension>
 
 	<extension id="MemoryAnalyzer" point="org.eclipse.core.runtime.products">
-		<product name="%product.name.Memory_Analyzer_Tool" application="org.eclipse.mat.ui.rcp.application">
+		<product name="%product.appName" application="org.eclipse.mat.ui.rcp.application">
 			<property name="appName" value="%product.appName"/>
 			<property name="windowImages" value="icons/memory_analyzer_16.gif"/>
 			<property name="aboutText" value="%product.aboutText"/>
