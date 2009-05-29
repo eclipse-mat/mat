@@ -107,21 +107,21 @@
 	</extension>
 	
 	<extension point="org.eclipse.mat.report.report">
-		<report id="suspects" name="Leak Suspects"
-				description="includes leak suspects and a system overview"
+		<report id="suspects" name="%report.suspects.name"
+				description="%report.suspects.help"
 				file="META-INF/reports/suspects.xml" />
-		<report id="overview" name="Heap Dump Overview"
-				description="includes class histogram, system properties and top consumers."
+		<report id="overview" name="%report.overview.name"
+				description="%report.overview.help"
 				file="META-INF/reports/overview.xml" />
-		<report id="top_components" name="Top Components"
-				description="list reports for components bigger than 1 percent of the total heap."
+		<report id="top_components" name="%report.top_components.name"
+				description="%report.top_components.help"
 				file="META-INF/reports/top_components.xml" />
 	</extension>
 
 	<extension point="org.eclipse.core.contenttype.contentTypes">
 	    <content-type
 		      id="org.eclipse.mat.JavaHeapDump"
-		      name="Java Heap Dump"
+		      name="%contentType.java_heap_dump"
 		      priority="normal">
 		</content-type>
 	</extension>
