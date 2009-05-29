@@ -343,7 +343,7 @@ public class ComponentReportQuery implements IQuery
                 String size = table.getFormattedColumnValue(row, 3);
 
                 comment.append("<li>").append(table.getFormattedColumnValue(row, 1)); //$NON-NLS-1$
-                comment.append(" x <strong>").append(value).append("</strong>"); //$NON-NLS-1$ //$NON-NLS-2$
+                comment.append(" x <strong>").append(value).append("</strong> "); //$NON-NLS-1$ //$NON-NLS-2$
                 comment.append(MessageUtil.format(Messages.ComponentReportQuery_Label_Bytes, size)).append("</li>"); //$NON-NLS-1$
             }
             comment.append("</ul>"); //$NON-NLS-1$
