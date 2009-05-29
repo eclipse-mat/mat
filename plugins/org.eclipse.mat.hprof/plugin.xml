@@ -5,10 +5,10 @@
    
    <extension
          id="hprof"
-         name="HPROF Formatted Dumps"
+         name="%parser.name"
          point="org.eclipse.mat.parser.parser">
       <parser
-      		name="HPROF binary heap dumps"
+      		name="%parser.filetype.name"
             fileExtension="hprof,bin"
             indexBuilder="org.eclipse.mat.hprof.HprofIndexBuilder"
             objectReader="org.eclipse.mat.hprof.HprofHeapObjectReader">
