@@ -13,7 +13,9 @@ package org.eclipse.mat.dtfj;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.Serializable;
 import java.lang.ref.SoftReference;
 import java.lang.reflect.Modifier;
@@ -78,6 +80,7 @@ import com.ibm.dtfj.java.JavaClass;
 import com.ibm.dtfj.java.JavaClassLoader;
 import com.ibm.dtfj.java.JavaField;
 import com.ibm.dtfj.java.JavaHeap;
+import com.ibm.dtfj.java.JavaLocation;
 import com.ibm.dtfj.java.JavaMethod;
 import com.ibm.dtfj.java.JavaMonitor;
 import com.ibm.dtfj.java.JavaObject;
@@ -221,8 +224,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
         private byte objectToSize[];
         /** For large objects */
         private HashMap<Integer, Integer> bigObjs = new HashMap<Integer, Integer>();
-        private final int SHIFT = 3;
-        private final int MASK = 0xff;
+        private static final int SHIFT = 3;
+        private static final int MASK = 0xff;
 
         ObjectToSize(int size)
         {
@@ -956,7 +959,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             }
 
         // Now do java.lang.ClassLoader
-        ClassImpl jlcl = genClass(clsJavaLangClassLoader, idToClass, bootLoaderAddress, 0, listener);
+        ClassImpl jlcl = clsJavaLangClassLoader != null ? genClass(clsJavaLangClassLoader, idToClass, bootLoaderAddress, 0, listener) : null;
         if (jlcl != null)
         {
             genClass2(clsJavaLangClassLoader, jlcl, jlc, pointerSize, listener);
@@ -1364,7 +1367,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         }
 
         // Remaining roots
-        if (gcRoot.isEmpty() || threadRoots.isEmpty() || presumeRoots)
+        if (gcRoot.isEmpty() || threadRoots.isEmpty() || threadRootObjects() == 0 || presumeRoots)
         {
             listener.subTask(Messages.DTFJIndexBuilder_GeneratingExtraRootsMarkingAllUnreferenced);
             int extras = 0;
@@ -1481,6 +1484,133 @@ public class DTFJIndexBuilder implements IIndexBuilder
         listener.done();
     }
 
+    /**
+     * Create a file to store all of the thread stack information.
+     * Close the PrintWriter when done.
+     * @return a PrintWriter used to store information in the file
+     */
+    private PrintWriter createThreadInfoFile()
+    {
+        PrintWriter pw = null;
+        try
+        {
+            // Used to store thread stack information
+            pw = new PrintWriter(new FileWriter(pfx + "threads"));
+        }
+        catch (IOException e)
+        {}
+        return pw;
+    }
+
+    /**
+     * Write out information about this thread and its thread stack so that MAT
+     * can retrieve the information later
+     * @param out where to write out the data
+     * @param th the thread in question
+     */
+    private void printThreadStack(PrintWriter out, JavaThread th)
+    {
+        try {
+            JavaObject jo = th.getObject();
+            out.print("Thread ");
+            out.println(jo != null ? "0x"+Long.toHexString(jo.getID().getAddress()) : "<unknown>");
+            for (Iterator it = th.getStackFrames(); it.hasNext(); out.println())
+            {
+                Object next = it.next();
+                out.print(" at ");
+                if (next instanceof CorruptData)
+                {
+                    continue;
+                }
+                JavaStackFrame jsf = (JavaStackFrame) next;
+                try
+                {
+                    JavaLocation jl = jsf.getLocation();
+                    try
+                    {
+                        JavaMethod jm = jl.getMethod();
+                        try
+                        {
+                            JavaClass jc = jm.getDeclaringClass();
+                            out.print(jc.getName().replace("/", "."));
+                            out.print(".");
+                        }
+                        catch (CorruptDataException e)
+                        {}
+                        catch (DataUnavailable e)
+                        {}
+                        try
+                        {
+                            out.print(jm.getName());
+                        }
+                        catch (CorruptDataException e)
+                        {}
+                        try
+                        {
+                            out.print(jm.getSignature());
+                        }
+                        catch (CorruptDataException e)
+                        {}
+                        out.print(" ");
+                        try
+                        {
+                            if (Modifier.isNative(jm.getModifiers()))
+                            {
+                                out.print("(Native Method)");
+                                continue;
+                            }
+                        }
+                        catch (CorruptDataException e)
+                        {}
+                    }
+                    catch (CorruptDataException e)
+                    {}
+                    try
+                    {
+                        out.print("(");
+                        out.print(jl.getFilename());
+                        try
+                        {
+                            out.print(":" + jl.getLineNumber());
+                        }
+                        catch (CorruptDataException e)
+                        {}
+                        catch (DataUnavailable e)
+                        {}
+                        out.print(")");
+                    }
+                    catch (DataUnavailable e)
+                    {
+                        out.print("Unknown Source)");
+                    }
+                    catch (CorruptDataException e)
+                    {
+                        out.print("Unknown Source)");
+                    }
+                }
+                catch (CorruptDataException e)
+                {}
+            }
+        } catch (CorruptDataException e) {
+            
+        }
+        out.println();
+        out.println(" locals:");
+    }
+    
+    /**
+     * Print out a single local variable for thread stack data
+     * @param pw where to store the information
+     * @param target the address of the object
+     * @param frameNum the Java stack frame, starting from 0 at top of stack
+     */
+    private void printLocal(PrintWriter pw, long target, int frameNum)
+    {
+        if (indexToAddress.reverse(target) >= 0)
+            pw.println("  objecId=0x" + Long.toHexString(target) + ", line="
+                            + frameNum);
+    }
+    
     private int processConservativeRoots(int pointerSize, long fixedBootLoaderAddress, boolean scanUp,
                     int workCountSoFar, IProgressListener listener)
     {
@@ -1512,6 +1642,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
 
         listener.subTask(Messages.DTFJIndexBuilder_GeneratingThreadRoots);
 
+        PrintWriter pw = createThreadInfoFile();
+        
         threadRoots = new HashMapIntObject<HashMapIntObject<List<XGCRootInfo>>>();
         for (Iterator i = run.getThreads(); i.hasNext();)
         {
@@ -1593,7 +1725,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                                         format(jniEnvAddress)), e1);
                 }
 
-                scanJavaThread(th, threadAddress, pointerSize, threadRoots, listener, scanUp);
+                scanJavaThread(th, threadAddress, pointerSize, threadRoots, listener, scanUp, pw);
                 try
                 {
                     ImageThread it = th.getImageThread();
@@ -1611,6 +1743,10 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     listener.sendUserMessage(Severity.WARNING,
                                     Messages.DTFJIndexBuilder_ProblemReadingThreadInformation, e);
             }
+        }
+        if (pw != null)
+        {
+            pw.close();
         }
 
         // Monitor GC roots
@@ -1705,13 +1841,26 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 }
                 listener.subTask(Messages.DTFJIndexBuilder_GeneratingThreadRoots);
                 debugPrint("Processing thread roots"); //$NON-NLS-1$
+                PrintWriter pw = null;
+                if (gcRoot2.size() > 0)
+                {
+                	pw = createThreadInfoFile();
+                }
+                long prevFrameAddress = 0;
                 for (Iterator thit = run.getThreads(); thit.hasNext();)
                 {
                     Object next = thit.next();
                     if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingThreads, run))
                         continue;
                     JavaThread th = (JavaThread) next;
-                    for (Iterator ii = th.getStackFrames(); ii.hasNext();)
+
+                    if (pw != null)
+                    {
+                        // For thread stack information
+                        printThreadStack(pw, th);
+                    }
+                    int frameNum = 0;
+                    for (Iterator ii = th.getStackFrames(); ii.hasNext(); ++frameNum)
                     {
                         Object next2 = ii.next();
                         if (isCorruptData(next2, listener, Messages.DTFJIndexBuilder_CorruptDataReadingJavaStackFrames,
@@ -1734,8 +1883,38 @@ public class DTFJIndexBuilder implements IIndexBuilder
                                 continue;
                             JavaReference r = (JavaReference) next3;
                             processRoot(r, th, gcRoot2, threadRoots2, pointerSize, listener);
+                            if (pw != null)
+                            {
+                                // Details of the locals
+                                try
+                                {
+                                    Object o = r.getTarget();
+                                    if (o instanceof JavaObject)
+                                    {
+                                        JavaObject jo = (JavaObject) o;
+                                        long target = jo.getID().getAddress();
+                                        printLocal(pw, target, frameNum);
+                                    }
+                                    else if (o instanceof JavaClass)
+                                    {
+                                        JavaClass jc = (JavaClass) o;
+                                        long target = getClassAddress(jc, listener);
+                                        printLocal(pw, target, frameNum);
+                                    }
+                                }
+                                catch (CorruptDataException e)
+                                {}
+                                catch (DataUnavailable e)
+                                {}
+                            }
                         }
                     }
+                    if (pw != null)
+                        pw.println();
+                }
+                if (pw != null)
+                {
+                    pw.close();
                 }
 
                 // We need some roots, so disable DTFJ roots if none are found
@@ -1813,6 +1992,43 @@ public class DTFJIndexBuilder implements IIndexBuilder
     }
 
     /**
+     * Count the number of real objects which are thread roots from the stack.
+     * If this is zero then we probably are missing GC roots.
+     * @return Number of objects (not classes) marked as roots by threads.
+     */
+    private int threadRootObjects()
+    {
+        int objRoots = 0;
+        // Look at each threads root
+        for (Iterator<HashMapIntObject<List<XGCRootInfo>>> it = threadRoots.values(); it.hasNext();)
+        {
+            HashMapIntObject<List<XGCRootInfo>> hm = it.next();
+            // Look at each object marked by a thread
+            for (IteratorInt i2 = hm.keys(); i2.hasNext();)
+            {
+                int objId = i2.next();
+                // If it is not a class then possibly count it
+                if (!idToClass.containsKey(objId))
+                {
+                    for (Iterator<XGCRootInfo> i3 = hm.get(objId).iterator(); i3.hasNext(); )
+                    {                        
+                        int type = i3.next().getType();
+                        // If it is a true local from a stack frame
+                        if (type == GCRootInfo.Type.JAVA_LOCAL 
+                            || type == GCRootInfo.Type.NATIVE_STACK
+                            || type == GCRootInfo.Type.NATIVE_LOCAL)
+                        {
+                           ++objRoots;
+                           break;
+                        }
+                    }
+                }
+            }
+        }
+        return objRoots;
+    }
+
+    /**
      * Record the object address in the list of identifiers and the associated
      * classes in the class list
      * 
@@ -1839,15 +2055,15 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 if (!allClasses.contains(cls))
                 {
                     debugPrint("Adding extra array class " + cls.getName()); //$NON-NLS-1$
+                    allClasses.add(cls);
                 }
-                allClasses.add(cls);
                 cls = cls.getComponentType();
             }
             if (!allClasses.contains(cls))
             {
                 debugPrint("Adding extra class or component class " + cls.getName()); //$NON-NLS-1$
+                allClasses.add(cls);
             }
-            allClasses.add(cls);
         }
         catch (CorruptDataException e)
         {
@@ -2071,8 +2287,12 @@ public class DTFJIndexBuilder implements IIndexBuilder
 
     private void scanJavaThread(JavaThread th, long threadAddress, int pointerSize,
                     HashMapIntObject<HashMapIntObject<List<XGCRootInfo>>> thr, IProgressListener listener,
-                    boolean scanUp) throws CorruptDataException
+                    boolean scanUp, PrintWriter pw) throws CorruptDataException
     {
+        if (pw != null) 
+        {
+            printThreadStack(pw, th);
+        }
         int frameId = 0;
         Set<Long> searched = new HashSet<Long>();
         // Find the first address
@@ -2099,6 +2319,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 continue;
             JavaStackFrame jf = (JavaStackFrame) next2;
             if (listener.isCanceled()) { throw new IProgressListener.OperationCanceledException(); }
+            Set<Long> searchedInFrame = new LinkedHashSet<Long>();
             long address = 0;
             long searchSize = JAVA_STACK_FRAME_SIZE;
             try
@@ -2156,7 +2377,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 }
                 debugPrint("Frame " + jf.getLocation().getMethod().getName()); //$NON-NLS-1$
                 searchFrame(pointerSize, threadAddress, thr, ip, searchSize, GCRootInfo.Type.JAVA_LOCAL, gcRoot,
-                                searched, null);
+                                searchedInFrame, null);
             }
             catch (MemoryAccessException e)
             {
@@ -2222,6 +2443,25 @@ public class DTFJIndexBuilder implements IIndexBuilder
                                     searchSize, format(threadAddress)), e);
                 }
             }
+            // Add all the searched locations in this frame to the master list
+            searched.addAll(searchedInFrame);            
+            if (pw != null)
+            {
+            	// Indicate the local variables associated with this frame
+                for (long addr : searchedInFrame)
+                {
+                    try
+                    {
+                        long target = jf.getBasePointer().getAddressSpace().getPointer(addr).getPointerAt(0)
+                                        .getAddress();
+                        printLocal(pw, target, frameId);
+                     }
+                    catch (MemoryAccessException e)
+                    {}
+                    catch (CorruptDataException e)
+                    {}
+                }
+            }            
             // Mark the classes of methods as referenced by the thread
             try
             {
@@ -2253,6 +2493,10 @@ public class DTFJIndexBuilder implements IIndexBuilder
             catch (CorruptDataException e2)
             {}
 
+        }
+        if (pw != null)
+        {
+            pw.println();
         }
         for (Iterator ii = th.getStackSections(); ii.hasNext();)
         {
@@ -2791,7 +3035,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                                 Messages.DTFJIndexBuilder_UnableToFindSourceID, format(target), format(source), r
                                                 .getDescription()), null);
             }
-            missedRoots.put(new Integer(tgt), desc);
+            missedRoots.put(Integer.valueOf(tgt), desc);
         }
         catch (DataUnavailable e)
         {
@@ -3548,7 +3792,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
 
         for (IteratorLong il = aa.iterator(); il.hasNext();)
         {
-            aaset.add(new Long(il.next()));
+            aaset.add(Long.valueOf(il.next()));
         }
 
         HashMap<Long, String> objset = new LinkedHashMap<Long, String>();
@@ -3713,6 +3957,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
         }
         int objId = indexToAddress.reverse(objAddr);
 
+		// If there are no DTFJ refs (e.g. javacore) then don't use DTFJ refs
+        boolean hasDTFJRefs = i2.hasNext();
         collectRefs(i2, objset, desc, name, objAddr, listener);
 
         // debugPrint("Obj "+type+" "+aaset.size()+" "+objset.size());
@@ -3771,7 +4017,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         }
         if (useDTFJRefs)
         {
-            if (a2.length == 0)
+            if (a2.length == 0 || !hasDTFJRefs)
             {
                 // Sov has problems with objects of type [B, [C etc.
                 if (msgNgetRefsAllMissing-- > 0)
@@ -3922,7 +4168,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 if (!(addr == objAddr && (jr.getReferenceType() == JavaReference.REFERENCE_CLASS_OBJECT || jr
                                 .getReferenceType() == JavaReference.REFERENCE_ASSOCIATED_CLASS)))
                 {
-                    objset.put(new Long(addr), jr.getDescription());
+                    objset.put(Long.valueOf(addr), jr.getDescription());
                 }
             }
             catch (DataUnavailable e)
@@ -5058,6 +5304,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         {
             case 'L':
                 ret = IObject.Type.OBJECT;
+                break;
             case '[':
                 ret = IObject.Type.OBJECT;
                 break;
@@ -5471,6 +5718,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 int size = arrayToSize.get(i);
                 if (size < 0)
                 {
+                    ci = idToClass.get(clsId);
                     listener.sendUserMessage(Severity.ERROR, MessageFormat.format(
                                     Messages.DTFJIndexBuilder_IndexAddressNegativeArraySize, i, format(addr), size, ci
                                                     .getTechnicalName()), null);

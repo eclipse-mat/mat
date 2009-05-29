@@ -618,7 +618,7 @@ public class DTFJHeapObjectReader implements IObjectReader
             default:
                 // Should never occur
                 // type = IObject.Type.BYTE;
-                res = new byte[length * 8];
+                // res = new byte[length * 8];
                 throw new IllegalArgumentException(MessageFormat.format(Messages.DTFJHeapObjectReader_UnexpectedType,
                                 type));
         }
