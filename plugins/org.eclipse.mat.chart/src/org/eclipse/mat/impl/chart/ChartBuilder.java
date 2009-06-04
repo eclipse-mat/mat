@@ -15,7 +15,6 @@ import java.util.List;
 import org.eclipse.birt.chart.model.Chart;
 import org.eclipse.birt.chart.model.ChartWithoutAxes;
 import org.eclipse.birt.chart.model.attribute.ActionType;
-import org.eclipse.birt.chart.model.attribute.Anchor;
 import org.eclipse.birt.chart.model.attribute.ColorDefinition;
 import org.eclipse.birt.chart.model.attribute.Position;
 import org.eclipse.birt.chart.model.attribute.TriggerCondition;
@@ -30,9 +29,7 @@ import org.eclipse.birt.chart.model.data.impl.SeriesDefinitionImpl;
 import org.eclipse.birt.chart.model.data.impl.TextDataSetImpl;
 import org.eclipse.birt.chart.model.data.impl.TriggerImpl;
 import org.eclipse.birt.chart.model.impl.ChartWithoutAxesImpl;
-import org.eclipse.birt.chart.model.layout.LabelBlock;
 import org.eclipse.birt.chart.model.layout.Plot;
-import org.eclipse.birt.chart.model.layout.impl.LabelBlockImpl;
 import org.eclipse.birt.chart.model.type.PieSeries;
 import org.eclipse.birt.chart.model.type.impl.PieSeriesImpl;
 import org.eclipse.core.runtime.Platform;
@@ -79,18 +76,26 @@ public class ChartBuilder
             chart.setScript(LabelRenderScript.class.getName());
 
         // title
-        chart.getTitle().setVisible(false);
+        long t = new Double(total).longValue();
+        chart.getTitle().getLabel().getCaption().setValue(
+                        MessageUtil.format(Messages.ChartBuilder_Total, Units.Storage.of(t).format(t)));
+        chart.getTitle().getLabel().getCaption().getFont().setName(
+                        JFaceResources.getDefaultFont().getFontData()[0].getName());
+        chart.getTitle().getLabel().getCaption().getFont().setSize(fontSize);
+        chart.getTitle().getLabel().getCaption().getFont().setBold(true);
 
         // total label
-        long t = new Double(total).longValue();
-        LabelBlock label = (LabelBlock) LabelBlockImpl.create();
-        label.getLabel().getCaption().setValue(
-                        MessageUtil.format(Messages.ChartBuilder_Total, Units.Storage.of(t).format(t)));
-        label.getLabel().getCaption().getFont().setName(JFaceResources.getDefaultFont().getFontData()[0].getName() );
-        label.getLabel().getCaption().getFont().setSize(fontSize);
-        label.getLabel().getCaption().getFont().setBold(true);
-        label.setAnchor(Anchor.SOUTH_LITERAL);
-        chart.getPlot().add(label);
+        // long t = new Double(total).longValue();
+        // LabelBlock label = (LabelBlock) LabelBlockImpl.create();
+        // label.getLabel().getCaption().setValue(
+        // MessageUtil.format(Messages.ChartBuilder_Total,
+        // Units.Storage.of(t).format(t)));
+        // label.getLabel().getCaption().getFont().setName(JFaceResources.getDefaultFont().getFontData()[0].getName()
+        // );
+        // label.getLabel().getCaption().getFont().setSize(fontSize);
+        // label.getLabel().getCaption().getFont().setBold(true);
+        // label.setAnchor(Anchor.SOUTH_LITERAL);
+        // chart.getPlot().add(label);
 
         // legend
         if (isInteractive)
