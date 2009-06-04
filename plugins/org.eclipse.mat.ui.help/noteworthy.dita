@@ -3,12 +3,118 @@
 <reference id="ref_noteworthy" xml:lang="en-us">
 	<title>New &amp; Noteworthy</title>
 	<shortdesc>Here are descriptions of some of the more interesting or
-	significant changes made to the Memory Analyzer for the 0.8 release.</shortdesc>
+		significant changes made to the Memory Analyzer for the 0.8 release.
+	</shortdesc>
 	<refbody>
 		<section>
-			<title>Inspector View Enhancements</title>
-			<p>When analyzing a dump from a SWT application, the inspector recreates
-			   colors and images and displays the information in the lower left corner.</p>
+			<title>Support IBM Heap Dumps</title>
+			<p>
+				The IBM-family of Virtual Machines (VM) write heap dumps in
+				various
+				formats: PHD (portable heap dump), system dump, etc. IBM's
+				Diagnostic Tool Framework for Java provides an API to read those
+				heap dumps. After installing DTFJ, one can view and analyze IBM
+				dumps with the same comfort as HPROF dumps.
+			</p>
+
+			<p>
+				Download
+				<xref format="html"
+					href="http://www.ibm.com/developerworks/java/jdk/tools/dtfj.html">IBM Diagnostic Tool Framework for Java Version 1.3</xref>
+				from IBM Developer Works.
+			</p>
+
 		</section>
+
+		<section>
+			<title>Stack Frames</title>
+			<p>
+				Heap dumps from the latest VMs include stack trace information,
+				linking local GC roots to specific stack frames of specific
+				threads.
+				This information is now available via
+				<i>Java Basics / Thread Stacks</i>
+				query.
+			</p>
+			<p>
+				Supported heap dumps formats are HPROF (starting with Java 6
+				Update 14 and Java 7) as well as DTFJ-formatted dumps.
+			</p>
+
+			<image href="mimes/nn_thread_stacks.png">
+				<alt>Tree of of threads including stack frames, local variables and
+					their outgoing references.</alt>
+			</image>
+		</section>
+
+		<section>
+			<title>Histogram of Unreachable Objects</title>
+			<p>
+				A heap dump can contain unreachable objects, e.g. objects which
+				should be garbage collected but stay around for various reasons.
+				Usually this is due to optimizations in the garbage collection
+				algorithm. The Memory Analyzer removes these objects by default from
+				the object graph.
+			</p>
+			<p>
+				Now one can use the
+				<i>Java Basics / Unreachable Objects Histogram</i>
+				to view the objects that have been removed. Alternatively, one can
+				parse the heap dump providing the
+				<codeph>-keep_unreachable_objects</codeph>
+				flag. Using the flag, unreachable objects will be marked with the GC
+				Root Type "unkown".
+			</p>
+			<image href="mimes/nn_unreachable_histogram.png">
+				<alt>Histogram of unreachable objects.</alt>
+			</image>
+			<p>
+				Find more information in the
+				<xref format="html"
+					href="http://wiki.eclipse.org/MemoryAnalyzer/FAQ#How_to_analyse_unreachable_objects">
+					Memory Analyzer FAQ
+				</xref>
+				.
+			</p>
+		</section>
+
+		<section>
+			<title>Inspector Enhancements</title>
+			<p>This great contribution from the Chris Grindstaff, recreates
+				colors and images from the information in the heap dump and displays
+				the information in the lower left corner of the inspector. 
+			</p>
+
+			<image href="mimes/nn_inspector_imagedata.png">
+				<alt>Inspector showing an icon from the heap dump.</alt>
+			</image>
+
+			<image href="mimes/nn_inspector_rgb.png">
+				<alt>Inspector showing the color of the RGB object.</alt>
+			</image>
+		</section>
+
+		<section>
+			<title>Class Hierarchy in Inspector</title>
+			<p>The inspector displays now the full class hierarchy of any
+				selected object. One can drill-down via context menus.</p>
+
+			<image href="mimes/nn_inspector_class_hierarchy.png">
+				<alt>Inspector showing the class hierarchy of an object.</alt>
+			</image>
+		</section>
+
+		<section>
+			<title>Waste in Char Arrays</title>
+			<p>This query finds strings that retain wasteful char arrays. Those
+				strings are usually created by the substring function, which keeps
+				the whole array but uses only part of the chars.
+			</p>
+
+			<image href="mimes/nn_query_waste_char_arrays.png">
+				<alt>Query displaying waste in char arrays.</alt>
+			</image>
+		</section>
+
 	</refbody>
 </reference>

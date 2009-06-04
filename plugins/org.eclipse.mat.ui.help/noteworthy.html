@@ -20,27 +20,120 @@
 	<h1 class="topictitle1">New &amp; Noteworthy</h1>
 
 	
-	<div><p>Here are the descriptions of some of the more interesting or
-	significant changes made to Eclipse Memory Analyzer.</p>
+	<div><p>Here are descriptions of some of the more interesting or
+		significant changes made to the Memory Analyzer for the 0.8 release.
+	</p>
 
-		<div class="section"><h2 class="sectiontitle">Unreachable objects</h2>
+		<div class="section"><h2 class="sectiontitle">Support IBM Heap Dumps</h2>
 			
-			<p>By default unreachable objects are removed from the heap dump while parsing and will not appear 
-			in class histogram, dominator tree, etc. Yet it is possible to open a histogram of unreachable objects via 
-			"Java Basics --> Unreachable Objects Histogram" query. For more details please check 
-			our wiki page <a href="http://wiki.eclipse.org/MemoryAnalyzer/FAQ#How_to_analyse_unreachable_objects"> 
-			http://wiki.eclipse.org/MemoryAnalyzer/FAQ#How_to_analyse_unreachable_objects</a>
-			
+			<p>
+				The IBM-family of Virtual Machines (VM) write heap dumps in
+				various
+				formats: PHD (portable heap dump), system dump, etc. IBM's
+				Diagnostic Tool Framework for Java provides an API to read those
+				heap dumps. After installing DTFJ, one can view and analyze IBM
+				dumps with the same comfort as HPROF dumps.
 			</p>
-			
-		</div>
-	
-		<div class="section"><h2 class="sectiontitle">Inspector View Enhancements</h2>
-			
-			<p>When analyzing a dump from a SWT application, the inspector recreates
-			   colors and images and displays the information in the lower left corner.</p>
+
+
+			<p>
+				Download
+				<a href="http://www.ibm.com/developerworks/java/jdk/tools/dtfj.html">IBM Diagnostic Tool Framework for Java Version 1.3</a>
+				from IBM Developer Works.
+			</p>
+
 
 		</div>
+
+
+		<div class="section"><h2 class="sectiontitle">Stack Frames</h2>
+			
+			<p>
+				Heap dumps from the latest VMs include stack trace information,
+				linking local GC roots to specific stack frames of specific
+				threads.
+				This information is now available via
+				<em>Java Basics / Thread Stacks</em>
+				query.
+			</p>
+
+			<p>
+				Supported heap dumps formats are HPROF (starting with Java 6
+				Update 14 and Java 7) as well as DTFJ-formatted dumps.
+			</p>
+
+
+			<img src="mimes/nn_thread_stacks.png" alt="Tree of of threads including stack frames, local variables and&#13;&#10;&#9;&#9;&#9;&#9;&#9;their outgoing references." />
+		</div>
+
+
+		<div class="section"><h2 class="sectiontitle">Histogram of Unreachable Objects</h2>
+			
+			<p>
+				A heap dump can contain unreachable objects, e.g. objects which
+				should be garbage collected but stay around for various reasons.
+				Usually this is due to optimizations in the garbage collection
+				algorithm. The Memory Analyzer removes these objects by default from
+				the object graph.
+			</p>
+
+			<p>
+				Now one can use the
+				<em>Java Basics / Unreachable Objects Histogram</em>
+				to view the objects that have been removed. Alternatively, one can
+				parse the heap dump providing the
+				<samp class="codeph">-keep_unreachable_objects</samp>
+				flag. Using the flag, unreachable objects will be marked with the GC
+				Root Type "unkown".
+			</p>
+
+			<img src="mimes/nn_unreachable_histogram.png" alt="Histogram of unreachable objects." />
+			<p>
+				Find more information in the
+				<a href="http://wiki.eclipse.org/MemoryAnalyzer/FAQ#How_to_analyse_unreachable_objects">
+					Memory Analyzer FAQ
+				</a>
+				.
+			</p>
+
+		</div>
+
+
+		<div class="section"><h2 class="sectiontitle">Inspector Enhancements</h2>
+			
+			<p>This great contribution from the Chris Grindstaff, recreates
+				colors and images from the information in the heap dump and displays
+				the information in the lower left corner of the inspector. 
+			</p>
+
+
+			<img src="mimes/nn_inspector_imagedata.png" alt="Inspector showing an icon from the heap dump." />
+
+			<img src="mimes/nn_inspector_rgb.png" alt="Inspector showing the color of the RGB object." />
+		</div>
+
+
+		<div class="section"><h2 class="sectiontitle">Class Hierarchy in Inspector</h2>
+			
+			<p>The inspector displays now the full class hierarchy of any
+				selected object. One can drill-down via context menus.</p>
+
+
+			<img src="mimes/nn_inspector_class_hierarchy.png" alt="Inspector showing the class hierarchy of an object." />
+		</div>
+
+
+		<div class="section"><h2 class="sectiontitle">Waste in Char Arrays</h2>
+			
+			<p>This query finds strings that retain wasteful char arrays. Those
+				strings are usually created by the substring function, which keeps
+				the whole array but uses only part of the chars.
+			</p>
+
+
+			<img src="mimes/nn_query_waste_char_arrays.png" alt="Query displaying waste in char arrays." />
+		</div>
+
 
 	</div>
 
