@@ -192,7 +192,7 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
 
         public void inputChanged(Viewer viewer, Object oldInput, Object newInput)
         {
-            if (newInput instanceof Collection)
+            if (newInput instanceof Collection<?>)
             {
                 this.elements = ((Collection<?>) newInput).toArray();
             }

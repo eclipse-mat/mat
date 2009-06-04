@@ -10,11 +10,11 @@
  *******************************************************************************/
 package org.eclipse.mat.ui.internal.query.arguments;
 
-import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.fieldassist.ControlDecoration;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.registry.ArgumentDescriptor;
+import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.util.PatternUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
@@ -146,7 +146,7 @@ public class ImageTextEditor extends TextEditor
     private void createHelpControl(Composite parent)
     {
         button = new ImageHyperlink(parent, SWT.CENTER);
-        button.setImage(JFaceResources.getImage(Dialog.DLG_IMG_HELP));
+        button.setImage(MemoryAnalyserPlugin.getImage(MemoryAnalyserPlugin.ISharedImages.HELP));
         button.setFont(parent.getFont());
         button.setBackground(parent.getBackground());
         button.setToolTipText(JFaceResources.getString("helpToolTip"));//$NON-NLS-1$

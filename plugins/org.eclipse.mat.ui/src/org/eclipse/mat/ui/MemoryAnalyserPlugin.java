@@ -88,6 +88,7 @@ public class MemoryAnalyserPlugin extends AbstractUIPlugin
         String PERCENTAGE = "icons/percentage.gif"; //$NON-NLS-1$
 
         String INFO = "icons/info.gif"; //$NON-NLS-1$
+        String HELP = "icons/help.png"; //$NON-NLS-1$
 
         String FIND = "icons/find.gif"; //$NON-NLS-1$  
         String EXECUTE_QUERY = "icons/execute_query.gif"; //$NON-NLS-1$

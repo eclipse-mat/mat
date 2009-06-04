@@ -11,8 +11,7 @@
 package org.eclipse.mat.ui.actions;
 
 import org.eclipse.jface.action.Action;
-import org.eclipse.jface.dialogs.Dialog;
-import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.Messages;
 import org.eclipse.ui.PlatformUI;
 
@@ -22,7 +21,8 @@ public class OpenHelpPageAction extends Action
 
     public OpenHelpPageAction(String helpUrl)
     {
-        super(Messages.OpenHelpPageAction_Help, JFaceResources.getImageRegistry().getDescriptor(Dialog.DLG_IMG_HELP));
+        super(Messages.OpenHelpPageAction_Help, MemoryAnalyserPlugin
+                        .getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.HELP));
         this.helpUrl = helpUrl;
     }
 
