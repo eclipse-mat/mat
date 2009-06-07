@@ -105,13 +105,6 @@ Java and all Java-based trademarks are trademarks of Sun Microsystems, Inc. in t
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.mat.dtfj"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="org.eclipse.mat.parser"
          download-size="0"
          install-size="0"

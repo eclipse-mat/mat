@@ -23,6 +23,10 @@
  		</ant>
  		<ant antfile="${genericTargets}" target="${target}">
 	 		<property name="type" value="feature" />
+	 		<property name="id" value="org.eclipse.mat.dtfj.feature" />
+ 		</ant>
+ 		<ant antfile="${genericTargets}" target="${target}">
+	 		<property name="type" value="feature" />
 	 		<property name="id" value="org.eclipse.mat.test.feature" />
  		</ant>
  	</target>
