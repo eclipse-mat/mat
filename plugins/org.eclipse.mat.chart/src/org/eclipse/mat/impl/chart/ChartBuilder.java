@@ -79,8 +79,12 @@ public class ChartBuilder
         long t = new Double(total).longValue();
         chart.getTitle().getLabel().getCaption().setValue(
                         MessageUtil.format(Messages.ChartBuilder_Total, Units.Storage.of(t).format(t)));
-        chart.getTitle().getLabel().getCaption().getFont().setName(
-                        JFaceResources.getDefaultFont().getFontData()[0].getName());
+        // JFace appears to use SWT so is not safe in batch mode (e.g. AIX 64-bit with no SWT).
+        if (isInteractive)
+        {
+            chart.getTitle().getLabel().getCaption().getFont().setName(
+                          JFaceResources.getDefaultFont().getFontData()[0].getName());
+        }
         chart.getTitle().getLabel().getCaption().getFont().setSize(fontSize);
         chart.getTitle().getLabel().getCaption().getFont().setBold(true);
 
