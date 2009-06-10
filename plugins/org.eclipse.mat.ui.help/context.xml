@@ -6,7 +6,7 @@
 		<topic label="OQL Syntax" href="reference/oqlsyntax.html" />
 	</context>
 	<context id="query_arguments">
-		<description>TODO</description>
+		<description>This wizard will help you to add arguments to the query</description>
 		<topic label="How to provide heap object arguments"
 			href="reference/selectingqueries.html#queryarguments__arguments" />
 	</context>	
