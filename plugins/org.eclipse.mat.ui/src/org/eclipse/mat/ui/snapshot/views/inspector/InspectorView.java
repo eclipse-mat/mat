@@ -28,6 +28,7 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.layout.TreeColumnLayout;
+import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.ColumnWeightData;
@@ -74,7 +75,6 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.PaletteData;
@@ -356,12 +356,9 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
         IToolBarManager mgr = getViewSite().getActionBars().getToolBarManager();
         mgr.add(createSyncAction());
 
-        FontData[] data = JFaceResources.getDefaultFont().getFontData();
-        for (FontData fontData : data)
-        {
-            fontData.setStyle(SWT.BOLD);
-        }
-        this.font = new Font(top.getDisplay(), data);
+        FontDescriptor fontDescriptor = FontDescriptor.createFrom(JFaceResources.getDefaultFont());
+        fontDescriptor = fontDescriptor.setStyle(SWT.BOLD);
+        this.font = fontDescriptor.createFont(top.getDisplay());
 
         createTopTable(top);
         createTabFolder(top);

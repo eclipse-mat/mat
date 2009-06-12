@@ -18,6 +18,7 @@ import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IColorProvider;
@@ -47,7 +48,6 @@ import org.eclipse.mat.ui.util.PaneState.PaneType;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -268,12 +268,9 @@ public class NavigatorViewPage extends Page implements ISelectionProvider, IDoub
     private void initializeFont()
     {
         Font defaultFont = JFaceResources.getDefaultFont();
-        FontData[] data = defaultFont.getFontData();
-        for (int i = 0; i < data.length; i++)
-        {
-            data[i].setStyle(SWT.ITALIC);
-        }
-        this.font = new Font(treeViewer.getTree().getDisplay(), data);
+        FontDescriptor fontDescriptor = FontDescriptor.createFrom(defaultFont);
+        fontDescriptor = fontDescriptor.setStyle(SWT.ITALIC);
+        this.font = fontDescriptor.createFont(treeViewer.getTree().getDisplay());
         this.greyColor = treeViewer.getTree().getDisplay().getSystemColor(SWT.COLOR_DARK_GRAY);
     }
 

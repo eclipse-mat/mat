@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.mat.ui.snapshot.views.inspector;
 
+import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.jface.viewers.ITableFontProvider;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -20,22 +21,21 @@ import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.snapshot.views.inspector.FieldsContentProvider.MoreNode;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Display;
 
 class FieldsLabelProvider extends LabelProvider implements ITableLabelProvider, ITableFontProvider
 {
     private final InspectorView inspectorView;
     private Font italicFont;
+    private Font boldFont;
 
     public FieldsLabelProvider(InspectorView inspectorView, Font defaultFont)
     {
         this.inspectorView = inspectorView;
-        FontData[] fontData = defaultFont.getFontData();
-        for (FontData data : fontData)
-            data.setStyle(SWT.ITALIC);
-        this.italicFont = new Font(null, fontData);
-
+        FontDescriptor fontDescriptor = FontDescriptor.createFrom(defaultFont);
+        this.italicFont = fontDescriptor.setStyle(SWT.ITALIC).createFont(Display.getDefault());
+        this.boldFont = fontDescriptor.setStyle(SWT.BOLD).createFont(Display.getDefault());
     }
 
     public Image getColumnImage(Object element, int columnIndex)
@@ -114,6 +114,10 @@ class FieldsLabelProvider extends LabelProvider implements ITableLabelProvider, 
         {
             return italicFont;
         }
+        else if (element instanceof FieldsContentProvider.MoreNode)
+        {
+            return boldFont;
+        }
         else
         {
             return null;
@@ -124,6 +128,7 @@ class FieldsLabelProvider extends LabelProvider implements ITableLabelProvider, 
     public void dispose()
     {
         italicFont.dispose();
+        boldFont.dispose();
     }
 
 }

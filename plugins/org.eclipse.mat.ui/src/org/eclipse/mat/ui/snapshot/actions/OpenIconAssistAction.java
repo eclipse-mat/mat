@@ -22,6 +22,7 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.IFontProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
@@ -40,7 +41,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Display;
@@ -76,8 +76,6 @@ public class OpenIconAssistAction extends Action implements IWorkbenchWindowActi
         int x = rectangle.x + rectangle.width - 315;
         int y = rectangle.y + rectangle.height - rectangle.height / 2;
         table.open(new Rectangle(x, y, 305, rectangle.height / 2));
-        table.setMinimumWidth(200);
-
     }
 
     public void selectionChanged(IAction action, ISelection selection)
@@ -262,7 +260,6 @@ public class OpenIconAssistAction extends Action implements IWorkbenchWindowActi
     {
         private Table table;
         Shell shell;
-        int minimumWidth;
 
         public PopupTable(Shell parent, int style)
         {
@@ -307,11 +304,6 @@ public class OpenIconAssistAction extends Action implements IWorkbenchWindowActi
             return style & mask;
         }
 
-        public Font getFont()
-        {
-            return table.getFont();
-        }
-
         public void open(Rectangle rect)
         {
             shell.setBounds(new Rectangle(rect.x, rect.y, rect.width + 10, rect.height));
@@ -325,24 +317,6 @@ public class OpenIconAssistAction extends Action implements IWorkbenchWindowActi
                     display.sleep();
             }
 
-        }
-
-        public void setFont(Font font)
-        {
-            table.setFont(font);
-        }
-
-        public void setMinimumWidth(int width)
-        {
-            if (width < 0)
-                SWT.error(SWT.ERROR_INVALID_ARGUMENT);
-
-            minimumWidth = width;
-        }
-
-        public int getMinimumWidth()
-        {
-            return minimumWidth;
         }
     }
 
@@ -360,7 +334,7 @@ public class OpenIconAssistAction extends Action implements IWorkbenchWindowActi
 
         public void inputChanged(Viewer viewer, Object oldInput, Object newInput)
         {
-            if (newInput instanceof Collection)
+            if (newInput instanceof Collection<?>)
             {
                 this.elements = ((Collection<?>) newInput).toArray();
             }
@@ -378,10 +352,9 @@ public class OpenIconAssistAction extends Action implements IWorkbenchWindowActi
 
         public IconsLabelProvider(Font defaultFont)
         {
-            FontData[] fontData = defaultFont.getFontData();
-            for (FontData data : fontData)
-                data.setStyle(SWT.BOLD);
-            this.boldFont = new Font(null, fontData);
+            FontDescriptor fontDescriptor = FontDescriptor.createFrom(defaultFont);
+            fontDescriptor = fontDescriptor.setStyle(SWT.BOLD);
+            this.boldFont = fontDescriptor.createFont(Display.getDefault());
         }
 
         public Image getColumnImage(Object element, int columnIndex)
