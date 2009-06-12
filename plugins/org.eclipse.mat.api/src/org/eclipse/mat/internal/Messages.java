@@ -135,6 +135,8 @@ public class Messages extends NLS
 
     public static String EclipseNameResolver_EquinoxStartupClassLoader;
 
+    public static String EquinoxBundleReader_ErrorMsg_BundleNotFound;
+
     public static String EquinoxBundleReader_ErrorMsg_DuplicateConfigurationElement;
     public static String EquinoxBundleReader_ErrorMsg_DuplicateExtension;
     public static String EquinoxBundleReader_ErrorMsg_DuplicateExtensionPoint;
@@ -148,7 +150,6 @@ public class Messages extends NLS
     public static String EquinoxBundleReader_ErrorMsg_ServiceProperty;
     public static String EquinoxBundleReader_ErrorMsg_SoftReferencesNotHandled;
     public static String EquinoxBundleReader_ErrorMsg_UnknownElementType;
-    public static String EquinoxBundleReader_ExpectedArrayType;
     public static String EquinoxBundleReader_ExpectedFieldContributorId;
     public static String EquinoxBundleReader_ExpectedFieldPropertiesAndValues;
     public static String EquinoxBundleReader_NotApplicable;

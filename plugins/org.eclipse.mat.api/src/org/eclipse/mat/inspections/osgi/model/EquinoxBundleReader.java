@@ -161,7 +161,7 @@ public class EquinoxBundleReader implements IBundleReader
         }
         else
         {
-            MATPlugin.log(MessageUtil.format(Messages.EquinoxBundleReader_ExpectedArrayType, Long
+            MATPlugin.log(MessageUtil.format(Messages.EquinoxBundleReader_ErrorMsg_ExpectedArrayType, Long
                             .toHexString(fragmentObject.getObjectAddress())));
             return null;
         }
@@ -171,8 +171,12 @@ public class EquinoxBundleReader implements IBundleReader
     private List<Service> collectServiceInfo(IProgressListener listener) throws SnapshotException
     {
         listener.subTask(Messages.EquinoxBundleReader_ReadingServices);
-        Collection<IClass> classes = snapshot.getClassesByName(
-                        "org.eclipse.osgi.framework.internal.core.ServiceRegistryImpl", false); //$NON-NLS-1$
+
+        Collection<IClass> classes = snapshot.getClassesByName( // 3.5
+                        "org.eclipse.osgi.internal.serviceregistry.ServiceRegistry", false); //$NON-NLS-1$
+        if (classes == null)
+            classes = snapshot.getClassesByName( // 3.4
+                            "org.eclipse.osgi.framework.internal.core.ServiceRegistryImpl", false); //$NON-NLS-1$
 
         List<Service> services = new ArrayList<Service>();
         if (classes == null)
@@ -458,25 +462,48 @@ public class EquinoxBundleReader implements IBundleReader
         if (fragmentObject == null)
             return null;
 
-        if (fragmentObject.getClazz().isArrayType())
-        {
-            long[] addresses = ((IObjectArray) fragmentObject).getReferenceArray();
-            BundleDescriptor host = null;
-            for (int i = 0; i < addresses.length; i++)
-            {
-                int id = snapshot.mapAddressToId(addresses[i]);
-                IObject bundleLoaderObject = snapshot.getObject(id);
-                IObject bundleObject = (IObject) bundleLoaderObject.resolveValue("bundle");//$NON-NLS-1$
-                host = getBundleDescriptor(bundleObject, Type.BUNDLE);
-
-            }
-            return host;
-        }
-        else
+        if (!fragmentObject.getClazz().isArrayType())
         {
             MATPlugin.log(MessageUtil.format(Messages.EquinoxBundleReader_ErrorMsg_ExpectedArrayType, Long
                             .toHexString(fragmentObject.getObjectAddress())));
             return null;
+        }
+
+        IObjectArray hosts = (IObjectArray) fragmentObject;
+        if (hosts.getLength() == 0)
+        {
+            MATPlugin.log(MessageUtil.format(Messages.EquinoxBundleReader_ErrorMsg_BundleNotFound, Long
+                            .toHexString(fragmentObject.getObjectAddress())));
+            return null;
+        }
+
+        long[] addresses = hosts.getReferenceArray();
+        int hostId = snapshot.mapAddressToId(addresses[0]);
+        IObject bundleObject = null;
+
+        if ("org.eclipse.osgi.framework.internal.core.BundleHost[]".equals( //$NON-NLS-1$
+                        fragmentObject.getClazz().getName()))
+        {
+            // 3.5
+            bundleObject = snapshot.getObject(hostId);
+        }
+        else if ("org.eclipse.osgi.framework.internal.core.BundleLoaderProxy[]".equals( //$NON-NLS-1$
+                        fragmentObject.getClazz().getName()))
+        {
+            // 3.4
+            IObject bundleLoaderObject = snapshot.getObject(hostId);
+            bundleObject = (IObject) bundleLoaderObject.resolveValue("bundle");//$NON-NLS-1$
+        }
+
+        if (bundleObject == null)
+        {
+            MATPlugin.log(MessageUtil.format(Messages.EquinoxBundleReader_ErrorMsg_BundleNotFound, Long
+                            .toHexString(fragmentObject.getObjectAddress())));
+            return null;
+        }
+        else
+        {
+            return getBundleDescriptor(bundleObject, Type.BUNDLE);
         }
     }
 
