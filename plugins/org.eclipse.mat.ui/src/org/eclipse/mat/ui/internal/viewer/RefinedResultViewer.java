@@ -273,11 +273,14 @@ public abstract class RefinedResultViewer
 
             SearchOnTyping.attachTo(control, 0);
 
-            // estimate the number of visible items
-            // (control is invisible! -> no actual size available)
-            int estimatedLineHeight = adapter.getLineHeightEstimation();
+            // estimate the number of lines to render
+            // (the control itself is not visible, possibly even the parent is
+            // not visible)
             Rectangle bounds = parent.getParent().getBounds();
-            visibleItemsEstimate = Math.max(((bounds.height - 10) / estimatedLineHeight) - 2, 1);
+            if (bounds.height == 0 && bounds.width == 0)
+                visibleItemsEstimate = 10;
+            else
+                visibleItemsEstimate = Math.max(((bounds.height - 10) / adapter.getLineHeightEstimation()) - 2, 1);
 
             refresh(true);
 
