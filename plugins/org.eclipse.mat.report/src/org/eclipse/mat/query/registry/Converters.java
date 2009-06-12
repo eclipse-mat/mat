@@ -148,7 +148,7 @@ public class Converters
                     return values[ii];
             }
 
-            throw new RuntimeException(MessageUtil.format(Messages.Converters_Error_InvalidEnumValue, Arrays
+            throw new IllegalArgumentException(MessageUtil.format(Messages.Converters_Error_InvalidEnumValue, Arrays
                             .toString(names)));
         }
 

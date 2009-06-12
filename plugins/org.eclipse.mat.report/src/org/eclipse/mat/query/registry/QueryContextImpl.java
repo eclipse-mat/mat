@@ -39,6 +39,13 @@ public abstract class QueryContextImpl implements IQueryContext
 
     public Object convertToValue(Class<?> type, Advice advice, String value) throws SnapshotException
     {
-        return Converters.getConverter(type).toObject(value, advice);
+        try
+        {
+            return Converters.getConverter(type).toObject(value, advice);
+        }
+        catch (IllegalArgumentException e)
+        {
+            throw new SnapshotException(e);
+        }
     }
 }
