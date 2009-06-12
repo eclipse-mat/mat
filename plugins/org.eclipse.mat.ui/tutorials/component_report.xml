@@ -33,7 +33,7 @@
 			To select a set of packages:
 			<br/><br/>
 			Choose <b>Leak Identification -> Component Report</b> from the Query drop-down list in the toolbar.<br/><br/>
-			Provide a <b>class name pattern</b> (for example org.eclipse.mat.*) and hit Finish. 
+			Provide a <b>class name pattern</b> (for example java.util.*) and hit Finish. 
 		</description>
 		<command
 				required="false"
