@@ -300,6 +300,7 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
             aec.addListener(this);
 
             // ugly: w/o pack, the table does not redraw the editors correctly
+            table.pack();
             table.getParent().pack();
 
             setNewTabOrder();
