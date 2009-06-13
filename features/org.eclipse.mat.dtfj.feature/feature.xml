@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="org.eclipse.mat.dtfj.feature"
-      label="Memory Analyzer - DTFJ Bridge (Incubation)"
+      label="Memory Analyzer (DTFJ Bridge) [optional] (Incubation)"
       version="0.8.0.qualifier"
       provider-name="Eclipse.org">
    <install-handler/>
@@ -58,6 +58,10 @@ Content may contain encryption software. The country in which you are currently 
 
 Java and all Java-based trademarks are trademarks of Sun Microsystems, Inc. in the United States, other countries, or both.
    </license>
+
+   <url>
+      <update label="Memory Analyzer Update Site" url="http://download.eclipse.org/technology/mat/0.8/update-site/"/>
+   </url>
 
    <requires>
       <import plugin="org.eclipse.mat.parser" version="0.8.0" match="greaterOrEqual"/>

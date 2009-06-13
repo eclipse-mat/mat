@@ -59,6 +59,10 @@ Content may contain encryption software. The country in which you are currently 
 Java and all Java-based trademarks are trademarks of Sun Microsystems, Inc. in the United States, other countries, or both.
    </license>
 
+   <url>
+      <update label="Memory Analyzer Update Site" url="http://download.eclipse.org/technology/mat/0.8/update-site/"/>
+   </url>
+
    <requires>
       <import plugin="org.eclipse.core.runtime" version="3.3.100" match="greaterOrEqual"/>
       <import plugin="com.ibm.icu"/>
