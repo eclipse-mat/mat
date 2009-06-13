@@ -260,6 +260,39 @@ Java and all Java-based trademarks are trademarks of Sun Microsystems, Inc. in t
          fragment="true"
          unpack="false"/>
 
+    <plugin
+         id="org.eclipse.swt.cocoa.macosx"
+         os="macosx"
+         ws="cocoa"
+         arch="ppc"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         fragment="true"
+         unpack="false"/>
+         
+    <plugin
+         id="org.eclipse.swt.cocoa.macosx"
+         os="macosx"
+         ws="cocoa"
+         arch="x86"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         fragment="true"
+         unpack="false"/>
+         
+    <plugin
+         id="org.eclipse.swt.cocoa.macosx.x86_64"
+         os="macosx"
+         ws="cocoa"
+         arch="x86_64"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         fragment="true"
+         unpack="false"/>           
+
    <plugin
          id="org.eclipse.swt.motif.aix.ppc"
          os="aix"
@@ -661,6 +694,16 @@ Java and all Java-based trademarks are trademarks of Sun Microsystems, Inc. in t
          unpack="false"/>
 
    <plugin
+         id="org.eclipse.ui.cocoa"
+         os="macosx"
+         ws="cocoa"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         fragment="true"
+         unpack="false"/>
+
+   <plugin
          id="org.eclipse.update.core"
          download-size="0"
          install-size="0"
@@ -913,6 +956,36 @@ Java and all Java-based trademarks are trademarks of Sun Microsystems, Inc. in t
          os="win32"
          ws="wpf"
          arch="x86"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         fragment="true"/>
+
+    <plugin
+         id="org.eclipse.equinox.launcher.cocoa.macosx"
+         os="macosx"
+         ws="cocoa"
+         arch="ppc"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         fragment="true"/>
+         
+    <plugin
+         id="org.eclipse.equinox.launcher.cocoa.macosx"
+         os="macosx"
+         ws="cocoa"
+         arch="x86"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         fragment="true"/>       
+            
+   <plugin
+         id="org.eclipse.equinox.launcher.cocoa.macosx.x86_64"
+         os="macosx"
+         ws="cocoa"
+         arch="x86_64"
          download-size="0"
          install-size="0"
          version="0.0.0"
