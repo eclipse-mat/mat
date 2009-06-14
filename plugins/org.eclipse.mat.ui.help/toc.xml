@@ -19,7 +19,7 @@
 <topic label="List the Biggest Objects" href="tasks/listbiggestobjects.html"/>
 <topic label="Finding Responsible Objects" href="tasks/findingresponsibleobjects.html"/>
 <topic label="Querying Heap Objects (OQL)" href="tasks/queryingheapobjects.html"/>
-<topic label="Analyzing Class Loader" href="tasks/analyzingclassloader.html"/>
+<topic label="Analyze Class Loader" href="tasks/analyzingclassloader.html"/>
 <topic label="Analyzing Threads" href="tasks/analyzingthreads.html"/>
 <topic label="Analyzing Java Collection Usage" href="tasks/analyzingjavacollectionusage.html"/>
 <topic label="Analyzing Finalizer" href="tasks/analyzingfinalizer.html"/>
