@@ -168,6 +168,10 @@
 				Therefore it becomes a lot easier to divide the heap dump into
 				smaller parts.
 			</p>
+			
+			<p>
+				More: <xref href="../tasks/analyzingclassloader.dita"/>
+			</p>
 
 			<image href="basictutorail_by_classloader.png">
 				<alt>Histogram grouped by class loader</alt>
