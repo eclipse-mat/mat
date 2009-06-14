@@ -2,8 +2,9 @@
 <!DOCTYPE map PUBLIC "-//OASIS//DTD DITA Map//EN" "map.dtd">
 <map xml:lang="en-US">
 	<title>Memory Analyzer</title>
+	<topicref href="welcome.dita" type="reference"/>
 	<topichead navtitle="Getting Started">
-		<topicref href="tasks/basictutorial.dita" type="task" />
+		<topicref href="gettingstarted/basictutorial.dita" type="task" />
 	</topichead>
 	<topichead navtitle="Concepts">
 		<topicref href="concepts/heapdump.dita" type="concept" />

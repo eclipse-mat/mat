@@ -2,9 +2,10 @@
 
 <?NLS TYPE="org.eclipse.help.toc"?>
 
-<toc label="Memory Analyzer" topic="tasks/basictutorial.html">
+<toc label="Memory Analyzer" topic="welcome.html">
+<topic label="Introduction" href="welcome.html"/>
 <topic label="Getting Started">
-<topic label="Basic Tutorial" href="tasks/basictutorial.html"/>
+<topic label="Basic Tutorial" href="gettingstarted/basictutorial.html"/>
 </topic>
 <topic label="Concepts">
 <topic label="Heap Dump" href="concepts/heapdump.html"/>

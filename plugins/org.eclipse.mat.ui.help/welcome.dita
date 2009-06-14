@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd" >
+<reference id="ref_welcome" xml:lang="en-us">
+	<title>Introduction</title>
+	<refbody>
+		<section>
+			<image href="mimes/mat_thumb.png" outputclass="floatright">
+				<alt>Memory Analyzer Screenshot (Thumbnail)</alt>
+			</image>
+			<p>
+				The Eclipse Memory Analyzer is a fast and feature-rich
+				<b>Java heap analyzer</b>
+				that helps you find memory leaks and reduce memory
+				consumption.
+			</p>
+			<p>
+				Use the Memory Analyzer to analyze productive heap dumps with
+				hundreds of millions of objects, quickly calculate the retained
+				sizes of objects, see who is preventing the Garbage Collector from
+				collecting objects, run a report to automatically extract leak
+				suspects.
+			</p>
+		</section>
+		<section>
+			<title>Getting Started</title>
+			<p><xref href="gettingstarted/basictutorial.dita"/></p>
+		</section>
+
+	<section>
+	<title>Concepts</title>
+		<p><xref href="concepts/heapdump.dita" /></p>
+		<p><xref href="concepts/shallowretainedheap.dita" /></p>
+		<p><xref href="concepts/dominatortree.dita" /></p>
+		<p><xref href="concepts/gcroots.dita"/></p>
+	</section>
+	<section>
+	<title>Tasks</title>
+		<p><xref href="tasks/acquiringheapdump.dita" /></p>
+		<p><xref href="tasks/runningleaksuspectreport.dita" /></p>
+		<p><xref href="tasks/listbiggestobjects.dita" /></p>
+		<p><xref href="tasks/findingresponsibleobjects.dita" /></p>
+		<p><xref href="tasks/queryingheapobjects.dita" /></p>
+		<p><xref href="tasks/analyzingclassloader.dita" /></p>
+		<p><xref href="tasks/analyzingthreads.dita" /></p>
+		<p><xref href="tasks/analyzingjavacollectionusage.dita" /></p>
+		<p><xref href="tasks/analyzingfinalizer.dita" /></p>
+		<p><xref href="tasks/exportdata.dita" /></p>
+		<p><xref href="tasks/configure_mat.dita" /></p>
+	</section>
+
+	</refbody>
+</reference>

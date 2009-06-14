@@ -42,7 +42,7 @@
 					<text>Check out the new features in Eclipse Memory Analyzer</text>
 				</link>
 				<link label="Help"
-					url="http://org.eclipse.ui.intro/showHelpTopic?id=/org.eclipse.mat.ui.help/tasks/basictutorial.html">
+					url="http://org.eclipse.ui.intro/showHelpTopic?id=/org.eclipse.mat.ui.help/welcome.html">
 					<img src="css/pictograms/help.gif" alt="Help" />
 					<text>Get familiar with the tool by exploring its documentation.
 					</text>
