@@ -6,8 +6,5 @@
    <feature url="features/org.eclipse.mat.feature_0.8.0.@qualifier@.jar" id="org.eclipse.mat.feature" version="0.8.0.@qualifier@">
       <category name="Memory Analyzer (Incubation)"/>
    </feature>
-   <feature url="features/org.eclipse.mat.dtfj.feature_0.8.0.@qualifier@.jar" id="org.eclipse.mat.dtfj.feature" version="0.8.0.@qualifier@">
-      <category name="Memory Analyzer (Incubation)"/>
-   </feature>
    <category-def name="Memory Analyzer (Incubation)" label="Memory Analyzer (Incubation)"/>
 </site>
