@@ -12,3 +12,4 @@ Require-Bundle: org.eclipse.mat.parser;bundle-version="0.8.0",
 Bundle-Activator: org.eclipse.mat.dtfj.InitDTFJ
 Bundle-ActivationPolicy: lazy
 Eclipse-LazyStart: true
+DynamicImport-Package: com.ibm.dtfj.*
