@@ -79,9 +79,12 @@ import org.eclipse.mat.snapshot.model.IThreadStack;
 						}
 					}
 
-					int threadId = snapshot.mapAddressToId(threadAddress);
-					IThreadStack stack = new ThreadStackImpl(threadId, buildFrames(lines, line2locals));
-					threadId2stack.put(threadId, stack);
+					if (threadAddress != -1)
+					{
+					    int threadId = snapshot.mapAddressToId(threadAddress);
+					    IThreadStack stack = new ThreadStackImpl(threadId, buildFrames(lines, line2locals));
+					    threadId2stack.put(threadId, stack);
+					}
 				}
 
 				if (line != null) line = in.readLine();
@@ -114,6 +117,7 @@ import org.eclipse.mat.snapshot.model.IThreadStack;
 	private static long readThreadAddres(String line)
 	{
 		int start = line.indexOf("0x");
+		if (start < 0) return -1;
 		return (new BigInteger(line.substring(start + 2), 16)).longValue();
 	}
 
