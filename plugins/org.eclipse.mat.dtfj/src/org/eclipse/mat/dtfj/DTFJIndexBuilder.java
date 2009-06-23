@@ -198,6 +198,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
     /** The next address to use for a class without an address */
     private long nextClassAddress = 0x1000000080000000L;
 
+    /** Used to store the addresses of all the classes loaded by each class loader */
+    HashMapIntObject<ArrayLong> loaderClassCache;
     /**
      * Just used to check efficiency of pseudo roots - holds alternative set of
      * roots.
@@ -701,7 +703,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
 
         // See if thread, monitor and class loader objects are present in heap
         // core-sample-dmgr.dmp.zip
-        HashSet<JavaObject> missingObjects = new HashSet<JavaObject>();
+        HashMap<Long, JavaObject> missingObjects = new HashMap<Long, JavaObject>();
         listener.worked(1);
         workCountSoFar += 1;
         listener.subTask(Messages.DTFJIndexBuilder_FindingThreadObjectsMissingFromHeap);
@@ -721,7 +723,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     threadAddress = threadObject.getID().getAddress();
                     if (indexToAddress.reverse(threadAddress) < 0)
                     {
-                        missingObjects.add(threadObject);
+                        missingObjects.put(threadAddress, threadObject);
                         listener.sendUserMessage(Severity.ERROR, MessageFormat.format(
                                         Messages.DTFJIndexBuilder_ThreadObjectNotFound, format(threadAddress)), null);
                     }
@@ -758,7 +760,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 long monitorAddress = obj.getID().getAddress();
                 if (indexToAddress.reverse(monitorAddress) < 0)
                 {
-                    missingObjects.add(obj);
+                    missingObjects.put(monitorAddress, obj);
                     listener.sendUserMessage(Severity.ERROR, MessageFormat.format(
                                     Messages.DTFJIndexBuilder_MonitorObjectNotFound, format(monitorAddress)), null);
                 }
@@ -776,7 +778,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 loaderAddress = fixBootLoaderAddress(bootLoaderAddress, loaderAddress);
                 if (indexToAddress.reverse(loaderAddress) < 0)
                 {
-                    missingObjects.add(obj);
+                    missingObjects.put(loaderAddress, obj);
                     try
                     {
                         String type = obj.getJavaClass().getName();
@@ -796,7 +798,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         listener.worked(1);
         workCountSoFar += 1;
         listener.subTask(Messages.DTFJIndexBuilder_AddingMissingObjects);
-        for (Iterator<JavaObject> i = missingObjects.iterator(); i.hasNext();)
+        for (Iterator<JavaObject> i = missingObjects.values().iterator(); i.hasNext();)
         {
             JavaObject obj = i.next();
             long address = obj.getID().getAddress();
@@ -1238,6 +1240,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
         workCountSoFar += 1;
         listener.subTask(Messages.DTFJIndexBuilder_FindingOutboundReferencesForObjects);
 
+        loaderClassCache = initLoaderClassesCache();
+
         int objProgress2 = 0;
         // Find all the objects
         for (Iterator i = run.getHeaps(); i.hasNext();)
@@ -1269,7 +1273,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             }
         }
         // Objects not on the heap
-        for (Iterator<JavaObject> i = missingObjects.iterator(); i.hasNext();)
+        for (Iterator<JavaObject> i = missingObjects.values().iterator(); i.hasNext();)
         {
             JavaObject jo = i.next();
             processHeapObject(jo, pointerSize, bootLoaderAddress, loaders, jlc, clsJavaClass, refd, ic2, listener);
@@ -1481,6 +1485,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         dummyClassAddress = null;
         dummyMethodAddress = null;
         methodAddresses = null;
+        loaderClassCache = null;
         listener.done();
     }
 
@@ -1773,8 +1778,9 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 }
                 catch (CorruptDataException e)
                 {
-                    listener.sendUserMessage(Severity.WARNING,
-                                    Messages.DTFJIndexBuilder_UnableToFindThreadOwningMonitor, e);
+                    listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
+                                    Messages.DTFJIndexBuilder_UnableToFindThreadOwningMonitor, format(jm.getID()
+                                                    .getAddress()), format(obj.getID().getAddress())), e);
                     // Play safe and add as a global root
                     addRootForThread(obj, null, listener);
                 }
@@ -2260,10 +2266,10 @@ public class DTFJIndexBuilder implements IIndexBuilder
                             Messages.DTFJIndexBuilder_ProblemCheckingOutboundReferences, format(objAddr)), e);
         }
 
-        addRefs(refd, aa);
         // The GC roots associated with a thread are outbound references for the
         // thread, not global roots
         addThreadRefs(objId, aa);
+        addRefs(refd, aa);
         outRefs.log(indexToAddress, objId, aa);
     }
 
@@ -3108,6 +3114,25 @@ public class DTFJIndexBuilder implements IIndexBuilder
     }
 
     /**
+     * Build a cache of classes loaded by each loader
+     * @return
+     */
+    private HashMapIntObject<ArrayLong> initLoaderClassesCache()
+    {
+        HashMapIntObject<ArrayLong> cache = new HashMapIntObject<ArrayLong>();
+        for (Iterator<ClassImpl> i = idToClass.values(); i.hasNext();)
+        {
+            ClassImpl ci = i.next();
+            int load = ci.getClassLoaderId();
+            if (!cache.containsKey(load))
+                cache.put(load, new ArrayLong());
+            ArrayLong classes = cache.get(load);
+            classes.add(ci.getObjectAddress());
+        }
+        return cache;
+    }
+
+    /**
      * @param objId
      * @param aa
      */
@@ -3115,23 +3140,11 @@ public class DTFJIndexBuilder implements IIndexBuilder
     {
         debugPrint("Found loader " + objId + " at address " + format(indexToAddress.get(objId)) + " size=" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                         + idToClass.size());
-        // If so then add all the classes loaded by it as references
-        for (Iterator<ClassImpl> ij = idToClass.values(); ij.hasNext();)
+        // Add all the classes loaded by it as references
+        ArrayLong classes = loaderClassCache.get(objId);
+        if (classes != null)
         {
-            ClassImpl ci = ij.next();
-            if (ci.getClassLoaderId() == objId)
-            {
-                // Skip method classes - they are also found via the declaring
-                // class
-                debugPrint("Adding ref to class " + ci.getObjectId() + " at address " //$NON-NLS-1$ //$NON-NLS-2$
-                                + format(ci.getObjectAddress()) + " for loader " + objId); //$NON-NLS-1$
-                aa.add(ci.getObjectAddress());
-            }
-            else
-            {
-                // debugPrint("Not adding ref to class "+ci.getObjectId()+"
-                // loader "+ci.getClassLoaderId()+" for loader "+objId);
-            }
+            aa.addAll(classes);
         }
     }
 
@@ -4437,6 +4450,17 @@ public class DTFJIndexBuilder implements IIndexBuilder
     private int classSize(JavaClass jc, IProgressListener listener)
     {
         long size = 0;
+        try
+        {
+            // Try to accumulate the size of the actual class object
+            JavaObject jo = jc.getObject();
+            if (jo != null)
+            {
+                size += jo.getSize();
+            }
+        }
+        catch (CorruptDataException e)
+        {}
         for (Iterator i = jc.getDeclaredMethods(); i.hasNext();)
         {
             Object next = i.next();
