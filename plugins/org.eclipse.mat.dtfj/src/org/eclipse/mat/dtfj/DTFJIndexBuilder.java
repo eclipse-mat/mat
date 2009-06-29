@@ -287,6 +287,10 @@ public class DTFJIndexBuilder implements IIndexBuilder
     private int msgNbadThreadInfo = errorCount;
     private int msgNunexpectedModifiers = errorCount;
     private int msgNcorruptSection = errorCount;
+    private int msgNclassForObject = errorCount;
+    private int msgNtypeForClassObject = errorCount;
+    private int msgNobjectSize = errorCount;
+    private int msgNoutboundReferences = errorCount;
 
     /*
      * (non-Javadoc)
@@ -536,7 +540,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     }
                     JavaClass loaderObjectClass = loaderObject.getJavaClass();
                     loaderTypes.add(loaderObjectClass);
-                    String loaderClassName = loaderObjectClass.getName();
+                    String loaderClassName = getClassName(loaderObjectClass, listener);
                     if (loaderClassName.equals("*System*")) //$NON-NLS-1$
                     {
                         // Potential boot loader - Javacore
@@ -724,7 +728,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     if (indexToAddress.reverse(threadAddress) < 0)
                     {
                         missingObjects.put(threadAddress, threadObject);
-                        listener.sendUserMessage(Severity.ERROR, MessageFormat.format(
+                        listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
                                         Messages.DTFJIndexBuilder_ThreadObjectNotFound, format(threadAddress)), null);
                     }
                 }
@@ -761,7 +765,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 if (indexToAddress.reverse(monitorAddress) < 0)
                 {
                     missingObjects.put(monitorAddress, obj);
-                    listener.sendUserMessage(Severity.ERROR, MessageFormat.format(
+                    listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
                                     Messages.DTFJIndexBuilder_MonitorObjectNotFound, format(monitorAddress)), null);
                 }
             }
@@ -781,14 +785,14 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     missingObjects.put(loaderAddress, obj);
                     try
                     {
-                        String type = obj.getJavaClass().getName();
-                        listener.sendUserMessage(Severity.ERROR, MessageFormat.format(
+                        String type = getClassName(obj.getJavaClass(), listener);
+                        listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
                                         Messages.DTFJIndexBuilder_ClassLoaderObjectNotFoundType, format(loaderAddress),
                                         type), null);
                     }
                     catch (CorruptDataException e)
                     {
-                        listener.sendUserMessage(Severity.ERROR, MessageFormat.format(
+                        listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
                                         Messages.DTFJIndexBuilder_ClassLoaderObjectNotFound, format(loaderAddress)), e);
                     }
 
@@ -824,7 +828,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             {
                 // Get the name - if we cannot get the name then the class can
                 // not be built.
-                clsName = cls.getName();
+                clsName = getClassName(cls, listen);
                 // Find java.lang.ClassLoader. There should not be duplicates.
                 if (clsJavaLangClassLoader == null && clsName.equals("java/lang/ClassLoader")) //$NON-NLS-1$
                     clsJavaLangClassLoader = cls;
@@ -1102,7 +1106,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     if (listener.isCanceled()) { throw new IProgressListener.OperationCanceledException(); }
                 }
                 ClassImpl ci = idToClass.get(objId);
-                debugPrint("Class " + j2.getName() + " " + format(claddr) + " " + objId + " " + ci); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                if (debugInfo) debugPrint("Class " + getClassName(j2, listener) + " " + format(claddr) + " " + objId + " " + ci); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
                 if (ci == null)
                 {
                     // Perhaps the class was corrupt and never built
@@ -1467,6 +1471,10 @@ public class DTFJIndexBuilder implements IIndexBuilder
         skippedMessages += Math.max(0, -msgNbadThreadInfo);
         skippedMessages += Math.max(0, -msgNunexpectedModifiers);
         skippedMessages += Math.max(0, -msgNcorruptSection);
+        skippedMessages += Math.max(0, -msgNclassForObject);
+        skippedMessages += Math.max(0, -msgNtypeForClassObject);
+        skippedMessages += Math.max(0, -msgNobjectSize);
+        skippedMessages += Math.max(0, -msgNoutboundReferences);
         if (skippedMessages > 0)
         {
             listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
@@ -1500,7 +1508,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         try
         {
             // Used to store thread stack information
-            pw = new PrintWriter(new FileWriter(pfx + "threads"));
+            pw = new PrintWriter(new FileWriter(pfx + "threads")); //$NON-NLS-1$
         }
         catch (IOException e)
         {}
@@ -1517,12 +1525,12 @@ public class DTFJIndexBuilder implements IIndexBuilder
     {
         try {
             JavaObject jo = th.getObject();
-            out.print("Thread ");
-            out.println(jo != null ? "0x"+Long.toHexString(jo.getID().getAddress()) : "<unknown>");
+            out.print("Thread "); //$NON-NLS-1$
+            out.println(jo != null ? "0x"+Long.toHexString(jo.getID().getAddress()) : "<unknown>"); //$NON-NLS-1$ //$NON-NLS-2$
             for (Iterator it = th.getStackFrames(); it.hasNext(); out.println())
             {
                 Object next = it.next();
-                out.print(" at ");
+                out.print(" at "); //$NON-NLS-1$
                 if (next instanceof CorruptData)
                 {
                     continue;
@@ -1537,8 +1545,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
                         try
                         {
                             JavaClass jc = jm.getDeclaringClass();
-                            out.print(jc.getName().replace("/", "."));
-                            out.print(".");
+                            out.print(jc.getName().replace("/", ".")); //$NON-NLS-1$ //$NON-NLS-2$
+                            out.print("."); //$NON-NLS-1$
                         }
                         catch (CorruptDataException e)
                         {}
@@ -1556,12 +1564,12 @@ public class DTFJIndexBuilder implements IIndexBuilder
                         }
                         catch (CorruptDataException e)
                         {}
-                        out.print(" ");
+                        out.print(" "); //$NON-NLS-1$
                         try
                         {
                             if (Modifier.isNative(jm.getModifiers()))
                             {
-                                out.print("(Native Method)");
+                                out.print("(Native Method)"); //$NON-NLS-1$
                                 continue;
                             }
                         }
@@ -1572,25 +1580,25 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     {}
                     try
                     {
-                        out.print("(");
+                        out.print("("); //$NON-NLS-1$
                         out.print(jl.getFilename());
                         try
                         {
-                            out.print(":" + jl.getLineNumber());
+                            out.print(":" + jl.getLineNumber()); //$NON-NLS-1$
                         }
                         catch (CorruptDataException e)
                         {}
                         catch (DataUnavailable e)
                         {}
-                        out.print(")");
+                        out.print(")"); //$NON-NLS-1$
                     }
                     catch (DataUnavailable e)
                     {
-                        out.print("Unknown Source)");
+                        out.print("Unknown Source)"); //$NON-NLS-1$
                     }
                     catch (CorruptDataException e)
                     {
-                        out.print("Unknown Source)");
+                        out.print("Unknown Source)"); //$NON-NLS-1$
                     }
                 }
                 catch (CorruptDataException e)
@@ -1600,7 +1608,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             
         }
         out.println();
-        out.println(" locals:");
+        out.println(" locals:"); //$NON-NLS-1$
     }
     
     /**
@@ -1612,7 +1620,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
     private void printLocal(PrintWriter pw, long target, int frameNum)
     {
         if (indexToAddress.reverse(target) >= 0)
-            pw.println("  objecId=0x" + Long.toHexString(target) + ", line="
+            pw.println("  objecId=0x" + Long.toHexString(target) + ", line=" //$NON-NLS-1$ //$NON-NLS-2$
                             + frameNum);
     }
     
@@ -2060,20 +2068,20 @@ public class DTFJIndexBuilder implements IIndexBuilder
             {
                 if (!allClasses.contains(cls))
                 {
-                    debugPrint("Adding extra array class " + cls.getName()); //$NON-NLS-1$
+                    if (debugInfo) debugPrint("Adding extra array class " + getClassName(cls, listener)); //$NON-NLS-1$
                     allClasses.add(cls);
                 }
                 cls = cls.getComponentType();
             }
             if (!allClasses.contains(cls))
             {
-                debugPrint("Adding extra class or component class " + cls.getName()); //$NON-NLS-1$
+                if (debugInfo) debugPrint("Adding extra class or component class " + getClassName(cls, listener)); //$NON-NLS-1$
                 allClasses.add(cls);
             }
         }
         catch (CorruptDataException e)
         {
-            listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
+            if (msgNclassForObject-- > 0) listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
                             Messages.DTFJIndexBuilder_ProblemFindingClassesForObject, format(objAddress)), e);
         }
     }
@@ -2129,13 +2137,13 @@ public class DTFJIndexBuilder implements IIndexBuilder
             if (clsId >= 0)
             {
                 if (verbose)
-                    debugPrint("found object " + objId + " " + type.getName() + " at " + format(objAddr) + " clsId " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                    debugPrint("found object " + objId + " " + getClassName(type, listener) + " at " + format(objAddr) + " clsId " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
                                     + clsId);
             }
             else
             {
                 listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
-                                Messages.DTFJIndexBuilder_ProblemGettingClassIDType, format(objAddr), type.getName(),
+                                Messages.DTFJIndexBuilder_ProblemGettingClassIDType, format(objAddr), getClassName(type, listener),
                                 format(clsAddr)), null);
             }
         }
@@ -2151,6 +2159,12 @@ public class DTFJIndexBuilder implements IIndexBuilder
             // it is wrong!
             clsId = jlc.getSuperClassId();
             clsAddr = jlc.getSuperClassAddress();
+            if (clsAddr == 0)
+            {
+                // Even more corrupt - no Object!
+                clsId = jlc.getObjectId();
+                clsAddr = jlc.getObjectAddress();
+            }
             if (loaders.get(jo) != null)
             {
                 // It is a loader, so try to make it the type of a class loader
@@ -2209,7 +2223,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         }
         catch (CorruptDataException e)
         {
-            listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
+            if (msgNobjectSize-- > 0) listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
                             Messages.DTFJIndexBuilder_ProblemGettingObjectSize, format(objAddr)), e);
             // Try to cope with bad sizes - at least register an instance of
             // this class
@@ -2248,7 +2262,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             }
             catch (CorruptDataException e)
             {
-                listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
+                if (msgNoutboundReferences-- > 0) listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
                                 Messages.DTFJIndexBuilder_ProblemGettingOutboundReferences, format(objAddr)), e);
             }
         }
@@ -2381,7 +2395,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 {
                     veryFirstAddr = Math.min(address, address + searchSize);
                 }
-                debugPrint("Frame " + jf.getLocation().getMethod().getName()); //$NON-NLS-1$
+                if (debugInfo) debugPrint("Frame " + jf.getLocation().getMethod().getName()); //$NON-NLS-1$
                 searchFrame(pointerSize, threadAddress, thr, ip, searchSize, GCRootInfo.Type.JAVA_LOCAL, gcRoot,
                                 searchedInFrame, null);
             }
@@ -2954,12 +2968,12 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     if (o instanceof JavaObject)
                     {
                         JavaObject jo = (JavaObject) o;
-                        desc2 = jo.getJavaClass().getName();
+                        desc2 = getClassName(jo.getJavaClass(), listener);
                     }
                     else if (o instanceof JavaClass)
                     {
                         JavaClass jc = (JavaClass) o;
-                        desc2 = jc.getName();
+                        desc2 = getClassName(jc, listener);
                     }
                     else
                     {
@@ -2986,12 +3000,12 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     if (o instanceof JavaObject)
                     {
                         JavaObject jo = (JavaObject) o;
-                        desc2 = jo.getJavaClass().getName();
+                        desc2 = getClassName(jo.getJavaClass(), listener);
                     }
                     else if (o instanceof JavaClass)
                     {
                         JavaClass jc = (JavaClass) o;
-                        desc2 = jc.getName();
+                        desc2 = getClassName(jc, listener);
                     }
                     else
                     {
@@ -3322,7 +3336,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 name = e.toString();
             }
             if (listener != null)
-                listener.sendUserMessage(Severity.WARNING, MessageFormat.format(msg, formattedCorruptDataAddress(d), d
+                listener.sendUserMessage(Severity.ERROR, MessageFormat.format(msg, formattedCorruptDataAddress(d), d
                                 .toString(), name, format(addr)), new CorruptDataException(d));
             return true;
         }
@@ -3523,7 +3537,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
     private static void logCorruptData(IProgressListener listener, String msg, CorruptData d, long addr)
     {
         if (listener != null)
-            listener.sendUserMessage(Severity.WARNING, MessageFormat.format(msg, formattedCorruptDataAddress(d), d
+            listener.sendUserMessage(Severity.ERROR, MessageFormat.format(msg, formattedCorruptDataAddress(d), d
                             .toString(), format(addr)), new CorruptDataException(d));
     }
 
@@ -3811,6 +3825,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         HashMap<Long, String> objset = new LinkedHashMap<Long, String>();
 
         Iterator i2;
+        boolean hasDTFJRefs = false;
 
         String name = ""; //$NON-NLS-1$
         long objAddr;
@@ -3839,7 +3854,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 clsOfCls = clsJavaLangClass;
             }
 
-            name = jc.getName();
+            name = getClassName(jc, listener);
             objAddr = getClassAddress(jc, listener);
             try
             {
@@ -3853,6 +3868,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     // java.lang.Class address"); // Doesn't
                     // reference class
                     i2 = clsObj.getReferences();
+                    hasDTFJRefs |= i2.hasNext();
                     collectRefs(i2, objset, desc, name, objAddr, listener);
                 }
                 else
@@ -3890,7 +3906,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             long loaderAddr = getLoaderAddress(classLoader, bootLoaderAddress);
             if (classLoader == null || classLoader.getObject() == null)
             {
-                debugPrint("Null loader obj " + jc.getName()); //$NON-NLS-1$
+                if (debugInfo) debugPrint("Null loader obj " + getClassName(jc, listener)); //$NON-NLS-1$
                 // getReferences won't find this otherwise
                 objset.put(loaderAddr, "added boot loader"); //$NON-NLS-1$
             }
@@ -3917,7 +3933,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             try
             {
                 clsObj = jo.getJavaClass();
-                name = clsObj.getName();
+                name = getClassName(clsObj, listener);
                 if (clsObj.isArray())
                 {
                     // Sov doesn't ref array class, instead it gives the element
@@ -3971,7 +3987,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         int objId = indexToAddress.reverse(objAddr);
 
 		// If there are no DTFJ refs (e.g. javacore) then don't use DTFJ refs
-        boolean hasDTFJRefs = i2.hasNext();
+        hasDTFJRefs |= i2.hasNext();
         collectRefs(i2, objset, desc, name, objAddr, listener);
 
         // debugPrint("Obj "+type+" "+aaset.size()+" "+objset.size());
@@ -4033,8 +4049,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
             if (a2.length == 0 || !hasDTFJRefs)
             {
                 // Sov has problems with objects of type [B, [C etc.
-                if (msgNgetRefsAllMissing-- > 0)
-                    listener.sendUserMessage(Severity.ERROR, MessageFormat.format(
+                if (!aa.isEmpty() && msgNgetRefsAllMissing-- > 0)
+                    listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
                                     Messages.DTFJIndexBuilder_DTFJGetReferencesMissingAllReferences, name, objId,
                                     format(objAddr)), null);
             }
@@ -4293,18 +4309,18 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 else
                 {
                     // Build a unique dummy address
+                    long clsAddr = nextClassAddress;
+                    dummyClassAddress.put(type, clsAddr);
+                    nextClassAddress += 8;
                     String clsName;
                     try
                     {
-                        clsName = type.getName();
+                        clsName = getClassName(type, listener);
                     }
                     catch (CorruptDataException e)
                     {
                         clsName = type.toString();
                     }
-                    long clsAddr = nextClassAddress;
-                    dummyClassAddress.put(type, clsAddr);
-                    nextClassAddress += 8;
                     listener.sendUserMessage(Severity.INFO, MessageFormat.format(
                                     Messages.DTFJIndexBuilder_ClassHasNoAddress, clsName, format(clsAddr)), e1);
                     return clsAddr;
@@ -4575,11 +4591,11 @@ public class DTFJIndexBuilder implements IIndexBuilder
         String cn = null;
         try
         {
-            cn = c.getName();
+            cn = getClassName(c, listener);
             ca = getClassAddress(c, listener);
             while (getSuperclass(c, listener) != null)
             {
-                String cn1 = c.getName();
+                String cn1 = getClassName(c, listener);
                 long ca1 = getClassAddress(c, listener);
                 for (Iterator it = c.getDeclaredMethods(); it.hasNext();)
                 {
@@ -4696,15 +4712,24 @@ public class DTFJIndexBuilder implements IIndexBuilder
                                 {
                                     String name;
                                     Exception e1 = null;
-                                    try
+                                    if (debugInfo)
                                     {
-                                        JavaClass javaClass = jao.getJavaClass();
-                                        name = javaClass != null ? javaClass.getName() : ""; //$NON-NLS-1$
+                                        // Getting the class can be expensive for an unknown object,
+                                        // so only do in debug mode to avoid rereading the dump
+                                        try
+                                        {
+                                            JavaClass javaClass = jao.getJavaClass();
+                                            name = javaClass != null ? javaClass.getName() : ""; //$NON-NLS-1$
+                                        }
+                                        catch (CorruptDataException e)
+                                        {
+                                            name = e.toString();
+                                            e1 = e;
+                                        }
                                     }
-                                    catch (CorruptDataException e)
+                                    else
                                     {
-                                        name = e.toString();
-                                        e1 = e;
+                                        name = "?";
                                     }
                                     String typeName;
                                     try
@@ -5151,7 +5176,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 {
                     // Corrupt - fails for dump.xml
                     long objAddr = joc.getID().getAddress();
-                    listener.sendUserMessage(Severity.ERROR, MessageFormat.format(
+                    if (msgNtypeForClassObject-- > 0) listener.sendUserMessage(Severity.ERROR, MessageFormat.format(
                                     Messages.DTFJIndexBuilder_UnableToFindTypeOfObject, format(objAddr),
                                     format(claddr), j2.getName()), e);
                     j3 = null;
@@ -5162,11 +5187,11 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 // No Java object for class, so skip looking for fields
                 if (j2.getID() != null)
                 {
-                    debugPrint("No Java object for " + j2.getName() + " at " + format(j2.getID().getAddress())); //$NON-NLS-1$ //$NON-NLS-2$
+                    if (debugInfo) debugPrint("No Java object for " + getClassName(j2, listener) + " at " + format(j2.getID().getAddress())); //$NON-NLS-1$ //$NON-NLS-2$
                 }
                 else
                 {
-                    debugPrint("No Java object for " + j2.getName()); //$NON-NLS-1$
+                    if (debugInfo) debugPrint("No Java object for " + getClassName(j2, listener)); //$NON-NLS-1$
                 }
                 j3 = null;
             }
@@ -5267,7 +5292,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             // Add the MAT descriptions of the fields
             Field[] statics = al2.toArray(new Field[0]);
             FieldDescriptor[] fld = al.toArray(new FieldDescriptor[0]);
-            String cname = getMATClassName(j2);
+            String cname = getMATClassName(j2, listener);
             ClassImpl ci = new ClassImpl(claddr, cname, sup, loader, statics, fld);
             // Fix the indexes
             final long claddr2 = ci.getObjectAddress();
@@ -5392,6 +5417,43 @@ public class DTFJIndexBuilder implements IIndexBuilder
     }
 
     /**
+     * Get the name for a class, but handle errors
+     * @param javaClass
+     * @param listen
+     * @return
+     * @throws CorruptDataException
+     */
+    private String getClassName(JavaClass javaClass, IProgressListener listen) throws CorruptDataException
+    {
+        String name;
+        try
+        {
+            name = javaClass.getName();
+        }
+        catch (CorruptDataException e)
+        {
+            long id = getClassAddress(javaClass, listen);
+            name = "corruptClassName@" + format(id); //$NON-NLS-1$
+            try
+            {
+                if (javaClass.isArray())
+                {
+                    name = "[LcorruptArrayClassName@" + format(id) + ";"; //$NON-NLS-1$ //$NON-NLS-2$
+                    JavaClass comp = javaClass.getComponentType();
+                    String compName = getClassName(comp, listen);
+                    if (compName.startsWith("[")) //$NON-NLS-1$
+                        name = "[" + compName; //$NON-NLS-1$
+                    else
+                        name = "[L" + compName + ";"; //$NON-NLS-1$ //$NON-NLS-2$
+                }
+            }
+            catch (CorruptDataException e2)
+            {
+            }
+        }
+        return name;
+    }
+    /**
      * @param javaClass
      * @return the type as a signature
      * @throws CorruptDataException
@@ -5425,9 +5487,10 @@ public class DTFJIndexBuilder implements IIndexBuilder
      */
     private JavaClass getSuperclass(JavaClass j2, IProgressListener listener)
     {
+        JavaClass sup = null;
         try
         {
-            JavaClass sup = j2.getSuperclass();
+            sup = j2.getSuperclass();
 
             // superclass for array can return java.lang.Object from
             // another dump!
@@ -5468,7 +5531,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             if (sup == null)
             {
                 // debugPrint("No superclass for "+j2.getName());
-                if (j2.isArray())
+                if (j2.isArray() && j2.getObject() != null && j2.getObject().getJavaClass().getSuperclass() != null)
                 {
                     // Fix DTFJ bug - find java.lang.Object to use as the
                     // superclass
@@ -5514,16 +5577,16 @@ public class DTFJIndexBuilder implements IIndexBuilder
             String name;
             try
             {
-                name = j2.getName();
+                name = getClassName(j2, listener);
             }
             catch (CorruptDataException e2)
             {
                 name = j2.getClass().getName();
             }
             if (listener != null && msgNgetSuperclass-- > 0)
-                listener.sendUserMessage(Severity.ERROR, MessageFormat.format(
+                listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
                                 Messages.DTFJIndexBuilder_ProblemGettingSuperclass, name, format(addr)), e);
-            return null; // Just for Javacore
+            return sup; // Just for Javacore
         }
     }
 
@@ -5624,13 +5687,14 @@ public class DTFJIndexBuilder implements IIndexBuilder
      * [[[Ljava/lang/String; -> java.lang.String[][][] [C -> char[]
      * 
      * @param j2
+     * @param listener for messages
      * @return The MAT version of the class name
      * @throws CorruptDataException
      */
-    private String getMATClassName(JavaClass j2) throws CorruptDataException
+    private String getMATClassName(JavaClass j2, IProgressListener listener) throws CorruptDataException
     {
         // MAT expects the name with $, but with [][] for the dimensions
-        String d = j2.getName().replace('/', '.');
+        String d = getClassName(j2, listener).replace('/', '.');
         // debugPrint("d = "+d);
         int dim = d.lastIndexOf("[") + 1; //$NON-NLS-1$
         int i = dim;
