@@ -41,8 +41,11 @@ import com.ibm.dtfj.image.MemoryAccessException;
 import com.ibm.dtfj.java.JavaClass;
 import com.ibm.dtfj.java.JavaField;
 import com.ibm.dtfj.java.JavaHeap;
+import com.ibm.dtfj.java.JavaLocation;
 import com.ibm.dtfj.java.JavaObject;
 import com.ibm.dtfj.java.JavaRuntime;
+import com.ibm.dtfj.java.JavaStackFrame;
+import com.ibm.dtfj.java.JavaThread;
 
 /**
  * @author ajohnson
@@ -54,6 +57,8 @@ public class DTFJHeapObjectReader implements IObjectReader
      * piecemeal later
      */
     private static final int LARGE_ARRAY_SIZE = 1000;
+    /** Whether to use stack frames and methods as objects and classes */
+    private static final boolean getExtraInfo = false;
     /** the actual DTFJ image */
     private Image image;
     /** the JVM */
@@ -135,6 +140,18 @@ public class DTFJHeapObjectReader implements IObjectReader
             // DTFJ is not thread safe, but MAT is multi-threaded
             synchronized (image)
             {
+                if (getExtraInfo)
+                {
+                    // See if the class looks like a method
+                    ClassImpl cls = (ClassImpl) snapshot.getClassOf(objectId);
+                    if (cls.getName().contains(DTFJIndexBuilder.METHOD_NAME))
+                    {
+                        // Get the special method/stack frame data
+                        IObject ret = createObject2(snapshot, objectId, addr, cls);
+                        if (ret != null)
+                            return ret;
+                    }
+                }
                 JavaObject jo = getJavaObjectByAddress0(addr);
                 IObject inst;
                 if (snapshot.isArray(objectId))
@@ -163,6 +180,102 @@ public class DTFJHeapObjectReader implements IObjectReader
             throw new SnapshotException(MessageFormat.format(Messages.DTFJHeapObjectReader_ErrorReadingObjectAtIndex,
                             objectId, format(addr)), e);
         }
+    }
+
+    /**
+     * Create an MAT object for a stack frame special object
+     * 
+     * @param snapshot
+     * @param objectId
+     * @param addr
+     * @param cls
+     * @return
+     */
+    private IObject createObject2(ISnapshot snapshot, int objectId, long addr, ClassImpl cls)
+    {
+        // Use a search over every frame to find the right one
+        if (getExtraInfo)
+        {
+            long prevFrameAddress = 0;
+            for (Iterator i = jvm.getThreads(); i.hasNext();)
+            {
+                Object next = i.next();
+                if (next instanceof CorruptData)
+                {
+                    continue;
+                }
+                JavaThread jt = (JavaThread) next;
+                int pointerSize = snapshot.getSnapshotInfo().getIdentifierSize();
+                // Count all the frames
+                int totalDepth = 0;
+                for (Iterator j = jt.getStackFrames(); j.hasNext(); ++totalDepth)
+                {
+                    j.next();
+                }
+                int depth = 0;
+                for (Iterator j = jt.getStackFrames(); j.hasNext(); ++depth)
+                {
+                    Object next2 = j.next();
+                    if (next2 instanceof CorruptData)
+                    {
+                        continue;
+                    }
+                    JavaStackFrame jsf = (JavaStackFrame) next2;
+                    long currAddr = DTFJIndexBuilder.getFrameAddress(jsf, prevFrameAddress, pointerSize);
+                    prevFrameAddress = currAddr;
+                    if (currAddr == addr)
+                    {
+                        // These fields should match those in the method
+                        // class
+                        List<Field> fields = new ArrayList<Field>();
+                        try
+                        {
+                            JavaLocation jl = jsf.getLocation();
+                            Field f = new Field("lineNumber", IObject.Type.INT, Integer.valueOf(jl.getLineNumber())); //$NON-NLS-1$
+                            fields.add(f);
+                        }
+                        catch (DataUnavailable e)
+                        {}
+                        catch (CorruptDataException e)
+                        {}
+                        try
+                        {
+                            JavaLocation jl = jsf.getLocation();
+                            Field f = new Field("compilationLevel", IObject.Type.INT, Integer.valueOf(jl //$NON-NLS-1$
+                                            .getCompilationLevel()));
+                            fields.add(f);
+                        }
+                        catch (ClassCastException e)
+                        {
+                            // Sov problem
+                        }
+                        catch (CorruptDataException e)
+                        {}
+                        try
+                        {
+                            JavaLocation jl = jsf.getLocation();
+                            Field f = new Field("locationAddress", IObject.Type.LONG, Long.valueOf(jl //$NON-NLS-1$
+                                            .getAddress().getAddress()));
+                            fields.add(f);
+                        }
+                        catch (ClassCastException e)
+                        {
+                            // Sov problem
+                        }
+                        catch (CorruptDataException e)
+                        {}
+                        Field f = new Field("frameNumber", IObject.Type.INT, Integer.valueOf(depth)); //$NON-NLS-1$
+                        fields.add(f);
+                        f = new Field("stackDepth", IObject.Type.INT, Integer.valueOf(totalDepth - depth)); //$NON-NLS-1$
+                        fields.add(f);
+                        InstanceImpl inst = new InstanceImpl(objectId, addr, cls, fields);
+                        return inst;
+                    }
+                }
+            }
+        }
+        // Not found
+        return null;
     }
 
     /**

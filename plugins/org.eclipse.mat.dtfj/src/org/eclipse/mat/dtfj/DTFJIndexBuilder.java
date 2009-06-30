@@ -27,6 +27,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -66,6 +67,7 @@ import org.eclipse.mat.util.IProgressListener.Severity;
 
 import com.ibm.dtfj.image.CorruptData;
 import com.ibm.dtfj.image.CorruptDataException;
+import com.ibm.dtfj.image.DTFJException;
 import com.ibm.dtfj.image.DataUnavailable;
 import com.ibm.dtfj.image.Image;
 import com.ibm.dtfj.image.ImageAddressSpace;
@@ -112,7 +114,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
      */
     private static final long NATIVE_STACK_SECTION_MAX_SIZE = 1024 * 1024L;
     /** print out extra information to the console */
-    private static boolean verbose = false;
+    private static final boolean verbose = false;
     /** Whether DTFJ has root support */
     private static final boolean haveDTFJRoots = true;
     /** Whether to use DTFJ Root support */
@@ -143,6 +145,14 @@ public class DTFJIndexBuilder implements IIndexBuilder
     private static final boolean useSystemClassRoots = true;
     /** Whether to skip heap roots marked marked as weak/soft reference etc. */
     private static final boolean skipWeakRoots = true;
+    /** Whether to represent stack frames and methods as objects and classes */
+    private static final boolean getExtraInfo = false;
+    /** Whether to represent all methods as pseudo-classes */
+    private static final boolean getExtraInfo2 = false;
+    /** Separator between the package/class name and the method name */
+    private static final String METHOD_NAME_PREFIX = "."; //$NON-NLS-1$
+    /** Unique string only found in method names */
+    static final String METHOD_NAME = "("; //$NON-NLS-1$
     /**
      * Whether to guess finalizable objects as those unreferenced objects with
      * finalizers
@@ -190,6 +200,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
     private HashMap<JavaClass, Long> dummyClassAddress = new HashMap<JavaClass, Long>();
     /** Used to remember dummy addresses for methods without addresses */
     private HashMap<JavaMethod, Long> dummyMethodAddress = new HashMap<JavaMethod, Long>();
+    /** Used to remember dummy addresses for methods without addresses which have a faulty equals() method */
+    private IdentityHashMap<JavaMethod, Long> dummyMethodAddress2 = new IdentityHashMap<JavaMethod, Long>();        
     /**
      * Used to remember method addresses in case two different methods attempt
      * to use the same address
@@ -705,6 +717,17 @@ public class DTFJIndexBuilder implements IIndexBuilder
             indexToAddress.sort();
         }
 
+        // Holds all of the methods as DTFJ JavaMethod - just used in this
+        // method
+        LinkedHashSet<JavaMethod> allMethods;
+        // Holds a mapping from stack frame to method addresses
+        LinkedHashMap<Long, Long> allFrames;
+        if (getExtraInfo)
+        {
+            allMethods = new LinkedHashSet<JavaMethod>();
+            allFrames = new LinkedHashMap<Long, Long>();
+        }
+
         // See if thread, monitor and class loader objects are present in heap
         // core-sample-dmgr.dmp.zip
         HashMap<Long, JavaObject> missingObjects = new HashMap<Long, JavaObject>();
@@ -732,6 +755,60 @@ public class DTFJIndexBuilder implements IIndexBuilder
                                         Messages.DTFJIndexBuilder_ThreadObjectNotFound, format(threadAddress)), null);
                     }
                 }
+                if (getExtraInfo)
+                {
+                    // Scan stack frames for pseudo-classes
+                    int frameId = 0;
+                    long prevFrameAddress = 0;
+                    for (Iterator ii = th.getStackFrames(); ii.hasNext(); ++frameId)
+                    {
+                        Object next2 = ii.next();
+                        if (isCorruptData(next2, listener, Messages.DTFJIndexBuilder_CorruptDataReadingJavaStackFrames,
+                                        th))
+                            continue;
+                        JavaStackFrame jf = (JavaStackFrame) next2;
+                        if (listener.isCanceled()) { throw new IProgressListener.OperationCanceledException(); }
+                        try
+                        {
+                            JavaLocation jl = jf.getLocation();
+                            JavaMethod jm = jl.getMethod();
+                            long frameAddress = getFrameAddress(jf, prevFrameAddress, pointerSize);
+                            prevFrameAddress = frameAddress;
+                            if (frameAddress != 0)
+                            {
+                                if (indexToAddress.reverse(frameAddress) < 0)
+                                {
+                                    long methodAddress = getMethodAddress(jm, listener);
+                                    if (!allFrames.containsKey(frameAddress))
+                                    {
+                                        allMethods.add(jm);
+                                        allFrames.put(frameAddress, methodAddress);
+                                    }
+                                    else
+                                    {
+                                        listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
+                                                        Messages.DTFJIndexBuilder_DuplicateJavaStackFrame, frameId,
+                                                        format(frameAddress), format(methodAddress), format(allFrames
+                                                                        .get(frameAddress)), format(threadAddress)),
+                                                        null);
+                                    }
+                                }
+                                else
+                                {
+                                    listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
+                                                    Messages.DTFJIndexBuilder_IgnoringJavaStackFrame, frameId,
+                                                    format(frameAddress), format(threadAddress)), null);
+                                }
+                            }
+                        }
+                        catch (CorruptDataException e)
+                        {
+                            listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
+                                            Messages.DTFJIndexBuilder_ProblemReadingJavaStackFrame, frameId,
+                                            format(threadAddress)), e);
+                        }
+                    }
+                }
             }
             catch (CorruptDataException e)
             {
@@ -746,6 +823,23 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     listener.sendUserMessage(Severity.WARNING,
                                     Messages.DTFJIndexBuilder_ProblemReadingJavaThreadInformation, e);
                     listener.sendUserMessage(Severity.INFO, Messages.DTFJIndexBuilder_ProblemReadingJavaThreadName, e2);
+                }
+            }
+        }
+        if (getExtraInfo && getExtraInfo2)
+        {
+            listener.worked(1);
+            workCountSoFar += 1;
+            listener.subTask(Messages.DTFJIndexBuilder_FindingAllMethods);
+            for (JavaClass jc : allClasses)
+            {
+                for (Iterator i = jc.getDeclaredMethods(); i.hasNext();)
+                {
+                    Object next = i.next();
+                    if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingDeclaredMethods, jc))
+                        continue;
+                    JavaMethod jm = (JavaMethod) next;
+                    allMethods.add(jm);
                 }
             }
         }
@@ -807,6 +901,22 @@ public class DTFJIndexBuilder implements IIndexBuilder
             JavaObject obj = i.next();
             long address = obj.getID().getAddress();
             rememberObject(obj, address, allClasses, listener);
+        }
+
+        if (getExtraInfo)
+        {
+            // Extra objects when dealing with stack frames as objects
+            // Add the methods
+            for (JavaMethod jm : allMethods)
+            {
+                indexToAddress.add(getMethodAddress(jm, listener));
+            }
+            // Add the frames
+            for (long frame : allFrames.keySet())
+            {
+                indexToAddress.add(frame);
+            }
+            debugPrint("added methods " + allMethods.size() + " frames " + allFrames.size()); //$NON-NLS-1$ //$NON-NLS-2$
         }
 
         // Make the ID to address array ready for reverse lookups
@@ -877,6 +987,11 @@ public class DTFJIndexBuilder implements IIndexBuilder
 
         int nClasses = allClasses.size();
 
+        if (getExtraInfo)
+        {
+            nClasses += allMethods.size();
+        }
+
         // Make the ID to address array ready for reverse lookups
         if (indexToAddress.size() > 0)
         {
@@ -884,10 +999,18 @@ public class DTFJIndexBuilder implements IIndexBuilder
         }
         // Notify the builder about all the identifiers.
         index.setIdentifiers(indexToAddress);
-        listener.sendUserMessage(Severity.INFO, MessageFormat.format(
-                        Messages.DTFJIndexBuilder_FoundIdentifiersObjectsClasses, indexToAddress.size(), indexToAddress
-                                        .size()
-                                        - nClasses, nClasses), null);
+        if (getExtraInfo)
+        {
+            listener.sendUserMessage(Severity.INFO, MessageFormat.format(
+                            Messages.DTFJIndexBuilder_FoundIdentifiersObjectsClassesMethods, indexToAddress.size(),
+                            indexToAddress.size() - nClasses - allFrames.size(), allFrames.size(), nClasses - allMethods.size(), allMethods.size()), null);
+        }
+        else
+        {
+            listener.sendUserMessage(Severity.INFO, MessageFormat.format(
+                            Messages.DTFJIndexBuilder_FoundIdentifiersObjectsClasses, indexToAddress.size(),
+                            indexToAddress.size() - nClasses, nClasses), null);
+        }
         debugPrint("Total identifiers " + indexToAddress.size()); //$NON-NLS-1$
 
         if (listener.isCanceled()) { throw new IProgressListener.OperationCanceledException(); }
@@ -1027,6 +1150,22 @@ public class DTFJIndexBuilder implements IIndexBuilder
             useDTFJRefs = true;
         }
 
+        if (getExtraInfo)
+        {
+            for (JavaMethod jm : allMethods)
+            {
+                try
+                {
+                    ClassImpl ci = genClass(jm, jlc, idToClass, bootLoaderAddress, listener);
+                }
+                catch (CorruptDataException e)
+                {
+                    listener.sendUserMessage(Severity.ERROR,
+                                    Messages.DTFJIndexBuilder_ProblemBuildingClassObjectForMethod, e);
+                }
+            }
+        }
+
         // fix up the subclasses for MAT
         int maxClsId = 0;
         for (Iterator<ClassImpl> i = idToClass.values(); i.hasNext();)
@@ -1141,6 +1280,19 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 // Superclass address are now added by getReferences()
                 // long supAddr = ci.getSuperClassAddress();
                 // if (supAddr != 0) ref.add(ci.getSuperClassAddress());
+                if (getExtraInfo && getExtraInfo2)
+                {
+                    // Add references to methods
+                    for (Iterator i = j2.getDeclaredMethods(); i.hasNext();)
+                    {
+                        Object next = i.next();
+                        if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingDeclaredMethods,
+                                        j2))
+                            continue;
+                        JavaMethod jm = (JavaMethod) next;
+                        ref.add(getMethodAddress(jm, listener));
+                    }
+                }
                 for (IteratorLong il = ref.iterator(); il.hasNext();)
                 {
                     long ad = il.next();
@@ -1171,6 +1323,37 @@ public class DTFJIndexBuilder implements IIndexBuilder
             }
         }
 
+        if (getExtraInfo)
+        {
+            // fix up outbound refs for methods
+            for (JavaMethod m2 : allMethods)
+            {
+                long claddr = getMethodAddress(m2, listener);
+                int objId = indexToAddress.reverse(claddr);
+                ClassImpl ci = idToClass.get(objId);
+                if (ci == null)
+                {
+                    // Perhaps the method was corrupt and never built
+                    continue;
+                }
+                ArrayLong ref = ci.getReferences();
+                addRefs(refd, ref);
+                outRefs.log(indexToAddress, objId, ref);
+            }
+        }
+
+        if (getExtraInfo)
+        {
+            // fix the types of all the frames
+            for (long addr : allFrames.keySet())
+            {
+                int objId = indexToAddress.reverse(addr);
+                long frameTypeAddr = allFrames.get(addr);
+                int clsId = indexToAddress.reverse(frameTypeAddr);
+                objectToClass.set(objId, clsId);
+            }
+        }
+
         listener.worked(1);
         workCountSoFar += 1;
         listener.subTask(Messages.DTFJIndexBuilder_FindingRoots);
@@ -1179,7 +1362,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         // frame at the lower memory address
         boolean scanUp = bootLoaderAddress == 0;
 
-        boolean goodDTFJRoots = processDTFJRoots(pointerSize, listener);
+        boolean goodDTFJRoots = processDTFJRoots(pointerSize, scanUp, listener);
 
         // Used to keep track of what extra stuff DTFJ gives
         HashSet<Integer> prevRoots = rootSet();
@@ -1312,6 +1495,52 @@ public class DTFJIndexBuilder implements IIndexBuilder
             objectToClass.set(objId, bootLoaderType.getObjectId());
             // For calculating purge sizes
             objectToSize.set(objId, bootLoaderType.getHeapSizePerInstance());
+        }
+
+        if (getExtraInfo)
+        {
+            // Generate outbound refs for Java Stack Frames from thread roots
+            // Could be slow process
+            int count = 0;
+            for (long addr : allFrames.keySet())
+            {
+                // To accumulate the outbound refs
+                ArrayLong aa = new ArrayLong();
+                int objId = indexToAddress.reverse(addr);
+                // Object to class mapping set earlier
+                int clsId = objectToClass.get(objId);
+                ClassImpl cls = idToClass.get(clsId);
+                long frameTypeAddr = cls.getObjectAddress();
+
+                // set instances of each stack frame
+                int size = cls.getHeapSizePerInstance();
+                cls.addInstance(size);
+                objectToSize.set(objId, size);
+
+                aa.add(frameTypeAddr);
+                // Look at each threads root
+                for (Iterator<HashMapIntObject<List<XGCRootInfo>>> it = threadRoots.values(); it.hasNext();)
+                {
+                    HashMapIntObject<List<XGCRootInfo>> hm = it.next();
+                    // Look at each object marked by a thread
+                    for (Iterator<List<XGCRootInfo>> i2 = hm.values(); i2.hasNext();)
+                    {
+                        // Look at the roots that mark that object
+                        List<XGCRootInfo> l2 = i2.next();
+                        for (Iterator<XGCRootInfo> i3 = l2.iterator(); i3.hasNext();)
+                        {
+                            XGCRootInfo xf = i3.next();
+                            ++count;
+                            // Does the root come from this frame?
+                            if (xf.getContextAddress() == addr)
+                            {
+                                aa.add(xf.getObjectAddress());
+                            }
+                        }
+                    }
+                }
+                outRefs.log(indexToAddress, objId, aa);
+            }
         }
 
         index.setObject2classId(objectToClass);
@@ -1492,9 +1721,36 @@ public class DTFJIndexBuilder implements IIndexBuilder
         run = null;
         dummyClassAddress = null;
         dummyMethodAddress = null;
+        dummyMethodAddress2 = null;
         methodAddresses = null;
         loaderClassCache = null;
         listener.done();
+    }
+
+    /**
+     * Get the address of a stack frame
+     * If the frame address isn't found then use the previous frame address + 8
+     * @param jf
+     * @param prevFrameAddress
+     * @param pointerSize
+     * @return
+     */
+    static long getFrameAddress(JavaStackFrame jf, long prevFrameAddress, int pointerSize)
+    {
+        long frameAddress;
+        try
+        {
+            frameAddress = getAlignedAddress(jf.getBasePointer(), pointerSize).getAddress();
+        }
+        catch (CorruptDataException e)
+        {
+            frameAddress = 0;
+        }
+        if (frameAddress == 0 && prevFrameAddress != 0)
+        {    
+            frameAddress = prevFrameAddress + 8;
+        }
+        return frameAddress;
     }
 
     /**
@@ -1802,7 +2058,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         return workCountSoFar;
     }
 
-    private boolean processDTFJRoots(int pointerSize, IProgressListener listener)
+    private boolean processDTFJRoots(int pointerSize, boolean scanUp, IProgressListener listener)
     {
         boolean goodDTFJRoots = false;
         if (haveDTFJRoots)
@@ -1860,7 +2116,6 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 {
                 	pw = createThreadInfoFile();
                 }
-                long prevFrameAddress = 0;
                 for (Iterator thit = run.getThreads(); thit.hasNext();)
                 {
                     Object next = thit.next();
@@ -1873,10 +2128,26 @@ public class DTFJIndexBuilder implements IIndexBuilder
                         // For thread stack information
                         printThreadStack(pw, th);
                     }
+                    // The base pointer appears to be the last address of the frame, not the
+                    // first
+                    long prevAddr = 0;
+                    long prevFrameAddress = 0;
                     int frameNum = 0;
-                    for (Iterator ii = th.getStackFrames(); ii.hasNext(); ++frameNum)
+                    // We need to look ahead to get the frame size
+                    Object nextFrame = null;
+                    for (Iterator ii = th.getStackFrames(); nextFrame != null || ii.hasNext(); ++frameNum)
                     {
-                        Object next2 = ii.next();
+                        // Use the lookahead frame if available
+                        Object next2;
+                        if (nextFrame != null)
+                        {
+                            next2 = nextFrame;
+                            nextFrame = null;
+                        }
+                        else
+                        {
+                            next2 = ii.next();
+                        }
                         if (isCorruptData(next2, listener, Messages.DTFJIndexBuilder_CorruptDataReadingJavaStackFrames,
                                         th))
                             continue;
@@ -1922,6 +2193,100 @@ public class DTFJIndexBuilder implements IIndexBuilder
                                 {}
                             }
                         }
+                        if (getExtraInfo)
+                        {
+                            try
+                            {
+                                long frameAddress = getFrameAddress(jf, prevFrameAddress, pointerSize);
+                                long searchSize = JAVA_STACK_FRAME_SIZE;
+                                if (scanUp)
+                                {
+                                    // Check the next frame to limit the current frame size
+                                    if (ii.hasNext())
+                                    {
+                                        nextFrame = ii.next();
+                                        if (!isCorruptData(nextFrame, listener,
+                                                        Messages.DTFJIndexBuilder_CorruptDataReadingJavaStackFrames, th))
+                                        {
+                                            JavaStackFrame jf2 = (JavaStackFrame) nextFrame;
+                                            try
+                                            {
+                                                ImagePointer ip2 = getAlignedAddress(jf2.getBasePointer(), pointerSize);
+                                                long address2 = ip2.getAddress();
+                                                long s2 = address2 - frameAddress;
+                                                if (s2 > 0 && s2 < searchSize)
+                                                {
+                                                    searchSize = s2;
+                                                }
+                                            }
+                                            catch (CorruptDataException e)
+                                            {
+                                                // Ignore for the moment - we'll find it again
+                                                // next time.
+                                            }
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    // Check the previous frame to limit the current frame size
+                                    if (prevAddr == 0)
+                                    {
+                                        prevAddr = getJavaStackBase(th, frameAddress);
+                                    }
+                                    long s2 = frameAddress - prevAddr;
+                                    prevAddr = frameAddress;
+                                    if (s2 > 0 && s2 < searchSize)
+                                    {
+                                        searchSize = s2;
+                                    }
+                                    // Go backwards from ip so that we search the known good
+                                    // addresses first
+                                    searchSize = -searchSize;
+                                }
+                                prevFrameAddress = frameAddress;
+                                int frameId = indexToAddress.reverse(frameAddress);
+                                if (frameAddress != 0 && frameId >= 0)
+                                {
+                                    // Set the frame size
+                                    int size = (int)Math.abs(searchSize);
+                                    setFrameSize(frameId, size);
+                                    // Mark the frame
+                                    JavaObject threadObject = th.getObject();
+                                    // Thread object could be null if the thread
+                                    // is being attached
+                                    if (threadObject != null)
+                                    {
+                                        long threadAddress = threadObject.getID().getAddress();
+                                        int thrId = indexToAddress.reverse(threadAddress);
+
+                                        // Add it to the thread roots
+                                        HashMapIntObject<List<XGCRootInfo>> thr = threadRoots2.get(thrId);
+                                        if (thr == null)
+                                        {
+                                            // Build new list for the thread
+                                            thr = new HashMapIntObject<List<XGCRootInfo>>();
+                                            threadRoots2.put(thrId, thr);
+                                        }
+                                        addRoot(thr, frameAddress, threadAddress, GCRootInfo.Type.JAVA_LOCAL);
+                                        // Add it to the global GC roots
+                                        if (!useThreadRefsNotRoots)
+                                            addRoot(gcRoot2, frameAddress, threadAddress, GCRootInfo.Type.JAVA_LOCAL);
+                                    }
+                                    else
+                                    {
+                                        // No thread information so make a
+                                        // global root
+                                        addRoot(gcRoot2, frameAddress, frameAddress, GCRootInfo.Type.JAVA_LOCAL);
+                                    }
+                                }
+                            }
+                            catch (CorruptDataException e)
+                            {
+                                listener.sendUserMessage(Severity.INFO,
+                                                Messages.DTFJIndexBuilder_ProblemReadingJavaStackFrame1, e);
+                            }
+                        }
                     }
                     if (pw != null)
                         pw.println();
@@ -1953,6 +2318,36 @@ public class DTFJIndexBuilder implements IIndexBuilder
             }
         }
         return goodDTFJRoots;
+    }
+
+    /**
+     * Set the size of the stack frame.
+     * We can only have one size, so choose the biggest sensible size.
+     * @param frameId
+     * @param size in bytes
+     */
+    private void setFrameSize(int frameId, int size)
+    {
+        int clsId = objectToClass.get(frameId);
+        ClassImpl cls = idToClass.get(clsId);
+        if (cls != null && cls.getName().contains(METHOD_NAME))
+        {
+            int prevSize = cls.getHeapSizePerInstance();
+            
+            if (prevSize <= 0 || prevSize == JAVA_STACK_FRAME_SIZE)
+            {
+                // Use size
+            }
+            else if (size == JAVA_STACK_FRAME_SIZE)
+            {
+                size = prevSize;
+            }
+            else
+            {
+                size = Math.max(size, prevSize);
+            }
+            cls.setHeapSizePerInstance(size);
+         }
     }
 
     private HashMap<Integer, String> addMissedRoots(HashMap<Integer, String> roots)
@@ -2320,6 +2715,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         // The base pointer appears to be the last address of the frame, not the
         // first
         long prevAddr = 0;
+        long prevFrameAddress = 0;
         // We need to look ahead to get the frame size
         Object nextFrame = null;
         for (Iterator ii = th.getStackFrames(); nextFrame != null || ii.hasNext(); ++frameId)
@@ -2481,37 +2877,53 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     catch (CorruptDataException e)
                     {}
                 }
-            }            
-            // Mark the classes of methods as referenced by the thread
-            try
+            }
+
+            if (getExtraInfo)
             {
-                JavaMethod jm = jf.getLocation().getMethod();
-                JavaClass cls = jm.getDeclaringClass();
-                long clsAddress = getClassAddress(cls, listener);
-                int clsId = indexToAddress.reverse(clsAddress);
-                if (clsId >= 0)
+                prevFrameAddress = getFrameAddress(jf, prevFrameAddress, pointerSize);
+            }
+            if (!getExtraInfo || address == 0)
+            {
+                // Mark the classes of methods as referenced by the thread
+                try
                 {
-                    // Mark the class
-                    HashMapIntObject<List<XGCRootInfo>> thr1 = thr.get(indexToAddress.reverse(threadAddress));
-                    if (thr1 != null)
+                    long clsAddress;
+                    if (getExtraInfo && prevFrameAddress != 0)
                     {
-                        // Add it to the thread roots
-                        addRoot(thr1, clsAddress, threadAddress, GCRootInfo.Type.JAVA_LOCAL);
-                        // Add it to the global GC roots
-                        if (!useThreadRefsNotRoots)
-                            addRoot(gcRoot, clsAddress, threadAddress, GCRootInfo.Type.JAVA_LOCAL);
+                        clsAddress = prevFrameAddress;
                     }
                     else
                     {
-                        // No thread information so make a global root
-                        addRoot(gcRoot, clsAddress, threadAddress, GCRootInfo.Type.JAVA_LOCAL);
+                        JavaMethod jm = jf.getLocation().getMethod();
+                        JavaClass cls = jm.getDeclaringClass();
+                        clsAddress = getClassAddress(cls, listener);
+                    }
+                    int clsId = indexToAddress.reverse(clsAddress);
+                    if (clsId >= 0)
+                    {
+                        // Mark the class
+                        HashMapIntObject<List<XGCRootInfo>> thr1 = thr.get(indexToAddress.reverse(threadAddress));
+                        if (thr1 != null)
+                        {
+                            // Add it to the thread roots
+                            addRoot(thr1, clsAddress, threadAddress, GCRootInfo.Type.JAVA_LOCAL);
+                            // Add it to the global GC roots
+                            if (!useThreadRefsNotRoots)
+                                addRoot(gcRoot, clsAddress, threadAddress, GCRootInfo.Type.JAVA_LOCAL);
+                        }
+                        else
+                        {
+                            // No thread information so make a global root
+                            addRoot(gcRoot, clsAddress, threadAddress, GCRootInfo.Type.JAVA_LOCAL);
+                        }
                     }
                 }
+                catch (DataUnavailable e2)
+                {}
+                catch (CorruptDataException e2)
+                {}
             }
-            catch (DataUnavailable e2)
-            {}
-            catch (CorruptDataException e2)
-            {}
 
         }
         if (pw != null)
@@ -2774,7 +3186,9 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     break;
                 case JavaReference.HEAP_ROOT_SYSTEM_CLASS:
                     type = GCRootInfo.Type.SYSTEM_CLASS;
-                    if (!useSystemClassRoots) { return; // Ignore system classes
+                    if (!useSystemClassRoots)
+                    {
+                        return; // Ignore system classes
                     // for moment as should
                     // be found via
                     // bootclassloader
@@ -2908,8 +3322,12 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 else if (so instanceof JavaStackFrame)
                 {
                     JavaStackFrame js = (JavaStackFrame) so;
-                    // Thread is supplied
-                    if (thread != null)
+                    if (getExtraInfo)
+                    {
+                        source = getAlignedAddress(js.getBasePointer(), pointerSize).getAddress();
+                    }
+                    // Thread is supplied, and stack frame is not an object
+                    if (thread != null && (!getExtraInfo || source == 0 || indexToAddress.reverse(source) < 0))
                     {
                         JavaObject threadObject = thread.getObject();
                         if (threadObject != null)
@@ -3141,7 +3559,14 @@ public class DTFJIndexBuilder implements IIndexBuilder
             if (!cache.containsKey(load))
                 cache.put(load, new ArrayLong());
             ArrayLong classes = cache.get(load);
-            classes.add(ci.getObjectAddress());
+            if (!(getExtraInfo2 && ci.getName().contains(METHOD_NAME))) //$NON-NLS-1$
+            {
+                // Skip method classes - they are also found via the declaring
+                // class
+                debugPrint("Adding ref to class " + ci.getObjectId() + " at address " //$NON-NLS-1$ //$NON-NLS-2$
+                                + format(ci.getObjectAddress()) + " for loader " + load); //$NON-NLS-1$
+                classes.add(ci.getObjectAddress());
+            }
         }
         return cache;
     }
@@ -3924,6 +4349,18 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 if (false)
                     objset.put(getClassAddress(sup, listener), "added super class"); //$NON-NLS-1$
             }
+            if (getExtraInfo && getExtraInfo2)
+            {
+                // Add method pseudo-classes as DTFJ won't find them
+                for (Iterator i = jc.getDeclaredMethods(); i.hasNext();)
+                {
+                    Object next = i.next();
+                    if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingDeclaredMethods, jc))
+                        continue;
+                    JavaMethod jm = (JavaMethod) next;
+                    objset.put(getMethodAddress(jm, listener), "method"); //$NON-NLS-1$
+                }
+            }
         }
         else if (type instanceof JavaObject)
         {
@@ -4384,7 +4821,42 @@ public class DTFJIndexBuilder implements IIndexBuilder
                         + format(searchSize) + " " + rootType); //$NON-NLS-1$
         long frameAddress;
         HashMapIntObject<List<XGCRootInfo>> thr = thrs.get(indexToAddress.reverse(threadAddress));
-        frameAddress = threadAddress;
+        if (getExtraInfo)
+        {
+            // See if the frame is an object
+            frameAddress = ip.getAddress();
+            int frameId = indexToAddress.reverse(frameAddress);
+            if (frameAddress != 0 && frameId >= 0)
+            {
+                // Mark the frame
+                if (thr != null)
+                {
+                    // Add it to the thread roots
+                    addRoot(thr, frameAddress, threadAddress, rootType);
+                    // Create a new locals list for the frame
+                    thr = new HashMapIntObject<List<XGCRootInfo>>();
+                    thrs.put(frameId, thr);
+                    // Add it to the global GC roots
+                    if (!useThreadRefsNotRoots)
+                        addRoot(gc, frameAddress, threadAddress, rootType);
+                }
+                else
+                {
+                    // No thread information so make a global root
+                    addRoot(gc, frameAddress, threadAddress, rootType);
+                }
+                int size = (int) Math.abs(searchSize);
+                setFrameSize(frameId, size);
+            }
+            else
+            {
+                frameAddress = threadAddress;
+            }
+        }
+        else
+        {
+            frameAddress = threadAddress;
+        }
         // Read items off the frame
         final int pointerAdjust = searchSize >= 0 ? pointerSize : -pointerSize;
         for (long j = 0; Math.abs(j) < Math.abs(searchSize); j += pointerAdjust)
@@ -4483,7 +4955,10 @@ public class DTFJIndexBuilder implements IIndexBuilder
             if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingDeclaredMethods, jc))
                 continue;
             JavaMethod jm = (JavaMethod) next;
-            size += getMethodSize(jc, jm, listener);
+            if (!(getExtraInfo && getExtraInfo2))
+            {
+                size += getMethodSize(jc, jm, listener);
+            }
         }
         return (int) size;
     }
@@ -4729,7 +5204,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                                     }
                                     else
                                     {
-                                        name = "?";
+                                        name = "?"; //$NON-NLS-1$
                                     }
                                     String typeName;
                                     try
@@ -4812,12 +5287,36 @@ public class DTFJIndexBuilder implements IIndexBuilder
      */
     public static boolean isPrimitiveArray(JavaClass type) throws CorruptDataException
     {
-        // - getComponentType strips all of arrays instead of one
-        if (type.getName().startsWith("[[")) //$NON-NLS-1$
+        // CMVC 136032 - getComponentType strips all of arrays instead of one
+        try 
+        {
+            String name = type.getName();
+            if (name.startsWith("[[")) //$NON-NLS-1$
+                return false;
+            return "[B".equals(name) || //$NON-NLS-1$
+            "[S".equals(name) || //$NON-NLS-1$
+            "[I".equals(name) || //$NON-NLS-1$
+            "[J".equals(name) || //$NON-NLS-1$
+            "[Z".equals(name) || //$NON-NLS-1$
+            "[C".equals(name) || //$NON-NLS-1$
+            "[F".equals(name) || //$NON-NLS-1$
+            "[D".equals(name); //$NON-NLS-1$
+        } 
+        catch (CorruptDataException e)
+        {
+            // Ignore
+        }
+        try
+        {
+            JavaClass elemClass = type.getComponentType();
+            if (elemClass.isArray()) return false;
+            boolean primitive = isPrimitiveName(elemClass.getName());
+            return primitive;
+        }
+        catch (CorruptDataException e)
+        {
             return false;
-        JavaClass elemClass = type.getComponentType();
-        boolean primitive = isPrimitiveName(elemClass.getName());
-        return primitive;
+        }
     }
 
     /**
@@ -5337,6 +5836,256 @@ public class DTFJIndexBuilder implements IIndexBuilder
             listener.sendUserMessage(Severity.ERROR, Messages.DTFJIndexBuilder_ProblemBuildingClass, e);
             return null;
         }
+    }
+
+    /**
+     * Get a suitable address to use for a method
+     * 
+     * @param m
+     *            The method
+     * @param listener
+     *            For logging
+     * @return Either the first byte code section, or the first compiled code
+     *         section, or a unique made-up address
+     */
+    private long getMethodAddress(JavaMethod m, IProgressListener listener)
+    {
+        // Disable if not needed
+        if (!getExtraInfo)
+            return 0;
+        long ret = 0;
+        JavaClass jc;
+        try
+        {
+            jc = m.getDeclaringClass();
+        }
+        catch (DataUnavailable e)
+        {
+            jc = null;
+        }
+        catch (CorruptDataException e)
+        {
+            jc = null;
+        }
+        for (Iterator it = m.getBytecodeSections(); it.hasNext();)
+        {
+            Object next = it.next();
+            // Too many CorruptData items from AIX 1.4.2 dumps
+            if (next instanceof CorruptData && msgNcorruptSection-- <= 0)
+                continue;
+            if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingBytecodeSections, jc, m))
+                continue;
+            ImageSection is = (ImageSection) next;
+            ret = is.getBaseAddress().getAddress();
+            if (ret != 0)
+            {
+                // Possible address, see if it has been used for another method
+                // (e.g. with different class loader).
+                JavaMethod other = methodAddresses.get(ret);
+                if (other == null)
+                {
+                    methodAddresses.put(ret, m);
+                    return ret;
+                }
+                else if (m.equals(other))
+                {
+                    return ret;
+                }
+                else
+                {
+                    // Already in use, so continue
+                }
+            }
+        }
+        for (Iterator it = m.getCompiledSections(); it.hasNext();)
+        {
+            Object next = it.next();
+            if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingCompiledCodeSections, jc, m))
+                continue;
+            ImageSection is = (ImageSection) next;
+            ret = is.getBaseAddress().getAddress();
+            if (ret != 0)
+            {
+                // Possible address, see if it has been used for another method
+                // (e.g. with different class loader).
+                JavaMethod other = methodAddresses.get(ret);
+                if (other == null)
+                {
+                    methodAddresses.put(ret, m);
+                    return ret;
+                }
+                else if (m.equals(other))
+                {
+                    return ret;
+                }
+                else
+                {
+                    // Already in use, so continue
+                }
+            }
+        }
+        // e.g. native methods
+        Long addr = m.equals(m) ? dummyMethodAddress.get(m) : dummyMethodAddress2.get(m);
+        if (addr != null)
+        {
+            // Return the address we have already used
+            return addr;
+        }
+        else
+        {
+            long clsAd = jc != null ? getClassAddress(jc, listener) : 0;
+            String methName;
+            try
+            {
+                methName = getMethodName(m, listener);
+            }
+            catch (CorruptDataException e)
+            {
+                methName = e.toString();
+            }
+            // Build a unique dummy address
+            long clsAddr = nextClassAddress;
+            if (m.equals(m))
+            {    
+                dummyMethodAddress.put(m, clsAddr);
+            }
+            else
+            {
+                // If an object doesn't equal itself we can't use a normal HashMap
+                dummyMethodAddress2.put(m, clsAddr);                
+            }
+            nextClassAddress += 8;
+            if (ret != 0)
+            {
+                listener.sendUserMessage(Severity.INFO, MessageFormat.format(
+                                Messages.DTFJIndexBuilder_MethodHasNonUniqueAddress, methName, format(clsAd),
+                                format(ret), format(clsAddr)), null);
+            }
+            else
+            {
+                listener.sendUserMessage(Severity.INFO,
+                                MessageFormat.format(Messages.DTFJIndexBuilder_MethodHasNoAddress, methName,
+                                                format(clsAd), format(clsAddr)), null);
+            }
+            return clsAddr;
+        }
+    }
+
+    /**
+     * Generate a pseudo class from a method
+     * 
+     * @param m
+     *            The method
+     * @param jlc
+     *            MAT java.lang.Class for the type
+     * @param hm
+     *            object id to ClassImpl mapping
+     * @param bootLoaderAddress
+     * @param listener
+     *            For error messages
+     * @return the new class
+     * @throws CorruptDataException
+     */
+    private ClassImpl genClass(JavaMethod m, ClassImpl jlc, HashMapIntObject<ClassImpl> hm, long bootLoaderAddress,
+                    IProgressListener listener) throws CorruptDataException
+    {
+        // Disable if not needed
+        if (!getExtraInfo)
+            return null;
+        String cname = METHOD_NAME_PREFIX + getMethodName(m, listener); //$NON-NLS-1$
+        long claddr = getMethodAddress(m, listener);
+        // Add the MAT descriptions of the fields
+        Field[] statics;
+        long loader;
+        JavaClass jc;
+        try
+        {
+            jc = m.getDeclaringClass();
+            ObjectReference val = new ObjectReference(null, getClassAddress(jc, listener));
+            statics = new Field[] { new Field("declaring_class", IObject.Type.OBJECT, val) }; //$NON-NLS-1$
+            // Set up class loaders
+            JavaClassLoader load = getClassLoader(jc, listener);
+            loader = getLoaderAddress(load, bootLoaderAddress);
+            String className = getMATClassName(jc, listener);
+            // Add the package and class name to the method name - useful for
+            // accumulating package statistics
+            cname = className + cname;
+        }
+        catch (DTFJException e)
+        {
+            jc = null;
+            statics = new Field[0];
+            loader = fixBootLoaderAddress(bootLoaderAddress, bootLoaderAddress);
+            listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
+                            Messages.DTFJIndexBuilder_DeclaringClassNotFound, cname, format(claddr)), e);
+        }
+
+        FieldDescriptor[] fld = new FieldDescriptor[] { new FieldDescriptor("lineNumber", IObject.Type.INT), //$NON-NLS-1$
+                        new FieldDescriptor("compilationLevel", IObject.Type.INT), //$NON-NLS-1$
+                        new FieldDescriptor("locationAddress", IObject.Type.LONG), //$NON-NLS-1$
+                        new FieldDescriptor("frameNumber", IObject.Type.INT), //$NON-NLS-1$
+                        new FieldDescriptor("stackDepth", IObject.Type.INT) }; //$NON-NLS-1$
+        ClassImpl ci = new ClassImpl(claddr, cname, 0l, loader, statics, fld);
+        debugPrint("building method class " + cname + " " + format(claddr)); //$NON-NLS-1$ //$NON-NLS-2$
+        // Fix the indexes
+        final long claddr2 = ci.getObjectAddress();
+        final int clsId = indexToAddress.reverse(claddr2);
+        // debugPrint("Setting class "+format(claddr)+" "+clsId+"
+        // "+format(claddr2));
+        if (clsId >= 0)
+        {
+            ci.setObjectId(clsId);
+        }
+        else
+        {
+            listener.sendUserMessage(Severity.ERROR, MessageFormat.format(
+                            Messages.DTFJIndexBuilder_ClassAtAddressNotFound, format(claddr), clsId, cname), null);
+        }
+
+        int loaderId = indexToAddress.reverse(loader);
+        if (loaderId >= 0)
+        {
+            ci.setClassLoaderIndex(loaderId);
+        }
+        else
+        {
+            listener.sendUserMessage(Severity.ERROR, MessageFormat.format(
+                            Messages.DTFJIndexBuilder_ClassLoaderAtAddressNotFound, format(loader), loaderId,
+                            format(claddr), clsId, cname), null);
+        }
+
+        hm.put(ci.getObjectId(), ci);
+
+        ci.setClassInstance(jlc);
+        int size;
+        if (getExtraInfo2)
+        {
+            size = getMethodSize(jc, m, listener);
+        }
+        else
+        {
+            size = 0;
+        }
+        ci.setUsedHeapSize(size);
+        ci.setHeapSizePerInstance(0);
+        // For calculating purge sizes
+        objectToSize.set(ci.getObjectId(), size);
+        jlc.addInstance(size);
+        return ci;
+    }
+
+    private String getMethodName(JavaMethod meth, IProgressListener listener) throws CorruptDataException
+    {
+        String name = meth.getName();
+        try
+        {
+            name += meth.getSignature();
+        }
+        catch (CorruptDataException e)
+        {
+            name = name + "()"; //$NON-NLS-1$
+        }
+        return name;
     }
 
     /**

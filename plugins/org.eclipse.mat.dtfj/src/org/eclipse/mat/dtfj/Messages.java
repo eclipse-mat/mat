@@ -46,6 +46,7 @@ public class Messages extends NLS
     public static String DTFJIndexBuilder_CorruptDataReadingClasses;
     public static String DTFJIndexBuilder_CorruptDataReadingClassLoaders;
     public static String DTFJIndexBuilder_CorruptDataReadingClassLoaders1;
+    public static String DTFJIndexBuilder_CorruptDataReadingCompiledCodeSections;
     public static String DTFJIndexBuilder_CorruptDataReadingCompiledSections;
     public static String DTFJIndexBuilder_CorruptDataReadingConstantPool;
     public static String DTFJIndexBuilder_CorruptDataReadingConstantPoolReferences;
@@ -64,6 +65,7 @@ public class Messages extends NLS
     public static String DTFJIndexBuilder_CorruptDataReadingRuntimes;
     public static String DTFJIndexBuilder_CorruptDataReadingThreads;
     public static String DTFJIndexBuilder_CorruptDataReadingThreadsFromMonitors;
+    public static String DTFJIndexBuilder_DeclaringClassNotFound;
     public static String DTFJIndexBuilder_DTFJDoesNotSupportHeapRoots;
     public static String DTFJIndexBuilder_DTFJgetHeapRootsFromStackFrameReturnsNull;
     public static String DTFJIndexBuilder_DTFJgetHeapRootsReturnsNull;
@@ -72,10 +74,12 @@ public class Messages extends NLS
     public static String DTFJIndexBuilder_DTFJGetReferencesMissingID;
     public static String DTFJIndexBuilder_DTFJIndexBuilder_CorruptDataReadingNativeStackSection;
     public static String DTFJIndexBuilder_DTFJRootsDisabled;
+    public static String DTFJIndexBuilder_DuplicateJavaStackFrame;
     public static String DTFJIndexBuilder_ErrorGettingOutboundReferences;
     public static String DTFJIndexBuilder_ErrorReadingProcessID;
     public static String DTFJIndexBuilder_ExceptionGettingOutboundReferences;
     public static String DTFJIndexBuilder_FinalizableObjectsMarkedAsRoots;
+    public static String DTFJIndexBuilder_FindingAllMethods;
     public static String DTFJIndexBuilder_FindingClasses;
     public static String DTFJIndexBuilder_FindingClassesCachedByClassLoaders;
     public static String DTFJIndexBuilder_FindingClassLoaderObjects;
@@ -89,6 +93,7 @@ public class Messages extends NLS
     public static String DTFJIndexBuilder_FindingRootsFromDTFJ;
     public static String DTFJIndexBuilder_FindingThreadObjectsMissingFromHeap;
     public static String DTFJIndexBuilder_FoundIdentifiersObjectsClasses;
+    public static String DTFJIndexBuilder_FoundIdentifiersObjectsClassesMethods;
     public static String DTFJIndexBuilder_GCRootIDDoesNotMatchIndex;
     public static String DTFJIndexBuilder_GCRootIDOutOfRange;
     public static String DTFJIndexBuilder_GeneratingExtraRootsFromFinalizables;
@@ -100,6 +105,7 @@ public class Messages extends NLS
     public static String DTFJIndexBuilder_HugeJavaStackSection;
     public static String DTFJIndexBuilder_HugeNativeStackSection;
     public static String DTFJIndexBuilder_IgnoringExtraJavaRuntime;
+    public static String DTFJIndexBuilder_IgnoringJavaStackFrame;
     public static String DTFJIndexBuilder_IgnoringManagedRuntime;
     public static String DTFJIndexBuilder_ImageAddressSpaceEqualsBroken;
     public static String DTFJIndexBuilder_IndexAddressFoundAtOtherID;
@@ -114,6 +120,8 @@ public class Messages extends NLS
     public static String DTFJIndexBuilder_JVMFullVersion;
     public static String DTFJIndexBuilder_JVMVersion;
     public static String DTFJIndexBuilder_MATRootTypeUnknown;
+    public static String DTFJIndexBuilder_MethodHasNoAddress;
+    public static String DTFJIndexBuilder_MethodHasNonUniqueAddress;
     public static String DTFJIndexBuilder_MonitorObjectNotFound;
     public static String DTFJIndexBuilder_NativeStackFrameNotFound;
     public static String DTFJIndexBuilder_NativeThreadNotFound;
@@ -139,6 +147,7 @@ public class Messages extends NLS
     public static String DTFJIndexBuilder_PrimitiveShouldNotHaveASuperclass;
     public static String DTFJIndexBuilder_ProblemBuildingClass;
     public static String DTFJIndexBuilder_ProblemBuildingClassObject;
+    public static String DTFJIndexBuilder_ProblemBuildingClassObjectForMethod;
     public static String DTFJIndexBuilder_ProblemCheckingBootLoaderReferences;
     public static String DTFJIndexBuilder_ProblemCheckingOutboundReferences;
     public static String DTFJIndexBuilder_ProblemCheckingOutboundReferencesForClass;
@@ -162,6 +171,8 @@ public class Messages extends NLS
     public static String DTFJIndexBuilder_ProblemGettingSuperclass;
     public static String DTFJIndexBuilder_ProblemGettingThreadInformation;
     public static String DTFJIndexBuilder_ProblemReadingArray;
+    public static String DTFJIndexBuilder_ProblemReadingJavaStackFrame;
+    public static String DTFJIndexBuilder_ProblemReadingJavaStackFrame1;
     public static String DTFJIndexBuilder_ProblemReadingJavaStackFrames;
     public static String DTFJIndexBuilder_ProblemReadingJavaStackFramesMethod;
     public static String DTFJIndexBuilder_ProblemReadingJavaStackSection;
