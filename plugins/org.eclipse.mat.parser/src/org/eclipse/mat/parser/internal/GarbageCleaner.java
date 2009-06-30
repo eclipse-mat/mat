@@ -18,7 +18,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.collect.BitField;
 import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.collect.IteratorInt;
@@ -312,23 +311,22 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
             for (int ii = 0; ii < oldNoOfObjects; ii++)
             {
                 int k = map[ii];
-                if (k < 0)
-                    continue;
+				if (k < 0) continue;
 
-                int[] a = preOutbound.get(ii);
-                ArrayInt tl = new ArrayInt(a.length);
-                for (int jj = 0; jj < a.length; jj++)
-                {
-                    int t = map[a[jj]];
+				int[] a = preOutbound.get(ii);
+				int[] tl = new int[a.length];
+				for (int jj = 0; jj < a.length; jj++)
+				{
+					int t = map[a[jj]];
 
-                    if (t >= 0)
-                    {
-                        tl.add(t);
-                        w_in.log(t, k, jj == 0);
-                    }
-                }
+					/* No check if the referenced objects are alive */
+					/* The garbage can't be reached from a live object */
+					// removed if (t >= 0) ...
+					tl[jj] = t;
+					w_in.log(t, k, jj == 0);
+				}
 
-                w_out.log(k, tl.toArray());
+				w_out.log(k, tl);
             }
 
             preOutbound.close();
