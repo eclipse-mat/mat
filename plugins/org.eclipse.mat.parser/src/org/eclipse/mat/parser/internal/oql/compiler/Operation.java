@@ -248,11 +248,11 @@ abstract class Operation extends Expression
         Object eval(Object left, Object right)
         {
             if (!(left instanceof Comparable))
-                throw new UnsupportedOperationException(MessageUtil.format(ERR_NO_COMPARABLE, this.args[0], left
+                throw new UnsupportedOperationException(MessageUtil.format(ERR_NO_COMPARABLE, this.args[0], left, left
                                 .getClass().getName(), getSymbol()));
-            if (!(left instanceof Comparable))
-                throw new UnsupportedOperationException(MessageUtil.format(ERR_NO_COMPARABLE, this.args[1], right
-                                .getClass().getName(), getSymbol()));
+            if (!(right instanceof Comparable))
+                throw new UnsupportedOperationException(MessageUtil.format(ERR_NO_COMPARABLE, this.args[1], right,
+                                right.getClass().getName(), getSymbol()));
 
             return ((Comparable) left).compareTo(right) > 0;
         }
@@ -293,11 +293,11 @@ abstract class Operation extends Expression
         Object eval(Object left, Object right)
         {
             if (!(left instanceof Comparable))
-                throw new UnsupportedOperationException(MessageUtil.format(ERR_NO_COMPARABLE, this.args[0], left
+                throw new UnsupportedOperationException(MessageUtil.format(ERR_NO_COMPARABLE, this.args[0], left, left
                                 .getClass().getName(), getSymbol()));
-            if (!(left instanceof Comparable))
-                throw new UnsupportedOperationException(MessageUtil.format(ERR_NO_COMPARABLE, this.args[1], right
-                                .getClass().getName(), getSymbol()));
+            if (!(right instanceof Comparable))
+                throw new UnsupportedOperationException(MessageUtil.format(ERR_NO_COMPARABLE, this.args[1], right,
+                                right.getClass().getName(), getSymbol()));
 
             return ((Comparable) left).compareTo(right) >= 0;
         }
@@ -338,11 +338,11 @@ abstract class Operation extends Expression
         Object eval(Object left, Object right)
         {
             if (!(left instanceof Comparable))
-                throw new UnsupportedOperationException(MessageUtil.format(ERR_NO_COMPARABLE, this.args[0], left
+                throw new UnsupportedOperationException(MessageUtil.format(ERR_NO_COMPARABLE, this.args[0], left, left
                                 .getClass().getName(), getSymbol()));
-            if (!(left instanceof Comparable))
-                throw new UnsupportedOperationException(MessageUtil.format(ERR_NO_COMPARABLE, this.args[1], right
-                                .getClass().getName(), getSymbol()));
+            if (!(right instanceof Comparable))
+                throw new UnsupportedOperationException(MessageUtil.format(ERR_NO_COMPARABLE, this.args[1], right,
+                                right.getClass().getName(), getSymbol()));
 
             return ((Comparable) left).compareTo(right) < 0;
         }
@@ -383,11 +383,11 @@ abstract class Operation extends Expression
         Object eval(Object left, Object right)
         {
             if (!(left instanceof Comparable))
-                throw new UnsupportedOperationException(MessageUtil.format(ERR_NO_COMPARABLE, this.args[0], left
+                throw new UnsupportedOperationException(MessageUtil.format(ERR_NO_COMPARABLE, this.args[0], left, left
                                 .getClass().getName(), getSymbol()));
-            if (!(left instanceof Comparable))
-                throw new UnsupportedOperationException(MessageUtil.format(ERR_NO_COMPARABLE, this.args[1], right
-                                .getClass().getName(), getSymbol()));
+            if (!(right instanceof Comparable))
+                throw new UnsupportedOperationException(MessageUtil.format(ERR_NO_COMPARABLE, this.args[1], right,
+                                right.getClass().getName(), getSymbol()));
 
             return ((Comparable) left).compareTo(right) <= 0;
         }
