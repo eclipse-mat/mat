@@ -94,24 +94,29 @@ public abstract class IndexWriter
             return identifiers[index];
         }
 
-        public int reverse(long value)
+        public int reverse(long val)
         {
-            int low = 0;
-            int high = size - 1;
-
-            while (low <= high)
+            int a, c;
+            for (a = 0, c = size; a < c;)
             {
-                int mid = (low + high) >> 1;
-                long midVal = identifiers[mid];
-
-                if (midVal < value)
-                    low = mid + 1;
-                else if (midVal > value)
-                    high = mid - 1;
+                // Avoid overflow problems by using unsigned divide by 2
+                int b = (a + c) >>> 1;
+                long probeVal = get(b);
+                if (val < probeVal)
+                {
+                    c = b;
+                }
+                else if (probeVal < val)
+                {
+                    a = b + 1;
+                }
                 else
-                    return mid;
+                {
+                    return b;
+                }
             }
-            return -(low + 1);
+            // Negative index indicates not found (and where to insert)
+            return -1 - a;
         }
 
         public IteratorLong iterator()
