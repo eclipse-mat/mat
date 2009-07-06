@@ -2594,14 +2594,28 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 cls.addInstance(size);
                 if (cls.isArrayType())
                 {
-                    cls.setHeapSizePerInstance(pointerSize);
                     int arrayLen = jo.getArraySize();
-                    // Bytes or elements??
-                    arrayLen = getObjectSize(jo, pointerSize);
-                    ic2.set(objId, arrayLen);
+                    // Bytes, not elements
+                    ic2.set(objId, size);
                     // For calculating purge sizes
-                    objectToSize.set(objId, arrayLen);
-                    // debugPrint("array "+arrayLen+" "+jo.getArraySize());
+                    objectToSize.set(objId, size);
+                    // debugPrint("array size "+size+" arrayLen "+arrayLen);
+                    int headerPointer = pointerSize;
+                    if (headerPointer == 8)
+                    {
+                        long bigSize = calculateArraySize(cls, arrayLen, headerPointer);
+                        if (bigSize > size)
+                        {
+                            // Probably compressed pointers where on a 64-bit
+                            // system references are stored as a 32-bit
+                            // quantity.
+                            if (false) debugPrint("Array size with "+headerPointer+" pointers calculated "+bigSize+" actual "+size+" arrayLen "+arrayLen);
+                            headerPointer = 4;
+                            bigSize = calculateArraySize(cls, arrayLen, headerPointer);
+                            if (false) debugPrint("Array size with "+headerPointer+" pointers calculated "+bigSize+" actual "+size+" arrayLen "+arrayLen);
+                        }
+                    }
+                    cls.setHeapSizePerInstance(headerPointer);
                 }
                 else
                 {
@@ -2680,6 +2694,60 @@ public class DTFJIndexBuilder implements IIndexBuilder
         addThreadRefs(objId, aa);
         addRefs(refd, aa);
         outRefs.log(indexToAddress, objId, aa);
+    }
+
+    /**
+     * Estimate the size of an array using the same calculation as
+     * ObjectArrayImpl.java and PrimitiveArrayImpl.java.
+     * 
+     * @param cls
+     * @param arrayLen
+     *            in elements
+     * @param pointerSize
+     *            in bytes
+     * @return size in bytes
+     */
+    private long calculateArraySize(ClassImpl cls, int arrayLen, int pointerSize)
+    {
+        int elem;
+        if (cls.getName().equals("byte[]"))
+        {
+            elem = 1;
+        }
+        else if (cls.getName().equals("short[]"))
+        {
+            elem = 2;
+        }
+        else if (cls.getName().equals("int[]"))
+        {
+            elem = 4;
+        }
+        else if (cls.getName().equals("long[]"))
+        {
+            elem = 8;
+        }
+        else if (cls.getName().equals("boolean[]"))
+        {
+            elem = 1;
+        }
+        else if (cls.getName().equals("char[]"))
+        {
+            elem = 2;
+        }
+        else if (cls.getName().equals("float[]"))
+        {
+            elem = 4;
+        }
+        else if (cls.getName().equals("double[]"))
+        {
+            elem = 8;
+        }
+        else
+        {
+            elem = pointerSize;
+        }
+        long bigSize = 2L * pointerSize + 4 + (long) elem * arrayLen;
+        return bigSize;
     }
 
     private ClassImpl findJavaLangClassloader(IProgressListener listener)
@@ -6937,7 +7005,11 @@ public class DTFJIndexBuilder implements IIndexBuilder
                             catch (FileNotFoundException e)
                             {
                                 checkIfDiskFull(dumpFile, metaFile, e, format);
-                                throw e;
+                                IOException e1 = new IOException(MessageFormat.format(
+                                                Messages.DTFJIndexBuilder_UnableToReadDumpMetaInDTFJFormat, dumpFile,
+                                                metaFile, format));
+                                e1.initCause(e);
+                                throw e1;
                             }
                             catch (IOException e)
                             {
