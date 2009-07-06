@@ -561,7 +561,7 @@ public final class SnapshotImpl implements ISnapshot
     public IMultiplePathsFromGCRootsComputer getMultiplePathsFromGCRoots(int[] objectIds,
                     Map<IClass, Set<String>> excludeList) throws SnapshotException
     {
-        return new MultiplePathsFromGCRootsComputerImpl(objectIds, excludeList, this, roots);
+        return new MultiplePathsFromGCRootsComputerImpl(objectIds, excludeList, this);
     }
 
     int[] getRetainedSetSingleThreaded(int[] objectIds, IProgressListener progressMonitor) throws SnapshotException
