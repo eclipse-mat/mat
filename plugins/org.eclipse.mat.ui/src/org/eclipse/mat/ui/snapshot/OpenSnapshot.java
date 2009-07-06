@@ -11,9 +11,12 @@
 package org.eclipse.mat.ui.snapshot;
 
 import java.io.File;
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -115,13 +118,24 @@ public class OpenSnapshot
         private void applyFilter(FileDialog dialog)
         {
             List<SnapshotFormat> types = SnapshotFactory.getSupportedFormats();
-            Collections.sort(types, new Comparator<SnapshotFormat>()
+            // Arrange types in order and remove duplicates
+            SortedSet<SnapshotFormat> sortedTypes = new TreeSet<SnapshotFormat>(new Comparator<SnapshotFormat>()
             {
                 public int compare(SnapshotFormat f1, SnapshotFormat f2)
                 {
-                    return f1.getName().compareTo(f2.getName());
+                    int ret = f1.getName().compareTo(f2.getName());
+                    if (ret == 0)
+                    {
+                        // Sort by extensions if the name is the same
+                        String exts1[] = f1.getFileExtensions();
+                        String exts2[] = f2.getFileExtensions();
+                        ret = Arrays.toString(exts1).compareTo(Arrays.toString(exts2));
+                    }
+                    return ret;
                 }
             });
+            sortedTypes.addAll(types);
+            types = new ArrayList<SnapshotFormat>(sortedTypes);
 
             String[] filterExtensions = new String[types.size() + 1];
             String[] filterNames = new String[types.size() + 1];
