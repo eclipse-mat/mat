@@ -232,7 +232,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
      * Use to see how much memory has been freed by the initial garbage
      * collection
      */
-    static class ObjectToSize
+    private static class ObjectToSize
     {
         /** For small objects */
         private byte objectToSize[];
@@ -3569,7 +3569,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
      *            The size to align to.
      * @return The aligned pointer.
      */
-    static ImagePointer getAlignedAddress(ImagePointer p, int pointerSize)
+    private static ImagePointer getAlignedAddress(ImagePointer p, int pointerSize)
     {
         if (p == null)
             return p;
@@ -5353,7 +5353,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
      * @return true if the array elements are primitives
      * @throws CorruptDataException
      */
-    public static boolean isPrimitiveArray(JavaClass type) throws CorruptDataException
+    static boolean isPrimitiveArray(JavaClass type) throws CorruptDataException
     {
         // CMVC 136032 - getComponentType strips all of arrays instead of one
         try 
@@ -6718,7 +6718,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
      * @throws Error
      *             , IOException
      */
-    public static Image getDump(File dump, Serializable format) throws Error, IOException
+    static Image getDump(File dump, Serializable format) throws Error, IOException
     {
         SoftReference<Image> softReference = imageMap.get(dump);
         Image im;
@@ -6738,7 +6738,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
      * 
      * @param dump
      */
-    public static void clearCachedDump(File dump)
+    private static void clearCachedDump(File dump)
     {
         imageMap.remove(dump);
         // There is no way to close a DTFJ image, so GC and finalize to attempt
@@ -6750,7 +6750,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
     /**
      * Forget about all cached dumps
      */
-    public static void clearCachedDumps()
+    private static void clearCachedDumps()
     {
         imageMap.clear();
         // There is no way to close a DTFJ image, so GC and finalize to attempt
@@ -6767,7 +6767,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
      * @throws Error
      *             , IOException
      */
-    public static Image getUncachedDump(File dump, Serializable format) throws Error, IOException
+    private static Image getUncachedDump(File dump, Serializable format) throws Error, IOException
     {
         return getDynamicDTFJDump(dump, format);
     }
