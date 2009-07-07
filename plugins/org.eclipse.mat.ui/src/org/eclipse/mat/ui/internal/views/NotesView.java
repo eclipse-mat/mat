@@ -21,7 +21,6 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
@@ -79,7 +78,6 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.actions.ActionFactory.IWorkbenchAction;
 import org.eclipse.ui.part.ViewPart;
-import org.eclipse.ui.texteditor.IUpdate;
 
 public class NotesView extends ViewPart implements IPartListener, Observer
 {
@@ -158,10 +156,8 @@ public class NotesView extends ViewPart implements IPartListener, Observer
 
     private void updateActions()
     {
-        for (Iterator<NotesViewAction> iterator = actions.values().iterator(); iterator.hasNext();)
-        {
-            ((IUpdate) iterator.next()).update();
-        }
+        for (NotesViewAction a : actions.values())
+            a.setEnabled(textViewer.canDoOperation(a.actionId));
     }
 
     private void hookContextMenu()
@@ -219,8 +215,6 @@ public class NotesView extends ViewPart implements IPartListener, Observer
 
         action.setDisabledImageDescriptor(globalAction.getDisabledImageDescriptor());
         action.setAccelerator(globalAction.getAccelerator());
-
-        action.update();
 
         // Register our text action with the global action handler.
         IActionBars actionBars = getViewSite().getActionBars();
@@ -372,7 +366,7 @@ public class NotesView extends ViewPart implements IPartListener, Observer
         if (resource != null)
         {
             String text = textViewer.getDocument().get();
-            if (text != null && text.trim() != "")//$NON-NLS-1$
+            if (text != null)
                 saveNotes(resource, text);
             resetUndoManager();
         }
@@ -561,7 +555,7 @@ public class NotesView extends ViewPart implements IPartListener, Observer
         }
     }
 
-    private class NotesViewAction extends Action implements IUpdate
+    private class NotesViewAction extends Action
     {
         private int actionId;
 
@@ -571,6 +565,7 @@ public class NotesView extends ViewPart implements IPartListener, Observer
             this.setActionDefinitionId(actionDefinitionId);
         }
 
+        @Override
         public boolean isEnabled()
         {
             return textViewer.canDoOperation(actionId);
@@ -581,11 +576,6 @@ public class NotesView extends ViewPart implements IPartListener, Observer
             textViewer.doOperation(actionId);
         }
 
-        public void update()
-        {
-            if (super.isEnabled() != isEnabled())
-                setEnabled(isEnabled());
-        }
     }
 
     // //////////////////////////////////////////////////////////////
