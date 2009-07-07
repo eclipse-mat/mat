@@ -39,9 +39,11 @@ import com.ibm.dtfj.image.ImageAddressSpace;
 import com.ibm.dtfj.image.ImagePointer;
 import com.ibm.dtfj.image.MemoryAccessException;
 import com.ibm.dtfj.java.JavaClass;
+import com.ibm.dtfj.java.JavaClassLoader;
 import com.ibm.dtfj.java.JavaField;
 import com.ibm.dtfj.java.JavaHeap;
 import com.ibm.dtfj.java.JavaLocation;
+import com.ibm.dtfj.java.JavaMonitor;
 import com.ibm.dtfj.java.JavaObject;
 import com.ibm.dtfj.java.JavaRuntime;
 import com.ibm.dtfj.java.JavaStackFrame;
@@ -340,6 +342,56 @@ public class DTFJHeapObjectReader implements IObjectReader
                 }
             }
         }
+
+        // Now look for thread objects
+        for (Iterator i = jvm.getThreads(); i.hasNext();)
+        {
+            Object next = i.next();
+            if (next instanceof CorruptData)
+            {
+                continue;
+            }
+            JavaThread thrd = (JavaThread) next;
+            try
+            {
+                JavaObject jo = thrd.getObject();
+                if (jo != null && jo.getID().getAddress() == addr) { return jo; }
+            }
+            catch (CorruptDataException e)
+            {}
+        }
+
+        // Now look for monitor objects
+        for (Iterator i = jvm.getMonitors(); i.hasNext();)
+        {
+            Object next = i.next();
+            if (next instanceof CorruptData)
+            {
+                continue;
+            }
+            JavaMonitor mon = (JavaMonitor) next;
+            JavaObject jo = mon.getObject();
+            if (jo != null && jo.getID().getAddress() == addr) { return jo; }
+        }
+
+        // Now look for class loader objects
+        for (Iterator i = jvm.getJavaClassLoaders(); i.hasNext();)
+        {
+            Object next = i.next();
+            if (next instanceof CorruptData)
+            {
+                continue;
+            }
+            JavaClassLoader ldr = (JavaClassLoader) next;
+            try
+            {
+                JavaObject jo = ldr.getObject();
+                if (jo != null && jo.getID().getAddress() == addr) { return jo; }
+            }
+            catch (CorruptDataException e)
+            {}
+        }
+
         throw new IllegalArgumentException(MessageFormat.format(
                         Messages.DTFJHeapObjectReader_JavaObjectAtAddressNotFound, format(addr)));
     }
