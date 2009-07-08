@@ -7,7 +7,7 @@
 	</query>
 	<query name="%overview.system_properties">
 		<param key="html.separate_file" value="true" />
-		<param key="sort_column" value="Key" />
+		<param key="sort_column" value="#1" />
 		<param key="sort_order" value="ASC" />
 		<param key="hide_column" value="#0" />
 		<param key="limit" value="1000" />
