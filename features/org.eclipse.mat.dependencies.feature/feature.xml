@@ -260,7 +260,7 @@ Java and all Java-based trademarks are trademarks of Sun Microsystems, Inc. in t
          fragment="true"
          unpack="false"/>
 
-    <plugin
+   <plugin
          id="org.eclipse.swt.cocoa.macosx"
          os="macosx"
          ws="cocoa"
@@ -270,8 +270,8 @@ Java and all Java-based trademarks are trademarks of Sun Microsystems, Inc. in t
          version="0.0.0"
          fragment="true"
          unpack="false"/>
-         
-    <plugin
+
+   <plugin
          id="org.eclipse.swt.cocoa.macosx"
          os="macosx"
          ws="cocoa"
@@ -281,8 +281,8 @@ Java and all Java-based trademarks are trademarks of Sun Microsystems, Inc. in t
          version="0.0.0"
          fragment="true"
          unpack="false"/>
-         
-    <plugin
+
+   <plugin
          id="org.eclipse.swt.cocoa.macosx.x86_64"
          os="macosx"
          ws="cocoa"
@@ -291,7 +291,7 @@ Java and all Java-based trademarks are trademarks of Sun Microsystems, Inc. in t
          install-size="0"
          version="0.0.0"
          fragment="true"
-         unpack="false"/>           
+         unpack="false"/>
 
    <plugin
          id="org.eclipse.swt.motif.aix.ppc"
@@ -596,13 +596,6 @@ Java and all Java-based trademarks are trademarks of Sun Microsystems, Inc. in t
 
    <plugin
          id="org.eclipse.jface.text"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.ui.console"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -961,7 +954,7 @@ Java and all Java-based trademarks are trademarks of Sun Microsystems, Inc. in t
          version="0.0.0"
          fragment="true"/>
 
-    <plugin
+   <plugin
          id="org.eclipse.equinox.launcher.cocoa.macosx"
          os="macosx"
          ws="cocoa"
@@ -970,8 +963,8 @@ Java and all Java-based trademarks are trademarks of Sun Microsystems, Inc. in t
          install-size="0"
          version="0.0.0"
          fragment="true"/>
-         
-    <plugin
+
+   <plugin
          id="org.eclipse.equinox.launcher.cocoa.macosx"
          os="macosx"
          ws="cocoa"
@@ -979,8 +972,8 @@ Java and all Java-based trademarks are trademarks of Sun Microsystems, Inc. in t
          download-size="0"
          install-size="0"
          version="0.0.0"
-         fragment="true"/>       
-            
+         fragment="true"/>
+
    <plugin
          id="org.eclipse.equinox.launcher.cocoa.macosx.x86_64"
          os="macosx"
