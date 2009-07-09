@@ -37,6 +37,7 @@ import com.ibm.dtfj.image.DataUnavailable;
 import com.ibm.dtfj.image.Image;
 import com.ibm.dtfj.image.ImageAddressSpace;
 import com.ibm.dtfj.image.ImagePointer;
+import com.ibm.dtfj.image.ImageProcess;
 import com.ibm.dtfj.image.MemoryAccessException;
 import com.ibm.dtfj.java.JavaClass;
 import com.ibm.dtfj.java.JavaClassLoader;
@@ -67,6 +68,8 @@ public class DTFJHeapObjectReader implements IObjectReader
     private JavaRuntime jvm;
     /** the address space the Java runtime is in */
     private ImageAddressSpace addrSpace;
+    /** the process the Java runtime is in */
+    private ImageProcess process;
     /**
      * whether to give up and throw an exception if reading object data fails,
      * or whether to carry on getting more data
@@ -99,6 +102,14 @@ public class DTFJHeapObjectReader implements IObjectReader
         {
             return (A) jvm;
         }
+        else if (addrSpace != null && addon.isAssignableFrom(addrSpace.getClass()))
+        {
+            return (A) addrSpace;
+        }
+        else if (process != null && addon.isAssignableFrom(process.getClass()))
+        {
+            return (A) process;
+        }
         else
         {
             return null;
@@ -120,6 +131,25 @@ public class DTFJHeapObjectReader implements IObjectReader
         try
         {
             addrSpace = DTFJIndexBuilder.getAddressSpace(jvm);
+            // Find the process
+            for (Iterator i2 = addrSpace.getProcesses(); i2.hasNext() && process == null;)
+            {
+                Object next2 = i2.next();
+                if (next2 instanceof CorruptData)
+                    continue;
+                ImageProcess proc = (ImageProcess) next2;
+                for (Iterator i3 = proc.getRuntimes(); i3.hasNext();)
+                {
+                    Object next3 = i3.next();
+                    if (next3 instanceof CorruptData)
+                        continue;
+                    if (jvm.equals(next3))
+                    {
+                        process = proc;
+                        break;
+                    }
+                }
+            }
         }
         catch (CorruptDataException e)
         {
