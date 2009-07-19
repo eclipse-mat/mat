@@ -67,6 +67,8 @@ public final class Messages extends NLS
 
     public static String QueryRegistry_Msg_QueryRegistered;
     public static String QuerySpec_Error_IncompatibleTypes;
+
+    public static String QueueInt_ZeroSizeQueue;
     public static String RefinedResultBuilder_Error_ColumnsSorting;
     public static String RefinedResultBuilder_Error_UnsupportedType;
     public static String RegistryReader_Error_Registry;
