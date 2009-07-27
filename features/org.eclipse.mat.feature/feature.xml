@@ -68,12 +68,8 @@ Java and all Java-based trademarks are trademarks of Sun Microsystems, Inc. in t
       <import plugin="com.ibm.icu"/>
       <import plugin="org.eclipse.core.resources" version="3.3.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.core.filesystem" version="1.1.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.ui.intro" version="3.2.100" match="greaterOrEqual"/>
       <import plugin="org.eclipse.ui" version="3.3.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.ui.ide" version="3.3.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.ui.console" version="3.2.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.ui.workbench" version="3.3.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.ui.editors" version="3.3.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.ui.views" version="3.2.100" match="greaterOrEqual"/>
       <import plugin="org.eclipse.jface.text" version="3.3.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.ui.cheatsheets" version="3.3.0" match="greaterOrEqual"/>
@@ -85,6 +81,11 @@ Java and all Java-based trademarks are trademarks of Sun Microsystems, Inc. in t
       <import plugin="org.eclipse.help.webapp" version="3.3.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.core.jobs"/>
       <import plugin="org.eclipse.text"/>
+      <import plugin="org.eclipse.mat.report" version="0.8.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.mat.parser" version="0.8.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.mat.api" version="0.8.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.jdt.ui"/>
+      <import plugin="org.eclipse.jdt.core"/>
    </requires>
 
    <plugin
