@@ -66,9 +66,6 @@ Java and all Java-based trademarks are trademarks of Sun Microsystems, Inc. in t
    <requires>
       <import plugin="org.eclipse.core.runtime" version="3.3.100" match="greaterOrEqual"/>
       <import plugin="com.ibm.icu"/>
-      <import plugin="org.eclipse.mat.report" version="0.8.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.mat.parser" version="0.8.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.mat.api" version="0.8.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.core.resources" version="3.3.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.core.filesystem" version="1.1.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.ui" version="3.3.0" match="greaterOrEqual"/>
