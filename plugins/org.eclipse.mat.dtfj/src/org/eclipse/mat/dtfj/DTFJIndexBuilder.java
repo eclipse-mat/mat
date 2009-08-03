@@ -19,7 +19,6 @@ import java.io.PrintWriter;
 import java.io.Serializable;
 import java.lang.ref.SoftReference;
 import java.lang.reflect.Modifier;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -7205,4 +7204,18 @@ public class DTFJIndexBuilder implements IIndexBuilder
             System.out.println(msg);
     }
 
+}
+
+/**
+ * Use ICU not java.text for message formatting
+ */
+class MessageFormat
+{
+    public static String format(String msg, Object... parms)
+    {
+        return com.ibm.icu.text.MessageFormat.format(msg, parms);
+    }
+
+    private MessageFormat()
+    {}
 }

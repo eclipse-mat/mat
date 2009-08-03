@@ -13,3 +13,4 @@ Bundle-Activator: org.eclipse.mat.dtfj.InitDTFJ
 Bundle-ActivationPolicy: lazy
 Eclipse-LazyStart: true
 DynamicImport-Package: com.ibm.dtfj.*
+Import-Package: com.ibm.icu.text;version="3.6.1"
