@@ -10,13 +10,12 @@
  *******************************************************************************/
 package org.eclipse.mat.inspections.jetty;
 
-import java.text.MessageFormat;
-
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.snapshot.extension.IClassSpecificNameResolver;
 import org.eclipse.mat.snapshot.extension.Subject;
 import org.eclipse.mat.snapshot.model.IObject;
+import org.eclipse.mat.util.MessageUtil;
 
 public class JettyNameResolvers
 {
@@ -41,7 +40,7 @@ public class JettyNameResolvers
         public String resolve(IObject object) throws SnapshotException
         {
             IObject parent = (IObject) object.resolveValue("parent"); //$NON-NLS-1$
-            return parent != null ? MessageFormat.format(Messages.JettyNameResolvers_JSPofWebApp, parent
+            return parent != null ? MessageUtil.format(Messages.JettyNameResolvers_JSPofWebApp, parent
                             .getClassSpecificName()) : null;
         }
     }
