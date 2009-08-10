@@ -151,6 +151,12 @@ abstract public class GCRootInfo implements Serializable
                 }
                 else
                 {
+                    // Performance optimization - if there is only one bit set
+                    // return the type string without building a new string.
+                    if ((1 << i) == typeSet)
+                    {
+                        return TYPE_STRING[i];
+                    }
                     first = false;
                 }
                 buf.append(TYPE_STRING[i]);
