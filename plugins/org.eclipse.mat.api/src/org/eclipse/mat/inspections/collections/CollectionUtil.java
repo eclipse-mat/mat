@@ -239,11 +239,12 @@ public final class CollectionUtil
     @SuppressWarnings("nls")
     private static int resolveVersion(ISnapshot snapshot) throws SnapshotException
     {
-        if (snapshot.getClassesByName("com.ibm.misc.JavaRuntimeVersion", false) != null)
+        Collection<IClass> classes;
+        if ((classes = snapshot.getClassesByName("com.ibm.misc.JavaRuntimeVersion", false)) != null && !classes.isEmpty())
             return Version.IBM15;
-        else if (snapshot.getClassesByName("com.ibm.oti.vm.BootstrapClassLoader", false) != null)
+        else if ((classes = snapshot.getClassesByName("com.ibm.oti.vm.BootstrapClassLoader", false)) != null && !classes.isEmpty())
             return Version.IBM16;
-        else if (snapshot.getClassesByName("com.ibm.jvm.Trace", false) != null)
+        else if ((classes = snapshot.getClassesByName("com.ibm.jvm.Trace", false)) != null && !classes.isEmpty())
             return Version.IBM14;
 
         return Version.SUN;

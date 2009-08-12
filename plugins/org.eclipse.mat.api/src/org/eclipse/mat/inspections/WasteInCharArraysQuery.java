@@ -12,6 +12,7 @@
 package org.eclipse.mat.inspections;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.mat.SnapshotException;
@@ -41,34 +42,36 @@ public class WasteInCharArraysQuery implements IQuery
     {
         ArrayInt result = new ArrayInt();
 
-        for (IClass clasz : snapshot.getClassesByName("char[]", false)) //$NON-NLS-1$
-        {
-            int[] objectIds = clasz.getObjectIds();
-
-            listener.beginTask(Messages.WasteInCharArraysQuery_CheckingCharArrays, objectIds.length / 1000);
-
-            for (int ii = 0; ii < objectIds.length; ii++)
+        Collection<IClass> classes = snapshot.getClassesByName("char[]", false);
+        if (classes != null)
+            for (IClass clasz : classes) //$NON-NLS-1$
             {
-                if (ii % 1000 == 0)
+                int[] objectIds = clasz.getObjectIds();
+
+                listener.beginTask(Messages.WasteInCharArraysQuery_CheckingCharArrays, objectIds.length / 1000);
+
+                for (int ii = 0; ii < objectIds.length; ii++)
                 {
-                    if (listener.isCanceled())
-                        throw new IProgressListener.OperationCanceledException();
-                    listener.worked(1);
+                    if (ii % 1000 == 0)
+                    {
+                        if (listener.isCanceled())
+                            throw new IProgressListener.OperationCanceledException();
+                        listener.worked(1);
+                    }
+
+                    int id = objectIds[ii];
+
+                    // ignore if object is too small anyways
+                    IArray array = (IArray) snapshot.getObject(id);
+                    int length = array.getLength();
+                    if (length < minimumWaste)
+                        continue;
+
+                    if (hasWaste(id, length))
+                        result.add(id);
+
                 }
-
-                int id = objectIds[ii];
-
-                // ignore if object is too small anyways
-                IArray array = (IArray) snapshot.getObject(id);
-                int length = array.getLength();
-                if (length < minimumWaste)
-                    continue;
-
-                if (hasWaste(id, length))
-                    result.add(id);
-
             }
-        }
 
         return new ObjectListResult.Inbound(snapshot, result.toArray());
     }

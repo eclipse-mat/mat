@@ -37,24 +37,23 @@ public class LeakingPlugins implements IQuery
         // collect stale all class loaders
         Collection<IClass> classes = snapshot.getClassesByName(
                         "org.eclipse.osgi.framework.internal.core.BundleLoaderProxy", true); //$NON-NLS-1$
-        if (classes == null)
-            return null;
 
         ArrayInt result = new ArrayInt();
 
-        for (IClass clazz : classes)
-        {
-            for (int objectId : clazz.getObjectIds())
+        if (classes != null)
+            for (IClass clazz : classes)
             {
-                IObject proxy = snapshot.getObject(objectId);
-                boolean isStale = (Boolean) proxy.resolveValue("stale"); //$NON-NLS-1$
-                if (isStale)
+                for (int objectId : clazz.getObjectIds())
                 {
-                    IClassLoader classLoader = (IClassLoader) proxy.resolveValue("loader.classloader"); //$NON-NLS-1$
-                    result.add(classLoader.getObjectId());
+                    IObject proxy = snapshot.getObject(objectId);
+                    boolean isStale = (Boolean) proxy.resolveValue("stale"); //$NON-NLS-1$
+                    if (isStale)
+                    {
+                        IClassLoader classLoader = (IClassLoader) proxy.resolveValue("loader.classloader"); //$NON-NLS-1$
+                        result.add(classLoader.getObjectId());
+                    }
                 }
             }
-        }
 
         if (result.isEmpty())
             return new TextResult(Messages.LeakingPlugins_NoLeakingPlugInsDetected);

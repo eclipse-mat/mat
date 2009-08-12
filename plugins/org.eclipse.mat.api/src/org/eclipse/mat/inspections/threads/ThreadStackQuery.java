@@ -63,11 +63,12 @@ public class ThreadStackQuery implements IQuery
         if (objects == null) // take all threads by default
         {
             Collection<IClass> classes = snapshot.getClassesByName("java.lang.Thread", true); //$NON-NLS-1$
-            for (IClass clazz : classes)
-            {
-                int[] objectIds = clazz.getObjectIds();
-                addThreadStacks(objectIds, stacks, roots);
-            }
+            if (classes != null)
+                for (IClass clazz : classes)
+                {
+                    int[] objectIds = clazz.getObjectIds();
+                    addThreadStacks(objectIds, stacks, roots);
+                }
         }
         else
         // work with the provided objects

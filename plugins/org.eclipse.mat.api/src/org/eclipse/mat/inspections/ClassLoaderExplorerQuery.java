@@ -12,6 +12,7 @@ package org.eclipse.mat.inspections;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -50,9 +51,11 @@ public class ClassLoaderExplorerQuery implements IQuery
     {
         // collect all class loader instances
         HashMapIntObject<Node> classLoader = new HashMapIntObject<Node>();
-        for (IClass clazz : snapshot.getClassesByName(IClass.JAVA_LANG_CLASSLOADER, true))
-            for (int objectId : clazz.getObjectIds())
-                classLoader.put(objectId, new Node(objectId));
+        Collection<IClass> classes = snapshot.getClassesByName(IClass.JAVA_LANG_CLASSLOADER, true);
+        if (classes != null)
+            for (IClass clazz : classes)
+                for (int objectId : clazz.getObjectIds())
+                    classLoader.put(objectId, new Node(objectId));
 
         // assign defined classes
         for (IClass clazz : snapshot.getClasses())

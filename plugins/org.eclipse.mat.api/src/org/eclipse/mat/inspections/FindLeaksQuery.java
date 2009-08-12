@@ -225,10 +225,11 @@ public class FindLeaksQuery implements IQuery
         // avoid weak paths
         Map<IClass, Set<String>> excludeMap = new HashMap<IClass, Set<String>>();
         Collection<IClass> classes = snapshot.getClassesByName("java.lang.ref.WeakReference", true); //$NON-NLS-1$
-        for (IClass clazz : classes)
-        {
-            excludeMap.put(clazz, REFERENCE_FIELD_SET);
-        }
+        if (classes != null)
+            for (IClass clazz : classes)
+            {
+                excludeMap.put(clazz, REFERENCE_FIELD_SET);
+            }
 
         IMultiplePathsFromGCRootsComputer comp = snapshot.getMultiplePathsFromGCRoots(objectIds, excludeMap);
 

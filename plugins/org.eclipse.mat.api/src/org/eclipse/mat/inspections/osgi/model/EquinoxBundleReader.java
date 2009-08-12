@@ -97,7 +97,7 @@ public class EquinoxBundleReader implements IBundleReader
         Collection<IClass> classes = snapshot.getClassesByName(
                         "org.eclipse.osgi.framework.internal.core.BundleRepository", false); //$NON-NLS-1$
         List<BundleDescriptor> bundleDescriptors = new ArrayList<BundleDescriptor>();
-        if (classes == null)
+        if (classes == null || classes.isEmpty())
             return bundleDescriptors;
 
         for (IClass clazz : classes)
@@ -174,12 +174,12 @@ public class EquinoxBundleReader implements IBundleReader
 
         Collection<IClass> classes = snapshot.getClassesByName( // 3.5
                         "org.eclipse.osgi.internal.serviceregistry.ServiceRegistry", false); //$NON-NLS-1$
-        if (classes == null)
+        if (classes == null || classes.isEmpty())
             classes = snapshot.getClassesByName( // 3.4
                             "org.eclipse.osgi.framework.internal.core.ServiceRegistryImpl", false); //$NON-NLS-1$
 
         List<Service> services = new ArrayList<Service>();
-        if (classes == null)
+        if (classes == null || classes.isEmpty())
             return services;
 
         for (IClass clazz : classes)
@@ -192,7 +192,7 @@ public class EquinoxBundleReader implements IBundleReader
 
                 IObjectArray servicesArray = (IObjectArray) obj.resolveValue("allPublishedServices.elementData");//$NON-NLS-1$
                 if (servicesArray == null)
-                    return null;
+                    continue; // Try with other registries
                 long[] serviceAddreses = servicesArray.getReferenceArray();
                 if (serviceAddreses == null)
                     continue;
@@ -562,7 +562,7 @@ public class EquinoxBundleReader implements IBundleReader
         Collection<IClass> classes = snapshot.getClassesByName(
                         "org.eclipse.core.internal.registry.ExtensionRegistry", false); //$NON-NLS-1$
 
-        if (classes == null)
+        if (classes == null && !classes.isEmpty())
             return null;
         Map<String, ExtensionPoint> extensionPoints = new HashMap<String, ExtensionPoint>();
         Map<Integer, Extension> extensions = new HashMap<Integer, Extension>();

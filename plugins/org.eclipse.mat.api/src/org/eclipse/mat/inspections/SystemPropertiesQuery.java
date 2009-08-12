@@ -33,6 +33,8 @@ public class SystemPropertiesQuery implements IQuery
     public HashEntriesQuery.Result execute(IProgressListener listener) throws Exception
     {
         Collection<IClass> classes = snapshot.getClassesByName("java.lang.System", false); //$NON-NLS-1$
+        if (classes == null || classes.isEmpty())
+            return null;
         IClass systemClass = classes.iterator().next();
 
         IObject properties = (IObject) systemClass.resolveValue("props"); //$NON-NLS-1$

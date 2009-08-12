@@ -31,7 +31,7 @@ public class BundleReaderFactory
 
         Collection<IClass> classes = snapshot.getClassesByName(
                         "org.eclipse.osgi.framework.internal.core.BundleRepository", false); //$NON-NLS-1$
-        if (classes != null)
+        if (classes != null && !classes.isEmpty())
             // Equinox OSGi framework
             return new EquinoxBundleReader(snapshot);
         else

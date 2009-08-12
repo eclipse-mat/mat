@@ -13,6 +13,7 @@ package org.eclipse.mat.inspections.finalizer;
 import java.util.Collection;
 
 import org.eclipse.mat.collect.ArrayInt;
+import org.eclipse.mat.inspections.ReferenceQuery;
 import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
@@ -45,7 +46,7 @@ public class FinalizerQueueQuery implements IQuery
 
         ArrayInt result = new ArrayInt();
 
-        if (finalizerClasses == null)
+        if (finalizerClasses == null || finalizerClasses.isEmpty())
         {
             // Ignore as there may be finalizable objects marked via GC roots
         }
@@ -71,7 +72,7 @@ public class FinalizerQueueQuery implements IQuery
                 {
                     if (listener.isCanceled()) { throw new IProgressListener.OperationCanceledException(); }
 
-                    ObjectReference ref = (ObjectReference) item.getField("referent").getValue(); //$NON-NLS-1$
+                    ObjectReference ref = ReferenceQuery.getReferent(item);
                     if (ref != null)
                     {
                         result.add(ref.getObjectId());

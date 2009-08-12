@@ -51,13 +51,14 @@ public class ThreadOverviewQuery implements IQuery
         List<ThreadInfoImpl> result = new ArrayList<ThreadInfoImpl>();
 
         Collection<IClass> classes = snapshot.getClassesByName("java.lang.Thread", true); //$NON-NLS-1$
-        for (IClass clasz : classes)
-        {
-            for (int id : clasz.getObjectIds())
+        if (classes != null)
+            for (IClass clasz : classes)
             {
-                result.add(ThreadInfoImpl.build(snapshot.getObject(id), false, listener));
+                for (int id : clasz.getObjectIds())
+                {
+                    result.add(ThreadInfoImpl.build(snapshot.getObject(id), false, listener));
+                }
             }
-        }
 
         Collections.sort(result, new Comparator<ThreadInfoImpl>()
         {

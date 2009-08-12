@@ -117,10 +117,11 @@ public class CustomizedRetainedSetQuery implements IQuery
             else
             {
                 Collection<IClass> classes = snapshot.getClassesByName(objectsDescription, true);
-                for (IClass clazz : classes)
-                {
-                    objectIds.addAll(clazz.getObjectIds());
-                }
+                if (classes != null)
+                    for (IClass clazz : classes)
+                    {
+                        objectIds.addAll(clazz.getObjectIds());
+                    }
             }
             Set<String> fields = null;
             if (tokenizer.hasMoreTokens())

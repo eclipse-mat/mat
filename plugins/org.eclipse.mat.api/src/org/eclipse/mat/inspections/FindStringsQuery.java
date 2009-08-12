@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.mat.inspections;
 
+import java.util.Collection;
 import java.util.regex.Pattern;
 
 import org.eclipse.mat.collect.ArrayInt;
@@ -43,45 +44,51 @@ public class FindStringsQuery implements IQuery
 
         ArrayInt result = new ArrayInt();
 
+        Collection<IClass> classes = snapshot.getClassesByName("java.lang.String", false);
         if (objects == null)
         {
-            ClassesLoop: for (IClass clasz : snapshot.getClassesByName("java.lang.String", false)) //$NON-NLS-1$
-            {
-                int[] objectIds = clasz.getObjectIds();
-
-                for (int id : objectIds)
+            if (classes != null)
+                ClassesLoop: for (IClass clasz : classes) //$NON-NLS-1$
                 {
-                    if (listener.isCanceled())
-                        break ClassesLoop;
+                    int[] objectIds = clasz.getObjectIds();
 
-                    String value = snapshot.getObject(id).getClassSpecificName();
-                    if (value != null && pattern.matcher(value).matches())
-                        result.add(id);
+                    for (int id : objectIds)
+                    {
+                        if (listener.isCanceled())
+                            break ClassesLoop;
+
+                        String value = snapshot.getObject(id).getClassSpecificName();
+                        if (value != null && pattern.matcher(value).matches())
+                            result.add(id);
+                    }
                 }
-            }
         }
         else
         {
-            IClass javaLangString = snapshot.getClassesByName("java.lang.String", false).iterator().next(); //$NON-NLS-1$
-
-            ObjectsLoop: for (int[] objectIds : objects)
+            if (classes != null && !classes.isEmpty())
             {
-                for (int id : objectIds)
+                IClass javaLangString = classes.iterator().next(); //$NON-NLS-1$
+
+                ObjectsLoop: for (int[] objectIds : objects)
                 {
-                    if (listener.isCanceled())
-                        break ObjectsLoop;
-
-                    if (snapshot.isArray(id) || snapshot.isClass(id) || snapshot.isClassLoader(id))
-                        continue;
-
-                    IObject instance = snapshot.getObject(id);
-                    if (!javaLangString.equals(instance.getClazz()))
-                        continue;
-
-                    String value = instance.getClassSpecificName();
-                    if (pattern.matcher(value).matches())
+                    for (int id : objectIds)
                     {
-                        result.add(id);
+                        if (listener.isCanceled())
+                            break ObjectsLoop;
+
+                        if (snapshot.isArray(id) || snapshot.isClass(id) || snapshot.isClassLoader(id))
+                            continue;
+
+                        IObject instance = snapshot.getObject(id);
+                        // if (!classes.contains(instance.getClazz()))
+                        if (!javaLangString.equals(instance.getClazz()))
+                            continue;
+
+                        String value = instance.getClassSpecificName();
+                        if (pattern.matcher(value).matches())
+                        {
+                            result.add(id);
+                        }
                     }
                 }
             }

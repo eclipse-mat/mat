@@ -45,7 +45,7 @@ public class FinalizerThreadQuery implements IQuery
     {
         Collection<IClass> finalizerThreadClasses = snapshot.getClassesByName(
                         "java.lang.ref.Finalizer$FinalizerThread", false); //$NON-NLS-1$
-        if (finalizerThreadClasses == null)
+        if (finalizerThreadClasses == null || finalizerThreadClasses.isEmpty())
         {
             // IBM finalizer thread
             return getFinalizerThreads2(snapshot, Messages.FinalizerThreadQuery_FinalizerThread);
@@ -67,7 +67,7 @@ public class FinalizerThreadQuery implements IQuery
     {
         Collection<IClass> finalizerThreadClasses = snapshot.getClassesByName(
                         "java.lang.ref.Finalizer$FinalizerThread", false); //$NON-NLS-1$
-        if (finalizerThreadClasses == null)
+        if (finalizerThreadClasses == null || finalizerThreadClasses.isEmpty())
             throw new Exception(Messages.FinalizerThreadQuery_ErrorMsg_FinalizerThreadNotFound);
         if (finalizerThreadClasses.size() != 1)
             throw new Exception(Messages.FinalizerThreadQuery_ErrorMsg_MultipleThreads);
@@ -83,7 +83,7 @@ public class FinalizerThreadQuery implements IQuery
     private static int[] getFinalizerThreads2(ISnapshot snapshot, String finalizerThreadName) throws Exception
     {
         Collection<IClass> finalizerThreadClasses = snapshot.getClassesByName("java.lang.Thread", false); //$NON-NLS-1$
-        if (finalizerThreadClasses == null)
+        if (finalizerThreadClasses == null || finalizerThreadClasses.isEmpty())
             throw new Exception(Messages.FinalizerThreadQuery_ErrorMsg_ThreadClassNotFound);
         if (finalizerThreadClasses.size() != 1)
             throw new Exception(Messages.FinalizerThreadQuery_ErrorMsg_MultipleThreadClassesFound);
