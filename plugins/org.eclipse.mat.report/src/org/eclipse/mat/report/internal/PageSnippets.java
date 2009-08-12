@@ -12,6 +12,8 @@ package org.eclipse.mat.report.internal;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.nio.charset.IllegalCharsetNameException;
 import java.util.LinkedList;
 
 import org.eclipse.mat.query.registry.QueryObjectLink;
@@ -23,9 +25,19 @@ import org.eclipse.mat.util.HTMLUtils;
 /* package */class PageSnippets
 {
 
-    public static void beginPage(final AbstractPart part, HtmlArtefact artefact, String title)
+    public static void beginPage(final AbstractPart part, HtmlArtefact artefact, String title, String encoding)
     {
         artefact.append("<html><head>");
+        try
+        {
+            // Convert to canonical form
+            encoding = Charset.forName(encoding).name();
+        }
+        catch (IllegalCharsetNameException e)
+        {
+            // Ignore
+        }
+        artefact.append("<meta http-equiv=\"Content-type\" content=\"text/html;charset="+encoding+"\">");
         artefact.append("<title>").append(title).append("</title>");
         artefact.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"").append(artefact.getPathToRoot()).append(
                         "styles.css\">");

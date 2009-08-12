@@ -60,7 +60,9 @@ public class ResultRenderer
         private HtmlArtefact(AbstractPart part, File directory, String relativeURL, String title) throws IOException
         {
             this.file = new File(directory, relativeURL.replace('/', File.separatorChar));
-            this.writer = new PrintWriter(file);
+            // Should the encoding be hard-coded to UTF-8?
+            String encoding = System.getProperty("file.encoding"); //$NON-NLS-1$
+            this.writer = new PrintWriter(file, encoding);
 
             this.pathToRoot = ""; //$NON-NLS-1$
             for (int ii = 0; ii < relativeURL.length(); ii++)
@@ -71,7 +73,7 @@ public class ResultRenderer
 
             artefacts.add(this);
 
-            PageSnippets.beginPage(part, this, title);
+            PageSnippets.beginPage(part, this, title, encoding);
         }
 
         public HtmlArtefact append(String s)
