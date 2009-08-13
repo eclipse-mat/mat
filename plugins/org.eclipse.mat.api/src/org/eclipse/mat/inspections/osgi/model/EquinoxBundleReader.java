@@ -399,7 +399,7 @@ public class EquinoxBundleReader implements IBundleReader
         {
             version = versionObj.getClassSpecificName();
         }
-        String bundleName = version == null || version == "" ? symbolicName : symbolicName + " (" + version + ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        String bundleName = version == null || version.equals("") ? symbolicName : symbolicName + " (" + version + ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         return bundleName;
     }
 
