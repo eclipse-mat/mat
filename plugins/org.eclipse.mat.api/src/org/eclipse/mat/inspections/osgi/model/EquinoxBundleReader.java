@@ -562,7 +562,7 @@ public class EquinoxBundleReader implements IBundleReader
         Collection<IClass> classes = snapshot.getClassesByName(
                         "org.eclipse.core.internal.registry.ExtensionRegistry", false); //$NON-NLS-1$
 
-        if (classes == null && !classes.isEmpty())
+        if (classes == null || classes.isEmpty())
             return null;
         Map<String, ExtensionPoint> extensionPoints = new HashMap<String, ExtensionPoint>();
         Map<Integer, Extension> extensions = new HashMap<Integer, Extension>();
