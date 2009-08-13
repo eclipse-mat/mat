@@ -1,8 +1,8 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.eclipse.mat.dtfj;singleton:=true
-Bundle-Name: Memory Analyzer - DTFJ Adapter (Incubation)
-Bundle-Vendor: Eclipse.org
+Bundle-Name: %Bundle-Name
+Bundle-Vendor: %Bundle-Vendor
 Bundle-Version: 0.8.0.qualifier
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Require-Bundle: org.eclipse.mat.parser;bundle-version="0.8.0",
@@ -14,3 +14,4 @@ Bundle-ActivationPolicy: lazy
 Eclipse-LazyStart: true
 DynamicImport-Package: com.ibm.dtfj.*
 Import-Package: com.ibm.icu.text;version="3.6.1"
+Bundle-Localization: plugin
