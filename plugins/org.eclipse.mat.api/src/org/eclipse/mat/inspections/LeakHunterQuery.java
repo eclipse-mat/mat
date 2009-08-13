@@ -361,7 +361,6 @@ public class LeakHunterQuery implements IQuery
                                 classloaderName));
             }
         }
-        overview.append("</p>"); //$NON-NLS-1$
 
         /* extract request information for thread related problems */
         ThreadInfoQuery.Result threadDetails = null;

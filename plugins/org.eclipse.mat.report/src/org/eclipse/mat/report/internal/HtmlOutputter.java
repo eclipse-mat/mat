@@ -207,7 +207,7 @@ public class HtmlOutputter implements IOutputter
 
                         renderTreeIndentation(artefact, branches);
 
-                        artefact.append("<img src=\"").append(iconUrl).append("\"/>");
+                        artefact.append("<img src=\"").append(iconUrl).append("\">");
                         artefact.append("<ul><li>").append(totalsRow.getLabel(i)).append("</li></ul>").append("</td>");
                     }
                     else
@@ -285,7 +285,7 @@ public class HtmlOutputter implements IOutputter
 
                 String iconUrl = context.addIcon(tree.getIcon(element));
                 if (iconUrl != null)
-                    artefact.append("<img src=\"").append(iconUrl).append("\"/>");
+                    artefact.append("<img src=\"").append(iconUrl).append("\">");
 
                 artefact.append("<ul><li>");
                 renderColumnValue(context, artefact, tree, columns, element, 0);

@@ -46,7 +46,7 @@ import org.eclipse.mat.util.HTMLUtils;
         artefact.append("</head><body onload=\"preparepage();\">");
 
         artefact.append("<input type=\"hidden\" id=\"$imageBase\" value=\"").append(artefact.getPathToRoot()).append(
-                        "img/\"/>");
+                        "img/\">");
 
         artefact.append("<div id=\"header\"><ul>");
 
@@ -101,7 +101,7 @@ import org.eclipse.mat.util.HTMLUtils;
 
     public static void endPage(HtmlArtefact artefact)
     {
-        artefact.append("<br/>");
+        artefact.append("<br>");
         artefact.append("<div id=\"footer\">");
 
         artefact.append("<div class=\"toc\"><a href=\"").append(artefact.getPathToRoot()).append(
