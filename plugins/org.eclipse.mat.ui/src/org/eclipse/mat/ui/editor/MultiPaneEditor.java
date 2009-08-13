@@ -189,6 +189,7 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
                             case IStatus.ERROR:
                             case IStatus.INFO:
                                 cancel.setEnabled(false);
+                                form.setText(Messages.MultiPaneEditor_Failed_to_open);
                                 text.setText(event.getResult().getMessage());
                                 break;
                         }
