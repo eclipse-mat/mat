@@ -11,7 +11,7 @@
 	<extension point="org.eclipse.mat.report.query">
 		<!-- public -->
 		<query impl="org.eclipse.mat.snapshot.inspections.DominatorQuery"/>
-		<query impl="org.eclipse.mat.snapshot.inspections.DominatorQuery$ShowInDominatorQuery"/>
+		<query impl="org.eclipse.mat.snapshot.inspections.ShowInDominatorQuery"/>
 		<query impl="org.eclipse.mat.snapshot.inspections.Path2GCRootsQuery"/>
 		<query impl="org.eclipse.mat.snapshot.inspections.MultiplePath2GCRootsQuery"/>
 		

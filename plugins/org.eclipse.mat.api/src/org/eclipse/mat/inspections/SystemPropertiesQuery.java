@@ -15,7 +15,6 @@ import java.util.Collection;
 import org.eclipse.mat.inspections.collections.HashEntriesQuery;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.annotations.Argument;
-import org.eclipse.mat.query.annotations.Category;
 import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IClass;
@@ -24,7 +23,6 @@ import org.eclipse.mat.snapshot.query.SnapshotQuery;
 import org.eclipse.mat.util.IProgressListener;
 
 @CommandName("system_properties")
-@Category("Java Basics")
 public class SystemPropertiesQuery implements IQuery
 {
     @Argument

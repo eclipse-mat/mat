@@ -33,11 +33,9 @@ import org.eclipse.mat.query.IResultTree;
 import org.eclipse.mat.query.ISelectionProvider;
 import org.eclipse.mat.query.ResultMetaData;
 import org.eclipse.mat.query.annotations.Argument;
-import org.eclipse.mat.query.annotations.Category;
 import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.query.annotations.Menu;
-import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.query.annotations.Menu.Entry;
 import org.eclipse.mat.snapshot.IPathsFromGCRootsComputer;
 import org.eclipse.mat.snapshot.ISnapshot;
@@ -48,20 +46,12 @@ import org.eclipse.mat.snapshot.model.NamedReference;
 import org.eclipse.mat.snapshot.query.Icons;
 import org.eclipse.mat.util.IProgressListener;
 
-@Name("exclude custom field...")
 @CommandName("path2gc")
-@Category("3|Path To GC Roots")
 @Icon("/META-INF/icons/path2gc.gif")
-@Menu( { @Entry(label = "1|with all references", options = "-excludes \"\""), //
-
-                @Entry(label = "2|exclude weak references", //
-                options = "-excludes java.lang.ref.WeakReference:referent"), //
-
-                @Entry(label = "3|exclude soft references", //
-                options = "-excludes java.lang.ref.SoftReference:referent"), //
-
-                @Entry(label = "4|exclude weak/soft references", //
-                options = "-excludes java.lang.ref.WeakReference:referent java.lang.ref.SoftReference:referent") //
+@Menu( { @Entry(options = "-excludes \"\""), //
+                @Entry(options = "-excludes java.lang.ref.WeakReference:referent"), //
+                @Entry(options = "-excludes java.lang.ref.SoftReference:referent"), //
+                @Entry(options = "-excludes java.lang.ref.WeakReference:referent java.lang.ref.SoftReference:referent") //
 })
 public class Path2GCRootsQuery implements IQuery
 {

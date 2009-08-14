@@ -33,7 +33,6 @@ import org.eclipse.mat.query.IResultTree;
 import org.eclipse.mat.query.ISelectionProvider;
 import org.eclipse.mat.query.ResultMetaData;
 import org.eclipse.mat.query.annotations.Argument;
-import org.eclipse.mat.query.annotations.Category;
 import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.Argument.Advice;
 import org.eclipse.mat.query.results.ListResult;
@@ -58,7 +57,6 @@ import org.eclipse.mat.util.SimpleStringTokenizer;
 import com.ibm.icu.text.DecimalFormat;
 
 @CommandName("top_consumers_html")
-@Category("Leak Identification")
 public class TopConsumers2Query implements IQuery
 {
     private static final Column COL_RETAINED_HEAP = new Column(Messages.TopConsumers2Query_Column_RetainedHeapPercent,

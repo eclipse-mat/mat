@@ -38,12 +38,10 @@ import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.Category;
 import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.Icon;
-import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.GCRootInfo;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
-import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.snapshot.query.Icons;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.VoidProgressListener;
@@ -92,22 +90,6 @@ public class DominatorQuery implements IQuery
     public Tree execute(IProgressListener listener) throws Exception
     {
         return create(new int[] { -1 }, listener);
-    }
-
-    @Name("Open In Dominator Tree")
-    @CommandName("show_dominator_tree")
-    @Category("Java Basics")
-    @Icon("/META-INF/icons/dominator_tree.gif")
-    public static class ShowInDominatorQuery extends DominatorQuery
-    {
-        @Argument(flag = "none")
-        public IHeapObjectArgument objects;
-
-        public DominatorQuery.Tree execute(IProgressListener listener) throws Exception
-        {
-            return create(snapshot.getTopAncestorsInDominatorTree(objects.getIds(listener), listener), listener);
-        }
-
     }
 
     protected Tree create(int[] roots, IProgressListener listener) throws SnapshotException
