@@ -333,6 +333,9 @@ public class Query
         }
         else
         {
+            if (selectClause.asObjects)
+                buf.append("OBJECTS ");//$NON-NLS-1$
+
             for (Iterator<SelectItem> iter = selectClause.getSelectList().iterator(); iter.hasNext();)
             {
                 SelectItem column = iter.next();
