@@ -447,15 +447,17 @@ public class LeakHunterQuery implements IQuery
         if (bigSuspectInstances.size() > 0)
         {
             builder.append("<p>").append(Messages.LeakHunterQuery_BiggestInstances); //$NON-NLS-1$
+            builder.append("<ul>"); //$NON-NLS-1$
             for (IObject inst : bigSuspectInstances)
             {
                 builder.append("<li>").append(inst.getDisplayName()); //$NON-NLS-1$
-                builder.append("&nbsp;-&nbsp") //$NON-NLS-1$
+                builder.append("&nbsp;-&nbsp;") //$NON-NLS-1$
                                 .append(
                                                 MessageUtil.format(Messages.LeakHunterQuery_Msg_Bytes,
                                                                 formatRetainedHeap(inst.getRetainedHeapSize(),
                                                                                 totalHeap)));
             }
+            builder.append("</ul>"); //$NON-NLS-1$
             builder.append("</p>"); //$NON-NLS-1$
         }
 
