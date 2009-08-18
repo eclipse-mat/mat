@@ -4307,13 +4307,6 @@ public class DTFJIndexBuilder implements IIndexBuilder
         if (!haveDTFJRefs)
             return;
 
-        HashSet<Long> aaset = new LinkedHashSet<Long>();
-
-        for (IteratorLong il = aa.iterator(); il.hasNext();)
-        {
-            aaset.add(Long.valueOf(il.next()));
-        }
-
         HashMap<Long, String> objset = new LinkedHashMap<Long, String>();
 
         Iterator i2;
@@ -4494,45 +4487,69 @@ public class DTFJIndexBuilder implements IIndexBuilder
         hasDTFJRefs |= i2.hasNext();
         collectRefs(i2, objset, desc, name, objAddr, listener);
 
-        // debugPrint("Obj "+type+" "+aaset.size()+" "+objset.size());
-        // for (IteratorLong il = aa.iterator(); il.hasNext(); ) {
-        // debugPrint("A "+format(il.next()));
-        // }
-        HashSet<Long> temp = new HashSet<Long>(aaset);
-        temp.removeAll(objset.keySet());
-        for (Long l : temp)
+        if (debugInfo)
         {
-            int newObjId = indexToAddress.reverse(l);
-            String clsInfo = objDesc(newObjId);
-            if (msgNgetRefsMissing-- > 0)
-                listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
-                                Messages.DTFJIndexBuilder_DTFJGetReferencesMissingID, newObjId, format(l), clsInfo,
-                                desc, name, objId, format(objAddr)), null);
-        }
-        if (false && !temp.isEmpty())
-        {
-            debugPrint("All DTFJ references from " + desc + " " + name); //$NON-NLS-1$ //$NON-NLS-2$
+            // Test getReferences versus old way of getting references
+
+            // debugPrint("Obj "+type+" "+aaset.size()+" "+objset.size());
+            // for (IteratorLong il = aa.iterator(); il.hasNext(); ) {
+            // debugPrint("A "+format(il.next()));
+            // }
+
+            // Test for missing references from getReferences()
+            HashSet<Long> inBoth = new HashSet<Long>();
+            boolean missingRefs = false;
+            for (IteratorLong il = aa.iterator(); il.hasNext();)
+            {
+                long l = il.next();
+                Long v = Long.valueOf(l);
+                if (!objset.containsKey(v))
+                {
+                    missingRefs = true;
+                    int newObjId = indexToAddress.reverse(l);
+                    String clsInfo = objDesc(newObjId);
+                    if (msgNgetRefsMissing-- > 0)
+                        listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
+                                        Messages.DTFJIndexBuilder_DTFJGetReferencesMissingID, newObjId, format(l),
+                                        clsInfo, desc, name, objId, format(objAddr)), null);
+                }
+                else
+                {
+                    inBoth.add(v);
+                }
+            }
+            if (false && missingRefs)
+            {
+                debugPrint("All DTFJ references from " + desc + " " + name); //$NON-NLS-1$ //$NON-NLS-2$
+                for (Long l : objset.keySet())
+                {
+                    debugPrint(format(l) + " " + objset.get(l)); //$NON-NLS-1$
+                }
+            }
+
+            // Test for extra references from getReferences()
             for (Long l : objset.keySet())
             {
-                debugPrint(format(l) + " " + objset.get(l)); //$NON-NLS-1$
+                if (!inBoth.contains(l))
+                {
+                    int newObjId = indexToAddress.reverse(l);
+                    String clsInfo = objDesc(newObjId);
+                    // extra superclass references for objects
+                    if (msgNgetRefsExtra-- > 0)
+                        listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
+                                        Messages.DTFJIndexBuilder_DTFJGetReferencesExtraID, newObjId, format(l), objset
+                                                        .get(l), clsInfo, desc, name, objId, format(objAddr)), null);
+                }
             }
         }
-        temp = new HashSet<Long>(objset.keySet());
-        temp.removeAll(aaset);
-        for (Long l : temp)
+
+        for (Long l : objset.keySet())
         {
             int newObjId = indexToAddress.reverse(l);
-            String clsInfo = objDesc(newObjId);
-            // extra superclass references for objects
-            if (msgNgetRefsExtra-- > 0)
-                listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
-                                Messages.DTFJIndexBuilder_DTFJGetReferencesExtraID, newObjId, format(l), objset.get(l),
-                                clsInfo, desc, name, objId, format(objAddr)), null);
             // Remove unknown references
             if (newObjId < 0)
                 objset.remove(l);
         }
-
         long a2[] = new long[objset.size()];
         int i = 0;
         for (long l : objset.keySet())
@@ -5212,6 +5229,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             for (int arrayOffset = 0; arrayOffset < arrayLen; arrayOffset += arrayStep)
             {
                 arrayStep = Math.min(arrayStep, arrayLen - arrayOffset);
+                System.out.println("Explore array "+format(jo.getID().getAddress())+" "+arrayOffset+" "+arrayStep+" "+arrayLen);
                 JavaObject refs[] = new JavaObject[arrayStep];
                 if (listener.isCanceled()) { throw new IProgressListener.OperationCanceledException(); }
                 try
