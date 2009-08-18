@@ -4550,6 +4550,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             if (newObjId < 0)
                 objset.remove(l);
         }
+
         long a2[] = new long[objset.size()];
         int i = 0;
         for (long l : objset.keySet())
@@ -5229,7 +5230,6 @@ public class DTFJIndexBuilder implements IIndexBuilder
             for (int arrayOffset = 0; arrayOffset < arrayLen; arrayOffset += arrayStep)
             {
                 arrayStep = Math.min(arrayStep, arrayLen - arrayOffset);
-                System.out.println("Explore array "+format(jo.getID().getAddress())+" "+arrayOffset+" "+arrayStep+" "+arrayLen);
                 JavaObject refs[] = new JavaObject[arrayStep];
                 if (listener.isCanceled()) { throw new IProgressListener.OperationCanceledException(); }
                 try
