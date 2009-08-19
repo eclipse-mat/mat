@@ -4543,12 +4543,14 @@ public class DTFJIndexBuilder implements IIndexBuilder
             }
         }
 
-        for (Long l : objset.keySet())
+        for (Iterator<Long> it = objset.keySet().iterator(); it.hasNext(); )
         {
+            Long l = it.next();
             int newObjId = indexToAddress.reverse(l);
             // Remove unknown references
-            if (newObjId < 0)
-                objset.remove(l);
+            if (newObjId < 0) {
+                it.remove();
+            }
         }
 
         long a2[] = new long[objset.size()];
