@@ -6536,7 +6536,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         int i = dim;
         int j = d.length();
         // Does the class name have L and semicolon around it
-        if (d.charAt(j - 1) == ';')
+        if (j > 0 && d.charAt(j - 1) == ';')
         {
             // If so, remove them
             --j;
@@ -6544,7 +6544,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 ++i;
             d = d.substring(i, j);
         }
-        else
+        else if (i > 0)
         {
             d = d.substring(i);
             // Fix up primitive type names
