@@ -212,10 +212,14 @@ public class Messages extends NLS
     public static String QueryTextResultPane_UnableToMapAddress;
     public static String RefinedResultViewer_BlockingWarning;
     public static String RefinedResultViewer_CalculateRetainedSize;
+    public static String RefinedResultViewer_CustomExpand;
     public static String RefinedResultViewer_EditFilter;
+    public static String RefinedResultViewer_EnterNumber;
     public static String RefinedResultViewer_ExpandAll;
+    public static String RefinedResultViewer_ExpandToLimit;
     public static String RefinedResultViewer_Export;
     public static String RefinedResultViewer_Next25;
+    public static String RefinedResultViewer_notValidNumber;
     public static String RefinedResultViewer_RetrieveViewElements;
     public static String RefinedResultViewer_Sorting;
     public static String RefinedResultViewer_updating;

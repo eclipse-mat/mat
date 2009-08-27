@@ -20,6 +20,8 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.dialogs.IInputValidator;
+import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.resource.LocalResourceManager;
@@ -346,7 +348,7 @@ public abstract class RefinedResultViewer
                 if (ctrl.totals.getVisibleItems() >= ctrl.totals.getNumberOfItems())
                     return;
 
-                doRevealChildren(parent, false);
+                doRevealChildren(parent, LIMIT);
 
                 event.doit = false;
             }
@@ -807,7 +809,7 @@ public abstract class RefinedResultViewer
                     @Override
                     public void run()
                     {
-                        doRevealChildren(parent, false);
+                        doRevealChildren(parent, LIMIT);
                     }
 
                 };
@@ -816,12 +818,51 @@ public abstract class RefinedResultViewer
                 menu.add(action);
             }
 
-            Action action = new Action(Messages.RefinedResultViewer_ExpandAll)
+            Action action = new Action(Messages.RefinedResultViewer_CustomExpand)
             {
                 @Override
                 public void run()
                 {
-                    doRevealChildren(parent, true);
+                    IInputValidator inputValidator = new IInputValidator()
+                    {
+
+                        public String isValid(String newText)
+                        {
+                            if (newText == null || newText.length() == 0)
+                                return " "; //$NON-NLS-1$
+                            try
+                            {
+                                if (Integer.parseInt(newText) > 0)
+                                    return null;
+                            }
+                            catch (NumberFormatException e)
+                            {}
+                            return Messages.RefinedResultViewer_notValidNumber;
+
+                        }
+
+                    };
+
+                    InputDialog inputDialog = new InputDialog(PlatformUI.getWorkbench().getDisplay().getActiveShell(),
+                                    Messages.RefinedResultViewer_ExpandToLimit, //
+                                    Messages.RefinedResultViewer_EnterNumber, null, inputValidator);
+
+                    if (inputDialog.open() == 1) // if canceled
+                        return;
+                    int number = new Integer(inputDialog.getValue()).intValue();
+                    doRevealChildren(parent, number);
+                }
+
+            };
+            action.setImageDescriptor(MemoryAnalyserPlugin.getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.PLUS));
+            menu.add(action);
+
+            action = new Action(Messages.RefinedResultViewer_ExpandAll)
+            {
+                @Override
+                public void run()
+                {
+                    doRevealChildren(parent, Integer.MAX_VALUE);
                 }
 
             };
@@ -830,7 +871,7 @@ public abstract class RefinedResultViewer
         }
     }
 
-    private final void doRevealChildren(Item parent, boolean all)
+    private final void doRevealChildren(Item parent, int number)
     {
         if (parent != null && parent.isDisposed())
             return;
@@ -838,9 +879,8 @@ public abstract class RefinedResultViewer
         ControlItem ctrl = (ControlItem) (parent == null ? control.getData(Key.CONTROL) : parent.getData(Key.CONTROL));
         if (ctrl == null || ctrl.totals == null)
             return;
-
-        int visible = all ? ctrl.totals.getNumberOfItems() : Math.min(ctrl.totals.getVisibleItems() + LIMIT,
-                        ctrl.totals.getNumberOfItems());
+        int visible = number == Integer.MAX_VALUE ? ctrl.totals.getNumberOfItems() : //
+                        Math.min(ctrl.totals.getVisibleItems() + number, ctrl.totals.getNumberOfItems());
 
         if (visible - ctrl.totals.getVisibleItems() > 5000)
         {
@@ -852,7 +892,6 @@ public abstract class RefinedResultViewer
         }
 
         ctrl.totals.setVisibleItems(visible);
-
         control.getParent().setRedraw(false);
 
         try
