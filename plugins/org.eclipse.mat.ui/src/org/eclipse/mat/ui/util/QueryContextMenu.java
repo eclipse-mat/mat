@@ -13,6 +13,9 @@ package org.eclipse.mat.ui.util;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -43,10 +46,13 @@ import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.QueryExecution;
+import org.eclipse.mat.ui.MemoryAnalyserPlugin.ISharedImages;
 import org.eclipse.mat.ui.editor.AbstractEditorPane;
 import org.eclipse.mat.ui.editor.AbstractPaneJob;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
+import org.eclipse.mat.ui.snapshot.actions.CopyActions;
 import org.eclipse.mat.util.MessageUtil;
+import org.eclipse.swt.widgets.Control;
 
 public class QueryContextMenu
 {
@@ -94,7 +100,7 @@ public class QueryContextMenu
         this(pane.getEditor(), provider);
     }
 
-    public final void addContextActions(PopupMenu manager, IStructuredSelection selection)
+    public final void addContextActions(PopupMenu manager, IStructuredSelection selection, Control control)
     {
         if (selection.isEmpty())
             return;
@@ -143,6 +149,8 @@ public class QueryContextMenu
 
             queryMenu(menu, menuContext, label);
 
+            systemMenu(menu, control);
+
             customMenu(menu, menuContext, p, label);
         }
     }
@@ -169,9 +177,11 @@ public class QueryContextMenu
             {
                 Column col = result.getColumns()[0];
                 if (col.getFormatter() != null)
-                    label = MessageUtil.format(Messages.QueryContextMenu_selectionOf, "'" + col.getFormatter().format(value) + "'"); //$NON-NLS-2$ //$NON-NLS-1$
+                    label = MessageUtil.format(Messages.QueryContextMenu_selectionOf,
+                                    "'" + col.getFormatter().format(value) + "'"); //$NON-NLS-2$ //$NON-NLS-1$
                 else
-                    label = MessageUtil.format(Messages.QueryContextMenu_selectionOf, "'" + fixLabel(String.valueOf(value)) + "'"); //$NON-NLS-2$ //$NON-NLS-1$
+                    label = MessageUtil.format(Messages.QueryContextMenu_selectionOf,
+                                    "'" + fixLabel(String.valueOf(value)) + "'"); //$NON-NLS-2$ //$NON-NLS-1$
             }
         }
         else
@@ -273,8 +283,8 @@ public class QueryContextMenu
                         @Override
                         public void run()
                         {
-                            new AbstractPaneJob(MessageUtil
-                                            .format(Messages.QueryContextMenu_Processing, r.getLabel()), null)
+                            new AbstractPaneJob(MessageUtil.format(Messages.QueryContextMenu_Processing, r.getLabel()),
+                                            null)
                             {
 
                                 @Override
@@ -334,6 +344,46 @@ public class QueryContextMenu
                     menu.add(new QueryAction(editor, query, menuContext, label));
 
             }
+        }
+    }
+
+    private void systemMenu(PopupMenu menu, final Control control)
+    {
+        // check for null -> copy action might not exist!
+        if (control == null)
+            return;
+        // read from annotations.properties
+        try
+        {
+            ResourceBundle rb = ResourceBundle.getBundle(CopyActions.Address.class.getPackage().getName()
+                            + ".annotations", //$NON-NLS-1$
+                            Locale.getDefault(), CopyActions.Address.class.getClassLoader());
+            String value = rb.getString(CopyActions.Address.class.getSimpleName() + ".category"); //$NON-NLS-1$
+            // get rid of "101|"
+            int position = value.indexOf("|");
+            String menuName = (position < 0) ? value : value.substring(position + 1);
+            Action copySelectionAction = new Action()
+            {
+                @Override
+                public String getText()
+                {
+                    return Messages.QueryContextMenu_Selection;
+                }
+
+                @Override
+                public void run()
+                {
+                    Copy.copyToClipboard(control);
+                }
+
+            };
+            copySelectionAction.setImageDescriptor(MemoryAnalyserPlugin.getImageDescriptor(ISharedImages.COPY));
+            copySelectionAction.setToolTipText(Messages.QueryContextMenu_CopySelectionToTheClipboard);
+            menu.getChildMenu(menuName).add(copySelectionAction);
+        }
+        catch (MissingResourceException e)
+        {
+            ErrorHelper.logThrowable(e);
         }
     }
 

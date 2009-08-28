@@ -743,7 +743,7 @@ public abstract class RefinedResultViewer
 
     public void addContextMenu(PopupMenu menu)
     {
-        contextMenu.addContextActions(menu, getSelection());
+        contextMenu.addContextActions(menu, getSelection(), getControl());
         addFilterMenu(menu);
         addMoreMenu(menu);
     }

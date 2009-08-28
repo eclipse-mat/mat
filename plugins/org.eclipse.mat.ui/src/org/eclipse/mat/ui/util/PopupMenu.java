@@ -63,6 +63,16 @@ public final class PopupMenu
         children.add(SEPARATOR);
     }
 
+    public PopupMenu getChildMenu(String name)
+    {
+        for (Object child : children)
+        {
+            if ((child instanceof PopupMenu) && ((PopupMenu) child).name.equals(name))
+                return (PopupMenu) child;
+        }
+        return null;
+    }
+
     public void setToolTipText(String tooltip)
     {
         this.toolTipText = tooltip;

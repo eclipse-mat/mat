@@ -193,9 +193,11 @@ public class Messages extends NLS
     public static String QueryBrowserPopup_StartTyping;
     public static String QueryContextHelp_Arguments;
     public static String QueryContextMenu_context;
+    public static String QueryContextMenu_CopySelectionToTheClipboard;
     public static String QueryContextMenu_Details;
     public static String QueryContextMenu_Processing;
     public static String QueryContextMenu_selectionOf;
+    public static String QueryContextMenu_Selection;
     public static String QueryContextMenu_SubjectMustBeOfType;
     public static String QueryDropDownMenuAction_All;
     public static String QueryDropDownMenuAction_History;

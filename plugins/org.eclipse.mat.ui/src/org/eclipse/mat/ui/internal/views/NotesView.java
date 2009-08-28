@@ -469,7 +469,7 @@ public class NotesView extends ViewPart implements IPartListener, Observer
                 });
 
                 PopupMenu popupMenu = new PopupMenu();
-                contextMenu.addContextActions(popupMenu, new StructuredSelection(objectId));
+                contextMenu.addContextActions(popupMenu, new StructuredSelection(objectId), null);
 
                 if (menu != null && !menu.isDisposed())
                     menu.dispose();

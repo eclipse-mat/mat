@@ -108,7 +108,7 @@ public class QueryTextResultPane extends AbstractEditorPane implements ISelectio
             try
             {
                 DisplayFileResult r = (DisplayFileResult) queryResult.getSubject();
-                browser.setUrl(r.getFile().toURL().toExternalForm());
+                browser.setUrl(r.getFile().toURI().toURL().toExternalForm());
             }
             catch (MalformedURLException e)
             {
@@ -186,7 +186,7 @@ public class QueryTextResultPane extends AbstractEditorPane implements ISelectio
                 l.selectionChanged(new SelectionChangedEvent(QueryTextResultPane.this, selection));
 
             PopupMenu m = new PopupMenu();
-            contextMenu.addContextActions(m, selection);
+            contextMenu.addContextActions(m, selection, null);
 
             if (menu != null && !menu.isDisposed())
                 menu.dispose();

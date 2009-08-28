@@ -142,7 +142,7 @@ public class PieChartPane extends AbstractEditorPane implements ISelectionProvid
                         menu.dispose();
 
                     PopupMenu popupMenu = new PopupMenu();
-                    contextMenu.addContextActions(popupMenu, new StructuredSelection(slice));
+                    contextMenu.addContextActions(popupMenu, new StructuredSelection(slice), null);
                     menu = popupMenu.createMenu(getEditorSite().getActionBars().getStatusLineManager(), canvas);
                     menu.setVisible(true);
                 }
