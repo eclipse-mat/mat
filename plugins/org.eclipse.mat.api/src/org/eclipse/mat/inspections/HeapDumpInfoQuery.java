@@ -23,6 +23,7 @@ import org.eclipse.mat.query.results.ListResult;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.SnapshotInfo;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.Units;
 
 import com.ibm.icu.text.DecimalFormat;
 import com.ibm.icu.text.NumberFormat;
@@ -84,8 +85,7 @@ public class HeapDumpInfoQuery implements IQuery
 
     private String getUsedHeapInMb(long usedHeapSize)
     {
-        double roundedHeapSize = Math.round(usedHeapSize / 10000);
-        return new DecimalFormat("#,##0.0 M").format(roundedHeapSize / 100); //$NON-NLS-1$
+        return Units.Storage.of(usedHeapSize).format(usedHeapSize);
 
     }
 
