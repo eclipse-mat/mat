@@ -81,7 +81,7 @@ public class ChartBuilder
         chart.getTitle().setVisible(false);
 
         // total label
-        long t = new Double(total).longValue();
+        long t = (long)total;
         LabelBlock label = (LabelBlock) LabelBlockImpl.create();
         label.getLabel().getCaption().setValue(
                         MessageUtil.format(Messages.ChartBuilder_Total, Units.Storage.of(t).format(t)));

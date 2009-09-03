@@ -23,7 +23,7 @@ public class LabelRenderScript extends ChartEventHandlerAdapter
     public void beforeDrawDataPointLabel(DataPointHints dph, Label label, IChartScriptContext icsc)
     {
         double value = ((Double) dph.getOrthogonalValue()).doubleValue();
-        long longValue = new Double(value).longValue();
+        long longValue = (long)value;
         String newLabel = ChartBuilder.withPrefix(dph.getIndex(), Units.Storage.of(longValue).format(longValue));
         label.getCaption().setValue(newLabel);
         label.setBackground(ColorDefinitionImpl.create(255, 255, 255));

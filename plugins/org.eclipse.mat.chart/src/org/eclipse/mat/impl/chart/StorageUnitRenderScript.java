@@ -22,7 +22,7 @@ public class StorageUnitRenderScript extends ChartEventHandlerAdapter
     public void beforeDrawDataPointLabel(DataPointHints dph, Label label, IChartScriptContext icsc)
     {
         double value = ((Double) dph.getOrthogonalValue()).doubleValue();
-        long longValue = new Double(value).longValue();
+        long longValue = (long)value;
         label.getCaption().setValue(Units.Storage.of(longValue).format(longValue));
         label.setBackground(ColorDefinitionImpl.create(255, 255, 255));
     }
