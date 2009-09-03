@@ -38,6 +38,7 @@ import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
+import org.eclipse.mat.query.IResultPie;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.Argument.Advice;
@@ -122,7 +123,7 @@ public class LeakHunterQuery implements IQuery
             for (int num = 0; num < leakSuspects.length; num++)
             {
                 SuspectRecord rec = leakSuspects[num];
-                pie.addSlice(-1, MessageUtil.format(Messages.LeakHunterQuery_ProblemSuspect, (num + 1)), 0,
+                pie.addSlice(rec.suspect.getObjectId(), MessageUtil.format(Messages.LeakHunterQuery_ProblemSuspect, (num + 1)), rec.suspect.getUsedHeapSize(),
                                 rec.suspectRetained);
             }
             result.add(new QuerySpec(Messages.LeakHunterQuery_Overview, pie.build()));
