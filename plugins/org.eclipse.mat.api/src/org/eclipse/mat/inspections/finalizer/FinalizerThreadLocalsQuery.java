@@ -18,6 +18,7 @@ import org.eclipse.mat.query.annotations.Category;
 import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.snapshot.ISnapshot;
+import org.eclipse.mat.snapshot.model.Field;
 import org.eclipse.mat.snapshot.model.IInstance;
 import org.eclipse.mat.snapshot.model.ObjectReference;
 import org.eclipse.mat.snapshot.query.ObjectListResult;
@@ -39,14 +40,17 @@ public class FinalizerThreadLocalsQuery implements IQuery
 
         for (int finalizerThreadObject : finalizerThreadObjects)
         {	
-        	ObjectReference ref = (ObjectReference) ((IInstance) snapshot.getObject(finalizerThreadObject)).getField(
-                            "threadLocals").getValue(); //$NON-NLS-1$
-        	if (ref != null)
-        	{
-        		// TODO Don't add the thread locals object, but the pairs of
-        		// referent and value stored in the thread locals
-        		result.add(ref.getObjectId());
-        	}
+        	Field localsField = ((IInstance) snapshot.getObject(finalizerThreadObject)).getField("threadLocals");
+            if (localsField != null)
+            {
+                ObjectReference ref = (ObjectReference) localsField.getValue(); //$NON-NLS-1$
+                if (ref != null)
+                {
+                    // TODO Don't add the thread locals object, but the pairs of
+                    // referent and value stored in the thread locals
+                    result.add(ref.getObjectId());
+                }
+            }
         }
 
         return new ObjectListResult.Outbound(snapshot, result.toArray());

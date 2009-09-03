@@ -29,6 +29,7 @@ import java.util.List;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.SetInt;
+import org.eclipse.mat.inspections.ReferenceQuery;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
@@ -68,7 +69,7 @@ public class FinalizerInProcessingQuery implements IQuery
                 if ("java.lang.ref.Finalizer".equals(object.getClazz().getName())) //$NON-NLS-1$
                 {
                     foundFinalizer = true;
-                    ObjectReference ref = (ObjectReference) ((IInstance) object).getField("referent").getValue(); //$NON-NLS-1$
+                    ObjectReference ref = ReferenceQuery.getReferent((IInstance)object);
                     if (ref != null)
                     {
                         result.add(ref.getObjectId());
