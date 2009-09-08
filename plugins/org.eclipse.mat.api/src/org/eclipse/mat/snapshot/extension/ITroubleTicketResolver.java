@@ -11,6 +11,7 @@
 package org.eclipse.mat.snapshot.extension;
 
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IClassLoader;
 import org.eclipse.mat.util.IProgressListener;
 
@@ -18,6 +19,8 @@ public interface ITroubleTicketResolver
 {
     public String getTicketSystem();
 
-    public String resolve(IClassLoader classLoader, IProgressListener listener) throws SnapshotException;
+    public String resolveByClass(IClass object, IProgressListener listener) throws SnapshotException;
+
+    public String resolveByClassLoader(IClassLoader classLoader, IProgressListener listener) throws SnapshotException;
 
 }
