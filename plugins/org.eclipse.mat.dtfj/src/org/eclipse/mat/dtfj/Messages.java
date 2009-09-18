@@ -145,7 +145,6 @@ public class Messages extends NLS
     public static String DTFJIndexBuilder_PossibleProblemReadingJavaStackFramesMethod;
     public static String DTFJIndexBuilder_PossibleProblemReadingNativeStackFrame;
     public static String DTFJIndexBuilder_PrimitiveShouldNotHaveASuperclass;
-    public static String DTFJIndexBuilder_ProblemBuildingClass;
     public static String DTFJIndexBuilder_ProblemBuildingClassObject;
     public static String DTFJIndexBuilder_ProblemBuildingClassObjectForMethod;
     public static String DTFJIndexBuilder_ProblemCheckingBootLoaderReferences;
@@ -153,12 +152,10 @@ public class Messages extends NLS
     public static String DTFJIndexBuilder_ProblemCheckingOutboundReferencesForClass;
     public static String DTFJIndexBuilder_ProblemDetirminingFinalizeMethod;
     public static String DTFJIndexBuilder_ProblemDetirminingFinalizeMethodSig;
-    public static String DTFJIndexBuilder_ProblemDetirminingIfClassIsFinalizable;
     public static String DTFJIndexBuilder_ProblemFindingClassesForObject;
     public static String DTFJIndexBuilder_ProblemFindingClassLoaderInformation;
     public static String DTFJIndexBuilder_ProblemFindingJavaLangClass;
     public static String DTFJIndexBuilder_ProblemFindingJavaLangClassViaName;
-    public static String DTFJIndexBuilder_ProblemFindingObjectAddress;
     public static String DTFJIndexBuilder_ProblemFindingRootInformation;
     public static String DTFJIndexBuilder_ProblemFindingThread;
     public static String DTFJIndexBuilder_ProblemGettingClassID;
