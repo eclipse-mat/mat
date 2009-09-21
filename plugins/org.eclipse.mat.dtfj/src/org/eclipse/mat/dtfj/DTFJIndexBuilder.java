@@ -613,9 +613,6 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     bootLoaderObject = loaderObject;
                     bootLoaderAddress = 0;
                     fixedBootLoaderAddress = fixBootLoaderAddress(bootLoaderAddress, bootLoaderAddress);
-                    // Boot loader with 0 address needs a dummy entry as no Java
-                    // object for it will be found
-                    indexToAddress.add(fixedBootLoaderAddress);
                     debugPrint("adding boot object at " + format(bootLoaderAddress)); //$NON-NLS-1$
                 }
                 else
@@ -650,7 +647,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                         debugPrint("Found class loader " + loaderClassName + " at " + format(loaderAddress)); //$NON-NLS-1$ //$NON-NLS-2$
 
                         JavaClassLoader jcl2 = getClassLoader(loaderObjectClass, listener);
-                        if (jcl.equals(jcl2))
+                        if (jcl.equals(jcl2) && bootLoader == null)
                         {
                             debugPrint("Found boot class loader " + loaderClassName + " at " + format(loaderAddress)); //$NON-NLS-1$ //$NON-NLS-2$
                             bootLoader = jcl;
@@ -683,6 +680,12 @@ public class DTFJIndexBuilder implements IIndexBuilder
             indexToAddress.add(fixedBootLoaderAddress);
             debugPrint("No boot class loader found so adding dummy boot class loader object at " //$NON-NLS-1$
                             + format(fixedBootLoaderAddress));
+        }
+        else if (bootLoaderObject == null)
+        {
+            // Boot loader with null object implying 0 address needs a dummy entry as no Java
+            // object for it will be found
+            indexToAddress.add(fixedBootLoaderAddress);
         }
 
         // Holds all of the classes as DTFJ JavaClass - just used in this
