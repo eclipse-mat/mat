@@ -62,6 +62,7 @@
 		<query impl="org.eclipse.mat.inspections.WeakReferenceStatQuery"/>
 		<query impl="org.eclipse.mat.inspections.SoftReferenceStatQuery"/>
 		<query impl="org.eclipse.mat.inspections.FinalizerReferenceStatQuery"/>
+		<query impl="org.eclipse.mat.inspections.PhantomReferenceStatQuery"/>
 	
 		<query impl="org.eclipse.mat.inspections.finalizer.FinalizerQuery"/>
 		<query impl="org.eclipse.mat.inspections.finalizer.FinalizerInProcessingQuery"/>

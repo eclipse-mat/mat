@@ -360,6 +360,9 @@ public class Messages extends NLS
     public static String ParseSnapshotApp_ErrorMsg_ReportNotFound;
     public static String ParseSnapshotApp_Usage;
 
+    public static String PhantomReferenceStatQuery_Label_Referenced;
+    public static String PhantomReferenceStatQuery_Label_Retained;
+    
     public static String PieFactory_ErrorMsg_NoSnapshotAvailable;
     public static String PieFactory_Label_Remainder;
     public static String PieFactory_Label_RetainedSize;

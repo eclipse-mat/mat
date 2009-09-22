@@ -51,7 +51,11 @@ import org.eclipse.mat.util.IProgressListener;
 @Menu( { @Entry(options = "-excludes \"\""), //
                 @Entry(options = "-excludes java.lang.ref.WeakReference:referent"), //
                 @Entry(options = "-excludes java.lang.ref.SoftReference:referent"), //
-                @Entry(options = "-excludes java.lang.ref.WeakReference:referent java.lang.ref.SoftReference:referent") //
+                @Entry(options = "-excludes java.lang.ref.PhantomReference:referent"), //
+                @Entry(options = "-excludes java.lang.ref.WeakReference:referent java.lang.ref.SoftReference:referent"), //
+                @Entry(options = "-excludes java.lang.ref.PhantomReference:referent java.lang.ref.SoftReference:referent"), //                
+                @Entry(options = "-excludes java.lang.ref.PhantomReference:referent java.lang.ref.WeakReference:referent"), //
+                @Entry(options = "-excludes java.lang.ref.Reference:referent") //
 })
 public class Path2GCRootsQuery implements IQuery
 {
