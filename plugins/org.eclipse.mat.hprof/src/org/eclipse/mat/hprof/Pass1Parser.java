@@ -296,7 +296,15 @@ public class Pass1Parser extends AbstractParser
     {
         long id = readID();
         int threadSerialNo = in.readInt();
-        handler.addGCRoot(id, thread2id.get(threadSerialNo), gcType);
+        Long tid = thread2id.get(threadSerialNo);
+        if (tid != null)
+        {
+        	handler.addGCRoot(id, tid, gcType);
+        }
+        else
+        {
+        	handler.addGCRoot(id, 0, gcType);
+        }
 
         if (hasLineInfo)
         {
