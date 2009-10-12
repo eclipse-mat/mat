@@ -449,7 +449,7 @@ public class DTFJHeapObjectReader implements IObjectReader
         }
         List<Field> fields = new ArrayList<Field>(nFields);
         if (nFields > 0)
-            for (JavaClass jc = jo.getJavaClass(); jc != null; jc = jc.getSuperclass())
+            for (JavaClass jc = jo.getJavaClass(); jc != null; jc = getSuperclass(jc))
             {
                 for (Iterator ii = jc.getDeclaredFields(); ii.hasNext();)
                 {
@@ -508,6 +508,22 @@ public class DTFJHeapObjectReader implements IObjectReader
         }
         // System.out.println("inst = "+inst);
         return inst;
+    }
+
+    /**
+     * Avoid problems with corrupt dumps
+     * @param jc
+     * @return
+     * @throws CorruptDataException
+     */
+    private JavaClass getSuperclass(JavaClass jc) throws CorruptDataException
+    {
+        try {
+            return jc.getSuperclass();
+        } catch (CorruptDataException e) {
+            logOrThrow(e);
+            return null;
+        }
     }
 
     static class DeferredReadArray
