@@ -518,10 +518,15 @@ public class DTFJHeapObjectReader implements IObjectReader
      */
     private JavaClass getSuperclass(JavaClass jc) throws CorruptDataException
     {
-        try {
+        try
+        {
             return jc.getSuperclass();
-        } catch (CorruptDataException e) {
-            logOrThrow(e);
+        }
+        catch (CorruptDataException e)
+        {
+            // We have already logged this error on creating the indexes
+            if (false)
+                logOrThrow(e);
             return null;
         }
     }
