@@ -199,6 +199,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
 
     /** Flag used to not guess if GC roots finds finalizables */
     private boolean foundFinalizableGCRoots = false;
+    /** number of times getModifiers succeeded */
+    private int modifiersFound;
 
     /** Used to remember dummy addresses for classes without addresses */
     private HashMap<JavaClass, Long> dummyClassAddress = new HashMap<JavaClass, Long>();
@@ -6560,8 +6562,12 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 // J9 DTFJ returns java.lang.Object for interfaces
                 // Sov DTFJ returns java.lang.Object for primitives
                 // or interfaces
-                if (Modifier.isInterface(j2.getModifiers()))
+                // PHD or javacore don't have modifiers, so don't try
+                // getModifiers more than a few times if getModifiers never suceeds.
+                if ((msgNgetSuperclass > 0 || modifiersFound > 0)
+                                && Modifier.isInterface(j2.getModifiers()))
                 {
+                    ++modifiersFound;
                     if (listener != null && msgNbrokenInterfaceSuper-- > 0)
                         listener.sendUserMessage(Severity_INFO, MessageFormat.format(
                                         Messages.DTFJIndexBuilder_InterfaceShouldNotHaveASuperclass, j2.getName(), sup
