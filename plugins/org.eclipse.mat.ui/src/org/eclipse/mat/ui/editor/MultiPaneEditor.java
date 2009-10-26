@@ -441,6 +441,10 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
             toolbarMgr.dispose();
         toolbarMgr = null;
 
+        if (toolbarMgrHelp != null)
+            toolbarMgrHelp.dispose();
+        toolbarMgrHelp = null;
+
         if (menu != null && !menu.isDisposed())
             menu.dispose();
     }
