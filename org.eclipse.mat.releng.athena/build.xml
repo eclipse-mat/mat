@@ -1,0 +1,55 @@
+<project default="run" name="org.eclipse.*.releng/build.xml - Run a build using the Athena CBI">
+	<target name="run">
+		<!-- 
+			1. You must check out the following projects to your workspace:
+		
+				org.eclipse.releng.basebuilder
+				org.eclipse.dash.common.releng 
+				org.eclipse.myproject.releng
+				
+			2. You must provide Ant-Contrib in one of four places:
+			
+				org.eclipse.dash.common.releng/lib/ant-contrib.jar
+				org.eclipse.myproject.releng/lib/ant-contrib.jar
+				${thirdPartyJarsDir}/ant-contrib.jar (path can be customized below) 
+				/usr/share/java/ant-contrib.jar (may require a symlink)
+			
+				You can install Ant-Contrib via RPM, or download it here:
+			
+				http://sourceforge.net/project/showfiles.php?group_id=36177&package_id=28636
+			
+			3. If your project's sources are in SVN, you must unpack this zip into the basebuilder project's plugins/ folder:
+			
+				http://downloads.sourceforge.net/svn-pde-build/org.eclipse.pde.build.svn-1.0.1RC2.zip
+		-->
+
+		<!-- load properties and set timestamp for the build -->
+		<property file="build.properties" />
+		<tstamp>
+			<format property="buildTimestamp" pattern="yyyyMMddHHmm" />
+		</tstamp>
+
+		<!-- calculate workspaceDir as parent of this folder, the project's .releng folder (relengBuilderDir) -->
+		<property name="relengBuilderDir" value="${basedir}" />
+		<dirname file="${relengBuilderDir}" property="workspaceDir" />
+
+		<!-- 
+			can build in /tmp, eg., in /tmp/build, or in workspace, eg.,
+			${WORKSPACE}/build
+		-->
+		<property name="writableBuildRoot" value="/tmp/build" />
+
+		<!-- 
+			can be simple path, eg., 
+			${writableBuildRoot}/${buildType}${buildTimestamp} or longer, eg.,
+			${writableBuildRoot}/${topprojectName}/${projectName}/downloads/drops/${version}/${buildType}${buildTimestamp} or
+			${writableBuildRoot}/${topprojectName}/${projectName}/${subprojectName}/downloads/drops/${version}/${buildType}${buildTimestamp}
+		-->
+		<property name="buildDir" value="${writableBuildRoot}/${buildType}${buildTimestamp}" />
+
+		<!-- invoke a new Eclipse process and launch the build from the common.releng folder -->
+		<property name="relengCommonBuilderDir" value="${workspaceDir}/org.eclipse.dash.common.releng" />
+		<ant antfile="${relengCommonBuilderDir}/buildAll.xml" target="runEclipse" dir="${relengCommonBuilderDir}" />
+
+	</target>
+</project>
