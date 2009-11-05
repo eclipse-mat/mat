@@ -1,13 +1,13 @@
 !*** add your features/plugins here
 #features
 feature@org.eclipse.mat.feature=SVN,trunk,svn://dev.eclipse.org/svnroot/technology/org.eclipse.mat,,features/org.eclipse.mat.feature
-#feature@org.eclipse.mat.chart.feature=SVN,trunk,svn://dev.eclipse.org/svnroot/technology/org.eclipse.mat,,features/org.eclipse.mat.chart.feature
-#feature@org.eclipse.mat.test.feature=SVN,trunk,svn://dev.eclipse.org/svnroot/technology/org.eclipse.mat,,features/org.eclipse.mat.test.feature
-#feature@org.eclipse.mat.ui.rcp.feature=SVN,trunk,svn://dev.eclipse.org/svnroot/technology/org.eclipse.mat,,features/org.eclipse.mat.ui.rcp.feature
+feature@org.eclipse.mat.chart.feature=SVN,trunk,svn://dev.eclipse.org/svnroot/technology/org.eclipse.mat,,features/org.eclipse.mat.chart.feature
+feature@org.eclipse.mat.test.feature=SVN,trunk,svn://dev.eclipse.org/svnroot/technology/org.eclipse.mat,,features/org.eclipse.mat.test.feature
+feature@org.eclipse.mat.ui.rcp.feature=SVN,trunk,svn://dev.eclipse.org/svnroot/technology/org.eclipse.mat,,features/org.eclipse.mat.ui.rcp.feature
 
 #plugins
 plugin@org.eclipse.mat.api=SVN,trunk,svn://dev.eclipse.org/svnroot/technology/org.eclipse.mat,,plugins/org.eclipse.mat.api
-#plugin@org.eclipse.mat.dtfj=SVN,trunk,svn://dev.eclipse.org/svnroot/technology/org.eclipse.mat,,plugins/org.eclipse.mat.dtfj
+plugin@org.eclipse.mat.dtfj=SVN,trunk,svn://dev.eclipse.org/svnroot/technology/org.eclipse.mat,,plugins/org.eclipse.mat.dtfj
 plugin@org.eclipse.mat.hprof=SVN,trunk,svn://dev.eclipse.org/svnroot/technology/org.eclipse.mat,,plugins/org.eclipse.mat.hprof
 plugin@org.eclipse.mat.jdt=SVN,trunk,svn://dev.eclipse.org/svnroot/technology/org.eclipse.mat,,plugins/org.eclipse.mat.jdt
 plugin@org.eclipse.mat.parser=SVN,trunk,svn://dev.eclipse.org/svnroot/technology/org.eclipse.mat,,plugins/org.eclipse.mat.parser
