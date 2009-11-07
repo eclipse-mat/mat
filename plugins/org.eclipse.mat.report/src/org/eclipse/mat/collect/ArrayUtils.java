@@ -229,11 +229,12 @@ public class ArrayUtils
 
     private static void hybridsort(int[] keys, int[] values, int left, int right)
     {
-        if (right - left >= 1)
+        while (right - left >= 1)
         {
             if (right - left < 5000000)
             {
                 radixsort(keys, values, left, right - left + 1);
+                break;
             }
             else
             {
@@ -242,20 +243,31 @@ public class ArrayUtils
                 // the elements on the left are smaller, on the right - bigger
                 int[] i = split(keys, values, left, right);
 
-                // sort all keys smaller than keys[i]
-                if (left < i[0] - 1)
+                int sizeLeft = i[0] - left;
+                int sizeRight = right - i[1];
+                
+                // Limit recursion depth by doing the smaller side first
+                if (sizeLeft <= sizeRight)
+                {
+                    // sort all keys smaller than keys[i]
                     hybridsort(keys, values, left, i[0] - 1);
-
-                // sort all keys bigger than keys[i]
-                if (right > i[1] + 1)
+                    // then loop to do all keys bigger than keys[i]
+                    left = i[1] + 1;
+                }
+                else
+                {
+                    // sort all keys bigger than keys[i]
                     hybridsort(keys, values, i[1] + 1, right);
+                    // then loop to do all keys smaller than keys[i]
+                    right = i[0] - 1;
+                }
             }
         }
     }
 
     private static void hybridsortDesc(long[] keys, int[] values, long[] tmpKeys, int[] tmpValues, int left, int right)
     {
-        if (right - left >= 1)
+        while (right - left >= 1)
         {
             if (right - left < 5000000)
             {
@@ -269,6 +281,7 @@ public class ArrayUtils
                     return;
                 }
                 radixsortDesc(keys, values, tmpKeys, tmpValues, left, right - left + 1);
+                break;
             }
             else
             {
@@ -277,13 +290,24 @@ public class ArrayUtils
                 // the elements on the left are bigger, on the right - smaller
                 int[] i = splitDesc(keys, values, left, right);
 
-                // sort all keys bigger than keys[i]
-                if (left < i[0] - 1)
+                int sizeLeft = i[0] - left;
+                int sizeRight = right - i[1];
+                
+                // Limit recursion depth by doing the smaller side first
+                if (sizeLeft <= sizeRight)
+                {
+                    // sort all keys bigger than keys[i]
                     hybridsortDesc(keys, values, tmpKeys, tmpValues, left, i[0] - 1);
-
-                // sort all keys smaller than keys[i]
-                if (right > i[1] + 1)
+                    // then loop to sort all keys smaller than keys[i]
+                    left = i[1] + 1;
+                }
+                else
+                {
+                    // sort all keys smaller than keys[i]
                     hybridsortDesc(keys, values, tmpKeys, tmpValues, i[1] + 1, right);
+                    // then loop to sort all keys bigger than keys[i]
+                    right = i[0] - 1;
+                }
             }
         }
     }
@@ -309,6 +333,10 @@ public class ArrayUtils
         countsortDesc(tempKeys, keys, tempValues, values, 0, offset, length, 1);
         countsortDesc(keys, tempKeys, values, tempValues, offset, 0, length, 2);
         countsortDesc(tempKeys, keys, tempValues, values, 0, offset, length, 3);
+        countsortDesc(keys, tempKeys, values, tempValues, offset, 0, length, 4);
+        countsortDesc(tempKeys, keys, tempValues, values, 0, offset, length, 5);
+        countsortDesc(keys, tempKeys, values, tempValues, offset, 0, length, 6);
+        countsortDesc(tempKeys, keys, tempValues, values, 0, offset, length, 7);
     }
 
     private static void countsort(int[] srcKeys, int[] destKeys, int[] srcValues, int[] destValues, int srcOffset,
