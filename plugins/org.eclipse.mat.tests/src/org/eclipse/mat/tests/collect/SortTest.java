@@ -52,7 +52,7 @@ public class SortTest
         int[] value = new int[n];
         for (int i = 0; i < key.length; ++i)
         {
-            key0[i] = key[i] = r.nextInt(k);
+            key0[i] = key[i] = r.nextInt();
             value[i] = val(key[i]);
         }
         // Sort the data
@@ -129,7 +129,7 @@ public class SortTest
         int[] value = new int[n];
         for (int i = 0; i < key.length; ++i)
         {
-            key0[i] = key[i] = (r.nextInt(k) * 0x1234567L + r.nextInt(k)) & Long.MAX_VALUE;
+            key0[i] = key[i] = r.nextInt() * 0x82345679L + r.nextInt();
             value[i] = val(key[i]);
         }
         // Sort the data

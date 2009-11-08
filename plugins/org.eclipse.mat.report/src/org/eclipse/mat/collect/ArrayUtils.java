@@ -24,8 +24,6 @@ public class ArrayUtils
      * not-very-large parts produced by a quick sort are sorted with radix sort.
      * An insertion sort is used to sort the smallest arrays, where the the
      * overhead of the radix sort is also bigger
-     * <p>
-     * Works correctly only with positive keys!
      */
     public static void sort(int[] keys, int[] values)
     {
@@ -43,8 +41,6 @@ public class ArrayUtils
      * not-very-large parts produced by a quick sort are sorted with radix sort.
      * An insertion sort is used to sort the smallest arrays, where the the
      * overhead of the radix sort is also bigger
-     * <p>
-     * Works correctly only with positive keys!
      */
     public static void sortDesc(long[] keys, int[] values)
     {
@@ -62,8 +58,6 @@ public class ArrayUtils
      * not-very-large parts produced by a quick sort are sorted with radix sort.
      * An insertion sort is used to sort the smallest arrays, where the the
      * overhead of the radix sort is also bigger
-     * <p>
-     * Works correctly only with positive keys!
      * <p>
      * This version of the method allows the temporarily needed arrays for the
      * radix sort to be provided externally - tempa and tempb. This saves
@@ -85,8 +79,6 @@ public class ArrayUtils
      * not-very-large parts produced by a quick sort are sorted with radix sort.
      * An insertion sort is used to sort the smallest arrays, where the the
      * overhead of the radix sort is also bigger
-     * <p>
-     * Works correctly only with positive keys!
      */
     public static void sort(int[] keys, int[] values, int offset, int length)
     {
@@ -351,9 +343,22 @@ public class ArrayUtils
         for (int i = srcOffset; i < srcEnd; i++)
             count[((srcKeys[i] >> (shiftBits)) & 0xff)]++;
 
-        /* index[0] = 0 */
-        for (int i = 1; i < 256; i++)
-            index[i] = index[i - 1] + count[i - 1];
+        if (sortByte == 3)
+        {
+            // Sign byte, so sort 128..255 0..127
+            /* index[128] = 0 */
+            for (int i = 129; i < 256; i++)
+                index[i] = index[i - 1] + count[i - 1];
+            index[0] = index[255] + count[255];
+            for (int i = 1; i < 128; i++)
+                index[i] = index[i - 1] + count[i - 1];
+        }
+        else
+        {
+            /* index[0] = 0 */
+            for (int i = 1; i < 256; i++)
+                index[i] = index[i - 1] + count[i - 1];
+        }
 
         for (int i = srcOffset; i < srcEnd; i++)
         {
@@ -375,9 +380,22 @@ public class ArrayUtils
         for (int i = srcOffset; i < srcEnd; i++)
             count[(int) ((srcKeys[i] >> (shiftBits)) & 0xff)]++;
 
-        /* index[255] = 0 */
-        for (int i = 254; i >= 0; i--)
-            index[i] = index[i + 1] + count[i + 1];
+        if (sortByte == 7)
+        {
+            // Sign byte, so sort 127..0 255..128
+            /* index[127] = 0 */
+            for (int i = 126; i >= 0; i--)
+                index[i] = index[i + 1] + count[i + 1];
+            index[255] = index[0] + count[0];
+            for (int i = 254; i >= 128; i--)
+                index[i] = index[i + 1] + count[i + 1];
+        }
+        else
+        {
+            /* index[255] = 0 */
+            for (int i = 254; i >= 0; i--)
+                index[i] = index[i + 1] + count[i + 1];
+        }
 
         for (int i = srcOffset; i < srcEnd; i++)
         {
