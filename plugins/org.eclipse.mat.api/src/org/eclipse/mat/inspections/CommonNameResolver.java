@@ -120,5 +120,37 @@ public class CommonNameResolver
             return r.toString();
         }
     }
-
+    
+    /*
+     * Contributed in bug 273915
+     */
+    @Subject("java.net.URL")
+    public static class URLResolver implements IClassSpecificNameResolver
+    {
+        public String resolve(IObject obj) throws SnapshotException
+        {
+            StringBuilder builder = new StringBuilder();
+            IObject protocol = (IObject) obj.resolveValue("protocol");
+            builder.append(protocol.getClassSpecificName());
+            builder.append(":");
+            IObject authority = (IObject) obj.resolveValue("authority");
+            if(authority != null) {
+                builder.append("//");
+                builder.append(authority.getClassSpecificName());
+            }
+            IObject path = (IObject) obj.resolveValue("path");
+            if(path != null) builder.append(path.getClassSpecificName());
+            IObject query = (IObject) obj.resolveValue("query");
+            if(query != null) {
+                builder.append("?");
+                builder.append(query.getClassSpecificName());
+            }
+            IObject ref = (IObject) obj.resolveValue("ref");
+            if(ref != null) {
+                builder.append("#");
+                builder.append(ref.getClassSpecificName());
+            }
+            return builder.toString();
+        }
+    }
 }

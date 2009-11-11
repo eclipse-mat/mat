@@ -90,12 +90,15 @@
 		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$ValueResolver" />
 		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$CharArrayResolver" />
 		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$ByteArrayResolver" />
+		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$URLResolver" />
 
 		<!-- eclipse -->
 		<resolver impl="org.eclipse.mat.inspections.eclipse.EclipseNameResolver$EclipseClassLoaderResolver" />
 		<resolver impl="org.eclipse.mat.inspections.eclipse.EclipseNameResolver$EclipseDefaultClassLoaderResolver" />
 		<resolver impl="org.eclipse.mat.inspections.eclipse.EclipseNameResolver$StartupClassLoaderResolver" />
 		<resolver impl="org.eclipse.mat.inspections.eclipse.EclipseNameResolver$RGBResolver" />
+		<resolver impl="org.eclipse.mat.inspections.eclipse.EclipseNameResolver$PointResolver" />
+		<resolver impl="org.eclipse.mat.inspections.eclipse.EclipseNameResolver$RectangleResolver" />
 		
 		<!-- jetty -->
 		<resolver impl="org.eclipse.mat.inspections.jetty.JettyNameResolvers$WebAppClassLoaderResolver"/>

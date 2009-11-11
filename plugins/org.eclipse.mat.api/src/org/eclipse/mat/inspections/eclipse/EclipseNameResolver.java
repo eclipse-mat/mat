@@ -15,6 +15,7 @@ import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.snapshot.extension.IClassSpecificNameResolver;
 import org.eclipse.mat.snapshot.extension.Subject;
+import org.eclipse.mat.snapshot.extension.Subjects;
 import org.eclipse.mat.snapshot.model.IObject;
 
 public class EclipseNameResolver
@@ -69,4 +70,36 @@ public class EclipseNameResolver
             return String.format("(%03d,%03d,%03d)", red, green, blue); //$NON-NLS-1$
         }
     }
+    
+    /*
+     * Contributed in bug 273915
+     */
+    @Subjects( { "org.eclipse.swt.graphics.Point", //
+			"java.awt.Point" })
+	public static class PointResolver implements IClassSpecificNameResolver
+	{
+		public String resolve(IObject obj) throws SnapshotException
+		{
+			Object x = obj.resolveValue("x");
+			Object y = obj.resolveValue("y");
+			return "(" + x + "," + y + ")";
+		}
+	}
+
+    /*
+     * Contributed in bug 273915
+     */
+    @Subjects( { "org.eclipse.swt.graphics.Rectangle", //
+			"java.awt.Rectangle" })
+	public static class RectangleResolver implements IClassSpecificNameResolver
+	{
+		public String resolve(IObject obj) throws SnapshotException
+		{
+			Object x = obj.resolveValue("x");
+			Object y = obj.resolveValue("y");
+			Object width = obj.resolveValue("width");
+			Object height = obj.resolveValue("height");
+			return "(" + x + "," + y + "," + width + "," + height + ")";
+		}
+	}
 }
