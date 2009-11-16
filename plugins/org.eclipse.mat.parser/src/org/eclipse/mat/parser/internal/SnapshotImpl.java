@@ -276,7 +276,6 @@ public final class SnapshotImpl implements ISnapshot
     private void calculateLoaderLabels() throws SnapshotException
     {
         loaderLabels = new HashMapIntObject<String>();
-        int noOfObjects = 0;
         long usedHeapSize = 0;
 
         int systemClassLoaderId = indexManager.o2address().reverse(0);
@@ -285,7 +284,6 @@ public final class SnapshotImpl implements ISnapshot
         for (int i = 0; i < classes.length; i++)
         {
             ClassImpl clasz = (ClassImpl) classes[i];
-            noOfObjects += clasz.getNumberOfObjects();
             usedHeapSize += clasz.getTotalSize();
 
             int classLoaderId = clasz.getClassLoaderId();
@@ -339,7 +337,9 @@ public final class SnapshotImpl implements ISnapshot
         }
 
         snapshotInfo.setUsedHeapSize(usedHeapSize);
-        snapshotInfo.setNumberOfObjects(noOfObjects);
+		// numberOfObjects was previously calculated by summing getNumberOfObjects() for
+		// each class. Sometimes there was a mismatch. See bug 294311
+		snapshotInfo.setNumberOfObjects(indexManager.idx.size());
         snapshotInfo.setNumberOfClassLoaders(loaderLabels.size());
         snapshotInfo.setNumberOfGCRoots(roots.size());
         snapshotInfo.setNumberOfClasses(classCache.size());
