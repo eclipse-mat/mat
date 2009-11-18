@@ -20,7 +20,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -48,19 +47,17 @@ import org.eclipse.mat.ui.util.ErrorHelper;
 import org.eclipse.mat.ui.util.ProgressMonitorWrapper;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.Units;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.cheatsheets.OpenCheatSheetAction;
 import org.eclipse.ui.forms.events.HyperlinkEvent;
 import org.eclipse.ui.forms.events.IHyperlinkListener;
-import org.eclipse.ui.forms.widgets.Form;
 import org.eclipse.ui.forms.widgets.FormText;
 import org.eclipse.ui.forms.widgets.FormToolkit;
+import org.eclipse.ui.forms.widgets.ScrolledForm;
 import org.eclipse.ui.forms.widgets.Section;
 import org.eclipse.ui.forms.widgets.TableWrapData;
 import org.eclipse.ui.forms.widgets.TableWrapLayout;
@@ -72,35 +69,46 @@ public class OverviewPane extends HeapEditorPane implements IHyperlinkListener, 
 
     private FormToolkit toolkit;
     private AbstractEditorPane pane;
-    private Form form;
+    private ScrolledForm form;
 
     public void createPartControl(Composite parent)
     {
         toolkit = new FormToolkit(parent.getDisplay());
-        form = toolkit.createForm(parent);
+        form = toolkit.createScrolledForm(parent);
 
-        GridLayout layout = new GridLayout(3, true);
+        // TableWrapLayout tends to give vertical scroll bars when needed
+        // but fits into horizontal space where possible
+        TableWrapLayout layout = new TableWrapLayout();
+        layout.numColumns = 3;
         layout.verticalSpacing = 20;
         form.getBody().setLayout(layout);
 
         Section section = createDetailsSection();
-        GridDataFactory.fillDefaults().grab(true, false).span(3, 1).applyTo(section);
+        TableWrapData td = new TableWrapData(TableWrapData.FILL_GRAB, TableWrapData.FILL_GRAB, 1, 3);
+        section.setLayoutData(td);
 
         section = createBiggestObjectsSection();
-        GridDataFactory.fillDefaults().grab(true, false).span(3, 1).hint(SWT.DEFAULT, 0).applyTo(section);
+        td = new TableWrapData(TableWrapData.FILL_GRAB, TableWrapData.FILL_GRAB, 1, 3);
+        section.setLayoutData(td);
 
         section = createSidecarSection();
         if (section != null)
-            GridDataFactory.fillDefaults().grab(true, false).span(3, 1).applyTo(section);
+        {
+            td = new TableWrapData(TableWrapData.FILL_GRAB, TableWrapData.FILL_GRAB, 1, 3);
+            section.setLayoutData(td);
+        }
 
         section = createActionSection();
-        GridDataFactory.fillDefaults().grab(true, false).applyTo(section);
+        td = new TableWrapData(TableWrapData.FILL_GRAB, TableWrapData.FILL_GRAB, 1, 1);
+        section.setLayoutData(td);
 
         section = createReportsSection();
-        GridDataFactory.fillDefaults().grab(true, false).applyTo(section);
+        td = new TableWrapData(TableWrapData.FILL_GRAB, TableWrapData.FILL_GRAB, 1, 1);
+        section.setLayoutData(td);
 
         section = createStepByStepSection();
-        GridDataFactory.fillDefaults().grab(true, false).applyTo(section);
+        td = new TableWrapData(TableWrapData.FILL_GRAB, TableWrapData.FILL_GRAB, 1, 1);
+        section.setLayoutData(td);
 
         form.getBody().layout();
     }
