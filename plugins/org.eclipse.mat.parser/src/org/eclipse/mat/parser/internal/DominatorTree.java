@@ -110,7 +110,8 @@ public class DominatorTree
             snapshot.getIndexManager().outbound().unload();
 
             progressListener = this.monitor.nextMonitor();
-            progressListener.beginTask(Messages.DominatorTree_ComputingDominators, n >> 16);
+            final int interval = 100;
+            progressListener.beginTask(Messages.DominatorTree_ComputingDominators, n / interval);
 
             for (int i = n; i >= 2; i--)
             {
@@ -149,7 +150,7 @@ public class DominatorTree
                 }
                 bucket[parent[w]] = -1;
                 // }
-                if ((i & 0xffff) == 0)
+                if (i % interval == 0)
                 {
                     if (progressListener.isCanceled())
                         throw new IProgressListener.OperationCanceledException();
