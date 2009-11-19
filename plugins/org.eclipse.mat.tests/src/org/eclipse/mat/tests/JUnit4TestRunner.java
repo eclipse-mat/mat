@@ -16,6 +16,7 @@ import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import junit.framework.AssertionFailedError;
 import junit.framework.JUnit4TestAdapter;
@@ -192,7 +193,7 @@ public class JUnit4TestRunner implements IApplication
                     suiteClassName = args[ii + 1];
                 ii++;
             }
-            else if ("-testpluginname".equals(args[ii].toLowerCase()))
+            else if ("-testpluginname".equals(args[ii].toLowerCase(Locale.ENGLISH)))
             {
                 if (ii < args.length - 1)
                     bundleName = args[ii + 1];
