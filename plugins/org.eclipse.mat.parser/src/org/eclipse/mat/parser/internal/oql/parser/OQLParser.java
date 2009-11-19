@@ -5,6 +5,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 
 import org.eclipse.mat.parser.internal.Messages;
 import org.eclipse.mat.parser.internal.oql.ICompiler;
@@ -36,7 +37,7 @@ public class OQLParser implements OQLParserConstants
 
     protected boolean seeUnreservedKeyword(String keyword)
     {
-        return (getToken(1).kind == IDENTIFIER && keyword.equals(getToken(1).image.toUpperCase()));
+        return (getToken(1).kind == IDENTIFIER && keyword.equals(getToken(1).image.toUpperCase(Locale.ENGLISH)));
     }
 
     protected boolean seeUnreservedKeyword(String... keywords)
@@ -44,7 +45,7 @@ public class OQLParser implements OQLParserConstants
         for (int index = 0; index < keywords.length; index++)
         {
             if (getToken(index + 1).kind != IDENTIFIER
-                            || !keywords[index].equals(getToken(index + 1).image.toUpperCase()))
+                            || !keywords[index].equals(getToken(index + 1).image.toUpperCase(Locale.ENGLISH)))
                 return false;
         }
         return true;
@@ -55,7 +56,7 @@ public class OQLParser implements OQLParserConstants
         if (getToken(1).kind != IDENTIFIER)
             return false;
 
-        String image = getToken(1).image.toUpperCase();
+        String image = getToken(1).image.toUpperCase(Locale.ENGLISH);
         for (int index = 0; index < keywords.length; index++)
             if (keywords[index].equals(image))
                 return false;
