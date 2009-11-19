@@ -13,6 +13,7 @@ package org.eclipse.mat.query.registry;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -72,12 +73,12 @@ public final class QueryObjectLink
     {
         try
         {
-            return PROTOCOL + type.name().toLowerCase() + "/" + URLEncoder.encode(target, ENC); //$NON-NLS-1$
+            return PROTOCOL + type.name().toLowerCase(Locale.ENGLISH) + "/" + URLEncoder.encode(target, ENC); //$NON-NLS-1$
         }
         catch (UnsupportedEncodingException ignore)
         {
             // never thrown as the UTF-8 is supported by all VMs
-            return PROTOCOL + type.name().toLowerCase() + "/" + target; //$NON-NLS-1$
+            return PROTOCOL + type.name().toLowerCase(Locale.ENGLISH) + "/" + target; //$NON-NLS-1$
         }
     }
 
@@ -97,7 +98,7 @@ public final class QueryObjectLink
         Type type;
         try
         {
-            type = Type.valueOf(matcher.group(1).toUpperCase());
+            type = Type.valueOf(matcher.group(1).toUpperCase(Locale.ENGLISH));
         }
         catch (IllegalArgumentException e)
         {

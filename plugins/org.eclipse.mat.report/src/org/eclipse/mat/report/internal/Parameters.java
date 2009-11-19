@@ -13,6 +13,7 @@ package org.eclipse.mat.report.internal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -67,7 +68,7 @@ public abstract class Parameters
     public boolean getBoolean(String key, boolean defaultValue)
     {
         String value = get(key);
-        return value == null ? defaultValue : "true".equals(value.toLowerCase()); //$NON-NLS-1$
+        return value == null ? defaultValue : "true".equalsIgnoreCase(value); //$NON-NLS-1$
     }
 
     public String[] getStringArray(String key)

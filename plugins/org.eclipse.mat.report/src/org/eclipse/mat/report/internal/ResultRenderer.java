@@ -24,6 +24,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -484,7 +485,7 @@ public class ResultRenderer
             toc.append("<li>");
 
             if (part.getStatus() != null)
-                toc.append("<img src=\"img/").append(part.getStatus().name().toLowerCase() + ".gif\"> ");
+                toc.append("<img src=\"img/").append(part.getStatus().name().toLowerCase(Locale.ENGLISH) + ".gif\"> ");
 
             HtmlArtefact page = (HtmlArtefact) part.getObject(Key.ARTEFACT);
             AbstractPart p = part;

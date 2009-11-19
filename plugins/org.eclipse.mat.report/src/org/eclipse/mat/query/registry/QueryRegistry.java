@@ -97,7 +97,7 @@ public class QueryRegistry extends RegistryReader<IQuery>
             if (descriptor.getCommandType() == delegate.getClass())
             {
                 commandsByIdentifier.remove(descriptor.getIdentifier());
-                commandsByClass.remove(descriptor.getCommandType().getName().toLowerCase());
+                commandsByClass.remove(descriptor.getCommandType().getName().toLowerCase(Locale.ENGLISH));
                 rootCategory = null;
                 break;
             }
@@ -162,7 +162,7 @@ public class QueryRegistry extends RegistryReader<IQuery>
 
     public synchronized QueryDescriptor getQuery(Class<? extends IQuery> query)
     {
-        return commandsByClass.get(query.getName().toLowerCase());
+        return commandsByClass.get(query.getName().toLowerCase(Locale.ENGLISH));
     }
 
     // //////////////////////////////////////////////////////////////
@@ -177,7 +177,7 @@ public class QueryRegistry extends RegistryReader<IQuery>
         String name = n != null ? n.value() : queryClass.getSimpleName();
 
         CommandName cn = queryClass.getAnnotation(CommandName.class);
-        return (cn != null ? cn.value() : name).toLowerCase().replace(' ', '_');
+        return (cn != null ? cn.value() : name).toLowerCase(Locale.ENGLISH).replace(' ', '_');
     }
 
     private final synchronized QueryDescriptor registerQuery(IQuery query) throws SnapshotException
@@ -225,7 +225,7 @@ public class QueryRegistry extends RegistryReader<IQuery>
         readMenuEntries(queryClass, descriptor, i18n);
 
         commandsByIdentifier.put(identifier, descriptor);
-        commandsByClass.put(query.getClass().getName().toLowerCase(), descriptor);
+        commandsByClass.put(query.getClass().getName().toLowerCase(Locale.ENGLISH), descriptor);
         return descriptor;
     }
 
@@ -361,7 +361,7 @@ public class QueryRegistry extends RegistryReader<IQuery>
 
         String flag = annotation.flag();
         if (flag.length() == 0)
-            flag = field.getName().toLowerCase();
+            flag = field.getName().toLowerCase(Locale.ENGLISH);
         if ("none".equals(flag)) //$NON-NLS-1$
             flag = null;
         d.setFlag(flag);

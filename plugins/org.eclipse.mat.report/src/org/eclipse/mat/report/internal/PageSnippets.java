@@ -15,6 +15,7 @@ import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.util.LinkedList;
+import java.util.Locale;
 
 import org.eclipse.mat.query.registry.QueryObjectLink;
 import org.eclipse.mat.report.Params;
@@ -146,7 +147,7 @@ import org.eclipse.mat.util.HTMLUtils;
 
             if (part.getStatus() != null)
                 artefact.append("<img src=\"").append(artefact.getPathToRoot()) //
-                                .append("img/").append(part.getStatus().name().toLowerCase() + ".gif\"> ");
+                                .append("img/").append(part.getStatus().name().toLowerCase(Locale.ENGLISH) + ".gif\"> ");
 
             artefact.append("<a name=\"").append(part.getId()).append("\">");
             artefact.append(HTMLUtils.escapeText(part.spec().getName()));
@@ -163,7 +164,7 @@ import org.eclipse.mat.util.HTMLUtils;
 
         if (part instanceof QueryPart && part.getStatus() != null)
             artefact.append("<img src=\"").append(artefact.getPathToRoot()).append("img/").append(
-                            part.getStatus().name().toLowerCase() + ".gif\"> ");
+                            part.getStatus().name().toLowerCase(Locale.ENGLISH) + ".gif\"> ");
 
         artefact.append("<a href=\"").append(artefact.getPathToRoot()).append(filename).append("\">");
         artefact.append(HTMLUtils.escapeText(part.spec().getName()));
@@ -192,7 +193,7 @@ import org.eclipse.mat.util.HTMLUtils;
 
             if (query.getStatus() != null)
                 artefact.append("<img src=\"").append(artefact.getPathToRoot()).append("img/").append(
-                                query.getStatus().name().toLowerCase() + ".gif\"> ");
+                                query.getStatus().name().toLowerCase(Locale.ENGLISH) + ".gif\"> ");
 
             artefact.append("<a name=\"").append(query.getId()).append("\">");
             artefact.append(HTMLUtils.escapeText(query.spec().getName())).append("</a>");

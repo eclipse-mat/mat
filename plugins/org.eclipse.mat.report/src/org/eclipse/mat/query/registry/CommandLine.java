@@ -13,6 +13,7 @@ package org.eclipse.mat.query.registry;
 import java.text.ParsePosition;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.IQueryContext;
@@ -102,7 +103,7 @@ public class CommandLine
             throw new SnapshotException(MessageUtil.format(Messages.CommandLine_Error_InvalidCommand, line));
 
         // determine query
-        QueryDescriptor descriptor = QueryRegistry.instance().getQuery(args[0].toLowerCase());
+        QueryDescriptor descriptor = QueryRegistry.instance().getQuery(args[0].toLowerCase(Locale.ENGLISH));
         if (descriptor == null)
             throw new SnapshotException(MessageUtil.format(Messages.CommandLine_Error_NotFound, args[0]));
 
@@ -156,7 +157,7 @@ public class CommandLine
             {
                 pos.setIndex(pos.getIndex() + 1);
 
-                String flag = arg.substring(1).toLowerCase();
+                String flag = arg.substring(1).toLowerCase(Locale.ENGLISH);
                 ArgumentDescriptor argDescriptor = descriptor.byFlag(flag);
                 if (argDescriptor == null)
                     throw new SnapshotException(MessageUtil.format(Messages.CommandLine_Error_MissingArgument,
