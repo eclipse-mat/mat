@@ -60,7 +60,7 @@ public class DTFJHeapObjectReader implements IObjectReader
      */
     private static final int LARGE_ARRAY_SIZE = 1000;
     /** Whether to use stack frames and methods as objects and classes */
-    private static final boolean getExtraInfo = false;
+    private static final boolean getExtraInfo = true;
     /** the actual DTFJ image */
     private Image image;
     /** the JVM */

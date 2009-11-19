@@ -146,9 +146,9 @@ public class DTFJIndexBuilder implements IIndexBuilder
     /** Whether to skip heap roots marked marked as weak/soft reference etc. */
     private static final boolean skipWeakRoots = true;
     /** Whether to represent stack frames and methods as objects and classes */
-    private static final boolean getExtraInfo = false;
+    private final boolean getExtraInfo = Boolean.getBoolean("mat.methods_as_classes") || Boolean.getBoolean("mat.methods_as_classes2");
     /** Whether to represent all methods as pseudo-classes */
-    private static final boolean getExtraInfo2 = false;
+    private final boolean getExtraInfo2 = Boolean.getBoolean("mat.methods_as_classes2");
     /** Separator between the package/class name and the method name */
     private static final String METHOD_NAME_PREFIX = "."; //$NON-NLS-1$
     /** Unique string only found in method names */
@@ -804,15 +804,10 @@ public class DTFJIndexBuilder implements IIndexBuilder
         }
 
         // Holds all of the methods as DTFJ JavaMethod - just used in this
-        // method
-        LinkedHashSet<JavaMethod> allMethods;
+        // method. Initialise always to avoid compilation errors.
+        LinkedHashSet<JavaMethod> allMethods = new LinkedHashSet<JavaMethod>();
         // Holds a mapping from stack frame to method addresses
-        LinkedHashMap<Long, Long> allFrames;
-        if (getExtraInfo)
-        {
-            allMethods = new LinkedHashSet<JavaMethod>();
-            allFrames = new LinkedHashMap<Long, Long>();
-        }
+        LinkedHashMap<Long, Long> allFrames = new LinkedHashMap<Long, Long>();
 
         // See if thread, monitor and class loader objects are present in heap
         // core-sample-dmgr.dmp.zip
