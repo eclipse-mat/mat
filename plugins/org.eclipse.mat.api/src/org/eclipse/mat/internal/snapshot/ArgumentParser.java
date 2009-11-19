@@ -104,7 +104,7 @@ public final class ArgumentParser
                 proxy.addObjectAddress(address);
                 pos.setIndex(pos.getIndex() + 1);
             }
-            else if ("select".equals(arg.toLowerCase())) //$NON-NLS-1$
+            else if ("select".equalsIgnoreCase(arg)) //$NON-NLS-1$
             {
                 StringBuilder query = new StringBuilder(128);
                 query.append(arg);

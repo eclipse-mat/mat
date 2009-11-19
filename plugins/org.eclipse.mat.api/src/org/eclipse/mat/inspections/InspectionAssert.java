@@ -13,6 +13,7 @@ package org.eclipse.mat.inspections;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.io.StringWriter;
+import java.util.Locale;
 import java.util.StringTokenizer;
 
 import org.eclipse.mat.internal.Messages;
@@ -40,7 +41,7 @@ public class InspectionAssert
 
                 String reason = st.nextToken();
                 String className = reason.substring(4, reason.lastIndexOf('.', reason.lastIndexOf('(')));
-                QueryDescriptor descriptor = QueryRegistry.instance().getQuery(className.toLowerCase());
+                QueryDescriptor descriptor = QueryRegistry.instance().getQuery(className.toLowerCase(Locale.ENGLISH));
 
                 String name = descriptor == null ? className : descriptor.getName();
 
