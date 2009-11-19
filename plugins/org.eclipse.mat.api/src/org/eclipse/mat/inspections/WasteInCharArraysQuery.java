@@ -48,11 +48,11 @@ public class WasteInCharArraysQuery implements IQuery
             {
                 int[] objectIds = clasz.getObjectIds();
 
-                listener.beginTask(Messages.WasteInCharArraysQuery_CheckingCharArrays, objectIds.length / 1000);
+                listener.beginTask(Messages.WasteInCharArraysQuery_CheckingCharArrays, objectIds.length / 10);
 
                 for (int ii = 0; ii < objectIds.length; ii++)
                 {
-                    if (ii % 1000 == 0)
+                    if (ii % 10 == 0)
                     {
                         if (listener.isCanceled())
                             throw new IProgressListener.OperationCanceledException();

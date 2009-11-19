@@ -609,7 +609,7 @@ public class DominatorQuery implements IQuery
                 node.shallowHeap += snapshot.getHeapSize(dominatedId);
                 node.retainedHeap += snapshot.getRetainedHeapSize(dominatedId);
 
-                if (ii / 100 == 0 && listener.isCanceled())
+                if (ii % 100 == 0 && listener.isCanceled())
                     throw new IProgressListener.OperationCanceledException();
             }
 
