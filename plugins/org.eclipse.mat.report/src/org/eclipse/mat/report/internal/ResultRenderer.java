@@ -267,8 +267,14 @@ public class ResultRenderer
         PageSnippets.linkedHeading(artefact, test, 5, filename);
 
         Writer writer = new FileWriter(new File(this.directory, filename));
-        outputter.process(info, result, writer);
-        writer.close();
+        try
+        {
+            outputter.process(info, result, writer);
+        }
+        finally
+        {
+            writer.close();
+        }
     }
 
     private void doProcess(IOutputter outputter, QueryPart test, IResult result, RenderingInfo rInfo, boolean firstPass)
@@ -407,31 +413,45 @@ public class ResultRenderer
 
     private void copyResource(String resource, File target) throws FileNotFoundException, IOException
     {
-        OutputStream out = new FileOutputStream(target);
+        InputStream resourceStream = ResultRenderer.class.getResourceAsStream(resource);
+        if (resourceStream == null)
+            throw new FileNotFoundException(resource);
         try
         {
-            FileUtils.copy(getClass().getResourceAsStream(resource), out);
+            OutputStream out = new FileOutputStream(target);
+            try
+            {
+                FileUtils.copy(resourceStream, out);
+            }
+            finally
+            {
+                out.close();
+            }
         }
         finally
         {
-            out.close();
+            resourceStream.close();
         }
     }
 
     private void copyResource(URL resource, File target) throws FileNotFoundException, IOException
     {
-        OutputStream out = new FileOutputStream(target);
-        InputStream in = null;
+        InputStream in = resource.openStream();
         try
         {
-            in = resource.openStream();
-            FileUtils.copy(in, out);
+            OutputStream out = new FileOutputStream(target);
+            try
+            {
+                FileUtils.copy(in, out);
+            }
+            finally
+            {
+                out.close();
+            }
         }
         finally
         {
-            if (in != null)
-                in.close();
-            out.close();
+            in.close();
         }
     }
 
