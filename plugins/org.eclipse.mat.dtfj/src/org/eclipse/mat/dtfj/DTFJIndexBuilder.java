@@ -984,8 +984,14 @@ public class DTFJIndexBuilder implements IIndexBuilder
             rememberObject(obj, address, allClasses, listener);
         }
 
+        long methodTypeAddr = 0;
         if (getExtraInfo)
         {
+            // Dummy address for the method pseudo-type
+            methodTypeAddr = nextClassAddress;
+            indexToAddress.add(methodTypeAddr);
+            nextClassAddress += 8;
+            
             // Extra objects when dealing with stack frames as objects
             // Add the methods
             for (JavaMethod jm : allMethods)
@@ -1073,7 +1079,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
 
         if (getExtraInfo)
         {
-            nClasses += allMethods.size();
+            nClasses += allMethods.size() + 1; // For method pseudo-type
         }
 
         // Make the ID to address array ready for reverse lookups
@@ -1087,7 +1093,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         {
             listener.sendUserMessage(Severity.INFO, MessageFormat.format(
                             Messages.DTFJIndexBuilder_FoundIdentifiersObjectsClassesMethods, indexToAddress.size(),
-                            indexToAddress.size() - nClasses - allFrames.size(), allFrames.size(), nClasses - allMethods.size(), allMethods.size()), null);
+                            indexToAddress.size() - nClasses - allFrames.size(), allFrames.size(), nClasses - allMethods.size() - 1, allMethods.size()), null);
         }
         else
         {
@@ -1235,11 +1241,12 @@ public class DTFJIndexBuilder implements IIndexBuilder
 
         if (getExtraInfo)
         {
+            ClassImpl methodType = genMethodType(methodTypeAddr, null, idToClass, bootLoaderAddress, listener);
             for (JavaMethod jm : allMethods)
             {
                 try
                 {
-                    ClassImpl ci = genClass(jm, jlc, idToClass, bootLoaderAddress, listener);
+                    ClassImpl ci = genClass(jm, methodType, idToClass, bootLoaderAddress, listener);
                 }
                 catch (CorruptDataException e)
                 {
@@ -1415,6 +1422,18 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 addRefs(refd, ref);
                 outRefs.log(indexToAddress, objId, ref);
             }
+            if (methodTypeAddr != 0)
+            {
+                // method pseudo-type
+                int objId = indexToAddress.reverse(methodTypeAddr);
+                ClassImpl ci = idToClass.get(objId);
+                if (ci != null)
+                {
+                    ArrayLong ref = ci.getReferences();
+                    addRefs(refd, ref);
+                    outRefs.log(indexToAddress, objId, ref);
+                }
+            }
         }
 
         if (getExtraInfo)
@@ -1547,7 +1566,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             // To accumulate the outbound refs
             ArrayLong aa = new ArrayLong();
             // Add a reference to the class
-            aa.add(bootLoaderType.getClassAddress());
+            aa.add(bootLoaderType.getObjectAddress());
             int objId = indexToAddress.reverse(fixedBootLoaderAddress);
             addLoaderClasses(objId, aa);
             try
@@ -6267,6 +6286,64 @@ public class DTFJIndexBuilder implements IIndexBuilder
         // For calculating purge sizes
         objectToSize.set(ci.getObjectId(), size);
         jlc.addInstance(size);
+        return ci;
+    }
+    
+    /**
+     * Generate a pseudo-type for methods
+     * @param claddr A dummy address
+     * @param type The type of this type (or null to use itself)
+     * @param hm
+     * @param bootLoaderAddress
+     * @param listener
+     * @return
+     */
+    private ClassImpl genMethodType(long claddr, ClassImpl type, HashMapIntObject<ClassImpl> hm, long bootLoaderAddress, IProgressListener listener)
+    {
+        String cname = "<method>";
+        long loader = bootLoaderAddress;
+        Field statics[] = new Field[0];
+        FieldDescriptor[] fld = new FieldDescriptor[0];
+        ClassImpl ci = new ClassImpl(claddr, cname, 0l, loader, statics, fld);
+        // Fix the indexes
+        final long claddr2 = ci.getObjectAddress();
+        final int clsId = indexToAddress.reverse(claddr2);
+        if (clsId >= 0)
+        {
+            ci.setObjectId(clsId);
+        }
+        else
+        {
+            listener.sendUserMessage(Severity.ERROR, MessageFormat.format(
+                            Messages.DTFJIndexBuilder_ClassAtAddressNotFound, format(claddr), clsId, cname), null);
+        }
+
+        int loaderId = indexToAddress.reverse(loader);
+        if (loaderId >= 0)
+        {
+            ci.setClassLoaderIndex(loaderId);
+        }
+        else
+        {
+            listener.sendUserMessage(Severity.ERROR, MessageFormat.format(
+                            Messages.DTFJIndexBuilder_ClassLoaderAtAddressNotFound, format(loader), loaderId,
+                            format(claddr), clsId, cname), null);
+        }
+
+        hm.put(ci.getObjectId(), ci);
+
+        if (type == null)
+            type = ci;
+
+        ci.setClassInstance(type);
+        int size = 0;
+
+        ci.setUsedHeapSize(size);
+        ci.setHeapSizePerInstance(0);
+        // For calculating purge sizes
+        objectToSize.set(ci.getObjectId(), size);
+        type.addInstance(size);
+
         return ci;
     }
 
