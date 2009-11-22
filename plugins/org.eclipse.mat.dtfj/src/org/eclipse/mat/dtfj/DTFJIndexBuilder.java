@@ -984,10 +984,14 @@ public class DTFJIndexBuilder implements IIndexBuilder
             rememberObject(obj, address, allClasses, listener);
         }
 
+        long nativeTypeAddr = 0;
         long methodTypeAddr = 0;
         if (getExtraInfo)
         {
-            // Dummy address for the method pseudo-type
+            // Dummy address for the native memory and method pseudo-type
+            nativeTypeAddr = nextClassAddress;
+            indexToAddress.add(nativeTypeAddr);
+            nextClassAddress += 8;
             methodTypeAddr = nextClassAddress;
             indexToAddress.add(methodTypeAddr);
             nextClassAddress += 8;
@@ -1241,12 +1245,13 @@ public class DTFJIndexBuilder implements IIndexBuilder
 
         if (getExtraInfo)
         {
-            ClassImpl methodType = genMethodType(methodTypeAddr, null, idToClass, bootLoaderAddress, listener);
+            ClassImpl nativeType = genDummyType("<native memory type>", nativeTypeAddr, 0L, null, idToClass, bootLoaderAddress, listener);
+            ClassImpl methodType = genDummyType("<method>", methodTypeAddr, 0L, nativeType, idToClass, bootLoaderAddress, listener);
             for (JavaMethod jm : allMethods)
             {
                 try
                 {
-                    ClassImpl ci = genClass(jm, methodType, idToClass, bootLoaderAddress, listener);
+                    ClassImpl ci = genClass(jm, methodTypeAddr, nativeType, idToClass, bootLoaderAddress, listener);
                 }
                 catch (CorruptDataException e)
                 {
@@ -1411,29 +1416,10 @@ public class DTFJIndexBuilder implements IIndexBuilder
             for (JavaMethod m2 : allMethods)
             {
                 long claddr = getMethodAddress(m2, listener);
-                int objId = indexToAddress.reverse(claddr);
-                ClassImpl ci = idToClass.get(objId);
-                if (ci == null)
-                {
-                    // Perhaps the method was corrupt and never built
-                    continue;
-                }
-                ArrayLong ref = ci.getReferences();
-                addRefs(refd, ref);
-                outRefs.log(indexToAddress, objId, ref);
+                addDummyTypeRefs(claddr, refd);
             }
-            if (methodTypeAddr != 0)
-            {
-                // method pseudo-type
-                int objId = indexToAddress.reverse(methodTypeAddr);
-                ClassImpl ci = idToClass.get(objId);
-                if (ci != null)
-                {
-                    ArrayLong ref = ci.getReferences();
-                    addRefs(refd, ref);
-                    outRefs.log(indexToAddress, objId, ref);
-                }
-            }
+            addDummyTypeRefs(nativeTypeAddr, refd);
+            addDummyTypeRefs(methodTypeAddr, refd);
         }
 
         if (getExtraInfo)
@@ -1819,6 +1805,28 @@ public class DTFJIndexBuilder implements IIndexBuilder
         methodAddresses = null;
         loaderClassCache = null;
         listener.done();
+    }
+
+    /**
+     * Add outbound references for method types and pseudo types
+     * @param methodTypeAddr
+     * @param refd record of inbound refs
+     * @throws IOException
+     */
+    private void addDummyTypeRefs(long methodTypeAddr, boolean[] refd) throws IOException
+    {
+        if (methodTypeAddr != 0)
+        {
+            // method pseudo-type
+            int objId = indexToAddress.reverse(methodTypeAddr);
+            ClassImpl ci = idToClass.get(objId);
+            if (ci != null)
+            {
+                ArrayLong ref = ci.getReferences();
+                addRefs(refd, ref);
+                outRefs.log(indexToAddress, objId, ref);
+            }
+        }
     }
 
     /**
@@ -6191,6 +6199,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
      * 
      * @param m
      *            The method
+     * @param sup The superclass address
      * @param jlc
      *            MAT java.lang.Class for the type
      * @param hm
@@ -6201,13 +6210,13 @@ public class DTFJIndexBuilder implements IIndexBuilder
      * @return the new class
      * @throws CorruptDataException
      */
-    private ClassImpl genClass(JavaMethod m, ClassImpl jlc, HashMapIntObject<ClassImpl> hm, long bootLoaderAddress,
-                    IProgressListener listener) throws CorruptDataException
+    private ClassImpl genClass(JavaMethod m, long sup, ClassImpl jlc, HashMapIntObject<ClassImpl> hm,
+                    long bootLoaderAddress, IProgressListener listener) throws CorruptDataException
     {
         // Disable if not needed
         if (!getExtraInfo)
             return null;
-        String cname = METHOD_NAME_PREFIX + getMethodName(m, listener); //$NON-NLS-1$
+        String name = METHOD_NAME_PREFIX + getMethodName(m, listener); //$NON-NLS-1$
         long claddr = getMethodAddress(m, listener);
         // Add the MAT descriptions of the fields
         Field[] statics;
@@ -6224,7 +6233,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             String className = getMATClassName(jc, listener);
             // Add the package and class name to the method name - useful for
             // accumulating package statistics
-            cname = className + cname;
+            name = className + name;
         }
         catch (DTFJException e)
         {
@@ -6232,16 +6241,38 @@ public class DTFJIndexBuilder implements IIndexBuilder
             statics = new Field[0];
             loader = fixBootLoaderAddress(bootLoaderAddress, bootLoaderAddress);
             listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
-                            Messages.DTFJIndexBuilder_DeclaringClassNotFound, cname, format(claddr)), e);
+                            Messages.DTFJIndexBuilder_DeclaringClassNotFound, name, format(claddr)), e);
         }
 
+        int superId;
+        if (sup != 0)
+        {
+            superId = indexToAddress.reverse(sup);
+            if (superId < 0)
+            {
+                // We have a problem at this point - the class has a real
+                // superclass address, but a bad id.
+                // If the address is non-zero ClassImpl will use the id,
+                // which can cause exceptions inside of MAT
+                // so clear the address.
+                listener.sendUserMessage(Severity.ERROR, MessageFormat.format(
+                                Messages.DTFJIndexBuilder_SuperclassNotFound, format(sup), superId, format(claddr),
+                                indexToAddress.reverse(claddr), name), null);
+                sup = 0;
+            }
+        }
+        else
+        {
+            superId = -1;
+        }
+        
         FieldDescriptor[] fld = new FieldDescriptor[] { new FieldDescriptor("lineNumber", IObject.Type.INT), //$NON-NLS-1$
                         new FieldDescriptor("compilationLevel", IObject.Type.INT), //$NON-NLS-1$
                         new FieldDescriptor("locationAddress", IObject.Type.LONG), //$NON-NLS-1$
                         new FieldDescriptor("frameNumber", IObject.Type.INT), //$NON-NLS-1$
                         new FieldDescriptor("stackDepth", IObject.Type.INT) }; //$NON-NLS-1$
-        ClassImpl ci = new ClassImpl(claddr, cname, 0l, loader, statics, fld);
-        debugPrint("building method class " + cname + " " + format(claddr)); //$NON-NLS-1$ //$NON-NLS-2$
+        ClassImpl ci = new ClassImpl(claddr, name, sup, loader, statics, fld);
+        debugPrint("building method class " + name + " " + format(claddr)); //$NON-NLS-1$ //$NON-NLS-2$
         // Fix the indexes
         final long claddr2 = ci.getObjectAddress();
         final int clsId = indexToAddress.reverse(claddr2);
@@ -6254,7 +6285,14 @@ public class DTFJIndexBuilder implements IIndexBuilder
         else
         {
             listener.sendUserMessage(Severity.ERROR, MessageFormat.format(
-                            Messages.DTFJIndexBuilder_ClassAtAddressNotFound, format(claddr), clsId, cname), null);
+                            Messages.DTFJIndexBuilder_ClassAtAddressNotFound, format(claddr), clsId, name), null);
+        }
+
+        if (sup != 0)
+        {
+            // debugPrint("Super "+sup+" "+superId);
+            // superId is valid
+            ci.setSuperClassIndex(superId);
         }
 
         int loaderId = indexToAddress.reverse(loader);
@@ -6266,7 +6304,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         {
             listener.sendUserMessage(Severity.ERROR, MessageFormat.format(
                             Messages.DTFJIndexBuilder_ClassLoaderAtAddressNotFound, format(loader), loaderId,
-                            format(claddr), clsId, cname), null);
+                            format(claddr), clsId, name), null);
         }
 
         hm.put(ci.getObjectId(), ci);
@@ -6291,20 +6329,21 @@ public class DTFJIndexBuilder implements IIndexBuilder
     
     /**
      * Generate a pseudo-type for methods
+     * @param cname name of the pseudo-class
      * @param claddr A dummy address
+     * @param superType the super class address
      * @param type The type of this type (or null to use itself)
      * @param hm
      * @param bootLoaderAddress
      * @param listener
      * @return
      */
-    private ClassImpl genMethodType(long claddr, ClassImpl type, HashMapIntObject<ClassImpl> hm, long bootLoaderAddress, IProgressListener listener)
+    private ClassImpl genDummyType(String cname, long claddr, long superType, ClassImpl type, HashMapIntObject<ClassImpl> hm, long bootLoaderAddress, IProgressListener listener)
     {
-        String cname = "<method>";
         long loader = bootLoaderAddress;
         Field statics[] = new Field[0];
         FieldDescriptor[] fld = new FieldDescriptor[0];
-        ClassImpl ci = new ClassImpl(claddr, cname, 0l, loader, statics, fld);
+        ClassImpl ci = new ClassImpl(claddr, cname, superType, loader, statics, fld);
         // Fix the indexes
         final long claddr2 = ci.getObjectAddress();
         final int clsId = indexToAddress.reverse(claddr2);
