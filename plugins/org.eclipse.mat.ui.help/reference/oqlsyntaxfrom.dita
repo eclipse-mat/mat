@@ -23,7 +23,7 @@
 			<b>by a sub select:</b>
 			<codeblock>SELECT * FROM ( SELECT *
                 FROM java.lang.Class c
-                WHERE c implements com.sap.tools.memory.snapshot.model.IClass )</codeblock>
+                WHERE c implements org.eclipse.mat.snapshot.model.IClass )</codeblock>
 			<p>
 				The statement returns all objects in the heap. The
 				<cmdname>implements</cmdname>
