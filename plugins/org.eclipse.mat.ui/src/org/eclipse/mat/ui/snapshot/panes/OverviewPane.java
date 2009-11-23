@@ -110,7 +110,7 @@ public class OverviewPane extends HeapEditorPane implements IHyperlinkListener, 
         td = new TableWrapData(TableWrapData.FILL_GRAB, TableWrapData.FILL_GRAB, 1, 1);
         section.setLayoutData(td);
 
-        form.getBody().layout();
+        form.reflow(true);
     }
 
     // //////////////////////////////////////////////////////////////
@@ -406,7 +406,7 @@ public class OverviewPane extends HeapEditorPane implements IHyperlinkListener, 
                                     pane.init(getEditorSite(), getEditorInput());
                                     pane.createPartControl(sectionClient);
                                     pane.initWithArgument(new QueryResult(null, "pie_biggest_objects", result));//$NON-NLS-1$
-                                    form.getBody().layout();
+                                    form.reflow(true);
 
                                     if (pane instanceof ISelectionProvider)
                                     {
