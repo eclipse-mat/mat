@@ -19,3 +19,4 @@ plugin@org.eclipse.mat.chart.ui=SVN,trunk,svn://dev.eclipse.org/svnroot/technolo
 plugin@org.eclipse.mat.tests=SVN,trunk,svn://dev.eclipse.org/svnroot/technology/org.eclipse.mat,,plugins/org.eclipse.mat.tests
 plugin@org.eclipse.mat.tests.junit=SVN,trunk,svn://dev.eclipse.org/svnroot/technology/org.eclipse.mat,,plugins/org.eclipse.mat.tests.junit
 plugin@org.eclipse.mat.ui.rcp=SVN,trunk,svn://dev.eclipse.org/svnroot/technology/org.eclipse.mat,,plugins/org.eclipse.mat.ui.rcp
+plugin@org.eclipse.mat.releng.athena=SVN,trunk,svn://dev.eclipse.org/svnroot/technology/org.eclipse.mat,,org.eclipse.mat.releng.athena
