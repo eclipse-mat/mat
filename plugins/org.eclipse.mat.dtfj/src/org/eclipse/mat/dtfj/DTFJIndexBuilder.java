@@ -984,16 +984,24 @@ public class DTFJIndexBuilder implements IIndexBuilder
             rememberObject(obj, address, allClasses, listener);
         }
 
+        long nativeAddr = 0;
         long nativeTypeAddr = 0;
         long methodTypeAddr = 0;
+        long methodAddr = 0;
         if (getExtraInfo)
         {
             // Dummy address for the native memory and method pseudo-type
+            nativeAddr = nextClassAddress;
+            indexToAddress.add(nativeAddr);
+            nextClassAddress += 8;
             nativeTypeAddr = nextClassAddress;
             indexToAddress.add(nativeTypeAddr);
             nextClassAddress += 8;
             methodTypeAddr = nextClassAddress;
             indexToAddress.add(methodTypeAddr);
+            nextClassAddress += 8;
+            methodAddr = nextClassAddress;
+            indexToAddress.add(methodAddr);
             nextClassAddress += 8;
             
             // Extra objects when dealing with stack frames as objects
@@ -1245,13 +1253,15 @@ public class DTFJIndexBuilder implements IIndexBuilder
 
         if (getExtraInfo)
         {
-            ClassImpl nativeType = genDummyType("<native memory type>", nativeTypeAddr, 0L, null, idToClass, bootLoaderAddress, listener);
-            ClassImpl methodType = genDummyType("<method>", methodTypeAddr, 0L, nativeType, idToClass, bootLoaderAddress, listener);
+            ClassImpl nativeType = genDummyType("<native memory type>", nativeTypeAddr, nativeAddr, null, idToClass, bootLoaderAddress, listener);
+            ClassImpl nativeMemory = genDummyType("<native memory>", nativeAddr, 0L, nativeType, idToClass, bootLoaderAddress, listener);
+            ClassImpl methodType = genDummyType("<method type>", methodTypeAddr, nativeTypeAddr, nativeType, idToClass, bootLoaderAddress, listener);
+            ClassImpl method = genDummyType("<method>", methodAddr, nativeAddr, methodType, idToClass, bootLoaderAddress, listener);
             for (JavaMethod jm : allMethods)
             {
                 try
                 {
-                    ClassImpl ci = genClass(jm, methodTypeAddr, nativeType, idToClass, bootLoaderAddress, listener);
+                    ClassImpl ci = genClass(jm, methodAddr, methodType, idToClass, bootLoaderAddress, listener);
                 }
                 catch (CorruptDataException e)
                 {
@@ -1418,8 +1428,10 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 long claddr = getMethodAddress(m2, listener);
                 addDummyTypeRefs(claddr, refd);
             }
+            addDummyTypeRefs(nativeAddr, refd);
             addDummyTypeRefs(nativeTypeAddr, refd);
             addDummyTypeRefs(methodTypeAddr, refd);
+            addDummyTypeRefs(methodAddr, refd);
         }
 
         if (getExtraInfo)
@@ -6355,6 +6367,12 @@ public class DTFJIndexBuilder implements IIndexBuilder
         {
             listener.sendUserMessage(Severity.ERROR, MessageFormat.format(
                             Messages.DTFJIndexBuilder_ClassAtAddressNotFound, format(claddr), clsId, cname), null);
+        }
+
+        if (superType != 0)
+        {
+            int superId = indexToAddress.reverse(superType);
+            ci.setSuperClassIndex(superId);
         }
 
         int loaderId = indexToAddress.reverse(loader);
