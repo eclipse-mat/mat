@@ -159,6 +159,8 @@ public class ClassImpl extends AbstractObjectImpl implements IClass, Comparable<
         ArrayLong answer = new ArrayLong(staticFields.length);
 
         answer.add(classInstance.getObjectAddress());
+        if (superClassAddress != 0)
+            answer.add(superClassAddress);
         answer.add(classLoaderAddress);
 
         for (int ii = 0; ii < staticFields.length; ii++)
@@ -177,14 +179,20 @@ public class ClassImpl extends AbstractObjectImpl implements IClass, Comparable<
     {
         List<NamedReference> answer = new LinkedList<NamedReference>();
         answer.add(new PseudoReference(source, classInstance.getObjectAddress(), "<class>"));//$NON-NLS-1$
-        answer.add(new NamedReference(source, classLoaderAddress, "<classloader>"));//$NON-NLS-1$
+        if (superClassAddress != 0)
+            answer.add(new PseudoReference(source, superClassAddress, "<super>"));//$NON-NLS-1$
+        answer.add(new PseudoReference(source, classLoaderAddress, "<classloader>"));//$NON-NLS-1$
 
         for (int ii = 0; ii < staticFields.length; ii++)
         {
             if (staticFields[ii].getValue() instanceof ObjectReference)
             {
                 ObjectReference ref = (ObjectReference) staticFields[ii].getValue();
-                answer.add(new NamedReference(source, ref.getObjectAddress(), staticFields[ii].getName()));
+                String fieldName = staticFields[ii].getName();
+                if (fieldName.startsWith("<")) //$NON-NLS-1$
+                    answer.add(new PseudoReference(source, ref.getObjectAddress(), fieldName));
+                else
+                    answer.add(new NamedReference(source, ref.getObjectAddress(), fieldName));
             }
         }
 

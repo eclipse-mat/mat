@@ -5773,13 +5773,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         ArrayList<FieldDescriptor> al = new ArrayList<FieldDescriptor>();
         ArrayList<Field> al2 = new ArrayList<Field>();
 
-        // Do we need the superclass as an explicit link?
-        if (sup != 0)
-        {
-            ObjectReference val = new ObjectReference(null, sup);
-            Field f = new Field("<super>", IObject.Type.OBJECT, val); //$NON-NLS-1$
-            al2.add(f);
-        }
+        // Superclass is added by ClassImpl as a pseudo static field
 
         // We don't need to deal with superclass static fields as these are
         // maintained by the superclass

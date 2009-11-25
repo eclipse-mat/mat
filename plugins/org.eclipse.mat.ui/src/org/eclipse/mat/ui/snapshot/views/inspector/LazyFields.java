@@ -107,10 +107,14 @@ import org.eclipse.mat.ui.Messages;
 
     /* package */static class Class extends LazyFields<IClass>
     {
-        public Class(IClass object)
+        public Class(IClass object, boolean showPseudoStatics, boolean showSubclasses)
         {
             super(object);
-            fixObjectReferences(object.getSnapshot(), cache, object.getStaticFields(), true);
+            do
+            {
+                fixObjectReferences(object.getSnapshot(), cache, object.getStaticFields(), true, showPseudoStatics);
+            }
+            while (showSubclasses && (object = object.getSuperClass()) != null);
         }
 
         @Override
@@ -131,7 +135,7 @@ import org.eclipse.mat.ui.Messages;
         public Instance(IInstance object)
         {
             super(object);
-            fixObjectReferences(object.getSnapshot(), cache, object.getFields(), false);
+            fixObjectReferences(object.getSnapshot(), cache, object.getFields(), false, false);
         }
 
         @Override
@@ -207,13 +211,16 @@ import org.eclipse.mat.ui.Messages;
     // private helpers
     // //////////////////////////////////////////////////////////////
 
-    protected static void fixObjectReferences(ISnapshot snapshot, List<Object> appendTo, List<?> fields,
-                    boolean areStatics)
+    protected static void fixObjectReferences(ISnapshot snapshot, List<Object> appendTo, List<Field> fields,
+                    boolean areStatics, boolean showPseudoStatics)
     {
         for (int ii = 0; ii < fields.size(); ii++)
         {
-            Field field = (Field) fields.get(ii);
+            Field field = fields.get(ii);
 
+            // Do we want to show pseudo static fields?
+            if (areStatics && (field.getName().startsWith("<") != showPseudoStatics)) continue;  //$NON-NLS-1$
+            
             if (field.getValue() instanceof ObjectReference)
             {
                 ObjectReference ref = (ObjectReference) field.getValue();

@@ -947,6 +947,8 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
                         fields = new LazyFields.PrimitiveArray((IPrimitiveArray) object);
                     else if (object instanceof IObjectArray)
                         fields = new LazyFields.ObjectArray((IObjectArray) object);
+                    else if (object instanceof IClass)
+                        fields = new LazyFields.Class((IClass) object, true, false);
                     else
                         fields = LazyFields.EMPTY;
 
@@ -957,9 +959,9 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
                 {
                     LazyFields<?> fields = null;
                     if (object instanceof IClass)
-                        fields = new LazyFields.Class((IClass) object);
+                        fields = new LazyFields.Class((IClass) object, false, false);
                     else if (object instanceof IInstance)
-                        fields = new LazyFields.Class(object.getClazz());
+                        fields = new LazyFields.Class(object.getClazz(), false, true);
                     else
                         fields = LazyFields.EMPTY;
 
