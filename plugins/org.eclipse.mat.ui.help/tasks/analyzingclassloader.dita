@@ -15,6 +15,7 @@
 			<p>
 				To get an overview, run the
 				<menucascade>
+					<uicontrol>Query Browser</uicontrol>
 					<uicontrol>Java Basics</uicontrol>
 					<uicontrol>Class Loader Explorer</uicontrol>
 				</menucascade>
