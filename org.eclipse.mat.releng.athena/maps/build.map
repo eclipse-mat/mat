@@ -4,6 +4,7 @@ feature@org.eclipse.mat.feature=SVN,trunk,svn://dev.eclipse.org/svnroot/technolo
 feature@org.eclipse.mat.chart.feature=SVN,trunk,svn://dev.eclipse.org/svnroot/technology/org.eclipse.mat,,features/org.eclipse.mat.chart.feature
 feature@org.eclipse.mat.test.feature=SVN,trunk,svn://dev.eclipse.org/svnroot/technology/org.eclipse.mat,,features/org.eclipse.mat.test.feature
 feature@org.eclipse.mat.ui.rcp.feature=SVN,trunk,svn://dev.eclipse.org/svnroot/technology/org.eclipse.mat,,features/org.eclipse.mat.ui.rcp.feature
+feature@org.eclipse.mat.all.feature=SVN,trunk,svn://dev.eclipse.org/svnroot/technology/org.eclipse.mat,,features/org.eclipse.mat.all.feature
 
 #plugins
 plugin@org.eclipse.mat.api=SVN,trunk,svn://dev.eclipse.org/svnroot/technology/org.eclipse.mat,,plugins/org.eclipse.mat.api
