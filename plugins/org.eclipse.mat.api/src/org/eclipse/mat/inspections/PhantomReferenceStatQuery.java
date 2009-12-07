@@ -29,7 +29,8 @@ public class PhantomReferenceStatQuery implements IQuery
     {
         return ReferenceQuery.execute("java\\.lang\\.ref\\.PhantomReference", snapshot, //$NON-NLS-1$
                         Messages.PhantomReferenceStatQuery_Label_Referenced,
-                        Messages.PhantomReferenceStatQuery_Label_Retained, listener);
+                        Messages.PhantomReferenceStatQuery_Label_Retained,
+                        Messages.PhantomReferenceStatQuery_Label_StronglyRetainedReferents, listener);
     }
 
 }

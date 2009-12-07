@@ -28,7 +28,8 @@ public class FinalizerReferenceStatQuery implements IQuery
     {
         return ReferenceQuery.execute("java\\.lang\\.ref\\.Finalizer", snapshot, //$NON-NLS-1$
                         Messages.FinalizerReferenceStatQuery_Label_Referenced,
-                        Messages.FinalizerReferenceStatQuery_Label_Retained, listener);
+                        Messages.FinalizerReferenceStatQuery_Label_Retained,
+                        Messages.FinalizerReferenceStatQuery_Label_StronglyRetainedReferents, listener);
     }
 
 }

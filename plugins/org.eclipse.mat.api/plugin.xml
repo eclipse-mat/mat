@@ -59,6 +59,7 @@
 		<query impl="org.eclipse.mat.inspections.collections.PrimitiveArraysWithAConstantValueQuery"/>
 	
 		<!-- Referents -->
+		<query impl="org.eclipse.mat.inspections.ReferenceQuery"/>
 		<query impl="org.eclipse.mat.inspections.WeakReferenceStatQuery"/>
 		<query impl="org.eclipse.mat.inspections.SoftReferenceStatQuery"/>
 		<query impl="org.eclipse.mat.inspections.FinalizerReferenceStatQuery"/>

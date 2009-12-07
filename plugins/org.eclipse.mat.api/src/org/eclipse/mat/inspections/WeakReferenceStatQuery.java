@@ -28,7 +28,8 @@ public class WeakReferenceStatQuery implements IQuery
     {
         return ReferenceQuery.execute("java\\.lang\\.ref\\.WeakReference", snapshot, //$NON-NLS-1$
                         Messages.WeakReferenceStatQuery_Label_Referenced,
-                        Messages.WeakReferenceStatQuery_Label_Retained, listener);
+                        Messages.WeakReferenceStatQuery_Label_Retained,
+                        Messages.WeakReferenceStatQuery_Label_StronglyRetainedReferents, listener);
     }
 
 }

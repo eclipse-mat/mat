@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.mat.inspections;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.regex.Pattern;
 
@@ -17,14 +18,19 @@ import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.collect.SetInt;
 import org.eclipse.mat.internal.Messages;
+import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
+import org.eclipse.mat.query.annotations.Argument;
+import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.results.CompositeResult;
 import org.eclipse.mat.snapshot.Histogram;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.Field;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IInstance;
+import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.ObjectReference;
+import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 
@@ -32,16 +38,56 @@ import org.eclipse.mat.util.MessageUtil;
  * Extract information about objects extending java.lang.ref.Reference, e.g.
  * weak and soft references, and Finalizer.
  */
-public class ReferenceQuery
+@CommandName("references_statistics") //$NON-NLS-1$
+public class ReferenceQuery implements IQuery
 {
 
+    @Argument
+    public ISnapshot snapshot;
+
+    @Argument(flag = "none") //$NON-NLS-1$
+    public IHeapObjectArgument objects;
+    
+    static final String DEFAULT_REFERENT = "referent"; //$NON-NLS-1$
+    @Argument(isMandatory = false)
+    public String referent_attribute = DEFAULT_REFERENT;
+    
+    public IResult execute(IProgressListener listener) throws Exception
+    {
+        listener.subTask(Messages.ReferenceQuery_Msg_ComputingReferentSet);
+
+        ArrayInt instanceSet = new ArrayInt();
+        SetInt referentSet = new SetInt();
+
+        for (int[] objs : objects)
+        {
+            instanceSet.addAll(objs);
+            for (int ii = 0; ii < objs.length; ii++)
+            {
+                IObject o = snapshot.getObject(objs[ii]);
+                if (o instanceof IInstance)
+                {
+                    IInstance obj = (IInstance) o;
+                    ObjectReference ref = getReferent(obj, referent_attribute);
+                    if (ref != null)
+                        referentSet.add(ref.getObjectId());
+                }
+            }
+            if (listener.isCanceled())
+                throw new IProgressListener.OperationCanceledException();
+        }
+
+        return execute(instanceSet, referentSet, snapshot, Messages.ReferenceQuery_HistogramOfReferentObjects,
+                        Messages.ReferenceQuery_OnlyRetainedByReferents,
+                        Messages.ReferenceQuery_StronglyRetainedByReferences, referent_attribute, listener);
+    }
     /**
      * Important: the <strong>className</strong> must point to
      * java.lang.ref.Reference or one of its subclasses. It is not possible to
      * check this, as some heap dumps lack class hierarchy information.
      */
     public static IResult execute(String className, ISnapshot snapshot, String labelHistogramReferenced,
-                    String labelHistogramRetained, IProgressListener listener) throws SnapshotException
+                    String labelHistogramRetained, String labelHistogramStronglyRetainedReferents, IProgressListener listener) throws SnapshotException
     {
         listener.subTask(Messages.ReferenceQuery_Msg_ComputingReferentSet);
 
@@ -71,11 +117,19 @@ public class ReferenceQuery
                 throw new IProgressListener.OperationCanceledException();
         }
 
-        return execute(instanceSet, referentSet, snapshot, labelHistogramReferenced, labelHistogramRetained, listener);
+        return execute(instanceSet, referentSet, snapshot, labelHistogramReferenced, labelHistogramRetained, labelHistogramStronglyRetainedReferents, DEFAULT_REFERENT, listener);
     }
 
     public static CompositeResult execute(ArrayInt instanceSet, SetInt referentSet, ISnapshot snapshot,
-                    String labelHistogramReferenced, String labelHistogramRetained, IProgressListener listener)
+                    String labelHistogramReferenced, String labelHistogramRetained, String labelHistogramStronglyRetainedReferents, IProgressListener listener)
+                    throws SnapshotException
+    {
+        return execute(instanceSet, referentSet, snapshot, labelHistogramReferenced, labelHistogramRetained,
+                        labelHistogramStronglyRetainedReferents, DEFAULT_REFERENT, listener);
+    }
+    
+    public static CompositeResult execute(ArrayInt instanceSet, SetInt referentSet, ISnapshot snapshot,
+                    String labelHistogramReferenced, String labelHistogramRetained, String labelHistogramStronglyRetainedReferents, String referentField, IProgressListener listener)
                     throws SnapshotException
     {
         CompositeResult result = new CompositeResult();
@@ -88,7 +142,7 @@ public class ReferenceQuery
         result.addResult(labelHistogramReferenced, histogram);
 
         listener.subTask(Messages.ReferenceQuery_Msg_ComputingRetainedSet);
-        int[] retainedSet = snapshot.getRetainedSet(instanceSet.toArray(), new String[] { "referent" }, listener); //$NON-NLS-1$
+        int[] retainedSet = snapshot.getRetainedSet(instanceSet.toArray(), new String[] { referentField }, listener); //$NON-NLS-1$
         if (listener.isCanceled())
             throw new IProgressListener.OperationCanceledException();
         histogram = snapshot.getHistogram(retainedSet, listener);
@@ -98,12 +152,62 @@ public class ReferenceQuery
         histogram.setLabel(labelHistogramRetained);
         result.addResult(labelHistogramRetained, histogram);
 
+        listener.subTask(Messages.ReferenceQuery_Msg_ComputingStronglyRetainedSet);
+        int[] allRetainedSet = snapshot.getRetainedSet(instanceSet.toArray(), listener);
+        if (listener.isCanceled())
+            throw new IProgressListener.OperationCanceledException();
+
+        // Exclude referent retained
+        Arrays.sort(allRetainedSet);
+        int newWeakRetained[] = Arrays.copyOf(retainedSet, retainedSet.length);
+        Arrays.sort(newWeakRetained);
+        int[] r = new int[allRetainedSet.length - newWeakRetained.length];
+        int t2 = -1;
+        for (int s = 0, d = 0, w = 0; s < allRetainedSet.length; ++s)
+        {
+            int t1 = allRetainedSet[s];
+            while (w < newWeakRetained.length && (t2 < t1))
+            {
+                t2 = newWeakRetained[w++];
+            }
+            if (t1 != t2)
+                r[d++] = t1;
+        }
+
+        // Find which of the referent set are strongly retained elsewhere
+        int referents[] = referentSet.toArray();
+        Arrays.sort(referents);
+        t2 = -1;
+        int d = 0;
+        for (int s = 0, w = 0; s < referents.length; ++s)
+        {
+            int t1 = referents[s];
+            while (w < r.length && (t2 < t1))
+            {
+                t2 = r[w++];
+            }
+            if (t1 == t2)
+                referents[d++] = t1;
+        }
+        referents = Arrays.copyOf(referents, d);
+
+        histogram = snapshot.getHistogram(referents, listener);
+        if (listener.isCanceled())
+            throw new IProgressListener.OperationCanceledException();
+
+        histogram.setLabel(labelHistogramStronglyRetainedReferents);
+        result.addResult(labelHistogramStronglyRetainedReferents, histogram);
         return result;
     }
 
     public static ObjectReference getReferent(IInstance instance) throws SnapshotException
     {
-        Field field = instance.getField("referent"); //$NON-NLS-1$
+        return getReferent(instance, DEFAULT_REFERENT); //$NON-NLS-1$
+    }
+    
+    static ObjectReference getReferent(IInstance instance, String referentName) throws SnapshotException
+    {
+        Field field = instance.getField(referentName);
         if (field != null)
         {
             return (ObjectReference) field.getValue();

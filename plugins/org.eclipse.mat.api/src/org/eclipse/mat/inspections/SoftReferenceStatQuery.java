@@ -28,7 +28,8 @@ public class SoftReferenceStatQuery implements IQuery
     {
         return ReferenceQuery.execute("java\\.lang\\.ref\\.SoftReference", snapshot, //$NON-NLS-1$
                         Messages.SoftReferenceStatQuery_Label_Referenced,
-                        Messages.SoftReferenceStatQuery_Label_Retained, listener);
+                        Messages.SoftReferenceStatQuery_Label_Retained,
+                        Messages.SoftReferenceStatQuery_Label_StronglyRetainedReferents, listener);
     }
 
 }

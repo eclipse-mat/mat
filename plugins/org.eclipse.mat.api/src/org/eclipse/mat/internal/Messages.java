@@ -93,6 +93,7 @@ public class Messages extends NLS
     public static String ComponentReportQuery_Histogram;
     public static String ComponentReportQuery_HistogramFinalizeMethod;
     public static String ComponentReportQuery_HistogramOfSoftReferences;
+    public static String ComponentReportQuery_HistogramOfWeakReferences;
     public static String ComponentReportQuery_Label_Bytes;
     public static String ComponentReportQuery_MapCollisionRatios;
     public static String ComponentReportQuery_Miscellaneous;
@@ -101,23 +102,33 @@ public class Messages extends NLS
     public static String ComponentReportQuery_Msg_FoundOccurrences;
     public static String ComponentReportQuery_Msg_InstancesRetainBytes;
     public static String ComponentReportQuery_Msg_NoAliveSoftReferences;
+    public static String ComponentReportQuery_Msg_NoAliveWeakReferences;
     public static String ComponentReportQuery_Msg_NoCollisionRatiosFound;
     public static String ComponentReportQuery_Msg_NoExcessiveEmptyCollectionsFound;
     public static String ComponentReportQuery_Msg_NoFinalizerFound;
     public static String ComponentReportQuery_Msg_NoFinalizerObjects;
     public static String ComponentReportQuery_Msg_NoLowFillRatiosFound;
     public static String ComponentReportQuery_Msg_NoSoftReferencesFound;
+    public static String ComponentReportQuery_Msg_NoWeakReferencesFound;
     public static String ComponentReportQuery_Msg_SoftReferencesFound;
     public static String ComponentReportQuery_Msg_SoftReferencesRetained;
+    public static String ComponentReportQuery_Msg_SoftReferencesStronglyRetained;
     public static String ComponentReportQuery_Msg_TotalFinalizerMethods;
+    public static String ComponentReportQuery_Msg_WeakReferencesFound;
+    public static String ComponentReportQuery_Msg_WeakReferencesRetained;
+    public static String ComponentReportQuery_Msg_WeakReferencesStronglyRetained;
     public static String ComponentReportQuery_Objects;
     public static String ComponentReportQuery_Overview;
+
+    public static String ComponentReportQuery_PathsToReferents;
+    public static String ComponentReportQuery_PossibleMemoryLeak;
     public static String ComponentReportQuery_PossibleMemoryWaste;
     public static String ComponentReportQuery_RetainedSet;
     public static String ComponentReportQuery_Size;
     public static String ComponentReportQuery_SoftReferenceStatistics;
     public static String ComponentReportQuery_TopConsumers;
     public static String ComponentReportQuery_TopElementsInclude;
+    public static String ComponentReportQuery_WeakReferenceStatistics;
     public static String CustomizedRetainedSetQuery_RetainedBy;
 
     public static String DominatorQuery_Group_ByClass;
@@ -180,6 +191,7 @@ public class Messages extends NLS
 
     public static String FinalizerReferenceStatQuery_Label_Referenced;
     public static String FinalizerReferenceStatQuery_Label_Retained;
+    public static String FinalizerReferenceStatQuery_Label_StronglyRetainedReferents;
 
     public static String FinalizerThreadQuery_ErrorMsg_FinalizerThreadInstanceNotFound;
     public static String FinalizerThreadQuery_ErrorMsg_FinalizerThreadNotFound;
@@ -362,6 +374,7 @@ public class Messages extends NLS
 
     public static String PhantomReferenceStatQuery_Label_Referenced;
     public static String PhantomReferenceStatQuery_Label_Retained;
+    public static String PhantomReferenceStatQuery_Label_StronglyRetainedReferents;
     
     public static String PieFactory_ErrorMsg_NoSnapshotAvailable;
     public static String PieFactory_Label_Remainder;
@@ -371,8 +384,12 @@ public class Messages extends NLS
     public static String PrimitiveArraysWithAConstantValueQuery_SearchingArrayValues;
 
     public static String ReferenceQuery_ErrorMsg_NoMatchingClassesFound;
+    public static String ReferenceQuery_HistogramOfReferentObjects;
     public static String ReferenceQuery_Msg_ComputingReferentSet;
     public static String ReferenceQuery_Msg_ComputingRetainedSet;
+    public static String ReferenceQuery_Msg_ComputingStronglyRetainedSet;
+    public static String ReferenceQuery_OnlyRetainedByReferents;
+    public static String ReferenceQuery_StronglyRetainedByReferences;
 
     public static String RetainedSetQuery_RetainedBy;
 
@@ -395,6 +412,7 @@ public class Messages extends NLS
 
     public static String SoftReferenceStatQuery_Label_Referenced;
     public static String SoftReferenceStatQuery_Label_Retained;
+    public static String SoftReferenceStatQuery_Label_StronglyRetainedReferents;
 
     public static String SubjectRegistry_Error_MissingAnnotation;
     public static String SubjectRegistry_ErrorMsg_MissingSubjectAnnotation;
@@ -458,6 +476,7 @@ public class Messages extends NLS
 
     public static String WeakReferenceStatQuery_Label_Referenced;
     public static String WeakReferenceStatQuery_Label_Retained;
+    public static String WeakReferenceStatQuery_Label_StronglyRetainedReferents;
 
     static
     {

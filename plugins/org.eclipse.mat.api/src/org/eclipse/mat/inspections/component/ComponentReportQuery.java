@@ -12,7 +12,11 @@ package org.eclipse.mat.inspections.component;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
@@ -23,6 +27,7 @@ import org.eclipse.mat.inspections.collections.CollectionUtil;
 import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
+import org.eclipse.mat.query.IResultTree;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.HelpUrl;
@@ -37,7 +42,9 @@ import org.eclipse.mat.report.SectionSpec;
 import org.eclipse.mat.snapshot.ClassHistogramRecord;
 import org.eclipse.mat.snapshot.ExcludedReferencesDescriptor;
 import org.eclipse.mat.snapshot.Histogram;
+import org.eclipse.mat.snapshot.IMultiplePathsFromGCRootsComputer;
 import org.eclipse.mat.snapshot.ISnapshot;
+import org.eclipse.mat.snapshot.inspections.MultiplePath2GCRootsQuery;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IInstance;
 import org.eclipse.mat.snapshot.model.ObjectReference;
@@ -49,15 +56,15 @@ import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.Units;
 
-@CommandName("component_report")
-@HelpUrl("/org.eclipse.mat.ui.help/reference/inspections/component_report.html")
+@CommandName("component_report") //$NON-NLS-1$
+@HelpUrl("/org.eclipse.mat.ui.help/reference/inspections/component_report.html") //$NON-NLS-1$
 public class ComponentReportQuery implements IQuery
 {
 
     @Argument
     public ISnapshot snapshot;
 
-    @Argument(flag = "none")
+    @Argument(flag = "none") //$NON-NLS-1$
     public IHeapObjectArgument objects;
 
     public IResult execute(IProgressListener listener) throws Exception
@@ -109,7 +116,16 @@ public class ComponentReportQuery implements IQuery
 
         try
         {
-            addSoftReferenceStatistic(miscellaneous, histogram, ticks);
+            ReferenceMessages msg = new SoftReferenceMessages();
+            addReferenceStatistic(miscellaneous, histogram, ticks, "java.lang.ref.SoftReference", msg); //$NON-NLS-1$
+        }
+        catch (UnsupportedOperationException e)
+        { /* ignore, if not supported by heap format */}
+
+        try
+        {
+            ReferenceMessages msg = new WeakReferenceMessages();
+            addReferenceStatistic(miscellaneous, histogram, ticks, "java.lang.ref.WeakReference", msg); //$NON-NLS-1$
         }
         catch (UnsupportedOperationException e)
         { /* ignore, if not supported by heap format */}
@@ -645,17 +661,62 @@ public class ComponentReportQuery implements IQuery
     }
 
     // //////////////////////////////////////////////////////////////
-    // soft reference statistics
+    // weak/soft reference statistics
     // //////////////////////////////////////////////////////////////
+    private static abstract class ReferenceMessages
+    {
+        public String ReferenceStatistics;
+        public String Msg_NoReferencesFound;
+        public String NoAliveReferences;
+        public String HistogramOfReferences;
+        public String ReferenceStatQuery_Label_Referenced;
+        public String ReferenceStatQuery_Label_Retained;
+        public String ReferenceStatQuery_Label_StronglyRetainedReferents;
+        public String Msg_ReferencesFound;
+        public String Msg_ReferencesRetained;
+        public String Msg_ReferencesStronglyRetained;
+    }
 
-    private void addSoftReferenceStatistic(SectionSpec componentReport, Histogram histogram, Ticks ticks)
+    private static class SoftReferenceMessages extends ReferenceMessages
+    {
+        {
+            ReferenceStatistics = Messages.ComponentReportQuery_SoftReferenceStatistics;
+            Msg_NoReferencesFound = Messages.ComponentReportQuery_Msg_NoSoftReferencesFound;
+            NoAliveReferences = Messages.ComponentReportQuery_Msg_NoAliveSoftReferences;
+            HistogramOfReferences = Messages.ComponentReportQuery_HistogramOfSoftReferences;
+            ReferenceStatQuery_Label_Referenced = Messages.SoftReferenceStatQuery_Label_Referenced;
+            ReferenceStatQuery_Label_Retained = Messages.SoftReferenceStatQuery_Label_Retained;
+            ReferenceStatQuery_Label_StronglyRetainedReferents = Messages.SoftReferenceStatQuery_Label_StronglyRetainedReferents;
+            Msg_ReferencesFound = Messages.ComponentReportQuery_Msg_SoftReferencesFound;
+            Msg_ReferencesRetained = Messages.ComponentReportQuery_Msg_SoftReferencesRetained;
+            Msg_ReferencesStronglyRetained = Messages.ComponentReportQuery_Msg_SoftReferencesStronglyRetained;
+        }
+    }
+
+    private static class WeakReferenceMessages extends ReferenceMessages
+    {
+        {
+            ReferenceStatistics = Messages.ComponentReportQuery_WeakReferenceStatistics;
+            Msg_NoReferencesFound = Messages.ComponentReportQuery_Msg_NoWeakReferencesFound;
+            NoAliveReferences = Messages.ComponentReportQuery_Msg_NoAliveWeakReferences;
+            HistogramOfReferences = Messages.ComponentReportQuery_HistogramOfWeakReferences;
+            ReferenceStatQuery_Label_Referenced = Messages.WeakReferenceStatQuery_Label_Referenced;
+            ReferenceStatQuery_Label_Retained = Messages.WeakReferenceStatQuery_Label_Retained;
+            ReferenceStatQuery_Label_StronglyRetainedReferents = Messages.WeakReferenceStatQuery_Label_StronglyRetainedReferents;
+            Msg_ReferencesFound = Messages.ComponentReportQuery_Msg_WeakReferencesFound;
+            Msg_ReferencesRetained = Messages.ComponentReportQuery_Msg_WeakReferencesRetained;
+            Msg_ReferencesStronglyRetained = Messages.ComponentReportQuery_Msg_WeakReferencesStronglyRetained;
+        }
+    }
+
+    private void addReferenceStatistic(SectionSpec componentReport, Histogram histogram, Ticks ticks, String className, ReferenceMessages messages)
                     throws SnapshotException
     {
-        Collection<IClass> classes = snapshot.getClassesByName("java.lang.ref.SoftReference", true); //$NON-NLS-1$
+        Collection<IClass> classes = snapshot.getClassesByName(className, true); //$NON-NLS-1$
         if (classes == null)
         {
-            addEmptyResult(componentReport, Messages.ComponentReportQuery_SoftReferenceStatistics,
-                            Messages.ComponentReportQuery_Msg_NoSoftReferencesFound);
+            addEmptyResult(componentReport, messages.ReferenceStatistics,
+                            messages.Msg_NoReferencesFound);
             return;
         }
 
@@ -691,21 +752,22 @@ public class ComponentReportQuery implements IQuery
 
         if (instanceSet.isEmpty())
         {
-            addEmptyResult(componentReport, Messages.ComponentReportQuery_SoftReferenceStatistics,
-                            Messages.ComponentReportQuery_Msg_NoAliveSoftReferences);
+            addEmptyResult(componentReport, messages.ReferenceStatistics,
+                            messages.NoAliveReferences);
             return;
         }
 
-        Histogram softRefHistogram = new Histogram(Messages.ComponentReportQuery_HistogramOfSoftReferences, softRefs,
+        Histogram softRefHistogram = new Histogram(messages.HistogramOfReferences, softRefs,
                         null, numObjects, heapSize, 0);
 
         CompositeResult referents = ReferenceQuery.execute(instanceSet, referentSet, snapshot,
-                        Messages.SoftReferenceStatQuery_Label_Referenced,
-                        Messages.SoftReferenceStatQuery_Label_Retained, ticks);
+                        messages.ReferenceStatQuery_Label_Referenced,
+                        messages.ReferenceStatQuery_Label_Retained,
+                        messages.ReferenceStatQuery_Label_StronglyRetainedReferents, "referent", ticks); //$NON-NLS-1$
 
         StringBuilder comment = new StringBuilder();
-        comment.append(MessageUtil.format(Messages.ComponentReportQuery_Msg_SoftReferencesFound, instanceSet.size(),
-                        referentSet.size()));
+        comment.append(MessageUtil.format(messages.Msg_ReferencesFound, instanceSet.size(),
+                        referentSet.size())).append("<br/>"); //$NON-NLS-1$
 
         Histogram onlySoftlyReachable = (Histogram) referents.getResultEntries().get(1).getResult();
         numObjects = 0;
@@ -715,11 +777,27 @@ public class ComponentReportQuery implements IQuery
             numObjects += r.getNumberOfObjects();
             heapSize += r.getUsedHeapSize();
         }
-        comment.append(MessageUtil.format(Messages.ComponentReportQuery_Msg_SoftReferencesRetained, //
+        comment.append(MessageUtil.format(messages.Msg_ReferencesRetained, //
+                        numObjects, //
+                        Units.Storage.of(heapSize).format(heapSize))).append("<br/>"); //$NON-NLS-1$
+
+        Histogram stronglyReachableReferents = (Histogram) referents.getResultEntries().get(2).getResult();
+        numObjects = 0;
+        heapSize = 0;
+        for (ClassHistogramRecord r : stronglyReachableReferents.getClassHistogramRecords())
+        {
+            numObjects += r.getNumberOfObjects();
+            heapSize += r.getUsedHeapSize();
+        }
+        if (numObjects >= 1)
+        {
+            comment.append("<strong>").append(MessageUtil.format(Messages.ComponentReportQuery_PossibleMemoryLeak)).append("</strong> "); //$NON-NLS-1$ //$NON-NLS-2$
+        }
+        comment.append(MessageUtil.format(messages.Msg_ReferencesStronglyRetained,
                         numObjects, //
                         Units.Storage.of(heapSize).format(heapSize)));
 
-        SectionSpec overview = new SectionSpec(Messages.ComponentReportQuery_SoftReferenceStatistics);
+        SectionSpec overview = new SectionSpec(messages.ReferenceStatistics);
         QuerySpec commentSpec = new QuerySpec(Messages.ComponentReportQuery_Comment, new TextResult(comment.toString(),
                         true));
         commentSpec.set(Params.Rendering.PATTERN, Params.Rendering.PATTERN_OVERVIEW_DETAILS);
@@ -730,7 +808,36 @@ public class ComponentReportQuery implements IQuery
         overview.add(child);
 
         for (CompositeResult.Entry entry : referents.getResultEntries())
-            overview.add(new QuerySpec(entry.getName(), entry.getResult()));
+        {
+            child = new QuerySpec(entry.getName(), entry.getResult());
+            overview.add(child);
+        }
+        
+        if (numObjects >= 1)
+        {
+            // convert excludes into the required format
+            Set<String> fields = Collections.singleton("referent"); //$NON-NLS-1$
+            Map<IClass, Set<String>> excludeMap = new HashMap<IClass, Set<String>>();
+            for (IClass c : classes)
+                excludeMap.put(c, fields);
+
+            // Add all the suspect referents
+            ArrayInt ai = new ArrayInt();
+            for (ClassHistogramRecord r : stronglyReachableReferents.getClassHistogramRecords())
+            {
+                ai.addAll(r.getObjectIds());
+            }
+
+            // calculate the shortest path for each object
+            IMultiplePathsFromGCRootsComputer computer = snapshot.getMultiplePathsFromGCRoots(ai.toArray(),
+                            excludeMap);
+
+            // Display the paths
+            IResultTree r = MultiplePath2GCRootsQuery.create(snapshot, computer, null);
+            child = new QuerySpec(Messages.ComponentReportQuery_PathsToReferents, r);
+            commentSpec.set(Params.Html.IS_IMPORTANT, Boolean.TRUE.toString());
+            overview.add(child);
+        }
 
         componentReport.add(overview);
     }
