@@ -159,7 +159,8 @@ public class ReferenceQuery implements IQuery
 
         // Exclude referent retained
         Arrays.sort(allRetainedSet);
-        int newWeakRetained[] = Arrays.copyOf(retainedSet, retainedSet.length);
+        int newWeakRetained[] = new int[retainedSet.length];
+        System.arraycopy(retainedSet, 0, newWeakRetained, 0, retainedSet.length);
         Arrays.sort(newWeakRetained);
         int[] r = new int[allRetainedSet.length - newWeakRetained.length];
         int t2 = -1;
@@ -189,9 +190,10 @@ public class ReferenceQuery implements IQuery
             if (t1 == t2)
                 referents[d++] = t1;
         }
-        referents = Arrays.copyOf(referents, d);
+        int leakingReferents[] = new int[d];
+        System.arraycopy(referents, 0, leakingReferents, 0, d);
 
-        histogram = snapshot.getHistogram(referents, listener);
+        histogram = snapshot.getHistogram(leakingReferents, listener);
         if (listener.isCanceled())
             throw new IProgressListener.OperationCanceledException();
 
