@@ -1,0 +1,20 @@
+<project name="Build specific modifications" default="noDefault">
+<target name="pre.@dot">
+<!-- Add an extdirs option to the compile to avoid a clash between the compile VM DTFJ and the com.ibm.dtfj.api plugin -->
+<concat append="true" destfile="${basedir}/javaCompiler...args">-extdirs ""</concat>
+</target>
+<target name="post.compile.@dot"/>
+<target name="post.@dot"/>
+<target name="pre.build.jars"/>
+<target name="post.build.jars"/>
+<target name="pre.build.sources"/>
+<target name="post.build.sources"/>
+<target name="pre.gather.bin.parts"/>
+<target name="post.gather.bin.parts"/>
+<target name="pre.gather.sources"/>
+<target name="post.gather.sources"/>
+<target name="pre.gather.logs"/>
+<target name="post.gather.logs"/>
+<target name="pre.clean"/>
+<target name="post.clean"/>
+</project>
