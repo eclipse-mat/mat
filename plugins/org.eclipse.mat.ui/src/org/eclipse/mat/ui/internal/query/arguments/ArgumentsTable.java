@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -769,15 +770,17 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
             }
             else if (control instanceof ImageTextEditor)
             {
-                if (((ImageTextEditor) control).getValue() != null)
+                ImageTextEditor editor = (ImageTextEditor) control;
+                if (editor.getValue() != null)
                 {
+                    DecoratorType decorator = editor.getDecorator();
                     String line = ((ImageTextEditor) control).getValue().toString().trim();
-
-                    if (line.toLowerCase().startsWith("select")) //$NON-NLS-1$
+                    // Ensure that types and values are appropriate
+                    if (decorator == TextEditor.DecoratorType.QUERY && line.toLowerCase(Locale.ENGLISH).startsWith("select")) //$NON-NLS-1$
                     {
                         hoa.addOql(line);
                     }
-                    else if (line.startsWith(ADDRESS_PREFIX))
+                    else if (decorator == TextEditor.DecoratorType.OBJECT_ADDRESS && line.startsWith(ADDRESS_PREFIX))
                     {
                         hoa.addObjectAddress(new BigInteger(line.substring(2), 16).longValue());
 
@@ -785,7 +788,7 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
                     else
                     // Pattern
                     {
-                        if (!line.equals(""))//$NON-NLS-1$
+                        if (decorator == TextEditor.DecoratorType.PATTERN && !line.equals(""))//$NON-NLS-1$
                         {
                             hoa.addPattern(Pattern.compile(line));
                         }
