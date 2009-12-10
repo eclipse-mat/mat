@@ -370,18 +370,37 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
 
     private void addHeapObjectTableItems(ArgumentDescriptor descriptor, HeapObjectParamArgument initialInput)
     {
-        if (initialInput != null && (!initialInput.getAddresses().isEmpty() || !initialInput.getOqls().isEmpty()))
+        // Some queries can only cope with one object
+        boolean singleObject = isSingleObjectDescriptor(descriptor);
+        DecoratorType types[] = TextEditor.DecoratorType.values();
+        if (singleObject)
+        {
+            // The query is only expecting one object so make the object address
+            // query first
+            types = new DecoratorType[] { TextEditor.DecoratorType.OBJECT_ADDRESS, TextEditor.DecoratorType.PATTERN,
+                            TextEditor.DecoratorType.QUERY };
+        }
+        // If an initial input would be hidden in simple mode then switch to advanced
+        if (initialInput != null && (types[0] != TextEditor.DecoratorType.OBJECT_ADDRESS && !initialInput.getAddresses().isEmpty() ||
+                        types[0] != TextEditor.DecoratorType.QUERY && !initialInput.getOqls().isEmpty() ||
+                        types[0] != TextEditor.DecoratorType.PATTERN && !initialInput.getPatterns().isEmpty()))
         {
             // check whether Mode.ADVANCED_MODE and switch to it if not the case
             verifyMode();
         }
-        for (TextEditor.DecoratorType decorator : TextEditor.DecoratorType.values())
+        
+        if (modeMap.get(descriptor).equals(Mode.SIMPLE_MODE))
         {
-            String label = "";//$NON-NLS-1$
-
+            // Only have one type in simple mode
+            types = new TextEditor.DecoratorType[]{types[0]};
+        }
+        
+        String label = createArgumentLabel(descriptor);
+        for (TextEditor.DecoratorType decorator : types)
+        {
+            boolean createExtra = true;
             if (decorator.equals(TextEditor.DecoratorType.PATTERN))
             {
-                label = createArgumentLabel(descriptor);
                 // when the mode of the table is switched after a pattern was
                 // provided - keep the pattern
                 List<Pattern> patterns = null;
@@ -415,6 +434,9 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
                     for (Long address : addresses)
                     {
                         createHeapObjectRow(descriptor, ADDRESS_PREFIX + Long.toHexString(address), decorator, label);
+                        label = "";//$NON-NLS-1$
+                        // Don't create a spare row when we only need one object
+                        createExtra &= !singleObject;
                     }
                 }
             }
@@ -431,22 +453,34 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
                 {
                     for (String oql : oqls)
                     {
-                        createHeapObjectRow(descriptor, oql.toString(), decorator, label);
+                        createHeapObjectRow(descriptor, oql, decorator, label);
+                        label = "";//$NON-NLS-1$
+                        // Don't create a spare row when we only need one object
+                        createExtra &= !singleObject;
                     }
                 }
             }
 
-            // plus one empty row for this type of decorator in any case
-            createHeapObjectRow(descriptor, null, decorator, label);
-
-            if (modeMap.get(descriptor).equals(Mode.SIMPLE_MODE))
-                break;
-
+            if (createExtra)
+            {
+                // plus one empty row for this type of decorator in any case
+                createHeapObjectRow(descriptor, null, decorator, label);
+                label = "";//$NON-NLS-1$
+            }
         }
-        addCheckBoxRows(descriptor, CheckBoxEditor.Type.INCLUDE_CLASS_INSTANCE, (initialInput != null) ? initialInput
-                        .isIncludeClassInstance() : false);
 
-        if (modeMap.get(descriptor) == Mode.ADVANCED_MODE)
+        for (TextEditor.DecoratorType decorator : types)
+        {
+            if (decorator.equals(TextEditor.DecoratorType.PATTERN))
+            {
+                // Add the subclass instance box if the class name pattern is visible
+                addCheckBoxRows(descriptor, CheckBoxEditor.Type.INCLUDE_CLASS_INSTANCE, (initialInput != null) ? initialInput
+                                .isIncludeClassInstance() : false);
+                break;
+            }
+        }
+
+        if (modeMap.get(descriptor).equals(Mode.ADVANCED_MODE))
         {
             addCheckBoxRows(descriptor, CheckBoxEditor.Type.INCLUDE_SUBCLASSES, (initialInput != null) ? initialInput
                             .isIncludeSubclasses() : false);
@@ -458,6 +492,15 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
 
         addLink(descriptor, modeMap.get(descriptor));
         table.getParent().pack();
+    }
+
+    private boolean isSingleObjectDescriptor(ArgumentDescriptor descriptor)
+    {
+        return !descriptor.isMultiple()
+                        && isHeapObject(descriptor)
+                        && (IObject.class.isAssignableFrom(descriptor.getType()) || 
+                            descriptor.getType() == int.class ||
+                            descriptor.getType() == Integer.class);
     }
 
     private void verifyMode()
@@ -485,7 +528,18 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
         {
             try
             {
-                aec.setValue(value);
+                if (decorator.equals(TextEditor.DecoratorType.OBJECT_ADDRESS))
+                {
+                    // This is a bit strange - the value gets resolved as an objectid
+                    ISnapshot snapshot = (ISnapshot) context.get(ISnapshot.class, null);
+                    long addr = new BigInteger(value.substring(2), 16).longValue();
+                    Integer ival = Integer.valueOf(snapshot.mapAddressToId(addr));
+                    aec.setValue(ival);
+                }
+                else 
+                {
+                    aec.setValue(value);
+                }
             }
             catch (SnapshotException e)
             {
@@ -663,6 +717,8 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
             {
                 notEmpty = notEmpty && ((ImageTextEditor) control).getValue() != null
                                 && !((ImageTextEditor) control).getValue().equals("");//$NON-NLS-1$
+                // If the decorator is not a pattern and we only need one argument then only have one
+                notEmpty &= decorator.equals(TextEditor.DecoratorType.PATTERN) || !isSingleObjectDescriptor(descriptor);
             }
         }
         return notEmpty;
@@ -813,7 +869,8 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
                     catch (PatternSyntaxException e)
                     {
                         // $JL-EXC$
-                        onError(editor, e.getMessage());
+                        int idx = Math.max(0, Math.min(e.getIndex(), line.length())); 
+                        onError(editor, MessageUtil.format(Messages.ArgumentsTable_InvalidClassNamePattern, e.getIndex(), line.substring(0, idx), e.getDescription()));
                     }
                 }
 

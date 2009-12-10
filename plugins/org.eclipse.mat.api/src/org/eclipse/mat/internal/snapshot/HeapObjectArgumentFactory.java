@@ -152,7 +152,7 @@ public abstract class HeapObjectArgumentFactory implements ArgumentFactory
         {
             if (objectIds.length != 1)
                 throw new SnapshotException(MessageUtil.format(
-                                Messages.HeapObjectArgumentFactory_ErrorMsg_MultipleObjects, argument.getName()));
+                                Messages.HeapObjectArgumentFactory_ErrorMsg_MultipleObjects, argument.getName(), objectIds.length));
 
             if (argument.getType() == int.class)
             {

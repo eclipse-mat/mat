@@ -9,6 +9,7 @@ public class Messages extends NLS
     public static String ArgumentsTable_Argument;
     public static String ArgumentsTable_Encountered;
     public static String ArgumentsTable_InvalidAddress;
+    public static String ArgumentsTable_InvalidClassNamePattern;
     public static String ArgumentsTable_isMandatory;
     public static String ArgumentsTable_ProvidePattern;
     public static String ArgumentsTable_selectedRows;
