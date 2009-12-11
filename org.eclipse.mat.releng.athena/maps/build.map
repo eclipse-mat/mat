@@ -18,5 +18,5 @@ plugin@org.eclipse.mat.ui.help=SVN,trunk,svn://dev.eclipse.org/svnroot/technolog
 plugin@org.eclipse.mat.chart=SVN,trunk,svn://dev.eclipse.org/svnroot/technology/org.eclipse.mat,,plugins/org.eclipse.mat.chart
 plugin@org.eclipse.mat.chart.ui=SVN,trunk,svn://dev.eclipse.org/svnroot/technology/org.eclipse.mat,,plugins/org.eclipse.mat.chart.ui
 plugin@org.eclipse.mat.tests=SVN,trunk,svn://dev.eclipse.org/svnroot/technology/org.eclipse.mat,,plugins/org.eclipse.mat.tests
-plugin@org.eclipse.mat.tests.junit=SVN,trunk,svn://dev.eclipse.org/svnroot/technology/org.eclipse.mat,,plugins/org.eclipse.mat.tests.junit
+fragment@org.eclipse.mat.tests.junit=SVN,trunk,svn://dev.eclipse.org/svnroot/technology/org.eclipse.mat,,plugins/org.eclipse.mat.tests.junit
 plugin@org.eclipse.mat.ui.rcp=SVN,trunk,svn://dev.eclipse.org/svnroot/technology/org.eclipse.mat,,plugins/org.eclipse.mat.ui.rcp
