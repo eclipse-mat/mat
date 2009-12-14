@@ -10,17 +10,22 @@
  *******************************************************************************/
 package org.eclipse.mat.inspections;
 
+import java.lang.reflect.Modifier;
+
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.extension.IClassSpecificNameResolver;
 import org.eclipse.mat.snapshot.extension.Subject;
 import org.eclipse.mat.snapshot.extension.Subjects;
+import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
+import org.eclipse.mat.snapshot.model.IObjectArray;
 import org.eclipse.mat.snapshot.model.IPrimitiveArray;
 import org.eclipse.mat.snapshot.model.PrettyPrinter;
 
 public class CommonNameResolver
 {
-    @Subject("java.lang.String")
+    @Subject("java.lang.String") //$NON-NLS-1$
     public static class StringResolver implements IClassSpecificNameResolver
     {
         public String resolve(IObject obj) throws SnapshotException
@@ -29,8 +34,8 @@ public class CommonNameResolver
         }
     }
 
-    @Subjects( { "java.lang.StringBuffer", // 
-                    "java.lang.StringBuilder" })
+    @Subjects( { "java.lang.StringBuffer", //  //$NON-NLS-1$
+                    "java.lang.StringBuilder" }) //$NON-NLS-1$
     public static class StringBufferResolver implements IClassSpecificNameResolver
     {
         public String resolve(IObject obj) throws SnapshotException
@@ -49,7 +54,7 @@ public class CommonNameResolver
         }
     }
 
-    @Subject("java.lang.Thread")
+    @Subject("java.lang.Thread") //$NON-NLS-1$
     public static class ThreadResolver implements IClassSpecificNameResolver
     {
         public String resolve(IObject obj) throws SnapshotException
@@ -59,7 +64,7 @@ public class CommonNameResolver
         }
     }
 
-    @Subject("java.lang.ThreadGroup")
+    @Subject("java.lang.ThreadGroup") //$NON-NLS-1$
     public static class ThreadGroupResolver implements IClassSpecificNameResolver
     {
         public String resolve(IObject object) throws SnapshotException
@@ -71,14 +76,14 @@ public class CommonNameResolver
         }
     }
 
-    @Subjects( { "java.lang.Byte", //
-                    "java.lang.Character", //
-                    "java.lang.Short", //
-                    "java.lang.Integer", //
-                    "java.lang.Long", //
-                    "java.lang.Float", //
-                    "java.lang.Double", //
-                    "java.lang.Boolean" })
+    @Subjects( { "java.lang.Byte", // //$NON-NLS-1$
+                    "java.lang.Character", // //$NON-NLS-1$
+                    "java.lang.Short", // //$NON-NLS-1$
+                    "java.lang.Integer", // //$NON-NLS-1$
+                    "java.lang.Long", // //$NON-NLS-1$
+                    "java.lang.Float", // //$NON-NLS-1$
+                    "java.lang.Double", // //$NON-NLS-1$
+                    "java.lang.Boolean" }) //$NON-NLS-1$
     public static class ValueResolver implements IClassSpecificNameResolver
     {
         public String resolve(IObject heapObject) throws SnapshotException
@@ -87,7 +92,7 @@ public class CommonNameResolver
         }
     }
 
-    @Subject("char[]")
+    @Subject("char[]") //$NON-NLS-1$
     public static class CharArrayResolver implements IClassSpecificNameResolver
     {
         public String resolve(IObject heapObject) throws SnapshotException
@@ -97,7 +102,7 @@ public class CommonNameResolver
         }
     }
 
-    @Subject("byte[]")
+    @Subject("byte[]") //$NON-NLS-1$
     public static class ByteArrayResolver implements IClassSpecificNameResolver
     {
         public String resolve(IObject heapObject) throws SnapshotException
@@ -124,33 +129,229 @@ public class CommonNameResolver
     /*
      * Contributed in bug 273915
      */
-    @Subject("java.net.URL")
+    @Subject("java.net.URL") //$NON-NLS-1$
     public static class URLResolver implements IClassSpecificNameResolver
     {
         public String resolve(IObject obj) throws SnapshotException
         {
             StringBuilder builder = new StringBuilder();
-            IObject protocol = (IObject) obj.resolveValue("protocol");
+            IObject protocol = (IObject) obj.resolveValue("protocol"); //$NON-NLS-1$
             builder.append(protocol.getClassSpecificName());
-            builder.append(":");
-            IObject authority = (IObject) obj.resolveValue("authority");
+            builder.append(":"); //$NON-NLS-1$
+            IObject authority = (IObject) obj.resolveValue("authority"); //$NON-NLS-1$
             if(authority != null) {
-                builder.append("//");
+                builder.append("//"); //$NON-NLS-1$
                 builder.append(authority.getClassSpecificName());
             }
-            IObject path = (IObject) obj.resolveValue("path");
+            IObject path = (IObject) obj.resolveValue("path"); //$NON-NLS-1$
             if(path != null) builder.append(path.getClassSpecificName());
-            IObject query = (IObject) obj.resolveValue("query");
+            IObject query = (IObject) obj.resolveValue("query"); //$NON-NLS-1$
             if(query != null) {
-                builder.append("?");
+                builder.append("?"); //$NON-NLS-1$
                 builder.append(query.getClassSpecificName());
             }
-            IObject ref = (IObject) obj.resolveValue("ref");
+            IObject ref = (IObject) obj.resolveValue("ref"); //$NON-NLS-1$
             if(ref != null) {
-                builder.append("#");
+                builder.append("#"); //$NON-NLS-1$
                 builder.append(ref.getClassSpecificName());
             }
             return builder.toString();
+        }
+    }
+    
+    @Subject("java.lang.reflect.AccessibleObject") //$NON-NLS-1$
+    public static class AccessibleObjectResolver implements IClassSpecificNameResolver
+    {
+        public String resolve(IObject obj) throws SnapshotException
+        {
+            // Important fields
+            // modifiers - not actually present, but present in all superclasses
+            // clazz - not actually present, but present in all superclasses
+            StringBuilder r = new StringBuilder();
+            ISnapshot snapshot = obj.getSnapshot();
+            IObject ref;
+            Object val = obj.resolveValue("modifiers"); //$NON-NLS-1$
+            if (val instanceof Integer)
+            {
+                r.append(Modifier.toString((Integer)val));
+                if (r.length() > 0) r.append(' ');
+            }
+            ref = (IObject) obj.resolveValue("clazz"); //$NON-NLS-1$
+            if (ref != null)
+            {
+                addClassName(snapshot, ref.getObjectAddress(), r);
+            }
+            else
+            {
+                return null;
+            }
+            return r.toString();
+        }
+
+        protected void addClassName(ISnapshot snapshot, long addr, StringBuilder r) throws SnapshotException
+        {
+            int id = snapshot.mapAddressToId(addr);
+            IObject ox = snapshot.getObject(id);
+            if (ox instanceof IClass)
+            {
+                IClass cls = (IClass) ox;
+                r.append(cls.getName());
+            }
+        }
+    }
+    
+    @Subject("java.lang.reflect.Field") //$NON-NLS-1$
+    public static class FieldResolver extends AccessibleObjectResolver
+    {
+        public String resolve(IObject obj) throws SnapshotException
+        {
+            // Important fields
+            // modifiers
+            // clazz
+            // name
+            // type
+            StringBuilder r = new StringBuilder();
+            ISnapshot snapshot = obj.getSnapshot();
+            IObject ref;
+            Object val = obj.resolveValue("modifiers"); //$NON-NLS-1$
+            if (val instanceof Integer)
+            {
+                r.append(Modifier.toString((Integer)val));
+                if (r.length() > 0) r.append(' ');
+            }
+            ref = (IObject) obj.resolveValue("type"); //$NON-NLS-1$
+            if (ref != null)
+            {
+                addClassName(snapshot, ref.getObjectAddress(), r);
+                r.append(' ');
+            }
+            ref = (IObject) obj.resolveValue("clazz"); //$NON-NLS-1$
+            if (ref != null)
+            {
+                addClassName(snapshot, ref.getObjectAddress(), r);
+                r.append('.');
+            }
+            ref = (IObject) obj.resolveValue("name"); //$NON-NLS-1$
+            if (ref != null)
+            {
+                r.append(ref.getClassSpecificName());
+            }
+            else
+            {
+                // No method name so give up
+                return null;
+            }
+            return r.toString();
+        }
+    }
+    
+    @Subject("java.lang.reflect.Method") //$NON-NLS-1$
+    public static class MethodResolver extends AccessibleObjectResolver
+    {
+        public String resolve(IObject obj) throws SnapshotException
+        {
+            // Important fields
+            // modifiers
+            // clazz
+            // name
+            // parameterTypes[]
+            // exceptionTypes[]
+            // returnType
+            StringBuilder r = new StringBuilder();
+            ISnapshot snapshot = obj.getSnapshot();
+            IObject ref;
+            Object val = obj.resolveValue("modifiers"); //$NON-NLS-1$
+            if (val instanceof Integer)
+            {
+                r.append(Modifier.toString((Integer)val));
+                if (r.length() > 0) r.append(' ');
+            }
+            ref = (IObject) obj.resolveValue("returnType"); //$NON-NLS-1$
+            if (ref != null)
+            {
+                addClassName(snapshot, ref.getObjectAddress(), r);
+                r.append(' ');
+            }
+            ref = (IObject) obj.resolveValue("clazz"); //$NON-NLS-1$
+            if (ref != null)
+            {
+                addClassName(snapshot, ref.getObjectAddress(), r);
+                r.append('.');
+            }
+            ref = (IObject) obj.resolveValue("name"); //$NON-NLS-1$
+            if (ref != null)
+            {
+                r.append(ref.getClassSpecificName());
+            }
+            else
+            {
+                // No method name so give up
+                return null;
+            }
+            r.append('(');
+            ref = (IObject) obj.resolveValue("parameterTypes"); //$NON-NLS-1$
+            if (ref instanceof IObjectArray)
+            {
+                IObjectArray orefa = (IObjectArray) ref;
+                long refs[] = orefa.getReferenceArray();
+                for (int i = 0; i < orefa.getLength(); ++i)
+                {
+                    if (i > 0)
+                        r.append(',');
+                    long addr = refs[i];
+                    addClassName(snapshot, addr, r);
+                }
+            }
+            r.append(')');
+            return r.toString();
+        }
+    }
+    
+    @Subject("java.lang.reflect.Constructor") //$NON-NLS-1$
+    public static class ConstructorResolver extends AccessibleObjectResolver
+    {
+        public String resolve(IObject obj) throws SnapshotException
+        {
+            // Important fields
+            // modifiers
+            // clazz
+            // parameterTypes[]
+            // exceptionTypes[]
+            StringBuilder r = new StringBuilder();
+            ISnapshot snapshot = obj.getSnapshot();
+            IObject ref;
+            Object val = obj.resolveValue("modifiers"); //$NON-NLS-1$
+            if (val instanceof Integer)
+            {
+                r.append(Modifier.toString((Integer)val));
+                if (r.length() > 0) r.append(' ');
+            }
+            ref = (IObject) obj.resolveValue("clazz"); //$NON-NLS-1$
+            if (ref != null)
+            {
+                addClassName(snapshot, ref.getObjectAddress(), r);
+            }
+            else
+            {
+                // No class name so give up
+                return null;
+            }
+            r.append('(');
+            ref = (IObject) obj.resolveValue("parameterTypes"); //$NON-NLS-1$
+            if (ref instanceof IObjectArray)
+            {
+                IObjectArray orefa = (IObjectArray) ref;
+                long refs[] = orefa.getReferenceArray();
+                for (int i = 0; i < orefa.getLength(); ++i)
+                {
+                    if (i > 0)
+                        r.append(',');
+                    long addr = refs[i];
+                    addClassName(snapshot, addr, r);
+                }
+            }
+            r.append(')');
+            return r.toString();
         }
     }
 }

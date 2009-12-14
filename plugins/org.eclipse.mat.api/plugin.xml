@@ -92,6 +92,10 @@
 		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$CharArrayResolver" />
 		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$ByteArrayResolver" />
 		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$URLResolver" />
+		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$AccessibleObject" />
+		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$FieldResolver" />
+		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$MethodResolver" />
+		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$ConstructorResolver" />
 
 		<!-- eclipse -->
 		<resolver impl="org.eclipse.mat.inspections.eclipse.EclipseNameResolver$EclipseClassLoaderResolver" />
