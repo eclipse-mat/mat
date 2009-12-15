@@ -119,6 +119,10 @@ public class OpenIconAssistAction extends Action implements IWorkbenchWindowActi
             icons.add(new Icon(null, Messages.OpenIconAssistAction_HeapObjects));
             icons.add(new Icon(MemoryAnalyserPlugin.getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.CLASS),
                             Messages.OpenIconAssistAction_InstancesGroupedByClass));
+            icons.add(new Icon(MemoryAnalyserPlugin.getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.CLASS_MIXED),
+                            Messages.OpenIconAssistAction_MixedInstancesGroupedByClass));
+            icons.add(new Icon(MemoryAnalyserPlugin.getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.CLASS_OLD),
+                            Messages.OpenIconAssistAction_OldInstancesGroupedByClass));
             icons.add(new Icon(ImageHelper.getImageDescriptor(ImageHelper.Type.CLASS_INSTANCE),
                             Messages.OpenIconAssistAction_ClassObject));
             icons.add(new Icon(ImageHelper.getImageDescriptor(ImageHelper.Type.CLASSLOADER_INSTANCE),

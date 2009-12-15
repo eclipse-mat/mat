@@ -129,6 +129,8 @@ public class Messages extends NLS
     public static String OpenIconAssistAction_HeapObjects;
     public static String OpenIconAssistAction_IndicatorsAdded;
     public static String OpenIconAssistAction_InstancesGroupedByClass;
+    public static String OpenIconAssistAction_MixedInstancesGroupedByClass;
+    public static String OpenIconAssistAction_OldInstancesGroupedByClass;
     public static String OpenIconAssistAction_OtherObject;
     public static String OpenIconAssistAction_Others;
     public static String OpenIconAssistAction_Package;

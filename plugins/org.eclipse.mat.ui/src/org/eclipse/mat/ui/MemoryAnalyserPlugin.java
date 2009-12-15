@@ -61,6 +61,8 @@ public class MemoryAnalyserPlugin extends AbstractUIPlugin
         String SIZE = "icons/size.gif"; //$NON-NLS-1$
 
         String CLASS = "icons/heapobjects/class.gif"; //$NON-NLS-1$
+        String CLASS_MIXED = "icons/heapobjects/class_mixed.gif"; //$NON-NLS-1$
+        String CLASS_OLD = "icons/heapobjects/class_old.gif"; //$NON-NLS-1$
         String SUPERCLASS = "icons/heapobjects/superclass.gif"; //$NON-NLS-1$
         String NOTEPAD = "icons/notepad.gif"; //$NON-NLS-1$
         String ARGUMENTS_WIZARD = "icons/fill_arguments_wiz.gif"; //$NON-NLS-1$
