@@ -88,14 +88,16 @@ public class TextEditor extends ArgumentEditor
     public TextEditor(Composite parent, IQueryContext context, ArgumentDescriptor descriptor, TableItem item)
     {
         this(parent, context, descriptor, item, null);
-        setFont(parent.getFont());
+        setFont(item.getFont());
+        setBackground(item.getBackground());
     }
 
     protected void createContents()
     {
         this.setLayout(new FillLayout());
         text = new Text(this, SWT.LEFT);
-        text.setFont(parent.getFont());
+        text.setFont(item.getFont());
+        text.setBackground(item.getBackground());
 
         text.addKeyListener(new KeyAdapter()
         {

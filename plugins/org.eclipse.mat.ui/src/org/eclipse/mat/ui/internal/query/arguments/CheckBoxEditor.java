@@ -67,8 +67,8 @@ public class CheckBoxEditor extends ArgumentEditor
     {
         super(parent, context, descriptor, item);
         this.type = type;
-        setFont(parent.getFont());
-        setBackground(parent.getBackground());
+        setFont(item.getFont());
+        setBackground(item.getBackground());
         setLayout(new FillLayout());
         createContents(parent);
     }
@@ -76,8 +76,8 @@ public class CheckBoxEditor extends ArgumentEditor
     private void createContents(Composite parent)
     {
         checkBox = new Button(this, SWT.CHECK);
-        checkBox.setFont(parent.getFont());
-        checkBox.setBackground(parent.getBackground());
+        checkBox.setFont(item.getFont());
+        checkBox.setBackground(item.getBackground());
         checkBox.setText(type.getLabel());
         checkBox.addFocusListener(new FocusListener()
         {

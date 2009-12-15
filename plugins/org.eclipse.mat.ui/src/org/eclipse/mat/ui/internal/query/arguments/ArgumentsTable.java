@@ -40,6 +40,7 @@ import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.SnapshotFactory;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
+import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.internal.query.arguments.LinkEditor.Mode;
 import org.eclipse.mat.ui.internal.query.arguments.TextEditor.DecoratorType;
@@ -104,7 +105,8 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
         parent.setLayout(tableColumnLayout);
 
         table = new Table(parent, style);
-        table.setFont(parent.getFont());
+        Font parentFont = parent.getFont();
+        table.setFont(parentFont);
         table.setLinesVisible(true);
         table.setHeaderVisible(true);
 
@@ -116,8 +118,8 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
         column.setText(VALUE);
         tableColumnLayout.setColumnData(column, new ColumnWeightData(100, 100));
 
-        boldFont = resourceManager.createFont(FontDescriptor.createFrom(table.getFont()).setStyle(SWT.BOLD));
-        normalFont = resourceManager.createFont(FontDescriptor.createFrom(table.getFont()).setStyle(SWT.NORMAL));
+        boldFont = resourceManager.createFont(FontDescriptor.createFrom(parentFont).setStyle(SWT.BOLD));
+        normalFont = resourceManager.createFont(FontDescriptor.createFrom(parentFont).setStyle(SWT.NORMAL));
 
         modeMap = new HashMap<ArgumentDescriptor, Mode>(argumentSet.getQueryDescriptor().getArguments().size());
         for (ArgumentDescriptor descriptor : argumentSet.getQueryDescriptor().getArguments())
@@ -156,6 +158,23 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
             }
         }.activate();
 
+    }
+
+    private void setTableRowHeight(int height)
+    {
+        Font parentFont = table.getFont();
+        FontDescriptor bigger = null;
+        for (int i = 1; table.getItemHeight() < height && i < 5; ++i)
+        {
+            if (bigger != null)
+            {
+                table.setFont(parentFont);
+                resourceManager.destroyFont(bigger);
+            }
+            bigger = FontDescriptor.createFrom(parentFont).increaseHeight(i);
+            Font tableFont = resourceManager.createFont(bigger);
+            table.setFont(tableFont);
+        }
     }
 
     public void dispose()
@@ -289,9 +308,11 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
         TableEditor editor = createEditor();
 
         ArgumentEditor aec = TableEditorFactory.createTableEditor(table, context, descriptor, item);
-        aec.setFont(table.getFont());
+        aec.setFont(item.getFont());
         editor.setEditor(aec, item, 1);
         item.setData(aec);
+        // Adjust the table height for the editor
+        setTableRowHeight(aec.computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
 
         // listener should be added only to the new rows, for rows with default
         // values listeners are added after the table is created and filled with
@@ -326,7 +347,12 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
         // and in this method we return the normal size and highlight mandatory
         // arguments.
         if (descriptor.isMandatory())
-            item.setFont(boldFont);
+        {
+            // Normal font for whole row
+            item.setFont(normalFont);
+            // Bold font for first box in row
+            item.setFont(0, boldFont);
+        }
         else
             item.setFont(normalFont);
     }
@@ -357,9 +383,11 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
         TableEditor editor = createEditor();
 
         ImageTextEditor aec = new ImageTextEditor(table, context, descriptor, item, decorator);
-        aec.setFont(table.getFont());
+        aec.setFont(item.getFont());
         editor.setEditor(aec, item, 1);
         item.setData(aec);
+        // Adjust the table height for the image button
+        setTableRowHeight(aec.computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
 
         aec.addListener(this);
         // ugly: w/o pack, the table does not redraw the editors correctly
@@ -521,9 +549,11 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
         TableEditor editor = createEditor();
 
         ImageTextEditor aec = new ImageTextEditor(table, context, descriptor, item, decorator);
-        aec.setFont(table.getFont());
+        aec.setFont(item.getFont());
         editor.setEditor(aec, item, 1);
         item.setData(aec);
+        // Adjust the table height for the image button
+        setTableRowHeight(aec.computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
 
         if (value != null)
         {
@@ -553,13 +583,16 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
     private void addLink(ArgumentDescriptor descriptor, Mode mode)
     {
         TableItem item = new TableItem(table, SWT.NONE);
+        item.setFont(normalFont);
         item.setText("");//$NON-NLS-1$
         TableEditor editor = createEditor();
 
         LinkEditor aec = new LinkEditor(table, context, descriptor, item, mode);
-        aec.setFont(table.getFont());
+        aec.setFont(item.getFont());
         editor.setEditor(aec, item, 1);
         item.setData(aec);
+        // Adjust the table height for the editor
+        setTableRowHeight(aec.computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
     }
 
     private TableEditor createEditor()
@@ -575,14 +608,17 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
     private void addCheckBoxRows(ArgumentDescriptor descriptor, CheckBoxEditor.Type type, boolean selected)
     {
         TableItem item = new TableItem(table, SWT.NONE);
+        item.setFont(normalFont);
         item.setText("");//$NON-NLS-1$
 
         TableEditor editor = createEditor();
 
         CheckBoxEditor aec = new CheckBoxEditor(table, context, descriptor, item, type);
-        aec.setFont(table.getFont());
+        aec.setFont(item.getFont());
         editor.setEditor(aec, item, 1);
         item.setData(aec);
+        // Adjust the table height for the editor
+        setTableRowHeight(aec.computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
 
         try
         {

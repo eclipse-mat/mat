@@ -55,8 +55,8 @@ public class LinkEditor extends ArgumentEditor
 
     private void createContents()
     {
-        this.setFont(parent.getFont());
-        this.setBackground(parent.getBackground());
+        this.setFont(item.getFont());
+        this.setBackground(item.getBackground());
         GridLayout layout = new GridLayout();
         layout.marginLeft = 20;
         layout.marginRight = 0;
@@ -65,8 +65,8 @@ public class LinkEditor extends ArgumentEditor
         Link link = new Link(this, SWT.WRAP);
         link.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_CENTER));
         link.setText("<a>" + mode.getModeType() + "</a>"); //$NON-NLS-1$ //$NON-NLS-2$     
-        link.setFont(parent.getFont());
-        link.setBackground(parent.getBackground());
+        link.setFont(item.getFont());
+        link.setBackground(item.getBackground());
         link.addSelectionListener(new SelectionAdapter()
         {
             public void widgetSelected(SelectionEvent e)

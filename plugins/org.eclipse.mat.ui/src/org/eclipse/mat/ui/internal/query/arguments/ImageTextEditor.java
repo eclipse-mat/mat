@@ -95,8 +95,8 @@ public class ImageTextEditor extends TextEditor
 
     protected void createContents()
     {
-        Font font = parent.getFont();
-        Color bg = parent.getBackground();
+        Font font = item.getFont();
+        Color bg = item.getBackground();
         this.setFont(font);
         this.setBackground(bg);
 
@@ -145,10 +145,15 @@ public class ImageTextEditor extends TextEditor
 
     private void createHelpControl(Composite parent)
     {
-        button = new ImageHyperlink(parent, SWT.CENTER);
+        button = new ImageHyperlink(parent, SWT.CENTER)
+        {
+            {
+                marginHeight = 0;
+            }
+        };
         button.setImage(MemoryAnalyserPlugin.getImage(MemoryAnalyserPlugin.ISharedImages.HELP));
-        button.setFont(parent.getFont());
-        button.setBackground(parent.getBackground());
+        button.setFont(item.getFont());
+        button.setBackground(item.getBackground());
         button.setToolTipText(JFaceResources.getString("helpToolTip"));//$NON-NLS-1$
         button.addHyperlinkListener(new HyperlinkAdapter()
         {
