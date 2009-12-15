@@ -102,6 +102,7 @@ public class Messages extends NLS
     public static String DTFJIndexBuilder_GeneratingMonitorRoots;
     public static String DTFJIndexBuilder_GeneratingSystemRoots;
     public static String DTFJIndexBuilder_GeneratingThreadRoots;
+    public static String DTFJIndexBuilder_HighestMemoryAddressFromAddressSpaceIsUnaccessibleFromPointers;
     public static String DTFJIndexBuilder_HugeJavaStackSection;
     public static String DTFJIndexBuilder_HugeNativeStackSection;
     public static String DTFJIndexBuilder_IgnoringExtraJavaRuntime;
@@ -219,6 +220,7 @@ public class Messages extends NLS
     public static String DTFJIndexBuilder_UnreferenceObjectsMarkedAsRoots;
     public static String DTFJIndexBuilder_UsingConservativeGarbageCollectionRoots;
     public static String DTFJIndexBuilder_UsingDTFJRoots;
+    public static String DTFJIndexBuilder_UsingProcessPointerSizeNotAddressSpacePointerSize;
     public static String InitDTFJ_DynamicDtfj;
     static
     {

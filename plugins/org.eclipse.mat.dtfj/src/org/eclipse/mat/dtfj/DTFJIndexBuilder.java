@@ -146,9 +146,9 @@ public class DTFJIndexBuilder implements IIndexBuilder
     /** Whether to skip heap roots marked marked as weak/soft reference etc. */
     private static final boolean skipWeakRoots = true;
     /** Whether to represent stack frames and methods as objects and classes */
-    private final boolean getExtraInfo = Boolean.getBoolean("mat.methods_as_classes") || Boolean.getBoolean("mat.methods_as_classes2");
+    private final boolean getExtraInfo = Boolean.getBoolean("mat.methods_as_classes") || Boolean.getBoolean("mat.methods_as_classes2"); //$NON-NLS-1$ //$NON-NLS-2$
     /** Whether to represent all methods as pseudo-classes */
-    private final boolean getExtraInfo2 = Boolean.getBoolean("mat.methods_as_classes2");
+    private final boolean getExtraInfo2 = Boolean.getBoolean("mat.methods_as_classes2"); //$NON-NLS-1$
     /** Separator between the package/class name and the method name */
     private static final String METHOD_NAME_PREFIX = "."; //$NON-NLS-1$
     /** Unique string only found in method names */
@@ -201,6 +201,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
     private boolean foundFinalizableGCRoots = false;
     /** number of times getModifiers succeeded */
     private int modifiersFound;
+    /** address space pointer size */
+    private int addressSpacePointerSize;
 
     /** Used to remember dummy addresses for classes without addresses */
     private HashMap<JavaClass, Long> dummyClassAddress = new HashMap<JavaClass, Long>();
@@ -531,8 +533,6 @@ public class DTFJIndexBuilder implements IIndexBuilder
         workCountSoFar += 1;
         listener.subTask(Messages.DTFJIndexBuilder_FindingJVM);
         run = getRuntime(image, listener);
-        int pointerSize = getPointerSize(run, listener);
-        ifo.setIdentifierSize(pointerSize);
 
         try
         {
@@ -554,6 +554,9 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 listener.sendUserMessage(Severity.WARNING, Messages.DTFJIndexBuilder_NoRuntimeFullVersionFound, e2);
             }
         }
+
+        int pointerSize = getPointerSize(run, listener);
+        ifo.setIdentifierSize(getPointerBytes(pointerSize));
 
         listener.worked(1);
         workCountSoFar += 1;
@@ -1253,10 +1256,10 @@ public class DTFJIndexBuilder implements IIndexBuilder
 
         if (getExtraInfo)
         {
-            ClassImpl nativeType = genDummyType("<native memory type>", nativeTypeAddr, nativeAddr, null, idToClass, bootLoaderAddress, listener);
-            ClassImpl nativeMemory = genDummyType("<native memory>", nativeAddr, 0L, nativeType, idToClass, bootLoaderAddress, listener);
-            ClassImpl methodType = genDummyType("<method type>", methodTypeAddr, nativeTypeAddr, nativeType, idToClass, bootLoaderAddress, listener);
-            ClassImpl method = genDummyType("<method>", methodAddr, nativeAddr, methodType, idToClass, bootLoaderAddress, listener);
+            ClassImpl nativeType = genDummyType("<native memory type>", nativeTypeAddr, nativeAddr, null, idToClass, bootLoaderAddress, listener); //$NON-NLS-1$
+            ClassImpl nativeMemory = genDummyType("<native memory>", nativeAddr, 0L, nativeType, idToClass, bootLoaderAddress, listener); //$NON-NLS-1$
+            ClassImpl methodType = genDummyType("<method type>", methodTypeAddr, nativeTypeAddr, nativeType, idToClass, bootLoaderAddress, listener); //$NON-NLS-1$
+            ClassImpl method = genDummyType("<method>", methodAddr, nativeAddr, methodType, idToClass, bootLoaderAddress, listener); //$NON-NLS-1$
             for (JavaMethod jm : allMethods)
             {
                 try
@@ -1846,7 +1849,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
      * If the frame address isn't found then use the previous frame address + 8
      * @param jf
      * @param prevFrameAddress
-     * @param pointerSize
+     * @param pointerSize in bits
      * @return
      */
     static long getFrameAddress(JavaStackFrame jf, long prevFrameAddress, int pointerSize)
@@ -2713,7 +2716,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     // For calculating purge sizes
                     objectToSize.set(objId, size);
                     // debugPrint("array size "+size+" arrayLen "+arrayLen);
-                    int headerPointer = pointerSize;
+                    int headerPointer = getPointerBytes(pointerSize);
                     if (headerPointer == 8)
                     {
                         long bigSize = calculateArraySize(cls, arrayLen, headerPointer);
@@ -2816,11 +2819,11 @@ public class DTFJIndexBuilder implements IIndexBuilder
      * @param cls
      * @param arrayLen
      *            in elements
-     * @param pointerSize
+     * @param pointerBytes
      *            in bytes
      * @return size in bytes
      */
-    private long calculateArraySize(ClassImpl cls, int arrayLen, int pointerSize)
+    private long calculateArraySize(ClassImpl cls, int arrayLen, int pointerBytes)
     {
         int elem;
         if (cls.getName().equals("byte[]")) //$NON-NLS-1$
@@ -2857,9 +2860,9 @@ public class DTFJIndexBuilder implements IIndexBuilder
         }
         else
         {
-            elem = pointerSize;
+            elem = pointerBytes;
         }
-        long bigSize = 2L * pointerSize + 4 + (long) elem * arrayLen;
+        long bigSize = 2L * pointerBytes + 4 + (long) elem * arrayLen;
         return bigSize;
     }
 
@@ -2890,7 +2893,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             printThreadStack(pw, th);
         }
         int frameId = 0;
-        Set<Long> searched = new HashSet<Long>();
+        Set<ImagePointer> searched = new HashSet<ImagePointer>();
         // Find the first address
         long veryFirstAddr = 0;
         // The base pointer appears to be the last address of the frame, not the
@@ -2916,7 +2919,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 continue;
             JavaStackFrame jf = (JavaStackFrame) next2;
             if (listener.isCanceled()) { throw new IProgressListener.OperationCanceledException(); }
-            Set<Long> searchedInFrame = new LinkedHashSet<Long>();
+            Set<ImagePointer> searchedInFrame = new LinkedHashSet<ImagePointer>();
             long address = 0;
             long searchSize = JAVA_STACK_FRAME_SIZE;
             try
@@ -3045,12 +3048,12 @@ public class DTFJIndexBuilder implements IIndexBuilder
             if (pw != null)
             {
             	// Indicate the local variables associated with this frame
-                for (long addr : searchedInFrame)
+                for (ImagePointer addr : searchedInFrame)
                 {
                     try
                     {
-                        long target = jf.getBasePointer().getAddressSpace().getPointer(addr).getPointerAt(0)
-                                        .getAddress();
+                        // Construct new pointer based on frame address
+                        long target = getPointerAddressAt(addr, 0, pointerSize);
                         printLocal(pw, target, frameId);
                      }
                     catch (MemoryAccessException e)
@@ -3333,7 +3336,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
      * @param threadRoots2
      *            Where to store the thread roots
      * @param pointerSize
-     *            size of pointers in bytes
+     *            size of pointers in bits
      * @param listener
      */
     private void processRoot(JavaReference r, JavaThread thread, HashMapIntObject<List<XGCRootInfo>> gcRoot2,
@@ -3666,6 +3669,13 @@ public class DTFJIndexBuilder implements IIndexBuilder
         }
     }
 
+    /**
+     * Round the object size to allow for alignment
+     * @param jo
+     * @param pointerSize in bits
+     * @return
+     * @throws CorruptDataException
+     */
     private int getObjectSize(JavaObject jo, int pointerSize) throws CorruptDataException
     {
         // DTFJ size includes any link field, so just round to 8 bytes
@@ -3679,7 +3689,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
      * @param p
      *            The original pointer.
      * @param pointerSize
-     *            The size to align to.
+     *            The size to align to in bits.
      * @return The aligned pointer.
      */
     private static ImagePointer getAlignedAddress(ImagePointer p, int pointerSize)
@@ -3687,7 +3697,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         if (p == null)
             return p;
         long addr = p.getAddress();
-        if (pointerSize == 8)
+        if (pointerSize == 64)
         {
             addr &= 7L;
         }
@@ -4251,14 +4261,23 @@ public class DTFJIndexBuilder implements IIndexBuilder
      *            The Java runtime
      * @param listener
      *            To indicate progress/errors
-     * @return the pointer size in bytes
+     * @return the pointer size in bits
      */
     private int getPointerSize(JavaRuntime run1, IProgressListener listener)
     {
         int pointerSize = 0;
+        long maxAddress = 0;
         try
         {
             ImageAddressSpace ias = getAddressSpace(run1);
+            for (Iterator it = ias.getImageSections(); it.hasNext();)
+            {
+                Object next1 = it.next();
+                if (next1 instanceof CorruptData) continue;
+                ImageSection sect = (ImageSection)next1;
+                maxAddress = Math.max(maxAddress, sect.getBaseAddress().getAddress());
+                maxAddress = Math.max(maxAddress, sect.getBaseAddress().getAddress()+sect.getSize() - 1);
+            }
             for (Iterator i2 = ias.getProcesses(); i2.hasNext();)
             {
                 Object next2 = i2.next();
@@ -4275,8 +4294,47 @@ public class DTFJIndexBuilder implements IIndexBuilder
                         JavaRuntime run = (JavaRuntime) next3;
                         if (run1 == run)
                         {
-                            // 31,32,64 bits to bytes conversion
-                            pointerSize = (proc.getPointerSize() + 1) / 8;
+                            // 31,32,64 bits - conversion done later
+                            pointerSize = proc.getPointerSize();
+                            
+                            /* Experimentally see what size pointers end up */
+                            long ptrBits = 0;
+                            long longBits = 0;
+                            try
+                            {
+                                ImagePointer ip = run.getJavaVM();
+                                for (int i = 0; i < 200; ++i)
+                                {
+                                    ptrBits |= ip.getPointerAt(i).getAddress();
+                                    longBits |= ip.getLongAt(i);
+                                }
+                            }
+                            catch (CorruptDataException e)
+                            {}
+                            catch (MemoryAccessException e)
+                            {}
+                            if (longBits == ~0L)
+                            {
+                                // All bits set, so pointer could be any value
+                                addressSpacePointerSize = 0;
+                                while (ptrBits != 0)
+                                {
+                                    ++addressSpacePointerSize;
+                                    ptrBits >>>= 1;
+                                }
+                                if (addressSpacePointerSize != pointerSize)
+                                {
+                                    listener.sendUserMessage(Severity.INFO, MessageFormat.format(
+                                                    Messages.DTFJIndexBuilder_UsingProcessPointerSizeNotAddressSpacePointerSize,
+                                                    pointerSize, ias.toString(),addressSpacePointerSize), null);
+                                }
+                            }
+                            if ((maxAddress & ~((1L << pointerSize) - 1)) != 0)
+                            {
+                                listener.sendUserMessage(Severity.INFO, MessageFormat.format(
+                                                Messages.DTFJIndexBuilder_HighestMemoryAddressFromAddressSpaceIsUnaccessibleFromPointers,
+                                                format(maxAddress), ias.toString(), pointerSize), null);
+                            }
                             return pointerSize;
                         }
                     }
@@ -4285,11 +4343,21 @@ public class DTFJIndexBuilder implements IIndexBuilder
         }
         catch (CorruptDataException e)
         {
-            pointerSize = 4;
+            pointerSize = 32;
             listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
                             Messages.DTFJIndexBuilder_UnableToFindPointerSize, pointerSize), e);
         }
         return pointerSize;
+    }
+    
+    /**
+     * Calculate a pointer size in bytes
+     * @param pointerSize in bits (64, 32, 31)
+     * @return
+     */
+    private int getPointerBytes(int pointerSize)
+    {
+        return (pointerSize + 7) / 8;
     }
 
     /**
@@ -4987,7 +5055,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
      * so the caller can decide if that is possible or bad
      * 
      * @param pointerSize
-     *            in bytes
+     *            in bits
      * @param threadAddress
      * @param thr
      * @param ip
@@ -5008,8 +5076,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
      */
     private void searchFrame(int pointerSize, long threadAddress,
                     HashMapIntObject<HashMapIntObject<List<XGCRootInfo>>> thrs, ImagePointer ip, long searchSize,
-                    int rootType, HashMapIntObject<List<XGCRootInfo>> gc, Set<Long> searchedAddresses,
-                    Set<Long> excludedAddresses) throws CorruptDataException, MemoryAccessException
+                    int rootType, HashMapIntObject<List<XGCRootInfo>> gc, Set<ImagePointer> searchedAddresses,
+                    Set<ImagePointer> excludedAddresses) throws CorruptDataException, MemoryAccessException
     {
         debugPrint("searching thread " + format(threadAddress) + " " + format(ip.getAddress()) + " " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                         + format(searchSize) + " " + rootType); //$NON-NLS-1$
@@ -5052,13 +5120,11 @@ public class DTFJIndexBuilder implements IIndexBuilder
             frameAddress = threadAddress;
         }
         // Read items off the frame
-        final int pointerAdjust = searchSize >= 0 ? pointerSize : -pointerSize;
+        final int pointerAdjust = searchSize >= 0 ? getPointerBytes(pointerSize) : -getPointerBytes(pointerSize);
         for (long j = 0; Math.abs(j) < Math.abs(searchSize); j += pointerAdjust)
         {
-            // getPointerAt indexes by bytes, not pointers size
-            ImagePointer i2 = ip.getPointerAt(j);
-            long location = ip.getAddress() + j;
-            long addr = i2.getAddress();
+            ImagePointer location = ip.add(j);
+            long addr = getPointerAddressAt(location, 0, pointerSize);
             int id = indexToAddress.reverse(addr);
             if (addr != 0 && id >= 0)
             {
@@ -5086,11 +5152,47 @@ public class DTFJIndexBuilder implements IIndexBuilder
     }
 
     /**
+     * Reads a pointer value of the given size
+     * @param ip the base address
+     * @param j the offset from the base address in bytes
+     * @param pointerSize the size in bits (64,32,31)
+     * @return The address as a long
+     * @throws MemoryAccessException
+     * @throws CorruptDataException
+     */
+    private long getPointerAddressAt(ImagePointer ip, long j, int pointerSize) throws MemoryAccessException, CorruptDataException
+    {
+        long addr;
+        if (addressSpacePointerSize == pointerSize)
+        {
+            // Rely on address space to do the right thing
+            // getPointerAt indexes by bytes, not pointers size
+            ImagePointer i2 = ip.getPointerAt(j);
+            addr = i2.getAddress();
+        }
+        else
+        {
+            switch (pointerSize)
+            {
+                case 64:
+                    addr = ip.getLongAt(j);
+                case 32:
+                case 31:
+                    addr = ip.getIntAt(j) & (1L << pointerSize) - 1;
+                default:
+                    ImagePointer i2 = ip.getPointerAt(j);
+                    addr = i2.getAddress();
+            }
+        }
+        return addr;
+    }
+
+    /**
      * @param j2
      * @param ci
      * @param jlc
      * @param pointerSize
-     *            size of pointer in bytes - used for correcting object sizes
+     *            size of pointer in bits - used for correcting object sizes
      * @param listener
      *            for error reporting
      */
@@ -6403,7 +6505,10 @@ public class DTFJIndexBuilder implements IIndexBuilder
         String name = meth.getName();
         try
         {
-            name += meth.getSignature();
+            String sig = meth.getSignature();
+            // 1.4.2 dumps have "Pseudo Frame" with no signature
+            if (sig.equals("")) sig = "()"; //$NON-NLS-1$
+            name += sig;
         }
         catch (CorruptDataException e)
         {
