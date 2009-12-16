@@ -4305,7 +4305,10 @@ public class DTFJIndexBuilder implements IIndexBuilder
                                 ImagePointer ip = run.getJavaVM();
                                 for (int i = 0; i < 200; ++i)
                                 {
-                                    ptrBits |= ip.getPointerAt(i).getAddress();
+                                    ImagePointer pointer = ip.getPointerAt(i);
+                                    // PHD can mistakenly return null
+                                    if (pointer != null)
+                                        ptrBits |= pointer.getAddress();
                                     longBits |= ip.getLongAt(i);
                                 }
                             }
@@ -5168,7 +5171,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
             // Rely on address space to do the right thing
             // getPointerAt indexes by bytes, not pointers size
             ImagePointer i2 = ip.getPointerAt(j);
-            addr = i2.getAddress();
+            // PHD can mistakenly return null
+            addr = i2 != null ? i2.getAddress() : 0;
         }
         else
         {
