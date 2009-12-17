@@ -101,17 +101,16 @@ public class DominatorTree
 
         public void compute() throws IOException, SnapshotException, IProgressListener.OperationCanceledException
         {
-            IProgressListener progressListener = this.monitor.nextMonitor();
-            progressListener.beginTask(Messages.DominatorTree_DominatorTreeCalculation, 1);
+            IProgressListener progressListener0 = this.monitor.nextMonitor();
+            progressListener0.beginTask(Messages.DominatorTree_DominatorTreeCalculation, 3);
 
             n = 0;
             dfs(r);
 
             snapshot.getIndexManager().outbound().unload();
 
-            progressListener = this.monitor.nextMonitor();
-            final int interval = 100;
-            progressListener.beginTask(Messages.DominatorTree_ComputingDominators, n / interval);
+            IProgressListener progressListener = this.monitor.nextMonitor();
+            progressListener.beginTask(Messages.DominatorTree_ComputingDominators, n / 1000);
 
             for (int i = n; i >= 2; i--)
             {
@@ -150,7 +149,7 @@ public class DominatorTree
                 }
                 bucket[parent[w]] = -1;
                 // }
-                if (i % interval == 0)
+                if (i % 1000 == 0)
                 {
                     if (progressListener.isCanceled())
                         throw new IProgressListener.OperationCanceledException();
@@ -173,7 +172,7 @@ public class DominatorTree
             parent = anchestor = vertex = label = semi = bucket = null;
             snapshot.getIndexManager().inbound().unload();
 
-            if (progressListener.isCanceled())
+            if (progressListener0.isCanceled())
                 throw new IProgressListener.OperationCanceledException();
 
             // pre-condition for index writing:
@@ -203,15 +202,18 @@ public class DominatorTree
 
             objectIds[0] = -2;
             objectIds[1] = ROOT_VALUE;
+            progressListener0.worked(1);
 
             ArrayUtils.sort(dom, objectIds, 2, dom.length - 2);
+            progressListener0.worked(1);
+
             FlatDominatorTree tree = new FlatDominatorTree(snapshot, dom, objectIds, ROOT_VALUE);
 
-            if (progressListener.isCanceled())
+            if (progressListener0.isCanceled())
                 throw new IProgressListener.OperationCanceledException();
 
             writeIndexFiles(tree);
-            progressListener.done();
+            progressListener0.done();
 
         }
 
@@ -302,7 +304,11 @@ public class DominatorTree
 
                         // report progress
                         if ((n & 0xffff) == 0)
+                        {
+                            if (progressListener.isCanceled())
+                                throw new IProgressListener.OperationCanceledException();
                             progressListener.worked(1);
+                        }
                     }
                 }
                 else
@@ -388,7 +394,11 @@ public class DominatorTree
                 writer.log(i + 1, successors);
 
                 if (i % 1000 == 0)
+                {
+                    if (progressListener.isCanceled())
+                        throw new IProgressListener.OperationCanceledException();
                     progressListener.worked(1);
+                }
             }
 
             snapshot.getIndexManager().setReader(IndexManager.Index.DOMINATED, writer.flush());
@@ -572,7 +582,11 @@ public class DominatorTree
                         {
                             retained.set(currentEntry, ts[currentEntry + 2]);
                             if (++counter % 1000 == 0)
+                            {
+                                if (progressListener.isCanceled())
+                                    throw new IProgressListener.OperationCanceledException();
                                 progressListener.worked(1);
+                            }
                         }
 
                     }
