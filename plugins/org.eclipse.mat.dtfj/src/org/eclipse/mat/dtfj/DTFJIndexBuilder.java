@@ -501,7 +501,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         long then1 = System.currentTimeMillis();
 
         // This is 100% on the progress bar
-        final int workCount = 100000;
+        final int workCount = 10000;
         // How many objects to process before indicating to the progress bar
         final int workObjectsStep = 10000;
         listener.beginTask(MessageFormat.format(Messages.DTFJIndexBuilder_ProcessingImageFromFile, dump), workCount);
@@ -596,6 +596,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         JavaClassLoader bootLoader = null;
         long bootLoaderAddress = 0, fixedBootLoaderAddress = 0;
         ClassImpl bootLoaderType = null;
+        boolean foundBootLoader = false;
         HashMap<JavaObject, JavaClassLoader> loaders = new HashMap<JavaObject, JavaClassLoader>();
         HashSet<JavaClass> loaderTypes = new HashSet<JavaClass>();
         for (Iterator i = run.getJavaClassLoaders(); i.hasNext();)
@@ -614,11 +615,15 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 {
                     // Potential boot loader
                     debugPrint("Found class loader with null Java object " + jcl); //$NON-NLS-1$
-                    bootLoader = jcl;
-                    bootLoaderObject = loaderObject;
-                    bootLoaderAddress = 0;
-                    fixedBootLoaderAddress = fixBootLoaderAddress(bootLoaderAddress, bootLoaderAddress);
-                    debugPrint("adding boot object at " + format(bootLoaderAddress)); //$NON-NLS-1$
+                    if (!foundBootLoader)
+                    {
+                        bootLoader = jcl;
+                        bootLoaderObject = loaderObject;
+                        bootLoaderAddress = 0;
+                        fixedBootLoaderAddress = fixBootLoaderAddress(bootLoaderAddress, bootLoaderAddress);
+                        debugPrint("adding boot loader object at " + format(bootLoaderAddress)); //$NON-NLS-1$
+                        foundBootLoader = true;
+                    }
                 }
                 else
                 {
@@ -632,6 +637,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                         bootLoaderObject = loaderObject;
                         bootLoaderAddress = loaderAddress;
                         fixedBootLoaderAddress = fixBootLoaderAddress(bootLoaderAddress, bootLoaderAddress);
+                        debugPrint("adding potential boot loader object at " + format(bootLoaderAddress)); //$NON-NLS-1$
                     }
                     JavaClass loaderObjectClass = loaderObject.getJavaClass();
                     loaderTypes.add(loaderObjectClass);
@@ -640,25 +646,35 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     {
                         // Potential boot loader - Javacore
                         debugPrint("Found class loader of type *System* " + jcl); //$NON-NLS-1$
-                        bootLoader = jcl;
-                        bootLoaderObject = loaderObject;
-                        bootLoaderAddress = loaderAddress;
-                        fixedBootLoaderAddress = fixBootLoaderAddress(bootLoaderAddress, bootLoaderAddress);
-                        // No need for dummy Java object
-                        debugPrint("adding boot object at " + format(bootLoaderAddress)); //$NON-NLS-1$
+                        if (!foundBootLoader)
+                        {
+                            bootLoader = jcl;
+                            bootLoaderObject = loaderObject;
+                            bootLoaderAddress = loaderAddress;
+                            fixedBootLoaderAddress = fixBootLoaderAddress(bootLoaderAddress, bootLoaderAddress);
+                            // No need for dummy Java object
+                            debugPrint("adding boot loader object at " + format(bootLoaderAddress)); //$NON-NLS-1$
+                            foundBootLoader = true;
+                        }
                     }
                     else
                     {
                         debugPrint("Found class loader " + loaderClassName + " at " + format(loaderAddress)); //$NON-NLS-1$ //$NON-NLS-2$
 
                         JavaClassLoader jcl2 = getClassLoader(loaderObjectClass, listener);
-                        if (jcl.equals(jcl2) && bootLoader == null)
+                        if (jcl.equals(jcl2))
                         {
-                            debugPrint("Found boot class loader " + loaderClassName + " at " + format(loaderAddress)); //$NON-NLS-1$ //$NON-NLS-2$
-                            bootLoader = jcl;
-                            bootLoaderObject = loaderObject;
-                            bootLoaderAddress = loaderAddress;
-                            fixedBootLoaderAddress = fixBootLoaderAddress(bootLoaderAddress, bootLoaderAddress);
+                            debugPrint("Found class loader which loaded itself " + loaderClassName + " at " + format(loaderAddress)); //$NON-NLS-1$ //$NON-NLS-2$
+                            if (!foundBootLoader)
+                            {
+                                bootLoader = jcl;
+                                bootLoaderObject = loaderObject;
+                                bootLoaderAddress = loaderAddress;
+                                fixedBootLoaderAddress = fixBootLoaderAddress(bootLoaderAddress, bootLoaderAddress);
+                                // No need for dummy Java object
+                                debugPrint("adding boot loader object at " + format(bootLoaderAddress)); //$NON-NLS-1$
+                                foundBootLoader = true;
+                            }
                         }
                         else
                         {
@@ -2476,7 +2492,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         {
             int i = ii.next();
             List<XGCRootInfo> lr = gcRoot.get(i);
-            String info = XGCRootInfo.getTypeSetAsString(lr.toArray(new XGCRootInfo[0]));
+            String info = XGCRootInfo.getTypeSetAsString(lr.toArray(new XGCRootInfo[lr.size()]));
             String prev = roots.get(i);
             roots.put(i, prev != null ? prev + "," + info : info); //$NON-NLS-1$
         }
@@ -5180,12 +5196,15 @@ public class DTFJIndexBuilder implements IIndexBuilder
             {
                 case 64:
                     addr = ip.getLongAt(j);
+                    break;
                 case 32:
                 case 31:
                     addr = ip.getIntAt(j) & (1L << pointerSize) - 1;
+                    break;
                 default:
                     ImagePointer i2 = ip.getPointerAt(j);
                     addr = i2.getAddress();
+                    break;
             }
         }
         return addr;
