@@ -71,7 +71,7 @@ public class OpenSourceFileJob extends Job
         }
         catch (JavaModelException e)
         {
-            return new Status(Status.ERROR, "org.eclipse.mat.jdt", 0, e.getMessage(), e); //$NON-NLS-1$
+            return new Status(Status.ERROR, "org.eclipse.mat.jdt", 0, e.getLocalizedMessage(), e); //$NON-NLS-1$
         }
     }
 

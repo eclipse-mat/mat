@@ -35,6 +35,7 @@ public class Messages extends NLS
     public static String ErrorHelper_DefinitionNotFound;
     public static String ErrorHelper_Error;
     public static String ErrorHelper_Exception;
+    public static String ErrorHelper_ExceptionWithMessage;
     public static String ErrorHelper_Information;
     public static String ErrorHelper_InternalError;
     public static String ErrorHelper_InternalRuntimeError;

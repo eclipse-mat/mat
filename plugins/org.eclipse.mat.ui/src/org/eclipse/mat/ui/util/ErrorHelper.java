@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.util.MessageUtil;
@@ -95,35 +96,88 @@ public class ErrorHelper
         return createErrorStatus(null, throwable);
     }
 
+    /**
+     * Create an Eclipse Status message with details about the exceptions
+     * including text from all the exception causes.
+     * This method is aware of Eclipse CoreExceptions which have child status
+     * objects.
+     * The details view of the ErrorDialog can then show text from all the
+     * exception causes which wouldn't happen without this routine.
+     * @param message
+     * @param throwable
+     * @return
+     */
     public static IStatus createErrorStatus(String message, Throwable throwable)
     {
         if (message == null)
-            message = enrichErrorMessage(throwable.getMessage(), throwable.getClass().getName());
+            message = enrichErrorMessage(throwable.getLocalizedMessage(), throwable);
 
+        // Simple message?
         if (throwable == null)
             return createErrorStatus(message);
 
         if (throwable.getCause() == null)
         {
-            return new Status(IStatus.ERROR, MemoryAnalyserPlugin.PLUGIN_ID, message, throwable);
+            // No causes of the exception
+            if (throwable instanceof CoreException)
+            {
+                // But the exception already has a status
+                CoreException ce = (CoreException)throwable;
+                return createErrorStatus(ce.getStatus());
+            }
+            else
+            {
+                // Create a simple status message
+                return new Status(IStatus.ERROR, MemoryAnalyserPlugin.PLUGIN_ID, message, throwable);
+            }
         }
         else
         {
-            MultiStatus result = new MultiStatus(MemoryAnalyserPlugin.PLUGIN_ID, 0, message, null);
-
-            while (throwable != null)
-            {
-                message = enrichErrorMessage(throwable.getMessage(), throwable.getClass().getName());
-                result.add(new Status(IStatus.ERROR, MemoryAnalyserPlugin.PLUGIN_ID, 0, message, throwable));
-
-                if (throwable instanceof CoreException)
-                    throwable = ((CoreException) throwable).getStatus().getException();
-                else
-                    throwable = throwable.getCause();
-            }
-
-            return result;
+            // We have a complex status message to build
+            MultiStatus result = new MultiStatus(MemoryAnalyserPlugin.PLUGIN_ID, 0, message, throwable);
+            // The root exception has already been mentioned in the multistatus, so only include
+            // the exception causes
+            return addExceptions(throwable.getCause(), result);
         }
+    }
+
+    private static IStatus addExceptions(Throwable throwable, MultiStatus result)
+    {
+        String message;
+        while (throwable != null)
+        {
+            if (throwable instanceof CoreException)
+            {
+                // Add the status to the result
+                CoreException ce = (CoreException)throwable;
+                result.add(createErrorStatus(ce.getStatus()));
+            }
+            else
+            {
+                // Add this particular exception
+                message = enrichErrorMessage(throwable.getMessage(), throwable);
+                result.add(new Status(IStatus.ERROR, MemoryAnalyserPlugin.PLUGIN_ID, 0, message, throwable));
+            }
+            throwable = throwable.getCause();
+        }
+
+        return result;
+    }
+    
+    private static IStatus createErrorStatus(IStatus s)
+    {
+        Throwable t = s.getException();
+        boolean detailT = t instanceof CoreException || t != null && t.getCause() != null;
+        // No complex information to add, so just return the supplied status
+        if (!detailT && !s.isMultiStatus()) return s;
+        MultiStatus result = new MultiStatus(s.getPlugin(), s.getCode(), enrichErrorMessage(s.getMessage(), t), t);
+        if (detailT)
+            addExceptions(t.getCause(), result);
+        for (IStatus sub : s.getChildren())
+        {
+            result.add(createErrorStatus(sub));
+        }
+        return result;
     }
 
     /** exceptionType is String because of FailureObject */
@@ -140,6 +194,28 @@ public class ErrorHelper
             return MessageUtil.format(Messages.ErrorHelper_NoSuchMethod, new Object[] { message });
         else if (message == null)
             return MessageUtil.format(Messages.ErrorHelper_Exception, new Object[] { exceptionType });
+        else
+            return message;
+
+    }
+
+    private static String enrichErrorMessage(String message, Throwable exceptionType)
+    {
+
+        if (exceptionType != null && exceptionType.getClass() == java.lang.RuntimeException.class)
+            return MessageUtil.format(Messages.ErrorHelper_InternalRuntimeError, new Object[] { message });
+        else if (exceptionType instanceof java.lang.ClassNotFoundException)
+            return MessageUtil.format(Messages.ErrorHelper_ClassNotFound, new Object[] { message });
+        else if (exceptionType instanceof java.lang.NoClassDefFoundError)
+            return MessageUtil.format(Messages.ErrorHelper_DefinitionNotFound, new Object[] { message });
+        else if (exceptionType instanceof java.lang.NoSuchMethodError)//$NON-NLS-1$
+            return MessageUtil.format(Messages.ErrorHelper_NoSuchMethod, new Object[] { message });
+        else if (exceptionType instanceof SnapshotException)
+            return message;
+        else if (exceptionType != null && message == null)
+            return MessageUtil.format(Messages.ErrorHelper_Exception, new Object[] { exceptionType.getClass().getName() });
+        else if (exceptionType != null && message != null)
+            return MessageUtil.format(Messages.ErrorHelper_ExceptionWithMessage, message, exceptionType.getClass().getName());
         else
             return message;
 

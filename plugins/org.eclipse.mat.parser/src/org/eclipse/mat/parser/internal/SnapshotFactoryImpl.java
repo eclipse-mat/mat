@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.Status;
@@ -213,11 +214,12 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
             MultiStatus status = new MultiStatus(ParserPlugin.PLUGIN_ID, 0,
                             Messages.SnapshotFactoryImpl_ErrorOpeningHeapDump, null);
             for (IOException error : errors)
-                status.add(new Status(IStatus.ERROR, ParserPlugin.PLUGIN_ID, 0, error.getMessage(), error));
-            ParserPlugin.getDefault().getLog().log(status);
+                status.add(new Status(IStatus.ERROR, ParserPlugin.PLUGIN_ID, 0, error.getLocalizedMessage(), error));
+            // Create a CoreException so that all the errors will be logged
+            CoreException ce = new CoreException(status);
 
             throw new SnapshotException(MessageUtil.format(Messages.SnapshotFactoryImpl_Error_OpeningHeapDump, file
-                            .getName()));
+                            .getName()), ce);
         }
         else
         {
