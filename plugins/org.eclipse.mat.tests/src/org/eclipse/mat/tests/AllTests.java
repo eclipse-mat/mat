@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.mat.tests;
 
-import junit.framework.JUnit4TestAdapter;
-
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
@@ -24,10 +22,5 @@ import org.junit.runners.Suite.SuiteClasses;
                 org.eclipse.mat.tests.snapshot.OQLTest.class })
 public class AllTests
 {
-    // Athena build is having problems and is running this class as Junit 3
-    // Try this to get tests to run
-    public static junit.framework.Test suite() { 
-        return new JUnit4TestAdapter(AllTests.class); 
-    }
 
 }
