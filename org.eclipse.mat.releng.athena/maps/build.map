@@ -22,5 +22,5 @@ fragment@org.eclipse.mat.tests.junit=SVN,trunk,svn://dev.eclipse.org/svnroot/tec
 plugin@org.eclipse.mat.ui.rcp=SVN,trunk,svn://dev.eclipse.org/svnroot/technology/org.eclipse.mat,,plugins/org.eclipse.mat.ui.rcp
 
 #for running tests
-plugin@org.eclipse.test=v20080313,:pserver:anonymous@dev.eclipse.org:/cvsroot/eclipse,
-fragment@org.eclipse.ant.optional.junit=v20070202,:pserver:anonymous@dev.eclipse.org:/cvsroot/eclipse,
+plugin@org.eclipse.test=v20081002,:pserver:anonymous@dev.eclipse.org:/cvsroot/eclipse,
+fragment@org.eclipse.ant.optional.junit=v20080717,:pserver:anonymous@dev.eclipse.org:/cvsroot/eclipse,
