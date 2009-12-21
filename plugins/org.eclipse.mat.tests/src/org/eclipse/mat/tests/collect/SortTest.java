@@ -10,10 +10,11 @@
  *******************************************************************************/
 package org.eclipse.mat.tests.collect;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.util.Arrays;
 import java.util.Random;
-
-import junit.framework.TestCase;
 
 import org.eclipse.mat.collect.ArrayUtils;
 import org.junit.Test;
@@ -69,11 +70,11 @@ public class SortTest
         for (int i = 0; i < n; ++i)
         {
             // Check keys match
-            TestCase.assertEquals("key", key0[i], key[i]);
+            assertEquals("key", key0[i], key[i]);
             // Check values have been moved
-            TestCase.assertEquals("value", value[i], val(key[i]));
+            assertEquals("value", value[i], val(key[i]));
             // Check in order
-            TestCase.assertTrue(prev <= key[i]);
+            assertTrue(prev <= key[i]);
             prev = key[i];
         }
     }
@@ -146,11 +147,11 @@ public class SortTest
         for (int i = 0; i < n; ++i)
         {
             // Check keys match
-            TestCase.assertEquals("key "+i, key0[n - 1 - i], key[i]);
+            assertEquals("key "+i, key0[n - 1 - i], key[i]);
             // Check values have been moved
-            TestCase.assertEquals("value", value[i], val(key[i]));
+            assertEquals("value", value[i], val(key[i]));
             // Check in order
-            TestCase.assertTrue(prev >= key[i]);
+            assertTrue(prev >= key[i]);
             prev = key[i];
         }
     }
