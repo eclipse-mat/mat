@@ -9,7 +9,6 @@ Require-Bundle: org.eclipse.mat.api;bundle-version="0.8.0",
  org.apache.ant;bundle-version="1.7.0"
 Bundle-ActivationPolicy: lazy
 Import-Package: com.ibm.icu.text;version="3.6.1",
- junit.framework;version="4.3.1",
  org.junit;version="4.3.1",
  org.junit.runner;version="4.3.1",
  org.junit.runner.manipulation;version="4.3.1",

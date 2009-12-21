@@ -18,11 +18,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+/* Disable as a test for Athena builds
 import junit.framework.AssertionFailedError;
 import junit.framework.JUnit4TestAdapter;
 import junit.framework.Test;
 import junit.framework.TestListener;
 import junit.framework.TestResult;
+*/
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.taskdefs.optional.junit.JUnitResultFormatter;
@@ -70,6 +72,7 @@ public class JUnit4TestRunner implements IApplication
             for (JUnitResultFormatter f : formatters)
                 f.startTestSuite(antTest);
 
+            /* Disable as a test for Athena builds
             TestResult junitTestResult = new TestResult();
             for (JUnitResultFormatter f : formatters)
                 junitTestResult.addListener(wrap(f));
@@ -78,6 +81,7 @@ public class JUnit4TestRunner implements IApplication
             suite.run(junitTestResult);
 
             antTest.setCounts(junitTestResult.runCount(), junitTestResult.failureCount(), junitTestResult.errorCount());
+            */
             antTest.setRunTime(System.currentTimeMillis() - start);
 
             sendOutAndErr(new String(outStrm.toByteArray()), new String(errStrm.toByteArray()));
@@ -104,6 +108,7 @@ public class JUnit4TestRunner implements IApplication
         }
     }
 
+    /* Disable as a test for Athena builds
     private TestListener wrap(final JUnitResultFormatter delegate)
     {
         return new TestListener()
@@ -173,6 +178,7 @@ public class JUnit4TestRunner implements IApplication
             }
         };
     }
+    */
 
     private void sendOutAndErr(String out, String err)
     {
