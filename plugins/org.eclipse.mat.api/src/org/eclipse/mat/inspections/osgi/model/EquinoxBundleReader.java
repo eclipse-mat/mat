@@ -19,6 +19,8 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.inspections.ReferenceQuery;
+import org.eclipse.mat.inspections.collections.CollectionUtil;
 import org.eclipse.mat.inspections.osgi.model.BundleDescriptor.Type;
 import org.eclipse.mat.inspections.osgi.model.eclipse.ConfigurationElement;
 import org.eclipse.mat.inspections.osgi.model.eclipse.Extension;
@@ -31,6 +33,7 @@ import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IInstance;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IObjectArray;
+import org.eclipse.mat.snapshot.model.ObjectReference;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 
@@ -115,10 +118,9 @@ public class EquinoxBundleReader implements IBundleReader
             for (int i = 0; i < objs.length; i++)
             {
                 IInstance obj = (IInstance) snapshot.getObject(objs[i]);
-
-                IObjectArray bundlesArray = (IObjectArray) obj.resolveValue("bundlesByInstallOrder.elementData");//$NON-NLS-1$
+                IObjectArray bundlesArray = getBackingArray((IObject) obj.resolveValue("bundlesByInstallOrder"));//$NON-NLS-1$
                 if (bundlesArray == null)
-                    return null;
+                    continue;
                 long[] bundleAddreses = bundlesArray.getReferenceArray();
                 if (bundleAddreses != null)
                 {
@@ -146,6 +148,17 @@ public class EquinoxBundleReader implements IBundleReader
             }
         }
         return bundleDescriptors;
+    }
+
+    private IObjectArray getBackingArray(IObject list) throws SnapshotException
+    {
+        if (list == null)
+            return null;
+        // Allow for different collection class implementations
+        CollectionUtil.Info info = CollectionUtil.getInfo(list);
+        if (info == null)
+            return null;
+        return info.getBackingArray(list);
     }
 
     private List<BundleDescriptor> getBundleFragments(IObject bundleHostObject) throws SnapshotException
@@ -203,7 +216,7 @@ public class EquinoxBundleReader implements IBundleReader
             {
                 IInstance obj = (IInstance) snapshot.getObject(objs[i]);
 
-                IObjectArray servicesArray = (IObjectArray) obj.resolveValue("allPublishedServices.elementData");//$NON-NLS-1$
+                IObjectArray servicesArray = getBackingArray((IObject) obj.resolveValue("allPublishedServices"));//$NON-NLS-1$;
                 if (servicesArray == null)
                     continue; // Try with other registries
                 long[] serviceAddreses = servicesArray.getReferenceArray();
@@ -221,8 +234,8 @@ public class EquinoxBundleReader implements IBundleReader
                     BundleDescriptor bundleDescriptor = getBundleDescriptor(bundleObj, Type.BUNDLE);
 
                     List<BundleDescriptor> bundlesUsing = null;
-                    IObjectArray bundlesArray = (IObjectArray) serviceInstance
-                                    .resolveValue("contextsUsing.elementData");//$NON-NLS-1$
+                    IObject bundlesList = (IObject) serviceInstance.resolveValue("contextsUsing");//$NON-NLS-1$
+                    IObjectArray bundlesArray = getBackingArray(bundlesList);
                     if (bundlesArray != null)
                     {
                         long[] bundleAddresses = bundlesArray.getReferenceArray();
@@ -231,6 +244,8 @@ public class EquinoxBundleReader implements IBundleReader
                             bundlesUsing = new ArrayList<BundleDescriptor>(bundleAddresses.length);
                             for (long bundleAddress : bundleAddresses)
                             {
+                                if (bundleAddress == 0)
+                                    continue;
                                 int bundleId = snapshot.mapAddressToId(bundleAddress);
                                 IInstance bundleInstance = (IInstance) snapshot.getObject(bundleId);
                                 IObject bundleObject = (IObject) bundleInstance.resolveValue("bundle");//$NON-NLS-1$
@@ -448,12 +463,12 @@ public class EquinoxBundleReader implements IBundleReader
         IObject bundleDescriptionObject = (IObject) obj.resolveValue("bundledata.bundle.proxy.description");//$NON-NLS-1$
         if (bundleDescriptionObject != null)
         {
-            IObjectArray resolvedValue = (IObjectArray) bundleDescriptionObject
-                            .resolveValue("dependencies.elementData");//$NON-NLS-1$
+            IObjectArray resolvedValue = getBackingArray((IObject) bundleDescriptionObject
+                            .resolveValue("dependencies"));//$NON-NLS-1$
             dependencies = getDependencies(snapshot, resolvedValue);
 
-            IObjectArray resolvedDependentsValue = (IObjectArray) bundleDescriptionObject
-                            .resolveValue("dependents.elementData");//$NON-NLS-1$
+            IObjectArray resolvedDependentsValue = getBackingArray((IObject) bundleDescriptionObject
+                            .resolveValue("dependents"));//$NON-NLS-1$
             dependents = getDependencies(snapshot, resolvedDependentsValue);
         }
 
@@ -551,6 +566,8 @@ public class EquinoxBundleReader implements IBundleReader
                 dependencyDescriptors = new ArrayList<BundleDescriptor>(dependencyAddreses.length);
                 for (long address : dependencyAddreses)
                 {
+                    if (address == 0)
+                        continue;
                     int objectId = snapshot.mapAddressToId(address);
                     IObject bundleDescriptionObject = snapshot.getObject(objectId);
                     IObject bundleHostObject = (IObject) bundleDescriptionObject.resolveValue("userObject.bundle");//$NON-NLS-1$
@@ -862,6 +879,20 @@ public class EquinoxBundleReader implements IBundleReader
             MATPlugin.log(MessageUtil.format(Messages.EquinoxBundleReader_ErrorMsg_ExpectedFieldExtraInformation, Long
                             .toHexString(instance.getObjectAddress())));
             return null;
+        }
+
+        if (extraInfoObject instanceof IInstance)
+        {
+            // Handle soft references
+            ObjectReference ref = ReferenceQuery.getReferent((IInstance) extraInfoObject);
+            if (ref != null)
+            {
+                IObject referentObject = snapshot.getObject(ref.getObjectId());
+                if (referentObject != null)
+                {
+                    extraInfoObject = referentObject;
+                }
+            }
         }
 
         if (extraInfoObject.getClazz().isArrayType())
