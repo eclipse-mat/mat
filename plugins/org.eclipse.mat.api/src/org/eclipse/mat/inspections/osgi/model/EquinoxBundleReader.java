@@ -45,6 +45,8 @@ public class EquinoxBundleReader implements IBundleReader
     private Map<BundleDescriptor, List<ExtensionPoint>> extensionPointsByBundle = new HashMap<BundleDescriptor, List<ExtensionPoint>>();
     // bundle name -> Extensions
     private Map<BundleDescriptor, List<Extension>> extensionsByBundle = new HashMap<BundleDescriptor, List<Extension>>();
+    private static final int STEPS = 1000000;
+    private int maxWarnings = 100;
 
     public EquinoxBundleReader(ISnapshot snapshot)
     {
@@ -82,11 +84,13 @@ public class EquinoxBundleReader implements IBundleReader
 
     public OSGiModel readOSGiModel(IProgressListener listener) throws SnapshotException
     {
+        listener.beginTask("Bundles", STEPS * 3);
         List<BundleDescriptor> descriptors = getBundleDescriptors(listener);
         List<Service> services = collectServiceInfo(listener);
         List<ExtensionPoint> extensionPoints = collectExtensionsInfo(listener);
 
         OSGiModel model = new OSGiModel(this, descriptors, services, extensionPoints);
+        listener.done();
         return model;
 
     }
@@ -99,6 +103,10 @@ public class EquinoxBundleReader implements IBundleReader
         List<BundleDescriptor> bundleDescriptors = new ArrayList<BundleDescriptor>();
         if (classes == null || classes.isEmpty())
             return bundleDescriptors;
+
+        int nobjs = 0;
+        for (IClass clazz : classes)
+            nobjs += clazz.getNumberOfObjects();
 
         for (IClass clazz : classes)
         {
@@ -134,6 +142,7 @@ public class EquinoxBundleReader implements IBundleReader
                         bundleDescriptors.add(descriptor);
                     }
                 }
+                listener.worked(STEPS / nobjs);
             }
         }
         return bundleDescriptors;
@@ -181,6 +190,10 @@ public class EquinoxBundleReader implements IBundleReader
         List<Service> services = new ArrayList<Service>();
         if (classes == null || classes.isEmpty())
             return services;
+
+        int nobjs = 0;
+        for (IClass clazz : classes)
+            nobjs += clazz.getNumberOfObjects();
 
         for (IClass clazz : classes)
         {
@@ -246,7 +259,7 @@ public class EquinoxBundleReader implements IBundleReader
                             }
                             catch (SnapshotException e)
                             {
-                                MATPlugin.log(MessageUtil.format(Messages.EquinoxBundleReader_ErrorMsg_ServiceName,
+                                MATPlugin.log(e, MessageUtil.format(Messages.EquinoxBundleReader_ErrorMsg_ServiceName,
                                                 Long.toHexString(l)));
                             }
                         }
@@ -280,6 +293,7 @@ public class EquinoxBundleReader implements IBundleReader
                     services.add(new Service(serviceName, serviceInstanceId, bundleDescriptor, bundlesUsing, keys,
                                     values));
                 }
+                listener.worked(STEPS / nobjs);
             }
         }
 
@@ -321,7 +335,7 @@ public class EquinoxBundleReader implements IBundleReader
             catch (SnapshotException e)
             {
                 values[j] = null;
-                MATPlugin.log(MessageUtil.format(Messages.EquinoxBundleReader_ErrorMsg_ServiceProperty, Long
+                MATPlugin.log(e, MessageUtil.format(Messages.EquinoxBundleReader_ErrorMsg_ServiceProperty, Long
                                 .toHexString(valueAddresses[j])));
             }
         }
@@ -568,6 +582,10 @@ public class EquinoxBundleReader implements IBundleReader
         Map<Integer, Extension> extensions = new HashMap<Integer, Extension>();
         Map<Integer, ConfigurationElement> configElements = new HashMap<Integer, ConfigurationElement>();
 
+        int nobjs = 0;
+        for (IClass clazz : classes)
+            nobjs += clazz.getNumberOfObjects();
+
         for (IClass clazz : classes)
         {
             int[] objs = clazz.getObjectIds();
@@ -608,7 +626,7 @@ public class EquinoxBundleReader implements IBundleReader
                         }
                         else if (className.equals("org.eclipse.core.internal.registry.ConfigurationElement")) //$NON-NLS-1$
                         {
-                            ConfigurationElement configElement = extractConfigurationElementInfo(instance);
+                            ConfigurationElement configElement = extractConfigurationElementInfo(instance, listener);
                             if (configElement != null && !configElements.containsValue(configElement))
                                 configElements.put(configElement.getElementId(), configElement);
                             else if (configElement != null)
@@ -635,6 +653,7 @@ public class EquinoxBundleReader implements IBundleReader
 
                     }
                 }
+                listener.worked(STEPS / nobjs);
             }
         }
         // add ConfigurationElements to corresponding Extensions or
@@ -642,6 +661,8 @@ public class EquinoxBundleReader implements IBundleReader
         Set<Entry<Integer, ConfigurationElement>> configElementSet = configElements.entrySet();
         for (Entry<Integer, ConfigurationElement> entry : configElementSet)
         {
+            if (listener.isCanceled())
+                throw new IProgressListener.OperationCanceledException();
             ConfigurationElement element = entry.getValue();
             Extension extension = extensions.get(element.getParentId());
             if (extension == null)
@@ -659,6 +680,8 @@ public class EquinoxBundleReader implements IBundleReader
         Set<Entry<Integer, Extension>> set = extensions.entrySet();
         for (Entry<Integer, Extension> entry : set)
         {
+            if (listener.isCanceled())
+                throw new IProgressListener.OperationCanceledException();
             Extension extension = entry.getValue();
             String name = extension.getName();
             ExtensionPoint extensionPoint = extensionPoints.get(name);
@@ -671,6 +694,8 @@ public class EquinoxBundleReader implements IBundleReader
         Set<Entry<Integer, Extension>> extensionsSet = extensions.entrySet();
         for (Entry<Integer, Extension> entry : extensionsSet)
         {
+            if (listener.isCanceled())
+                throw new IProgressListener.OperationCanceledException();
             Extension extension = entry.getValue();
             BundleDescriptor bundleDescriptor = extension.getContributedBy();
 
@@ -689,6 +714,8 @@ public class EquinoxBundleReader implements IBundleReader
         Set<Entry<String, ExtensionPoint>> pointsSet = extensionPoints.entrySet();
         for (Entry<String, ExtensionPoint> entry : pointsSet)
         {
+            if (listener.isCanceled())
+                throw new IProgressListener.OperationCanceledException();
             ExtensionPoint point = entry.getValue();
             BundleDescriptor bundleDescriptor = point.getContributedBy();
             List<ExtensionPoint> listOfExtensions = extensionPointsByBundle.get(bundleDescriptor);
@@ -708,6 +735,8 @@ public class EquinoxBundleReader implements IBundleReader
         List<ExtensionPoint> points = new ArrayList<ExtensionPoint>();
         for (Entry<BundleDescriptor, List<ExtensionPoint>> entry : extensionPointSet)
         {
+            if (listener.isCanceled())
+                throw new IProgressListener.OperationCanceledException();
             List<ExtensionPoint> list = entry.getValue();
             for (ExtensionPoint extensionPoint : list)
             {
@@ -719,7 +748,7 @@ public class EquinoxBundleReader implements IBundleReader
 
     }
 
-    private ConfigurationElement extractConfigurationElementInfo(IObject instance) throws SnapshotException
+    private ConfigurationElement extractConfigurationElementInfo(IObject instance, IProgressListener listener) throws SnapshotException
     {
         Field idField = ((IInstance) instance).getField("parentId"); //$NON-NLS-1$
         if (idField == null)
@@ -770,6 +799,10 @@ public class EquinoxBundleReader implements IBundleReader
             String[] propertiesAndValues = new String[addresses.length];
             for (int i = 0; i < addresses.length; i++)
             {
+                if (listener.isCanceled())
+                    throw new IProgressListener.OperationCanceledException();
+                if (addresses[i] == 0)
+                    continue;
                 try
                 {
                     int id = snapshot.mapAddressToId(addresses[i]);
@@ -779,7 +812,9 @@ public class EquinoxBundleReader implements IBundleReader
                 }
                 catch (SnapshotException e)
                 {
-                    MATPlugin.log(MessageUtil.format(Messages.EquinoxBundleReader_ErrorMsg_ReadingProperty, Long
+                    // Some HPROF dumps have String arrays with invalid entries
+                    // Generating 10,000 messages takes too long
+                    if (maxWarnings-- > 0) MATPlugin.log(e, MessageUtil.format(Messages.EquinoxBundleReader_ErrorMsg_ReadingProperty, Long
                                     .toHexString(addresses[i])));
                     propertiesAndValues[i] = null;
                 }
