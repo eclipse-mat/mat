@@ -78,6 +78,8 @@ public class ExtractListValuesQuery implements IQuery
 
                 result.add(ref.getObjectId());
                 listener.worked(1);
+                if (listener.isCanceled())
+                    throw new IProgressListener.OperationCanceledException();
             }
         }
 
