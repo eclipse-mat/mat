@@ -88,6 +88,8 @@ public class FinalizerQueueQuery implements IQuery
                     if (++worked >= threshold)
                     {
                         listener.worked(worked);
+                        if (listener.isCanceled())
+                            throw new IProgressListener.OperationCanceledException();
                         worked = 0;
                     }
                 }
