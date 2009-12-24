@@ -236,7 +236,7 @@ public class DTFJHeapObjectReader implements IObjectReader
                     continue;
                 }
                 JavaThread jt = (JavaThread) next;
-                int pointerSize = snapshot.getSnapshotInfo().getIdentifierSize();
+                int pointerSize = snapshot.getSnapshotInfo().getIdentifierSize() * 8;
                 // Count all the frames
                 int totalDepth = 0;
                 for (Iterator j = jt.getStackFrames(); j.hasNext(); ++totalDepth)
