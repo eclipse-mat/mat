@@ -169,7 +169,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
     /** severity flag for internal - warning means possible problem */
     private static final IProgressListener.Severity Severity_WARNING = debugInfo ? Severity.ERROR : Severity.WARNING;
     /** How many times to print out a repeating error */
-    private static int errorCount = debugInfo ? 200 : 20;
+    private static final int errorCount = debugInfo ? 200 : 20;
 
     /** The actual dump file */
     private File dump;
@@ -180,7 +180,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
     /** The DTFJ version of the Java runtime */
     private JavaRuntime run;
     /** Used to cache DTFJ images */
-    private static HashMap<File, SoftReference<Image>> imageMap = new HashMap<File, SoftReference<Image>>();
+    private static final HashMap<File, SoftReference<Image>> imageMap = new HashMap<File, SoftReference<Image>>();
 
     /** The outbound references index */
     private IndexWriter.IntArray1NWriter outRefs;
@@ -7163,7 +7163,11 @@ public class DTFJIndexBuilder implements IIndexBuilder
      */
     static Image getDump(File dump, Serializable format) throws Error, IOException
     {
-        SoftReference<Image> softReference = imageMap.get(dump);
+        SoftReference<Image> softReference;
+        synchronized (imageMap)
+        {
+            softReference = imageMap.get(dump);
+        }
         Image im;
         if (softReference != null)
         {
@@ -7172,7 +7176,10 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 return im;
         }
         im = getUncachedDump(dump, format);
-        imageMap.put(dump, new SoftReference<Image>(im));
+        synchronized (imageMap)
+        {
+            imageMap.put(dump, new SoftReference<Image>(im));
+        }
         return im;
     }
 
@@ -7181,25 +7188,42 @@ public class DTFJIndexBuilder implements IIndexBuilder
      * 
      * @param dump
      */
-    private static void clearCachedDump(File dump)
+    private synchronized static void clearCachedDump(File dump)
     {
-        imageMap.remove(dump);
-        // There is no way to close a DTFJ image, so GC and finalize to attempt
-        // to clean up any temporary files
-        System.gc();
-        System.runFinalization();
+        boolean cleanup;
+        synchronized (imageMap)
+        {
+            cleanup = imageMap.remove(dump) != null;
+        }
+        if (cleanup)
+        {
+            // There is no way to close a DTFJ image, so GC and finalize to
+            // attempt
+            // to clean up any temporary files
+            System.gc();
+            System.runFinalization();
+        }
     }
 
     /**
      * Forget about all cached dumps
      */
-    private static void clearCachedDumps()
+    static void clearCachedDumps()
     {
-        imageMap.clear();
-        // There is no way to close a DTFJ image, so GC and finalize to attempt
-        // to clean up any temporary files
-        System.gc();
-        System.runFinalization();
+        boolean cleanup;
+        synchronized (imageMap)
+        {
+            cleanup = !imageMap.isEmpty();
+            imageMap.clear();
+        }
+        if (cleanup)
+        {
+            // There is no way to close a DTFJ image, so GC and finalize to
+            // attempt
+            // to clean up any temporary files
+            System.gc();
+            System.runFinalization();
+        }
     }
 
     /**

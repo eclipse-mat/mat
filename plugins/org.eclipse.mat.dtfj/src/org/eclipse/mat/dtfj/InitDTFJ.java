@@ -62,6 +62,7 @@ public class InitDTFJ extends Plugin implements IRegistryChangeListener
         IExtensionRegistry reg = Platform.getExtensionRegistry();
         removalAllExtensions();
         reg.removeRegistryChangeListener(this);
+        DTFJIndexBuilder.clearCachedDumps();
         super.stop(context);
     }
 
