@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.mat.tests;
 
+import junit.framework.JUnit4TestAdapter;
+
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
@@ -22,5 +24,13 @@ import org.junit.runners.Suite.SuiteClasses;
                 org.eclipse.mat.tests.snapshot.OQLTest.class })
 public class AllTests
 {
+
+    /**
+     * Use for Athena Builds
+     * @return
+     */
+    public static junit.framework.Test suite() { 
+        return new JUnit4TestAdapter(AllTests.class); 
+    }
 
 }
