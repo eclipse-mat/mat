@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.mat.tests.snapshot;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -37,6 +39,18 @@ public class DominatorTreeTest
         testWith(TestSnapshots.getSnapshot(TestSnapshots.SUN_JDK5_64BIT, false), 376);
     }
 
+    @Test
+    public void testDomTreeIBMJdk6_32_System() throws SnapshotException
+    {
+        testWith(TestSnapshots.getSnapshot(TestSnapshots.IBM_JDK6_32BIT_SYSTEM, false), 256);
+    }
+
+    @Test
+    public void testDomTreeIBMJdk6_32_Heap() throws SnapshotException
+    {
+        testWith(TestSnapshots.getSnapshot(TestSnapshots.IBM_JDK6_32BIT_HEAP, false), 256);
+    }
+
     private void testWith(ISnapshot snapshot, long size) throws SnapshotException
     {
         Collection<IClass> rClasses = snapshot.getClassesByName(
@@ -48,7 +62,7 @@ public class DominatorTreeTest
         int[] retainedSetR = snapshot.getRetainedSet(new int[] { rId }, new VoidProgressListener());
 
         assert dominated.length == 8 : "R should be immediate dominator of 8 objects";
-        assert snapshot.getRetainedHeapSize(rId) == size : "R is should have a retained size " + size;
+        assertEquals("R has an unexpected retained size", size, snapshot.getRetainedHeapSize(rId));
         assert retainedSetR.length == 13 : "R should retain 13 objects";
 
         Map<String, Set<String>> children = new HashMap<String, Set<String>>();

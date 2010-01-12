@@ -24,7 +24,11 @@ public class CreateSampleDump
         ReferenceTestData referenceTestData = new ReferenceTestData();
 
         System.out.println("Acquire Heap Dump NOW (then press any key to terminate program)");
-        System.in.read();
+        int c = System.in.read();
+        // Control-break causes read to return early, so try again for another key to wait
+        // for the dump to complete
+        if (c == -1)
+            c = System.in.read();
 
         System.out.println(dominatorTestData);
         System.out.println(referenceTestData);

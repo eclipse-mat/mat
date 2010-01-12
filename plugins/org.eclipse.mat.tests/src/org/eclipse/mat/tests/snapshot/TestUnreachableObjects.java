@@ -27,6 +27,14 @@ public class TestUnreachableObjects
         compare(TestSnapshots.SUN_JDK6_32BIT);
     }
 
+    @Test
+    public void testIBMJDK6_32_SYSTEM() throws SnapshotException
+    {
+        compare(TestSnapshots.IBM_JDK6_32BIT_SYSTEM);
+    }
+
+    // IBM PHD files do not have accurate roots, so this test won't work for IBM_JDK6_32BIT_HEAP
+
     private void compare(String snapshotName) throws SnapshotException
     {
         Map<String, String> options = new HashMap<String, String>();

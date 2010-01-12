@@ -35,6 +35,8 @@ public class TestSnapshots
 {
     public static final String SUN_JDK5_64BIT = "dumps/sun_jdk5_64bit.hprof";
     public static final String SUN_JDK6_32BIT = "dumps/sun_jdk6_32bit.hprof";
+    public static final String IBM_JDK6_32BIT_SYSTEM = "dumps/core.20100112.141124.11580.0001.dmp.zip";
+    public static final String IBM_JDK6_32BIT_HEAP = "dumps/heapdump.20100112.141124.11580.0002.phd";
 
     private static DirDeleter deleterThread;
     private static Map<String, ISnapshot> snapshots = new HashMap<String, ISnapshot>();
