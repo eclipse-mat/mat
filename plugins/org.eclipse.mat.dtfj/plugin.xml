@@ -12,10 +12,15 @@
          </content-type>   
    </extension>
    <extension
-         id="dtfj"
-         point="org.eclipse.ui.startup">
-      <startup
-            class="org.eclipse.mat.dtfj.InitDTFJ2">
-      </startup>
+         id="dynamic-dtfj"
+         name="%dtfj-parser-name"
+         point="org.eclipse.mat.parser.parser">
+      <parser
+            name="%dtfj-parser-files"
+            fileExtension=""
+            dynamic="org.eclipse.mat.dtfj.InitDTFJ$DynamicInfo"
+            indexBuilder="org.eclipse.mat.dtfj.DTFJIndexBuilder"
+            objectReader="org.eclipse.mat.dtfj.DTFJHeapObjectReader">
+      </parser>
    </extension>
 </plugin>

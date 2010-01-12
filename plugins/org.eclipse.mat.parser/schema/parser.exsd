@@ -57,6 +57,9 @@ the Memory Analyzer supports HPROF. An parser for IBM system dumps
                <documentation>
                   Name of the heap dump format. For example, shown in the file selection dialog.
                </documentation>
+               <appInfo>
+                  <meta.attribute translatable="true"/>
+               </appInfo>
             </annotation>
          </attribute>
          <attribute name="fileExtension" type="string" use="required">
@@ -86,6 +89,21 @@ the Memory Analyzer supports HPROF. An parser for IBM system dumps
                </appInfo>
             </annotation>
          </attribute>
+         <attribute name="dynamic" type="string">
+            <annotation>
+               <documentation>
+                  This returns a set of extensions and descriptions, together with ids.
+id
+name
+fileExtensions
+
+which replace the attributes in the dynamic parser.
+               </documentation>
+               <appInfo>
+                  <meta.attribute kind="java" basedOn=":java.util.Map"/>
+               </appInfo>
+            </annotation>
+         </attribute>
       </complexType>
    </element>
 
@@ -111,7 +129,7 @@ the Memory Analyzer supports HPROF. An parser for IBM system dumps
          name=&quot;HPROF Formatted Dumps&quot;
          point=&quot;org.eclipse.mat.parser.parser&quot;&gt;
       &lt;parser
-      		name=&quot;HPROF binary heap dumps&quot;
+        name=&quot;HPROF binary heap dumps&quot;
             fileExtension=&quot;hprof,bin&quot;
             indexBuilder=&quot;org.eclipse.mat.hprof.HprofIndexBuilder&quot;
             objectReader=&quot;org.eclipse.mat.hprof.HprofHeapObjectReader&quot;&gt;
@@ -119,7 +137,6 @@ the Memory Analyzer supports HPROF. An parser for IBM system dumps
    &lt;/extension&gt;
 &lt;/pre&gt;
 &lt;/p&gt;
-
       </documentation>
    </annotation>
 

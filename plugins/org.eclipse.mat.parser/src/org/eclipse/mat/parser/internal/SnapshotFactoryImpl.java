@@ -172,6 +172,9 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
         {
             IIndexBuilder indexBuilder = parser.create(IIndexBuilder.class, ParserRegistry.INDEX_BUILDER);
 
+			if (indexBuilder == null)
+				continue;
+            
             try
             {
                 indexBuilder.init(file, prefix);

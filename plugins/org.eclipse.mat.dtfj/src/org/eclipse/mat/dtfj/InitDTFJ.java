@@ -10,15 +10,12 @@
  *******************************************************************************/
 package org.eclipse.mat.dtfj;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.core.internal.registry.ExtensionRegistry;
 import org.eclipse.core.runtime.ContributorFactoryOSGi;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IContributor;
@@ -36,10 +33,10 @@ import org.osgi.framework.BundleContext;
 public class InitDTFJ extends Plugin implements IRegistryChangeListener
 {
 
-    private static String xmlCodePage = "UTF-8"; //$NON-NLS-1$
     private static final String DTFJ_NAMESPACE = "com.ibm.dtfj.api"; //$NON-NLS-1$
     private static final String DTFJ_IMAGEFACTORY = "imagefactory"; //$NON-NLS-1$
-    private static final String MAT_PARSER = "org.eclipse.mat.parser.parser"; //$NON-NLS-1$
+    
+    private static final Map<String, Map<String, String>> allexts = new HashMap<String, Map<String, String>>();
 
     /**
      * Start the bundle - find DTFJ implementations and convert to parsers.
@@ -112,9 +109,7 @@ public class InitDTFJ extends Plugin implements IRegistryChangeListener
             {
                 String id = el.getAttribute("id"); //$NON-NLS-1$
                 String fullid = cont.getName() + "." + id; //$NON-NLS-1$
-                IExtension extension = reg.getExtension(MAT_PARSER, fullid); //$NON-NLS-1$
-                Object token = ((ExtensionRegistry) reg).getTemporaryUserToken();
-                reg.removeExtension(extension, token);
+                allexts.remove(fullid);
             }
         }
     }
@@ -137,6 +132,7 @@ public class InitDTFJ extends Plugin implements IRegistryChangeListener
                 removeParserExtension(reg, cont, ex);
             }
         }
+        allexts.clear();
     }
 
     /**
@@ -232,47 +228,34 @@ public class InitDTFJ extends Plugin implements IRegistryChangeListener
                 // List of possible file types
                 Set<String> done = new HashSet<String>();
 
-                // Generate a plugin XML for each factory
-                ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                OutputStreamWriter oo = new OutputStreamWriter(bos, xmlCodePage);
-                PrintWriter ow = new PrintWriter(oo);
-
                 // Later used as $heapFormat so we can tell which
                 // DTFJ to use for a dump
                 String id = el.getAttribute("id"); //$NON-NLS-1$
                 String name = el.getAttribute("label"); //$NON-NLS-1$
 
-                ow.println("<?xml version=\"1.0\" encoding=\"" + xmlCodePage + "\"?>"); //$NON-NLS-1$ //$NON-NLS-2$
-                ow.println("<?eclipse version=\"3.2\"?>"); //$NON-NLS-1$
-                ow.println("<plugin>"); //$NON-NLS-1$
-                ow.println("<extension"); //$NON-NLS-1$
-                ow.println("id=\"" + id + "\""); //$NON-NLS-1$ //$NON-NLS-2$
-                ow.println("name=\"" + name + "\""); //$NON-NLS-1$ //$NON-NLS-2$
-                ow.println("point=\"" + MAT_PARSER + "\">"); //$NON-NLS-1$ //$NON-NLS-2$
+                String exts = null;
 
                 for (IConfigurationElement el2 : el.getChildren())
                 {
                     String ref = el2.getAttribute("dump-type"); //$NON-NLS-1$
                     if (ref != null && done.add(ref))
                     {
-                        genParser(ref, contentPoint, ow);
+                        exts = addExtension(exts, genParser(ref, contentPoint));
                     }
 
                     ref = el2.getAttribute("meta-type"); //$NON-NLS-1$
                     if (ref != null && done.add(ref))
                     {
-                        genParser(ref, contentPoint, ow);
+                        exts = addExtension(exts, genParser(ref, contentPoint));
                     }
                 }
-                ow.println("</extension>"); //$NON-NLS-1$
-                ow.println("</plugin>"); //$NON-NLS-1$
-                ow.flush();
-                ow.close();
-                // System.out.println("XML " + bos.toString());
-                ByteArrayInputStream is = new ByteArrayInputStream(bos.toByteArray());
-                // Dynamically add a plugin into the system
-                Object token = ((ExtensionRegistry) reg).getTemporaryUserToken();
-                reg.addContribution(is, cont, false, Messages.InitDTFJ_DynamicDtfj, null, token);
+                
+                Map<String, String> vals = new HashMap<String, String>();
+                vals.put("id", id);  //$NON-NLS-1$
+                vals.put("name", name);  //$NON-NLS-1$
+                vals.put("fileExtension", exts);  //$NON-NLS-1$
+                String fullid = cont.getName() + "." + id; //$NON-NLS-1$
+                allexts.put(fullid, vals);
             }
         }
     }
@@ -283,55 +266,81 @@ public class InitDTFJ extends Plugin implements IRegistryChangeListener
      * @param ref
      * @param point2
      * @param ow
+     * @return extensions
      */
-    private static void genParser(String ref, IExtensionPoint point2, PrintWriter ow)
+    private static String genParser(String ref, IExtensionPoint point2)
     {
 
         IContentType ct = Platform.getContentTypeManager().getContentType(ref);
         if (ct == null)
         {
             // System.out.println("Missing content-type "+ref);
-            return;
+            return null;
         }
 
+        String exts = null;
         // Generate parser references for each content subtype
         for (IContentType ct1 : Platform.getContentTypeManager().getAllContentTypes())
         {
             if (ct1.isKindOf(ct))
-                genParser(ct1, ow);
+            {
+                String s1 = genParser(ct1);
+                exts = addExtension(exts, s1);
+            }
         }
+        return exts;
     }
 
-    private static void genParser(IContentType ct, PrintWriter ow)
+    private static String addExtension(String exts, String ext)
+    {
+        if (exts == null)
+            exts = ext;
+        else if (ext != null)
+            exts += "," + ext; //$NON-NLS-1$
+        return exts;
+    }
+
+    private static String genParser(IContentType ct)
     {
         String label = ct.getName();
+        String exts = null;
         if (label != null)
         {
             String s[] = ct.getFileSpecs(IContentType.FILE_EXTENSION_SPEC);
             if (s.length > 0)
             {
                 // Build a comma separated extensions list
-                String exts = null;
-                for (String s1 : s)
-                {
-                    if (exts == null)
-                        exts = s1;
-                    else
-                        exts += "," + s1; //$NON-NLS-1$
-                }
                 // MAT copes with comma separated list of extensions from the
                 // content-type list
-                ow.println("<parser"); //$NON-NLS-1$
-                ow.println("name=\"" + label + "\""); //$NON-NLS-1$ //$NON-NLS-2$
-                ow.println("fileExtension=\"" + exts + "\""); //$NON-NLS-1$ //$NON-NLS-2$
-                // Important - do not reference the actual DTFJIndexBuilder
-                // class etc. otherwise this
-                // has to load the MAT interfaces and can start MAT before it is
-                // required.
-                ow.println("indexBuilder=\"org.eclipse.mat.dtfj.DTFJIndexBuilder\""); //$NON-NLS-1$
-                ow.println("objectReader=\"org.eclipse.mat.dtfj.DTFJHeapObjectReader\">"); //$NON-NLS-1$
-                ow.println("</parser>"); //$NON-NLS-1$
+                for (String s1 : s)
+                {
+                    exts = addExtension(exts, s1);
+                }
             }
+        }
+        return exts;
+    }
+    
+    /**
+     * This is created and called from the MAT parser handling code
+     * It provides a list of parsers
+     * E.g.
+     * org.eclipse.mat.dtfj.DTFJ-J9
+     *      id = "DTFJ-J9"
+     *      name = "IBM SDK for Java (J9) system dump"
+     *      exts = "zip,dmp,xml"
+     * 
+     *
+     */
+    public static class DynamicInfo extends HashMap<String, Map<String, String>>
+    {
+        /**
+         * 
+         */
+        private static final long serialVersionUID = -5291159195829859576L;
+
+        {
+            super.putAll(allexts);
         }
     }
 }

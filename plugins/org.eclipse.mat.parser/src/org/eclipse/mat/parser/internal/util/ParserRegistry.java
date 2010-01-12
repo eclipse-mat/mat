@@ -11,7 +11,11 @@
 package org.eclipse.mat.parser.internal.util;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -30,6 +34,10 @@ import org.eclipse.mat.util.SimpleStringTokenizer;
 
 public class ParserRegistry extends RegistryReader<ParserRegistry.Parser>
 {
+    private static final String ID = "id";//$NON-NLS-1$
+    private static final String FILE_EXTENSION = "fileExtension";//$NON-NLS-1$
+    private static final String NAME = "name";//$NON-NLS-1$
+    private static final String DYNAMIC = "dynamic";//$NON-NLS-1$
     public static final String INDEX_BUILDER = "indexBuilder";//$NON-NLS-1$
     public static final String OBJECT_READER = "objectReader";//$NON-NLS-1$
 
@@ -40,12 +48,17 @@ public class ParserRegistry extends RegistryReader<ParserRegistry.Parser>
         private SnapshotFormat snapshotFormat;
         private Pattern[] pattern;
 
-        private Parser(IConfigurationElement configElement, SnapshotFormat snapshotFormat, Pattern[] pattern)
+        private Parser(IConfigurationElement configElement, String id, SnapshotFormat snapshotFormat, Pattern[] pattern)
         {
-            this.id = ((IExtension) configElement.getParent()).getSimpleIdentifier();
+            this.id = id;
             this.configElement = configElement;
             this.snapshotFormat = snapshotFormat;
             this.pattern = pattern;
+        }
+
+        private Parser(IConfigurationElement configElement, SnapshotFormat snapshotFormat, Pattern[] pattern)
+        {
+            this(configElement, configElement.getDeclaringExtension().getSimpleIdentifier(), snapshotFormat, pattern);
         }
 
         public String getId()
@@ -55,8 +68,8 @@ public class ParserRegistry extends RegistryReader<ParserRegistry.Parser>
 
         public String getUniqueIdentifier()
         {
-            IExtension extension = (IExtension) configElement.getParent();
-            return extension.getUniqueIdentifier();
+            IExtension extension = configElement.getDeclaringExtension();
+            return extension.getNamespaceIdentifier()+"."+id;//$NON-NLS-1$
         }
 
         public SnapshotFormat getSnapshotFormat()
@@ -76,9 +89,21 @@ public class ParserRegistry extends RegistryReader<ParserRegistry.Parser>
                 Logger.getLogger(getClass().getName()).log(
                                 Level.SEVERE,
                                 MessageUtil.format(Messages.ParserRegistry_ErrorWhileCreating, type.getSimpleName(),
-                                                configElement.getAttribute("addonBuilder")), e);//$NON-NLS-1$
+                                                attribute), e);
                 return null;
             }
+        }
+    }
+    
+    /**
+     * This is not a real parser - but a place holder. When a real parser is required
+     * then this is used to find a list of parsers dynamically.
+     */
+    public class DynamicParser extends Parser
+    {
+        public DynamicParser(IConfigurationElement configElement, SnapshotFormat snapshotFormat, Pattern[] pattern)
+        {
+            super(configElement, snapshotFormat, pattern);
         }
     }
 
@@ -90,9 +115,11 @@ public class ParserRegistry extends RegistryReader<ParserRegistry.Parser>
     @Override
     public Parser createDelegate(IConfigurationElement configElement)
     {
-        String fileExtensions = configElement.getAttribute("fileExtension");//$NON-NLS-1$
+        String dynamic = configElement.getAttribute(DYNAMIC);
+        String fileExtensions = configElement.getAttribute(FILE_EXTENSION);
         if (fileExtensions == null || fileExtensions.length() == 0)
-            return null;
+            if (dynamic == null)
+                return null;
 
         try
         {
@@ -101,8 +128,11 @@ public class ParserRegistry extends RegistryReader<ParserRegistry.Parser>
             for (int ii = 0; ii < extensions.length; ii++)
                 patterns[ii] = Pattern.compile("(.*\\.)((?i)" + extensions[ii] + ")(\\.[0-9]*)?");//$NON-NLS-1$//$NON-NLS-2$
 
-            SnapshotFormat snapshotFormat = new SnapshotFormat(configElement.getAttribute("name"), extensions);//$NON-NLS-1$
-            return new Parser(configElement, snapshotFormat, patterns);
+            SnapshotFormat snapshotFormat = new SnapshotFormat(configElement.getAttribute(NAME), extensions);
+            if (dynamic != null)
+                return new DynamicParser(configElement, snapshotFormat, patterns);
+            else
+                return new Parser(configElement, snapshotFormat, patterns);
         }
         catch (PatternSyntaxException e)
         {
@@ -134,6 +164,69 @@ public class ParserRegistry extends RegistryReader<ParserRegistry.Parser>
                 if (regex.matcher(fileName).matches())
                     answer.add(p);
         return answer;
+    }
+    
+    @Override
+    public Collection<Parser> delegates()
+    {
+        Collection<Parser> res = super.delegates();
+        Collection<Parser> res2 = new HashSet<Parser>();
+        boolean foundDynamic = false;
+        for (Parser p : res)
+        {
+            if (p instanceof DynamicParser)
+            {
+                foundDynamic = true;
+                try
+                {
+                    Map<String, Map<String, String>> mp = (Map<String, Map<String, String>>) p.configElement
+                                    .createExecutableExtension(DYNAMIC);
+                    for (Map<String, String> m : mp.values())
+                    {
+                        String id = m.get(ID);
+                        String name = m.get(NAME);
+                        String fileExtensions = m.get(FILE_EXTENSION);
+                        if (fileExtensions == null || fileExtensions.length() == 0)
+                        {
+
+                        }
+                        else
+                        {
+                            try
+                            {
+                                String[] extensions = SimpleStringTokenizer.split(fileExtensions, ',');
+                                Pattern[] patterns = new Pattern[extensions.length];
+                                for (int ii = 0; ii < extensions.length; ii++)
+                                    patterns[ii] = Pattern.compile("(.*\\.)((?i)" + extensions[ii] + ")(\\.[0-9]*)?");//$NON-NLS-1$//$NON-NLS-2$
+
+                                SnapshotFormat snapshotFormat = new SnapshotFormat(name, extensions);
+                                res2.add(new Parser(p.configElement, id, snapshotFormat, patterns));
+                            }
+                            catch (PatternSyntaxException e)
+                            {
+                                Logger.getLogger(getClass().getName()).log(
+                                                Level.SEVERE,
+                                                MessageUtil.format(
+                                                                Messages.ParserRegistry_ErrorCompilingFileNamePattern,
+                                                                p.configElement.getNamespaceIdentifier()), e);
+                            }
+                        }
+                    }
+                }
+                catch (CoreException e)
+                {
+                    String typeName = p.configElement.getAttribute(DYNAMIC);
+                    Logger.getLogger(getClass().getName()).log(Level.SEVERE,
+                                    MessageUtil.format(Messages.ParserRegistry_ErrorWhileCreating, typeName, DYNAMIC),
+                                    e);
+                }
+            }
+            else
+            {
+                res2.add(p);
+            }
+        }
+        return foundDynamic ? Collections.unmodifiableCollection(res2) : res;
     }
 
 }
