@@ -105,7 +105,7 @@ public abstract class RegistryReader<D> implements IExtensionChangeHandler
 
     protected abstract void removeDelegate(D delegate);
 
-    public final Collection<D> delegates()
+    public Collection<D> delegates()
     {
         return Collections.unmodifiableCollection(delegates);
     }
