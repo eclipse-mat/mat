@@ -61,6 +61,8 @@ public class DTFJHeapObjectReader implements IObjectReader
     private static final int LARGE_ARRAY_SIZE = 1000;
     /** Whether to use stack frames and methods as objects and classes */
     private static final boolean getExtraInfo = true;
+    /** the file */
+    private File file;
     /** the actual DTFJ image */
     private Image image;
     /** the JVM */
@@ -85,6 +87,7 @@ public class DTFJHeapObjectReader implements IObjectReader
         image = null;
         jvm = null;
         addrSpace = null;
+        DTFJIndexBuilder.releaseDump(file, true);
     }
 
     /*
@@ -123,7 +126,8 @@ public class DTFJHeapObjectReader implements IObjectReader
      */
     public void open(ISnapshot snapshot) throws IOException
     {
-        image = DTFJIndexBuilder.getDump(new File(snapshot.getSnapshotInfo().getPath()), snapshot.getSnapshotInfo()
+        file = new File(snapshot.getSnapshotInfo().getPath());
+        image = DTFJIndexBuilder.getDump(file, snapshot.getSnapshotInfo()
                         .getProperty("$heapFormat")); //$NON-NLS-1$
         // Find the JVM
         jvm = DTFJIndexBuilder.getRuntime(image, null);

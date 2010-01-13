@@ -34,6 +34,8 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.TreeSet;
 
 import org.eclipse.core.runtime.CoreException;
@@ -181,6 +183,10 @@ public class DTFJIndexBuilder implements IIndexBuilder
     private JavaRuntime run;
     /** Used to cache DTFJ images */
     private static final HashMap<File, SoftReference<Image>> imageMap = new HashMap<File, SoftReference<Image>>();
+    /** Used to keep count of the active images */
+    private static int imageCount;
+    /** Used to clear the cache of images */
+    private static Timer clearTimer;
 
     /** The outbound references index */
     private IndexWriter.IntArray1NWriter outRefs;
@@ -398,6 +404,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
     {
         // Close DTFJ Image if possible
         image = null;
+        releaseDump(dump, true);
 
         if (outRefs != null)
         {
@@ -485,6 +492,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
         // Free memory
         objectToSize = null;
         missedRoots = null;
+        image = null;
+        releaseDump(dump, false);
         // Debug
         listener.done();
     }
@@ -1828,7 +1837,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         // Free some memory
         gcRoot = null;
         threadRoots = null;
-        image = null;
+        // leave the DTFJ image around as we need to reopen the image later
         run = null;
         dummyClassAddress = null;
         dummyMethodAddress = null;
@@ -7164,23 +7173,67 @@ public class DTFJIndexBuilder implements IIndexBuilder
     static Image getDump(File dump, Serializable format) throws Error, IOException
     {
         SoftReference<Image> softReference;
+        Image im;
         synchronized (imageMap)
         {
+            // Cancel any pending clean-ups
+            if (clearTimer != null)
+            {
+                clearTimer.cancel();
+                clearTimer = null;
+            }
             softReference = imageMap.get(dump);
-        }
-        Image im;
-        if (softReference != null)
-        {
-            im = softReference.get();
-            if (im != null)
-                return im;
+            if (softReference != null)
+            {
+                im = softReference.get();
+                if (im != null)
+                {
+                    ++imageCount;
+                    return im;
+                }
+            }
         }
         im = getUncachedDump(dump, format);
         synchronized (imageMap)
         {
             imageMap.put(dump, new SoftReference<Image>(im));
+            ++imageCount;
         }
         return im;
+    }
+
+    /**
+     * We want to cache DTFJ dump images, but want to free the memory when
+     * nothing is going on. A compromise is to free the images 30 seconds
+     * after the last image is released. A good initial parse will be followed
+     * by an heap object reader open, so don't start a timer after a good parse.
+     * @param dump The dump to be freed
+     * @param free If true and the total use count goes to zero, schedule cleanup
+     */
+    static void releaseDump(File dump, boolean free)
+    {
+        synchronized (imageMap)
+        {
+            if (imageMap.get(dump) != null)
+            {
+                // Valid dump
+                --imageCount;
+            }
+            if (imageCount <= 0 && free)
+            {
+                if (clearTimer == null)
+                    clearTimer = new Timer();
+                // Wait for 30 seconds before cleaning up
+                clearTimer.schedule(new TimerTask()
+                {
+                    @Override
+                    public void run()
+                    {
+                        clearCachedDumps();
+                    }
+                }, 30 * 1000L);
+            }
+        }
     }
 
     /**
@@ -7215,6 +7268,12 @@ public class DTFJIndexBuilder implements IIndexBuilder
         {
             cleanup = !imageMap.isEmpty();
             imageMap.clear();
+            if (clearTimer != null)
+            {
+                clearTimer.cancel();
+                clearTimer = null;
+            }
+            imageCount = 0;
         }
         if (cleanup)
         {
