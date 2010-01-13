@@ -39,6 +39,8 @@ public class Messages extends NLS
     
 	public static String baseline;
 
+    public static String jvm_version;
+
 	static
     {
         // initialize resource bundle

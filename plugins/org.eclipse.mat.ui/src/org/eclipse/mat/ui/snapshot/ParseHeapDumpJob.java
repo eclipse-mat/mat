@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.mat.ui.snapshot;
 
+import java.io.Serializable;
+
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -66,6 +68,10 @@ public abstract class ParseHeapDumpJob extends Job
                                 source.getIdentifierSize(), source.getCreationDate(), source.getNumberOfObjects(),
                                 source.getNumberOfGCRoots(), source.getNumberOfClasses(), source
                                                 .getNumberOfClassLoaders(), source.getUsedHeapSize());
+                // This property is needed for the outline view , but don't copy all properties e.g. UnreachableObjectsHistogram
+                Serializable format = source.getProperty("$heapFormat"); //$NON-NLS-1$
+                if (format != null)
+                    destination.setProperty("$heapFormat", format); //$NON-NLS-1$
                 SnapshotHistoryService.getInstance().addVisitedPath(MemoryAnalyserPlugin.EDITOR_ID, path.toOSString(),
                                 destination);
 

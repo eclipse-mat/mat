@@ -302,6 +302,7 @@ public abstract class SnapshotOutlinePage extends Page implements IContentOutlin
 
             category.addChild(new Label(Messages.format, info.getProperty("$heapFormat"), bInfo //$NON-NLS-1$
                             .getProperty("$heapFormat"))); //$NON-NLS-1$
+            category.addChild(new Label(Messages.jvm_version, info.getJvmInfo(), bInfo.getJvmInfo()));
             category.addChild(new Label(Messages.time, info.getCreationDate(), bInfo.getCreationDate()));
             category.addChild(new Label(Messages.date, info.getCreationDate(), bInfo.getCreationDate()));
             category.addChild(new Label(Messages.identifier_size, info.getIdentifierSize(), bInfo.getIdentifierSize()));
@@ -335,6 +336,7 @@ public abstract class SnapshotOutlinePage extends Page implements IContentOutlin
             Category category = new Category(Messages.general_info);
             elements.add(category);
             category.addChild(new Label(Messages.format, null, null));
+            category.addChild(new Label(Messages.jvm_version, null, null));
             category.addChild(new Label(Messages.time, new Date(osFile.lastModified()), null));
             category.addChild(new Label(Messages.date, new Date(osFile.lastModified()), null));
             category.addChild(new Label(Messages.identifier_size, null, null));
