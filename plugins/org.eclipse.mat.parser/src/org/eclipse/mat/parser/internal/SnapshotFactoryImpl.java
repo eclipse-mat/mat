@@ -15,6 +15,7 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -87,6 +88,14 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
                 {
                     answer = SnapshotImpl.readFromFile(file, prefix, listener);
                 }
+                else
+                {
+                    String message = MessageUtil.format(Messages.SnapshotFactoryImpl_ReparsingHeapDumpAsIndexOutOfDate,
+                                    file.getPath(), new Date(file.lastModified()),
+                                    indexFile.getPath(), new Date(indexFile.lastModified()));
+                    listener.sendUserMessage(Severity.INFO, message, null);
+                    listener.subTask(Messages.SnapshotFactoryImpl_ReparsingHeapDumpWithOutOfDateIndex);
+                }
             }
         }
         catch (IOException ignore_and_reparse)
@@ -95,6 +104,7 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
                             : ignore_and_reparse.getClass().getName();
             String message = MessageUtil.format(Messages.SnapshotFactoryImpl_Error_ReparsingHeapDump, text);
             listener.sendUserMessage(Severity.WARNING, message, ignore_and_reparse);
+            listener.subTask(message);
         }
 
         if (answer == null)

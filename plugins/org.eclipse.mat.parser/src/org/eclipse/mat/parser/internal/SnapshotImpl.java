@@ -92,9 +92,12 @@ public final class SnapshotImpl implements ISnapshot
     {
         FileInputStream fis = null;
 
+        listener.beginTask(Messages.SnapshotImpl_ReopeningParsedHeapDumpFile, 9);
+
         try
         {
             fis = new FileInputStream(prefix + "index");//$NON-NLS-1$
+            listener.worked(1);
             ObjectInputStream in = new ObjectInputStream(new BufferedInputStream(fis));
 
             String version = in.readUTF();
@@ -105,6 +108,7 @@ public final class SnapshotImpl implements ISnapshot
             Parser parser = ParserPlugin.getDefault().getParserRegistry().lookupParser(objectReaderUniqueIdentifier);
             if (parser == null)
                 throw new IOException(Messages.SnapshotImpl_Error_ParserNotFound + objectReaderUniqueIdentifier);
+            listener.worked(1);
             IObjectReader heapObjectReader = parser.create(IObjectReader.class, ParserRegistry.OBJECT_READER);
 
             XSnapshotInfo snapshotInfo = (XSnapshotInfo) in.readObject();
@@ -118,19 +122,23 @@ public final class SnapshotImpl implements ISnapshot
             HashMapIntObject<HashMapIntObject<XGCRootInfo[]>> rootsPerThread = (HashMapIntObject<HashMapIntObject<XGCRootInfo[]>>) in
                             .readObject();
 
+            listener.worked(1);
             if (listener.isCanceled())
                 throw new IProgressListener.OperationCanceledException();
 
             HashMapIntObject<String> loaderLabels = (HashMapIntObject<String>) in.readObject();
             BitField arrayObjects = (BitField) in.readObject();
+            listener.worked(3);
 
             snapshotInfo.setPrefix(prefix);
             snapshotInfo.setPath(file.getAbsolutePath());
             IndexManager indexManager = new IndexManager();
             indexManager.init(prefix);
 
-            return new SnapshotImpl(snapshotInfo, heapObjectReader, classCache, roots, rootsPerThread, loaderLabels,
+            SnapshotImpl ret = new SnapshotImpl(snapshotInfo, heapObjectReader, classCache, roots, rootsPerThread, loaderLabels,
                             arrayObjects, indexManager);
+            listener.worked(3);
+            return ret;
         }
         catch (ClassNotFoundException e)
         {
@@ -148,6 +156,7 @@ public final class SnapshotImpl implements ISnapshot
         {
             if (fis != null)
                 fis.close();
+            listener.done();
         }
     }
 

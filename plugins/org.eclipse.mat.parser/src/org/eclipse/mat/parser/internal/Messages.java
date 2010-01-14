@@ -42,6 +42,8 @@ public class Messages extends NLS
     public static String SnapshotFactoryImpl_Error_OpeningHeapDump;
     public static String SnapshotFactoryImpl_Error_ReparsingHeapDump;
     public static String SnapshotFactoryImpl_ErrorOpeningHeapDump;
+    public static String SnapshotFactoryImpl_ReparsingHeapDumpAsIndexOutOfDate;
+    public static String SnapshotFactoryImpl_ReparsingHeapDumpWithOutOfDateIndex;
     public static String SnapshotImpl_BuildingHistogram;
     public static String SnapshotImpl_Error_DomTreeNotAvailable;
     public static String SnapshotImpl_Error_ObjectNotFound;
@@ -53,6 +55,7 @@ public class Messages extends NLS
     public static String SnapshotImpl_Label;
     public static String SnapshotImpl_ReadingInboundReferrers;
     public static String SnapshotImpl_ReadingOutboundReferrers;
+    public static String SnapshotImpl_ReopeningParsedHeapDumpFile;
     public static String SnapshotImpl_RetrievingDominators;
     public static String ObjectArrayImpl_forArray;
     public static String ObjectMarker_CalculateRetainedSize;
