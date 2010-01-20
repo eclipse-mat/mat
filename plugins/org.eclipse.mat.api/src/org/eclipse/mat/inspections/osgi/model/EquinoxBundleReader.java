@@ -87,7 +87,7 @@ public class EquinoxBundleReader implements IBundleReader
 
     public OSGiModel readOSGiModel(IProgressListener listener) throws SnapshotException
     {
-        listener.beginTask("Bundles", STEPS * 3);
+        listener.beginTask(Messages.EquinoxBundleReader_ProcessListenerBundles, STEPS * 3);
         List<BundleDescriptor> descriptors = getBundleDescriptors(listener);
         List<Service> services = collectServiceInfo(listener);
         List<ExtensionPoint> extensionPoints = collectExtensionsInfo(listener);
@@ -794,7 +794,27 @@ public class EquinoxBundleReader implements IBundleReader
                             .toHexString(instance.getObjectAddress())));
             return null;
         }
-        BundleDescriptor contributedBy = bundleDescriptors.get(Long.valueOf(contributorObject.getClassSpecificName()));
+        
+        /*
+		 * in some heap dumps the the contributorID was a fully qualified name
+		 * instead of a number. The following lines are an attempt to read the
+		 * data as number
+		 */
+        Long contributorId = null;
+        BundleDescriptor contributedBy = null;
+        String contributorIdString = contributorObject.getClassSpecificName();
+        try
+		{
+			contributorId = Long.valueOf(contributorIdString);
+		}
+		catch (NumberFormatException e)
+		{
+			MATPlugin.log(MessageUtil.format(Messages.EquinoxBundleReader_CannotFindContributorID, contributorIdString));
+		}
+		if (contributorId != null)
+		{
+			contributedBy = bundleDescriptors.get(contributorId);
+		}
 
         IObject nameObject = (IObject) instance.resolveValue("name");//$NON-NLS-1$
         if (nameObject == null)
@@ -864,9 +884,27 @@ public class EquinoxBundleReader implements IBundleReader
         }
         Integer extensionId = (Integer) id.getValue();
         Extension extension = new Extension(instance.getObjectId(), extensionId, properties);
-        BundleDescriptor contributedBy = bundleDescriptors.get(Long.valueOf(extension.getContributorId()));
-
-        extension.setContributedBy(contributedBy);
+        
+        /*
+		 * in some heap dumps the the contributorID was a fully qualified name
+		 * instead of a number. The following lines are an attempt to read the
+		 * data as number
+		 */
+        Long contributorId = null;
+        String contributorIdString = extension.getContributorId();
+        try
+		{
+			contributorId = Long.valueOf(contributorIdString);
+		}
+		catch (NumberFormatException e)
+		{
+			MATPlugin.log(MessageUtil.format(Messages.EquinoxBundleReader_CannotFindContributorID, contributorIdString));
+		}
+		if (contributorId != null)
+		{
+			BundleDescriptor contributedBy = bundleDescriptors.get(contributorId);
+			extension.setContributedBy(contributedBy);
+		}
 
         return extension;
     }
@@ -935,8 +973,27 @@ public class EquinoxBundleReader implements IBundleReader
         }
         Integer extensionPointId = (Integer) id.getValue();
         ExtensionPoint extensionPoint = new ExtensionPoint(instance.getObjectId(), extensionPointId, properties);
-        BundleDescriptor contributedBy = bundleDescriptors.get(Long.valueOf(extensionPoint.getContributorId()));
-        extensionPoint.setContributedBy(contributedBy);
+        
+        /*
+		 * in some heap dumps the the contributorID was a fully qualified name
+		 * instead of a number. The following lines are an attempt to read the
+		 * data as number
+		 */
+		Long contributorId = null;
+		String contributorIdString = extensionPoint.getContributorId();
+		try
+		{
+			contributorId = Long.valueOf(contributorIdString);
+		}
+		catch (NumberFormatException e)
+		{
+			MATPlugin.log(MessageUtil.format(Messages.EquinoxBundleReader_CannotFindContributorID, contributorIdString));
+		}
+		if (contributorId != null)
+		{
+			BundleDescriptor contributedBy = bundleDescriptors.get(contributorId);
+			extensionPoint.setContributedBy(contributedBy);
+		}
 
         return extensionPoint;
     }
