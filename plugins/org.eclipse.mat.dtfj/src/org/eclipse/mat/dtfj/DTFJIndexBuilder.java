@@ -6539,7 +6539,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         {
             String sig = meth.getSignature();
             // 1.4.2 dumps have "Pseudo Frame" with no signature
-            if (sig.equals("")) sig = "()"; //$NON-NLS-1$
+            if (sig.equals("")) sig = "()"; //$NON-NLS-1$ //$NON-NLS-2$
             name += sig;
         }
         catch (CorruptDataException e)
