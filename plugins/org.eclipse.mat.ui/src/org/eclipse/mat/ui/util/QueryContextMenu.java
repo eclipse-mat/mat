@@ -360,7 +360,7 @@ public class QueryContextMenu
                             Locale.getDefault(), CopyActions.Address.class.getClassLoader());
             String value = rb.getString(CopyActions.Address.class.getSimpleName() + ".category"); //$NON-NLS-1$
             // get rid of "101|"
-            int position = value.indexOf("|");
+            int position = value.indexOf("|"); //$NON-NLS-1$
             String menuName = (position < 0) ? value : value.substring(position + 1);
             Action copySelectionAction = new Action()
             {
