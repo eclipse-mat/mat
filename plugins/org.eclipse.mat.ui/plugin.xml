@@ -2,10 +2,10 @@
 <?eclipse version="3.0"?>
 <plugin>
 
-	<extension-point id="editorPanes" name="Heap Editor Panes"
+	<extension-point id="editorPanes" name="%extension-point.editorPanes.name"
 		schema="schema/editorPanes.exsd" />
 	<extension-point id="editorContributions"
-		name="Multi Pane Editor Contributions"
+		name="%extension-point.editorContributions.name"
 		schema="schema/editorContributions.exsd" />
 	
 	<extension point="org.eclipse.ui.perspectives">
