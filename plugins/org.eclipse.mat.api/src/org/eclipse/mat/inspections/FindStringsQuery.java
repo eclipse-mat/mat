@@ -44,7 +44,7 @@ public class FindStringsQuery implements IQuery
 
         ArrayInt result = new ArrayInt();
 
-        Collection<IClass> classes = snapshot.getClassesByName("java.lang.String", false);
+        Collection<IClass> classes = snapshot.getClassesByName("java.lang.String", false); //$NON-NLS-1$
         if (objects == null)
         {
             if (classes != null)

@@ -145,6 +145,9 @@ public class Messages extends NLS
     public static String DuplicatedClassesQuery_Column_NoInstances;
 
     public static String EclipseNameResolver_EquinoxStartupClassLoader;
+    public static String EclipseNameResolver_Point;
+    public static String EclipseNameResolver_Rectangle;
+    public static String EclipseNameResolver_RGB;
 
     public static String EquinoxBundleReader_CannotFindContributorID;
 

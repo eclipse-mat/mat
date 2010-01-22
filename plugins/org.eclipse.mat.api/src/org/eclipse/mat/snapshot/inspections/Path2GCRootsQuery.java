@@ -69,7 +69,7 @@ public class Path2GCRootsQuery implements IQuery
     @SuppressWarnings("nls")
     @Argument(isMandatory = false)
     public List<String> excludes = Arrays.asList( //
-                    new String[] { "java.lang.ref.WeakReference:referent", "java.lang.ref.SoftReference:referent" });
+                    new String[] { "java.lang.ref.WeakReference:referent", "java.lang.ref.SoftReference:referent" }); //$NON-NLS-1$ //$NON-NLS-2$
 
     @Argument(isMandatory = false)
     public int numberOfPaths = 30;

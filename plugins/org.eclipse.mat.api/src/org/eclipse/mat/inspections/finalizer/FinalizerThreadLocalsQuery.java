@@ -40,7 +40,7 @@ public class FinalizerThreadLocalsQuery implements IQuery
 
         for (int finalizerThreadObject : finalizerThreadObjects)
         {	
-        	Field localsField = ((IInstance) snapshot.getObject(finalizerThreadObject)).getField("threadLocals");
+        	Field localsField = ((IInstance) snapshot.getObject(finalizerThreadObject)).getField("threadLocals"); //$NON-NLS-1$
             if (localsField != null)
             {
                 ObjectReference ref = (ObjectReference) localsField.getValue(); //$NON-NLS-1$

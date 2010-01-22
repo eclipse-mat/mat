@@ -25,7 +25,6 @@ import org.eclipse.mat.snapshot.SnapshotInfo;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.Units;
 
-import com.ibm.icu.text.DecimalFormat;
 import com.ibm.icu.text.NumberFormat;
 
 @CommandName("heap_dump_overview")

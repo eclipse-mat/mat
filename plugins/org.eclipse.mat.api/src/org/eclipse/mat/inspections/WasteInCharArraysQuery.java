@@ -42,7 +42,7 @@ public class WasteInCharArraysQuery implements IQuery
     {
         ArrayInt result = new ArrayInt();
 
-        Collection<IClass> classes = snapshot.getClassesByName("char[]", false);
+        Collection<IClass> classes = snapshot.getClassesByName("char[]", false); //$NON-NLS-1$
         if (classes != null)
             for (IClass clasz : classes) //$NON-NLS-1$
             {
