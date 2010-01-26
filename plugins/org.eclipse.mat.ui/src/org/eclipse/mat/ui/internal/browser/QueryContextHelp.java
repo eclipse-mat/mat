@@ -15,6 +15,7 @@ import java.util.List;
 
 import org.eclipse.jface.dialogs.PopupDialog;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.registry.ArgumentDescriptor;
 import org.eclipse.mat.query.registry.QueryDescriptor;
 import org.eclipse.mat.ui.Messages;
@@ -35,12 +36,19 @@ public class QueryContextHelp extends PopupDialog
 
     Rectangle bounds;
     StyledText helpText;
+    IQueryContext queryContext;
 
-    public QueryContextHelp(Shell parent, QueryDescriptor query, Rectangle bounds)
+    public QueryContextHelp(Shell shell, QueryDescriptor queryDescriptor, Rectangle helpBounds)
+    {
+        this(shell, queryDescriptor, null, helpBounds);
+    }
+
+    public QueryContextHelp(Shell parent, QueryDescriptor query, IQueryContext queryContext, Rectangle bounds)
     {
         super(parent, /* HOVER_SHELLSTYLE */SWT.NO_FOCUS | SWT.TOOL, false, false, false, false, null, null);
         this.query = query;
         this.bounds = bounds;
+        this.queryContext = queryContext;
     }
 
     @Override
@@ -94,6 +102,16 @@ public class QueryContextHelp extends PopupDialog
                 buf.append(name).append("\n");//$NON-NLS-1$
                 buf.append(help);
             }
+        }
+        
+        if (queryContext != null)
+        {
+            String heading = "\n\n" + Messages.QueryContextHelp_Usage + "\n"; //$NON-NLS-1$ //$NON-NLS-2$
+            ranges.add(new StyleRange(buf.length(), heading.length(), null, null, SWT.BOLD));
+            buf.append(heading);
+            String usage = query.getUsage(queryContext);
+            buf.append("\n"); //$NON-NLS-1$
+            buf.append(usage);
         }
 
         helpText = new StyledText(textComposite, SWT.WRAP | SWT.READ_ONLY);

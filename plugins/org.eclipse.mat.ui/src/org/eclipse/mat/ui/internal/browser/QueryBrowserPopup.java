@@ -78,7 +78,7 @@ public class QueryBrowserPopup extends PopupDialog
         void execute(MultiPaneEditor editor) throws SnapshotException;
     }
 
-    private static final int INITIAL_COUNT_PER_PROVIDER = 5;
+    private static final int INITIAL_COUNT_PER_PROVIDER = 4;
 
     private LocalResourceManager resourceManager = new LocalResourceManager(JFaceResources.getResources());
 
@@ -108,7 +108,10 @@ public class QueryBrowserPopup extends PopupDialog
         providers.add(new QueryHistoryProvider());
 
         if (!onlyHistory)
+        {
             addCategories(QueryRegistry.instance().getRootCategory());
+            providers.add(new QueryRegistryProvider(editor.getQueryContext(), QueryRegistry.instance().getRootCategory()));
+        }
 
         create();
     }
@@ -257,6 +260,7 @@ public class QueryBrowserPopup extends PopupDialog
 
         table.addMouseListener(new MouseAdapter()
         {
+            @Override
             public void mouseUp(MouseEvent e)
             {
 
@@ -272,11 +276,7 @@ public class QueryBrowserPopup extends PopupDialog
                     TableItem selection = table.getSelection()[0];
                     if (selection.equals(o))
                     {
-                        if (e.button == 1)
-                        {
-                            handleSelection(false);
-                        }
-                        else
+                        if (e.button != 1)
                         {
                             handleSelection(true);
                         }
@@ -463,10 +463,18 @@ public class QueryBrowserPopup extends PopupDialog
             return;
         }
 
-        Element selectedElement = ((QueryBrowserItem) table.getItem(table.getSelectionIndex()).getData()).element;
+        QueryBrowserItem queryBrowserItem = ((QueryBrowserItem) table.getItem(table.getSelectionIndex()).getData());
+        Element selectedElement = queryBrowserItem.element;
 
         if (selectedElement == null)
-            return; // do nothing on categories
+        {
+            // Category, so select just this category
+            String name = queryBrowserItem.provider.getName();
+            filterText.setText(name);
+            filterText.setSelection(0);
+            filterText.setFocus();
+            return;
+        }
 
         if (doUpdateFilterText)
         {
@@ -499,8 +507,9 @@ public class QueryBrowserPopup extends PopupDialog
             Element selectedElement = ((QueryBrowserItem) table.getItem(table.getSelectionIndex()).getData()).element;
             QueryDescriptor query = selectedElement != null ? selectedElement.getQuery() : null;
 
-            if (query != null && query.isHelpAvailable())
+            if (query != null)
             {
+                // At least display the usage even if no help is available.
                 if (helpText == null || helpText.getQuery() != query)
                 {
                     if (helpText != null)
@@ -509,7 +518,7 @@ public class QueryBrowserPopup extends PopupDialog
                     Rectangle myBounds = getShell().getBounds();
                     Rectangle helpBounds = new Rectangle(myBounds.x, myBounds.y + myBounds.height, myBounds.width,
                                     SWT.DEFAULT);
-                    helpText = new QueryContextHelp(getShell(), query, helpBounds);
+                    helpText = new QueryContextHelp(getShell(), query, editor.getQueryContext(), helpBounds);
                     helpText.open();
                 }
 
@@ -570,6 +579,13 @@ public class QueryBrowserPopup extends PopupDialog
         // results...)
 
         List<List<QueryBrowserItem>> entries = new ArrayList<List<QueryBrowserItem>>(providers.size());
+        // For all except the initial page, list all the queries and let the receiver scroll
+        boolean noLimits = filter.length() > 0;
+        // Allow for extra entry to select all
+        if (!noLimits)
+            maxCount--;
+        if (filter.equals(QueryAllProvider.ALL.toLowerCase()))
+            filter = ""; //$NON-NLS-1$
 
         int[] indexPerCategory = new int[providers.size()];
         int countPerCategory = Math.min(maxCount / 4, INITIAL_COUNT_PER_PROVIDER);
@@ -577,10 +593,10 @@ public class QueryBrowserPopup extends PopupDialog
 
         boolean done = false;
 
-        while (countTotal < maxCount && !done)
+        while ((countTotal < maxCount || noLimits) && !done)
         {
             done = true;
-            for (int ii = 0; ii < providers.size() && countTotal < maxCount; ii++)
+            for (int ii = 0; ii < providers.size() && (countTotal < maxCount || noLimits); ii++)
             {
                 List<QueryBrowserItem> e = null;
 
@@ -599,7 +615,7 @@ public class QueryBrowserPopup extends PopupDialog
 
                 Element[] elements = provider.getElementsSorted();
                 int j = indexPerCategory[ii];
-                while (j < elements.length && count < countPerCategory && countTotal < maxCount)
+                while (j < elements.length && (count < countPerCategory && countTotal < maxCount || noLimits))
                 {
                     Element element = elements[j];
                     QueryBrowserItem entry = null;
@@ -617,13 +633,18 @@ public class QueryBrowserPopup extends PopupDialog
                         }
                         else
                         {
-                            // test whether category or description match
+                            // test whether category or description or usage match
                             index = provider.getName().toLowerCase().indexOf(filter);
                             if (index == -1 && element.getQuery() != null)
                             {
                                 String help = element.getQuery().getHelp();
                                 if (help != null)
                                     index = help.toLowerCase().indexOf(filter);
+                                if (index == -1)
+                                {
+                                    String usage = element.getUsage();
+                                    index = usage.toLowerCase().indexOf(filter);
+                                }
                             }
 
                             if (index != -1)
@@ -662,6 +683,10 @@ public class QueryBrowserPopup extends PopupDialog
                 answer.get(answer.size() - 1).lastInCategory = true;
             }
         }
+
+        // Add the option to display all queries
+        if (!noLimits && maxCount >= 0)
+            answer.add(new QueryBrowserItem(null, new QueryAllProvider(), 0, 0));
 
         return answer;
     }

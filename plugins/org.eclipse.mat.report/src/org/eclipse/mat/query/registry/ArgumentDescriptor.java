@@ -174,7 +174,26 @@ public class ArgumentDescriptor
         {
             if (flag != null)
                 buf.append(" ");
-            buf.append("<").append(name).append(">");
+            if (isEnum())
+            {
+                boolean first = true;
+                for (Enum o : ((Class<Enum>)type).getEnumConstants())
+                {
+                    if (first)
+                    {
+                        first = false;
+                    }
+                    else
+                    {
+                        buf.append("|");
+                    }
+                    buf.append(o.name());
+                }
+            }
+            else
+            {
+                buf.append("<").append(name).append(">");
+            }
         }
 
         if (!isMandatory())

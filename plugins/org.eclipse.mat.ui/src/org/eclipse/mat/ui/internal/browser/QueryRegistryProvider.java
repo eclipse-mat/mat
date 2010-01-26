@@ -19,6 +19,7 @@ import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.registry.CategoryDescriptor;
 import org.eclipse.mat.query.registry.QueryDescriptor;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.QueryExecution;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
 
@@ -51,7 +52,9 @@ public class QueryRegistryProvider extends QueryBrowserProvider
     @Override
     public String getName()
     {
-        return category.getFullName();
+        String name = category.getFullName();
+        if (name == null) name = Messages.QueryRegistryProvider_Uncategorized; //$NON-NLS-1$
+        return name;
     }
 
     class CQQElement implements QueryBrowserPopup.Element

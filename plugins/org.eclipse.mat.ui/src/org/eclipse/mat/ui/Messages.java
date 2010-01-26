@@ -192,10 +192,12 @@ public class Messages extends NLS
     public static String Path2GCRootsPane_ReadingNext;
     public static String Path2GCRootsPane_Status;
     public static String PopupMenu_NONE;
+    public static String QueryAllProvider_AllQueries;
     public static String QueryBrowserPopup_Categories;
     public static String QueryBrowserPopup_PressCtrlEnter;
     public static String QueryBrowserPopup_StartTyping;
     public static String QueryContextHelp_Arguments;
+    public static String QueryContextHelp_Usage;
     public static String QueryContextMenu_context;
     public static String QueryContextMenu_CopySelectionToTheClipboard;
     public static String QueryContextMenu_Details;
@@ -211,6 +213,7 @@ public class Messages extends NLS
     public static String QueryExecution_NoHTMLOutput;
     public static String QueryExecution_NoResult;
     public static String QueryHistoryProvider_History;
+    public static String QueryRegistryProvider_Uncategorized;
     public static String QueryResultPane_InfoMessage;
     public static String QueryResultPane_QueryResult;
     public static String QueryResultPane_ShowAsHistogram;
