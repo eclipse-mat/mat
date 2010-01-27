@@ -38,14 +38,14 @@ import org.eclipse.mat.util.MessageUtil;
  * Extract information about objects extending java.lang.ref.Reference, e.g.
  * weak and soft references, and Finalizer.
  */
-@CommandName("references_statistics") //$NON-NLS-1$
+@CommandName("references_statistics")
 public class ReferenceQuery implements IQuery
 {
 
     @Argument
     public ISnapshot snapshot;
 
-    @Argument(flag = "none") //$NON-NLS-1$
+    @Argument(flag = "none")
     public IHeapObjectArgument objects;
     
     static final String DEFAULT_REFERENT = "referent"; //$NON-NLS-1$
@@ -142,7 +142,7 @@ public class ReferenceQuery implements IQuery
         result.addResult(labelHistogramReferenced, histogram);
 
         listener.subTask(Messages.ReferenceQuery_Msg_ComputingRetainedSet);
-        int[] retainedSet = snapshot.getRetainedSet(instanceSet.toArray(), new String[] { referentField }, listener); //$NON-NLS-1$
+        int[] retainedSet = snapshot.getRetainedSet(instanceSet.toArray(), new String[] { referentField }, listener);
         if (listener.isCanceled())
             throw new IProgressListener.OperationCanceledException();
         histogram = snapshot.getHistogram(retainedSet, listener);
@@ -204,7 +204,7 @@ public class ReferenceQuery implements IQuery
 
     public static ObjectReference getReferent(IInstance instance) throws SnapshotException
     {
-        return getReferent(instance, DEFAULT_REFERENT); //$NON-NLS-1$
+        return getReferent(instance, DEFAULT_REFERENT);
     }
     
     static ObjectReference getReferent(IInstance instance, String referentName) throws SnapshotException

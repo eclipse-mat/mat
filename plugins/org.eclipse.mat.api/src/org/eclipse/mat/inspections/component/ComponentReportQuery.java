@@ -712,7 +712,7 @@ public class ComponentReportQuery implements IQuery
     private void addReferenceStatistic(SectionSpec componentReport, Histogram histogram, Ticks ticks, String className, ReferenceMessages messages)
                     throws SnapshotException
     {
-        Collection<IClass> classes = snapshot.getClassesByName(className, true); //$NON-NLS-1$
+        Collection<IClass> classes = snapshot.getClassesByName(className, true);
         if (classes == null)
         {
             addEmptyResult(componentReport, messages.ReferenceStatistics,

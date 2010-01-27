@@ -25,7 +25,7 @@ import org.eclipse.mat.snapshot.model.PrettyPrinter;
 
 public class CommonNameResolver
 {
-    @Subject("java.lang.String") //$NON-NLS-1$
+    @Subject("java.lang.String")
     public static class StringResolver implements IClassSpecificNameResolver
     {
         public String resolve(IObject obj) throws SnapshotException
@@ -34,8 +34,8 @@ public class CommonNameResolver
         }
     }
 
-    @Subjects( { "java.lang.StringBuffer", //  //$NON-NLS-1$
-                    "java.lang.StringBuilder" }) //$NON-NLS-1$
+    @Subjects( { "java.lang.StringBuffer", //
+                    "java.lang.StringBuilder" })
     public static class StringBufferResolver implements IClassSpecificNameResolver
     {
         public String resolve(IObject obj) throws SnapshotException
@@ -54,7 +54,7 @@ public class CommonNameResolver
         }
     }
 
-    @Subject("java.lang.Thread") //$NON-NLS-1$
+    @Subject("java.lang.Thread")
     public static class ThreadResolver implements IClassSpecificNameResolver
     {
         public String resolve(IObject obj) throws SnapshotException

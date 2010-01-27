@@ -48,7 +48,7 @@ public class FindStringsQuery implements IQuery
         if (objects == null)
         {
             if (classes != null)
-                ClassesLoop: for (IClass clasz : classes) //$NON-NLS-1$
+                ClassesLoop: for (IClass clasz : classes)
                 {
                     int[] objectIds = clasz.getObjectIds();
 
@@ -67,7 +67,7 @@ public class FindStringsQuery implements IQuery
         {
             if (classes != null && !classes.isEmpty())
             {
-                IClass javaLangString = classes.iterator().next(); //$NON-NLS-1$
+                IClass javaLangString = classes.iterator().next();
 
                 ObjectsLoop: for (int[] objectIds : objects)
                 {
