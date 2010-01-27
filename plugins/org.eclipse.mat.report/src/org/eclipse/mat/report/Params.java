@@ -36,6 +36,11 @@ public interface Params
      * also specify {@link Params.Html.SEPARATE_FILE}.
      */
     String FILENAME = "filename";
+    
+    /**
+     * If given, used to create a zip file name
+     */
+    String FILENAME_SUFFIX = "filename_suffix";
 
     /**
      * @noimplement

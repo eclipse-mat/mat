@@ -1,3 +1,4 @@
 <query name="%top_components.title">
+	<param key="filename_suffix" value="%top_components.suffix" />
 	<command>component_report_top -t 1</command>
 </query>

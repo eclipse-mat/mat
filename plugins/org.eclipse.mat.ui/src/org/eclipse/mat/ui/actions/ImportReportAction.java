@@ -61,7 +61,7 @@ public class ImportReportAction extends Action
                             SWT.OPEN | SWT.MULTI);
 
             dialog.setText(Messages.ImportReportAction_ImportReport);
-            dialog.setFilterExtensions(new String[] { "*.zip" });//$NON-NLS-1$
+            dialog.setFilterExtensions(new String[] { "*_*.zip" });//$NON-NLS-1$
             dialog.setFilterNames(new String[] { Messages.ImportReportAction_MemoryAnalyzerReports });
 
             prepareFilterSelection(dialog);
@@ -187,7 +187,7 @@ public class ImportReportAction extends Action
         String prefix = p < 0 ? name : name.substring(0, p);
 
         dialog.setFilterPath(snapshot.getParentFile().getAbsolutePath());
-        dialog.setFileName(prefix + "*.zip");//$NON-NLS-1$
+        dialog.setFileName(prefix + "_*.zip");//$NON-NLS-1$
     }
 
 }

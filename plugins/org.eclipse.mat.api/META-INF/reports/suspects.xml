@@ -1,5 +1,6 @@
 <section name="%suspects.title">
 	<param key="html.collapsed" value="false" />
+	<param key="filename_suffix" value="%suspects.suffix" />	
 
 	<section name="%overview.title">
 		<param key="html.separate_file" value="true" />

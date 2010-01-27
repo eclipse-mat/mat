@@ -207,9 +207,7 @@ public final class SpecFactory extends RegistryReader<SpecFactory.Report>
             if ("section".equals(localName))
             {
                 String n = attributes.getValue("name");
-
-                if (bundle != null && n != null && n.length() > 0 && n.charAt(0) == '%')
-                    n = Platform.getResourceString(bundle, n);
+                n = translate(n);
 
                 SectionSpec spec = new SectionSpec(n);
                 ((SectionSpec) stack.getLast()).add(spec);
@@ -218,8 +216,7 @@ public final class SpecFactory extends RegistryReader<SpecFactory.Report>
             else if ("query".equals(localName))
             {
                 String n = attributes.getValue("name");
-                if (bundle != null && n != null && n.length() > 0 && n.charAt(0) == '%')
-                    n = Platform.getResourceString(bundle, n);
+                n = translate(n);
 
                 QuerySpec spec = new QuerySpec(n);
                 ((SectionSpec) stack.getLast()).add(spec);
@@ -227,7 +224,9 @@ public final class SpecFactory extends RegistryReader<SpecFactory.Report>
             }
             else if ("param".equals(localName))
             {
-                stack.getLast().set(attributes.getValue("key"), attributes.getValue("value"));
+                String value = attributes.getValue("value");
+                value = translate(value);
+                stack.getLast().set(attributes.getValue("key"), value);
             }
             else if ("template".equals(localName))
             {
@@ -237,6 +236,19 @@ public final class SpecFactory extends RegistryReader<SpecFactory.Report>
             {
                 buf = new StringBuilder();
             }
+        }
+
+        /**
+         * Some values are translatable using % prefix and a translation
+         * in the plugin.properties file.
+         * @param n
+         * @return
+         */
+        private String translate(String n)
+        {
+            if (bundle != null && n != null && n.length() > 0 && n.charAt(0) == '%')
+                n = Platform.getResourceString(bundle, n);
+            return n;
         }
 
         @SuppressWarnings("nls")

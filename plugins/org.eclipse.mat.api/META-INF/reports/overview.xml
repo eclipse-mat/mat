@@ -1,5 +1,6 @@
 <section name="%overview.title">
 	<param key="html.collapsed" value="false" />
+	<param key="filename_suffix" value="%overview.suffix" />
 
 	<query name="%overview.heap_dump_overview">
 		<param key="html.show_table_header" value="false" />

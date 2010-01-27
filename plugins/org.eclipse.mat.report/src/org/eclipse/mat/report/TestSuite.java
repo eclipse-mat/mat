@@ -77,7 +77,7 @@ public class TestSuite
 
         public TestSuite build(IQueryContext queryContext)
         {
-            template.set("timestamp", String.valueOf(System.currentTimeMillis())); //$NON-NLS-1$
+            template.set(Params.TIMESTAMP, String.valueOf(System.currentTimeMillis())); //$NON-NLS-1$
 
             if (output == null)
                 output = queryContext.getPrimaryFile().getParentFile();
@@ -89,7 +89,11 @@ public class TestSuite
                 if (p >= 0)
                     prefix = prefix.substring(0, p);
 
-                output = new File(output, prefix + "_" + FileUtils.toFilename(template.getName(), "zip")); //$NON-NLS-1$ //$NON-NLS-2$
+                String suffix = template.getParams().get(Params.FILENAME_SUFFIX);
+                if (suffix == null)
+                    suffix = template.getName();
+
+                output = new File(output, prefix + "_" + FileUtils.toFilename(suffix, "zip")); //$NON-NLS-1$ //$NON-NLS-2$
             }
 
             TestSuite testSuite = new TestSuite(template, queryContext);
