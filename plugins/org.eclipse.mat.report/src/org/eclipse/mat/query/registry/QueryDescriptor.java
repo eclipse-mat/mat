@@ -14,6 +14,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.mat.SnapshotException;
@@ -22,6 +23,8 @@ import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.report.internal.Messages;
 import org.eclipse.mat.report.internal.ReportPlugin;
 import org.eclipse.mat.util.MessageUtil;
+
+import com.ibm.icu.text.BreakIterator;
 
 public class QueryDescriptor
 {
@@ -33,13 +36,14 @@ public class QueryDescriptor
     protected final String help;
     protected final String helpUrl;
     protected final int sortOrder;
+    protected final Locale helpLocale;
 
     protected final Class<? extends IQuery> subject;
     protected final List<ArgumentDescriptor> arguments;
     protected final List<QueryDescriptor> menuEntries;
 
     QueryDescriptor(String identifier, String name, String category, Class<? extends IQuery> subject, String usage,
-                    URL icon, String help, String helpUrl)
+                    URL icon, String help, String helpUrl, Locale helpLocale)
     {
         this.identifier = identifier;
 
@@ -52,7 +56,22 @@ public class QueryDescriptor
         {
             int p = name.indexOf('|');
             this.name = p >= 0 ? name.substring(p + 1) : name;
-            this.sortOrder = p >= 0 ? Integer.parseInt(name.substring(0, p)) : 100;
+            int sortOrder = 100;
+            int end = p;
+            // Skip over trailing garbage introduced by pseudo-translation
+            while (end > 0 && !Character.isDigit(name.charAt(end - 1))) --end;
+            // Extract the longest number - useful for pseudo-translation
+            for (int start = 0; start < end; ++start)
+            {
+                try
+                {
+                    sortOrder = Integer.parseInt(name.substring(start, end));
+                    break;
+                }
+                catch (NumberFormatException e)
+                {}
+            }
+            this.sortOrder = sortOrder;
         }
 
         this.category = category;
@@ -64,6 +83,7 @@ public class QueryDescriptor
 
         this.arguments = new ArrayList<ArgumentDescriptor>();
         this.menuEntries = new ArrayList<QueryDescriptor>();
+        this.helpLocale = helpLocale;
     }
 
     public String getIdentifier()
@@ -162,17 +182,22 @@ public class QueryDescriptor
 
         if (help != null)
         {
-            int p = help.indexOf('.');
+            BreakIterator bb = BreakIterator.getSentenceInstance(helpLocale);
+            bb.setText(help);
+            int p = bb.next();
             if (p >= 0 && p <= numChars)
             {
-                description = help.substring(0, p + 1);
+                description = help.substring(0, p);
             }
             else
             {
                 if (help.length() > numChars)
                 {
-                    p = help.lastIndexOf(' ', numChars);
-                    if (p >= 0)
+                    bb = BreakIterator.getWordInstance(helpLocale);
+                    bb.setText(help);
+                    for (int q; (q = bb.next()) <= numChars && q != BreakIterator.DONE;)
+                        p = q;
+                    if (p >= 0 && p <= numChars)
                         description = help.substring(0, p) + " ..."; //$NON-NLS-1$
                     else
                         description = help.substring(0, numChars) + " ..."; //$NON-NLS-1$
@@ -293,7 +318,7 @@ public class QueryDescriptor
         private ShallowQueryDescriptor(QueryDescriptor parent, String label, String category, URL icon, String help,
                         String helpUrl, String options)
         {
-            super(parent.identifier, label, category, parent.subject, parent.usage, icon, help, helpUrl);
+            super(parent.identifier, label, category, parent.subject, parent.usage, icon, help, helpUrl, parent.helpLocale);
             this.options = options;
 
             this.arguments.addAll(parent.arguments);

@@ -205,6 +205,7 @@ public class QueryRegistry extends RegistryReader<IQuery>
 
         Help h = queryClass.getAnnotation(Help.class);
         String help = translate(i18n, key + ".help", h != null ? h.value() : null); //$NON-NLS-1$
+        Locale helpLoc = i18n.getLocale();
 
         HelpUrl hu = queryClass.getAnnotation(HelpUrl.class);
         String helpUrl = hu != null ? hu.value() : null;
@@ -213,7 +214,7 @@ public class QueryRegistry extends RegistryReader<IQuery>
         URL icon = i != null ? queryClass.getResource(i.value()) : null;
 
         QueryDescriptor descriptor = new QueryDescriptor(identifier, name, category, queryClass, usage, icon, help,
-                        helpUrl);
+                        helpUrl, helpLoc);
 
         Class<?> clazz = queryClass;
         while (!clazz.equals(Object.class))
@@ -262,6 +263,14 @@ public class QueryRegistry extends RegistryReader<IQuery>
                 public Enumeration<String> getKeys()
                 {
                     return null;
+                }
+                
+                @Override
+                public Locale getLocale()
+                {
+                    // All the standard queries should have annotations, so a missing annotation
+                    // is for a user supplied query, so guess it is in the default locale.
+                    return Locale.getDefault();
                 }
             };
         }

@@ -37,7 +37,22 @@ public final class CategoryDescriptor
         {
             int p = identifier.indexOf('|');
             this.name = p >= 0 ? identifier.substring(p + 1) : identifier;
-            this.sortOrder = p >= 0 ? Integer.parseInt(identifier.substring(0, p)) : 100;
+            int sortOrder = 100;
+            int end = p;
+            // Skip over trailing garbage introduced by pseudo-translation
+            while (end > 0 && !Character.isDigit(identifier.charAt(end - 1))) --end;
+            // Extract the longest number - useful for pseudo-translation
+            for (int start = 0; start < end; ++start)
+            {
+                try
+                {
+                    sortOrder = Integer.parseInt(identifier.substring(start, end));
+                    break;
+                }
+                catch (NumberFormatException e)
+                {}
+            }
+            this.sortOrder = sortOrder;
         }
 
         this.children = new ArrayList<Object>();
