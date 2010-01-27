@@ -56,15 +56,15 @@ import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.Units;
 
-@CommandName("component_report") //$NON-NLS-1$
-@HelpUrl("/org.eclipse.mat.ui.help/reference/inspections/component_report.html") //$NON-NLS-1$
+@CommandName("component_report")
+@HelpUrl("/org.eclipse.mat.ui.help/reference/inspections/component_report.html")
 public class ComponentReportQuery implements IQuery
 {
 
     @Argument
     public ISnapshot snapshot;
 
-    @Argument(flag = "none") //$NON-NLS-1$
+    @Argument(flag = "none")
     public IHeapObjectArgument objects;
 
     public IResult execute(IProgressListener listener) throws Exception

@@ -64,7 +64,7 @@ public class CommonNameResolver
         }
     }
 
-    @Subject("java.lang.ThreadGroup") //$NON-NLS-1$
+    @Subject("java.lang.ThreadGroup")
     public static class ThreadGroupResolver implements IClassSpecificNameResolver
     {
         public String resolve(IObject object) throws SnapshotException
@@ -76,14 +76,14 @@ public class CommonNameResolver
         }
     }
 
-    @Subjects( { "java.lang.Byte", // //$NON-NLS-1$
-                    "java.lang.Character", // //$NON-NLS-1$
-                    "java.lang.Short", // //$NON-NLS-1$
-                    "java.lang.Integer", // //$NON-NLS-1$
-                    "java.lang.Long", // //$NON-NLS-1$
-                    "java.lang.Float", // //$NON-NLS-1$
-                    "java.lang.Double", // //$NON-NLS-1$
-                    "java.lang.Boolean" }) //$NON-NLS-1$
+    @Subjects( { "java.lang.Byte", //
+                    "java.lang.Character", //
+                    "java.lang.Short", //
+                    "java.lang.Integer", //
+                    "java.lang.Long", //
+                    "java.lang.Float", //
+                    "java.lang.Double", //
+                    "java.lang.Boolean" })
     public static class ValueResolver implements IClassSpecificNameResolver
     {
         public String resolve(IObject heapObject) throws SnapshotException
@@ -92,7 +92,7 @@ public class CommonNameResolver
         }
     }
 
-    @Subject("char[]") //$NON-NLS-1$
+    @Subject("char[]")
     public static class CharArrayResolver implements IClassSpecificNameResolver
     {
         public String resolve(IObject heapObject) throws SnapshotException
@@ -102,7 +102,7 @@ public class CommonNameResolver
         }
     }
 
-    @Subject("byte[]") //$NON-NLS-1$
+    @Subject("byte[]")
     public static class ByteArrayResolver implements IClassSpecificNameResolver
     {
         public String resolve(IObject heapObject) throws SnapshotException
@@ -129,7 +129,7 @@ public class CommonNameResolver
     /*
      * Contributed in bug 273915
      */
-    @Subject("java.net.URL") //$NON-NLS-1$
+    @Subject("java.net.URL")
     public static class URLResolver implements IClassSpecificNameResolver
     {
         public String resolve(IObject obj) throws SnapshotException
@@ -159,7 +159,7 @@ public class CommonNameResolver
         }
     }
     
-    @Subject("java.lang.reflect.AccessibleObject") //$NON-NLS-1$
+    @Subject("java.lang.reflect.AccessibleObject")
     public static class AccessibleObjectResolver implements IClassSpecificNameResolver
     {
         public String resolve(IObject obj) throws SnapshotException
@@ -200,7 +200,7 @@ public class CommonNameResolver
         }
     }
     
-    @Subject("java.lang.reflect.Field") //$NON-NLS-1$
+    @Subject("java.lang.reflect.Field")
     public static class FieldResolver extends AccessibleObjectResolver
     {
         public String resolve(IObject obj) throws SnapshotException
@@ -245,7 +245,7 @@ public class CommonNameResolver
         }
     }
     
-    @Subject("java.lang.reflect.Method") //$NON-NLS-1$
+    @Subject("java.lang.reflect.Method")
     public static class MethodResolver extends AccessibleObjectResolver
     {
         public String resolve(IObject obj) throws SnapshotException
@@ -307,7 +307,7 @@ public class CommonNameResolver
         }
     }
     
-    @Subject("java.lang.reflect.Constructor") //$NON-NLS-1$
+    @Subject("java.lang.reflect.Constructor")
     public static class ConstructorResolver extends AccessibleObjectResolver
     {
         public String resolve(IObject obj) throws SnapshotException
