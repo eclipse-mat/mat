@@ -98,19 +98,19 @@ public class DTFJHeapObjectReader implements IObjectReader
     {
         if (image != null && addon.isAssignableFrom(image.getClass()))
         {
-            return (A) image;
+            return addon.cast(image);
         }
         else if (jvm != null && addon.isAssignableFrom(jvm.getClass()))
         {
-            return (A) jvm;
+            return addon.cast(jvm);
         }
         else if (addrSpace != null && addon.isAssignableFrom(addrSpace.getClass()))
         {
-            return (A) addrSpace;
+            return addon.cast(addrSpace);
         }
         else if (process != null && addon.isAssignableFrom(process.getClass()))
         {
-            return (A) process;
+            return addon.cast(process);
         }
         else
         {
@@ -135,13 +135,13 @@ public class DTFJHeapObjectReader implements IObjectReader
         {
             addrSpace = DTFJIndexBuilder.getAddressSpace(jvm);
             // Find the process
-            for (Iterator i2 = addrSpace.getProcesses(); i2.hasNext() && process == null;)
+            for (Iterator<?> i2 = addrSpace.getProcesses(); i2.hasNext() && process == null;)
             {
                 Object next2 = i2.next();
                 if (next2 instanceof CorruptData)
                     continue;
                 ImageProcess proc = (ImageProcess) next2;
-                for (Iterator i3 = proc.getRuntimes(); i3.hasNext();)
+                for (Iterator<?> i3 = proc.getRuntimes(); i3.hasNext();)
                 {
                     Object next3 = i3.next();
                     if (next3 instanceof CorruptData)
@@ -232,7 +232,7 @@ public class DTFJHeapObjectReader implements IObjectReader
         if (getExtraInfo)
         {
             long prevFrameAddress = 0;
-            for (Iterator i = jvm.getThreads(); i.hasNext();)
+            for (Iterator<?> i = jvm.getThreads(); i.hasNext();)
             {
                 Object next = i.next();
                 if (next instanceof CorruptData)
@@ -243,12 +243,12 @@ public class DTFJHeapObjectReader implements IObjectReader
                 int pointerSize = snapshot.getSnapshotInfo().getIdentifierSize() * 8;
                 // Count all the frames
                 int totalDepth = 0;
-                for (Iterator j = jt.getStackFrames(); j.hasNext(); ++totalDepth)
+                for (Iterator<?> j = jt.getStackFrames(); j.hasNext(); ++totalDepth)
                 {
                     j.next();
                 }
                 int depth = 0;
-                for (Iterator j = jt.getStackFrames(); j.hasNext(); ++depth)
+                for (Iterator<?> j = jt.getStackFrames(); j.hasNext(); ++depth)
                 {
                     Object next2 = j.next();
                     if (next2 instanceof CorruptData)
@@ -351,7 +351,7 @@ public class DTFJHeapObjectReader implements IObjectReader
      */
     private JavaObject getJavaObjectByAddress(long addr)
     {
-        for (Iterator i = jvm.getHeaps(); i.hasNext();)
+        for (Iterator<?> i = jvm.getHeaps(); i.hasNext();)
         {
             Object next = i.next();
             if (next instanceof CorruptData)
@@ -359,7 +359,7 @@ public class DTFJHeapObjectReader implements IObjectReader
                 continue;
             }
             JavaHeap jh = (JavaHeap) next;
-            for (Iterator j = jh.getObjects(); j.hasNext();)
+            for (Iterator<?> j = jh.getObjects(); j.hasNext();)
             {
                 Object next2 = j.next();
                 if (next2 instanceof CorruptData)
@@ -377,7 +377,7 @@ public class DTFJHeapObjectReader implements IObjectReader
         }
 
         // Now look for thread objects
-        for (Iterator i = jvm.getThreads(); i.hasNext();)
+        for (Iterator<?> i = jvm.getThreads(); i.hasNext();)
         {
             Object next = i.next();
             if (next instanceof CorruptData)
@@ -395,7 +395,7 @@ public class DTFJHeapObjectReader implements IObjectReader
         }
 
         // Now look for monitor objects
-        for (Iterator i = jvm.getMonitors(); i.hasNext();)
+        for (Iterator<?> i = jvm.getMonitors(); i.hasNext();)
         {
             Object next = i.next();
             if (next instanceof CorruptData)
@@ -408,7 +408,7 @@ public class DTFJHeapObjectReader implements IObjectReader
         }
 
         // Now look for class loader objects
-        for (Iterator i = jvm.getJavaClassLoaders(); i.hasNext();)
+        for (Iterator<?> i = jvm.getJavaClassLoaders(); i.hasNext();)
         {
             Object next = i.next();
             if (next instanceof CorruptData)
@@ -455,7 +455,7 @@ public class DTFJHeapObjectReader implements IObjectReader
         if (nFields > 0)
             for (JavaClass jc = jo.getJavaClass(); jc != null; jc = getSuperclass(jc))
             {
-                for (Iterator ii = jc.getDeclaredFields(); ii.hasNext();)
+                for (Iterator<?> ii = jc.getDeclaredFields(); ii.hasNext();)
                 {
                     Object next = ii.next();
                     if (next instanceof CorruptData)

@@ -258,17 +258,17 @@ public class DTFJIndexBuilder implements IIndexBuilder
             throw new CorruptDataException(this);
         }
 
-        public Iterator getConstantPoolReferences()
+        public Iterator<?> getConstantPoolReferences()
         {
             return Collections.EMPTY_LIST.iterator();
         }
 
-        public Iterator getDeclaredFields()
+        public Iterator<?> getDeclaredFields()
         {
             return Collections.EMPTY_LIST.iterator();
         }
 
-        public Iterator getDeclaredMethods()
+        public Iterator<?> getDeclaredMethods()
         {
             return Collections.EMPTY_LIST.iterator();
         }
@@ -278,7 +278,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             return null;
         }
 
-        public Iterator getInterfaces()
+        public Iterator<?> getInterfaces()
         {
             return Collections.EMPTY_LIST.iterator();
         }
@@ -298,7 +298,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             return null;
         }
 
-        public Iterator getReferences()
+        public Iterator<?> getReferences()
         {
             return Collections.EMPTY_LIST.iterator();
         }
@@ -577,13 +577,13 @@ public class DTFJIndexBuilder implements IIndexBuilder
 
         // Find last address of heap - use for dummy class addresses
         long lastAddress = 0x0;
-        for (Iterator i = run.getHeaps(); i.hasNext();)
+        for (Iterator<?> i = run.getHeaps(); i.hasNext();)
         {
             Object next = i.next();
             if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingHeaps, run))
                 continue;
             JavaHeap jh = (JavaHeap) next;
-            for (Iterator i2 = jh.getSections(); i2.hasNext();)
+            for (Iterator<?> i2 = jh.getSections(); i2.hasNext();)
             {
                 Object next2 = i2.next();
                 if (isCorruptData(next2, listener, Messages.DTFJIndexBuilder_CorruptDataReadingHeapSections, run))
@@ -608,7 +608,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         boolean foundBootLoader = false;
         HashMap<JavaObject, JavaClassLoader> loaders = new HashMap<JavaObject, JavaClassLoader>();
         HashSet<JavaClass> loaderTypes = new HashSet<JavaClass>();
-        for (Iterator i = run.getJavaClassLoaders(); i.hasNext();)
+        for (Iterator<?> i = run.getJavaClassLoaders(); i.hasNext();)
         {
             Object next = i.next();
             if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingClassLoaders1, run))
@@ -737,13 +737,13 @@ public class DTFJIndexBuilder implements IIndexBuilder
         listener.worked(1);
         workCountSoFar += 1;
         listener.subTask(Messages.DTFJIndexBuilder_FindingClasses);
-        for (Iterator i = run.getJavaClassLoaders(); i.hasNext();)
+        for (Iterator<?> i = run.getJavaClassLoaders(); i.hasNext();)
         {
             Object next = i.next();
             if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingClassLoaders, run))
                 continue;
             JavaClassLoader jcl = (JavaClassLoader) next;
-            for (Iterator j = jcl.getDefinedClasses(); j.hasNext();)
+            for (Iterator<?> j = jcl.getDefinedClasses(); j.hasNext();)
             {
                 Object next2 = j.next();
                 if (isCorruptData(next2, listener, Messages.DTFJIndexBuilder_CorruptDataReadingClasses, jcl))
@@ -759,13 +759,13 @@ public class DTFJIndexBuilder implements IIndexBuilder
         listener.subTask(Messages.DTFJIndexBuilder_FindingObjects);
         int objProgress = 0;
         final int s2 = indexToAddress.size();
-        for (Iterator i = run.getHeaps(); i.hasNext();)
+        for (Iterator<?> i = run.getHeaps(); i.hasNext();)
         {
             Object next = i.next();
             if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingHeaps, run))
                 continue;
             JavaHeap jh = (JavaHeap) next;
-            for (Iterator j = jh.getObjects(); j.hasNext();)
+            for (Iterator<?> j = jh.getObjects(); j.hasNext();)
             {
                 Object next2 = j.next();
                 if (isCorruptData(next2, listener, Messages.DTFJIndexBuilder_CorruptDataReadingObjects, run))
@@ -794,14 +794,14 @@ public class DTFJIndexBuilder implements IIndexBuilder
         listener.worked(1);
         workCountSoFar += 1;
         listener.subTask(Messages.DTFJIndexBuilder_FindingClassesCachedByClassLoaders);
-        for (Iterator i = run.getJavaClassLoaders(); i.hasNext();)
+        for (Iterator<?> i = run.getJavaClassLoaders(); i.hasNext();)
         {
             Object next = i.next();
             if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingClassLoaders, run))
                 continue;
             if (listener.isCanceled()) { throw new IProgressListener.OperationCanceledException(); }
             JavaClassLoader jcl = (JavaClassLoader) next;
-            for (Iterator j = jcl.getCachedClasses(); j.hasNext();)
+            for (Iterator<?> j = jcl.getCachedClasses(); j.hasNext();)
             {
                 Object next2 = j.next();
                 if (isCorruptData(next2, listener, Messages.DTFJIndexBuilder_CorruptDataReadingCachedClasses, jcl))
@@ -843,7 +843,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         listener.worked(1);
         workCountSoFar += 1;
         listener.subTask(Messages.DTFJIndexBuilder_FindingThreadObjectsMissingFromHeap);
-        for (Iterator i = run.getThreads(); i.hasNext();)
+        for (Iterator<?> i = run.getThreads(); i.hasNext();)
         {
             Object next = i.next();
             if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingThreads, run))
@@ -869,7 +869,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     // Scan stack frames for pseudo-classes
                     int frameId = 0;
                     long prevFrameAddress = 0;
-                    for (Iterator ii = th.getStackFrames(); ii.hasNext(); ++frameId)
+                    for (Iterator<?> ii = th.getStackFrames(); ii.hasNext(); ++frameId)
                     {
                         Object next2 = ii.next();
                         if (isCorruptData(next2, listener, Messages.DTFJIndexBuilder_CorruptDataReadingJavaStackFrames,
@@ -942,7 +942,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             listener.subTask(Messages.DTFJIndexBuilder_FindingAllMethods);
             for (JavaClass jc : allClasses)
             {
-                for (Iterator i = jc.getDeclaredMethods(); i.hasNext();)
+                for (Iterator<?> i = jc.getDeclaredMethods(); i.hasNext();)
                 {
                     Object next = i.next();
                     if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingDeclaredMethods, jc))
@@ -955,7 +955,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         listener.worked(1);
         workCountSoFar += 1;
         listener.subTask(Messages.DTFJIndexBuilder_FindingMonitorObjects);
-        for (Iterator i = run.getMonitors(); i.hasNext();)
+        for (Iterator<?> i = run.getMonitors(); i.hasNext();)
         {
             Object next = i.next();
             if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingMonitors, run))
@@ -1199,7 +1199,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 try
                 {
                     String cn = j2.getName();
-                    if (JAVA_LANG_CLASS.equals(cn)) //$NON-NLS-1$
+                    if (JAVA_LANG_CLASS.equals(cn))
                     {
                         clsJavaLangClass = j2;
                         jlc = genClass(clsJavaLangClass, idToClass, bootLoaderAddress, 0, listener);
@@ -1391,7 +1391,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             // Constant pool references have already been set up as pseudo
             // fields
             if (false)
-                for (Iterator i2 = j2.getConstantPoolReferences(); i2.hasNext();)
+                for (Iterator<?> i2 = j2.getConstantPoolReferences(); i2.hasNext();)
                 {
                     Object next = i2.next();
                     if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingConstantPool, j2))
@@ -1415,7 +1415,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             if (getExtraInfo && getExtraInfo2)
             {
                 // Add references to methods
-                for (Iterator i = j2.getDeclaredMethods(); i.hasNext();)
+                for (Iterator<?> i = j2.getDeclaredMethods(); i.hasNext();)
                 {
                     Object next = i.next();
                     if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingDeclaredMethods, j2))
@@ -1551,13 +1551,13 @@ public class DTFJIndexBuilder implements IIndexBuilder
 
         int objProgress2 = 0;
         // Find all the objects
-        for (Iterator i = run.getHeaps(); i.hasNext();)
+        for (Iterator<?> i = run.getHeaps(); i.hasNext();)
         {
             Object next = i.next();
             if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingHeaps, run))
                 continue;
             JavaHeap jh = (JavaHeap) next;
-            for (Iterator j = jh.getObjects(); j.hasNext();)
+            for (Iterator<?> j = jh.getObjects(); j.hasNext();)
             {
                 Object next2 = j.next();
                 if (isCorruptData(next2, listener, Messages.DTFJIndexBuilder_CorruptDataReadingObjects, run))
@@ -1925,7 +1925,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             JavaObject jo = th.getObject();
             out.print("Thread "); //$NON-NLS-1$
             out.println(jo != null ? "0x"+Long.toHexString(jo.getID().getAddress()) : "<unknown>"); //$NON-NLS-1$ //$NON-NLS-2$
-            for (Iterator it = th.getStackFrames(); it.hasNext(); out.println())
+            for (Iterator<?> it = th.getStackFrames(); it.hasNext(); out.println())
             {
                 Object next = it.next();
                 out.print(" at "); //$NON-NLS-1$
@@ -2056,7 +2056,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         PrintWriter pw = createThreadInfoFile();
         
         threadRoots = new HashMapIntObject<HashMapIntObject<List<XGCRootInfo>>>();
-        for (Iterator i = run.getThreads(); i.hasNext();)
+        for (Iterator<?> i = run.getThreads(); i.hasNext();)
         {
             Object next = i.next();
             if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingThreads, run))
@@ -2163,7 +2163,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         // Monitor GC roots
         listener.subTask(Messages.DTFJIndexBuilder_GeneratingMonitorRoots);
 
-        for (Iterator i = run.getMonitors(); i.hasNext();)
+        for (Iterator<?> i = run.getMonitors(); i.hasNext();)
         {
             Object next = i.next();
             if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingMonitors, run))
@@ -2219,7 +2219,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             missedRoots = new HashMap<Integer, String>();
 
             // See if the heap roots support is even in DTFJ
-            Iterator it;
+            Iterator<?> it;
             try
             {
                 it = run.getHeapRoots();
@@ -2258,7 +2258,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 {
                 	pw = createThreadInfoFile();
                 }
-                for (Iterator thit = run.getThreads(); thit.hasNext();)
+                for (Iterator<?> thit = run.getThreads(); thit.hasNext();)
                 {
                     Object next = thit.next();
                     if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingThreads, run))
@@ -2277,7 +2277,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     int frameNum = 0;
                     // We need to look ahead to get the frame size
                     Object nextFrame = null;
-                    for (Iterator ii = th.getStackFrames(); nextFrame != null || ii.hasNext(); ++frameNum)
+                    for (Iterator<?> ii = th.getStackFrames(); nextFrame != null || ii.hasNext(); ++frameNum)
                     {
                         // Use the lookahead frame if available
                         Object next2;
@@ -2303,7 +2303,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                                                 null);
                             continue;
                         }
-                        for (Iterator i3 = jf.getHeapRoots(); i3.hasNext();)
+                        for (Iterator<?> i3 = jf.getHeapRoots(); i3.hasNext();)
                         {
                             Object next3 = i3.next();
                             if (isCorruptData(next3, listener, Messages.DTFJIndexBuilder_CorruptDataReadingRoots, run))
@@ -2927,7 +2927,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         long prevFrameAddress = 0;
         // We need to look ahead to get the frame size
         Object nextFrame = null;
-        for (Iterator ii = th.getStackFrames(); nextFrame != null || ii.hasNext(); ++frameId)
+        for (Iterator<?> ii = th.getStackFrames(); nextFrame != null || ii.hasNext(); ++frameId)
         {
             // Use the lookahead frame if available
             Object next2;
@@ -3139,7 +3139,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         {
             pw.println();
         }
-        for (Iterator ii = th.getStackSections(); ii.hasNext();)
+        for (Iterator<?> ii = th.getStackSections(); ii.hasNext();)
         {
             Object next2 = ii.next();
             if (isCorruptData(next2, listener, Messages.DTFJIndexBuilder_CorruptDataReadingJavaStackSections, th))
@@ -3199,7 +3199,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
      */
     private long getJavaStackBase(JavaThread th, long addr)
     {
-        for (Iterator ii = th.getStackSections(); ii.hasNext();)
+        for (Iterator<?> ii = th.getStackSections(); ii.hasNext();)
         {
             Object next2 = ii.next();
             if (next2 instanceof CorruptData)
@@ -3220,7 +3220,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             int frameId = 0;
             // We need to look ahead to get the frame size
             Object nextFrame = null;
-            for (Iterator ii = it.getStackFrames(); nextFrame != null || ii.hasNext(); ++frameId)
+            for (Iterator<?> ii = it.getStackFrames(); nextFrame != null || ii.hasNext(); ++frameId)
             {
                 // Use the lookahead frame if available
                 Object next2;
@@ -3290,7 +3290,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
                             Messages.DTFJIndexBuilder_NativeStackFrameNotFound, format(threadAddress)), e);
         }
-        for (Iterator ii = it.getStackSections(); ii.hasNext();)
+        for (Iterator<?> ii = it.getStackSections(); ii.hasNext();)
         {
             Object next2 = ii.next();
             if (isCorruptData(next2, listener,
@@ -3775,7 +3775,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             if (!cache.containsKey(load))
                 cache.put(load, new ArrayLong());
             ArrayLong classes = cache.get(load);
-            if (!(getExtraInfo2 && ci.getName().contains(METHOD_NAME))) //$NON-NLS-1$
+            if (!(getExtraInfo2 && ci.getName().contains(METHOD_NAME)))
             {
                 // Skip method classes - they are also found via the declaring
                 // class
@@ -4196,7 +4196,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         int nProc = 0;
         String lastAddr = ""; //$NON-NLS-1$
         String lastProc = ""; //$NON-NLS-1$
-        for (Iterator i1 = image.getAddressSpaces(); i1.hasNext();)
+        for (Iterator<?> i1 = image.getAddressSpaces(); i1.hasNext();)
         {
             Object next1 = i1.next();
             if (isCorruptData(next1, listener, Messages.DTFJIndexBuilder_CorruptDataReadingAddressSpaces))
@@ -4204,7 +4204,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             ImageAddressSpace ias = (ImageAddressSpace) next1;
             ++nAddr;
             lastAddr = ias.toString();
-            for (Iterator i2 = ias.getProcesses(); i2.hasNext();)
+            for (Iterator<?> i2 = ias.getProcesses(); i2.hasNext();)
             {
                 Object next2 = i2.next();
                 if (isCorruptData(next2, listener, Messages.DTFJIndexBuilder_CorruptDataReadingProcesses))
@@ -4225,7 +4225,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     if (listener != null)
                         listener.sendUserMessage(Severity.INFO, Messages.DTFJIndexBuilder_ErrorReadingProcessID, e);
                 }
-                for (Iterator i3 = proc.getRuntimes(); i3.hasNext();)
+                for (Iterator<?> i3 = proc.getRuntimes(); i3.hasNext();)
                 {
                     Object next3 = i3.next();
                     if (isCorruptData(next3, listener, Messages.DTFJIndexBuilder_CorruptDataReadingRuntimes))
@@ -4295,7 +4295,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         try
         {
             ImageAddressSpace ias = getAddressSpace(run1);
-            for (Iterator it = ias.getImageSections(); it.hasNext();)
+            for (Iterator<?> it = ias.getImageSections(); it.hasNext();)
             {
                 Object next1 = it.next();
                 if (next1 instanceof CorruptData) continue;
@@ -4303,13 +4303,13 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 maxAddress = Math.max(maxAddress, sect.getBaseAddress().getAddress());
                 maxAddress = Math.max(maxAddress, sect.getBaseAddress().getAddress()+sect.getSize() - 1);
             }
-            for (Iterator i2 = ias.getProcesses(); i2.hasNext();)
+            for (Iterator<?> i2 = ias.getProcesses(); i2.hasNext();)
             {
                 Object next2 = i2.next();
                 if (isCorruptData(next2, listener, Messages.DTFJIndexBuilder_CorruptDataReadingProcesses))
                     continue;
                 ImageProcess proc = (ImageProcess) next2;
-                for (Iterator i3 = proc.getRuntimes(); i3.hasNext();)
+                for (Iterator<?> i3 = proc.getRuntimes(); i3.hasNext();)
                 {
                     Object next3 = i3.next();
                     if (isCorruptData(next3, listener, Messages.DTFJIndexBuilder_CorruptDataReadingRuntimes))
@@ -4405,7 +4405,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         }
         catch (CorruptDataException e)
         {
-            for (Iterator i = run1.getJavaClassLoaders(); i.hasNext();)
+            for (Iterator<?> i = run1.getJavaClassLoaders(); i.hasNext();)
             {
                 Object next = i.next();
                 if (isCorruptData(next, null, Messages.DTFJIndexBuilder_CorruptDataReadingClassLoaders1, run1))
@@ -4429,7 +4429,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
      * @param listener
      *            To indicate progress/errors
      */
-    private void addRootForThreads(JavaObject obj, Iterator j, IProgressListener listener)
+    private void addRootForThreads(JavaObject obj, Iterator<?> j, IProgressListener listener)
     {
         for (; j.hasNext();)
         {
@@ -4519,7 +4519,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
 
         HashMap<Long, String> objset = new LinkedHashMap<Long, String>();
 
-        Iterator i2;
+        Iterator<?> i2;
         boolean hasDTFJRefs = false;
 
         String name = ""; //$NON-NLS-1$
@@ -4622,7 +4622,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             if (getExtraInfo && getExtraInfo2)
             {
                 // Add method pseudo-classes as DTFJ won't find them
-                for (Iterator i = jc.getDeclaredMethods(); i.hasNext();)
+                for (Iterator<?> i = jc.getDeclaredMethods(); i.hasNext();)
                 {
                     Object next = i.next();
                     if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingDeclaredMethods, jc))
@@ -4871,7 +4871,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
      *            For displaying messages
      * @throws CorruptDataException
      */
-    private void collectRefs(Iterator i2, HashMap<Long, String> objset, String desc, String name, long objAddr,
+    private void collectRefs(Iterator<?> i2, HashMap<Long, String> objset, String desc, String name, long objAddr,
                     IProgressListener listener)
     {
         // Check the refs
@@ -5277,7 +5277,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         }
         catch (CorruptDataException e)
         {}
-        for (Iterator i = jc.getDeclaredMethods(); i.hasNext();)
+        for (Iterator<?> i = jc.getDeclaredMethods(); i.hasNext();)
         {
             Object next = i.next();
             if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingDeclaredMethods, jc))
@@ -5294,7 +5294,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
     private int getMethodSize(JavaClass jc, JavaMethod jm, IProgressListener listener)
     {
         int size = 0;
-        for (Iterator j = jm.getBytecodeSections(); j.hasNext();)
+        for (Iterator<?> j = jm.getBytecodeSections(); j.hasNext();)
         {
             Object next2 = j.next();
             if (isCorruptData(next2, listener, Messages.DTFJIndexBuilder_CorruptDataReadingBytecodeSections, jc, jm))
@@ -5307,7 +5307,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             // debugPrint("Adding bytecode code section at
             // "+format(is.getBaseAddress().getAddress())+" size "+size);
         }
-        for (Iterator j = jm.getCompiledSections(); j.hasNext();)
+        for (Iterator<?> j = jm.getCompiledSections(); j.hasNext();)
         {
             Object next2 = j.next();
             // 1.4.2 CorruptData
@@ -5397,7 +5397,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         {
             String cn1 = getClassName(c, listener);
             long ca1 = getClassAddress(c, listener);
-            for (Iterator it = c.getDeclaredMethods(); it.hasNext();)
+            for (Iterator<?> it = c.getDeclaredMethods(); it.hasNext();)
             {
                 Object next = it.next();
                 if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingDeclaredMethods, c))
@@ -5671,7 +5671,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         for (JavaClass jc = type; jc != null; jc = getSuperclass(jc, listener))
         {
             String clsName = getClassName(jc, listener);
-            for (Iterator ii = jc.getDeclaredFields(); ii.hasNext();)
+            for (Iterator<?> ii = jc.getDeclaredFields(); ii.hasNext();)
             {
                 Object next3 = ii.next();
                 if (isCorruptData(next3, listener, Messages.DTFJIndexBuilder_CorruptDataReadingDeclaredFields, jc))
@@ -5911,7 +5911,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
 
         // We don't need to deal with superclass static fields as these are
         // maintained by the superclass
-        for (Iterator f1 = j2.getDeclaredFields(); f1.hasNext();)
+        for (Iterator<?> f1 = j2.getDeclaredFields(); f1.hasNext();)
         {
             Object next = f1.next();
             if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingDeclaredFields, j2))
@@ -6048,7 +6048,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         }
         for (; j3 != null; j3 = getSuperclass(j3, listener))
         {
-            for (Iterator f1 = j3.getDeclaredFields(); f1.hasNext();)
+            for (Iterator<?> f1 = j3.getDeclaredFields(); f1.hasNext();)
             {
                 Object next = f1.next();
                 if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingDeclaredFields, j3))
@@ -6118,7 +6118,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
 
         // Add constant pool entries as pseudo fields
         int cpindex = 0;
-        Iterator f1;
+        Iterator<?> f1;
         try
         {
             f1 = j2.getConstantPoolReferences();
@@ -6230,7 +6230,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         {
             jc = null;
         }
-        for (Iterator it = m.getBytecodeSections(); it.hasNext();)
+        for (Iterator<?> it = m.getBytecodeSections(); it.hasNext();)
         {
             Object next = it.next();
             // Too many CorruptData items from AIX 1.4.2 dumps
@@ -6260,7 +6260,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 }
             }
         }
-        for (Iterator it = m.getCompiledSections(); it.hasNext();)
+        for (Iterator<?> it = m.getCompiledSections(); it.hasNext();)
         {
             Object next = it.next();
             if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingCompiledCodeSections, jc, m))
@@ -6356,7 +6356,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         // Disable if not needed
         if (!getExtraInfo)
             return null;
-        String name = METHOD_NAME_PREFIX + getMethodName(m, listener); //$NON-NLS-1$
+        String name = METHOD_NAME_PREFIX + getMethodName(m, listener);
         long claddr = getMethodAddress(m, listener);
         // Add the MAT descriptions of the fields
         Field[] statics;
@@ -6921,13 +6921,13 @@ public class DTFJIndexBuilder implements IIndexBuilder
      */
     private JavaClassLoader getClassLoader2(JavaClass j1, IProgressListener listener) throws CorruptDataException
     {
-        for (Iterator i = run.getJavaClassLoaders(); i.hasNext();)
+        for (Iterator<?> i = run.getJavaClassLoaders(); i.hasNext();)
         {
             Object next = i.next();
             if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingClassLoaders1, run))
                 continue;
             JavaClassLoader jcl = (JavaClassLoader) next;
-            for (Iterator j = jcl.getDefinedClasses(); j.hasNext();)
+            for (Iterator<?> j = jcl.getDefinedClasses(); j.hasNext();)
             {
                 Object next2 = j.next();
                 if (isCorruptData(next2, listener, Messages.DTFJIndexBuilder_CorruptDataReadingClasses, jcl))
