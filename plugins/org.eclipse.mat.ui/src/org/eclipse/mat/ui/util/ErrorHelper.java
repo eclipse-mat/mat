@@ -208,7 +208,7 @@ public class ErrorHelper
             return MessageUtil.format(Messages.ErrorHelper_ClassNotFound, new Object[] { message });
         else if (exceptionType instanceof java.lang.NoClassDefFoundError)
             return MessageUtil.format(Messages.ErrorHelper_DefinitionNotFound, new Object[] { message });
-        else if (exceptionType instanceof java.lang.NoSuchMethodError)//$NON-NLS-1$
+        else if (exceptionType instanceof java.lang.NoSuchMethodError)
             return MessageUtil.format(Messages.ErrorHelper_NoSuchMethod, new Object[] { message });
         else if (exceptionType instanceof SnapshotException)
             return message;

@@ -53,7 +53,7 @@ public class QueryRegistryProvider extends QueryBrowserProvider
     public String getName()
     {
         String name = category.getFullName();
-        if (name == null) name = Messages.QueryRegistryProvider_Uncategorized; //$NON-NLS-1$
+        if (name == null) name = Messages.QueryRegistryProvider_Uncategorized;
         return name;
     }
 
