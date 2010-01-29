@@ -77,7 +77,7 @@ public class TestSuite
 
         public TestSuite build(IQueryContext queryContext)
         {
-            template.set(Params.TIMESTAMP, String.valueOf(System.currentTimeMillis())); //$NON-NLS-1$
+            template.set(Params.TIMESTAMP, String.valueOf(System.currentTimeMillis()));
 
             if (output == null)
                 output = queryContext.getPrimaryFile().getParentFile();
