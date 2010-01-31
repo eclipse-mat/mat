@@ -32,6 +32,7 @@ public class HistogramQuery implements IQuery
     public enum Grouping
     {
         BY_CLASS(Messages.HistogramQuery_GroupByClass, Icons.CLASS), //
+        BY_SUPERCLASS(Messages.HistogramQuery_GroupBySuperclass, Icons.CLASS),
         BY_CLASSLOADER(Messages.HistogramQuery_GroupByClassLoader, Icons.CLASSLOADER_INSTANCE), //
         BY_PACKAGE(Messages.HistogramQuery_GroupByPackage, Icons.PACKAGE);
 
@@ -79,6 +80,8 @@ public class HistogramQuery implements IQuery
         {
             case BY_CLASS:
                 return histogram;
+            case BY_SUPERCLASS:
+                return histogram.groupBySuperclass(snapshot);
             case BY_CLASSLOADER:
                 return histogram.groupByClassLoader();
             case BY_PACKAGE:

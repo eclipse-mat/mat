@@ -83,6 +83,7 @@ public class Messages extends NLS
     public static String HistogramPane_GroupByClass;
     public static String HistogramPane_GroupByClassLoader;
     public static String HistogramPane_GroupByPackage;
+    public static String HistogramPane_GroupBySuperclass;
     public static String HistogramPane_IllegalType;
     public static String HistogramPane_NoOtherHeapDump;
     public static String HistogramPane_SelectBaseline;

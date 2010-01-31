@@ -31,6 +31,7 @@ import org.eclipse.mat.query.IIconProvider;
 import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.query.IResultTree;
 import org.eclipse.mat.query.ResultMetaData;
+import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.query.Icons;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.SimpleStringTokenizer;
@@ -947,7 +948,7 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
         public Column[] getColumns()
         {
             return new Column[] {
-                            new Column(Messages.Histogram_Colun_PackagePerClass, String.class).comparing(HistogramRecord.COMPARATOR_FOR_LABEL), //
+                            new Column(Messages.Histogram_Column_PackagePerClass, String.class).comparing(HistogramRecord.COMPARATOR_FOR_LABEL), //
                             new Column(Messages.Column_Objects, long.class) //
                                             .comparing(HistogramRecord.COMPARATOR_FOR_NUMBEROFOBJECTS), //
                             new Column(Messages.Column_ShallowHeap, long.class) //
@@ -1074,4 +1075,223 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
         }
 
     }
+
+    // Superclass
+    // perhaps we should have some common code between this and the package code
+    
+    public IResultTree groupBySuperclass(ISnapshot snapshot)
+    {
+        return new SuperclassTree(this, snapshot);
+    }
+
+    private static class SuperclassNode extends HistogramRecord
+    {
+        private static final long serialVersionUID = 1L;
+
+        /* package */Map<Integer, SuperclassNode> subClasses = new HashMap<Integer, SuperclassNode>();
+        /* package */List<ClassHistogramRecord> classes = new ArrayList<ClassHistogramRecord>();
+
+        public SuperclassNode(String name)
+        {
+            super(name);
+        }
+        
+        public boolean isSimple()
+        {
+            return subClasses.size() == 0 && classes.size() == 1;
+        }
+
+    }
+
+    public static final class SuperclassTree implements IResultTree, IIconProvider
+    {
+        private Histogram histogram;
+        SuperclassNode root;
+
+        public SuperclassTree(Histogram histogram, ISnapshot snapshot)
+        {
+            this.histogram = histogram;
+
+            buildTree(histogram, snapshot);
+        }
+
+        private void buildTree(Histogram histogram, ISnapshot snapshot)
+        {
+            root = new SuperclassNode("<ROOT>"); //$NON-NLS-1$
+
+            for (ClassHistogramRecord record : histogram.getClassHistogramRecords())
+            {
+                SuperclassNode current = root;
+
+                List<IClass> l1 = new ArrayList<IClass>();
+                try
+                {
+                    
+                    int classId = record.getClassId();
+                    if (classId >= 0)
+                    {
+                        for (IClass cl = ((IClass) snapshot.getObject(classId)); cl != null; cl = cl.getSuperClass())
+                        {
+                            l1.add(cl);
+                        }
+                    }
+                }
+                catch (SnapshotException e)
+                {}
+                for (int i = l1.size() - 1; i >= 0; --i)
+                {
+                    IClass superclass = l1.get(i);
+                    SuperclassNode child = current.subClasses.get(superclass.getObjectId());
+                    if (child == null)
+                        current.subClasses.put(superclass.getObjectId(), child = new SuperclassNode(superclass
+                                        .getName()));
+                    child.incNumberOfObjects(record.numberOfObjects);
+                    child.incUsedHeapSize(record.getUsedHeapSize());
+
+                    current = child;
+                }
+
+                current.classes.add(record);
+            }
+        }
+
+        public Histogram getHistogram()
+        {
+            return histogram;
+        }
+
+        public ResultMetaData getResultMetaData()
+        {
+            return null;
+        }
+
+        public Column[] getColumns()
+        {
+            return new Column[] {
+                            new Column(Messages.Histogram_Column_SuperclassPerClass, String.class).comparing(HistogramRecord.COMPARATOR_FOR_LABEL), //
+                            new Column(Messages.Column_Objects, long.class) //
+                                            .comparing(HistogramRecord.COMPARATOR_FOR_NUMBEROFOBJECTS), //
+                            new Column(Messages.Column_ShallowHeap, long.class) //
+                                            .sorting(Column.SortDirection.DESC)//
+                                            .comparing(HistogramRecord.COMPARATOR_FOR_USEDHEAPSIZE) };
+        }
+
+        public List<?> getElements()
+        {
+            return getChildren(root);
+        }
+
+        public boolean hasChildren(Object element)
+        {
+            return element instanceof SuperclassNode;
+        }
+
+        public List<?> getChildren(Object parent)
+        {
+            SuperclassNode node = (SuperclassNode) parent;
+            List<HistogramRecord> answer = new ArrayList<HistogramRecord>();
+            for (SuperclassNode sub : node.subClasses.values())
+            {
+                if (sub.isSimple()) answer.add(sub.classes.get(0));
+                else answer.add(sub);
+            }
+            answer.addAll(node.classes);
+            return answer;
+        }
+
+        public Object getColumnValue(Object row, int columnIndex)
+        {
+            HistogramRecord record = (HistogramRecord) row;
+            switch (columnIndex)
+            {
+                case 0:
+                    String label = record.getLabel();
+                    return label;
+                case 1:
+                    return record.getNumberOfObjects();
+                case 2:
+                    return record.getUsedHeapSize();
+            }
+            return null;
+        }
+
+        public IContextObject getContext(Object row)
+        {
+            if (row instanceof SuperclassNode)
+            {
+                final SuperclassNode node = (SuperclassNode) row;
+
+                return new IContextObjectSet()
+                {
+                    public int getObjectId()
+                    {
+                        return -1;
+                    }
+
+                    public int[] getObjectIds()
+                    {
+                        ArrayInt objectIds = new ArrayInt();
+
+                        LinkedList<SuperclassNode> nodes = new LinkedList<SuperclassNode>();
+                        nodes.add(node);
+
+                        while (!nodes.isEmpty())
+                        {
+                            SuperclassNode n = nodes.removeFirst();
+                            for (ClassHistogramRecord record : n.classes)
+                                objectIds.addAll(record.getObjectIds());
+
+                            nodes.addAll(n.subClasses.values());
+                        }
+
+                        return objectIds.toArray();
+                    }
+
+                    public String getOQL()
+                    {
+                        return null;
+                    }
+                };
+            }
+            else if (row instanceof ClassHistogramRecord)
+            {
+                final ClassHistogramRecord record = (ClassHistogramRecord) row;
+                if (record.getClassId() < 0)
+                    return null;
+
+                return new IContextObjectSet()
+                {
+                    public int getObjectId()
+                    {
+                        return record.getClassId();
+                    }
+
+                    public int[] getObjectIds()
+                    {
+                        return record.getObjectIds();
+                    }
+
+                    public String getOQL()
+                    {
+                        if (histogram.isDefaultHistogram())
+                            return OQL.forObjectsOfClass(record.getClassId());
+                        else
+                            return null;
+                    }
+                };
+            }
+            else
+            {
+                return null;
+            }
+
+        }
+
+        public URL getIcon(Object row)
+        {
+            return row instanceof SuperclassNode ? Icons.SUPERCLASS : Icons.CLASS;
+        }
+
+    }
+
 }

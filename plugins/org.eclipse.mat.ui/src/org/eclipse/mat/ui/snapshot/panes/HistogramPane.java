@@ -76,6 +76,7 @@ public class HistogramPane extends QueryResultPane
     public enum Grouping
     {
         BY_CLASS(Messages.HistogramPane_GroupByClass, Icons.CLASS), //
+        BY_SUPERCLASS(Messages.HistogramPane_GroupBySuperclass, Icons.SUPERCLASS),
         BY_CLASSLOADER(Messages.HistogramPane_GroupByClassLoader, Icons.CLASSLOADER_INSTANCE), //
         BY_PACKAGE(Messages.HistogramPane_GroupByPackage, Icons.PACKAGE);
 
@@ -153,6 +154,8 @@ public class HistogramPane extends QueryResultPane
         IResult subject = ((QueryResult) argument).getSubject();
         if (subject instanceof Histogram)
             groupedBy = Grouping.BY_CLASS;
+        else if (subject instanceof Histogram.SuperclassTree)
+            groupedBy = Grouping.BY_SUPERCLASS;
         else if (subject instanceof Histogram.ClassLoaderTree)
             groupedBy = Grouping.BY_CLASSLOADER;
         else if (subject instanceof Histogram.PackageTree)
@@ -173,6 +176,8 @@ public class HistogramPane extends QueryResultPane
     {
         if (subject instanceof Histogram)
             return (Histogram) subject;
+        else if (subject instanceof Histogram.SuperclassTree)
+            return ((Histogram.SuperclassTree) subject).getHistogram();
         else if (subject instanceof Histogram.ClassLoaderTree)
             return ((Histogram.ClassLoaderTree) subject).getHistogram();
         else if (subject instanceof Histogram.PackageTree)
@@ -248,6 +253,10 @@ public class HistogramPane extends QueryResultPane
                             {
                                 case BY_CLASS:
                                     qr = new QueryResult(null, "[diff]", delta);//$NON-NLS-1$
+                                    break;
+                                case BY_SUPERCLASS:
+                                    ISnapshot snapshot = ((ISnapshotEditorInput) getEditorInput()).getSnapshot();
+                                    qr = new QueryResult(null, "[diff]", delta.groupBySuperclass(snapshot));//$NON-NLS-1$
                                     break;
                                 case BY_CLASSLOADER:
                                     qr = new QueryResult(null, "[diff]", delta.groupByClassLoader());//$NON-NLS-1$
@@ -328,6 +337,10 @@ public class HistogramPane extends QueryResultPane
                     {
                         case BY_CLASS:
                             result = current;
+                            break;
+                        case BY_SUPERCLASS:
+                            ISnapshotEditorInput snapshotInput = ((ISnapshotEditorInput) getEditorInput());
+                            result = current.groupBySuperclass(snapshotInput.getSnapshot());
                             break;
                         case BY_CLASSLOADER:
                             result = current.groupByClassLoader();
@@ -419,6 +432,10 @@ public class HistogramPane extends QueryResultPane
                 {
                     case BY_CLASS:
                         result = histogram;
+                        break;
+                    case BY_SUPERCLASS:
+                        ISnapshotEditorInput snapshotInput = ((ISnapshotEditorInput) getEditorInput());
+                        result = histogram.groupBySuperclass(snapshotInput.getSnapshot());
                         break;
                     case BY_CLASSLOADER:
                         result = histogram.groupByClassLoader();

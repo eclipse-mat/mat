@@ -284,7 +284,8 @@ public class Messages extends NLS
     public static String Histogram_ClassLoaderStatistics;
     public static String Histogram_ClassStatistics;
     public static String Histogram_Column_ClassLoaderPerClass;
-    public static String Histogram_Colun_PackagePerClass;
+    public static String Histogram_Column_PackagePerClass;
+    public static String Histogram_Column_SuperclassPerClass;
     public static String Histogram_Description;
     public static String Histogram_Difference;
     public static String Histogram_Intersection;
@@ -292,6 +293,7 @@ public class Messages extends NLS
     public static String HistogramQuery_GroupByClass;
     public static String HistogramQuery_GroupByClassLoader;
     public static String HistogramQuery_GroupByPackage;
+    public static String HistogramQuery_GroupBySuperclass;
     public static String HistogramQuery_HistogramOf;
     public static String HistogramQuery_IllegalArgument;
 

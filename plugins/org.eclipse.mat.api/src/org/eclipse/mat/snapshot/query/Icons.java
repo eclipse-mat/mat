@@ -88,6 +88,11 @@ public final class Icons
     public static final URL PACKAGE = build("package");
 
     /**
+     * A Java superclass.
+     */
+    public static final URL SUPERCLASS = build("superclass");
+
+    /**
      * Construct an icon URL for the current object pointing to the right image
      * and containing the right GC decoration.
      * 
