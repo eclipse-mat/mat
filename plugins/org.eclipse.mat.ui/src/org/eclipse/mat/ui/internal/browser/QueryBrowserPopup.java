@@ -36,6 +36,7 @@ import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.QueryExecution;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
 import org.eclipse.mat.ui.util.ErrorHelper;
+import org.eclipse.mat.ui.util.IPolicy;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
@@ -99,6 +100,11 @@ public class QueryBrowserPopup extends PopupDialog
 
     public QueryBrowserPopup(MultiPaneEditor editor, boolean onlyHistory)
     {
+        this(editor, onlyHistory, null);
+    }
+    
+    public QueryBrowserPopup(MultiPaneEditor editor, boolean onlyHistory, org.eclipse.mat.ui.util.IPolicy policy)
+    {
         super(editor.getEditorSite().getShell(), SWT.RESIZE, true, true, true, true, null,
                         Messages.QueryBrowserPopup_StartTyping);
 
@@ -109,19 +115,19 @@ public class QueryBrowserPopup extends PopupDialog
 
         if (!onlyHistory)
         {
-            addCategories(QueryRegistry.instance().getRootCategory());
-            providers.add(new QueryRegistryProvider(editor.getQueryContext(), QueryRegistry.instance().getRootCategory()));
+            addCategories(QueryRegistry.instance().getRootCategory(), policy);
+            providers.add(new QueryRegistryProvider(editor.getQueryContext(), QueryRegistry.instance().getRootCategory(), policy));
         }
 
         create();
     }
 
-    private void addCategories(CategoryDescriptor category)
+    private void addCategories(CategoryDescriptor category, IPolicy policy)
     {
         for (CategoryDescriptor c : category.getSubCategories())
         {
-            providers.add(new QueryRegistryProvider(editor.getQueryContext(), c));
-            addCategories(c);
+            providers.add(new QueryRegistryProvider(editor.getQueryContext(), c, policy));
+            addCategories(c, policy);
         }
     }
 

@@ -50,6 +50,7 @@ import org.eclipse.mat.ui.MemoryAnalyserPlugin.ISharedImages;
 import org.eclipse.mat.ui.editor.AbstractEditorPane;
 import org.eclipse.mat.ui.editor.AbstractPaneJob;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
+import org.eclipse.mat.ui.internal.browser.QueryBrowserPopup;
 import org.eclipse.mat.ui.snapshot.actions.CopyActions;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.swt.widgets.Control;
@@ -195,11 +196,12 @@ public class QueryContextMenu
         return label;
     }
 
-    private static class Policy
+    private static class Policy implements IPolicy
     {
         private final boolean multiRowSelection;
         private final boolean multiObjectSelection;
         private Class<? extends IContextObject> type;
+        private List<IContextObject> context;
 
         public Policy(List<IContextObject> menuContext)
         {
@@ -215,6 +217,7 @@ public class QueryContextMenu
                     break;
                 }
             }
+            context = menuContext;
         }
 
         public boolean accept(QueryDescriptor query)
@@ -263,6 +266,45 @@ public class QueryContextMenu
 
             return false;
         }
+        
+        public void fillInObjectArguments(ISnapshot snapshot, QueryDescriptor query, String label, ArgumentSet set)
+        {
+            // avoid JavaNCSS parsing error
+            final Class<?> intClass = int.class;
+
+            for (ArgumentDescriptor argument : query.getArguments())
+            {
+                if ((intClass.isAssignableFrom(argument.getType()) && argument.getAdvice() == Argument.Advice.HEAP_OBJECT) //
+                                || IObject.class.isAssignableFrom(argument.getType()) //
+                                || IHeapObjectArgument.class.isAssignableFrom(argument.getType()))
+                {
+                    set.setArgumentValue(argument, new HeapObjectContextArgument(snapshot, context, label));
+                }
+                else if (IContextObjectSet.class.isAssignableFrom(argument.getType()))
+                {
+                    if (argument.isMultiple())
+                    {
+                        set.setArgumentValue(argument, context);
+                    }
+                    else
+                    {
+                        set.setArgumentValue(argument, context.get(0));
+                    }
+                }
+                else if (IContextObject.class.isAssignableFrom(argument.getType()))
+                {
+                    if (argument.isMultiple())
+                    {
+                        set.setArgumentValue(argument, context);
+                    }
+                    else
+                    {
+                        set.setArgumentValue(argument, context.get(0));
+                    }
+                }
+            }
+        }
+
     }
 
     private void resultMenu(PopupMenu menu, IStructuredSelection selection)
@@ -317,16 +359,30 @@ public class QueryContextMenu
         }
     }
 
-    private void queryMenu(PopupMenu menu, List<IContextObject> menuContext, String label)
+    private void queryMenu(PopupMenu menu, final List<IContextObject> menuContext, String label)
     {
-        addCategories(menu, QueryRegistry.instance().getRootCategory(), menuContext, label, new Policy(menuContext));
+        final Policy policy = new Policy(menuContext);
+        addCategories(menu, QueryRegistry.instance().getRootCategory(), menuContext, label, policy);
+        Action queryBrowser = new Action(Messages.QueryDropDownMenuAction_SearchQueries)
+        {
+            @Override
+            public void run()
+            {
+                new QueryBrowserPopup(editor, false, policy).open();
+            }
+        };
+        queryBrowser.setImageDescriptor(MemoryAnalyserPlugin
+                        .getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.QUERY));
+        queryBrowser.setToolTipText(Messages.QueryDropDownMenuAction_SeachQueriesByName);
+        queryBrowser.setActionDefinitionId("org.eclipse.mat.ui.query.browser.QueryBrowser2"); //$NON-NLS-1$
+        menu.add(queryBrowser);
     }
 
     private void addCategories(PopupMenu menu, //
                     CategoryDescriptor root, //
                     List<IContextObject> menuContext, //
                     String label, //
-                    Policy policy)
+                    IPolicy policy)
     {
         for (Object item : root.getChildren())
         {
@@ -436,8 +492,10 @@ public class QueryContextMenu
         {
             try
             {
+                final Policy policy = new Policy(context);
+                ISnapshot snapshot = (ISnapshot) editor.getQueryContext().get(ISnapshot.class, null);
                 ArgumentSet set = query.createNewArgumentSet(editor.getQueryContext());
-                fillInObjectArguments(set);
+                policy.fillInObjectArguments(snapshot, query, label, set);
                 QueryExecution.execute(editor, editor.getActiveEditor().getPaneState(), null, set, !query.isShallow(),
                                 false);
             }
@@ -447,45 +505,5 @@ public class QueryContextMenu
             }
         }
 
-        private void fillInObjectArguments(ArgumentSet set)
-        {
-            ISnapshot snapshot = (ISnapshot) editor.getQueryContext().get(ISnapshot.class, null);
-
-            // avoid JavaNCSS parsing error
-            final Class<?> intClass = int.class;
-
-            for (ArgumentDescriptor argument : query.getArguments())
-            {
-                if ((intClass.isAssignableFrom(argument.getType()) && argument.getAdvice() == Argument.Advice.HEAP_OBJECT) //
-                                || IObject.class.isAssignableFrom(argument.getType()) //
-                                || IHeapObjectArgument.class.isAssignableFrom(argument.getType()))
-                {
-                    set.setArgumentValue(argument, new HeapObjectContextArgument(snapshot, context, label));
-                }
-                else if (IContextObjectSet.class.isAssignableFrom(argument.getType()))
-                {
-                    if (argument.isMultiple())
-                    {
-                        set.setArgumentValue(argument, context);
-                    }
-                    else
-                    {
-                        set.setArgumentValue(argument, context.get(0));
-                    }
-                }
-                else if (IContextObject.class.isAssignableFrom(argument.getType()))
-                {
-                    if (argument.isMultiple())
-                    {
-                        set.setArgumentValue(argument, context);
-                    }
-                    else
-                    {
-                        set.setArgumentValue(argument, context.get(0));
-                    }
-                }
-            }
-
-        }
     }
 }

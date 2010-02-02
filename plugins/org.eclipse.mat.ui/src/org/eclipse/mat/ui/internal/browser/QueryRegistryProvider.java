@@ -16,22 +16,27 @@ import java.util.List;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.IQueryContext;
+import org.eclipse.mat.query.registry.ArgumentSet;
 import org.eclipse.mat.query.registry.CategoryDescriptor;
 import org.eclipse.mat.query.registry.QueryDescriptor;
+import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.QueryExecution;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
+import org.eclipse.mat.ui.util.IPolicy;
 
 public class QueryRegistryProvider extends QueryBrowserProvider
 {
     IQueryContext context;
     CategoryDescriptor category;
+    IPolicy policy;
 
-    public QueryRegistryProvider(IQueryContext context, CategoryDescriptor c)
+    public QueryRegistryProvider(IQueryContext context, CategoryDescriptor c, IPolicy policy)
     {
         this.context = context;
         this.category = c;
+        this.policy = policy;
     }
 
     @Override
@@ -42,7 +47,7 @@ public class QueryRegistryProvider extends QueryBrowserProvider
 
         for (QueryDescriptor query : queries)
         {
-            if (query.accept(context))
+            if (query.accept(context) && (policy == null || policy.accept(query)))
                 answer.add(new CQQElement(query));
         }
 
@@ -69,7 +74,16 @@ public class QueryRegistryProvider extends QueryBrowserProvider
 
         public void execute(MultiPaneEditor editor) throws SnapshotException
         {
-            QueryExecution.executeQuery(editor, query);
+            if (policy != null)
+            {
+                ArgumentSet set = query.createNewArgumentSet(editor.getQueryContext());
+                ISnapshot snapshot = (ISnapshot) editor.getQueryContext().get(ISnapshot.class, null);
+                policy.fillInObjectArguments(snapshot, query, label, set);
+                QueryExecution.execute(editor, editor.getActiveEditor().getPaneState(), null, set, !query.isShallow(),
+                                false);
+            }
+            else
+                QueryExecution.executeQuery(editor, query);
         }
 
         public ImageDescriptor getImageDescriptor()
