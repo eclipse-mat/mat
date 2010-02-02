@@ -86,4 +86,17 @@ public class GeneralSnapshotTests
         int n = snapshot.getSnapshotInfo().getNumberOfObjects();
         assertEquals("Total objects", n, no);
     }
+    
+    @Test
+    public void TotalHeapSize() throws SnapshotException
+    {
+        long total = 0;
+        for (IClass cls : snapshot.getClasses())
+        {
+            total += snapshot.getHeapSize(cls.getObjectIds());
+        }
+        long n = snapshot.getSnapshotInfo().getUsedHeapSize();
+        assertEquals("Total heap size", n, total);
+    }
+    
 }
