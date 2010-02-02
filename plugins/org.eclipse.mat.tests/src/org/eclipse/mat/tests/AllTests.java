@@ -22,6 +22,7 @@ import org.junit.runners.Suite.SuiteClasses;
                 org.eclipse.mat.tests.collect.PrimitiveMapTests.class, //
                 org.eclipse.mat.tests.snapshot.DominatorTreeTest.class, //
                 org.eclipse.mat.tests.snapshot.TestUnreachableObjects.class, //
+                org.eclipse.mat.tests.snapshot.GeneralSnapshotTests.class, //
                 org.eclipse.mat.tests.snapshot.OQLTest.class })
 public class AllTests
 {

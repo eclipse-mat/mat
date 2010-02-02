@@ -65,7 +65,7 @@ import org.eclipse.mat.snapshot.model.IThreadStack;
                         while (line != null && !line.equals("")) //$NON-NLS-1$
                         {
                             int lineNr = readLineNumber(line);
-                            if (lineNr > 0)
+                            if (lineNr >= 0)
                             {
                                 int objectId = readLocalId(line, snapshot);
                                 ArrayInt arr = line2locals.get(lineNr);
