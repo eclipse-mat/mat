@@ -1,24 +1,27 @@
 package org.eclipse.mat.tests.snapshot;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.util.Arrays;
 import java.util.Collection;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IClass;
+import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IStackFrame;
 import org.eclipse.mat.snapshot.model.IThreadStack;
 import org.eclipse.mat.tests.TestSnapshots;
-import static org.junit.Assert.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-@RunWith(value=Parameterized.class)
+@RunWith(value = Parameterized.class)
 public class GeneralSnapshotTests
 {
-    
+
     @Parameters
     public static Collection<Object[]> data()
     {
@@ -35,7 +38,7 @@ public class GeneralSnapshotTests
         snapshot = TestSnapshots.getSnapshot(snapshotname, false);
     }
 
-    final ISnapshot snapshot; 
+    final ISnapshot snapshot;
 
     @Test
     public void Stacks1() throws SnapshotException
@@ -66,7 +69,7 @@ public class GeneralSnapshotTests
             assertTrue("Expected some objects on top of stack", foundTop > 0);
         }
     }
-    
+
     @Test
     public void TotalClasses() throws SnapshotException
     {
@@ -74,7 +77,7 @@ public class GeneralSnapshotTests
         int n = snapshot.getSnapshotInfo().getNumberOfClasses();
         assertEquals("Total classes", n, nc);
     }
-    
+
     @Test
     public void TotalObjects() throws SnapshotException
     {
@@ -86,7 +89,7 @@ public class GeneralSnapshotTests
         int n = snapshot.getSnapshotInfo().getNumberOfObjects();
         assertEquals("Total objects", n, no);
     }
-    
+
     @Test
     public void TotalHeapSize() throws SnapshotException
     {
@@ -98,5 +101,24 @@ public class GeneralSnapshotTests
         long n = snapshot.getSnapshotInfo().getUsedHeapSize();
         assertEquals("Total heap size", n, total);
     }
-    
+
+    @Test
+    public void ObjectSizes() throws SnapshotException
+    {
+        long total = 0;
+        for (IClass cls : snapshot.getClasses())
+        {
+            for (int o : cls.getObjectIds())
+            {
+                IObject obj = snapshot.getObject(o);
+                int n = obj.getUsedHeapSize();
+                int n2 = snapshot.getHeapSize(o);
+                assertEquals("snapshot object heap size / object heap size", n, n2);
+                total += n;
+            }
+        }
+        long n = snapshot.getSnapshotInfo().getUsedHeapSize();
+        assertEquals("Total heap size", n, total);
+    }
+
 }
