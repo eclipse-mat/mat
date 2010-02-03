@@ -202,8 +202,9 @@ public class QueryContextMenu
         private final boolean multiObjectSelection;
         private Class<? extends IContextObject> type;
         private List<IContextObject> context;
+        private String label;
 
-        public Policy(List<IContextObject> menuContext)
+        public Policy(List<IContextObject> menuContext, String selectionLabel)
         {
             multiRowSelection = menuContext.size() > 1;
             multiObjectSelection = multiRowSelection || menuContext.get(0) instanceof IContextObjectSet;
@@ -218,6 +219,7 @@ public class QueryContextMenu
                 }
             }
             context = menuContext;
+            label = selectionLabel;
         }
 
         public boolean accept(QueryDescriptor query)
@@ -267,7 +269,7 @@ public class QueryContextMenu
             return false;
         }
         
-        public void fillInObjectArguments(ISnapshot snapshot, QueryDescriptor query, String label, ArgumentSet set)
+        public void fillInObjectArguments(ISnapshot snapshot, QueryDescriptor query, ArgumentSet set)
         {
             // avoid JavaNCSS parsing error
             final Class<?> intClass = int.class;
@@ -361,7 +363,7 @@ public class QueryContextMenu
 
     private void queryMenu(PopupMenu menu, final List<IContextObject> menuContext, String label)
     {
-        final Policy policy = new Policy(menuContext);
+        final IPolicy policy = new Policy(menuContext, label);
         addCategories(menu, QueryRegistry.instance().getRootCategory(), menuContext, label, policy);
         Action queryBrowser = new Action(Messages.QueryDropDownMenuAction_SearchQueries)
         {
@@ -397,7 +399,7 @@ public class QueryContextMenu
             {
                 QueryDescriptor query = (QueryDescriptor) item;
                 if (policy.accept(query))
-                    menu.add(new QueryAction(editor, query, menuContext, label));
+                    menu.add(new QueryAction(editor, query, policy));
 
             }
         }
@@ -469,19 +471,16 @@ public class QueryContextMenu
     {
         MultiPaneEditor editor;
         QueryDescriptor query;
-        List<IContextObject> context;
-        String label;
+        IPolicy policy;
 
         public QueryAction(MultiPaneEditor editor, //
                         QueryDescriptor query, //
-                        List<IContextObject> context, //
-                        String label)
+                        IPolicy policy)
         {
             super(query.getName());
             this.editor = editor;
             this.query = query;
-            this.context = context;
-            this.label = label;
+            this.policy = policy;
 
             this.setToolTipText(query.getShortDescription());
             this.setImageDescriptor(MemoryAnalyserPlugin.getDefault().getImageDescriptor(query));
@@ -492,10 +491,9 @@ public class QueryContextMenu
         {
             try
             {
-                final Policy policy = new Policy(context);
                 ISnapshot snapshot = (ISnapshot) editor.getQueryContext().get(ISnapshot.class, null);
                 ArgumentSet set = query.createNewArgumentSet(editor.getQueryContext());
-                policy.fillInObjectArguments(snapshot, query, label, set);
+                policy.fillInObjectArguments(snapshot, query, set);
                 QueryExecution.execute(editor, editor.getActiveEditor().getPaneState(), null, set, !query.isShallow(),
                                 false);
             }

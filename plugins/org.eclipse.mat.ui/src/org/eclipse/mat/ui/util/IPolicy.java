@@ -25,5 +25,5 @@ public interface IPolicy
 
     public abstract boolean accept(QueryDescriptor query);
 
-    public abstract void fillInObjectArguments(ISnapshot snapshot, QueryDescriptor query, String label, ArgumentSet set);
+    public abstract void fillInObjectArguments(ISnapshot snapshot, QueryDescriptor query, ArgumentSet set);
 }

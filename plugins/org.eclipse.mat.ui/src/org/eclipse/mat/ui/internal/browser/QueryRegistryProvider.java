@@ -78,7 +78,7 @@ public class QueryRegistryProvider extends QueryBrowserProvider
             {
                 ArgumentSet set = query.createNewArgumentSet(editor.getQueryContext());
                 ISnapshot snapshot = (ISnapshot) editor.getQueryContext().get(ISnapshot.class, null);
-                policy.fillInObjectArguments(snapshot, query, label, set);
+                policy.fillInObjectArguments(snapshot, query, set);
                 QueryExecution.execute(editor, editor.getActiveEditor().getPaneState(), null, set, !query.isShallow(),
                                 false);
             }
