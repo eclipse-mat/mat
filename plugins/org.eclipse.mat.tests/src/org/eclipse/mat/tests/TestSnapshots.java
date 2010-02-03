@@ -37,6 +37,9 @@ public class TestSnapshots
     public static final String SUN_JDK6_32BIT = "dumps/sun_jdk6_32bit.hprof";
     public static final String IBM_JDK6_32BIT_SYSTEM = "dumps/core.20100112.141124.11580.0001.dmp.zip";
     public static final String IBM_JDK6_32BIT_HEAP = "dumps/heapdump.20100112.141124.11580.0002.phd";
+    public static final String IBM_JDK6_32BIT_JAVA = "dumps/javacore.20100112.141124.11580.0003.txt";
+    /** javacore provides extra thread and class loader information to a heap dump */
+    public static final String IBM_JDK6_32BIT_HEAP_AND_JAVA = IBM_JDK6_32BIT_HEAP + ";" + IBM_JDK6_32BIT_JAVA;
 
     private static DirDeleter deleterThread;
     private static Map<String, ISnapshot> snapshots = new HashMap<String, ISnapshot>();
@@ -52,6 +55,13 @@ public class TestSnapshots
         return getSnapshot(name, new HashMap<String, String>(), pristine);
     }
 
+    /**
+     * Get a snapshot from a dump
+     * @param name Name or names of dump, separated by semicolon
+     * @param options
+     * @param pristine If true, return a brand new snapshot, not a cached version
+     * @return
+     */
     public static ISnapshot getSnapshot(String name, Map<String, String> options, boolean pristine)
     {
         try
@@ -65,6 +75,11 @@ public class TestSnapshots
                     return answer;
             }
 
+            String names[] = name.split(";");
+            if (names.length > 1)
+            {
+                name = names[0];
+            }
             File sourceHeapDump = getResourceFile(name);
 
             int index = name.lastIndexOf('.');
@@ -85,6 +100,17 @@ public class TestSnapshots
             {
                 File addon = new File(directory, addonsName.substring(p + 1));
                 copyFile(sourceAddon, addon);
+            }
+
+            // Extra dump files
+            for (int i = 1; i < names.length; ++i)
+            {
+                File extraDump = getResourceFile(names[i]);
+                assert extraDump != null : "Unable to find snapshot resource: " + names[i];
+                assert extraDump.exists();
+                p = name.lastIndexOf('/');
+                File extraSnapshot = new File(directory, names[i].substring(p + 1));
+                copyFile(extraDump, extraSnapshot);
             }
 
             ISnapshot answer = SnapshotFactory.openSnapshot(snapshot, options, new VoidProgressListener());

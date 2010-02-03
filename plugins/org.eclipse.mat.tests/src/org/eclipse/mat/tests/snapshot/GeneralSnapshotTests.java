@@ -29,6 +29,8 @@ public class GeneralSnapshotTests
             {TestSnapshots.SUN_JDK6_32BIT},
             {TestSnapshots.SUN_JDK5_64BIT},
             {TestSnapshots.IBM_JDK6_32BIT_HEAP},
+            {TestSnapshots.IBM_JDK6_32BIT_JAVA},
+            {TestSnapshots.IBM_JDK6_32BIT_HEAP_AND_JAVA},
             {TestSnapshots.IBM_JDK6_32BIT_SYSTEM},
         });
     }
@@ -45,6 +47,7 @@ public class GeneralSnapshotTests
     {
         int frames = 0;
         int foundTop = 0;
+        int foundNotTop = 0;
         for (IClass thrdcls : snapshot.getClassesByName("java.lang.Thread", true))
         {
             for (int o : thrdcls.getObjectIds())
@@ -56,15 +59,22 @@ public class GeneralSnapshotTests
                     for (IStackFrame frm : stk.getStackFrames())
                     {
                         int os[] = frm.getLocalObjectsIds();
-                        if (i == 0 && os != null)
-                            foundTop += os.length;
+                        if (os != null)
+                        {
+                            if (i == 0)
+                                foundTop += os.length;
+                            else
+                                foundNotTop += os.length;
+                        }
                         ++i;
                         ++frames;
                     }
                 }
             }
         }
-        if (frames > 0)
+        // If there were some frames, and some frames had some objects
+        // then a topmost frame should have some objects
+        if (frames > 0 && foundNotTop > 0)
         {
             assertTrue("Expected some objects on top of stack", foundTop > 0);
         }
@@ -113,7 +123,10 @@ public class GeneralSnapshotTests
                 IObject obj = snapshot.getObject(o);
                 int n = obj.getUsedHeapSize();
                 int n2 = snapshot.getHeapSize(o);
-                assertEquals("snapshot object heap size / object heap size", n, n2);
+                if (n != n2)
+                {
+                    assertEquals("snapshot object heap size / object heap size "+obj, n, n2);
+                }
                 total += n;
             }
         }
