@@ -13,7 +13,10 @@ package org.eclipse.mat.ui.internal.query.arguments;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.mat.query.IQueryContext;
+import org.eclipse.mat.query.annotations.Category;
 import org.eclipse.mat.query.registry.ArgumentSet;
+import org.eclipse.mat.query.registry.QueryDescriptor;
+import org.eclipse.mat.query.registry.QueryRegistry;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.internal.browser.QueryContextHelp;
 import org.eclipse.swt.SWT;
@@ -33,10 +36,25 @@ public class ArgumentsWizard extends Wizard
         this.context = context;
         this.argumentSet = argumentSet;
 
-        setWindowTitle(argumentSet.getQueryDescriptor().getName());
+        setWindowTitle(queryFullName(argumentSet.getQueryDescriptor()));
         setForcePreviousAndNextButtons(false);
         setDefaultPageImageDescriptor(MemoryAnalyserPlugin
                         .getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.ARGUMENTS_WIZARD));
+    }
+
+    private static String queryFullName(QueryDescriptor query)
+    {
+        String name = query.getName();
+        String category = query.getCategory();
+        if (!Category.HIDDEN.equals(category) && category != null)
+        {
+            String categoryName = QueryRegistry.instance().getRootCategory().resolve(category).getFullName();
+            if (categoryName != null)
+            {
+                name = categoryName + " / " + name; //$NON-NLS-1$
+            }
+        }
+        return name;
     }
 
     @Override
