@@ -187,7 +187,9 @@ public class QueryDescriptor
             int p = bb.next();
             if (p >= 0 && p <= numChars)
             {
-                description = help.substring(0, p);
+                // Need trim to remove any trailing new lines which would appear in
+                // the query browser as extra blank lines
+                description = help.substring(0, p).trim();
             }
             else
             {
