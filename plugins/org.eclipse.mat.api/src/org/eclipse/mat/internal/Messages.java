@@ -238,6 +238,7 @@ public class Messages extends NLS
     public static String GCRootInfo_ThreadBlock;
     public static String GCRootInfo_Unfinalized;
     public static String GCRootInfo_Unkown;
+    public static String GCRootInfo_Unreachable;
 
     public static String GroupByValueQuery_Column_AvgRetainedSize;
     public static String GroupByValueQuery_Column_Objects;
