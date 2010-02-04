@@ -32,7 +32,7 @@ class StackFrameImpl implements IStackFrame
 
 	public int[] getLocalObjectsIds()
 	{
-		return localObjectIds;
+		return localObjectIds == null ? new int[0] : localObjectIds;
 	}
 
 	public String getText()

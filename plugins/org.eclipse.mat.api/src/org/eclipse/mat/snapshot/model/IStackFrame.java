@@ -16,11 +16,22 @@ package org.eclipse.mat.snapshot.model;
  * @noimplement
  * @since 0.8
  */
-public interface IStackFrame
-{
+public interface IStackFrame {
 
-    public int[] getLocalObjectsIds();
+	/**
+	 * Returns the object IDs of all objects referenced from this stack frame -
+	 * both Java and JNI local objects
+	 * 
+	 * @return int[] and array containing the object Ids. If there are no local
+	 *         objects to the frame, and empty array will be returned
+	 */
+	public int[] getLocalObjectsIds();
 
-    public String getText();
+	/**
+	 * Get the text representation of the stack frame
+	 * 
+	 * @return java.lang.String the text representation of the stack fame - class and method
+	 */
+	public String getText();
 
 }

@@ -36,7 +36,7 @@ public interface IClass extends IObject
     public int getNumberOfObjects();
 
     /**
-     * Ids of all instances of this class.
+     * Ids of all instances of this class (an empty array if there are no instances of the class)
      */
     public int[] getObjectIds() throws SnapshotException;
 
