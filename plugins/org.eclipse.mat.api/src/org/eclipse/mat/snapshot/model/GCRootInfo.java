@@ -70,6 +70,12 @@ abstract public class GCRootInfo implements Serializable
          * is not yet on the finalizer queue
          */
         int UNFINALIZED = 1024;
+        /**
+         * An object which is unreachable from any other root, but has been 
+         * marked as a root by MAT to retain objects which otherwise would not
+         * be included in the analysis
+         */
+        int UNREACHABLE = 2048;
     }
 
     private final static String[] TYPE_STRING = new String[] { Messages.GCRootInfo_Unkown, //
@@ -82,7 +88,8 @@ abstract public class GCRootInfo implements Serializable
                     Messages.GCRootInfo_NativeStack, //
                     Messages.GCRootInfo_Thread, //
                     Messages.GCRootInfo_Finalizable, //
-                    Messages.GCRootInfo_Unfinalized };
+                    Messages.GCRootInfo_Unfinalized,
+                    Messages.GCRootInfo_Unreachable };
 
     protected int objectId;
     private long objectAddress;
