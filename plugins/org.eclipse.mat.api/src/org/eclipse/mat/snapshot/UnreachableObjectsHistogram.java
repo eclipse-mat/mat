@@ -17,9 +17,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.IContextObject;
+import org.eclipse.mat.query.IContextObjectSet;
 import org.eclipse.mat.query.IIconProvider;
 import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.query.ResultMetaData;
@@ -38,12 +40,19 @@ public class UnreachableObjectsHistogram implements IResultTable, IIconProvider,
         private String className;
         private int objectCount;
         private long shallowHeapSize;
+        private long classAddress;
 
-        public Record(String className, int nrOfObjects, long sizeOfObjects)
+        public Record(String className, long classAddress, int nrOfObjects, long sizeOfObjects)
         {
             this.className = className;
             this.objectCount = nrOfObjects;
             this.shallowHeapSize = sizeOfObjects;
+            this.classAddress = classAddress;
+        }
+
+        public Record(String className, int nrOfObjects, long sizeOfObjects)
+        {
+            this(className, 0L, nrOfObjects, sizeOfObjects);
         }
 
         public String getClassName()
@@ -60,11 +69,18 @@ public class UnreachableObjectsHistogram implements IResultTable, IIconProvider,
         {
             return shallowHeapSize;
         }
+
+        public long getClassAddress()
+        {
+            return classAddress;
+        }
     }
 
     private static final long serialVersionUID = 1L;
 
     private List<Record> histogram;
+    
+    private transient ISnapshot snapshot;
 
     public UnreachableObjectsHistogram(Collection<Record> records)
     {
@@ -120,7 +136,40 @@ public class UnreachableObjectsHistogram implements IResultTable, IIconProvider,
 
     public IContextObject getContext(Object row)
     {
-        return null;
+        final Record record = (Record) row;
+
+        long classAddress = record.getClassAddress();
+        if (classAddress == 0)
+            return null;
+        
+        final int classId;
+        try 
+        {
+            classId = snapshot.mapAddressToId(classAddress);
+        } 
+        catch (SnapshotException e)
+        {
+            // Class not found in dump as unreachable and discarded
+            return null;
+        }
+
+        return new IContextObjectSet()
+        {
+            public int getObjectId()
+            {
+                return classId;
+            }
+
+            public int[] getObjectIds()
+            {
+                return new int[0];
+            }
+
+            public String getOQL()
+            {
+                return null;
+            }
+        };
     }
 
     public URL getIcon(Object row)
@@ -128,4 +177,10 @@ public class UnreachableObjectsHistogram implements IResultTable, IIconProvider,
         return Icons.CLASS;
     }
 
+    public void setSnapshot(ISnapshot snapshot)
+    {
+        // Stop the user changing this!
+        if (this.snapshot == null)
+            this.snapshot = snapshot;
+    }
 }

@@ -546,7 +546,7 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
         for (Iterator<Record> iter = histogram.values(); iter.hasNext();)
         {
             Record r = iter.next();
-            records.add(new UnreachableObjectsHistogram.Record(r.clazz.getName(), r.objectCount, r.size));
+            records.add(new UnreachableObjectsHistogram.Record(r.clazz.getName(), r.clazz.getObjectAddress(), r.objectCount, r.size));
         }
 
         UnreachableObjectsHistogram deadObjectHistogram = new UnreachableObjectsHistogram(records);
@@ -597,7 +597,7 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
                     // No need to mark it as the marker will do that
                     root[0] = ii;
 
-                    XGCRootInfo xgc = new XGCRootInfo(identifiers.get(ii), 0, GCRootInfo.Type.UNKNOWN);
+                    XGCRootInfo xgc = new XGCRootInfo(identifiers.get(ii), 0, GCRootInfo.Type.UNREACHABLE);
                     xgc.setObjectId(ii);
 
                     ArrayList<XGCRootInfo> xgcs = new ArrayList<XGCRootInfo>(1);

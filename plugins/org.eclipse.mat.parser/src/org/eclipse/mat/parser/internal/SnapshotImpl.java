@@ -280,6 +280,10 @@ public final class SnapshotImpl implements ISnapshot
         this.objectCache = new HeapObjectCache(this, 1000);
 
         this.heapObjectReader.open(this);
+
+        Object unreach = snapshotInfo.getProperty(UnreachableObjectsHistogram.class.getName());
+        if (unreach instanceof UnreachableObjectsHistogram)
+            ((UnreachableObjectsHistogram)unreach).setSnapshot(this);
     }
 
     private void calculateLoaderLabels() throws SnapshotException
