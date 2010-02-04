@@ -148,12 +148,12 @@ public class Pass1Parser extends AbstractParser
 
         if (currentDumpNr <= dumpNrToRead)
             throw new SnapshotException(MessageUtil.format(
-                            "Parser found {0} HPROF dumps in file {1}. No heap dump index {2} found. See FAQ.",
+                            Messages.Pass1Parser_Error_NoHeapDumpIndexFound,
                             currentDumpNr, file.getName(), dumpNrToRead));
 
         if (currentDumpNr > 1)
             monitor.sendUserMessage(IProgressListener.Severity.INFO, MessageUtil.format(
-                            "Parser found {0} HPROF dumps in file {1}. Using dump index {2}. See FAQ.", currentDumpNr,
+                            Messages.Pass1Parser_Info_UsingDumpIndex, currentDumpNr,
                             file.getName(), dumpNrToRead), null);
         
         if (serNum2stackTrace.size() > 0)
@@ -183,14 +183,15 @@ public class Pass1Parser extends AbstractParser
     
     private void readStackFrame(long length) throws IOException
     {
-    	long frameId = readID();
-    	long methodName = readID();
-    	long methodSig = readID();
-    	long srcFile = readID();
-    	long classSerNum = readUnsignedInt();
-    	int lineNr = in.readInt(); // can be negative
-    	StackFrame frame = new StackFrame(frameId, lineNr, getStringConstant(methodName), getStringConstant(methodSig), getStringConstant(srcFile), classSerNum);
-    	id2frame.put(frameId, frame);
+        long frameId = readID();
+        long methodName = readID();
+        long methodSig = readID();
+        long srcFile = readID();
+        long classSerNum = readUnsignedInt();
+        int lineNr = in.readInt(); // can be negative
+        StackFrame frame = new StackFrame(frameId, lineNr, getStringConstant(methodName), getStringConstant(methodSig),
+                        getStringConstant(srcFile), classSerNum);
+        id2frame.put(frameId, frame);
     }
     
     private void readStackTrace(long length) throws IOException
@@ -466,176 +467,178 @@ public class Pass1Parser extends AbstractParser
     }
     
     private void dumpThreads()
-	{
-		// noticed that one stack trace with empty stack is always reported,
-		// even if the dump has no call stacks info
-    	if (serNum2stackTrace == null || serNum2stackTrace.size() <= 1)
-			return;
-    	
-    	PrintWriter out = null;
-		String outputName = handler.getSnapshotInfo().getPrefix() + "threads";
-		try
-		{
-			out = new PrintWriter(new FileWriter(outputName));
+    {
+        // noticed that one stack trace with empty stack is always reported,
+        // even if the dump has no call stacks info
+        if (serNum2stackTrace == null || serNum2stackTrace.size() <= 1)
+            return;
 
-			Iterator<StackTrace> it = serNum2stackTrace.values();
-			while (it.hasNext())
-			{
-				StackTrace stack = it.next();
-				Long tid = thread2id.get(stack.threadSerialNr);
-				if (tid == null) continue;
-				String threadId = tid == null ? "<unknown>" : "0x" + Long.toHexString(tid);
-				out.println("Thread " + threadId);
-				out.println(stack);
-				out.println("  locals:");
-				List<JavaLocal> locals = thread2locals.get(stack.threadSerialNr);
-				if (locals != null)
-				{
-					for (JavaLocal javaLocal : locals)
-					{
-						out.println("    objecId=0x" + Long.toHexString(javaLocal.objectId) + ", line=" + javaLocal.lineNumber);
+        PrintWriter out = null;
+        String outputName = handler.getSnapshotInfo().getPrefix() + "threads"; //$NON-NLS-1$
+        try
+        {
+            out = new PrintWriter(new FileWriter(outputName));
 
-					}
-				}
-				out.println();
-			}
-			out.flush();
-			this.monitor.sendUserMessage(Severity.INFO, MessageUtil.format(Messages.Pass1Parser_Info_WroteThreadsTo, outputName), null);
-		}
-		catch (IOException e)
-		{
-			this.monitor.sendUserMessage(Severity.WARNING, MessageUtil.format(Messages.Pass1Parser_Error_WritingThreadsInformation), e);
-		}
-		finally
-		{
-			if (out != null)
-			{
-				try
-				{
-					out.close();
-				}
-				catch (Exception ignore)
-				{
-					 // $JL-EXC$
-				}
-			}
-		}
+            Iterator<StackTrace> it = serNum2stackTrace.values();
+            while (it.hasNext())
+            {
+                StackTrace stack = it.next();
+                Long tid = thread2id.get(stack.threadSerialNr);
+                if (tid == null)
+                    continue;
+                String threadId = tid == null ? "<unknown>" : "0x" + Long.toHexString(tid); //$NON-NLS-1$ //$NON-NLS-2$
+                out.println("Thread " + threadId); //$NON-NLS-1$
+                out.println(stack);
+                out.println("  locals:"); //$NON-NLS-1$
+                List<JavaLocal> locals = thread2locals.get(stack.threadSerialNr);
+                if (locals != null)
+                {
+                    for (JavaLocal javaLocal : locals)
+                    {
+                        out
+                                        .println("    objecId=0x" + Long.toHexString(javaLocal.objectId) + ", line=" + javaLocal.lineNumber); //$NON-NLS-1$ //$NON-NLS-2$
 
-	}
-    
+                    }
+                }
+                out.println();
+            }
+            out.flush();
+            this.monitor.sendUserMessage(Severity.INFO, MessageUtil.format(Messages.Pass1Parser_Info_WroteThreadsTo,
+                            outputName), null);
+        }
+        catch (IOException e)
+        {
+            this.monitor.sendUserMessage(Severity.WARNING, MessageUtil
+                            .format(Messages.Pass1Parser_Error_WritingThreadsInformation), e);
+        }
+        finally
+        {
+            if (out != null)
+            {
+                try
+                {
+                    out.close();
+                }
+                catch (Exception ignore)
+                {
+                    // $JL-EXC$
+                }
+            }
+        }
+
+    }
+
     private class StackFrame
     {
-    	long frameId;
-    	String method;
-    	String methodSignature;
-    	String sourceFile;
-    	long classSerNum;
-    	
-    	/*
-    	 * > 0	line number
-    	 * 0	no line info
-    	 * -1	unknown location
-    	 * -2	compiled method
-    	 * -3	native method
-    	 */
-    	int lineNr;
+        long frameId;
+        String method;
+        String methodSignature;
+        String sourceFile;
+        long classSerNum;
 
-    	public StackFrame(long frameId, int lineNr, String method, String methodSignature, String sourceFile, long classSerNum)
-		{
-			super();
-			this.frameId = frameId;
-			this.lineNr = lineNr;
-			this.method = method;
-			this.methodSignature = methodSignature;
-			this.sourceFile = sourceFile;
-			this.classSerNum = classSerNum;
-		}
-    	
-    	@Override
-    	public String toString()
-    	{
-    		String className = null; 
-    		Long classId = classSerNum2id.get(classSerNum);
-    		if (classId == null)
-    		{
-    			className = "<UNKNOWN CLASS>";
-    		}
-    		else
-    		{
-    			className = class2name.get(classId);
-    		}
-    		
-    		String sourceLocation = "";
-    		if (lineNr > 0)
-    		{
-    			sourceLocation = "(" + sourceFile + ":" + String.valueOf(lineNr) + ")";
-    		}
-    		else if (lineNr == 0 || lineNr == -1) 
-    		{
-    			sourceLocation = "(Unknown Source)"; 
-    		}
-    		else if (lineNr == -2) 
-    		{
-    			sourceLocation = "(Compiled method)"; 
-    		}
-    		else if (lineNr == -3) 
-    		{
-    			sourceLocation = "(Native Method)"; 
-    		}
-    		
-    		return "  at " + className + "." + method + methodSignature + " " + sourceLocation;
-    	}
+        /*
+         * > 0 line number 0 no line info -1 unknown location -2 compiled method
+         * -3 native method
+         */
+        int lineNr;
+
+        public StackFrame(long frameId, int lineNr, String method, String methodSignature, String sourceFile,
+                        long classSerNum)
+        {
+            super();
+            this.frameId = frameId;
+            this.lineNr = lineNr;
+            this.method = method;
+            this.methodSignature = methodSignature;
+            this.sourceFile = sourceFile;
+            this.classSerNum = classSerNum;
+        }
+
+        @Override
+        public String toString()
+        {
+            String className = null;
+            Long classId = classSerNum2id.get(classSerNum);
+            if (classId == null)
+            {
+                className = "<UNKNOWN CLASS>"; //$NON-NLS-1$
+            }
+            else
+            {
+                className = class2name.get(classId);
+            }
+
+            String sourceLocation = ""; //$NON-NLS-1$
+            if (lineNr > 0)
+            {
+                sourceLocation = "(" + sourceFile + ":" + String.valueOf(lineNr) + ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            }
+            else if (lineNr == 0 || lineNr == -1)
+            {
+                sourceLocation = "(Unknown Source)"; //$NON-NLS-1$
+            }
+            else if (lineNr == -2)
+            {
+                sourceLocation = "(Compiled method)"; //$NON-NLS-1$
+            }
+            else if (lineNr == -3)
+            {
+                sourceLocation = "(Native Method)"; //$NON-NLS-1$
+            }
+
+            return "  at " + className + "." + method + methodSignature + " " + sourceLocation; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        }
 
     }
-    
+
     private class StackTrace
     {
-    	private long threadSerialNr;
-    	private long[] frameIds;
-    	
-    	public StackTrace(long serialNr, long threadSerialNr, long[] frameIds)
-    	{
-    		super();
-    		this.frameIds = frameIds;
-    		this.threadSerialNr = threadSerialNr;
-    	}
-    	
-    	@Override
-    	public String toString()
-    	{
-    		StringBuilder b = new StringBuilder();
-    		for (long frameId : frameIds)
-			{
-    			StackFrame frame = id2frame.get(frameId);
-    			if (frame != null)
-    			{
-    				b.append(frame.toString());
-    				b.append("\r\n");
-    			}
-				
-			}
-    		return b.toString();
-    	}
-    	
+        private long threadSerialNr;
+        private long[] frameIds;
+
+        public StackTrace(long serialNr, long threadSerialNr, long[] frameIds)
+        {
+            super();
+            this.frameIds = frameIds;
+            this.threadSerialNr = threadSerialNr;
+        }
+
+        @Override
+        public String toString()
+        {
+            StringBuilder b = new StringBuilder();
+            for (long frameId : frameIds)
+            {
+                StackFrame frame = id2frame.get(frameId);
+                if (frame != null)
+                {
+                    b.append(frame.toString());
+                    b.append("\r\n"); //$NON-NLS-1$
+                }
+
+            }
+            return b.toString();
+        }
+
     }
-    
+
     private class JavaLocal
     {
-    	private long objectId;
-    	private int lineNumber;
-    	private int type;
-    	
-		public JavaLocal(long objectId, int lineNumber, int type)
-		{
-			super();
-			this.lineNumber = lineNumber;
-			this.objectId = objectId;
-			this.type = type;
-		}
+        private long objectId;
+        private int lineNumber;
+        private int type;
 
-		public int getType()
-		{
-			return type;
-		}
+        public JavaLocal(long objectId, int lineNumber, int type)
+        {
+            super();
+            this.lineNumber = lineNumber;
+            this.objectId = objectId;
+            this.type = type;
+        }
+
+        public int getType()
+        {
+            return type;
+        }
     }
 }

@@ -28,14 +28,15 @@ public class Messages extends NLS
     public static String Pass1Parser_Error_IllegalType;
     public static String Pass1Parser_Error_InvalidHeapDumpFile;
     public static String Pass1Parser_Error_invalidHPROFFile;
+    public static String Pass1Parser_Error_NoHeapDumpIndexFound;
     public static String Pass1Parser_Error_SupportedDumps;
     public static String Pass1Parser_Error_UnresolvedName;
     public static String Pass2Parser_Error_HandleMustCreateFakeClassForName;
     public static String Pass2Parser_Error_HandlerMustCreateFakeClassForAddress;
     public static String Pass2Parser_Error_InsufficientBytesRead;
+    public static String Pass1Parser_Info_UsingDumpIndex;
     public static String Pass1Parser_Info_WroteThreadsTo;
     public static String Pass1Parser_Error_WritingThreadsInformation;
-    
     static
     {
         // initialize resource bundle
