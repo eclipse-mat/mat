@@ -215,32 +215,40 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
         identifiers.sort();
     }
 
-    private int calculateInstanceSize(ClassImpl clazz)
-    {
-        if (!clazz.isArrayType())
-        {
-            if (clazz.getSuperClassAddress() == 0) { return 2 * info.getIdentifierSize(); }
-            ClassImpl superClass = classesByAddress.get(clazz.getSuperClassAddress());
-            int ownFieldsSize = 0;
-            for (FieldDescriptor field : clazz.getFieldDescriptors())
-                ownFieldsSize += sizeOf(field);
+	private int calculateInstanceSize(ClassImpl clazz)
+	{
+		if (!clazz.isArrayType())
+		{
+			return alignUpToX(calculateSizeRecursive(clazz), 8);
+		}
+		else
+		{
+			// use the instanceSize only to pass the proper ID size
+			// arrays calculate the rest themselves.
+			return info.getIdentifierSize();
+		}
+	}
+    
+	private int calculateSizeRecursive(ClassImpl clazz)
+	{
+		if (clazz.getSuperClassAddress() == 0)
+		{
+			return 2 * info.getIdentifierSize();
+		}
+		ClassImpl superClass = classesByAddress.get(clazz.getSuperClassAddress());
+		int ownFieldsSize = 0;
+		for (FieldDescriptor field : clazz.getFieldDescriptors())
+			ownFieldsSize += sizeOf(field);
 
-            return alignUpTo8(ownFieldsSize + calculateInstanceSize(superClass));
-        }
-        else
-        {
-            // use the instanceSize only to pass the proper ID size
-            // arrays calculate the rest themselves.
-            return info.getIdentifierSize();
-        }
-    }
+		return alignUpToX(ownFieldsSize + calculateSizeRecursive(superClass), info.getIdentifierSize());
+	}
 
     private int calculateClassSize(ClassImpl clazz)
     {
         int staticFieldsSize = 0;
         for (Field field : clazz.getStaticFields())
             staticFieldsSize += sizeOf(field);
-        return alignUpTo8(staticFieldsSize);
+        return alignUpToX(staticFieldsSize, 8);
     }
 
     private int sizeOf(FieldDescriptor field)
@@ -252,10 +260,10 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
         return IPrimitiveArray.ELEMENT_SIZE[type];
     }
 
-    private int alignUpTo8(int n)
+    private int alignUpToX(int n, int x)
     {
-        int r = n % 8;
-        return r == 0 ? n : n + 8 - r;
+        int r = n % x;
+        return r == 0 ? n : n + x - r;
     }
 
     public IOne2LongIndex fillIn(IPreliminaryIndex index) throws IOException
