@@ -7330,6 +7330,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                             File dumpFile = null, metaFile = null;
                             try
                             {
+                                Set<List<File>> attemptedFiles = new LinkedHashSet<List<File>>();
                                 // Get the ImageFactory
                                 ImageFactory fact = (ImageFactory) el.createExecutableExtension("action"); //$NON-NLS-1$
 
@@ -7344,6 +7345,10 @@ public class DTFJIndexBuilder implements IIndexBuilder
                                     is = new FileInputStream(dump);
                                     ct0 = Platform.getContentTypeManager().findContentTypeFor(is, name);
                                 }
+                                catch (IOException e)
+                                {
+                                    ct0 = null;
+                                }
                                 finally
                                 {
                                     if (is != null)
@@ -7355,6 +7360,10 @@ public class DTFJIndexBuilder implements IIndexBuilder
                                     is = new FileInputStream(dump);
                                     cts = Platform.getContentTypeManager().findContentTypesFor(is, name);
                                 }
+                                catch (IOException e)
+                                {
+                                    cts = new IContentType[0];
+                                }
                                 finally
                                 {
                                     if (is != null)
@@ -7365,6 +7374,10 @@ public class DTFJIndexBuilder implements IIndexBuilder
                                 {
                                     is = new FileInputStream(dump);
                                     cts2 = Platform.getContentTypeManager().findContentTypesFor(is, null);
+                                }
+                                catch (IOException e)
+                                {
+                                    cts2 = new IContentType[0];
                                 }
                                 finally
                                 {
@@ -7419,20 +7432,10 @@ public class DTFJIndexBuilder implements IIndexBuilder
                                                             metaFile = new File(dump.getParentFile(), name.substring(0,
                                                                             p)
                                                                             + metaExt1);
-                                                            try
-                                                            {
-                                                                image = fact.getImage(dumpFile, metaFile);
-                                                                return image;
-                                                            }
-                                                            catch (FileNotFoundException e)
-                                                            {
-                                                                // Ignore for
-                                                                // the moment -
-                                                                // perhaps both
-                                                                // files are not
-                                                                // available
-                                                                checkIfDiskFull(dumpFile, metaFile, e, format);
-                                                            }
+                                                            List<File>fs = new ArrayList<File>();
+                                                            fs.add(dumpFile);
+                                                            fs.add(metaFile);
+                                                            attemptedFiles.add(fs);
                                                         }
                                                     }
                                                 }
@@ -7456,20 +7459,10 @@ public class DTFJIndexBuilder implements IIndexBuilder
                                                                             p)
                                                                             + ext1);
                                                             metaFile = dump;
-                                                            try
-                                                            {
-                                                                image = fact.getImage(dumpFile, metaFile);
-                                                                return image;
-                                                            }
-                                                            catch (FileNotFoundException e)
-                                                            {
-                                                                // Ignore for
-                                                                // the moment -
-                                                                // perhaps both
-                                                                // files are not
-                                                                // available
-                                                                checkIfDiskFull(dumpFile, metaFile, e, format);
-                                                            }
+                                                            List<File>fs = new ArrayList<File>();
+                                                            fs.add(dumpFile);
+                                                            fs.add(metaFile);
+                                                            attemptedFiles.add(fs);
                                                         }
                                                     }
                                                 }
@@ -7486,71 +7479,101 @@ public class DTFJIndexBuilder implements IIndexBuilder
                                             {
                                                 dumpFile = dump;
                                                 metaFile = null;
-                                                try
-                                                {
-                                                    image = fact.getImage(dumpFile);
-                                                    return image;
-                                                }
-                                                catch (RuntimeException e)
-                                                {
-                                                    // Javacore currently throws
-                                                    // IndexOutOfBoundsException
-                                                    // for bad dumps
-                                                    // Ignore for the moment,
-                                                    // will occur again
-                                                }
-                                                catch (FileNotFoundException e)
-                                                {
-                                                    // Ignore for the moment -
-                                                    // perhaps both files are
-                                                    // not available
-                                                    checkIfDiskFull(dumpFile, metaFile, e, format);
-                                                }
+                                                List<File>fs = new ArrayList<File>();
+                                                fs.add(dumpFile);
+                                                attemptedFiles.add(fs);
+                                                break;
                                             }
                                         }
                                     }
                                 }
+                                
+                                // Also try just the dump
                                 dumpFile = dump;
                                 metaFile = null;
-                                try
-                                {
-                                    image = fact.getImage(dumpFile);
-                                    return image;
+                                List<File>fs = new ArrayList<File>();
+                                fs.add(dump);
+                                attemptedFiles.add(fs);
+                                
+                                // Try opening the dump
+                                RuntimeException savedRuntimeException = null;
+                                FileNotFoundException savedFileException = null;
+                                try {
+                                    for (List<File>fls : attemptedFiles)
+                                    {
+                                        dumpFile = fls.get(0);
+                                        if (fls.size() >= 2)
+                                        {
+                                            metaFile = fls.get(1);
+                                            try
+                                            {
+                                                image = fact.getImage(dumpFile, metaFile);
+                                                return image;
+                                            }
+                                            catch (FileNotFoundException e)
+                                            {
+                                                checkIfDiskFull(dumpFile, metaFile, e, format);
+                                            }
+                                        }
+                                        else
+                                        {
+                                            metaFile = null;
+                                            try
+                                            {
+                                                image = fact.getImage(dumpFile);
+                                                return image;
+                                            }
+                                            catch (RuntimeException e)
+                                            {
+                                                // Javacore currently throws
+                                                // IndexOutOfBoundsException
+                                                // for bad dumps
+                                                savedRuntimeException = e;
+                                                savedFileException = null;
+                                            }
+                                            catch (FileNotFoundException e)
+                                            {
+                                                savedRuntimeException = null;
+                                                savedFileException = e;
+                                                checkIfDiskFull(dumpFile, metaFile, e, format);
+                                            }
+                                        }
+                                    }
                                 }
-                                catch (RuntimeException e)
+                                catch (IOException e)
+                                {
+                                    // Could be out of disk space, so give up now
+                                    // Clear the cache to attempt to free some disk
+                                    // space
+                                    clearCachedDumps();
+                                    IOException e1 = new IOException(MessageFormat.format(
+                                                    Messages.DTFJIndexBuilder_UnableToReadDumpMetaInDTFJFormat, dumpFile,
+                                                    metaFile, format));
+                                    e1.initCause(e);
+                                    throw e1;
+                                }
+                                if (savedRuntimeException != null)
                                 {
                                     // Javacore currently throws
                                     // IndexOutOfBoundsException for bad dumps
                                     IOException e1 = new IOException(MessageFormat.format(
                                                     Messages.DTFJIndexBuilder_UnableToReadDumpInDTFJFormat, dumpFile,
                                                     format));
-                                    e1.initCause(e);
+                                    e1.initCause(savedRuntimeException);
+                                    throw e1;
+                                }
+                                if (savedFileException != null)
+                                {
+                                    IOException e1 = new IOException(MessageFormat.format(
+                                                    Messages.DTFJIndexBuilder_UnableToReadDumpInDTFJFormat, dumpFile,
+                                                    format));
+                                    e1.initCause(savedFileException);
                                     throw e1;
                                 }
                             }
-                            catch (FileNotFoundException e)
-                            {
-                                checkIfDiskFull(dumpFile, metaFile, e, format);
-                                IOException e1 = new IOException(MessageFormat.format(
-                                                Messages.DTFJIndexBuilder_UnableToReadDumpMetaInDTFJFormat, dumpFile,
-                                                metaFile, format));
-                                e1.initCause(e);
-                                throw e1;
-                            }
-                            catch (IOException e)
-                            {
-                                // Could be out of disk space, so give up now
-                                // Clear the cache to attempt to free some disk
-                                // space
-                                clearCachedDumps();
-                                IOException e1 = new IOException(MessageFormat.format(
-                                                Messages.DTFJIndexBuilder_UnableToReadDumpMetaInDTFJFormat, dumpFile,
-                                                metaFile, format));
-                                e1.initCause(e);
-                                throw e1;
-                            }
                             catch (CoreException e)
                             {
+                                // From createExecutableException
                                 IOException e1 = new IOException(MessageFormat.format(
                                                 Messages.DTFJIndexBuilder_UnableToReadDumpInDTFJFormat, dump, format));
                                 e1.initCause(e);

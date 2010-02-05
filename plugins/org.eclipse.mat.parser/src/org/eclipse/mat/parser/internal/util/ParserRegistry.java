@@ -160,9 +160,17 @@ public class ParserRegistry extends RegistryReader<ParserRegistry.Parser>
     {
         List<Parser> answer = new ArrayList<Parser>();
         for (Parser p : delegates())
+        {
             for (Pattern regex : p.pattern)
+            {
                 if (regex.matcher(fileName).matches())
+                {
                     answer.add(p);
+                    // Only need to add a parser once
+                    break;
+                }
+            }
+        }
         return answer;
     }
     
