@@ -12,7 +12,8 @@ Export-Package: org.eclipse.mat.inspections.osgi;x-friends:="org.eclipse.mat.ui"
  org.eclipse.mat.snapshot.inspections,
  org.eclipse.mat.snapshot.model,
  org.eclipse.mat.snapshot.query,
- org.eclipse.mat.snapshot.registry
+ org.eclipse.mat.snapshot.registry,
+ org.eclipse.mat.snapshot.acquire
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.3.100",
  org.eclipse.mat.report;bundle-version="0.8.0";visibility:=reexport
 Bundle-Activator: org.eclipse.mat.internal.MATPlugin

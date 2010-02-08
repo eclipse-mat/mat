@@ -127,6 +127,17 @@
 				id="org.eclipse.mat.ui.openExternalFile">
 			</action>
 		</actionSet>
+		<actionSet
+			id="org.eclipse.mat.ui.actionSet.openAcquireDialog"
+			label="Acquire Heap Dump" visible="false">
+			<action
+				id="org.eclipse.mat.ui.openAcquireDialog"
+				class="org.eclipse.mat.ui.acquire.AcquireSnapshotAction"
+				icon="icons/open_snapshot.gif"
+				label="Acquire Heap Dump ..." menubarPath="file/new.ext" style="push"
+				toolbarPath="org.eclipse.ui.workbench.file/new.ext"
+				tooltip="Acquire heap dump from a locally running VM" />
+		</actionSet>
 	</extension>
 	
 	<extension point="org.eclipse.ui.perspectiveExtensions">
@@ -137,6 +148,12 @@
 			</actionSet>
 			<actionSet
 				id="org.eclipse.mat.ui.actionSet.openIconAssist">
+			</actionSet>
+		</perspectiveExtension>
+		<perspectiveExtension
+			targetID="org.eclipse.mat.ui.perspective">
+			<actionSet
+				id="org.eclipse.mat.ui.actionSet.openAcquireDialog">
 			</actionSet>
 		</perspectiveExtension>
 	</extension>
@@ -163,6 +180,10 @@
 				optional="false">
 			</commandParameter>
 		</command>
+		<command
+			id="org.eclipse.mat.ui.acquire.HeapDump"
+			name="Acquire Heap Dump">
+		</command>
 	</extension>
 
 	<extension point="org.eclipse.ui.handlers">
@@ -182,6 +203,10 @@
 			class="org.eclipse.mat.ui.internal.actions.ExecuteInspectionHandler"
 			commandId="org.eclipse.mat.ui.actions.executeInspection">
 		</handler>
+		<handler
+			commandId="org.eclipse.mat.ui.acquire.HeapDump"
+			class="org.eclipse.mat.ui.acquire.AcquireSnapshotAction$Handler">
+		</handler>
 	</extension>
 
 	<extension point="org.eclipse.ui.bindings">
@@ -199,6 +224,11 @@
 			commandId="org.eclipse.mat.ui.actions.IconAssist"
 			contextId="org.eclipse.ui.contexts.window"
 			schemeId="org.eclipse.mat.scheme" sequence="Alt+I">
+		</key>
+		<key
+			commandId="org.eclipse.mat.ui.acquire.HeapDump"
+			contextId="org.eclipse.ui.contexts.window"
+			schemeId="org.eclipse.mat.scheme" sequence="Alt+A">
 		</key>
 	</extension>
 
@@ -253,5 +283,5 @@
 				category="org.eclipse.mat.tutorials"
 				name="Finding Memory Problems Tutorial"/>
 	</extension>
-
+ 
 </plugin>

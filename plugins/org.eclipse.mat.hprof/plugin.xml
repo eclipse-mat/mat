@@ -25,5 +25,11 @@
 		      priority="normal">
 		</content-type>
 	</extension>
+ <extension
+       point="org.eclipse.mat.api.heapDumpProvider">
+    <provider
+          impl="org.eclipse.mat.hprof.acquire.JMapHeapDumpProvider">
+    </provider>
+ </extension>
 
 </plugin>

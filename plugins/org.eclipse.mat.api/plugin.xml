@@ -7,6 +7,7 @@
 	<extension-point id="threadResolver" name="Thread Details Resolver" schema="schema/threadResolver.exsd"/>
 	<extension-point id="requestResolver" name="Request Details Resolver" schema="schema/requestResolver.exsd"/>
 	<extension-point id="ticketResolver" name="Trouble Ticket Resolver" schema="schema/ticketResolver.exsd"/>
+ <extension-point id="heapDumpProvider" name="Heap Dump Provider" schema="schema/heapDumpProvider.exsd"/>
 	
 	<extension point="org.eclipse.mat.report.query">
 		<!-- public -->

@@ -281,8 +281,29 @@ public class Messages extends NLS
 	public static String OverviewPane_ComponentReport;
     public static String OverviewPane_NoPieChartAvailable;
 	public static String InspectorView_GCroot;
+	
+	public static String AcquireDialog_ChooseProcess;
+	public static String AcquireDialog_ColumnDescription;
+	public static String AcquireDialog_ColumnPID;
+	public static String AcquireDialog_DialogDescription;
+	public static String AcquireDialog_DialogName;
+	public static String AcquireDialog_SaveLocation;
 
-    static
+	
+
+    public static String AcquireSnapshotAction_AcquireDialogName;
+	public static String AcquireSnapshotAction_Confirmation;
+	public static String AcquireSnapshotAction_DirectoryDoesntExist;
+	public static String AcquireSnapshotAction_FailedToCreateProvider;
+	public static String AcquireSnapshotAction_FileAlreadyExists;
+	public static String AcquireSnapshotAction_NoProviderError;
+	public static String AcquireSnapshotAction_UnableToCreateDirectory;
+	public static String AcquireSnapshotAction_UnableToOpenEditor;
+	public static String AcquireSnapshotAction_UnexpectedException;
+
+
+
+	static
     {
         // initialize resource bundle
         NLS.initializeMessages(BUNDLE_NAME, Messages.class);
