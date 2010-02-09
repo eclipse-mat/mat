@@ -114,7 +114,11 @@ public class PrimitiveArrayImpl extends AbstractArrayImpl implements IPrimitiveA
     @Override
     public int getUsedHeapSize()
     {
-        return doGetUsedHeapSize(classInstance, length, type);
+        try {
+            return getSnapshot().getHeapSize(getObjectId());
+        } catch (SnapshotException e) {
+            return doGetUsedHeapSize(classInstance, length, type);
+        }
     }
 
     public static int doGetUsedHeapSize(ClassImpl clazz, int length, int type)

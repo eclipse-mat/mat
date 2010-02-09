@@ -40,7 +40,11 @@ public class ObjectArrayImpl extends AbstractArrayImpl implements IObjectArray
     @Override
     public int getUsedHeapSize()
     {
-        return doGetUsedHeapSize(classInstance, length);
+        try {
+            return getSnapshot().getHeapSize(getObjectId());
+        } catch (SnapshotException e) {
+            return doGetUsedHeapSize(classInstance, length);
+        }
     }
 
     public static int doGetUsedHeapSize(ClassImpl clazz, int length)

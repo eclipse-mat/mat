@@ -454,29 +454,14 @@ public final class SnapshotImpl implements ISnapshot
         // int[] classIds = indexManager.o2class().getAll(objectIds);
 
         IOne2OneIndex o2class = indexManager.o2class();
-        IOne2OneIndex a2size = indexManager.a2size();
 
         int classId;
-        IClass clasz;
 
         for (int ii = 0; ii < objectIds.length; ii++)
         {
             classId = o2class.get(objectIds[ii]);
-            // classId = classIds[ii];
-            clasz = classCache.get(classId);
 
-            if (clasz.isArrayType())
-            {
-                histogramBuilder.add(classId, objectIds[ii], a2size.get(objectIds[ii]));
-            }
-            else
-            {
-                IClass current = classCache.get(objectIds[ii]);
-                if (current != null)
-                    histogramBuilder.add(classId, objectIds[ii], current.getUsedHeapSize());
-                else
-                    histogramBuilder.add(classId, objectIds[ii], clasz.getHeapSizePerInstance());
-            }
+            histogramBuilder.add(classId, objectIds[ii], getHeapSize(objectIds[ii]));
 
             if ((ii & 0xff) == 0)
             {
@@ -1434,7 +1419,18 @@ public final class SnapshotImpl implements ISnapshot
 
     public boolean isArray(int objectId)
     {
-        return arrayObjects.get(objectId);
+        if (arrayObjects.get(objectId))
+        {
+            // Variable size, so see if actually an array
+            IClass clazz = classCache.get(indexManager.o2class().get(objectId));
+            if (clazz.isArrayType())
+            {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        return false;
     }
 
     public boolean isClass(int objectId)
@@ -2024,7 +2020,7 @@ public final class SnapshotImpl implements ISnapshot
             {
                 IObject answer = null;
                 // check if the object is an array (no index needed)
-                if (snapshot.arrayObjects.get(objectId))
+                if (snapshot.isArray(objectId))
                 {
                     answer = snapshot.heapObjectReader.read(objectId, snapshot);
                 }

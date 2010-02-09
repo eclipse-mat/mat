@@ -147,9 +147,10 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
                     int classId = object2classId.get(ii);
                     ClassImpl clazz = classesById.get(classId);
 
-                    if (clazz.isArrayType())
+                    int arraySize = preA2size.get(ii);
+                    if (arraySize > 0)
                     {
-                        clazz.removeInstance(preA2size.get(ii));
+                        clazz.removeInstance(arraySize);
                     }
                     else
                     {
@@ -517,20 +518,21 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
                 totalObjectCount++;
                 int s = 0;
 
-                if (r.clazz.isArrayType())
+                s = array2size.get(ii);
+                if (s > 0)
                 {
-                    s = array2size.get(ii);                    
+                    // Already got the size
                 }
                 else if (IClass.JAVA_LANG_CLASS.equals(r.clazz.getName()))
                 {
                     ClassImpl classImpl = idx.classesById.get(ii);
                     if (classImpl == null)
                     {
-                        s = r.clazz.getHeapSizePerInstance();                                       
+                        s = r.clazz.getHeapSizePerInstance();
                     }
                     else
                     {
-                        s = classImpl.getUsedHeapSize();                        
+                        s = classImpl.getUsedHeapSize();
                     }
                 }
                 else
