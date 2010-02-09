@@ -185,10 +185,10 @@ public class ParserRegistry extends RegistryReader<ParserRegistry.Parser>
             if (p instanceof DynamicParser)
             {
                 foundDynamic = true;
-                try
+                @SuppressWarnings("unchecked")
+                Map<String, Map<String, String>> mp = (Map<String, Map<String, String>>)p.create(Map.class, DYNAMIC);
+                if (mp != null)
                 {
-                    Map<String, Map<String, String>> mp = (Map<String, Map<String, String>>) p.configElement
-                                    .createExecutableExtension(DYNAMIC);
                     for (Map<String, String> m : mp.values())
                     {
                         String id = m.get(ID);
@@ -220,13 +220,6 @@ public class ParserRegistry extends RegistryReader<ParserRegistry.Parser>
                             }
                         }
                     }
-                }
-                catch (CoreException e)
-                {
-                    String typeName = p.configElement.getAttribute(DYNAMIC);
-                    Logger.getLogger(getClass().getName()).log(Level.SEVERE,
-                                    MessageUtil.format(Messages.ParserRegistry_ErrorWhileCreating, typeName, DYNAMIC),
-                                    e);
                 }
             }
             else
