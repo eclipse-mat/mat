@@ -56,6 +56,7 @@ import org.eclipse.mat.parser.index.IndexManager;
 import org.eclipse.mat.parser.index.IndexWriter;
 import org.eclipse.mat.parser.index.IIndexReader.IOne2ManyIndex;
 import org.eclipse.mat.parser.index.IIndexReader.IOne2OneIndex;
+import org.eclipse.mat.parser.index.IndexWriter.IntIndexCollectorUncompressed;
 import org.eclipse.mat.parser.model.ClassImpl;
 import org.eclipse.mat.parser.model.XGCRootInfo;
 import org.eclipse.mat.parser.model.XSnapshotInfo;
@@ -190,6 +191,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
 
     /** The outbound references index */
     private IndexWriter.IntArray1NWriter outRefs;
+    /** The temp object id to size index, for arrays and variable sized objects - used to build arrayToSize */
+    private IntIndexCollectorUncompressed indexToSize;
     /** The array size in bytes index */
     private IOne2OneIndex arrayToSize;
     /** The object/class id number to address index */
@@ -1478,6 +1481,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
         workCountSoFar += 1;
         listener.subTask(Messages.DTFJIndexBuilder_FindingRoots);
 
+        indexToSize = new IndexWriter.IntIndexCollectorUncompressed(indexToAddress.size());
+
         // Java 1.4.2 has bootLoader as null and the address of the Java stack
         // frame at the lower memory address
         boolean scanUp = bootLoaderAddress == 0;
@@ -1540,9 +1545,6 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 addRoot(gcRoot, addr, fixedBootLoaderAddress, GCRootInfo.Type.UNKNOWN);
             }
 
-        IndexWriter.IntIndexCollectorUncompressed ic2 = new IndexWriter.IntIndexCollectorUncompressed(indexToAddress
-                        .size());
-
         listener.worked(1);
         workCountSoFar += 1;
         listener.subTask(Messages.DTFJIndexBuilder_FindingOutboundReferencesForObjects);
@@ -1576,14 +1578,14 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     if (listener.isCanceled()) { throw new IProgressListener.OperationCanceledException(); }
                 }
 
-                processHeapObject(jo, pointerSize, bootLoaderAddress, loaders, jlc, refd, ic2, listener);
+                processHeapObject(jo, pointerSize, bootLoaderAddress, loaders, jlc, refd, listener);
             }
         }
         // Objects not on the heap
         for (Iterator<JavaObject> i = missingObjects.values().iterator(); i.hasNext();)
         {
             JavaObject jo = i.next();
-            processHeapObject(jo, pointerSize, bootLoaderAddress, loaders, jlc, refd, ic2, listener);
+            processHeapObject(jo, pointerSize, bootLoaderAddress, loaders, jlc, refd, listener);
         }
 
         // Boot Class Loader
@@ -1632,8 +1634,11 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 ClassImpl cls = idToClass.get(clsId);
                 long frameTypeAddr = cls.getObjectAddress();
 
-                // set instances of each stack frame
-                int size = cls.getHeapSizePerInstance();
+                // set instance size of each stack frame
+                int size = indexToSize.get(objId);
+                // if not in the variable sized objects table then use the fixed size
+                if (size == 0)
+                    size = cls.getHeapSizePerInstance();
                 cls.addInstance(size);
                 objectToSize.set(objId, size);
 
@@ -1665,7 +1670,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
 
         index.setObject2classId(objectToClass);
 
-        arrayToSize = ic2.writeTo(IndexManager.Index.A2SIZE.getFile(pfx + "temp.")); //$NON-NLS-1$
+        arrayToSize = indexToSize.writeTo(IndexManager.Index.A2SIZE.getFile(pfx + "temp.")); //$NON-NLS-1$
+        indexToSize = null;
         index.setArray2size(arrayToSize);
 
         out2b = outRefs.flush();
@@ -2478,17 +2484,20 @@ public class DTFJIndexBuilder implements IIndexBuilder
             
             if (prevSize <= 0 || prevSize == JAVA_STACK_FRAME_SIZE)
             {
-                // Use size
+                // The previous size wasn't valid, so set it now
+                cls.setHeapSizePerInstance(size);
             }
             else if (size == JAVA_STACK_FRAME_SIZE)
             {
+                // The current size isn't sensible, so use the previous
                 size = prevSize;
             }
             else
             {
-                size = Math.max(size, prevSize);
+                // The size isn't the same as the previous one, so remember this one
+                if (size != prevSize)
+                    indexToSize.set(frameId, size);
             }
-            cls.setHeapSizePerInstance(size);
          }
     }
 
@@ -2633,13 +2642,12 @@ public class DTFJIndexBuilder implements IIndexBuilder
      * @param loaders
      * @param jlc
      * @param refd
-     * @param ic2
      * @param listener
      * @throws IOException
      */
     private void processHeapObject(JavaObject jo, int pointerSize, long bootLoaderAddress,
                     HashMap<JavaObject, JavaClassLoader> loaders, ClassImpl jlc, boolean[] refd,
-                    IndexWriter.IntIndexCollectorUncompressed ic2, IProgressListener listener)
+                    IProgressListener listener)
                     throws IOException
     {
         long objAddr = jo.getID().getAddress();
@@ -2737,7 +2745,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 {
                     int arrayLen = jo.getArraySize();
                     // Bytes, not elements
-                    ic2.set(objId, size);
+                    indexToSize.set(objId, size);
                     // For calculating purge sizes
                     objectToSize.set(objId, size);
                     // debugPrint("array size "+size+" arrayLen "+arrayLen);
@@ -2760,7 +2768,19 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 }
                 else
                 {
-                    cls.setHeapSizePerInstance(size);
+                    // Allow for objects of the same type with different sizes
+                    int oldSize = cls.getHeapSizePerInstance();
+                    if (oldSize >= 0)
+                    {
+                        // Different size to before, so use the array size table
+                        if (oldSize != size)
+	                        indexToSize.set(objId, size);
+                    }
+                    else
+                    {
+                        // First time, so set the size
+                        cls.setHeapSizePerInstance(size);
+                    }
                     // For calculating purge sizes
                     objectToSize.set(objId, size);
                 }
