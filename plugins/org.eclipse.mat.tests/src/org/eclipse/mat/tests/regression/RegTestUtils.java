@@ -27,7 +27,7 @@ public class RegTestUtils
     {
         public boolean accept(File file)
         {
-            return (file.getName().endsWith(".hprof") || file.getName().endsWith(".dtfj"));
+            return (file.getName().endsWith(".hprof") || file.getName().endsWith(".dtfj") || file.getName().endsWith(".dmp.zip"));
         }
     };
 
@@ -36,7 +36,7 @@ public class RegTestUtils
         public boolean accept(File dir, String name)
         {
             Pattern hprofPattern = Pattern.compile(".*\\.hprof");
-            Pattern dtfjPattern = Pattern.compile(".*\\.dtfj");
+            Pattern dtfjPattern = Pattern.compile(".*\\.dtfj|.*\\.dmp.zip|.*\\.phd|javacore.*\\.txt");
             Pattern resultFilePattern = Pattern.compile("performanceResults.*\\.csv");
             return !hprofPattern.matcher(name).matches() && !name.endsWith(BASELINE_EXTENSION)
                             && !dtfjPattern.matcher(name).matches() && !resultFilePattern.matcher(name).matches();
