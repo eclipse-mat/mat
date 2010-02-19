@@ -282,6 +282,7 @@ public class Messages extends NLS
     public static String OverviewPane_NoPieChartAvailable;
 	public static String InspectorView_GCroot;
 	
+	public static String AcquireDialog_BrowseButton;
 	public static String AcquireDialog_ChooseProcess;
 	public static String AcquireDialog_ColumnDescription;
 	public static String AcquireDialog_ColumnPID;

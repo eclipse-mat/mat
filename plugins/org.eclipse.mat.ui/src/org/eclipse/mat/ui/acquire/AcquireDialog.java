@@ -14,6 +14,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.mat.snapshot.acquire.IHeapDumpProvider;
@@ -106,9 +108,14 @@ public class AcquireDialog extends WizardPage
         	}
         }
 
+        Label saveLocationLabel = new Label(top, SWT.NONE);
+        saveLocationLabel.setText(Messages.AcquireDialog_SaveLocation);
+        GridDataFactory.swtDefaults().span(2, 1).applyTo(saveLocationLabel);
+
         folderText = new Text(top, SWT.BORDER);
         GridDataFactory.fillDefaults().minSize(300, 0).grab(true, false).applyTo(folderText);
-        folderText.setText(MemoryAnalyserPlugin.getDefault().getPluginPreferences().getString(LAST_DIRECTORY_KEY));
+        String lastDir = Platform.getPreferencesService().getString(MemoryAnalyserPlugin.PLUGIN_ID, LAST_DIRECTORY_KEY, "", null); //$NON-NLS-1$
+        folderText.setText(lastDir);
         folderText.addModifyListener(new ModifyListener()
         {
         	public void modifyText(ModifyEvent e)
@@ -116,13 +123,9 @@ public class AcquireDialog extends WizardPage
         		getContainer().updateButtons();
         	}
         });
-        Label l2 = new Label(top, SWT.NONE);
-        l2.setText(Messages.AcquireDialog_SaveLocation);
-        GridDataFactory.swtDefaults().span(2, 1).applyTo(l2);
-
 
         Button b = new Button(top, SWT.NONE);
-        b.setText("..."); //$NON-NLS-1$
+        b.setText(Messages.AcquireDialog_BrowseButton); 
         b.addSelectionListener(new SelectionAdapter()
         {
             public void widgetSelected(SelectionEvent e)
@@ -189,6 +192,6 @@ public class AcquireDialog extends WizardPage
 
     public void saveSettings()
     {
-        MemoryAnalyserPlugin.getDefault().getPluginPreferences().setValue(LAST_DIRECTORY_KEY, getSelectedDirectory());
+    	new InstanceScope().getNode(MemoryAnalyserPlugin.PLUGIN_ID).put(LAST_DIRECTORY_KEY, getSelectedDirectory());
     }
 }
