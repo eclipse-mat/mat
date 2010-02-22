@@ -105,13 +105,16 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
             /* END - marking objects */
 
             // check if unreachable objects exist, then either mark as GC root
-            // unknown (keep objects) or store a histogram of unreachable
+            // unreachable (keep objects) or store a histogram of unreachable
             // objects
             if (newNoOfObjects < oldNoOfObjects)
             {
-                if (Boolean.parseBoolean(arguments.get("keep_unreachable_objects"))) //$NON-NLS-1$
+                Object un = idx.getSnapshotInfo().getProperty("keep_unreachable_objects"); //$NON-NLS-1$
+                if (un instanceof Integer)
                 {
-                    markUnreachbleAsGCUnknown(idx, reachable, newNoOfObjects, listener);
+                    int newRoot;
+                    newRoot = (Integer)un;
+                    markUnreachbleAsGCRoots(idx, reachable, newNoOfObjects, newRoot, listener);
                     newNoOfObjects = oldNoOfObjects;
                 }
                 else
@@ -559,10 +562,10 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
     // mark unreachable objects as GC unknown
     // //////////////////////////////////////////////////////////////
 
-    private static void markUnreachbleAsGCUnknown(final PreliminaryIndexImpl idx, //
+    private static void markUnreachbleAsGCRoots(final PreliminaryIndexImpl idx, //
                     boolean[] reachable, //
                     int noReachableObjects, //
-                    IProgressListener listener)
+                    int extraRootType, IProgressListener listener)
     {
         final int noOfObjects = reachable.length;
         final IOne2LongIndex identifiers = idx.identifiers;
@@ -599,7 +602,7 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
                     // No need to mark it as the marker will do that
                     root[0] = ii;
 
-                    XGCRootInfo xgc = new XGCRootInfo(identifiers.get(ii), 0, GCRootInfo.Type.UNREACHABLE);
+                    XGCRootInfo xgc = new XGCRootInfo(identifiers.get(ii), 0, extraRootType);
                     xgc.setObjectId(ii);
 
                     ArrayList<XGCRootInfo> xgcs = new ArrayList<XGCRootInfo>(1);

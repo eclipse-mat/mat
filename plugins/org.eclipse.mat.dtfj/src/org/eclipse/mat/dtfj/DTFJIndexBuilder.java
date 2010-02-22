@@ -1447,7 +1447,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             }
 
             // fix up outbound refs for ordinary classes
-            addRefs(refd, ref);
+            addRefs(refd, objId, ref);
             outRefs.log(indexToAddress, objId, ref);
         }
 
@@ -1607,7 +1607,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 listener.sendUserMessage(Severity.INFO, Messages.DTFJIndexBuilder_ProblemCheckingBootLoaderReferences,
                                 e);
             }
-            addRefs(refd, aa);
+            addRefs(refd, objId, aa);
             outRefs.log(indexToAddress, objId, aa);
             // If there are no instances of ClassLoader then the size is
             // unknown, so set it to zero?
@@ -1733,6 +1733,11 @@ public class DTFJIndexBuilder implements IIndexBuilder
         if (gcRoot.isEmpty() || threadRoots.isEmpty() || threadRootObjects() == 0 || presumeRoots)
         {
             listener.subTask(Messages.DTFJIndexBuilder_GeneratingExtraRootsMarkingAllUnreferenced);
+            /*
+             * Get the GarbageCleaner to mark anything unreachable as reachable
+             * by adding pseudo-roots. This will also mark isolated cycles.
+             */
+            index.getSnapshotInfo().setProperty("keep_unreachable_objects", GCRootInfo.Type.UNKNOWN); //$NON-NLS-1$
             int extras = 0;
             for (int i = 0; i < refd.length; ++i)
             {
@@ -1869,7 +1874,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             if (ci != null)
             {
                 ArrayLong ref = ci.getReferences();
-                addRefs(refd, ref);
+                addRefs(refd, objId, ref);
                 outRefs.log(indexToAddress, objId, ref);
             }
         }
@@ -2853,7 +2858,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         // The GC roots associated with a thread are outbound references for the
         // thread, not global roots
         addThreadRefs(objId, aa);
-        addRefs(refd, aa);
+        addRefs(refd, objId, aa);
         outRefs.log(indexToAddress, objId, aa);
     }
 
@@ -4999,16 +5004,17 @@ public class DTFJIndexBuilder implements IIndexBuilder
      * Remember objects which have been referred to Use to make sure every
      * object will be reachable
      * 
-     * @param refd
-     * @param ref
+     * @param refd referenced objects
+     * @param objId source object ID
+     * @param ref list of outbound refs
      */
-    private void addRefs(boolean[] refd, ArrayLong ref)
+    private void addRefs(boolean[] refd, int objId, ArrayLong ref)
     {
         for (IteratorLong il = ref.iterator(); il.hasNext();)
         {
             long ad = il.next();
             int id = indexToAddress.reverse(ad);
-            // debugPrint("ref to "+id+" 0x"+format(ad));
+            // debugPrint("object id "+objId+" ref to "+id+" 0x"+format(ad));
             if (id >= 0)
             {
                 refd[id] = true;

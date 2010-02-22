@@ -36,6 +36,7 @@ import org.eclipse.mat.snapshot.IOQLQuery;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.SnapshotFactory;
 import org.eclipse.mat.snapshot.SnapshotFormat;
+import org.eclipse.mat.snapshot.model.GCRootInfo;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.IProgressListener.Severity;
@@ -193,6 +194,10 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
                 snapshotInfo.setPath(file.getAbsolutePath());
                 snapshotInfo.setPrefix(prefix);
                 snapshotInfo.setProperty("$heapFormat", parser.getId());//$NON-NLS-1$
+                if (Boolean.parseBoolean(args.get("keep_unreachable_objects")))//$NON-NLS-1$
+                {
+                    snapshotInfo.setProperty("keep_unreachable_objects", GCRootInfo.Type.UNREACHABLE);//$NON-NLS-1$
+                }
                 PreliminaryIndexImpl idx = new PreliminaryIndexImpl(snapshotInfo);
 
                 indexBuilder.fill(idx, listener);
