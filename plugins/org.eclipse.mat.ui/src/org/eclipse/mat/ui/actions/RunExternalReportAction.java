@@ -15,6 +15,7 @@ import java.io.File;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jface.action.Action;
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.query.registry.Converters;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.QueryExecution;
@@ -62,8 +63,10 @@ public class RunExternalReportAction extends Action
             {
                 try
                 {
+                    String fileName = new File(dialog.getFilterPath(), name).getAbsolutePath();
+                    fileName = Converters.convertAndEscape(fileName.getClass(), fileName);
                     QueryExecution.executeCommandLine(editor, null, "create_report "//$NON-NLS-1$
-                                    + new File(dialog.getFilterPath(), name).getAbsolutePath());
+                                    + fileName);
                 }
                 catch (SnapshotException e)
                 {

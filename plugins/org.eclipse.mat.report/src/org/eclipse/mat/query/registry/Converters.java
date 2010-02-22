@@ -81,18 +81,29 @@ public class Converters
 
         boolean hasQuote = result.indexOf('"') >= 0;
         boolean hasSpace = result.indexOf(' ') >= 0;
+        for (int ii = 0; !hasSpace && ii < result.length(); ii++)
+        {
+            if (Character.isWhitespace(result.charAt(ii)))
+                hasSpace = true;
+        }
+        boolean hasBackslash = result.indexOf("\\\\") >= 0 || result.indexOf("\\\"") >= 0; //$NON-NLS-1$ //$NON-NLS-2$
 
-        if (!hasQuote && !hasSpace)
+        if (!hasQuote && !hasSpace && !hasBackslash)
             return result;
 
         StringBuilder buf = new StringBuilder(result.length() * 110 / 100);
+        if (hasSpace)
+            buf.append("\""); //$NON-NLS-1$
+
         for (int ii = 0; ii < result.length(); ii++)
         {
-            if (hasSpace && ii == 0)
-                buf.append("\""); //$NON-NLS-1$
 
             if (hasQuote && result.charAt(ii) == '"')
                 buf.append("\\"); //$NON-NLS-1$
+
+            if (hasBackslash && ii + 1 < result.length() && result.charAt(ii) == '\\'
+                            && (result.charAt(ii + 1) == '\\' || result.charAt(ii + 1) == '"'))
+                buf.append("\\"); //$NON-NLS-1$                
 
             buf.append(result.charAt(ii));
         }

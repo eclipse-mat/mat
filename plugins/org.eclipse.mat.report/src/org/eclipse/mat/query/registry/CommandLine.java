@@ -199,7 +199,8 @@ public class CommandLine
                 }
 
                 if (argDescriptor == null)
-                    throw new SnapshotException(Messages.CommandLine_Error_NoUnflaggedArguments);
+                    throw new SnapshotException(MessageUtil.format(Messages.CommandLine_Error_NoUnflaggedArguments,
+                                    arg));
 
                 if (mandatoryUnflaggedArgumentIsSet)
                     throw new SnapshotException(MessageUtil.format(Messages.CommandLine_Error_AssignmentFailed,
