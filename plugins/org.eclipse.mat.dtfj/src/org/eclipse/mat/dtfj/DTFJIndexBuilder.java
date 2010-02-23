@@ -4394,7 +4394,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                                 pointerSize, ias.toString(), addressSpacePointerSize), null);
             }
         }
-        if ((maxAddress & ~((1L << pointerSize) - 1)) != 0)
+        if ((maxAddress & ~(~0L >>> (64 - pointerSize))) != 0)
         {
             listener.sendUserMessage(Severity.INFO, MessageFormat.format(
                             Messages.DTFJIndexBuilder_HighestMemoryAddressFromAddressSpaceIsUnaccessibleFromPointers,
