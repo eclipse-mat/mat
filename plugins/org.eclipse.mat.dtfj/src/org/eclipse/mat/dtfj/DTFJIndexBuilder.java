@@ -248,8 +248,13 @@ public class DTFJIndexBuilder implements IIndexBuilder
     /**
      * Used for very corrupt dumps without a java/lang/Class
      */
-    private static final class DummyJavaLangClass implements JavaClass, CorruptData
+    private static final class DummyJavaClass implements JavaClass, CorruptData
     {
+        private final String name; 
+        public DummyJavaClass(String name)
+        {
+            this.name = name;
+        }
 
         public JavaClassLoader getClassLoader() throws CorruptDataException
         {
@@ -293,7 +298,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
 
         public String getName() throws CorruptDataException
         {
-            return JAVA_LANG_CLASS;
+            return name;
         }
 
         public JavaObject getObject() throws CorruptDataException
@@ -544,7 +549,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
         listener.worked(1);
         workCountSoFar += 1;
         listener.subTask(Messages.DTFJIndexBuilder_FindingJVM);
-        run = getRuntime(image, listener);
+        RuntimeInfo runInfo = getRuntime(image, listener);
+        run = runInfo.javaRuntime;
 
         try
         {
@@ -567,7 +573,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             }
         }
 
-        int pointerSize = getPointerSize(run, listener);
+        int pointerSize = getPointerSize(runInfo, listener);
         ifo.setIdentifierSize(getPointerBytes(pointerSize));
 
         listener.worked(1);
@@ -1104,9 +1110,17 @@ public class DTFJIndexBuilder implements IIndexBuilder
         if (clsJavaLangClass == null)
         {
             // Create a dummy java/lang/Class
-            clsJavaLangClass = new DummyJavaLangClass();
+            clsJavaLangClass = new DummyJavaClass(JAVA_LANG_CLASS);
             allClasses.add(clsJavaLangClass);
             long clsaddr = getClassAddress(clsJavaLangClass, listener);
+            indexToAddressCls.add(clsaddr);
+        }
+        if (clsJavaLangClassLoader == null)
+        {
+            // Create a dummy java/lang/ClassLoader
+            clsJavaLangClassLoader = new DummyJavaClass(JAVA_LANG_CLASSLOADER);
+            allClasses.add(clsJavaLangClassLoader);
+            long clsaddr = getClassAddress(clsJavaLangClassLoader, listener);
             indexToAddressCls.add(clsaddr);
         }
 
@@ -4207,6 +4221,17 @@ public class DTFJIndexBuilder implements IIndexBuilder
                             .toString(), format(addr)), new CorruptDataException(d));
     }
 
+    static class RuntimeInfo {
+        final ImageAddressSpace imageAddressSpace;
+        final ImageProcess imageProcess;
+        final JavaRuntime javaRuntime;
+        public RuntimeInfo(ImageAddressSpace space, ImageProcess process, JavaRuntime runtime)
+        {
+            imageAddressSpace = space;
+            imageProcess = process;
+            javaRuntime = runtime;
+        }
+    }
     /**
      * Find a Java runtime from the image
      * 
@@ -4214,8 +4239,10 @@ public class DTFJIndexBuilder implements IIndexBuilder
      * @param listener
      * @return
      */
-    static JavaRuntime getRuntime(Image image, IProgressListener listener) throws IOException
+    static RuntimeInfo getRuntime(Image image, IProgressListener listener) throws IOException
     {
+        ImageAddressSpace ias = null;
+        ImageProcess proc = null;
         JavaRuntime run = null;
         int nAddr = 0;
         int nProc = 0;
@@ -4226,7 +4253,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             Object next1 = i1.next();
             if (isCorruptData(next1, listener, Messages.DTFJIndexBuilder_CorruptDataReadingAddressSpaces))
                 continue;
-            ImageAddressSpace ias = (ImageAddressSpace) next1;
+            ias = (ImageAddressSpace) next1;
             ++nAddr;
             lastAddr = ias.toString();
             for (Iterator<?> i2 = ias.getProcesses(); i2.hasNext();)
@@ -4234,7 +4261,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 Object next2 = i2.next();
                 if (isCorruptData(next2, listener, Messages.DTFJIndexBuilder_CorruptDataReadingProcesses))
                     continue;
-                ImageProcess proc = (ImageProcess) next2;
+                proc = (ImageProcess) next2;
                 ++nProc;
                 try
                 {
@@ -4301,7 +4328,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         }
         if (run == null) { throw new IOException(MessageFormat.format(
                         Messages.DTFJIndexBuilder_UnableToFindJavaRuntime, nAddr, lastAddr, nProc, lastProc)); }
-        return run;
+        return new RuntimeInfo(ias, proc, run);
     }
 
     /**
@@ -4313,92 +4340,65 @@ public class DTFJIndexBuilder implements IIndexBuilder
      *            To indicate progress/errors
      * @return the pointer size in bits
      */
-    private int getPointerSize(JavaRuntime run1, IProgressListener listener)
+    private int getPointerSize(RuntimeInfo info, IProgressListener listener)
     {
         int pointerSize = 0;
         long maxAddress = 0;
+        ImageAddressSpace ias = info.imageAddressSpace;
+        for (Iterator<?> it = ias.getImageSections(); it.hasNext();)
+        {
+            Object next1 = it.next();
+            if (next1 instanceof CorruptData)
+                continue;
+            ImageSection sect = (ImageSection) next1;
+            maxAddress = Math.max(maxAddress, sect.getBaseAddress().getAddress());
+            maxAddress = Math.max(maxAddress, sect.getBaseAddress().getAddress() + sect.getSize() - 1);
+        }
+        ImageProcess proc = info.imageProcess;
+        JavaRuntime run = info.javaRuntime;
+        // 31,32,64 bits - conversion done later
+        pointerSize = proc.getPointerSize();
+
+        /* Experimentally see what size pointers end up */
+        long ptrBits = 0;
+        long longBits = 0;
         try
         {
-            ImageAddressSpace ias = getAddressSpace(run1);
-            for (Iterator<?> it = ias.getImageSections(); it.hasNext();)
+            ImagePointer ip = run.getJavaVM();
+            for (int i = 0; i < 200; ++i)
             {
-                Object next1 = it.next();
-                if (next1 instanceof CorruptData) continue;
-                ImageSection sect = (ImageSection)next1;
-                maxAddress = Math.max(maxAddress, sect.getBaseAddress().getAddress());
-                maxAddress = Math.max(maxAddress, sect.getBaseAddress().getAddress()+sect.getSize() - 1);
-            }
-            for (Iterator<?> i2 = ias.getProcesses(); i2.hasNext();)
-            {
-                Object next2 = i2.next();
-                if (isCorruptData(next2, listener, Messages.DTFJIndexBuilder_CorruptDataReadingProcesses))
-                    continue;
-                ImageProcess proc = (ImageProcess) next2;
-                for (Iterator<?> i3 = proc.getRuntimes(); i3.hasNext();)
-                {
-                    Object next3 = i3.next();
-                    if (isCorruptData(next3, listener, Messages.DTFJIndexBuilder_CorruptDataReadingRuntimes))
-                        continue;
-                    if (next3 instanceof JavaRuntime)
-                    {
-                        JavaRuntime run = (JavaRuntime) next3;
-                        if (run1 == run)
-                        {
-                            // 31,32,64 bits - conversion done later
-                            pointerSize = proc.getPointerSize();
-                            
-                            /* Experimentally see what size pointers end up */
-                            long ptrBits = 0;
-                            long longBits = 0;
-                            try
-                            {
-                                ImagePointer ip = run.getJavaVM();
-                                for (int i = 0; i < 200; ++i)
-                                {
-                                    ImagePointer pointer = ip.getPointerAt(i);
-                                    // PHD can mistakenly return null
-                                    if (pointer != null)
-                                        ptrBits |= pointer.getAddress();
-                                    longBits |= ip.getLongAt(i);
-                                }
-                            }
-                            catch (CorruptDataException e)
-                            {}
-                            catch (MemoryAccessException e)
-                            {}
-                            if (longBits == ~0L)
-                            {
-                                // All bits set, so pointer could be any value
-                                addressSpacePointerSize = 0;
-                                while (ptrBits != 0)
-                                {
-                                    ++addressSpacePointerSize;
-                                    ptrBits >>>= 1;
-                                }
-                                if (addressSpacePointerSize != pointerSize)
-                                {
-                                    listener.sendUserMessage(Severity.INFO, MessageFormat.format(
-                                                    Messages.DTFJIndexBuilder_UsingProcessPointerSizeNotAddressSpacePointerSize,
-                                                    pointerSize, ias.toString(),addressSpacePointerSize), null);
-                                }
-                            }
-                            if ((maxAddress & ~((1L << pointerSize) - 1)) != 0)
-                            {
-                                listener.sendUserMessage(Severity.INFO, MessageFormat.format(
-                                                Messages.DTFJIndexBuilder_HighestMemoryAddressFromAddressSpaceIsUnaccessibleFromPointers,
-                                                format(maxAddress), ias.toString(), pointerSize), null);
-                            }
-                            return pointerSize;
-                        }
-                    }
-                }
+                ImagePointer pointer = ip.getPointerAt(i);
+                // PHD can mistakenly return null
+                if (pointer != null)
+                    ptrBits |= pointer.getAddress();
+                longBits |= ip.getLongAt(i);
             }
         }
         catch (CorruptDataException e)
+        {}
+        catch (MemoryAccessException e)
+        {}
+        if (longBits == ~0L)
         {
-            pointerSize = 32;
-            listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
-                            Messages.DTFJIndexBuilder_UnableToFindPointerSize, pointerSize), e);
+            // All bits set, so pointer could be any value
+            addressSpacePointerSize = 0;
+            while (ptrBits != 0)
+            {
+                ++addressSpacePointerSize;
+                ptrBits >>>= 1;
+            }
+            if (addressSpacePointerSize != pointerSize)
+            {
+                listener.sendUserMessage(Severity.INFO, MessageFormat.format(
+                                Messages.DTFJIndexBuilder_UsingProcessPointerSizeNotAddressSpacePointerSize,
+                                pointerSize, ias.toString(), addressSpacePointerSize), null);
+            }
+        }
+        if ((maxAddress & ~((1L << pointerSize) - 1)) != 0)
+        {
+            listener.sendUserMessage(Severity.INFO, MessageFormat.format(
+                            Messages.DTFJIndexBuilder_HighestMemoryAddressFromAddressSpaceIsUnaccessibleFromPointers,
+                            format(maxAddress), ias.toString(), pointerSize), null);
         }
         return pointerSize;
     }
@@ -4411,41 +4411,6 @@ public class DTFJIndexBuilder implements IIndexBuilder
     private int getPointerBytes(int pointerSize)
     {
         return (pointerSize + 7) / 8;
-    }
-
-    /**
-     * Try to get the address space from the runtime
-     * 
-     * @param run1
-     * @return
-     * @throws CorruptDataException
-     */
-    static ImageAddressSpace getAddressSpace(JavaRuntime run1) throws CorruptDataException
-    {
-        ImageAddressSpace ias;
-        try
-        {
-            // Fails for Javacore and PHDs
-            ias = run1.getJavaVM().getAddressSpace();
-        }
-        catch (CorruptDataException e)
-        {
-            for (Iterator<?> i = run1.getJavaClassLoaders(); i.hasNext();)
-            {
-                Object next = i.next();
-                if (isCorruptData(next, null, Messages.DTFJIndexBuilder_CorruptDataReadingClassLoaders1, run1))
-                    continue;
-                JavaClassLoader jcl = (JavaClassLoader) next;
-                JavaObject loaderObject = jcl.getObject();
-                if (loaderObject != null)
-                {
-                    ias = loaderObject.getID().getAddressSpace();
-                    return ias;
-                }
-            }
-            throw e;
-        }
-        return ias;
     }
 
     /**

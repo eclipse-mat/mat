@@ -19,6 +19,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.dtfj.DTFJIndexBuilder.RuntimeInfo;
 import org.eclipse.mat.parser.IObjectReader;
 import org.eclipse.mat.parser.model.ClassImpl;
 import org.eclipse.mat.parser.model.ClassLoaderImpl;
@@ -130,36 +131,10 @@ public class DTFJHeapObjectReader implements IObjectReader
         image = DTFJIndexBuilder.getDump(file, snapshot.getSnapshotInfo()
                         .getProperty("$heapFormat")); //$NON-NLS-1$
         // Find the JVM
-        jvm = DTFJIndexBuilder.getRuntime(image, null);
-        try
-        {
-            addrSpace = DTFJIndexBuilder.getAddressSpace(jvm);
-            // Find the process
-            for (Iterator<?> i2 = addrSpace.getProcesses(); i2.hasNext() && process == null;)
-            {
-                Object next2 = i2.next();
-                if (next2 instanceof CorruptData)
-                    continue;
-                ImageProcess proc = (ImageProcess) next2;
-                for (Iterator<?> i3 = proc.getRuntimes(); i3.hasNext();)
-                {
-                    Object next3 = i3.next();
-                    if (next3 instanceof CorruptData)
-                        continue;
-                    if (jvm.equals(next3))
-                    {
-                        process = proc;
-                        break;
-                    }
-                }
-            }
-        }
-        catch (CorruptDataException e)
-        {
-            IOException e2 = new IOException(Messages.DTFJHeapObjectReader_UnableToFindAddressSpace);
-            e2.initCause(e);
-            throw e2;
-        }
+        RuntimeInfo info = DTFJIndexBuilder.getRuntime(image, null);
+        addrSpace = info.imageAddressSpace;
+        process = info.imageProcess;
+        jvm = info.javaRuntime;
     }
 
     /*
@@ -623,7 +598,10 @@ public class DTFJHeapObjectReader implements IObjectReader
         else
         {
             Object res;
-            if (length < LARGE_ARRAY_SIZE)
+            // Performance optimization - for PHD files delay reading the refs until really needed.
+            // Often, we only need the array length.
+            Object format = snapshot.getSnapshotInfo().getProperty("$heapFormat"); //$NON-NLS-1$
+            if (!"DTFJ-PHD".equals(format) && length < LARGE_ARRAY_SIZE) //$NON-NLS-1$
             {
                 res = getObjectData(jo, offset, length);
             }

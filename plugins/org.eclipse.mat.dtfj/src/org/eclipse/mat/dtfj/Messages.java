@@ -19,7 +19,6 @@ public class Messages extends NLS
     public static String DTFJHeapObjectReader_ErrorReadingObjectAtIndex;
     public static String DTFJHeapObjectReader_ErrorReadingPrimitiveArray;
     public static String DTFJHeapObjectReader_JavaObjectAtAddressNotFound;
-    public static String DTFJHeapObjectReader_UnableToFindAddressSpace;
     public static String DTFJHeapObjectReader_UnexpectedType;
     public static String DTFJHeapObjectReader_UnexpectedTypeName;
     public static String DTFJIndexBuilder_AddingExtraClassOfUnknownNameViaCachedList;
@@ -197,7 +196,6 @@ public class Messages extends NLS
     public static String DTFJIndexBuilder_UnableToFindClassLoader;
     public static String DTFJIndexBuilder_UnableToFindDTFJForFormat;
     public static String DTFJIndexBuilder_UnableToFindJavaRuntime;
-    public static String DTFJIndexBuilder_UnableToFindPointerSize;
     public static String DTFJIndexBuilder_UnableToFindReachabilityOfRoot;
     public static String DTFJIndexBuilder_UnableToFindReferenceTypeOfRoot;
     public static String DTFJIndexBuilder_UnableToFindRoot;
@@ -221,7 +219,6 @@ public class Messages extends NLS
     public static String DTFJIndexBuilder_UsingConservativeGarbageCollectionRoots;
     public static String DTFJIndexBuilder_UsingDTFJRoots;
     public static String DTFJIndexBuilder_UsingProcessPointerSizeNotAddressSpacePointerSize;
-    public static String InitDTFJ_DynamicDtfj;
     static
     {
         // initialize resource bundle
