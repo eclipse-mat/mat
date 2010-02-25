@@ -54,7 +54,14 @@
         	class="org.eclipse.mat.ui.internal.views.NavigatorView"
         	icon="icons/navigator_view.gif"
        	    id="org.eclipse.mat.ui.views.NavigatorView"
-            name="%view.name.Navigation_History"/>        
+            name="%view.name.Navigation_History"/>
+	    <view
+	        category="org.eclipse.mat"
+	        class="org.eclipse.mat.ui.compare.CompareBasketView"
+	        icon="icons/compare.gif"
+	        id="org.eclipse.mat.ui.views.CompareBasketView"
+	        name="Compare Basket">
+	    </view>        
 	</extension>
 
 	<extension point="org.eclipse.mat.ui.editorPanes">

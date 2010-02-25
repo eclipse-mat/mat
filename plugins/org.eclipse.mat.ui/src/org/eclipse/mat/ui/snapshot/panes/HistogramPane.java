@@ -289,6 +289,11 @@ public class HistogramPane extends QueryResultPane
         job.setUser(true);
         job.schedule();
     }
+    
+    public Histogram getHistogram()
+    {
+    	return histogram;
+    }
 
     // //////////////////////////////////////////////////////////////
     // grouping action

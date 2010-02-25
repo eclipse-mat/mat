@@ -12,6 +12,8 @@ package org.eclipse.mat.ui.internal.views;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
@@ -36,6 +38,7 @@ import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.QueryExecution;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin.ISharedImages;
+import org.eclipse.mat.ui.compare.CompareBasketView;
 import org.eclipse.mat.ui.editor.AbstractEditorPane;
 import org.eclipse.mat.ui.editor.CompositeHeapEditorPane;
 import org.eclipse.mat.ui.editor.EditorPaneRegistry;
@@ -53,6 +56,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.TreeItem;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.part.IPageSite;
@@ -136,6 +142,7 @@ public class NavigatorViewPage extends Page implements ISelectionProvider, IDoub
     private Action removeWithChildrenAction;
     private Action closePaneAction;
     private Action closeWithChildrenAction;
+    private Action addToCompareBasketAction;
 
     public NavigatorViewPage(MultiPaneEditor editor)
     {
@@ -202,6 +209,16 @@ public class NavigatorViewPage extends Page implements ISelectionProvider, IDoub
         };
         closeWithChildrenAction.setText(Messages.NavigatorViewPage_CloseBranch);
         closeWithChildrenAction.setImageDescriptor(MemoryAnalyserPlugin.getImageDescriptor(ISharedImages.CLOSE_BRANCH));
+        
+        addToCompareBasketAction = new Action()
+        {
+        	public void run()
+        	{
+        		addToCompareBasket((IStructuredSelection) treeViewer.getSelection());
+        	}
+        };
+        addToCompareBasketAction.setText("Add to Compare Basket");
+        addToCompareBasketAction.setImageDescriptor(MemoryAnalyserPlugin.getImageDescriptor(ISharedImages.COMPARE));
 
         Action copyAction = new Action()
         {
@@ -294,6 +311,7 @@ public class NavigatorViewPage extends Page implements ISelectionProvider, IDoub
     private void editorContextMenuAboutToShow(IMenuManager menu, IStructuredSelection selection)
     {
         menu.add(showPaneAction);
+        menu.add(addToCompareBasketAction);
         menu.add(closePaneAction);
         menu.add(closeWithChildrenAction);
         menu.add(new Separator());
@@ -311,8 +329,24 @@ public class NavigatorViewPage extends Page implements ISelectionProvider, IDoub
                     break;
                 }
             }
+            
+			/*
+			 * check if all selected results are tables which can be added to
+			 * the compare basket
+			 */
+			boolean areTables = true;
+			for (Iterator<?> i = selection.iterator(); i.hasNext();)
+			{
+				PaneState state = (PaneState) i.next();
+				if (!(canBeCompared(state) && (state.isActive() || state.isReproducable())))
+				{
+					areTables = false;
+					break;
+				}
+			}
             closePaneAction.setEnabled(enabled);
             showPaneAction.setEnabled(false);
+            addToCompareBasketAction.setEnabled(areTables);
             closeWithChildrenAction.setEnabled(false);
         }
         else
@@ -320,6 +354,7 @@ public class NavigatorViewPage extends Page implements ISelectionProvider, IDoub
             PaneState state = (PaneState) selection.getFirstElement();
 
             showPaneAction.setEnabled(state.isReproducable() || state.isActive());
+            addToCompareBasketAction.setEnabled(canBeCompared(state) && (state.isReproducable() || state.isActive()));
             closePaneAction.setEnabled(state.isActive());
             closeWithChildrenAction.setEnabled(state.isActive());
         }
@@ -419,7 +454,44 @@ public class NavigatorViewPage extends Page implements ISelectionProvider, IDoub
             }
         }
     }
-
+    
+	private void addToCompareBasket(IStructuredSelection selection)
+	{
+		
+		// first get the compare basket view
+		IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+		if (page == null)
+			return;
+		
+		IWorkbenchPart view = (CompareBasketView) page.findView(CompareBasketView.ID);
+		if (view != null)
+		{
+			page.bringToTop(view);
+		}
+		else
+		{
+			try {
+	            view = page.showView(CompareBasketView.ID, null, IWorkbenchPage.VIEW_VISIBLE);
+	        } catch (PartInitException ex) {
+	        	Logger.getLogger("org.eclipse.mat").log(Level.SEVERE, "Could not start Compare Basket View", ex);
+	        	return;
+	        }
+		}
+		
+		// then add all selected results
+		CompareBasketView compareBasket = (CompareBasketView) view;
+		for (Iterator<?> i = selection.iterator(); i.hasNext();)
+		{
+			PaneState state = (PaneState) i.next();
+			compareBasket.addResultToCompare(state, editor);
+		}
+	}
+	
+	private boolean canBeCompared(PaneState state)
+	{
+		return CompareBasketView.accepts(state, editor);
+	}
+	
     @Override
     public void init(IPageSite pageSite)
     {

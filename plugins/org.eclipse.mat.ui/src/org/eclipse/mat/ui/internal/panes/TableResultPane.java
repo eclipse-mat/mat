@@ -41,7 +41,7 @@ import org.eclipse.ui.PlatformUI;
 public class TableResultPane extends QueryResultPane
 {
     protected QueryResult srcQueryResult;
-    protected RefinedStructuredResult srcStructured;
+	protected RefinedStructuredResult srcStructured;
     protected TQuantize.Target groupedBy;
 
     @Override
@@ -92,6 +92,21 @@ public class TableResultPane extends QueryResultPane
 
         manager.add(groupingAction);
     }
+    
+    public QueryResult getSrcQueryResult()
+	{
+		return srcQueryResult;
+	}
+
+	public RefinedStructuredResult getSrcStructured()
+	{
+		return srcStructured;
+	}
+
+	public TQuantize.Target getGroupedBy()
+	{
+		return groupedBy;
+	}
 
     class GroupingAction extends Action
     {

@@ -27,6 +27,7 @@ public class Perspective implements IPerspectiveFactory
         NOTES_VIEW(MemoryAnalyserPlugin.PLUGIN_ID + ".views.TextEditorView"), //$NON-NLS-1$
         INSPECTOR_VIEW(MemoryAnalyserPlugin.PLUGIN_ID + ".views.InspectorView"), //$NON-NLS-1$
         NAVIGATOR_VIEW(MemoryAnalyserPlugin.PLUGIN_ID + ".views.NavigatorView"), //$NON-NLS-1$
+        COMPARE_BASKET_VIEW(MemoryAnalyserPlugin.PLUGIN_ID + ".views.CompareBasketView"), //$NON-NLS-1$
         ERROR_VIEW("org.eclipse.pde.runtime.LogView");//$NON-NLS-1$
 
         private final String id;
