@@ -326,31 +326,6 @@ public class DTFJHeapObjectReader implements IObjectReader
      */
     private JavaObject getJavaObjectByAddress(long addr)
     {
-        for (Iterator<?> i = jvm.getHeaps(); i.hasNext();)
-        {
-            Object next = i.next();
-            if (next instanceof CorruptData)
-            {
-                continue;
-            }
-            JavaHeap jh = (JavaHeap) next;
-            for (Iterator<?> j = jh.getObjects(); j.hasNext();)
-            {
-                Object next2 = j.next();
-                if (next2 instanceof CorruptData)
-                {
-                    continue;
-                }
-                JavaObject jo = (JavaObject) next2;
-                if (jo.getID().getAddress() == addr)
-                {
-                    // System.out.println("At "+format(addr)+" found JavaObject
-                    // "+jo+" by scanning entire heap");
-                    return jo;
-                }
-            }
-        }
-
         // Now look for thread objects
         for (Iterator<?> i = jvm.getThreads(); i.hasNext();)
         {
@@ -360,13 +335,20 @@ public class DTFJHeapObjectReader implements IObjectReader
                 continue;
             }
             JavaThread thrd = (JavaThread) next;
-            try
+            long thAddr = DTFJIndexBuilder.getThreadAddress(thrd, null);
+            if (addr == thAddr)
             {
-                JavaObject jo = thrd.getObject();
-                if (jo != null && jo.getID().getAddress() == addr) { return jo; }
+                JavaObject jo;
+                try
+                {
+                    jo = thrd.getObject();
+                }
+                catch (CorruptDataException e)
+                {
+                    jo = null;
+                }
+                return jo;
             }
-            catch (CorruptDataException e)
-            {}
         }
 
         // Now look for monitor objects
@@ -398,6 +380,32 @@ public class DTFJHeapObjectReader implements IObjectReader
             }
             catch (CorruptDataException e)
             {}
+        }
+
+        // Now look for ordinary objects on the heap
+        for (Iterator<?> i = jvm.getHeaps(); i.hasNext();)
+        {
+            Object next = i.next();
+            if (next instanceof CorruptData)
+            {
+                continue;
+            }
+            JavaHeap jh = (JavaHeap) next;
+            for (Iterator<?> j = jh.getObjects(); j.hasNext();)
+            {
+                Object next2 = j.next();
+                if (next2 instanceof CorruptData)
+                {
+                    continue;
+                }
+                JavaObject jo = (JavaObject) next2;
+                if (jo.getID().getAddress() == addr)
+                {
+                    // System.out.println("At "+format(addr)+" found JavaObject
+                    // "+jo+" by scanning entire heap");
+                    return jo;
+                }
+            }
         }
 
         throw new IllegalArgumentException(MessageFormat.format(

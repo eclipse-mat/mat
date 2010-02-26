@@ -166,10 +166,8 @@ public class Messages extends NLS
     public static String DTFJIndexBuilder_ProblemGettingRoots;
     public static String DTFJIndexBuilder_ProblemGettingSizeOfJavaLangClass;
     public static String DTFJIndexBuilder_ProblemGettingSuperclass;
-    public static String DTFJIndexBuilder_ProblemGettingThreadInformation;
     public static String DTFJIndexBuilder_ProblemReadingArray;
     public static String DTFJIndexBuilder_ProblemReadingJavaStackFrame;
-    public static String DTFJIndexBuilder_ProblemReadingJavaStackFrame1;
     public static String DTFJIndexBuilder_ProblemReadingJavaStackFrames;
     public static String DTFJIndexBuilder_ProblemReadingJavaStackFramesMethod;
     public static String DTFJIndexBuilder_ProblemReadingJavaStackSection;
@@ -216,6 +214,8 @@ public class Messages extends NLS
     public static String DTFJIndexBuilder_UnexpectedReferenceType;
     public static String DTFJIndexBuilder_UnexpectedValueForStaticField;
     public static String DTFJIndexBuilder_UnreferenceObjectsMarkedAsRoots;
+    public static String DTFJIndexBuilder_UsingAddressForThread;
+    public static String DTFJIndexBuilder_UsingAddressForThreadName;
     public static String DTFJIndexBuilder_UsingConservativeGarbageCollectionRoots;
     public static String DTFJIndexBuilder_UsingDTFJRoots;
     public static String DTFJIndexBuilder_UsingProcessPointerSizeNotAddressSpacePointerSize;
