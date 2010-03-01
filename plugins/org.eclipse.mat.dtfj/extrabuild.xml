@@ -1,4 +1,4 @@
-<project name="Build specific modifications" default="noDefault">
+<project name="Build specific modifications">
 <target name="pre.@dot">
 <!-- Add an extdirs option to the compile to avoid a clash between the compile VM DTFJ and the com.ibm.dtfj.api plugin -->
 <concat append="true" destfile="${basedir}/javaCompiler...args">-extdirs ""</concat>
