@@ -5,20 +5,30 @@
 	<conbody>
 		<p> A garbage collection root is an object that is accessible from
 			outside the heap. The following reasons make an object a GC root:</p>
-		<ul>
-			<li>
-				System Class - Class loaded by boot-strap/system class loader. For
+		<dl>
+			<dlentry>
+			<dt>System Class</dt><dd>Class loaded by boot-strap/system class loader. For
 				example, everything from the rt.jar like
 				<cmdname>java.util.*</cmdname>
 				.
-			</li>
-			<li> JNI Local - Local variable in native code, such as user defined
-				JNI code or JVM internal code.</li>
-			<li> JNI Global - Global variable in native code, such as user
-				defined JNI code or JVM internal code.</li>
-			<li>Thread Block - Currently active thread.</li>
-			<li>
-				Busy Monitor - Everything that has called
+			</dd>
+			</dlentry>
+			<dlentry>
+			<dt>JNI Local</dt><dd>Local variable in native code, such as user defined
+				JNI code or JVM internal code.</dd>
+			</dlentry>
+			<dlentry>
+			<dt> JNI Global</dt><dd>Global variable in native code, such as user
+				defined JNI code or JVM internal code.</dd>
+			</dlentry>
+			<dlentry>
+			<dt>Thread Block</dt><dd>Object referred to from a currently active thread block.</dd>
+			</dlentry>
+			<dlentry>
+			<dt>Thread</dt><dd>A started, but not stopped, thread.</dd>
+			</dlentry>
+			<dlentry>
+			<dt>Busy Monitor</dt><dd>Everything that has called
 				<cmdname>wait()</cmdname>
 				or
 				<cmdname>notify()</cmdname>
@@ -26,15 +36,42 @@
 				<cmdname>synchronized(Object)</cmdname>
 				or by entering a synchronized method. Static method means class,
 				non-static method means object.
-			</li>
-			<li> Java Local - Local variable. For example, input parameters or
+			</dd>
+			</dlentry>
+			<dlentry>
+			<dt>Java Local</dt><dd>Local variable. For example, input parameters or
 				locally created objects of methods that are still in the stack of a
-				thread.</li>
-			<li> Native Stack - In or out parameters in native code, such as user
+				thread.</dd>
+			</dlentry>
+			<dlentry>
+			<dt>Native Stack</dt><dd>In or out parameters in native code, such as user
 				defined JNI code or JVM internal code. This is often the case as
 				many methods have native parts and the objects handled as method
 				parameters become GC roots. For example, parameters used for
-				file/network I/O methods or reflection.</li>
-		</ul>
+				file/network I/O methods or reflection.</dd>
+			</dlentry>
+			<dlentry>
+			<dt>Finalizer</dt><dd>An object which is in a queue awaiting its finalizer to be run.
+			</dd>
+			</dlentry>
+			<dlentry>
+			<dt>Unfinalized</dt><dd>An object which has a finalize method, but has not been finalized and
+			is not yet on the finalizer queue.
+			</dd>
+			</dlentry>
+			<dlentry>
+			<dt>Unreachable</dt><dd>An object which is unreachable from any other root, but has been 
+			marked as a root by MAT to retain objects which otherwise would not
+			be included in the analysis.
+			</dd>
+			</dlentry>
+			<dlentry>
+			<dt>Unknown</dt><dd>An object of unknown root type. Some dumps, such as IBM Portable Heap Dump files,
+			do not have root information. For these dumps the MAT parser marks objects which are have
+			no inbound references or are unreachable from any other root as roots of this type. 
+			This ensures that MAT retains all the objects in the dump.
+			</dd>
+			</dlentry>
+		</dl>
 	</conbody>
 </concept>

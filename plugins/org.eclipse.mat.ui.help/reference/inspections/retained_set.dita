@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd" >
+<reference id="ref_inspections_retained_set" xml:lang="en-us">
+	<title>Retained Set</title>
+	<shortdesc>All objects kept alive just because of the selected objects.
+	</shortdesc>
+	<refbody>
+		<section>
+			<title>Motivation</title>
+		</section>
+		<section>
+			<title>Arguments</title>
+			<simpletable>
+				<sthead>
+					<stentry>Argument</stentry>
+					<stentry>Description</stentry>
+				</sthead>
+				<strow>
+					<stentry>objects</stentry>
+					<stentry>An arbitrary set of objects to arrange in sets by value.</stentry>
+				</strow>
+			</simpletable>
+		</section>
+		<section id="result">
+			<title>Result</title>
+		</section>
+	</refbody>
+</reference>

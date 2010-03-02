@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd" >
+<reference id="ref_inspections_path_to_gc_roots" xml:lang="en-us">
+	<title>Path to GC Roots</title>
+	<shortdesc>Find out who is keeping alive a set of objects.
+	</shortdesc>
+	<refbody>
+		<section>
+			<title>Motivation</title>
+			<p>Having found an expensive object it is then important to find all the reasons it is kept alive.</p>
+		</section>
+		<section>
+			<title>Arguments</title>
+			<simpletable>
+				<sthead>
+					<stentry>Argument</stentry>
+					<stentry>Description</stentry>
+				</sthead>
+				<strow>
+					<stentry>object</stentry>
+					<stentry>One object for which the paths to GC roots should be found.</stentry>
+				</strow>
+			</simpletable>
+		</section>
+		<section id="result">
+			<title>Result</title>
+		</section>
+	</refbody>
+</reference>

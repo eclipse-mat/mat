@@ -63,7 +63,7 @@
 				parse the heap dump providing the
 				<codeph>-keep_unreachable_objects</codeph>
 				flag. Using the flag, unreachable objects will be marked with the GC
-				Root Type "unkown".
+				Root Type "unknown".
 			</p>
 			<image href="mimes/nn_unreachable_histogram.png">
 				<alt>Histogram of unreachable objects.</alt>

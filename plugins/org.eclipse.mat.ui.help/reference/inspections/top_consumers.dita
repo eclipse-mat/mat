@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd" >
+<reference id="ref_inspections_top_consumers" xml:lang="en-us">
+	<title>Top Consumers</title>
+	<shortdesc>Find out which class loaders and packages are using the most memory.
+	</shortdesc>
+	<refbody>
+		<section>
+			<title>Motivation</title>
+		</section>
+	</refbody>
+</reference>

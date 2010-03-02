@@ -23,7 +23,7 @@
 
 			<p>
 				For more details, check out the section
-				<xref
+				<xref format="html"
 					href="http://help.eclipse.org/ganymede/topic/org.eclipse.platform.doc.user/tasks/running_eclipse.htm">Running Eclipse</xref>
 				in the Help Center. It also contains more details if you are running
 				on Mac OS X.

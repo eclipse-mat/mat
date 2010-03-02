@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd" >
+<reference id="ref_inspections_group_by_value" xml:lang="en-us">
+	<title>Group by Value</title>
+	<shortdesc>Group a set of objects by value.
+	</shortdesc>
+	<refbody>
+		<section>
+			<title>Motivation</title>
+			<p>Sometimes it is easier to understand the uses of instances of a class if the instances are
+			grouped into sets where each object in the set has the same printable value as the others.</p>
+		</section>
+		<section>
+			<title>Arguments</title>
+			<simpletable>
+				<sthead>
+					<stentry>Argument</stentry>
+					<stentry>Description</stentry>
+				</sthead>
+				<strow>
+					<stentry>objects</stentry>
+					<stentry>An arbitrary set of objects to arrange in sets by value.</stentry>
+				</strow>
+			</simpletable>
+		</section>
+		<section id="result">
+			<title>Result</title>
+		</section>
+	</refbody>
+</reference>

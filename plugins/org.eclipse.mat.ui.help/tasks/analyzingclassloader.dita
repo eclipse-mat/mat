@@ -39,8 +39,8 @@
 
 			<p>
 				Find more information in this blog posting:
-				<xref type="html"
-					href="http://dev.eclipse.org/blogs/memoryanalyzer/2008/05/17/the-unknown-generation-perm/">The Unkown Generation: Perm</xref>
+				<xref format="html"
+					href="http://dev.eclipse.org/blogs/memoryanalyzer/2008/05/17/the-unknown-generation-perm/">The Unknown Generation: Perm</xref>
 			</p>
 
 		</section>
