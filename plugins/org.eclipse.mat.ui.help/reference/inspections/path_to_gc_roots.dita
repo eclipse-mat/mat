@@ -20,6 +20,14 @@
 					<stentry>object</stentry>
 					<stentry>One object for which the paths to GC roots should be found.</stentry>
 				</strow>
+				<strow>
+					<stentry>-excludes</stentry>
+					<stentry>Fields of certain classes which should be ignored when finding paths. For example this allows paths through Weak or Soft Reference referents to be ignored.</stentry>
+				</strow>
+				<strow>
+					<stentry>-numberofpaths</stentry>
+					<stentry>The number of different paths to be displayed.</stentry>
+				</strow>
 			</simpletable>
 		</section>
 		<section id="result">

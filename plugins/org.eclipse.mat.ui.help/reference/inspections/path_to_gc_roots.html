@@ -34,15 +34,27 @@
 		<div class="section"><h2 class="sectiontitle">Arguments</h2>
 			
 			<table cellpadding="4" cellspacing="0" summary="" border="1" class="simpletableborder"><tr>
-					<th valign="bottom" align="left" id="d5915e31">Argument</th>
+					<th valign="bottom" align="left" id="d5939e31">Argument</th>
 
-					<th valign="bottom" align="left" id="d5915e34">Description</th>
+					<th valign="bottom" align="left" id="d5939e34">Description</th>
 
 				</tr>
 <tr>
-					<td valign="top" headers="d5915e31">object</td>
+					<td valign="top" headers="d5939e31">object</td>
 
-					<td valign="top" headers="d5915e34">One object for which the paths to GC roots should be found.</td>
+					<td valign="top" headers="d5939e34">One object for which the paths to GC roots should be found.</td>
+
+				</tr>
+<tr>
+					<td valign="top" headers="d5939e31">-excludes</td>
+
+					<td valign="top" headers="d5939e34">Fields of certain classes which should be ignored when finding paths. For example this allows paths through Weak or Soft Reference referents to be ignored.</td>
+
+				</tr>
+<tr>
+					<td valign="top" headers="d5939e31">-numberofpaths</td>
+
+					<td valign="top" headers="d5939e34">The number of different paths to be displayed.</td>
 
 				</tr>
 </table>

@@ -2,11 +2,32 @@
 <!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd" >
 <reference id="ref_inspections_top_consumers" xml:lang="en-us">
 	<title>Top Consumers</title>
-	<shortdesc>Find out which class loaders and packages are using the most memory.
+	<shortdesc>Find out which classes, class loaders and packages are using the most memory.
 	</shortdesc>
 	<refbody>
 		<section>
 			<title>Motivation</title>
+			<p>This shows the important components which are using the most memory.</p>
+		</section>
+		<section>
+			<title>Arguments</title>
+			<simpletable>
+				<sthead>
+					<stentry>Argument</stentry>
+					<stentry>Description</stentry>
+				</sthead>
+				<strow>
+					<stentry>objects</stentry>
+					<stentry>Set of objects to include in the analysis.</stentry>
+				</strow>
+				<strow>
+					<stentry>t</stentry>
+					<stentry>Threshold (in percent of the total heap size) which objects have to exceed to be included in the analysis.</stentry>
+				</strow>
+			</simpletable>
+		</section>
+		<section id="result">
+			<title>Result</title>
 		</section>
 	</refbody>
 </reference>
