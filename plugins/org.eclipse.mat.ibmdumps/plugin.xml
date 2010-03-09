@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         name="IBM Virtual Machines"
+         point="org.eclipse.mat.api.heapDumpProvider">
+      <provider
+            impl="org.eclipse.mat.ibmvm.acquire.IBMExecDumpProvider">
+      </provider>
+   </extension>
+</plugin>
