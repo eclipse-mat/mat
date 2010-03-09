@@ -109,6 +109,9 @@ public class MemoryAnalyserPlugin extends AbstractUIPlugin
     private Map<ImageDescriptor, Image> imageCache = new HashMap<ImageDescriptor, Image>(20);
     private Map<URL, ImageDescriptor> imagePathCache = new HashMap<URL, ImageDescriptor>(20);
     private IExtensionTracker tracker;
+    private Logger logger;
+    private ErrorLogHandler errorLogHandler;
+    private boolean useParentHandlers;
 
     public MemoryAnalyserPlugin()
     {
@@ -124,9 +127,11 @@ public class MemoryAnalyserPlugin extends AbstractUIPlugin
 
         // redirect logging from the analysis core into the Eclipse logging
         // facility
-        Logger logger = Logger.getLogger("org.eclipse.mat");//$NON-NLS-1$
+        logger = Logger.getLogger("org.eclipse.mat");//$NON-NLS-1$
+        useParentHandlers = logger.getUseParentHandlers();
         logger.setUseParentHandlers(false);
-        logger.addHandler(new ErrorLogHandler());
+        errorLogHandler = new ErrorLogHandler();
+        logger.addHandler(errorLogHandler);
     }
 
     public void stop(BundleContext context) throws Exception
@@ -138,6 +143,11 @@ public class MemoryAnalyserPlugin extends AbstractUIPlugin
         for (Image image : imageCache.values())
             image.dispose();
         imageCache.clear();
+
+        logger.removeHandler(errorLogHandler);
+        logger.setUseParentHandlers(useParentHandlers);
+        logger = null;
+        errorLogHandler = null;
 
         super.stop(context);
     }
