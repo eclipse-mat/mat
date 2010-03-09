@@ -16,6 +16,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Enumeration;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.zip.ZipEntry;
@@ -117,7 +118,8 @@ public abstract class BaseProvider implements IHeapDumpProvider
         ze = new ZipEntry(agentFile);
         zo.putNextEntry(ze);
         Properties p = new Properties();
-        for (String k : rb.keySet()) {
+        for (Enumeration<String> e = rb.getKeys(); e.hasMoreElements(); ) {
+            String k = e.nextElement();
             p.put(k, rb.getString(k));
         }
         p.store(zo, agent);
