@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -101,8 +102,13 @@ public abstract class IBMDumpProvider extends BaseProvider
     /**
      * sorter for files by date modified
      */
-    private static final class FileComparator implements Comparator<File>
+    private static final class FileComparator implements Comparator<File>, Serializable
     {
+        /**
+         * 
+         */
+        private static final long serialVersionUID = -3725792252276130382L;
+
         public int compare(File f1, File f2)
         {
             return Long.valueOf(f1.lastModified()).compareTo(Long.valueOf(f2.lastModified()));
@@ -264,7 +270,7 @@ public abstract class IBMDumpProvider extends BaseProvider
         worked = CREATE_TIMEOUT;
 
         // Wait for FINISHED_TIMEOUT seconds after file length stops changing
-        long l0 = 0;
+        long l0 = l;
         for (int i = 0, j = 0; ((l = fileLengths(udir, previous, newFiles, nfiles)) != l0 || j++ < FINISHED_TIMEOUT)
                         && i < GROW_TIMEOUT; ++i)
         {
@@ -346,13 +352,23 @@ public abstract class IBMDumpProvider extends BaseProvider
             boolean usable = true;
             // See if the VM is usable to get dumps
             if (false) try {
+                // Hope that this is not too intrusive to the target
                 VirtualMachine vm = vmd.provider().attachVirtualMachine(vmd);
-                usable = true;
-                vm.detach();
+                try {
+                } finally {
+                    vm.detach();
+                }
             } catch (AttachNotSupportedException e) {
                 usable = false;
             } catch (IOException e) {
                 usable = false;
+            }
+            // See if loading an agent would fail
+            try {
+                // Java 5 SR10 and SR11 don't have a loadAgent method, so find out now
+                VirtualMachine.class.getMethod("loadAgent", String.class, String.class); //$NON-NLS-1$
+            } catch (NoSuchMethodException e) {
+                return null;
             }
             
             // Create VMinfo to generate heap dumps

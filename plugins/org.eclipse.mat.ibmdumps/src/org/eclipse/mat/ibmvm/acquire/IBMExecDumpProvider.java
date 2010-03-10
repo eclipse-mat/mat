@@ -56,42 +56,60 @@ public class IBMExecDumpProvider extends BaseProvider
         StringBuffer err = new StringBuffer();
         StringBuffer in = new StringBuffer();
         InputStreamReader os = new InputStreamReader(p.getInputStream());
-        InputStreamReader es = new InputStreamReader(p.getErrorStream());
-        int rc = 0;
-        do {
-            while (os.ready()) {
-                in.append((char)os.read());
-            }
-            while (es.ready()) {
-                int c = es.read();
-                if (c == '.') listener.worked(1);
-                err.append((char)c);
-            }
-            try {
-                rc = p.exitValue();
-                break;
-            } catch (IllegalThreadStateException e) {
-                Thread.sleep(100);
-            }
-            if (listener.isCanceled())
+        try
+        {
+            InputStreamReader es = new InputStreamReader(p.getErrorStream());
+            try
             {
-                p.destroy();
-                throw new IProgressListener.OperationCanceledException();
+                int rc = 0;
+                do
+                {
+                    while (os.ready())
+                    {
+                        in.append((char) os.read());
+                    }
+                    while (es.ready())
+                    {
+                        int c = es.read();
+                        if (c == '.')
+                            listener.worked(1);
+                        err.append((char) c);
+                    }
+                    try
+                    {
+                        rc = p.exitValue();
+                        break;
+                    }
+                    catch (IllegalThreadStateException e)
+                    {
+                        Thread.sleep(100);
+                    }
+                    if (listener.isCanceled())
+                    {
+                        p.destroy();
+                        throw new IProgressListener.OperationCanceledException();
+                    }
+                }
+                while (true);
+                if (rc != 0) { throw new IOException(MessageFormat.format(Messages
+                                .getString("IBMExecDumpProvider.ReturnCode"), rc, err.toString())); //$NON-NLS-1$
+                }
+                String ss[] = in.toString().split("[\\n\\r]+"); //$NON-NLS-1$
+                String filename = ss[0];
+                listener.done();
+                final File file = new File(filename);
+                if (!file.canRead()) { throw new FileNotFoundException(filename); }
+                return file;
             }
-        } while (true);
-        if (rc != 0)
-        {
-            throw new IOException(MessageFormat.format(Messages.getString("IBMExecDumpProvider.ReturnCode"), rc, err.toString())); //$NON-NLS-1$
+            finally
+            {
+                es.close();
+            }
         }
-        String ss[] = in.toString().split("[\\n\\r]+"); //$NON-NLS-1$
-        String filename = ss[0];
-        listener.done();
-        final File file = new File(filename);
-        if (!file.canRead())
+        finally
         {
-            throw new FileNotFoundException(filename);
+            os.close();
         }
-        return file;
         
     }
 
@@ -116,10 +134,14 @@ public class IBMExecDumpProvider extends BaseProvider
 
     public List<VmInfo> getAvailableVMs()
     {
-        if (abort) return null;
+        if (abort)
+            return null;
+        List<VmInfo> ret;
         try
         {
-            return new VMListDumpProvider().getAvailableVMs();
+            ret = new VMListDumpProvider().getAvailableVMs();
+            if (ret != null)
+                return ret;
         }
         catch (LinkageError e)
         {}
@@ -134,7 +156,7 @@ public class IBMExecDumpProvider extends BaseProvider
         File javaExec;
         javaExec = javaExec(home);
         
-        List<VmInfo> ret = execGetVMs(javaExec, home);
+        ret = execGetVMs(javaExec, home);
         while (ret == null) {
             if (home == null) {
                 home = defaultJavaHome();
@@ -149,7 +171,7 @@ public class IBMExecDumpProvider extends BaseProvider
                     setJavaHome(home2);
                     break;
                 }
-                home2 = home;
+                home = home2;
             }
             int r = retry();
             if (r == SWT.ABORT)
@@ -159,7 +181,6 @@ public class IBMExecDumpProvider extends BaseProvider
                 break;
             }
             if (r == SWT.IGNORE) break;
-            home = home2;
         }
         return ret;
     }
@@ -228,44 +249,66 @@ public class IBMExecDumpProvider extends BaseProvider
             StringBuffer err = new StringBuffer();
             StringBuffer in = new StringBuffer();
             InputStreamReader os = new InputStreamReader(p.getInputStream());
-            InputStreamReader es = new InputStreamReader(p.getErrorStream());
-            int rc = 0;
-            do {
-                while (os.ready()) {
-                    in.append((char)os.read());
-                }
-                while (es.ready()) {
-                    err.append((char)es.read());
-                }
-                try {
-                    rc = p.exitValue();
-                    break;
-                } catch (IllegalThreadStateException e) {
-                    Thread.sleep(100);
-                }
-            } while (true);
-            if (rc != 0) {
-                getLogger().log(Level.WARNING, err.toString());
-                ar = null;
-                return ar;
-            }
-            String ss[] = in.toString().split("[\\n\\r]+"); //$NON-NLS-1$
-            for (String s : ss) {
-                // pid,proposed filename,description
-                String s2[] = s.split(",", 3); //$NON-NLS-1$
-                if (s2.length >= 3) {
-                    // Exclude the helper process
-                    if (!s2[2].contains(getExecJar().getName()))
+            try
+            {
+                InputStreamReader es = new InputStreamReader(p.getErrorStream());
+                try
+                {
+                    int rc = 0;
+                    do
                     {
-                        VmInfo ifo = new VmInfo();
-                        int pid = getPid(s2[0]);
-                        ifo.setPid(pid);
-                        ifo.setProposedFileName(s2[1]);
-                        ifo.setDescription(EXEC_DESCRIPTION_PREFIX+s2[2]);
-                        ifo.setHeapDumpProvider(this);
-                        ar.add(ifo);
+                        while (os.ready())
+                        {
+                            in.append((char) os.read());
+                        }
+                        while (es.ready())
+                        {
+                            err.append((char) es.read());
+                        }
+                        try
+                        {
+                            rc = p.exitValue();
+                            break;
+                        }
+                        catch (IllegalThreadStateException e)
+                        {
+                            Thread.sleep(100);
+                        }
+                    }
+                    while (true);
+                    if (rc != 0)
+                    {
+                        getLogger().log(Level.WARNING, err.toString());
+                        ar = null;
+                        return ar;
+                    }
+                    String ss[] = in.toString().split("[\\n\\r]+"); //$NON-NLS-1$
+                    for (String s : ss) {
+                        // pid,proposed filename,description
+                        String s2[] = s.split(",", 3); //$NON-NLS-1$
+                        if (s2.length >= 3) {
+                            // Exclude the helper process
+                            if (!s2[2].contains(getExecJar().getName()))
+                            {
+                                VmInfo ifo = new VmInfo();
+                                int pid = getPid(s2[0]);
+                                ifo.setPid(pid);
+                                ifo.setProposedFileName(s2[1]);
+                                ifo.setDescription(EXEC_DESCRIPTION_PREFIX+s2[2]);
+                                ifo.setHeapDumpProvider(this);
+                                ar.add(ifo);
+                            }
+                        }
                     }
                 }
+                finally
+                {
+                    es.close();
+                }
+            }
+            finally
+            {
+                os.close();
             }
         } catch (IOException e) {
             getLogger().log(Level.WARNING, Messages.getString("IBMExecDumpProvider.ProblemListingVMs"), e); //$NON-NLS-1$

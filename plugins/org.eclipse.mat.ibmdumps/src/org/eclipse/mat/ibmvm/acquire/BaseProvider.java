@@ -93,9 +93,9 @@ public abstract class BaseProvider implements IHeapDumpProvider
         ze = new ZipEntry(agentFile);
         zo.putNextEntry(ze);
         InputStream is = cls.getResourceAsStream("/" + agentFile); //$NON-NLS-1$
-        BufferedInputStream s = new BufferedInputStream(is);
         if (is == null)
             throw new FileNotFoundException(agentFile);
+        BufferedInputStream s = new BufferedInputStream(is);
         try
         {
             byte b[] = new byte[10000];

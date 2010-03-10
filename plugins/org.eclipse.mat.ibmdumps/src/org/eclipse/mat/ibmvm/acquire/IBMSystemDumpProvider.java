@@ -91,31 +91,41 @@ class IBMSystemDumpProvider extends IBMDumpProvider {
         int exitCode = 0;
         Process p = pb.start();
         BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
-
-        for (;;) {
-
-            while (br.ready()) {
-                int t = br.read();
-                if (t < 0) break;
-                if (t == '.') listener.worked(1);
-                errorBuf.append((char)t);
-            }
-            listener.subTask("\n"+errorBuf.toString()); //$NON-NLS-1$
-
-            if (listener.isCanceled())
+        try
+        {
+            for (;;)
             {
-                p.destroy();
-                throw new IProgressListener.OperationCanceledException();
+
+                while (br.ready())
+                {
+                    int t = br.read();
+                    if (t < 0)
+                        break;
+                    if (t == '.')
+                        listener.worked(1);
+                    errorBuf.append((char) t);
+                }
+                listener.subTask("\n" + errorBuf.toString()); //$NON-NLS-1$
+
+                if (listener.isCanceled())
+                {
+                    p.destroy();
+                    throw new IProgressListener.OperationCanceledException();
+                }
+                try
+                {
+                    p.exitValue();
+                    break;
+                }
+                catch (IllegalThreadStateException e)
+                {
+                    Thread.sleep(1000);
+                }
             }
-            try
-            {
-                p.exitValue();
-                break;
-            }
-            catch (IllegalThreadStateException e)
-            {
-                Thread.sleep(1000);
-            }
+        }
+        finally
+        {
+            br.close();
         }
 
         exitCode = p.waitFor();
