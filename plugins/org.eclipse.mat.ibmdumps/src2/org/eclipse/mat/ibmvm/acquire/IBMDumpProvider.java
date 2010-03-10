@@ -121,6 +121,11 @@ public abstract class IBMDumpProvider extends BaseProvider
     {
         this.vmd = vmd;
     }
+    
+    public IBMDumpProvider()
+    {
+        this(null);
+    }
 
     /**
      * Command to pass to the agent to generate dumps of this type

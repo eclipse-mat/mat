@@ -17,7 +17,6 @@ import org.eclipse.mat.util.IProgressListener;
 
 public class VMListDumpProvider extends IBMDumpProvider {
     public VMListDumpProvider() {
-        super(null);
     }
     public File acquireDump(VmInfo info, File preferredLocation, IProgressListener listener)
     {
