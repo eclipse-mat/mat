@@ -285,12 +285,10 @@ public abstract class IBMDumpProvider extends BaseProvider
             {
                 listener.subTask(MessageFormat.format(Messages.getString("IBMDumpProvider.WritingFile"), newFiles.get(iFile++))); //$NON-NLS-1$
             }
-            System.out.println("l="+l+" l0="+l0);
             if (l0 != l)
             {
                 j = 0;
                 int towork = (int) (l * GROWING_COUNT / avg);
-                System.out.println("l="+l+" "+towork);
                 listener.worked(towork - worked);
                 worked = towork;
                 l0 = l;
