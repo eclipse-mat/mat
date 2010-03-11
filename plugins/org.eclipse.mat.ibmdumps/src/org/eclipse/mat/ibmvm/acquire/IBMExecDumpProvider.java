@@ -87,7 +87,7 @@ public class IBMExecDumpProvider extends BaseProvider
                     if (listener.isCanceled())
                     {
                         p.destroy();
-                        throw new IProgressListener.OperationCanceledException();
+                        return null;
                     }
                 }
                 while (true);

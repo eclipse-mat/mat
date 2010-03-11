@@ -27,6 +27,13 @@ import org.eclipse.mat.snapshot.acquire.IHeapDumpProvider;
 public abstract class BaseProvider implements IHeapDumpProvider
 {
 
+    static final int SLEEP_TIMEOUT = 1000; // milliseconds
+    static final int GROW_COUNT = 5 * 60 * 1000 / SLEEP_TIMEOUT;
+    static final int FINISHED_COUNT = 5 * 1000 / SLEEP_TIMEOUT;
+    static final int CREATE_COUNT = 30 * 1000 / SLEEP_TIMEOUT;
+    static final int GROWING_COUNT = (CREATE_COUNT + GROW_COUNT) * 2; // progress = 67% file length, 33% waiting time
+    static final int TOTAL_WORK = CREATE_COUNT + GROWING_COUNT + GROW_COUNT;
+
     /**
      * Some PIDs from the IBM VMs come as 4321.1 e.g. if one PID is left over
      * from a previous boot

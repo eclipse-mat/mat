@@ -44,12 +44,6 @@ import com.ibm.tools.attach.VirtualMachineDescriptor;
 public abstract class IBMDumpProvider extends BaseProvider
 {
 
-    private static final int GROWING_COUNT = 670;
-    private static final int GROW_TIMEOUT = 5 * 60;
-    private static final int FINISHED_TIMEOUT = 10;
-    private static final int CREATE_TIMEOUT = 30;
-    private static final int TOTAL_WORK = CREATE_TIMEOUT + GROWING_COUNT + GROW_TIMEOUT;
-
     /**
      * Find new files not ones we know about
      */
@@ -221,7 +215,6 @@ public abstract class IBMDumpProvider extends BaseProvider
                     throw new SnapshotException(Messages.getString("IBMDumpProvider.AgentInitialization"), e); //$NON-NLS-1$
                 }
 
-                listener.subTask(Messages.getString("IBMDumpProvider.WaitingForDumpFiles")); //$NON-NLS-1$
                 List<File> newFiles = progress(udir, previous, files(), avg, listener);
                 if (listener.isCanceled())
                     return null;
@@ -259,35 +252,50 @@ public abstract class IBMDumpProvider extends BaseProvider
     private List<File> progress(File udir, Collection<File> previous, int nfiles, long avg, IProgressListener listener)
                     throws InterruptedException
     {
+        listener.subTask(Messages.getString("IBMDumpProvider.WaitingForDumpFiles")); //$NON-NLS-1$
         List<File> newFiles = new ArrayList<File>();
         // Wait up to 30 seconds for a file to be created and written to
         long l = 0;
         int worked = 0;
-        for (int i = 0; (l = fileLengths(udir, previous, newFiles, nfiles)) == 0 && i < CREATE_TIMEOUT; ++i)
+        long start = System.currentTimeMillis(), t;
+        for (int i = 0; (l = fileLengths(udir, previous, newFiles, nfiles)) == 0 
+            && i < CREATE_COUNT && (t = System.currentTimeMillis()) < start + CREATE_COUNT*SLEEP_TIMEOUT; ++i)
         {
-            Thread.sleep(1000L);
-            if (listener.isCanceled()) { throw new IProgressListener.OperationCanceledException(); }
-            listener.worked(1);
-            ++worked;
+            Thread.sleep(SLEEP_TIMEOUT);
+            if (listener.isCanceled()) 
+                return null;
+            int towork = (int)Math.min(((t - start) / SLEEP_TIMEOUT), CREATE_COUNT);
+            listener.worked(towork - worked);
+            worked = towork;
         }
 
-        listener.worked(CREATE_TIMEOUT - worked);
-        worked = CREATE_TIMEOUT;
+        listener.worked(CREATE_COUNT - worked);
+        worked = CREATE_COUNT;
 
         // Wait for FINISHED_TIMEOUT seconds after file length stops changing
-        long l0 = l;
-        for (int i = 0, j = 0; ((l = fileLengths(udir, previous, newFiles, nfiles)) != l0 || j++ < FINISHED_TIMEOUT)
-                        && i < GROW_TIMEOUT; ++i)
+        long l0 = l - 1;
+        int iFile = 0;
+        start = System.currentTimeMillis();
+        for (int i = 0, j = 0; ((l = fileLengths(udir, previous, newFiles, nfiles)) != l0
+                        || j++ < FINISHED_COUNT || newFiles.size() > iFile)
+                        && i < GROW_COUNT
+                        && (t = System.currentTimeMillis()) < start + GROW_COUNT*SLEEP_TIMEOUT; ++i)
         {
+            while (iFile < newFiles.size())
+            {
+                listener.subTask(MessageFormat.format(Messages.getString("IBMDumpProvider.WritingFile"), newFiles.get(iFile++))); //$NON-NLS-1$
+            }
+            System.out.println("l="+l+" l0="+l0);
             if (l0 != l)
             {
                 j = 0;
                 int towork = (int) (l * GROWING_COUNT / avg);
+                System.out.println("l="+l+" "+towork);
                 listener.worked(towork - worked);
                 worked = towork;
                 l0 = l;
             }
-            Thread.sleep(1000L);
+            Thread.sleep(SLEEP_TIMEOUT);
             if (listener.isCanceled())
                 return null;
             listener.worked(1);

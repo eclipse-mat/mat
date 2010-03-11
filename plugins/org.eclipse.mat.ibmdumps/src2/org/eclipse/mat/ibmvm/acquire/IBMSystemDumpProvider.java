@@ -110,7 +110,7 @@ class IBMSystemDumpProvider extends IBMDumpProvider {
                 if (listener.isCanceled())
                 {
                     p.destroy();
-                    throw new IProgressListener.OperationCanceledException();
+                    return null;
                 }
                 try
                 {
@@ -119,7 +119,7 @@ class IBMSystemDumpProvider extends IBMDumpProvider {
                 }
                 catch (IllegalThreadStateException e)
                 {
-                    Thread.sleep(1000);
+                    Thread.sleep(SLEEP_TIMEOUT);
                 }
             }
         }
