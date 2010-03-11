@@ -19,20 +19,30 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.hprof.Messages;
 import org.eclipse.mat.hprof.acquire.LocalJavaProcessesUtils.StreamCollector;
+import org.eclipse.mat.query.annotations.Argument;
+import org.eclipse.mat.query.annotations.Help;
+import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.snapshot.acquire.IHeapDumpProvider;
 import org.eclipse.mat.snapshot.acquire.VmInfo;
 import org.eclipse.mat.util.IProgressListener;
 
+@Help("Generates a binary HPROF heap dump using jmap")
+@Name("HPROF jmap dump provider")
 public class JMapHeapDumpProvider implements IHeapDumpProvider
 {
 
 	private static final String FILE_PATTERN = "java_pid%pid%.hprof"; //$NON-NLS-1$
+	
+	@Argument(isMandatory = false)
+	@Help("Location of the appropriate jmap executable. If no location is specified simply \"jmap\" will be used")
+	public File jmapExecutable;
 
 	public File acquireDump(VmInfo info, File preferredLocation, IProgressListener listener) throws Exception
 	{
 		listener.beginTask(Messages.JMapHeapDumpProvider_WaitForHeapDump, IProgressMonitor.UNKNOWN);
 
-		String execLine = "jmap -dump:format=b,file=" + preferredLocation.getAbsolutePath() + " " + info.getPid(); //$NON-NLS-1$ //$NON-NLS-2$
+		String jmap = jmapExecutable == null ? "jmap" : jmapExecutable.getAbsolutePath(); //$NON-NLS-1$
+		String execLine = jmap + " -dump:format=b,file=" + preferredLocation.getAbsolutePath() + " " + info.getPid(); //$NON-NLS-1$ //$NON-NLS-2$
 		Logger.getLogger(getClass().getName()).info("Executing: " + execLine); //$NON-NLS-1$
 		Process p = Runtime.getRuntime().exec(execLine);
 

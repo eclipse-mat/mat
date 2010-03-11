@@ -8,23 +8,22 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.mat.ui.acquire;
+package org.eclipse.mat.ui.internal.acquire;
 
 import java.io.File;
+import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
@@ -35,6 +34,12 @@ import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardDialog;
+import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.internal.acquire.HeapDumpProviderDescriptor;
+import org.eclipse.mat.internal.acquire.HeapDumpProviderRegistry;
+import org.eclipse.mat.internal.acquire.ProviderArgumentsSet;
+import org.eclipse.mat.query.registry.ArgumentDescriptor;
+import org.eclipse.mat.query.registry.ArgumentFactory;
 import org.eclipse.mat.snapshot.acquire.IHeapDumpProvider;
 import org.eclipse.mat.snapshot.acquire.VmInfo;
 import org.eclipse.mat.ui.Messages;
@@ -42,6 +47,7 @@ import org.eclipse.mat.ui.editor.PathEditorInput;
 import org.eclipse.mat.ui.util.ErrorHelper;
 import org.eclipse.mat.ui.util.ProgressMonitorWrapper;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorDescriptor;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -56,7 +62,7 @@ public class AcquireSnapshotAction extends Action implements IWorkbenchWindowAct
 	{
 		final Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
 
-		List<IHeapDumpProvider> dumpProviders = getProviders();
+		Collection<HeapDumpProviderDescriptor> dumpProviders = HeapDumpProviderRegistry.instance().getHeapDumpProviders();
 		if (dumpProviders == null || dumpProviders.size() == 0)
 		{
 			showError(Messages.AcquireSnapshotAction_NoProviderError);
@@ -64,8 +70,10 @@ public class AcquireSnapshotAction extends Action implements IWorkbenchWindowAct
 		}
 
 		final AcquireDialog acquireDialog = new AcquireDialog(dumpProviders);
+		final ProviderArgumentsWizzardPage argumentsPage = new ProviderArgumentsWizzardPage(acquireDialog);
 
 		Wizard wizard = new Wizard() {
+			
 			public boolean performFinish()
 			{
 
@@ -78,7 +86,7 @@ public class AcquireSnapshotAction extends Action implements IWorkbenchWindowAct
 					if (!validatePath(preferredLocation)) return false;
 
 					// request the heap dump and check if result is OK
-					AcquireDumpOperation dumpOperation = new AcquireDumpOperation(selectedProcess, preferredLocation, getContainer());
+					AcquireDumpOperation dumpOperation = new AcquireDumpOperation(selectedProcess, preferredLocation, argumentsPage.getArgumentSet(), getContainer());
 					if (!dumpOperation.run().isOK()) return false;
 
 					File destFile = dumpOperation.getResult();
@@ -145,39 +153,21 @@ public class AcquireSnapshotAction extends Action implements IWorkbenchWindowAct
 
 				return true;
 			}
+			
+			@Override
+			public boolean canFinish()
+			{
+				return argumentsPage.isPageComplete();
+			}
 
 		};
 
 		wizard.addPage(acquireDialog);
+		wizard.addPage(argumentsPage);
 		wizard.setWindowTitle(Messages.AcquireSnapshotAction_AcquireDialogName);
 		wizard.setNeedsProgressMonitor(true);
 
 		new WizardDialog(shell, wizard).open();
-	}
-
-	private List<IHeapDumpProvider> getProviders()
-	{
-		IConfigurationElement[] config = Platform.getExtensionRegistry().getConfigurationElementsFor("org.eclipse.mat.api.heapDumpProvider"); //$NON-NLS-1$
-		if (config.length == 0) return null;
-
-		List<IHeapDumpProvider> providers = new ArrayList<IHeapDumpProvider>();
-		for (IConfigurationElement configurationElement : config)
-		{
-			String bundleName = configurationElement.getContributor().getName();
-			Logger.getLogger(getClass().getName()).info("Loaded heapDumpProvider from " + bundleName); //$NON-NLS-1$
-
-			try
-			{
-				Object provider = configurationElement.createExecutableExtension("impl"); //$NON-NLS-1$
-				providers.add((IHeapDumpProvider) provider);
-			}
-			catch (CoreException e)
-			{
-				Logger.getLogger(getClass().getName()).log(Level.SEVERE, Messages.AcquireSnapshotAction_FailedToCreateProvider, e);
-			}
-		}
-
-		return providers;
 	}
 
 	private void showError(String msg)
@@ -219,12 +209,14 @@ public class AcquireSnapshotAction extends Action implements IWorkbenchWindowAct
 		private VmInfo vmInfo;
 		private File preferredLocation;
 		private File result;
+		private ProviderArgumentsSet argumentSet;
 
-		public AcquireDumpOperation(VmInfo vmInfo, File preferredLocation, IRunnableContext context)
+		public AcquireDumpOperation(VmInfo vmInfo, File preferredLocation, ProviderArgumentsSet argumentSet, IRunnableContext context)
 		{
 			this.vmInfo = vmInfo;
 			this.preferredLocation = preferredLocation;
 			this.context = context;
+			this.argumentSet = argumentSet;
 		}
 
 		private IStatus doOperation(IProgressMonitor monitor)
@@ -232,13 +224,8 @@ public class AcquireSnapshotAction extends Action implements IWorkbenchWindowAct
 			IProgressListener listener = new ProgressMonitorWrapper(monitor);
 			try
 			{
-				result = vmInfo.getHeapDumpProvider().acquireDump(vmInfo, preferredLocation, listener);
-
+				result = triggerHeapDump(listener);
 				if (listener.isCanceled()) return Status.CANCEL_STATUS;
-			}
-			catch (InterruptedException ignore)
-			{
-				// $JL-EXC$
 			}
 			catch (Exception e)
 			{
@@ -248,6 +235,104 @@ public class AcquireSnapshotAction extends Action implements IWorkbenchWindowAct
 			return Status.OK_STATUS;
 
 		}
+		
+	    private File triggerHeapDump(IProgressListener listener) throws SnapshotException, SnapshotException
+	    {
+	        try
+	        {
+	            HeapDumpProviderDescriptor providerDescriptor = argumentSet.getProviderDescriptor();
+	            IHeapDumpProvider impl = vmInfo.getHeapDumpProvider();
+
+	            for (ArgumentDescriptor parameter : providerDescriptor.getArguments())
+	            {
+	                Object value = argumentSet.getArgumentValue(parameter);
+
+	                if (value == null && parameter.isMandatory())
+	                {
+	                    value = parameter.getDefaultValue();
+	                    if (value == null)
+	                        throw new SnapshotException(MessageUtil.format(
+	                        		"Missing required parameter: {0}", parameter.getName()));
+	                }
+
+	                if (value == null)
+	                {
+	                    if (argumentSet.getValues().containsKey(parameter))
+	                    {
+	                        Logger.getLogger(getClass().getName()).log(Level.INFO,
+	                                        MessageUtil.format("Setting null value for: {0}", parameter.getName()));
+	                        parameter.getField().set(impl, null);
+	                    }
+	                    continue;
+	                }
+
+	                try
+	                {
+	                    if (value instanceof ArgumentFactory)
+	                    {
+	                        parameter.getField().set(impl, ((ArgumentFactory) value).build(parameter));
+	                    }
+	                    else if (parameter.isArray())
+	                    {
+	                        List<?> list = (List<?>) value;
+	                        Object array = Array.newInstance(parameter.getType(), list.size());
+
+	                        int ii = 0;
+	                        for (Object v : list)
+	                            Array.set(array, ii++, v);
+
+	                        parameter.getField().set(impl, array);
+	                    }
+	                    else if (parameter.isList())
+	                    {
+	                        // handle ArgumentFactory inside list
+	                        List<?> source = (List<?>) value;
+	                        List<Object> target = new ArrayList<Object>(source.size());
+	                        for (int ii = 0; ii < source.size(); ii++)
+	                        {
+	                            Object v = source.get(ii);
+	                            if (v instanceof ArgumentFactory)
+	                                v = ((ArgumentFactory) v).build(parameter);
+	                            target.add(v);
+	                        }
+
+	                        parameter.getField().set(impl, target);
+	                    }
+	                    else
+	                    {
+	                        parameter.getField().set(impl, value);
+	                    }
+	                }
+	                catch (IllegalArgumentException e)
+	                {
+	                    throw new SnapshotException(MessageUtil.format("Illegal argument: {0} of type {1} cannot be set to field {2} of type {3}", value,
+	                                    value.getClass().getName(), parameter.getName(), parameter.getType().getName()), e);
+	                }
+	                catch (IllegalAccessException e)
+	                {
+	                    // should not happen as we check accessibility when
+	                    // registering queries
+	                    throw new SnapshotException(MessageUtil.format("Unable to access field {0} of type {1}", parameter
+	                                    .getName(), parameter.getType().getName()), e);
+	                }
+	            }
+
+	            File result = impl.acquireDump(vmInfo, preferredLocation, listener);
+	            return result;
+	        }
+	        catch (IProgressListener.OperationCanceledException e)
+	        {
+	            throw e; // no nesting!
+	        }
+	        catch (SnapshotException e)
+	        {
+	            throw e; // no nesting!
+	        }
+	        catch (Exception e)
+	        {
+	            throw SnapshotException.rethrow(e);
+	        }
+	    }
 
 		private File getResult()
 		{

@@ -139,7 +139,7 @@
 			label="Acquire Heap Dump" visible="false">
 			<action
 				id="org.eclipse.mat.ui.openAcquireDialog"
-				class="org.eclipse.mat.ui.acquire.AcquireSnapshotAction"
+				class="org.eclipse.mat.ui.internal.acquire.AcquireSnapshotAction"
 				icon="icons/open_snapshot.gif"
 				label="Acquire Heap Dump ..." menubarPath="file/new.ext" style="push"
 				toolbarPath="org.eclipse.ui.workbench.file/new.ext"
@@ -212,7 +212,7 @@
 		</handler>
 		<handler
 			commandId="org.eclipse.mat.ui.acquire.HeapDump"
-			class="org.eclipse.mat.ui.acquire.AcquireSnapshotAction$Handler">
+			class="org.eclipse.mat.ui.internal.acquire.AcquireSnapshotAction$Handler">
 		</handler>
 	</extension>
 

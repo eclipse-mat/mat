@@ -8,16 +8,19 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.mat.ui.acquire;
+package org.eclipse.mat.ui.internal.acquire;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.wizard.WizardPage;
+import org.eclipse.mat.internal.acquire.HeapDumpProviderDescriptor;
+import org.eclipse.mat.internal.acquire.HeapDumpProviderRegistry;
 import org.eclipse.mat.snapshot.acquire.IHeapDumpProvider;
 import org.eclipse.mat.snapshot.acquire.VmInfo;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
@@ -43,12 +46,18 @@ public class AcquireDialog extends WizardPage
 
     private Table localVMsTable;
     private Text folderText;
-    private List<IHeapDumpProvider> dumpProviders;
+    private Collection<HeapDumpProviderDescriptor> providerDescriptors;
+    private List<ProcessSelectionListener> listeners = new ArrayList<ProcessSelectionListener>();
 
-    public AcquireDialog(List<IHeapDumpProvider> dumpProviders)
+    interface ProcessSelectionListener
+    {
+    	void processSelected(VmInfo process);
+    }
+    
+    public AcquireDialog(Collection<HeapDumpProviderDescriptor> dumpProviders)
     {
         super("acq"); //$NON-NLS-1$
-        this.dumpProviders = dumpProviders;
+        this.providerDescriptors = dumpProviders;
     }
 
     public void createControl(Composite parent)
@@ -79,6 +88,12 @@ public class AcquireDialog extends WizardPage
                 proposedFileName = proposedFileName.replace("%pid%", String.valueOf(getProcess().getPid())); //$NON-NLS-1$
                 proposedFileName = getSelectedDirectory() + File.separatorChar + proposedFileName;
                 folderText.setText(proposedFileName);
+                
+                // notify listeners
+                for (ProcessSelectionListener listener : listeners)
+				{
+					listener.processSelected(getProcess());
+				}
             }
 
             public void widgetDefaultSelected(SelectionEvent e)
@@ -90,10 +105,13 @@ public class AcquireDialog extends WizardPage
 
         TableColumn column = new TableColumn(localVMsTable, SWT.RIGHT);
         column.setText(Messages.AcquireDialog_ColumnDescription);
-        column.setWidth(230);
+        column.setWidth(150);
         column = new TableColumn(localVMsTable, SWT.LEFT);
         column.setText(Messages.AcquireDialog_ColumnPID);
-        column.setWidth(90);
+        column.setWidth(40);
+        column = new TableColumn(localVMsTable, SWT.LEFT);
+        column.setText("Heap Dump Provider");
+        column.setWidth(200);
 
 
         List<VmInfo> vms = getAvailableVms();
@@ -104,6 +122,7 @@ public class AcquireDialog extends WizardPage
         		TableItem item = new TableItem(localVMsTable, SWT.NONE);
         		item.setText(0, process.getDescription());
         		item.setText(1, Integer.toString(process.getPid()));
+        		item.setText(2, getProviderDescriptor(process).getName());
         		item.setData(process);
         	}
         }
@@ -145,8 +164,25 @@ public class AcquireDialog extends WizardPage
     private List<VmInfo> getAvailableVms()
 	{
     	List<VmInfo> vms = new ArrayList<VmInfo>();
-    	for (IHeapDumpProvider provider : dumpProviders)
+    	
+    	for (HeapDumpProviderDescriptor providerDescriptor : providerDescriptors)
 		{
+    		IHeapDumpProvider provider = null;
+			try
+			{
+				provider = providerDescriptor.getSubject().newInstance();
+			}
+			catch (InstantiationException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			catch (IllegalAccessException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
     		List<VmInfo> providerVMs = provider.getAvailableVMs();
     		if (providerVMs != null)
 			{
@@ -155,11 +191,17 @@ public class AcquireDialog extends WizardPage
 		}
 		return vms;
 	}
+    
+    @Override
+    public boolean canFlipToNextPage()
+    {
+        return localVMsTable.getSelectionIndex() != -1 && folderText.getText().length() > 0;
+    }
 
 	@Override
     public boolean isPageComplete()
     {
-        return localVMsTable.getSelectionIndex() != -1 && folderText.getText().length() > 0;
+        return canFlipToNextPage() && getProviderDescriptor(getProcess()).getArguments().size() == 0;
     }
 
 	public VmInfo getProcess()
@@ -193,5 +235,15 @@ public class AcquireDialog extends WizardPage
     public void saveSettings()
     {
     	new InstanceScope().getNode(MemoryAnalyserPlugin.PLUGIN_ID).put(LAST_DIRECTORY_KEY, getSelectedDirectory());
+    }
+    
+    private HeapDumpProviderDescriptor getProviderDescriptor(VmInfo vmInfo)
+    {
+    	return HeapDumpProviderRegistry.instance().getHeapDumpProvider(vmInfo.getHeapDumpProvider().getClass());
+    }
+    
+    synchronized void addProcessSelectionListener(ProcessSelectionListener listener)
+    {
+    	listeners.add(listener);
     }
 }

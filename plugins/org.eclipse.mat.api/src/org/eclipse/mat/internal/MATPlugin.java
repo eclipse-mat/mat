@@ -72,5 +72,10 @@ public class MATPlugin extends Plugin
     {
         log(new Status(IStatus.ERROR, PLUGIN_ID, message));
     }
+    
+    public static void log(int severity, String message)
+    {
+        log(new Status(severity, PLUGIN_ID, message));
+    }
 
 }

@@ -45,7 +45,7 @@ public class ArgumentDescriptor
         return defaultValue;
     }
 
-    void setDefaultValue(Object defaultValue)
+    public void setDefaultValue(Object defaultValue)
     {
         this.defaultValue = defaultValue;
     }
@@ -55,7 +55,7 @@ public class ArgumentDescriptor
         return field;
     }
 
-    void setField(Field field)
+    public void setField(Field field)
     {
         this.field = field;
     }
@@ -65,7 +65,7 @@ public class ArgumentDescriptor
         return flag;
     }
 
-    void setFlag(String flag)
+    public void setFlag(String flag)
     {
         this.flag = flag;
     }
@@ -75,7 +75,7 @@ public class ArgumentDescriptor
         return isArray;
     }
 
-    void setArray(boolean isArray)
+    public void setArray(boolean isArray)
     {
         this.isArray = isArray;
     }
@@ -85,7 +85,7 @@ public class ArgumentDescriptor
         return isList;
     }
 
-    void setList(boolean isList)
+    public void setList(boolean isList)
     {
         this.isList = isList;
     }
@@ -100,7 +100,7 @@ public class ArgumentDescriptor
         return isMandatory;
     }
 
-    void setMandatory(boolean isMandatory)
+    public void setMandatory(boolean isMandatory)
     {
         this.isMandatory = isMandatory;
     }
@@ -110,7 +110,7 @@ public class ArgumentDescriptor
         return name;
     }
 
-    void setName(String name)
+    public void setName(String name)
     {
         this.name = name;
     }
@@ -120,7 +120,7 @@ public class ArgumentDescriptor
         return type;
     }
 
-    void setType(Class<?> type)
+    public void setType(Class<?> type)
     {
         this.type = type;
     }
@@ -130,7 +130,7 @@ public class ArgumentDescriptor
         return help;
     }
 
-    void setHelp(String help)
+    public void setHelp(String help)
     {
         this.help = help;
     }
@@ -140,7 +140,7 @@ public class ArgumentDescriptor
         return advice;
     }
 
-    /* package */void setAdvice(Argument.Advice advice)
+    public void setAdvice(Argument.Advice advice)
     {
         this.advice = advice;
     }

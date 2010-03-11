@@ -7,6 +7,7 @@ Bundle-Version: 0.8.0.qualifier
 Export-Package: org.eclipse.mat.inspections.osgi;x-friends:="org.eclipse.mat.ui",
  org.eclipse.mat.inspections.osgi.model;x-friends:="org.eclipse.mat.ui",
  org.eclipse.mat.internal.snapshot;x-friends:="org.eclipse.mat.ui",
+ org.eclipse.mat.internal.acquire;x-friends:="org.eclipse.mat.ui",
  org.eclipse.mat.snapshot,
  org.eclipse.mat.snapshot.extension,
  org.eclipse.mat.snapshot.inspections,

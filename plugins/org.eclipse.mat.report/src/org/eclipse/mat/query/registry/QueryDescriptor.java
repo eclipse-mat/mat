@@ -26,17 +26,11 @@ import org.eclipse.mat.util.MessageUtil;
 
 import com.ibm.icu.text.BreakIterator;
 
-public class QueryDescriptor
+public class QueryDescriptor extends ExecutableDescriptor
 {
-    protected final String identifier;
-    protected final String name;
     protected final String category;
-    protected String usage;
     protected final URL icon;
-    protected final String help;
-    protected final String helpUrl;
     protected final int sortOrder;
-    protected final Locale helpLocale;
 
     protected final Class<? extends IQuery> subject;
     protected final List<ArgumentDescriptor> arguments;
@@ -45,8 +39,7 @@ public class QueryDescriptor
     QueryDescriptor(String identifier, String name, String category, Class<? extends IQuery> subject, String usage,
                     URL icon, String help, String helpUrl, Locale helpLocale)
     {
-        this.identifier = identifier;
-
+    	super(identifier, name, usage, help, helpUrl, helpLocale);
         if (name == null)
         {
             this.name = null;
@@ -78,22 +71,9 @@ public class QueryDescriptor
         this.subject = subject;
         this.usage = usage;
         this.icon = icon;
-        this.help = help;
-        this.helpUrl = helpUrl;
 
         this.arguments = new ArrayList<ArgumentDescriptor>();
         this.menuEntries = new ArrayList<QueryDescriptor>();
-        this.helpLocale = helpLocale;
-    }
-
-    public String getIdentifier()
-    {
-        return identifier;
-    }
-
-    public String getName()
-    {
-        return name;
     }
 
     public String getCategory()
@@ -142,36 +122,6 @@ public class QueryDescriptor
     public URL getIcon()
     {
         return icon;
-    }
-
-    public String getHelp()
-    {
-        return help;
-    }
-
-    public String getHelpUrl()
-    {
-        return helpUrl;
-    }
-
-    /**
-     * Indicates whether help is available for the query.
-     * 
-     * @return true if either the query or at least one of the arguments are
-     *         annotated with @Help
-     */
-    public boolean isHelpAvailable()
-    {
-        if (help != null)
-            return true;
-
-        for (ArgumentDescriptor arg : arguments)
-        {
-            if (arg.getHelp() != null)
-                return true;
-        }
-
-        return false;
     }
 
     public String getShortDescription()
@@ -255,11 +205,6 @@ public class QueryDescriptor
         return buf.toString();
     }
 
-    public List<ArgumentDescriptor> getArguments()
-    {
-        return Collections.unmodifiableList(arguments);
-    }
-
     public ArgumentDescriptor getArgumentByName(String name)
     {
         for (ArgumentDescriptor argument : arguments)
@@ -283,11 +228,6 @@ public class QueryDescriptor
     // //////////////////////////////////////////////////////////////
     // package protected
     // //////////////////////////////////////////////////////////////
-
-    /* package */void addParamter(ArgumentDescriptor descriptor)
-    {
-        arguments.add(descriptor);
-    }
 
     /* package */void addMenuEntry(String label, String category, String help, String helpUrl, URL icon, String options)
     {

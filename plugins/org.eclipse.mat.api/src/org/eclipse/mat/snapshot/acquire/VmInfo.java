@@ -16,7 +16,7 @@ package org.eclipse.mat.snapshot.acquire;
  * @author ktsvetkov
  * 
  */
-public final class VmInfo
+public class VmInfo
 {
 	private int pid;
 	private String description;
