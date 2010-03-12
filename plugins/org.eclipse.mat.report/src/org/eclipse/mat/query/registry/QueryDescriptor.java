@@ -33,7 +33,6 @@ public class QueryDescriptor extends ExecutableDescriptor
     protected final int sortOrder;
 
     protected final Class<? extends IQuery> subject;
-    protected final List<ArgumentDescriptor> arguments;
     protected final List<QueryDescriptor> menuEntries;
 
     QueryDescriptor(String identifier, String name, String category, Class<? extends IQuery> subject, String usage,
@@ -72,7 +71,6 @@ public class QueryDescriptor extends ExecutableDescriptor
         this.usage = usage;
         this.icon = icon;
 
-        this.arguments = new ArrayList<ArgumentDescriptor>();
         this.menuEntries = new ArrayList<QueryDescriptor>();
     }
 
@@ -94,29 +92,6 @@ public class QueryDescriptor extends ExecutableDescriptor
     public ArgumentSet createNewArgumentSet(IQueryContext context) throws SnapshotException
     {
         return new ArgumentSet(this, context);
-    }
-
-    public synchronized String getUsage(IQueryContext context)
-    {
-        if (usage != null)
-            return usage;
-        else
-        {
-
-            StringBuilder buf = new StringBuilder(256);
-
-            buf.append(identifier);
-
-            for (ArgumentDescriptor param : arguments)
-            {
-                if (context.available(param.getType(), param.getAdvice()))
-                    continue;
-
-                param.appendUsage(buf);
-            }
-
-            return usage = buf.toString();
-        }
     }
 
     public URL getIcon()
