@@ -19,31 +19,35 @@ import java.text.MessageFormat;
 import java.util.Collection;
 
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.util.IProgressListener;
 
-import com.ibm.tools.attach.VirtualMachineDescriptor;
+@Name("IBM System Dump")
+public class IBMSystemDumpProvider extends IBMDumpProvider
+{
+    public IBMSystemDumpProvider()
+    {}
 
-class IBMSystemDumpProvider extends IBMDumpProvider {
-    public IBMSystemDumpProvider(VirtualMachineDescriptor vmd) {
-        super(vmd);
-    }   
-    
     @Override
-    String agentCommand() {
+    protected String agentCommand()
+    {
         return "system"; //$NON-NLS-1$
     }
-    
+
     @Override
-    String dumpName() {
+    String dumpName()
+    {
         return "core.YYmmdd.HHMMSS.%pid%.seq.dmp"; //$NON-NLS-1$
     }
-    
-    int files() {
-    	return 1;
+
+    int files()
+    {
+        return 1;
     }
-    
+
     @Override
-    long averageFileSize(Collection<File> files) {
+    long averageFileSize(Collection<File> files)
+    {
         long l = 0;
         int i = 0;
         for (File f : files)
@@ -55,20 +59,22 @@ class IBMSystemDumpProvider extends IBMDumpProvider {
         }
         if (i > 0)
             return l / i;
-        else 
+        else
             // guess 100MB
             return 100000000L;
     }
-    
+
     @Override
-    File jextract(File preferredDump, File dump, File udir, File home, IProgressListener listener) throws IOException, InterruptedException, SnapshotException 
+    File jextract(File preferredDump, File dump, File udir, File home, IProgressListener listener) throws IOException,
+                    InterruptedException, SnapshotException
     {
         File result;
         listener.beginTask(Messages.getString("IBMSystemDumpProvider.FormattingDump"), IProgressListener.UNKNOWN_TOTAL_WORK); //$NON-NLS-1$
 
         ProcessBuilder pb = new ProcessBuilder();
         File jextract;
-        if (home != null) {
+        if (home != null)
+        {
             File homebin = new File(home, "bin"); //$NON-NLS-1$
             jextract = new File(homebin, "jextract"); //$NON-NLS-1$
         }
@@ -87,7 +93,8 @@ class IBMSystemDumpProvider extends IBMDumpProvider {
         }
         pb.redirectErrorStream(true);
         pb.directory(udir);
-        StringBuilder errorBuf = new StringBuilder();;
+        StringBuilder errorBuf = new StringBuilder();
+        ;
         int exitCode = 0;
         Process p = pb.start();
         BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
@@ -129,14 +136,12 @@ class IBMSystemDumpProvider extends IBMDumpProvider {
         }
 
         exitCode = p.waitFor();
-        if (exitCode != 0)
-        {
-            throw new SnapshotException(MessageFormat.format(Messages.getString("IBMSystemDumpProvider.ReturnCode"), exitCode, errorBuf.toString())); //$NON-NLS-1$
+        if (exitCode != 0) { throw new SnapshotException(MessageFormat.format(Messages
+                        .getString("IBMSystemDumpProvider.ReturnCode"), jextract.getAbsolutePath(), exitCode, errorBuf.toString())); //$NON-NLS-1$
         }
 
-        if (!result.canRead())
-        {
-            throw new FileNotFoundException(MessageFormat.format(Messages.getString("IBMSystemDumpProvider.ReturnCode"), result.getPath(),  errorBuf.toString())); //$NON-NLS-1$
+        if (!result.canRead()) { throw new FileNotFoundException(MessageFormat.format(Messages
+                        .getString("IBMSystemDumpProvider.ReturnCode"), result.getPath(), errorBuf.toString())); //$NON-NLS-1$
         }
 
         listener.done();

@@ -13,16 +13,17 @@ package org.eclipse.mat.ibmvm.acquire;
 import java.io.File;
 import java.util.Collection;
 
-import com.ibm.tools.attach.VirtualMachineDescriptor;
+import org.eclipse.mat.query.annotations.Name;
 
-class IBMHeapDumpProvider extends IBMDumpProvider {
-    public IBMHeapDumpProvider(VirtualMachineDescriptor vmd) {
-        super(vmd);
+@Name("IBM Heap Dump")
+public class IBMHeapDumpProvider extends IBMDumpProvider {
+    public IBMHeapDumpProvider()
+    {
     }
-    
+
     @Override
-    String agentCommand() {
-        return "heap,java"; //$NON-NLS-1$
+    protected String agentCommand() {
+        return "heap+java"; //$NON-NLS-1$
     }
     
     @Override

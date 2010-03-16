@@ -34,30 +34,6 @@ public abstract class BaseProvider implements IHeapDumpProvider
     static final int GROWING_COUNT = (CREATE_COUNT + GROW_COUNT) * 2; // progress = 67% file length, 33% waiting time
     static final int TOTAL_WORK = CREATE_COUNT + GROWING_COUNT + GROW_COUNT;
 
-    /**
-     * Some PIDs from the IBM VMs come as 4321.1 e.g. if one PID is left over
-     * from a previous boot
-     * 
-     * @param id
-     * @return
-     */
-    static int getPid(String id)
-    {
-        int p = 0;
-        while (p < id.length() && id.charAt(p) >= '0' && id.charAt(p) <= '9')
-            ++p;
-        if (p == 0)
-            return -1;
-        try
-        {
-            return Integer.parseInt(id.substring(0, p));
-        }
-        catch (NumberFormatException e)
-        {
-            return -1;
-        }
-    }
-
     static File makeJar(String jarname, String metaEntry, String classesNames[], Class<?>[] classes) throws IOException,
                     FileNotFoundException
     {
@@ -125,12 +101,19 @@ public abstract class BaseProvider implements IHeapDumpProvider
         ze = new ZipEntry(agentFile);
         zo.putNextEntry(ze);
         Properties p = new Properties();
-        for (Enumeration<String> e = rb.getKeys(); e.hasMoreElements(); ) {
+        for (Enumeration<String> e = rb.getKeys(); e.hasMoreElements();)
+        {
             String k = e.nextElement();
             p.put(k, rb.getString(k));
         }
         p.store(zo, agent);
         zo.closeEntry();
     }
+
+    /**
+     * Command to pass to the agent to generate dumps of this type
+     * @return
+     */
+    protected abstract String agentCommand();
     
 }

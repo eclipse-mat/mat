@@ -45,6 +45,80 @@ public abstract class IBMDumpProvider extends BaseProvider
 {
 
     /**
+     * Helper class to load an agent (blocking call)
+     * allowing the main thread to monitor its progress
+     * @author ajohnson
+     *
+     */
+    private static final class AgentLoader extends Thread
+    {
+        private final String jar;
+        private final VirtualMachine vm;
+        private final String command;
+        private AgentLoadException e1;
+        private AgentInitializationException e2;
+        private IOException e3;
+        private boolean fail;
+
+        private AgentLoader(String jar, VirtualMachine vm, String command)
+        {
+            this.jar = jar;
+            this.vm = vm;
+            this.command = command;
+        }
+
+        public void run() {
+            try
+            {
+                vm.loadAgent(jar, command);
+            }
+            catch (AgentLoadException e2)
+            {
+                this.e1 = e2;
+                setFailed();
+            }
+            catch (AgentInitializationException e)
+            {
+                this.e2 = e;
+                setFailed();
+            }
+            catch (IOException e3)
+            {
+                this.e3 = e3;
+                setFailed();
+            }
+        }
+        
+        public synchronized boolean failed()
+        {
+            return fail;
+        }
+        
+        private synchronized void setFailed()
+        {
+            fail = true;
+        }
+
+        public void throwFailed(IProgressListener listener) throws SnapshotException, IOException
+        {
+            if (e1 != null)
+            {
+                listener.sendUserMessage(Severity.WARNING, Messages.getString("IBMDumpProvider.AgentLoad"), e1); //$NON-NLS-1$
+                throw new SnapshotException(Messages.getString("IBMDumpProvider.AgentLoad"), e1); //$NON-NLS-1$
+            }
+            if (e2 != null)
+            {
+                listener.sendUserMessage(Severity.WARNING, Messages.getString("IBMDumpProvider.AgentInitialization"), e2); //$NON-NLS-1$
+                throw new SnapshotException(Messages.getString("IBMDumpProvider.AgentInitialization"), e2); //$NON-NLS-1$
+            }
+            if (e3 != null)
+            {
+                throw e3;
+            }
+        }
+    }
+
+    /**
      * Find new files not ones we know about
      */
     private static final class NewFileFilter implements FileFilter
@@ -62,6 +136,11 @@ public abstract class IBMDumpProvider extends BaseProvider
         }
     }
 
+    /**
+     * Indicate progress back to starting process
+     * @author ajohnson
+     *
+     */
     private static final class StderrProgressListener implements IProgressListener
     {
         public void beginTask(String name, int totalWork)
@@ -109,23 +188,9 @@ public abstract class IBMDumpProvider extends BaseProvider
         }
     }
 
-    final VirtualMachineDescriptor vmd;
-
-    public IBMDumpProvider(VirtualMachineDescriptor vmd)
-    {
-        this.vmd = vmd;
-    }
-    
     public IBMDumpProvider()
     {
-        this(null);
     }
-
-    /**
-     * Command to pass to the agent to generate dumps of this type
-     * @return
-     */
-    abstract String agentCommand();
 
     /**
      * Suggested name for dumps of this type
@@ -172,8 +237,9 @@ public abstract class IBMDumpProvider extends BaseProvider
         listener.beginTask(Messages.getString("IBMDumpProvider.GeneratingDump"), TOTAL_WORK); //$NON-NLS-1$
         try
         {
-            listener.subTask(MessageFormat.format(Messages.getString("IBMDumpProvider.AttachingToVM"), vmd.id())); //$NON-NLS-1$
-            VirtualMachine vm = vmd.provider().attachVirtualMachine(vmd);
+            IBMVmInfo vminfo = (IBMVmInfo)info;
+            listener.subTask(MessageFormat.format(Messages.getString("IBMDumpProvider.AttachingToVM"), vminfo.getPidName())); //$NON-NLS-1$
+            final VirtualMachine vm = VirtualMachine.attach(vminfo.getPidName());
             try
             {
                 Properties props = vm.getSystemProperties();
@@ -195,29 +261,23 @@ public abstract class IBMDumpProvider extends BaseProvider
                 long avg = averageFileSize(previous);
                 //System.err.println("Average = " + avg);
 
-                try
-                {
-                    String jar = null;
+                final String jar = getAgentJar().getAbsolutePath();
 
-                    jar = getAgentJar().getAbsolutePath();
+                listener.subTask(Messages.getString("IBMDumpProvider.StartingAgent")); //$NON-NLS-1$
 
-                    listener.subTask(Messages.getString("IBMDumpProvider.StartingAgent")); //$NON-NLS-1$
-                    vm.loadAgent(jar, agentCommand());
-                }
-                catch (AgentLoadException e2)
-                {
-                    listener.sendUserMessage(Severity.WARNING, Messages.getString("IBMDumpProvider.AgentLoad"), e2); //$NON-NLS-1$
-                    throw new SnapshotException(Messages.getString("IBMDumpProvider.AgentLoad"), e2); //$NON-NLS-1$
-                }
-                catch (AgentInitializationException e)
-                {
-                    listener.sendUserMessage(Severity.WARNING, Messages.getString("IBMDumpProvider.AgentInitialization"), e); //$NON-NLS-1$
-                    throw new SnapshotException(Messages.getString("IBMDumpProvider.AgentInitialization"), e); //$NON-NLS-1$
-                }
+                AgentLoader t = new AgentLoader(jar, vm, agentCommand());
+                t.start();
 
-                List<File> newFiles = progress(udir, previous, files(), avg, listener);
+                List<File> newFiles = progress(udir, previous, files(), avg, t, listener);
                 if (listener.isCanceled())
+                {
+                    t.interrupt();
                     return null;
+                }
+                if (t.failed())
+                {
+                    t.throwFailed(listener);
+                }
 
                 File dump = newFiles.get(0);
                 listener.done();
@@ -232,24 +292,35 @@ public abstract class IBMDumpProvider extends BaseProvider
                 vm.detach();
             }
         }
-        catch (AttachNotSupportedException e)
-        {
-            listener.sendUserMessage(Severity.WARNING, Messages.getString("IBMDumpProvider.UnsuitableVM"), e); //$NON-NLS-1$
-            info.setHeapDumpEnabled(false);
-            throw new SnapshotException(Messages.getString("IBMDumpProvider.UnsuitableVM"), e); //$NON-NLS-1$
-        }
         catch (IOException e)
         {
             listener.sendUserMessage(Severity.WARNING, Messages.getString("IBMDumpProvider.UnableToGenerateDump"), e); //$NON-NLS-1$
             throw new SnapshotException(Messages.getString("IBMDumpProvider.UnableToGenerateDump"), e); //$NON-NLS-1$
+        }
+        // Catching AttachNotSupportedException stops the whole class loading if attach API is not present
+        // so do a generic catch and pass through the others
+        catch (SnapshotException e)
+        {
+            throw e;
+        }
+        catch (RuntimeException e)
+        {
+            throw e;
+        }
+        catch (/*AttachNotSupported*/Exception e)
+        {
+            info.setHeapDumpEnabled(false);
+            listener.sendUserMessage(Severity.WARNING, Messages.getString("IBMDumpProvider.UnsuitableVM"), e); //$NON-NLS-1$
+            throw new SnapshotException(Messages.getString("IBMDumpProvider.UnsuitableVM"), e); //$NON-NLS-1$
         }
 
     }
 
     /**
      * Update the progress bar for created files
+     * @param loader Thread which has loaded the agent jar
      */
-    private List<File> progress(File udir, Collection<File> previous, int nfiles, long avg, IProgressListener listener)
+    private List<File> progress(File udir, Collection<File> previous, int nfiles, long avg, AgentLoader loader, IProgressListener listener)
                     throws InterruptedException
     {
         listener.subTask(Messages.getString("IBMDumpProvider.WaitingForDumpFiles")); //$NON-NLS-1$
@@ -262,7 +333,7 @@ public abstract class IBMDumpProvider extends BaseProvider
             && i < CREATE_COUNT && (t = System.currentTimeMillis()) < start + CREATE_COUNT*SLEEP_TIMEOUT; ++i)
         {
             Thread.sleep(SLEEP_TIMEOUT);
-            if (listener.isCanceled()) 
+            if (listener.isCanceled() || loader.failed()) 
                 return null;
             int towork = (int)Math.min(((t - start) / SLEEP_TIMEOUT), CREATE_COUNT);
             listener.worked(towork - worked);
@@ -294,7 +365,7 @@ public abstract class IBMDumpProvider extends BaseProvider
                 l0 = l;
             }
             Thread.sleep(SLEEP_TIMEOUT);
-            if (listener.isCanceled())
+            if (listener.isCanceled() || loader.failed())
                 return null;
             listener.worked(1);
         }
@@ -356,51 +427,63 @@ public abstract class IBMDumpProvider extends BaseProvider
 
     public List<VmInfo> getAvailableVMs()
     {
-        List<VirtualMachineDescriptor> list = com.ibm.tools.attach.VirtualMachine.list();
+        try
+        {
+            return getAvailableVMs1();
+        }
+        catch (LinkageError e)
+        {
+            return null;
+        }
+    }
+    
+    private List<VmInfo> getAvailableVMs1()
+    {
+        List<VirtualMachineDescriptor> list = VirtualMachine.list();
         List<VmInfo> jvms = new ArrayList<VmInfo>();
         for (VirtualMachineDescriptor vmd : list)
         {
             boolean usable = true;
             // See if the VM is usable to get dumps
-            if (false) try {
-                // Hope that this is not too intrusive to the target
-                VirtualMachine vm = vmd.provider().attachVirtualMachine(vmd);
-                try {
-                } finally {
-                    vm.detach();
+            if (false)
+                try
+                {
+                    // Hope that this is not too intrusive to the target
+                    VirtualMachine vm = vmd.provider().attachVirtualMachine(vmd);
+                    try
+                    {}
+                    finally
+                    {
+                        vm.detach();
+                    }
                 }
-            } catch (AttachNotSupportedException e) {
-                usable = false;
-            } catch (IOException e) {
-                usable = false;
-            }
+                catch (AttachNotSupportedException e)
+                {
+                    usable = false;
+                }
+                catch (IOException e)
+                {
+                    usable = false;
+                }
             // See if loading an agent would fail
-            try {
-                // Java 5 SR10 and SR11 don't have a loadAgent method, so find out now
+            try
+            {
+                // Java 5 SR10 and SR11 don't have a loadAgent method, so find
+                // out now
                 VirtualMachine.class.getMethod("loadAgent", String.class, String.class); //$NON-NLS-1$
-            } catch (NoSuchMethodException e) {
+            }
+            catch (NoSuchMethodException e)
+            {
                 return null;
             }
-            
-            // Create VMinfo to generate heap dumps
-            VmInfo ifo = new VmInfo();
-            String desc1 = MessageFormat.format(Messages.getString("IBMDumpProvider.HeapDumpDescription"), vmd.provider().name(), vmd.provider().type(), vmd.displayName()); //$NON-NLS-1$
-            ifo.setDescription(desc1);
-            ifo.setPid(processID(vmd));
-            IBMHeapDumpProvider heapDumpProvider = new IBMHeapDumpProvider(vmd);
-            ifo.setProposedFileName(heapDumpProvider.dumpName());
-            ifo.setHeapDumpProvider(heapDumpProvider);
-            ifo.setHeapDumpEnabled(usable);
-            jvms.add(ifo);
 
-            // Create VMinfo to generate system dumps
-            ifo = new VmInfo();
-            String desc2 = MessageFormat.format(Messages.getString("IBMDumpProvider.SystemDumpDescription"), vmd.provider().name(), vmd.provider().type(), vmd.displayName()); //$NON-NLS-1$
-            ifo.setDescription(desc2);
-            ifo.setPid(processID(vmd));
-            IBMSystemDumpProvider systemDumpProvider = new IBMSystemDumpProvider(vmd);
-            ifo.setProposedFileName(systemDumpProvider.dumpName());
-            ifo.setHeapDumpProvider(systemDumpProvider);
+            // Create VMinfo to generate heap dumps
+            IBMVmInfo ifo = new IBMVmInfo();
+            String desc = MessageFormat.format(Messages.getString("IBMDumpProvider.VMDescription"), vmd.provider().name(), vmd.provider().type(), vmd.displayName()); //$NON-NLS-1$
+            ifo.setDescription(desc);
+            ifo.setPid(vmd.id());
+            ifo.setProposedFileName(dumpName());
+            ifo.setHeapDumpProvider(this);
             ifo.setHeapDumpEnabled(usable);
             jvms.add(ifo);
         }
@@ -408,50 +491,59 @@ public abstract class IBMDumpProvider extends BaseProvider
     }
 
     /**
-     * The process id is sometimes 4321.1
-     * 
-     * @param vmd
-     * @return
-     */
-    private int processID(VirtualMachineDescriptor vmd)
-    {
-        String id = vmd.id();
-        return getPid(id);
-    }
-
-    /**
      * Lists VMs or acquires a dump.
      * Used when attach API not usable from the MAT process.
      * 
-     * @param s[0]
-     *            VM type s[1] dump name
+     * @param s[0] dump type (heap,java,system)
+     *        s[1] VM id = PID,description
+     *        s[2] dump name
+     * e.g.
+     * heap+java
+     * Output
+     * dump filename
+     * or
+     * command,PID,proposed file name,description
      */
     public static void main(String s[]) throws Exception
     {
-        VMListDumpProvider prov = new VMListDumpProvider();
-        List<VmInfo> vms = prov.getAvailableVMs();
-        IProgressListener ii = new StderrProgressListener();
-        for (VmInfo info : vms)
+        for (IBMDumpProvider prov  : new IBMDumpProvider[]{new IBMHeapDumpProvider(), new IBMSystemDumpProvider()})
         {
-            String vm = info.getPid() + "," + info.getDescription(); //$NON-NLS-1$
-            String vm2 = info.getPid() + "," + info.getProposedFileName() + "," + info.getDescription();  //$NON-NLS-1$//$NON-NLS-2$
-            if (s.length < 2)
+            if (!s[0].contains(prov.agentCommand())) continue;
+            List<VmInfo> vms = prov.getAvailableVMs1();
+            IProgressListener ii = new StderrProgressListener();
+            for (VmInfo info : vms)
             {
-                System.out.println(vm2);
-            }
-            else
-            {
-                if (vm.equals(s[0]))
+                IBMVmInfo vminfo = (IBMVmInfo)info;
+                String vm = vminfo.getPidName();
+                String vm2 = prov.agentCommand()+","+ vm + "," + info.getProposedFileName() + "," + info.getDescription();  //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+                if (s.length < 3)
                 {
-                    File f2 = info.getHeapDumpProvider().acquireDump(info, new File(s[1]), ii);
-                    System.out.println(f2.getPath());
-                    return;
+                    System.out.println(vm2);
+                }
+                else
+                {
+                    if (vm.equals(s[1]))
+                    {
+                        File f2 = info.getHeapDumpProvider().acquireDump(info, new File(s[2]), ii);
+                        System.out.println(f2.getPath());
+                        return;
+                    }
                 }
             }
         }
-        if (s.length > 0)
+        if (s.length > 1)
         {
-            throw new IllegalArgumentException("No VM found to match " + s[0]);//$NON-NLS-1$
+            throw new IllegalArgumentException(MessageFormat.format(Messages.getString("IBMDumpProvider.NoVMFound"), s[1])); //$NON-NLS-1$
         }
+    }
+    
+    public static IBMDumpProvider getDumpProvider(BaseProvider original)
+    {
+        IBMDumpProvider prov = new IBMSystemDumpProvider();
+        if (!prov.agentCommand().equals(original.agentCommand()))
+        {
+            prov = new IBMHeapDumpProvider();
+        }
+        return prov;
     }
 }

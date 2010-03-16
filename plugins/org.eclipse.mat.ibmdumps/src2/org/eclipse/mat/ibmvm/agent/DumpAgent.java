@@ -11,22 +11,35 @@
 package org.eclipse.mat.ibmvm.agent;
 
 public class DumpAgent {
-	public static void agentmain(String arg)
-	{
-		String args[] = arg.split(","); //$NON-NLS-1$
-		for (String a: args)
-		{
-			if ("java".equals(a)) { //$NON-NLS-1$
-				com.ibm.jvm.Dump.JavaDump();
-			} else if ("heap".equals(a)) { //$NON-NLS-1$
-				com.ibm.jvm.Dump.HeapDump();
-			} else if ("system".equals(a)) { //$NON-NLS-1$
-				com.ibm.jvm.Dump.SystemDump();
-			}
-		}
-	}
-	public static void main(String args[]) {
-		System.out.println("Test generating dumps"); //$NON-NLS-1$
-		agentmain(args.length > 0 ? args[0] : ""); //$NON-NLS-1$
-	}
+    /**
+     * Generate a dump on this machine
+     * 
+     * @param arg
+     *            E.g. "system", "heap+java"
+     */
+    public static void agentmain(String arg)
+    {
+        String args[] = arg.split("\\+"); //$NON-NLS-1$
+        for (String a : args)
+        {
+            if ("java".equals(a)) //$NON-NLS-1$
+            {
+                com.ibm.jvm.Dump.JavaDump();
+            }
+            else if ("heap".equals(a)) //$NON-NLS-1$
+            {
+                com.ibm.jvm.Dump.HeapDump();
+            }
+            else if ("system".equals(a)) //$NON-NLS-1$
+            {
+                com.ibm.jvm.Dump.SystemDump();
+            }
+        }
+    }
+
+    public static void main(String args[])
+    {
+        System.out.println("Test generating dumps"); //$NON-NLS-1$
+        agentmain(args.length > 0 ? args[0] : ""); //$NON-NLS-1$
+    }
 }

@@ -10,29 +10,14 @@
  *******************************************************************************/
 package org.eclipse.mat.ibmvm.acquire;
 
-import java.io.File;
+import org.eclipse.mat.query.annotations.Name;
 
-import org.eclipse.mat.snapshot.acquire.VmInfo;
-import org.eclipse.mat.util.IProgressListener;
-
-public class VMListDumpProvider extends IBMDumpProvider {
-    public VMListDumpProvider() {
-    }
-    public File acquireDump(VmInfo info, File preferredLocation, IProgressListener listener)
+@Name("IBM Heap Dump (using helper VM)")
+public class IBMExecHeapDumpProvider extends IBMExecDumpProvider
+{
+    @Override
+    protected String agentCommand()
     {
-        throw new IllegalStateException("Unsuitable"); //$NON-NLS-1$
+        return "heap+java"; //$NON-NLS-1$
     }
-
-    String agentCommand() {
-        return ""; //$NON-NLS-1$
-    }
-    int files() {
-		return 0;
-	}
-    
-    String dumpName()
-    {
-        return null;
-    }
-    
 }
