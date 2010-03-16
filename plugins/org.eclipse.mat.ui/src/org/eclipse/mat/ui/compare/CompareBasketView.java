@@ -217,22 +217,8 @@ public class CompareBasketView extends ViewPart
 			{
 				compareQuery.mode = Mode.ABSOLUTE;
 				IResult absolute = compareQuery.execute(new VoidProgressListener());
-				QueryResult queryResult = new QueryResult(null, "Compare (Absolute Values)", absolute);
+				QueryResult queryResult = new QueryResult(null, "Compared Tables", absolute);
 				QueryExecution.displayResult(editor, null, null, queryResult, false);
-
-				compareQuery.mode = Mode.DIFF_TO_FIRST;
-				IResult diffToFirst = compareQuery.execute(new VoidProgressListener());
-				QueryResult queryResult2 = new QueryResult(null, "Compare (Diff to First)", diffToFirst);
-				QueryExecution.displayResult(editor, null, null, queryResult2, false);
-				
-				if (results.size() > 2)
-				{
-					compareQuery.mode = Mode.DIFF_TO_PREVIOUS;
-					IResult diffToPrevious = compareQuery.execute(new VoidProgressListener());
-					QueryResult queryResult3 = new QueryResult(null, "Compare (Diff to Previous)", diffToPrevious);
-					QueryExecution.displayResult(editor, null, null, queryResult3, false);
-				}
-			
 			}
 			catch (Exception e)
 			{

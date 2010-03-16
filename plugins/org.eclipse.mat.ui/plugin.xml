@@ -97,6 +97,9 @@
 		<pane id="MultiplePath2GCRootsPane" class="org.eclipse.mat.ui.snapshot.panes.MultiplePath2GCRootsPane">
 			<result type="org.eclipse.mat.snapshot.inspections.MultiplePath2GCRootsQuery$Tree"/>
 		</pane>
+		<pane id="CompareTablesPane" class="org.eclipse.mat.ui.snapshot.panes.CompareTablesPane">
+			<result type="org.eclipse.mat.ui.compare.CompareTablesQuery$TableComparisonResult"/>
+		</pane>
   <pane
         class="org.eclipse.mat.ui.snapshot.panes.BundlesPane"
         id="BundlesPane">

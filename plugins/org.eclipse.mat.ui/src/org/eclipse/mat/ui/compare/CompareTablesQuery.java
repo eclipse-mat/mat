@@ -37,7 +37,7 @@ public class CompareTablesQuery implements IQuery
 	@Argument(isMandatory = false)
 	public Mode mode = Mode.ABSOLUTE;
 
-	enum Mode
+	public enum Mode
 	{
 		ABSOLUTE("ABSOLUTE"), // //$NON-NLS-1$
 		DIFF_TO_FIRST("DIFF_TO_FIRST"), // //$NON-NLS-1$
@@ -74,7 +74,7 @@ public class CompareTablesQuery implements IQuery
 			{
 				indexes[j] = getColumnIndex(baseColumns[i].getLabel(), tables[j]);
 			}
-			attributes.add(new ComparedColumn(baseColumns[i], indexes));
+			attributes.add(new ComparedColumn(baseColumns[i], indexes, true));
 		}
 
 		return new TableComparisonResult(mergeKeys(), key, attributes, mode);
@@ -118,14 +118,16 @@ public class CompareTablesQuery implements IQuery
 		return result;
 	}
 
-	class ComparedColumn
+	public class ComparedColumn
 	{
 		Column description;
 		int[] columnIndexes;
+		boolean displayed;
 
-		public ComparedColumn(Column description, int[] columnIndexes)
+		public ComparedColumn(Column description, int[] columnIndexes, boolean displayed)
 		{
 			super();
+			this.displayed = displayed;
 			this.description = description;
 			this.columnIndexes = columnIndexes;
 		}
@@ -149,6 +151,17 @@ public class CompareTablesQuery implements IQuery
 		{
 			this.columnIndexes = columnIndexes;
 		}
+
+		public boolean isDisplayed()
+		{
+			return displayed;
+		}
+
+		public void setDisplayed(boolean displayed)
+		{
+			this.displayed = displayed;
+		}
+
 	}
 
 	class ComparedRow
@@ -186,31 +199,21 @@ public class CompareTablesQuery implements IQuery
 
 	public class TableComparisonResult implements IResultTable, IIconProvider
 	{
+		private Column key;
 		private List<ComparedRow> rows;
 		private List<ComparedColumn> comparedColumns;
+		private List<ComparedColumn> displayedColumns;
 		private Column[] columns;
 		private Mode mode;
 
 		public TableComparisonResult(List<ComparedRow> rows, Column key, List<ComparedColumn> comparedColumns, Mode mode)
 		{
-			super();
+			this.key = key;
 			this.mode = mode;
 			this.rows = rows;
 			this.comparedColumns = comparedColumns;
-			columns = new Column[1 + comparedColumns.size() * tables.length];
-			columns[0] = new Column(key.getLabel(), key.getType(), key.getAlign(), null, key.getFormatter(), null);
-			int i = 1;
-			Format formatter = new DecimalFormat("+#,##0;-#,##0"); //$NON-NLS-1$
-			for (ComparedColumn comparedColumn : comparedColumns)
-			{
-				Column c = comparedColumn.description;
-				for (int j = 0; j < comparedColumn.getColumnIndexes().length; j++)
-				{
-					columns[i] = new Column(c.getLabel() + " #" + (j + 1), c.getType(), c.getAlign(), c.getSortDirection(), c.getFormatter(), null);
-					if (mode != Mode.ABSOLUTE && j > 0) columns[i].formatting(formatter);
-					i++;
-				}
-			}
+			updateColumns();
+			setMode(mode);
 		}
 
 		public Object getRow(int rowId)
@@ -221,6 +224,16 @@ public class CompareTablesQuery implements IQuery
 		public int getRowCount()
 		{
 			return rows.size();
+		}
+
+		public List<ComparedColumn> getComparedColumns()
+		{
+			return comparedColumns;
+		}
+
+		public void setComparedColumns(List<ComparedColumn> comparedColumns)
+		{
+			this.comparedColumns = comparedColumns;
 		}
 
 		public Object getColumnValue(Object row, int columnIndex)
@@ -272,7 +285,7 @@ public class CompareTablesQuery implements IQuery
 			Object tableRow = cr.getRows()[tableIdx];
 			if (tableRow == null) return null;
 
-			int tableColumnIdx = comparedColumns.get(comparedColumnIdx).getColumnIndexes()[tableIdx];
+			int tableColumnIdx = displayedColumns.get(comparedColumnIdx).getColumnIndexes()[tableIdx];
 			if (tableColumnIdx == -1) return null;
 
 			return tables[tableIdx].getColumnValue(tableRow, tableColumnIdx);
@@ -283,19 +296,17 @@ public class CompareTablesQuery implements IQuery
 			Object tableRow = cr.getRows()[tableIdx];
 			if (tableRow == null) return null;
 
-			int tableColumnIdx = comparedColumns.get(comparedColumnIdx).getColumnIndexes()[tableIdx];
+			int tableColumnIdx = displayedColumns.get(comparedColumnIdx).getColumnIndexes()[tableIdx];
 			if (tableColumnIdx == -1) return null;
 
 			Object value = tables[tableIdx].getColumnValue(tableRow, tableColumnIdx);
 			Object firstTableValue = getAbsoluteValue(cr, comparedColumnIdx, 0);
 
 			if (value == null && firstTableValue == null) return null;
-			
-			if (value == null && firstTableValue instanceof Number)
-				return null;
-			
-			if (value instanceof Number && firstTableValue == null)
-				return value;
+
+			if (value == null && firstTableValue instanceof Number) return null;
+
+			if (value instanceof Number && firstTableValue == null) return value;
 
 			if (value instanceof Number && firstTableValue instanceof Number)
 			{
@@ -309,19 +320,17 @@ public class CompareTablesQuery implements IQuery
 			Object tableRow = cr.getRows()[tableIdx];
 			if (tableRow == null) return null;
 
-			int tableColumnIdx = comparedColumns.get(comparedColumnIdx).getColumnIndexes()[tableIdx];
+			int tableColumnIdx = displayedColumns.get(comparedColumnIdx).getColumnIndexes()[tableIdx];
 			if (tableColumnIdx == -1) return null;
 
 			Object value = tables[tableIdx].getColumnValue(tableRow, tableColumnIdx);
 			Object previousTableValue = getAbsoluteValue(cr, comparedColumnIdx, tableIdx - 1);
 
 			if (value == null && previousTableValue == null) return null;
-			
-			if (value == null && previousTableValue instanceof Number)
-				return null;
-			
-			if (value instanceof Number && previousTableValue == null)
-				return value;
+
+			if (value == null && previousTableValue instanceof Number) return null;
+
+			if (value instanceof Number && previousTableValue == null) return value;
 
 			if (value instanceof Number && previousTableValue instanceof Number)
 			{
@@ -352,6 +361,63 @@ public class CompareTablesQuery implements IQuery
 			return ISharedImages.class.getResource(ISharedImages.COMPARE);
 		}
 
+		public Mode getMode()
+		{
+			return mode;
+		}
+
+		public void setMode(Mode mode)
+		{
+			this.mode = mode;
+			setFormatter();
+		}
+
+		private void setFormatter()
+		{
+			int i = 1;
+			Format formatter = new DecimalFormat("+#,##0;-#,##0"); //$NON-NLS-1$
+
+			for (ComparedColumn comparedColumn : displayedColumns)
+			{
+				Column c = comparedColumn.description;
+				for (int j = 0; j < comparedColumn.getColumnIndexes().length; j++)
+				{
+					if (mode != Mode.ABSOLUTE && j > 0)
+					{
+						columns[i].formatting(formatter);
+					}
+					else
+					{
+						columns[i].formatting(c.getFormatter());
+					}
+					i++;
+				}
+			}
+		}
+
+		public void updateColumns()
+		{
+			List<Column> result = new ArrayList<Column>();
+			result.add(new Column(key.getLabel(), key.getType(), key.getAlign(), null, key.getFormatter(), null));
+
+			displayedColumns = new ArrayList<ComparedColumn>();
+
+			for (ComparedColumn comparedColumn : comparedColumns)
+			{
+				Column c = comparedColumn.description;
+				if (comparedColumn.isDisplayed())
+				{
+					displayedColumns.add(comparedColumn);
+					for (int j = 0; j < comparedColumn.getColumnIndexes().length; j++)
+					{
+						result.add(new Column(c.getLabel() + " #" + (j + 1), c.getType(), c.getAlign(), c.getSortDirection(), c.getFormatter(), null));
+					}
+				}
+			}
+
+			columns = result.toArray(new Column[result.size()]);
+			setFormatter();
+		}
 	}
 
 }
