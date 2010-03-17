@@ -13,7 +13,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IMenuListener;
+import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.ITableLabelProvider;
@@ -26,6 +30,7 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.query.registry.QueryResult;
+import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.QueryExecution;
 import org.eclipse.mat.ui.compare.CompareTablesQuery.Mode;
 import org.eclipse.mat.ui.editor.AbstractEditorPane;
@@ -35,10 +40,9 @@ import org.eclipse.mat.ui.snapshot.panes.HistogramPane;
 import org.eclipse.mat.ui.util.PaneState;
 import org.eclipse.mat.util.VoidProgressListener;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.MouseAdapter;
-import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
@@ -55,6 +59,8 @@ public class CompareBasketView extends ViewPart
 	private Action clearAction;
 	private MoveAction moveUpAction;
 	private MoveAction moveDownAction;
+	private Action removeAction;
+
 	List<ComparedResult> results = new ArrayList<ComparedResult>();
 
 	@Override
@@ -63,6 +69,7 @@ public class CompareBasketView extends ViewPart
 		createTable(parent);
 
 		addToolbar();
+		hookContextMenu();
 	}
 
 	private void createTable(Composite parent)
@@ -73,19 +80,15 @@ public class CompareBasketView extends ViewPart
 		TableViewerColumn column = new TableViewerColumn(tableViewer, SWT.LEFT);
 		TableColumn tableColumn = column.getColumn();
 		tableColumn.setText("Results to be compared");
+		tableColumn.setWidth(200);
+
+		TableViewerColumn heapDumpColumn = new TableViewerColumn(tableViewer, SWT.LEFT);
+		tableColumn = heapDumpColumn.getColumn();
+		tableColumn.setText("Heap Dump");
 		tableColumn.setWidth(400);
 
 		table.setHeaderVisible(true);
-		table.addMouseListener(new MouseAdapter() {
-
-			@Override
-			public void mouseDoubleClick(MouseEvent event)
-			{
-				TableItem[] selection = table.getSelection();
-				System.out.println("Clicked " + selection);
-			}
-
-		});
+		table.setLinesVisible(true);
 
 		tableViewer.setContentProvider(new CompareContentProvider());
 		tableViewer.setLabelProvider(new CompareLabelProvider());
@@ -95,17 +98,24 @@ public class CompareBasketView extends ViewPart
 	private void addToolbar()
 	{
 		IToolBarManager manager = getViewSite().getActionBars().getToolBarManager();
-		moveUpAction = new MoveAction(SWT.UP);
-		manager.add(moveUpAction);
-
 		moveDownAction = new MoveAction(SWT.DOWN);
 		manager.add(moveDownAction);
 
+		moveUpAction = new MoveAction(SWT.UP);
+		manager.add(moveUpAction);
+
+		manager.add(new Separator());
+
+		removeAction = new RemoveAction();
+		manager.add(removeAction);
+
+		clearAction = new RemoveAllAction();
+		manager.add(clearAction);
+
+		manager.add(new Separator());
+
 		compareAction = new CompareAction();
 		manager.add(compareAction);
-
-		clearAction = new ClearAction();
-		manager.add(clearAction);
 	}
 
 	@Override
@@ -141,6 +151,30 @@ public class CompareBasketView extends ViewPart
 		return (pane instanceof HistogramPane) || (pane instanceof TableResultPane);
 	}
 
+	private void hookContextMenu()
+	{
+		MenuManager menuMgr = new MenuManager("#PopupMenu"); //$NON-NLS-1$
+		menuMgr.setRemoveAllWhenShown(true);
+		menuMgr.addMenuListener(new IMenuListener() {
+			public void menuAboutToShow(IMenuManager manager)
+			{
+				editorContextMenuAboutToShow(manager);
+			}
+		});
+		Menu menu = menuMgr.createContextMenu(table);
+		this.table.setMenu(menu);
+	}
+
+	private void editorContextMenuAboutToShow(IMenuManager manager)
+	{
+		TableItem[] selection = table.getSelection();
+		if (selection.length == 0) return;
+
+		manager.add(moveDownAction);
+		manager.add(moveUpAction);
+		manager.add(removeAction);
+	}
+
 	class ComparedResult
 	{
 		PaneState state;
@@ -162,13 +196,21 @@ public class CompareBasketView extends ViewPart
 		public Image getColumnImage(Object element, int columnIndex)
 		{
 			ComparedResult res = (ComparedResult) element;
-			return res.state.getImage();
+			return (columnIndex == 0) ? res.state.getImage() : null;
 		}
 
 		public String getColumnText(Object element, int columnIndex)
 		{
 			ComparedResult res = (ComparedResult) element;
-			return res.state.getIdentifier();
+			switch (columnIndex)
+			{
+			case 0:
+				return res.state.getIdentifier();
+			case 1:
+				return res.editor.getResourceFile().getAbsolutePath();
+			default:
+				return null;
+			}
 		}
 	}
 
@@ -198,6 +240,7 @@ public class CompareBasketView extends ViewPart
 		{
 			setText("Compare");
 			setToolTipText("Compare the results");
+			setImageDescriptor(MemoryAnalyserPlugin.getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.EXECUTE_QUERY));
 			setEnabled(false);
 		}
 
@@ -227,12 +270,13 @@ public class CompareBasketView extends ViewPart
 		}
 	}
 
-	class ClearAction extends Action
+	class RemoveAllAction extends Action
 	{
-		public ClearAction()
+		public RemoveAllAction()
 		{
 			setText("Clear");
 			setToolTipText("Clear table");
+			setImageDescriptor(MemoryAnalyserPlugin.getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.REMOVE_ALL));
 			setEnabled(false);
 		}
 
@@ -246,6 +290,40 @@ public class CompareBasketView extends ViewPart
 		}
 	}
 
+	class RemoveAction extends Action implements ISelectionChangedListener
+	{
+		public RemoveAction()
+		{
+			setText("Remove");
+			setToolTipText("Remove table");
+			setImageDescriptor(MemoryAnalyserPlugin.getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.REMOVE));
+			setEnabled(false);
+			tableViewer.addSelectionChangedListener(this);
+		}
+
+		@Override
+		public void run()
+		{
+			int[] selectionIndeces = tableViewer.getTable().getSelectionIndices();
+			int alreadyRemoved = 0;
+			for (int idx : selectionIndeces)
+			{
+				results.remove(idx - alreadyRemoved);
+				alreadyRemoved++;
+			}
+			tableViewer.refresh();
+
+			setEnabled(false);
+			if (results.size() < 2) compareAction.setEnabled(false);
+		}
+
+		public void selectionChanged(SelectionChangedEvent event)
+		{
+			setEnabled(!tableViewer.getSelection().isEmpty());
+		}
+
+	}
+
 	class MoveAction extends Action implements ISelectionChangedListener
 	{
 		private int direction;
@@ -257,11 +335,13 @@ public class CompareBasketView extends ViewPart
 			{
 				setText("Move Up");
 				setToolTipText("Move Result Up");
+				setImageDescriptor(MemoryAnalyserPlugin.getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.MOVE_UP));
 			}
 			else if (direction == SWT.DOWN)
 			{
 				setText("Move Down");
 				setToolTipText("Move Result Down");
+				setImageDescriptor(MemoryAnalyserPlugin.getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.MOVE_DOWN));
 			}
 			setEnabled(false);
 			tableViewer.addSelectionChangedListener(this);

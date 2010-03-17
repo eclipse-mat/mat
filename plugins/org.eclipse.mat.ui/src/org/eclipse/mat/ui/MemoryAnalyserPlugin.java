@@ -101,7 +101,12 @@ public class MemoryAnalyserPlugin extends AbstractUIPlugin
         String CLOSE_PANE = "icons/close_pane.gif"; //$NON-NLS-1$  
         String CLOSE_BRANCH = "icons/close_branch.gif"; //$NON-NLS-1$  
 
-        String PINNED = "icons/pinned.gif"; //$NON-NLS-1$  
+        String PINNED = "icons/pinned.gif"; //$NON-NLS-1$
+        
+        String MOVE_UP = "icons/move_up.gif"; //$NON-NLS-1$
+        String MOVE_DOWN = "icons/move_down.gif"; //$NON-NLS-1$
+        String REMOVE = "icons/remove.gif"; //$NON-NLS-1$
+        String REMOVE_ALL = "icons/removeall.gif"; //$NON-NLS-1$
     }
 
     private static MemoryAnalyserPlugin plugin;
