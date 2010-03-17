@@ -22,6 +22,8 @@ import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.PlatformUI;
 
 public class ProviderArgumentsWizzardPage extends WizardPage implements ITableListener
@@ -62,6 +64,16 @@ public class ProviderArgumentsWizzardPage extends WizardPage implements ITableLi
 
 		acquireDialog.addProcessSelectionListener(table);
 		table.addListener(this);
+		
+        Listener listener = new Listener()
+        {
+            public void handleEvent(Event event)
+            {
+                relocateHelp(false);
+            }
+        };
+        getShell().addListener(SWT.Resize, listener);
+        getShell().addListener(SWT.Move, listener);
 	}
 
 	/* package */void updateDescription()
@@ -108,7 +120,7 @@ public class ProviderArgumentsWizzardPage extends WizardPage implements ITableLi
 		return table != null && table.getArgumentSet() != null && table.getArgumentSet().isExecutable();
 	}
 
-	public void relocateHelp(boolean create)
+	public void relocateHelp(final boolean create)
 	{
 		final ProviderArgumentsSet argumentSet = table.getArgumentSet();
 		if (argumentSet == null) return;
@@ -129,11 +141,19 @@ public class ProviderArgumentsWizzardPage extends WizardPage implements ITableLi
 						Rectangle myBounds = getShell().getBounds();
 						Rectangle helpBounds = new Rectangle(myBounds.x, myBounds.y + myBounds.height, myBounds.width, SWT.DEFAULT);
 
-						if (helpPopup != null)
-						{
-							helpPopup.resize(helpBounds);
-							return;
-						}
+                        if (helpPopup != null)
+                        {
+                            if (!create)
+                            {
+                                helpPopup.resize(helpBounds);
+                                return;
+                            }
+                            else
+                            {
+                                // Get ready to create a new pop-up with new help text
+                                helpPopup.close();
+                            }
+                        }
 
 						helpPopup = new QueryContextHelp(getShell(), argumentSet.getProviderDescriptor(), helpBounds);
 						helpPopup.open();

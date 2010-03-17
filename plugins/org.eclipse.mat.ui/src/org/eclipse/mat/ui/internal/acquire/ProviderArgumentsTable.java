@@ -449,16 +449,27 @@ public class ProviderArgumentsTable implements IEditorListener, ProcessSelection
 	}
 
 	public void processSelected(VmInfo process)
-	{
-		HeapDumpProviderDescriptor newProviderDescriptor = HeapDumpProviderRegistry.instance().getHeapDumpProvider(process.getHeapDumpProvider().getClass());
-		if (!newProviderDescriptor.equals(providerDescriptor))
-		{
-			providerDescriptor = newProviderDescriptor;
-			table.clearAll();
-			argumentSet = new ProviderArgumentsSet(providerDescriptor);
-			context = new ProviderContextImpl();
-			createTableContent();
-		}
-		wizzardPage.updateDescription();
-	}
+    {
+        HeapDumpProviderDescriptor newProviderDescriptor = HeapDumpProviderRegistry.instance().getHeapDumpProvider(process.getHeapDumpProvider().getClass());
+        if (!newProviderDescriptor.equals(providerDescriptor))
+        {
+            // Obtain some default values in the table based on the current
+            // values of the provider
+            for (ArgumentDescriptor ad : newProviderDescriptor.getArguments())
+            {
+                try
+                {
+                    ad.setDefaultValue(ad.getField().get(process.getHeapDumpProvider()));
+                }
+                catch (IllegalAccessException e)
+                {}
+            }
+            providerDescriptor = newProviderDescriptor;
+            table.removeAll();
+            argumentSet = new ProviderArgumentsSet(providerDescriptor);
+            context = new ProviderContextImpl();
+            createTableContent();
+        }
+        wizzardPage.updateDescription();
+    }
 }
