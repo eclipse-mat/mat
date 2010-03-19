@@ -227,10 +227,10 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
             }
         }
 
-        if (!errors.isEmpty())
+        if (errors.size() > 1)
         {
             MultiStatus status = new MultiStatus(ParserPlugin.PLUGIN_ID, 0,
-                            Messages.SnapshotFactoryImpl_ErrorOpeningHeapDump, null);
+                            MessageUtil.format(Messages.SnapshotFactoryImpl_ErrorOpeningHeapDump, file.getName()), null);
             for (IOException error : errors)
                 status.add(new Status(IStatus.ERROR, ParserPlugin.PLUGIN_ID, 0, error.getLocalizedMessage(), error));
             // Create a CoreException so that all the errors will be logged
@@ -238,6 +238,11 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
 
             throw new SnapshotException(MessageUtil.format(Messages.SnapshotFactoryImpl_Error_OpeningHeapDump, file
                             .getName()), ce);
+        }
+        else if (errors.size() == 1)
+        {
+            throw new SnapshotException(MessageUtil.format(Messages.SnapshotFactoryImpl_Error_OpeningHeapDump, file
+                            .getName()), errors.get(0));
         }
         else
         {
