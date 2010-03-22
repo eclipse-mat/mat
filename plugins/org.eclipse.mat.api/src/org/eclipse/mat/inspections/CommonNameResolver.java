@@ -136,26 +136,33 @@ public class CommonNameResolver
         {
             StringBuilder builder = new StringBuilder();
             IObject protocol = (IObject) obj.resolveValue("protocol"); //$NON-NLS-1$
-            builder.append(protocol.getClassSpecificName());
-            builder.append(":"); //$NON-NLS-1$
+            if (protocol != null)
+            {
+                builder.append(protocol.getClassSpecificName());
+                builder.append(":"); //$NON-NLS-1$
+            }
             IObject authority = (IObject) obj.resolveValue("authority"); //$NON-NLS-1$
-            if(authority != null) {
+            if (authority != null)
+            {
                 builder.append("//"); //$NON-NLS-1$
                 builder.append(authority.getClassSpecificName());
             }
             IObject path = (IObject) obj.resolveValue("path"); //$NON-NLS-1$
-            if(path != null) builder.append(path.getClassSpecificName());
+            if (path != null)
+                builder.append(path.getClassSpecificName());
             IObject query = (IObject) obj.resolveValue("query"); //$NON-NLS-1$
-            if(query != null) {
+            if (query != null)
+            {
                 builder.append("?"); //$NON-NLS-1$
                 builder.append(query.getClassSpecificName());
             }
             IObject ref = (IObject) obj.resolveValue("ref"); //$NON-NLS-1$
-            if(ref != null) {
+            if (ref != null)
+            {
                 builder.append("#"); //$NON-NLS-1$
                 builder.append(ref.getClassSpecificName());
             }
-            return builder.toString();
+            return builder.length() > 0 ? builder.toString() : null;
         }
     }
     
