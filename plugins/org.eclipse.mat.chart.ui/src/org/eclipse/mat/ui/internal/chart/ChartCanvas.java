@@ -26,6 +26,8 @@ import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
+import org.eclipse.swt.events.TraverseEvent;
+import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
@@ -62,6 +64,15 @@ public class ChartCanvas extends Canvas
         {
             throw new RuntimeException(e);
         }
+        
+		// enable traversing through the canvas. Bug 306803
+		addTraverseListener(new TraverseListener() {
+
+			public void keyTraversed(TraverseEvent e)
+			{
+				e.doit = true;
+			}
+		});
 
         addPaintListener(new PaintListener()
         {
