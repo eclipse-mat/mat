@@ -2787,7 +2787,17 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 {
                     debugPrint("Found class as object at " + format(objAddr)); //$NON-NLS-1$
                 }
-                int size = jo != null ? getObjectSize(jo, pointerSize) : 0;
+                int size;
+                if (jo != null)
+                {
+                    size = getObjectSize(jo, pointerSize);
+                }
+                else
+                {
+                    // Use the existing size as no size is available
+                    size = cls.getHeapSizePerInstance();
+                    if (size < 0) size = 0;
+                }
                 cls.addInstance(size);
                 if (cls.isArrayType())
                 {
