@@ -257,12 +257,25 @@ public class Messages extends NLS
 
     public static String HeapDumpInfoQuery_32bit;
     public static String HeapDumpInfoQuery_64bit;
+    public static String HeapDumpInfoQuery_Column_Date;
+    public static String HeapDumpInfoQuery_Column_FileLength;
+    public static String HeapDumpInfoQuery_Column_FilePath;
+    public static String HeapDumpInfoQuery_Column_HeapFormat;
     public static String HeapDumpInfoQuery_Column_IdentifierSize;
+    public static String HeapDumpInfoQuery_Column_JVMVersion;
     public static String HeapDumpInfoQuery_Column_NumClasses;
     public static String HeapDumpInfoQuery_Column_NumClassLoaders;
     public static String HeapDumpInfoQuery_Column_NumGCRoots;
     public static String HeapDumpInfoQuery_Column_NumObjects;
+    public static String HeapDumpInfoQuery_Column_Time;
     public static String HeapDumpInfoQuery_Column_UsedHeapDump;
+    public static String HeapDumpInfoQuery_DateFormat;
+    public static String HeapDumpInfoQuery_FileLengthFormat;
+    public static String HeapDumpInfoQuery_NumClassesFormat;
+    public static String HeapDumpInfoQuery_NumClassLoadersFormat;
+    public static String HeapDumpInfoQuery_NumGCRootsFormat;
+    public static String HeapDumpInfoQuery_NumObjectsFormat;
+    public static String HeapDumpInfoQuery_TimeFormat;
 
     public static String HeapObjectArgumentFactory_ErrorMsg_MultipleObjects;
     public static String HeapObjectArgumentFactory_ErrorMsg_SettingField;

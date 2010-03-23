@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.mat.inspections;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,9 +24,8 @@ import org.eclipse.mat.query.results.ListResult;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.SnapshotInfo;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.Units;
-
-import com.ibm.icu.text.NumberFormat;
 
 @CommandName("heap_dump_overview")
 @Category(Category.HIDDEN)
@@ -57,8 +57,6 @@ public class HeapDumpInfoQuery implements IQuery
     @Argument
     public ISnapshot snapshot;
 
-    static NumberFormat numberFormatter = NumberFormat.getNumberInstance();
-
     public IResult execute(IProgressListener listener) throws Exception
     {
         SnapshotInfo info = snapshot.getSnapshotInfo();
@@ -66,18 +64,32 @@ public class HeapDumpInfoQuery implements IQuery
         if (listener.isCanceled())
             throw new IProgressListener.OperationCanceledException();
 
-        List<TextEntry> entries = new ArrayList<TextEntry>(6);
+        List<TextEntry> entries = new ArrayList<TextEntry>(12);
         entries.add(new TextEntry(Messages.HeapDumpInfoQuery_Column_UsedHeapDump, getUsedHeapInMb(info
                         .getUsedHeapSize())));
-        entries.add(new TextEntry(Messages.HeapDumpInfoQuery_Column_NumObjects, numberFormatter.format(
-                        info.getNumberOfObjects()).toString()));
-        entries.add(new TextEntry(Messages.HeapDumpInfoQuery_Column_NumClasses, numberFormatter.format(
-                        info.getNumberOfClasses()).toString()));
-        entries.add(new TextEntry(Messages.HeapDumpInfoQuery_Column_NumClassLoaders, numberFormatter.format(
-                        info.getNumberOfClassLoaders()).toString()));
-        entries.add(new TextEntry(Messages.HeapDumpInfoQuery_Column_NumGCRoots, numberFormatter.format(
-                        info.getNumberOfGCRoots()).toString()));
+        entries.add(new TextEntry(Messages.HeapDumpInfoQuery_Column_NumObjects, MessageUtil.format(Messages.HeapDumpInfoQuery_NumObjectsFormat, 
+                        info.getNumberOfObjects())));
+        entries.add(new TextEntry(Messages.HeapDumpInfoQuery_Column_NumClasses, MessageUtil.format(Messages.HeapDumpInfoQuery_NumClassesFormat,
+                        info.getNumberOfClasses())));
+        entries.add(new TextEntry(Messages.HeapDumpInfoQuery_Column_NumClassLoaders, MessageUtil.format(Messages.HeapDumpInfoQuery_NumClassLoadersFormat,
+                        info.getNumberOfClassLoaders())));
+        entries.add(new TextEntry(Messages.HeapDumpInfoQuery_Column_NumGCRoots, MessageUtil.format(Messages.HeapDumpInfoQuery_NumGCRootsFormat,
+                        info.getNumberOfGCRoots())));
+        entries.add(new TextEntry(Messages.HeapDumpInfoQuery_Column_HeapFormat, info.getProperty("$heapFormat").toString())); //$NON-NLS-1$
+        entries.add(new TextEntry(Messages.HeapDumpInfoQuery_Column_JVMVersion, info.getJvmInfo()));
+        if (info.getCreationDate() != null)
+        {
+            entries.add(new TextEntry(Messages.HeapDumpInfoQuery_Column_Time, MessageUtil.format(Messages.HeapDumpInfoQuery_TimeFormat, info.getCreationDate())));
+            entries.add(new TextEntry(Messages.HeapDumpInfoQuery_Column_Date, MessageUtil.format(Messages.HeapDumpInfoQuery_DateFormat, info.getCreationDate())));
+        }
+        else
+        {
+            entries.add(new TextEntry(Messages.HeapDumpInfoQuery_Column_Time, null));
+            entries.add(new TextEntry(Messages.HeapDumpInfoQuery_Column_Date, null));
+        }
         entries.add(new TextEntry(Messages.HeapDumpInfoQuery_Column_IdentifierSize, getSize(info.getIdentifierSize())));
+        entries.add(new TextEntry(Messages.HeapDumpInfoQuery_Column_FilePath, info.getPath()));
+        entries.add(new TextEntry(Messages.HeapDumpInfoQuery_Column_FileLength, MessageUtil.format(Messages.HeapDumpInfoQuery_FileLengthFormat, (new File(info.getPath())).length())));
 
         return new ListResult(TextEntry.class, entries, "propertyName", "propertyValue"); //$NON-NLS-1$ //$NON-NLS-2$
     }
