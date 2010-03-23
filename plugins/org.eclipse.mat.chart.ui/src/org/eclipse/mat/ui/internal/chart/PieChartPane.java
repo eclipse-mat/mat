@@ -41,6 +41,7 @@ import org.eclipse.mat.ui.util.QueryContextMenu;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.forms.widgets.FormText;
 
@@ -84,6 +85,9 @@ public class PieChartPane extends AbstractEditorPane implements ISelectionProvid
     {
         Composite top = new Composite(parent, SWT.NONE);
         top.setBackground(parent.getDisplay().getSystemColor(SWT.COLOR_WHITE));
+        
+        // prevent TAB-ing into the chart canvas. Bug 306803
+        top.setTabList(new Control[0]);
 
         GridLayoutFactory.fillDefaults().numColumns(1).margins(0, 0).spacing(0, 0).applyTo(top);
 
