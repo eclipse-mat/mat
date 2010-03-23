@@ -27,7 +27,7 @@ public class HistogramRecord implements Serializable
     protected long usedHeapSize;
     protected long retainedHeapSize;
 
-    public static final transient Comparator<HistogramRecord> COMPARATOR_FOR_LABEL = new Comparator<HistogramRecord>()
+    public static final Comparator<HistogramRecord> COMPARATOR_FOR_LABEL = new Comparator<HistogramRecord>()
     {
         public int compare(HistogramRecord o1, HistogramRecord o2)
         {
@@ -35,7 +35,7 @@ public class HistogramRecord implements Serializable
         }
     };
 
-    public static final transient Comparator<HistogramRecord> COMPARATOR_FOR_NUMBEROFOBJECTS = new Comparator<HistogramRecord>()
+    public static final Comparator<HistogramRecord> COMPARATOR_FOR_NUMBEROFOBJECTS = new Comparator<HistogramRecord>()
     {
         public int compare(HistogramRecord o1, HistogramRecord o2)
         {
@@ -44,7 +44,7 @@ public class HistogramRecord implements Serializable
         }
     };
 
-    public static final transient Comparator<HistogramRecord> COMPARATOR_FOR_USEDHEAPSIZE = new Comparator<HistogramRecord>()
+    public static final Comparator<HistogramRecord> COMPARATOR_FOR_USEDHEAPSIZE = new Comparator<HistogramRecord>()
     {
         public int compare(HistogramRecord o1, HistogramRecord o2)
         {
@@ -53,7 +53,7 @@ public class HistogramRecord implements Serializable
         }
     };
 
-    public static final transient Comparator<HistogramRecord> COMPARATOR_FOR_RETAINEDHEAPSIZE = new Comparator<HistogramRecord>()
+    public static final Comparator<HistogramRecord> COMPARATOR_FOR_RETAINEDHEAPSIZE = new Comparator<HistogramRecord>()
     {
         public int compare(HistogramRecord o1, HistogramRecord o2)
         {

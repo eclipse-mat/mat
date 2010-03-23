@@ -1088,17 +1088,35 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
     {
         private static final long serialVersionUID = 1L;
 
+        private final int classId;
+
         /* package */Map<Integer, SuperclassNode> subClasses = new HashMap<Integer, SuperclassNode>();
         /* package */List<ClassHistogramRecord> classes = new ArrayList<ClassHistogramRecord>();
 
-        public SuperclassNode(String name)
+        public SuperclassNode(String name, int id)
         {
             super(name);
+            classId = id;
         }
-        
+
+        public SuperclassNode(String name)
+        {
+            this(name, -1);
+        }
+
         public boolean isSimple()
         {
             return subClasses.size() == 0 && classes.size() == 1;
+        }
+
+        /**
+         * Get id of the class this superclass histogram record stands for.
+         * 
+         * @return id of the class this superclass histogram record stands for
+         */
+        public int getClassId()
+        {
+            return classId;
         }
 
     }
@@ -1144,7 +1162,7 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
                     SuperclassNode child = current.subClasses.get(superclass.getObjectId());
                     if (child == null)
                         current.subClasses.put(superclass.getObjectId(), child = new SuperclassNode(superclass
-                                        .getName()));
+                                        .getName(), superclass.getObjectId()));
                     child.incNumberOfObjects(record.numberOfObjects);
                     child.incUsedHeapSize(record.getUsedHeapSize());
 
@@ -1225,7 +1243,7 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
                 {
                     public int getObjectId()
                     {
-                        return -1;
+                        return node.getClassId();
                     }
 
                     public int[] getObjectIds()
