@@ -356,7 +356,9 @@ public abstract class RefinedResultViewer
     }
 
     protected abstract List<?> getElements(Object parent);
-
+    
+    protected abstract void configureColumns();
+    
     protected void applyTextAndImage(Item item, Object element)
     {
         item.setData(element);
@@ -745,6 +747,7 @@ public abstract class RefinedResultViewer
     {
         contextMenu.addContextActions(menu, getSelection(), getControl());
         addFilterMenu(menu);
+        addConfigureColumnsMenu(menu);
         addMoreMenu(menu);
     }
 
@@ -771,6 +774,20 @@ public abstract class RefinedResultViewer
             };
             filterMenu.add(action);
         }
+    }
+    
+    private void addConfigureColumnsMenu(PopupMenu menu)
+    {
+        Action columnsAction = new Action("Configure Columns") 
+        {
+        	@Override
+        	public void run()
+        	{
+        		configureColumns();
+        	}
+        };
+
+        menu.add(columnsAction);
     }
 
     private void addMoreMenu(PopupMenu menu)

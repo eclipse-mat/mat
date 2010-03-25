@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.jface.util.ConfigureColumns;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.ContextProvider;
 import org.eclipse.mat.query.IQueryContext;
@@ -101,6 +102,12 @@ public class RefinedTreeViewer extends RefinedResultViewer
                 }
             }
         });
+    }
+    
+    @Override
+    protected void configureColumns()
+    {
+    	ConfigureColumns.forTree(tree, editor.getEditorSite());
     }
 
     private void doExpand(TreeItem parentItem)
