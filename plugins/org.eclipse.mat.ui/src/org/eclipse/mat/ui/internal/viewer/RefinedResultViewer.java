@@ -778,7 +778,7 @@ public abstract class RefinedResultViewer
     
     private void addConfigureColumnsMenu(PopupMenu menu)
     {
-        Action columnsAction = new Action("Configure Columns") 
+        Action columnsAction = new Action(Messages.RefinedResultViewer_ConfigureColumns) 
         {
         	@Override
         	public void run()
