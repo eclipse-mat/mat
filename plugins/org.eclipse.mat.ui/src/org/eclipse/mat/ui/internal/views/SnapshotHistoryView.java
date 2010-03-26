@@ -43,6 +43,8 @@ import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.events.TraverseEvent;
+import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -223,6 +225,18 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
                 }
             }
         });
+        
+		// let snapshots be opened with the Enter key
+		table.addTraverseListener(new TraverseListener() 
+		{
+			public void keyTraversed(TraverseEvent e)
+			{
+				if (e.detail == SWT.TRAVERSE_RETURN)
+				{
+					actionOpen.run();
+				}
+			}
+		});
 
         SnapshotHistoryService.getInstance().addChangeListener(this);
     }
