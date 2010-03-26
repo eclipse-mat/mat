@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.5"?>
+
+<target name="MAT Target">
+<locations>
+<location includeAllPlatforms="false" includeMode="planner" type="InstallableUnit">
+<unit id="org.eclipse.datatools.enablement.sdk.feature.feature.group" version="1.7.2.v200909251450-7I8r7XFE9JfFs0wYgDsB0wKAZttV"/>
+<unit id="org.eclipse.cdt.feature.group" version="6.0.2.201002161416"/>
+<repository location="http://download.eclipse.org/releases/galileo/201002260900"/>
+</location>
+<location includeAllPlatforms="false" includeMode="planner" type="InstallableUnit">
+<unit id="org.eclipse.birt.chart.feature.group" version="2.6.0.v20091210-7c957LFOKfqvD19Y_Vn_G1"/>
+<repository location="http://download.eclipse.org/birt/update-site/2.6-interim/"/>
+</location>
+<location includeAllPlatforms="false" includeMode="planner" type="InstallableUnit">
+<unit id="org.eclipse.test.feature.group" version="3.5.0.r20080925-7P7VBiBcJ99q9ZEO14C38"/>
+<repository location="%workspaceUrl%p2tool/eclipse-test-framework/repo"/>
+</location>
+<location includeAllPlatforms="false" includeMode="planner" type="InstallableUnit">
+<unit id="com.ibm.dtfj.feature.feature.group" version="1.3.2.200909291456"/>
+<repository location="%workspaceUrl%p2tool/dtfj-updatesite/repo"/>
+</location>
+<location includeAllPlatforms="false" includeMode="planner" type="InstallableUnit">
+<unit id="org.eclipse.sdk.ide" version="3.6.0.I20100129-1300"/>
+<repository location="http://download.eclipse.org/eclipse/updates/3.6milestones/S-3.6M5-201001291300"/>
+</location>
+<location includeAllPlatforms="false" includeMode="planner" type="InstallableUnit">
+<unit id="org.eclipse.emf.feature.group" version="2.6.0.v201001101746"/>
+<repository location="http://download.eclipse.org/modeling/emf/updates/interim/"/>
+</location>
+</locations>
+</target>

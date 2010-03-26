@@ -1,65 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.eclipse</groupId>
-  <artifactId>technology.mat</artifactId>
-  <name>Memory Analyzer</name>
-  <version>0.8</version>
-  <build>
-        <sourceDirectory>${basedir}/target/sources</sourceDirectory>
-        <plugins>
-           <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-compiler-plugin</artifactId>
-              <configuration>
-                  <source>1.5</source>
-                  <target>1.5</target>
-              </configuration>
-           </plugin>
-           <plugin>
-             <groupId>org.apache.maven.plugins</groupId>
-             <artifactId>maven-resources-plugin</artifactId>
-             <version>2.3</version>
-                 <configuration>
-                   <outputDirectory>${basedir}/target/sources</outputDirectory>
-                   <resources>
-                     <resource>
-                       <directory>${basedir}/plugins/org.eclipse.mat.api/src</directory>
-                     </resource>
-                     <resource>
-                       <directory>${basedir}/plugins/org.eclipse.mat.report/src</directory>
-                     </resource>
-                     <resource>
-                       <directory>${basedir}/plugins/org.eclipse.mat.parser/src</directory>
-                     </resource>
-                     <resource>
-                       <directory>${basedir}/plugins/org.eclipse.mat.hprof/src</directory>
-                     </resource>
-                     <resource>
-                       <directory>${basedir}/plugins/org.eclipse.mat.chart/src</directory>
-                     </resource>
-                     <resource>
-                       <directory>${basedir}/plugins/org.eclipse.mat.chart.ui/src</directory>
-                     </resource>
-                     <resource>
-                       <directory>${basedir}/plugins/org.eclipse.mat.jdt/src</directory>
-                     </resource>
-                     <resource>
-                       <directory>${basedir}/plugins/org.eclipse.mat.ui/src</directory>
-                     </resource>
-                     <resource>
-                       <directory>${basedir}/plugins/org.eclipse.mat.ui.rcp/src</directory>
-                     </resource>
-                     <resource>
-                       <directory>${basedir}/plugins/org.eclipse.mat.dtfj/src</directory>
-                     </resource>
-                   </resources>
-                 </configuration>
-           </plugin>
-        </plugins>
-  </build>
+
+  <prerequisites>
+    <maven>3.0</maven>
+  </prerequisites>
+
+  <groupId>org.eclipse.mat</groupId>
+  <artifactId>parent</artifactId>
+  <version>0.8.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <name>MAT Parent (Incubation)</name>
+
   <properties>
-  	<sonar.light>true</sonar.light>
+    <tycho-version>0.7.0</tycho-version>
   </properties>
+
+  <modules>
+	<module>plugins</module>
+	<module>features</module>
+	<module>org.eclipse.mat.targetdef</module>
+	<module>org.eclipse.mat.updatesite</module>
+  </modules>
+
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.sonatype.tycho</groupId>
+        <artifactId>tycho-maven-plugin</artifactId>
+        <version>${tycho-version}</version>
+        <extensions>true</extensions>
+      </plugin>
+	<plugin>
+		<groupId>org.sonatype.tycho</groupId>
+		<artifactId>target-platform-configuration</artifactId>
+		<version>${tycho-version}</version>
+		<configuration>
+			<resolver>p2</resolver>
+		</configuration>
+	</plugin>
+   </plugins>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.sonatype.tycho</groupId>
+          <artifactId>maven-osgi-compiler-plugin</artifactId>
+          <version>${tycho-version}</version>
+          <configuration>
+            <encoding>UTF-8</encoding>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-resources-plugin</artifactId>
+          <version>2.4.1</version>
+          <configuration>
+            <encoding>ISO-8859-1</encoding>
+          </configuration>
+        </plugin>
+		<plugin>
+			<groupId>org.sonatype.tycho</groupId>
+			<artifactId>maven-osgi-test-plugin</artifactId>
+			<version>${tycho-version}</version>
+			<configuration>
+				<argLine>-ea</argLine>
+				<testFailureIgnore>true</testFailureIgnore> <!-- currently not supported (ignored) with tycho, see https://issues.sonatype.org/browse/TYCHO-333 -->
+				<skip>true</skip> <!-- skip test completely because due to bug in tycho the tests would be executed with wrong junit version which leads to test failures, see https://issues.sonatype.org/browse/TYCHO-360 -->
+			</configuration>
+		</plugin>		
+        <plugin>
+          <groupId>org.sonatype.tycho</groupId>
+          <artifactId>target-platform-configuration</artifactId>
+          <version>${tycho-version}</version>
+				<configuration>
+					<resolver>p2</resolver>
+					<target>
+						<artifact>
+							<groupId>org.eclipse.mat</groupId>
+							<artifactId>org.eclipse.mat.targetdef</artifactId>
+							<version>${project.version}</version>
+							<classifier>mat-site</classifier>
+						</artifact>
+					</target>
+					<ignoreTychoRepositories>true</ignoreTychoRepositories>
+				</configuration>
+        </plugin>
+		<plugin>
+			<groupId>org.codehaus.mojo</groupId>
+			<artifactId>findbugs-maven-plugin</artifactId>
+			<version>2.3</version>
+			<configuration>
+				<findbugsXmlOutput>true</findbugsXmlOutput>
+				<findbugsXmlWithMessages>true</findbugsXmlWithMessages>
+				<xmlOutput>true</xmlOutput>
+			</configuration>
+		</plugin>		
+      </plugins>
+    </pluginManagement>
+  </build>
 </project>
+

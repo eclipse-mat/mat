@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="create-repositories" default="default" basedir="../p2tool">
+    <target name="default" depends="init,downloadEclipse,downloadTestFramework,downloadDTFJ">
+    </target>
+
+    	<target name="init" depends="initProperties,initProxy,initMatTargetDef"/>
+
+	<target name="initProperties">
+		<makeurl property="target.baseUrl">
+			<path location="."/>
+		</makeurl>
+		<property environment="env"/>
+	</target>
+
+	<target name="initProxy" if="env.proxyHost">
+		<echo message="Setting proxy: ${env.proxyHost}:${env.proxyPort}"/>
+		<setproxy proxyhost="${env.proxyHost}" proxyport="${env.proxyPort}"/>
+	</target>
+
+	<target name="initMatTargetDef">
+		<makeurl property="workspace.baseUrl">
+			<path location=".."/>
+		</makeurl>
+		<replace file="../trunk/org.eclipse.mat.targetdef/mat-site.target" token="%workspaceUrl%" value="${workspace.baseUrl}"/>
+	</target>
+
+	<target name="downloadEclipse">
+		<get 
+			src="http://www.eclipse.org/downloads/download.php?file=/eclipse/downloads/drops/S-3.6M5-201001291300/eclipse-platform-3.6M5-linux-gtk-ppc.tar.gz&amp;url=http://d2u376ub0heus3.cloudfront.net/eclipse/downloads/drops/S-3.6M5-201001291300/eclipse-platform-3.6M5-linux-gtk-ppc.tar.gz&amp;mirror_id=1001"
+			dest="eclipse-SDK-3.6M5-linux-gtk-ppc.tar.gz"
+			verbose="true"/>
+	    	<delete dir="eclipse"/>
+		<untar src="eclipse-SDK-3.6M5-linux-gtk-ppc.tar.gz" dest="eclipse" compression="gzip"/>
+	</target>
+
+	<target name="downloadTestFramework" description="description">
+		<get 
+    		src="http://www.eclipse.org/downloads/download.php?file=/eclipse/downloads/drops/R-3.5.2-201002111343/eclipse-test-framework-3.5.2.zip&amp;url=http://ftp-stud.fht-esslingen.de/pub/Mirrors/eclipse/eclipse/downloads/drops/R-3.5.2-201002111343/eclipse-test-framework-3.5.2.zip&amp;mirror_id=17" 
+    		dest="eclipse-test-framework.zip"/>
+    	<delete dir="eclipse-test-framework"/>
+		<unzip src="eclipse-test-framework.zip" dest="eclipse-test-framework"/>
+
+		<java jar="eclipse/eclipse/plugins/org.eclipse.equinox.launcher_1.1.0.v20100118.jar" fork="true" maxmemory="512m" failonerror="true">
+            <arg value="-consoleLog" />
+            <arg value="-application" />
+            <arg value="org.eclipse.equinox.p2.publisher.FeaturesAndBundlesPublisher"/>
+    		<arg value="-mr"/> 
+    		<arg value="${target.baseUrl}eclipse-test-framework/repo"/> 
+    		<arg value="-ar"/> 
+    		<arg value="${target.baseUrl}eclipse-test-framework/repo"/> 
+    		<arg value="-source"/> 
+    		<arg value="eclipse-test-framework/eclipse"/> 
+    		<arg value="-compress"/> 
+    		<arg value="-publishArtifacts"/> 
+        </java>
+    </target>
+	
+    <target name="downloadDTFJ" description="description">
+    	<get 
+    		src="ftp://ftp.software.ibm.com/software/java/support/tools/dtfj/dtfj-updatesite.zip" 
+    		dest="dtfj-updatesite.zip"/>
+    	<delete dir="dtfj-updatesite"/>
+		<unzip src="dtfj-updatesite.zip" dest="dtfj-updatesite"/>
+    	<java jar="eclipse/eclipse/plugins/org.eclipse.equinox.launcher_1.1.0.v20100118.jar" fork="true" maxmemory="512m" failonerror="true">
+            <arg value="-consoleLog" />
+            <arg value="-application" />
+            <arg value="org.eclipse.equinox.p2.publisher.UpdateSitePublisher"/>
+    		<arg value="-mr"/> 
+    		<arg value="${target.baseUrl}dtfj-updatesite/repo"/> 
+    		<arg value="-ar"/> 
+    		<arg value="${target.baseUrl}dtfj-updatesite/repo"/> 
+    		<arg value="-source"/> 
+    		<arg value="dtfj-updatesite"/> 
+    		<arg value="-compress"/> 
+    		<arg value="-publishArtifacts"/> 
+        </java>
+    </target>
+
+    <target name="cleanup" depends="cleanupTestFramework,cleanupDTFJ">
+    </target>
+
+    <target name="cleanupTestFramework" description="delete TestFramework repository">
+	<delete dir="eclipse-test-framework"/>
+    	<delete file="eclipse-test-framework.zip"/>
+    </target>
+	
+    <target name="cleanupDTFJ" description="delete DTFJ repository">
+	<delete dir="dtfj-updatesite"/>
+   	<delete file="dtfj-updatesite.zip"/>
+    </target>
+</project>
