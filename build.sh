@@ -1,3 +1,4 @@
+#!/bin/sh
 cd trunk
 
 if [ "x$M2_HOME" == "x" ]; then
