@@ -1,5 +1,4 @@
 #!/bin/sh
-cd trunk
 
 if [ "x$M2_HOME" == "x" ]; then
 	echo variable M2_HOME must be set
