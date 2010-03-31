@@ -17,7 +17,7 @@
   <name>MAT Parent (Incubation)</name>
 
   <properties>
-    <tycho-version>0.7.0</tycho-version>
+    <tycho-version>0.8.0</tycho-version>
   </properties>
 
   <modules>
@@ -68,9 +68,11 @@
 			<artifactId>maven-osgi-test-plugin</artifactId>
 			<version>${tycho-version}</version>
 			<configuration>
-				<argLine>-ea</argLine>
+				<argLine>-ea -Xmx768m</argLine>
 				<testFailureIgnore>true</testFailureIgnore> <!-- currently not supported (ignored) with tycho, see https://issues.sonatype.org/browse/TYCHO-333 -->
-				<skip>true</skip> <!-- skip test completely because due to bug in tycho the tests would be executed with wrong junit version which leads to test failures, see https://issues.sonatype.org/browse/TYCHO-360 -->
+				<includes>
+					<include>**/AllTests.class</include>
+				</includes>
 			</configuration>
 		</plugin>		
         <plugin>

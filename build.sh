@@ -14,7 +14,11 @@ if [ "x$proxyHost" != "x" ]; then
 	fi
 fi
 
-MVN_CALL="$M2_HOME/bin/mvn.bat -Dmaven.repo.local=../.repository $proxyOpts -fae -s settings.xml clean install findbugs:findbugs"
+if [ "x$mvnSettings" != "x" ]; then
+	settingsOpts="-s $mvnSettings"
+fi
+
+MVN_CALL="$M2_HOME/bin/mvn -Dmaven.repo.local=../.repository $proxyOpts -fae $mvnSettings clean install findbugs:findbugs"
 echo $MVN_CALL
 eval $MVN_CALL
 

@@ -16,11 +16,16 @@ if defined proxyHost (
 		set proxyOpts=-DproxySet=true -Dhttp.proxyHost=%proxyHost% -Dhttp.proxyPort=%proxyPort%
 	)
 )
-set MVN_CALL=%M2_HOME%\bin\mvn.bat -Dmaven.repo.local=..\.repository %proxyOpts% -fae -s settings.xml clean install findbugs:findbugs
+
+if defined mvnSettings (
+	set settingsOpts=-s %mvnSettings%
+)
+
+set MVN_CALL=%M2_HOME%\bin\mvn.bat -Dmaven.repo.local=c:\build\hudson_home\jobs\mat-0.8.0-tycho\workspace\.repository %proxyOpts% -fae %settingsOpts% clean install findbugs:findbugs
 echo %MVN_CALL%
 call %MVN_CALL% 
 set result=%ERRORLEVEL%
 
 call ant.bat -file prepare-dep-repos.xml cleanup
 
-exit %result%
+exit /B %result%
