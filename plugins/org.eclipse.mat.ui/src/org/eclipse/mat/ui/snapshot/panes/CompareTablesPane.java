@@ -98,7 +98,7 @@ public class CompareTablesPane extends QueryResultPane
 		if (result instanceof TableComparisonResult)
 		{
 			Action selectColumnsAction = new EasyToolBarDropDown("Select displayed columns...", //
-					MemoryAnalyserPlugin.getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.GROUPING), this) {
+					MemoryAnalyserPlugin.getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.SELECT_COLUMN), this) {
 
 				@Override
 				public void contribute(PopupMenu menu)

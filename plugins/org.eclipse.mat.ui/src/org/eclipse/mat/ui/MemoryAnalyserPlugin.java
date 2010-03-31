@@ -107,6 +107,7 @@ public class MemoryAnalyserPlugin extends AbstractUIPlugin
         String MOVE_DOWN = "icons/move_down.gif"; //$NON-NLS-1$
         String REMOVE = "icons/remove.gif"; //$NON-NLS-1$
         String REMOVE_ALL = "icons/removeall.gif"; //$NON-NLS-1$
+        String SELECT_COLUMN = "icons/select_table.gif"; //$NON-NLS-1$
     }
 
     private static MemoryAnalyserPlugin plugin;
