@@ -746,14 +746,24 @@ public abstract class RefinedResultViewer
     public void addContextMenu(PopupMenu menu)
     {
         contextMenu.addContextActions(menu, getSelection(), getControl());
-        addFilterMenu(menu);
-        addConfigureColumnsMenu(menu);
+        addColumnsMenu(menu);
         addMoreMenu(menu);
+    }
+    
+    private void addColumnsMenu(PopupMenu menu)
+    {
+    	menu.addSeparator();
+    	PopupMenu columnsMenu = new PopupMenu(Messages.RefinedResultViewer_Columns);
+        menu.add(columnsMenu);
+    	
+        addFilterMenu(columnsMenu);
+        addSortByMenu(columnsMenu);
+        addConfigureColumnsMenu(columnsMenu);
+        
     }
 
     private void addFilterMenu(PopupMenu menu)
     {
-        menu.addSeparator();
 
         PopupMenu filterMenu = new PopupMenu(Messages.RefinedResultViewer_EditFilter);
         menu.add(filterMenu);
@@ -788,6 +798,27 @@ public abstract class RefinedResultViewer
         };
 
         menu.add(columnsAction);
+    }
+    
+    private void addSortByMenu(PopupMenu menu)
+    {
+        PopupMenu sortByMenu = new PopupMenu(Messages.RefinedResultViewer_Sort_By);
+        menu.add(sortByMenu);
+        
+        for (int ii = 0; ii < columns.length; ii++)
+        {
+            final int columnIndex = ii;
+
+            Action action = new Action(columns[ii].getText())
+            {
+                @Override
+                public void run()
+                {
+                	resort(columns[columnIndex]);
+                }
+            };
+            sortByMenu.add(action);
+        }
     }
 
     private void addMoreMenu(PopupMenu menu)
@@ -1130,6 +1161,36 @@ public abstract class RefinedResultViewer
         List<?> children = ((ControlItem) control.getData(Key.CONTROL)).children;
         new SortingJob(this, children).schedule();
     }
+    
+    protected final void resort(Item column)
+    {
+        Column queryColumn = (Column) column.getData();
+
+        boolean isSorted = column == adapter.getSortColumn();
+
+        int direction = SWT.UP;
+
+        if (isSorted)
+            direction = adapter.getSortDirection() == SWT.UP ? SWT.DOWN : SWT.UP;
+        else
+            direction = queryColumn.isNumeric() ? SWT.DOWN : SWT.UP;
+
+        control.getParent().setRedraw(false);
+
+        try
+        {
+            adapter.setSortColumn(column);
+            adapter.setSortDirection(direction);
+
+            result.setSortOrder(queryColumn, Column.SortDirection.of(direction));
+
+            resort();
+        }
+        finally
+        {
+            control.getParent().setRedraw(true);
+        }
+    }
 
     protected abstract void refresh(boolean expandAndSelect);
 
@@ -1153,32 +1214,7 @@ public abstract class RefinedResultViewer
         public void widgetSelected(SelectionEvent e)
         {
             Item treeColumn = (Item) e.widget;
-            Column queryColumn = (Column) treeColumn.getData();
-
-            boolean isSorted = treeColumn == adapter.getSortColumn();
-
-            int direction = SWT.UP;
-
-            if (isSorted)
-                direction = adapter.getSortDirection() == SWT.UP ? SWT.DOWN : SWT.UP;
-            else
-                direction = queryColumn.isNumeric() ? SWT.DOWN : SWT.UP;
-
-            control.getParent().setRedraw(false);
-
-            try
-            {
-                adapter.setSortColumn(treeColumn);
-                adapter.setSortDirection(direction);
-
-                result.setSortOrder(queryColumn, Column.SortDirection.of(direction));
-
-                resort();
-            }
-            finally
-            {
-                control.getParent().setRedraw(true);
-            }
+            resort(treeColumn);
         }
     }
 

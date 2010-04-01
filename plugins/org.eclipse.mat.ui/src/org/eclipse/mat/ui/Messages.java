@@ -222,6 +222,7 @@ public class Messages extends NLS
     public static String QueryTextResultPane_UnableToMapAddress;
     public static String RefinedResultViewer_BlockingWarning;
     public static String RefinedResultViewer_CalculateRetainedSize;
+	public static String RefinedResultViewer_Columns;
 	public static String RefinedResultViewer_ConfigureColumns;
     public static String RefinedResultViewer_CustomExpand;
     public static String RefinedResultViewer_EditFilter;
@@ -232,7 +233,8 @@ public class Messages extends NLS
     public static String RefinedResultViewer_Next25;
     public static String RefinedResultViewer_notValidNumber;
     public static String RefinedResultViewer_RetrieveViewElements;
-    public static String RefinedResultViewer_Sorting;
+    public static String RefinedResultViewer_Sort_By;
+	public static String RefinedResultViewer_Sorting;
     public static String RefinedResultViewer_updating;
     public static String RefinedTreeViewer_CalculateTotals;
     public static String RunExternalReportAction_OpenReportDefinition;
