@@ -14,7 +14,6 @@ import java.util.Collection;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.HashMapIntObject;
-import org.eclipse.mat.inspections.InspectionAssert;
 import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.IQuery;
@@ -49,8 +48,6 @@ public class CollectionsBySizeQuery implements IQuery
 
     public IResult execute(IProgressListener listener) throws Exception
     {
-        InspectionAssert.heapFormatIsNot(snapshot, "phd"); //$NON-NLS-1$
-
         listener.subTask(Messages.CollectionsBySizeQuery_CollectingSizes);
 
         HashMapIntObject<CollectionUtil.Info> metadata = new HashMapIntObject<CollectionUtil.Info>();

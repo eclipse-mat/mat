@@ -48,12 +48,12 @@ public class ArrayFillRatioQuery implements IQuery
         builder.addDerivedData(RetainedSizeDerivedData.APPROXIMATE);
         Quantize quantize = builder.build();
 
-        for (int[] objectIds : objects)
+        ObjectLoop: for (int[] objectIds : objects)
         {
             for (int objectId : objectIds)
             {
                 if (listener.isCanceled())
-                    throw new IProgressListener.OperationCanceledException();
+                    break ObjectLoop;
 
                 if (!snapshot.isArray(objectId))
                     continue;

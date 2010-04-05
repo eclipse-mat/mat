@@ -12,7 +12,6 @@ package org.eclipse.mat.inspections.collections;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
-import org.eclipse.mat.inspections.InspectionAssert;
 import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
@@ -38,8 +37,6 @@ public class ExtractListValuesQuery implements IQuery
 
     public IResult execute(IProgressListener listener) throws Exception
     {
-        InspectionAssert.heapFormatIsNot(snapshot, "phd"); //$NON-NLS-1$
-
         CollectionUtil.Info info = CollectionUtil.getInfo(list);
 
         if (info != null && !info.isMap())
@@ -78,8 +75,9 @@ public class ExtractListValuesQuery implements IQuery
 
                 result.add(ref.getObjectId());
                 listener.worked(1);
+                // If the user cancels then just return what we have got so far
                 if (listener.isCanceled())
-                    throw new IProgressListener.OperationCanceledException();
+                    break;
             }
         }
 
@@ -100,24 +98,89 @@ public class ExtractListValuesQuery implements IQuery
         listener.beginTask(taskMsg, size);
 
         ArrayInt result = new ArrayInt();
+        int loopingLimit = size;
 
         IObject header = (IObject) list.resolveValue("header"); //$NON-NLS-1$
         if (header == null)
             header = (IObject) list.resolveValue("voidLink"); // IBM VM //$NON-NLS-1$
-        IObject current = (IObject) header.resolveValue("next"); //$NON-NLS-1$
-
-        while (header != current)
+        if (header == null)
         {
+            // Look for the only object field
+            header = info.resolveNextFields(list);
+        }
+
+        IObject previous = header;
+        IObject current = (IObject) header.resolveValue("next"); //$NON-NLS-1$;
+        if (current == null)
+        {
+            // Try without using field names
+            final ISnapshot snapshot = header.getSnapshot();
+            for (int i : snapshot.getOutboundReferentIds(header.getObjectId()))
+            {
+                IObject o = snapshot.getObject(i);
+                // Exclude the class
+                if (i != header.getClazz().getObjectId())
+                {
+                    if (o.getClazz().equals(header.getClazz()))
+                    {
+                        // same type as header, so possible next field
+                        // don't care whether we get current or previous - just circle the wrong way
+                        current = o;
+                        break;
+                    }
+                }
+            }
+        }
+
+        while (current != null && current != header && loopingLimit-- > 0)
+        {
+            // Find the element
             IObject ref = (IObject) current.resolveValue("element"); //$NON-NLS-1$
             if (ref == null)
                 ref = (IObject) current.resolveValue("data"); // IBM VM //$NON-NLS-1$
+
+            // Find the next link
+            IObject next = (IObject) current.resolveValue("next"); //$NON-NLS-1$
+            
+            if (next == null)
+            {
+                // Try without using field names
+                final ISnapshot snapshot = current.getSnapshot();
+                for (int i : snapshot.getOutboundReferentIds(current.getObjectId()))
+                {
+                    IObject o = snapshot.getObject(i);
+                    // Exclude the previous field and the class
+                    if (i != previous.getObjectId() && i != current.getClazz().getObjectId())
+                    {
+                        if (o.getClazz().equals(current.getClazz()))
+                        {
+                            // same type as current, so possible next field
+                            if (next != null)
+                            {
+                                // Uncertain, so give up
+                                next = null;
+                                break;
+                            }
+                            next = o;
+                        }
+                        else
+                        {
+                            // possible element
+                            if (ref == null)
+                                ref = o;
+                        }
+                    }
+                }
+            }
+            
             if (ref != null)
                 result.add(ref.getObjectId());
-
-            current = (IObject) current.resolveValue("next"); //$NON-NLS-1$
+            previous = current;
+            current = next;
             listener.worked(1);
+            // If the user cancels then just return what we have got so far
             if (listener.isCanceled())
-                throw new IProgressListener.OperationCanceledException();
+                break;
         }
 
         listener.done();

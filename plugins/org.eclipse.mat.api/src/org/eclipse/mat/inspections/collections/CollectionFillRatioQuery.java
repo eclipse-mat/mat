@@ -15,7 +15,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.mat.SnapshotException;
-import org.eclipse.mat.inspections.InspectionAssert;
 import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
@@ -55,8 +54,6 @@ public class CollectionFillRatioQuery implements IQuery
 
     public IResult execute(IProgressListener listener) throws Exception
     {
-        InspectionAssert.heapFormatIsNot(snapshot, "phd"); //$NON-NLS-1$
-
         listener.subTask(Messages.CollectionFillRatioQuery_ExtractingFillRatios);
 
         Map<Integer, CollectionUtil.Info> metadata = new HashMap<Integer, CollectionUtil.Info>();
@@ -94,19 +91,22 @@ public class CollectionFillRatioQuery implements IQuery
         }
 
         // create frequency distribution
+        // The load factor should be <= 1, but for old PHD files with inaccurate array sizes can appear > 1.
+        // Therefore we have a larger upper bound just in case
+        // Use slightly > 5.0 so final 1.000 division is >= 1
         Quantize.Builder builder = Quantize.linearFrequencyDistribution(
-                        Messages.CollectionFillRatioQuery_Column_FillRatio, 0, 1, (double) 1 / (double) segments);
+                        Messages.CollectionFillRatioQuery_Column_FillRatio, 0, 5.0000000001, (double) 1 / (double) segments);
         builder.column(Messages.CollectionFillRatioQuery_ColumnNumObjects, Quantize.COUNT);
         builder.column(Messages.Column_ShallowHeap, Quantize.SUM_LONG);
         builder.addDerivedData(RetainedSizeDerivedData.APPROXIMATE);
         Quantize quantize = builder.build();
 
-        for (int[] objectIds : objects)
+        ObjectLoop: for (int[] objectIds : objects)
         {
             for (int objectId : objectIds)
             {
                 if (listener.isCanceled())
-                    throw new IProgressListener.OperationCanceledException();
+                    break ObjectLoop;
 
                 CollectionUtil.Info info = metadata.get(snapshot.getClassOf(objectId).getObjectId());
                 if (info != null)

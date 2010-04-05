@@ -40,6 +40,7 @@ public class WasteInCharArraysQuery implements IQuery
 
     public IResult execute(IProgressListener listener) throws Exception
     {
+        InspectionAssert.heapFormatIsNot(snapshot, "DTFJ-PHD"); //$NON-NLS-1$
         ArrayInt result = new ArrayInt();
 
         Collection<IClass> classes = snapshot.getClassesByName("char[]", false); //$NON-NLS-1$

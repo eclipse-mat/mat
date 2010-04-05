@@ -16,9 +16,12 @@ import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.collect.ArrayInt;
+import org.eclipse.mat.collect.BitField;
 import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IClass;
+import org.eclipse.mat.snapshot.model.IInstance;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IObjectArray;
 
@@ -75,20 +78,192 @@ public final class CollectionUtil
             return sizeField != null;
         }
 
+        /**
+         * Gets the size of the collection
+         * First try using the size field
+         * Then try using the filled entries in the backing array
+         * and the chained entries if it is a map.
+         * @param collection
+         * @return size of collection or 0 if unknown
+         * @throws SnapshotException
+         */
         public int getSize(IObject collection) throws SnapshotException
         {
             Integer value = (Integer) collection.resolveValue(sizeField);
+            if (value == null)
+            {
+                if (hasBackingArray())
+                {
+                    IObjectArray array = getBackingArray(collection);
+                    if (array != null)
+                    {
+                        if (!isMap())
+                        {
+                            // E.g. ArrayList 
+                            int count = getNumberOfNoNullArrayElements(array);
+                            value = count;
+                        }
+                        else
+                        {
+                            int count = getMapSize(collection, array);
+                            value = count;
+                        }
+                    }
+                }
+                else if (arrayField != null)
+                {
+                    // LinkedList
+                    IObject header = resolveNextFields(collection);
+                    if (header != null)
+                    {
+                        int count = getMapSize(collection, header);
+                        value = count;
+                    }
+                }
+            }
             return value == null ? 0 : value;
+        }
+
+        private int getMapSize(IObject collection, IObject array) throws SnapshotException
+        {
+            // Maps have chained buckets in case of clashes
+            // LinkedMaps have additional chains to maintain ordering
+            int count = 0;
+            ISnapshot snapshot = array.getSnapshot();
+            // Avoid visiting nodes twice
+            BitField seen = new BitField(snapshot.getSnapshotInfo().getNumberOfObjects());
+            // Used for alternative nodes if there is a choice
+            ArrayInt extra = new ArrayInt();
+            // Eliminate the LinkedHashMap header node
+            seen.set(array.getObjectId());
+            for (int i : snapshot.getOutboundReferentIds(array.getObjectId()))
+            {
+                if (!snapshot.isClass(i) && !seen.get(i))
+                {
+                    extra.clear();
+                    extra.add(i);
+                    seen.set(i);
+                    for (int k = 0; k < extra.size(); ++k)
+                    {
+                        for (int j = extra.get(k); j >= 0;)
+                        {
+                            ++count;
+                            j = resolveNextSameField(snapshot, j, seen, extra);
+                        }
+                    }
+                }
+            }
+            return count;
+        }
+        
+        /**
+         * Get the only object field from the object
+         * Used for finding the HashMap from the HashSet
+         * @param source
+         * @return null if non or duplicates found
+         * @throws SnapshotException
+         */
+        private IInstance resolveNextField(IObject source) throws SnapshotException
+        {
+            final ISnapshot snapshot = source.getSnapshot();
+            IInstance ret = null;
+            for (int i : snapshot.getOutboundReferentIds(source.getObjectId()))
+            {
+                if (!snapshot.isArray(i) && !snapshot.isClass(i))
+                {
+                    IObject o = snapshot.getObject(i);
+                    if (o instanceof IInstance)
+                    {
+                        if (ret != null)
+                        {
+                            ret = null;
+                            break;
+                        }
+                        ret = (IInstance)o;
+                    }
+                }
+            }
+            return ret;
+        }
+
+        /**
+         * Get the only object field from the object
+         * which is of the same type as the source
+         * @param sourceId
+         * @param seen whether seen yet
+         * @param extra extra ones to do
+         * @return the next node to search, null if none found
+         * @throws SnapshotException
+         */
+        int resolveNextSameField(ISnapshot snapshot, int sourceId, BitField seen, ArrayInt extra) throws SnapshotException
+        {
+            int ret = -1;
+            IClass c1 = snapshot.getClassOf(sourceId);
+            for (int i : snapshot.getOutboundReferentIds(sourceId))
+            {
+                if (!snapshot.isArray(i) && !snapshot.isClass(i))
+                {
+                    IClass c2 = snapshot.getClassOf(i);
+                    if (c1.equals(c2) && !seen.get(i))
+                    {
+                        seen.set(i);
+                        if (ret == -1)
+                        {
+                            ret = i;
+                        }
+                        else
+                        {
+                            extra.add(i);
+                        }
+                    }
+                }
+            }
+            return ret;
         }
 
         public boolean hasBackingArray()
         {
-            return arrayField != null;
+            return arrayField != null && !arrayField.endsWith("."); //$NON-NLS-1$
         }
 
         public IObjectArray getBackingArray(IObject collection) throws SnapshotException
         {
-            return (IObjectArray) collection.resolveValue(arrayField);
+            IObjectArray ret = (IObjectArray) collection.resolveValue(arrayField);
+            if (ret != null)
+                return ret;
+            IObject next = resolveNextFields(collection);
+            if (next == null)
+                return null;
+            // Look for the only object array field
+            final ISnapshot snapshot = next.getSnapshot();
+            for (int i : snapshot.getOutboundReferentIds(next.getObjectId()))
+            {
+                if (snapshot.isArray(i))
+                {
+                    IObject o = snapshot.getObject(i);
+                    if (o instanceof IObjectArray)
+                    {
+                        // Have we already found a possible return type?
+                        // If so, things are uncertain and so give up.
+                        if (ret != null)
+                            return null;
+                        ret = (IObjectArray) o;
+                    }
+                }
+            }
+            return ret;
+        }
+
+        IObject resolveNextFields(IObject collection) throws SnapshotException
+        {
+            // Find out how many fields to chain through to find the array
+            IObject next = collection;
+            // Don't do the last as that is the array field
+            for (int i = arrayField.indexOf('.'); i >= 0 && next != null; i = arrayField.indexOf('.', i+1))
+            {
+                next = resolveNextField(next);
+            }
+            return next;
         }
 
         public String getBackingArrayField()
@@ -165,6 +340,16 @@ public final class CollectionUtil
 
     public static int getNumberOfNoNullArrayElements(IObjectArray arrayObject)
     {
+        // Fast path using referentIds for arrays with same number of outbounds (+class id) as length
+        // or no outbounds other than the class
+        ISnapshot snapshot = arrayObject.getSnapshot();
+        try
+        {
+            final int[] outs = snapshot.getOutboundReferentIds(arrayObject.getObjectId());
+            if (outs.length == 1 || outs.length == arrayObject.getLength() + 1) { return outs.length - 1; }
+        }
+        catch (SnapshotException e)
+        {}
         long[] elements = arrayObject.getReferenceArray();
         int result = 0;
         for (int i = 0; i < elements.length; i++)
@@ -194,22 +379,38 @@ public final class CollectionUtil
     private static Info[] knownCollections = new Info[] {
                     new Info("java.util.AbstractList", null, null), //
 
+                    new Info("java.util.Collections$EmptyList", "", null), // use "" to make the size 0
+                    
                     new Info("java.util.ArrayList", ~Version.IBM16, "size", "elementData"), //
                     new IBM6ArrayListInfo("java.util.ArrayList", Version.IBM16, "firstIndex", "lastIndex", "array"), //
 
                     new IBM6ArrayListInfo("java.util.ArrayDeque", Version.IBM16, "front", "rear", "elements"), //
 
-                    new Info("java.util.LinkedList", "size", null), //
+                    new Info("java.util.LinkedList", ~Version.IBM16, "size", "header."), //
+                    new Info("java.util.LinkedList", Version.IBM16, "size", "voidLink."), //
 
                     new Info("java.util.HashMap", ~Version.IBM16, "size", "table", "key", "value"), //
-                    new Info("java.util.HashMap", Version.IBM16, "elementCount", "elementData", "key", "value"), // 
+                    new Info("java.util.HashMap", Version.IBM16, "elementCount", "elementData", "key", "value"), //
+
+                    // Some Java 5 PHD files don't have superclass info so add LinkedHashMap to list
+                    // This is the same as HashMap
+                    new Info("java.util.LinkedHashMap", Version.IBM15, "size", "table", "key", "value"), //
+
+                    new Info("com.ibm.jvm.util.HashMapRT", Version.IBM15|Version.IBM16, "size", "table", "key", "value"), //
 
                     new Info("java.util.IdentityHashMap", Version.IBM14 | Version.IBM15, "size", "table"), //
                     new Info("java.util.IdentityHashMap", Version.IBM16, "size", "elementData"), // 
 
+                    new Info("java.util.Collections$EmptySet", "", null), // use "" to make the size 0
+                    new Info("java.util.Collections$EmptyMap", "", null), // use "" to make the size 0
+                    
                     new Info("java.util.HashSet", ~Version.IBM16, "map.size", "map.table", "key", "value"), //
                     new Info("java.util.HashSet", Version.IBM16, //
-                                    "backingMap.elementCount", "backingMap.elementData", "key", "value"), // 
+                                    "backingMap.elementCount", "backingMap.elementData", "key", "value"), //
+                                    
+                    // Some Java 5 PHD files don't have superclass info so add LinkedHashSet to list
+                    // This is the same as HashSet
+                    new Info("java.util.LinkedHashSet", Version.IBM15, "map.size", "map.table", "key", "value"), //
 
                     new Info("java.util.TreeMap", "size", null), //
 
@@ -218,6 +419,11 @@ public final class CollectionUtil
 
                     new Info("java.util.Hashtable", ~(Version.IBM15 | Version.IBM16), "count", "table", "key", "value"), //
                     new Info("java.util.Hashtable", Version.IBM15 | Version.IBM16, //
+                                    "elementCount", "elementData", "key", "value"), //
+
+                    // Some Java 5 PHD files don't have superclass info so add Properties to list
+                    // This is the same as Hashtable
+                    new Info("java.util.Properties", Version.IBM15, //
                                     "elementCount", "elementData", "key", "value"), //
 
                     new Info("java.util.Vector", "elementCount", "elementData"), //
@@ -233,7 +439,11 @@ public final class CollectionUtil
                                     "size", "table", "referent", "value"), //
 
                     new Info("java.util.concurrent.ConcurrentHashMap$Segment", "count", "table", "key", "value"), // 
-                    new Info("com.sap.engine.lib.util.AbstractDataStructure", null, null) //
+                    new Info("com.sap.engine.lib.util.AbstractDataStructure", null, null), //
+
+                    new Info("java.util.concurrent.CopyOnWriteArrayList", "", "array"), //
+                    new Info("java.util.concurrent.CopyOnWriteArraySet", "", "al.array"), // 
+
     };
 
     @SuppressWarnings("nls")
@@ -264,8 +474,8 @@ public final class CollectionUtil
         public int getSize(IObject collection) throws SnapshotException
         {
             int lastIndex = super.getSize(collection);
-            if (lastIndex == 0)
-                return 0;
+            if (lastIndex <= 0)
+                return lastIndex;
 
             Integer firstIndex = (Integer) collection.resolveValue(this.firstIndex);
 

@@ -12,6 +12,7 @@ package org.eclipse.mat.inspections.collections;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
+import org.eclipse.mat.collect.BitField;
 import org.eclipse.mat.inspections.InspectionAssert;
 import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IQuery;
@@ -22,6 +23,7 @@ import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.Field;
 import org.eclipse.mat.snapshot.model.IInstance;
 import org.eclipse.mat.snapshot.model.IObject;
+import org.eclipse.mat.snapshot.model.IObjectArray;
 import org.eclipse.mat.snapshot.model.ObjectReference;
 import org.eclipse.mat.snapshot.query.ObjectListResult;
 import org.eclipse.mat.util.IProgressListener;
@@ -60,9 +62,9 @@ public class HashSetValuesQuery implements IQuery
             }
             info = new CollectionUtil.Info(collection, null, array_attribute, key_attribute, null);
         }
-        else if (hashSet.getClazz().doesExtend("java.util.HashSet")) //$NON-NLS-1$
+        else if ((info = CollectionUtil.getInfo(hashSet)) != null && info.isMap() && info.getClassName().contains("Set")) //$NON-NLS-1$
         {
-            info = CollectionUtil.getInfo(hashSet);
+            // Got a HashSet
         }
         else
         {
@@ -76,44 +78,102 @@ public class HashSetValuesQuery implements IQuery
         String arrayField = info.getBackingArrayField();
         int p = arrayField.lastIndexOf('.');
         IInstance map = p < 0 ? (IInstance) hashSet : (IInstance) hashSet.resolveValue(arrayField.substring(0, p));
-        Field table = map.getField(p < 0 ? arrayField : arrayField.substring(p + 1));
+        int tableObjectId;
+        if (map != null)
+        {
+            Field table = map.getField(p < 0 ? arrayField : arrayField.substring(p + 1));
 
-        int tableObjectId = ((ObjectReference) table.getValue()).getObjectId();
+            tableObjectId = ((ObjectReference) table.getValue()).getObjectId();
+        }
+        else
+        {
+            IObjectArray back = info.getBackingArray(hashSet);
+            if (back == null)
+                return null;
+            tableObjectId = back.getObjectId();
+        }
 
+        // Avoid visiting nodes twice
+        BitField seen = new BitField(snapshot.getSnapshotInfo().getNumberOfObjects());
+        ArrayInt extra = new ArrayInt();
         int[] outbounds = snapshot.getOutboundReferentIds(tableObjectId);
-        for (int ii = 0; ii < outbounds.length; ii++)
-            collectEntry(hashEntries, outbounds[ii], info, listener);
-
-        if (listener.isCanceled())
-            throw new IProgressListener.OperationCanceledException();
+        for (int ii = 0; ii < outbounds.length && !listener.isCanceled(); ii++)
+            collectEntry(hashEntries, outbounds[ii], seen, extra, info, listener);
 
         return new ObjectListResult.Outbound(snapshot, hashEntries.toArray());
     }
 
-    private void collectEntry(ArrayInt hashEntries, int entryId, CollectionUtil.Info info, IProgressListener listener)
+    /**
+     * Find the hash entries
+     * @param hashEntries
+     * @param entryId
+     * @param seen - whether the node has been visited or value has been seen
+     * @param extra - holds extra nodes to visit
+     * @param info
+     * @param listener
+     * @throws SnapshotException
+     */
+    private void collectEntry(ArrayInt hashEntries, int entryId, BitField seen, ArrayInt extra, CollectionUtil.Info info, IProgressListener listener)
                     throws SnapshotException
     {
-        // no recursion -> use entryId to collect overflow entries
-        while (entryId >= 0)
+        if (seen.get(entryId))
+            return;
+        extra.clear();
+        extra.add(entryId);
+        seen.set(entryId);
+        ObjectLoop: for (int k = 0; k < extra.size(); ++k)
         {
-            // skip if it is the pseudo outgoing reference (all other elements
-            // are of type Map$Entry)
-            if (snapshot.isClass(entryId))
-                return;
+            entryId = extra.get(k);
+            while (entryId >= 0)
+            {
+                // skip if it is the pseudo outgoing reference (all other elements
+                // are of type Map$Entry)
+                if (snapshot.isClass(entryId))
+                    break;
 
-            IInstance entry = (IInstance) snapshot.getObject(entryId);
+                IInstance entry = (IInstance) snapshot.getObject(entryId);
 
-            entryId = -1;
+                entryId = -1;
 
-            Field next = entry.getField("next"); //$NON-NLS-1$
-            if (next.getValue() != null)
-                entryId = ((ObjectReference) next.getValue()).getObjectId();
+                Field next = entry.getField("next"); //$NON-NLS-1$
+                if (next != null)
+                {
+                    if (next.getValue() != null)
+                    {
+                        entryId = ((ObjectReference) next.getValue()).getObjectId();
+                        seen.set(entryId);
+                    }
+                }
+                else
+                {
+                    // Try to find without using fields
+                    entryId = info.resolveNextSameField(snapshot, entry.getObjectId(), seen, extra);
+                }
 
-            Field key = entry.getField(info.getEntryKeyField());
-            hashEntries.add(((ObjectReference) key.getValue()).getObjectId());
+                Field key = entry.getField(info.getEntryKeyField());
+                if (key != null)
+                {
+                    hashEntries.add(((ObjectReference) key.getValue()).getObjectId());
+                }
+                else
+                {
+                    // Find an object which is not the type of the entry, nor the HashSet, not next
+                    for (int i : snapshot.getOutboundReferentIds(entry.getObjectId()))
+                    {
+                        if (i != entryId
+                            && i != entry.getClazz().getObjectId()
+                            && i != hashSet.getObjectId()
+                            && !seen.get(i))
+                        {
+                            hashEntries.add(i);
+                            seen.set(i);
+                        }
+                    }
+                }
 
-            if (listener.isCanceled())
-                throw new IProgressListener.OperationCanceledException();
+                if (listener.isCanceled())
+                    break ObjectLoop;
+            }
         }
     }
 

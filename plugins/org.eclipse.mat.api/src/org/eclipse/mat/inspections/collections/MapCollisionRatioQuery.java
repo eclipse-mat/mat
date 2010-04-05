@@ -98,7 +98,7 @@ public class MapCollisionRatioQuery implements IQuery
             for (int objectId : objectIds)
             {
                 if (listener.isCanceled())
-                    throw new IProgressListener.OperationCanceledException();
+                    break;
 
                 CollectionUtil.Info info = metadata.get(snapshot.getClassOf(objectId).getObjectId());
                 if (info != null)
@@ -116,8 +116,8 @@ public class MapCollisionRatioQuery implements IQuery
     private static double getCollisionRatio(CollectionUtil.Info info, IObject hashtableObject) throws SnapshotException
     {
         int size = info.getSize(hashtableObject);
-        if (size == 0)
-            return 0;
+        if (size <= 0)
+            return size;
 
         IObjectArray table = info.getBackingArray(hashtableObject);
         if (table == null)

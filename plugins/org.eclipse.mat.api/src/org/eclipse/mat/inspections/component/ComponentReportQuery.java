@@ -22,6 +22,7 @@ import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.collect.SetInt;
+import org.eclipse.mat.inspections.InspectionAssert;
 import org.eclipse.mat.inspections.ReferenceQuery;
 import org.eclipse.mat.inspections.collections.CollectionUtil;
 import org.eclipse.mat.internal.Messages;
@@ -322,6 +323,7 @@ public class ComponentReportQuery implements IQuery
 
     private void addDuplicateStrings(SectionSpec componentReport, Histogram histogram, Ticks listener) throws Exception
     {
+        InspectionAssert.heapFormatIsNot(snapshot, "DTFJ-PHD"); //$NON-NLS-1$
         for (ClassHistogramRecord record : histogram.getClassHistogramRecords())
         {
             if (!"char[]".equals(record.getLabel())) //$NON-NLS-1$

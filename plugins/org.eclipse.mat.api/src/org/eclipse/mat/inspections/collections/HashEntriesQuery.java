@@ -269,14 +269,14 @@ public class HashEntriesQuery implements IQuery
                 key2entry.put(entry.keyValue, entry);
 
                 if (listener.isCanceled())
-                    throw new IProgressListener.OperationCanceledException();
+                    break;
             }
         }
     }
 
     public Result execute(IProgressListener listener) throws Exception
     {
-        InspectionAssert.heapFormatIsNot(snapshot, "phd"); //$NON-NLS-1$
+        InspectionAssert.heapFormatIsNot(snapshot, "DTFJ-PHD"); //$NON-NLS-1$
         listener.subTask(Messages.HashEntriesQuery_Msg_Extracting);
 
         // prepare meta-data of known collections

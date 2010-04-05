@@ -88,7 +88,8 @@ public class CommonNameResolver
     {
         public String resolve(IObject heapObject) throws SnapshotException
         {
-            return String.valueOf(heapObject.resolveValue("value")); //$NON-NLS-1$
+            Object value = heapObject.resolveValue("value"); //$NON-NLS-1$
+            return value != null ? String.valueOf(value) : null; 
         }
     }
 

@@ -11,6 +11,7 @@
 package org.eclipse.mat.inspections.collections;
 
 import org.eclipse.mat.collect.ArrayInt;
+import org.eclipse.mat.inspections.InspectionAssert;
 import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
@@ -37,16 +38,17 @@ public class PrimitiveArraysWithAConstantValueQuery implements IQuery
 
     public IResult execute(IProgressListener listener) throws Exception
     {
+        InspectionAssert.heapFormatIsNot(snapshot, "DTFJ-PHD"); //$NON-NLS-1$
         listener.subTask(Messages.PrimitiveArraysWithAConstantValueQuery_SearchingArrayValues);
 
         ArrayInt result = new ArrayInt();
 
-        for (int[] objectIds : objects)
+        ObjectLoop: for (int[] objectIds : objects)
         {
             for (int objectId : objectIds)
             {
                 if (listener.isCanceled())
-                    throw new IProgressListener.OperationCanceledException();
+                    break ObjectLoop;
 
                 if (!snapshot.isArray(objectId))
                     continue;
