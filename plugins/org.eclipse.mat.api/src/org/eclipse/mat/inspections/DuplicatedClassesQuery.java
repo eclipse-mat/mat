@@ -55,8 +55,6 @@ public class DuplicatedClassesQuery implements IQuery, IResultTree, IIconProvide
 
     public IResult execute(IProgressListener listener) throws Exception
     {
-        InspectionAssert.heapFormatIsNot(snapshot, "phd"); //$NON-NLS-1$
-
         IClass[] allClasses = snapshot.getClasses().toArray(new IClass[0]);
         int length = allClasses.length;
         listener.beginTask(Messages.DuplicatedClassesQuery_Checking, length / 100);
