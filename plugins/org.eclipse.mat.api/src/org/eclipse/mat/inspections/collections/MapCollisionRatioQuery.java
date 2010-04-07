@@ -14,7 +14,6 @@ import java.util.Collection;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.HashMapIntObject;
-import org.eclipse.mat.inspections.InspectionAssert;
 import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
