@@ -13,7 +13,6 @@ package org.eclipse.mat.ui.internal.viewer;
 import java.util.List;
 
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.jface.util.ConfigureColumns;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.refined.RefinedTable;
@@ -57,7 +56,8 @@ public class RefinedTableViewer extends RefinedResultViewer
     @Override
     protected void configureColumns()
     {
-    	ConfigureColumns.forTable(table, editor.getEditorSite());
+        /* temporarily removed because of dependency on 3.5, see comments 3-5 in bug 307031 */
+//    	ConfigureColumns.forTable(table, editor.getEditorSite());
     }
 
     protected void handleSetDataEvent(Event event)

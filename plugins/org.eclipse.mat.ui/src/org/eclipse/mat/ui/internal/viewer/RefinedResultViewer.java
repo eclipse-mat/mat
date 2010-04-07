@@ -758,7 +758,8 @@ public abstract class RefinedResultViewer
     	
         addFilterMenu(columnsMenu);
         addSortByMenu(columnsMenu);
-        addConfigureColumnsMenu(columnsMenu);
+        /* temporarily removed because of dependency on 3.5, see comments 3-5 in bug 307031 */
+//        addConfigureColumnsMenu(columnsMenu); 
         
     }
 
@@ -786,6 +787,7 @@ public abstract class RefinedResultViewer
         }
     }
     
+    /* temporarily removed because of dependency on 3.5, see comments 3-5 in bug 307031 */
     private void addConfigureColumnsMenu(PopupMenu menu)
     {
         Action columnsAction = new Action(Messages.RefinedResultViewer_ConfigureColumns) 
