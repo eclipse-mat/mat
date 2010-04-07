@@ -46,6 +46,7 @@ import org.eclipse.mat.snapshot.Histogram;
 import org.eclipse.mat.snapshot.IMultiplePathsFromGCRootsComputer;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.inspections.MultiplePath2GCRootsQuery;
+import org.eclipse.mat.snapshot.model.GCRootInfo;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IInstance;
 import org.eclipse.mat.snapshot.model.ObjectReference;
@@ -863,7 +864,8 @@ public class ComponentReportQuery implements IQuery
         for (int ii = 0; ii < retained.length; ii++)
             retainedSet.add(retained[ii]);
 
-        ArrayInt finalizers = new ArrayInt();
+        // Avoid duplicates from the two approaches by using a set
+        SetInt finalizers = new SetInt();
 
         for (IClass c : classes)
         {
@@ -879,6 +881,25 @@ public class ComponentReportQuery implements IQuery
                     {
                         finalizers.add(referentId);
                     }
+                }
+            }
+        }
+
+        // Add other objects marked as not yet finalized
+        for (int root : snapshot.getGCRoots())
+        {
+            GCRootInfo ifo[] = snapshot.getGCRootInfo(root);
+            for (GCRootInfo rootInfo : ifo)
+            {
+                if (rootInfo.getType() == GCRootInfo.Type.UNFINALIZED
+                    || rootInfo.getType() == GCRootInfo.Type.FINALIZABLE)
+                {
+                    int referentId = rootInfo.getObjectId();
+                    if (retainedSet.contains(referentId))
+                    {
+                        finalizers.add(referentId);
+                    }
+                    break;
                 }
             }
         }

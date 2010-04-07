@@ -1699,27 +1699,27 @@ public class DTFJIndexBuilder implements IIndexBuilder
             listener.subTask(Messages.DTFJIndexBuilder_GeneratingExtraRootsFromFinalizables);
             for (int i = 0; i < refd.length; ++i)
             {
-                if (!refd[i])
+                int clsId = objectToClass.get(i);
+                long clsAddr = indexToAddress.get(clsId);
+                if (finalizableClass.contains(clsAddr))
                 {
-                    int clsId = objectToClass.get(i);
-                    long clsAddr = indexToAddress.get(clsId);
-                    ClassImpl classInfo = idToClass.get(clsId);
-                    String clsInfo;
-                    // If objectToClass has not yet been filled in for objects
-                    // then this could be null
-                    if (classInfo != null)
+                    long addr = indexToAddress.get(i);
+                    if (!refd[i])
                     {
-                        clsInfo = classInfo.getName();
-                    }
-                    else
-                    {
-                        clsInfo = format(clsAddr);
-                    }
-                    if (finalizableClass.contains(clsAddr))
-                    {
-                        long addr = indexToAddress.get(i);
                         if (!gcRoot.containsKey(i))
                         {
+                            ClassImpl classInfo = idToClass.get(clsId);
+                            String clsInfo;
+                            // If objectToClass has not yet been filled in for objects
+                            // then this could be null
+                            if (classInfo != null)
+                            {
+                                clsInfo = classInfo.getName();
+                            }
+                            else
+                            {
+                                clsInfo = format(clsAddr);
+                            }
                             // Make a root as this object is not referred to nor
                             // a normal root, but has a finalize method
                             // This ensures that all finalizable objects are
@@ -1733,6 +1733,14 @@ public class DTFJIndexBuilder implements IIndexBuilder
                                                 null);
                             debugPrint("extra finalizable root " + i + " " + format(addr)); //$NON-NLS-1$ //$NON-NLS-2$
                         }
+                    }
+                    else
+                    {
+                        /*
+                         * The object is reachable another way, but we should indicate it needs to
+                         * be finalized later.
+                         */
+                        addRoot(gcRoot, addr, fixedBootLoaderAddress, GCRootInfo.Type.UNFINALIZED);
                     }
                 }
             }
@@ -3784,7 +3792,9 @@ public class DTFJIndexBuilder implements IIndexBuilder
     {
         // DTFJ size includes any link field, so just round to 8 bytes
         long s = (jo.getSize() + 7) & ~7L;
-        return (int) s;
+        // Avoid overflow
+        s = Math.min(s, Integer.MAX_VALUE);
+        return (int)s;
     }
 
     /**

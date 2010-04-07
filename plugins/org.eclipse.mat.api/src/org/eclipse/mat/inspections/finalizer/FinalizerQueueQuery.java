@@ -12,7 +12,7 @@ package org.eclipse.mat.inspections.finalizer;
 
 import java.util.Collection;
 
-import org.eclipse.mat.collect.ArrayInt;
+import org.eclipse.mat.collect.SetInt;
 import org.eclipse.mat.inspections.ReferenceQuery;
 import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IQuery;
@@ -44,7 +44,8 @@ public class FinalizerQueueQuery implements IQuery
     {
         Collection<IClass> finalizerClasses = snapshot.getClassesByName("java.lang.ref.Finalizer", false); //$NON-NLS-1$
 
-        ArrayInt result = new ArrayInt();
+        // Avoid duplicates by using a set
+        SetInt result = new SetInt();
 
         if (finalizerClasses == null || finalizerClasses.isEmpty())
         {

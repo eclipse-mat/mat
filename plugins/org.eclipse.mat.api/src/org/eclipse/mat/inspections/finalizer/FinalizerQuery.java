@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.mat.inspections.finalizer;
 
-import org.eclipse.mat.inspections.InspectionAssert;
 import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
@@ -33,8 +32,6 @@ public class FinalizerQuery implements IQuery
 
     public IResult execute(IProgressListener listener) throws Exception
     {
-        InspectionAssert.heapFormatIsNot(snapshot, "phd"); //$NON-NLS-1$
-
         SectionSpec spec = new SectionSpec(Messages.FinalizerQuery_Finalizers);
 
         IResult result = SnapshotQuery.lookup("finalizer_in_processing", snapshot).execute(listener); //$NON-NLS-1$
