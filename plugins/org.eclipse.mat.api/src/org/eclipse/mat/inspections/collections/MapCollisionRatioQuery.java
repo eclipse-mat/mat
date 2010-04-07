@@ -54,8 +54,6 @@ public class MapCollisionRatioQuery implements IQuery
 
     public IResult execute(IProgressListener listener) throws Exception
     {
-        InspectionAssert.heapFormatIsNot(snapshot, "phd"); //$NON-NLS-1$
-
         listener.subTask(Messages.MapCollisionRatioQuery_CalculatingCollisionRatios);
 
         // prepare meta-data of known collections

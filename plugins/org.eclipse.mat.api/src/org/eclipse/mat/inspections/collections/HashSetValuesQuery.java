@@ -13,7 +13,6 @@ package org.eclipse.mat.inspections.collections;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.collect.BitField;
-import org.eclipse.mat.inspections.InspectionAssert;
 import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
@@ -49,8 +48,6 @@ public class HashSetValuesQuery implements IQuery
 
     public IResult execute(IProgressListener listener) throws Exception
     {
-        InspectionAssert.heapFormatIsNot(snapshot, "phd"); //$NON-NLS-1$
-
         CollectionUtil.Info info = null;
 
         if (collection != null && hashSet.getClazz().doesExtend(collection))
