@@ -141,7 +141,7 @@ public class ComponentReportQuery implements IQuery
 
         try
         {
-            addHashMapsCollisionRatios(miscellaneous, histogram, ticks);
+            addHashMapsCollisionRatios(miscellaneous, totalSize, histogram, ticks);
         }
         catch (UnsupportedOperationException e)
         { /* ignore, if not supported by heap format */}
@@ -394,6 +394,9 @@ public class ComponentReportQuery implements IQuery
     private void addEmptyCollections(SectionSpec componentReport, long totalSize, Histogram histogram, Ticks listener)
                     throws Exception
     {
+        // Works, but very slow, so disable for big components
+        if (totalSize > 1000000)
+            InspectionAssert.heapFormatIsNot(snapshot, "DTFJ-PHD"); //$NON-NLS-1$
         long threshold = totalSize / 20;
 
         SectionSpec overview = new SectionSpec(Messages.ComponentReportQuery_EmptyCollections);
@@ -489,6 +492,9 @@ public class ComponentReportQuery implements IQuery
     private void addCollectionFillRatios(SectionSpec componentReport, long totalSize, Histogram histogram,
                     Ticks listener) throws Exception
     {
+        // Works, but very slow, so disable for big components
+        if (totalSize > 1000000)
+            InspectionAssert.heapFormatIsNot(snapshot, "DTFJ-PHD"); //$NON-NLS-1$
         long threshold = totalSize / 20;
 
         SectionSpec overview = new SectionSpec(Messages.ComponentReportQuery_CollectionFillRatios);
@@ -581,9 +587,12 @@ public class ComponentReportQuery implements IQuery
     // hash map collision ratios
     // //////////////////////////////////////////////////////////////
 
-    private void addHashMapsCollisionRatios(SectionSpec componentReport, Histogram histogram, Ticks listener)
+    private void addHashMapsCollisionRatios(SectionSpec componentReport, long totalSize, Histogram histogram, Ticks listener)
                     throws Exception
     {
+        // Works, but very slow, so disable for big components
+        if (totalSize > 1000000)
+            InspectionAssert.heapFormatIsNot(snapshot, "DTFJ-PHD"); //$NON-NLS-1$
         SectionSpec overview = new SectionSpec(Messages.ComponentReportQuery_MapCollisionRatios);
 
         StringBuilder comment = new StringBuilder();
