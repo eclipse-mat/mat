@@ -13,6 +13,7 @@ package org.eclipse.mat.snapshot.acquire;
 import java.io.File;
 import java.util.List;
 
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.util.IProgressListener;
 
 /**
@@ -29,7 +30,7 @@ public interface IHeapDumpProvider
 	 * 
 	 * @return List<VmInfo> the list of processes ({@link VmInfo})
 	 */
-	public List<VmInfo> getAvailableVMs();
+	public List<? extends VmInfo> getAvailableVMs(IProgressListener listener) throws SnapshotException;
 
 	/**
 	 * Acquire a heap dump from a locally running Java process. The
@@ -46,5 +47,5 @@ public interface IHeapDumpProvider
 	 *         saved
 	 * @throws Exception
 	 */
-	public File acquireDump(VmInfo info, File preferredLocation, IProgressListener listener) throws Exception;
+	public File acquireDump(VmInfo info, File preferredLocation, IProgressListener listener) throws SnapshotException;
 }

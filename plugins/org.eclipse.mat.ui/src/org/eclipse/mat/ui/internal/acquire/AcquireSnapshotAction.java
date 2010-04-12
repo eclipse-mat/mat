@@ -37,10 +37,10 @@ import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.internal.acquire.HeapDumpProviderDescriptor;
 import org.eclipse.mat.internal.acquire.HeapDumpProviderRegistry;
-import org.eclipse.mat.internal.acquire.ProviderArgumentsSet;
 import org.eclipse.mat.query.registry.ArgumentDescriptor;
 import org.eclipse.mat.query.registry.ArgumentFactory;
-import org.eclipse.mat.snapshot.acquire.IHeapDumpProvider;
+import org.eclipse.mat.query.registry.ExecutableArgumentsSet;
+import org.eclipse.mat.query.registry.ExecutableDescriptor;
 import org.eclipse.mat.snapshot.acquire.VmInfo;
 import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.editor.PathEditorInput;
@@ -209,9 +209,9 @@ public class AcquireSnapshotAction extends Action implements IWorkbenchWindowAct
 		private VmInfo vmInfo;
 		private File preferredLocation;
 		private File result;
-		private ProviderArgumentsSet argumentSet;
+		private ExecutableArgumentsSet argumentSet;
 
-		public AcquireDumpOperation(VmInfo vmInfo, File preferredLocation, ProviderArgumentsSet argumentSet, IRunnableContext context)
+		public AcquireDumpOperation(VmInfo vmInfo, File preferredLocation, ExecutableArgumentsSet argumentSet, IRunnableContext context)
 		{
 			this.vmInfo = vmInfo;
 			this.preferredLocation = preferredLocation;
@@ -240,8 +240,8 @@ public class AcquireSnapshotAction extends Action implements IWorkbenchWindowAct
 	    {
 	        try
 	        {
-	            HeapDumpProviderDescriptor providerDescriptor = argumentSet.getProviderDescriptor();
-	            IHeapDumpProvider impl = vmInfo.getHeapDumpProvider();
+	            ExecutableDescriptor providerDescriptor = (ExecutableDescriptor) argumentSet.getDescriptor();
+	            VmInfo impl = vmInfo;
 
 	            for (ArgumentDescriptor parameter : providerDescriptor.getArguments())
 	            {
@@ -317,7 +317,7 @@ public class AcquireSnapshotAction extends Action implements IWorkbenchWindowAct
 	                }
 	            }
 
-	            File result = impl.acquireDump(vmInfo, preferredLocation, listener);
+	            File result = impl.getHeapDumpProvider().acquireDump(vmInfo, preferredLocation, listener);
 	            return result;
 	        }
 	        catch (IProgressListener.OperationCanceledException e)

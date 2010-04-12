@@ -25,14 +25,11 @@ import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.window.DefaultToolTip;
 import org.eclipse.jface.window.ToolTip;
 import org.eclipse.mat.SnapshotException;
-import org.eclipse.mat.internal.acquire.HeapDumpProviderDescriptor;
-import org.eclipse.mat.internal.acquire.HeapDumpProviderRegistry;
-import org.eclipse.mat.internal.acquire.ProviderArgumentsSet;
 import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.registry.ArgumentDescriptor;
-import org.eclipse.mat.snapshot.acquire.VmInfo;
+import org.eclipse.mat.query.registry.ExecutableArgumentsSet;
+import org.eclipse.mat.query.registry.ExecutableDescriptor;
 import org.eclipse.mat.ui.Messages;
-import org.eclipse.mat.ui.internal.acquire.AcquireDialog.ProcessSelectionListener;
 import org.eclipse.mat.ui.internal.query.arguments.ArgumentEditor;
 import org.eclipse.mat.ui.internal.query.arguments.TableEditorFactory;
 import org.eclipse.mat.ui.internal.query.arguments.ArgumentEditor.IEditorListener;
@@ -49,7 +46,7 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 
-public class ProviderArgumentsTable implements IEditorListener, ProcessSelectionListener
+public class ProviderArgumentsTable implements IEditorListener/*, ProcessSelectionListener*/
 {
 
 	private static final int MIN_EDITOR_WIDTH = 50;
@@ -63,9 +60,10 @@ public class ProviderArgumentsTable implements IEditorListener, ProcessSelection
 	private Font boldFont;
 	private Font normalFont;
 
-	private ProviderArgumentsWizzardPage wizzardPage;
-	private HeapDumpProviderDescriptor providerDescriptor;
-	private ProviderArgumentsSet argumentSet;
+//	private ProviderArgumentsWizzardPage wizzardPage;
+//	private HeapDumpProviderDescriptor providerDescriptor;
+	private ExecutableDescriptor providerDescriptor;
+	private ExecutableArgumentsSet argumentSet;
 	private IQueryContext context;
 
 	private List<ITableListener> listeners = Collections.synchronizedList(new ArrayList<ITableListener>());
@@ -80,9 +78,9 @@ public class ProviderArgumentsTable implements IEditorListener, ProcessSelection
 		void onFocus(String message);
 	}
 
-	public ProviderArgumentsTable(Composite parent, int style, ProviderArgumentsWizzardPage wizzardPage)
+	public ProviderArgumentsTable(Composite parent, int style/*, ProviderArgumentsWizzardPage wizzardPage*/)
 	{
-		this.wizzardPage = wizzardPage;
+//		this.wizzardPage = wizzardPage;
 		TableColumnLayout tableColumnLayout = new TableColumnLayout();
 		parent.setLayout(tableColumnLayout);
 
@@ -137,12 +135,12 @@ public class ProviderArgumentsTable implements IEditorListener, ProcessSelection
 		}.activate();
 	}
 
-	public ProviderArgumentsSet getArgumentSet()
+	public ExecutableArgumentsSet getArgumentSet()
 	{
 		return argumentSet;
 	}
 
-	public HeapDumpProviderDescriptor getProviderDescriptor()
+	public ExecutableDescriptor getProviderDescriptor()
 	{
 		return providerDescriptor;
 	}
@@ -448,28 +446,57 @@ public class ProviderArgumentsTable implements IEditorListener, ProcessSelection
 		}
 	}
 
-	public void processSelected(VmInfo process)
+//	public void processSelected(VmInfo process)
+//    {
+//        HeapDumpProviderDescriptor newProviderDescriptor = HeapDumpProviderRegistry.instance().getHeapDumpProvider(process.getHeapDumpProvider().getClass());
+//        if (!newProviderDescriptor.equals(providerDescriptor))
+//        {
+//            // Obtain some default values in the table based on the current
+//            // values of the provider
+//            for (ArgumentDescriptor ad : newProviderDescriptor.getArguments())
+//            {
+//                try
+//                {
+//                    ad.setDefaultValue(ad.getField().get(process.getHeapDumpProvider()));
+//                }
+//                catch (IllegalAccessException e)
+//                {}
+//            }
+//            providerDescriptor = newProviderDescriptor;
+//            table.removeAll();
+////            argumentSet = new ProviderArgumentsSet(providerDescriptor);
+//            // FIXME !!
+//            context = new ProviderContextImpl();
+//            createTableContent();
+//        }
+////        wizzardPage.updateDescription();
+//        fireInputChangedEvent();
+//    }
+	
+	public void providerSelected(ExecutableArgumentsSet newArgumentsSet)
     {
-        HeapDumpProviderDescriptor newProviderDescriptor = HeapDumpProviderRegistry.instance().getHeapDumpProvider(process.getHeapDumpProvider().getClass());
+		ExecutableDescriptor newProviderDescriptor = newArgumentsSet.getDescriptor();
         if (!newProviderDescriptor.equals(providerDescriptor))
         {
             // Obtain some default values in the table based on the current
             // values of the provider
-            for (ArgumentDescriptor ad : newProviderDescriptor.getArguments())
-            {
-                try
-                {
-                    ad.setDefaultValue(ad.getField().get(process.getHeapDumpProvider()));
-                }
-                catch (IllegalAccessException e)
-                {}
-            }
+//            for (ArgumentDescriptor ad : newProviderDescriptor.getArguments())
+//            {
+//                try
+//                {
+//                    ad.setDefaultValue(ad.getField().get(newProviderDescriptor.getHeapDumpProvider()));
+//                }
+//                catch (IllegalAccessException e)
+//                {}
+//            }
             providerDescriptor = newProviderDescriptor;
             table.removeAll();
-            argumentSet = new ProviderArgumentsSet(providerDescriptor);
+//            argumentSet = new ProviderArgumentsSet(providerDescriptor);
+            argumentSet = newArgumentsSet;
             context = new ProviderContextImpl();
             createTableContent();
         }
-        wizzardPage.updateDescription();
+//        wizzardPage.updateDescription();
+        fireInputChangedEvent();
     }
 }

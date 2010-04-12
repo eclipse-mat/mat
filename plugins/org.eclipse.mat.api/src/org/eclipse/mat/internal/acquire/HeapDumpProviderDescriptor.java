@@ -23,16 +23,23 @@ import org.eclipse.mat.snapshot.acquire.IHeapDumpProvider;
 public class HeapDumpProviderDescriptor extends ExecutableDescriptor
 {
 	protected final Class<? extends IHeapDumpProvider> subject;
+	protected final IHeapDumpProvider provider;
 
 	public HeapDumpProviderDescriptor(String identifier, String name, String usage, String help, String helpUrl, Locale helpLocale,
-			Class<? extends IHeapDumpProvider> subject)
+			IHeapDumpProvider provider)
 	{
 		super(identifier, name, usage, help, helpUrl, helpLocale);
-		this.subject = subject;
+		this.provider = provider;
+		this.subject = provider.getClass();
 	}
 
 	public Class<? extends IHeapDumpProvider> getSubject()
 	{
 		return subject;
+	}
+	
+	public IHeapDumpProvider getHeapDumpProvider()
+	{
+		return provider;
 	}
 }

@@ -20,18 +20,19 @@ import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.hprof.Messages;
-import org.eclipse.mat.snapshot.acquire.VmInfo;
 
 public class LocalJavaProcessesUtils
 {
-	static List<VmInfo> getLocalVMsUsingJPS()
+	static List<JmapVmInfo> getLocalVMsUsingJPS(String jps) throws SnapshotException
 	{
 		StreamCollector error = null;
 		StreamCollector output = null;
+		Process p = null;
 		try
 		{
-			Process p = Runtime.getRuntime().exec("jps"); //$NON-NLS-1$
+			p = Runtime.getRuntime().exec(jps); //$NON-NLS-1$
 			error = new StreamCollector(p.getErrorStream());
 			error.start();
 			output = new StreamCollector(p.getInputStream());
@@ -41,33 +42,41 @@ public class LocalJavaProcessesUtils
 
 			if (exitVal != 0) return null;
 
-			List<VmInfo> vms = new ArrayList<VmInfo>();
+			List<JmapVmInfo> vms = new ArrayList<JmapVmInfo>();
 			StringTokenizer tok = new StringTokenizer(output.buf.toString(), "\r\n"); //$NON-NLS-1$
 			while (tok.hasMoreTokens())
 			{
 				String token = tok.nextToken();
 
 				// System.err.println(token);
-				VmInfo info = parseJPSLine(token);
+				JmapVmInfo info = parseJPSLine(token);
 				if (info != null) vms.add(info);
 			}
 			return vms;
 		}
-		catch (Throwable t)
+		catch (IOException ioe)
 		{
-			Logger.getLogger("org.eclipse.mat").log(Level.SEVERE, Messages.LocalJavaProcessesUtils_ErrorGettingProcessListJPS, t); //$NON-NLS-1$
-			return null;
+			throw new SnapshotException(Messages.LocalJavaProcessesUtils_ErrorGettingProcessListJPS, ioe); //$NON-NLS-1$
+		}
+		catch (InterruptedException ie)
+		{
+			throw new SnapshotException(Messages.LocalJavaProcessesUtils_ErrorGettingProcessListJPS, ie); //$NON-NLS-1$
+		}
+		finally
+		{
+			if (p != null)
+				p.destroy();
 		}
 
 	}
 
-	private static VmInfo parseJPSLine(String line)
+	private static JmapVmInfo parseJPSLine(String line)
 	{
 		int firstSpaceIdx = line.indexOf(' ');
 		if (firstSpaceIdx == -1) return null;
 		int pid = Integer.parseInt(line.substring(0, firstSpaceIdx));
 		String description = line.substring(firstSpaceIdx);
-		return new VmInfo(pid, description, false, null, null);
+		return new JmapVmInfo(pid, description, false, null, null);
 	}
 
 	static class StreamCollector extends Thread
@@ -83,9 +92,10 @@ public class LocalJavaProcessesUtils
 
 		public void run()
 		{
+			InputStreamReader isr = null;
 			try
 			{
-				InputStreamReader isr = new InputStreamReader(is);
+				isr = new InputStreamReader(is);
 				BufferedReader br = new BufferedReader(isr);
 				String line = null;
 				while ((line = br.readLine()) != null)
@@ -94,6 +104,17 @@ public class LocalJavaProcessesUtils
 			catch (IOException ioe)
 			{
 				Logger.getLogger(getClass().getName()).log(Level.SEVERE, Messages.LocalJavaProcessesUtils_ErrorGettingProcesses, ioe);
+			}
+			finally
+			{
+				if (isr != null) try
+				{
+					isr.close();
+				}
+				catch (IOException e)
+				{
+					// ignore this
+				}
 			}
 		}
 	}

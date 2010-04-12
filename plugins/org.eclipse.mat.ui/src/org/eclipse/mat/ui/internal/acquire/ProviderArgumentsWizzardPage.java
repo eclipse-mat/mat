@@ -14,7 +14,8 @@ import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.wizard.WizardPage;
-import org.eclipse.mat.internal.acquire.ProviderArgumentsSet;
+import org.eclipse.mat.query.registry.ExecutableArgumentsSet;
+import org.eclipse.mat.ui.internal.acquire.AcquireDialog.ProcessSelectionListener;
 import org.eclipse.mat.ui.internal.acquire.ProviderArgumentsTable.ITableListener;
 import org.eclipse.mat.ui.internal.browser.QueryContextHelp;
 import org.eclipse.swt.SWT;
@@ -26,7 +27,7 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.PlatformUI;
 
-public class ProviderArgumentsWizzardPage extends WizardPage implements ITableListener
+public class ProviderArgumentsWizzardPage extends WizardPage implements ITableListener, ProcessSelectionListener
 {
 	private ProviderArgumentsTable table;
 
@@ -52,7 +53,7 @@ public class ProviderArgumentsWizzardPage extends WizardPage implements ITableLi
 		GridDataFactory.fillDefaults().grab(true, true).indent(0, 0).applyTo(tableComposite);
 
 		Dialog.applyDialogFont(composite);
-		table = new ProviderArgumentsTable(tableComposite, SWT.FULL_SELECTION | SWT.SINGLE, this);
+		table = new ProviderArgumentsTable(tableComposite, SWT.FULL_SELECTION | SWT.SINGLE);
 		table.addListener(this);
 
 		tableComposite.layout();
@@ -62,7 +63,7 @@ public class ProviderArgumentsWizzardPage extends WizardPage implements ITableLi
 		composite.setContent(tableComposite);
 		setControl(composite);
 
-		acquireDialog.addProcessSelectionListener(table);
+		acquireDialog.addProcessSelectionListener(this);
 		table.addListener(this);
 		
         Listener listener = new Listener()
@@ -88,14 +89,15 @@ public class ProviderArgumentsWizzardPage extends WizardPage implements ITableLi
 		return table;
 	}
 
-	public ProviderArgumentsSet getArgumentSet()
+	public ExecutableArgumentsSet getArgumentSet()
 	{
 		return table.getArgumentSet();
 	}
 
 	public void onInputChanged()
 	{
-		getContainer().updateButtons();
+		updateDescription();
+//		getContainer().updateButtons();
 	}
 
 	public void onError(String message)
@@ -122,10 +124,10 @@ public class ProviderArgumentsWizzardPage extends WizardPage implements ITableLi
 
 	public void relocateHelp(final boolean create)
 	{
-		final ProviderArgumentsSet argumentSet = table.getArgumentSet();
+		final ExecutableArgumentsSet argumentSet = table.getArgumentSet();
 		if (argumentSet == null) return;
 
-		if (argumentSet.getProviderDescriptor().isHelpAvailable() && //
+		if (argumentSet.getDescriptor().isHelpAvailable() && //
 				(create || (helpPopup != null && helpPopup.getShell() != null)))
 		{
 			if (getShell() == null)
@@ -155,11 +157,17 @@ public class ProviderArgumentsWizzardPage extends WizardPage implements ITableLi
                             }
                         }
 
-						helpPopup = new QueryContextHelp(getShell(), argumentSet.getProviderDescriptor(), helpBounds);
+						helpPopup = new QueryContextHelp(getShell(), argumentSet.getDescriptor(), helpBounds);
 						helpPopup.open();
 					}
 				}
 			});
 		}
 	}
+
+	public void processSelected(ExecutableArgumentsSet argumentSet)
+	{
+		table.providerSelected(argumentSet);
+	}
+	
 }

@@ -136,7 +136,7 @@ public class HeapDumpProviderRegistry extends RegistryReader<IHeapDumpProvider>
 		HelpUrl hu = providerClass.getAnnotation(HelpUrl.class);
 		String helpUrl = hu != null ? hu.value() : null;
 
-		HeapDumpProviderDescriptor descriptor = new HeapDumpProviderDescriptor(identifier, name, usage, help, helpUrl, helpLoc, providerClass);
+		HeapDumpProviderDescriptor descriptor = new HeapDumpProviderDescriptor(identifier, name, usage, help, helpUrl, helpLoc, provider);
 
 		Class<?> clazz = providerClass;
 		while (!clazz.equals(Object.class))
