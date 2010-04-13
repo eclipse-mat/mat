@@ -10,14 +10,12 @@
  *******************************************************************************/
 package org.eclipse.mat.ibmvm.acquire;
 
-import org.eclipse.mat.query.annotations.Name;
+import java.io.File;
 
-@Name("IBM System Dump (using helper VM)")
-public class IBMExecSystemDumpProvider extends IBMExecDumpProvider
+import org.eclipse.mat.query.annotations.Argument;
+
+public class IBMExecVmInfo extends IBMVmInfo
 {
-    @Override
-    protected String agentCommand()
-    {
-        return "system"; //$NON-NLS-1$
-    }
+    @Argument
+    public File javaexecutable;
 }

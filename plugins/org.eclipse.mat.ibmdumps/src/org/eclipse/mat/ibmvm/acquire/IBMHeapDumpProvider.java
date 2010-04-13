@@ -20,11 +20,6 @@ public class IBMHeapDumpProvider extends IBMDumpProvider {
     public IBMHeapDumpProvider()
     {
     }
-
-    @Override
-    protected String agentCommand() {
-        return "heap+java"; //$NON-NLS-1$
-    }
     
     @Override
     String dumpName() {

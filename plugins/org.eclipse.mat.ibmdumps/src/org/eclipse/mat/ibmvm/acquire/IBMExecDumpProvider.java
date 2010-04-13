@@ -17,118 +17,136 @@ import java.io.InputStreamReader;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.snapshot.acquire.IHeapDumpProvider;
 import org.eclipse.mat.snapshot.acquire.VmInfo;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.IProgressListener.Severity;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.DirectoryDialog;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.swt.widgets.Shell;
 
-@Name("IBM VM")
-abstract class IBMExecDumpProvider extends BaseProvider
+@Name("IBM Dump (using helper VM)")
+public class IBMExecDumpProvider extends BaseProvider
 {
 
     private static final String PLUGIN_ID = "org.eclipse.mat.ibmdump"; //$NON-NLS-1$
     private static final String JAVA_EXEC = "java"; //$NON-NLS-1$
     private static boolean abort = false;
+    
+    @Argument
+    public File javaexecutable;
 
-    public File acquireDump(VmInfo info, File preferredLocation, IProgressListener listener) throws Exception
+    public File acquireDump(VmInfo info, File preferredLocation, IProgressListener listener) throws SnapshotException
     {
         listener.beginTask(Messages.getString("IBMExecDumpProvider.GeneratingDump"), TOTAL_WORK); //$NON-NLS-1$
         ProcessBuilder pb = new ProcessBuilder();
         Process p = null;
-        String home = getJavaHome();
-        File javaExec;
-        javaExec = javaExec(home);
-        String vm = ((IBMVmInfo) info).getPidName();
-        String jar = getExecJar().getAbsolutePath();
-        final String execPath = javaExec.getPath();
-        pb.command(execPath, "-jar", jar, agentCommand(), vm, info.getProposedFileName()); //$NON-NLS-1$
-        p = pb.start();
-        StringBuffer err = new StringBuffer();
-        StringBuffer in = new StringBuffer();
-        InputStreamReader os = new InputStreamReader(p.getInputStream());
+        final IBMVmInfo info2 = (IBMVmInfo) info;
+        String vm = (info2).getPidName();
         try
         {
-            InputStreamReader es = new InputStreamReader(p.getErrorStream());
+            String jar = getExecJar().getAbsolutePath();
+            final String execPath = javaexecutable.getPath();
+            pb.command(execPath, "-jar", jar, info2.type.toString(), vm, info.getProposedFileName()); //$NON-NLS-1$
+            p = pb.start();
+            StringBuffer err = new StringBuffer();
+            StringBuffer in = new StringBuffer();
+            InputStreamReader os = new InputStreamReader(p.getInputStream());
             try
             {
-                int rc = 0;
-                do
+                InputStreamReader es = new InputStreamReader(p.getErrorStream());
+                try
                 {
-                    while (os.ready())
+                    int rc = 0;
+                    do
                     {
-                        in.append((char) os.read());
+                        while (os.ready())
+                        {
+                            in.append((char) os.read());
+                        }
+                        while (es.ready())
+                        {
+                            int c = es.read();
+                            if (c == '.')
+                                listener.worked(1);
+                            err.append((char) c);
+                        }
+                        try
+                        {
+                            rc = p.exitValue();
+                            break;
+                        }
+                        catch (IllegalThreadStateException e)
+                        {
+                            try
+                            {
+                                Thread.sleep(SLEEP_TIMEOUT);
+                            }
+                            catch (InterruptedException e1)
+                            {
+                                listener.setCanceled(true);
+                            }
+                        }
+                        if (listener.isCanceled())
+                        {
+                            return null;
+                        }
                     }
-                    while (es.ready())
+                    while (true);
+                    if (rc != 0) 
                     {
-                        int c = es.read();
-                        if (c == '.')
-                            listener.worked(1);
-                        err.append((char) c);
+                        throw new IOException(MessageFormat.format(Messages
+                                    .getString("IBMExecDumpProvider.ReturnCode"), execPath, rc, err.toString())); //$NON-NLS-1$
                     }
-                    try
-                    {
-                        rc = p.exitValue();
-                        break;
-                    }
-                    catch (IllegalThreadStateException e)
-                    {
-                        Thread.sleep(SLEEP_TIMEOUT);
-                    }
-                    if (listener.isCanceled())
-                    {
-                        p.destroy();
-                        return null;
-                    }
+                    String ss[] = in.toString().split("[\\n\\r]+"); //$NON-NLS-1$
+                    String filename = ss[0];
+                    listener.done();
+                    final File file = new File(filename);
+                    if (!file.canRead()) { throw new FileNotFoundException(filename); }
+                    return file;
                 }
-                while (true);
-                if (rc != 0) 
+                finally
                 {
-                    throw new IOException(MessageFormat.format(Messages
-                                .getString("IBMExecDumpProvider.ReturnCode"), execPath, rc, err.toString())); //$NON-NLS-1$
+                    es.close();
                 }
-                String ss[] = in.toString().split("[\\n\\r]+"); //$NON-NLS-1$
-                String filename = ss[0];
-                listener.done();
-                final File file = new File(filename);
-                if (!file.canRead()) { throw new FileNotFoundException(filename); }
-                return file;
             }
             finally
             {
-                es.close();
+                try
+                {
+                    p.exitValue();
+                }
+                catch (IllegalThreadStateException e)
+                {
+                    p.destroy();
+                }
+                os.close();
             }
         }
-        finally
+        catch (FileNotFoundException e)
         {
-            os.close();
+            throw new SnapshotException(e);
         }
-
+        catch (IOException e)
+        {
+            throw new SnapshotException(e);
+        }
     }
 
-    private File javaExec(String home)
+    private File javaExec(String dir)
     {
-        return jvmExec(home, JAVA_EXEC);
+        return jvmExec(dir, JAVA_EXEC);
     }
 
-    static File jvmExec(String home, String exec)
+    static File jvmExec(String javaDir, String exec)
     {
         File javaExec;
-        if (home != null)
+        if (javaDir != null)
         {
-            File homebin = new File(home, "bin"); //$NON-NLS-1$
-            javaExec = new File(homebin, exec);
+            javaExec = new File(javaDir, exec);
         }
         else
         {
@@ -137,58 +155,40 @@ abstract class IBMExecDumpProvider extends BaseProvider
         return javaExec;
     }
 
-    public List<VmInfo> getAvailableVMs()
+    public List<VmInfo> getAvailableVMs(IProgressListener listener)
     {
         List<VmInfo> ret;
-        try
-        {
-            ret = IBMDumpProvider.getDumpProvider(this).getAvailableVMs();
-            if (ret != null)
-                return null;
-        }
-        catch (LinkageError e)
-        {}
         if (abort)
             return null;
         /*
          * 1.Try previous/no directory 2.Query directory - based on
-         * previous/Java.home 3.If no directory/failed, offer abort/retry/ignore
+         * previous/Java.home
          */
 
-        String home = getJavaHome();
-
-        File javaExec;
-        javaExec = javaExec(home);
-
-        ret = execGetVMs(javaExec, home);
-        while (ret == null)
+        File javaExec = javaexecutable;
+        String javaDir;
+        
+        if (javaExec != null)
         {
-            if (home == null)
-            {
-                home = defaultJavaHome();
-            }
-            // Failed, so try choosing a VM
-            String home2 = chooseJavaHome(home);
-            if (home2 != null)
-            {
-                javaExec = javaExec(home2);
-                ret = execGetVMs(javaExec, home2);
-                if (ret != null)
-                {
-                    setJavaHome(home2);
-                    break;
-                }
-                home = home2;
-            }
-            int r = retry();
-            if (r == SWT.ABORT)
-            {
-                // Never try IBM dumps again
-                abort = true;
-                break;
-            }
-            if (r != SWT.RETRY)
-                break;
+            javaDir = javaExec.getParent();
+            System.out.println("argument "+javaexecutable+" "+javaDir);
+        }
+        else
+        {
+            javaDir = getJavaDir();
+
+            if (javaDir == null)
+                javaDir = defaultJavaDir();
+
+            javaExec = javaExec(javaDir);
+            System.out.println("find "+javaExec+" "+javaDir);
+        }
+
+        ret = execGetVMs(javaExec, listener);
+        if (ret != null)
+        {
+            setJavaDir(javaDir);
+            this.javaexecutable = javaExec;
         }
         return ret;
     }
@@ -198,9 +198,8 @@ abstract class IBMExecDumpProvider extends BaseProvider
      * 
      * @return
      */
-    private String defaultJavaHome()
+    private String defaultJavaDir()
     {
-        String home;
         String path = System.getenv("PATH"); //$NON-NLS-1$
         if (path != null)
         {
@@ -212,14 +211,12 @@ abstract class IBMExecDumpProvider extends BaseProvider
                 File dll = new File(dir, "dgcollector.dll"); //$NON-NLS-1$
                 if (dll.exists())
                 {
-                    if (parentDir != null)
-                        return parentDir.getPath();
+                    return dir.getPath();
                 }
                 dll = new File(p, "dgcollector.so"); //$NON-NLS-1$
                 if (dll.exists())
                 {
-                    if (parentDir != null)
-                        return parentDir.getPath();
+                    return dir.getPath();
                 }
                 // Perhaps we were given the sdk/bin directory, so look for the
                 // sdk/jre/bin
@@ -228,37 +225,35 @@ abstract class IBMExecDumpProvider extends BaseProvider
                 dll = new File(dir, "dgcollector.dll"); //$NON-NLS-1$
                 if (dll.exists())
                 {
-                    if (parentDir != null)
-                        return parentDir.getPath();
+                    return dir.getPath();
                 }
                 dll = new File(p, "dgcollector.so"); //$NON-NLS-1$
                 if (dll.exists())
                 {
-                    if (parentDir != null)
-                        return parentDir.getPath();
+                    return dir.getPath();
                 }
             }
         }
-        home = System.getProperty("java.home"); //$NON-NLS-1$
-        return home;
+        String home = System.getProperty("java.home"); //$NON-NLS-1$
+        return new File(home, "bin").getPath(); //$NON-NLS-1$
     }
 
     private static final String last_directory_key = IBMExecDumpProvider.class.getName() + ".lastDir"; //$NON-NLS-1$
-    private static String savedJavaHome;
+    private static String savedJavaDir;
 
-    private static synchronized String getJavaHome()
+    private static synchronized String getJavaDir()
     {
-        String home = Platform.getPreferencesService().getString(PLUGIN_ID, last_directory_key, savedJavaHome, null);
+        String home = Platform.getPreferencesService().getString(PLUGIN_ID, last_directory_key, savedJavaDir, null);
         return home;
     }
 
-    private static synchronized void setJavaHome(String home)
+    private static synchronized void setJavaDir(String home)
     {
         new InstanceScope().getNode(PLUGIN_ID).put(last_directory_key, home);
-        savedJavaHome = home;
+        savedJavaDir = home;
     }
 
-    private List<VmInfo> execGetVMs(File javaExec, String home)
+    private List<VmInfo> execGetVMs(File javaExec, IProgressListener listener)
     {
         ArrayList<VmInfo> ar = new ArrayList<VmInfo>();
         ProcessBuilder pb = new ProcessBuilder();
@@ -267,7 +262,7 @@ abstract class IBMExecDumpProvider extends BaseProvider
         try
         {
             String jar = getExecJar().getAbsolutePath();
-            pb.command(execPath, "-jar", jar, agentCommand()); //$NON-NLS-1$
+            pb.command(execPath, "-jar", jar); //$NON-NLS-1$
             p = pb.start();
             StringBuffer err = new StringBuffer();
             StringBuffer in = new StringBuffer();
@@ -301,35 +296,27 @@ abstract class IBMExecDumpProvider extends BaseProvider
                     while (true);
                     if (rc != 0)
                     {
-                        getLogger().log(Level.WARNING,
-                                        MessageFormat.format(Messages.getString("IBMExecDumpProvider.ProblemListingVMsRC"), execPath, rc, err.toString())); //$NON-NLS-1$
+                        listener.sendUserMessage(Severity.WARNING,
+                                        MessageFormat.format(Messages.getString("IBMExecDumpProvider.ProblemListingVMsRC"), execPath, rc, err.toString()), null); //$NON-NLS-1$
                         ar = null;
                         return ar;
                     }
                     String ss[] = in.toString().split("[\\n\\r]+"); //$NON-NLS-1$
                     for (String s : ss)
                     {
-                        // command,pid,proposed filename,description
-                        String s2[] = s.split(",", 4); //$NON-NLS-1$
-                        if (s2.length >= 4)
+                        // pid,proposed filename,description
+                        String s2[] = s.split(",", 3); //$NON-NLS-1$
+                        if (s2.length >= 3)
                         {
                             // Exclude the helper process
-                            if (!s2[3].contains(getExecJar().getName()))
+                            if (!s2[2].contains(getExecJar().getName()))
                             {
-                                IBMVmInfo ifo = new IBMVmInfo();
-                                ifo.setPid(s2[1]);
-                                ifo.setProposedFileName(s2[2]);
-                                ifo.setDescription(s2[3]);
-                                IBMExecDumpProvider prov = this;
-                                if (!s2[0].equals(prov.agentCommand()))
-                                {
-                                    prov = new IBMExecSystemDumpProvider();
-                                    if (!s2[0].equals(prov.agentCommand()))
-                                    {
-                                        prov = new IBMExecHeapDumpProvider();
-                                    }
-                                }
+                                IBMExecVmInfo ifo = new IBMExecVmInfo();
+                                ifo.setPid(s2[0]);
+                                ifo.setProposedFileName(s2[1]);
+                                ifo.setDescription(s2[2]);
                                 ifo.setHeapDumpProvider(this);
+                                ifo.javaexecutable = javaExec;
                                 ar.add(ifo);
                             }
                         }
@@ -347,20 +334,15 @@ abstract class IBMExecDumpProvider extends BaseProvider
         }
         catch (IOException e)
         {
-            getLogger().log(Level.WARNING, MessageFormat.format(Messages.getString("IBMExecDumpProvider.ProblemListingVMs"), execPath), e); //$NON-NLS-1$
+            listener.sendUserMessage(Severity.WARNING, MessageFormat.format(Messages.getString("IBMExecDumpProvider.ProblemListingVMs"), execPath), e); //$NON-NLS-1$
             ar = null;
         }
         catch (InterruptedException e)
         {
-            getLogger().log(Level.WARNING, MessageFormat.format(Messages.getString("IBMExecDumpProvider.ProblemListingVMs"), execPath), e); //$NON-NLS-1$
+            listener.sendUserMessage(Severity.WARNING, MessageFormat.format(Messages.getString("IBMExecDumpProvider.ProblemListingVMs"), execPath), e); //$NON-NLS-1$
             ar = null;
         }
         return ar;
-    }
-
-    private Logger getLogger()
-    {
-        return Logger.getLogger("org.eclipse.mat"); //$NON-NLS-1$
     }
 
     private static File execJar;
@@ -379,6 +361,8 @@ abstract class IBMExecDumpProvider extends BaseProvider
                             "org.eclipse.mat.ibmvm.acquire.IBMHeapDumpProvider", //$NON-NLS-1$
                             "org.eclipse.mat.ibmvm.acquire.IBMSystemDumpProvider", //$NON-NLS-1$
                             "org.eclipse.mat.ibmvm.acquire.IBMVmInfo", //$NON-NLS-1$
+                            "org.eclipse.mat.ibmvm.acquire.AgentLoader2", //$NON-NLS-1$
+                            "org.eclipse.mat.ibmvm.acquire.IBMVmInfo$DumpType", //$NON-NLS-1$
                             "org.eclipse.mat.ibmvm.agent.DumpAgent" }; //$NON-NLS-1$
             Class<?> classes[] = { SnapshotException.class, IHeapDumpProvider.class, VmInfo.class,
                             IProgressListener.class, IProgressListener.OperationCanceledException.class,
@@ -386,61 +370,6 @@ abstract class IBMExecDumpProvider extends BaseProvider
             execJar = makeJar(jarname, "Main-Class: ", classesNames, classes); //$NON-NLS-1$
         }
         return execJar;
-    }
-
-    /**
-     * Ask the user for a suitable Java home for an IBM VM to help attach to the
-     * target VM.
-     * 
-     * @param oldHome
-     * @return
-     */
-    public String chooseJavaHome(String oldHome)
-    {
-        Display d = Display.getCurrent();
-        if (d == null)
-            d = Display.getDefault();
-        if (d == null)
-            return oldHome;
-        Shell shell = d.getActiveShell();
-        if (shell == null)
-            return oldHome;
-        DirectoryDialog dialog = new DirectoryDialog(shell);
-
-        dialog.setMessage(Messages.getString("IBMExecDumpProvider.ChooseIBMVMDirectory")); //$NON-NLS-1$
-
-        dialog.setFilterPath(oldHome);
-
-        String folder = dialog.open();
-
-        return folder;
-    }
-
-    /**
-     * Ask the user for a suitable Java home for an IBM VM to help attach to the
-     * target VM.
-     * 
-     * @param oldHome
-     * @return
-     */
-    public int retry()
-    {
-        Display d = Display.getCurrent();
-        if (d == null)
-            d = Display.getDefault();
-        if (d == null)
-            return SWT.IGNORE;
-        Shell shell = d.getActiveShell();
-        if (shell == null)
-            return SWT.IGNORE;
-        MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION | SWT.RETRY | SWT.ABORT | SWT.IGNORE);
-        mb.setMessage(Messages.getString("IBMExecDumpProvider.ChooseAnotherVM")); //$NON-NLS-1$
-        return mb.open();
-    }
-
-    protected String agentCommand()
-    {
-        return null;
     }
 
 }

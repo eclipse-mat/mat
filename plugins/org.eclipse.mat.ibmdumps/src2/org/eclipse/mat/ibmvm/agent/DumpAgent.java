@@ -10,7 +10,14 @@
  *******************************************************************************/
 package org.eclipse.mat.ibmvm.agent;
 
+import java.util.regex.Pattern;
+
 public class DumpAgent {
+    public static final String SEPARATOR = "+"; //$NON-NLS-1$
+    public static final String SYSTEM = "system"; //$NON-NLS-1$
+    public static final String HEAP = "heap"; //$NON-NLS-1$
+    public static final String JAVA = "java"; //$NON-NLS-1$
+
     /**
      * Generate a dump on this machine
      * 
@@ -19,18 +26,18 @@ public class DumpAgent {
      */
     public static void agentmain(String arg)
     {
-        String args[] = arg.split("\\+"); //$NON-NLS-1$
+        String args[] = arg.split(Pattern.quote(SEPARATOR));
         for (String a : args)
         {
-            if ("java".equals(a)) //$NON-NLS-1$
+            if (JAVA.equals(a))
             {
                 com.ibm.jvm.Dump.JavaDump();
             }
-            else if ("heap".equals(a)) //$NON-NLS-1$
+            else if (HEAP.equals(a))
             {
                 com.ibm.jvm.Dump.HeapDump();
             }
-            else if ("system".equals(a)) //$NON-NLS-1$
+            else if (SYSTEM.equals(a))
             {
                 com.ibm.jvm.Dump.SystemDump();
             }

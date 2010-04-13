@@ -5,16 +5,7 @@
          name="IBM Virtual Machines"
          point="org.eclipse.mat.api.heapDumpProvider">
       <provider
-            impl="org.eclipse.mat.ibmvm.acquire.IBMExecHeapDumpProvider">
-      </provider>
-      <provider
-            impl="org.eclipse.mat.ibmvm.acquire.IBMExecSystemDumpProvider">
-      </provider>
-      <provider
-            impl="org.eclipse.mat.ibmvm.acquire.IBMHeapDumpProvider">
-      </provider>
-      <provider
-            impl="org.eclipse.mat.ibmvm.acquire.IBMSystemDumpProvider">
+            impl="org.eclipse.mat.ibmvm.acquire.DumpFactory">
       </provider>
    </extension>
 </plugin>

@@ -29,12 +29,6 @@ public class IBMSystemDumpProvider extends IBMDumpProvider
     {}
 
     @Override
-    protected String agentCommand()
-    {
-        return "system"; //$NON-NLS-1$
-    }
-
-    @Override
     String dumpName()
     {
         return "core.YYmmdd.HHMMSS.%pid%.seq.dmp"; //$NON-NLS-1$

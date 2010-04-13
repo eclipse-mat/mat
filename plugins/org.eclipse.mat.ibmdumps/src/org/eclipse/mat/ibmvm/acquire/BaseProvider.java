@@ -110,10 +110,4 @@ public abstract class BaseProvider implements IHeapDumpProvider
         zo.closeEntry();
     }
 
-    /**
-     * Command to pass to the agent to generate dumps of this type
-     * @return
-     */
-    protected abstract String agentCommand();
-    
 }

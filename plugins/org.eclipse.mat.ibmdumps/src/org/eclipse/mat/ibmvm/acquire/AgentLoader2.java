@@ -10,14 +10,23 @@
  *******************************************************************************/
 package org.eclipse.mat.ibmvm.acquire;
 
-import org.eclipse.mat.query.annotations.Name;
+import java.io.IOException;
 
-@Name("IBM Heap Dump (using helper VM)")
-public class IBMExecHeapDumpProvider extends IBMExecDumpProvider
+import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.util.IProgressListener;
+
+interface AgentLoader2
 {
-    @Override
-    protected String agentCommand()
-    {
-        return "heap+java"; //$NON-NLS-1$
-    }
+    public abstract void start();
+    
+    public abstract void interrupt();
+    
+    public abstract void join() throws InterruptedException;
+
+    public abstract void run();
+
+    public abstract boolean failed();
+
+    public abstract void throwFailed(IProgressListener listener) throws SnapshotException, IOException;
+
 }
