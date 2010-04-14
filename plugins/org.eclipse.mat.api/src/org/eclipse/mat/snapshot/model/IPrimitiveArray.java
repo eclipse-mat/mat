@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.mat.snapshot.model;
 
+import org.eclipse.mat.snapshot.model.GCRootInfo.Type;
+
 /**
  * Interface for primitive arrays in the heap dump.
  * 
@@ -19,17 +21,23 @@ public interface IPrimitiveArray extends IArray
 {
     /**
      * Primitive signatures.
+     * Indexes match the values of {link IObject.Type}
+     * @see IObject.Type
      */
     public static final byte[] SIGNATURES = { -1, -1, -1, -1, (byte) 'Z', (byte) 'C', (byte) 'F', (byte) 'D',
                     (byte) 'B', (byte) 'S', (byte) 'I', (byte) 'J' };
 
     /**
      * Element sizes inside the array.
+     * Indexes match the values of {link IObject.Type}
+     * @see IObject.Type
      */
     public static final int[] ELEMENT_SIZE = { -1, -1, -1, -1, 1, 2, 4, 8, 1, 2, 4, 8 };
 
     /**
      * Display string of the type.
+     * Indexes match the values of {link IObject.Type}
+     * @see IObject.Type
      */
     @SuppressWarnings("nls")
     public static final String[] TYPE = { null, null, null, null, "boolean[]", "char[]", "float[]", "double[]",
@@ -37,6 +45,8 @@ public interface IPrimitiveArray extends IArray
 
     /**
      * Java component type of the primitive array.
+     * Indexes match the values of {link IObject.Type}
+     * @see IObject.Type
      */
     public static final Class<?>[] COMPONENT_TYPE = { null, null, null, null, boolean.class, char.class, float.class,
                     double.class, byte.class, short.class, int.class, long.class };
@@ -52,12 +62,22 @@ public interface IPrimitiveArray extends IArray
     public Class<?> getComponentType();
 
     /**
-     * Returns the Object at a given index.
+     * Returns the value of the array at the specified index
+     * @param index from 0 to length-1
+     * @return
+     * Byte - for a byte array
+     * Short - for a short array
+     * Integer - for an int array
+     * Long - for a long array
+     * Boolean - for a boolean array
+     * Char - for a char array
+     * Float - for a float array
+     * Double - for a double array
      */
     public Object getValueAt(int index);
 
     /**
-     * Get the primitive Java array. The return value can be casted into the
+     * Get the primitive Java array. The return value can be cast into the
      * correct component type, e.g.
      * 
      * <pre>

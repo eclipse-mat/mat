@@ -115,8 +115,7 @@ abstract public class GCRootInfo implements Serializable
      * Create a description of a Garbage Collection root
      * @param objectAddress the object which is retained
      * @param contextAddress the source of the retention - e.g. a thread address, or 0 for none
-     * @param type the reason the object is retained
-     * @see GCRootInfo.Type
+     * @param type the reason the object is retained {@link Type}
      */
     public GCRootInfo(long objectAddress, long contextAddress, int type)
     {
@@ -163,8 +162,7 @@ abstract public class GCRootInfo implements Serializable
 
     /**
      * The reason for the root
-     * @return A number representing the type
-     * @see Type
+     * @return A number representing the type as {@link Type}
      */
     public int getType()
     {
@@ -173,8 +171,9 @@ abstract public class GCRootInfo implements Serializable
 
     /**
      * A printable version of the type
-     * @param type
+     * @param type as {@link Type}
      * @return
+     * @see Type
      */
     public static String getTypeAsString(int type)
     {
@@ -191,6 +190,7 @@ abstract public class GCRootInfo implements Serializable
      * e.g. for NLS reasons?
      * @param roots an array of roots to get the combined type from
      * @return A combined type
+     * @see Type
      */
     public static String getTypeSetAsString(GCRootInfo[] roots)
     {

@@ -26,8 +26,7 @@ public class FieldDescriptor implements Serializable
      * Create a field for a class - just contains the field name and type,
      * not the value
      * @param name field name
-     * @param type field type from IObject.Type 
-     * @see IObject.Type
+     * @param type field type from {@link IObject.Type}
      */
     public FieldDescriptor(String name, int type)
     {
@@ -46,8 +45,7 @@ public class FieldDescriptor implements Serializable
 
     /**
      * Gets the type as a number.
-     * @return as IObject.Type
-     * @see IObject.Type
+     * @return as {@link IObject.Type}
      */
     public int getType()
     {
@@ -69,8 +67,7 @@ public class FieldDescriptor implements Serializable
     /**
      * Sets the type of the field.
      * Normally the type should not be changed.
-     * @param type  the type of the field as IObject.Type
-     * @see IObject.Type
+     * @param type  the type of the field as {@link IObject.Type}
      * @noreference
      */
     public void setType(int type)

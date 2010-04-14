@@ -24,7 +24,7 @@ public final class Field extends FieldDescriptor implements Serializable
     /**
      * Create a representation of member variable
      * @param name the name of the field
-     * @param type the type - see IObject.Type
+     * @param type the type {@link IObject.Type}
      * @param value
      * value is one of 
      * ObjectReference - for an object field
@@ -36,7 +36,6 @@ public final class Field extends FieldDescriptor implements Serializable
      * Char - for a char field
      * Float - for a float field
      * Double - for a double field
-     * @see IObject.Type
      */
     public Field(String name, int type, Object value)
     {

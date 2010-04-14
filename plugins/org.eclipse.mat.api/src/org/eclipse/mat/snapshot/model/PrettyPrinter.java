@@ -19,20 +19,33 @@ public final class PrettyPrinter
 {
     /**
      * Convert a <code>java.lang.String</code> object into a String.
+     * @param stringObject the String object in the dump
+     * @param limit maximum number of characters to return
+     * @return the value of the string from the dump, as a String
+     * @throws SnapshotException
      */
     public static String objectAsString(IObject stringObject, int limit) throws SnapshotException
     {
-        Integer count = (Integer) stringObject.resolveValue("count"); //$NON-NLS-1$
+        Object obj = stringObject.resolveValue("count"); //$NON-NLS-1$
+        if (!(obj instanceof Integer))
+            return null;
+        Integer count = (Integer)obj; 
         if (count == null)
             return null;
         if (count.intValue() == 0)
             return ""; //$NON-NLS-1$
 
-        IPrimitiveArray charArray = (IPrimitiveArray) stringObject.resolveValue("value"); //$NON-NLS-1$
+        obj = (IPrimitiveArray) stringObject.resolveValue("value"); //$NON-NLS-1$
+        if (!(obj instanceof IPrimitiveArray))
+            return null;
+        IPrimitiveArray charArray = (IPrimitiveArray)obj;
         if (charArray == null)
             return null;
 
-        Integer offset = (Integer) stringObject.resolveValue("offset"); //$NON-NLS-1$
+        obj = stringObject.resolveValue("offset"); //$NON-NLS-1$
+        if (!(obj instanceof Integer))
+            return null;
+        Integer offset = (Integer)obj; 
         if (offset == null)
             return null;
 
@@ -41,6 +54,12 @@ public final class PrettyPrinter
 
     /**
      * Convert a <code>char[]</code> object into a String.
+     * Unprintable characters are returned as \\unnnn values
+     * @param charArray
+     * @param offset where to start
+     * @param count how many characters to read
+     * @param limit the maximum number of characters to read
+     * @return the characters as a string
      */
     public static String arrayAsString(IPrimitiveArray charArray, int offset, int count, int limit)
     {

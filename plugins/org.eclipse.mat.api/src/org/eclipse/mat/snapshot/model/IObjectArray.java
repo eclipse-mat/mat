@@ -18,7 +18,7 @@ package org.eclipse.mat.snapshot.model;
 public interface IObjectArray extends IArray
 {
     /**
-     * Get an array with the object addresses. 0 indicate <code>null</code>
+     * Get an array with the object addresses. 0 indicates <code>null</code>
      * values in the array.
      */
     long[] getReferenceArray();
