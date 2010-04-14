@@ -23,9 +23,13 @@ abstract public class GCRootInfo implements Serializable
 
     /**
      * Reasons why an heap object is a garbage collection root.
+     * @noimplement
      */
     public interface Type
     {
+        /**
+         * GC root of unknown type, or a type not matching any of the other declared types
+         */
         int UNKNOWN = 1;
         /**
          * Class loaded by system class loader, e.g. java.lang.String
@@ -41,6 +45,7 @@ abstract public class GCRootInfo implements Serializable
         int NATIVE_STATIC = 8;
         /**
          * Started but not stopped threads
+         * @see THREAD_OBJ
          */
         int THREAD_BLOCK = 16;
         /**
@@ -60,9 +65,13 @@ abstract public class GCRootInfo implements Serializable
          * reflection
          */
         int NATIVE_STACK = 128;
+        /**
+         * Running or blocked Java threads
+         */
         int THREAD_OBJ = 256;
         /**
          * An object which is a queue awaiting its finalizer to be run
+         * @see THREAD_BLOCK
          */
         int FINALIZABLE = 512;
         /**
@@ -76,6 +85,10 @@ abstract public class GCRootInfo implements Serializable
          * be included in the analysis
          */
         int UNREACHABLE = 2048;
+        /**
+         * A Java stack frame containing references to Java locals
+         */
+        int JAVA_STACK_FRAME = 4096;
     }
 
     private final static String[] TYPE_STRING = new String[] { Messages.GCRootInfo_Unkown, //
@@ -89,7 +102,8 @@ abstract public class GCRootInfo implements Serializable
                     Messages.GCRootInfo_Thread, //
                     Messages.GCRootInfo_Finalizable, //
                     Messages.GCRootInfo_Unfinalized,
-                    Messages.GCRootInfo_Unreachable };
+                    Messages.GCRootInfo_Unreachable,
+                    Messages.GCRootInfo_JavaStackFrame};
 
     protected int objectId;
     private long objectAddress;
@@ -97,6 +111,13 @@ abstract public class GCRootInfo implements Serializable
     private long contextAddress;
     private int type;
 
+    /**
+     * Create a description of a Garbage Collection root
+     * @param objectAddress the object which is retained
+     * @param contextAddress the source of the retention - e.g. a thread address, or 0 for none
+     * @param type the reason the object is retained
+     * @see GCRootInfo.Type
+     */
     public GCRootInfo(long objectAddress, long contextAddress, int type)
     {
         this.objectAddress = objectAddress;
@@ -104,31 +125,57 @@ abstract public class GCRootInfo implements Serializable
         this.type = type;
     }
 
+    /**
+     * The object id of the retained object
+     * @return the target object
+     */
     public int getObjectId()
     {
         return objectId;
     }
 
+    /**
+     * The object address of the retained object
+     * @return the target object address
+     */
     public long getObjectAddress()
     {
         return objectAddress;
     }
 
+    /**
+     * The object address of the source of the root
+     * @return the source object address, or 0 if none
+     */
     public long getContextAddress()
     {
         return contextAddress;
     }
 
+    /**
+     * The object id of the source of the root, if there is a source
+     * @return the source object id
+     */
     public int getContextId()
     {
         return contextId;
     }
 
+    /**
+     * The reason for the root
+     * @return A number representing the type
+     * @see Type
+     */
     public int getType()
     {
         return type;
     }
 
+    /**
+     * A printable version of the type
+     * @param type
+     * @return
+     */
     public static String getTypeAsString(int type)
     {
         for (int i = 0; i < TYPE_STRING.length; i++)
@@ -138,6 +185,13 @@ abstract public class GCRootInfo implements Serializable
         return null;
     }
 
+    /**
+     * A combined representation of the types of several roots.
+     * The types are currently separated by commas, but this could change
+     * e.g. for NLS reasons?
+     * @param roots an array of roots to get the combined type from
+     * @return A combined type
+     */
     public static String getTypeSetAsString(GCRootInfo[] roots)
     {
         int typeSet = 0;

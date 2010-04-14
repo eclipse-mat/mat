@@ -230,6 +230,8 @@ public class Messages extends NLS
     public static String GCRootInfo_BusyMonitor;
     public static String GCRootInfo_Finalizable;
     public static String GCRootInfo_JavaLocal;
+
+    public static String GCRootInfo_JavaStackFrame;
     public static String GCRootInfo_JNIGlobal;
     public static String GCRootInfo_JNILocal;
     public static String GCRootInfo_NativeStack;
