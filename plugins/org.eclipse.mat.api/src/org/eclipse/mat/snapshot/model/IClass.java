@@ -100,6 +100,14 @@ public interface IClass extends IObject
      */
     public List<IClass> getAllSubclasses();
 
+    /**
+     * Does this class extend a class of the supplied name?
+     * With multiple class loaders the supplied name might not 
+     * be the class you were intending to find.
+     * @param className
+     * @return true if it does extend
+     * @throws SnapshotException
+     */
     public boolean doesExtend(String className) throws SnapshotException;
 
     /**

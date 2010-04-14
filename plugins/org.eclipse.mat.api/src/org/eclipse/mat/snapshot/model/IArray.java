@@ -18,7 +18,7 @@ package org.eclipse.mat.snapshot.model;
 public interface IArray extends IObject
 {
     /**
-     * Returns the length of the object.
+     * Returns the length of the array in elements.
      */
     public int getLength();
 
