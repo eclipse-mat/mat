@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.mat.snapshot.model;
 
-import org.eclipse.mat.snapshot.model.GCRootInfo.Type;
 
 /**
  * Interface for primitive arrays in the heap dump.

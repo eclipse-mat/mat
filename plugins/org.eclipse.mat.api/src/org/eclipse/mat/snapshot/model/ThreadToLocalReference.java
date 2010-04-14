@@ -23,6 +23,14 @@ public class ThreadToLocalReference extends PseudoReference
     private int localObjectId;
     private GCRootInfo[] gcRootInfo;
 
+    /**
+     * Create a thread to local reference
+     * @param snapshot the snapshot
+     * @param address the address of the object
+     * @param name the description of the reference e.g. the root types surrounded by '<' '>'
+     * @param localObjectId the local reference object id
+     * @param gcRootInfo a description of the root type e.g. Java local etc.
+     */
     public ThreadToLocalReference(ISnapshot snapshot, long address, String name, int localObjectId,
                     GCRootInfo[] gcRootInfo)
     {
@@ -31,11 +39,21 @@ public class ThreadToLocalReference extends PseudoReference
         this.gcRootInfo = gcRootInfo;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.eclipse.mat.snapshot.model.ObjectReference#getObjectId()
+     */
+    @Override
     public int getObjectId()
     {
         return localObjectId;
     }
 
+    /**
+     * The description of the thread root information
+     * Not currently used, so might be removed.
+     * @return
+     */
     public GCRootInfo[] getGcRootInfo()
     {
         return gcRootInfo;

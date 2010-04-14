@@ -22,6 +22,12 @@ public class PseudoReference extends NamedReference
 {
     private static final long serialVersionUID = 1L;
 
+    /**
+     * Create a PseudoReference
+     * @param snapshot the dump
+     * @param address the address of the object
+     * @param name the description of the reference e.g. <class>, <classloader>
+     */
     public PseudoReference(ISnapshot snapshot, long address, String name)
     {
         super(snapshot, address, name);
