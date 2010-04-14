@@ -14,12 +14,31 @@ import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.util.IProgressListener;
 
+/**
+ * Extracts detailed information about a thread
+ */
 public interface IThreadDetailsResolver
 {
+    /**
+     * Detailed information as columns
+     * @return
+     */
     Column[] getColumns();
 
+    /**
+     * Extract basic information e.g. for ThreadOverviewQuery
+     * @param thread to extract the information from and to attach the information
+     * @param listener to log progress and report errors
+     * @throws SnapshotException
+     */
     void complementShallow(IThreadInfo thread, IProgressListener listener) throws SnapshotException;
 
+    /**
+     * Extract detailed information e.g. for ThreadInfoQuery
+     * @param thread to extract the information from and to attach the information
+     * @param listener to log progress and report errors
+     * @throws SnapshotException
+     */
     void complementDeep(IThreadInfo thread, IProgressListener listener) throws SnapshotException;
 
 }
