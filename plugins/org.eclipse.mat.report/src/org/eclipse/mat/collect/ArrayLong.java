@@ -12,22 +12,37 @@ package org.eclipse.mat.collect;
 
 import java.util.Arrays;
 
+/**
+ * Utility class to hold a list of longs
+ * Similar to a list, but efficient for longs
+ */
 public final class ArrayLong
 {
     long elements[];
     int size;
 
+    /**
+     * Create a list of default size
+     */
     public ArrayLong()
     {
         this(10);
     }
 
+    /**
+     * Create a list of given size
+     * @param initialCapacity
+     */
     public ArrayLong(int initialCapacity)
     {
         elements = new long[initialCapacity];
         size = 0;
     }
 
+    /**
+     * Create a list based on a supplied array
+     * @param initialValues a copy is taken of this array
+     */
     public ArrayLong(long[] initialValues)
     {
         this(initialValues.length);
@@ -35,6 +50,10 @@ public final class ArrayLong
         size = initialValues.length;
     }
 
+    /**
+     * Create a list based on an existing ArrayInt, of size of the template
+     * @param template a copy is taken of these values
+     */
     public ArrayLong(ArrayLong template)
     {
         this(template.size);
@@ -42,12 +61,20 @@ public final class ArrayLong
         size = template.size;
     }
 
+    /**
+     * append one more entry
+     * @param element the int to add to the end
+     */
     public void add(long element)
     {
         ensureCapacity(size + 1);
         elements[size++] = element;
     }
 
+    /**
+     * append a group of entries
+     * @param elements
+     */
     public void addAll(long[] elements)
     {
         ensureCapacity(size + elements.length);
@@ -55,6 +82,10 @@ public final class ArrayLong
         size += elements.length;
     }
 
+    /**
+     * append all of another 
+     * @param template
+     */
     public void addAll(ArrayLong template)
     {
         ensureCapacity(size + template.size);
@@ -62,6 +93,12 @@ public final class ArrayLong
         size += template.size;
     }
 
+    /**
+     * modify one particular entry
+     * @param index
+     * @param element
+     * @return
+     */
     public long set(int index, long element)
     {
         if (index < 0 || index >= size)
@@ -72,6 +109,11 @@ public final class ArrayLong
         return oldValue;
     }
 
+    /**
+     * retrieve one entry
+     * @param index
+     * @return
+     */
     public long get(int index)
     {
         if (index < 0 || index >= size)
@@ -79,11 +121,19 @@ public final class ArrayLong
         return elements[index];
     }
 
+    /**
+     * get the number of used entries
+     * @return
+     */
     public int size()
     {
         return size;
     }
 
+    /** 
+     * convert to an array
+     * @return a copy of the entries
+     */
     public long[] toArray()
     {
         long[] result = new long[size];
@@ -91,17 +141,26 @@ public final class ArrayLong
         return result;
     }
 
+    /**
+     * is the list empty
+     * @return
+     */
     public boolean isEmpty()
     {
         return size == 0;
     }
 
+    /**
+     * get an iterator to go through the list
+     * @return
+     */
     public IteratorLong iterator()
     {
         return new IteratorLong()
         {
             int index = 0;
 
+    
             public boolean hasNext()
             {
                 return index < size;
@@ -114,16 +173,29 @@ public final class ArrayLong
         };
     }
 
+    /** 
+     * clear all the entries
+     */
     public void clear()
     {
         size = 0;
     }
 
+    /**
+     * get the last entry to be written.
+     * Must be at least one entry.
+     * @return
+     */
     public long lastElement()
     {
         return elements[size - 1];
     }
 
+    /**
+     * get the first entry to be written.
+     * Must be at least one entry.
+     * @return
+     */
     public long firstElement()
     {
         if (size == 0)
@@ -132,6 +204,9 @@ public final class ArrayLong
         return elements[0];
     }
 
+    /**
+      * arrange the entries in ascending order
+      */
     public void sort()
     {
         Arrays.sort(elements, 0, size);

@@ -13,6 +13,10 @@ package org.eclipse.mat.collect;
 import java.io.Serializable;
 import java.util.NoSuchElementException;
 
+/**
+ * Utility class to hold a set of ints
+ * Similar to a Set, but efficient for ints
+ */
 public final class SetInt implements Serializable
 {
     private static final long serialVersionUID = 1L;
@@ -24,16 +28,28 @@ public final class SetInt implements Serializable
     private boolean[] used;
     private int[] keys;
 
+    /**
+     * Create a set of default size
+     */
     public SetInt()
     {
         this(10);
     }
 
+    /**
+     * Create a set of given size
+     * @param initialCapacity
+     */
     public SetInt(int initialCapacity)
     {
         init(initialCapacity);
     }
 
+    /**
+     * Add a value to the set 
+     * @param key the value to add
+     * @return return true if added 
+     */
     public boolean add(int key)
     {
         if (size == limit)
@@ -52,6 +68,11 @@ public final class SetInt implements Serializable
         return true;
     }
 
+    /**
+     * Remove a value from the set
+     * @param key the value to add
+     * @return return true if removed
+     */
     public boolean remove(int key)
     {
         int hash = (key & Integer.MAX_VALUE) % capacity;
@@ -84,6 +105,11 @@ public final class SetInt implements Serializable
         return false;
     }
 
+    /**
+     * Find a value from the set
+     * @param key the value to find
+     * @return return true if found
+     */
     public boolean contains(int key)
     {
         int hash = (key & Integer.MAX_VALUE) % capacity;
@@ -95,22 +121,37 @@ public final class SetInt implements Serializable
         return false;
     }
 
+    /**
+     * get the number of used entries
+     * @return
+     */
     public int size()
     {
         return size;
     }
 
+    /**
+     * is the set empty
+     * @return
+     */
     public boolean isEmpty()
     {
         return size() == 0;
     }
 
+    /** 
+     * clear all the entries
+     */
     public void clear()
     {
         size = 0;
         used = new boolean[capacity];
     }
 
+    /**
+     * get an iterator to go through the set
+     * @return
+     */
     public IteratorInt iterator()
     {
         return new IteratorInt()
@@ -138,6 +179,10 @@ public final class SetInt implements Serializable
         };
     }
 
+    /** 
+     * convert to an array
+     * @return a copy of the entries
+     */
     public int[] toArray()
     {
         int[] array = new int[size];
@@ -167,7 +212,8 @@ public final class SetInt implements Serializable
         boolean[] oldUsed = used;
         int[] oldKeys = keys;
         init(newCapacity);
-        int key, hash;
+        int key;
+        int hash;
         for (int i = 0; i < oldUsed.length; i++)
         {
             if (oldUsed[i])

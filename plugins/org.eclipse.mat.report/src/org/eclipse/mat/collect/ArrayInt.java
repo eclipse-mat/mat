@@ -12,22 +12,37 @@ package org.eclipse.mat.collect;
 
 import java.util.Arrays;
 
+/**
+ * Utility class to hold a list of ints
+ * Similar to a list, but efficient for ints
+ */
 public final class ArrayInt
 {
     int elements[];
     int size;
 
+    /**
+     * Create a list of default size
+     */
     public ArrayInt()
     {
         this(10);
     }
 
+    /**
+     * Create a list of given size
+     * @param initialCapacity
+     */
     public ArrayInt(int initialCapacity)
     {
         elements = new int[initialCapacity];
         size = 0;
     }
 
+    /**
+     * Create a list based on a supplied array
+     * @param initialValues a copy is taken of this array
+     */
     public ArrayInt(int[] initialValues)
     {
         this(initialValues.length);
@@ -35,6 +50,10 @@ public final class ArrayInt
         size = initialValues.length;
     }
 
+    /**
+     * Create a list based on an existing ArrayInt, of size of the template
+     * @param template a copy is taken of these values
+     */
     public ArrayInt(ArrayInt template)
     {
         this(template.size);
@@ -42,12 +61,20 @@ public final class ArrayInt
         size = template.size;
     }
 
+    /**
+     * append one more entry
+     * @param element the int to add to the end
+     */
     public void add(int element)
     {
         ensureCapacity(size + 1);
         elements[size++] = element;
     }
 
+    /**
+     * append a group of entries
+     * @param elements
+     */
     public void addAll(int[] elements)
     {
         ensureCapacity(size + elements.length);
@@ -55,6 +82,10 @@ public final class ArrayInt
         size += elements.length;
     }
 
+    /**
+     * append all of another 
+     * @param template
+     */
     public void addAll(ArrayInt template)
     {
         ensureCapacity(size + template.size);
@@ -62,6 +93,12 @@ public final class ArrayInt
         size += template.size;
     }
 
+    /**
+     * modify one particular entry
+     * @param index
+     * @param element
+     * @return
+     */
     public int set(int index, int element)
     {
         if (index < 0 || index >= size)
@@ -72,6 +109,11 @@ public final class ArrayInt
         return oldValue;
     }
 
+    /**
+     * retrieve one entry
+     * @param index
+     * @return
+     */
     public int get(int index)
     {
         if (index < 0 || index >= size)
@@ -79,11 +121,19 @@ public final class ArrayInt
         return elements[index];
     }
 
+    /**
+     * get the number of used entries
+     * @return
+     */
     public int size()
     {
         return size;
     }
 
+    /** 
+     * convert to an array
+     * @return a copy of the entries
+     */
     public int[] toArray()
     {
         int[] result = new int[size];
@@ -91,11 +141,19 @@ public final class ArrayInt
         return result;
     }
 
+    /**
+     * is the list empty
+     * @return
+     */
     public boolean isEmpty()
     {
         return size == 0;
     }
 
+    /**
+     * get an iterator to go through the list
+     * @return
+     */
     public IteratorInt iterator()
     {
         return new IteratorInt()
@@ -114,17 +172,30 @@ public final class ArrayInt
         };
     }
 
+    /** 
+     * clear all the entries
+     */
     public void clear()
     {
         size = 0;
     }
 
-    public long lastElement()
+    /**
+     * get the last entry to be written.
+     * Must be at least one entry.
+     * @return
+     */
+    public int lastElement()
     {
         return elements[size - 1];
     }
 
-    public long firstElement()
+    /**
+     * get the first entry to be written.
+     * Must be at least one entry.
+     * @return
+     */
+    public int firstElement()
     {
         if (size == 0)
             throw new ArrayIndexOutOfBoundsException();
@@ -132,6 +203,9 @@ public final class ArrayInt
         return elements[0];
     }
 
+    /**
+      * arrange the entries in ascending order
+      */
     public void sort()
     {
         Arrays.sort(elements, 0, size);

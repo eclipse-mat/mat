@@ -10,9 +10,20 @@
  *******************************************************************************/
 package org.eclipse.mat.collect;
 
+/**
+ * Simple iterator to go through ints 
+ */
 public interface IteratorLong
 {
+    /**
+     * is there a next entry
+     * @return true if next entry available
+     */
     boolean hasNext();
 
+    /**
+     * get the next entry
+     * @return the entry
+     */
     long next();
 }

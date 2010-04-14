@@ -13,6 +13,10 @@ package org.eclipse.mat.collect;
 import java.io.Serializable;
 import java.util.NoSuchElementException;
 
+/**
+ * Utility class to hold a set of longs
+ * Similar to a Set, but efficient for longs
+ */
 public final class SetLong implements Serializable
 {
     private static final long serialVersionUID = 1L;
@@ -24,16 +28,28 @@ public final class SetLong implements Serializable
     private boolean[] used;
     private long[] keys;
 
+    /**
+     * Create a set of default size
+     */
     public SetLong()
     {
         this(10);
     }
 
+    /**
+     * Create a set of given size
+     * @param initialCapacity
+     */
     public SetLong(int initialCapacity)
     {
         init(initialCapacity);
     }
 
+    /**
+     * Add a value to the set 
+     * @param key the value to add
+     * @return return true if added 
+     */
     public boolean add(long key)
     {
         if (size == limit)
@@ -52,6 +68,11 @@ public final class SetLong implements Serializable
         return true;
     }
 
+    /**
+     * Remove a value from the set
+     * @param key the value to add
+     * @return return true if removed
+     */
     public boolean remove(long key)
     {
         int hash = hash(key) % capacity;
@@ -84,6 +105,11 @@ public final class SetLong implements Serializable
         return false;
     }
 
+    /**
+     * Find a value from the set
+     * @param key the value to find
+     * @return return true if found
+     */
     public boolean contains(long key)
     {
         int hash = hash(key) % capacity;
@@ -95,22 +121,37 @@ public final class SetLong implements Serializable
         return false;
     }
 
+    /**
+     * get the number of used entries
+     * @return
+     */
     public int size()
     {
         return size;
     }
 
+    /**
+     * is the set empty
+     * @return
+     */
     public boolean isEmpty()
     {
         return size() == 0;
     }
 
+    /** 
+     * clear all the entries
+     */
     public void clear()
     {
         size = 0;
         used = new boolean[capacity];
     }
 
+    /**
+     * get an iterator to go through the set
+     * @return
+     */
     public IteratorLong iterator()
     {
         return new IteratorLong()
@@ -138,6 +179,10 @@ public final class SetLong implements Serializable
         };
     }
 
+    /** 
+     * convert to an array
+     * @return a copy of the entries
+     */
     public long[] toArray()
     {
         long[] array = new long[size];
@@ -190,5 +235,4 @@ public final class SetLong implements Serializable
         }
         size = oldSize;
     }
-
 }

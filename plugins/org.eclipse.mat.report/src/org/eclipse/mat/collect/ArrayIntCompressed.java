@@ -15,9 +15,9 @@ package org.eclipse.mat.collect;
  * manner if many leading and/or trailing bits of the stored ints are not used
  * commonly. The internal data is never copied during the process of retrieving
  * or reconstructing objects of this class and allows for fast I/O writing and
- * reading of the underlying byte[]. Furthermore alomst no additinal data is
+ * reading of the underlying byte[]. Furthermore almost no additional data is
  * used beside the underlying byte[]. Thereby the memory consumption of this
- * data structure is kept at a minmum to build efficient int[] caches.
+ * data structure is kept at a minimum to build efficient int[] caches.
  */
 public class ArrayIntCompressed
 {
