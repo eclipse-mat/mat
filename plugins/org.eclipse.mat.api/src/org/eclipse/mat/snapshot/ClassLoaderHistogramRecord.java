@@ -33,6 +33,15 @@ public class ClassLoaderHistogramRecord extends HistogramRecord
         super();
     }
 
+    /**
+     * Details of a class loader
+     * @param label the name of the loader
+     * @param classLoaderId the id of the class loader object
+     * @param classHistogramRecords the histogram details of all the classes loaded by this loader
+     * @param numberOfObjects
+     * @param usedHeapSize
+     * @param retainedHeapSize
+     */
     public ClassLoaderHistogramRecord(String label, int classLoaderId,
                     ArrayList<ClassHistogramRecord> classHistogramRecords, long numberOfObjects, long usedHeapSize,
                     long retainedHeapSize)
@@ -81,6 +90,15 @@ public class ClassLoaderHistogramRecord extends HistogramRecord
         return ids.toArray();
     }
 
+    /**
+     * Find out the retained size
+     * @param snapshot the snapshot
+     * @param calculateIfNotAvailable whether to calculate the size if not already available
+     * @param approximation whether to use an approximation to the retained size (sum of the individual retained sizes) 
+     * @param listener to report progress and errors
+     * @return the retained size, negated if approximate, and 0 if unavailable
+     * @throws SnapshotException
+     */
     public long calculateRetainedSize(ISnapshot snapshot, boolean calculateIfNotAvailable, boolean approximation,
                     IProgressListener listener) throws SnapshotException
     {

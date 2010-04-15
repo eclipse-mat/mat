@@ -29,6 +29,15 @@ public class ClassHistogramRecord extends HistogramRecord
         super();
     }
 
+    /**
+     * Build a histogram record
+     * @param label the class name
+     * @param classId the id of the class
+     * @param numberOfObjects the number of objects of that class
+     * @param usedHeapSize the space used by those objects
+     * @param retainedHeapSize the total of the size of all the objects retained by those objects. 0 means
+     * calculate when required, negative means approximate size, positive means exact retained size is known.
+     */
     public ClassHistogramRecord(String label, int classId, long numberOfObjects, long usedHeapSize,
                     long retainedHeapSize)
     {
@@ -37,6 +46,15 @@ public class ClassHistogramRecord extends HistogramRecord
         this.objectIds = new int[0];
     }
 
+    /**
+     * Build a histogram record
+     * @param label the class name
+     * @param classId the id of the class
+     * @param objectIds the ids of objects of that class
+     * @param usedHeapSize the space used by those objects
+     * @param retainedHeapSize the total of the size of all the objects retained by those objects. 0 means
+     * calculate when required, negative means approximate size, positive means exact retained size is known.
+     */
     public ClassHistogramRecord(String label, int classId, int[] objectIds, long usedHeapSize, long retainedHeapSize)
     {
         super(label, objectIds.length, usedHeapSize, retainedHeapSize);
@@ -64,6 +82,15 @@ public class ClassHistogramRecord extends HistogramRecord
         return objectIds;
     }
 
+    /**
+     * Find out the retained size
+     * @param snapshot the snapshot
+     * @param calculateIfNotAvailable whether to calculate the size if not already available
+     * @param approximation whether to use an approximation to the retained size (sum of the individual retained sizes) 
+     * @param listener to report progress and errors
+     * @return the retained size, negated if approximate, 0 if not available
+     * @throws SnapshotException
+     */
     public long calculateRetainedSize(ISnapshot snapshot, boolean calculateIfNotAvailable, boolean approximation,
                     IProgressListener listener) throws SnapshotException
     {

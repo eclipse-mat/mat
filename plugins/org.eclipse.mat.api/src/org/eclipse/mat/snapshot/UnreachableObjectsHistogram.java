@@ -29,6 +29,7 @@ import org.eclipse.mat.query.Column.SortDirection;
 import org.eclipse.mat.snapshot.query.Icons;
 
 /**
+ * Summary information about objects discarded from the snapshot
  * @since 0.8
  */
 public class UnreachableObjectsHistogram implements IResultTable, IIconProvider, Serializable
@@ -42,6 +43,13 @@ public class UnreachableObjectsHistogram implements IResultTable, IIconProvider,
         private long shallowHeapSize;
         private long classAddress;
 
+        /**
+         * Details about a particular class
+         * @param className the class name
+         * @param classAddress the address of the class object
+         * @param nrOfObjects the number of instances
+         * @param sizeOfObjects the total size of the instances
+         */
         public Record(String className, long classAddress, int nrOfObjects, long sizeOfObjects)
         {
             this.className = className;
@@ -50,26 +58,48 @@ public class UnreachableObjectsHistogram implements IResultTable, IIconProvider,
             this.classAddress = classAddress;
         }
 
+        /**
+         * Details about a particular class
+         * @param className the class name
+         * @param nrOfObjects the number of instances
+         * @param sizeOfObjects the total size of the instances
+         */
         public Record(String className, int nrOfObjects, long sizeOfObjects)
         {
             this(className, 0L, nrOfObjects, sizeOfObjects);
         }
 
+        /**
+         * The name of the class
+         * @return the class name
+         */
         public String getClassName()
         {
             return className;
         }
 
+        /**
+         * the number of instances discarded by Memory Analyzer
+         * @return the number of instances
+         */
         public int getObjectCount()
         {
             return objectCount;
         }
 
+        /**
+         * the total size occupied by instances of this class that were discarded
+         * @return the total size
+         */
         public long getShallowHeapSize()
         {
             return shallowHeapSize;
         }
 
+        /**
+         * the actual address of the class
+         * @return the class address
+         */
         public long getClassAddress()
         {
             return classAddress;

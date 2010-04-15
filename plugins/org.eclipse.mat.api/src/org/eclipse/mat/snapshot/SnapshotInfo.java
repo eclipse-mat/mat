@@ -15,6 +15,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.mat.snapshot.model.GCRootInfo.Type;
+
 /**
  * Class describing an {@link ISnapshot}. Each snapshot has some core data, like
  * the date when it was acquired/parsed, the number of objects inside... This
@@ -92,11 +94,30 @@ public class SnapshotInfo implements Serializable
         return p >= 0 ? path.substring(0, p + 1) : path + '.';
     }
 
+    /**
+     * Get extra information about the snapshot
+     * @param name
+     * keep_unreachable_objects - {@link Type}
+     * hprof.version
+     * org.eclipse.mat.snapshot.UnreachableObjectsHistogram
+     * $heapFormat
+     * @return the extra (serializable) information
+     */
     public Serializable getProperty(String name)
     {
         return properties.get(name);
     }
 
+    /**
+     * Store extra information about the snapshot
+     * @param name
+     * @param value
+     * keep_unreachable_objects - mark as {@link Type}
+     * hprof.version
+     * org.eclipse.mat.snapshot.UnreachableObjectsHistogram
+     * $heapFormat
+     * @return the previous extra (serializable) information, or null
+     */
     public Serializable setProperty(String name, Serializable value)
     {
         return properties.put(name, value);
