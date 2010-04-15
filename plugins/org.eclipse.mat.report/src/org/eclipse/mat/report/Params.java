@@ -33,7 +33,7 @@ public interface Params
      * If given, the filename is used to create the output file. Depending on
      * the output format, this could be HTML or CSV. The property can be
      * configured for every Spec. If the output format is HTML, the Spec must
-     * also specify {@link Params.Html.SEPARATE_FILE}.
+     * also specify {@link Params.Html#SEPARATE_FILE}.
      */
     String FILENAME = "filename";
     
