@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.mat.collect;
 
+/**
+ * Utility class for sorting arrays etc.
+ */
 public class ArrayUtils
 {
 
@@ -24,6 +27,8 @@ public class ArrayUtils
      * not-very-large parts produced by a quick sort are sorted with radix sort.
      * An insertion sort is used to sort the smallest arrays, where the the
      * overhead of the radix sort is also bigger
+     * @param keys the keys for sorting
+     * @param values the values to be swapped with the corresponding keys
      */
     public static void sort(int[] keys, int[] values)
     {
@@ -41,6 +46,8 @@ public class ArrayUtils
      * not-very-large parts produced by a quick sort are sorted with radix sort.
      * An insertion sort is used to sort the smallest arrays, where the the
      * overhead of the radix sort is also bigger
+     * @param keys the keys for sorting
+     * @param values the values to be swapped with the corresponding keys
      */
     public static void sortDesc(long[] keys, int[] values)
     {
@@ -62,10 +69,14 @@ public class ArrayUtils
      * This version of the method allows the temporarily needed arrays for the
      * radix sort to be provided externally - tempa and tempb. This saves
      * unnecessary array creation and cleanup
+     * @param keys the keys for sorting
+     * @param values the values to be swapped with the corresponding keys
+     * @param tmpa a temporary buffer at least as big as the keys
+     * @param tmpb a temporary buffer at least as big as the keys/values
      */
-    public static void sortDesc(long[] a, int[] b, long[] tmpa, int[] tmpb)
+    public static void sortDesc(long[] keys, int[] values, long[] tmpa, int[] tmpb)
     {
-        hybridsortDesc(a, b, tmpa, tmpb, 0, a.length - 1);
+        hybridsortDesc(keys, values, tmpa, tmpb, 0, keys.length - 1);
     }
 
     /**
@@ -79,6 +90,10 @@ public class ArrayUtils
      * not-very-large parts produced by a quick sort are sorted with radix sort.
      * An insertion sort is used to sort the smallest arrays, where the the
      * overhead of the radix sort is also bigger
+     * @param keys the keys for sorting
+     * @param values the values to be swapped with the corresponding keys
+     * @param offset where in the arrays to start sorting
+     * @param length how many keys (and values) from the offset to sort
      */
     public static void sort(int[] keys, int[] values, int offset, int length)
     {

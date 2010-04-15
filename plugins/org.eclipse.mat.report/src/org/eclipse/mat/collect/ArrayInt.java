@@ -97,7 +97,7 @@ public final class ArrayInt
      * modify one particular entry
      * @param index
      * @param element
-     * @return
+     * @return the previous value
      */
     public int set(int index, int element)
     {
@@ -112,7 +112,7 @@ public final class ArrayInt
     /**
      * retrieve one entry
      * @param index
-     * @return
+     * @return the entry
      */
     public int get(int index)
     {
@@ -123,7 +123,7 @@ public final class ArrayInt
 
     /**
      * get the number of used entries
-     * @return
+     * @return the number of entries
      */
     public int size()
     {
@@ -143,7 +143,7 @@ public final class ArrayInt
 
     /**
      * is the list empty
-     * @return
+     * @return true if empty
      */
     public boolean isEmpty()
     {
@@ -152,7 +152,7 @@ public final class ArrayInt
 
     /**
      * get an iterator to go through the list
-     * @return
+     * @return the iterator
      */
     public IteratorInt iterator()
     {
@@ -183,7 +183,7 @@ public final class ArrayInt
     /**
      * get the last entry to be written.
      * Must be at least one entry.
-     * @return
+     * @return the last element
      */
     public int lastElement()
     {
@@ -193,7 +193,7 @@ public final class ArrayInt
     /**
      * get the first entry to be written.
      * Must be at least one entry.
-     * @return
+     * @return the first element
      */
     public int firstElement()
     {

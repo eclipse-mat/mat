@@ -14,6 +14,7 @@ package org.eclipse.mat.collect;
 import org.eclipse.mat.report.internal.Messages;
 
 /**
+ * A simple queue of ints
  * @since 0.8
  */
 public class QueueInt
@@ -24,12 +25,21 @@ public class QueueInt
     int size;
     int capacity;
 
+    /**
+     * Create a queue of specified initial capacity.
+     * The queue can grow if required.
+     * @param capacity the initial capacity
+     */
     public QueueInt(int capacity)
     {
         this.capacity = capacity;
         data = new int[capacity];
     }
 
+    /**
+     * Retrieve the next element from the queue.
+     * @return the next element
+     */
     public final int get()
     {
 
@@ -45,11 +55,19 @@ public class QueueInt
         return result;
     }
 
+    /**
+     * The number of elements available for retrieval.
+     * @return the size
+     */
     public final int size()
     {
         return size;
     }
 
+    /**
+     * Add an element to the back of the queue.
+     * @param x the element to add
+     */
     public final void put(int x)
     {
 

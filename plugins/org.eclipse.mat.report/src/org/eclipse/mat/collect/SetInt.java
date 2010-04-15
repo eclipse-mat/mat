@@ -123,7 +123,7 @@ public final class SetInt implements Serializable
 
     /**
      * get the number of used entries
-     * @return
+     * @return the number of entries
      */
     public int size()
     {
@@ -132,7 +132,7 @@ public final class SetInt implements Serializable
 
     /**
      * is the set empty
-     * @return
+     * @return true if empty
      */
     public boolean isEmpty()
     {
@@ -150,7 +150,7 @@ public final class SetInt implements Serializable
 
     /**
      * get an iterator to go through the set
-     * @return
+     * @return the iterator
      */
     public IteratorInt iterator()
     {

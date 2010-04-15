@@ -14,12 +14,27 @@ import java.io.Serializable;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+/**
+ * A map from int to long.
+ * More efficient than a general map
+ */
 public final class HashMapIntLong implements Serializable
 {
+    /**
+     * An entry from the map
+     */
     public interface Entry
     {
+        /**
+         * Get the key.
+         * @return the key
+         */
         int getKey();
 
+        /**
+         * Get the corresponding value.
+         * @return the value
+         */
         long getValue();
     }
 
@@ -36,16 +51,29 @@ public final class HashMapIntLong implements Serializable
     private int[] keys;
     private long[] values;
 
+    /**
+     * Create a map of default size
+     */
     public HashMapIntLong()
     {
         this(10);
     }
 
+    /**
+     * Create a map of given size
+     * @param initialCapacity
+     */
     public HashMapIntLong(int initialCapacity)
     {
         init(initialCapacity);
     }
 
+    /**
+     * Add a mapping
+     * @param key the key
+     * @param value the corresponding value
+     * @return true if an entry with the key already exists
+     */
     public boolean put(int key, long value)
     {
         if (size == limit)
@@ -69,6 +97,11 @@ public final class HashMapIntLong implements Serializable
         return false;
     }
 
+    /**
+     * Remove an mapping from the map
+     * @param key the key to remove
+     * @return true if entry was found
+     */
     public boolean remove(int key)
     {
         int hash = (key & Integer.MAX_VALUE) % capacity;
@@ -103,6 +136,11 @@ public final class HashMapIntLong implements Serializable
         return false;
     }
 
+    /**
+     * find if key is present in map
+     * @param key the key
+     * @return true if the key was found
+     */
     public boolean containsKey(int key)
     {
         int hash = (key & Integer.MAX_VALUE) % capacity;
@@ -114,6 +152,12 @@ public final class HashMapIntLong implements Serializable
         return false;
     }
 
+    /**
+     * Retrieve the value corresponding to the key
+     * @param key the key
+     * @return the value
+     * @throws NosuchElementException if the key is not found
+     */
     public long get(int key)
     {
         int hash = (key & Integer.MAX_VALUE) % capacity;
@@ -126,6 +170,10 @@ public final class HashMapIntLong implements Serializable
         throw noSuchElementException;
     }
 
+    /**
+     * Get all the used keys
+     * @return an array of the used keys
+     */
     public int[] getAllKeys()
     {
         int[] array = new int[size];
@@ -140,22 +188,38 @@ public final class HashMapIntLong implements Serializable
         return array;
     }
 
+    /**
+     * The number of mappings
+     * @return the size of the map
+     */
     public int size()
     {
         return size;
     }
 
+    /**
+     * Is the map empty 
+     * @return true if no current mappings
+     */
     public boolean isEmpty()
     {
         return size() == 0;
     }
 
+    /**
+     * Remove all the existing mappings,
+     * leaving the capacity unchanged.
+     */
     public void clear()
     {
         size = 0;
         used = new boolean[capacity];
     }
 
+    /**
+     * Get a way of iterating over the keys
+     * @return an iterator over the keys
+     */
     public IteratorInt keys()
     {
         return new IteratorInt()
@@ -183,6 +247,10 @@ public final class HashMapIntLong implements Serializable
         };
     }
 
+    /**
+     * Get a way of iterating over the values.
+     * @return an iterator over the values
+     */
     public IteratorLong values()
     {
         return new IteratorLong()
@@ -210,6 +278,10 @@ public final class HashMapIntLong implements Serializable
         };
     }
 
+    /**
+     * Iterate over all the map entries
+     * @return the iterator over the entries
+     */
     public Iterator<Entry> entries()
     {
         return new Iterator<Entry>()
@@ -253,6 +325,11 @@ public final class HashMapIntLong implements Serializable
         };
     }
 
+    /**
+     * Get all the values corresponding to the used keys.
+     * Duplicate values are possible if they correspond to different keys.
+     * @return an array of the used values
+     */
     public long[] getAllValues()
     {
         long[] a = new long[size];

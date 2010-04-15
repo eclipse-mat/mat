@@ -97,7 +97,7 @@ public final class ArrayLong
      * modify one particular entry
      * @param index
      * @param element
-     * @return
+     * @return the previous value
      */
     public long set(int index, long element)
     {
@@ -112,7 +112,7 @@ public final class ArrayLong
     /**
      * retrieve one entry
      * @param index
-     * @return
+     * @return the entry
      */
     public long get(int index)
     {
@@ -123,7 +123,7 @@ public final class ArrayLong
 
     /**
      * get the number of used entries
-     * @return
+     * @return the number of entries
      */
     public int size()
     {
@@ -143,7 +143,7 @@ public final class ArrayLong
 
     /**
      * is the list empty
-     * @return
+     * @return true if empty
      */
     public boolean isEmpty()
     {
@@ -160,7 +160,6 @@ public final class ArrayLong
         {
             int index = 0;
 
-    
             public boolean hasNext()
             {
                 return index < size;
@@ -184,7 +183,7 @@ public final class ArrayLong
     /**
      * get the last entry to be written.
      * Must be at least one entry.
-     * @return
+     * @return the last element
      */
     public long lastElement()
     {
@@ -194,7 +193,7 @@ public final class ArrayLong
     /**
      * get the first entry to be written.
      * Must be at least one entry.
-     * @return
+     * @return the first element
      */
     public long firstElement()
     {
