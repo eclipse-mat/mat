@@ -23,21 +23,21 @@ import org.eclipse.mat.snapshot.model.IObject;
 public interface IThreadInfo
 {
     /**
-     * The thread id
-     * @return
+     * Get the thread id
+     * @return the thread id
      */
     int getThreadId();
 
     /**
-     * The actual thread object
-     * @return
+     * Get the actual thread object
+     * @return the thread object
      */
     IObject getThreadObject();
 
     /**
-     * To add particular information
-     * @param column
-     * @param value
+     * To add particular information associated with a column
+     * @param column the column to change
+     * @param value the new value for the column
      */
     void setValue(Column column, Object value);
 
@@ -58,7 +58,6 @@ public interface IThreadInfo
      * Add requests such as the URL from a web server
      * @param summary a title
      * @param details the result containing the request
-     * @return
      */
     void addRequest(String summary, IResult details);
 
@@ -70,7 +69,7 @@ public interface IThreadInfo
 
     /**
      * Get a set of keywords reflecting a high level description of the situation.
-     * @return
+     * @return a collection of keywords
      */
     Collection<String> getKeywords();
 

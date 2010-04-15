@@ -21,7 +21,7 @@ public interface IThreadDetailsResolver
 {
     /**
      * Detailed information as columns
-     * @return
+     * @return an array of Columns
      */
     Column[] getColumns();
 
