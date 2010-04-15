@@ -190,7 +190,7 @@ public final class HashMapIntObject<E> implements Serializable
     /**
      * Get all the values corresponding to the used keys.
      * Duplicate values are possible if they correspond to different keys.
-     * Consider using {@link getAllValues(T[] a)} for better type safety.
+     * Consider using {@link #getAllValues(T[] a)} for better type safety.
      * @return an array of the used values
      */
     public Object[] getAllValues()
