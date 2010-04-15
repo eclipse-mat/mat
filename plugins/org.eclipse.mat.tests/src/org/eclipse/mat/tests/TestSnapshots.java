@@ -46,6 +46,10 @@ public class TestSnapshots
     public static final String IBM_JDK6_32BIT_JAVA = "dumps/javacore.20100112.141124.11580.0003.txt";
     /** javacore provides extra thread and class loader information to a heap dump */
     public static final String IBM_JDK6_32BIT_HEAP_AND_JAVA = IBM_JDK6_32BIT_HEAP + ";" + IBM_JDK6_32BIT_JAVA;
+    public static final String IBM_JDK142_32BIT_SYSTEM = "dumps/core.20100209.165717.4484.txt.sdff";
+    public static final String IBM_JDK142_32BIT_HEAP = "dumps/heapdump.20100209.165721.4484.phd";
+    public static final String IBM_JDK142_32BIT_JAVA = "dumps/javacore.20100209.165721.4484.txt";
+    public static final String IBM_JDK142_32BIT_HEAP_AND_JAVA = IBM_JDK142_32BIT_HEAP + ";" + IBM_JDK142_32BIT_JAVA;
 
     private static DirDeleter deleterThread;
     private static Map<String, ISnapshot> snapshots = new HashMap<String, ISnapshot>();

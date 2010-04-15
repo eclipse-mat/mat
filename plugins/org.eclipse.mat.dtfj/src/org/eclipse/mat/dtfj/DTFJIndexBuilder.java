@@ -1675,6 +1675,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                         }
                     }
                 }
+                addRefs(refd, objId, aa);
                 outRefs.log(indexToAddress, objId, aa);
             }
         }
@@ -2462,16 +2463,16 @@ public class DTFJIndexBuilder implements IIndexBuilder
                                         thr = new HashMapIntObject<List<XGCRootInfo>>();
                                         threadRoots2.put(thrId, thr);
                                     }
-                                    addRoot(thr, frameAddress, threadAddress, GCRootInfo.Type.JAVA_LOCAL);
+                                    addRoot(thr, frameAddress, threadAddress, GCRootInfo.Type.JAVA_STACK_FRAME);
                                     // Add it to the global GC roots
                                     if (!useThreadRefsNotRoots)
-                                        addRoot(gcRoot2, frameAddress, threadAddress, GCRootInfo.Type.JAVA_LOCAL);
+                                        addRoot(gcRoot2, frameAddress, threadAddress, GCRootInfo.Type.JAVA_STACK_FRAME);
                                 }
                                 else
                                 {
                                     // No thread information so make a
                                     // global root
-                                    addRoot(gcRoot2, frameAddress, frameAddress, GCRootInfo.Type.JAVA_LOCAL);
+                                    addRoot(gcRoot2, frameAddress, frameAddress, GCRootInfo.Type.JAVA_STACK_FRAME);
                                 }
                             }
                         }
@@ -3629,13 +3630,19 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     // Thread is supplied, and stack frame is not an object
                     if (thread != null && (!getExtraInfo || source == 0 || indexToAddress.reverse(source) < 0))
                     {
-                        source = getThreadAddress(thread ,listener);
+                        source = getThreadAddress(thread, listener);
                     }
                 }
                 else if (so instanceof JavaThread)
                 {
                     // Not expected, but sov DTFJ returns this
-                    source = getThreadAddress(thread ,listener);
+                    JavaThread jt = (JavaThread)so;
+                    source = getThreadAddress(jt ,listener);
+                    // Thread is supplied, and jt is not found as an object
+                    if (thread != null && (source == 0 || indexToAddress.reverse(source) < 0))
+                    {
+                        source = getThreadAddress(thread, listener);
+                    }
                     // Sov DTFJ has curious types
                     String desc = r.getDescription();
                     if (desc.startsWith("stack") || desc.startsWith("Register")) //$NON-NLS-1$ //$NON-NLS-2$

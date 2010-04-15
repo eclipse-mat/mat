@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2010 IBM Corporation.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    IBM Corporation - initial API and implementation
+ *******************************************************************************/
 package org.eclipse.mat.tests.snapshot;
 
 import static org.junit.Assert.assertEquals;
@@ -32,12 +42,41 @@ public class GeneralSnapshotTests
             {TestSnapshots.IBM_JDK6_32BIT_JAVA},
             {TestSnapshots.IBM_JDK6_32BIT_HEAP_AND_JAVA},
             {TestSnapshots.IBM_JDK6_32BIT_SYSTEM},
+            {"methods"},
+            {TestSnapshots.IBM_JDK142_32BIT_HEAP},
+            {TestSnapshots.IBM_JDK142_32BIT_JAVA},
+            {TestSnapshots.IBM_JDK142_32BIT_HEAP_AND_JAVA},
+            {TestSnapshots.IBM_JDK142_32BIT_SYSTEM},
         });
     }
 
     public GeneralSnapshotTests(String snapshotname)
     {
-        snapshot = TestSnapshots.getSnapshot(snapshotname, false);
+        if (snapshotname.equals("methods")) {
+            snapshot = snapshot2(TestSnapshots.IBM_JDK6_32BIT_SYSTEM, true);
+        }
+        else
+        {
+            snapshot = TestSnapshots.getSnapshot(snapshotname, false);
+        }
+    }
+
+    /**
+     * Create a snapshot with the methods as classes option
+     */
+    public ISnapshot snapshot2(String snapshotname, boolean includeMethods)
+    {
+        String prop = "mat.methods_as_classes";
+        String mt = System.getProperty(prop);
+        try {
+            System.setProperty(prop, Boolean.toString(includeMethods));
+            return TestSnapshots.getSnapshot(snapshotname, true);
+        } finally {
+            if (mt != null) 
+                System.setProperty(prop, mt);
+            else
+                System.clearProperty(prop);
+        }
     }
 
     final ISnapshot snapshot;
@@ -118,6 +157,7 @@ public class GeneralSnapshotTests
         long total = 0;
         for (IClass cls : snapshot.getClasses())
         {
+            long prev = -1;
             for (int o : cls.getObjectIds())
             {
                 IObject obj = snapshot.getObject(o);
@@ -128,6 +168,18 @@ public class GeneralSnapshotTests
                     assertEquals("snapshot object heap size / object heap size "+obj, n, n2);
                 }
                 total += n;
+                if (prev >= 0) {
+                    if (prev != n && !cls.isArrayType() && cls.getClazz() != cls)
+                    {
+                        // This might not be a problem as variable sized plain objects
+                        // are now permitted using the array index to record the alternative sizes.
+                        // However, the current dumps don't appear to have them, so test for it here.
+                        // Future dumps may make this test fail.
+                        assertEquals("Variable size plain objects "+cls, prev, n);
+                    }
+                } else {
+                    prev = n;
+                }
             }
         }
         long n = snapshot.getSnapshotInfo().getUsedHeapSize();

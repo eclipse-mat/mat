@@ -49,7 +49,7 @@ public class TestParseApp
         }
         finally
         {
-            SnapshotFactory.dispose(snapshot);
+            if (snapshot != null) SnapshotFactory.dispose(snapshot);
         }
 
         listener.done();
