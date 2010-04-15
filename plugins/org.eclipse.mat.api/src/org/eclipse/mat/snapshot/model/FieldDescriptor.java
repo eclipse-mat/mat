@@ -36,7 +36,7 @@ public class FieldDescriptor implements Serializable
 
     /**
      * Gets the field name
-     * @return
+     * @return the actual field name
      */
     public String getName()
     {

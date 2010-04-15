@@ -35,7 +35,7 @@ public class NamedReference extends ObjectReference
 
     /**
      * Get the description of the reference.
-     * @return
+     * @return the description
      */
     public String getName()
     {

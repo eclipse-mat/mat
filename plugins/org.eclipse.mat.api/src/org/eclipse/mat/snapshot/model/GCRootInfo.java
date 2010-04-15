@@ -172,7 +172,7 @@ abstract public class GCRootInfo implements Serializable
     /**
      * A printable version of the type
      * @param type as {@link Type}
-     * @return
+     * @return the printable version of the type
      * @see Type
      */
     public static String getTypeAsString(int type)

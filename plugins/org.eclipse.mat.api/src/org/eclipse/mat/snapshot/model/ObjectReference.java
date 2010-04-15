@@ -39,7 +39,7 @@ public class ObjectReference implements Serializable
 
     /**
      * The actual address of the object
-     * @return
+     * @return the address
      */
     public long getObjectAddress()
     {
@@ -48,7 +48,7 @@ public class ObjectReference implements Serializable
 
     /**
      * The id of the object
-     * @return
+     * @return the object id
      * @throws SnapshotException
      */
     public int getObjectId() throws SnapshotException
