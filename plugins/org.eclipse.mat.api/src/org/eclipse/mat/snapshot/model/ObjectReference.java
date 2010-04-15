@@ -58,7 +58,7 @@ public class ObjectReference implements Serializable
 
     /**
      * Get a detailed view of the object
-     * @return
+     * @return the object detail
      * @throws SnapshotException
      */
     public IObject getObject() throws SnapshotException

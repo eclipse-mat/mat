@@ -45,7 +45,7 @@ abstract public class GCRootInfo implements Serializable
         int NATIVE_STATIC = 8;
         /**
          * Started but not stopped threads
-         * @see THREAD_OBJ
+         * @see #THREAD_OBJ
          */
         int THREAD_BLOCK = 16;
         /**
@@ -71,7 +71,7 @@ abstract public class GCRootInfo implements Serializable
         int THREAD_OBJ = 256;
         /**
          * An object which is a queue awaiting its finalizer to be run
-         * @see THREAD_BLOCK
+         * @see #THREAD_BLOCK
          */
         int FINALIZABLE = 512;
         /**

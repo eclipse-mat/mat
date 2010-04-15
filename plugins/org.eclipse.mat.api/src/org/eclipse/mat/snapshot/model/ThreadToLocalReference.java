@@ -52,7 +52,7 @@ public class ThreadToLocalReference extends PseudoReference
     /**
      * The description of the thread root information
      * Not currently used, so might be removed.
-     * @return
+     * @return an array of GC information for the local reference
      */
     public GCRootInfo[] getGcRootInfo()
     {
