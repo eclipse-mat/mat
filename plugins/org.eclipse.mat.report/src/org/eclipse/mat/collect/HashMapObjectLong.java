@@ -16,19 +16,32 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
+ * A map from Object to long.
+ * More efficient than a general map
  * null not allowed as key.
  */
 public final class HashMapObjectLong<E> implements Serializable
 {
-    private static final NoSuchElementException noSuchElementException = new NoSuchElementException(
-                    "This is static exception, there is no stack trace available. It is thrown by get() method."); //$NON-NLS-1$
-
+    /**
+     * An entry from the map
+     */
     public interface Entry<E>
     {
+       /**
+         * Get the key.
+         * @return the key
+         */
         E getKey();
 
+        /**
+         * Get the corresponding value.
+         * @return the value
+         */
         long getValue();
     }
+
+    private static final NoSuchElementException noSuchElementException = new NoSuchElementException(
+                    "This is static exception, there is no stack trace available. It is thrown by get() method."); //$NON-NLS-1$
 
     private static final long serialVersionUID = 1L;
 
@@ -40,16 +53,29 @@ public final class HashMapObjectLong<E> implements Serializable
     private Object[] keys;
     private long[] values;
 
+    /**
+     * Create a map of default size
+     */
     public HashMapObjectLong()
     {
         this(10);
     }
 
+    /**
+     * Create a map of given size
+     * @param initialCapacity
+     */
     public HashMapObjectLong(int initialCapacity)
     {
         init(initialCapacity);
     }
 
+    /**
+     * Add a mapping
+     * @param key the key
+     * @param value the corresponding value
+     * @return true if an entry with the key already exists
+     */
     public boolean put(E key, long value)
     {
         if (size == limit)
@@ -73,6 +99,11 @@ public final class HashMapObjectLong<E> implements Serializable
         return false;
     }
 
+    /**
+     * Remove an mapping from the map
+     * @param key the key to remove
+     * @return true if entry was found
+     */
     public boolean remove(E key)
     {
         Object keyObj = key;
@@ -80,7 +111,7 @@ public final class HashMapObjectLong<E> implements Serializable
         int hash = hashOf(keyObj) % capacity;
         while (used[hash])
         {
-            if (keys[hash] == keyObj)
+            if (keys[hash].equals(keyObj))
             {
                 used[hash] = false;
                 size--;
@@ -93,8 +124,9 @@ public final class HashMapObjectLong<E> implements Serializable
                     used[hash] = false;
                     int newHash = hashOf(keyObj) % capacity;
                     while (used[newHash])
+                    {
                         newHash = (newHash + step) % capacity;
-
+                    }
                     used[newHash] = true;
                     keys[newHash] = keyObj;
                     values[newHash] = values[hash];
@@ -108,6 +140,11 @@ public final class HashMapObjectLong<E> implements Serializable
         return false;
     }
 
+    /**
+     * find if key is present in map
+     * @param key the key
+     * @return true if the key was found
+     */
     public boolean containsKey(E key)
     {
         int hash = hashOf(key) % capacity;
@@ -119,6 +156,12 @@ public final class HashMapObjectLong<E> implements Serializable
         return false;
     }
 
+    /**
+     * Retrieve the value corresponding to the key
+     * @param key the key
+     * @return the value
+     * @throws NosuchElementException if the key is not found
+     */
     public long get(E key)
     {
         int hash = hashOf(key) % capacity;
@@ -131,6 +174,11 @@ public final class HashMapObjectLong<E> implements Serializable
         throw noSuchElementException;
     }
 
+    /**
+     * Get all the used keys.
+     * Consider using {@link getAllKeys(T[] a)} for better type safety
+     * @return an array of the used keys
+     */
     public Object[] getAllKeys()
     {
         Object[] array = new Object[size];
@@ -143,6 +191,10 @@ public final class HashMapObjectLong<E> implements Serializable
         return array;
     }
 
+    /**
+     * Get all the used keys.
+     * @return an array of the used keys
+     */
     @SuppressWarnings("unchecked")
     public <T> T[] getAllKeys(T[] a)
     {
@@ -161,22 +213,38 @@ public final class HashMapObjectLong<E> implements Serializable
         return a;
     }
 
+    /**
+     * The number of mappings
+     * @return the size of the map
+     */
     public int size()
     {
         return size;
     }
 
+    /**
+     * Is the map empty 
+     * @return true if no current mappings
+     */
     public boolean isEmpty()
     {
         return size() == 0;
     }
 
+    /**
+     * Remove all the existing mappings,
+     * leaving the capacity unchanged.
+     */
     public void clear()
     {
         size = 0;
         used = new boolean[capacity];
     }
 
+    /**
+     * Get a way of iterating over the keys
+     * @return an iterator over the keys
+     */
     public Iterator<E> keys()
     {
         return new Iterator<E>()
@@ -210,6 +278,10 @@ public final class HashMapObjectLong<E> implements Serializable
         };
     }
 
+    /**
+     * Get a way of iterating over the values.
+     * @return an iterator over the values
+     */
     public IteratorLong values()
     {
         return new IteratorLong()
@@ -237,6 +309,10 @@ public final class HashMapObjectLong<E> implements Serializable
         };
     }
 
+    /**
+     * Iterate over all the map entries
+     * @return the iterator over the entries
+     */
     public Iterator<Entry<E>> entries()
     {
         return new Iterator<Entry<E>>()
@@ -281,6 +357,11 @@ public final class HashMapObjectLong<E> implements Serializable
         };
     }
 
+    /**
+     * Get all the values corresponding to the used keys.
+     * Duplicate values are possible if they correspond to different keys.
+     * @return an array of the used values
+     */
     public long[] getAllValues()
     {
         long[] a = new long[size];

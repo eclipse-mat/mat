@@ -673,6 +673,14 @@ public class PrimitiveMapTests
                 keys[ii] = keys[ii - 1];
                 values[ii] = values[ii - 1];
             }
+
+            // make sure we have at least one via equals
+            if (ii == 20)
+            {
+                ii++;
+                keys[ii] = new Integer(keys[ii - 1]);
+                values[ii] = new Long(values[ii - 1]);
+            }
         }
 
         new TestStub<Integer, Long>(keys, values)
@@ -699,6 +707,15 @@ public class PrimitiveMapTests
             protected Map<Integer, Long> createEmpty()
             {
                 return new MapObjectLongBridge3<Integer>(new HashMapObjectLong<Integer>());
+            }
+        }.run();
+
+        new TestStub<Integer, Long>(keys, values)
+        {
+            @Override
+            protected Map<Integer, Long> createEmpty()
+            {
+                return new MapObjectLongBridge4<Integer>(new HashMapObjectLong<Integer>());
             }
         }.run();
     }
@@ -876,6 +893,26 @@ public class PrimitiveMapTests
             for (int ii = 0; ii < keys.length; ii++)
                 answer.add((K) keys[ii]);
             return answer;
+        }
+    }
+
+    class MapObjectLongBridge4<K> extends MapObjectLongBridge<K>
+    {
+        public MapObjectLongBridge4(HashMapObjectLong<K> delegate)
+        {
+            super(delegate);
+        }
+        
+        /**
+         * check that remove is done by equality not identity
+         */
+        public Long remove(Object key)
+        {
+            if (key instanceof Integer)
+            {
+                key = new Integer((Integer)key);
+            }
+            return super.remove(key);
         }
     }
 
