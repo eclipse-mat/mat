@@ -16,6 +16,9 @@ import java.util.Map;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.ResultMetaData;
 
+/**
+ * A container for combining results.
+ */
 public class Spec implements IResult
 {
     private String name;
@@ -70,6 +73,11 @@ public class Spec implements IResult
         this.params.put(key, value);
     }
 
+    /**
+     * Merge with another Spec.
+     * Combine the parameters and choose the other name if this has none.
+     * @param other the other Spec
+     */
     public void merge(Spec other)
     {
         if (this.name == null)

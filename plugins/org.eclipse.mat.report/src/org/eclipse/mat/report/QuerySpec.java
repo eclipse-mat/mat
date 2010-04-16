@@ -14,6 +14,9 @@ import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.report.internal.Messages;
 import org.eclipse.mat.util.MessageUtil;
 
+/**
+ * A container for a result.
+ */
 public class QuerySpec extends Spec
 {
     private String command;

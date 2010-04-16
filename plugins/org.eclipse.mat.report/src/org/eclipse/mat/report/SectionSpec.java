@@ -18,6 +18,10 @@ import java.util.Map;
 import org.eclipse.mat.report.internal.Messages;
 import org.eclipse.mat.util.MessageUtil;
 
+/**
+ * A container for multiple results.
+ * The results are merged if possible.
+ */
 public class SectionSpec extends Spec
 {
     private ITestResult.Status status;
