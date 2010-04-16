@@ -15,7 +15,7 @@ import java.net.URL;
 import org.eclipse.mat.snapshot.ISnapshot;
 
 /**
- * A factory class for well-known icons, e.g. object, class loader etc.
+ * A factory class for well-known icons, such as object, class and class loader.
  */
 @SuppressWarnings("nls")
 public final class Icons
@@ -27,19 +27,30 @@ public final class Icons
      */
     public static final URL CLASS = build("class");
 
+    /** inbound reference to a class */
     public static final URL CLASS_IN = build("in/class");
 
+    /** outbound reference from a class */
     public static final URL CLASS_OUT = build("out/class");
 
     /**
-     * A Java class grey icon.
+     * A Java class grey inbound icon. Used to show that all the instances of the class have already been seen.
      */
     public static final URL CLASS_IN_OLD = build("in/class_in_old");
 
+    /**
+     * A Java class grey outbound icon. Used to show that all the instances of the class have already been seen.
+     */
     public static final URL CLASS_OUT_OLD = build("out/class_out_old");
 
+    /**
+     * A Java class grey/green inbound icon. Used to show that some of the instances of the class have already been seen.
+     */
     public static final URL CLASS_IN_MIXED = build("in/class_mixed");
 
+    /**
+     * A Java class grey/green outbound icon. Used to show that some of the instances of the class have already been seen.
+     */
     public static final URL CLASS_OUT_MIXED = build("out/class_mixed");
 
     /**
@@ -96,8 +107,8 @@ public final class Icons
      * Construct an icon URL for the current object pointing to the right image
      * and containing the right GC decoration.
      * 
-     * @param snapshot
-     * @param objectId
+     * @param snapshot the snapshot
+     * @param objectId the object
      * @return URL of the icon
      */
     public static final URL forObject(ISnapshot snapshot, int objectId)
@@ -114,6 +125,13 @@ public final class Icons
             return isGCRoot ? OBJECT_INSTANCE_AS_GC_ROOT : OBJECT_INSTANCE;
     }
 
+    /**
+     * Construct an inbound reference icon URL for the current object pointing to the right image
+     * and containing the right GC decoration.
+     * @param snapshot the snapshot
+     * @param objectId the object
+     * @return URL of the icon
+     */
     public static final URL inbound(ISnapshot snapshot, int objectId)
     {
         boolean isGCRoot = snapshot.isGCRoot(objectId);
@@ -128,6 +146,13 @@ public final class Icons
             return isGCRoot ? OBJECT_INSTANCE_IN_GC : OBJECT_INSTANCE_IN;
     }
 
+    /**
+     * Construct an outbound reference icon URL for the current object pointing to the right image
+     * and containing the right GC decoration.
+     * @param snapshot the snapshot
+     * @param objectId the object
+     * @return URL of the icon
+     */
     public static final URL outbound(ISnapshot snapshot, int objectId)
     {
         boolean isGCRoot = snapshot.isGCRoot(objectId);
@@ -170,6 +195,11 @@ public final class Icons
         return Icons.class.getResource(PREFIX + name + ".gif");
     }
 
+    /**
+     * Retrieve a URL for a named image.
+     * @param imageName the image
+     * @return the URL used to retrieve the icon.
+     */
     public static URL getURL(String imageName)
     {
         return Icons.class.getResource("/META-INF/icons/" + imageName);

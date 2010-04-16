@@ -39,10 +39,16 @@ import org.eclipse.mat.util.VoidProgressListener;
 
 import com.ibm.icu.text.DecimalFormat;
 
+/**
+ * Extract retained size information.
+ * Used for quantization.
+ */
 public class RetainedSizeDerivedData extends ContextDerivedData
 {
+    /** Indicates approximate retained size. Sum of retained sizes of each object. */
     public static final DerivedOperation APPROXIMATE = new DerivedOperation("APPROXIMATE", //$NON-NLS-1$
                     Messages.RetainedSizeDerivedData_Label_Approximate);
+    /** Indicates exact retained size. Shallow size of retained set of the objects. */
     public static final DerivedOperation PRECISE = new DerivedOperation("PRECISE", //$NON-NLS-1$
                     Messages.RetainedSizeDerivedData_Label_Precise);
 
@@ -50,17 +56,28 @@ public class RetainedSizeDerivedData extends ContextDerivedData
 
     private ISnapshot snapshot;
 
+    /**
+     * Initial constructor.
+     * @param snaphot
+     */
     public RetainedSizeDerivedData(ISnapshot snaphot)
     {
         this.snapshot = snaphot;
     }
 
+    /**
+     * Get the extra column with the retained size data.
+     */
     @Override
     public DerivedColumn[] getDerivedColumns()
     {
         return new DerivedColumn[] { COLUMN };
     }
 
+    /**
+     * Get the label for the extra column.
+     * Based on the column name plus information from the provider as to name of the set of objects.
+     */
     @Override
     public String labelFor(DerivedColumn derivedColumn, ContextProvider provider)
     {
@@ -68,6 +85,9 @@ public class RetainedSizeDerivedData extends ContextDerivedData
                         + provider.getLabel();
     }
 
+    /**
+     * Get a column for the retained size with the right calculator.
+     */
     @Override
     public Column columnFor(DerivedColumn derivedColumn, IResult result, ContextProvider provider)
     {
@@ -82,6 +102,8 @@ public class RetainedSizeDerivedData extends ContextDerivedData
         else if (result instanceof Histogram.ClassLoaderTree)
             calculator = new AllClasses(snapshot, provider, result);
         else if (result instanceof Histogram.PackageTree)
+            calculator = new AllClasses(snapshot, provider, result);
+        else if (result instanceof Histogram.SuperclassTree)
             calculator = new AllClasses(snapshot, provider, result);
         else
             calculator = new DerivedCalculatorImpl(snapshot, provider);

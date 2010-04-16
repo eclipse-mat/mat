@@ -21,6 +21,7 @@ import org.eclipse.mat.snapshot.Histogram;
  * 
  * @deprecated Use {@link Histogram} instead.
  */
+@Deprecated 
 public final class HistogramResult implements IResult
 {
     private Histogram histogram;

@@ -32,10 +32,21 @@ import org.eclipse.mat.snapshot.model.GCRootInfo;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.NamedReference;
 
+/**
+ * Describes a set of objects returned from a query, as a tree of inbound or outbound nodes.
+ */
 public final class ObjectListResult
 {
+    /**
+     * Helper class which describes a tree of objects by inbound references.
+     */
     public static class Inbound extends Tree
     {
+        /**
+         * Construct a inbound references tree
+         * @param snapshot the snapshot
+         * @param objectIds the set of objects to form roots of the trees
+         */
         public Inbound(ISnapshot snapshot, int[] objectIds)
         {
             super(snapshot, objectIds);
@@ -53,6 +64,11 @@ public final class ObjectListResult
             node.attribute = extractAttribute(heapObject, parentAddress);
         }
 
+        /**
+         * Get the URL for a row of the tree.
+         * Returns either an arrow item or the base icon if no children.
+         * @return the URL of the icon
+         */
         public URL getIcon(Object row)
         {
             if (row instanceof LinkedNode)
@@ -62,8 +78,16 @@ public final class ObjectListResult
         }
     }
 
+    /**
+     * Helper class which describes a tree of objects by outbound references.
+     */
     public static class Outbound extends Tree
     {
+        /**
+         * Construct a outbound references tree
+         * @param snapshot the snapshot
+         * @param objectIds the set of objects to form roots of the trees
+         */
         public Outbound(ISnapshot snapshot, int[] objectIds)
         {
             super(snapshot, objectIds);
@@ -81,6 +105,11 @@ public final class ObjectListResult
             node.attribute = extractAttribute(heapObject, parentAddress);
         }
 
+        /**
+         * Get the URL for a row of the tree.
+         * Returns either an arrow item or the base icon if no children.
+         * @return the URL of the icon
+         */
         public URL getIcon(Object row)
         {
             return Icons.outbound(snapshot, ((Node) row).objectId);
@@ -92,17 +121,28 @@ public final class ObjectListResult
         protected ISnapshot snapshot;
         private List<?> objects;
 
+        /**
+         * Build a tree from objects as roots
+         * @param snapshot
+         * @param objectIds
+         */
         public Tree(ISnapshot snapshot, int[] objectIds)
         {
             this.snapshot = snapshot;
             this.objects = new LazyList(objectIds);
         }
 
+        /**
+         * Enhance the tree with extra data.
+         */
         public final ResultMetaData getResultMetaData()
         {
             return null;
         }
 
+        /**
+         * Get the columns, which are the class name, the shallow heap and the retained heap.
+         */
         public final Column[] getColumns()
         {
             return new Column[] { new Column(Messages.Column_ClassName).decorator(this), //
@@ -110,6 +150,9 @@ public final class ObjectListResult
                             new Column(Messages.Column_RetainedHeap, long.class).noTotals() };
         }
 
+        /**
+         * Get the actual rows.
+         */
         public final List<?> getElements()
         {
             return objects;
@@ -259,12 +302,13 @@ public final class ObjectListResult
 
     private static class Node
     {
-        public static final String NOT_A_GC_ROOT = "$ not a gc root $"; //$NON-NLS-1$
+        /** A string guaranteed not to be equal by identity to any other String */
+        public static final String NOT_A_GC_ROOT = new String("$ not a gc root $"); //$NON-NLS-1$
 
         int objectId;
         String label;
         String gcRoots;
-        int shallowHeap;
+        long shallowHeap;
         long retainedHeap;
 
         private Node(int objectId)
