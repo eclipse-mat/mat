@@ -19,6 +19,10 @@ import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.collect.SetInt;
 import org.eclipse.mat.snapshot.model.IClass;
 
+/**
+ * Holds one level of multiple paths from Garbage Collection roots
+ * merged by class.
+ */
 public class MultiplePathsFromGCRootsClassRecord
 {
     private List<int[]> paths = new ArrayList<int[]>();
@@ -29,6 +33,13 @@ public class MultiplePathsFromGCRootsClassRecord
     private ISnapshot snapshot;
     private boolean fromRoots;
 
+    /**
+     * Constructor
+     * @param clazz the class in question
+     * @param level
+     * @param fromRoots true means from roots, false means to roots
+     * @param snapshot
+     */
     public MultiplePathsFromGCRootsClassRecord(IClass clazz, int level, boolean fromRoots, ISnapshot snapshot)
     {
         this.clazz = clazz;
@@ -37,6 +48,11 @@ public class MultiplePathsFromGCRootsClassRecord
         this.snapshot = snapshot;
     }
 
+    /**
+     * Go down to the next level
+     * @return an array of records from the next level
+     * @throws SnapshotException
+     */
     public MultiplePathsFromGCRootsClassRecord[] nextLevel() throws SnapshotException
     {
         int nextLevel = level + 1;

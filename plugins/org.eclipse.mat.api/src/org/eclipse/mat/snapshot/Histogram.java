@@ -59,6 +59,15 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
     // needed for serialization
     }
 
+    /**
+     * Construct a histogram
+     * @param label the name of the whole histogram
+     * @param classHistogramRecords the classes
+     * @param classLoaderHistogramRecords the class loaders
+     * @param numberOfObjects the total number of objects
+     * @param usedHeapSize the shallow size of all the objects
+     * @param retainedHeapSize the retained size of all the objects, or 0 if unknown
+     */
     public Histogram(String label, ArrayList<ClassHistogramRecord> classHistogramRecords,
                     ArrayList<ClassLoaderHistogramRecord> classLoaderHistogramRecords, long numberOfObjects,
                     long usedHeapSize, long retainedHeapSize)
@@ -67,6 +76,16 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
                         retainedHeapSize, false);
     }
 
+    /**
+     * Construct a histogram
+     * @param label the name of the whole histogram
+     * @param classHistogramRecords the classes
+     * @param classLoaderHistogramRecords the class loaders
+     * @param numberOfObjects the total number of objects
+     * @param usedHeapSize the shallow size of all the objects
+     * @param retainedHeapSize the retained size of all the objects, or 0 if unknown
+     * @param isDefaultHistogram a histogram of the whole snapshot
+     */
     public Histogram(String label, ArrayList<ClassHistogramRecord> classHistogramRecords,
                     ArrayList<ClassLoaderHistogramRecord> classLoaderHistogramRecords, long numberOfObjects,
                     long usedHeapSize, long retainedHeapSize, boolean isDefaultHistogram)
@@ -729,10 +748,9 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
         return Icons.CLASS;
     }
 
-    // //////////////////////////////////////////////////////////////
-    // implementation as result tree grouped by class loader
-    // //////////////////////////////////////////////////////////////
-
+    /**
+     * implementation as result tree grouped by class loader
+     */
     public IResultTree groupByClassLoader()
     {
         return new ClassLoaderTree(this);
@@ -876,10 +894,9 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
         }
     }
 
-    // //////////////////////////////////////////////////////////////
-    // implementation as tree grouped by package
-    // //////////////////////////////////////////////////////////////
-
+    /**
+     * implementation as result tree grouped by package
+     */
     public IResultTree groupByPackage()
     {
         return new PackageTree(this);
@@ -1076,9 +1093,10 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
 
     }
 
-    // Superclass
+    /**
+     * implementation as result tree grouped by superclass
+     */
     // perhaps we should have some common code between this and the package code
-    
     public IResultTree groupBySuperclass(ISnapshot snapshot)
     {
         return new SuperclassTree(this, snapshot);

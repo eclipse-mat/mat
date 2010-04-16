@@ -34,6 +34,9 @@ import org.eclipse.mat.snapshot.query.Icons;
  */
 public class UnreachableObjectsHistogram implements IResultTable, IIconProvider, Serializable
 {
+    /**
+      * Holds details about the unreachable objects for objects of one particular
+      */
     public static class Record implements Serializable
     {
         private static final long serialVersionUID = 1L;

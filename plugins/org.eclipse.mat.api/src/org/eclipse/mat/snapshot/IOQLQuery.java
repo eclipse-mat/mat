@@ -15,14 +15,21 @@ import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.util.IProgressListener;
 
 /**
- * OQL Query
+ * Performs an OQL Query.
  * 
  * @noimplement
  */
 public interface IOQLQuery
 {
+    /**
+     * A result which also describes the OQL query that generated it.
+     */
     public interface Result extends IResult
     {
+        /**
+         * The OQL query 
+         * @return the query
+         */
         String getOQLQuery();
     }
 

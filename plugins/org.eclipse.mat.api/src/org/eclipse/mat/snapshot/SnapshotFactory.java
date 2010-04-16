@@ -33,17 +33,42 @@ import org.eclipse.mat.util.IProgressListener;
 public final class SnapshotFactory
 {
     /**
+     * Describes the snapshot factory implementation.
+     * Implemented in the parser plugin.
      * @noimplement
      */
     public interface Implementation
     {
+        /**
+         * Opens a snapshot
+         * @param file the dump file
+         * @param arguments extra arguments to change the indexing of the dump
+         * @param listener to show progress and errors
+         * @return the snapshot
+         * @throws SnapshotException
+         */
         ISnapshot openSnapshot(File file, Map<String, String> arguments, IProgressListener listener)
                         throws SnapshotException;
 
+        /**
+         * Free resources when the snapshot is no longer needed.
+         * @param snapshot
+         */
         void dispose(ISnapshot snapshot);
 
+        /**
+         * Run an OQL query
+         * @param queryString the OQL query
+         * @return the result
+         * @throws OQLParseException
+         * @throws SnapshotException
+         */
         IOQLQuery createQuery(String queryString) throws OQLParseException, SnapshotException;
 
+        /**
+         * Show which parsers the factory handles
+         * @return a list of snapshot types
+         */
         List<SnapshotFormat> getSupportedFormats();
     }
 
@@ -75,6 +100,9 @@ public final class SnapshotFactory
             Logger.getLogger(SnapshotFactory.class.getName()).log(Level.SEVERE,
                             Messages.SnapshotFactory_ErrorMsg_FactoryCreation, e);
         }
+        if (factory == null)
+            Logger.getLogger(SnapshotFactory.class.getName()).log(Level.SEVERE,
+                        Messages.SnapshotFactory_ErrorMsg_FactoryCreation);
     }
 
     /**
@@ -142,6 +170,10 @@ public final class SnapshotFactory
         return factory.createQuery(queryString);
     }
 
+    /**
+     * Get the types of the parsers.
+     * @return
+     */
     public static List<SnapshotFormat> getSupportedFormats()
     {
         return factory.getSupportedFormats();
