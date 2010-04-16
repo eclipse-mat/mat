@@ -16,10 +16,23 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+/**
+ * Annotates a query which has multiple menu items.
+ * annotations.properties replaces this annotation
+ * <pre>
+ *{@code
+<classname>.menu.<nn>.category = 
+<classname>.menu.<nn>.label = 
+}
+ * </pre>
+ */
 @Target( { TYPE })
 @Retention(RUNTIME)
 public @interface Menu
 {
+    /**
+     * Annotates a menu item for a particular sub-query.
+     */
     public @interface Entry
     {
         String category() default "";
