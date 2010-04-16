@@ -34,44 +34,73 @@ public class TextResult implements IResult
     private boolean isHtml;
     private String text;
 
+    /**
+     * A simple text result as HTML
+     */
     public TextResult()
     {
         this("", true); //$NON-NLS-1$
     }
 
+    /**
+     * A simple text result, using the supplied text, as plain text.
+     * @param text
+     */
     public TextResult(String text)
     {
         this(text, false);
     }
 
+    /**
+     * Create a TextResult
+     * @param text the contents of the report
+     * @param isHtml whether it is in HTML
+     */
     public TextResult(String text, boolean isHtml)
     {
         this.text = text;
         this.isHtml = isHtml;
     }
 
+    /**
+     * Get the metadata
+     * @return null
+     */
     public ResultMetaData getResultMetaData()
     {
         return metaData;
     }
 
+    /**
+     * Set the text for the text result.
+     * @param text the contents of the report
+     */
     public void setText(String text)
     {
         this.text = text;
     }
 
+    /**
+     * Get the text
+     * @return the text of the report
+     */
     public String getText()
     {
         return text;
     }
 
+    /**
+     * Whether it is HTML
+     * @return true if HTML
+     */
     public boolean isHtml()
     {
         return isHtml;
     }
 
     /**
-     * @return url
+     * Generate a link to another report, and save the reference report too.
+     * @return the URL as a String
      */
     public String linkTo(String label, IResult result)
     {

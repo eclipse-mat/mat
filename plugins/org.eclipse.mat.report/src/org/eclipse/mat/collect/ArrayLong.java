@@ -152,7 +152,7 @@ public final class ArrayLong
 
     /**
      * get an iterator to go through the list
-     * @return
+     * @return the iterator
      */
     public IteratorLong iterator()
     {

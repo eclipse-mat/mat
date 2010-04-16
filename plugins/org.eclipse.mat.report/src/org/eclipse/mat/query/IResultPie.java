@@ -12,10 +12,20 @@ package org.eclipse.mat.query;
 
 import java.util.List;
 
+/**
+ * Results as pie chart data.
+ */
 public interface IResultPie extends IResult
 {
+    /**
+     * A slice of the pie.
+     */
     public interface Slice
     {
+        /**
+         * The label for the pie chart
+         * @return the label
+         */
         String getLabel();
 
         double getValue();
@@ -25,5 +35,9 @@ public interface IResultPie extends IResult
         IContextObject getContext();
     }
 
+    /**
+     * All the slices of the pie.
+     * @return a list of slices
+     */
     List<? extends Slice> getSlices();
 }

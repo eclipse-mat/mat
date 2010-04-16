@@ -10,12 +10,28 @@
  *******************************************************************************/
 package org.eclipse.mat.query;
 
+/**
+ * Description of how to deal with a table or tree.
+ */
 public interface ISelectionProvider
 {
+    /**
+     * Has the user selected this row
+     * @param row
+     * @return true if selected
+     */
     boolean isSelected(Object row);
 
+    /**
+     * Should this node be expanded.
+     * @param row
+     * @return true if it should be expanded.
+     */
     boolean isExpanded(Object row);
 
+    /**
+     * A basic selection provider where nothing is selected or expanded.
+     */
     public static final ISelectionProvider EMPTY = new ISelectionProvider()
     {
         public boolean isExpanded(Object row)

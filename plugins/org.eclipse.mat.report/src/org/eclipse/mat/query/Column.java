@@ -74,6 +74,11 @@ public final class Column
             return swtCode;
         }
 
+        /**
+         * Get the direction the column is sorted in based on SWT code
+         * @param swtCode the code from SWT
+         * @return  the sort direction
+         */
         public static SortDirection of(int swtCode)
         {
             switch (swtCode)
@@ -87,6 +92,12 @@ public final class Column
             }
         }
 
+        /**
+         * Get the default ordering for a column.
+         * Currently descending for numeric, ascending for the rest.
+         * @param column
+         * @return the direction
+         */
         public static SortDirection defaultFor(Column column)
         {
             return column.isNumeric() ? DESC : ASC;
@@ -109,11 +120,20 @@ public final class Column
     // constructors
     // //////////////////////////////////////////////////////////////
 
+    /**
+     * Build a column with the given label.
+     * @param label the top of the column
+     */
     public Column(String label)
     {
         this(label, Object.class);
     }
 
+    /**
+     * Build a column with the given label.
+     * @param label the top of the column
+     * @param type a type of the column, such as float, int, Double
+     */
     public Column(String label, Class<?> type)
     {
         this.label = label;
@@ -234,6 +254,7 @@ public final class Column
     /**
      * Returns true if the columns represents a numeric type, i.e. if it is
      * assignable to number or one of the primitive numeric types.
+     * @return true if numeric
      */
     public boolean isNumeric()
     {

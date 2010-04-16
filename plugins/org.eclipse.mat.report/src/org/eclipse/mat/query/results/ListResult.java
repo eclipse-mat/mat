@@ -27,6 +27,9 @@ import org.eclipse.mat.query.IIconProvider;
 import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.query.ResultMetaData;
 
+/**
+ * A list of items as a result table.
+ */
 public class ListResult implements IResultTable, IIconProvider
 {
     public interface ValueProvider

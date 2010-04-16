@@ -13,7 +13,7 @@ package org.eclipse.mat.query;
 import org.eclipse.mat.query.ContextDerivedData.DerivedOperation;
 
 /**
- * Base class for context provider, i.e. an object which returns the heap
+ * Base class for context provider which is an object which returns the heap
  * objects represented by an arbitrary row in a table/tree.
  * 
  * @see org.eclipse.mat.query.IContextObject
@@ -47,11 +47,19 @@ public abstract class ContextProvider
         this(template.label);
     }
 
+    /**
+     * The label for this context provider
+     * @return the label
+     */
     public String getLabel()
     {
         return label;
     }
 
+    /**
+     * The default context provider is that for the whole snapshot.
+     * @return true if it represents the whole snapshot
+     */
     public final boolean isDefault()
     {
         return label == null;
@@ -70,6 +78,11 @@ public abstract class ContextProvider
         return operations;
     }
 
+    /**
+     * Return the context object associated with the specified row.
+     * @param row the row requested
+     * @return details of the row
+     */
     public abstract IContextObject getContext(Object row);
 
 }

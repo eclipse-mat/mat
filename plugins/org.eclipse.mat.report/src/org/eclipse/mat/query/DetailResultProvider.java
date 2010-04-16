@@ -13,10 +13,17 @@ package org.eclipse.mat.query;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.util.IProgressListener;
 
+/**
+ * Used to give more detailed information about rows in a table.
+ */
 public abstract class DetailResultProvider
 {
     private String label;
 
+    /**
+     * Constructor with a description.
+     * @param label
+     */
     public DetailResultProvider(String label)
     {
         this.label = label;
@@ -27,8 +34,20 @@ public abstract class DetailResultProvider
         return label;
     }
 
+    /**
+     * Whether there is any data for this row
+     * @param row
+     * @return true if getResult is to be called
+     */
     public abstract boolean hasResult(Object row);
 
+    /**
+     * Get more data about the row.
+     * @param row
+     * @param listener to indicate progress or errors
+     * @return the extra generated results
+     * @throws SnapshotException
+     */
     public abstract IResult getResult(Object row, IProgressListener listener) throws SnapshotException;
 
 }

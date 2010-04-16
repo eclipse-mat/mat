@@ -16,20 +16,36 @@ import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.ResultMetaData;
 import org.eclipse.mat.report.internal.Messages;
 
+/**
+ * Used to display an external file as a report.
+ * An example might be a saved HTML report.
+ */
 public class DisplayFileResult implements IResult
 {
     private File file;
 
+    /**
+     * Create a report from a saved report file
+     * @param file the file
+     */
     public DisplayFileResult(File file)
     {
         this.file = file;
     }
 
+    /**
+     * Get the meta data
+     * @return null
+     */
     public ResultMetaData getResultMetaData()
     {
         return null;
     }
 
+    /**
+     * Get the file used to generate this report.
+     * @return the file
+     */
     public File getFile()
     {
         return file;

@@ -16,7 +16,8 @@ import java.net.URL;
  * Interface to provide icon representation for rows of a
  * {@link IStructuredResult}.
  * <p>
- * See {@link Icons} for well-known icons. To add custom icons, place the GIF
+ * See {@link org.eclipse.mat.query.annotations.Icon} 
+ * {@link org.eclipse.mat.ui.snapshot.ImageHelper} for well-known icons. To add custom icons, place the GIF
  * file in your class path and return the resource URL:
  * <p>
  * 
