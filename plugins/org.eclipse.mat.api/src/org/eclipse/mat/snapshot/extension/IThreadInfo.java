@@ -48,7 +48,8 @@ public interface IThreadInfo
     void addKeyword(String keyword);
 
     /**
-     * Add details - doesn't appear to be used.
+     * Add details of tasks performed by the thread.
+     * Doesn't appear to be used yet.
      * @param name subtitle for the report
      * @param details the result containing the details
      */
