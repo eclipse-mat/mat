@@ -28,7 +28,12 @@ public interface IHeapDumpProvider
 	 * Returns a list of locally running Java processes from which the heap dump
 	 * provider can attempt to acquire a heap dump
 	 * 
-	 * @return List<VmInfo> the list of processes ({@link VmInfo})
+	 * @param listener
+	 *            a progress listener
+	 * 
+	 * @return List<? extends VmInfo> the list of processes ({@link VmInfo})
+	 * 
+	 * @throws SnapshotException
 	 */
 	public List<? extends VmInfo> getAvailableVMs(IProgressListener listener) throws SnapshotException;
 
@@ -45,7 +50,7 @@ public interface IHeapDumpProvider
 	 *            a progress listener
 	 * @return the File under which the successfully generated heap dump is
 	 *         saved
-	 * @throws Exception
+	 * @throws SnapshotException
 	 */
 	public File acquireDump(VmInfo info, File preferredLocation, IProgressListener listener) throws SnapshotException;
 }
