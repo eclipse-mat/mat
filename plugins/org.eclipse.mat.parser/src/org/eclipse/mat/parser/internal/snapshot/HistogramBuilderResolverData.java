@@ -12,7 +12,7 @@ package org.eclipse.mat.parser.internal.snapshot;
 
 /**
  * @deprecated Use
- *             {@link HistogramBuilder#toHistogram(org.eclipse.mat.internal.snapshot.hprof.HprofSnapshot, boolean)
+ *             {@link HistogramBuilder#toHistogram(SnapshotImpl, boolean)
  *             instead}
  */
 @Deprecated
