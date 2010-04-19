@@ -20,7 +20,7 @@ public interface IPrimitiveArray extends IArray
 {
     /**
      * Primitive signatures.
-     * Indexes match the values of {link IObject.Type}
+     * Indexes match the values of {@link IObject.Type}
      * @see IObject.Type
      */
     public static final byte[] SIGNATURES = { -1, -1, -1, -1, (byte) 'Z', (byte) 'C', (byte) 'F', (byte) 'D',
@@ -28,14 +28,14 @@ public interface IPrimitiveArray extends IArray
 
     /**
      * Element sizes inside the array.
-     * Indexes match the values of {link IObject.Type}
+     * Indexes match the values of {@link IObject.Type}
      * @see IObject.Type
      */
     public static final int[] ELEMENT_SIZE = { -1, -1, -1, -1, 1, 2, 4, 8, 1, 2, 4, 8 };
 
     /**
      * Display string of the type.
-     * Indexes match the values of {link IObject.Type}
+     * Indexes match the values of {@link IObject.Type}
      * @see IObject.Type
      */
     @SuppressWarnings("nls")
