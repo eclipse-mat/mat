@@ -365,7 +365,7 @@ public class TopConsumers2Query implements IQuery
 
         for (int ii = 0; ii < topDominators.length; ii++)
         {
-            int usedHeap = snapshot.getHeapSize(topDominators[ii]);
+            long usedHeap = snapshot.getHeapSize(topDominators[ii]);
             totalShallow += usedHeap;
 
             IClass clazz = snapshot.getClassOf(topDominators[ii]);
