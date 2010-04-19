@@ -177,7 +177,7 @@ public class DominatorQuery implements IQuery
         int objectId;
 
         String label;
-        int shallowHeap;
+        long shallowHeap;
         long retainedHeap;
 
         public Node(int objectId)
