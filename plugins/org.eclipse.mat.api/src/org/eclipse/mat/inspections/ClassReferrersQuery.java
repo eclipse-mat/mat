@@ -278,7 +278,7 @@ public class ClassReferrersQuery implements IQuery
         int type = Type.NEW;
 
         String label;
-        int shallowHeap;
+        long shallowHeap;
         ClassNode parent;
 
         private ClassNode(int classId, ClassNode parent)
