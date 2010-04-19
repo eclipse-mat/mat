@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!-- Schema file written by PDE -->
-<schema targetNamespace="org.eclipse.mat.api" xmlns="http://www.w3.org/2001/XMLSchema">
+<schema targetNamespace="org.eclipse.mat.api">
 <annotation>
       <appInfo>
          <meta.schema plugin="org.eclipse.mat.api" id="requestResolver" name="Request Details Resolver"/>
@@ -13,7 +13,7 @@ This information is helpful to better understand the current problem.&lt;/p&gt;
 
 &lt;p&gt;This is how it works: The heap dump contains information about which
 objects are currently on the call stack of a thread (so called &quot;Java Locals&quot;).
-If some &quot;HTTP request&quot; object is on the call stack, one can pretty savely
+If some &quot;HTTP request&quot; object is on the call stack, one can pretty safely
 assume that the thread is executing this HTTP request. Of course, this
 requires some implementation knowlege and may change from version to
 version. The Memory Analyzer checks if a request details resolver is
@@ -23,11 +23,6 @@ provide a summary and detail page.&lt;/p&gt;
    </annotation>
 
    <element name="extension">
-      <annotation>
-         <appInfo>
-            <meta.element />
-         </appInfo>
-      </annotation>
       <complexType>
          <sequence minOccurs="1" maxOccurs="unbounded">
             <element ref="resolver"/>

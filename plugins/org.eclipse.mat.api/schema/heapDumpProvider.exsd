@@ -1,21 +1,16 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!-- Schema file written by PDE -->
-<schema targetNamespace="org.eclipse.mat.api" xmlns="http://www.w3.org/2001/XMLSchema">
+<schema targetNamespace="org.eclipse.mat.api">
 <annotation>
       <appInfo>
          <meta.schema plugin="org.eclipse.mat.api" id="heapDumpProvider" name="Heap Dump Provider"/>
       </appInfo>
       <documentation>
-         [Enter description of this extension point.]
+         The Acquire Heap Dump menu option allows the user to request a heap dump on a local running Java process. This extension point allows the retrieval of a list of running VMs of a particular type, and the triggering of a dump on one of those processes.
       </documentation>
    </annotation>
 
    <element name="extension">
-      <annotation>
-         <appInfo>
-            <meta.element />
-         </appInfo>
-      </annotation>
       <complexType>
          <sequence minOccurs="0" maxOccurs="unbounded">
             <element ref="provider"/>
@@ -49,7 +44,7 @@
 
    <element name="provider">
       <complexType>
-         <attribute name="impl" type="string">
+         <attribute name="impl" type="string" use="required">
             <annotation>
                <documentation>
                   
@@ -67,7 +62,7 @@
          <meta.section type="since"/>
       </appInfo>
       <documentation>
-         [Enter the first release in which this extension point appears.]
+         1.0
       </documentation>
    </annotation>
 
@@ -76,16 +71,56 @@
          <meta.section type="examples"/>
       </appInfo>
       <documentation>
-         [Enter extension point usage example here.]
+         The following is an example of a heap dump provider declaration;
+
+&lt;pre&gt;
+   &lt;extension
+         name=&quot;IBM Virtual Machines&quot;
+         point=&quot;org.eclipse.mat.api.heapDumpProvider&quot;&gt;
+      &lt;provider
+            impl=&quot;org.eclipse.mat.ibmvm.acquire.DumpFactory&quot;&gt;
+      &lt;/provider&gt;
+   &lt;/extension&gt;
+&lt;/pre&gt;
+
+The dump provider must implement &lt;code&gt;org.eclipse.mat.snapshot.acquire.IHeapDumpProvider&lt;/code&gt;.
+Argument annotations can be used to specify arguments to be filled in by the user.
+
+&lt;pre&gt;
+@Name(&quot;My Dump type&quot;)
+public class MyDumpProvider implements org.eclipse.mat.snapshot.acquire.IHeapDumpProvider
+{
+ @Argument
+ File dumpingProgram;
+ 
+&lt;/pre&gt;
+
+Argument annotations can also be used on VmInfo types.
+&lt;pre&gt;
+public class MyVmInfo extends VmInfo
+{
+    public enum DumpType
+    {
+        DUMP1(&quot;dump1&quot;), //$NON-NLS-1$
+        Dump2(&quot;dump2&quot;); //$NON-NLS-1$
+        String type;
+        private DumpType(String s) {
+            type = s;
+        }
+    }
+    @Argument
+    public DumpType type = DumpType.DUMP1;
+&lt;/pre&gt;
+
       </documentation>
    </annotation>
 
    <annotation>
       <appInfo>
-         <meta.section type="apiinfo"/>
+         <meta.section type="apiInfo"/>
       </appInfo>
       <documentation>
-         [Enter API information here.]
+         The value of the impl attribute must represent an implementor of &lt;samp&gt;org.eclipse.mat.snapshot.acquire.IHeapDumpProvider&lt;/samp&gt;.
       </documentation>
    </annotation>
 
@@ -94,9 +129,8 @@
          <meta.section type="implementation"/>
       </appInfo>
       <documentation>
-         [Enter information about supplied implementation of this extension point.]
+         The standard supplied heap dump providers are for Oracle/Sun JVMs and for IBM Virtual Machines for Java.
       </documentation>
    </annotation>
-
 
 </schema>

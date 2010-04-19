@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!-- Schema file written by PDE -->
-<schema targetNamespace="org.eclipse.mat.api" xmlns="http://www.w3.org/2001/XMLSchema">
+<schema targetNamespace="org.eclipse.mat.api">
 <annotation>
       <appInfo>
          <meta.schema plugin="org.eclipse.mat.api" id="ticketResolver" name="Trouble Ticket Resolver"/>
@@ -8,17 +8,12 @@
       <documentation>
          &lt;p&gt;Whenever the Leak Suspect report finds a suspect, it asks the configured
 trouble ticket resolver to provide more details. For example, the ticket resolver
-could provide a Bugzilla product and component and thereby enable an adminstrator
+could provide a Bugzilla product and component and thereby enable an administrator
 to file a precise bug report.&lt;/p&gt;
       </documentation>
    </annotation>
 
    <element name="extension">
-      <annotation>
-         <appInfo>
-            <meta.element />
-         </appInfo>
-      </annotation>
       <complexType>
          <sequence minOccurs="1" maxOccurs="unbounded">
             <element ref="resolver"/>
@@ -87,7 +82,6 @@ to file a precise bug report.&lt;/p&gt;
    &lt;/extension&gt;
 &lt;/pre&gt;
 &lt;/p&gt;
-
       </documentation>
    </annotation>
 
@@ -99,7 +93,6 @@ to file a precise bug report.&lt;/p&gt;
          The value of the impl attribute must represent an implementor of &lt;samp&gt;org.eclipse.mat.snapshot.extension.ITroubleTicketResolver&lt;/samp&gt;.
       </documentation>
    </annotation>
-
 
    <annotation>
       <appInfo>
