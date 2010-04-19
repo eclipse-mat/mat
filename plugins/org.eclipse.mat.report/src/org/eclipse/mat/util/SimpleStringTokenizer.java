@@ -15,11 +15,19 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+/**
+ * A simple way of splitting up a String.
+ */
 public final class SimpleStringTokenizer implements Iterable<String>
 {
     private String subject;
     private char delim;
 
+    /**
+     * Gets the different part of a string which are separated by the delimiter.
+     * @param subject
+     * @param delim
+     */
     public SimpleStringTokenizer(String subject, char delim)
     {
         this.subject = subject;
@@ -69,6 +77,12 @@ public final class SimpleStringTokenizer implements Iterable<String>
         };
     }
 
+    /**
+     * Splits the string at the delimiter character.
+     * @param subject
+     * @param delim
+     * @return
+     */
     public static String[] split(String subject, char delim)
     {
         List<String> answer = new ArrayList<String>();

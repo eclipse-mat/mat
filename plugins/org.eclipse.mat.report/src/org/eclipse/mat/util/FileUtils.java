@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.mat.util;
 
+/**
+ * File utilities for things like copying icon files.
+ */
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,6 +33,12 @@ public final class FileUtils
     private FileUtils()
     {}
 
+    /**
+     * Basic stream copy
+     * @param in input stream
+     * @param out output stream
+     * @throws IOException
+     */
     public final static void copy(InputStream in, OutputStream out) throws IOException
     {
         byte[] b = new byte[256];
@@ -45,6 +54,13 @@ public final class FileUtils
 
     }
 
+    /**
+     * Create a temporary directory which should be deleted on application close.
+     * @param prefix
+     * @param parent
+     * @return
+     * @throws IOException
+     */
     public static File createTempDirectory(String prefix, File parent) throws IOException
     {
         File tempFile = File.createTempFile(prefix, "", parent); //$NON-NLS-1$
@@ -61,6 +77,14 @@ public final class FileUtils
         return toFilename(name, "", extension); //$NON-NLS-1$
     }
 
+    /**
+     * Build a file name.
+     * Convert non-letters or digits to underscore.
+     * @param prefix the prefix of the file
+     * @param suffix the suffix
+     * @param extension the file extension
+     * @return
+     */
     public static String toFilename(String prefix, String suffix, String extension)
     {
         StringBuilder buf = new StringBuilder(prefix.length() + suffix.length() + extension.length() + 1);

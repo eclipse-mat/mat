@@ -28,12 +28,21 @@ import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.query.ResultMetaData;
 
 /**
- * A list of items as a result table.
+ * A list of items such as properties as a result table.
+ * Compare to {@link PropertyResult} which extracts and displays from a single object.
  */
 public class ListResult implements IResultTable, IIconProvider
 {
+    /**
+     * Converts a row to the needed value from the row
+     */
     public interface ValueProvider
     {
+        /**
+         * Extracts the value from the row
+         * @param row the row
+         * @return the value
+         */
         Object getValueFor(Object row);
     }
 
@@ -41,6 +50,13 @@ public class ListResult implements IResultTable, IIconProvider
     private List<Column> columns;
     private List<ValueProvider> providers;
 
+    /**
+     * Construct a displayable list from a List.
+     * @param <L> type name of items in the list
+     * @param type class of items in the list
+     * @param subjects the list
+     * @param properties the field names (or Java Bean properties) to be extracted from the list entries
+     */
     public <L> ListResult(Class<? extends L> type, List<L> subjects, String... properties)
     {
         this.subjects = subjects;
@@ -67,7 +83,7 @@ public class ListResult implements IResultTable, IIconProvider
             }
 
             if (properties == null || properties.length == 0)
-                properties = name2prop.keySet().toArray(new String[0]);
+                properties = name2prop.keySet().toArray(new String[name2prop.size()]);
 
             for (String property : properties)
             {
@@ -118,7 +134,7 @@ public class ListResult implements IResultTable, IIconProvider
 
     public final Column[] getColumns()
     {
-        return columns.toArray(new Column[0]);
+        return columns.toArray(new Column[columns.size()]);
     }
 
     public final int getRowCount()

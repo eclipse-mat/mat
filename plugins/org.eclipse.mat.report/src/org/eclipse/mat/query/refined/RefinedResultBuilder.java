@@ -38,6 +38,9 @@ import org.eclipse.mat.query.refined.RefinedStructuredResult.ValueAccessor;
 import org.eclipse.mat.report.internal.Messages;
 import org.eclipse.mat.util.MessageUtil;
 
+/**
+ * This class allows the wrapping of a result to give another result which can be controlled more. 
+ */
 public final class RefinedResultBuilder
 {
     private static final class DefaultContextProvider extends ContextProvider
@@ -59,6 +62,11 @@ public final class RefinedResultBuilder
 
     RefinedStructuredResult refinedResult;
 
+    /**
+     * Build a suitable refined result given an input of IResultTable or IResultTree.
+     * @param context
+     * @param subject the structured result
+     */
     public RefinedResultBuilder(IQueryContext context, IStructuredResult subject)
     {
         if (context == null)
@@ -160,6 +168,11 @@ public final class RefinedResultBuilder
         }
     }
 
+    /**
+     * Retrieve a column by name.
+     * @param columnName
+     * @return the column of data
+     */
     public int getColumnIndexByName(String columnName)
     {
         for (int ii = 0; ii < refinedResult.columns.size(); ii++)
@@ -171,6 +184,11 @@ public final class RefinedResultBuilder
         return -1;
     }
 
+    /**
+     * Arrange to sort the table by a particular column.
+     * @param columnIndex
+     * @param direction
+     */
     public void setSortOrder(int columnIndex, SortDirection direction)
     {
         if (direction == null)
@@ -183,6 +201,11 @@ public final class RefinedResultBuilder
         refinedResult.internalSetSortOrder(columnIndex, direction, isPreSorted, null);
     }
 
+    /**
+     * Arrange to sort the table by multiple columns.
+     * @param indices
+     * @param directions
+     */
     public void setSortOrder(int[] indices, SortDirection[] directions)
     {
         if (indices.length != directions.length)
@@ -208,6 +231,10 @@ public final class RefinedResultBuilder
         }
     }
 
+    /**
+     * Add a derived column such as for retained size.
+     * @param operation
+     */
     public void addDefaultContextDerivedColumn(DerivedOperation operation)
     {
         addContextDerivedColumn(new DefaultContextProvider(refinedResult.subject), operation);
@@ -220,11 +247,21 @@ public final class RefinedResultBuilder
         refinedResult.jobs.add(new DerivedDataJobDefinition(provider, operation));
     }
 
+    /**
+     * Filter a particular column to only have partial data.
+     * @param columnIndex
+     * @param criteria
+     * @throws IllegalArgumentException
+     */
     public void setFilter(int columnIndex, String criteria) throws IllegalArgumentException
     {
         refinedResult.filters.get(columnIndex).setCriteria(criteria);
     }
 
+    /**
+     * Get all the columns
+     * @return An unmodifiable list of all the columns.
+     */
     public List<Column> getColumns()
     {
         return Collections.unmodifiableList(refinedResult.columns);
@@ -235,6 +272,11 @@ public final class RefinedResultBuilder
         refinedResult.inlineJobs = inline;
     }
 
+    /**
+     * Build the refined result (one time operation).
+     * The builder is not reusable.
+     * @return the refined result table or tree.
+     */
     public RefinedStructuredResult build()
     {
         // ensure builder is not accidently reused

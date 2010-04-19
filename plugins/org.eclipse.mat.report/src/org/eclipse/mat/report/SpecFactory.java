@@ -34,6 +34,10 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.helpers.XMLReaderFactory;
 
+/**
+ * Builds a full report based on an xml report definition, which could 
+ * specify several queries to be run.
+ */
 public final class SpecFactory extends RegistryReader<SpecFactory.Report>
 {
     public class Report

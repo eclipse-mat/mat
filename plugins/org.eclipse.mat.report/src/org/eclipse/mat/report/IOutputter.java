@@ -18,9 +18,15 @@ import java.net.URL;
 import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.IResult;
 
+/**
+ * Converts a result to a report.
+ * See extension point org.eclipse.mat.report.renderer
+ * {@link schema/renderer.exsd}
+ */
 public interface IOutputter
 {
     /**
+     * Holds information which controls how to format a report.
      * @noimplement
      */
     public interface Context
@@ -33,6 +39,11 @@ public interface IOutputter
 
         String getPathToRoot();
 
+        /**
+         * Get string to represent an icon
+         * @param icon
+         * @return
+         */
         String addIcon(URL icon);
 
         String addContextResult(String name, IResult result);
@@ -50,8 +61,22 @@ public interface IOutputter
         String param(String key, String defaultValue);
     }
 
+    /**
+     * Add this result to the output.
+     * @param context the context, which controls how the output should be done 
+     * @param result the result to be formatted
+     * @param writer where the formatted output should go
+     * @throws IOException
+     */
     void embedd(Context context, IResult result, Writer writer) throws IOException;
 
+    /**
+     * Write this result to the output, presuming the writer has just been opened.
+     * @param context the context, which controls how the output should be done 
+     * @param result the result to be formatted
+     * @param writer where the formatted output should go
+     * @throws IOException
+     */
     void process(Context context, IResult result, Writer writer) throws IOException;
 
 }

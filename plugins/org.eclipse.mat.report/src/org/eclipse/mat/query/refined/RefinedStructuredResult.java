@@ -36,6 +36,9 @@ import org.eclipse.mat.query.ContextDerivedData.DerivedOperation;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.VoidProgressListener;
 
+/**
+ * The result from refining a table or tree.
+ */
 public abstract class RefinedStructuredResult implements IStructuredResult, //
                 ISelectionProvider, IIconProvider, Filter.FilterChangeListener
 {

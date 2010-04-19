@@ -12,6 +12,9 @@ package org.eclipse.mat.util;
 
 import com.ibm.icu.text.NumberFormat;
 
+/**
+ * A way of adding units to values.
+ */
 public abstract class Units
 {
     public enum Storage
@@ -96,6 +99,9 @@ public abstract class Units
         }
     }
 
+    /**
+     * NumberFormat is not thread safe.
+     */
     private static NumberFormat nf = NumberFormat.getInstance();
 
     static

@@ -30,6 +30,10 @@ import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.query.ResultMetaData;
 import org.eclipse.mat.report.internal.Messages;
 
+/**
+ * Extract properties from an object and display as a result table.
+ * Compare to {@link ListResult} which extracts and displays from a list of objects.
+ */
 public class PropertyResult implements IResultTable, IIconProvider
 {
     private static class Pair
@@ -56,6 +60,12 @@ public class PropertyResult implements IResultTable, IIconProvider
 
     private List<Pair> rows;
 
+    /**
+     * Generate a result from a single object
+     * @param <L>
+     * @param subject the object
+     * @param properties the field names or Java Bean properties to extract, or null or none to extract them all.
+     */
     public <L> PropertyResult(Object subject, String... properties)
     {
         this.rows = new ArrayList<Pair>();
@@ -75,7 +85,7 @@ public class PropertyResult implements IResultTable, IIconProvider
             }
 
             if (properties == null || properties.length == 0)
-                properties = name2prop.keySet().toArray(new String[0]);
+                properties = name2prop.keySet().toArray(new String[name2prop.size()]);
 
             for (String property : properties)
             {

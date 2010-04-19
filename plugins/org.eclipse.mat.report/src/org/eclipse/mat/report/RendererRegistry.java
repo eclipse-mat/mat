@@ -23,6 +23,9 @@ import org.eclipse.mat.report.internal.ReportPlugin;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.RegistryReader;
 
+/**
+ * Holds all the renderers.
+ */
 public class RendererRegistry extends RegistryReader<IOutputter>
 {
     private static final RendererRegistry instance = new RendererRegistry();

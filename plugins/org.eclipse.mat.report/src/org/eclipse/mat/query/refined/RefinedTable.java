@@ -16,6 +16,9 @@ import java.util.List;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.IResultTable;
 
+/**
+ * The result from refining a table.
+ */
 public class RefinedTable extends RefinedStructuredResult implements IResultTable
 {
     protected List<?> rows;

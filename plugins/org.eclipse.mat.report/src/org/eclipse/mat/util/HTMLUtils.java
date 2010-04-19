@@ -10,9 +10,17 @@
  *******************************************************************************/
 package org.eclipse.mat.util;
 
+/**
+ * Helpers for building HTML reports.
+ */
 public final class HTMLUtils
 {
 
+    /**
+     * Escape input text so that characters are not misinterpreted by HTML parsers. 
+     * @param text
+     * @return
+     */
     @SuppressWarnings("nls")
     public static String escapeText(String text)
     {

@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.mat.util;
 
+/**
+ * A way of generating several progress monitors.
+ */
 public class SimpleMonitor
 {
     String task;

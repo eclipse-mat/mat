@@ -18,11 +18,23 @@ import java.lang.annotation.Target;
 
 import org.eclipse.mat.query.IResult;
 
+/**
+ * Annotates a renderer describing what it accepts and it generates.
+ * Qualifies an {@link IOutputter}.
+ */
 @Target( { TYPE })
 @Retention(RUNTIME)
 public @interface Renderer
 {
+    /**
+     * What the renderer accepts.
+     * @return
+     */
     Class<? extends IResult>[] result() default IResult.class;
 
+    /**
+     * What the renderer generates.
+     * @return for example "html" or "csv"
+     */
     String target();
 }

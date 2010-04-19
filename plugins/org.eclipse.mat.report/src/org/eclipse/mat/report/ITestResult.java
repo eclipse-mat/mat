@@ -11,7 +11,7 @@
 package org.eclipse.mat.report;
 
 /**
- * The result of a query
+ * The result of a query.
  */
 public interface ITestResult
 {

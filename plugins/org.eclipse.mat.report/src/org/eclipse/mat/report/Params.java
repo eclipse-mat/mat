@@ -56,6 +56,7 @@ public interface Params
     String FILENAME_SUFFIX = "filename_suffix";
 
     /**
+     * Parameters specific to HTML reports.
      * @noimplement
      */
     public interface Html
@@ -91,13 +92,15 @@ public interface Params
         String SHOW_TOTALS = "html.show_totals";
 
         /**
-         * A result can have embedded details (see DetailResultProvider). If set
+         * Include embedded report details. 
+         * A result can have embedded details {@link DetailResultProvider}. If set
          * to "false", those detail results are not included in the HTML output.
          */
         String RENDER_DETAILS = "html.render_details";
     }
 
     /**
+     * Control the rendering of a report.
      * @noimplement
      */
     public interface Rendering
@@ -111,7 +114,7 @@ public interface Params
         String PATTERN_SEQUENTIAL = "sequential";
 
         /**
-         * Which columns to sort by, separated by ','
+         * Which columns to sort by, separated by ','. Columns specified by name or #0, #1, #2 etc.
          */
         String SORT_COLUMN = "sort_column";
         /**
@@ -119,16 +122,16 @@ public interface Params
          */
         String FILTER = "filter";
         /**
-         * Limit, as a number
+         * Limit, as a decimal number, for the number of items to display.
          */
         String LIMIT = "limit";
         /**
-         * Which columns to hide, separated by ','
+         * Which columns to hide, separated by ','. Columns specified by name or #0, #1, #2 etc.
          */
         String HIDE_COLUMN = "hide_column";
 
         /**
-         * Controls the derived column.
+         * Controls the calculation of the derived column.
          * For example for retained sizes
          * _default_=APPROXIMATE
          * _default_=PRECISE

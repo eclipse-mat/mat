@@ -22,7 +22,9 @@ import org.eclipse.mat.report.internal.Messages;
 import org.eclipse.mat.util.IProgressListener;
 
 /**
- * This result is rendered as simple text. Any object addresses will be rendered
+ * This result is rendered as text.
+ * The input can be plain text, or HTML.
+ * Any object addresses can be rendered
  * as links and allow the user to execute queries on the objects.
  * 
  * @noextend
@@ -99,7 +101,7 @@ public class TextResult implements IResult
     }
 
     /**
-     * Generate a link to another report, and save the reference report too.
+     * Generate a link to another report, and save the referenced report too.
      * @return the URL as a String
      */
     public String linkTo(String label, IResult result)

@@ -15,6 +15,9 @@ import java.util.List;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.IResultTree;
 
+/**
+ * The result from refining a tree.
+ */
 public class RefinedTree extends RefinedStructuredResult implements IResultTree
 {
 
