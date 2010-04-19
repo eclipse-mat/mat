@@ -155,7 +155,7 @@ import org.eclipse.mat.util.IProgressListener;
     // general attributes
     private String name;
     private String instance;
-    private int shallowHeap;
+    private long shallowHeap;
     private long retainedHeap;
     private String contextClassLoader;
     private int contextClassLoaderId;
@@ -189,7 +189,7 @@ import org.eclipse.mat.util.IProgressListener;
         return instance;
     }
 
-    public int getShallowHeap()
+    public long getShallowHeap()
     {
         return shallowHeap;
     }
