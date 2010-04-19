@@ -207,7 +207,7 @@ public class MultiplePath2GCRootsQuery implements IQuery
         String attribute;
         String label;
         String gcRoots;
-        int shallowHeap;
+        long shallowHeap;
         long refShallowHeap;
         long retainedHeap;
 

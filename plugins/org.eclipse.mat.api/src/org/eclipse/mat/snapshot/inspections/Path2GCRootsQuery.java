@@ -132,7 +132,7 @@ public class Path2GCRootsQuery implements IQuery
 
         String label;
         String gcRoots;
-        int shallowHeap;
+        long shallowHeap;
         long retainedHeap;
 
         boolean isExpanded;
