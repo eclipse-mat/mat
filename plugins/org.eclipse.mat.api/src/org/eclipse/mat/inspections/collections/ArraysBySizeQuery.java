@@ -55,7 +55,7 @@ public class ArraysBySizeQuery implements IQuery
                 if (!snapshot.isArray(objectId))
                     continue;
 
-                int size = snapshot.getHeapSize(objectId);
+                long size = snapshot.getHeapSize(objectId);
                 quantize.addValue(objectId, size, null, size);
             }
         }
