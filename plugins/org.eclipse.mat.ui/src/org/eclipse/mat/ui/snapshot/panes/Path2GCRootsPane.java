@@ -18,7 +18,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.mat.SnapshotException;
-import org.eclipse.mat.snapshot.inspections.Path2GCRootsQuery;
+import org.eclipse.mat.internal.snapshot.inspections.Path2GCRootsQuery;
 import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.editor.AbstractEditorPane;
 import org.eclipse.mat.ui.editor.AbstractPaneJob;

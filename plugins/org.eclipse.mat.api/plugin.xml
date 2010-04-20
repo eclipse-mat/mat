@@ -10,11 +10,11 @@
  <extension-point id="heapDumpProvider" name="Heap Dump Provider" schema="schema/heapDumpProvider.exsd"/>
 	
 	<extension point="org.eclipse.mat.report.query">
-		<!-- public -->
-		<query impl="org.eclipse.mat.snapshot.inspections.DominatorQuery"/>
-		<query impl="org.eclipse.mat.snapshot.inspections.ShowInDominatorQuery"/>
-		<query impl="org.eclipse.mat.snapshot.inspections.Path2GCRootsQuery"/>
-		<query impl="org.eclipse.mat.snapshot.inspections.MultiplePath2GCRootsQuery"/>
+		<!-- internal queries exposed to the UI -->
+		<query impl="org.eclipse.mat.internal.snapshot.inspections.DominatorQuery"/>
+		<query impl="org.eclipse.mat.internal.snapshot.inspections.ShowInDominatorQuery"/>
+		<query impl="org.eclipse.mat.internal.snapshot.inspections.Path2GCRootsQuery"/>
+		<query impl="org.eclipse.mat.internal.snapshot.inspections.MultiplePath2GCRootsQuery"/>
 		
 		<!-- core -->
 		<query impl="org.eclipse.mat.inspections.HistogramQuery"/>

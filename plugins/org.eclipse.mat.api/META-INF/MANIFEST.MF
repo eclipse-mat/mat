@@ -6,15 +6,15 @@ Bundle-SymbolicName: org.eclipse.mat.api;singleton:=true
 Bundle-Version: 0.8.0.qualifier
 Export-Package: org.eclipse.mat.inspections.osgi;x-friends:="org.eclipse.mat.ui",
  org.eclipse.mat.inspections.osgi.model;x-friends:="org.eclipse.mat.ui",
- org.eclipse.mat.internal.snapshot;x-friends:="org.eclipse.mat.ui",
  org.eclipse.mat.internal.acquire;x-friends:="org.eclipse.mat.ui",
+ org.eclipse.mat.internal.snapshot;x-friends:="org.eclipse.mat.ui",
+ org.eclipse.mat.internal.snapshot.inspections;x-friends:="org.eclipse.mat.ui",
  org.eclipse.mat.snapshot,
+ org.eclipse.mat.snapshot.acquire,
  org.eclipse.mat.snapshot.extension,
- org.eclipse.mat.snapshot.inspections,
  org.eclipse.mat.snapshot.model,
  org.eclipse.mat.snapshot.query,
- org.eclipse.mat.snapshot.registry,
- org.eclipse.mat.snapshot.acquire
+ org.eclipse.mat.snapshot.registry
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.3.100",
  org.eclipse.mat.report;bundle-version="0.8.0";visibility:=reexport
 Bundle-Activator: org.eclipse.mat.internal.MATPlugin

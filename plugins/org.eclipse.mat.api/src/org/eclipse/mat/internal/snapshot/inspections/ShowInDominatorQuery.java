@@ -8,7 +8,7 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.mat.snapshot.inspections;
+package org.eclipse.mat.internal.snapshot.inspections;
 
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.CommandName;

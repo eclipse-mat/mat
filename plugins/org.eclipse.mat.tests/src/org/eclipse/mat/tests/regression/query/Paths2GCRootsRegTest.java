@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.mat.internal.snapshot.inspections.Path2GCRootsQuery;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.IResultTree;
@@ -24,7 +25,6 @@ import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.query.refined.RefinedResultBuilder;
 import org.eclipse.mat.snapshot.IPathsFromGCRootsComputer;
-import org.eclipse.mat.snapshot.inspections.Path2GCRootsQuery;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.query.SnapshotQuery;
 import org.eclipse.mat.util.IProgressListener;

@@ -8,7 +8,7 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *******************************************************************************/
-package org.eclipse.mat.snapshot.inspections;
+package org.eclipse.mat.internal.snapshot.inspections;
 
 import java.net.URL;
 import java.util.ArrayList;
