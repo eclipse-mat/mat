@@ -14,7 +14,7 @@ import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.wizard.WizardPage;
-import org.eclipse.mat.query.registry.ExecutableArgumentsSet;
+import org.eclipse.mat.query.registry.AnnotatedObjectArgumentsSet;
 import org.eclipse.mat.ui.internal.acquire.AcquireDialog.ProcessSelectionListener;
 import org.eclipse.mat.ui.internal.acquire.ProviderArgumentsTable.ITableListener;
 import org.eclipse.mat.ui.internal.browser.QueryContextHelp;
@@ -89,7 +89,7 @@ public class ProviderArgumentsWizzardPage extends WizardPage implements ITableLi
 		return table;
 	}
 
-	public ExecutableArgumentsSet getArgumentSet()
+	public AnnotatedObjectArgumentsSet getArgumentSet()
 	{
 		return table.getArgumentSet();
 	}
@@ -124,7 +124,7 @@ public class ProviderArgumentsWizzardPage extends WizardPage implements ITableLi
 
 	public void relocateHelp(final boolean create)
 	{
-		final ExecutableArgumentsSet argumentSet = table.getArgumentSet();
+		final AnnotatedObjectArgumentsSet argumentSet = table.getArgumentSet();
 		if (argumentSet == null) return;
 
 		if (argumentSet.getDescriptor().isHelpAvailable() && //
@@ -165,7 +165,7 @@ public class ProviderArgumentsWizzardPage extends WizardPage implements ITableLi
 		}
 	}
 
-	public void processSelected(ExecutableArgumentsSet argumentSet)
+	public void processSelected(AnnotatedObjectArgumentsSet argumentSet)
 	{
 		table.providerSelected(argumentSet);
 	}

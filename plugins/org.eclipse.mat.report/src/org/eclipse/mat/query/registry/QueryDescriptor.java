@@ -26,10 +26,9 @@ import org.eclipse.mat.util.MessageUtil;
 
 import com.ibm.icu.text.BreakIterator;
 
-public class QueryDescriptor extends ExecutableDescriptor
+public class QueryDescriptor extends AnnotatedObjectDescriptor
 {
     protected final String category;
-    protected final URL icon;
     protected final int sortOrder;
 
     protected final Class<? extends IQuery> subject;
@@ -38,7 +37,7 @@ public class QueryDescriptor extends ExecutableDescriptor
     QueryDescriptor(String identifier, String name, String category, Class<? extends IQuery> subject, String usage,
                     URL icon, String help, String helpUrl, Locale helpLocale)
     {
-    	super(identifier, name, usage, help, helpUrl, helpLocale);
+    	super(identifier, name, usage, icon, help, helpUrl, helpLocale);
         if (name == null)
         {
             this.name = null;
@@ -69,7 +68,6 @@ public class QueryDescriptor extends ExecutableDescriptor
         this.category = category;
         this.subject = subject;
         this.usage = usage;
-        this.icon = icon;
 
         this.menuEntries = new ArrayList<QueryDescriptor>();
     }
@@ -92,11 +90,6 @@ public class QueryDescriptor extends ExecutableDescriptor
     public ArgumentSet createNewArgumentSet(IQueryContext context) throws SnapshotException
     {
         return new ArgumentSet(this, context);
-    }
-
-    public URL getIcon()
-    {
-        return icon;
     }
 
     public String getShortDescription()

@@ -37,10 +37,10 @@ import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.internal.acquire.HeapDumpProviderDescriptor;
 import org.eclipse.mat.internal.acquire.HeapDumpProviderRegistry;
+import org.eclipse.mat.query.annotations.descriptors.IAnnotatedObjectDescriptor;
 import org.eclipse.mat.query.registry.ArgumentDescriptor;
 import org.eclipse.mat.query.registry.ArgumentFactory;
-import org.eclipse.mat.query.registry.ExecutableArgumentsSet;
-import org.eclipse.mat.query.registry.ExecutableDescriptor;
+import org.eclipse.mat.query.registry.AnnotatedObjectArgumentsSet;
 import org.eclipse.mat.snapshot.acquire.VmInfo;
 import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.editor.PathEditorInput;
@@ -209,9 +209,9 @@ public class AcquireSnapshotAction extends Action implements IWorkbenchWindowAct
 		private VmInfo vmInfo;
 		private File preferredLocation;
 		private File result;
-		private ExecutableArgumentsSet argumentSet;
+		private AnnotatedObjectArgumentsSet argumentSet;
 
-		public AcquireDumpOperation(VmInfo vmInfo, File preferredLocation, ExecutableArgumentsSet argumentSet, IRunnableContext context)
+		public AcquireDumpOperation(VmInfo vmInfo, File preferredLocation, AnnotatedObjectArgumentsSet argumentSet, IRunnableContext context)
 		{
 			this.vmInfo = vmInfo;
 			this.preferredLocation = preferredLocation;
@@ -240,7 +240,7 @@ public class AcquireSnapshotAction extends Action implements IWorkbenchWindowAct
 	    {
 	        try
 	        {
-	            ExecutableDescriptor providerDescriptor = (ExecutableDescriptor) argumentSet.getDescriptor();
+	            IAnnotatedObjectDescriptor providerDescriptor = (IAnnotatedObjectDescriptor) argumentSet.getDescriptor();
 	            VmInfo impl = vmInfo;
 
 	            for (ArgumentDescriptor parameter : providerDescriptor.getArguments())

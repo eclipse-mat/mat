@@ -13,13 +13,14 @@ package org.eclipse.mat.query.registry;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.mat.query.registry.ArgumentDescriptor;
+import org.eclipse.mat.query.annotations.descriptors.IAnnotatedObjectDescriptor;
 
-public class ExecutableArgumentsSet
+
+public class AnnotatedObjectArgumentsSet
 {
-	private ExecutableDescriptor descriptor;
+	private IAnnotatedObjectDescriptor descriptor;
     private Map<ArgumentDescriptor, Object> values;
-	public ExecutableArgumentsSet(ExecutableDescriptor descriptor)
+	public AnnotatedObjectArgumentsSet(IAnnotatedObjectDescriptor descriptor)
 	{
 		this.descriptor = descriptor;
 		this.values = new HashMap<ArgumentDescriptor, Object>();
@@ -52,7 +53,7 @@ public class ExecutableArgumentsSet
         return values.get(desc);
     }
 
-	public ExecutableDescriptor getDescriptor()
+	public IAnnotatedObjectDescriptor getDescriptor()
 	{
 		return descriptor;
 	}

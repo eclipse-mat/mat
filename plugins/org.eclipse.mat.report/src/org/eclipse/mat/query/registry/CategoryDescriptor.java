@@ -124,8 +124,8 @@ public final class CategoryDescriptor
                     if (isCat1 ^ isCat2)
                         return isCat1 ? -1 : 1;
 
-                    String name1 = isCat1 ? ((CategoryDescriptor) o1).name : ((QueryDescriptor) o1).name;
-                    String name2 = isCat2 ? ((CategoryDescriptor) o2).name : ((QueryDescriptor) o2).name;
+                    String name1 = isCat1 ? ((CategoryDescriptor) o1).name : ((QueryDescriptor) o1).getName();
+                    String name2 = isCat2 ? ((CategoryDescriptor) o2).name : ((QueryDescriptor) o2).getName();
 
                     return name1.compareTo(name2);
                 }

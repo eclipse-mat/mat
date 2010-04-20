@@ -12,7 +12,7 @@ package org.eclipse.mat.internal.acquire;
 
 import java.util.Locale;
 
-import org.eclipse.mat.query.registry.ExecutableDescriptor;
+import org.eclipse.mat.query.registry.AnnotatedObjectDescriptor;
 import org.eclipse.mat.snapshot.acquire.IHeapDumpProvider;
 
 /**
@@ -20,7 +20,7 @@ import org.eclipse.mat.snapshot.acquire.IHeapDumpProvider;
  * @author ktsvetkov
  *
  */
-public class HeapDumpProviderDescriptor extends ExecutableDescriptor
+public class HeapDumpProviderDescriptor extends AnnotatedObjectDescriptor
 {
 	protected final Class<? extends IHeapDumpProvider> subject;
 	protected final IHeapDumpProvider provider;
@@ -28,7 +28,7 @@ public class HeapDumpProviderDescriptor extends ExecutableDescriptor
 	public HeapDumpProviderDescriptor(String identifier, String name, String usage, String help, String helpUrl, Locale helpLocale,
 			IHeapDumpProvider provider)
 	{
-		super(identifier, name, usage, help, helpUrl, helpLocale);
+		super(identifier, name, usage, null, help, helpUrl, helpLocale);
 		this.provider = provider;
 		this.subject = provider.getClass();
 	}

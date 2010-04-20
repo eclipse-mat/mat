@@ -16,8 +16,8 @@ import java.util.List;
 import org.eclipse.jface.dialogs.PopupDialog;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.mat.query.IQueryContext;
+import org.eclipse.mat.query.annotations.descriptors.IAnnotatedObjectDescriptor;
 import org.eclipse.mat.query.registry.ArgumentDescriptor;
-import org.eclipse.mat.query.registry.ExecutableDescriptor;
 import org.eclipse.mat.ui.Messages;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
@@ -32,18 +32,18 @@ import org.eclipse.swt.widgets.Shell;
 
 public class QueryContextHelp extends PopupDialog
 {
-    ExecutableDescriptor query;
+    IAnnotatedObjectDescriptor query;
 
     Rectangle bounds;
     StyledText helpText;
     IQueryContext queryContext;
 
-    public QueryContextHelp(Shell shell, ExecutableDescriptor queryDescriptor, Rectangle helpBounds)
+    public QueryContextHelp(Shell shell, IAnnotatedObjectDescriptor queryDescriptor, Rectangle helpBounds)
     {
         this(shell, queryDescriptor, null, helpBounds);
     }
 
-    public QueryContextHelp(Shell parent, ExecutableDescriptor query, IQueryContext queryContext, Rectangle bounds)
+    public QueryContextHelp(Shell parent, IAnnotatedObjectDescriptor query, IQueryContext queryContext, Rectangle bounds)
     {
         super(parent, /* HOVER_SHELLSTYLE */SWT.NO_FOCUS | SWT.TOOL, false, false, false, false, null, null);
         this.query = query;
@@ -125,7 +125,7 @@ public class QueryContextHelp extends PopupDialog
         return textComposite;
     }
 
-    public ExecutableDescriptor getQuery()
+    public IAnnotatedObjectDescriptor getQuery()
     {
         return query;
     }

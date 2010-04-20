@@ -25,7 +25,7 @@ import org.eclipse.mat.internal.acquire.HeapDumpProviderDescriptor;
 import org.eclipse.mat.internal.acquire.HeapDumpProviderRegistry;
 import org.eclipse.mat.query.registry.ArgumentDescriptor;
 import org.eclipse.mat.query.registry.ArgumentFactory;
-import org.eclipse.mat.query.registry.ExecutableArgumentsSet;
+import org.eclipse.mat.query.registry.AnnotatedObjectArgumentsSet;
 import org.eclipse.mat.snapshot.acquire.IHeapDumpProvider;
 import org.eclipse.mat.ui.internal.browser.QueryContextHelp;
 import org.eclipse.mat.util.IProgressListener;
@@ -87,7 +87,7 @@ public class ProviderConfigurationDialog extends Dialog
 			{
 				if (e.item instanceof TableItem)
 				{
-					ExecutableArgumentsSet argumentsSet = (ExecutableArgumentsSet) ((TableItem) e.item).getData();
+					AnnotatedObjectArgumentsSet argumentsSet = (AnnotatedObjectArgumentsSet) ((TableItem) e.item).getData();
 					table.providerSelected(argumentsSet);
 					relocateHelp(true);
 				}
@@ -142,7 +142,7 @@ public class ProviderConfigurationDialog extends Dialog
 	{
 		for (TableItem item : availableProvidersTable.getItems())
 		{
-			ExecutableArgumentsSet argumentSet = (ExecutableArgumentsSet) item.getData();
+			AnnotatedObjectArgumentsSet argumentSet = (AnnotatedObjectArgumentsSet) item.getData();
 			
 	        try
 	        {
@@ -257,7 +257,7 @@ public class ProviderConfigurationDialog extends Dialog
 		for (HeapDumpProviderDescriptor heapDumpProviderDescriptor : providers)
 		{
 			TableItem item = new TableItem(availableProvidersTable, SWT.NONE, 0);
-			item.setData(new ExecutableArgumentsSet(heapDumpProviderDescriptor));
+			item.setData(new AnnotatedObjectArgumentsSet(heapDumpProviderDescriptor));
 			item.setText(0, heapDumpProviderDescriptor.getName());
 			item.setText(1, heapDumpProviderDescriptor.getHelp());
 		}
@@ -290,7 +290,7 @@ public class ProviderConfigurationDialog extends Dialog
 
 	public void relocateHelp(final boolean create)
 	{
-		final ExecutableArgumentsSet argumentSet = table.getArgumentSet();
+		final AnnotatedObjectArgumentsSet argumentSet = table.getArgumentSet();
 		if (argumentSet == null) return;
 
 		if (argumentSet.getDescriptor().isHelpAvailable() && //

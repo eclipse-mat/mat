@@ -27,7 +27,7 @@ import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.Help;
 import org.eclipse.mat.query.registry.ArgumentDescriptor;
-import org.eclipse.mat.query.registry.ExecutableDescriptor;
+import org.eclipse.mat.query.registry.AnnotatedObjectDescriptor;
 import org.eclipse.mat.snapshot.acquire.VmInfo;
 import org.eclipse.mat.util.MessageUtil;
 
@@ -36,14 +36,14 @@ import org.eclipse.mat.util.MessageUtil;
  * @author ktsvetkov
  *
  */
-public class VmInfoDescriptor extends ExecutableDescriptor
+public class VmInfoDescriptor extends AnnotatedObjectDescriptor
 {
 	protected final VmInfo vmInfo;
 
 	public VmInfoDescriptor(String identifier, String name, String usage, String help, String helpUrl, Locale helpLocale,
 			VmInfo vmInfo)
 	{
-		super(identifier, name, usage, help, helpUrl, helpLocale);
+		super(identifier, name, usage, null, help, helpUrl, helpLocale);
 		this.vmInfo = vmInfo;
 	}
 	

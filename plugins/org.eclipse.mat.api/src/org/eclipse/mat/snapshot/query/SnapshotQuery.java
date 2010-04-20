@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.mat.snapshot.query;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.internal.Messages;
@@ -19,6 +22,8 @@ import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.IStructuredResult;
 import org.eclipse.mat.query.annotations.Argument;
+import org.eclipse.mat.query.annotations.descriptors.IArgumentDescriptor;
+import org.eclipse.mat.query.annotations.descriptors.IAnnotatedObjectDescriptor;
 import org.eclipse.mat.query.refined.RefinedResultBuilder;
 import org.eclipse.mat.query.registry.ArgumentDescriptor;
 import org.eclipse.mat.query.registry.ArgumentFactory;
@@ -33,11 +38,15 @@ import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 
 /**
- * Lookup, parameterize and run queries on a given heap dump.
+ * This class provides possibility to lookup, inspect, parameterize and execute queries on a given heap dump.
  * 
+ * <p>NOTE: The queries delivered with Memory Analyzer and their
+ * expected parameters are not part of the API. Both names/identifiers and parameters may change.</p>
+ * 
+ * Usage example: 
  * <pre>
  * IResult result = SnapshotQuery.lookup(&quot;top_consumers_html&quot;, snapshot) //
- *                 .set(&quot;objects&quot;, retained) //
+ *                 .setArgument(&quot;objects&quot;, retained) //
  *                 .execute(listener);
  * </pre>
  */
@@ -85,11 +94,37 @@ public class SnapshotQuery
     }
 
     /**
+     * Get a descriptor for the query. From it one can inspect the Name, Help, Icon, etc... for the query.
+     *  
+     * @return {@link IAnnotatedObjectDescriptor} a descriptor for the query
+     */
+    public IAnnotatedObjectDescriptor getDescriptor()
+    {
+    	return query;
+    }
+    
+    /**
+     * Get the list of the query arguments. 
+     * 
+     * @return the list of {@link IArgumentDescriptor} describing the arguments which the query expects
+     */
+    public List<? extends IArgumentDescriptor> getArguments()
+    {
+    	return Collections.unmodifiableList(query.getArguments());
+    }
+    
+    /**
      * Set the argument identified by <code>name</code>. Heap objects can be
      * provided as <code>int</code>, <code>Integer</code>, <code>int[]</code> or
      * <code>IObject</code>.
+     * 
+     * @param name 	the name of the argument
+     * @param value	the new value of the argument
+     * 
+     * @return the modified SnapshotQuery object
+     * @throws SnapshotException
      */
-    public SnapshotQuery set(String name, Object value) throws SnapshotException
+    public SnapshotQuery setArgument(String name, Object value) throws SnapshotException
     {
         ArgumentDescriptor argument = query.getArgumentByName(name);
         if (argument == null)
@@ -136,6 +171,14 @@ public class SnapshotQuery
         arguments.setArgumentValue(argument, value);
 
         return this;
+    }
+    
+    /**
+     * @deprecated use setArgument() instead
+     */
+    public SnapshotQuery set(String name, Object value) throws SnapshotException
+    {
+    	return setArgument(name, value);
     }
 
     /**

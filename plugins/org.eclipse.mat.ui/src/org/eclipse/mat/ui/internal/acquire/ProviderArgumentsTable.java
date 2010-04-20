@@ -26,9 +26,9 @@ import org.eclipse.jface.window.DefaultToolTip;
 import org.eclipse.jface.window.ToolTip;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.IQueryContext;
+import org.eclipse.mat.query.annotations.descriptors.IAnnotatedObjectDescriptor;
 import org.eclipse.mat.query.registry.ArgumentDescriptor;
-import org.eclipse.mat.query.registry.ExecutableArgumentsSet;
-import org.eclipse.mat.query.registry.ExecutableDescriptor;
+import org.eclipse.mat.query.registry.AnnotatedObjectArgumentsSet;
 import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.internal.query.arguments.ArgumentEditor;
 import org.eclipse.mat.ui.internal.query.arguments.TableEditorFactory;
@@ -62,8 +62,8 @@ public class ProviderArgumentsTable implements IEditorListener/*, ProcessSelecti
 
 //	private ProviderArgumentsWizzardPage wizzardPage;
 //	private HeapDumpProviderDescriptor providerDescriptor;
-	private ExecutableDescriptor providerDescriptor;
-	private ExecutableArgumentsSet argumentSet;
+	private IAnnotatedObjectDescriptor providerDescriptor;
+	private AnnotatedObjectArgumentsSet argumentSet;
 	private IQueryContext context;
 
 	private List<ITableListener> listeners = Collections.synchronizedList(new ArrayList<ITableListener>());
@@ -135,12 +135,12 @@ public class ProviderArgumentsTable implements IEditorListener/*, ProcessSelecti
 		}.activate();
 	}
 
-	public ExecutableArgumentsSet getArgumentSet()
+	public AnnotatedObjectArgumentsSet getArgumentSet()
 	{
 		return argumentSet;
 	}
 
-	public ExecutableDescriptor getProviderDescriptor()
+	public IAnnotatedObjectDescriptor getProviderDescriptor()
 	{
 		return providerDescriptor;
 	}
@@ -473,9 +473,9 @@ public class ProviderArgumentsTable implements IEditorListener/*, ProcessSelecti
 //        fireInputChangedEvent();
 //    }
 	
-	public void providerSelected(ExecutableArgumentsSet newArgumentsSet)
+	public void providerSelected(AnnotatedObjectArgumentsSet newArgumentsSet)
     {
-		ExecutableDescriptor newProviderDescriptor = newArgumentsSet.getDescriptor();
+		IAnnotatedObjectDescriptor newProviderDescriptor = newArgumentsSet.getDescriptor();
         if (!newProviderDescriptor.equals(providerDescriptor))
         {
             // Obtain some default values in the table based on the current

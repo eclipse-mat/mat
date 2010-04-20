@@ -32,7 +32,7 @@ import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.internal.acquire.HeapDumpProviderDescriptor;
 import org.eclipse.mat.internal.acquire.HeapDumpProviderRegistry;
 import org.eclipse.mat.internal.acquire.VmInfoDescriptor;
-import org.eclipse.mat.query.registry.ExecutableArgumentsSet;
+import org.eclipse.mat.query.registry.AnnotatedObjectArgumentsSet;
 import org.eclipse.mat.snapshot.acquire.VmInfo;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.Messages;
@@ -68,7 +68,7 @@ public class AcquireDialog extends WizardPage
 
     interface ProcessSelectionListener
     {
-    	void processSelected(ExecutableArgumentsSet argumentSet);
+    	void processSelected(AnnotatedObjectArgumentsSet argumentSet);
     }
     
     public AcquireDialog(Collection<HeapDumpProviderDescriptor> dumpProviders)
@@ -216,7 +216,7 @@ public class AcquireDialog extends WizardPage
 					item.setText(0, process.getDescription());
 					item.setText(1, Integer.toString(process.getPid()));
 					item.setText(2, getProviderDescriptor(process).getName());
-					item.setData(new ExecutableArgumentsSet(descriptor));
+					item.setData(new AnnotatedObjectArgumentsSet(descriptor));
 				}
 				catch (SnapshotException e)
 				{
@@ -257,10 +257,10 @@ public class AcquireDialog extends WizardPage
         return canFlipToNextPage() && getProcessArgumentsSet().getDescriptor().getArguments().size() == 0;
     }
 
-	public ExecutableArgumentsSet getProcessArgumentsSet()
+	public AnnotatedObjectArgumentsSet getProcessArgumentsSet()
 	{
 		if (localVMsTable.getSelectionIndex() == -1) return null;
-		ExecutableArgumentsSet argumentsSet = (ExecutableArgumentsSet) localVMsTable.getSelection()[0].getData();
+		AnnotatedObjectArgumentsSet argumentsSet = (AnnotatedObjectArgumentsSet) localVMsTable.getSelection()[0].getData();
 
 		return argumentsSet;
 	}
@@ -268,7 +268,7 @@ public class AcquireDialog extends WizardPage
 	public VmInfo getProcess()
 	{
 		if (localVMsTable.getSelectionIndex() == -1) return null;
-		ExecutableArgumentsSet argumentsSet = (ExecutableArgumentsSet) localVMsTable.getSelection()[0].getData();
+		AnnotatedObjectArgumentsSet argumentsSet = (AnnotatedObjectArgumentsSet) localVMsTable.getSelection()[0].getData();
 		VmInfoDescriptor descriptor = (VmInfoDescriptor) argumentsSet.getDescriptor();
 
 		return descriptor.getVmInfo();
