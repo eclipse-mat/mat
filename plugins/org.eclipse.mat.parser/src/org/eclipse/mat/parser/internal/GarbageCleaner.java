@@ -26,12 +26,13 @@ import org.eclipse.mat.parser.index.IndexWriter;
 import org.eclipse.mat.parser.index.IIndexReader.IOne2LongIndex;
 import org.eclipse.mat.parser.index.IIndexReader.IOne2ManyIndex;
 import org.eclipse.mat.parser.index.IIndexReader.IOne2OneIndex;
+import org.eclipse.mat.parser.index.IIndexReader.IOne2SizeIndex;
 import org.eclipse.mat.parser.index.IndexManager.Index;
+import org.eclipse.mat.parser.index.IndexReader.SizeIndexReader;
 import org.eclipse.mat.parser.internal.snapshot.ObjectMarker;
 import org.eclipse.mat.parser.model.ClassImpl;
 import org.eclipse.mat.parser.model.XGCRootInfo;
 import org.eclipse.mat.snapshot.UnreachableObjectsHistogram;
-import org.eclipse.mat.snapshot.model.GCRootInfo;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
@@ -271,7 +272,7 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
                             .getAbsolutePath() }));
             final BitField arrayObjects = new BitField(newNoOfObjects);
             // arrayObjects
-            idxManager.setReader(Index.A2SIZE, new IndexWriter.IntIndexStreamer().writeTo(indexFile,
+            IOne2OneIndex newIdx = new IndexWriter.IntIndexStreamer().writeTo(indexFile,
                             new NewObjectIntIterator()
                             {
                                 IOne2OneIndex a2size = preA2size;
@@ -281,7 +282,8 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
                                 int doGetNextInt(int index)
                                 {
                                     int size = a2size.get(nextIndex);
-                                    if (size > 0)
+                                    // Get the compressed size, 0 means 0
+                                    if (size != 0)
                                         arrayObjects.set(newIndex);
                                     newIndex++;
                                     return size;
@@ -292,7 +294,9 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
                                 {
                                     return map;
                                 }
-                            }));
+                            });
+
+            idxManager.setReader(Index.A2SIZE, new SizeIndexReader(newIdx)); 
 
             preA2size.close();
             preA2size.delete();
@@ -496,7 +500,7 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
 
     private static void createHistogramOfUnreachableObjects(PreliminaryIndexImpl idx, boolean[] reachable)
     {
-        IOne2OneIndex array2size = idx.array2size;
+        IOne2SizeIndex array2size = idx.array2size;
 
         HashMapIntObject<Record> histogram = new HashMapIntObject<Record>();
 
@@ -519,9 +523,9 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
 
                 r.objectCount++;
                 totalObjectCount++;
-                int s = 0;
+                long s = 0;
 
-                s = array2size.get(ii);
+                s = array2size.getSize(ii);
                 if (s > 0)
                 {
                     // Already got the size

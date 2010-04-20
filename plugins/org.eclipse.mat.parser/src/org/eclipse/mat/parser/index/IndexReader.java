@@ -23,10 +23,16 @@ import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.parser.internal.Messages;
 import org.eclipse.mat.parser.io.SimpleBufferedRandomAccessInputStream;
 
+/**
+ * Implementations to read index files.
+ */
 public abstract class IndexReader
 {
     public static final boolean DEBUG = false;
 
+    /**
+     * Creates a int to int index reader
+     */
     public static class IntIndexReader extends IndexWriter.IntIndex<SoftReference<ArrayIntCompressed>> implements
                     IIndexReader.IOne2OneIndex
     {
@@ -162,6 +168,99 @@ public abstract class IndexReader
                 indexFile.delete();
         }
 
+    }
+
+    /**
+     * Creates a index reader for array sizes, presuming the sizes are stored as ints
+     * and get expanded in the reverse of the compression.
+     */
+    public static class SizeIndexReader implements IIndexReader.IOne2SizeIndex
+    {
+        private IIndexReader.IOne2OneIndex idx;
+
+        /**
+         * Constructor used when reopening a dump
+         * @param indexFile
+         * @throws IOException
+         */
+        public SizeIndexReader(File indexFile) throws IOException
+        {
+            this(new IntIndexReader(indexFile));
+        }
+        
+        /**
+         * Construct a size index reader based on a int index holding the compressed data
+         * @param idx
+         */
+        public SizeIndexReader(IIndexReader.IOne2OneIndex idx)
+        {
+            this.idx = idx;
+        }
+        
+        /**
+         * Expand the compressed size.
+         */
+        public long getSize(int index)
+        {
+            return IndexWriter.SizeIndexCollectorUncompressed.expand(get(index));
+        }
+
+        /**
+         * Get the (compressed) size.
+         * Delegate to the int index.
+         */
+        public int get(int index)
+        {
+            return idx.get(index);
+        }
+
+        /**
+         * Delegate to the int index.
+         */
+        public int[] getAll(int[] index)
+        {
+            return idx.getAll(index);
+        }
+
+        /**
+         * Delegate to the int index.
+         */
+        public int[] getNext(int index, int length)
+        {
+            return idx.getNext(index, length);
+        }
+
+        /**
+         * Delegate to the int index.
+         */
+        public void close() throws IOException
+        {
+            idx.close();
+        }
+
+        /**
+         * Delegate to the int index.
+         */
+        public void delete()
+        {
+            idx.delete();
+        }
+
+        /**
+         * Delegate to the int index.
+         */
+        public int size()
+        {
+            return idx.size();
+        }
+
+        /**
+         * Delegate to the int index.
+         */
+        public void unload() throws IOException
+        {
+            idx.unload();
+        }
     }
 
     /* package */static class IntIndex1NReader implements IIndexReader.IOne2ManyIndex

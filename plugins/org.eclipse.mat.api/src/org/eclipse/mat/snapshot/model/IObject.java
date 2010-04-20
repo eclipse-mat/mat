@@ -72,11 +72,11 @@ public interface IObject extends Serializable
     public IClass getClazz();
 
     /**
-     * Get used heap size of this object.
+     * Get used heap size of just this object.
      * 
      * @return used heap size of this object
      */
-    public int getUsedHeapSize();
+    public long getUsedHeapSize();
 
     /**
      * Get retained heap size of this object.

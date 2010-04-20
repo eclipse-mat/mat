@@ -55,8 +55,8 @@ import org.eclipse.mat.parser.IPreliminaryIndex;
 import org.eclipse.mat.parser.index.IndexManager;
 import org.eclipse.mat.parser.index.IndexWriter;
 import org.eclipse.mat.parser.index.IIndexReader.IOne2ManyIndex;
-import org.eclipse.mat.parser.index.IIndexReader.IOne2OneIndex;
-import org.eclipse.mat.parser.index.IndexWriter.IntIndexCollectorUncompressed;
+import org.eclipse.mat.parser.index.IIndexReader.IOne2SizeIndex;
+import org.eclipse.mat.parser.index.IndexWriter.SizeIndexCollectorUncompressed;
 import org.eclipse.mat.parser.model.ClassImpl;
 import org.eclipse.mat.parser.model.XGCRootInfo;
 import org.eclipse.mat.parser.model.XSnapshotInfo;
@@ -192,9 +192,9 @@ public class DTFJIndexBuilder implements IIndexBuilder
     /** The outbound references index */
     private IndexWriter.IntArray1NWriter outRefs;
     /** The temp object id to size index, for arrays and variable sized objects - used to build arrayToSize */
-    private IntIndexCollectorUncompressed indexToSize;
+    private SizeIndexCollectorUncompressed indexToSize;
     /** The array size in bytes index */
-    private IOne2OneIndex arrayToSize;
+    private IOne2SizeIndex arrayToSize;
     /** The object/class id number to address index */
     private IndexWriter.Identifier indexToAddress;
     /** The object id to class id index */
@@ -336,7 +336,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         /** For small objects */
         private byte objectToSize[];
         /** For large objects */
-        private HashMap<Integer, Integer> bigObjs = new HashMap<Integer, Integer>();
+        private HashMap<Integer, Long> bigObjs = new HashMap<Integer, Long>();
         private static final int SHIFT = 3;
         private static final int MASK = 0xff;
 
@@ -345,9 +345,9 @@ public class DTFJIndexBuilder implements IIndexBuilder
             objectToSize = new byte[size];
         }
 
-        int get(int index)
+        long get(int index)
         {
-            Integer size = bigObjs.get(index);
+            Long size = bigObjs.get(index);
             if (size != null)
                 return size;
             return (objectToSize[index] & MASK) << SHIFT;
@@ -362,7 +362,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
          * @param index
          * @param size
          */
-        void set(int index, int size)
+        void set(int index, long size)
         {
             if ((size & ~(MASK << SHIFT)) == 0)
             {
@@ -477,7 +477,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 ++count;
                 if (objectToSize != null)
                 {
-                    int objSize = objectToSize.get(i);
+                    long objSize = objectToSize.get(i);
                     memFree += objSize;
                     if (verbose)
                     {
@@ -1491,7 +1491,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         workCountSoFar += 1;
         listener.subTask(Messages.DTFJIndexBuilder_FindingRoots);
 
-        indexToSize = new IndexWriter.IntIndexCollectorUncompressed(indexToAddress.size());
+        indexToSize = new IndexWriter.SizeIndexCollectorUncompressed(indexToAddress.size());
 
         // Java 1.4.2 has bootLoader as null and the address of the Java stack
         // frame at the lower memory address
@@ -2796,7 +2796,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 {
                     debugPrint("Found class as object at " + format(objAddr)); //$NON-NLS-1$
                 }
-                int size;
+                long size;
                 if (jo != null)
                 {
                     size = getObjectSize(jo, pointerSize);
@@ -2837,7 +2837,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 {
                     // Allow for objects of the same type with different sizes
                     int oldSize = cls.getHeapSizePerInstance();
-                    if (oldSize >= 0)
+                    if (oldSize >= 0 || size != (int)size)
                     {
                         // Different size to before, so use the array size table
                         if (oldSize != size)
@@ -2846,7 +2846,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     else
                     {
                         // First time, so set the size
-                        cls.setHeapSizePerInstance(size);
+                        cls.setHeapSizePerInstance((int)size);
                     }
                     // For calculating purge sizes
                     objectToSize.set(objId, size);
@@ -3792,16 +3792,14 @@ public class DTFJIndexBuilder implements IIndexBuilder
      * Round the object size to allow for alignment
      * @param jo
      * @param pointerSize in bits
-     * @return
+     * @return the object size in bytes
      * @throws CorruptDataException
      */
-    private int getObjectSize(JavaObject jo, int pointerSize) throws CorruptDataException
+    private long getObjectSize(JavaObject jo, int pointerSize) throws CorruptDataException
     {
         // DTFJ size includes any link field, so just round to 8 bytes
         long s = (jo.getSize() + 7) & ~7L;
-        // Avoid overflow
-        s = Math.min(s, Integer.MAX_VALUE);
-        return (int)s;
+        return s;
     }
 
     /**
@@ -5252,14 +5250,16 @@ public class DTFJIndexBuilder implements IIndexBuilder
     private void genClass2(JavaClass j2, ClassImpl ci, ClassImpl jlc, int pointerSize, IProgressListener listener)
     {
         ci.setClassInstance(jlc);
-        int size = 0;
+        long size = 0;
         try
         {
             JavaObject object = j2.getObject();
             if (object != null)
             {
+                // Shouldn't overflow an int
                 size = getObjectSize(object, pointerSize);
-                jlc.setHeapSizePerInstance(size);
+                if (jlc.getHeapSizePerInstance() < 0 && size == (int)size )
+                    jlc.setHeapSizePerInstance((int)size);
             }
         }
         catch (IllegalArgumentException e)
@@ -5275,7 +5275,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         }
         // TODO should we use segments to get the RAM/ROM class size?
         size += classSize(j2, listener);
-        ci.setUsedHeapSize(size);
+        ci.setUsedHeapSize((int)size);
         // For calculating purge sizes
         objectToSize.set(ci.getObjectId(), size);
         jlc.addInstance(size);
@@ -7165,7 +7165,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             {
                 ++nObjs;
                 // Ordinary object
-                int size = arrayToSize.get(i);
+                long size = arrayToSize.getSize(i);
                 if (size < 0)
                 {
                     ci = idToClass.get(clsId);

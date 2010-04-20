@@ -112,7 +112,7 @@ public class PrimitiveArrayImpl extends AbstractArrayImpl implements IPrimitiveA
     }
 
     @Override
-    public int getUsedHeapSize()
+    public long getUsedHeapSize()
     {
         try {
             return getSnapshot().getHeapSize(getObjectId());
@@ -121,9 +121,9 @@ public class PrimitiveArrayImpl extends AbstractArrayImpl implements IPrimitiveA
         }
     }
 
-    public static int doGetUsedHeapSize(ClassImpl clazz, int length, int type)
+    public static long doGetUsedHeapSize(ClassImpl clazz, int length, int type)
     {
-        return alignUpTo8(2 * clazz.getHeapSizePerInstance() + 4 + length * ELEMENT_SIZE[type]);
+        return alignUpTo8(2 * clazz.getHeapSizePerInstance() + 4 + length * (long)ELEMENT_SIZE[type]);
     }
 
 }

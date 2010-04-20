@@ -38,7 +38,7 @@ public class ObjectArrayImpl extends AbstractArrayImpl implements IObjectArray
     }
 
     @Override
-    public int getUsedHeapSize()
+    public long getUsedHeapSize()
     {
         try {
             return getSnapshot().getHeapSize(getObjectId());
@@ -47,9 +47,9 @@ public class ObjectArrayImpl extends AbstractArrayImpl implements IObjectArray
         }
     }
 
-    public static int doGetUsedHeapSize(ClassImpl clazz, int length)
+    public static long doGetUsedHeapSize(ClassImpl clazz, int length)
     {
-        return alignUpTo8(2 * clazz.getHeapSizePerInstance() + 4 + length * clazz.getHeapSizePerInstance());
+        return alignUpTo8(2 * clazz.getHeapSizePerInstance() + 4 + length * (long)clazz.getHeapSizePerInstance());
     }
 
     public long[] getReferenceArray()

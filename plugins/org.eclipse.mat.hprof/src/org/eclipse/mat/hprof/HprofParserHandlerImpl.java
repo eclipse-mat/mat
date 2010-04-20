@@ -58,7 +58,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
     private IndexWriter.IntArray1NWriter outbound = null;
     private IndexWriter.IntIndexCollector object2classId = null;
     private IndexWriter.LongIndexCollector object2position = null;
-    private IndexWriter.IntIndexCollectorUncompressed array2size = null;
+    private IndexWriter.SizeIndexCollectorUncompressed array2size = null;
 
     private Set<Long> requiredArrayClassIDs = new HashSet<Long>();
     private Set<Integer> requiredPrimitiveArrays = new HashSet<Integer>();
@@ -115,7 +115,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
                         .mostSignificantBit(maxClassId));
         object2position = new IndexWriter.LongIndexCollector(this.identifiers.size(), IndexWriter
                         .mostSignificantBit(new File(this.info.getPath()).length()));
-        array2size = new IndexWriter.IntIndexCollectorUncompressed(this.identifiers.size());
+        array2size = new IndexWriter.SizeIndexCollectorUncompressed(this.identifiers.size());
 
         // java.lang.Class needs some special treatment so that object2classId
         // is written correctly

@@ -490,17 +490,20 @@ public interface ISnapshot
     public IClass getClassOf(int objectId) throws SnapshotException;
 
     /**
-     * Get heap size for the given object.
+     * Get heap size for just the given object.
+     * new long[Integer.MAX_VALUE] is bigger than Integer.MAX_VALUE bytes, so this
+     * method now returns a long 
      * <p>
      * Performance: Usually fast - in memory for non-array objects and single
      * index operation for array objects.
+     * </p>
      * 
      * @param objectId
      *            id of object for which you want the heap size for
-     * @return heap size for the given object
+     * @return heap size for the given object.
      * @throws SnapshotException
      */
-    public int getHeapSize(int objectId) throws SnapshotException;
+    public long getHeapSize(int objectId) throws SnapshotException;
 
     /**
      * Get the total shallow heap size for a set of objects.

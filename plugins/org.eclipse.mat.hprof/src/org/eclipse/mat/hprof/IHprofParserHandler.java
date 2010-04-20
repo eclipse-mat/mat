@@ -34,11 +34,11 @@ public interface IHprofParserHandler
         public int objectId;
         public long objectAddress;
         public ClassImpl clazz;
-        public int usedHeapSize;
+        public long usedHeapSize;
         public ArrayLong references = new ArrayLong();
         public boolean isArray = false;
 
-        public HeapObject(int objectId, long objectAddress, ClassImpl clazz, int usedHeapSize)
+        public HeapObject(int objectId, long objectAddress, ClassImpl clazz, long usedHeapSize)
         {
             super();
             this.objectId = objectId;

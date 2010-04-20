@@ -26,7 +26,7 @@ public interface IPreliminaryIndex
 {
     /**
      * Get basic information about the snapshot
-     * @return
+     * @return the basic data
      */
     XSnapshotInfo getSnapshotInfo();
 
@@ -49,7 +49,8 @@ public interface IPreliminaryIndex
     void setThread2objects2roots(HashMapIntObject<HashMapIntObject<List<XGCRootInfo>>> thread2objects2roots);
 
     /**
-     * store the object to outbound references table
+     * store the object to outbound references table.
+     * The type of the object must be the first reference.
      * @param outbound
      */
     void setOutbound(IIndexReader.IOne2ManyIndex outbound);
@@ -70,6 +71,6 @@ public interface IPreliminaryIndex
      * store the array to size in bytes mapping
      * @param array2size
      */
-    void setArray2size(IIndexReader.IOne2OneIndex array2size);
+    void setArray2size(IIndexReader.IOne2SizeIndex array2size);
 
 }

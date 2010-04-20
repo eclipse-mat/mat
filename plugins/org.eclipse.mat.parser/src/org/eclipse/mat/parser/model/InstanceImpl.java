@@ -130,7 +130,7 @@ public class InstanceImpl extends AbstractObjectImpl implements IInstance
     }
 
     @Override
-    public int getUsedHeapSize()
+    public long getUsedHeapSize()
     {
         try {
             return getSnapshot().getHeapSize(getObjectId());

@@ -17,15 +17,21 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.mat.util.MessageUtil;
 
+/**
+ * Handles the indexes into the snapshot.
+ */
 public class IndexManager
 {
+    /**
+     * The different index types.
+     */
     public enum Index
     {
         INBOUND("inbound", IndexReader.InboundReader.class), //$NON-NLS-1$
         OUTBOUND("outbound", IndexReader.IntIndex1NSortedReader.class), //$NON-NLS-1$
         O2CLASS("o2c", IndexReader.IntIndexReader.class), //$NON-NLS-1$
         IDENTIFIER("idx", IndexReader.LongIndexReader.class), //$NON-NLS-1$
-        A2SIZE("a2s", IndexReader.IntIndexReader.class), //$NON-NLS-1$
+        A2SIZE("a2s", IndexReader.SizeIndexReader.class), //$NON-NLS-1$
         DOMINATED("domOut", IndexReader.IntIndex1NReader.class), //$NON-NLS-1$
         O2RETAINED("o2ret", IndexReader.LongIndexReader.class), //$NON-NLS-1$
         DOMINATOR("domIn", IndexReader.IntIndexReader.class);//$NON-NLS-1$
@@ -50,7 +56,7 @@ public class IndexManager
     public IIndexReader.IOne2ManyIndex outbound;
     public IIndexReader.IOne2OneIndex o2c;
     public IIndexReader.IOne2LongIndex idx;
-    public IIndexReader.IOne2OneIndex a2s;
+    public IIndexReader.IOne2SizeIndex a2s;
     public IIndexReader.IOne2ManyIndex domOut;
     public IIndexReader.IOne2LongIndex o2ret;
     public IIndexReader.IOne2OneIndex domIn;
@@ -166,7 +172,7 @@ public class IndexManager
         return idx;
     }
 
-    public IIndexReader.IOne2OneIndex a2size()
+    public IIndexReader.IOne2SizeIndex a2size()
     {
         return a2s;
     }

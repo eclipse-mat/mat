@@ -21,26 +21,47 @@ import org.eclipse.mat.parser.model.XSnapshotInfo;
 
 /* package */class PreliminaryIndexImpl implements IPreliminaryIndex
 {
+    /**
+     * The basic snapshot data
+     */
     XSnapshotInfo snapshotInfo;
 
-    // id -> class impl
+    /**
+     * id -> class impl
+     */
     HashMapIntObject<ClassImpl> classesById;
 
-    // GC roots (by ids)
+    /**
+     * GC roots (by ids)
+     */
     HashMapIntObject<List<XGCRootInfo>> gcRoots;
+    /**
+     * thread object to list of GC roots (by ids)
+     */
     HashMapIntObject<HashMapIntObject<List<XGCRootInfo>>> thread2objects2roots;
 
-    // id -> id*
+    /**
+     * Outbound references.
+     * id -> id*
+     */
     IIndexReader.IOne2ManyIndex outbound = null;
 
-    // id -> address
+    /**
+     * id -> address
+     */ 
     IIndexReader.IOne2LongIndex identifiers = null;
 
-    // id -> id
+    /**
+     * Object to type.
+     * id -> id
+     */
     IIndexReader.IOne2OneIndex object2classId = null;
 
-    // id -> int (size)
-    IIndexReader.IOne2OneIndex array2size = null;
+    /**
+     * Array and other non-fixed size objects
+     * id -> int (size compressed to an int)
+     */
+    IIndexReader.IOne2SizeIndex array2size = null;
 
     public PreliminaryIndexImpl(XSnapshotInfo snapshotInfo)
     {
@@ -82,7 +103,7 @@ import org.eclipse.mat.parser.model.XSnapshotInfo;
         this.object2classId = object2classId;
     }
 
-    public void setArray2size(IIndexReader.IOne2OneIndex array2size)
+    public void setArray2size(IIndexReader.IOne2SizeIndex array2size)
     {
         this.array2size = array2size;
     }

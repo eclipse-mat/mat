@@ -42,6 +42,7 @@ import org.eclipse.mat.parser.IObjectReader;
 import org.eclipse.mat.parser.index.IIndexReader;
 import org.eclipse.mat.parser.index.IndexManager;
 import org.eclipse.mat.parser.index.IIndexReader.IOne2OneIndex;
+import org.eclipse.mat.parser.index.IIndexReader.IOne2SizeIndex;
 import org.eclipse.mat.parser.internal.snapshot.HistogramBuilder;
 import org.eclipse.mat.parser.internal.snapshot.MultiplePathsFromGCRootsComputerImpl;
 import org.eclipse.mat.parser.internal.snapshot.ObjectCache;
@@ -58,7 +59,6 @@ import org.eclipse.mat.parser.model.InstanceImpl;
 import org.eclipse.mat.parser.model.XClassHistogramRecord;
 import org.eclipse.mat.parser.model.XGCRootInfo;
 import org.eclipse.mat.parser.model.XSnapshotInfo;
-import org.eclipse.mat.snapshot.UnreachableObjectsHistogram;
 import org.eclipse.mat.snapshot.DominatorsSummary;
 import org.eclipse.mat.snapshot.ExcludedReferencesDescriptor;
 import org.eclipse.mat.snapshot.Histogram;
@@ -66,6 +66,7 @@ import org.eclipse.mat.snapshot.IMultiplePathsFromGCRootsComputer;
 import org.eclipse.mat.snapshot.IPathsFromGCRootsComputer;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.PathsFromGCRootsTree;
+import org.eclipse.mat.snapshot.UnreachableObjectsHistogram;
 import org.eclipse.mat.snapshot.DominatorsSummary.ClassDominatorRecord;
 import org.eclipse.mat.snapshot.model.GCRootInfo;
 import org.eclipse.mat.snapshot.model.IClass;
@@ -1352,11 +1353,11 @@ public final class SnapshotImpl implements ISnapshot
         return indexManager.o2address().get(objectId);
     }
 
-    public int getHeapSize(int objectId) throws SnapshotException
+    public long getHeapSize(int objectId) throws SnapshotException
     {
         if (arrayObjects.get(objectId))
         {
-            return indexManager.a2size().get(objectId);
+            return indexManager.a2size().getSize(objectId);
         }
         else
         {
@@ -1381,13 +1382,13 @@ public final class SnapshotImpl implements ISnapshot
     {
         long total = 0;
         IOne2OneIndex o2class = indexManager.o2class();
-        IOne2OneIndex a2size = indexManager.a2size();
+        IOne2SizeIndex a2size = indexManager.a2size();
         for (int objectId : objectIds)
         {
             if (arrayObjects.get(objectId)) // take array sizes from another
             // index
             {
-                total += a2size.get(objectId);
+                total += a2size.getSize(objectId);
             }
             else
             {
@@ -1476,6 +1477,9 @@ public final class SnapshotImpl implements ISnapshot
         }
 
         retainedSizeCache.close();
+        
+        classCacheByName.clear();
+        classCacheByName = null;
 
         if (error != null)
             throw new RuntimeException(error);

@@ -149,7 +149,7 @@ public class ClassImpl extends AbstractObjectImpl implements IClass, Comparable<
     }
 
     @Override
-    public int getUsedHeapSize()
+    public long getUsedHeapSize()
     {
         return usedHeapSize;
     }
@@ -283,13 +283,13 @@ public class ClassImpl extends AbstractObjectImpl implements IClass, Comparable<
         return myAddress > otherAddress ? 1 : myAddress == otherAddress ? 0 : -1;
     }
 
-    public void addInstance(int usedHeapSize)
+    public void addInstance(long usedHeapSize)
     {
         this.instanceCount++;
         this.totalSize += usedHeapSize;
     }
 
-    public void removeInstance(int heapSizePerInstance)
+    public void removeInstance(long heapSizePerInstance)
     {
         this.instanceCount--;
         this.totalSize -= heapSizePerInstance;

@@ -34,6 +34,7 @@ import org.eclipse.mat.collect.IteratorLong;
 import org.eclipse.mat.collect.SetInt;
 import org.eclipse.mat.parser.index.IIndexReader.IOne2LongIndex;
 import org.eclipse.mat.parser.index.IIndexReader.IOne2OneIndex;
+import org.eclipse.mat.parser.index.IndexReader.SizeIndexReader;
 import org.eclipse.mat.parser.io.BitInputStream;
 import org.eclipse.mat.parser.io.BitOutputStream;
 import org.eclipse.mat.util.IProgressListener;
@@ -183,6 +184,44 @@ public abstract class IndexWriter
         public IIndexReader.IOne2OneIndex writeTo(File indexFile) throws IOException
         {
             return new IntIndexStreamer().writeTo(indexFile, dataElements);
+        }
+    }
+
+    /**
+     * Store sizes of objects by
+     * compressing the size to a 32-bit int.
+     */
+    public static class SizeIndexCollectorUncompressed extends IntIndexCollectorUncompressed
+    {
+
+        public SizeIndexCollectorUncompressed(int size)
+        {
+            super(size);
+        }
+
+        public static int compress(long y)
+        {
+            return (int)Math.min(y, Integer.MAX_VALUE);
+        }
+
+        public static long expand(int x) {
+            return x;
+        }
+
+        public void set(int index, long value)
+        {
+            set(index, compress(value));
+        }
+
+        public long getSize(int index)
+        {
+            int v = get(index);
+            return expand(v);
+        }
+
+        public IIndexReader.IOne2SizeIndex writeTo(File indexFile) throws IOException
+        {
+            return new SizeIndexReader(new IntIndexStreamer().writeTo(indexFile, dataElements));
         }
     }
 
