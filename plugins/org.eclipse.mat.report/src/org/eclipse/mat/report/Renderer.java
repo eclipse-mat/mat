@@ -28,7 +28,7 @@ public @interface Renderer
 {
     /**
      * What the renderer accepts.
-     * @return
+     * @return an array of acceptable classes
      */
     Class<? extends IResult>[] result() default IResult.class;
 

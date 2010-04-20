@@ -19,7 +19,7 @@ public final class HTMLUtils
     /**
      * Escape input text so that characters are not misinterpreted by HTML parsers. 
      * @param text
-     * @return
+     * @return the escaped text
      */
     @SuppressWarnings("nls")
     public static String escapeText(String text)

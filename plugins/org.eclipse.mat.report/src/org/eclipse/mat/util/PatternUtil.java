@@ -27,7 +27,7 @@ public class PatternUtil
      * Fix up a pattern to be a true regular expression pattern.
      * Add dots and starts at the beginning and end if not already there. 
      * @param pattern
-     * @return
+     * @return the fixed-up pattern
      */
     public static String smartFix(String pattern)
     {
@@ -40,7 +40,7 @@ public class PatternUtil
      * @param addDotStars if true then if the pattern does not contain one of the expressions .* !^
         (at the beginning) $ (at the end), then a .* is added at the
         beginning and at the end of the pattern.
-     * @return
+     * @return the fixed-up pattern
      */
     @SuppressWarnings("nls")
     public static String smartFix(String pattern, boolean addDotStars)

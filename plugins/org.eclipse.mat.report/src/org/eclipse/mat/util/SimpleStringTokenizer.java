@@ -81,7 +81,7 @@ public final class SimpleStringTokenizer implements Iterable<String>
      * Splits the string at the delimiter character.
      * @param subject
      * @param delim
-     * @return
+     * @return the string split at the delimiter
      */
     public static String[] split(String subject, char delim)
     {

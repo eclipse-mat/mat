@@ -42,7 +42,7 @@ public interface IOutputter
         /**
          * Get string to represent an icon
          * @param icon
-         * @return
+         * @return a string which can be used for the icon
          */
         String addIcon(URL icon);
 

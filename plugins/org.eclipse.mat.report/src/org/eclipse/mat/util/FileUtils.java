@@ -58,7 +58,7 @@ public final class FileUtils
      * Create a temporary directory which should be deleted on application close.
      * @param prefix
      * @param parent
-     * @return
+     * @return the temporary directory, to be deleted on shutdown
      * @throws IOException
      */
     public static File createTempDirectory(String prefix, File parent) throws IOException
@@ -83,7 +83,7 @@ public final class FileUtils
      * @param prefix the prefix of the file
      * @param suffix the suffix
      * @param extension the file extension
-     * @return
+     * @return the combined file name
      */
     public static String toFilename(String prefix, String suffix, String extension)
     {
