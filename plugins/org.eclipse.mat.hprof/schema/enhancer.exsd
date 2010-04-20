@@ -94,11 +94,11 @@ and object generations whenever a HPROF dump is written.&lt;/p&gt;
 &lt;p&gt;
 &lt;pre&gt;
    &lt;extension point=&quot;org.eclipse.mat.hprof.enhancer&quot;&gt;
-      &lt;resolver impl=&quot;com.acme.HprofEnhancer&quot; /&gt;
+      &lt;enhancer parser=&quot;com.acme.HprofExtraParser&quot; 
+            runtime=&quot;com.acme.HprofExtraRuntime&quot; /&gt;
    &lt;/extension&gt;
 &lt;/pre&gt;
 &lt;/p&gt;
-
       </documentation>
    </annotation>
 
@@ -107,10 +107,10 @@ and object generations whenever a HPROF dump is written.&lt;/p&gt;
          <meta.section type="apiInfo"/>
       </appInfo>
       <documentation>
-         The value of the impl attribute must represent an implementor of &lt;samp&gt;org.eclipse.mat.snapshot.extension.IClassSpecificNameResolver&lt;/samp&gt;.
+         The value of the parser attribute must represent an implementor of &lt;samp&gt;org.eclipse.mat.hprof.extension.IParsingEnhancer&lt;/samp&gt;.
+The value of the runtime attribute must represent an implementor of &lt;samp&gt;org.eclipse.mat.hprof.extension.IRuntimeEnhancer&lt;/samp&gt;.
       </documentation>
    </annotation>
-
 
    <annotation>
       <appInfo>

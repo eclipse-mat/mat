@@ -7,9 +7,8 @@
       </appInfo>
       <documentation>
          &lt;p&gt;The format of heap dumps is specific to the Virtual Machine used.
-This extensions allows to plug in new dump formats. Out of the box,
-the Memory Analyzer supports HPROF. An parser for IBM system dumps
-(read via DTFJ) is available from IBM Alphaworks.&lt;/p&gt;
+This extensions allows to plug in new dump formats. Out of the box, the Memory Analyzer 
+supports HPROF and IBM dumps read via DTFJ. A DTFJ implementation is available from IBM developerWorks.&lt;/p&gt;
       </documentation>
    </annotation>
 
@@ -98,6 +97,9 @@ name
 fileExtensions
 
 which replace the attributes in the dynamic parser.
+Map&lt;String, Map&lt;String, String&gt;&gt;
+
+This is used by the DTFJ parser which has to find out at run time which DTFJ implementations are available and to create an MAT parser definition for each one.
                </documentation>
                <appInfo>
                   <meta.attribute kind="java" basedOn=":java.util.Map"/>
@@ -155,7 +157,8 @@ the objectReader attribute &lt;samp&gt;org.eclipse.mat.parser.IObjectReader&lt;/
          <meta.section type="implementation"/>
       </appInfo>
       <documentation>
-         The Memory Analyzer supplies an implementation for the HPROF format. Check out the &lt;samp&gt;org.eclipse.mat.hprof&lt;/samp&gt; plug-in.
+         The Memory Analyzer supplies an implementation for HPROF and IBM DTFJ format dumps. Check out the &lt;samp&gt;org.eclipse.mat.hprof&lt;/samp&gt; plug-in and &lt;samp&gt;org.eclipse.mat.dtfj&lt;/samp&gt; plug-in.
+ A DTFJ implementation is available from IBM DeveloperWorks.&lt;/p&gt;
       </documentation>
    </annotation>
 
