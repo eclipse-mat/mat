@@ -6,9 +6,9 @@
          <meta.schema plugin="org.eclipse.mat.parser" id="parser" name="Heap Dump Parser"/>
       </appInfo>
       <documentation>
-         &lt;p&gt;The format of heap dumps is specific to the Virtual Machine used.
+         The format of heap dumps is specific to the Virtual Machine used.
 This extensions allows to plug in new dump formats. Out of the box, the Memory Analyzer 
-supports HPROF and IBM dumps read via DTFJ. A DTFJ implementation is available from IBM developerWorks.&lt;/p&gt;
+supports HPROF and IBM dumps read via DTFJ. A DTFJ implementation is available from IBM developerWorks.
       </documentation>
    </annotation>
 
@@ -158,7 +158,7 @@ the objectReader attribute &lt;samp&gt;org.eclipse.mat.parser.IObjectReader&lt;/
       </appInfo>
       <documentation>
          The Memory Analyzer supplies an implementation for HPROF and IBM DTFJ format dumps. Check out the &lt;samp&gt;org.eclipse.mat.hprof&lt;/samp&gt; plug-in and &lt;samp&gt;org.eclipse.mat.dtfj&lt;/samp&gt; plug-in.
- A DTFJ implementation is available from IBM DeveloperWorks.&lt;/p&gt;
+ A DTFJ implementation is available from IBM DeveloperWorks.
       </documentation>
    </annotation>
 
