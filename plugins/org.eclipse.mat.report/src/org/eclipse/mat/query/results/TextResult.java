@@ -54,7 +54,7 @@ public class TextResult implements IResult
     }
 
     /**
-     * Create a TextResult
+     * Creates a section to hold some simple text.
      * @param text the contents of the report
      * @param isHtml whether it is in HTML
      */
@@ -65,7 +65,7 @@ public class TextResult implements IResult
     }
 
     /**
-     * Get the metadata
+     * Get the metadata for fine-tuning the display of this result.
      * @return null
      */
     public ResultMetaData getResultMetaData()

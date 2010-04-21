@@ -69,7 +69,9 @@ public final class ResultMetaData
         }
 
         /**
-         * Creates and returns the ResultMetaData object.
+         * Creates and returns the ResultMetaData object, with
+         * the context providers list made unmodifiable.
+         * This can only be called once.
          */
         public ResultMetaData build()
         {
