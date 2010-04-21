@@ -56,7 +56,7 @@ and object generations whenever a HPROF dump is written.&lt;/p&gt;
          <attribute name="parser" type="string" use="required">
             <annotation>
                <documentation>
-                  implementor of &lt;samp&gt;org.eclipse.mat.hprof.extension.IParsingEnhancer&lt;/samp&gt; called during the parsing of the HPROF dump to add information
+                  implementor of &lt;a href=&quot;org/eclipse/mat/hprof/extension/IParsingEnhancer.html&quot;&gt;&lt;samp&gt;org.eclipse.mat.hprof.extension.IParsingEnhancer&lt;/samp&gt;&lt;/a&gt; called during the parsing of the HPROF dump to add information
                </documentation>
                <appInfo>
                   <meta.attribute kind="java" basedOn=":org.eclipse.mat.hprof.extension.IParsingEnhancer"/>
@@ -66,7 +66,7 @@ and object generations whenever a HPROF dump is written.&lt;/p&gt;
          <attribute name="runtime" type="string" use="required">
             <annotation>
                <documentation>
-                  implementor of &lt;samp&gt;org.eclipse.mat.hprof.extension.IRuntimeEnhancer&lt;/samp&gt; called when analysing the dump
+                  implementor of &lt;a href=&quot;org/eclipse/mat/hprof/extension/IRuntimeEnhancer.html&quot;&gt;&lt;samp&gt;org.eclipse.mat.hprof.extension.IRuntimeEnhancer&lt;/samp&gt;&lt;/a&gt; called when analysing the dump
                </documentation>
                <appInfo>
                   <meta.attribute kind="java" basedOn=":org.eclipse.mat.hprof.extension.IRuntimeEnhancer"/>
