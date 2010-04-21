@@ -89,13 +89,13 @@
 			<result type="org.eclipse.mat.snapshot.query.HistogramResult"/>
 		</pane>
 		<pane id="DominatorTreePane" class="org.eclipse.mat.ui.snapshot.panes.DominatorPane">
-			<result type="org.eclipse.mat.snapshot.inspections.DominatorQuery$Tree"/>
+			<result type="org.eclipse.mat.internal.snapshot.inspections.DominatorQuery$Tree"/>
 		</pane>
 		<pane id="Path2GCRootsPane" class="org.eclipse.mat.ui.snapshot.panes.Path2GCRootsPane">
-			<result type="org.eclipse.mat.snapshot.inspections.Path2GCRootsQuery$Tree"/>
+			<result type="org.eclipse.mat.internal.snapshot.inspections.Path2GCRootsQuery$Tree"/>
 		</pane>
 		<pane id="MultiplePath2GCRootsPane" class="org.eclipse.mat.ui.snapshot.panes.MultiplePath2GCRootsPane">
-			<result type="org.eclipse.mat.snapshot.inspections.MultiplePath2GCRootsQuery$Tree"/>
+			<result type="org.eclipse.mat.internal.snapshot.inspections.MultiplePath2GCRootsQuery$Tree"/>
 		</pane>
 		<pane id="CompareTablesPane" class="org.eclipse.mat.ui.snapshot.panes.CompareTablesPane">
 			<result type="org.eclipse.mat.ui.compare.CompareTablesQuery$TableComparisonResult"/>
