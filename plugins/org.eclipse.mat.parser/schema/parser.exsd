@@ -71,35 +71,28 @@ supports HPROF and IBM dumps read via DTFJ. A DTFJ implementation is available f
          <attribute name="indexBuilder" type="string" use="required">
             <annotation>
                <documentation>
-                  implementor of &lt;samp&gt;org.eclipse.mat.snapshot.adapter.IIndexBuilder&lt;/samp&gt; which creates the index files, i.e. the structural information of the heap dump like the reference graph
+                  implementor of &lt;a href=&quot;org/eclipse/mat/parser/IIndexBuilder.html&quot;&gt;&lt;samp&gt;org.eclipse.mat.snapshot.adapter.IIndexBuilder&lt;/samp&gt;&lt;/a&gt; which creates the index files, i.e. the structural information of the heap dump like the reference graph
                </documentation>
                <appInfo>
-                  <meta.attribute kind="java" basedOn=":org.eclipse.mat.snapshot.adapter.IIndexBuilder"/>
+                  <meta.attribute kind="java" basedOn=":org.eclipse.mat.parser.IIndexBuilder"/>
                </appInfo>
             </annotation>
          </attribute>
          <attribute name="objectReader" type="string" use="required">
             <annotation>
                <documentation>
-                  implementor of &lt;samp&gt;org.eclipse.mat.snapshot.adapter.IObjectReader&lt;/samp&gt; to read the object details from the heap dump file
+                  implementor of &lt;a href=&quot;org/eclipse/mat/parser/IObjectReader.html&quot;&gt;&lt;samp&gt;org.eclipse.mat.parser.IObjectReader&lt;/samp&gt;&lt;/a&gt; to read the object details from the heap dump file
                </documentation>
                <appInfo>
-                  <meta.attribute kind="java" basedOn=":org.eclipse.mat.snapshot.adapter.IObjectReader"/>
+                  <meta.attribute kind="java" basedOn=":org.eclipse.mat.parser.IObjectReader"/>
                </appInfo>
             </annotation>
          </attribute>
          <attribute name="dynamic" type="string">
             <annotation>
                <documentation>
-                  This returns a set of extensions and descriptions, together with ids.
-id
-name
-fileExtensions
+                  This is a class which extends java.util.Map and returns a set of extensions and descriptions, together with ids which replace the attributes &quot;id&quot;, &quot;name&quot;, &quot;fileExtension&quot; in the dynamic parser.
 
-which replace the attributes in the dynamic parser.
-Map&lt;String, Map&lt;String, String&gt;&gt;
-
-This is used by the DTFJ parser which has to find out at run time which DTFJ implementations are available and to create an MAT parser definition for each one.
                </documentation>
                <appInfo>
                   <meta.attribute kind="java" basedOn=":java.util.Map"/>
@@ -149,6 +142,26 @@ This is used by the DTFJ parser which has to find out at run time which DTFJ imp
       <documentation>
          The value of the indexBuilder attribute must represent an implementor of &lt;samp&gt;org.eclipse.mat.parser.IIndexBuilder&lt;/samp&gt;,
 the objectReader attribute &lt;samp&gt;org.eclipse.mat.parser.IObjectReader&lt;/samp&gt;.
+
+The dynamicParser attribute is a class which extends java.util.Map and returns a set of extensions and descriptions, together with ids which replace the attributes &quot;id&quot;, &quot;name&quot;, &quot;fileExtension&quot; in the dynamic parser.
+&lt;pre&gt;
+Map&lt;String, Map&lt;String, String&gt;&gt;
+&lt;/pre&gt;
+
+&lt;dl&gt;
+&lt;dt&gt;Main id&lt;/dt&gt;
+&lt;dd&gt;fully qualified id for each parser
+&lt;dl&gt;
+  &lt;dt&gt;id&lt;/dt&gt;&lt;dd&gt;fully qualified id for the parser&lt;/dd&gt;
+  &lt;dt&gt;name&lt;/dt&gt;&lt;dd&gt;readable name for the parser&lt;/dd&gt;
+  &lt;dt&gt;fileExtension&lt;/dt&gt;&lt;dd&gt;file extensions for this parser&lt;/dd&gt;
+&lt;/dl&gt;
+&lt;/dd&gt;
+&lt;/dl&gt;
+  
+The subparsers share the indexBuilder and objectReader.
+&lt;p&gt;This is used for example by the DTFJ parser which has to find out at run time which DTFJ implementations are available and to create an MAT parser definition for each one.&lt;/p&gt;
+
       </documentation>
    </annotation>
 
