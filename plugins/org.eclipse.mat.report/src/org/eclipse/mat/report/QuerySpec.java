@@ -16,41 +16,71 @@ import org.eclipse.mat.util.MessageUtil;
 
 /**
  * A container for a result of a query.
+ * Allows a link for a command to be executed from the report.
  */
 public class QuerySpec extends Spec
 {
     private String command;
     private IResult result;
 
+    /**
+     * Create a QuerySpec with no title
+     */
     public QuerySpec()
     {}
 
+    /**
+     * Create a QuerySpec with a title.
+     * @param name
+     */
     public QuerySpec(String name)
     {
         super(name);
     }
 
+    /**
+     * Create a QuerySpec with a title and a result of executing a query.
+     * @param name
+     * @param result
+     */
     public QuerySpec(String name, IResult result)
     {
         super(name);
         this.result = result;
     }
 
+    /**
+     * Get the command to be executed by Memory Analyzer when the user clicks on 
+     * a link in the report.
+     * @return
+     */
     public String getCommand()
     {
         return command;
     }
 
+    /**
+     * Sets a Memory Analyzer command to be executed when the user clicks on an icon in the report.
+     * @param query
+     */
     public void setCommand(String query)
     {
         this.command = query;
     }
 
+    /**
+     * Gets the body of this section which is the result of a query.
+     * @param result
+     */
     public IResult getResult()
     {
         return result;
     }
 
+    /**
+     * Sets the body of this section to the result of a query.
+     * @param result
+     */
     public void setResult(IResult result)
     {
         this.result = result;
