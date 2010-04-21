@@ -12,11 +12,23 @@ package org.eclipse.mat.ui.editor;
 
 import org.eclipse.jface.action.IToolBarManager;
 
+/**
+ * Used to contribute items to the tool bar of the editor.
+ */
 public interface IMultiPaneEditorContributor
 {
+    /**
+     * Called when the editor starts
+     */
     void init(MultiPaneEditor editor);
 
+    /**
+     * Called to enable the extension to add contributions to the toolbar.
+     */
     void contributeToToolbar(IToolBarManager manager);
 
+    /**
+     * Called when the editor stops
+     */
     void dispose();
 }

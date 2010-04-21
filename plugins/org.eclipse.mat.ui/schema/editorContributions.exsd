@@ -63,7 +63,7 @@ This extension point can be used to contribute items to the toolbar of the edito
          <attribute name="class" type="string" use="required">
             <annotation>
                <documentation>
-                  implementor of &lt;samp&gt;org.eclipse.mat.ui.editor.IMultiPaneEditorContributor&lt;/samp&gt; which adds the contributions
+                  implementor of &lt;a href=&quot;org/eclipse/mat/ui/editor/IMultiPaneEditorContributor.html&quot;&gt;&lt;samp&gt;org.eclipse.mat.ui.editor.IMultiPaneEditorContributor&lt;/samp&gt;&lt;/a&gt; which adds the contributions
                </documentation>
                <appInfo>
                   <meta.attribute kind="java" basedOn="org.eclipse.mat.ui.editor.IMultiPaneEditorContributor"/>
@@ -73,7 +73,7 @@ This extension point can be used to contribute items to the toolbar of the edito
          <attribute name="sequenceNr" type="string" use="required">
             <annotation>
                <documentation>
-                  a sequene number indicating the order in which contributions are added
+                  a sequence number indicating the order in which contributions are added
                </documentation>
             </annotation>
          </attribute>
@@ -114,8 +114,6 @@ This extension point can be used to contribute items to the toolbar of the edito
       </appInfo>
       <documentation>
          The value of the class attribute must represent an implementor of &lt;samp&gt;org.eclipse.mat.ui.editor.IMultiPaneEditorContributor&lt;/samp&gt;.
-
-
       </documentation>
    </annotation>
 

@@ -32,6 +32,9 @@ import org.eclipse.ui.IPropertyListener;
 import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.PartInitException;
 
+/**
+ * This is used to display a result of a query etc.
+ */
 public abstract class AbstractEditorPane implements IEditorPart
 {
     protected PaneConfiguration configuration;

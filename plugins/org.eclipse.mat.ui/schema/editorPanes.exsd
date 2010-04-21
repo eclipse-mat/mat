@@ -63,7 +63,7 @@ Each pane is tied to one or more implementations of IResult.&lt;/p&gt;
          <attribute name="class" type="string" use="required">
             <annotation>
                <documentation>
-                  implementor of &lt;samp&gt;org.eclipse.mat.ui.editor.AbstractEditorPane&lt;/samp&gt;
+                  implementor of &lt;a href=&quot;org/eclipse/mat/ui/editor/AbstractEditorPane.html&quot;&gt;&lt;samp&gt;org.eclipse.mat.ui.editor.AbstractEditorPane&lt;/samp&gt;&lt;/a&gt;
                </documentation>
                <appInfo>
                   <meta.attribute kind="java" basedOn="org.eclipse.mat.ui.editor.AbstractEditorPane:"/>
@@ -78,7 +78,7 @@ Each pane is tied to one or more implementations of IResult.&lt;/p&gt;
          <attribute name="type" type="string">
             <annotation>
                <documentation>
-                  the result of type &lt;samp&gt;org.eclipse.mat.ui.editor.AbstractEditorPane&lt;/samp&gt; which should be displayed by this pane
+                  the result of type &lt;a href=&quot;org/eclipse/mat/query/IResult.html&quot;&gt;&lt;samp&gt;org.eclipse.mat.query.IResult&lt;/samp&gt;&lt;/a&gt; which should be displayed by this pane
                </documentation>
                <appInfo>
                   <meta.attribute kind="java" basedOn=":org.eclipse.mat.query.IResult"/>
@@ -102,7 +102,7 @@ Each pane is tied to one or more implementations of IResult.&lt;/p&gt;
          <meta.section type="examples"/>
       </appInfo>
       <documentation>
-         Following is an example of a editor panbe declaration: 
+         Following is an example of a editor pane declaration: 
 &lt;p&gt;
 &lt;pre&gt;
    &lt;extension point=&quot;org.eclipse.mat.ui.editorPanes&quot;&gt;
@@ -112,7 +112,6 @@ Each pane is tied to one or more implementations of IResult.&lt;/p&gt;
    &lt;/extension&gt;
 &lt;/pre&gt;
 &lt;/p&gt;
-
       </documentation>
    </annotation>
 
@@ -122,9 +121,7 @@ Each pane is tied to one or more implementations of IResult.&lt;/p&gt;
       </appInfo>
       <documentation>
          The value of the class attribute must represent an implementor of &lt;samp&gt;org.eclipse.mat.ui.editor.AbstractEditorPane&lt;/samp&gt;.
-
-
-
+The result attribute shows which types of &lt;samp&gt;org.eclipse.mat.query.IResult&lt;/samp&gt; it handles.
       </documentation>
    </annotation>
 
