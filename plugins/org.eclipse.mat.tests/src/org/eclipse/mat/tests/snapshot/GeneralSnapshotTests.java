@@ -161,8 +161,8 @@ public class GeneralSnapshotTests
             for (int o : cls.getObjectIds())
             {
                 IObject obj = snapshot.getObject(o);
-                int n = obj.getUsedHeapSize();
-                int n2 = snapshot.getHeapSize(o);
+                long n = obj.getUsedHeapSize();
+                long n2 = snapshot.getHeapSize(o);
                 if (n != n2)
                 {
                     assertEquals("snapshot object heap size / object heap size "+obj, n, n2);
