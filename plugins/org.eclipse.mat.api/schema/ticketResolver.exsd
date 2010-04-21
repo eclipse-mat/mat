@@ -50,7 +50,7 @@ to file a precise bug report.&lt;/p&gt;
          <attribute name="impl" type="string" use="required">
             <annotation>
                <documentation>
-                  implementor of &lt;samp&gt;org.eclipse.mat.snapshot.extension.ITroubleTicketResolver&lt;/samp&gt;
+                  implementor of &lt;a href=&quot;org/eclipse/mat/snapshot/extension/ITroubleTicketResolver.html&quot;&gt;&lt;samp&gt;org.eclipse.mat.snapshot.extension.ITroubleTicketResolver&lt;/samp&gt;&lt;/a&gt;.
                </documentation>
                <appInfo>
                   <meta.attribute kind="java" basedOn=":org.eclipse.mat.snapshot.extension.ITroubleTicketResolver"/>

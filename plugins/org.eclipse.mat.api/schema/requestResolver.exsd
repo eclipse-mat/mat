@@ -59,7 +59,7 @@ provide a summary and detail page.&lt;/p&gt;
          <attribute name="impl" type="string" use="required">
             <annotation>
                <documentation>
-                  implementor of &lt;samp&gt;org.eclipse.mat.snapshot.extension.IRequestDetailsResolver&lt;/samp&gt; annotated with &lt;samp&gt;@Subject&lt;/samp&gt; or &lt;samp&gt;@Subjects&lt;/samp&gt;
+                  implementor of &lt;a href=&quot;org/eclipse/mat/snapshot/extension/IRequestDetailsResolver.html&quot;&gt;&lt;samp&gt;org.eclipse.mat.snapshot.extension.IRequestDetailsResolver&lt;/samp&gt;&lt;/a&gt; annotated with &lt;samp&gt;@Subject&lt;/samp&gt; or &lt;samp&gt;@Subjects&lt;/samp&gt;
                </documentation>
                <appInfo>
                   <meta.attribute kind="java" basedOn=":org.eclipse.mat.snapshot.extension.IRequestDetailsResolver"/>
@@ -123,7 +123,7 @@ resolver for all instances of type &quot;org.mortbay.jetty.Request&quot;. In thi
          <meta.section type="apiInfo"/>
       </appInfo>
       <documentation>
-         The value of the impl attribute must represent an implementor of &lt;samp&gt;org.eclipse.mat.snapshot.extension.IRequestDetailsResolver&lt;/samp&gt;.
+         The value of the impl attribute must represent an implementor of &lt;a href=&quot;org/eclipse/mat/snapshot/extension/IRequestDetailsResolver.html&quot;&gt; &lt;samp&gt;org.eclipse.mat.snapshot.extension.IRequestDetailsResolver&lt;/samp&gt;&lt;/a&gt;.
       </documentation>
    </annotation>
 

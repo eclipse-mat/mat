@@ -59,10 +59,10 @@ authenticated session, etc. etc.&lt;/p&gt;
          <attribute name="impl" type="string" use="required">
             <annotation>
                <documentation>
-                  implementor of &lt;samp&gt;org.eclipse.mat.snapshot.model.IClassSpecificNameResolver&lt;/samp&gt; annotated with &lt;samp&gt;@Subject&lt;/samp&gt; or &lt;samp&gt;@Subjects&lt;/samp&gt;
+                  implementor of &lt;a href=&quot;org/eclipse/mat/snapshot/extension/IClassSpecificNameResolver.html&quot;&gt;&lt;samp&gt;org.eclipse.mat.snapshot.extension.IClassSpecificNameResolver&lt;/samp&gt;&lt;/a&gt; annotated with &lt;samp&gt;@Subject&lt;/samp&gt; or &lt;samp&gt;@Subjects&lt;/samp&gt;.
                </documentation>
                <appInfo>
-                  <meta.attribute kind="java" basedOn=":org.eclipse.mat.snapshot.model.IClassSpecificNameResolver"/>
+                  <meta.attribute kind="java" basedOn=":org.eclipse.mat.snapshot.extension.IClassSpecificNameResolver"/>
                </appInfo>
             </annotation>
          </attribute>
@@ -109,7 +109,6 @@ The &lt;samp&gt;@Subject&lt;/samp&gt; tells the Memory Analyzer, to use this nam
 for all instances of type &quot;java.lang.Thread&quot;. The implementation then extracts
 the name attribute (which is a String or a char[] object, depending on the
 implementation of the JDK) and returns its class specific name.
-
       </documentation>
    </annotation>
 

@@ -59,7 +59,7 @@ it in the overview columns and/or in the details page of a thread.&lt;/p&gt;
          <attribute name="impl" type="string" use="required">
             <annotation>
                <documentation>
-                  implementor of &lt;samp&gt;org.eclipse.mat.snapshot.extension.IThreadDetailsResolver&lt;/samp&gt;
+                  implementor of &lt;a href=&quot;org/eclipse/mat/snapshot/extension/IThreadDetailsResolver.html&quot;&gt;&lt;samp&gt;org.eclipse.mat.snapshot.extension.IThreadDetailsResolver&lt;/samp&gt;&lt;/a&gt;.
                </documentation>
                <appInfo>
                   <meta.attribute kind="java" basedOn=":org.eclipse.mat.snapshot.extension.IThreadDetailsResolver"/>
@@ -91,7 +91,6 @@ it in the overview columns and/or in the details page of a thread.&lt;/p&gt;
    &lt;/extension&gt;
 &lt;/pre&gt;
 &lt;/p&gt;
-
       </documentation>
    </annotation>
 
@@ -101,10 +100,8 @@ it in the overview columns and/or in the details page of a thread.&lt;/p&gt;
       </appInfo>
       <documentation>
          
-
       </documentation>
    </annotation>
-
 
    <annotation>
       <appInfo>

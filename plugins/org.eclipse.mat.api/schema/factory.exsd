@@ -53,10 +53,10 @@ to create snapshot instances is packaged in a separate plug-in.
          <attribute name="impl" type="string" use="required">
             <annotation>
                <documentation>
-                  implementor of &lt;samp&gt;org.eclipse.mat.snapshot.SnapshotFactory$Implementation&lt;/samp&gt;
+                  implementor of &lt;a href=org/eclipse/mat/snapshot/SnapshotFactory.html&gt;&lt;samp&gt;org.eclipse.mat.snapshot.SnapshotFactory&lt;/samp&gt;&lt;/a&gt;.
                </documentation>
                <appInfo>
-                  <meta.attribute kind="java" basedOn=":org.eclipse.mat.snapshot.SnapshotFactory$Implementation"/>
+                  <meta.attribute kind="java" basedOn=":org.eclipse.mat.snapshot.SnapshotFactory"/>
                </appInfo>
             </annotation>
          </attribute>
@@ -88,13 +88,22 @@ to create snapshot instances is packaged in a separate plug-in.
       </documentation>
    </annotation>
 
+   <annotation>
+      <appInfo>
+         <meta.section type="apiInfo"/>
+      </appInfo>
+      <documentation>
+         The value of the impl attribute must represent an implementor of &lt;a href=org/eclipse/mat/snapshot/SnapshotFactory.html&gt;&lt;samp&gt;org.eclipse.mat.snapshot.SnapshotFactory&lt;/samp&gt;&lt;/a&gt;.
+
+      </documentation>
+   </annotation>
 
    <annotation>
       <appInfo>
          <meta.section type="implementation"/>
       </appInfo>
       <documentation>
-         The default implementation lives in the &lt;samp&gt;org.eclipse.mat.parser&lt;/samp&gt; plug-in.
+         The default implementation &lt;code&gt;org.eclipse.mat.parser.internal.SnapshotFactoryImpl&lt;/code&gt; lives in the &lt;samp&gt;org.eclipse.mat.parser&lt;/samp&gt; plug-in.
       </documentation>
    </annotation>
 

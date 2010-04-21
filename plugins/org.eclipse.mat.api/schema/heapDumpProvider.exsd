@@ -47,7 +47,7 @@
          <attribute name="impl" type="string" use="required">
             <annotation>
                <documentation>
-                  
+                  implements &lt;a href=&quot;org/eclipse/mat/snapshot/acquire/IHeapDumpProvider.html&quot;&gt;&lt;code&gt;org.eclipse.mat.snapshot.acquire.IHeapDumpProvider&lt;/code&gt;&lt;/a&gt;.
                </documentation>
                <appInfo>
                   <meta.attribute kind="java" basedOn=":org.eclipse.mat.snapshot.acquire.IHeapDumpProvider"/>
@@ -111,7 +111,6 @@ public class MyVmInfo extends VmInfo
     @Argument
     public DumpType type = DumpType.DUMP1;
 &lt;/pre&gt;
-
       </documentation>
    </annotation>
 
@@ -129,7 +128,7 @@ public class MyVmInfo extends VmInfo
          <meta.section type="implementation"/>
       </appInfo>
       <documentation>
-         The standard supplied heap dump providers are for Oracle/Sun JVMs and for IBM Virtual Machines for Java.
+         The standard supplied heap dump providers are for Oracle/Sun JVMs and for IBM Virtual Machines for Java. They are &lt;code&gt;org.eclipse.mat.hprof.acquire.JMapHeapDumpProvider&lt;/code&gt; and &lt;code&gt;org.eclipse.mat.ibmvm.acquire.DumpFactory&lt;/code&gt; (actually an IExecutableExtensionFactory).
       </documentation>
    </annotation>
 
