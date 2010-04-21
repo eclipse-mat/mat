@@ -56,7 +56,7 @@ context menu of a heap object.
          <attribute name="impl" type="string" use="required">
             <annotation>
                <documentation>
-                  implementor of &lt;samp&gt;org.eclipse.mat.query.IQuery&lt;/samp&gt;
+                  implementor of &lt;a href=&quot;org/eclipse/mat/query/IQuery.html&quot;&gt;&lt;samp&gt;org.eclipse.mat.query.IQuery&lt;/samp&gt;&lt;/a&gt;
                </documentation>
                <appInfo>
                   <meta.attribute kind="java" basedOn=":org.eclipse.mat.query.IQuery"/>
@@ -97,6 +97,18 @@ context menu of a heap object.
       </appInfo>
       <documentation>
          The value of the impl attribute must represent an implementor of &lt;samp&gt;org.eclipse.mat.query.IQuery&lt;/samp&gt;.
+The public fields in the query can be tagged with the &lt;code&gt;@Argument&lt;/code&gt; annotation so they can be filled in by the query wizard. Argument types include
+&lt;dl&gt;
+&lt;dt&gt;ISnapshot&lt;/dt&gt;
+&lt;dd&gt;the snapshot&lt;/dd&gt;
+&lt;dt&gt;IHeapObjectArgument&lt;/dt&gt;
+&lt;dd&gt;one or more objects&lt;/dd&gt;
+&lt;dt&gt;int&lt;/dt&gt;
+&lt;dd&gt;a single object&lt;/dd&gt;
+&lt;dt&gt;boolean&lt;/dt&gt;
+&lt;dd&gt;a flag&lt;/dd&gt;
+&lt;/dl&gt;
+Queries can be tagged with @Name @Help @HelpURL @Icon @Menu @Category @CommandName. These annotations can also be held in an annotations.properties file for ease of translation.
       </documentation>
    </annotation>
 

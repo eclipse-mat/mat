@@ -57,7 +57,7 @@ MemoryAnalyzer.exe &lt;heap dump&gt; &lt;report id&gt;
          <attribute name="id" type="string" use="required">
             <annotation>
                <documentation>
-                  The unique id of the report. Used when running the report from the command line or when includin the report into another report via the template element.
+                  The unique id of the report. Used when running the report from the command line or when including the report into another report via the template element.
                </documentation>
             </annotation>
          </attribute>
@@ -112,7 +112,7 @@ MemoryAnalyzer.exe &lt;heap dump&gt; &lt;report id&gt;
       &lt;report id=&quot;suspects&quot; name=&quot;Leak Suspects&quot;
               description=&quot;includes leak suspects and a system overview&quot;
               file=&quot;META-INF/reports/suspects.xml&quot; /&gt;
-	&lt;/extension&gt;
+ &lt;/extension&gt;
 &lt;/pre&gt;
 &lt;/p&gt;
 Following is a sample report:
@@ -123,7 +123,7 @@ Following is a sample report:
       &lt;param key=&quot;html.separate_file&quot; value=&quot;true&quot; /&gt;
       &lt;template&gt;org.eclipse.mat.api:overview&lt;/template&gt;
    &lt;/section&gt;
-	
+ 
    &lt;query name=&quot;Leaks&quot;&gt;
       &lt;command&gt;leakhunter&lt;/command&gt;
    &lt;/query&gt;
@@ -134,7 +134,6 @@ In short: sections contain other sections or queries. Queries specify the comman
 Sections can contain a template element which specifies another report to be included here.
       </documentation>
    </annotation>
-
 
    <annotation>
       <appInfo>

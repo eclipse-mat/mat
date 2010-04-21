@@ -55,10 +55,10 @@ This is the extension point to add alternative renderer.
          <attribute name="impl" type="string" use="required">
             <annotation>
                <documentation>
-                  implementor of &lt;samp&gt;org.eclipse.mat.impl.test.IOutputter&lt;/samp&gt;
+                  implementor of &lt;a href=&quot;org/eclipse/mat/report/IOutputter.html&quot;&gt;&lt;samp&gt;org.eclipse.mat.report.IOutputter&lt;/samp&gt;&lt;/a&gt;.
                </documentation>
                <appInfo>
-                  <meta.attribute kind="java" basedOn=":org.eclipse.mat.impl.test.IOutputter"/>
+                  <meta.attribute kind="java" basedOn=":org.eclipse.mat.report.IOutputter"/>
                </appInfo>
             </annotation>
          </attribute>
@@ -108,7 +108,6 @@ In the report, use the &quot;format&quot; parameter to specify the output format
    &lt;/query&gt;
 &lt;/pre&gt;
 &lt;/p&gt;
-
       </documentation>
    </annotation>
 
