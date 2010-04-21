@@ -1646,7 +1646,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 long frameTypeAddr = cls.getObjectAddress();
 
                 // set instance size of each stack frame
-                int size = indexToSize.get(objId);
+                long size = indexToSize.getSize(objId);
                 // if not in the variable sized objects table then use the fixed size
                 if (size == 0)
                     size = cls.getHeapSizePerInstance();
@@ -2445,7 +2445,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                             if (frameAddress != 0 && frameId >= 0)
                             {
                                 // Set the frame size
-                                int size = (int)Math.abs(searchSize);
+                                long size = Math.abs(searchSize);
                                 setFrameSize(frameId, size);
                                 // Mark the frame
                                 // Thread object could be null if the thread
@@ -2515,13 +2515,13 @@ public class DTFJIndexBuilder implements IIndexBuilder
      * @param frameId
      * @param size in bytes
      */
-    private void setFrameSize(int frameId, int size)
+    private void setFrameSize(int frameId, long size)
     {
         int clsId = objectToClass.get(frameId);
         ClassImpl cls = idToClass.get(clsId);
         if (cls != null && cls.getName().contains(METHOD_NAME))
         {
-            int prevSize = cls.getHeapSizePerInstance();
+            long prevSize = cls.getHeapSizePerInstance();
             
             if (prevSize <= 0 || prevSize == JAVA_STACK_FRAME_SIZE)
             {
@@ -2836,8 +2836,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 else
                 {
                     // Allow for objects of the same type with different sizes
-                    int oldSize = cls.getHeapSizePerInstance();
-                    if (oldSize >= 0 || size != (int)size)
+                    long oldSize = cls.getHeapSizePerInstance();
+                    if (oldSize >= 0)
                     {
                         // Different size to before, so use the array size table
                         if (oldSize != size)
@@ -2846,7 +2846,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     else
                     {
                         // First time, so set the size
-                        cls.setHeapSizePerInstance((int)size);
+                        cls.setHeapSizePerInstance(size);
                     }
                     // For calculating purge sizes
                     objectToSize.set(objId, size);
@@ -5154,7 +5154,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     // No thread information so make a global root
                     addRoot(gc, frameAddress, threadAddress, rootType);
                 }
-                int size = (int) Math.abs(searchSize);
+                long size = Math.abs(searchSize);
                 setFrameSize(frameId, size);
             }
             else
@@ -5256,10 +5256,9 @@ public class DTFJIndexBuilder implements IIndexBuilder
             JavaObject object = j2.getObject();
             if (object != null)
             {
-                // Shouldn't overflow an int
                 size = getObjectSize(object, pointerSize);
-                if (jlc.getHeapSizePerInstance() < 0 && size == (int)size )
-                    jlc.setHeapSizePerInstance((int)size);
+                if (jlc.getHeapSizePerInstance() < 0)
+                    jlc.setHeapSizePerInstance(size);
             }
         }
         catch (IllegalArgumentException e)
@@ -5275,7 +5274,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         }
         // TODO should we use segments to get the RAM/ROM class size?
         size += classSize(j2, listener);
-        ci.setUsedHeapSize((int)size);
+        ci.setUsedHeapSize(size);
         // For calculating purge sizes
         objectToSize.set(ci.getObjectId(), size);
         jlc.addInstance(size);
@@ -5284,7 +5283,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                         + ci.getSuperClassId() + " size " + ci.getUsedHeapSize()); //$NON-NLS-1$
     }
 
-    private int classSize(JavaClass jc, IProgressListener listener)
+    private long classSize(JavaClass jc, IProgressListener listener)
     {
         long size = 0;
         try
@@ -5309,12 +5308,12 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 size += getMethodSize(jc, jm, listener);
             }
         }
-        return (int) size;
+        return size;
     }
 
-    private int getMethodSize(JavaClass jc, JavaMethod jm, IProgressListener listener)
+    private long getMethodSize(JavaClass jc, JavaMethod jm, IProgressListener listener)
     {
-        int size = 0;
+        long size = 0;
         for (Iterator<?> j = jm.getBytecodeSections(); j.hasNext();)
         {
             Object next2 = j.next();
@@ -6471,7 +6470,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         hm.put(ci.getObjectId(), ci);
 
         ci.setClassInstance(jlc);
-        int size;
+        long size;
         if (getExtraInfo2)
         {
             size = getMethodSize(jc, m, listener);

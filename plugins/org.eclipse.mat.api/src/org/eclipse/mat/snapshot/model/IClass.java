@@ -65,7 +65,7 @@ public interface IClass extends IObject
      * Returns the heap size of one instance of this class. Not valid if this
      * class represents an array.
      */
-    public int getHeapSizePerInstance();
+    public long getHeapSizePerInstance();
 
     /**
      * Returns the retained size of all objects of this instance including the

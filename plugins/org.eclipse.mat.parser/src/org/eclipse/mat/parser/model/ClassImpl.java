@@ -219,14 +219,14 @@ public class ClassImpl extends AbstractObjectImpl implements IClass, Comparable<
         return instanceCount;
     }
 
-    public int getHeapSizePerInstance()
+    public long getHeapSizePerInstance()
     {
         return instanceSize;
     }
 
-    public void setHeapSizePerInstance(int size)
+    public void setHeapSizePerInstance(long size)
     {
-        instanceSize = size;
+        instanceSize = (int)Math.min(size, Integer.MAX_VALUE);
     }
 
     public String getName()
@@ -360,9 +360,9 @@ public class ClassImpl extends AbstractObjectImpl implements IClass, Comparable<
         subClasses.remove(clazz);
     }
 
-    public void setUsedHeapSize(int usedHeapSize)
+    public void setUsedHeapSize(long usedHeapSize)
     {
-        this.usedHeapSize = usedHeapSize;
+        this.usedHeapSize = (int)Math.min(usedHeapSize, Integer.MAX_VALUE);
     }
 
     public boolean doesExtend(String className) throws SnapshotException
