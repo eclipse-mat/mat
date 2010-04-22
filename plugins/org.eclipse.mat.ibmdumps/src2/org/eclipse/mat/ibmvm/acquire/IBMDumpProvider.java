@@ -558,7 +558,7 @@ public class IBMDumpProvider extends BaseProvider
         {
             IBMVmInfo vminfo = (IBMVmInfo)info;
             String vm = vminfo.getPidName();
-            String vm2 = vm + "," + info.getProposedFileName() + "," + info.getDescription();  //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+            String vm2 = vm + "," + info.getProposedFileName() + "," + info.getDescription();  //$NON-NLS-1$//$NON-NLS-2$
             if (s.length < 3)
             {
                 System.out.println(vm2);

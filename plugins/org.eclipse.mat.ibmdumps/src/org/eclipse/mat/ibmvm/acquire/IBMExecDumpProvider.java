@@ -178,7 +178,6 @@ public class IBMExecDumpProvider extends BaseProvider
         if (javaExec != null)
         {
             javaDir = javaExec.getParent();
-            System.out.println("argument "+javaexecutable+" "+javaDir);
         }
         else
         {
@@ -188,7 +187,6 @@ public class IBMExecDumpProvider extends BaseProvider
                 javaDir = defaultJavaDir();
 
             javaExec = javaExec(javaDir);
-            System.out.println("find "+javaExec+" "+javaDir);
         }
 
         ret = execGetVMs(javaExec, listener);
