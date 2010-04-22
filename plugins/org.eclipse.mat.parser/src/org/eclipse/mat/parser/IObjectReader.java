@@ -36,7 +36,7 @@ public interface IObjectReader
      * Get detailed information about an object
      * @param objectId the object id
      * @param snapshot the snapshot
-     * @return an IObject such as {@link InstanceImpl}, {@link ObjectArrayImpl}, {@link PrimitiveArrayImpl}, {@link ClassLoaderImpl}
+     * @return an IObject such as {@link org.eclipse.mat.parser.model.InstanceImpl}, {@link org.eclipse.mat.parser.model.ObjectArrayImpl}, {@link org.eclipse.mat.parser.model.PrimitiveArrayImpl}, {@link org.eclipse.mat.parser.model.ClassLoaderImpl}
      * @throws SnapshotException
      * @throws IOException
      */
