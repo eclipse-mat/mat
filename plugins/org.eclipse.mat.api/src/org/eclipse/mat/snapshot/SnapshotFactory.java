@@ -172,7 +172,7 @@ public final class SnapshotFactory
 
     /**
      * Get the types of the parsers.
-     * @return
+     * @return list of formats that the parsers can understand
      */
     public static List<SnapshotFormat> getSupportedFormats()
     {

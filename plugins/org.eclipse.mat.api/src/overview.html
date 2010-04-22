@@ -1,0 +1,67 @@
+<HTML><BODY>
+Memory Analyzer is an Eclipse application for solving memory problems in user applications based on a snapshot of the contents of the heap.
+It has several extension points for adding additional function.
+The main arrangement of plug-ins is
+<ul>
+  <li><samp>org.eclipse.mat.report</samp>
+  provides report building capabilities.
+    <ol>
+      <li><a href="org_eclipse_mat_report_query.html">query extension point</a></li>
+      <li><a href="org_eclipse_mat_report_renderer.html">rendering extension point</a></li>
+      <li><a href="org_eclipse_mat_report_report.html">report extension point</a></li>
+    </ol>
+    <ul>
+      <li><samp>org.eclipse.mat.api</samp>
+      allows access to data from the snapshot, such as objects and classes. It also holds the standard queries.
+      <ol>
+        <li><a href="org_eclipse_mat_api_factory.html">factory extension point</a></li>
+        <li><a href="org_eclipse_mat_api_heapDumpProvider.html">trigger heap dump extension point</a></li>
+        <li><a href="org_eclipse_mat_api_nameResolver.html">name resolver extension point</a> for object describing</li>
+        <li><a href="org_eclipse_mat_api_requestResolver.html">request resolver extension point</a></li>
+        <li><a href="org_eclipse_mat_api_threadResolver.html">thread resolver extension point</a></li>
+        <li><a href="org_eclipse_mat_api_ticketResolver.html">ticketResolver extension point</a></li>
+      </ol>
+      <ul>
+        <li><samp>org.eclipse.mat.parser</samp>
+          controls the parsing of a heap dump into a snapshot, and holds the implementations of the snapshot objects and indexes. 
+          <ul>
+            <li><samp>org.eclipse.mat.dtfj</samp>
+            parses IBM DTFJ based dumps.
+              <ol>
+                <li>Calls DTFJ extensions from IBM using the DTFJ API extension point from IBM</li>
+              </ol>
+            </li>
+            <li><samp>org.eclipse.mat.hprof</samp>
+            parses HPROF based dumps.
+              <ol>
+                <li><a href="org_eclipse_mat_api_hprof_enhancer.html">HPROF enhancement extension point</a></li>
+              </ol>
+            </li>
+          </ul>
+        </li>
+        <li><samp>org.eclipse.mat.ibmdump</samp>
+        creates dumps from other IBM VMs running on the system on request for analysis by MAT.
+        </li>
+        <li><samp>org.eclipse.mat.jdt</samp>
+        links classes in the snapshot to class source code in the IDE.
+        </li>
+        <li><samp>org.eclipse.mat.chart</samp>
+        controls the generation of pie charts.
+          <ul>
+            <li><samp>org.eclipse.mat.chartui</samp> also depends on <samp>org.eclipse.mat.ui</samp>
+            displays pie charts.
+            </li>
+          </ul>
+        </li>
+        <li><samp>org.eclipse.mat.ui</samp>
+          <ol>
+            <li><a href="org_eclipse_mat_ui_editorContributions.html">contributions to the editor tool bar extension point</a></li>
+            <li><a href="org_eclipse_mat_ui_editorPanes.html">new panes for results extension point</a></li>
+          </ol>
+        </li>
+      </ul>
+    </li>
+  </ul>
+ </li>
+</ul>
+</BODY></HTML>
