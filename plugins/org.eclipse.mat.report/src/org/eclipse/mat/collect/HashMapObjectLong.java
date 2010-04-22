@@ -176,7 +176,7 @@ public final class HashMapObjectLong<E> implements Serializable
 
     /**
      * Get all the used keys.
-     * Consider using {@link getAllKeys(T[] a)} for better type safety
+     * Consider using {@link #getAllKeys(Object[])} for better type safety
      * @return an array of the used keys
      */
     public Object[] getAllKeys()

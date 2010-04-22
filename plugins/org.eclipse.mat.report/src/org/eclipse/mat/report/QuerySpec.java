@@ -52,7 +52,7 @@ public class QuerySpec extends Spec
     /**
      * Get the command to be executed by Memory Analyzer when the user clicks on 
      * a link in the report.
-     * @return
+     * @return the command
      */
     public String getCommand()
     {
@@ -70,7 +70,7 @@ public class QuerySpec extends Spec
 
     /**
      * Gets the body of this section which is the result of a query.
-     * @param result
+     * @return the body of the section
      */
     public IResult getResult()
     {

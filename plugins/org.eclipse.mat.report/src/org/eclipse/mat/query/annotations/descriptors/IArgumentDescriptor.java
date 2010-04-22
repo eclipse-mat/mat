@@ -95,7 +95,7 @@ public interface IArgumentDescriptor
 	public String getHelp();
 
 	/**
-	 * Get the {@link Advice} provided with the annotation
+	 * Get the {@link org.eclipse.mat.query.annotations.Argument.Advice} provided with the annotation
 	 * @return the Advice
 	 */
 	public Argument.Advice getAdvice();

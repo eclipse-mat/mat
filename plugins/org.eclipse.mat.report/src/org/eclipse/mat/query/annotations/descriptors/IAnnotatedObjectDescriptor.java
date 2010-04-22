@@ -28,7 +28,7 @@ public interface IAnnotatedObjectDescriptor
 	/**
 	 * 
 	 * @param context
-	 * @return
+	 * @return the usage information for that query
 	 */
 	public String getUsage(IQueryContext context);
 	

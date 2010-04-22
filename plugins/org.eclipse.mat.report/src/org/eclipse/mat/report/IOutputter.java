@@ -20,8 +20,7 @@ import org.eclipse.mat.query.IResult;
 
 /**
  * Converts a result to a report.
- * See extension point org.eclipse.mat.report.renderer
- * {@link schema/renderer.exsd}
+ * See extension point <a href="../../../../schema/renderer.exsd">org.eclipse.mat.report.renderer</a>
  */
 public interface IOutputter
 {

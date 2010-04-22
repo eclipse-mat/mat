@@ -93,7 +93,7 @@ public interface Params
 
         /**
          * Include embedded report details. 
-         * A result can have embedded details {@link DetailResultProvider}. If set
+         * A result can have embedded details {@link org.eclipse.mat.query.DetailResultProvider}. If set
          * to "false", those detail results are not included in the HTML output.
          */
         String RENDER_DETAILS = "html.render_details";
