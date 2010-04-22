@@ -96,6 +96,7 @@ import com.ibm.dtfj.java.JavaThread;
 import com.ibm.dtfj.runtime.ManagedRuntime;
 
 /**
+ * Reads and parses a DTFJ dump, building indexes which are then used by MAT to create a snapshot.
  * @author ajohnson
  */
 public class DTFJIndexBuilder implements IIndexBuilder

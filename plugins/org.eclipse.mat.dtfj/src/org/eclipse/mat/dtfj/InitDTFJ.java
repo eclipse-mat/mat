@@ -30,6 +30,11 @@ import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.content.IContentType;
 import org.osgi.framework.BundleContext;
 
+/**
+ * Controls the loading of this plugin and finds the available DTFJ implementations.
+ * @author ajohnson
+ *
+ */
 public class InitDTFJ extends Plugin implements IRegistryChangeListener
 {
 

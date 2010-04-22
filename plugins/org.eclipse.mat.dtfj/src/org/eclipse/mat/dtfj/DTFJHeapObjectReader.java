@@ -51,6 +51,7 @@ import com.ibm.dtfj.java.JavaStackFrame;
 import com.ibm.dtfj.java.JavaThread;
 
 /**
+ * Reads details of an object from a DTFJ dump.
  * @author ajohnson
  */
 public class DTFJHeapObjectReader implements IObjectReader

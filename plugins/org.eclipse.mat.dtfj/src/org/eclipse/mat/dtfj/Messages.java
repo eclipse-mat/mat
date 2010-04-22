@@ -12,6 +12,11 @@ package org.eclipse.mat.dtfj;
 
 import org.eclipse.osgi.util.NLS;
 
+/**
+ * Messages for the DTFJ parser.
+ * @author ajohnson
+ *
+ */
 public class Messages extends NLS
 {
     private static final String BUNDLE_NAME = "org.eclipse.mat.dtfj.messages"; //$NON-NLS-1$
