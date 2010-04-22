@@ -28,6 +28,13 @@ import org.eclipse.mat.snapshot.acquire.VmInfo;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.IProgressListener.Severity;
 
+/**
+ * Enables the creation of dumps from IBM VMs when a non-IBM VM
+ * or old IBM VM is used to run Memory Analyzer. A new IBM VM is
+ * used as a helper VM.
+ * @author ajohnson
+ *
+ */
 @Name("IBM Dump (using helper VM)")
 public class IBMExecDumpProvider extends BaseProvider
 {

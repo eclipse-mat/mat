@@ -24,7 +24,13 @@ import java.util.zip.ZipOutputStream;
 
 import org.eclipse.mat.snapshot.acquire.IHeapDumpProvider;
 
-public abstract class BaseProvider implements IHeapDumpProvider
+/**
+ * The base dump provider class.
+ * Providers helper method to copy class files and create a jar to run with another VM.
+ * @author ajohnson
+ *
+ */
+abstract class BaseProvider implements IHeapDumpProvider
 {
 
     static final int SLEEP_TIMEOUT = 1000; // milliseconds
@@ -34,6 +40,16 @@ public abstract class BaseProvider implements IHeapDumpProvider
     static final int GROWING_COUNT = (CREATE_COUNT + GROW_COUNT) * 2; // progress = 67% file length, 33% waiting time
     static final int TOTAL_WORK = CREATE_COUNT + GROWING_COUNT + GROW_COUNT;
 
+    /**
+     * Make a temporary jar containing the requested files
+     * @param jarname the output jar name
+     * @param metaEntry the meta file tag to prepend to the name of the first class file
+     * @param classesNames names of classes/files
+     * @param classes list of classes
+     * @return the jar file
+     * @throws IOException
+     * @throws FileNotFoundException
+     */
     static File makeJar(String jarname, String metaEntry, String classesNames[], Class<?>[] classes) throws IOException,
                     FileNotFoundException
     {
@@ -69,6 +85,13 @@ public abstract class BaseProvider implements IHeapDumpProvider
         return jarfile;
     }
 
+    /**
+     * Add a single class to a jar
+     * @param zo where to write the class
+     * @param cls example class in the same package
+     * @param agent name of the class (without .class)
+     * @throws IOException
+     */
     private static void addClassToJar(ZipOutputStream zo, Class<?> cls, String agent) throws IOException
     {
         ZipEntry ze;
@@ -94,6 +117,13 @@ public abstract class BaseProvider implements IHeapDumpProvider
         zo.closeEntry();
     }
 
+    /**
+     * Add the messages to the jar
+     * @param zo where to write the message file
+     * @param rb where to retrieve the message file
+     * @param agent the name of the message file
+     * @throws IOException
+     */
     private static void addMessagesToJar(ZipOutputStream zo, ResourceBundle rb, String agent) throws IOException
     {
         ZipEntry ze;

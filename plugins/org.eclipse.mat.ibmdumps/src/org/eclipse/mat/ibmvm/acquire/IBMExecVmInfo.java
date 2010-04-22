@@ -14,6 +14,11 @@ import java.io.File;
 
 import org.eclipse.mat.query.annotations.Argument;
 
+/**
+ * Information about an IBM VM, for use when using a helper VM to create a dump.
+ * @author ajohnson
+ *
+ */
 public class IBMExecVmInfo extends IBMVmInfo
 {
     @Argument

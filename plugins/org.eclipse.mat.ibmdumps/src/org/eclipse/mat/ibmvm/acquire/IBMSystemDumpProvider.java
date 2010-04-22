@@ -19,13 +19,15 @@ import java.text.MessageFormat;
 import java.util.Collection;
 
 import org.eclipse.mat.SnapshotException;
-import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.util.IProgressListener;
 
-@Name("IBM System Dump")
-public class IBMSystemDumpProvider extends IBMDumpProvider
+/**
+ * Helper dump provider - the IBMDumpProvider delegates to this to do the work for system dumps.
+ * @author ajohnson
+ */
+class IBMSystemDumpProvider extends IBMDumpProvider
 {
-    public IBMSystemDumpProvider()
+    IBMSystemDumpProvider()
     {}
 
     @Override

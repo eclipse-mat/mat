@@ -204,7 +204,7 @@ public class IBMDumpProvider extends BaseProvider
         }
     }
 
-    public IBMDumpProvider()
+    IBMDumpProvider()
     {
     }
 
@@ -440,9 +440,9 @@ public class IBMDumpProvider extends BaseProvider
      *            File that we already know exist in the directory
      * @param newFiles
      *            newly discovered files, in discovery/modification order
-     * @return
+     * @return a list of new files in the directory
      */
-    public List<File> files(File udir, final Collection<File> previousFiles, List<File> newFiles)
+    List<File> files(File udir, final Collection<File> previousFiles, List<File> newFiles)
     {
         File f2[] = udir.listFiles(new NewFileFilter(previousFiles));
         List<File> new2 = Arrays.asList(f2);
@@ -453,7 +453,7 @@ public class IBMDumpProvider extends BaseProvider
         return newFiles;
     }
 
-    public long fileLengths(File udir, Collection<File> previous, List<File> newFiles, int maxFiles)
+    long fileLengths(File udir, Collection<File> previous, List<File> newFiles, int maxFiles)
     {
         Collection<File> nw = files(udir, previous, newFiles);
         long l = 0;
@@ -539,15 +539,15 @@ public class IBMDumpProvider extends BaseProvider
      * Lists VMs or acquires a dump.
      * Used when attach API not usable from the MAT process.
      * 
-     * @param s[0] dump type (Heap,System)
-     *        s[1] VM id = PID,description
-     *        s[2] dump name
-     * e.g.
-     * heap+java
-     * Output
-     * dump filename
-     * or
-     * PID,proposed file name,description
+     * @param s <ul><li>[0] dump type (Heap=heap+java,System=system)</li>
+     *        <li>[1] VM id = PID,description</li>
+     *        <li>[2] dump name</li>
+     *        </ul>
+     * Output<ul>
+     * <li>dump filename</li>
+     * <li>or list of all processes (if argument list is empty)
+     * <samp>PID,proposed file name,description</samp></li>
+     * </ul>
      */
     public static void main(String s[]) throws Exception
     {
@@ -581,7 +581,7 @@ public class IBMDumpProvider extends BaseProvider
         }
     }
     
-    public IBMDumpProvider getDumpProvider(IBMVmInfo info)
+    IBMDumpProvider getDumpProvider(IBMVmInfo info)
     {
         if (getClass() != IBMDumpProvider.class)
            return this;

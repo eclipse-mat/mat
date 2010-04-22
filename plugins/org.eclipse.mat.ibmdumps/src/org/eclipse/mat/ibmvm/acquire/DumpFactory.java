@@ -23,6 +23,10 @@ import org.eclipse.core.runtime.IExecutableExtensionFactory;
 public class DumpFactory implements IExecutableExtensionFactory
 {
 
+    /**
+     * Actually create the appropriate dump provider.
+     * @return the new dump provider
+     */
     public Object create() throws CoreException
     {
         IBMDumpProvider ret = new IBMDumpProvider();

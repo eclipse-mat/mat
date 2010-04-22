@@ -13,11 +13,12 @@ package org.eclipse.mat.ibmvm.acquire;
 import java.io.File;
 import java.util.Collection;
 
-import org.eclipse.mat.query.annotations.Name;
-
-@Name("IBM Heap Dump")
-public class IBMHeapDumpProvider extends IBMDumpProvider {
-    public IBMHeapDumpProvider()
+/**
+ * Helper dump provider - the IBMDumpProvider delegates to this to do the work for heap dumps.
+ * @author ajohnson
+ */
+class IBMHeapDumpProvider extends IBMDumpProvider {
+    IBMHeapDumpProvider()
     {
     }
     

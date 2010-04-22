@@ -14,8 +14,18 @@ import org.eclipse.mat.ibmvm.agent.DumpAgent;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.snapshot.acquire.VmInfo;
 
+/**
+ * Stores information about the target VM.
+ * @author ajohnson
+ *
+ */
 public class IBMVmInfo extends VmInfo
 {
+    /**
+     * Used for selecting the appropriate dump type
+     * @author ajohnson
+     *
+     */
     public enum DumpType
     {
         HEAP("Heap"), //$NON-NLS-1$
@@ -25,16 +35,17 @@ public class IBMVmInfo extends VmInfo
             type = s;
         }
     }
+    
     @Argument
     public DumpType type = DumpType.SYSTEM;
     
     private String pid;
     
-    public IBMVmInfo()
+    IBMVmInfo()
     {
     }
     
-    public void setPid(String s)
+    void setPid(String s)
     {
         pid = s;
         try
@@ -48,7 +59,7 @@ public class IBMVmInfo extends VmInfo
         }
     }
     
-    public String getPidName()
+    String getPidName()
     {
         return pid;
     }
@@ -57,7 +68,7 @@ public class IBMVmInfo extends VmInfo
      * Command to pass to the agent to generate dumps of this type
      * @return
      */
-    protected String agentCommand()
+    String agentCommand()
     {
         if (type == DumpType.SYSTEM)
             return DumpAgent.SYSTEM;

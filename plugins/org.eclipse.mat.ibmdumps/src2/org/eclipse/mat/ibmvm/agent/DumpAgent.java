@@ -12,6 +12,11 @@ package org.eclipse.mat.ibmvm.agent;
 
 import java.util.regex.Pattern;
 
+/**
+ * Helper class which is loaded into the target VM to create a dump.
+ * @author ajohnson
+ *
+ */
 public class DumpAgent {
     public static final String SEPARATOR = "+"; //$NON-NLS-1$
     public static final String SYSTEM = "system"; //$NON-NLS-1$

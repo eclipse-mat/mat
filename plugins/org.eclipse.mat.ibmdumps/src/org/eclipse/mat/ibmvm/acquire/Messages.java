@@ -13,6 +13,11 @@ package org.eclipse.mat.ibmvm.acquire;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
+/**
+ * The accessor for messages for the IBM dump plug-in.
+ * @author ajohnson
+ *
+ */
 public class Messages
 {
     private static final String BUNDLE_NAME = "org.eclipse.mat.ibmvm.acquire.messages"; //$NON-NLS-1$

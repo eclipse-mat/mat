@@ -15,7 +15,13 @@ import java.io.IOException;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.util.IProgressListener;
 
-interface AgentLoader2
+/**
+ * Helper interface for monitoring running of an agent.
+ * Allows loading of the agents to be cancelled.
+ * @author ajohnson
+ *
+ */
+interface AgentLoader2 extends Runnable
 {
     public abstract void start();
     
