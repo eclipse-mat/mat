@@ -20,10 +20,22 @@ import org.eclipse.mat.snapshot.model.IClassLoader;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.util.IProgressListener;
 
+/** 
+ * Accumulated data about a class loader, including classes and shallow and retained sizes.
+ */
 public final class XClassLoaderHistogramRecord extends ClassLoaderHistogramRecord
 {
     private static final long serialVersionUID = 1L;
 
+    /**
+     * Create record for the class loader based on the records for the classes
+     * @param label for display
+     * @param classLoaderId the object id of the class loader
+     * @param classHistogramRecords summary of all the classes loaded by the class loader
+     * @param numberOfObjects the total number of objects
+     * @param usedHeapSize the total shallow size of the loader, classes and objects
+     * @param retainedHeapSize the total retained size of the loader, classes and objects
+     */
     public XClassLoaderHistogramRecord(String label, int classLoaderId,
                     ArrayList<ClassHistogramRecord> classHistogramRecords, long numberOfObjects, long usedHeapSize,
                     long retainedHeapSize)

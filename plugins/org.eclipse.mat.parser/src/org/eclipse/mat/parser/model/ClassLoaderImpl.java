@@ -25,6 +25,9 @@ import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.VoidProgressListener;
 
 /**
+ * Implementation of a Java object representing a java.lang.ClassLoader object.
+ * As well as standard object information it contains information about the class loader
+ * and summary details about classes loaded by this class loader.
  * @noextend
  */
 public class ClassLoaderImpl extends InstanceImpl implements IClassLoader
@@ -35,6 +38,13 @@ public class ClassLoaderImpl extends InstanceImpl implements IClassLoader
 
     private volatile transient List<IClass> definedClasses = null;
 
+    /**
+     * Constructs a class loader object.
+     * @param objectId the object id
+     * @param address the actual address of the object
+     * @param clazz its type
+     * @param fields the fields of the object
+     */
     public ClassLoaderImpl(int objectId, long address, ClassImpl clazz, List<Field> fields)
     {
         super(objectId, address, clazz, fields);
@@ -72,6 +82,7 @@ public class ClassLoaderImpl extends InstanceImpl implements IClassLoader
     @SuppressWarnings("null")
     public List<IClass> getDefinedClasses() throws SnapshotException
     {
+        // FIXME Double-checked locking?
         List<IClass> result = definedClasses;
         if (result == null)
         {
@@ -93,6 +104,13 @@ public class ClassLoaderImpl extends InstanceImpl implements IClassLoader
                         listener);
     }
 
+    /**
+     * Gets the classes defined by a given loader
+     * @param dump the snapshot
+     * @param classLoaderId the class loader to look for
+     * @return a list of classes
+     * @throws SnapshotException
+     */
     public static final List<IClass> doGetDefinedClasses(ISnapshot dump, int classLoaderId) throws SnapshotException
     {
         List<IClass> answer = new ArrayList<IClass>();
@@ -104,6 +122,17 @@ public class ClassLoaderImpl extends InstanceImpl implements IClassLoader
         return answer;
     }
 
+    /**
+     * Calculates the retained size of all classes and instances of the class loaded
+     * by a class loader.
+     * @param dump the snapshot
+     * @param classLoaderId the class loader if
+     * @param calculateIfNotAvailable true if to skip calculations if not already done
+     * @param calculateMinRetainedSize true if to make an approximate calculation
+     * @param listener to indicate progress, errors and to cancel
+     * @return the size, negative if approximate
+     * @throws SnapshotException
+     */
     public static final long doGetRetainedHeapSizeOfObjects(ISnapshot dump, int classLoaderId,
                     boolean calculateIfNotAvailable, boolean calculateMinRetainedSize, IProgressListener listener)
                     throws SnapshotException

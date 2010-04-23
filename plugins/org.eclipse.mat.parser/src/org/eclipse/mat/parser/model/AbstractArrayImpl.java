@@ -13,6 +13,7 @@ package org.eclipse.mat.parser.model;
 import org.eclipse.mat.snapshot.model.IArray;
 
 /**
+ * The general implementation of any Java array object (primitive array, object array).
  * @noextend
  */
 public abstract class AbstractArrayImpl extends AbstractObjectImpl implements IArray
@@ -23,17 +24,31 @@ public abstract class AbstractArrayImpl extends AbstractObjectImpl implements IA
 
     private Object info;
 
+    /**
+     * Construct a general object, called from subclass.
+     * @param objectId the index of the object
+     * @param address the actual address
+     * @param classInstance the type of the object
+     * @param length the length of the array in elements
+     */
     public AbstractArrayImpl(int objectId, long address, ClassImpl classInstance, int length)
     {
         super(objectId, address, classInstance);
         this.length = length;
     }
 
+    /**
+     * Gets the cached information about the contents of the array.
+     * @return the cached data (parser specific).
+     */
     public Object getInfo()
     {
         return info;
     }
 
+    /**
+     * Sets the cached information about the contents of the array.
+     */
     public void setInfo(Object content)
     {
         this.info = content;
@@ -44,6 +59,10 @@ public abstract class AbstractArrayImpl extends AbstractObjectImpl implements IA
         return length;
     }
 
+    /**
+     * Sets the length in elements.
+     * @param i the new length
+     */
     public void setLength(int i)
     {
         length = i;

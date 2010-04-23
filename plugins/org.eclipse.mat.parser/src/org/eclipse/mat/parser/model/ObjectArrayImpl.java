@@ -26,12 +26,20 @@ import org.eclipse.mat.snapshot.model.PseudoReference;
 import org.eclipse.mat.util.MessageUtil;
 
 /**
+ * Implementation of a Java object array.
  * @noextend
  */
 public class ObjectArrayImpl extends AbstractArrayImpl implements IObjectArray
 {
     private static final long serialVersionUID = 2L;
 
+    /**
+     * Constructs an array of objects.
+     * @param objectId the object id of the array
+     * @param address the actual address
+     * @param classInstance the type of the array
+     * @param length the length of the array in elements
+     */
     public ObjectArrayImpl(int objectId, long address, ClassImpl classInstance, int length)
     {
         super(objectId, address, classInstance, length);
@@ -47,6 +55,12 @@ public class ObjectArrayImpl extends AbstractArrayImpl implements IObjectArray
         }
     }
 
+    /**
+     * Calculates the size of an object array
+     * @param clazz the type
+     * @param length the length in elements
+     * @return the size in bytes
+     */
     public static long doGetUsedHeapSize(ClassImpl clazz, int length)
     {
         return alignUpTo8(2 * clazz.getHeapSizePerInstance() + 4 + length * (long)clazz.getHeapSizePerInstance());

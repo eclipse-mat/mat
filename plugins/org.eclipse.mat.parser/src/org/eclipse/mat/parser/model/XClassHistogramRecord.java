@@ -15,12 +15,21 @@ import org.eclipse.mat.snapshot.ClassHistogramRecord;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.util.IProgressListener;
 
+/**
+ * Holds details about a class, the number of instances and the shallow and retained sizes.
+ * This hold a direct link to the class instance.
+ */
 public final class XClassHistogramRecord extends ClassHistogramRecord
 {
     private static final long serialVersionUID = 1L;
 
     private ClassImpl classInstance;
 
+    /**
+     * Create an XClassHistogramRecord by retrieving information from the class
+     * @param classInstance the class
+     * @throws SnapshotException
+     */
     public XClassHistogramRecord(ClassImpl classInstance) throws SnapshotException
     {
         super(classInstance.getName(), //

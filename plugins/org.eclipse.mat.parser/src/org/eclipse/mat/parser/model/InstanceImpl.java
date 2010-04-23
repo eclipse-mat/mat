@@ -29,6 +29,8 @@ import org.eclipse.mat.snapshot.model.PseudoReference;
 import org.eclipse.mat.snapshot.model.ThreadToLocalReference;
 
 /**
+ * Implementation of a plain Java object.
+ * This includes field information.
  * @noextend
  */
 public class InstanceImpl extends AbstractObjectImpl implements IInstance
@@ -38,6 +40,13 @@ public class InstanceImpl extends AbstractObjectImpl implements IInstance
     private volatile List<Field> fields;
     private volatile Map<String, Field> name2field;
 
+    /**
+     * Construct a representation of plain java object in the snapshot.
+     * @param objectId the object id
+     * @param address the actual address
+     * @param clazz the type of the object
+     * @param fields the instance fields of the object (the static fields are held in the class)
+     */
     public InstanceImpl(int objectId, long address, ClassImpl clazz, List<Field> fields)
     {
         super(objectId, address, clazz);
@@ -99,11 +108,20 @@ public class InstanceImpl extends AbstractObjectImpl implements IInstance
         return internalGetField(name);
     }
 
+    /**
+     * Set the fields of this instance.
+     * The order should match the order of {@link #getFields()}.
+     * @return a list of fields
+     */
     protected void setFields(List<Field> fields)
     {
         this.fields = fields;
     }
 
+    /**
+     * Fully build information about this object by getting all the field
+     * data from the dump.
+     */
     protected synchronized void readFully()
     {
         // test again after synchronization

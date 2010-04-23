@@ -32,6 +32,9 @@ import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.VoidProgressListener;
 
 /**
+ * Implementation of a Java object representing a java.lang.Class object.
+ * As well as some standard object information it contains information about the class
+ * and summary details about instances of this class.
  * @noextend
  */
 public class ClassImpl extends AbstractObjectImpl implements IClass, Comparable<ClassImpl>
@@ -57,6 +60,15 @@ public class ClassImpl extends AbstractObjectImpl implements IClass, Comparable<
 
     private Serializable cacheEntry;
 
+    /**
+     * Construct a class object based on name, address and fields.
+     * @param address the address of the class object
+     * @param name the class name, using '.' as package separator
+     * @param superId the id of the superclass, or -1 if none.
+     * @param loaderId the id of the class loader
+     * @param staticFields all the static fields, with values
+     * @param fields all the instance fields as descriptors
+     */
     public ClassImpl(long address, String name, long superId, long loaderId, Field[] staticFields,
                     FieldDescriptor[] fields)
     {
@@ -73,21 +85,39 @@ public class ClassImpl extends AbstractObjectImpl implements IClass, Comparable<
         this.isArrayType = name.endsWith("[]");//$NON-NLS-1$
     }
 
+    /**
+     * Gets the key for extra information about this class.
+     * @return the key
+     */
     public Serializable getCacheEntry()
     {
         return cacheEntry;
     }
 
+    /**
+     * Sets the key for extra information about this class.
+     * @param cacheEntry the key
+     */
     public void setCacheEntry(Serializable cacheEntry)
     {
         this.cacheEntry = cacheEntry;
     }
 
+    /**
+     * Sets the superclass index.
+     * May need to be changed after reindexing of a snapshot.
+     * @param superClassIndex the new index
+     */
     public void setSuperClassIndex(int superClassIndex)
     {
         this.superClassId = superClassIndex;
     }
 
+    /**
+     * Sets the class loader index.
+     * May need to be changed after reindexing of a snapshot.
+     * @param classLoaderIndex the new index
+     */
     public void setClassLoaderIndex(int classLoaderIndex)
     {
         this.classLoaderId = classLoaderIndex;

@@ -23,6 +23,9 @@ import org.eclipse.mat.snapshot.model.NamedReference;
 import org.eclipse.mat.snapshot.model.PseudoReference;
 
 /**
+ * Implementation of a primitive array of type
+ * byte[], short[], int[], long[],
+ * boolean, char[], float[], double[].
  * @noextend
  */
 public class PrimitiveArrayImpl extends AbstractArrayImpl implements IPrimitiveArray
@@ -31,6 +34,14 @@ public class PrimitiveArrayImpl extends AbstractArrayImpl implements IPrimitiveA
 
     private int type;
 
+    /**
+     * Constructs a primitive array
+     * @param objectId the id of the array
+     * @param address the address of the array
+     * @param classInstance the type (class) of the array
+     * @param length the length in elements
+     * @param type the actual type {@link org.eclipse.mat.snapshot.model.IObject.Type}
+     */
     public PrimitiveArrayImpl(int objectId, long address, ClassImpl classInstance, int length, int type)
     {
         super(objectId, address, classInstance, length);
@@ -121,6 +132,13 @@ public class PrimitiveArrayImpl extends AbstractArrayImpl implements IPrimitiveA
         }
     }
 
+    /**
+     * Calculates the size of a primitive array
+     * @param clazz the type
+     * @param length the length in elements
+     * @param type the actual type {@link org.eclipse.mat.snapshot.model.IObject.Type}
+     * @return the size in bytes
+     */
     public static long doGetUsedHeapSize(ClassImpl clazz, int length, int type)
     {
         return alignUpTo8(2 * clazz.getHeapSizePerInstance() + 4 + length * (long)ELEMENT_SIZE[type]);
