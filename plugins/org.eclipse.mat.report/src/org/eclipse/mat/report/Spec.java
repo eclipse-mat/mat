@@ -58,16 +58,29 @@ public class Spec implements IResult
         this.template = template;
     }
 
+    /**
+     * Get the entire set of parameters.
+     * @return the parameters
+     */
     public Map<String, String> getParams()
     {
         return params;
     }
 
+    /**
+     * Add an entire map of a parameter names and values.
+     * @param map
+     */
     public void putAll(Map<String, String> map)
     {
         this.params.putAll(map);
     }
 
+    /**
+     * Set a parameter to control the formatting of a report
+     * @param key a {@link org.eclipse.mat.report.Params} value
+     * @param value
+     */
     public void set(String key, String value)
     {
         this.params.put(key, value);
