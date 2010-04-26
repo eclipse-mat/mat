@@ -1,0 +1,60 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>Snapshot Factory</title>
+<style>@import url("file:/C:/Program Files/eclipse/plugins/org.eclipse.sdk_3.3.3.r33x_r20080129/book.css");</style>
+<style>@import url("file:/C:/Program Files/eclipse/configuration/org.eclipse.osgi/bundles/449/1/.cp/schema.css");</style>
+</HEAD>
+<BODY>
+<H1><CENTER>Snapshot Factory</CENTER></H1>
+<p></p>
+<h6 class=CaptionFigColumn id=header>Identifier: </h6>org.eclipse.mat.api.factory<p></p>
+<h6 class=CaptionFigColumn id=header>Since: </h6>0.7.0
+<p></p>
+
+<p>
+<h6 class=CaptionFigColumn id=header>Description: </h6>This is an internal extension point. The implementation of the factory
+to create snapshot instances is packaged in a separate plug-in.</p>
+<p><h6 class=CaptionFigColumn id=header>Configuration Markup:</h6></p>
+<p class=code id=dtd>&lt;!ELEMENT <a name="e.extension">extension</a> (<a href="#e.factory">factory</a>)&gt;</p>
+<p class=code id=dtd>&lt;!ATTLIST extension</p>
+<p class=code id=dtdAttlist>point&nbsp;CDATA #REQUIRED<p class=code id=dtdAttlist>id&nbsp;&nbsp;&nbsp;&nbsp;CDATA #IMPLIED<p class=code id=dtdAttlist>name&nbsp;&nbsp;CDATA #IMPLIED&gt;</p>
+<p></p>
+<ul class=ConfigMarkup id=attlistDesc>
+</ul>
+<br><p class=code id=dtd>&lt;!ELEMENT <a name="e.factory">factory</a> EMPTY&gt;</p>
+<p class=code id=dtd>&lt;!ATTLIST factory</p>
+<p class=code id=dtdAttlist>impl&nbsp;CDATA #REQUIRED&gt;</p>
+<p></p>
+<ul class=ConfigMarkup id=attlistDesc>
+<li><b>impl</b> - implementor of <a href="org/eclipse/mat/snapshot/SnapshotFactory.Implementation.html"><samp>org.eclipse.mat.snapshot.SnapshotFactory.Implementation</samp></a>.</li>
+</ul>
+<br><h6 class=CaptionFigColumn id=header>Examples: </h6>Following is an example of a query declaration: 
+<p>
+<pre>
+   <p class=code id=tag>&lt;extension point=<p class=code id=cstring>&quot;org.eclipse.mat.api.factory&quot;</p><p class=code id=tag>&gt;</p>
+      <p class=code id=tag>&lt;factory impl=<p class=code id=cstring>&quot;org.eclipse.mat.parser.internal.SnapshotFactoryImpl&quot;</p><p class=code id=tag> /&gt;</p>
+   <p class=code id=tag>&lt;/extension&gt;</p>
+</pre>
+</p>
+<p></p>
+
+<h6 class=CaptionFigColumn id=header>API Information: </h6>The value of the impl attribute must represent an implementor of <a href="org/eclipse/mat/snapshot/SnapshotFactory.Implementation.html"><samp>org.eclipse.mat.snapshot.SnapshotFactory.Implementation</samp></a>.
+The <samp>org.eclipse.mat.snapshot.SnapshotFactory</samp> class in the <samp>org.eclipse.mat.api</samp> plug-in calls the implementation.
+<p></p>
+
+<h6 class=CaptionFigColumn id=header>Supplied Implementation: </h6>The default implementation <code>org.eclipse.mat.parser.internal.SnapshotFactoryImpl</code> lives in the <samp>org.eclipse.mat.parser</samp> plug-in.
+<p></p>
+
+<br>
+<p class=note id=copyright>
+Copyright (c) 2008 SAP AG and others.<br>
+All rights reserved. This program and the accompanying materials are made 
+available under the terms of the Eclipse Public License v1.0 which 
+accompanies this distribution, and is available at 
+<a href="http://www.eclipse.org/legal/epl-v10.html">http://www.eclipse.org/legal/epl-v10.html</a>
+<p></p>
+
+</p>
+</BODY>
+</HTML>

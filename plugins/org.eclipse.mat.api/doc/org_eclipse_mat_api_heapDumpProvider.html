@@ -1,0 +1,83 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>Heap Dump Provider</title>
+<style>@import url("file:/C:/Program Files/eclipse/plugins/org.eclipse.sdk_3.3.3.r33x_r20080129/book.css");</style>
+<style>@import url("file:/C:/Program Files/eclipse/configuration/org.eclipse.osgi/bundles/449/1/.cp/schema.css");</style>
+</HEAD>
+<BODY>
+<H1><CENTER>Heap Dump Provider</CENTER></H1>
+<p></p>
+<h6 class=CaptionFigColumn id=header>Identifier: </h6>org.eclipse.mat.api.heapDumpProvider<p></p>
+<h6 class=CaptionFigColumn id=header>Since: </h6>1.0
+<p></p>
+
+<p>
+<h6 class=CaptionFigColumn id=header>Description: </h6>The Acquire Heap Dump menu option allows the user to request a heap dump on a local running Java process. This extension point allows the retrieval of a list of running VMs of a particular type, and the triggering of a dump on one of those processes.</p>
+<p><h6 class=CaptionFigColumn id=header>Configuration Markup:</h6></p>
+<p class=code id=dtd>&lt;!ELEMENT <a name="e.extension">extension</a> (<a href="#e.provider">provider</a>)*&gt;</p>
+<p class=code id=dtd>&lt;!ATTLIST extension</p>
+<p class=code id=dtdAttlist>point&nbsp;CDATA #REQUIRED<p class=code id=dtdAttlist>id&nbsp;&nbsp;&nbsp;&nbsp;CDATA #IMPLIED<p class=code id=dtdAttlist>name&nbsp;&nbsp;CDATA #IMPLIED&gt;</p>
+<p></p>
+<ul class=ConfigMarkup id=attlistDesc>
+</ul>
+<br><p class=code id=dtd>&lt;!ELEMENT <a name="e.provider">provider</a> EMPTY&gt;</p>
+<p class=code id=dtd>&lt;!ATTLIST provider</p>
+<p class=code id=dtdAttlist>impl&nbsp;CDATA #REQUIRED&gt;</p>
+<p></p>
+<ul class=ConfigMarkup id=attlistDesc>
+<li><b>impl</b> - implements <a href="org/eclipse/mat/snapshot/acquire/IHeapDumpProvider.html"><code>org.eclipse.mat.snapshot.acquire.IHeapDumpProvider</code></a>.</li>
+</ul>
+<br><h6 class=CaptionFigColumn id=header>Examples: </h6>The following is an example of a heap dump provider declaration;
+
+<pre>
+   <p class=code id=tag>&lt;extension
+         name=<p class=code id=cstring>&quot;IBM Virtual Machines&quot;</p><p class=code id=tag>
+         point=<p class=code id=cstring>&quot;org.eclipse.mat.api.heapDumpProvider&quot;</p><p class=code id=tag>&gt;</p>
+      <p class=code id=tag>&lt;provider
+            impl=<p class=code id=cstring>&quot;org.eclipse.mat.ibmvm.acquire.DumpFactory&quot;</p><p class=code id=tag>&gt;</p>
+      <p class=code id=tag>&lt;/provider&gt;</p>
+   <p class=code id=tag>&lt;/extension&gt;</p>
+</pre>
+
+The dump provider must implement <code>org.eclipse.mat.snapshot.acquire.IHeapDumpProvider</code>.
+Argument annotations can be used to specify arguments to be filled in by the user.
+
+<pre>
+@Name("My Dump type")
+public class MyDumpProvider implements org.eclipse.mat.snapshot.acquire.IHeapDumpProvider
+{
+ @Argument
+ File dumpingProgram;
+ 
+</pre>
+
+Argument annotations can also be used on VmInfo types.
+<pre>
+public class MyVmInfo extends VmInfo
+{
+    public enum DumpType
+    {
+        DUMP1("dump1"), //$NON-NLS-1$
+        Dump2("dump2"); //$NON-NLS-1$
+        String type;
+        private DumpType(String s) {
+            type = s;
+        }
+    }
+    @Argument
+    public DumpType type = DumpType.DUMP1;
+</pre>
+<p></p>
+
+<h6 class=CaptionFigColumn id=header>API Information: </h6>The value of the impl attribute must represent an implementor of <samp>org.eclipse.mat.snapshot.acquire.IHeapDumpProvider</samp>.
+<p></p>
+
+<h6 class=CaptionFigColumn id=header>Supplied Implementation: </h6>The standard supplied heap dump providers are for Oracle/Sun JVMs and for IBM Virtual Machines for Java. They are <code>org.eclipse.mat.hprof.acquire.JMapHeapDumpProvider</code> and <code>org.eclipse.mat.ibmvm.acquire.DumpFactory</code> (actually an IExecutableExtensionFactory).
+<p></p>
+
+<br>
+<p class=note id=copyright>
+</p>
+</BODY>
+</HTML>

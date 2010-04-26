@@ -1,0 +1,70 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>Heap Editor Panes</title>
+<style>@import url("file:/C:/Program Files/eclipse/plugins/org.eclipse.sdk_3.3.3.r33x_r20080129/book.css");</style>
+<style>@import url("file:/C:/Program Files/eclipse/configuration/org.eclipse.osgi/bundles/449/1/.cp/schema.css");</style>
+</HEAD>
+<BODY>
+<H1><CENTER>Heap Editor Panes</CENTER></H1>
+<p></p>
+<h6 class=CaptionFigColumn id=header>Identifier: </h6>org.eclipse.mat.ui.editorPanes<p></p>
+<h6 class=CaptionFigColumn id=header>Since: </h6>0.7.0
+<p></p>
+
+<p>
+<h6 class=CaptionFigColumn id=header>Description: </h6><p>This extension point adds new panes to the heap editor.
+Each pane is tied to one or more implementations of IResult.</p></p>
+<p><h6 class=CaptionFigColumn id=header>Configuration Markup:</h6></p>
+<p class=code id=dtd>&lt;!ELEMENT <a name="e.extension">extension</a> (<a href="#e.pane">pane</a>+)&gt;</p>
+<p class=code id=dtd>&lt;!ATTLIST extension</p>
+<p class=code id=dtdAttlist>point&nbsp;CDATA #REQUIRED<p class=code id=dtdAttlist>id&nbsp;&nbsp;&nbsp;&nbsp;CDATA #IMPLIED<p class=code id=dtdAttlist>name&nbsp;&nbsp;CDATA #IMPLIED&gt;</p>
+<p></p>
+<ul class=ConfigMarkup id=attlistDesc>
+</ul>
+<br><p class=code id=dtd>&lt;!ELEMENT <a name="e.pane">pane</a> (<a href="#e.result">result</a>*)&gt;</p>
+<p class=code id=dtd>&lt;!ATTLIST pane</p>
+<p class=code id=dtdAttlist>id&nbsp;&nbsp;&nbsp;&nbsp;CDATA #REQUIRED<p class=code id=dtdAttlist>class&nbsp;CDATA #REQUIRED&gt;</p>
+<p></p>
+<ul class=ConfigMarkup id=attlistDesc>
+<li><b>id</b> - unique id of the editor pane</li>
+<li><b>class</b> - implementor of <a href="org/eclipse/mat/ui/editor/AbstractEditorPane.html"><samp>org.eclipse.mat.ui.editor.AbstractEditorPane</samp></a></li>
+</ul>
+<br><p class=code id=dtd>&lt;!ELEMENT <a name="e.result">result</a> EMPTY&gt;</p>
+<p class=code id=dtd>&lt;!ATTLIST result</p>
+<p class=code id=dtdAttlist>type&nbsp;CDATA #IMPLIED&gt;</p>
+<p></p>
+<ul class=ConfigMarkup id=attlistDesc>
+<li><b>type</b> - the result of type <a href="org/eclipse/mat/query/IResult.html"><samp>org.eclipse.mat.query.IResult</samp></a> which should be displayed by this pane</li>
+</ul>
+<br><h6 class=CaptionFigColumn id=header>Examples: </h6>Following is an example of a editor pane declaration: 
+<p>
+<pre>
+   <p class=code id=tag>&lt;extension point=<p class=code id=cstring>&quot;org.eclipse.mat.ui.editorPanes&quot;</p><p class=code id=tag>&gt;</p>
+      <p class=code id=tag>&lt;pane id=<p class=code id=cstring>&quot;PieChartPane&quot;</p><p class=code id=tag> class=<p class=code id=cstring>&quot;org.eclipse.mat.ui.internal.chart.PieChartPane&quot;</p><p class=code id=tag>&gt;</p>
+         <p class=code id=tag>&lt;result type=<p class=code id=cstring>&quot;org.eclipse.mat.query.IResultPie&quot;</p><p class=code id=tag> /&gt;</p>
+      <p class=code id=tag>&lt;/pane&gt;</p>
+   <p class=code id=tag>&lt;/extension&gt;</p>
+</pre>
+</p>
+<p></p>
+
+<h6 class=CaptionFigColumn id=header>API Information: </h6>The value of the class attribute must represent an implementor of <samp>org.eclipse.mat.ui.editor.AbstractEditorPane</samp>.
+The result attribute shows which types of <samp>org.eclipse.mat.query.IResult</samp> it handles.
+<p></p>
+
+<h6 class=CaptionFigColumn id=header>Supplied Implementation: </h6>The Memory Analyzer supplies a number panes to display histograms, object lists, trees, tables, text, pie charts, etc. Check out the <samp>org.eclipse.mat.ui</samp> plug-in for more samples.
+<p></p>
+
+<br>
+<p class=note id=copyright>
+Copyright (c) 2008 SAP AG and others.<br>
+All rights reserved. This program and the accompanying materials are made 
+available under the terms of the Eclipse Public License v1.0 which 
+accompanies this distribution, and is available at 
+<a href="http://www.eclipse.org/legal/epl-v10.html">http://www.eclipse.org/legal/epl-v10.html</a>
+<p></p>
+
+</p>
+</BODY>
+</HTML>

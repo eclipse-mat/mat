@@ -1,0 +1,93 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>Heap Dump Parser</title>
+<style>@import url("file:/C:/Program Files/eclipse/plugins/org.eclipse.sdk_3.3.3.r33x_r20080129/book.css");</style>
+<style>@import url("file:/C:/Program Files/eclipse/configuration/org.eclipse.osgi/bundles/449/1/.cp/schema.css");</style>
+</HEAD>
+<BODY>
+<H1><CENTER>Heap Dump Parser</CENTER></H1>
+<p></p>
+<h6 class=CaptionFigColumn id=header>Identifier: </h6>org.eclipse.mat.parser.parser<p></p>
+<h6 class=CaptionFigColumn id=header>Since: </h6>0.7.0
+<p></p>
+
+<p>
+<h6 class=CaptionFigColumn id=header>Description: </h6>The format of heap dumps is specific to the Virtual Machine used.
+This extensions allows to plug in new dump formats. Out of the box, the Memory Analyzer 
+supports HPROF and IBM dumps read via DTFJ. A DTFJ implementation is available from IBM developerWorks.</p>
+<p><h6 class=CaptionFigColumn id=header>Configuration Markup:</h6></p>
+<p class=code id=dtd>&lt;!ELEMENT <a name="e.extension">extension</a> (<a href="#e.parser">parser</a>)&gt;</p>
+<p class=code id=dtd>&lt;!ATTLIST extension</p>
+<p class=code id=dtdAttlist>point&nbsp;CDATA #REQUIRED<p class=code id=dtdAttlist>id&nbsp;&nbsp;&nbsp;&nbsp;CDATA #REQUIRED<p class=code id=dtdAttlist>name&nbsp;&nbsp;CDATA #REQUIRED&gt;</p>
+<p></p>
+<ul class=ConfigMarkup id=attlistDesc>
+</ul>
+<br><p class=code id=dtd>&lt;!ELEMENT <a name="e.parser">parser</a> EMPTY&gt;</p>
+<p class=code id=dtd>&lt;!ATTLIST parser</p>
+<p class=code id=dtdAttlist>name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CDATA #REQUIRED<p class=code id=dtdAttlist>fileExtension&nbsp;CDATA #REQUIRED<p class=code id=dtdAttlist>indexBuilder&nbsp;&nbsp;CDATA #REQUIRED<p class=code id=dtdAttlist>objectReader&nbsp;&nbsp;CDATA #REQUIRED<p class=code id=dtdAttlist>dynamic&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CDATA #IMPLIED&gt;</p>
+<p></p>
+<ul class=ConfigMarkup id=attlistDesc>
+<li><b>name</b> - Name of the heap dump format. For example, shown in the file selection dialog.</li>
+<li><b>fileExtension</b> - The file extension typically associated witht the file format. Used to filter files in the file selection dialog.</li>
+<li><b>indexBuilder</b> - implementor of <a href="org/eclipse/mat/parser/IIndexBuilder.html"><samp>org.eclipse.mat.snapshot.adapter.IIndexBuilder</samp></a> which creates the index files, i.e. the structural information of the heap dump like the reference graph</li>
+<li><b>objectReader</b> - implementor of <a href="org/eclipse/mat/parser/IObjectReader.html"><samp>org.eclipse.mat.parser.IObjectReader</samp></a> to read the object details from the heap dump file</li>
+<li><b>dynamic</b> - This is a class which extends java.util.Map and returns a set of extensions and descriptions, together with ids which replace the attributes "id", "name", "fileExtension" in the dynamic parser.</li>
+</ul>
+<br><h6 class=CaptionFigColumn id=header>Examples: </h6>Following is an example of a name resolver declaration: 
+<p>
+<pre>
+   <p class=code id=tag>&lt;extension
+         id=<p class=code id=cstring>&quot;hprof&quot;</p><p class=code id=tag>
+         name=<p class=code id=cstring>&quot;HPROF Formatted Dumps&quot;</p><p class=code id=tag>
+         point=<p class=code id=cstring>&quot;org.eclipse.mat.parser.parser&quot;</p><p class=code id=tag>&gt;</p>
+      <p class=code id=tag>&lt;parser
+        name=<p class=code id=cstring>&quot;HPROF binary heap dumps&quot;</p><p class=code id=tag>
+            fileExtension=<p class=code id=cstring>&quot;hprof,bin&quot;</p><p class=code id=tag>
+            indexBuilder=<p class=code id=cstring>&quot;org.eclipse.mat.hprof.HprofIndexBuilder&quot;</p><p class=code id=tag>
+            objectReader=<p class=code id=cstring>&quot;org.eclipse.mat.hprof.HprofHeapObjectReader&quot;</p><p class=code id=tag>&gt;</p>
+      <p class=code id=tag>&lt;/parser&gt;</p>
+   <p class=code id=tag>&lt;/extension&gt;</p>
+</pre>
+</p>
+<p></p>
+
+<h6 class=CaptionFigColumn id=header>API Information: </h6>The value of the indexBuilder attribute must represent an implementor of <samp>org.eclipse.mat.parser.IIndexBuilder</samp>,
+the objectReader attribute <samp>org.eclipse.mat.parser.IObjectReader</samp>.
+
+The dynamicParser attribute is a class which extends java.util.Map and returns a set of extensions and descriptions, together with ids which replace the attributes "id", "name", "fileExtension" in the dynamic parser.
+<pre>
+Map<p class=code id=tag>&lt;String, Map<p class=code id=tag>&lt;String, String&gt;</p>&gt;</p>
+</pre>
+
+<dl>
+<dt>Main id</dt>
+<dd>fully qualified id for each parser
+<dl>
+  <dt>id</dt><dd>fully qualified id for the parser</dd>
+  <dt>name</dt><dd>readable name for the parser</dd>
+  <dt>fileExtension</dt><dd>file extensions for this parser</dd>
+</dl>
+</dd>
+</dl>
+  
+The subparsers share the indexBuilder and objectReader.
+<p>This is used for example by the DTFJ parser which has to find out at run time which DTFJ implementations are available and to create an MAT parser definition for each one.</p>
+<p></p>
+
+<h6 class=CaptionFigColumn id=header>Supplied Implementation: </h6>The Memory Analyzer supplies an implementation for HPROF and IBM DTFJ format dumps. Check out the <samp>org.eclipse.mat.hprof</samp> plug-in and <samp>org.eclipse.mat.dtfj</samp> plug-in.
+ A DTFJ implementation is available from IBM DeveloperWorks.
+<p></p>
+
+<br>
+<p class=note id=copyright>
+Copyright (c) 2008 SAP AG and others.<br>
+All rights reserved. This program and the accompanying materials are made 
+available under the terms of the Eclipse Public License v1.0 which 
+accompanies this distribution, and is available at 
+<a href="http://www.eclipse.org/legal/epl-v10.html">http://www.eclipse.org/legal/epl-v10.html</a>
+<p></p>
+
+</p>
+</BODY>
+</HTML>

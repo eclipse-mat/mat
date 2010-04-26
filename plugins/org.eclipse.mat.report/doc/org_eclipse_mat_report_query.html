@@ -1,0 +1,74 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>Query</title>
+<style>@import url("file:/C:/Program Files/eclipse/plugins/org.eclipse.sdk_3.3.3.r33x_r20080129/book.css");</style>
+<style>@import url("file:/C:/Program Files/eclipse/configuration/org.eclipse.osgi/bundles/449/1/.cp/schema.css");</style>
+</HEAD>
+<BODY>
+<H1><CENTER>Query</CENTER></H1>
+<p></p>
+<h6 class=CaptionFigColumn id=header>Identifier: </h6>org.eclipse.mat.api.query<p></p>
+<h6 class=CaptionFigColumn id=header>Since: </h6>0.7.0
+<p></p>
+
+<p>
+<h6 class=CaptionFigColumn id=header>Description: </h6>The Memory Analyzer can be extended by Queries. Queries
+are pieces of Java Code that implement specific inspections
+on the heap dump. Depending on the input parameters,
+queries are shown in the Query Drop-Down menu and/or in the
+context menu of a heap object.</p>
+<p><h6 class=CaptionFigColumn id=header>Configuration Markup:</h6></p>
+<p class=code id=dtd>&lt;!ELEMENT <a name="e.extension">extension</a> (<a href="#e.query">query</a>)+&gt;</p>
+<p class=code id=dtd>&lt;!ATTLIST extension</p>
+<p class=code id=dtdAttlist>point&nbsp;CDATA #REQUIRED<p class=code id=dtdAttlist>id&nbsp;&nbsp;&nbsp;&nbsp;CDATA #IMPLIED<p class=code id=dtdAttlist>name&nbsp;&nbsp;CDATA #IMPLIED&gt;</p>
+<p></p>
+<ul class=ConfigMarkup id=attlistDesc>
+</ul>
+<br><p class=code id=dtd>&lt;!ELEMENT <a name="e.query">query</a> EMPTY&gt;</p>
+<p class=code id=dtd>&lt;!ATTLIST query</p>
+<p class=code id=dtdAttlist>impl&nbsp;CDATA #REQUIRED&gt;</p>
+<p></p>
+<ul class=ConfigMarkup id=attlistDesc>
+<li><b>impl</b> - implementor of <a href="org/eclipse/mat/query/IQuery.html"><samp>org.eclipse.mat.query.IQuery</samp></a></li>
+</ul>
+<br><h6 class=CaptionFigColumn id=header>Examples: </h6>Following is an example of a query declaration: 
+<p>
+<pre>
+   <p class=code id=tag>&lt;extension point=<p class=code id=cstring>&quot;org.eclipse.mat.report.query&quot;</p><p class=code id=tag>&gt;</p>
+      <p class=code id=tag>&lt;query impl=<p class=code id=cstring>&quot;org.eclipse.mat.demo.DemoQuery&quot;</p><p class=code id=tag>/&gt;</p>
+   <p class=code id=tag>&lt;/extension&gt;</p>
+</pre>
+</p>
+<p></p>
+
+<h6 class=CaptionFigColumn id=header>API Information: </h6>The value of the impl attribute must represent an implementor of <samp>org.eclipse.mat.query.IQuery</samp>.
+The public fields in the query can be tagged with the <code>@Argument</code> annotation so they can be filled in by the query wizard. Argument types include
+<dl>
+<dt>ISnapshot</dt>
+<dd>the snapshot</dd>
+<dt>IHeapObjectArgument</dt>
+<dd>one or more objects</dd>
+<dt>int</dt>
+<dd>a single object</dd>
+<dt>boolean</dt>
+<dd>a flag</dd>
+</dl>
+Queries can be tagged with @Name @Help @HelpURL @Icon @Menu @Category @CommandName. These annotations can also be held in an annotations.properties file for ease of translation.
+<p></p>
+
+<h6 class=CaptionFigColumn id=header>Supplied Implementation: </h6>The Memory Analyzer supplies a number of queries itself. Check out the <samp>org.eclipse.mat.inspections</samp> package for more samples.
+<p></p>
+
+<br>
+<p class=note id=copyright>
+Copyright (c) 2008 SAP AG and others.<br>
+All rights reserved. This program and the accompanying materials are made 
+available under the terms of the Eclipse Public License v1.0 which 
+accompanies this distribution, and is available at 
+<a href="http://www.eclipse.org/legal/epl-v10.html">http://www.eclipse.org/legal/epl-v10.html</a>
+<p></p>
+
+</p>
+</BODY>
+</HTML>

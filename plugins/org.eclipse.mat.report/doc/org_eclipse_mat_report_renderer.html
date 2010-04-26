@@ -1,0 +1,82 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>Query Result Renderer</title>
+<style>@import url("file:/C:/Program Files/eclipse/plugins/org.eclipse.sdk_3.3.3.r33x_r20080129/book.css");</style>
+<style>@import url("file:/C:/Program Files/eclipse/configuration/org.eclipse.osgi/bundles/449/1/.cp/schema.css");</style>
+</HEAD>
+<BODY>
+<H1><CENTER>Query Result Renderer</CENTER></H1>
+<p></p>
+<h6 class=CaptionFigColumn id=header>Identifier: </h6>org.eclipse.mat.api.renderer<p></p>
+<h6 class=CaptionFigColumn id=header>Since: </h6>0.7.0
+<p></p>
+
+<p>
+<h6 class=CaptionFigColumn id=header>Description: </h6>The Memory Analyzer reports utilize the renderer to create
+a textual representation of the query results, e.g. the table,
+trees, histograms, etc. Out of the box, HTML and CSV are supported.
+This is the extension point to add alternative renderer.</p>
+<p><h6 class=CaptionFigColumn id=header>Configuration Markup:</h6></p>
+<p class=code id=dtd>&lt;!ELEMENT <a name="e.extension">extension</a> (<a href="#e.renderer">renderer</a>)+&gt;</p>
+<p class=code id=dtd>&lt;!ATTLIST extension</p>
+<p class=code id=dtdAttlist>point&nbsp;CDATA #REQUIRED<p class=code id=dtdAttlist>id&nbsp;&nbsp;&nbsp;&nbsp;CDATA #IMPLIED<p class=code id=dtdAttlist>name&nbsp;&nbsp;CDATA #IMPLIED&gt;</p>
+<p></p>
+<ul class=ConfigMarkup id=attlistDesc>
+</ul>
+<br><p class=code id=dtd>&lt;!ELEMENT <a name="e.renderer">renderer</a> EMPTY&gt;</p>
+<p class=code id=dtd>&lt;!ATTLIST renderer</p>
+<p class=code id=dtdAttlist>impl&nbsp;CDATA #REQUIRED&gt;</p>
+<p></p>
+<ul class=ConfigMarkup id=attlistDesc>
+<li><b>impl</b> - implementor of <a href="org/eclipse/mat/report/IOutputter.html"><samp>org.eclipse.mat.report.IOutputter</samp></a>.</li>
+</ul>
+<br><h6 class=CaptionFigColumn id=header>Examples: </h6>Following is an example of a renderer declaration: 
+<p>
+<pre>
+   <p class=code id=tag>&lt;extension point=<p class=code id=cstring>&quot;org.eclipse.mat.report.renderer&quot;</p><p class=code id=tag>&gt;</p>
+      <p class=code id=tag>&lt;renderer impl=<p class=code id=cstring>&quot;org.eclipse.mat.report.internal.CsvRenderer&quot;</p><p class=code id=tag> /&gt;</p>
+   <p class=code id=tag>&lt;/extension&gt;</p>
+</pre>
+</p>
+The renderer must implement <samp>org.eclipse.mat.report.IOutputter</samp>.
+The <samp>@Renderer</samp> annotation declares the target format and,
+optionally, the applicable result type.
+<p>
+<pre>
+@Renderer(target = "csv", result = IResult.class)
+public class CsvRenderer implements IOutputter
+{
+   [...]
+}
+</pre>
+</p>
+In the report, use the "format" parameter to specify the output format:
+<p>
+<pre>
+   <p class=code id=tag>&lt;query name=<p class=code id=cstring>&quot;Class Histogram&quot;</p><p class=code id=tag>&gt;</p>
+      <p class=code id=tag>&lt;param key=<p class=code id=cstring>&quot;format&quot;</p><p class=code id=tag> value=<p class=code id=cstring>&quot;csv&quot;</p><p class=code id=tag> /&gt;</p>
+      <p class=code id=tag>&lt;command&gt;</p>histogram<p class=code id=tag>&lt;/command&gt;</p>
+   <p class=code id=tag>&lt;/query&gt;</p>
+</pre>
+</p>
+<p></p>
+
+<h6 class=CaptionFigColumn id=header>API Information: </h6>The value of the impl attribute must represent an implementor of <samp>org.eclipse.mat.report.IOutputter</samp>.
+<p></p>
+
+<h6 class=CaptionFigColumn id=header>Supplied Implementation: </h6>The Memory Analyzer supplies two renderer: one for HTML, one for CSV (comma separated values).
+<p></p>
+
+<br>
+<p class=note id=copyright>
+Copyright (c) 2008 SAP AG and others.<br>
+All rights reserved. This program and the accompanying materials are made 
+available under the terms of the Eclipse Public License v1.0 which 
+accompanies this distribution, and is available at 
+<a href="http://www.eclipse.org/legal/epl-v10.html">http://www.eclipse.org/legal/epl-v10.html</a>
+<p></p>
+
+</p>
+</BODY>
+</HTML>
