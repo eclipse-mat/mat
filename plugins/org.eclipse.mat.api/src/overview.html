@@ -14,7 +14,7 @@ The main arrangement of plug-ins is
       <li><samp>org.eclipse.mat.api</samp>
       allows access to data from the snapshot, such as objects and classes. It also holds the standard queries.
       <ol>
-        <li><a href="org_eclipse_mat_api_factory.html">factory extension point</a></li>
+        <li><a href="org_eclipse_mat_api_factory.html">snapshot factory extension point</a></li>
         <li><a href="org_eclipse_mat_api_heapDumpProvider.html">trigger heap dump extension point</a></li>
         <li><a href="org_eclipse_mat_api_nameResolver.html">name resolver extension point</a> for object describing</li>
         <li><a href="org_eclipse_mat_api_requestResolver.html">request resolver extension point</a></li>
@@ -23,7 +23,10 @@ The main arrangement of plug-ins is
       </ol>
       <ul>
         <li><samp>org.eclipse.mat.parser</samp>
-          controls the parsing of a heap dump into a snapshot, and holds the implementations of the snapshot objects and indexes. 
+          controls the parsing of a heap dump into a snapshot, and holds the implementations of the snapshot objects and indexes.
+          <ol>
+            <li><a href="org_eclipse_mat_parser_parser.html">parser extension point</a></li>
+          </ol> 
           <ul>
             <li><samp>org.eclipse.mat.dtfj</samp>
             parses IBM DTFJ based dumps.
