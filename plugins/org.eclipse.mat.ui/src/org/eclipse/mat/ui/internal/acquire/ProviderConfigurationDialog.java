@@ -241,7 +241,7 @@ public class ProviderConfigurationDialog extends Dialog
 	
 	private void createProvidersTable(Composite parent)
 	{
-		availableProvidersTable = new Table(parent, SWT.V_SCROLL | SWT.H_SCROLL | SWT.BORDER | SWT.SINGLE);
+		availableProvidersTable = new Table(parent, SWT.V_SCROLL | SWT.H_SCROLL | SWT.BORDER | SWT.SINGLE | SWT.FULL_SELECTION);
 		TableColumn column1 = new TableColumn(availableProvidersTable, SWT.NONE);
 		column1.setText("Name");
 		column1.setWidth(200);
