@@ -3,6 +3,11 @@
 <concept id="concept_dominatortree" xml:lang="en-us">
 	<title>Dominator Tree</title>
 	<conbody>
+		<p>Memory Analyzer provides a dominator tree of the object graph. 
+		    The transformation of the object reference graph into a
+			dominator tree allows you to easily identify the biggest chunks of
+			retained memory and the keep-alive dependencies among objects. 
+			Bellow is an informal definition of the terms.</p>
 		<p>
 			An object x
 			<b>dominates</b>
@@ -18,17 +23,17 @@
 			A
 			<b>dominator tree</b>
 			is built out of the object graph. In the dominator tree each object
-			is the immediate dominator of its children. so dependencies between
+			is the immediate dominator of its children, so dependencies between
 			the objects are easily identified.
 		</p>
-		<p>Dominator Tree has the following important properties:</p>
+		<p>The dominator tree has the following important properties:</p>
 		<ul>
 			<li>
 				The objects belonging to the sub-tree of
 				<keyword>x</keyword>
 				(i.e. the objects dominated by
 				<keyword>x</keyword>
-				) represent the retained set of
+				) represent the <xref href="shallowretainedheap.dita">retained set</xref> of
 				<keyword>x</keyword>
 				.
 			</li>
@@ -47,8 +52,11 @@
 				object references from the object graph.</li>
 		</ul>
 		<image href="../mimes/m2268b281.png"></image>
-		<p>The transformation of the object reference graph into a
-			dominator tree allows you to easily identify the biggest chunks of
-			retained memory.</p>
+
 	</conbody>
+	<related-links>
+		<link href="shallowretainedheap.html" format="html" type="task">
+			<linktext>Shallow vs. Retained Size</linktext>
+		</link>
+	</related-links>
 </concept>

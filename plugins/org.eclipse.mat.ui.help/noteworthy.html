@@ -8,8 +8,8 @@
 <meta name="DC.rights.owner" content="(C) Copyright 2005"/>
 <meta name="DC.Type" content="reference"/>
 <meta name="DC.Title" content="New &amp; Noteworthy"/>
-<meta name="abstract" content="Here are descriptions of some of the more interesting or significant changes made to the Memory Analyzer for the 0.8 release."/>
-<meta name="description" content="Here are descriptions of some of the more interesting or significant changes made to the Memory Analyzer for the 0.8 release."/>
+<meta name="abstract" content="Here are descriptions of some of the more interesting or significant changes made to the Memory Analyzer for the 1.0 preview release."/>
+<meta name="description" content="Here are descriptions of some of the more interesting or significant changes made to the Memory Analyzer for the 1.0 preview release."/>
 <meta name="DC.Format" content="XHTML"/>
 <meta name="DC.Identifier" content="ref_noteworthy"/>
 <meta name="DC.Language" content="en-us"/>
@@ -23,8 +23,36 @@
 
 	
 	<div><p>Here are descriptions of some of the more interesting or
-		significant changes made to the Memory Analyzer for the 0.8 release.
+		significant changes made to the Memory Analyzer for the 1.0 preview release.
 	</p>
+
+	
+		<div class="section"><h2 class="sectiontitle">Acquire Heap Dumps from within MAT</h2>
+			
+			<p>
+				It is possible now to acquire a heap dump from a locally running JVM directly
+				from Memory Analyzer. The triggered heap dump is then parsed and opened in
+				the tool.
+			</p>
+
+			<p>
+				This functionality is achieved using heap dump provider extensions. 
+				Currently there is one heap dump provider which can trigger HPROF heap dumps
+				with the help of 'jmap' (part of Sun based JDKs), and several heap dump providers
+				for IBM JVMs.
+			</p>
+
+			<p>
+			<img src="mimes/nn_acquire_menu.png" alt="The menu &#34;File&#34; -&gt; &#34;Acquire Heap Dump&#34; can be used to trigger heap dumps"/>
+			</p>
+
+			<p>
+			<img src="mimes/acquire.png" alt="The &#34;Acquire Dialog&#34; provides the possibility to select the Java process to be dumped, as well as to configure some parameters needed to execute this operation."/>
+			</p>
+
+			
+
+		</div>
 
 		<div class="section"><h2 class="sectiontitle">Support IBM Heap Dumps</h2>
 			

@@ -1,15 +1,17 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html lang="en-us" xml:lang="en-us">
 <head>
-<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
-<meta name="copyright" content="(C) Copyright 2005" />
-<meta name="DC.rights.owner" content="(C) Copyright 2005" />
-<meta content="task" name="DC.Type" />
-<meta name="DC.Title" content="Analyzing Threads" />
-<meta content="XHTML" name="DC.Format" />
-<meta content="task_analyzingthreads" name="DC.Identifier" />
-<meta content="en-us" name="DC.Language" />
-<link href="../styles/commonltr.css" type="text/css" rel="stylesheet" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="copyright" content="(C) Copyright 2005"/>
+<meta name="DC.rights.owner" content="(C) Copyright 2005"/>
+<meta name="DC.Type" content="task"/>
+<meta name="DC.Title" content="Analyzing Threads"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="task_analyzingthreads"/>
+<meta name="DC.Language" content="en-us"/>
+<link rel="stylesheet" type="text/css" href="../styles/commonltr.css"/>
 <title>Analyzing Threads</title>
 </head>
 <body id="task_analyzingthreads"><a name="task_analyzingthreads"><!-- --></a>
@@ -21,9 +23,14 @@
 	<div>
 		<div class="section">
 			<p>
-				A thread is the path a program is executed. Multithreaded
-				applications run many threads concurrently within a single program.
-				To analyze all the threads in the heap dump use the
+				Memory Analyzer provides several queries to inspect the threads at the 
+				moment the snapshot was taken.
+			</p>
+
+			<p><strong>Threads Overview</strong></p>
+
+			<p>
+				To get an overview of all the threads in the heap dump use the
 				<span class="menucascade">
 					<span class="uicontrol">Query Browser</span>
 					 &gt; <span class="uicontrol">Thread Overview</span>
@@ -31,14 +38,48 @@
 				query:
 			</p>
 
-			<img src="../mimes/m6c0b0970.png" alt="screen shot of thread overview" />
+			<img src="../mimes/threads_overview.png" alt="screen shot of thread overview"/>
+			<p>
+				The query provide some properties like Name, Object, Context Classloader, etc...
+				for each of the threads.
+			</p>
+
+			<p><strong>Threads Details</strong></p>
+			
 			<p>
 				You can proceed with the analysis of a single thread by using
 				<span class="menucascade">
 					<span class="uicontrol">Java Basics</span>
 					 &gt; <span class="uicontrol">Thread Details</span>
 				</span>
-				context menu.
+				context menu. Memory Analyzer provides an extension point, such that extensions can
+				provide semantic information about the threads activity. The result of the Thread Details 
+				query will contain such information (if available), some overview information, and 
+				possibly the stacktrace of the thread.
+			</p>
+
+			
+			<p><strong>Threads Stacks</strong></p>
+			
+			<p>
+				Some heap dump formats (e.g. HPROF dumps from recent Java 6 VMs and IBM system dumps)
+				contain information about the call stacks of threads, and the Java local objects per 
+				stack frame. To access this information for all threads use the query
+				<span class="menucascade">
+					<span class="uicontrol">Java Basics</span>
+					 &gt; <span class="uicontrol">Thread Stacks</span>
+				</span>
+				with no objects as parameter. To view the call stacks of particular selection of threads use
+				the same query from the context menu. 
+			</p>
+
+			<img src="../mimes/thread_stack.png" alt="screen shot of thread stack"/>
+			<p>
+				Exploring the call-stacks and the local Java objects is a powerful feature, giving a
+				debugger like capabilities over a snapshot. It allows analyzing in details the reason
+				for a memory intensive operations. And it also enables that heap dumps and Memory Analyzer
+				are used not only for memory-related problems, but also for a wide range of other problems 
+				e.g. unresponsive applications.
 			</p>
 
 		</div>

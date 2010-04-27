@@ -5,7 +5,13 @@
 	<prolog />
 	<taskbody>
 		<context>
-			<p> You can get a heap dump on an out of memory error for Sun JVM
+		
+			<!-- ***************************************************************
+			* HPROF dumps
+			****************************************************************** -->
+		    <p><b>HPROF Binary Heap Dumps</b></p>
+		    <p><i>Get Heap Dump on an OutOfMemoryError</i></p>
+			<p> One can get a HPROF binary heap dump on an OutOfMemoryError for Sun JVM
 				(1.4.2_12 or higher and 1.5.0_07 or higher), HP-UX JVM (1.4.2_11 or
 				higher) and SAP JVM (since 1.5.0) by setting the following JVM
 				parameter:</p>
@@ -13,7 +19,10 @@
 				<codeblock>-XX:+HeapDumpOnOutOfMemoryError</codeblock>
 			</p>
 			<p>The heap dump is written to the work directory.</p>
-			<p> To get heap dump on demand use the following JVM parameter:</p>
+			
+			<p><i>Interactively Trigger a Heap Dump</i></p>
+			<p> To get heap dump on demand one can add the following parameter to the JVM
+				and press CTRL + BREAK in the preferred moment:</p>
 			<p>
 				<codeblock>-XX:+HeapDumpOnCtrlBreak</codeblock>
 			</p>
@@ -23,11 +32,134 @@
 				<li>
 					<cmdname>jmap -dump:format=b,file=&lt;filename.hprof&gt; &lt;pid&gt;</cmdname>
 				</li>
-				<li>JConsole</li>
-				<li>Memory Analyzer (only on SAP JVM)</li>
+				<li>JConsole (see sample usage in <xref format="html" href="../gettingstarted/basictutorial.html">Basic Tutorial</xref>)</li>
+				<li>Memory Analyzer (see bottom of page)</li>
 			</ul>
-			<image href="../mimes/m4900a8d.png"
+			<p>The following table shows the availability of VM options and tools on the various platforms:</p>
+			<image href="../mimes/dump_tools_matrix.png"
 				alt="table of vm vendors and vm parameters to be used" />
+				
+			<!-- ***************************************************************
+			* IBM dumps
+			****************************************************************** -->
+			<p><b>System Dumps and Heap Dumps from IBM Virtual Machines </b></p>
+			<p>
+			Memory Analyzer can also read memory-related information from IBM system
+			dumps and from Portable Heap Dump (PHD) files. For this purpose one just 
+			has to install the IBM DTFJ feature into Memory Analyzer version 0.8 or 
+			later. Follow the <xref format="html" href="http://www.ibm.com/developerworks/java/jdk/tools/dtfj.html">IBM DTFJ feature installation instructions</xref>. If the DTFJ
+			feature is successfully installed then 'File' -&gt; 'Open Heap Dump' menu should 
+			offer also the following options for the file types: 
+
+			<ul>
+				<li>IBM Javacore file</li>
+				<li>IBM Portable Heap Dump </li>
+				<li>IBM Portable Heap Dump (gzipped) </li>
+				<li>IBM SDK for Java (J9) JExtract output XML </li>
+				<li>IBM SDK for Java (J9) JExtracted system dump </li>
+				<li>IBM SDK for Java (J9) system dump </li>
+				<li>IBM SDK for Java (J9) JExtracted system dump </li>
+				<li>IBM SDK for Java 1.4.2 JExtracted system dump </li>
+			</ul>
+			</p>
+			
+			<p>
+			Minimum-required versions of IBM Virtual Machines to generate the dump are 
+			<b>IBM JDK 1.4.2 SR12, 5.0 SR8a and 6.0 SR2</b> 
+			though previous versions may generate dumps usable with Memory Analyzer but with inaccurate root information
+			</p>
+			
+			<p>
+			<i>IBM Java 5.0 and Java 6 Virtual Machine dump options</i>
+			</p>
+			
+			<p>
+			A quick reference for IBM Java 5.0 and Java 6 Virtual Machine command line options: 
+			
+			<codeblock>-Xdump:system+heap+java:events=systhrow+user,filter=java/lang/OutOfMemoryError,request=exclusive+prepwalk+compact</codeblock>
+			</p> 
+			<p>Dump types:</p> 
+			
+			<ul>
+				<li>system - a system process dump. Process system dump files with jextract before loading them into Memory Analyzer. Do not give them a .sdff extension as that is only used for Java 1.4.2 system dumps</li> 
+				<li>heap - a Portable Heap Dump (PHD) file. Contains all objects and classes, but no thread details </li>
+				<li>javacore - a readable file which contains information about class loaders and which can be used by Memory Analyzer when reading PHD files</li>
+			</ul>
+			 
+			<p>Events:</p> 
+			
+			<ul>
+				<li>systhrow - when a system generated exception is thrown </li>
+				<li>user - the user has typed control-break </li>
+			</ul>
+			
+			<p>Filter:</p> 
+			<ul>
+				<li>java/lang/OutOfMemoryError - the type of the systhrow exception</li>
+			</ul> 
+			
+			<p>Request:</p> 
+			
+			<ul>
+				<li>exclusive Stop anything modifying the heap while generating the dump </li>
+				<li>prepwalk Make sure the heap is safe to dump </li>
+				<li>compact minimise the size of the heap </li>
+			</ul>
+			
+			<p><i>IBM Java 1.4.2 dump options</i></p>
+			<p>A quick reference for IBM Java 1.4.2 dump options</p> 
+			
+			<ul>
+				<li>export JAVA_DUMP_OPTS=ONOUTOFMEMORY(SYSDUMP,HEAPDUMP,JAVADUMP)</li> 
+				<li>set JAVA_DUMP_OPTS=ONOUTOFMEMORY(SYSDUMP,HEAPDUMP,JAVADUMP)</li>
+			</ul> 
+			
+			<p>On non-z/OS systems process any system dump files with JExtract to give a .sdff file. On z/OS systems copy the SVC dump file in binary mode to your Eclipse Memory Analyzer system, giving it a .dmp file extension. 
+			</p>
+			
+			
+			<!-- ***************************************************************
+			* Acquire from Memory Analyzer
+			****************************************************************** -->
+			<p><b>Acquire Heap Dump from Memory Analyzer</b></p>
+			<p>
+			If the Java process from which the heap dump is to be acquired is on the 
+			same machine as the Memory Analyzer, it is possible to acquire a heap dump
+			directly from the Memory Analyzer. Dumps acquired this way are directly
+			parsed and opened in tool.
+			</p>
+			
+			<p>Acquiring the heap dump is a VM specific. Memory Analyzer comes with 
+			several so called heap dump providers - for Sun based VMs (needs a Sun JDK
+			with jmap) and for IBM VMs (needs an IBM JDK). Also extension points 
+			are provided for adopters to plug-in their own heap dump pwoviders.
+			</p>
+			
+			<p>
+			To trigger a heap dump from Memory Analyzer open the <b>File</b> &gt; <b>Acquire Heap Dump...</b>
+			</p>
+			
+			<p>Depending on the concrete execution environment the pre-installed heap dump
+			providers may work with their default settings and in this case a list of
+			running Java processes should appear: 
+			</p>
+			<image href="../mimes/acquire.png">
+				<alt>Select a process to be dumped</alt>
+			</image>
+			<p>
+			One can now from which process a heap dump should be acquired, provide a preferred
+			location for the heap dump and press <b>Finish</b> to acuire the dump. Some of the heap
+			dump providers may allow (or require) additional parameters (e.g. type of 
+			the heap dump) to be set. This can be done by going to the <b>Next &gt;</b> page of the 
+			wizard.  
+			</p>
+			<p><i>Configuring the Heap Dump Providers</i></p>
+			<p>
+			If the process list is empty try to configure the available heap dump providers. To do this
+			press <b>Configure...</b>, select a matching provider from the list and click on it. 
+			You can see then what are the required settings and specify them.
+			</p>
+			
 		</context>
 	</taskbody>
 </task>

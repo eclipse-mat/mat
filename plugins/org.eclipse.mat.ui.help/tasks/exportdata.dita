@@ -10,10 +10,10 @@
 			<ul>
 				<li>
 					Using the toolbar export menu (you can choose between export to
-					.csv and .txt)
+					HTML, CSV, and TXT)
 					<p>
-						<image href="../mimes/m68786788.png"
-							alt="screen shot of context menu showing csv and txt selection"></image>
+						<image href="../mimes/export_to.png"
+							alt="screen shot export menu"></image>
 					</p>
 				</li>
 				<li>Copy and paste to Notes view, e-mail or any text-based file.
@@ -21,9 +21,10 @@
 				<li>
 					Using context menu
 					<cmdname>Copy</cmdname>
-					to copy and paste address, class name or value.
+					to copy and paste address, class name or value of an object. The content of 
+					huge arrays can be saved to a file using the Save Value to File option.
 					<p>
-						<image href="../mimes/3f41747b.png" alt="screen shot showing Copy options"></image>
+						<image href="../mimes/copy.png" alt="screen shot showing Copy options"></image>
 					</p>
 				</li>
 			</ul>

@@ -6,23 +6,55 @@
 	<taskbody>
 		<context>
 			<p>
-				A thread is the path a program is executed. Multithreaded
-				applications run many threads concurrently within a single program.
-				To analyze all the threads in the heap dump use the
+				Memory Analyzer provides several queries to inspect the threads at the 
+				moment the snapshot was taken.
+			</p>
+			<p><b>Threads Overview</b></p>
+			<p>
+				To get an overview of all the threads in the heap dump use the
 				<menucascade>
 					<uicontrol>Query Browser</uicontrol>
 					<uicontrol>Thread Overview</uicontrol>
 				</menucascade>
 				query:
 			</p>
-			<image href="../mimes/m6c0b0970.png" alt="screen shot of thread overview"></image>
+			<image href="../mimes/threads_overview.png" alt="screen shot of thread overview"></image>
+			<p>
+				The query provide some properties like Name, Object, Context Classloader, etc...
+				for each of the threads.
+			</p>
+			<p><b>Threads Details</b></p>			
 			<p>
 				You can proceed with the analysis of a single thread by using
 				<menucascade>
 					<uicontrol>Java Basics</uicontrol>
 					<uicontrol>Thread Details</uicontrol>
 				</menucascade>
-				context menu.
+				context menu. Memory Analyzer provides an extension point, such that extensions can
+				provide semantic information about the threads activity. The result of the Thread Details 
+				query will contain such information (if available), some overview information, and 
+				possibly the stacktrace of the thread.
+			</p>
+			
+			<p><b>Threads Stacks</b></p>			
+			<p>
+				Some heap dump formats (e.g. HPROF dumps from recent Java 6 VMs and IBM system dumps)
+				contain information about the call stacks of threads, and the Java local objects per 
+				stack frame. To access this information for all threads use the query
+				<menucascade>
+					<uicontrol>Java Basics</uicontrol>
+					<uicontrol>Thread Stacks</uicontrol>
+				</menucascade>
+				with no objects as parameter. To view the call stacks of particular selection of threads use
+				the same query from the context menu. 
+			</p>
+			<image href="../mimes/thread_stack.png" alt="screen shot of thread stack"></image>
+			<p>
+				Exploring the call-stacks and the local Java objects is a powerful feature, giving a
+				debugger like capabilities over a snapshot. It allows analyzing in details the reason
+				for a memory intensive operations. And it also enables that heap dumps and Memory Analyzer
+				are used not only for memory-related problems, but also for a wide range of other problems 
+				e.g. unresponsive applications.
 			</p>
 		</context>
 	</taskbody>

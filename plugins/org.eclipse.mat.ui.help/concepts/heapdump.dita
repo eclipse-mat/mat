@@ -3,9 +3,21 @@
 <concept id="concept_heapdump" xml:lang="en-us">
 	<title>Heap Dump</title>
 	<conbody>
-		<p>HPROF heap dump is a snapshot of java heap at a certain time.
-			A full GC is triggered before the heap dump is written so it contains
-			information about the remaining objects.</p>
+		<p>A heap dump is a snapshot of the memory of a Java process at a certain point of time. 
+		   There are different formats for persisting this data, and depending on the format it may
+		   contain different pieces of information, but in general the snapshot contains information
+		   about the java objects and classes in the heap at the moment the snapshot was triggered.
+		   Usually a full GC is triggered before the heap dump is written so it contains
+		   information about the remaining objects.</p>
+		<p>The Memory Analyzer is able to work with HPROF binary heap dumps, 
+		   IBM system dumps (after preprocessing them), and IBM portable heap dumps (PHD) 
+		   from a variety of platforms.
+		</p>		   
+
+		<p>
+			Typical information which can be found in heap dumps (once more - depending on the heap dump type) is:
+		</p>
+		
 		<ul>
 			<li>
 				All Objects
@@ -19,6 +31,10 @@
 				Garbage Collection Roots
 				<p>Objects defined to be reachable by the JVM</p>
 			</li>
+			<li>
+				Thread Stacks and Local Variables
+				<p>The call-stacks of threads at the moment of the snapshot, and per-frame information about local objects</p>
+			</li>			
 		</ul>
 		<p>A heap dump does not contain allocation information so it cannot
 			resolve questions like who had created the objects and where they

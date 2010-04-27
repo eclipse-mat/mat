@@ -3,9 +3,37 @@
 <reference id="ref_noteworthy" xml:lang="en-us">
 	<title>New &amp; Noteworthy</title>
 	<shortdesc>Here are descriptions of some of the more interesting or
-		significant changes made to the Memory Analyzer for the 0.8 release.
+		significant changes made to the Memory Analyzer for the 1.0 preview release.
 	</shortdesc>
 	<refbody>
+	
+		<section>
+			<title>Acquire Heap Dumps from within MAT</title>
+			<p>
+				It is possible now to acquire a heap dump from a locally running JVM directly
+				from Memory Analyzer. The triggered heap dump is then parsed and opened in
+				the tool.
+			</p>
+			<p>
+				This functionality is achieved using heap dump provider extensions. 
+				Currently there is one heap dump provider which can trigger HPROF heap dumps
+				with the help of 'jmap' (part of Sun based JDKs), and several heap dump providers
+				for IBM JVMs.
+			</p>
+			<p>
+			<image href="mimes/nn_acquire_menu.png">
+				<alt>The menu "File" -> "Acquire Heap Dump" can be used to trigger heap dumps</alt>
+			</image>
+			</p>
+			<p>
+			<image href="mimes/acquire.png">
+				<alt>The "Acquire Dialog" provides the possibility to select the Java process to be dumped, 
+				as well as to configure some parameters needed to execute this operation.</alt>
+			</image>
+			</p>
+			
+
+		</section>
 		<section>
 			<title>Support IBM Heap Dumps</title>
 			<p>

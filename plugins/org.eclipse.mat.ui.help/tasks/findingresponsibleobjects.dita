@@ -7,13 +7,21 @@
 		<context>
 			<b>Immediate Dominators</b>
 			<p>This query finds and aggregates all objects dominating a given
-				set of objects on class level.</p>
+				set of objects on class level. It is very useful to quickly find out
+				who is responsible for a set of objects, as it directly answers 
+				the question "who keeps these objects alive" instead of answering
+				"who has a reference to these objects". Using the fact that 
+				every object has just one immediate dominator (unlike multiple incoming references)
+				the tool offers possibility to filter "uninteresting" dominators (e.g. java.* classes)
+				and directly see the responsible application classes.
+			</p>
 			<p>Choice of options:</p>
 			<ul>
 				<li>Selecting entries and using the context menu</li>
 			</ul>
-			<image href="../mimes/m64b9f6a9.png" alt="screen shot of the context menu"
+			<image href="../mimes/exec_immediate_dominators.png" alt="screen shot of the context menu"
 				placement="break"></image>
+			<p>
 			<ul>
 				<li>
 					The toolbar command
@@ -24,8 +32,11 @@
 					starts a wizard to select an object set.
 				</li>
 			</ul>
-			<image href="../mimes/6ac427cd.png" alt="screen shot of the list of immediate dominators"
+			</p>
+			<image href="../mimes/6ac427cd.png" alt="screen shot execute immediate dominators"
 				placement="break"></image>
+			
+			<p>
 			The immediate dominators of all char arrays are all objects
 			responsible for keeping the
 			<cmdname>char[]</cmdname>
@@ -35,6 +46,7 @@
 			<cmdname>java.*</cmdname>
 			, and you will see the non-JDK classes responsible for the char
 			arrays.
+			</p>
 		</context>
 	</taskbody>
 	<related-links>

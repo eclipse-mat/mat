@@ -1,15 +1,18 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html lang="en-us" xml:lang="en-us">
 <head>
-<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
-<meta name="copyright" content="(C) Copyright 2005" />
-<meta name="DC.rights.owner" content="(C) Copyright 2005" />
-<meta content="concept" name="DC.Type" />
-<meta name="DC.Title" content="Dominator Tree" />
-<meta content="XHTML" name="DC.Format" />
-<meta content="concept_dominatortree" name="DC.Identifier" />
-<meta content="en-us" name="DC.Language" />
-<link href="../styles/commonltr.css" type="text/css" rel="stylesheet" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="copyright" content="(C) Copyright 2005"/>
+<meta name="DC.rights.owner" content="(C) Copyright 2005"/>
+<meta name="DC.Type" content="concept"/>
+<meta name="DC.Title" content="Dominator Tree"/>
+<meta name="DC.Relation" scheme="URI" content="shallowretainedheap.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="concept_dominatortree"/>
+<meta name="DC.Language" content="en-us"/>
+<link rel="stylesheet" type="text/css" href="../styles/commonltr.css"/>
 <title>Dominator Tree</title>
 </head>
 <body id="concept_dominatortree"><a name="concept_dominatortree"><!-- --></a>
@@ -18,6 +21,12 @@
 	<h1 class="topictitle1">Dominator Tree</h1>
 
 	<div>
+		<p>Memory Analyzer provides a dominator tree of the object graph. 
+		    The transformation of the object reference graph into a
+			dominator tree allows you to easily identify the biggest chunks of
+			retained memory and the keep-alive dependencies among objects. 
+			Bellow is an informal definition of the terms.</p>
+
 		<p>
 			An object x
 			<strong>dominates</strong>
@@ -35,19 +44,19 @@
 			A
 			<strong>dominator tree</strong>
 			is built out of the object graph. In the dominator tree each object
-			is the immediate dominator of its children. so dependencies between
+			is the immediate dominator of its children, so dependencies between
 			the objects are easily identified.
 		</p>
 
-		<p>Dominator Tree has the following important properties:</p>
+		<p>The dominator tree has the following important properties:</p>
 
-		<br /><ul>
+		<ul>
 			<li>
 				The objects belonging to the sub-tree of
 				<span class="keyword">x</span>
 				(i.e. the objects dominated by
 				<span class="keyword">x</span>
-				) represent the retained set of
+				) represent the <a href="shallowretainedheap.html">retained set</a> of
 				<span class="keyword">x</span>
 				.
 			</li>
@@ -69,13 +78,14 @@
 
 		</ul>
 
-		<img src="../mimes/m2268b281.png" />
-		<p>The transformation of the object reference graph into a
-			dominator tree allows you to easily identify the biggest chunks of
-			retained memory.</p>
+		<img src="../mimes/m2268b281.png"/>
 
 	</div>
 
+	<div><div class="relinfo reltasks"><strong>Related tasks</strong><br/>
+<div><a href="shallowretainedheap.html">Shallow vs. Retained Size</a></div>
+</div>
+</div>
 
 </body>
 </html>

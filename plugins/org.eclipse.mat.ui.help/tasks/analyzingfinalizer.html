@@ -1,15 +1,17 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html lang="en-us" xml:lang="en-us">
 <head>
-<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
-<meta name="copyright" content="(C) Copyright 2005" />
-<meta name="DC.rights.owner" content="(C) Copyright 2005" />
-<meta content="task" name="DC.Type" />
-<meta name="DC.Title" content="Analyzing Finalizer" />
-<meta content="XHTML" name="DC.Format" />
-<meta content="task_analyzingfinalizer" name="DC.Identifier" />
-<meta content="en-us" name="DC.Language" />
-<link href="../styles/commonltr.css" type="text/css" rel="stylesheet" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="copyright" content="(C) Copyright 2005"/>
+<meta name="DC.rights.owner" content="(C) Copyright 2005"/>
+<meta name="DC.Type" content="task"/>
+<meta name="DC.Title" content="Analyzing Finalizer"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="task_analyzingfinalizer"/>
+<meta name="DC.Language" content="en-us"/>
+<link rel="stylesheet" type="text/css" href="../styles/commonltr.css"/>
 <title>Analyzing Finalizer</title>
 </head>
 <body id="task_analyzingfinalizer"><a name="task_analyzingfinalizer"><!-- --></a>
@@ -22,21 +24,21 @@
 		<div class="section">
 			<p> Finalizers are executed when the internal garbage collection
 				cleans up the objects. Since you have no control over the finalizer
-				execution, it is recommended not to use them. because the Memory can
-				only be released when the finalize method finished so long running
+				execution, it is recommended not to use them. Because the memory can
+				only be released when the finalize method finished, long running
 				tasks in the finalizer can block the garbage collection. To get the
 				finalizers overview select Finalizer Overview Query from the query
 				list:</p>
 
-			<img src="../mimes/26075503.png" />
+			<img src="../mimes/finalizers.png"/>
 			<p>This query includes the following subqueries:</p>
 
 			
-<div class="tablenoborder"><table summary="" cellspacing="0" cellpadding="4" frame="border" border="1" rules="all">
+<div class="tablenoborder"><table cellpadding="4" cellspacing="0" summary="" frame="border" border="1" rules="all">
 					<tbody>
 						<tr>
 							<td class="cellrowborder" valign="top">
-								<strong>Finalizer In Processing</strong>
+								<strong>Finalizer in Processing</strong>
 							</td>
 
 							<td class="cellrowborder" valign="top">
@@ -45,7 +47,7 @@
 									Thread if any. The returned object can be processed for one of
 									the following reasons:</p>
 
-								<br /><ul>
+								<ul>
 									<li>it is blocking</li>
 
 									<li>it is long running</li>
@@ -62,7 +64,7 @@
 
 						<tr>
 							<td class="cellrowborder" valign="top">
-								<strong>Finalizer Queue</strong>
+								<strong>Ready for Finalizer Thread</strong>
 							</td>
 
 							<td class="cellrowborder" valign="top">
@@ -70,7 +72,7 @@
 									processing order. Following reasons can cause a full finalizer
 									queue:</p>
 
-								<br /><ul>
+								<ul>
 									<li> The currently processed object is blocking or long running
 										(please use our finalizer in processing query to check).</li>
 
@@ -79,7 +81,19 @@
 
 								</ul>
 
+								<p> Additionally a class-level summary of the objects is provided</p>
+
 							</td>
+
+						</tr>
+
+						<tr>
+							<td class="cellrowborder" valign="top">
+								<strong>Finalizer Thread</strong>
+							</td>
+
+							<td class="cellrowborder" valign="top"> This query shows the daemon thread which performs the
+								object finalizations.</td>
 
 						</tr>
 
@@ -102,16 +116,6 @@
 								</p>
 
 							</td>
-
-						</tr>
-
-						<tr>
-							<td class="cellrowborder" valign="top">
-								<strong>Finalizer Thread</strong>
-							</td>
-
-							<td class="cellrowborder" valign="top"> This query shows the daemon thread which performs the
-								object finalizations.</td>
 
 						</tr>
 

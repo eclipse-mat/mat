@@ -1,16 +1,18 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html lang="en-us" xml:lang="en-us">
 <head>
-<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
-<meta name="copyright" content="(C) Copyright 2005" />
-<meta name="DC.rights.owner" content="(C) Copyright 2005" />
-<meta content="concept" name="DC.Type" />
-<meta name="DC.Title" content="Heap Dump" />
-<meta scheme="URI" name="DC.Relation" content="../tasks/acquiringheapdump.html" />
-<meta content="XHTML" name="DC.Format" />
-<meta content="concept_heapdump" name="DC.Identifier" />
-<meta content="en-us" name="DC.Language" />
-<link href="../styles/commonltr.css" type="text/css" rel="stylesheet" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="copyright" content="(C) Copyright 2005"/>
+<meta name="DC.rights.owner" content="(C) Copyright 2005"/>
+<meta name="DC.Type" content="concept"/>
+<meta name="DC.Title" content="Heap Dump"/>
+<meta name="DC.Relation" scheme="URI" content="../tasks/acquiringheapdump.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="concept_heapdump"/>
+<meta name="DC.Language" content="en-us"/>
+<link rel="stylesheet" type="text/css" href="../styles/commonltr.css"/>
 <title>Heap Dump</title>
 </head>
 <body id="concept_heapdump"><a name="concept_heapdump"><!-- --></a>
@@ -19,12 +21,25 @@
 	<h1 class="topictitle1">Heap Dump</h1>
 
 	<div>
-		<p>HPROF heap dump is a snapshot of java heap at a certain time.
-			A full
-			GC is triggered before the heap dump is written so it contains
-			information about the remaining objects.</p>
+		<p>A heap dump is a snapshot of the memory of a Java process at a certain point of time. 
+		   There are different formats for persisting this data, and depending on the format it may
+		   contain different pieces of information, but in general the snapshot contains information
+		   about the java objects and classes in the heap at the moment the snapshot was triggered.
+		   Usually a full GC is triggered before the heap dump is written so it contains
+		   information about the remaining objects.</p>
 
-		<br /><ul>
+		<p>The Memory Analyzer is able to work with HPROF binary heap dumps, 
+		   IBM system dumps (after preprocessing them), and IBM portable heap dumps (PHD) 
+		   from a variety of platforms.
+		</p>
+		   
+
+		<p>
+			Typical information which can be found in heap dumps (once more - depending on the heap dump type) is:
+		</p>
+
+		
+		<ul>
 			<li>
 				All Objects
 				<p>Class, fields, primitive values and references</p>
@@ -43,6 +58,12 @@
 
 			</li>
 
+			<li>
+				Thread Stacks and Local Variables
+				<p>The call-stacks of threads at the moment of the snapshot, and per-frame information about local objects</p>
+
+			</li>
+			
 		</ul>
 
 		<p>A heap dump does not contain allocation information so it cannot
@@ -51,7 +72,7 @@
 
 	</div>
 
-	<div><div class="reltasks"><strong>Related tasks</strong><br />
+	<div><div class="relinfo reltasks"><strong>Related tasks</strong><br/>
 <div><a href="../tasks/acquiringheapdump.html">Acquiring Heap Dumps</a></div>
 </div>
 </div>

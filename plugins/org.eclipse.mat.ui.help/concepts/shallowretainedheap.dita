@@ -7,11 +7,14 @@
 			<b>Shallow heap</b>
 			is the memory consumed by one object. An object needs 32 or 64 bits
 			(depending on the OS architecture) per reference, 4 bytes per
-			Integer, 8 bytes per Long, etc. The total is then aligned to 8 bytes.
+			Integer, 8 bytes per Long, etc. Depending on the heap dump format the
+			size may be adjusted (e.g. aligned to 8, etc...) to model better the 
+			real consumption of the VM.
 		</p>
 		<p>
 			<b>Retained set</b>
-			of X is the set of objects which would be removed by GC.collected.
+			of X is the set of objects which would be removed by GC when X is garbage 
+			collected.
 		</p>
 		<p>
 			<b>Retained heap</b>
@@ -31,8 +34,8 @@
 			retained size is the total heap size of all objects contained in the
 			retained set.</p>
 		<image href="../mimes/62ff1436.png"></image>
-		<p>The Minimum Retained Size gives a good estimation of the
-			retained size which is calculated about 1.000 times faster than the
+		<p>The Minimum Retained Size gives a good (under)estimation of the
+			retained size which is calculated ways faster than the
 			exact retained size of a set of objects. It only depends on the
 			number of objects in the inspected set, not the number of objects in
 			the heap dump.</p>
