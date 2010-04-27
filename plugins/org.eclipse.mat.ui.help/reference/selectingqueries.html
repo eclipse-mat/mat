@@ -1,18 +1,20 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html lang="en-us" xml:lang="en-us">
 <head>
-<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
-<meta name="copyright" content="(C) Copyright 2005" />
-<meta name="DC.rights.owner" content="(C) Copyright 2005" />
-<meta content="reference" name="DC.Type" />
-<meta name="DC.Title" content="Selecting Queries" />
-<meta name="abstract" content="" />
-<meta name="description" content="" />
-<meta scheme="URI" name="DC.Relation" content="querymatrix.html" />
-<meta content="XHTML" name="DC.Format" />
-<meta content="ref_queryarguments" name="DC.Identifier" />
-<meta content="en-us" name="DC.Language" />
-<link href="../styles/commonltr.css" type="text/css" rel="stylesheet" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="copyright" content="(C) Copyright 2005"/>
+<meta name="DC.rights.owner" content="(C) Copyright 2005"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="Selecting Queries"/>
+<meta name="abstract" content=""/>
+<meta name="description" content=""/>
+<meta name="DC.Relation" scheme="URI" content="querymatrix.html"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="ref_queryarguments"/>
+<meta name="DC.Language" content="en-us"/>
+<link rel="stylesheet" type="text/css" href="../styles/commonltr.css"/>
 <title>Selecting Queries</title>
 </head>
 <body id="ref_queryarguments"><a name="ref_queryarguments"><!-- --></a>
@@ -24,7 +26,7 @@
 
 	
 
-	<div><p />
+	<div><p/>
 
 		<div class="section">
 			<p> Memory Analyzer provides a set of queries to analyze a heap dump. These
@@ -32,13 +34,13 @@
 
 			<p> You can select a query out of the drop-down toolbar menu. </p>
 
-			<br /><div class="imageleft"><img src="../mimes/189608b9.png" /></div><br />
+			<br/><div class="imageleft"><img class="imageleft" src="../mimes/189608b9.png"/></div><br/>
 			<p> In the menu you can also access the list of already executed queries via the
 				<span class="cmdname">History</span> entry. The Query Selector which can be
 				quickly accessed with the
 				<span class="cmdname">Ctrl+Q</span> key combination. </p>
 
-			<br /><div class="imageleft"><img src="../mimes/3860f55b.png" /></div><br />
+			<br/><div class="imageleft"><img class="imageleft" src="../mimes/select_queries.png"/></div><br/>
 			<p> The Query Selector consists of an input field, where you can search for
 				queries, below the input field you can find the history of already executed
 				queries and below the history the list of all available queries grouped by
@@ -52,7 +54,7 @@
 				arguments. At the bottom the detailed description is displayed like in the
 				query selector. </p>
 
-			<br /><div class="imageleft"><img src="../mimes/36c94924.png" /></div><br />
+			<br/><div class="imageleft"><img class="imageleft" src="../mimes/36c94924.png"/></div><br/>
 			
 			<p id="ref_queryarguments__arguments"><a name="ref_queryarguments__arguments"><!-- --></a>
 				<strong>Providing Query Arguments</strong>
@@ -61,7 +63,7 @@
 			<p>To add the arguments to a query you may use a query browser or an arguments
 				dialog.</p>
 
-			<br /><div class="imageleft"><img src="../mimes/arguments_wizard.png" /></div><br />
+			<br/><div class="imageleft"><img class="imageleft" src="../mimes/arguments_wizard.png"/></div><br/>
 			<p>Mandatory arguments are in boldface. Tooltips and help infopop that are
 				below the dialog provide argument description. Message area of the dialog
 				itself shows information about the selected argument or an error message if
@@ -70,7 +72,7 @@
 				mode of the dialog. On the figure below you can see the simple mode. A set of
 				objects is defined by a pattern. </p>
 
-			<br /><div class="imageleft"><img src="../mimes/arguments_pattern.png" /></div><br />
+			<br/><div class="imageleft"><img class="imageleft" src="../mimes/arguments_pattern.png"/></div><br/>
 			<p id="ref_queryarguments__pattern"><a name="ref_queryarguments__pattern"><!-- --></a>
 				<strong>Pattern Syntax</strong>
 			</p>
@@ -78,186 +80,170 @@
 			<p>The metacharacters that are supported by a pattern are:<strong>(</strong>, <strong>[</strong>, <strong>{</strong> ,<strong>\</strong>, <strong>^</strong>, <strong>-</strong>, <strong>$</strong>, <strong>|</strong>, <strong>]</strong>,
 				<strong>}</strong>, <strong>)</strong>, <strong>?</strong>, <strong>*</strong> and <strong>+</strong>.</p>
 
-			<table summary="" cellspacing="0" cellpadding="4" border="1" class="simpletableborder">
-				<tr>
-					<th valign="bottom" align="left" id="N10105" width="50%">
+			<table cellpadding="4" cellspacing="0" summary="" border="1" class="simpletableborder"><tr>
+					<th valign="bottom" align="left" id="d8510e118" width="50%">
 						Pattern Syntax
 					</th>
 
-					<th valign="bottom" align="left" id="N1010B" width="50%">Details</th>
+					<th valign="bottom" align="left" id="d8510e121" width="50%">Details</th>
 
 				</tr>
-
-				<tr>
-					<td valign="top" headers="N10105">
+<tr>
+					<td valign="top" headers="d8510e118">
 						<pre class="codeblock">[abc]</pre>
 
 					</td>
 
-					<td valign="top" headers="N1010B">
+					<td valign="top" headers="d8510e121">
 						a, b, or c (simple class)
 					</td>
 
 				</tr>
-
-				<tr>
-					<td valign="top" headers="N10105">
+<tr>
+					<td valign="top" headers="d8510e118">
 						<pre class="codeblock">[^abc]</pre>
 
 					</td>
 
-					<td valign="top" headers="N1010B">
+					<td valign="top" headers="d8510e121">
 						Any character except a, b, or c (negation)
 					</td>
 
 				</tr>
-
-				<tr>
-					<td valign="top" headers="N10105">
+<tr>
+					<td valign="top" headers="d8510e118">
 						<pre class="codeblock">outbounds( object )</pre>
 
 					</td>
 
-					<td valign="top" headers="N1010B">outbound referrer</td>
+					<td valign="top" headers="d8510e121">outbound referrer</td>
 
 				</tr>
-
-				<tr>
-					<td valign="top" headers="N10105">
+<tr>
+					<td valign="top" headers="d8510e118">
 						<pre class="codeblock">[a-zA-Z]</pre>
 
 					</td>
 
-					<td valign="top" headers="N1010B">a through z, or A through Z, inclusive (range)</td>
+					<td valign="top" headers="d8510e121">a through z, or A through Z, inclusive (range)</td>
 
 				</tr>
-
-				<tr>
-					<td valign="top" headers="N10105">
+<tr>
+					<td valign="top" headers="d8510e118">
 						<pre class="codeblock">[a-d[m-p]]</pre>
 
 					</td>
 
-					<td valign="top" headers="N1010B">a through d, or m through p: [a-dm-p] (union)</td>
+					<td valign="top" headers="d8510e121">a through d, or m through p: [a-dm-p] (union)</td>
 
 				</tr>
-
-				<tr>
-					<td valign="top" headers="N10105">
+<tr>
+					<td valign="top" headers="d8510e118">
 						<pre class="codeblock">[a-z&amp;&amp;[def]]</pre>
 
 					</td>
 
-					<td valign="top" headers="N1010B">
+					<td valign="top" headers="d8510e121">
 						d, e, or f (intersection)
 					</td>
 
 				</tr>
-
-				<tr>
-					<td valign="top" headers="N10105">
+<tr>
+					<td valign="top" headers="d8510e118">
 						<pre class="codeblock">[a-z&amp;&amp;[^bc]]</pre>
 
 					</td>
 
-					<td valign="top" headers="N1010B">
+					<td valign="top" headers="d8510e121">
 						a through z, except for b and c: [ad-z] (subtraction)
 					</td>
 
 				</tr>
-
-				<tr>
-					<td valign="top" headers="N10105">
+<tr>
+					<td valign="top" headers="d8510e118">
 						<pre class="codeblock">[a-z&amp;&amp;[^m-p]]</pre>
 
 					</td>
 
-					<td valign="top" headers="N1010B">
+					<td valign="top" headers="d8510e121">
 						a through z, and not m through p: [a-lq-z] (subtraction)
 					</td>
 
 				</tr>
-
-				<tr>
-					<td valign="top" headers="N10105">
+<tr>
+					<td valign="top" headers="d8510e118">
 						<pre class="codeblock">\d</pre>
 
 					</td>
 
-					<td valign="top" headers="N1010B">
+					<td valign="top" headers="d8510e121">
 						A digit: [0-9]
 					</td>
 
 				</tr>
-
-				<tr>
-					<td valign="top" headers="N10105">
+<tr>
+					<td valign="top" headers="d8510e118">
 						<pre class="codeblock">\D</pre>
 
 					</td>
 
-					<td valign="top" headers="N1010B">
+					<td valign="top" headers="d8510e121">
 						A non-digit: [^0-9]
 					</td>
 
 				</tr>
-
-				<tr>
-					<td valign="top" headers="N10105">
+<tr>
+					<td valign="top" headers="d8510e118">
 						<pre class="codeblock">\s</pre>
 
 					</td>
 
-					<td valign="top" headers="N1010B">
+					<td valign="top" headers="d8510e121">
 						A whitespace character: [ \t\n\x0B\f\r]
 					</td>
 
 				</tr>
-
-				<tr>
-					<td valign="top" headers="N10105">
+<tr>
+					<td valign="top" headers="d8510e118">
 						<pre class="codeblock">\S</pre>
 
 					</td>
 
-					<td valign="top" headers="N1010B">
+					<td valign="top" headers="d8510e121">
 						 A non-whitespace character: [^\s]
 					</td>
 
 				</tr>
-
-				<tr>
-					<td valign="top" headers="N10105">
+<tr>
+					<td valign="top" headers="d8510e118">
 						<pre class="codeblock">\w</pre>
 
 					</td>
 
-					<td valign="top" headers="N1010B">
+					<td valign="top" headers="d8510e121">
 						 A word character: [a-zA-Z_0-9]
 					</td>
 
 				</tr>
-
-				<tr>
-					<td valign="top" headers="N10105">
+<tr>
+					<td valign="top" headers="d8510e118">
 						<pre class="codeblock">\W</pre>
 
 					</td>
 
-					<td valign="top" headers="N1010B">
+					<td valign="top" headers="d8510e121">
 						 A non-word character: [^\w]
 					</td>
 
 				</tr>
-
-			</table>
+</table>
 				
  
 			<p>In advanced mode, you can define a set of objects with a pattern, object
 				addresses or an Object Query Language (OQL) query. Icons and help messages
 				give you information about the type of the argument.</p>
 
-			<br /><div class="imageleft"><img src="../mimes/arguments_advanced.png" /></div><br />
+			<br/><div class="imageleft"><img class="imageleft" src="../mimes/arguments_advanced.png"/></div><br/>
 			<p>You may enter a single parameter per line, such as a pattern, an object
 				address, or an OQL query. Additional line for this type of the argument is
 				added automatically, thus multiple arguments can be entered.</p>
@@ -279,7 +265,7 @@
 
 	</div>
 
-	<div><div class="relref"><strong>Related reference</strong><br />
+	<div><div class="relinfo relref"><strong>Related reference</strong><br/>
 <div><a href="querymatrix.html">Query Matrix</a></div>
 </div>
 </div>

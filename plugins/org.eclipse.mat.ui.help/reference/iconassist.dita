@@ -4,6 +4,9 @@
 	<title>Icons Assist</title>
 	<refbody>
 		<section>
+			<p>
+			One can get quick help on icons meaning within the tool by pressing ALT + I.
+			</p>
 			<simpletable relcolwidth="2* 12*" id="icons_table">
 				<sthead>
 					<stentry>Icon</stentry>
@@ -19,7 +22,7 @@
 					<stentry>
 						<image href="../mimes/i-class.png"></image>
 					</stentry>
-					<stentry>Class</stentry>
+					<stentry>Instances grouped by class</stentry>
 				</strow>
 				<strow>
 					<stentry>
@@ -116,13 +119,13 @@
 					<stentry>
 						<image href="../mimes/i-expert.png"></image>
 					</stentry>
-					<stentry>Expert system tests drop-down menu</stentry>
+					<stentry>Run a report</stentry>
 				</strow>
 				<strow>
 					<stentry>
 						<image href="../mimes/i-compare.png"></image>
 					</stentry>
-					<stentry>Compare current heap dump with another</stentry>
+					<stentry>Compare</stentry>
 				</strow>
 				<strow>
 					<stentry>
@@ -152,7 +155,7 @@
 					<stentry>
 						<image href="../mimes/i-thread.png"></image>
 					</stentry>
-					<stentry>Thread overview / thread details</stentry>
+					<stentry>Thread related query</stentry>
 				</strow>
 				<strow>
 					<stentry>

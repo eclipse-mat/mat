@@ -9,8 +9,8 @@
 	<refbody>
 		<section>
 			<p>
-				You analyze the heap dumps to find areas for
-				optimization:
+				An easy way to start looking for areas for optimization is to use the <xref format="html" href="inspections/component_report.html">Component Report</xref>.
+				Additionally, the following queries may be useful to perform the analysis manually: 
 			</p>
 			<simpletable relcolwidth="2* 3*"
 				id="analyzingmemoryconsumptiontable">
@@ -24,6 +24,29 @@
 							<image href="../mimes/7507ab60.png" align="left" placement="break"/>
 					</stentry>
 				</strow>
+				<strow>
+					<stentry>Retained Set</stentry>
+					<stentry>
+							Looking what a set of objects retains (how much memory and what types of
+							objects) may give some ideas where to optimize. 
+					</stentry>
+				</strow>
+				<strow>
+					<stentry>Collections query group</stentry>
+					<stentry>
+							A number of queries provided under the <b>Collections</b> query group give the opportunity
+							to analyze the ways collections are used e.g. how much they are filled, what the sizes are,
+							what the collision ratio (for hash maps) is, etc... See <xref format="html" href="../tasks/analyzingjavacollectionusage.html">Analyzing Java Collection Usage</xref>. 
+					</stentry>
+				</strow>
+				<strow>
+					<stentry>Group by Value</stentry>
+					<stentry>
+						The Group by Value query provides the possibility to group a set of objects 
+						by the value of a certain field. It is very useful for searching redundant 
+						data.
+					</stentry>
+				</strow>								
 				<strow>
 					<stentry>Immediate Dominators</stentry>
 					<stentry>

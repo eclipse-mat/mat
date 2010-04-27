@@ -16,7 +16,7 @@
 				<cmdname>History</cmdname> entry. The Query Selector which can be
 				quickly accessed with the
 				<cmdname>Ctrl+Q</cmdname> key combination. </p>
-			<image href="../mimes/3860f55b.png" align="left" placement="break"/>
+			<image href="../mimes/select_queries.png" align="left" placement="break"/>
 			<p> The Query Selector consists of an input field, where you can search for
 				queries, below the input field you can find the history of already executed
 				queries and below the history the list of all available queries grouped by

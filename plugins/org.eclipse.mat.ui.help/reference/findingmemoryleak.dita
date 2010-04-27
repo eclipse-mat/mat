@@ -28,8 +28,11 @@
 				</li>
 			</ol>
 			<p>
+				This sequence of actions is automated in Memory Analyzer by the <xref format="html" href="../tasks/runningleaksuspectreport.html">Leak Suspects Report</xref>.
+			</p>
+			<p>
 				The following table contains a list of queries that are
-				most helpful in resolving memory issues.
+				most helpful in analyzing memory leak issues.
 			</p>
 			<simpletable relcolwidth="2* 3*" id="findingmemoryleak">
 				<strow>
@@ -66,14 +69,6 @@
 					</stentry>
 				</strow>
 				<strow>
-				    <stentry>Leaking Loaders</stentry>
-					<stentry>
-						Extracts class loaders which are not registered
-						with deployment anymore, but are still in memory
-						due to e.g. an error in registry.
-					</stentry>
-				</strow>
-				<strow>
 				    <stentry>Duplicate Classes</stentry>
 					<stentry>
 						Lists classes loaded multiple times. Grouping the result by class loader points to the class loaders that load the same class multiple times. Possible cause: Several versions of the same library are deployed.
@@ -86,9 +81,9 @@
 					</stentry>
 				</strow>
 				<strow>
-				    <stentry>Leak Hunter Report</stentry>
+				    <stentry>Leak Suspects Report</stentry>
 					<stentry>
-						Leak Hunter query analyzes the heap dump, searches for memory leak and provides an illustrative description of the identified suspects. 
+						The Leak Suspects query analyzes the heap dump, searches for memory leak and provides an illustrative description of the identified suspects. 
 					</stentry>
 				</strow>
 			</simpletable>
