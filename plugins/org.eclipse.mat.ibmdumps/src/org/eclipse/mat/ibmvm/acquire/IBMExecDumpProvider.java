@@ -51,12 +51,12 @@ public class IBMExecDumpProvider extends BaseProvider
         listener.beginTask(Messages.getString("IBMExecDumpProvider.GeneratingDump"), TOTAL_WORK); //$NON-NLS-1$
         ProcessBuilder pb = new ProcessBuilder();
         Process p = null;
-        final IBMVmInfo info2 = (IBMVmInfo) info;
+        final IBMExecVmInfo info2 = (IBMExecVmInfo) info;
         String vm = (info2).getPidName();
         try
         {
             String jar = getExecJar().getAbsolutePath();
-            final String execPath = javaexecutable.getPath();
+            final String execPath = info2.javaexecutable.getPath();
             pb.command(execPath, "-jar", jar, info2.type.toString(), vm, info.getProposedFileName()); //$NON-NLS-1$
             p = pb.start();
             StringBuffer err = new StringBuffer();

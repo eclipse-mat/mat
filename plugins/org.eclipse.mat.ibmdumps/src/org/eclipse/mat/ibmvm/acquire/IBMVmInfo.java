@@ -28,8 +28,8 @@ public class IBMVmInfo extends VmInfo
      */
     public enum DumpType
     {
-        HEAP("Heap"), //$NON-NLS-1$
-        SYSTEM("System"); //$NON-NLS-1$
+        SYSTEM("System"), //$NON-NLS-1$
+        HEAP("Heap"); //$NON-NLS-1$
         String type;
         private DumpType(String s) {
             type = s;
