@@ -77,25 +77,21 @@
 			dumps and from Portable Heap Dump (PHD) files. For this purpose one just 
 			has to install the IBM DTFJ feature into Memory Analyzer version 0.8 or 
 			later. Follow the <a href="http://www.ibm.com/developerworks/java/jdk/tools/dtfj.html">IBM DTFJ feature installation instructions</a>. If the DTFJ
-			feature is successfully installed then 'File' -&gt; 'Open Heap Dump' menu should 
-			offer also the following options for the file types: 
+			feature is successfully installed then
+				<span class="menucascade">
+					<span class="uicontrol">File</span>
+					 &gt; <span class="uicontrol">Open Heap Dump</span>
+				</span> 
+			menu should also offer the following options for the file types: 
 
 			<ul>
-				<li>IBM Javacore file</li>
+				<li>IBM DTFJ for 1.4.2 VMs</li>
 
-				<li>IBM Portable Heap Dump </li>
+				<li>IBM DTFJ for Portable Heap Dumps</li>
 
-				<li>IBM Portable Heap Dump (gzipped) </li>
+				<li>IBM SDK for Java (J9) Javadump</li>
 
-				<li>IBM SDK for Java (J9) JExtract output XML </li>
-
-				<li>IBM SDK for Java (J9) JExtracted system dump </li>
-
-				<li>IBM SDK for Java (J9) system dump </li>
-
-				<li>IBM SDK for Java (J9) JExtracted system dump </li>
-
-				<li>IBM SDK for Java 1.4.2 JExtracted system dump </li>
+				<li>IBM SDK for Java (J9) System dumps</li>
 
 			</ul>
 
@@ -115,7 +111,8 @@
 
 			
 			<div class="p">
-			A quick reference for IBM Java 5.0 and Java 6 Virtual Machine command line options: 
+			A quick reference for <a href="http://publib.boulder.ibm.com/infocenter/javasdk/v5r0/index.jsp">IBM Java 5.0</a>
+			and <a href="http://publib.boulder.ibm.com/infocenter/javasdk/v6r0/index.jsp">IBM Java 6</a> Virtual Machine command line options: 
 			
 			<pre class="codeblock">-Xdump:system+heap+java:events=systhrow+user,filter=java/lang/OutOfMemoryError,request=exclusive+prepwalk+compact</pre>
 
@@ -166,15 +163,17 @@
 			</ul>
 
 			
-			<p><em>IBM Java 1.4.2 dump options</em></p>
+			<p><em>IBM Java 1.4.2 Virtual Machine dump options</em></p>
 
-			<p>A quick reference for IBM Java 1.4.2 dump options</p>
+			<p>A quick reference for <a href="http://publib.boulder.ibm.com/infocenter/javasdk/v1r4m2/index.jsp">IBM Java 1.4.2</a> dump options</p>
  
 			
 			<ul>
-				<li>export JAVA_DUMP_OPTS=ONOUTOFMEMORY(SYSDUMP,HEAPDUMP,JAVADUMP)</li>
+				<li><pre class="codeblock">export JAVA_DUMP_OPTS=ONOUTOFMEMORY(SYSDUMP,HEAPDUMP,JAVADUMP)</pre>
+</li>
  
-				<li>set JAVA_DUMP_OPTS=ONOUTOFMEMORY(SYSDUMP,HEAPDUMP,JAVADUMP)</li>
+				<li><pre class="codeblock">set JAVA_DUMP_OPTS=ONOUTOFMEMORY(SYSDUMP,HEAPDUMP,JAVADUMP)</pre>
+</li>
 
 			</ul>
  
@@ -198,12 +197,17 @@
 			<p>Acquiring the heap dump is a VM specific. Memory Analyzer comes with 
 			several so called heap dump providers - for Sun based VMs (needs a Sun JDK
 			with jmap) and for IBM VMs (needs an IBM JDK). Also extension points 
-			are provided for adopters to plug-in their own heap dump pwoviders.
+			are provided for adopters to plug-in their own heap dump providers.
 			</p>
 
 			
 			<p>
-			To trigger a heap dump from Memory Analyzer open the <strong>File</strong> &gt; <strong>Acquire Heap Dump...</strong>
+			To trigger a heap dump from Memory Analyzer open the 
+				<span class="menucascade">
+					<span class="uicontrol">File</span>
+					 &gt; <span class="uicontrol">Acquire Heap Dump...</span>
+				</span>
+			menu item.
 			</p>
 
 			
@@ -215,9 +219,9 @@
 			<img src="../mimes/acquire.png" alt="Select a process to be dumped"/>
 			<p>
 			One can now from which process a heap dump should be acquired, provide a preferred
-			location for the heap dump and press <strong>Finish</strong> to acuire the dump. Some of the heap
+			location for the heap dump and press <span class="uicontrol">Finish</span> to acquire the dump. Some of the heap
 			dump providers may allow (or require) additional parameters (e.g. type of 
-			the heap dump) to be set. This can be done by going to the <strong>Next &gt;</strong> page of the 
+			the heap dump) to be set. This can be done by going to the <span class="menucascade"><span class="uicontrol">Next</span></span> page of the 
 			wizard.  
 			</p>
 
@@ -225,7 +229,7 @@
 
 			<p>
 			If the process list is empty try to configure the available heap dump providers. To do this
-			press <strong>Configure...</strong>, select a matching provider from the list and click on it. 
+			press <span class="uicontrol">Configure...</span>, select a matching provider from the list and click on it. 
 			You can see then what are the required settings and specify them.
 			</p>
 
