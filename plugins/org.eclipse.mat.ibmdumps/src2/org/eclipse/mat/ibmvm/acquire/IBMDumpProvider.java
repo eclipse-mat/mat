@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Properties;
 
 import org.eclipse.mat.SnapshotException;
-import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.Help;
 import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.snapshot.acquire.VmInfo;
@@ -48,9 +47,6 @@ import com.ibm.tools.attach.VirtualMachineDescriptor;
 @Help("help for IBM Dump (using attach API)")
 public class IBMDumpProvider extends BaseProvider
 {
-
-    @Argument
-    public File javaExec;
     /**
      * Helper class to load an agent (blocking call)
      * allowing the main thread to monitor its progress
