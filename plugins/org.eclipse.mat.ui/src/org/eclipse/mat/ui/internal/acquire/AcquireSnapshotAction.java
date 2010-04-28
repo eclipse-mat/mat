@@ -135,7 +135,7 @@ public class AcquireSnapshotAction extends Action implements IWorkbenchWindowAct
 						return false;
 					}
 				}
-				else if (!destFile.getParentFile().exists())
+				else if (destFile.getParentFile() != null && !destFile.getParentFile().exists())
 				{
 					if (MessageDialog.openConfirm(shell, Messages.AcquireSnapshotAction_Confirmation, Messages.AcquireSnapshotAction_DirectoryDoesntExist))
 					{
