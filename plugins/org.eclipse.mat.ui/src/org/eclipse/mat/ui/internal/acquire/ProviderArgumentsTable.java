@@ -25,10 +25,12 @@ import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.window.DefaultToolTip;
 import org.eclipse.jface.window.ToolTip;
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.internal.acquire.HeapDumpProviderDescriptor;
+import org.eclipse.mat.internal.acquire.VmInfoDescriptor;
 import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.annotations.descriptors.IAnnotatedObjectDescriptor;
-import org.eclipse.mat.query.registry.ArgumentDescriptor;
 import org.eclipse.mat.query.registry.AnnotatedObjectArgumentsSet;
+import org.eclipse.mat.query.registry.ArgumentDescriptor;
 import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.internal.query.arguments.ArgumentEditor;
 import org.eclipse.mat.ui.internal.query.arguments.TableEditorFactory;
@@ -480,15 +482,18 @@ public class ProviderArgumentsTable implements IEditorListener/*, ProcessSelecti
         {
             // Obtain some default values in the table based on the current
             // values of the provider
-//            for (ArgumentDescriptor ad : newProviderDescriptor.getArguments())
-//            {
-//                try
-//                {
-//                    ad.setDefaultValue(ad.getField().get(newProviderDescriptor.getHeapDumpProvider()));
-//                }
-//                catch (IllegalAccessException e)
-//                {}
-//            }
+            for (ArgumentDescriptor ad : newProviderDescriptor.getArguments())
+            {
+                try
+                {
+                    if (newProviderDescriptor instanceof HeapDumpProviderDescriptor)
+                        ad.setDefaultValue(ad.getField().get(((HeapDumpProviderDescriptor)newProviderDescriptor).getHeapDumpProvider()));
+                    else if (newProviderDescriptor instanceof VmInfoDescriptor)
+                        ad.setDefaultValue(ad.getField().get(((VmInfoDescriptor)newProviderDescriptor).getVmInfo()));
+                }
+                catch (IllegalAccessException e)
+                {}
+            }
             providerDescriptor = newProviderDescriptor;
             table.removeAll();
 //            argumentSet = new ProviderArgumentsSet(providerDescriptor);
