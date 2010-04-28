@@ -82,6 +82,7 @@ public class FileOpenDialogEditor extends ArgumentEditor
     protected void createContents()
     {
         this.setLayout(new FileOpenDialogEditorLayout());
+        //FileFieldEditor ffe = new FileFieldEditor(LAST_DIRECTORY_KEY, "", this);
         text = new Text(this, SWT.LEFT);
         text.setFont(item.getFont());
         text.setBackground(item.getBackground());
@@ -120,6 +121,13 @@ public class FileOpenDialogEditor extends ArgumentEditor
             {
                 Preferences prefs = MemoryAnalyserPlugin.getDefault().getPluginPreferences();
                 String lastDirectory = prefs.getString(LAST_DIRECTORY_KEY);
+                if (text.getText() != null)
+                {
+                    File f = new File(text.getText());
+                    String s = f.getParent();
+                    if (s != null)
+                        lastDirectory = s;
+                }
 
                 FileDialog dialog = new FileDialog(getShell(), SWT.OPEN | SWT.MULTI);
                 dialog.setText(Messages.FileOpenDialogEditor_ChooseFile);
