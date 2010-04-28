@@ -62,8 +62,6 @@ public class ProviderArgumentsTable implements IEditorListener/*, ProcessSelecti
 	private Font boldFont;
 	private Font normalFont;
 
-//	private ProviderArgumentsWizzardPage wizzardPage;
-//	private HeapDumpProviderDescriptor providerDescriptor;
 	private IAnnotatedObjectDescriptor providerDescriptor;
 	private AnnotatedObjectArgumentsSet argumentSet;
 	private IQueryContext context;
@@ -82,7 +80,6 @@ public class ProviderArgumentsTable implements IEditorListener/*, ProcessSelecti
 
 	public ProviderArgumentsTable(Composite parent, int style/*, ProviderArgumentsWizzardPage wizzardPage*/)
 	{
-//		this.wizzardPage = wizzardPage;
 		TableColumnLayout tableColumnLayout = new TableColumnLayout();
 		parent.setLayout(tableColumnLayout);
 
@@ -448,33 +445,6 @@ public class ProviderArgumentsTable implements IEditorListener/*, ProcessSelecti
 		}
 	}
 
-//	public void processSelected(VmInfo process)
-//    {
-//        HeapDumpProviderDescriptor newProviderDescriptor = HeapDumpProviderRegistry.instance().getHeapDumpProvider(process.getHeapDumpProvider().getClass());
-//        if (!newProviderDescriptor.equals(providerDescriptor))
-//        {
-//            // Obtain some default values in the table based on the current
-//            // values of the provider
-//            for (ArgumentDescriptor ad : newProviderDescriptor.getArguments())
-//            {
-//                try
-//                {
-//                    ad.setDefaultValue(ad.getField().get(process.getHeapDumpProvider()));
-//                }
-//                catch (IllegalAccessException e)
-//                {}
-//            }
-//            providerDescriptor = newProviderDescriptor;
-//            table.removeAll();
-////            argumentSet = new ProviderArgumentsSet(providerDescriptor);
-//            // FIXME !!
-//            context = new ProviderContextImpl();
-//            createTableContent();
-//        }
-////        wizzardPage.updateDescription();
-//        fireInputChangedEvent();
-//    }
-	
 	public void providerSelected(AnnotatedObjectArgumentsSet newArgumentsSet)
     {
 		IAnnotatedObjectDescriptor newProviderDescriptor = newArgumentsSet.getDescriptor();
@@ -495,7 +465,9 @@ public class ProviderArgumentsTable implements IEditorListener/*, ProcessSelecti
                 {}
             }
             providerDescriptor = newProviderDescriptor;
-            table.removeAll();
+            
+            clearTable();
+
 //            argumentSet = new ProviderArgumentsSet(providerDescriptor);
             argumentSet = newArgumentsSet;
             context = new ProviderContextImpl();
@@ -504,4 +476,16 @@ public class ProviderArgumentsTable implements IEditorListener/*, ProcessSelecti
 //        wizzardPage.updateDescription();
         fireInputChangedEvent();
     }
+	
+	private void clearTable()
+	{
+		table.removeAll(); // remove the table items
+
+		/* remove all created editors */
+		Control[] controls = table.getChildren();
+		for (Control control : controls)
+		{
+			if (control instanceof ArgumentEditor) control.dispose();
+		}
+	}
 }

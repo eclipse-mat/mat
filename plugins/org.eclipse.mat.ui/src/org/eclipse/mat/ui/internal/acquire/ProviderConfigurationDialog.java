@@ -23,10 +23,11 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.internal.acquire.HeapDumpProviderDescriptor;
 import org.eclipse.mat.internal.acquire.HeapDumpProviderRegistry;
+import org.eclipse.mat.query.registry.AnnotatedObjectArgumentsSet;
 import org.eclipse.mat.query.registry.ArgumentDescriptor;
 import org.eclipse.mat.query.registry.ArgumentFactory;
-import org.eclipse.mat.query.registry.AnnotatedObjectArgumentsSet;
 import org.eclipse.mat.snapshot.acquire.IHeapDumpProvider;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.internal.browser.QueryContextHelp;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
@@ -57,7 +58,16 @@ public class ProviderConfigurationDialog extends Dialog
 	protected ProviderConfigurationDialog(Shell parentShell)
 	{
 		super(parentShell);
-//		setShellStyle(getShellStyle() | SWT.RESIZE);
+		setShellStyle(getShellStyle() | SWT.SHELL_TRIM);
+
+	}
+	
+	@Override
+	protected void configureShell(Shell shell)
+	{
+		super.configureShell(shell);
+		shell.setText(Messages.ProviderConfigurationDialog_ConfigureProvidersDialogTitle);
+		shell.setMinimumSize(530, 350);
 	}
 	
 	@Override
@@ -66,17 +76,17 @@ public class ProviderConfigurationDialog extends Dialog
 
 		Composite composite = new Composite(parent, SWT.RESIZE);
 		composite.setLayout(new GridLayout(1, false));
-        GridDataFactory.fillDefaults().span(1, 1).applyTo(composite);
+        GridDataFactory.fillDefaults().grab(true, true).span(1, 1).applyTo(composite);
         
         Label providersLabel = new Label(composite, SWT.NONE);
-        providersLabel.setText("Available Heap Dump Providers");
+        providersLabel.setText(Messages.ProviderConfigurationDialog_AvailableProvidersLabel);
         GridDataFactory.swtDefaults().span(1, 1).applyTo(providersLabel);
 		
 		createProvidersTable(composite);
 		GridDataFactory.fillDefaults().grab(true, true).span(1, 1).applyTo(availableProvidersTable);
 		
         Label argumentsLabel = new Label(composite, SWT.NONE);
-        argumentsLabel.setText("Configurable Parameters");
+        argumentsLabel.setText(Messages.ProviderConfigurationDialog_ConfigurableParameteresLabel);
         GridDataFactory.swtDefaults().span(1, 1).applyTo(argumentsLabel);
 		
 		createArgumentsTable(composite);
@@ -93,9 +103,6 @@ public class ProviderConfigurationDialog extends Dialog
 				}
 			}
 		});
-
-
-
 		
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, "org.eclipse.mat.ui.help.query_arguments"); //$NON-NLS-1$
 
@@ -116,7 +123,7 @@ public class ProviderConfigurationDialog extends Dialog
 	@Override
 	protected void createButtonsForButtonBar(Composite parent)
 	{
-		createButton(parent, IDialogConstants.YES_ID, "Apply", false);
+		createButton(parent, IDialogConstants.YES_ID, Messages.ProviderConfigurationDialog_ApplyButtonLabel, false);
 		super.createButtonsForButtonBar(parent);
 	}
 	
@@ -158,7 +165,7 @@ public class ProviderConfigurationDialog extends Dialog
 	                    value = parameter.getDefaultValue();
 	                    if (value == null)
 	                        throw new SnapshotException(MessageUtil.format(
-	                        		"Missing required parameter: {0}", parameter.getName()));
+	                        		Messages.ProviderConfigurationDialog_MissingParameterErrorMessage, parameter.getName()));
 	                }
 
 	                if (value == null)
@@ -166,7 +173,7 @@ public class ProviderConfigurationDialog extends Dialog
 	                    if (argumentSet.getValues().containsKey(parameter))
 	                    {
 	                        Logger.getLogger(getClass().getName()).log(Level.INFO,
-	                                        MessageUtil.format("Setting null value for: {0}", parameter.getName()));
+	                                        MessageUtil.format("Setting null value for: {0}", parameter.getName())); //$NON-NLS-1$
 	                        parameter.getField().set(impl, null);
 	                    }
 	                    continue;
@@ -211,14 +218,14 @@ public class ProviderConfigurationDialog extends Dialog
 	                }
 	                catch (IllegalArgumentException e)
 	                {
-	                    throw new SnapshotException(MessageUtil.format("Illegal argument: {0} of type {1} cannot be set to field {2} of type {3}", value,
+	                    throw new SnapshotException(MessageUtil.format(Messages.ProviderConfigurationDialog_IllegalArgumentErrorMessage, value,
 	                                    value.getClass().getName(), parameter.getName(), parameter.getType().getName()), e);
 	                }
 	                catch (IllegalAccessException e)
 	                {
 	                    // should not happen as we check accessibility when
 	                    // registering queries
-	                    throw new SnapshotException(MessageUtil.format("Unable to access field {0} of type {1}", parameter
+	                    throw new SnapshotException(MessageUtil.format("Unable to access field {0} of type {1}", parameter //$NON-NLS-1$
 	                                    .getName(), parameter.getType().getName()), e);
 	                }
 	            }
@@ -243,11 +250,11 @@ public class ProviderConfigurationDialog extends Dialog
 	{
 		availableProvidersTable = new Table(parent, SWT.V_SCROLL | SWT.H_SCROLL | SWT.BORDER | SWT.SINGLE | SWT.FULL_SELECTION);
 		TableColumn column1 = new TableColumn(availableProvidersTable, SWT.NONE);
-		column1.setText("Name");
+		column1.setText(Messages.ProviderConfigurationDialog_NameColumnHeader);
 		column1.setWidth(200);
 		
 		TableColumn column2 = new TableColumn(availableProvidersTable, SWT.NONE);
-		column2.setText("Description");
+		column2.setText(Messages.ProviderConfigurationDialog_DescriptionColumnHeader);
 		column2.setWidth(300);
 		
 		availableProvidersTable.setHeaderVisible(true);
@@ -259,7 +266,8 @@ public class ProviderConfigurationDialog extends Dialog
 			TableItem item = new TableItem(availableProvidersTable, SWT.NONE, 0);
 			item.setData(new AnnotatedObjectArgumentsSet(heapDumpProviderDescriptor));
 			item.setText(0, heapDumpProviderDescriptor.getName());
-			item.setText(1, heapDumpProviderDescriptor.getHelp());
+			if (heapDumpProviderDescriptor.getHelp() != null)
+				item.setText(1, heapDumpProviderDescriptor.getHelp());
 		}
 		
 		availableProvidersTable.layout();

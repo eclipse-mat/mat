@@ -252,7 +252,7 @@ public class AcquireSnapshotAction extends Action implements IWorkbenchWindowAct
 	                    value = parameter.getDefaultValue();
 	                    if (value == null)
 	                        throw new SnapshotException(MessageUtil.format(
-	                        		"Missing required parameter: {0}", parameter.getName()));
+	                        		Messages.AcquireSnapshotAction_MissingParameterErrorMessage, parameter.getName()));
 	                }
 
 	                if (value == null)
@@ -260,7 +260,7 @@ public class AcquireSnapshotAction extends Action implements IWorkbenchWindowAct
 	                    if (argumentSet.getValues().containsKey(parameter))
 	                    {
 	                        Logger.getLogger(getClass().getName()).log(Level.INFO,
-	                                        MessageUtil.format("Setting null value for: {0}", parameter.getName()));
+	                                        MessageUtil.format("Setting null value for: {0}", parameter.getName())); //$NON-NLS-1$
 	                        parameter.getField().set(impl, null);
 	                    }
 	                    continue;
@@ -305,14 +305,14 @@ public class AcquireSnapshotAction extends Action implements IWorkbenchWindowAct
 	                }
 	                catch (IllegalArgumentException e)
 	                {
-	                    throw new SnapshotException(MessageUtil.format("Illegal argument: {0} of type {1} cannot be set to field {2} of type {3}", value,
+	                    throw new SnapshotException(MessageUtil.format(Messages.AcquireSnapshotAction_IllegalTypeErrorMessage, value,
 	                                    value.getClass().getName(), parameter.getName(), parameter.getType().getName()), e);
 	                }
 	                catch (IllegalAccessException e)
 	                {
 	                    // should not happen as we check accessibility when
 	                    // registering queries
-	                    throw new SnapshotException(MessageUtil.format("Unable to access field {0} of type {1}", parameter
+	                    throw new SnapshotException(MessageUtil.format("Unable to access field {0} of type {1}", parameter //$NON-NLS-1$
 	                                    .getName(), parameter.getType().getName()), e);
 	                }
 	            }

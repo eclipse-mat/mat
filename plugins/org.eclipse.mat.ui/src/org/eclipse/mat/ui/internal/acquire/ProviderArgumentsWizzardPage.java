@@ -15,6 +15,7 @@ import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.mat.query.registry.AnnotatedObjectArgumentsSet;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.internal.acquire.AcquireDialog.ProcessSelectionListener;
 import org.eclipse.mat.ui.internal.acquire.ProviderArgumentsTable.ITableListener;
 import org.eclipse.mat.ui.internal.browser.QueryContextHelp;
@@ -36,7 +37,7 @@ public class ProviderArgumentsWizzardPage extends WizardPage implements ITableLi
 
 	public ProviderArgumentsWizzardPage(AcquireDialog acquireDialog)
 	{
-		super("Heap Dump Provider Arguments", "Heap Dump Provider Arguments", null);
+		super(Messages.ProviderArgumentsWizzardPage_HeapDumpProviderArgumentsTitle, Messages.ProviderArgumentsWizzardPage_HeapDumpProviderArgumentsTitle, null);
 		this.acquireDialog = acquireDialog;
 	}
 

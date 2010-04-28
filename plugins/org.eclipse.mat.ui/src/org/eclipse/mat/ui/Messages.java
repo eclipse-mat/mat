@@ -193,7 +193,16 @@ public class Messages extends NLS
     public static String Path2GCRootsPane_ReadingNext;
     public static String Path2GCRootsPane_Status;
     public static String PopupMenu_NONE;
-    public static String QueryAllProvider_AllQueries;
+	public static String ProviderArgumentsWizzardPage_HeapDumpProviderArgumentsTitle;
+    public static String ProviderConfigurationDialog_ApplyButtonLabel;
+	public static String ProviderConfigurationDialog_AvailableProvidersLabel;
+	public static String ProviderConfigurationDialog_ConfigurableParameteresLabel;
+	public static String ProviderConfigurationDialog_ConfigureProvidersDialogTitle;
+	public static String ProviderConfigurationDialog_DescriptionColumnHeader;
+	public static String ProviderConfigurationDialog_IllegalArgumentErrorMessage;
+	public static String ProviderConfigurationDialog_MissingParameterErrorMessage;
+	public static String ProviderConfigurationDialog_NameColumnHeader;
+	public static String QueryAllProvider_AllQueries;
     public static String QueryBrowserPopup_Categories;
     public static String QueryBrowserPopup_PressCtrlEnter;
     public static String QueryBrowserPopup_StartTyping;
@@ -289,8 +298,11 @@ public class Messages extends NLS
 	public static String AcquireDialog_ChooseProcess;
 	public static String AcquireDialog_ColumnDescription;
 	public static String AcquireDialog_ColumnPID;
+	public static String AcquireDialog_ConfigureButtonLabel;
 	public static String AcquireDialog_DialogDescription;
 	public static String AcquireDialog_DialogName;
+	public static String AcquireDialog_HeapDumpProviderColumnHeader;
+	public static String AcquireDialog_RefreshButtonLabel;
 	public static String AcquireDialog_SaveLocation;
 
 	
@@ -300,6 +312,8 @@ public class Messages extends NLS
 	public static String AcquireSnapshotAction_DirectoryDoesntExist;
 	public static String AcquireSnapshotAction_FailedToCreateProvider;
 	public static String AcquireSnapshotAction_FileAlreadyExists;
+	public static String AcquireSnapshotAction_IllegalTypeErrorMessage;
+	public static String AcquireSnapshotAction_MissingParameterErrorMessage;
 	public static String AcquireSnapshotAction_NoProviderError;
 	public static String AcquireSnapshotAction_UnableToCreateDirectory;
 	public static String AcquireSnapshotAction_UnableToOpenEditor;

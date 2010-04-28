@@ -127,7 +127,7 @@ public class AcquireDialog extends WizardPage
         column.setText(Messages.AcquireDialog_ColumnPID);
         column.setWidth(40);
         column = new TableColumn(localVMsTable, SWT.LEFT);
-        column.setText("Heap Dump Provider");
+        column.setText(Messages.AcquireDialog_HeapDumpProviderColumnHeader);
         column.setWidth(200);
 
 
@@ -138,7 +138,7 @@ public class AcquireDialog extends WizardPage
         GridDataFactory.fillDefaults().span(1, 1).applyTo(buttons);
         
         refreshButton = new Button(buttons, SWT.NONE);
-        refreshButton.setText("Refresh");
+        refreshButton.setText(Messages.AcquireDialog_RefreshButtonLabel);
         GridDataFactory.fillDefaults().grab(true, false).span(1, 1).applyTo(refreshButton);
         refreshButton.addSelectionListener(new SelectionAdapter() {
 			
@@ -149,7 +149,7 @@ public class AcquireDialog extends WizardPage
 		});
         
         configureButton = new Button(buttons, SWT.NONE);
-        configureButton.setText("Configure ...");
+        configureButton.setText(Messages.AcquireDialog_ConfigureButtonLabel);
         GridDataFactory.fillDefaults().grab(true, false).span(1, 1).applyTo(configureButton);
         configureButton.addSelectionListener(new SelectionAdapter()
         {
@@ -220,7 +220,7 @@ public class AcquireDialog extends WizardPage
 				}
 				catch (SnapshotException e)
 				{
-					Logger.getLogger(MemoryAnalyserPlugin.PLUGIN_ID).log(Level.SEVERE, "Problems refreshing process list", e);
+					Logger.getLogger(MemoryAnalyserPlugin.PLUGIN_ID).log(Level.SEVERE, "Problems refreshing process list", e); //$NON-NLS-1$
 				}
         	}
         }
@@ -364,7 +364,7 @@ public class AcquireDialog extends WizardPage
 
 			// report error if any occurred
 			if (!status.isOK() && status != Status.CANCEL_STATUS)
-				Logger.getLogger(MemoryAnalyserPlugin.PLUGIN_ID).log(Level.INFO, MessageUtil.format("Error getting list of VMs with [{0}] provider", provider.getName()), status.getException());
+				Logger.getLogger(MemoryAnalyserPlugin.PLUGIN_ID).log(Level.INFO, MessageUtil.format("Error getting list of VMs with [{0}] provider", provider.getName()), status.getException()); //$NON-NLS-1$
 
 			return status;
 		}
