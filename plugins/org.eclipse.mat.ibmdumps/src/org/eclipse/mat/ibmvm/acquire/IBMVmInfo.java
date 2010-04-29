@@ -10,8 +10,12 @@
  *******************************************************************************/
 package org.eclipse.mat.ibmvm.acquire;
 
+import java.text.MessageFormat;
+import java.util.Date;
+
 import org.eclipse.mat.ibmvm.agent.DumpAgent;
 import org.eclipse.mat.query.annotations.Argument;
+import org.eclipse.mat.snapshot.acquire.IHeapDumpProvider;
 import org.eclipse.mat.snapshot.acquire.VmInfo;
 
 /**
@@ -21,28 +25,15 @@ import org.eclipse.mat.snapshot.acquire.VmInfo;
  */
 public class IBMVmInfo extends VmInfo
 {
-    /**
-     * Used for selecting the appropriate dump type
-     * @author ajohnson
-     *
-     */
-    public enum DumpType
-    {
-        SYSTEM("System"), //$NON-NLS-1$
-        HEAP("Heap"); //$NON-NLS-1$
-        String type;
-        private DumpType(String s) {
-            type = s;
-        }
-    }
-    
     @Argument
     public DumpType type = DumpType.SYSTEM;
     
     private String pid;
     
-    IBMVmInfo()
+    IBMVmInfo(String pid, String description, boolean heapDumpEnabled, String proposedFileName, IHeapDumpProvider heapDumpProvider)
     {
+        super(0, description, heapDumpEnabled, proposedFileName, heapDumpProvider);
+        setPid(pid);
     }
     
     void setPid(String s)
@@ -75,5 +66,20 @@ public class IBMVmInfo extends VmInfo
         else if (type == DumpType.HEAP)
             return DumpAgent.HEAP+DumpAgent.SEPARATOR+DumpAgent.JAVA;
         return null;
+    }
+    
+    @Override
+    public String getProposedFileName()
+    {
+        String ret = super.getProposedFileName();
+        if (ret == null)
+        {
+            Date date = new Date();
+            if (type == DumpType.SYSTEM)
+                ret = MessageFormat.format("core.{0,date,yyyyMMdd.HHmmss}.{1}.0001.dmp", date, pid);//$NON-NLS-1$
+            else if (type == DumpType.HEAP)
+                ret = MessageFormat.format("heapdump.{0,date,yyyyMMdd.HHmmss}.{1}.0001.phd", date, pid);//$NON-NLS-1$
+        }
+        return ret;
     }
 }

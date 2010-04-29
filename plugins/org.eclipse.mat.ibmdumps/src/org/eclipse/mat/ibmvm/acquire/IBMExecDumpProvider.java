@@ -38,6 +38,8 @@ import org.eclipse.mat.util.IProgressListener.Severity;
 @Name("IBM Dump (using helper VM)")
 public class IBMExecDumpProvider extends BaseProvider
 {
+    @Argument
+    public DumpType defaultType = DumpType.SYSTEM;
 
     private static final String PLUGIN_ID = "org.eclipse.mat.ibmdump"; //$NON-NLS-1$
     private static final String JAVA_EXEC = "java"; //$NON-NLS-1$
@@ -57,7 +59,7 @@ public class IBMExecDumpProvider extends BaseProvider
         {
             String jar = getExecJar().getAbsolutePath();
             final String execPath = info2.javaexecutable.getPath();
-            pb.command(execPath, "-jar", jar, info2.type.toString(), vm, info.getProposedFileName()); //$NON-NLS-1$
+            pb.command(execPath, "-jar", jar, info2.type.toString(), vm, preferredLocation.getAbsolutePath()); //$NON-NLS-1$
             p = pb.start();
             StringBuffer err = new StringBuffer();
             StringBuffer in = new StringBuffer();
@@ -316,12 +318,9 @@ public class IBMExecDumpProvider extends BaseProvider
                             // Exclude the helper process
                             if (!s2[2].contains(getExecJar().getName()))
                             {
-                                IBMExecVmInfo ifo = new IBMExecVmInfo();
-                                ifo.setPid(s2[0]);
-                                ifo.setProposedFileName(s2[1]);
-                                ifo.setDescription(s2[2]);
-                                ifo.setHeapDumpProvider(this);
+                                IBMExecVmInfo ifo = new IBMExecVmInfo(s2[0], s2[2], true, null, this);
                                 ifo.javaexecutable = javaExec;
+                                ifo.type = defaultType;
                                 ar.add(ifo);
                             }
                         }
@@ -367,7 +366,7 @@ public class IBMExecDumpProvider extends BaseProvider
                             "org.eclipse.mat.ibmvm.acquire.IBMSystemDumpProvider", //$NON-NLS-1$
                             "org.eclipse.mat.ibmvm.acquire.IBMVmInfo", //$NON-NLS-1$
                             "org.eclipse.mat.ibmvm.acquire.AgentLoader2", //$NON-NLS-1$
-                            "org.eclipse.mat.ibmvm.acquire.IBMVmInfo$DumpType", //$NON-NLS-1$
+                            "org.eclipse.mat.ibmvm.acquire.DumpType", //$NON-NLS-1$
                             "org.eclipse.mat.ibmvm.agent.DumpAgent" }; //$NON-NLS-1$
             Class<?> classes[] = { SnapshotException.class, IHeapDumpProvider.class, VmInfo.class,
                             IProgressListener.class, IProgressListener.OperationCanceledException.class,

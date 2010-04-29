@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Properties;
 
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.Help;
 import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.snapshot.acquire.VmInfo;
@@ -47,6 +48,9 @@ import com.ibm.tools.attach.VirtualMachineDescriptor;
 @Help("help for IBM Dump (using attach API)")
 public class IBMDumpProvider extends BaseProvider
 {
+    @Argument
+    public DumpType defaultType = DumpType.SYSTEM;
+
     /**
      * Helper class to load an agent (blocking call)
      * allowing the main thread to monitor its progress
@@ -236,10 +240,10 @@ public class IBMDumpProvider extends BaseProvider
      * @throws InterruptedException
      * @throws SnapshotException
      */
-    File jextract(File preferredDump, File dump, File udir, File javahome, IProgressListener listener)
+    File jextract(File preferredDump, List<File>dumps, File udir, File javahome, IProgressListener listener)
                     throws IOException, InterruptedException, SnapshotException
     {
-        return dump;
+        return dumps.get(0);
     }
 
     /**
@@ -317,9 +321,8 @@ public class IBMDumpProvider extends BaseProvider
                     t.throwFailed(listener);
                 }
 
-                File dump = newFiles.get(0);
                 listener.done();
-                return jextract(preferredLocation, dump, udir, javahome, listener);
+                return jextract(preferredLocation, newFiles, udir, javahome, listener);
             }
             catch (InterruptedException e)
             {
@@ -519,13 +522,10 @@ public class IBMDumpProvider extends BaseProvider
             }
 
             // Create VMinfo to generate heap dumps
-            IBMVmInfo ifo = new IBMVmInfo();
+            
             String desc = MessageFormat.format(Messages.getString("IBMDumpProvider.VMDescription"), vmd.provider().name(), vmd.provider().type(), vmd.displayName()); //$NON-NLS-1$
-            ifo.setDescription(desc);
-            ifo.setPid(vmd.id());
-            ifo.setProposedFileName(dumpName());
-            ifo.setHeapDumpProvider(this);
-            ifo.setHeapDumpEnabled(usable);
+            IBMVmInfo ifo = new IBMVmInfo(vmd.id(), desc, usable, null, this);
+            ifo.type = defaultType;
             jvms.add(ifo);
         }
         return jvms;
@@ -563,7 +563,7 @@ public class IBMDumpProvider extends BaseProvider
             {
                 if (vm.equals(s[1]))
                 {
-                    IBMVmInfo.DumpType tp = IBMVmInfo.DumpType.valueOf(s[0]);
+                    DumpType tp = DumpType.valueOf(s[0]);
                     vminfo.type = tp;
                     File f2 = info.getHeapDumpProvider().acquireDump(info, new File(s[2]), ii);
                     System.out.println(f2.getPath());
@@ -581,9 +581,9 @@ public class IBMDumpProvider extends BaseProvider
     {
         if (getClass() != IBMDumpProvider.class)
            return this;
-        else if (info.type == IBMVmInfo.DumpType.SYSTEM)
+        else if (info.type == DumpType.SYSTEM)
             return new IBMSystemDumpProvider();
-        else if (info.type == IBMVmInfo.DumpType.HEAP)
+        else if (info.type == DumpType.HEAP)
             return new IBMHeapDumpProvider();
         return this;
     }

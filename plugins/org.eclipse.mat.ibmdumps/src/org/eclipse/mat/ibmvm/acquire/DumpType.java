@@ -10,23 +10,17 @@
  *******************************************************************************/
 package org.eclipse.mat.ibmvm.acquire;
 
-import java.io.File;
-
-import org.eclipse.mat.query.annotations.Argument;
-import org.eclipse.mat.snapshot.acquire.IHeapDumpProvider;
-
 /**
- * Information about an IBM VM, for use when using a helper VM to create a dump.
+ * Used for selecting the appropriate dump type
  * @author ajohnson
  *
  */
-public class IBMExecVmInfo extends IBMVmInfo
+public enum DumpType
 {
-    @Argument
-    public File javaexecutable;
-    
-    IBMExecVmInfo(String pid, String description, boolean heapDumpEnabled, String proposedFileName, IHeapDumpProvider heapDumpProvider)
-    {
-        super(pid, description, heapDumpEnabled, proposedFileName, heapDumpProvider);
+    SYSTEM("System"), //$NON-NLS-1$
+    HEAP("Heap"); //$NON-NLS-1$
+    String type;
+    private DumpType(String s) {
+        type = s;
     }
 }

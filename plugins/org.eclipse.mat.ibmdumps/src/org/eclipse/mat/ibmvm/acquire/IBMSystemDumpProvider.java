@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.MessageFormat;
 import java.util.Collection;
+import java.util.List;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.util.IProgressListener;
@@ -61,9 +62,10 @@ class IBMSystemDumpProvider extends IBMDumpProvider
     }
 
     @Override
-    File jextract(File preferredDump, File dump, File udir, File home, IProgressListener listener) throws IOException,
+    File jextract(File preferredDump, List<File>dumps, File udir, File home, IProgressListener listener) throws IOException,
                     InterruptedException, SnapshotException
     {
+        File dump = dumps.get(0);
         File result;
         listener.beginTask(Messages.getString("IBMSystemDumpProvider.FormattingDump"), IProgressListener.UNKNOWN_TOTAL_WORK); //$NON-NLS-1$
 
