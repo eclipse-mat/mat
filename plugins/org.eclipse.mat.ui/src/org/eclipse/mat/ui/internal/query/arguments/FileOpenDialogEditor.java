@@ -15,6 +15,7 @@ import java.io.File;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.IQueryContext;
+import org.eclipse.mat.query.annotations.Argument.Advice;
 import org.eclipse.mat.query.registry.ArgumentDescriptor;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.Messages;
@@ -29,6 +30,7 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.TableItem;
@@ -129,23 +131,44 @@ public class FileOpenDialogEditor extends ArgumentEditor
                         lastDirectory = s;
                 }
 
-                FileDialog dialog = new FileDialog(getShell(), SWT.OPEN | SWT.MULTI);
-                dialog.setText(Messages.FileOpenDialogEditor_ChooseFile);
-
-                if (lastDirectory != null && lastDirectory.length() > 0)
-                    dialog.setFilterPath(lastDirectory);
-                else
-                    dialog.setFilterPath(System.getProperty("user.home")); //$NON-NLS-1$
-
-                dialog.open();
-                String[] names = dialog.getFileNames();
-                if (names != null && names.length > 0)
+                if (descriptor.getAdvice() == Advice.DIRECTORY)
                 {
-                    final String filterPath = dialog.getFilterPath();
-                    prefs.setValue(LAST_DIRECTORY_KEY, filterPath);
-
-                    text.setText(filterPath + File.separator + names[0]);
+                	DirectoryDialog dialog = new DirectoryDialog(getShell());
+                	
+                	if (lastDirectory != null && lastDirectory.length() > 0)
+                		dialog.setFilterPath(lastDirectory);
+                	else
+                		dialog.setFilterPath(System.getProperty("user.home")); //$NON-NLS-1$
+                	
+                	String selectedDirectory = dialog.open();
+                	if (selectedDirectory != null)
+                	{
+                		prefs.setValue(LAST_DIRECTORY_KEY, selectedDirectory);
+                		text.setText(selectedDirectory);
+                	}
                 }
+                else // default: a file
+                {
+                	FileDialog dialog = new FileDialog(getShell(), SWT.OPEN | SWT.MULTI);
+                	dialog.setText(Messages.FileOpenDialogEditor_ChooseFile);
+                	
+                	if (lastDirectory != null && lastDirectory.length() > 0)
+                		dialog.setFilterPath(lastDirectory);
+                	else
+                		dialog.setFilterPath(System.getProperty("user.home")); //$NON-NLS-1$
+                	
+                	dialog.open();
+                	String[] names = dialog.getFileNames();
+                	if (names != null && names.length > 0)
+                	{
+                		final String filterPath = dialog.getFilterPath();
+                		prefs.setValue(LAST_DIRECTORY_KEY, filterPath);
+                		
+                		text.setText(filterPath + File.separator + names[0]);
+                	}
+                }
+                	
+                
             }
 
         });

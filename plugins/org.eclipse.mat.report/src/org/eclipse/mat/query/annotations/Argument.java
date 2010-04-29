@@ -51,7 +51,14 @@ public @interface Argument
          * class name pattern. Therefore the appropriate smart fixing is
          * applied.
          */
-        CLASS_NAME_PATTERN
+        CLASS_NAME_PATTERN,
+        /**
+         * Used with an argument of type File this should indicate that 
+         * the parameter represents a directory. The default for File arguments
+         * is a file.
+         */
+        DIRECTORY
+        
     }
 
     /**
