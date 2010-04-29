@@ -54,114 +54,124 @@
 
 		</div>
 
-		<div class="section"><h2 class="sectiontitle">Support IBM Heap Dumps</h2>
+		
+		<div class="section"><h2 class="sectiontitle">More Flexible Compare Functionality</h2>
 			
 			<p>
-				The IBM-family of Virtual Machines (VM) write heap dumps in
-				various
-				formats: PHD (portable heap dump), system dump, etc. IBM's
-				Diagnostic Tool Framework for Java provides an API to read those
-				heap dumps. After installing DTFJ, one can view and analyze IBM
-				dumps with the same comfort as HPROF dumps.
+				It is now possible to compare not only the global class histograms of two different
+				heap dumps, but an arbitrary number of table-formatted results - for example the 
+				retained sets of three different objects. It doesn't matter if the tables which 
+				are compared come from one and the same or different heap dumps.
 			</p>
 
+			<div class="p">
+				
+				This means that you have now the possibility to do things like:
+				<ul>
+				<li>Compare the retained set of a specific package across several heap dumps</li>
+
+				<li>Compare how the retained sets for application objects A1, A2 and A3 (all in the 
+				same heap dump) differ from each other</li>
+
+				</ul>
+ 
+			</div>
+
+			<p>				
+				Here is a quick description how to compare several retained set tables.
+			</p>
+
+				
+			<p>
+				<strong>1. Move all tables to be compared to the Compare Basket</strong>
+			</p>
 
 			<p>
-				Download
-				<a href="http://www.ibm.com/developerworks/java/jdk/tools/dtfj.html">IBM Diagnostic Tool Framework for Java Version 1.3</a>
-				from IBM Developer Works.
+				All queries which are executed in Memory Analyzer can be seen in the Navigation History View.
+				From this view one can add the results you to be compared to the Compare Basket. 
+				The Navigation History is still per heap dump, therefore if one wants to compare 
+				tables from different heap dumps then they have to be added one by one.
+				Multiple tables from one heap dump can be added at a time. 
+			</p>
+			
+			<p>
+				<img src="mimes/nn_add_to_compare_basket.png" alt="Move from Navigation History to Compare Basket"/>
 			</p>
 
+			<p>
+				<strong>2. Modify the order of the tables</strong>
+			</p>
+
+			<p>
+				Using the tool bar of the Compare Basket one can modify the order in which talbes 
+				should be compared, i.e. select which result should be the baseline, which comes second, etc...
+			</p>
+
+			<p>
+				<img src="mimes/nn_compare_basket.png" alt="Modify the Tables Order in the Compare Basket"/>
+			</p>
+
+			<p>
+				<strong>3. Execute the comparison</strong>
+			</p>
+
+			<p>
+				Once the preferred order is achieved just click the execute button...
+			</p>
+
+			<p>
+				<img src="mimes/nn_click_compare.png" alt="Click Compare"/>
+			</p>
+
+			<p>
+				... and see the result.
+			</p>
+
+			<p>
+				<img src="mimes/nn_compared_tables_absolute.png" alt="Modify the Tables Order in the Compare Basket"/>
+			</p>
+
+			<p>
+				<strong>4. Customize the displayed result</strong>
+			</p>
+
+			<p>
+				By default the absolute values of all tables will be shown for every compared property,
+				e.g. number of objects, shallow size, etc... One can now change between deltas and
+				absolute values, as well as select which columns should be compared:
+			</p>
+
+			<p>
+				<img src="mimes/nn_select_compare_option.png" alt="Switch between Absolute Values and Deltas"/>
+				<img src="mimes/nn_select_columns.png" alt="Select Columns To Be Compared"/>				
+			</p>
+
+			<p>
+				<img src="mimes/nn_compared_result_delta.png" alt="Modified Comparison Result"/>
+			</p>
+			
+		</div>
+
+		
+		<div class="section"><h2 class="sectiontitle">API Reference</h2>
+			
+			<p>
+				To make things for people interested in extending Memory Analyzer or writing MAT queries
+				for their specific purposes, a new section "API Reference" was added to the Help
+				topics of Memory Analyzer. It contains Javadoc as well as descriptions for 
+				the different extension points which MAT provides.
+			</p>
 
 		</div>
 
 
-		<div class="section"><h2 class="sectiontitle">Stack Frames</h2>
+		<div class="section"><h2 class="sectiontitle">New &amp; Noteworthy for Memory Analyzer 0.8</h2>
 			
 			<p>
-				Heap dumps from the latest VMs include stack trace information,
-				linking local GC roots to specific stack frames of specific
-				threads.
-				This information is now available via
-				<em>Java Basics / Thread Stacks</em>
-				query.
+				The New &amp; Noteworthy document for version 0.8 is available 
+				<a href="http://www.eclipse.org/mat/0.8/noteworthy.html">here</a>.
 			</p>
 
-			<p>
-				Supported heap dumps formats are HPROF (starting with Java 6
-				Update 14 and Java 7) as well as DTFJ-formatted dumps.
-			</p>
-
-
-			<img src="mimes/nn_thread_stacks.png" alt="Tree of of threads including stack frames, local variables and their outgoing references."/>
-		</div>
-
-
-		<div class="section"><h2 class="sectiontitle">Histogram of Unreachable Objects</h2>
-			
-			<p>
-				A heap dump can contain unreachable objects, e.g. objects which
-				should be garbage collected but stay around for various reasons.
-				Usually this is due to optimizations in the garbage collection
-				algorithm. The Memory Analyzer removes these objects by default from
-				the object graph.
-			</p>
-
-			<p>
-				Now one can use the
-				<em>Java Basics / Unreachable Objects Histogram</em>
-				to view the objects that have been removed. Alternatively, one can
-				parse the heap dump providing the
-				<samp class="codeph">-keep_unreachable_objects</samp>
-				flag. Using the flag, unreachable objects will be marked with the GC
-				Root Type "unknown".
-			</p>
-
-			<img src="mimes/nn_unreachable_histogram.png" alt="Histogram of unreachable objects."/>
-			<p>
-				Find more information in the
-				<a href="http://wiki.eclipse.org/MemoryAnalyzer/FAQ#How_to_analyse_unreachable_objects">
-					Memory Analyzer FAQ
-				</a>
-				.
-			</p>
-
-		</div>
-
-
-		<div class="section"><h2 class="sectiontitle">Inspector Enhancements</h2>
-			
-			<p>This great contribution from the Chris Grindstaff, recreates
-				colors and images from the information in the heap dump and displays
-				the information in the lower left corner of the inspector. 
-			</p>
-
-
-			<img src="mimes/nn_inspector_imagedata.png" alt="Inspector showing an icon from the heap dump."/>
-
-			<img src="mimes/nn_inspector_rgb.png" alt="Inspector showing the color of the RGB object."/>
-		</div>
-
-
-		<div class="section"><h2 class="sectiontitle">Class Hierarchy in Inspector</h2>
-			
-			<p>The inspector displays now the full class hierarchy of any
-				selected object. One can drill-down via context menus.</p>
-
-
-			<img src="mimes/nn_inspector_class_hierarchy.png" alt="Inspector showing the class hierarchy of an object."/>
-		</div>
-
-
-		<div class="section"><h2 class="sectiontitle">Waste in Char Arrays</h2>
-			
-			<p>This query finds strings that retain wasteful char arrays. Those
-				strings are usually created by the substring function, which keeps
-				the whole array but uses only part of the chars.
-			</p>
-
-
-			<img src="mimes/nn_query_waste_char_arrays.png" alt="Query displaying waste in char arrays."/>
 		</div>
 
 
