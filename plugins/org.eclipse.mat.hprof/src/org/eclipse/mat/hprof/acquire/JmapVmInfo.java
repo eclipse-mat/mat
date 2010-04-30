@@ -13,15 +13,13 @@ package org.eclipse.mat.hprof.acquire;
 import java.io.File;
 
 import org.eclipse.mat.query.annotations.Argument;
-import org.eclipse.mat.query.annotations.Help;
 import org.eclipse.mat.snapshot.acquire.IHeapDumpProvider;
 import org.eclipse.mat.snapshot.acquire.VmInfo;
 
 public class JmapVmInfo extends VmInfo
 {
 	@Argument(isMandatory = false)
-	@Help("Location of the appropriate jmap executable. If no location is specified simply \"jmap\" will be used")
-	public File jmapExecutable;
+	public File jdkHome;
 	
 	public JmapVmInfo(int pid, String description, boolean heapDumpEnabled, String proposedFileName, IHeapDumpProvider heapDumpProvider)
 	{

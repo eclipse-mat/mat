@@ -11,6 +11,7 @@
 package org.eclipse.mat.hprof.acquire;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -25,8 +26,14 @@ import org.eclipse.mat.hprof.Messages;
 
 public class LocalJavaProcessesUtils
 {
-	static List<JmapVmInfo> getLocalVMsUsingJPS(String jps) throws SnapshotException
+	static List<JmapVmInfo> getLocalVMsUsingJPS(File jdkHome) throws SnapshotException
 	{
+		String jps = "jps"; //$NON-NLS-1$
+		if (jdkHome != null && jdkHome.exists())
+		{
+			jps = jdkHome.getAbsolutePath() + File.separator + "bin" + File.separator + "jps"; //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		
 		StreamCollector error = null;
 		StreamCollector output = null;
 		Process p = null;
