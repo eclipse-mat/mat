@@ -41,6 +41,9 @@ public class IBMExecDumpProvider extends BaseProvider
     @Argument
     public DumpType defaultType = DumpType.SYSTEM;
 
+    @Argument
+    public boolean defaultCompress = false;
+
     private static final String PLUGIN_ID = "org.eclipse.mat.ibmdump"; //$NON-NLS-1$
     private static final String JAVA_EXEC = "java"; //$NON-NLS-1$
     private static boolean abort = false;
@@ -54,12 +57,12 @@ public class IBMExecDumpProvider extends BaseProvider
         ProcessBuilder pb = new ProcessBuilder();
         Process p = null;
         final IBMExecVmInfo info2 = (IBMExecVmInfo) info;
-        String vm = (info2).getPidName();
+        String vm = info2.getPidName();
         try
         {
             String jar = getExecJar().getAbsolutePath();
             final String execPath = info2.javaexecutable.getPath();
-            pb.command(execPath, "-jar", jar, info2.type.toString(), vm, preferredLocation.getAbsolutePath()); //$NON-NLS-1$
+            pb.command(execPath, "-jar", jar, info2.type.toString(), vm, Boolean.toString(info2.compress), preferredLocation.getAbsolutePath()); //$NON-NLS-1$
             p = pb.start();
             StringBuffer err = new StringBuffer();
             StringBuffer in = new StringBuffer();
@@ -321,6 +324,7 @@ public class IBMExecDumpProvider extends BaseProvider
                                 IBMExecVmInfo ifo = new IBMExecVmInfo(s2[0], s2[2], true, null, this);
                                 ifo.javaexecutable = javaExec;
                                 ifo.type = defaultType;
+                                ifo.compress = defaultCompress;
                                 ar.add(ifo);
                             }
                         }
@@ -364,6 +368,7 @@ public class IBMExecDumpProvider extends BaseProvider
                             "org.eclipse.mat.ibmvm.acquire.BaseProvider", //$NON-NLS-1$
                             "org.eclipse.mat.ibmvm.acquire.IBMHeapDumpProvider", //$NON-NLS-1$
                             "org.eclipse.mat.ibmvm.acquire.IBMSystemDumpProvider", //$NON-NLS-1$
+                            "org.eclipse.mat.ibmvm.acquire.IBMJavaDumpProvider", //$NON-NLS-1$
                             "org.eclipse.mat.ibmvm.acquire.IBMVmInfo", //$NON-NLS-1$
                             "org.eclipse.mat.ibmvm.acquire.AgentLoader2", //$NON-NLS-1$
                             "org.eclipse.mat.ibmvm.acquire.DumpType", //$NON-NLS-1$

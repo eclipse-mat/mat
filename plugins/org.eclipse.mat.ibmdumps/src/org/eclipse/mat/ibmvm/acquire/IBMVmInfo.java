@@ -27,7 +27,10 @@ public class IBMVmInfo extends VmInfo
 {
     @Argument
     public DumpType type = DumpType.SYSTEM;
-    
+
+    @Argument
+    public boolean compress = false;
+
     private String pid;
     
     IBMVmInfo(String pid, String description, boolean heapDumpEnabled, String proposedFileName, IHeapDumpProvider heapDumpProvider)
@@ -65,6 +68,8 @@ public class IBMVmInfo extends VmInfo
             return DumpAgent.SYSTEM;
         else if (type == DumpType.HEAP)
             return DumpAgent.HEAP+DumpAgent.SEPARATOR+DumpAgent.JAVA;
+        else if (type == DumpType.JAVA)
+            return DumpAgent.JAVA;
         return null;
     }
     
@@ -76,9 +81,17 @@ public class IBMVmInfo extends VmInfo
         {
             Date date = new Date();
             if (type == DumpType.SYSTEM)
-                ret = MessageFormat.format("core.{0,date,yyyyMMdd.HHmmss}.{1}.0001.dmp", date, pid);//$NON-NLS-1$
+                if (compress)
+                    ret = MessageFormat.format("core.{0,date,yyyyMMdd.HHmmss}.{1}.0001.dmp.zip", date, pid);//$NON-NLS-1$
+                else
+                    ret = MessageFormat.format("core.{0,date,yyyyMMdd.HHmmss}.{1}.0001.dmp", date, pid);//$NON-NLS-1$
             else if (type == DumpType.HEAP)
-                ret = MessageFormat.format("heapdump.{0,date,yyyyMMdd.HHmmss}.{1}.0001.phd", date, pid);//$NON-NLS-1$
+                if (compress)
+                    ret = MessageFormat.format("heapdump.{0,date,yyyyMMdd.HHmmss}.{1}.0001.phd.gz", date, pid);//$NON-NLS-1$
+                else
+                    ret = MessageFormat.format("heapdump.{0,date,yyyyMMdd.HHmmss}.{1}.0001.phd", date, pid);//$NON-NLS-1$
+            else if (type == DumpType.JAVA)
+                ret = MessageFormat.format("javacore.{0,date,yyyyMMdd.HHmmss}.{1}.0001.txt", date, pid);//$NON-NLS-1$
         }
         return ret;
     }

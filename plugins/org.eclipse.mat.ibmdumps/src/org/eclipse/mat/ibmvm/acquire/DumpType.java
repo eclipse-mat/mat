@@ -17,10 +17,7 @@ package org.eclipse.mat.ibmvm.acquire;
  */
 public enum DumpType
 {
-    SYSTEM("System"), //$NON-NLS-1$
-    HEAP("Heap"); //$NON-NLS-1$
-    String type;
-    private DumpType(String s) {
-        type = s;
-    }
+    SYSTEM,
+    HEAP,
+    JAVA;
 }

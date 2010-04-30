@@ -51,6 +51,9 @@ public class IBMDumpProvider extends BaseProvider
     @Argument
     public DumpType defaultType = DumpType.SYSTEM;
 
+    @Argument
+    public boolean defaultCompress = false;
+
     /**
      * Helper class to load an agent (blocking call)
      * allowing the main thread to monitor its progress
@@ -240,7 +243,7 @@ public class IBMDumpProvider extends BaseProvider
      * @throws InterruptedException
      * @throws SnapshotException
      */
-    File jextract(File preferredDump, List<File>dumps, File udir, File javahome, IProgressListener listener)
+    File jextract(File preferredDump, boolean compress, List<File>dumps, File udir, File javahome, IProgressListener listener)
                     throws IOException, InterruptedException, SnapshotException
     {
         return dumps.get(0);
@@ -273,6 +276,13 @@ public class IBMDumpProvider extends BaseProvider
     public File acquireDump(VmInfo info, File preferredLocation, IProgressListener listener) throws SnapshotException
     {
         IBMVmInfo vminfo = (IBMVmInfo)info;
+        // Validate file name extension
+        String fn1 = preferredLocation.getName();
+        String fn2 = info.getProposedFileName();
+        if (!fn1.endsWith(fn2.substring(Math.max(0, fn2.length() - 4))))
+        {
+            preferredLocation = new File(preferredLocation.getParentFile(), fn2);
+        }
         IBMDumpProvider helper = getDumpProvider(vminfo);
         // Delegate to the appropriate helper
         if (helper != this) return helper.acquireDump(info, preferredLocation, listener);
@@ -322,7 +332,7 @@ public class IBMDumpProvider extends BaseProvider
                 }
 
                 listener.done();
-                return jextract(preferredLocation, newFiles, udir, javahome, listener);
+                return jextract(preferredLocation, vminfo.compress, newFiles, udir, javahome, listener);
             }
             catch (InterruptedException e)
             {
@@ -526,6 +536,7 @@ public class IBMDumpProvider extends BaseProvider
             String desc = MessageFormat.format(Messages.getString("IBMDumpProvider.VMDescription"), vmd.provider().name(), vmd.provider().type(), vmd.displayName()); //$NON-NLS-1$
             IBMVmInfo ifo = new IBMVmInfo(vmd.id(), desc, usable, null, this);
             ifo.type = defaultType;
+            ifo.compress = defaultCompress;
             jvms.add(ifo);
         }
         return jvms;
@@ -536,8 +547,9 @@ public class IBMDumpProvider extends BaseProvider
      * Used when attach API not usable from the MAT process.
      * 
      * @param s <ul><li>[0] dump type (Heap=heap+java,System=system)</li>
-     *        <li>[1] VM id = PID,description</li>
-     *        <li>[2] dump name</li>
+     *        <li>[1] VM id = PID</li>
+     *        <li>[2] true/false compress dump</li>
+     *        <li>[3] dump name</li>
      *        </ul>
      * Output<ul>
      * <li>dump filename</li>
@@ -555,7 +567,7 @@ public class IBMDumpProvider extends BaseProvider
             IBMVmInfo vminfo = (IBMVmInfo)info;
             String vm = vminfo.getPidName();
             String vm2 = vm + "," + info.getProposedFileName() + "," + info.getDescription();  //$NON-NLS-1$//$NON-NLS-2$
-            if (s.length < 3)
+            if (s.length < 4)
             {
                 System.out.println(vm2);
             }
@@ -565,7 +577,8 @@ public class IBMDumpProvider extends BaseProvider
                 {
                     DumpType tp = DumpType.valueOf(s[0]);
                     vminfo.type = tp;
-                    File f2 = info.getHeapDumpProvider().acquireDump(info, new File(s[2]), ii);
+                    vminfo.compress = Boolean.parseBoolean(s[2]);
+                    File f2 = info.getHeapDumpProvider().acquireDump(info, new File(s[3]), ii);
                     System.out.println(f2.getPath());
                     return;
                 }
@@ -585,6 +598,35 @@ public class IBMDumpProvider extends BaseProvider
             return new IBMSystemDumpProvider();
         else if (info.type == DumpType.HEAP)
             return new IBMHeapDumpProvider();
+        else if (info.type == DumpType.JAVA)
+            return new IBMJavaDumpProvider();
         return this;
+    }
+
+    /**
+     * Update date and time stamps in suggested file name from actual file
+     * @param preferredDump
+     * @param actual
+     * @return
+     */
+    File mergeFileNames(File preferredDump, File actual)
+    {
+        String fn1 = preferredDump.getName();
+        String fn1a = fn1.replaceAll("\\d", "#"); //$NON-NLS-1$//$NON-NLS-2$
+        String fn2 = actual.getName();
+        String fn2a = fn2.replaceAll("\\d", "#"); //$NON-NLS-1$//$NON-NLS-2$
+        fn2a = fn2a.substring(0, fn2a.lastIndexOf('#') + 1);
+        int fi = fn1a.indexOf(fn2a);
+        File ret;
+        if (fi >= 0)
+        {
+            String newfn = fn1.substring(0, fi) + fn2.substring(0, fn2a.length()) + fn1.substring(fi + fn2a.length());
+            ret = new File(preferredDump.getParentFile(), newfn);
+        }
+        else
+        {
+            ret = preferredDump;
+        }
+        return ret;
     }
 }

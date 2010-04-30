@@ -61,13 +61,34 @@ class IBMSystemDumpProvider extends IBMDumpProvider
             return 100000000L;
     }
 
+    /**
+     * Run jextract and move the files to the target directory
+     * @param preferredDump
+     * @param dumps
+     * @param udir
+     * @param home
+     * @param listener
+     * @return
+     * @throws IOException
+     * @throws InterruptedException
+     * @throws SnapshotException
+     */
     @Override
-    File jextract(File preferredDump, List<File>dumps, File udir, File home, IProgressListener listener) throws IOException,
+    File jextract(File preferredDump, boolean compress, List<File>dumps, File udir, File home, IProgressListener listener) throws IOException,
                     InterruptedException, SnapshotException
     {
+        listener.beginTask(Messages.getString("IBMSystemDumpProvider.FormattingDump"), IProgressListener.UNKNOWN_TOTAL_WORK); //$NON-NLS-1$
+
         File dump = dumps.get(0);
         File result;
-        listener.beginTask(Messages.getString("IBMSystemDumpProvider.FormattingDump"), IProgressListener.UNKNOWN_TOTAL_WORK); //$NON-NLS-1$
+        preferredDump = mergeFileNames(preferredDump, dump);
+        
+        if (compress && !preferredDump.getName().endsWith(".zip")) //$NON-NLS-1$
+        {
+            preferredDump = new File(preferredDump.getPath()+".zip"); //$NON-NLS-1$;
+        }
+
+        final boolean zip = preferredDump.getName().endsWith(".zip"); //$NON-NLS-1$
 
         ProcessBuilder pb = new ProcessBuilder();
         File jextract;
@@ -80,14 +101,30 @@ class IBMSystemDumpProvider extends IBMDumpProvider
         {
             jextract = new File("jextract"); //$NON-NLS-1$
         }
-        if (preferredDump.getName().endsWith(".zip")) { //$NON-NLS-1$
+        if (zip)
+        {
             pb.command(jextract.getAbsolutePath(), dump.getAbsolutePath(), preferredDump.getAbsolutePath());
             result = preferredDump;
         }
         else
         {
-            pb.command(jextract.getAbsolutePath(), dump.getAbsolutePath(), "-nozip"); //$NON-NLS-1$
-            result = dump;
+            // Move dump
+            if (dump.renameTo(preferredDump))
+            {
+                // Success
+                dump = preferredDump;
+            }
+            else
+            {
+                // Failed, use original dump
+            }
+            final String metafileName = dump.getAbsolutePath()+".xml"; //$NON-NLS-1$
+            if (dump.getName().endsWith(".dmp")) //$NON-NLS-1$
+                result = dump;
+            else
+                result = new File(metafileName);
+            pb.command(jextract.getAbsolutePath(), dump.getAbsolutePath(), "-nozip", metafileName); //$NON-NLS-1$
+            
         }
         pb.redirectErrorStream(true);
         pb.directory(udir);
@@ -140,6 +177,12 @@ class IBMSystemDumpProvider extends IBMDumpProvider
 
         if (!result.canRead()) { throw new FileNotFoundException(MessageFormat.format(Messages
                         .getString("IBMSystemDumpProvider.ReturnCode"), result.getPath(), errorBuf.toString())); //$NON-NLS-1$
+        }
+
+        // Tidy up
+        if (zip)
+        {
+            dump.delete();
         }
 
         listener.done();
