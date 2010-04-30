@@ -77,8 +77,6 @@ class IBMSystemDumpProvider extends IBMDumpProvider
     File jextract(File preferredDump, boolean compress, List<File>dumps, File udir, File home, IProgressListener listener) throws IOException,
                     InterruptedException, SnapshotException
     {
-        listener.beginTask(Messages.getString("IBMSystemDumpProvider.FormattingDump"), IProgressListener.UNKNOWN_TOTAL_WORK); //$NON-NLS-1$
-
         File dump = dumps.get(0);
         File result;
         preferredDump = mergeFileNames(preferredDump, dump);
@@ -87,6 +85,10 @@ class IBMSystemDumpProvider extends IBMDumpProvider
         {
             preferredDump = new File(preferredDump.getPath()+".zip"); //$NON-NLS-1$;
         }
+
+        listener.beginTask(MessageFormat.format(Messages.getString("IBMSystemDumpProvider.FormattingDump"), //$NON-NLS-1$
+                           dump, preferredDump), IProgressListener.UNKNOWN_TOTAL_WORK); 
+
 
         final boolean zip = preferredDump.getName().endsWith(".zip"); //$NON-NLS-1$
 
