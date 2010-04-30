@@ -130,7 +130,6 @@ public class AcquireDialog extends WizardPage
         column.setText(Messages.AcquireDialog_HeapDumpProviderColumnHeader);
         column.setWidth(200);
 
-
         refreshTable();
 
         Composite buttons = new Composite(top, SWT.NONE);
@@ -164,7 +163,6 @@ public class AcquireDialog extends WizardPage
             }
         });
         
-        
         Label saveLocationLabel = new Label(top, SWT.NONE);
         saveLocationLabel.setText(Messages.AcquireDialog_SaveLocation);
         GridDataFactory.swtDefaults().span(2, 1).applyTo(saveLocationLabel);
@@ -172,6 +170,9 @@ public class AcquireDialog extends WizardPage
         folderText = new Text(top, SWT.BORDER);
         GridDataFactory.fillDefaults().minSize(300, 0).grab(true, false).applyTo(folderText);
         String lastDir = Platform.getPreferencesService().getString(MemoryAnalyserPlugin.PLUGIN_ID, LAST_DIRECTORY_KEY, "", null); //$NON-NLS-1$
+        if (lastDir == null || lastDir.trim().equals("")) //$NON-NLS-1$
+        	lastDir = System.getProperty("user.home");  //$NON-NLS-1$
+        
         folderText.setText(lastDir);
         folderText.addModifyListener(new ModifyListener()
         {
