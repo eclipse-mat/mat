@@ -341,7 +341,7 @@ public class QueryRegistry extends RegistryReader<IQuery>
                     if (help != null)
                         argDescriptor.setHelp(help);
 
-                    descriptor.addParamter(argDescriptor);
+                    descriptor.addParameter(argDescriptor);
                 }
             }
             catch (SnapshotException e)

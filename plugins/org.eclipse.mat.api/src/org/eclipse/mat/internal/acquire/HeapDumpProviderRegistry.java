@@ -227,7 +227,7 @@ public class HeapDumpProviderRegistry extends RegistryReader<IHeapDumpProvider>
 							h != null ? h.value() : null);
 					if (help != null) argDescriptor.setHelp(help);
 
-					descriptor.addParamter(argDescriptor);
+					descriptor.addParameter(argDescriptor);
 				}
 			}
 			catch (SnapshotException e)

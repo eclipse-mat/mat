@@ -138,7 +138,7 @@ public class VmInfoDescriptor extends AnnotatedObjectDescriptor
                     if (help != null)
                         argDescriptor.setHelp(help);
 
-                    descriptor.addParamter(argDescriptor);
+                    descriptor.addParameter(argDescriptor);
                 }
             }
             catch (SnapshotException e)

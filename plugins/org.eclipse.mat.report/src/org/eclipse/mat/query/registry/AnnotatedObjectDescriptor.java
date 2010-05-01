@@ -120,7 +120,7 @@ public class AnnotatedObjectDescriptor implements IAnnotatedObjectDescriptor
 		return false;
 	}
 
-	public void addParamter(ArgumentDescriptor descriptor)
+	public void addParameter(ArgumentDescriptor descriptor)
 	{
 		arguments.add(descriptor);
 	}
