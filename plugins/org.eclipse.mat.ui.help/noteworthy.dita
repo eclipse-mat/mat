@@ -126,6 +126,38 @@
 		</section>
 		
 		<section>
+			<title>Grouping by Superclass</title>
+			<p>
+				Now it is also possible to group objects by superclass in a histogram. 
+				This provides an easy way to find for example all the subclasses of java.util.AbstractMap, etc...
+			</p>
+			<p>
+				<image href="mimes/nn_group_by_superclass.png">
+					<alt>Group a Histogram by Supserclass</alt>
+				</image>
+			</p>
+		</section>
+		
+		<section>
+			<title>&quot;Search Queries...&quot; in the Context Menu</title>
+			<p>
+				The query browser (&quot;Search Queries...&quot;) is now also available in the context menu.
+				It offers only queries valid for the current selection, and is easier to use as it can display
+				some or all the queries, and shows also the help for each query.
+			</p>
+			<p>
+				<image href="mimes/nn_search_queries_context.png">
+					<alt>Search Queries Context Menu</alt>
+				</image>
+			</p>
+			<p>
+				<image href="mimes/nn_search_queries.png">
+					<alt>Start Typing To Limit the Selection...</alt>
+				</image>
+			</p>			
+		</section>
+		
+		<section>
 			<title>API Reference</title>
 			<p>
 				To make things easier for people interested in extending Memory Analyzer or writing MAT queries
@@ -133,7 +165,7 @@
 				topics of Memory Analyzer. It contains Javadoc as well as descriptions for 
 				the different extension points which MAT provides.
 			</p>
-		</section>
+		</section>		
 
 		<section>
 			<title>New &amp; Noteworthy for Memory Analyzer 0.8</title>
