@@ -10,7 +10,9 @@
 package org.eclipse.mat.ui.compare;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
@@ -31,6 +33,7 @@ import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.query.registry.QueryResult;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.QueryExecution;
 import org.eclipse.mat.ui.compare.CompareTablesQuery.Mode;
 import org.eclipse.mat.ui.editor.AbstractEditorPane;
@@ -38,6 +41,7 @@ import org.eclipse.mat.ui.editor.MultiPaneEditor;
 import org.eclipse.mat.ui.internal.panes.TableResultPane;
 import org.eclipse.mat.ui.snapshot.panes.HistogramPane;
 import org.eclipse.mat.ui.util.PaneState;
+import org.eclipse.mat.ui.util.NavigatorState.IStateChangeListener;
 import org.eclipse.mat.util.VoidProgressListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
@@ -46,12 +50,15 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.ui.IPartListener2;
+import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.part.ViewPart;
 
 public class CompareBasketView extends ViewPart
 {
 
-	public static final String ID = "org.eclipse.mat.ui.views.CompareBasketView";
+	public static final String ID = "org.eclipse.mat.ui.views.CompareBasketView"; //$NON-NLS-1$
 
 	private Table table;
 	private TableViewer tableViewer;
@@ -60,6 +67,7 @@ public class CompareBasketView extends ViewPart
 	private MoveAction moveUpAction;
 	private MoveAction moveDownAction;
 	private Action removeAction;
+	private Set<MultiPaneEditor> editors = new HashSet<MultiPaneEditor>();
 
 	List<ComparedResult> results = new ArrayList<ComparedResult>();
 
@@ -79,12 +87,12 @@ public class CompareBasketView extends ViewPart
 
 		TableViewerColumn column = new TableViewerColumn(tableViewer, SWT.LEFT);
 		TableColumn tableColumn = column.getColumn();
-		tableColumn.setText("Results to be compared");
+		tableColumn.setText(Messages.CompareBasketView_ResultsToBeComparedColumnHeader);
 		tableColumn.setWidth(200);
 
 		TableViewerColumn heapDumpColumn = new TableViewerColumn(tableViewer, SWT.LEFT);
 		tableColumn = heapDumpColumn.getColumn();
-		tableColumn.setText("Heap Dump");
+		tableColumn.setText(Messages.CompareBasketView_HeapDumpColumnHeader);
 		tableColumn.setWidth(400);
 
 		table.setHeaderVisible(true);
@@ -143,6 +151,72 @@ public class CompareBasketView extends ViewPart
 
 		clearAction.setEnabled(true);
 		if (results.size() > 1) compareAction.setEnabled(true);
+
+		// is the result from a unknown editor => add some cleanup actions
+		if (editors.add(editor))
+		{
+			// listen if the editor gets closed
+			editor.getSite().getPage().addPartListener(new IPartListener2() {
+
+				public void partVisible(IWorkbenchPartReference partRef)
+				{}
+
+				public void partOpened(IWorkbenchPartReference partRef)
+				{}
+
+				public void partInputChanged(IWorkbenchPartReference partRef)
+				{}
+
+				public void partHidden(IWorkbenchPartReference partRef)
+				{}
+
+				public void partDeactivated(IWorkbenchPartReference partRef)
+				{}
+
+				public void partBroughtToTop(IWorkbenchPartReference partRef)
+				{}
+
+				public void partActivated(IWorkbenchPartReference partRef)
+				{}
+
+				public void partClosed(IWorkbenchPartReference partRef)
+				{
+					IWorkbenchPart part = partRef.getPart(false);
+					List<ComparedResult> toBeRemoved = new ArrayList<ComparedResult>();
+					for (ComparedResult res : results)
+					{
+						if (res.editor == part) toBeRemoved.add(res);
+					}
+					editors.remove(part);
+					results.removeAll(toBeRemoved);
+
+					tableViewer.refresh();
+					updateButtons();
+				}
+
+			});
+
+			// listen if some result from the editor gets closed
+			editor.getNavigatorState().addChangeStateListener(new IStateChangeListener() {
+
+				public void onStateChanged(PaneState state)
+				{
+					if (state != null && !state.isActive())
+					{
+						List<ComparedResult> toBeRemoved = new ArrayList<ComparedResult>();
+						for (ComparedResult res : results)
+						{
+							if (res.state == state) toBeRemoved.add(res);
+						}
+						results.removeAll(toBeRemoved);
+						tableViewer.refresh();
+						updateButtons();
+					}
+				}
+			});
+
+		}
+
 	}
 
 	public static boolean accepts(PaneState state, MultiPaneEditor editor)
@@ -238,8 +312,8 @@ public class CompareBasketView extends ViewPart
 	{
 		public CompareAction()
 		{
-			setText("Compare");
-			setToolTipText("Compare the results");
+			setText(Messages.CompareBasketView_CompareButtonLabel);
+			setToolTipText(Messages.CompareBasketView_CompareTooltip);
 			setImageDescriptor(MemoryAnalyserPlugin.getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.EXECUTE_QUERY));
 			setEnabled(false);
 		}
@@ -260,7 +334,7 @@ public class CompareBasketView extends ViewPart
 			{
 				compareQuery.mode = Mode.ABSOLUTE;
 				IResult absolute = compareQuery.execute(new VoidProgressListener());
-				QueryResult queryResult = new QueryResult(null, "Compared Tables", absolute);
+				QueryResult queryResult = new QueryResult(null, Messages.CompareBasketView_ComparedTablesResultTitle, absolute);
 				QueryExecution.displayResult(editor, null, null, queryResult, false);
 			}
 			catch (Exception e)
@@ -274,8 +348,8 @@ public class CompareBasketView extends ViewPart
 	{
 		public RemoveAllAction()
 		{
-			setText("Clear");
-			setToolTipText("Clear table");
+			setText(Messages.CompareBasketView_ClearButtonLabel);
+			setToolTipText(Messages.CompareBasketView_ClearTooltip);
 			setImageDescriptor(MemoryAnalyserPlugin.getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.REMOVE_ALL));
 			setEnabled(false);
 		}
@@ -294,8 +368,8 @@ public class CompareBasketView extends ViewPart
 	{
 		public RemoveAction()
 		{
-			setText("Remove");
-			setToolTipText("Remove table");
+			setText(Messages.CompareBasketView_RemoveButtonLabel);
+			setToolTipText(Messages.CompareBasketView_RemoveTooltip);
 			setImageDescriptor(MemoryAnalyserPlugin.getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.REMOVE));
 			setEnabled(false);
 			tableViewer.addSelectionChangedListener(this);
@@ -333,14 +407,14 @@ public class CompareBasketView extends ViewPart
 			this.direction = direction;
 			if (direction == SWT.UP)
 			{
-				setText("Move Up");
-				setToolTipText("Move Result Up");
+				setText(Messages.CompareBasketView_MoveUpButtonLabel);
+				setToolTipText(Messages.CompareBasketView_MoveUpTooltip);
 				setImageDescriptor(MemoryAnalyserPlugin.getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.MOVE_UP));
 			}
 			else if (direction == SWT.DOWN)
 			{
-				setText("Move Down");
-				setToolTipText("Move Result Down");
+				setText(Messages.CompareBasketView_MoveDownButtonLabel);
+				setToolTipText(Messages.CompareBasketView_MoveDownTooltip);
 				setImageDescriptor(MemoryAnalyserPlugin.getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.MOVE_DOWN));
 			}
 			setEnabled(false);
@@ -398,11 +472,17 @@ public class CompareBasketView extends ViewPart
 
 	}
 
+	private void updateButtons()
+	{
+		compareAction.setEnabled(results.size() > 1);
+		clearAction.setEnabled(results.size() > 0);
+	}
+
 	private MultiPaneEditor getEditor()
 	{
 		if (results.size() > 0)
 		{
-			return results.get(results.size() - 1).editor;
+			return (MultiPaneEditor) results.get(results.size() - 1).editor.getSite().getPage().getActiveEditor();
 		}
 		return null;
 	}

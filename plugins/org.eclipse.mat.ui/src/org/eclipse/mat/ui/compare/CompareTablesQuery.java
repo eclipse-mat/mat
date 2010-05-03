@@ -410,7 +410,7 @@ public class CompareTablesQuery implements IQuery
 					displayedColumns.add(comparedColumn);
 					for (int j = 0; j < comparedColumn.getColumnIndexes().length; j++)
 					{
-						result.add(new Column(c.getLabel() + " #" + (j + 1), c.getType(), c.getAlign(), c.getSortDirection(), c.getFormatter(), null));
+						result.add(new Column(c.getLabel() + " #" + (j + 1), c.getType(), c.getAlign(), c.getSortDirection(), c.getFormatter(), null)); //$NON-NLS-1$
 					}
 				}
 			}

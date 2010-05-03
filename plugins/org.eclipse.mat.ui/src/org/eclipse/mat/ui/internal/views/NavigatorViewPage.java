@@ -217,7 +217,7 @@ public class NavigatorViewPage extends Page implements ISelectionProvider, IDoub
         		addToCompareBasket((IStructuredSelection) treeViewer.getSelection());
         	}
         };
-        addToCompareBasketAction.setText("Add to Compare Basket");
+        addToCompareBasketAction.setText(Messages.NavigatorViewPage_AddToCompareBasketMenuItem);
         addToCompareBasketAction.setImageDescriptor(MemoryAnalyserPlugin.getImageDescriptor(ISharedImages.COMPARE));
 
         Action copyAction = new Action()
@@ -473,7 +473,7 @@ public class NavigatorViewPage extends Page implements ISelectionProvider, IDoub
 			try {
 	            view = page.showView(CompareBasketView.ID, null, IWorkbenchPage.VIEW_VISIBLE);
 	        } catch (PartInitException ex) {
-	        	Logger.getLogger("org.eclipse.mat").log(Level.SEVERE, "Could not start Compare Basket View", ex);
+	        	Logger.getLogger("org.eclipse.mat").log(Level.SEVERE, "Could not start Compare Basket View", ex); //$NON-NLS-1$ //$NON-NLS-2$
 	        	return;
 	        }
 		}

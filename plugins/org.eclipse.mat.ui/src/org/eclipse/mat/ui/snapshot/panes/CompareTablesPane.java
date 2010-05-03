@@ -22,6 +22,7 @@ import org.eclipse.jface.action.Separator;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.registry.QueryResult;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.compare.CompareTablesQuery.ComparedColumn;
 import org.eclipse.mat.ui.compare.CompareTablesQuery.Mode;
 import org.eclipse.mat.ui.compare.CompareTablesQuery.TableComparisonResult;
@@ -36,7 +37,7 @@ public class CompareTablesPane extends QueryResultPane
 
 	public enum DiffOption
 	{
-		ABSOLUTE("Absolute Values"), DIFF_TO_BASE("Difference to Base Table"), DIFF_TO_PREV("Difference to Preceding Table");
+		ABSOLUTE(Messages.CompareTablesPane_AbsoluteValues), DIFF_TO_BASE(Messages.CompareTablesPane_DifferenceToBaseTable), DIFF_TO_PREV(Messages.CompareTablesPane_DifferenceToPrecedingTable);
 
 		String label;
 
@@ -97,7 +98,7 @@ public class CompareTablesPane extends QueryResultPane
 		final IResult result = viewer.getQueryResult().getSubject();
 		if (result instanceof TableComparisonResult)
 		{
-			Action selectColumnsAction = new EasyToolBarDropDown("Select displayed columns...", //
+			Action selectColumnsAction = new EasyToolBarDropDown(Messages.CompareTablesPane_SelectDisplayedColumnsTooltip, //
 					MemoryAnalyserPlugin.getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.SELECT_COLUMN), this) {
 
 				@Override
@@ -119,7 +120,7 @@ public class CompareTablesPane extends QueryResultPane
 
 	private void addDiffOptions(IToolBarManager manager)
 	{
-		Action diffOptionAction = new EasyToolBarDropDown("Choose diff option ...", //
+		Action diffOptionAction = new EasyToolBarDropDown(Messages.CompareTablesPane_ChooseDiffOptionTooltip, //
 				MemoryAnalyserPlugin.getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.GROUPING), this) {
 			@Override
 			public void contribute(PopupMenu menu)
@@ -175,7 +176,7 @@ public class CompareTablesPane extends QueryResultPane
 				((TableComparisonResult) result).setMode(mode);
 			}
 
-			final QueryResult queryResult = new QueryResult(null, "compare", result);
+			final QueryResult queryResult = new QueryResult(null, "compare", result); //$NON-NLS-1$
 
 			new Job(getText()) {
 				protected IStatus run(IProgressMonitor monitor)
@@ -218,7 +219,7 @@ public class CompareTablesPane extends QueryResultPane
 				((TableComparisonResult) result).updateColumns();
 			}
 
-			final QueryResult queryResult = new QueryResult(null, "compare", result);
+			final QueryResult queryResult = new QueryResult(null, "compare", result); //$NON-NLS-1$
 
 			new Job(getText()) {
 				protected IStatus run(IProgressMonitor monitor)
