@@ -18,6 +18,13 @@ import java.lang.annotation.Target;
 
 /**
  * Annotates a custom usage message.
+ * The text can be replaced by translatable text in an annotations.properties file in the same package with the key
+ * <pre>
+ *{@code
+<SimpleClassName>.usage =
+}
+ * </pre>
+ * where {@code <SimpleClassName>} is the name of the class of the query without the package name.
  */
 @Target( { TYPE })
 @Retention(RUNTIME)

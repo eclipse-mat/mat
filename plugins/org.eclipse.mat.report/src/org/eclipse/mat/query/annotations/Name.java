@@ -17,7 +17,16 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * Annotates the name of the query.
+ * Annotates the name of the query as displayed in the query menu or query browser.
+ * The text can be replaced by translatable text in an annotations.properties file in the same package with the key
+ * <pre>
+ *{@code
+<SimpleClassName>.name = My first query
+<SimpleClassName>.name = 4|My second query
+}
+ * </pre>
+ * where {@code <SimpleClassName>} is the name of the class of the query without the package name.
+ * The name is optionally preceded by a number indicating the menu order with a vertical bar separator.
  */
 @Target( { TYPE })
 @Retention(RUNTIME)

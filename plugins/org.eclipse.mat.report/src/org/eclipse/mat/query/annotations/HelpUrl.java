@@ -18,7 +18,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * Annotates a help URL into Eclipse' help system.
+ * Annotates a help URL path into the Eclipse help system.
  */
 @Target( { TYPE, FIELD })
 @Retention(RUNTIME)

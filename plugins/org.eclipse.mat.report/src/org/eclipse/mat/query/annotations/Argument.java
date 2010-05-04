@@ -57,12 +57,19 @@ public @interface Argument
          * the parameter represents a directory. The default for File arguments
          * is a file.
          */
-        DIRECTORY
-        
+        DIRECTORY,
+        /**
+         * Used with an argument of type File this should indicate that 
+         * the parameter represents a file to be created or written to. The default for File arguments
+         * is a file to be opened.
+         */
+        SAVE
     }
 
     /**
-     * The name of the flag
+     * The name of the flag, used for query arguments table and for specifying command line arguments.
+     * The default, "", means use the name of the argument field. "none" means for the command line 
+     * query no flag should be specified before the argument.
      */
     String flag() default "";
 

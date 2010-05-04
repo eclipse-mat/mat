@@ -19,6 +19,13 @@ import java.lang.annotation.Target;
 
 /**
  * Annotates a help message to the argument and/or query.
+ * The text can be replaced by translatable text in an annotations.properties file in the same package with the key
+ * <pre>
+ *{@code
+<SimpleClassName>.help =
+}
+ * </pre>
+ * where {@code <SimpleClassName>} is the name of the class of the query without the package name.
  */
 @Target( { TYPE, FIELD })
 @Retention(RUNTIME)

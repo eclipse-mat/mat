@@ -18,6 +18,7 @@ import java.lang.annotation.Target;
 
 /**
  * Annotates the icon of the query.
+ * The value is the path to the icon in the plug-in.
  */
 @Target( { TYPE })
 @Retention(RUNTIME)
