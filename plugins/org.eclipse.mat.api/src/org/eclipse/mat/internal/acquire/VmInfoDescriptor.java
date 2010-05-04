@@ -166,10 +166,10 @@ public class VmInfoDescriptor extends AnnotatedObjectDescriptor
         d.setName(field.getName());
 
         String flag = annotation.flag();
-        if (flag.length() == 0)
-            flag = field.getName().toLowerCase(Locale.ENGLISH);
-        if ("none".equals(flag)) //$NON-NLS-1$
+        if (flag.equals(Argument.UNFLAGGED))
             flag = null;
+        else if (flag.length() == 0)
+            flag = field.getName().toLowerCase(Locale.ENGLISH);
         d.setFlag(flag);
 
         d.setField(field);
