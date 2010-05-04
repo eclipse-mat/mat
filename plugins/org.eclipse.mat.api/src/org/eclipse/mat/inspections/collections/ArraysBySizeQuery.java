@@ -30,7 +30,7 @@ public class ArraysBySizeQuery implements IQuery
     @Argument
     public ISnapshot snapshot;
 
-    @Argument(flag = "none")
+    @Argument(flag = Argument.UNFLAGGED)
     public IHeapObjectArgument objects;
 
     public IResult execute(IProgressListener listener) throws Exception

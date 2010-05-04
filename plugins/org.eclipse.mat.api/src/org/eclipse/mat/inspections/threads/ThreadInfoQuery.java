@@ -64,7 +64,7 @@ public class ThreadInfoQuery implements IQuery
     @Argument
     public ISnapshot snapshot;
 
-    @Argument(flag = "none")
+    @Argument(flag = Argument.UNFLAGGED)
     public IHeapObjectArgument threadIds;
 
     public Result execute(IProgressListener listener) throws Exception

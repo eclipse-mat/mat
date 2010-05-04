@@ -32,7 +32,7 @@ public class PrimitiveArraysWithAConstantValueQuery implements IQuery
     @Argument
     public ISnapshot snapshot;
 
-    @Argument(flag = "none")
+    @Argument(flag = Argument.UNFLAGGED)
     @Help("The array objects. Only primitive arrays will be examined.")
     public IHeapObjectArgument objects;
 

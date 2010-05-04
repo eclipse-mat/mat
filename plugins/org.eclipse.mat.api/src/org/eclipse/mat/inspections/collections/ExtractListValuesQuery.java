@@ -32,7 +32,7 @@ public class ExtractListValuesQuery implements IQuery
     @Argument
     public ISnapshot snapshot;
 
-    @Argument(flag = "none")
+    @Argument(flag = Argument.UNFLAGGED)
     public IObject list;
 
     public IResult execute(IProgressListener listener) throws Exception

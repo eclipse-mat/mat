@@ -36,7 +36,7 @@ public class MapCollisionRatioQuery implements IQuery
     @Argument
     public ISnapshot snapshot;
 
-    @Argument(flag = "none")
+    @Argument(flag = Argument.UNFLAGGED)
     public IHeapObjectArgument objects;
 
     @Argument(isMandatory = false)

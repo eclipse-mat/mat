@@ -50,7 +50,7 @@ public class ThreadStackQuery implements IQuery
     @Argument
     public ISnapshot snapshot;
 
-    @Argument(flag = "none", isMandatory = false)
+    @Argument(flag = Argument.UNFLAGGED, isMandatory = false)
     public IHeapObjectArgument objects;
 
     private static URL THREAD_ICON_URL = ThreadStackQuery.class.getResource("/META-INF/icons/threads.gif"); //$NON-NLS-1$
