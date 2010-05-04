@@ -68,10 +68,16 @@ public @interface Argument
 
     /**
      * The name of the flag, used for query arguments table and for specifying command line arguments.
-     * The default, "", means use the name of the argument field. "none" means for the command line 
+     * The default, "", means use the name of the argument field. {@link #UNFLAGGED} or "none" means for the command line 
      * query no flag should be specified before the argument.
      */
     String flag() default "";
+
+    /**
+     * A constant for the {@link #flag()} annotation parameter to show that for a command line query no flag should be specified before the argument. For a query dialog the field name without
+     * a leading dash is used as the argument name.
+     */
+    static final String UNFLAGGED = "none"; //$NON-NLS-1$
 
     /**
      * Indicates whether the argument is mandatory (default)
