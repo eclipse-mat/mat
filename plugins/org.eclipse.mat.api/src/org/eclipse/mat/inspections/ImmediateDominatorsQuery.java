@@ -45,7 +45,7 @@ public class ImmediateDominatorsQuery implements IQuery
     @Argument
     public ISnapshot snapshot;
 
-    @Argument(flag = "none")
+    @Argument(flag = Argument.UNFLAGGED)
     public IHeapObjectArgument objects;
 
     @Argument(isMandatory = false, advice = Advice.CLASS_NAME_PATTERN, flag = "skip")

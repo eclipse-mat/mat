@@ -45,7 +45,7 @@ public class ReferenceQuery implements IQuery
     @Argument
     public ISnapshot snapshot;
 
-    @Argument(flag = "none")
+    @Argument(flag = Argument.UNFLAGGED)
     public IHeapObjectArgument objects;
     
     static final String DEFAULT_REFERENT = "referent"; //$NON-NLS-1$

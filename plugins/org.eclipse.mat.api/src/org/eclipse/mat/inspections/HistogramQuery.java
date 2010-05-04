@@ -59,7 +59,7 @@ public class HistogramQuery implements IQuery
     @Argument
     public ISnapshot snapshot;
 
-    @Argument(flag = "none", isMandatory = false)
+    @Argument(flag = Argument.UNFLAGGED, isMandatory = false)
     public IHeapObjectArgument objects;
 
     @Argument(isMandatory = false)

@@ -66,8 +66,11 @@ public class ComponentReportQuery implements IQuery
     @Argument
     public ISnapshot snapshot;
 
-    @Argument(flag = "none")
+    @Argument(flag = Argument.UNFLAGGED)
     public IHeapObjectArgument objects;
+
+    // @Argument(isMandatory = false)  // Make an argument?
+    public long maxPHDComponentSize = 1000000;
 
     public IResult execute(IProgressListener listener) throws Exception
     {
@@ -395,7 +398,7 @@ public class ComponentReportQuery implements IQuery
                     throws Exception
     {
         // Works, but very slow, so disable for big components
-        if (totalSize > 1000000)
+        if (totalSize > maxPHDComponentSize)
             InspectionAssert.heapFormatIsNot(snapshot, "DTFJ-PHD"); //$NON-NLS-1$
         long threshold = totalSize / 20;
 
@@ -493,7 +496,7 @@ public class ComponentReportQuery implements IQuery
                     Ticks listener) throws Exception
     {
         // Works, but very slow, so disable for big components
-        if (totalSize > 1000000)
+        if (totalSize > maxPHDComponentSize)
             InspectionAssert.heapFormatIsNot(snapshot, "DTFJ-PHD"); //$NON-NLS-1$
         long threshold = totalSize / 20;
 
@@ -591,7 +594,7 @@ public class ComponentReportQuery implements IQuery
                     throws Exception
     {
         // Works, but very slow, so disable for big components
-        if (totalSize > 1000000)
+        if (totalSize > maxPHDComponentSize)
             InspectionAssert.heapFormatIsNot(snapshot, "DTFJ-PHD"); //$NON-NLS-1$
         SectionSpec overview = new SectionSpec(Messages.ComponentReportQuery_MapCollisionRatios);
 
