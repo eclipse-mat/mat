@@ -149,7 +149,7 @@ public class FileOpenDialogEditor extends ArgumentEditor
                 }
                 else // default: a file
                 {
-                	FileDialog dialog = new FileDialog(getShell(), SWT.OPEN | SWT.MULTI);
+                	FileDialog dialog = new FileDialog(getShell(), descriptor.getAdvice() == Advice.SAVE ? SWT.SAVE : SWT.OPEN);
                 	dialog.setText(Messages.FileOpenDialogEditor_ChooseFile);
                 	
                 	if (lastDirectory != null && lastDirectory.length() > 0)
