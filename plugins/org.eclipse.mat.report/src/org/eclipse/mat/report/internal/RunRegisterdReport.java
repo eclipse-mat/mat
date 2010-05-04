@@ -32,7 +32,7 @@ public class RunRegisterdReport implements IQuery
     @Argument
     public IQueryContext queryContext;
 
-    @Argument(flag = "none")
+    @Argument(flag = Argument.UNFLAGGED)
     public String extensionIdentifier;
 
     public IResult execute(IProgressListener listener) throws Exception

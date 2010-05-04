@@ -29,7 +29,7 @@ public class RunExternalTest implements IQuery
     @Argument
     public IQueryContext context;
 
-    @Argument(flag = "none")
+    @Argument(flag = Argument.UNFLAGGED)
     public File testSuite;
 
     public IResult execute(IProgressListener listener) throws Exception
