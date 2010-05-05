@@ -24,6 +24,7 @@ import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
+import org.eclipse.mat.query.annotations.Argument.Advice;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IObject;
@@ -44,7 +45,7 @@ public class SaveValueAsQuery implements IQuery
     @Argument
     public List<IContextObject> objects;
 
-    @Argument
+    @Argument(advice = Advice.SAVE)
     public File file;
 
     public IResult execute(IProgressListener listener) throws Exception
