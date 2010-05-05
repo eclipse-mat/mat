@@ -279,7 +279,15 @@ public class Messages extends NLS
     public static String HeapDumpInfoQuery_NumObjectsFormat;
     public static String HeapDumpInfoQuery_TimeFormat;
 
-    public static String HeapObjectArgumentFactory_ErrorMsg_MultipleObjects;
+    public static String HeapDumpProviderRegistry_ErrorGettingArgumentErrorMsg;
+
+	public static String HeapDumpProviderRegistry_NameAlreadyBouneErrorMsg;
+
+	public static String HeapDumpProviderRegistry_UnableToAccessArgumentErrorMsg;
+
+	public static String HeapDumpProviderRegistry_WrongTypeErrorMsg;
+
+	public static String HeapObjectArgumentFactory_ErrorMsg_MultipleObjects;
     public static String HeapObjectArgumentFactory_ErrorMsg_SettingField;
     public static String HeapObjectArgumentFactory_ErrorMsg_TypeNotSupported;
     public static String HeapObjectArgumentFactory_Label_Objects;
@@ -497,7 +505,13 @@ public class Messages extends NLS
     public static String TQuantize_Label_GroupedByPackage;
     public static String TQuantize_None;
 
-    public static String WasteInCharArraysQuery_CheckingCharArrays;
+    public static String VmInfoDescriptor_ErrorGettingArgumentErrorMsg;
+
+	public static String VmInfoDescriptor_UnableToAccessArgumentErrorMsg;
+
+	public static String VmInfoDescriptor_WrongTypeErrorMsg;
+
+	public static String WasteInCharArraysQuery_CheckingCharArrays;
 
     public static String WeakReferenceStatQuery_Label_Referenced;
     public static String WeakReferenceStatQuery_Label_Retained;

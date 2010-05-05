@@ -24,6 +24,7 @@ import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.Help;
 import org.eclipse.mat.query.annotations.Name;
@@ -147,12 +148,12 @@ public class VmInfoDescriptor extends AnnotatedObjectDescriptor
             }
             catch (IllegalAccessException e)
             {
-                String msg = "Unable to access argument ''{0}'' of class ''{1}''. Make sure the attribute is PUBLIC.";
+                String msg = Messages.VmInfoDescriptor_UnableToAccessArgumentErrorMsg;
                 throw new SnapshotException(MessageUtil.format(msg, field.getName(), clazz.getName()), e);
             }
             catch (Exception e)
             {
-                throw new SnapshotException(MessageUtil.format("Error get argument ''{0}'' of class ''{1}''", field
+                throw new SnapshotException(MessageUtil.format(Messages.VmInfoDescriptor_ErrorGettingArgumentErrorMsg, field
                                 .getName(), clazz.getName()), e);
             }
         }
@@ -201,7 +202,7 @@ public class VmInfoDescriptor extends AnnotatedObjectDescriptor
 
         if (advice == Argument.Advice.CLASS_NAME_PATTERN && !Pattern.class.isAssignableFrom(d.getType()))
         {
-            String msg = MessageUtil.format("Field {0} of {1} has advice {2} but is not of type {3}.", field.getName(),
+            String msg = MessageUtil.format(Messages.VmInfoDescriptor_WrongTypeErrorMsg, field.getName(),
                             clazz.getName(), Argument.Advice.CLASS_NAME_PATTERN, Pattern.class.getName());
             throw new SnapshotException(msg);
         }

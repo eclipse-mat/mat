@@ -32,6 +32,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.internal.MATPlugin;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.Help;
@@ -75,7 +76,7 @@ public class HeapDumpProviderRegistry extends RegistryReader<IHeapDumpProvider>
 		catch (SnapshotException e)
 		{
 			throw new CoreException(new Status(IStatus.ERROR, MATPlugin.PLUGIN_ID, MessageUtil.format(
-					"Error registering query: {0}", configElement.getAttribute("impl")), e)); //$NON-NLS-1$
+					"Error registering heap dump adapter: {0}", configElement.getAttribute("impl")), e)); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 
@@ -109,6 +110,11 @@ public class HeapDumpProviderRegistry extends RegistryReader<IHeapDumpProvider>
 		return providersByClass.get(providerClass.getName().toLowerCase(Locale.ENGLISH));
 	}
 
+	/**
+	 * @param provider
+	 * @return
+	 * @throws SnapshotException
+	 */
 	private final synchronized HeapDumpProviderDescriptor registerProvider(IHeapDumpProvider provider) throws SnapshotException
 	{
 		Class<? extends IHeapDumpProvider> providerClass = provider.getClass();
@@ -123,7 +129,7 @@ public class HeapDumpProviderRegistry extends RegistryReader<IHeapDumpProvider>
 
 		// do NOT overwrite command names
 		if (providersByIdentifier.containsKey(identifier))
-			throw new SnapshotException(MessageUtil.format("Query name ''{0}'' is already bound to {1}!", identifier, providersByIdentifier.get(identifier)
+			throw new SnapshotException(MessageUtil.format(Messages.HeapDumpProviderRegistry_NameAlreadyBouneErrorMsg, identifier, providersByIdentifier.get(identifier)
 					.getSubject().getName()));
 
 		Usage u = providerClass.getAnnotation(Usage.class);
@@ -236,12 +242,12 @@ public class HeapDumpProviderRegistry extends RegistryReader<IHeapDumpProvider>
 			}
 			catch (IllegalAccessException e)
 			{
-				String msg = "Unable to access argument ''{0}'' of class ''{1}''. Make sure the attribute is PUBLIC.";
+				String msg = Messages.HeapDumpProviderRegistry_UnableToAccessArgumentErrorMsg;
 				throw new SnapshotException(MessageUtil.format(msg, field.getName(), clazz.getName()), e);
 			}
 			catch (Exception e)
 			{
-				throw new SnapshotException(MessageUtil.format("Error get argument ''{0}'' of class ''{1}''", field.getName(), clazz.getName()), e);
+				throw new SnapshotException(MessageUtil.format(Messages.HeapDumpProviderRegistry_ErrorGettingArgumentErrorMsg, field.getName(), clazz.getName()), e);
 			}
 		}
 	}
@@ -288,7 +294,7 @@ public class HeapDumpProviderRegistry extends RegistryReader<IHeapDumpProvider>
 
 		if (advice == Argument.Advice.CLASS_NAME_PATTERN && !Pattern.class.isAssignableFrom(d.getType()))
 		{
-			String msg = MessageUtil.format("Field {0} of {1} has advice {2} but is not of type {3}.", field.getName(), clazz.getName(),
+			String msg = MessageUtil.format(Messages.HeapDumpProviderRegistry_WrongTypeErrorMsg, field.getName(), clazz.getName(),
 					Argument.Advice.CLASS_NAME_PATTERN, Pattern.class.getName());
 			throw new SnapshotException(msg);
 		}
