@@ -205,7 +205,7 @@ public abstract class IndexWriter
         }
 
         public static long expand(int x) {
-            return x;
+            return x >= 0 ? x : Integer.MAX_VALUE;
         }
 
         public void set(int index, long value)
