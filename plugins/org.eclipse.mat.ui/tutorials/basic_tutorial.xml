@@ -40,7 +40,7 @@
 			combobox toolbar button. To return to the initial sorting select the
 			<b>Group by class</b> option of the same combobox.
       </description>
-      <action class="org.eclipse.mat.ui.snapshot.actions.OpenSampleHeapDumpAction" pluginId="org.eclipse.mat.ui" confirm="false" param1="org.eclipse.mat.ui.help/heapdump/HeapDumpSample.hprof" param2="Histogram" param3="-groupby" param4="BY_CLASSLOADER">
+      <action class="org.eclipse.mat.ui.snapshot.actions.OpenSampleHeapDumpAction" pluginId="org.eclipse.mat.ui" confirm="false" param1="org.eclipse.mat.ui.help/heapdump/HeapDumpSample.hprof" param2="Histogram -groupby BY_CLASSLOADER">
       </action>
    </item>
    <item title="Compare two snapshots" dialog="true" skip="true" href="/org.eclipse.mat.ui.help/noteworthy.html#note_worthy">
