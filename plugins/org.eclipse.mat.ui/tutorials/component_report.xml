@@ -13,7 +13,7 @@
        skip="true"
        title="Open a Heap Dump">
 		<description>
-			The anaylsis is based on heap dumps. Consult the help pages on how to acquire a heap dump of
+			The analysis is based on heap dumps. Consult the help pages on how to acquire a heap dump of
 			your application.
 			<br/><br/>
 			If you do not already have a heap dump, use the link below to open a <b>sample heap dump</b>.

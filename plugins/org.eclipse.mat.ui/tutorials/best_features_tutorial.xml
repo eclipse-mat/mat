@@ -8,7 +8,7 @@
 			each task.
       </description>
    </intro>
-   <item title="Open the heap dump" dialog="true" skip="false" href="/org.eclipse.mat.ui.help/tasks/basictutorial.html">
+   <item title="Open the heap dump" dialog="true" skip="false" href="/org.eclipse.mat.ui.help/gettingstarted/basictutorial.html">
       <description>
          From the main menu, select
 			<br/>
@@ -21,7 +21,7 @@
       <action class="org.eclipse.mat.ui.snapshot.actions.OpenSampleHeapDumpAction" pluginId="org.eclipse.mat.ui" confirm="false" param1="org.eclipse.mat.ui.help/heapdump/HeapDumpSample.hprof">
       </action>
    </item>
-   <item title="Open Class Histogram" dialog="true" skip="false" href="/org.eclipse.mat.ui.help/tasks/basictutorial.html#N10001__class_histogram">
+   <item title="Open Class Histogram" dialog="true" skip="false" href="/org.eclipse.mat.ui.help/gettingstarted/basictutorial.html#N10001__class_histogram">
       <description>
          Class Histogram shows the classes found in the snapshot, 
 			the number of objects for each class, the heap memory consumption 
@@ -34,7 +34,7 @@
       <action class="org.eclipse.mat.ui.snapshot.actions.OpenSampleHeapDumpAction" pluginId="org.eclipse.mat.ui" confirm="false" param1="org.eclipse.mat.ui.help/heapdump/HeapDumpSample.hprof" param2="histogram">
       </action>
    </item>
-   <item title="Open Dominator Tree" dialog="true" skip="false" href="/org.eclipse.mat.ui.help/tasks/basictutorial.html#N10001__dominator">
+   <item title="Open Dominator Tree" dialog="true" skip="false" href="/org.eclipse.mat.ui.help/gettingstarted/basictutorial.html#N10001__dominator">
       <description>
          Dominator tree shows for a particular object which other
 			objects depend on it and will be garbage collected if that
@@ -48,7 +48,7 @@
       <action class="org.eclipse.mat.ui.snapshot.actions.OpenSampleHeapDumpAction" pluginId="org.eclipse.mat.ui" confirm="false" param1="org.eclipse.mat.ui.help/heapdump/HeapDumpSample.hprof" param2="dominator_tree">
       </action>
    </item>
-   <item title="Paths from GC roots" dialog="true" skip="true" href="/org.eclipse.mat.ui.help/tasks/basictutorial.html#N10001__paths2gc">
+   <item title="Paths to GC roots" dialog="true" skip="true" href="/org.eclipse.mat.ui.help/gettingstarted/basictutorial.html">
       <description>
          This view find objects responsible for keeping the selected
 			object in the heap.
@@ -56,6 +56,8 @@
       <subitem label="Select one of the first objects in the Dominator Tree (these objects have the biggest retained size)" skip="false">
       </subitem>
       <subitem label="Right click to open the context menu. Select &quot;Open in Paths to GC roots...&quot; and any of the sub options" skip="false">
+      <action class="org.eclipse.mat.ui.snapshot.actions.OpenSampleHeapDumpAction" pluginId="org.eclipse.mat.ui" confirm="false" param1="org.eclipse.mat.ui.help/heapdump/HeapDumpSample.hprof" param2="path2gc 0x22e9d6d8">
+      </action>
       </subitem>
       <onCompletion>
          Now you can perform the analysis in the newly opened &quot;Paths to GC roots&quot; view.
