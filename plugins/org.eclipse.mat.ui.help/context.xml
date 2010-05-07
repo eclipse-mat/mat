@@ -9,5 +9,10 @@
 		<description>This wizard will help you to add arguments to the query</description>
 		<topic label="How to provide heap object arguments"
 			href="reference/selectingqueries.html#queryarguments__arguments" />
-	</context>	
+	</context>
+	<context id="acquire_arguments">
+		<description>This wizard will help you to acquire and analyze a heap dump from another process on the system</description>
+		<topic label="How to configure the acquire heap dump providers"
+			href="tasks/acquiringheapdump.html" />
+	</context>
 </contexts>

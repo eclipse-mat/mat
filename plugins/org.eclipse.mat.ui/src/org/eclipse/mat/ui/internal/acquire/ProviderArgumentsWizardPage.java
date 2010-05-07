@@ -28,14 +28,14 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.PlatformUI;
 
-public class ProviderArgumentsWizzardPage extends WizardPage implements ITableListener, ProcessSelectionListener
+public class ProviderArgumentsWizardPage extends WizardPage implements ITableListener, ProcessSelectionListener
 {
 	private ProviderArgumentsTable table;
 
 	private AcquireDialog acquireDialog;
 	private QueryContextHelp helpPopup;
 
-	public ProviderArgumentsWizzardPage(AcquireDialog acquireDialog)
+	public ProviderArgumentsWizardPage(AcquireDialog acquireDialog)
 	{
 		super(Messages.ProviderArgumentsWizzardPage_HeapDumpProviderArgumentsTitle, Messages.ProviderArgumentsWizzardPage_HeapDumpProviderArgumentsTitle, null);
 		this.acquireDialog = acquireDialog;
@@ -60,7 +60,7 @@ public class ProviderArgumentsWizzardPage extends WizardPage implements ITableLi
 		tableComposite.layout();
 		tableComposite.pack();
 
-		PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, "org.eclipse.mat.ui.help.query_arguments"); //$NON-NLS-1$
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, "org.eclipse.mat.ui.help.acquire_arguments"); //$NON-NLS-1$
 		composite.setContent(tableComposite);
 		setControl(composite);
 

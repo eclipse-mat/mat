@@ -70,7 +70,7 @@ public class AcquireSnapshotAction extends Action implements IWorkbenchWindowAct
 		}
 
 		final AcquireDialog acquireDialog = new AcquireDialog(dumpProviders);
-		final ProviderArgumentsWizzardPage argumentsPage = new ProviderArgumentsWizzardPage(acquireDialog);
+		final ProviderArgumentsWizardPage argumentsPage = new ProviderArgumentsWizardPage(acquireDialog);
 
 		Wizard wizard = new Wizard() {
 			
