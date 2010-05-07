@@ -116,7 +116,7 @@ public class ThreadOverviewQuery implements IQuery
                                     int threadId = ((ThreadInfoImpl) row).getThreadId();
 
                                     return SnapshotQuery.lookup("thread_details", snapshot) //$NON-NLS-1$
-                                                    .set("threadIds", threadId) //$NON-NLS-1$
+                                                    .setArgument("threadIds", threadId) //$NON-NLS-1$
                                                     .execute(listener);
                                 }
 

@@ -303,7 +303,7 @@ public class ComponentReportQuery implements IQuery
                     throws Exception
     {
         IResult result = SnapshotQuery.lookup("top_consumers_html", snapshot) //$NON-NLS-1$
-                        .set("objects", retained) //$NON-NLS-1$
+                        .setArgument("objects", retained) //$NON-NLS-1$
                         .execute(listener);
 
         QuerySpec topConsumers = new QuerySpec(Messages.ComponentReportQuery_TopConsumers);
@@ -342,7 +342,7 @@ public class ComponentReportQuery implements IQuery
             }
 
             RefinedResultBuilder builder = SnapshotQuery.lookup("group_by_value", snapshot) //$NON-NLS-1$
-                            .set("objects", objectIds) //$NON-NLS-1$
+                            .setArgument("objects", objectIds) //$NON-NLS-1$
                             .refine(listener);
 
             builder.setFilter(1, ">=10"); //$NON-NLS-1$
@@ -429,7 +429,7 @@ public class ComponentReportQuery implements IQuery
 
                 // run the query: collections by size
                 RefinedResultBuilder builder = SnapshotQuery.lookup("collections_grouped_by_size", snapshot) //$NON-NLS-1$
-                                .set("objects", record.getObjectIds()) //$NON-NLS-1$
+                                .setArgument("objects", record.getObjectIds()) //$NON-NLS-1$
                                 .refine(listener);
 
                 // refine result: sort & evaluate
@@ -527,7 +527,7 @@ public class ComponentReportQuery implements IQuery
 
                 // run the query: collections by size
                 RefinedResultBuilder builder = SnapshotQuery.lookup("collection_fill_ratio", snapshot) //$NON-NLS-1$
-                                .set("objects", record.getObjectIds()) //$NON-NLS-1$
+                                .setArgument("objects", record.getObjectIds()) //$NON-NLS-1$
                                 .refine(listener);
 
                 // refine result: sort & evaluate
@@ -621,7 +621,7 @@ public class ComponentReportQuery implements IQuery
                 }
 
                 RefinedResultBuilder builder = SnapshotQuery.lookup("map_collision_ratio", snapshot) //$NON-NLS-1$
-                                .set("objects", objectIds) //$NON-NLS-1$
+                                .setArgument("objects", objectIds) //$NON-NLS-1$
                                 .refine(listener);
 
                 // refine result: sort & evaluate

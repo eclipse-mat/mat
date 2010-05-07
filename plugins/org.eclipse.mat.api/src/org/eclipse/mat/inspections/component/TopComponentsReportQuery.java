@@ -58,7 +58,7 @@ public class TopComponentsReportQuery implements IQuery
                 break;
 
             IResult report = SnapshotQuery.lookup("component_report", snapshot) //$NON-NLS-1$
-                            .set("objects", record.objects) //$NON-NLS-1$
+                            .setArgument("objects", record.objects) //$NON-NLS-1$
                             .execute(listener);
 
             QuerySpec spec = new QuerySpec(MessageUtil.format("{0} ({1,number,percent})", //$NON-NLS-1$

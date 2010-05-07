@@ -180,8 +180,8 @@ public class LeakHunterQuery implements IQuery
     private FindLeaksQuery.SuspectsResultTable callFindLeaks(IProgressListener listener) throws Exception
     {
         return (FindLeaksQuery.SuspectsResultTable) SnapshotQuery.lookup("find_leaks", snapshot) //$NON-NLS-1$
-                        .set("threshold_percent", threshold_percent) //$NON-NLS-1$
-                        .set("max_paths", max_paths) //$NON-NLS-1$
+                        .setArgument("threshold_percent", threshold_percent) //$NON-NLS-1$
+                        .setArgument("max_paths", max_paths) //$NON-NLS-1$
                         .execute(listener);
     }
 

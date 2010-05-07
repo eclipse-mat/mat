@@ -42,7 +42,7 @@ public class SystemPropertiesQuery implements IQuery
             return null;
 
         return (HashEntriesQuery.Result) SnapshotQuery.lookup("hash_entries", snapshot) //$NON-NLS-1$
-                        .set("objects", properties) //$NON-NLS-1$
+                        .setArgument("objects", properties) //$NON-NLS-1$
                         .execute(listener);
     }
 
