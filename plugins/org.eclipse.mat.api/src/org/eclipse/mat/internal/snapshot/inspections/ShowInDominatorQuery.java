@@ -20,7 +20,7 @@ import org.eclipse.mat.util.IProgressListener;
 @Icon("/META-INF/icons/dominator_tree.gif")
 public class ShowInDominatorQuery extends DominatorQuery
 {
-    @Argument(flag = "none")
+    @Argument(flag = Argument.UNFLAGGED)
     public IHeapObjectArgument objects;
 
     public DominatorQuery.Tree execute(IProgressListener listener) throws Exception

@@ -63,7 +63,7 @@ public class Path2GCRootsQuery implements IQuery
     @Argument
     public ISnapshot snapshot;
 
-    @Argument(flag = "none", advice = Argument.Advice.HEAP_OBJECT)
+    @Argument(flag = Argument.UNFLAGGED, advice = Argument.Advice.HEAP_OBJECT)
     public int object;
 
     @Argument(isMandatory = false)
