@@ -1,8 +1,18 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8" ?><!--
+    Copyright (c) 2008 SAP AG.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+   
+    Contributors:
+        SAP AG - initial API and implementation
+ -->
+
 <project name="eclipsehelp" default="eclipsehelp">
 	
 	<!-- dita.dir should point to the toolkit's root directory -->
-	<property name="dita.dir" value="C:/DITA-OT1.4.2.1"/>
+	<property name="dita.dir" value="TODO_DITA_HOME"/>
 	
 	<target name="eclipsehelp">			
 		<ant antfile="${dita.dir}${file.separator}build.xml">

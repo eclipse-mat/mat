@@ -1,17 +1,19 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html lang="en-us" xml:lang="en-us">
 <head>
-<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
-<meta name="copyright" content="(C) Copyright 2005" />
-<meta name="DC.rights.owner" content="(C) Copyright 2005" />
-<meta content="reference" name="DC.Type" />
-<meta name="DC.Title" content="Component Report" />
-<meta name="abstract" content="Analyze a component for possible memory waste and other inefficiencies." />
-<meta name="description" content="Analyze a component for possible memory waste and other inefficiencies." />
-<meta content="XHTML" name="DC.Format" />
-<meta content="ref_inspections_component_report" name="DC.Identifier" />
-<meta content="en-us" name="DC.Language" />
-<link href="../../styles/commonltr.css" type="text/css" rel="stylesheet" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="copyright" content="(C) Copyright 2005"/>
+<meta name="DC.rights.owner" content="(C) Copyright 2005"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="Component Report"/>
+<meta name="abstract" content="Analyze a component for possible memory waste and other inefficiencies."/>
+<meta name="description" content="Analyze a component for possible memory waste and other inefficiencies."/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="ref_inspections_component_report"/>
+<meta name="DC.Language" content="en-us"/>
+<link rel="stylesheet" type="text/css" href="../../styles/commonltr.css"/>
 <title>Component Report</title>
 </head>
 <body id="ref_inspections_component_report"><a name="ref_inspections_component_report"><!-- --></a>
@@ -56,12 +58,12 @@
 				report from the tool bar and provide a regular expression to match
 				the package:</p>
 
-			<img src="component_report_package.png" alt="Regular expression to match common root package to be&#10;&#9;&#9;&#9;&#9;&#9;used for the component report." />
+			<img src="component_report_package.png" alt="Regular expression to match common root package to be used for the component report."/>
 			<p> Alternatively, one can group the class histogram by class loader
 				and then right-click the appropriate class loader and select the
 				component report:</p>
 
-			<img src="component_report_classloader.png" alt="Group histogram by class loader." />
+			<img src="component_report_classloader.png" alt="Group histogram by class loader."/>
 		</div>
 
 		<div class="section" id="ref_inspections_component_report__overview"><a name="ref_inspections_component_report__overview"><!-- --></a><h2 class="sectiontitle">Overview</h2>
@@ -69,9 +71,9 @@
 			<p>The component report is rendered as HTML. It is stored in a ZIP
 				file next to the heap dump file.</p>
 
-			<img src="component_report_overview.png" alt="Overview section of the component report." />
+			<img src="component_report_overview.png" alt="Overview section of the component report."/>
 			<div class="p">
-				<br /><ol class="arrows">
+				<ol class="arrows">
 					<li>Details about the size, the number of classes, the
 						number of objects and the number of different class loaders.</li>
 
@@ -80,14 +82,14 @@
 
 					<li>
 						The
-						<a href="top_consumers.html">Top Consumers</a>
+						<a href="top_consumers.html" title="Find out which classes, class loaders and packages are using the most memory.">Top Consumers</a>
 						section lists the biggest object, classes, class loader and
 						packages which are retained by the component. It provides a good
 						overview of what is actually kept alive by the component.
 					</li>
 
 					<li>
-						<a href="retained_set.html">Retained Set
+						<a href="retained_set.html" title="All objects kept alive just because of the selected objects.">Retained Set
 						</a>
 						displays all objects grouped by classes which are retained.
 					</li>
@@ -104,7 +106,7 @@
 				Duplicate Strings are a prime example for memory waste: multiple
 				char arrays with identical content. To find the duplicates, the
 				report
-				<a href="group_by_value.html">groups</a>
+				<a href="group_by_value.html" title="Group a set of objects by value.">groups</a>
 				the char arrays by their value. It lists all char arrays with 10 or
 				more instances with identical content.
 			</p>
@@ -112,7 +114,7 @@
 			<div class="p">
 				The content of the char arrays typically gives away ideas how to
 				reduce the duplicates:
-				<br /><ul>
+				<ul>
 					<li>
 						Sometimes the duplicate strings are used as
 						<strong>keys or values in hash maps</strong>
@@ -191,7 +193,7 @@
 				memory demand. Usually, soft references are used to implement
 				caches: keep the objects around while there is sufficient memory,
 				clear the objects if free memory becomes low.
-				<br /><ul>
+				<ul>
 					<li>Usually objects are cached, because they are expensive
 						to re-create. Across a whole application, soft referenced objects
 						might carry very different costs. However, the virtual machine
@@ -221,7 +223,7 @@
 				method are included in the component report, because those objects
 				can have serious implications for the memory of a Java Virtual
 				Machine:
-				<br /><ul>
+				<ul>
 					<li>
 						Whenever an object with finalizer is created, a corresponding
 						<samp class="codeph">java.lang.ref.Finalizer</samp>
@@ -271,7 +273,6 @@
 
 	</div>
 
-<div />
 
 </body>
 </html>
