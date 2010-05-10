@@ -32,10 +32,4 @@
          name="Memory Analyzer (Charts) [optional]"
          optional="true"/>
 
-   <includes
-         id="org.eclipse.mat.ui.rcp.feature"
-         version="0.0.0"
-         name="Memory Analyzer RCP"
-         optional="true"/>
-
 </feature>
