@@ -8,9 +8,9 @@
       <text>
          Eclipse Memory Analyzer
 
-Version: 0.8.0
+Version: 1.0.0
 
-(c) Copyright Eclipse contributors 2008.  All rights reserved.
+Copyright (c) 2008, 2010 SAP AG, IBM Corporation and others. All rights reserved.
 Visit http://www.eclipse.org/mat
       </text>
    </aboutInfo>
