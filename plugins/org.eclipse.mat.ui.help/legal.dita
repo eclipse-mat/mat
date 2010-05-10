@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd" >
+<reference id="ref_noteworthy" xml:lang="en-us">
+	<title>Legal</title>
+
+	<refbody>
+	
+		<section>
+			<title>Notices</title>
+			<p>
+				The material in this guide is Copyright (c) SAP AG and IBM Corporation 2008, 2010
+			</p>
+			<p>
+				<xref format="html" href="about.html">Terms and conditions regarding the use of this guide.</xref> 
+			</p>
+		</section>
+	</refbody>
+</reference>

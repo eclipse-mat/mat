@@ -52,4 +52,5 @@
 		<topicref navtitle="API Reference" format="html" href="doc/index.html" type="reference" />
 	</topichead>
 	<topicref href="noteworthy.dita" type="reference" />
+	<topicref href="legal.dita" type="reference" />
 </map>
