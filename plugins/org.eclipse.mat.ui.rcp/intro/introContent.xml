@@ -38,7 +38,7 @@
 				id="tutorials" label="Tutorials" />
 			<link url="http://org.eclipse.ui.intro/switchToLaunchBar" id="workbench"
 				label="Workbench" />
-			<text id="edition">The Diligent Digger (Incubation)</text>
+			<text id="edition">Memory Analyzer</text>
 			<contentProvider id="version" pluginId="org.eclipse.mat.ui.rcp"
 				class="org.eclipse.mat.ui.rcp.actions.VersionIntroContentProvider" />
 		</group>
