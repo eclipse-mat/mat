@@ -14,7 +14,8 @@
 -->
 <plugin>
    <extension
-         name="IBM Virtual Machines"
+         id="ibmvm"
+         name="%provider-name"
          point="org.eclipse.mat.api.heapDumpProvider">
       <provider
             impl="org.eclipse.mat.ibmvm.acquire.DumpFactory">
