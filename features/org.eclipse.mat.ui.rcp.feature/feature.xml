@@ -3,7 +3,8 @@
       id="org.eclipse.mat.ui.rcp.feature"
       label="%featureName"
       version="1.0.0.qualifier"
-      provider-name="%providerName">
+      provider-name="%providerName"
+      plugin="org.eclipse.mat.rcp">
 
    <description>
       %description
