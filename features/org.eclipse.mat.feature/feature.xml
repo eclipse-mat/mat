@@ -2,7 +2,7 @@
 <feature
       id="org.eclipse.mat.feature"
       label="%featureName"
-      version="0.8.0.qualifier"
+      version="1.0.0.qualifier"
       provider-name="%providerName">
    <install-handler/>
    
@@ -19,7 +19,7 @@
    </license>
 
    <url>
-      <update label="%updateSiteName" url="http://download.eclipse.org/technology/mat/0.8/update-site/"/>
+      <update label="%updateSiteName" url="http://download.eclipse.org/mat/1.0.0/update-site/"/>
    </url>
 
    <requires>

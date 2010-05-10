@@ -1,21 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="org.eclipse.mat.all.feature"
-      label="Memory Analyzer build feature (Incubation)"
-      version="0.8.0.qualifier"
-      provider-name="Eclipse.org">
+      label="%featureName"
+      version="1.0.0.qualifier"
+      provider-name="%providerName">
 
-   <description url="http://www.eclipse.org/mat/">
-      Memory Analyzer
+   <description>
+      %description
    </description>
 
-   <copyright url="http://www.example.com/copyright">
-      [Enter Copyright Description here.]
+   <copyright>
+      %copyright
    </copyright>
 
-   <license url="http://www.example.com/license">
-      [Enter License Description here.]
+   <license url="%licenseURL">
+      %license
    </license>
+
+   <url>
+      <update label="%updateSiteName" url="http://download.eclipse.org/mat/1.0.0/update-site/"/>
+   </url>
 
    <includes
          id="org.eclipse.mat.feature"
