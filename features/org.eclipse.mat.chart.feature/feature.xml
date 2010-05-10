@@ -36,15 +36,15 @@
 
    <plugin
          id="org.eclipse.mat.chart"
-         download-size="0"
-         install-size="0"
+         download-size="12"
+         install-size="12"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.mat.chart.ui"
-         download-size="0"
-         install-size="0"
+         download-size="13"
+         install-size="13"
          version="0.0.0"
          unpack="false"/>
 

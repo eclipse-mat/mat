@@ -45,64 +45,64 @@
 
    <plugin
          id="org.eclipse.mat.report"
-         download-size="0"
-         install-size="0"
+         download-size="286"
+         install-size="286"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.mat.api"
-         download-size="0"
-         install-size="0"
+         download-size="625"
+         install-size="625"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.mat.hprof"
-         download-size="0"
-         install-size="0"
+         download-size="62"
+         install-size="62"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.mat.parser"
-         download-size="0"
-         install-size="0"
+         download-size="299"
+         install-size="299"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.mat.ui"
-         download-size="0"
-         install-size="0"
+         download-size="724"
+         install-size="724"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.mat.ui.help"
-         download-size="0"
-         install-size="0"
+         download-size="5842"
+         install-size="5842"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.mat.jdt"
-         download-size="0"
-         install-size="0"
+         download-size="12"
+         install-size="12"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.mat.dtfj"
-         download-size="0"
-         install-size="0"
+         download-size="88"
+         install-size="88"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.mat.ibmdumps"
-         download-size="0"
-         install-size="0"
+         download-size="35"
+         install-size="35"
          version="0.0.0"
          unpack="false"/>
 

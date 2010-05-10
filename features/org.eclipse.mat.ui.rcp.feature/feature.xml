@@ -41,8 +41,8 @@
 
    <plugin
          id="org.eclipse.mat.ui.rcp"
-         download-size="0"
-         install-size="0"
+         download-size="69"
+         install-size="69"
          version="0.0.0"
          unpack="false"/>
 
