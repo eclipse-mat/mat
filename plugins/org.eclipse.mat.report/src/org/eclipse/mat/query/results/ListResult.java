@@ -28,164 +28,189 @@ import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.query.ResultMetaData;
 
 /**
- * A list of items such as properties as a result table.
- * Compare to {@link PropertyResult} which extracts and displays from a single object.
+ * A list of items such as properties as a result table. Compare to
+ * {@link PropertyResult} which extracts and displays from a single object.
+ * 
+ * Example: 
+ * <pre>
+ * <code>
+ *    int[] objectIds = myClass.getObjectIds();
+ *    List<NameValuePair> pairs = new ArrayList<NameValuePair>();
+ *     
+ *    // loop over all instances and take the value of the field name and the field value
+ *    for (int id : objectIds)
+ *    {
+ *        IObject myObject = snapshot.getObject(id);
+ *        String name = ((IObject) myObject.resolveValue(&quot;name&quot;)).getClassSpecificName();
+ *        String value = ((IObject) myObject.resolveValue(&quot;value&quot;)).getClassSpecificName();
+
+ *        pairs.add(new NameValuePair(name, value));
+ *    }
+ *    
+ *    // the NameValuePair is a bean with two properties - name and value
+ *    // the returned result will be a table with two columns - one for each of these properties
+ *    return new ListResult(NameValuePair.class, pairs, "name", "value")
+ * </code>
+ * </pre>
  */
 public class ListResult implements IResultTable, IIconProvider
 {
-    /**
-     * Converts a row to the needed value from the row
-     */
-    public interface ValueProvider
-    {
-        /**
-         * Extracts the value from the row
-         * @param row the row
-         * @return the value
-         */
-        Object getValueFor(Object row);
-    }
+	/**
+	 * Converts a row to the needed value from the row
+	 */
+	public interface ValueProvider
+	{
+		/**
+		 * Extracts the value from the row
+		 * 
+		 * @param row
+		 *            the row
+		 * @return the value
+		 */
+		Object getValueFor(Object row);
+	}
 
-    private List<?> subjects;
-    private List<Column> columns;
-    private List<ValueProvider> providers;
+	private List<?> subjects;
+	private List<Column> columns;
+	private List<ValueProvider> providers;
 
-    /**
-     * Construct a displayable list from a List.
-     * @param <L> type name of items in the list
-     * @param type class of items in the list
-     * @param subjects the list
-     * @param properties the field names (or Java Bean properties) to be extracted from the list entries
-     */
-    public <L> ListResult(Class<? extends L> type, List<L> subjects, String... properties)
-    {
-        this.subjects = subjects;
-        this.columns = new ArrayList<Column>();
-        this.providers = new ArrayList<ValueProvider>();
+	/**
+	 * Construct a displayable list from a List.
+	 * 
+	 * @param <L>
+	 *            type name of items in the list
+	 * @param type
+	 *            class of items in the list
+	 * @param subjects
+	 *            the list
+	 * @param properties
+	 *            the field names (or Java Bean properties) to be extracted from
+	 *            the list entries
+	 */
+	public <L> ListResult(Class<? extends L> type, List<L> subjects, String... properties)
+	{
+		this.subjects = subjects;
+		this.columns = new ArrayList<Column>();
+		this.providers = new ArrayList<ValueProvider>();
 
-        setup(type, properties);
-    }
+		setup(type, properties);
+	}
 
-    private void setup(Class<?> type, String... properties)
-    {
-        try
-        {
-            Map<String, PropertyDescriptor> name2prop = new HashMap<String, PropertyDescriptor>();
+	private void setup(Class<?> type, String... properties)
+	{
+		try
+		{
+			Map<String, PropertyDescriptor> name2prop = new HashMap<String, PropertyDescriptor>();
 
-            BeanInfo info = Introspector.getBeanInfo(type);
-            for (PropertyDescriptor d : info.getPropertyDescriptors())
-            {
-                Method readMethod = d.getReadMethod();
-                if (readMethod == null)
-                    continue;
+			BeanInfo info = Introspector.getBeanInfo(type);
+			for (PropertyDescriptor d : info.getPropertyDescriptors())
+			{
+				Method readMethod = d.getReadMethod();
+				if (readMethod == null) continue;
 
-                name2prop.put(d.getName(), d);
-            }
+				name2prop.put(d.getName(), d);
+			}
 
-            if (properties == null || properties.length == 0)
-                properties = name2prop.keySet().toArray(new String[name2prop.size()]);
+			if (properties == null || properties.length == 0) properties = name2prop.keySet().toArray(new String[name2prop.size()]);
 
-            for (String property : properties)
-            {
-                PropertyDescriptor d = name2prop.get(property);
+			for (String property : properties)
+			{
+				PropertyDescriptor d = name2prop.get(property);
 
-                if (d != null)
-                {
-                    columns.add(new Column(fixName(d.getName()), d.getPropertyType()));
-                    providers.add(new MethodValueProvider(d.getReadMethod()));
-                }
-            }
-        }
-        catch (IntrospectionException e)
-        {
-            throw new RuntimeException(e);
-        }
-    }
+				if (d != null)
+				{
+					columns.add(new Column(fixName(d.getName()), d.getPropertyType()));
+					providers.add(new MethodValueProvider(d.getReadMethod()));
+				}
+			}
+		}
+		catch (IntrospectionException e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
 
-    private String fixName(String name)
-    {
-        StringBuilder buf = new StringBuilder(name.length() + 10);
+	private String fixName(String name)
+	{
+		StringBuilder buf = new StringBuilder(name.length() + 10);
 
-        for (int ii = 0; ii < name.length(); ii++)
-        {
-            char ch = name.charAt(ii);
+		for (int ii = 0; ii < name.length(); ii++)
+		{
+			char ch = name.charAt(ii);
 
-            if (ii == 0)
-                buf.append(Character.toUpperCase(ch));
-            else if (Character.isUpperCase(ch))
-                buf.append(' ').append(ch);
-            else
-                buf.append(ch);
-        }
+			if (ii == 0) buf.append(Character.toUpperCase(ch));
+			else if (Character.isUpperCase(ch)) buf.append(' ').append(ch);
+			else buf.append(ch);
+		}
 
-        return buf.toString();
-    }
+		return buf.toString();
+	}
 
-    public void addColumn(Column column, ValueProvider valueProvider)
-    {
-        this.columns.add(column);
-        this.providers.add(valueProvider);
-    }
+	public void addColumn(Column column, ValueProvider valueProvider)
+	{
+		this.columns.add(column);
+		this.providers.add(valueProvider);
+	}
 
-    public ResultMetaData getResultMetaData()
-    {
-        return null;
-    }
+	public ResultMetaData getResultMetaData()
+	{
+		return null;
+	}
 
-    public final Column[] getColumns()
-    {
-        return columns.toArray(new Column[columns.size()]);
-    }
+	public final Column[] getColumns()
+	{
+		return columns.toArray(new Column[columns.size()]);
+	}
 
-    public final int getRowCount()
-    {
-        return subjects.size();
-    }
+	public final int getRowCount()
+	{
+		return subjects.size();
+	}
 
-    public final Object getRow(int rowId)
-    {
-        return subjects.get(rowId);
-    }
+	public final Object getRow(int rowId)
+	{
+		return subjects.get(rowId);
+	}
 
-    public final Object getColumnValue(Object row, int columnIndex)
-    {
-        return providers.get(columnIndex).getValueFor(row);
-    }
+	public final Object getColumnValue(Object row, int columnIndex)
+	{
+		return providers.get(columnIndex).getValueFor(row);
+	}
 
-    public URL getIcon(Object row)
-    {
-        return null;
-    }
+	public URL getIcon(Object row)
+	{
+		return null;
+	}
 
-    public IContextObject getContext(Object row)
-    {
-        return null;
-    }
+	public IContextObject getContext(Object row)
+	{
+		return null;
+	}
 
-    // //////////////////////////////////////////////////////////////
-    // internal classes
-    // //////////////////////////////////////////////////////////////
+	// //////////////////////////////////////////////////////////////
+	// internal classes
+	// //////////////////////////////////////////////////////////////
 
-    private static class MethodValueProvider implements ValueProvider
-    {
-        private Method readMethod;
+	private static class MethodValueProvider implements ValueProvider
+	{
+		private Method readMethod;
 
-        public MethodValueProvider(Method readMethod)
-        {
-            this.readMethod = readMethod;
-        }
+		public MethodValueProvider(Method readMethod)
+		{
+			this.readMethod = readMethod;
+		}
 
-        public Object getValueFor(Object row)
-        {
-            try
-            {
-                return readMethod.invoke(row, (Object[]) null);
-            }
-            catch (Exception e)
-            {
-                throw new RuntimeException(e);
-            }
-        }
+		public Object getValueFor(Object row)
+		{
+			try
+			{
+				return readMethod.invoke(row, (Object[]) null);
+			}
+			catch (Exception e)
+			{
+				throw new RuntimeException(e);
+			}
+		}
 
-    }
+	}
 }

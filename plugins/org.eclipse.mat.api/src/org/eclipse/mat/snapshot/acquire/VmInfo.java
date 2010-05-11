@@ -60,51 +60,101 @@ public class VmInfo
 		this.heapDumpProvider = heapDumpProvider;
 	}
 
+	/**
+	 * Get the PID of the process
+	 * 
+	 * @return the process ID
+	 */
 	public int getPid()
 	{
 		return pid;
 	}
 
+	/**
+	 * Set the PID for the process descriptor
+	 * 
+	 * @param pid
+	 */
 	public void setPid(int pid)
 	{
 		this.pid = pid;
 	}
 
+	/**
+	 * Get the description of the Java process
+	 * 
+	 * @return the description
+	 */
 	public String getDescription()
 	{
 		return description;
 	}
 
+	/**
+	 * Set the description of the Java process
+	 * 
+	 * @param description
+	 */
 	public void setDescription(String description)
 	{
 		this.description = description;
 	}
 
+	/**
+	 * Indicate if a heap dump can be acquired from the described process
+	 * 
+	 * @return
+	 */
 	public boolean isHeapDumpEnabled()
 	{
 		return heapDumpEnabled;
 	}
 
+	/**
+	 * Set the flag if heap dumps can be acquired from the described process
+	 * 
+	 * @param heapDumpEnabled
+	 */
 	public void setHeapDumpEnabled(boolean heapDumpEnabled)
 	{
 		this.heapDumpEnabled = heapDumpEnabled;
 	}
 
+	/**
+	 * Get the heap dump provider which returned this VmInfo
+	 * 
+	 * @return
+	 */
 	public IHeapDumpProvider getHeapDumpProvider()
 	{
 		return heapDumpProvider;
 	}
 
+	/**
+	 * Set the heap dump provider of this VmInfo
+	 * 
+	 * @param heapDumpProvider
+	 */
 	public void setHeapDumpProvider(IHeapDumpProvider heapDumpProvider)
 	{
 		this.heapDumpProvider = heapDumpProvider;
 	}
 
+	/**
+	 * Returns a proposed file name under which the heap dump should be saved,
+	 * e.g. java_pid%pid%.hprof for HPROF files
+	 * 
+	 * @return
+	 */
 	public String getProposedFileName()
 	{
 		return proposedFileName;
 	}
 
+	/**
+	 * Set the proposed file name for this process
+	 * @param proposedFileName
+	 */
 	public void setProposedFileName(String proposedFileName)
 	{
 		this.proposedFileName = proposedFileName;
