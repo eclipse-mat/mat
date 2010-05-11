@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Memory Analyzer Tests (Incubation)
+Bundle-Name: Memory Analyzer Tests
 Bundle-SymbolicName: org.eclipse.mat.tests;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
@@ -21,3 +21,8 @@ Export-Package: org.eclipse.mat.tests,
  org.eclipse.mat.tests.regression.comparator,
  org.eclipse.mat.tests.regression.query,
  org.eclipse.mat.tests.snapshot
+Bundle-Copyright: Copyright (c) 2008, 2010 SAP AG and IBM Corporation. 
+ All rights reserved. This program and the accompanying materials 
+ are made available under the terms of the Eclipse Public License v1.0 
+ which accompanies this distribution, and is available at 
+ http://www.eclipse.org/legal/epl-v10.html
