@@ -52,6 +52,7 @@ public interface Params
      * specified in XML report definition from the report title,
      * so it is possible to translate the title but not the suffix if
      * required.
+     * @since 1.0
      */
     String FILENAME_SUFFIX = "filename_suffix";
 

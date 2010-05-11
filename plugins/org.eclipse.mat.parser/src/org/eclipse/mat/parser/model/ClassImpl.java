@@ -249,11 +249,17 @@ public class ClassImpl extends AbstractObjectImpl implements IClass, Comparable<
         return instanceCount;
     }
 
+    /**
+	 * @since 1.0
+	 */
     public long getHeapSizePerInstance()
     {
         return instanceSize;
     }
 
+    /**
+	 * @since 1.0
+	 */
     public void setHeapSizePerInstance(long size)
     {
         instanceSize = (int)Math.min(size, Integer.MAX_VALUE);
@@ -313,12 +319,18 @@ public class ClassImpl extends AbstractObjectImpl implements IClass, Comparable<
         return myAddress > otherAddress ? 1 : myAddress == otherAddress ? 0 : -1;
     }
 
+    /**
+	 * @since 1.0
+	 */
     public void addInstance(long usedHeapSize)
     {
         this.instanceCount++;
         this.totalSize += usedHeapSize;
     }
 
+    /**
+	 * @since 1.0
+	 */
     public void removeInstance(long heapSizePerInstance)
     {
         this.instanceCount--;
@@ -390,6 +402,9 @@ public class ClassImpl extends AbstractObjectImpl implements IClass, Comparable<
         subClasses.remove(clazz);
     }
 
+    /**
+	 * @since 1.0
+	 */
     public void setUsedHeapSize(long usedHeapSize)
     {
         this.usedHeapSize = (int)Math.min(usedHeapSize, Integer.MAX_VALUE);

@@ -184,6 +184,7 @@ public final class ArrayInt
      * get the last entry to be written.
      * Must be at least one entry.
      * @return the last element
+     * @since 1.0
      */
     public int lastElement()
     {
@@ -194,6 +195,7 @@ public final class ArrayInt
      * get the first entry to be written.
      * Must be at least one entry.
      * @return the first element
+     * @since 1.0
      */
     public int firstElement()
     {

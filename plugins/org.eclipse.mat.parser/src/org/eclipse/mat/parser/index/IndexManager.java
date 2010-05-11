@@ -172,6 +172,9 @@ public class IndexManager
         return idx;
     }
 
+    /**
+	 * @since 1.0
+	 */
     public IIndexReader.IOne2SizeIndex a2size()
     {
         return a2s;

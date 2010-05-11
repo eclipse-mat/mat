@@ -76,6 +76,7 @@ public interface IObject extends Serializable
      * Get used heap size of just this object.
      * 
      * @return used heap size of this object
+     * @since 1.0
      */
     public long getUsedHeapSize();
 

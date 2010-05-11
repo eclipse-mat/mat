@@ -14,6 +14,7 @@ package org.eclipse.mat.snapshot.acquire;
  * Instances of this class are descriptors of locally running Java processes
  * 
  * @author ktsvetkov
+ * @since 1.0
  * 
  */
 public class VmInfo

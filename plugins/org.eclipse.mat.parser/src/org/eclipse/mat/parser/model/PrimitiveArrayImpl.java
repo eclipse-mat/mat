@@ -138,6 +138,7 @@ public class PrimitiveArrayImpl extends AbstractArrayImpl implements IPrimitiveA
      * @param length the length in elements
      * @param type the actual type {@link org.eclipse.mat.snapshot.model.IObject.Type}
      * @return the size in bytes
+     * @since 1.0
      */
     public static long doGetUsedHeapSize(ClassImpl clazz, int length, int type)
     {

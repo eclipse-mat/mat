@@ -16,6 +16,7 @@ import org.eclipse.mat.query.annotations.Argument;
 
 /**
  * A descriptor for fields annotated with the annotation @Argument
+ * @since 1.0
  *
  */
 public interface IArgumentDescriptor

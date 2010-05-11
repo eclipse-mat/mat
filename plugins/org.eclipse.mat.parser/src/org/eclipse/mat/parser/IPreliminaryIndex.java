@@ -70,6 +70,7 @@ public interface IPreliminaryIndex
     /**
      * store the array to size in bytes mapping
      * @param array2size
+     * @since 1.0
      */
     void setArray2size(IIndexReader.IOne2SizeIndex array2size);
 

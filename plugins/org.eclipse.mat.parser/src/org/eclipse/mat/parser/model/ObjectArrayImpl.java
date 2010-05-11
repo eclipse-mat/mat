@@ -60,6 +60,7 @@ public class ObjectArrayImpl extends AbstractArrayImpl implements IObjectArray
      * @param clazz the type
      * @param length the length in elements
      * @return the size in bytes
+     * @since 1.0
      */
     public static long doGetUsedHeapSize(ClassImpl clazz, int length)
     {

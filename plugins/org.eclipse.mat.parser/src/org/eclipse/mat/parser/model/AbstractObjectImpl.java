@@ -127,6 +127,9 @@ public abstract class AbstractObjectImpl implements IObject, Serializable
         return this.source;
     }
 
+    /**
+	 * @since 1.0
+	 */
     abstract public long getUsedHeapSize();
 
     public long getRetainedHeapSize()
@@ -307,6 +310,7 @@ public abstract class AbstractObjectImpl implements IObject, Serializable
      * Helper for the net size calculation.
      * @param actual size
      * @return rounded up size
+     * @since 1.0
      */
     protected static long alignUpTo8(long n)
     {

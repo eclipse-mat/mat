@@ -53,6 +53,7 @@ public class UnreachableObjectsHistogram implements IResultTable, IIconProvider,
          * @param classAddress the address of the class object
          * @param nrOfObjects the number of instances
          * @param sizeOfObjects the total size of the instances
+         * @since 1.0
          */
         public Record(String className, long classAddress, int nrOfObjects, long sizeOfObjects)
         {
@@ -103,6 +104,7 @@ public class UnreachableObjectsHistogram implements IResultTable, IIconProvider,
         /**
          * the actual address of the class
          * @return the class address
+         * @since 1.0
          */
         public long getClassAddress()
         {
@@ -211,6 +213,9 @@ public class UnreachableObjectsHistogram implements IResultTable, IIconProvider,
         return Icons.CLASS;
     }
 
+    /**
+	 * @since 1.0
+	 */
     public void setSnapshot(ISnapshot snapshot)
     {
         // Stop the user changing this!

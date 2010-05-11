@@ -100,6 +100,7 @@ public final class Icons
 
     /**
      * A Java superclass.
+     * @since 1.0
      */
     public static final URL SUPERCLASS = build("superclass");
 

@@ -35,6 +35,7 @@ public interface IIndexReader
 
     /**
      * Index from object id to size, stored compressed as an int.
+     * @since 1.0
      */
     public interface IOne2SizeIndex extends IOne2OneIndex
     {

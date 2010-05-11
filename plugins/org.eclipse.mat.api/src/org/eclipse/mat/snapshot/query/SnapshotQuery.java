@@ -97,6 +97,7 @@ public class SnapshotQuery
      * Get a descriptor for the query. From it one can inspect the Name, Help, Icon, etc... for the query.
      *  
      * @return {@link IAnnotatedObjectDescriptor} a descriptor for the query
+     * @since 1.0
      */
     public IAnnotatedObjectDescriptor getDescriptor()
     {
@@ -107,6 +108,7 @@ public class SnapshotQuery
      * Get the list of the query arguments. 
      * 
      * @return the list of {@link IArgumentDescriptor} describing the arguments which the query expects
+     * @since 1.0
      */
     public List<? extends IArgumentDescriptor> getArguments()
     {
@@ -123,6 +125,7 @@ public class SnapshotQuery
      * 
      * @return the modified SnapshotQuery object
      * @throws SnapshotException
+     * @since 1.0
      */
     public SnapshotQuery setArgument(String name, Object value) throws SnapshotException
     {

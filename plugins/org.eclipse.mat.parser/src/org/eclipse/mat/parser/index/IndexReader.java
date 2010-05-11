@@ -173,6 +173,7 @@ public abstract class IndexReader
     /**
      * Creates a index reader for array sizes, presuming the sizes are stored as ints
      * and get expanded in the reverse of the compression.
+     * @since 1.0
      */
     public static class SizeIndexReader implements IIndexReader.IOne2SizeIndex
     {

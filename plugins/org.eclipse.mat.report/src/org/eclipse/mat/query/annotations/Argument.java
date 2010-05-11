@@ -56,12 +56,14 @@ public @interface Argument
          * Used with an argument of type File this should indicate that 
          * the parameter represents a directory. The default for File arguments
          * is a file.
+         * @since 1.0
          */
         DIRECTORY,
         /**
          * Used with an argument of type File this should indicate that 
          * the parameter represents a file to be created or written to. The default for File arguments
          * is a file to be opened.
+         * @since 1.0
          */
         SAVE
     }
@@ -76,6 +78,7 @@ public @interface Argument
     /**
      * A constant for the {@link #flag()} annotation parameter to show that for a command line query no flag should be specified before the argument. For a query dialog the field name without
      * a leading dash is used as the argument name.
+     * @since 1.0
      */
     static final String UNFLAGGED = "none"; //$NON-NLS-1$
 

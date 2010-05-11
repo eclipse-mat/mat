@@ -503,6 +503,7 @@ public interface ISnapshot
      *            id of object for which you want the heap size for
      * @return heap size for the given object.
      * @throws SnapshotException
+     * @since 1.0
      */
     public long getHeapSize(int objectId) throws SnapshotException;
 

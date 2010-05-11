@@ -83,10 +83,12 @@ abstract public class GCRootInfo implements Serializable
          * An object which is unreachable from any other root, but has been 
          * marked as a root by MAT to retain objects which otherwise would not
          * be included in the analysis
+         * @since 1.0
          */
         int UNREACHABLE = 2048;
         /**
          * A Java stack frame containing references to Java locals
+         * @since 1.0
          */
         int JAVA_STACK_FRAME = 4096;
     }

@@ -190,6 +190,7 @@ public abstract class IndexWriter
     /**
      * Store sizes of objects by
      * compressing the size to a 32-bit int.
+     * @since 1.0
      */
     public static class SizeIndexCollectorUncompressed extends IntIndexCollectorUncompressed
     {

@@ -1096,6 +1096,7 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
 
     /**
      * implementation as result tree grouped by superclass
+     * @since 1.0
      */
     // perhaps we should have some common code between this and the package code
     public IResultTree groupBySuperclass(ISnapshot snapshot)
@@ -1140,6 +1141,9 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
 
     }
 
+    /**
+	 * @since 1.0
+	 */
     public static final class SuperclassTree implements IResultTree, IIconProvider
     {
         private Histogram histogram;

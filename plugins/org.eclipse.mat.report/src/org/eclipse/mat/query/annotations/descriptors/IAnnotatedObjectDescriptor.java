@@ -20,6 +20,7 @@ import org.eclipse.mat.query.registry.ArgumentDescriptor;
 /**
  * 
  * A descriptor which allows to inspect an annotated object, e.g. a IQuery
+ * @since 1.0
  *
  */
 public interface IAnnotatedObjectDescriptor
