@@ -71,7 +71,7 @@
 				</link>
 			</group>
 			<group id="overview-links" label="Workspace">
-				<link label="Open a Heap Dump (VM 1.4.2_12 and 1.5.0_07 or higher)"
+				<link label="Open a Heap Dump"
 					url="http://org.eclipse.ui.intro/runAction?pluginId=org.eclipse.mat.ui&amp;class=org.eclipse.mat.ui.snapshot.actions.OpenSnapshotAction">
 					<img src="css/pictograms/parse.gif" alt="Open a Heap Dump" />
 					<text>Open a snapshot from your file system or from the list of
