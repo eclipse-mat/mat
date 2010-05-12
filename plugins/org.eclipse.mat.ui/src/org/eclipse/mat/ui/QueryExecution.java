@@ -207,6 +207,23 @@ public class QueryExecution
                     return ErrorHelper.createErrorStatus(e);
                 }
             }
+			finally
+			{
+				// release the references to the Editor and related panes
+				// because if the job stays displayed in the UI, then it keeps
+				// also the SnapsotImpl -> too bad if the heap dumps are huge
+				// see Bug 312594
+				monitor.done();
+				cleanup();
+			}
+        }
+        
+        private void cleanup()
+        {
+            this.editor = null;
+            this.originator = null;
+            this.stateToReopen = null;
+            this.argumentSet = null;
         }
     }
 
