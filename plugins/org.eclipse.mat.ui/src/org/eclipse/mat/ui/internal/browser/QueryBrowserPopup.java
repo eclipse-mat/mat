@@ -391,6 +391,11 @@ public class QueryBrowserPopup extends PopupDialog
         {
             textLayout.dispose();
         }
+        if (helpText != null)
+        {
+            helpText.close();
+            helpText = null;
+        }
         if (resourceManager != null)
         {
             resourceManager.dispose();
@@ -532,13 +537,19 @@ public class QueryBrowserPopup extends PopupDialog
             else
             {
                 if (helpText != null)
+                {
                     helpText.close();
+                    helpText = null;
+                }
             }
         }
         else
         {
             if (helpText != null)
+            {
                 helpText.close();
+                helpText = null;
+            }
         }
     }
 
