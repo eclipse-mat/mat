@@ -163,4 +163,21 @@ public class QueryContextHelp extends PopupDialog
             getShell().layout();
         }
     }
+    
+    /**
+     * Tidy up
+     */
+    public boolean close()
+    {
+        // Fix a memory leak back to the snapshot via the query context
+        if (helpText != null) 
+        {
+            // Do we need to do this?
+            helpText.dispose();
+            helpText = null;
+        }
+        queryContext = null;
+        query = null;
+        return super.close();
+    }
 }
