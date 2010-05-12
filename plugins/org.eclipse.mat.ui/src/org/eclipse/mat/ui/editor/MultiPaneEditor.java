@@ -447,6 +447,8 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
 
         if (menu != null && !menu.isDisposed())
             menu.dispose();
+
+        super.dispose();
     }
 
     // //////////////////////////////////////////////////////////////
