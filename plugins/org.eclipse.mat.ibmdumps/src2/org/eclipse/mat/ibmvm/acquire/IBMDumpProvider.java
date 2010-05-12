@@ -467,12 +467,20 @@ public class IBMDumpProvider extends BaseProvider
         Collection<File> nw = files(udir, previous, newFiles);
         long l = 0;
         int i = 0;
+        ArrayList<File> lost = new ArrayList<File>();
         for (File f : nw)
         {
+            if (!f.exists())
+            {
+                // File has disappeared (e.g. on Linux renamed from core to core.????)
+                lost.add(f);
+                continue;
+            }
             if (++i > maxFiles)
                 break;
             l += f.length();
         }
+        nw.removeAll(lost);
         return l;
     }
 
