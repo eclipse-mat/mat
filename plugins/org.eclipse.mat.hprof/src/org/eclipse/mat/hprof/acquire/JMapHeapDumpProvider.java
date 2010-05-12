@@ -58,7 +58,8 @@ public class JMapHeapDumpProvider implements IHeapDumpProvider
 		listener.beginTask(Messages.JMapHeapDumpProvider_WaitForHeapDump, IProgressMonitor.UNKNOWN);
 
 		String jmap = (jmapProcessInfo.jdkHome == null || !jmapProcessInfo.jdkHome.exists()) ? "jmap" : jmapProcessInfo.jdkHome.getAbsolutePath() + File.separator + "bin" + File.separator + "jmap"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		String execLine = jmap + " -dump:format=b,file=" + preferredLocation.getAbsolutePath() + " " + info.getPid(); //$NON-NLS-1$ //$NON-NLS-2$
+		// build the line to execute, surround the preferred location with quotes
+		String execLine = jmap + " -dump:format=b,file=\"" + preferredLocation.getAbsolutePath() + "\" " + info.getPid(); //$NON-NLS-1$ //$NON-NLS-2$
 		Logger.getLogger(getClass().getName()).info("Executing: " + execLine); //$NON-NLS-1$
 		Process p = null;
 		try
