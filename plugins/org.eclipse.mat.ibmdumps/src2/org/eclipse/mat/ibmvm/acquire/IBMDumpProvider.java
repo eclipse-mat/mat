@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
@@ -420,6 +421,13 @@ public class IBMDumpProvider extends BaseProvider
                 return null;
             listener.worked(1);
         }
+        // Remove files which no longer exist
+        for (Iterator<File>it = newFiles.iterator(); it.hasNext();)
+        {
+            File f = it.next();
+            if (!f.exists())
+                it.remove();
+        }
         return newFiles;
     }
 
@@ -467,20 +475,18 @@ public class IBMDumpProvider extends BaseProvider
         Collection<File> nw = files(udir, previous, newFiles);
         long l = 0;
         int i = 0;
-        ArrayList<File> lost = new ArrayList<File>();
         for (File f : nw)
         {
             if (!f.exists())
             {
                 // File has disappeared (e.g. on Linux renamed from core to core.????)
-                lost.add(f);
+                // Just skip it and don't include in the count
                 continue;
             }
             if (++i > maxFiles)
                 break;
             l += f.length();
         }
-        nw.removeAll(lost);
         return l;
     }
 
