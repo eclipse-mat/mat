@@ -18,6 +18,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.mat.SnapshotException;
@@ -32,6 +34,9 @@ import org.eclipse.mat.snapshot.SnapshotFactory;
 import org.eclipse.mat.util.ConsoleProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 
+/**
+ * Opens and parses a dump into a snapshot and runs reports on the snapshot.
+ */
 public class ParseSnapshotApp implements IApplication
 {
 
@@ -103,8 +108,26 @@ public class ParseSnapshotApp implements IApplication
     private void parse(File file, Map<String, String> arguments, List<Spec> reports) throws SnapshotException
     {
         ConsoleProgressListener listener = new ConsoleProgressListener(System.out);
-        ISnapshot snapshot = SnapshotFactory.openSnapshot(file, arguments, listener);
-        listener.done();
+        ISnapshot snapshot;
+        try
+        {
+            snapshot = SnapshotFactory.openSnapshot(file, arguments, listener);
+        } catch (SnapshotException e) {
+            // CoreExceptions can have subcauses which get lost by printStackTrace
+            for (Throwable t = e.getCause(); t != null; t = t.getCause())
+            {
+                if (t instanceof CoreException)
+                {
+                    CoreException ce = (CoreException)t;
+                    IStatus is = ce.getStatus();
+                    MATPlugin.log(is);
+                    break;
+                }
+            }
+            throw e;
+        } finally {
+            listener.done();
+        }
 
         try
         {
