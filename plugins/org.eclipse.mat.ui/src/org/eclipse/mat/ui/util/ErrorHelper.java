@@ -105,7 +105,7 @@ public class ErrorHelper
      * exception causes which wouldn't happen without this routine.
      * @param message
      * @param throwable
-     * @return
+     * @return the combined status
      */
     public static IStatus createErrorStatus(String message, Throwable throwable)
     {

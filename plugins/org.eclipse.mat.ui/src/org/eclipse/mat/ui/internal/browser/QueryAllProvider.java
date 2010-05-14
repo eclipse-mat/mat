@@ -20,7 +20,7 @@ import org.eclipse.mat.ui.internal.browser.QueryBrowserPopup.Element;
  */
 public class QueryAllProvider extends QueryBrowserProvider
 {
-    public static String ALL = Messages.QueryAllProvider_AllQueries;
+    public static final String ALL = Messages.QueryAllProvider_AllQueries;
 
     @Override
     public Element[] getElements()
