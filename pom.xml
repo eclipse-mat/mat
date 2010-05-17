@@ -11,13 +11,13 @@
 
   <groupId>org.eclipse.mat</groupId>
   <artifactId>parent</artifactId>
-  <version>0.8.0-SNAPSHOT</version>
+  <version>1.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>MAT Parent (Incubation)</name>
 
   <properties>
-    <tycho-version>0.8.0</tycho-version>
+    <tycho-version>1.0.0</tycho-version>
   </properties>
 
   <modules>
