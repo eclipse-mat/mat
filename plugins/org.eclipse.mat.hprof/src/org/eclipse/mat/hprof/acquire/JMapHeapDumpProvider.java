@@ -58,9 +58,24 @@ public class JMapHeapDumpProvider implements IHeapDumpProvider
 		listener.beginTask(Messages.JMapHeapDumpProvider_WaitForHeapDump, IProgressMonitor.UNKNOWN);
 
 		String jmap = (jmapProcessInfo.jdkHome == null || !jmapProcessInfo.jdkHome.exists()) ? "jmap" : jmapProcessInfo.jdkHome.getAbsolutePath() + File.separator + "bin" + File.separator + "jmap"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		// build the line to execute, surround the preferred location with quotes
-		String execLine = jmap + " -dump:format=b,file=\"" + preferredLocation.getAbsolutePath() + "\" " + info.getPid(); //$NON-NLS-1$ //$NON-NLS-2$
-		Logger.getLogger(getClass().getName()).info("Executing: " + execLine); //$NON-NLS-1$
+		// build the line to execute as a String[] because quotes in the name cause
+		// problems on Linux - See bug 313636
+		String[] execLine = new String[] { jmap, // jmap command
+				"-dump:format=b,file=" + preferredLocation.getAbsolutePath(), //$NON-NLS-1$ 
+				String.valueOf(info.getPid()) // pid
+		};
+		
+		// log what gets executed
+		StringBuilder logMessage = new StringBuilder();
+		logMessage.append("Executing { "); //$NON-NLS-1$
+		for (int i = 0; i < execLine.length; i++)
+		{
+			logMessage.append("\"").append(execLine[i]).append("\""); //$NON-NLS-1$ //$NON-NLS-2$
+			if (i < execLine.length - 1) logMessage.append(", "); //$NON-NLS-1$
+		}
+		logMessage.append(" }"); //$NON-NLS-1$
+		
+		Logger.getLogger(getClass().getName()).info(logMessage.toString()); //$NON-NLS-1$
 		Process p = null;
 		try
 		{
