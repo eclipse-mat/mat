@@ -222,12 +222,13 @@ public abstract class Filter
 
             ParsePosition pos = new ParsePosition(0);
             NumberFormat f = DecimalFormat.getInstance();
-            Double result = f.parse(string, pos).doubleValue();
+            Number nresult = f.parse(string, pos);
 
             if (pos.getIndex() < string.length())
                 throw new ParseException(MessageUtil.format(Messages.Filter_Error_IllegalCharacters, //
                                 string.substring(pos.getIndex())), pos.getIndex());
 
+            Double result = nresult.doubleValue();
             return result;
         }
 
