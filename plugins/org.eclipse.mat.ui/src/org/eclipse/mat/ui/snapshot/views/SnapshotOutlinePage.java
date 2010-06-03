@@ -249,7 +249,7 @@ public abstract class SnapshotOutlinePage extends Page implements IContentOutlin
     @Override
     public void createControl(Composite parent)
     {
-        treeViewer = new TreeViewer(parent, SWT.H_SCROLL | SWT.V_SCROLL);
+        treeViewer = new TreeViewer(parent, SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION);
 
         createColumns();
 
