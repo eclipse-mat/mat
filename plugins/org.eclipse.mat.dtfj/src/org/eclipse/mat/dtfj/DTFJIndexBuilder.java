@@ -1553,7 +1553,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             for (int i = 0; i < indexToAddress.size(); ++i)
             {
                 long addr = indexToAddress.get(i);
-                addRoot(gcRoot, addr, fixedBootLoaderAddress, GCRootInfo.Type.UNKNOWN);
+                addRoot(gcRoot, addr, addr, GCRootInfo.Type.UNKNOWN);
             }
 
         listener.worked(1);
@@ -1727,7 +1727,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                             // This ensures that all finalizable objects are
                             // retained (except isolated cycles),
                             ++finalizables;
-                            addRoot(gcRoot, addr, fixedBootLoaderAddress, GCRootInfo.Type.FINALIZABLE);
+                            addRoot(gcRoot, addr, addr, GCRootInfo.Type.FINALIZABLE);
                             refd[i] = true;
                             if (msgNguessFinalizable-- > 0)
                                 listener.sendUserMessage(Severity.INFO, MessageFormat.format(
@@ -1744,7 +1744,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                          * Unfinalized objects are just weakly held - strong references break paths to GC roots.
                          */
                         if (!skipWeakRoots)
-                            addRoot(gcRoot, addr, fixedBootLoaderAddress, GCRootInfo.Type.UNFINALIZED);
+                            addRoot(gcRoot, addr, addr, GCRootInfo.Type.UNFINALIZED);
                     }
                 }
             }
@@ -1776,7 +1776,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                         // just in case the approximate roots miss something
                         // important
                         ++extras;
-                        addRoot(gcRoot, addr, fixedBootLoaderAddress, GCRootInfo.Type.UNKNOWN);
+                        addRoot(gcRoot, addr, addr, GCRootInfo.Type.UNKNOWN);
                         refd[i] = true;
                         debugPrint("extra root " + i + " " + format(addr)); //$NON-NLS-1$ //$NON-NLS-2$
                     }
@@ -1796,7 +1796,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                             // marked.
                             // The loader will be in a cycle with its classes.
                             ++extras;
-                            addRoot(gcRoot, addr, fixedBootLoaderAddress, GCRootInfo.Type.UNKNOWN);
+                            addRoot(gcRoot, addr, addr, GCRootInfo.Type.UNKNOWN);
                             refd[i] = true;
                             debugPrint("extra root " + i + " " + format(addr)); //$NON-NLS-1$ //$NON-NLS-2$
                         }
@@ -2166,7 +2166,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     }
 
                     // Make the thread a proper GC Root
-                    addRoot(gcRoot, threadAddress, fixedBootLoaderAddress, GCRootInfo.Type.THREAD_OBJ);
+                    addRoot(gcRoot, threadAddress, threadAddress, GCRootInfo.Type.THREAD_OBJ);
 
                     int threadID = indexToAddress.reverse(threadAddress);
                     HashMapIntObject<List<XGCRootInfo>> thr = new HashMapIntObject<List<XGCRootInfo>>();
