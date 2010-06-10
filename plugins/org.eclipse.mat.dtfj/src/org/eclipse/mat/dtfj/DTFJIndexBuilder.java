@@ -1741,8 +1741,10 @@ public class DTFJIndexBuilder implements IIndexBuilder
                         /*
                          * The object is reachable another way, but we should indicate it needs to
                          * be finalized later.
+                         * Unfinalized objects are just weakly held - strong references break paths to GC roots.
                          */
-                        addRoot(gcRoot, addr, fixedBootLoaderAddress, GCRootInfo.Type.UNFINALIZED);
+                        if (!skipWeakRoots)
+                            addRoot(gcRoot, addr, fixedBootLoaderAddress, GCRootInfo.Type.UNFINALIZED);
                     }
                 }
             }
