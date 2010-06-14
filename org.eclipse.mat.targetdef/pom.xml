@@ -12,7 +12,7 @@
   <parent>
 		<artifactId>parent</artifactId>
 		<groupId>org.eclipse.mat</groupId>
-		<version>0.8.0-SNAPSHOT</version>
+		<version>1.0.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>org.eclipse.mat.targetdef</artifactId>
