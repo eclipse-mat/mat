@@ -27,11 +27,11 @@
 
 	<target name="downloadEclipse">
 		<get 
-			src="http://www.eclipse.org/downloads/download.php?file=/eclipse/downloads/drops/S-3.6M5-201001291300/eclipse-platform-3.6M5-linux-gtk-ppc.tar.gz&amp;url=http://d2u376ub0heus3.cloudfront.net/eclipse/downloads/drops/S-3.6M5-201001291300/eclipse-platform-3.6M5-linux-gtk-ppc.tar.gz&amp;mirror_id=1001"
-			dest="p2tool/eclipse-SDK-3.6M5-linux-gtk-ppc.tar.gz"
+			src="http://www.eclipse.org/downloads/download.php?file=/eclipse/downloads/drops/S-3.6RC3-201005271700/eclipse-SDK-3.6RC3-linux-gtk-ppc.tar.gz"
+			dest="p2tool/eclipse-SDK-3.6RC3-linux-gtk-ppc.tar.gz"
 			verbose="true"/>
 	    	<delete dir="p2tool/eclipse"/>
-		<untar src="p2tool/eclipse-SDK-3.6M5-linux-gtk-ppc.tar.gz" dest="p2tool/eclipse" compression="gzip"/>
+		<untar src="p2tool/eclipse-SDK-3.6RC3-linux-gtk-ppc.tar.gz" dest="p2tool/eclipse" compression="gzip"/>
 	</target>
 
 	<target name="downloadTestFramework" description="description">
