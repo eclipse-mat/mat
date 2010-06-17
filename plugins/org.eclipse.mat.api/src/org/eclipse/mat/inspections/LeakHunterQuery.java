@@ -374,6 +374,7 @@ public class LeakHunterQuery implements IQuery
         {
             threadDetails = extractThreadData(suspectId, keywords, objectsForTroubleTicketInfo, overview, overviewResult);
         }
+        overview.append("<br><br>"); //$NON-NLS-1$
 
         /* append keywords */
         appendKeywords(keywords, overview);
