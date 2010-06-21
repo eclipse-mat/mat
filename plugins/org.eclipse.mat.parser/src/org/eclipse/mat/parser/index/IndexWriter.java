@@ -200,13 +200,49 @@ public abstract class IndexWriter
             super(size);
         }
 
+        /**
+         * Cope with objects bigger than Integer.MAX_VALUE.
+         * E.g. double[Integer.MAX_VALUE] 
+         * The original problem was that the array to size mapping had an integer as the size (IntIndexCollectorUncompressed). 
+         * This array would be approximately 0x18 + 0x8 * 0x7fffffff = 0x400000010 bytes, too big for an int.
+         * Expanding the array size array to longs could be overkill.
+         * Instead we do some simple compression - values 0 - 0x7fffffff convert as now,
+         * int values 0x80000000 to 0xffffffff convert to (n & 0x7fffffffL)*8 + 0x80000000L.
+         * @param y the long value in the range -1 to 0x7fffffff, 0x80000000L to 0x400000000L
+         * @return the compressed value as an int
+         */
         public static int compress(long y)
         {
-            return (int)Math.min(y, Integer.MAX_VALUE);
+            int ret;
+            if (y < 0)
+                ret = -1;
+            else if (y <= Integer.MAX_VALUE)
+                ret = (int) y;
+            else if (y <= 0x400000000L)
+            {
+                ret = (int) (y / 8) + 0x70000000;
+            }
+            else
+                ret = 0xf0000000;
+            return ret;
         }
 
+        /**
+         * Expand the result of the compression
+         * @param x the compressed value
+         * @return the expanded value as a long in the range -1 to 0x7fffffff, 0x80000000L to 0x400000000L
+         */
         public static long expand(int x) {
-            return x >= 0 ? x : Integer.MAX_VALUE;
+            long ret;
+            if (x >= -1)
+                ret = x;
+            else if (x < 0xf0000000)
+            {
+                ret = (x & 0x7fffffffL) * 8 + 0x80000000L;
+            }
+            else
+                ret = 0x400000000L;
+            return ret;
         }
 
         public void set(int index, long value)
