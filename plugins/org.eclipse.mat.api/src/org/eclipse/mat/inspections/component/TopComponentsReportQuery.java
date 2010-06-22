@@ -41,6 +41,9 @@ public class TopComponentsReportQuery implements IQuery
     @Argument(isMandatory = false, flag = "t")
     public int thresholdPercent = 1;
 
+    @Argument(isMandatory = false)
+    public boolean aggressive;
+
     public IResult execute(IProgressListener listener) throws Exception
     {
         int[] topDominators = snapshot.getImmediateDominatedIds(-1);
@@ -57,9 +60,10 @@ public class TopComponentsReportQuery implements IQuery
             if (record.retainedSize < threshold)
                 break;
 
-            IResult report = SnapshotQuery.lookup("component_report", snapshot) //$NON-NLS-1$
-                            .setArgument("objects", record.objects) //$NON-NLS-1$
-                            .execute(listener);
+            SnapshotQuery query = SnapshotQuery.lookup("component_report", snapshot) //$NON-NLS-1$
+                            .setArgument("objects", record.objects); //$NON-NLS-1$
+            query.setArgument("aggressive", aggressive); //$NON-NLS-1$
+            IResult report = query.execute(listener);
 
             QuerySpec spec = new QuerySpec(MessageUtil.format("{0} ({1,number,percent})", //$NON-NLS-1$
                             record.name, (double) record.retainedSize / (double) totalHeapSize), report);

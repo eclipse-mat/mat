@@ -70,8 +70,8 @@ public class ComponentReportQuery implements IQuery
     @Argument(flag = Argument.UNFLAGGED)
     public IHeapObjectArgument objects;
 
-    // @Argument(isMandatory = false)  // Make an argument?
-    public long maxPHDComponentSize = 1000000;
+    @Argument(isMandatory = false)
+    public boolean aggressive;
 
     public IResult execute(IProgressListener listener) throws Exception
     {
@@ -398,8 +398,8 @@ public class ComponentReportQuery implements IQuery
     private void addEmptyCollections(SectionSpec componentReport, long totalSize, Histogram histogram, Ticks listener)
                     throws Exception
     {
-        // Works, but very slow, so disable for big components
-        if (totalSize > maxPHDComponentSize)
+        // Works, but very slow for some dump types, so disable for them.
+        if (!aggressive)
             InspectionAssert.heapFormatIsNot(snapshot, "DTFJ-PHD"); //$NON-NLS-1$
         long threshold = totalSize / 20;
 
@@ -496,8 +496,8 @@ public class ComponentReportQuery implements IQuery
     private void addCollectionFillRatios(SectionSpec componentReport, long totalSize, Histogram histogram,
                     Ticks listener) throws Exception
     {
-        // Works, but very slow, so disable for big components
-        if (totalSize > maxPHDComponentSize)
+        // Works, but very slow for some dump types, so disable for them.
+        if (!aggressive)
             InspectionAssert.heapFormatIsNot(snapshot, "DTFJ-PHD"); //$NON-NLS-1$
         long threshold = totalSize / 20;
 
@@ -594,8 +594,8 @@ public class ComponentReportQuery implements IQuery
     private void addHashMapsCollisionRatios(SectionSpec componentReport, long totalSize, Histogram histogram, Ticks listener)
                     throws Exception
     {
-        // Works, but very slow, so disable for big components
-        if (totalSize > maxPHDComponentSize)
+        // Works, but very slow for some dump types, so disable for them.
+        if (!aggressive)
             InspectionAssert.heapFormatIsNot(snapshot, "DTFJ-PHD"); //$NON-NLS-1$
         SectionSpec overview = new SectionSpec(Messages.ComponentReportQuery_MapCollisionRatios);
 
