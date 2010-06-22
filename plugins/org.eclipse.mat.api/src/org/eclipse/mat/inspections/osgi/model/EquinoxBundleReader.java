@@ -173,6 +173,8 @@ public class EquinoxBundleReader implements IBundleReader
             List<BundleDescriptor> fragments = new ArrayList<BundleDescriptor>(addresses.length);
             for (int i = 0; i < addresses.length; i++)
             {
+                if (addresses[i] == 0)
+                    continue;
                 int id = snapshot.mapAddressToId(addresses[i]);
                 IObject obj = snapshot.getObject(id);
                 BundleDescriptor descriptor = getBundleDescriptor(obj, Type.FRAGMENT);
@@ -321,6 +323,8 @@ public class EquinoxBundleReader implements IBundleReader
     {
         for (int j = 0; j < valueAddresses.length; j++)
         {
+            if (valueAddresses[j] == 0)
+                continue;
             try
             {
                 int valueId = snapshot.mapAddressToId(valueAddresses[j]);
@@ -333,6 +337,8 @@ public class EquinoxBundleReader implements IBundleReader
 
                     for (int k = 0; k < addresses.length; k++)
                     {
+                        if (valueAddresses[k] == 0)
+                            continue;
                         int id = snapshot.mapAddressToId(addresses[k]);
                         IObject object = snapshot.getObject(id);
                         if (object == null)
@@ -612,62 +618,57 @@ public class EquinoxBundleReader implements IBundleReader
                 IInstance obj = (IInstance) snapshot.getObject(objs[i]);
 
                 IObjectArray heldObjectsArray = (IObjectArray) obj.resolveValue("registryObjects.heldObjects.elements");//$NON-NLS-1$
-                if (heldObjectsArray == null)
-                    continue;
-                long[] heldObjectAddreses = heldObjectsArray.getReferenceArray();
-                if (heldObjectAddreses != null)
+                if (heldObjectsArray != null)
                 {
-                    for (long address : heldObjectAddreses)
+                    long[] heldObjectAddresses = heldObjectsArray.getReferenceArray();
+                    if (heldObjectAddresses != null)
                     {
-                        if (address == 0)
-                            continue;
-
-                        if (listener.isCanceled())
-                            throw new IProgressListener.OperationCanceledException();
-
-                        int objectId = snapshot.mapAddressToId(address);
-                        IObject instance = snapshot.getObject(objectId);
-
-                        // get type of object (Extension, ExtensionPoint,
-                        // ConfigurationElement)
-                        String className = instance.getClazz().getName();
-                        if (className.equals("org.eclipse.core.internal.registry.ExtensionPoint")) //$NON-NLS-1$
+                        for (long address : heldObjectAddresses)
                         {
-                            ExtensionPoint extensionPoint = extractExtensionPointInfo(instance);
-                            if (extensionPoint != null && !extensionPoints.containsValue(extensionPoint))
-                                extensionPoints.put(extensionPoint.getName(), extensionPoint);
-                            else if (extensionPoint != null)
-                                MATPlugin.log(MessageUtil.format(
-                                                Messages.EquinoxBundleReader_ErrorMsg_DuplicateExtensionPoint,
-                                                extensionPoint.getName()));
-                        }
-                        else if (className.equals("org.eclipse.core.internal.registry.ConfigurationElement")) //$NON-NLS-1$
-                        {
-                            ConfigurationElement configElement = extractConfigurationElementInfo(instance, listener);
-                            if (configElement != null && !configElements.containsValue(configElement))
-                                configElements.put(configElement.getElementId(), configElement);
-                            else if (configElement != null)
-                                MATPlugin.log(MessageUtil.format(
-                                                Messages.EquinoxBundleReader_ErrorMsg_DuplicateConfigurationElement,
-                                                configElement.getName(), configElement.getObjectId()));
-                        }
-                        else if (className.equals("org.eclipse.core.internal.registry.Extension")) //$NON-NLS-1$
-                        {
-                            Extension extension = extractExtensionInfo(instance);
-                            if (extension != null && !extensions.containsValue(extension))
-                                extensions.put(extension.getExtensionId(), extension);
-                            else if (extension != null)
-                                MATPlugin.log(MessageUtil.format(
-                                                Messages.EquinoxBundleReader_ErrorMsg_DuplicateExtension, extension
-                                                                .getName()));
-                        }
-                        else
-                        {
-                            MATPlugin.log(MessageUtil.format(Messages.EquinoxBundleReader_ErrorMsg_UnknownElementType,
-                                            Long.toHexString(address)));
-                            continue;
-                        }
+                            if (address == 0)
+                                continue;
 
+                            if (listener.isCanceled())
+                                throw new IProgressListener.OperationCanceledException();
+
+                            int objectId = snapshot.mapAddressToId(address);
+                            IObject instance = snapshot.getObject(objectId);
+
+                            extractElements(instance, extensionPoints, extensions, configElements, listener);
+
+                        }
+                    }
+                }
+
+                IObjectArray cachedObjectsArray = (IObjectArray) obj.resolveValue("registryObjects.cache.table");//$NON-NLS-1$
+                // The cached objects can find extras, but causes duplicate extensions, extension points etc.
+                boolean useCachedObjects = true;
+                if (useCachedObjects && cachedObjectsArray != null)
+                {
+                    long[] cachedObjectAddresses = cachedObjectsArray.getReferenceArray();
+                    if (cachedObjectAddresses != null)
+                    {
+                        for (long address : cachedObjectAddresses)
+                        {
+                            if (address == 0)
+                                continue;
+
+                            if (listener.isCanceled())
+                                throw new IProgressListener.OperationCanceledException();
+
+                            int objectId = snapshot.mapAddressToId(address);
+                            IObject instance = snapshot.getObject(objectId);
+                            
+                            if (instance instanceof IInstance)
+                            {
+                                ObjectReference ref = ReferenceQuery.getReferent((IInstance) instance);
+                                if (ref != null)
+                                {
+                                    instance = ref.getObject();
+                                }
+                            }
+                            extractElements(instance, extensionPoints, extensions, configElements, listener);
+                        }
                     }
                 }
                 listener.worked(STEPS / nobjs);
@@ -765,6 +766,56 @@ public class EquinoxBundleReader implements IBundleReader
 
     }
 
+    private void extractElements(IObject instance, Map<String, ExtensionPoint> extensionPoints,
+                    Map<Integer, Extension> extensions, Map<Integer, ConfigurationElement> configElements,
+                    IProgressListener listener) throws SnapshotException
+    {
+        // get type of object (Extension, ExtensionPoint,
+        // ConfigurationElement)
+        String className = instance.getClazz().getName();
+        if (className.equals("org.eclipse.core.internal.registry.ExtensionPoint")) //$NON-NLS-1$
+        {
+            ExtensionPoint extensionPoint = extractExtensionPointInfo(instance);
+            if (extensionPoint != null && !extensionPoints.containsValue(extensionPoint))
+                extensionPoints.put(extensionPoint.getName(), extensionPoint);
+            else if (extensionPoint != null && instance.getObjectId() != extensionPoint.getObjectId())
+                MATPlugin.log(MessageUtil.format(
+                                Messages.EquinoxBundleReader_ErrorMsg_DuplicateExtensionPoint,
+                                extensionPoint.getName(), 
+                                Long.toHexString(snapshot.mapIdToAddress(extensionPoint.getObjectId())),
+                                Long.toHexString(instance.getObjectAddress())));
+        }
+        else if (className.equals("org.eclipse.core.internal.registry.ConfigurationElement")) //$NON-NLS-1$
+        {
+            ConfigurationElement configElement = extractConfigurationElementInfo(instance, listener);
+            if (configElement != null && !configElements.containsValue(configElement))
+                configElements.put(configElement.getElementId(), configElement);
+            else if (configElement != null && instance.getObjectId() != configElement.getObjectId())
+                MATPlugin.log(MessageUtil.format(
+                                Messages.EquinoxBundleReader_ErrorMsg_DuplicateConfigurationElement,
+                                configElement.getName(),
+                                Long.toHexString(snapshot.mapIdToAddress(configElement.getObjectId())),
+                                Long.toHexString(instance.getObjectAddress())));
+        }
+        else if (className.equals("org.eclipse.core.internal.registry.Extension")) //$NON-NLS-1$
+        {
+            Extension extension = extractExtensionInfo(instance);
+            if (extension != null && !extensions.containsValue(extension))
+                extensions.put(extension.getExtensionId(), extension);
+            else if (extension != null && instance.getObjectId() != extension.getObjectId())
+                MATPlugin.log(MessageUtil.format(
+                                Messages.EquinoxBundleReader_ErrorMsg_DuplicateExtension, 
+                                extension.getName(), 
+                                Long.toHexString(snapshot.mapIdToAddress(extension.getObjectId())),
+                                Long.toHexString(instance.getObjectAddress())));
+        }
+        else
+        {
+            MATPlugin.log(MessageUtil.format(Messages.EquinoxBundleReader_ErrorMsg_UnknownElementType,
+                            Long.toHexString(instance.getObjectAddress()), instance.getClazz().getName()));
+        }
+    }
+
     private ConfigurationElement extractConfigurationElementInfo(IObject instance, IProgressListener listener) throws SnapshotException
     {
         Field idField = ((IInstance) instance).getField("parentId"); //$NON-NLS-1$
@@ -794,27 +845,27 @@ public class EquinoxBundleReader implements IBundleReader
                             .toHexString(instance.getObjectAddress())));
             return null;
         }
-        
+
         /*
-		 * in some heap dumps the the contributorID was a fully qualified name
-		 * instead of a number. The following lines are an attempt to read the
-		 * data as number
-		 */
+         * in some heap dumps the the contributorID was a fully qualified name
+         * instead of a number. The following lines are an attempt to read the
+         * data as number
+         */
         Long contributorId = null;
         BundleDescriptor contributedBy = null;
         String contributorIdString = contributorObject.getClassSpecificName();
         try
-		{
-			contributorId = Long.valueOf(contributorIdString);
-		}
-		catch (NumberFormatException e)
-		{
-			MATPlugin.log(MessageUtil.format(Messages.EquinoxBundleReader_CannotFindContributorID, contributorIdString));
-		}
-		if (contributorId != null)
-		{
-			contributedBy = bundleDescriptors.get(contributorId);
-		}
+        {
+            contributorId = Long.valueOf(contributorIdString);
+        }
+        catch (NumberFormatException e)
+        {
+            MATPlugin.log(MessageUtil.format(Messages.EquinoxBundleReader_CannotFindContributorID, contributorIdString));
+        }
+        if (contributorId != null)
+        {
+            contributedBy = bundleDescriptors.get(contributorId);
+        }
 
         IObject nameObject = (IObject) instance.resolveValue("name");//$NON-NLS-1$
         if (nameObject == null)
@@ -871,6 +922,7 @@ public class EquinoxBundleReader implements IBundleReader
 
     private Extension extractExtensionInfo(IObject instance) throws SnapshotException
     {
+        // Expect at least 3 properties
         String[] properties = getExtensionProperties(instance);
         if (properties == null)
             return null;
@@ -884,27 +936,28 @@ public class EquinoxBundleReader implements IBundleReader
         }
         Integer extensionId = (Integer) id.getValue();
         Extension extension = new Extension(instance.getObjectId(), extensionId, properties);
-        
+
         /*
-		 * in some heap dumps the the contributorID was a fully qualified name
-		 * instead of a number. The following lines are an attempt to read the
-		 * data as number
-		 */
+         * in some heap dumps the the contributorID was a fully qualified name
+         * instead of a number. The following lines are an attempt to read the
+         * data as number
+         */
         Long contributorId = null;
         String contributorIdString = extension.getContributorId();
         try
-		{
-			contributorId = Long.valueOf(contributorIdString);
-		}
-		catch (NumberFormatException e)
-		{
-			MATPlugin.log(MessageUtil.format(Messages.EquinoxBundleReader_CannotFindContributorID, contributorIdString));
-		}
-		if (contributorId != null)
-		{
-			BundleDescriptor contributedBy = bundleDescriptors.get(contributorId);
-			extension.setContributedBy(contributedBy);
-		}
+        {
+            contributorId = Long.valueOf(contributorIdString);
+        }
+        catch (NumberFormatException e)
+        {
+            MATPlugin.log(MessageUtil.format(Messages.EquinoxBundleReader_CannotFindContributorID,
+                              contributorIdString));
+        }
+        if (contributorId != null)
+        {
+            BundleDescriptor contributedBy = bundleDescriptors.get(contributorId);
+            extension.setContributedBy(contributedBy);
+        }
 
         return extension;
     }
@@ -925,11 +978,7 @@ public class EquinoxBundleReader implements IBundleReader
             ObjectReference ref = ReferenceQuery.getReferent((IInstance) extraInfoObject);
             if (ref != null)
             {
-                IObject referentObject = snapshot.getObject(ref.getObjectId());
-                if (referentObject != null)
-                {
-                    extraInfoObject = referentObject;
-                }
+                extraInfoObject = ref.getObject();
             }
         }
 
@@ -939,6 +988,8 @@ public class EquinoxBundleReader implements IBundleReader
             String[] properties = new String[addresses.length];
             for (int i = 0; i < addresses.length; i++)
             {
+                if (addresses[i] == 0)
+                    continue;
                 int id = snapshot.mapAddressToId(addresses[i]);
                 IObject object = snapshot.getObject(id);
                 properties[i] = object.getClassSpecificName();
@@ -960,6 +1011,7 @@ public class EquinoxBundleReader implements IBundleReader
 
     private ExtensionPoint extractExtensionPointInfo(IObject instance) throws SnapshotException
     {
+        // Expect at least 5 properties
         String[] properties = getExtensionProperties(instance);
         if (properties == null)
             return null;
@@ -975,25 +1027,26 @@ public class EquinoxBundleReader implements IBundleReader
         ExtensionPoint extensionPoint = new ExtensionPoint(instance.getObjectId(), extensionPointId, properties);
         
         /*
-		 * in some heap dumps the the contributorID was a fully qualified name
-		 * instead of a number. The following lines are an attempt to read the
-		 * data as number
-		 */
-		Long contributorId = null;
-		String contributorIdString = extensionPoint.getContributorId();
-		try
-		{
-			contributorId = Long.valueOf(contributorIdString);
-		}
-		catch (NumberFormatException e)
-		{
-			MATPlugin.log(MessageUtil.format(Messages.EquinoxBundleReader_CannotFindContributorID, contributorIdString));
-		}
-		if (contributorId != null)
-		{
-			BundleDescriptor contributedBy = bundleDescriptors.get(contributorId);
-			extensionPoint.setContributedBy(contributedBy);
-		}
+         * in some heap dumps the the contributorID was a fully qualified name
+         * instead of a number. The following lines are an attempt to read the
+         * data as number
+         */
+        Long contributorId = null;
+        String contributorIdString = extensionPoint.getContributorId();
+        try
+        {
+            contributorId = Long.valueOf(contributorIdString);
+        }
+        catch (NumberFormatException e)
+        {
+            MATPlugin.log(MessageUtil.format(Messages.EquinoxBundleReader_CannotFindContributorID,
+                             contributorIdString));
+        }
+        if (contributorId != null)
+        {
+            BundleDescriptor contributedBy = bundleDescriptors.get(contributorId);
+            extensionPoint.setContributedBy(contributedBy);
+        }
 
         return extensionPoint;
     }
