@@ -38,6 +38,7 @@ import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.snapshot.query.Icons;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.VoidProgressListener;
 
 @Category(Category.HIDDEN)
 @CommandName("class_references")
@@ -58,8 +59,8 @@ public class ClassReferrersQuery implements IQuery
 
     public IResult execute(IProgressListener listener) throws Exception
     {
-        return inbound ? new InboundClasses(snapshot, objects.getIds(listener), listener)//
-                        : new OutboundClasses(snapshot, objects.getIds(listener), listener);
+        return inbound ? new InboundClasses(snapshot, objects.getIds(listener))//
+                        : new OutboundClasses(snapshot, objects.getIds(listener));
     }
 
     public interface Type
@@ -75,14 +76,14 @@ public class ClassReferrersQuery implements IQuery
 
     public static class InboundClasses extends Tree
     {
-        public InboundClasses(ISnapshot snapshot, int[] objectIds, IProgressListener listener)
+        public InboundClasses(ISnapshot snapshot, int[] objectIds)
         {
-            super(snapshot, objectIds, listener);
+            super(snapshot, objectIds);
         }
 
         protected int[] children(ClassNode node) throws SnapshotException
         {
-            return snapshot.getInboundRefererIds(node.objects.toArray(), listener);
+            return snapshot.getInboundRefererIds(node.objects.toArray(), new VoidProgressListener());
         }
 
         public URL getIcon(Object row)
@@ -98,14 +99,14 @@ public class ClassReferrersQuery implements IQuery
 
     public static class OutboundClasses extends Tree
     {
-        public OutboundClasses(ISnapshot snapshot, int[] objectIds, IProgressListener listener)
+        public OutboundClasses(ISnapshot snapshot, int[] objectIds)
         {
-            super(snapshot, objectIds, listener);
+            super(snapshot, objectIds);
         }
 
         protected int[] children(ClassNode node) throws SnapshotException
         {
-            return snapshot.getOutboundReferentIds(node.objects.toArray(), listener);
+            return snapshot.getOutboundReferentIds(node.objects.toArray(), new VoidProgressListener());
         }
 
         public URL getIcon(Object row)
@@ -124,12 +125,10 @@ public class ClassReferrersQuery implements IQuery
     {
         protected ISnapshot snapshot;
         private List<ClassNode> treeNodes;
-        protected IProgressListener listener;
 
-        public Tree(ISnapshot snapshot, int[] objectIds, IProgressListener listener)
+        public Tree(ISnapshot snapshot, int[] objectIds)
         {
             this.snapshot = snapshot;
-            this.listener = listener;
             this.treeNodes = prepare(objectIds, null);
         }
 
