@@ -35,6 +35,7 @@ public class JMapHeapDumpProvider implements IHeapDumpProvider
 
 	private static final String PLUGIN_ID = "org.eclipse.mat.hprof"; //$NON-NLS-1$
 	private static final String LAST_JDK_DIRECTORY_KEY = JMapHeapDumpProvider.class.getName() + ".lastJDKDir"; //$NON-NLS-1$
+	private static final String LAST_JMAP_JDK_DIRECTORY_KEY = JMapHeapDumpProvider.class.getName() + ".lastJmapJDKDir"; //$NON-NLS-1$
 	private static final String FILE_PATTERN = "java_pid%pid%.hprof"; //$NON-NLS-1$
 
 	@Argument(isMandatory = false, advice = Advice.DIRECTORY)
@@ -43,7 +44,7 @@ public class JMapHeapDumpProvider implements IHeapDumpProvider
 	public JMapHeapDumpProvider()
 	{
 		// initialize JDK from previously saved data
-		jdkHome = readSavedLocation();
+		jdkHome = readSavedLocation(LAST_JDK_DIRECTORY_KEY);
 
 		// No user settings saved -> check if current java.home is a JDK
 		if (jdkHome == null)
@@ -57,7 +58,15 @@ public class JMapHeapDumpProvider implements IHeapDumpProvider
 		JmapVmInfo jmapProcessInfo = (JmapVmInfo) info;
 		listener.beginTask(Messages.JMapHeapDumpProvider_WaitForHeapDump, IProgressMonitor.UNKNOWN);
 
-		String jmap = (jmapProcessInfo.jdkHome == null || !jmapProcessInfo.jdkHome.exists()) ? "jmap" : jmapProcessInfo.jdkHome.getAbsolutePath() + File.separator + "bin" + File.separator + "jmap"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		// just use jmap by default ...
+		String jmap = "jmap"; //$NON-NLS-1$
+		// check for previously saved / user defined location 
+		if (jmapProcessInfo.jdkHome != null && jmapProcessInfo.jdkHome.exists())
+		{
+			jmap = jmapProcessInfo.jdkHome.getAbsolutePath() + File.separator + "bin" + File.separator + "jmap"; //$NON-NLS-1$ //$NON-NLS-2$
+			persistJDKLocation(LAST_JMAP_JDK_DIRECTORY_KEY, jmapProcessInfo.jdkHome.getAbsolutePath());
+		}
+		
 		// build the line to execute as a String[] because quotes in the name cause
 		// problems on Linux - See bug 313636
 		String[] execLine = new String[] { jmap, // jmap command
@@ -123,28 +132,32 @@ public class JMapHeapDumpProvider implements IHeapDumpProvider
 		// was something injected from outside?
 		if (jdkHome != null && jdkHome.exists())
 		{
-			persistJDKLocation();
+			persistJDKLocation(LAST_JDK_DIRECTORY_KEY, jdkHome.getAbsolutePath());
 		}
 
 		List<JmapVmInfo> result = new ArrayList<JmapVmInfo>();
 		List<JmapVmInfo> jvms = LocalJavaProcessesUtils.getLocalVMsUsingJPS(jdkHome);
 		if (jvms != null)
 		{
+			// try to get jmap specific location for the JDK
+			File jmapJdkHome = readSavedLocation(LAST_JMAP_JDK_DIRECTORY_KEY);
+			if (jmapJdkHome == null) jmapJdkHome = this.jdkHome;
+			
 			for (JmapVmInfo vmInfo : jvms)
 			{
 				vmInfo.setProposedFileName(FILE_PATTERN);
 				vmInfo.setHeapDumpProvider(this);
-				vmInfo.jdkHome = this.jdkHome;
+				vmInfo.jdkHome = jmapJdkHome;
 				result.add(vmInfo);
 			}
 		}
 		return result;
 	}
 
-	private void persistJDKLocation()
+	private void persistJDKLocation(String key, String value)
 	{
 		IEclipsePreferences prefs = new InstanceScope().getNode(PLUGIN_ID);
-		prefs.put(LAST_JDK_DIRECTORY_KEY, jdkHome.getAbsolutePath());
+		prefs.put(key, value);
 		try
 		{
 			prefs.flush();
@@ -156,9 +169,9 @@ public class JMapHeapDumpProvider implements IHeapDumpProvider
 		}
 	}
 
-	private File readSavedLocation()
+	private File readSavedLocation(String key)
 	{
-		String lastDir = Platform.getPreferencesService().getString(PLUGIN_ID, LAST_JDK_DIRECTORY_KEY, "", null); //$NON-NLS-1$
+		String lastDir = Platform.getPreferencesService().getString(PLUGIN_ID, key, "", null); //$NON-NLS-1$
 		if (lastDir != null && !lastDir.trim().equals("")) //$NON-NLS-1$
 		{
 			return new File(lastDir);
