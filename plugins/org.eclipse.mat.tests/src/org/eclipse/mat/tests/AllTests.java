@@ -18,6 +18,8 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses( { org.eclipse.mat.tests.collect.CompressedArraysTest.class, //
+                org.eclipse.mat.tests.collect.SetIntTest.class, //
+                org.eclipse.mat.tests.collect.SetLongTest.class, //
                 org.eclipse.mat.tests.collect.PrimitiveArrayTests.class, //
                 org.eclipse.mat.tests.collect.PrimitiveMapTests.class, //
                 org.eclipse.mat.tests.collect.CommandTests.class, //

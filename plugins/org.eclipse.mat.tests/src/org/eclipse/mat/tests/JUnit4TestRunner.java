@@ -206,7 +206,7 @@ public class JUnit4TestRunner implements IApplication
         }
 
         if (suiteClassName == null)
-            throw new Exception("Missing paramter: -classname");
+            throw new Exception("Missing parameter: -classname");
     }
 
     // //////////////////////////////////////////////////////////////
