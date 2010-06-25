@@ -211,6 +211,10 @@ public final class SetInt implements Serializable
         int oldSize = size;
         boolean[] oldUsed = used;
         int[] oldKeys = keys;
+        // JIT bug with IBM Java 6.0 - avoid JIT using stale values
+        keys = null;
+        capacity = 0;
+        // end work-around
         init(newCapacity);
         int key;
         int hash;
