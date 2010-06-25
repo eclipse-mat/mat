@@ -1091,6 +1091,7 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
                 if (topTableViewer.getContentProvider() != null)
                 {
                     topTableViewer.setInput(new Object[] { new Object() });
+                    topTableViewer.setData("input", null); //$NON-NLS-1$
                 }
 
                 if (staticsTable.getContentProvider() != null)
