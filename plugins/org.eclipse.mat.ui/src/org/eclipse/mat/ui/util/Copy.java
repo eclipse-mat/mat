@@ -28,18 +28,32 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
-public class Copy
+public abstract class Copy
 {
-    private Control control;
-    private Item[] selection;
+    protected Control control;
+    protected Item[] selection;
     private Map<Integer, Integer> columnLengths = new HashMap<Integer, Integer>();
+    
+	/**
+	 * Append content to be copied. Implementations should put the contnet to
+	 * their own storage - buffer, file, etc...
+	 * 
+	 * @param string
+	 */
+	protected abstract void append(String string);
+
+	/**
+	 * The method is called at the end of the copy procedure. It can be used by
+	 * implementations to flush content, move to clipboard, etc...
+	 */
+	protected abstract void done();
 
     public static void copyToClipboard(Control control)
     {
         Item[] selection = (control instanceof Table) ? ((Table) control).getSelection() //
                         : ((Tree) control).getSelection();
 
-        new Copy(control, selection).doCopy(null);
+        new CopyToClipboard(control, selection).doCopy();
     }
 
     public static void exportToTxtFile(Control control, String fileName)
@@ -48,7 +62,7 @@ public class Copy
         try
         {
             writer = new PrintWriter(new FileWriter(fileName));
-            new Copy(control, null).doCopy(writer);
+            new ExportToFile(control, null, writer).doCopy();
         }
         catch (IOException e)
         {
@@ -71,10 +85,8 @@ public class Copy
         this.selection = selection != null && selection.length > 0 ? selection : null;
     }
 
-    private void doCopy(PrintWriter writer)
+    protected void doCopy()
     {
-        StringBuffer resultBuffer = new StringBuffer();
-        StringBuffer rowBuffer = new StringBuffer();
         int numberOfColumns = getColumnCount();
 
         Object[] items;
@@ -90,11 +102,11 @@ public class Copy
 
         if (numberOfColumns == 0)
         {
-            resultBuffer = copySimpleStructure(items, resultBuffer);
+            copySimpleStructure(items);
         }
         else
         {
-            // find the length of column 0 by running through all the
+            // find the length of columns by running through all the
             // entries and finding the longest one
             for (int columnIndex = 0; columnIndex < numberOfColumns; columnIndex++)
             {
@@ -105,11 +117,14 @@ public class Copy
             for (int i = 0; i < numberOfColumns; i++)
             {
                 if (i == 0)
-                    resultBuffer.append(align(columns[i].getText(), true, columnLengths.get(0)));
+                    append(align(columns[i].getText(), true, columnLengths.get(0)));
                 else
-                    resultBuffer.append("|" + align(columns[i].getText(), false, columnLengths.get(i))); //$NON-NLS-1$ 
+                    append("|" + align(columns[i].getText(), false, columnLengths.get(i))); //$NON-NLS-1$ 
             }
-            resultBuffer.append("\r\n"); //$NON-NLS-1$
+            append("\r\n"); //$NON-NLS-1$
+            
+            String dashedLine = getDashedLine(numberOfColumns);
+            append(dashedLine + "\r\n"); //$NON-NLS-1$
 
             for (Object item : items)
             {
@@ -137,43 +152,28 @@ public class Copy
                     }
 
                     if (columnIndex == 0)
-                        rowBuffer.append(align(value, true, columnLengths.get(0)));
+                        append(align(value, true, columnLengths.get(0)));
                     else
-                        rowBuffer.append("|" + align(value, false, columnLengths.get(columnIndex)));//$NON-NLS-1$
+                        append("|" + align(value, false, columnLengths.get(columnIndex)));//$NON-NLS-1$
 
                 }
                 if (addLineBreak)
-                    rowBuffer.append("\r\n");//$NON-NLS-1$
+                    append("\r\n");//$NON-NLS-1$
                 if (item instanceof TreeItem && ((TreeItem) item).getExpanded() && toPrint((TreeItem) item))
                 {
-                    addNextLineToClipboard(new StringBuilder(), (TreeItem) item, rowBuffer, numberOfColumns,
+                    addNextLineToClipboard(new StringBuilder(), (TreeItem) item, numberOfColumns,
                                     columnLengths.get(0));
                 }
             }
 
-            String dashedLine = getDashedLine(numberOfColumns);
             columnLengths.clear();
-            resultBuffer.append(dashedLine + "\r\n"); //$NON-NLS-1$
-            resultBuffer.append(rowBuffer);
-            resultBuffer.append(dashedLine + "\r\n"); //$NON-NLS-1$
+            append(dashedLine + "\r\n"); //$NON-NLS-1$
         }
-        if (writer != null)
-        {
-            writer.append(resultBuffer.toString());
-            writer.flush();
-            writer.close();
-        }
-        else
-        {
-            Clipboard clipboard = new Clipboard(control.getDisplay());
-            clipboard.setContents(new Object[] { resultBuffer.toString() },
-                            new Transfer[] { TextTransfer.getInstance() });
-            clipboard.dispose();
-        }
+        done();
 
     }
 
-    private StringBuffer copySimpleStructure(Object[] items, StringBuffer resultBuffer)
+    private void copySimpleStructure(Object[] items)
     {
         for (Object item : items)
         {
@@ -194,20 +194,19 @@ public class Copy
                 continue;
             }
 
-            resultBuffer.append(align(value, true, value.length()));
+            append(align(value, true, value.length()));
             if (addLineBreak)
-                resultBuffer.append("\r\n");//$NON-NLS-1$
+                append("\r\n");//$NON-NLS-1$
 
             if (item instanceof TreeItem && ((TreeItem) item).getExpanded() && toPrint((TreeItem) item))
             {
-                addNextLineToClipboard(new StringBuilder(), (TreeItem) item, resultBuffer, 0, ((TreeItem) item)
+                addNextLineToClipboard(new StringBuilder(), (TreeItem) item, 0, ((TreeItem) item)
                                 .getText().length());
             }
         }
-        return resultBuffer;
     }
 
-    private void addNextLineToClipboard(StringBuilder level, TreeItem item, StringBuffer rowBuffer,
+    private void addNextLineToClipboard(StringBuilder level, TreeItem item,
                     int numberOfColumns, int length)
     {
 
@@ -219,24 +218,23 @@ public class Copy
             {
                 if (numberOfColumns == 0)
                 {
-                    rowBuffer.append(level + align(children[j].getText(), true, length - level.length()));
+                    append(level + align(children[j].getText(), true, length - level.length()));
                 }
                 else
                 {
-                    for (int i = 0; i < numberOfColumns; i++)
+                	// add the first column with the tree branches prefix
+                	append(level + align(children[j].getText(0), true, length - level.length()));
+                	// add the rest of the columns
+                	for (int i = 1; i < numberOfColumns; i++)
                     {
-                        if (i == 0)
-                            rowBuffer.append(level + align(children[j].getText(i), true, length - level.length()));
-                        else
-                            rowBuffer.append("|" + align(children[j].getText(i), false, columnLengths.get(i))); //$NON-NLS-1$ 
-
+                        append("|" + align(children[j].getText(i), false, columnLengths.get(i))); //$NON-NLS-1$ 
                     }
                 }
-                rowBuffer.append("\r\n"); //$NON-NLS-1$
+                append("\r\n"); //$NON-NLS-1$
 
                 if (children[j].getExpanded())
                 {
-                    addNextLineToClipboard(level, children[j], rowBuffer, numberOfColumns, length);
+                    addNextLineToClipboard(level, children[j], numberOfColumns, length);
                 }
 
                 if (level.length() >= 3)
@@ -448,5 +446,55 @@ public class Copy
         level.append("- "); //$NON-NLS-1$
         return level;
     }
-
+    
+    private static class ExportToFile extends Copy
+    {
+    	private PrintWriter writer;
+    	
+    	public ExportToFile(Control control, Item[] selection, PrintWriter writer)
+		{
+    		super(control, selection);
+    		this.writer = writer;
+		}
+    	
+    	@Override
+    	protected void append(String string)
+    	{
+    		writer.write(string);
+    	}
+    	
+    	@Override
+    	protected void done()
+    	{
+    		// flush the writer at the end
+    		writer.flush();
+    	}
+    }
+    
+    private static class CopyToClipboard extends Copy
+    {
+    	private StringBuffer buffer = new StringBuffer(); // a buffer to keep the content for the clipboard
+    	
+    	private CopyToClipboard(Control control, Item[] selection)
+		{
+    		super(control, selection);
+		}
+    	
+    	@Override
+    	protected void append(String string)
+    	{
+    		// just append everything to a buffer in memory
+    		buffer.append(string);
+    	}
+    	
+		@Override
+		protected void done()
+		{
+			// done -> just copy the buffer to the clipboard
+			Clipboard clipboard = new Clipboard(control.getDisplay());
+			clipboard.setContents(new Object[] { buffer.toString() }, new Transfer[] { TextTransfer.getInstance() });
+			clipboard.dispose();
+		}
+	}
+    
 }
