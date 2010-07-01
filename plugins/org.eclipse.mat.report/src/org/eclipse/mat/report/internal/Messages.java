@@ -55,6 +55,7 @@ public final class Messages extends NLS
     public static String Quantize_Error_MismatchArgumentsColumns;
     public static String Queries_Error_NotAvialable;
     public static String Queries_Error_UnknownArgument;
+    public static String QueryContextImpl_ImpossibleToConvert;
     public static String QueryDescriptor_Error_IgnoringQuery;
     public static String QueryDescriptor_Error_NotSupported;
     public static String QueryPart_Error_ColumnNotFound;

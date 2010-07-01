@@ -14,6 +14,8 @@ import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.annotations.Argument.Advice;
 import org.eclipse.mat.query.registry.Converters.IConverter;
+import org.eclipse.mat.report.internal.Messages;
+import org.eclipse.mat.util.MessageUtil;
 
 public abstract class QueryContextImpl implements IQueryContext
 {
@@ -44,7 +46,8 @@ public abstract class QueryContextImpl implements IQueryContext
         {
             IConverter<Object> conv = Converters.getConverter(type);
             if (conv == null)
-                throw new IllegalArgumentException(type.getName());
+                throw new SnapshotException(MessageUtil.format(Messages.QueryContextImpl_ImpossibleToConvert,
+                                type.getName()));
             return conv.toObject(value, advice);
         }
         catch (IllegalArgumentException e)
