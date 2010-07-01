@@ -111,7 +111,7 @@ public class QueryBrowserPopup extends PopupDialog
         this.editor = editor;
 
         QueryBrowserPopup.this.providers = new ArrayList<QueryBrowserProvider>();
-        providers.add(new QueryHistoryProvider());
+        providers.add(new QueryHistoryProvider(editor.getQueryContext(), policy));
 
         if (!onlyHistory)
         {

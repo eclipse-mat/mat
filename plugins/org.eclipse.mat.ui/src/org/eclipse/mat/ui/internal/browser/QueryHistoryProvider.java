@@ -10,31 +10,46 @@
  *******************************************************************************/
 package org.eclipse.mat.ui.internal.browser;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.registry.QueryDescriptor;
 import org.eclipse.mat.query.registry.QueryRegistry;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.QueryExecution;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
+import org.eclipse.mat.ui.util.IPolicy;
 
 public class QueryHistoryProvider extends QueryBrowserProvider
 {
+    IQueryContext context;
+    IPolicy policy;
+
+    public QueryHistoryProvider(IQueryContext context, IPolicy policy)
+    {
+        this.context = context;
+        this.policy = policy;
+    }
 
     @Override
     public QueryBrowserPopup.Element[] getElements()
     {
         List<String> history = QueryHistory.getHistoryEntries();
-        QueryBrowserPopup.Element[] elements = new QueryBrowserPopup.Element[history.size()];
+        List<QueryBrowserPopup.Element> answer = new ArrayList<QueryBrowserPopup.Element>(history.size());
 
-        int index = 0;
         for (String entry : history)
-            elements[index++] = new HQQElement(entry);
+        {
+            HQQElement element = new HQQElement(entry);
+            QueryDescriptor query = element.getQuery();
+            if (query.accept(context) && (policy == null || policy.accept(query)))
+                answer.add(element);
+        }
 
-        return elements;
+        return answer.toArray(new QueryBrowserPopup.Element[0]);
     }
 
     @Override

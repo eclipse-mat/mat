@@ -13,6 +13,7 @@ package org.eclipse.mat.query.registry;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.annotations.Argument.Advice;
+import org.eclipse.mat.query.registry.Converters.IConverter;
 
 public abstract class QueryContextImpl implements IQueryContext
 {
@@ -41,7 +42,10 @@ public abstract class QueryContextImpl implements IQueryContext
     {
         try
         {
-            return Converters.getConverter(type).toObject(value, advice);
+            IConverter<Object> conv = Converters.getConverter(type);
+            if (conv == null)
+                throw new IllegalArgumentException(type.getName());
+            return conv.toObject(value, advice);
         }
         catch (IllegalArgumentException e)
         {
