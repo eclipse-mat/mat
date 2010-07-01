@@ -152,7 +152,10 @@ public abstract class Copy
                     }
 
                     if (columnIndex == 0)
-                        append(align(value, true, columnLengths.get(0)));
+                    	if (numberOfColumns == 1)
+                    		append(value); // no align with empty spaces at the end needed
+                    	else
+                    		append(align(value, true, columnLengths.get(0)));
                     else
                         append("|" + align(value, false, columnLengths.get(columnIndex)));//$NON-NLS-1$
 
@@ -194,7 +197,7 @@ public abstract class Copy
                 continue;
             }
 
-            append(align(value, true, value.length()));
+            append(value);
             if (addLineBreak)
                 append("\r\n");//$NON-NLS-1$
 
@@ -216,9 +219,10 @@ public abstract class Copy
             level = getLevel(level, children.length, j);
             if (selection == null || !skip(children[j]))
             {
-                if (numberOfColumns == 0)
+                if (numberOfColumns < 2)
                 {
-                    append(level + align(children[j].getText(), true, length - level.length()));
+                	// no append of empty spaces needed
+                    append(level + children[j].getText());
                 }
                 else
                 {
