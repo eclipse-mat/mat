@@ -268,7 +268,7 @@ public abstract class Copy
 
     private static String align(String s, boolean left, int length)
     {
-        StringBuffer buf = new StringBuffer(length);
+        StringBuilder buf = new StringBuilder(length);
         if (s != null)
         {
             if (s.length() > length)
@@ -303,7 +303,7 @@ public abstract class Copy
 
     private String getDashedLine(int numberOfColumns)
     {
-        StringBuffer dashes = new StringBuffer();
+    	StringBuilder dashes = new StringBuilder();
         int dashesLength = 0;
         for (int i = 0; i < numberOfColumns; i++)
             dashesLength = dashesLength + columnLengths.get(i);
@@ -477,7 +477,7 @@ public abstract class Copy
     
     private static class CopyToClipboard extends Copy
     {
-    	private StringBuffer buffer = new StringBuffer(); // a buffer to keep the content for the clipboard
+    	private StringBuilder buffer = new StringBuilder(); // a buffer to keep the content for the clipboard
     	
     	private CopyToClipboard(Control control, Item[] selection)
 		{
