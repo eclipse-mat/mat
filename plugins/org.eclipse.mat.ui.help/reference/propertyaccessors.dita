@@ -55,17 +55,18 @@
 			<p>[ &lt;alias&gt;. ] @&lt;attribute&gt; ...</p>
 			<p>
 				Using the @ symbol, OQL accesses attributes of the
-				underlying Java objects. The attributes are resolved via
+				underlying Java objects used by Memory Analyzer to represent
+				objects in the heap dump. The attributes are resolved via
 				Bean Introspection. The following table lists some
 				commonly used Java attributes.
 			</p>
 			<simpletable relcolwidth="2* 2* 2* 3*" id="javabean_prop">
-				<sthead>
+				<strow>
 					<stentry>Any heap object</stentry>
-					<stentry>IObject</stentry>
+					<stentry><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IObject.html#field_summary" format="html">IObject</xref></stentry>
 					<stentry>objectId</stentry>
 					<stentry>id of snapshot object</stentry>
-				</sthead>
+				</strow>
 				<strow>
 					<stentry />
 					<stentry />
@@ -98,13 +99,13 @@
 				</strow>
 				<strow>
 					<stentry>Class object</stentry>
-					<stentry>IClass</stentry>
+					<stentry><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IClass.html#field_summary" format="html">IClass</xref></stentry>
 					<stentry>classLoaderId</stentry>
 					<stentry>id of the class loader</stentry>
 				</strow>
 				<strow>
 					<stentry>Any array</stentry>
-					<stentry>IArray</stentry>
+					<stentry><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IArray.html#field_summary" format="html">IArray</xref></stentry>
 					<stentry>length</stentry>
 					<stentry>length of the array</stentry>
 				</strow>
@@ -115,15 +116,16 @@
 			<codeblock>[ &lt;alias&gt; . ] @&lt;method&gt;( [ &lt;expression&gt;, &lt;expression&gt; ] ) ...</codeblock>
 			<p>
 				Adding ( ) forces OQL to interpret this as a Java method
-				call. The call is executed via reflection. Common Java
-				methods.
+				call. The call is executed via reflection. The following table lists some
+				common Java methods on the underlying Java objects used by Memory Analyzer to represent
+				objects in the heap dump.
 			</p>
 			<simpletable relcolwidth="2* 2* 2* 3*" id="javabean_prop">
 				<strow>
 					<stentry>$snapshot</stentry>
-					<stentry>ISnapshot</stentry>
+					<stentry><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/ISnapshot.html#method_summary" format="html">ISnapshot</xref></stentry>
 					<stentry>
-						<codeblock>getClasses()</codeblock>
+						<codeblock><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/ISnapshot.html#getClasses()" format="html">getClasses()</xref></codeblock>
 					</stentry>
 					<stentry>a collection of all classes</stentry>
 				</strow>
@@ -131,15 +133,15 @@
 					<stentry />
 					<stentry />
 					<stentry>
-						<codeblock>getClassesByName(String name, boolean includeSubClasses)</codeblock>
+						<codeblock><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/ISnapshot.html#getClassesByName(java.util.regex.Pattern, boolean)" format="html">getClassesByName(String name, boolean includeSubClasses)</xref></codeblock>
 					</stentry>
 					<stentry>a collection of classes</stentry>
 				</strow>
 				<strow>
 					<stentry>Class object</stentry>
-					<stentry>IClass</stentry>
+					<stentry><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IClass.html#method_summary" format="html">IClass</xref></stentry>
 					<stentry>
-						<codeblock>hasSuperClass()</codeblock>
+						<codeblock><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IClass.html#hasSuperClass()" format="html">hasSuperClass()</xref></codeblock>
 					</stentry>
 					<stentry>
 						result is true if the class has a super class
@@ -149,10 +151,20 @@
 					<stentry />
 					<stentry />
 					<stentry>
-						<codeblock>isArrayType()</codeblock>
+						<codeblock><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IClass.html#isArrayType()" format="html">isArrayType()</xref></codeblock>
 					</stentry>
 					<stentry>
 						the result is true if the class is an array type
+					</stentry>
+				</strow>
+				<strow>
+					<stentry>Any heap object</stentry>
+					<stentry><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IObject.html#method_summary" format="html">IObject</xref></stentry>
+					<stentry>
+						<codeblock><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IObject.html#getObjectAddress()" format="html">getObjectAddress()</xref></codeblock>
+					</stentry>
+					<stentry>
+						The address of a snapshot object as a long integer
 					</stentry>
 				</strow>
 			</simpletable>

@@ -60,89 +60,90 @@
 
 			<p>
 				Using the @ symbol, OQL accesses attributes of the
-				underlying Java objects. The attributes are resolved via
+				underlying Java objects used by Memory Analyzer to represent
+				objects in the heap dump. The attributes are resolved via
 				Bean Introspection. The following table lists some
 				commonly used Java attributes.
 			</p>
 
 			<a name="propertyaccessors__javabean_prop"><!-- --></a><table cellpadding="4" cellspacing="0" summary="" id="propertyaccessors__javabean_prop" border="1" class="simpletableborder"><tr>
-					<th valign="bottom" align="left" id="d7494e67" width="22.22222222222222%">Any heap object</th>
+					<td valign="top" width="22.22222222222222%">Any heap object</td>
 
-					<th valign="bottom" align="left" id="d7494e70" width="22.22222222222222%">IObject</th>
+					<td valign="top" width="22.22222222222222%"><a href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IObject.html#field_summary">IObject</a></td>
 
-					<th valign="bottom" align="left" id="d7494e73" width="22.22222222222222%">objectId</th>
+					<td valign="top" width="22.22222222222222%">objectId</td>
 
-					<th valign="bottom" align="left" id="d7494e76" width="33.33333333333333%">id of snapshot object</th>
-
-				</tr>
-<tr>
-					<td valign="top" headers="d7494e67">&#xA0;</td>
-
-					<td valign="top" headers="d7494e70">&#xA0;</td>
-
-					<td valign="top" headers="d7494e73">objectAddress</td>
-
-					<td valign="top" headers="d7494e76">address of snapshot object</td>
+					<td valign="top" width="33.33333333333333%">id of snapshot object</td>
 
 				</tr>
 <tr>
-					<td valign="top" headers="d7494e67">&#xA0;</td>
+					<td valign="top">&#xA0;</td>
 
-					<td valign="top" headers="d7494e70">&#xA0;</td>
+					<td valign="top">&#xA0;</td>
 
-					<td valign="top" headers="d7494e73">class</td>
+					<td valign="top">objectAddress</td>
 
-					<td valign="top" headers="d7494e76">class of this object</td>
-
-				</tr>
-<tr>
-					<td valign="top" headers="d7494e67">&#xA0;</td>
-
-					<td valign="top" headers="d7494e70">&#xA0;</td>
-
-					<td valign="top" headers="d7494e73">usedHeapSize</td>
-
-					<td valign="top" headers="d7494e76">shallow heap size</td>
+					<td valign="top">address of snapshot object</td>
 
 				</tr>
 <tr>
-					<td valign="top" headers="d7494e67">&#xA0;</td>
+					<td valign="top">&#xA0;</td>
 
-					<td valign="top" headers="d7494e70">&#xA0;</td>
+					<td valign="top">&#xA0;</td>
 
-					<td valign="top" headers="d7494e73">retainedHeapSize</td>
+					<td valign="top">class</td>
 
-					<td valign="top" headers="d7494e76">retained heap size</td>
-
-				</tr>
-<tr>
-					<td valign="top" headers="d7494e67">&#xA0;</td>
-
-					<td valign="top" headers="d7494e70">&#xA0;</td>
-
-					<td valign="top" headers="d7494e73">displayName</td>
-
-					<td valign="top" headers="d7494e76">display name</td>
+					<td valign="top">class of this object</td>
 
 				</tr>
 <tr>
-					<td valign="top" headers="d7494e67">Class object</td>
+					<td valign="top">&#xA0;</td>
 
-					<td valign="top" headers="d7494e70">IClass</td>
+					<td valign="top">&#xA0;</td>
 
-					<td valign="top" headers="d7494e73">classLoaderId</td>
+					<td valign="top">usedHeapSize</td>
 
-					<td valign="top" headers="d7494e76">id of the class loader</td>
+					<td valign="top">shallow heap size</td>
 
 				</tr>
 <tr>
-					<td valign="top" headers="d7494e67">Any array</td>
+					<td valign="top">&#xA0;</td>
 
-					<td valign="top" headers="d7494e70">IArray</td>
+					<td valign="top">&#xA0;</td>
 
-					<td valign="top" headers="d7494e73">length</td>
+					<td valign="top">retainedHeapSize</td>
 
-					<td valign="top" headers="d7494e76">length of the array</td>
+					<td valign="top">retained heap size</td>
+
+				</tr>
+<tr>
+					<td valign="top">&#xA0;</td>
+
+					<td valign="top">&#xA0;</td>
+
+					<td valign="top">displayName</td>
+
+					<td valign="top">display name</td>
+
+				</tr>
+<tr>
+					<td valign="top">Class object</td>
+
+					<td valign="top"><a href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IClass.html#field_summary">IClass</a></td>
+
+					<td valign="top">classLoaderId</td>
+
+					<td valign="top">id of the class loader</td>
+
+				</tr>
+<tr>
+					<td valign="top">Any array</td>
+
+					<td valign="top"><a href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IArray.html#field_summary">IArray</a></td>
+
+					<td valign="top">length</td>
+
+					<td valign="top">length of the array</td>
 
 				</tr>
 </table>
@@ -155,17 +156,18 @@
 
 			<p>
 				Adding ( ) forces OQL to interpret this as a Java method
-				call. The call is executed via reflection. Common Java
-				methods.
+				call. The call is executed via reflection. The following table lists some
+				common Java methods on the underlying Java objects used by Memory Analyzer to represent
+				objects in the heap dump.
 			</p>
 
 			<a name="propertyaccessors__javabean_prop"><!-- --></a><table cellpadding="4" cellspacing="0" summary="" id="propertyaccessors__javabean_prop" border="1" class="simpletableborder"><tr>
 					<td valign="top" width="22.22222222222222%">$snapshot</td>
 
-					<td valign="top" width="22.22222222222222%">ISnapshot</td>
+					<td valign="top" width="22.22222222222222%"><a href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/ISnapshot.html#method_summary">ISnapshot</a></td>
 
 					<td valign="top" width="22.22222222222222%">
-						<pre class="codeblock">getClasses()</pre>
+						<pre class="codeblock"><a href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/ISnapshot.html#getClasses()">getClasses()</a></pre>
 
 					</td>
 
@@ -178,7 +180,7 @@
 					<td valign="top">&#xA0;</td>
 
 					<td valign="top">
-						<pre class="codeblock">getClassesByName(String name, boolean includeSubClasses)</pre>
+						<pre class="codeblock"><a href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/ISnapshot.html#getClassesByName(java.util.regex.Pattern, boolean)">getClassesByName(String name, boolean includeSubClasses)</a></pre>
 
 					</td>
 
@@ -188,10 +190,10 @@
 <tr>
 					<td valign="top">Class object</td>
 
-					<td valign="top">IClass</td>
+					<td valign="top"><a href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IClass.html#method_summary">IClass</a></td>
 
 					<td valign="top">
-						<pre class="codeblock">hasSuperClass()</pre>
+						<pre class="codeblock"><a href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IClass.html#hasSuperClass()">hasSuperClass()</a></pre>
 
 					</td>
 
@@ -206,12 +208,27 @@
 					<td valign="top">&#xA0;</td>
 
 					<td valign="top">
-						<pre class="codeblock">isArrayType()</pre>
+						<pre class="codeblock"><a href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IClass.html#isArrayType()">isArrayType()</a></pre>
 
 					</td>
 
 					<td valign="top">
 						the result is true if the class is an array type
+					</td>
+
+				</tr>
+<tr>
+					<td valign="top">Any heap object</td>
+
+					<td valign="top"><a href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IObject.html#method_summary">IObject</a></td>
+
+					<td valign="top">
+						<pre class="codeblock"><a href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IObject.html#getObjectAddress()">getObjectAddress()</a></pre>
+
+					</td>
+
+					<td valign="top">
+						The address of a snapshot object as a long integer
 					</td>
 
 				</tr>
