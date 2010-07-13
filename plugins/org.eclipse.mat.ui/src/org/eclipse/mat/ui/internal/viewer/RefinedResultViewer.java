@@ -1161,7 +1161,10 @@ public abstract class RefinedResultViewer
     protected final void resort()
     {
         List<?> children = ((ControlItem) control.getData(Key.CONTROL)).children;
-        new SortingJob(this, children).schedule();
+        if (children != null)
+        {
+            new SortingJob(this, children).schedule();
+        }
     }
     
     protected final void resort(Item column)
