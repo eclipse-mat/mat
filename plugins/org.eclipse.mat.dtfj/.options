@@ -1,0 +1,4 @@
+org.eclipse.mat.dtfj/debug=false
+org.eclipse.mat.dtfj/debug/verbose=false
+# Number of similar messages to log before suppressing them
+org.eclipse.mat.dtfj/errorCount=20

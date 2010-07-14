@@ -43,6 +43,8 @@ public class InitDTFJ extends Plugin implements IRegistryChangeListener
     
     private static final Map<String, Map<String, String>> allexts = new HashMap<String, Map<String, String>>();
 
+    private static InitDTFJ plugin;
+
     /**
      * Start the bundle - find DTFJ implementations and convert to parsers.
      * Register listener for new DTFJ implementations.
@@ -50,6 +52,7 @@ public class InitDTFJ extends Plugin implements IRegistryChangeListener
     public void start(BundleContext context) throws Exception
     {
         super.start(context);
+        plugin = this;
         IExtensionRegistry reg = Platform.getExtensionRegistry();
         reg.addRegistryChangeListener(this, DTFJ_NAMESPACE);
         registerFileExtensions();
@@ -65,6 +68,7 @@ public class InitDTFJ extends Plugin implements IRegistryChangeListener
         removalAllExtensions();
         reg.removeRegistryChangeListener(this);
         DTFJIndexBuilder.clearCachedDumps();
+        plugin = null;
         super.stop(context);
     }
 
@@ -347,5 +351,10 @@ public class InitDTFJ extends Plugin implements IRegistryChangeListener
         {
             super.putAll(allexts);
         }
+    }
+
+    static InitDTFJ getDefault()
+    {
+        return plugin;
     }
 }

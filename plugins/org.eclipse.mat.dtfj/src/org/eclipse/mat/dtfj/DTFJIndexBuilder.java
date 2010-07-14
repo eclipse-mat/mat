@@ -117,8 +117,6 @@ public class DTFJIndexBuilder implements IIndexBuilder
      * roots
      */
     private static final long NATIVE_STACK_SECTION_MAX_SIZE = 1024 * 1024L;
-    /** print out extra information to the console */
-    private static final boolean verbose = false;
     /** Whether DTFJ has root support */
     private static final boolean haveDTFJRoots = true;
     /** Whether to use DTFJ Root support */
@@ -167,13 +165,16 @@ public class DTFJIndexBuilder implements IIndexBuilder
      */
     private static final boolean guessFinalizables = true;
     /** whether to print out debug information and make errors more severe */
-    private static final boolean debugInfo = false;
+    private static final boolean debugInfo = InitDTFJ.getDefault().isDebugging();
     /** severity flag for internal - info means error worked around safely */
     private static final IProgressListener.Severity Severity_INFO = debugInfo ? Severity.ERROR : Severity.INFO;
     /** severity flag for internal - warning means possible problem */
     private static final IProgressListener.Severity Severity_WARNING = debugInfo ? Severity.ERROR : Severity.WARNING;
     /** How many times to print out a repeating error */
-    private static final int errorCount = debugInfo ? 200 : 20;
+    private static final int errorCount = debugInfo ? getDebugOption("org.eclipse.mat.dtfj/errorCount", 20) : 20; //$NON-NLS-1$
+    /** print out extra information to the console */
+    private static final boolean verbose = InitDTFJ.getDefault().isDebugging()
+                    && getDebugOption("org.eclipse.mat.dtfj/debug/verbose", false); //$NON-NLS-1$
 
     /** The actual dump file */
     private File dump;
@@ -7849,6 +7850,44 @@ public class DTFJIndexBuilder implements IIndexBuilder
             System.out.println(msg);
     }
 
+
+    /**
+     * Get a debug option from the Eclipse platform .options file
+     * @param option the option name
+     * @param defaultValue the default value if it is not found
+     * @return
+     */
+    private static boolean getDebugOption(String option, boolean defaultValue)
+    {
+        String val = Platform.getDebugOption(option);
+        if (val != null)
+        {
+            return Boolean.parseBoolean(val);
+        }
+        return defaultValue;
+    }
+
+    /**
+     * Get a debug option from the Eclipse platform .options file
+     * @param option the option name
+     * @param defaultValue the default value if it is not found
+     * @return
+     */
+    private static int getDebugOption(String option, int defaultValue)
+    {
+        String val = Platform.getDebugOption(option);
+        if (val != null)
+        {
+            try
+            {
+                return Integer.parseInt(val);
+            }
+            catch (NumberFormatException e)
+            {
+            }
+        }
+        return defaultValue;
+    }
 }
 
 /**
