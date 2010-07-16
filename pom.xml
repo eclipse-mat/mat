@@ -25,6 +25,7 @@
 	<module>features</module>
 	<module>org.eclipse.mat.targetdef</module>
 	<module>org.eclipse.mat.updatesite</module>
+	<module>product</module>
   </modules>
 
 
@@ -89,6 +90,75 @@
 							<classifier>mat-site</classifier>
 						</artifact>
 					</target>
+					
+					<environments>
+						<environment>
+							<os>win32</os>
+							<ws>win32</ws>
+							<arch>x86</arch>
+						</environment>
+						<environment>
+							<os>win32</os>
+							<ws>win32</ws>
+							<arch>x86_64</arch>
+						</environment>
+						<environment>
+							<os>macosx</os>
+							<ws>carbon</ws>
+							<arch>x86</arch>
+						</environment>
+						<environment>
+							<os>macosx</os>
+							<ws>cocoa</ws>
+							<arch>x86</arch>
+						</environment>
+						<environment>
+							<os>macosx</os>
+							<ws>cocoa</ws>
+							<arch>x86_64</arch>
+						</environment>
+						<environment>
+							<os>solaris</os>
+							<ws>gtk</ws>
+							<arch>x86</arch>
+						</environment>
+						<environment>
+							<os>solaris</os>
+							<ws>gtk</ws>
+							<arch>sparc</arch>
+						</environment>
+						<environment>
+							<os>aix</os>
+							<ws>motif</ws>
+							<arch>ppc</arch>
+						</environment>
+						<environment>
+							<os>hpux</os>
+							<ws>motif</ws>
+							<arch>ia64_32</arch>
+						</environment>
+						<environment>
+							<os>linux</os>
+							<ws>gtk</ws>
+							<arch>x86</arch>
+						</environment>
+						<environment>
+							<os>linux</os>
+							<ws>gtk</ws>
+							<arch>x86_64</arch>
+						</environment>
+						<environment>
+							<os>linux</os>
+							<ws>gtk</ws>
+							<arch>ppc</arch>
+						</environment>
+						<environment>
+							<os>linux</os>
+							<ws>gtk</ws>
+							<arch>ppc64</arch>
+						</environment>
+					</environments>
+					
 					<ignoreTychoRepositories>true</ignoreTychoRepositories>
 				</configuration>
         </plugin>

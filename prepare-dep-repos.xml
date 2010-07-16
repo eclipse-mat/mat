@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="create-repositories" default="default" basedir="..">
-    <target name="default" depends="init,downloadEclipse,downloadTestFramework,downloadDTFJ">
+    <target name="default" depends="init,downloadEclipse,downloadDeltaPack,downloadTestFramework,downloadDTFJ">
     </target>
 
     	<target name="init" depends="initProperties,initProxy,initMatTargetDef"/>
@@ -27,16 +27,40 @@
 
 	<target name="downloadEclipse">
 		<get 
-			src="http://www.eclipse.org/downloads/download.php?file=/eclipse/downloads/drops/S-3.6RC3-201005271700/eclipse-SDK-3.6RC3-linux-gtk-ppc.tar.gz"
-			dest="p2tool/eclipse-SDK-3.6RC3-linux-gtk-ppc.tar.gz"
+			src="http://download.eclipse.org/eclipse/downloads/drops/R-3.6-201006080911/eclipse-SDK-3.6-linux-gtk-ppc.tar.gz"
+			dest="p2tool/eclipse-SDK-3.6-linux-gtk-ppc.tar.gz"
 			verbose="true"/>
-	    	<delete dir="p2tool/eclipse"/>
-		<untar src="p2tool/eclipse-SDK-3.6RC3-linux-gtk-ppc.tar.gz" dest="p2tool/eclipse" compression="gzip"/>
-	</target>
 
-	<target name="downloadTestFramework" description="description">
+	    	<delete dir="p2tool/eclipse"/>
+		<untar src="p2tool/eclipse-SDK-3.6-linux-gtk-ppc.tar.gz" dest="p2tool/eclipse" compression="gzip"/>
+	</target>
+	
+	<target name="downloadDeltaPack" description="downloadDeltaPack" depends="downloadEclipse">
+		<get	
+			src="http://download.eclipse.org/eclipse/downloads/drops/R-3.6-201006080911/eclipse-3.6-delta-pack.zip"
+			dest="p2tool/eclipse-3.6-delta-pack.zip"
+			verbose="true"/>
+		
+		<unzip src="p2tool/eclipse-3.6-delta-pack.zip" dest="p2tool/eclipse-delta-pack"/>
+	
+		<java jar="p2tool/eclipse/eclipse/plugins/org.eclipse.equinox.launcher_1.1.0.v20100507.jar" fork="true" maxmemory="512m" failonerror="true">
+	            <arg value="-consoleLog" />
+	            <arg value="-application" />
+	            <arg value="org.eclipse.equinox.p2.publisher.FeaturesAndBundlesPublisher"/>
+	    		<arg value="-mr"/> 
+	    		<arg value="${target.baseUrl}eclipse-delta-pack/repo"/> 
+	    		<arg value="-ar"/> 
+	    		<arg value="${target.baseUrl}eclipse-delta-pack/repo"/> 
+	    		<arg value="-source"/> 
+	    		<arg value="p2tool/eclipse-delta-pack/eclipse"/> 
+	    		<arg value="-compress"/> 
+	    		<arg value="-publishArtifacts"/> 
+	        </java>
+    	</target>
+	
+	<target name="downloadTestFramework" description="description" depends="downloadEclipse">
 		<get 
-    		src="http://www.eclipse.org/downloads/download.php?file=/eclipse/downloads/drops/R-3.5.2-201002111343/eclipse-test-framework-3.5.2.zip&amp;url=http://ftp-stud.fht-esslingen.de/pub/Mirrors/eclipse/eclipse/downloads/drops/R-3.5.2-201002111343/eclipse-test-framework-3.5.2.zip&amp;mirror_id=17" 
+    		src="http://download.eclipse.org/eclipse/downloads/drops/R-3.6-201006080911/eclipse-test-framework-3.6.zip" 
     		dest="p2tool/eclipse-test-framework.zip"/>
     	<delete dir="p2tool/eclipse-test-framework"/>
 		<unzip src="p2tool/eclipse-test-framework.zip" dest="p2tool/eclipse-test-framework"/>
@@ -56,7 +80,7 @@
         </java>
     </target>
 	
-    <target name="downloadDTFJ" description="description">
+    <target name="downloadDTFJ" description="description" depends="downloadEclipse">
     	<get 
     		src="ftp://ftp.software.ibm.com/software/java/support/tools/dtfj/dtfj-updatesite.zip" 
     		dest="p2tool/dtfj-updatesite.zip"/>

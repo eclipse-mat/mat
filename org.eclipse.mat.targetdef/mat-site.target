@@ -1,18 +1,23 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.5"?>
+<?pde version="3.6"?>
 
 <target name="MAT Target">
 <locations>
 <location includeAllPlatforms="false" includeMode="planner" type="InstallableUnit">
-<unit id="org.eclipse.datatools.enablement.sdk.feature.feature.group" version="1.7.2.v200909251450-7I8r7XFE9JfFs0wYgDsB0wKAZttV"/>
-<unit id="org.eclipse.cdt.feature.group" version="6.0.2.201002161416"/>
-<repository location="http://download.eclipse.org/releases/galileo/201002260900"/>
+<unit id="org.eclipse.datatools.enablement.sdk.feature.feature.group" version="1.8.0.v201005280400-7I97-FE9JfhXjGyyrcS_FeiNlq43"/>
+<unit id="org.eclipse.cdt.feature.group" version="7.0.0.201006141710"/>
+<unit id="org.eclipse.sdk.ide" version="3.6.0.I20100608-0911"/>
+<repository location="http://download.eclipse.org/releases/helios"/>
 </location>
 <location includeAllPlatforms="false" includeMode="planner" type="InstallableUnit">
-<unit id="org.eclipse.birt.chart.feature.group" version="2.6.0.v20091210-7c957LFOKfqvD19Y_Vn_G1"/>
+<unit id="org.eclipse.birt.chart.feature.group" version="2.6.0.v20100617-7f9T0FQCnv7wz02TTZ0LE1"/>
 <repository location="http://download.eclipse.org/birt/update-site/2.6-interim/"/>
 </location>
 <location includeAllPlatforms="false" includeMode="planner" type="InstallableUnit">
+<unit id="org.eclipse.emf.feature.group" version="2.6.0.v20100614-1136"/>
+<repository location="http://download.eclipse.org/modeling/emf/updates/interim/"/>
+</location>
+<location includeAllPlatforms="false" includeMode="slicer" type="InstallableUnit">
 <unit id="org.eclipse.test.feature.group" version="3.5.0.r20080925-7P7VBiBcJ99q9ZEO14C38"/>
 <repository location="%workspaceUrl%p2tool/eclipse-test-framework/repo"/>
 </location>
@@ -21,12 +26,8 @@
 <repository location="%workspaceUrl%p2tool/dtfj-updatesite/repo"/>
 </location>
 <location includeAllPlatforms="false" includeMode="planner" type="InstallableUnit">
-<unit id="org.eclipse.sdk.ide" version="3.6.0.I20100129-1300"/>
-<repository location="http://download.eclipse.org/eclipse/updates/3.6milestones/S-3.6M5-201001291300"/>
-</location>
-<location includeAllPlatforms="false" includeMode="planner" type="InstallableUnit">
-<unit id="org.eclipse.emf.feature.group" version="2.6.0.v201001101746"/>
-<repository location="http://download.eclipse.org/modeling/emf/updates/interim/"/>
+<unit id="org.eclipse.equinox.executable.feature.group" version="3.4.0.v20100524-7M7K-FIhIez-egBko15H73"/>
+<repository location="%workspaceUrl%p2tool/eclipse-delta-pack/repo"/>
 </location>
 </locations>
 </target>

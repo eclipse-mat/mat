@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product name="Memory Analyzer Tool" id="org.eclipse.mat.ui.rcp.MemoryAnalyzer" application="org.eclipse.mat.ui.rcp.application" version="1.0.0" useFeatures="true" includeLaunchers="true">
+
+   <aboutInfo>
+      <image path="/parent/product/icons/eclipse_lg.gif"/>
+      <text>
+         Eclipse Memory Analyzer
+
+Version: 1.0.0
+
+Copyright (c) 2008, 2010 SAP AG, IBM Corporation and others. All rights reserved.
+Visit http://www.eclipse.org/mat
+      </text>
+   </aboutInfo>
+
+   <configIni use="default">
+      <linux>/parent/product/config.ini</linux>
+      <macosx>/parent/product/config.ini</macosx>
+      <solaris>/parent/product/config.ini</solaris>
+      <win32>/parent/product/config.ini</win32>
+   </configIni>
+
+   <launcherArgs>
+      <vmArgs>-Xmx1024m</vmArgs>
+      <vmArgsMac>-Dorg.eclipse.swt.internal.carbon.smallFonts
+-XstartOnFirstThread</vmArgsMac>
+   </launcherArgs>
+
+   <windowImages i16="/parent/product/icons/memory_analyzer_16.gif"/>
+
+   <splash
+      location="org.eclipse.mat.ui.rcp" />
+   <launcher name="MemoryAnalyzer">
+      <macosx icon="/product/macosx/MemoryAnalyzer.icns"/>
+      <solaris/>
+      <win useIco="false">
+         <bmp/>
+      </win>
+   </launcher>
+
+   <intro introId="org.eclipse.mat.ui.rcp.Intro"/>
+
+   <vm>
+   </vm>
+
+
+   <plugins>
+   </plugins>
+
+   <features>
+      <feature id="org.eclipse.mat.dependencies.feature" version="1.0.0.qualifier"/>
+      <feature id="org.eclipse.mat.feature" version="1.0.0.qualifier"/>
+      <feature id="org.eclipse.mat.chart.feature" version="1.0.0.qualifier"/>
+      <feature id="org.eclipse.mat.ui.rcp.feature" version="1.0.0.qualifier"/>
+   </features>
+
+
+</product>

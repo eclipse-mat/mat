@@ -20,7 +20,8 @@
    <url>
       <update label="%updateSiteName" url="http://download.eclipse.org/mat/1.0/update-site/"/>
    </url>
-<plugin
+
+   <plugin
          id="com.ibm.icu"
          download-size="0"
          install-size="0"
@@ -57,13 +58,6 @@
 
    <plugin
          id="org.eclipse.core.runtime"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.core.runtime.compatibility.auth"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -126,13 +120,6 @@
          install-size="0"
          version="0.0.0"
          fragment="true"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.update.configurator"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
          unpack="false"/>
 
    <plugin
@@ -424,28 +411,7 @@
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.ant.core"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.core.filebuffers"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="org.eclipse.core.filesystem"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.core.net"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -459,14 +425,6 @@
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.core.resources.compatibility"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         fragment="true"
-         unpack="false"/>
-
-   <plugin
          id="org.eclipse.osgi.services"
          download-size="0"
          install-size="0"
@@ -474,28 +432,7 @@
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.core.variables"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="org.eclipse.equinox.http.registry"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.equinox.http.jetty"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.equinox.http.servlet"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -571,34 +508,7 @@
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.ui.intro.universal"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
          id="org.eclipse.ui.cheatsheets"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.ui.navigator"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.ui.navigator.resources"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.ui.workbench.texteditor"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -626,13 +536,6 @@
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.ui.ide.application"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="org.eclipse.ui.win32"
          ws="win32"
          download-size="0"
@@ -649,20 +552,6 @@
          install-size="0"
          version="0.0.0"
          fragment="true"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.update.core"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.update.ui"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
          unpack="false"/>
 
    <plugin
@@ -725,43 +614,11 @@
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.update.core.linux"
-         os="linux"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         fragment="true"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.update.core.win32"
-         os="win32"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         fragment="true"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.ui.views.properties.tabbed"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="org.eclipse.core.runtime.compatibility.registry"
          download-size="0"
          install-size="0"
          version="0.0.0"
          fragment="true"/>
-
-   <plugin
-         id="org.mortbay.jetty.server"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
 
    <plugin
          id="org.eclipse.birt.chart.device.extension"
@@ -940,26 +797,6 @@
          fragment="true"/>
 
    <plugin
-         id="org.eclipse.core.net.win32.x86"
-         os="win32"
-         arch="x86"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         fragment="true"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.core.net.linux.x86"
-         os="linux"
-         arch="x86"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         fragment="true"
-         unpack="false"/>
-
-   <plugin
          id="org.eclipse.equinox.security"
          download-size="0"
          install-size="0"
@@ -984,24 +821,10 @@
          unpack="false"/>
 
    <plugin
-         id="org.mortbay.jetty.util"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="org.junit4"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
-
-   <plugin
-         id="org.eclipse.equinox.p2.artifact.repository"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
 
    <plugin
          id="org.eclipse.equinox.p2.core"
@@ -1012,13 +835,6 @@
 
    <plugin
          id="org.eclipse.equinox.p2.engine"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.equinox.p2.jarprocessor"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -1089,7 +905,55 @@
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.compare.core"
+         id="org.eclipse.ecf.provider.filetransfer"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.ecf.provider.filetransfer.ssl"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         fragment="true"
+         unpack="false"/>
+
+   <plugin
+         id="org.junit"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.eclipse.ant.core"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.core.net"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.net4j.jms.api"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.eclipse.core.runtime.compatibility.auth"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.core.variables"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -1103,7 +967,28 @@
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.ui.net"
+         id="org.eclipse.equinox.http.jetty"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.equinox.http.servlet"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.mortbay.jetty.server"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.mortbay.jetty.util"
          download-size="0"
          install-size="0"
          version="0.0.0"
