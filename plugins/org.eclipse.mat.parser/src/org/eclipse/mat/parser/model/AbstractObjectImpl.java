@@ -234,12 +234,17 @@ public abstract class AbstractObjectImpl implements IObject, Serializable
         if (ref == null)
             return null;
 
-        int objectId = ref.getObjectId();
-        if (objectId < 0)
+        int objectId;
+        try
         {
+            objectId = ref.getObjectId();
+        }
+        catch (SnapshotException e)
+        {
+            // Convert the unknown address exception into something more meaningful
             String msg = MessageUtil.format(Messages.AbstractObjectImpl_Error_FieldContainsIllegalReference,
                             new Object[] { n, getTechnicalName(), Long.toHexString(ref.getObjectAddress()) });
-            throw new SnapshotException(msg);
+            throw new SnapshotException(msg, e);
         }
 
         return this.source.getObject(objectId).resolveValue(name.substring(p + 1));
