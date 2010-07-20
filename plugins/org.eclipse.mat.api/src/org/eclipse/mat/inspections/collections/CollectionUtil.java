@@ -19,11 +19,13 @@ import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.collect.BitField;
 import org.eclipse.mat.collect.HashMapIntObject;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IInstance;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IObjectArray;
+import org.eclipse.mat.util.MessageUtil;
 
 public final class CollectionUtil
 {
@@ -228,9 +230,25 @@ public final class CollectionUtil
 
         public IObjectArray getBackingArray(IObject collection) throws SnapshotException
         {
-            IObjectArray ret = (IObjectArray) collection.resolveValue(arrayField);
-            if (ret != null)
+            final Object obj = collection.resolveValue(arrayField);
+            IObjectArray ret = null;
+            if (obj instanceof IObjectArray)
+            {
+                ret = (IObjectArray) obj;
                 return ret;
+            }
+            else if (obj instanceof IObject)
+            {
+                String msg = MessageUtil.format(Messages.CollectionUtil_BadBackingArray, arrayField,
+                                collection.getTechnicalName(), ((IObject) obj).getTechnicalName());
+                throw new SnapshotException(msg);
+            }
+            else if (obj != null)
+            {
+                String msg = MessageUtil.format(Messages.CollectionUtil_BadBackingArray, arrayField,
+                                collection.getTechnicalName(), obj.toString());
+                throw new SnapshotException(msg);
+            }
             IObject next = resolveNextFields(collection);
             if (next == null)
                 return null;

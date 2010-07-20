@@ -75,11 +75,17 @@ public class Messages extends NLS
     public static String CollectionFillRatioQuery_ErrorMsg_AllArgumentsMustBeSet;
     public static String CollectionFillRatioQuery_ExtractingFillRatios;
 
+    public static String CollectionFillRatioQuery_IgnoringCollection;
+
+    public static String CollectionUtil_BadBackingArray;
+
     public static String CollectionsBySizeQuery_ClassNotFound;
     public static String CollectionsBySizeQuery_CollectingSizes;
     public static String CollectionsBySizeQuery_Column_Length;
     public static String CollectionsBySizeQuery_Column_NumObjects;
     public static String CollectionsBySizeQuery_ErrorMsg_ArgumentMissing;
+
+    public static String CollectionsBySizeQuery_IgnoringCollection;
 
     public static String Column_ClassName;
     public static String Column_ClassLoaderName;
@@ -394,6 +400,8 @@ public class Messages extends NLS
     public static String MapCollisionRatioQuery_Column_NumObjects;
     public static String MapCollisionRatioQuery_ErrorMsg_ClassNotFound;
     public static String MapCollisionRatioQuery_ErrorMsg_MissingArgument;
+
+    public static String MapCollisionRatioQuery_IgnoringCollection;
 
     public static String MATPlugin_InternalError;
 

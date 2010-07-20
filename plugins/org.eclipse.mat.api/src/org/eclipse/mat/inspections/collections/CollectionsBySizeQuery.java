@@ -101,8 +101,16 @@ public class CollectionsBySizeQuery implements IQuery
                 if (info != null)
                 {
                     IObject obj = snapshot.getObject(objectId);
-                    int size = info.getSize(obj);
-                    quantize.addValue(objectId, size, null, obj.getUsedHeapSize());
+                    try
+                    {
+                        int size = info.getSize(obj);
+                        quantize.addValue(objectId, size, null, obj.getUsedHeapSize());
+                    }
+                    catch (SnapshotException e)
+                    {
+                        listener.sendUserMessage(IProgressListener.Severity.INFO,
+                                        MessageUtil.format(Messages.CollectionsBySizeQuery_IgnoringCollection, obj.getTechnicalName()), e);
+                    }
                 }
 
                 if (listener.isCanceled())

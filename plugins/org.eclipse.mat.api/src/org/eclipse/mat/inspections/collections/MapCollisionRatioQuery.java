@@ -102,8 +102,16 @@ public class MapCollisionRatioQuery implements IQuery
                 if (info != null)
                 {
                     IObject obj = snapshot.getObject(objectId);
-                    double collisionRatio = getCollisionRatio(info, obj);
-                    quantize.addValue(obj.getObjectId(), collisionRatio, null, obj.getUsedHeapSize());
+                    try
+                    {
+                        double collisionRatio = getCollisionRatio(info, obj);
+                        quantize.addValue(obj.getObjectId(), collisionRatio, null, obj.getUsedHeapSize());
+                    }
+                    catch (SnapshotException e)
+                    {
+                        listener.sendUserMessage(IProgressListener.Severity.INFO,
+                                        MessageUtil.format(Messages.MapCollisionRatioQuery_IgnoringCollection, obj.getTechnicalName()), e);
+                    }
                 }
             }
         }

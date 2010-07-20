@@ -219,7 +219,20 @@ public abstract class AbstractObjectImpl implements IObject, Serializable
         {
             Object answer = f.getValue();
             if (answer instanceof ObjectReference)
-                answer = ((ObjectReference) answer).getObject();
+            {
+                ObjectReference ref = ((ObjectReference) answer);
+                try
+                {
+                    answer = ref.getObject();
+                }
+                catch (SnapshotException e)
+                {
+                    // Convert the unknown address exception into something more meaningful
+                    String msg = MessageUtil.format(Messages.AbstractObjectImpl_Error_FieldContainsIllegalReference,
+                                new Object[] { n, getTechnicalName(), Long.toHexString(ref.getObjectAddress()) });
+                    throw new SnapshotException(msg, e);
+                }
+            }
             return answer;
         }
 

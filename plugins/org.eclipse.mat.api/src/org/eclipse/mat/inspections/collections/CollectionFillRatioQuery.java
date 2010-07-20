@@ -113,8 +113,16 @@ public class CollectionFillRatioQuery implements IQuery
                 if (info != null)
                 {
                     IObject obj = snapshot.getObject(objectId);
-                    double fillRatio = getFillRatio(info, obj);
-                    quantize.addValue(obj.getObjectId(), fillRatio, 1, obj.getUsedHeapSize());
+                    try
+                    {
+                        double fillRatio = getFillRatio(info, obj);
+                        quantize.addValue(obj.getObjectId(), fillRatio, 1, obj.getUsedHeapSize());
+                    }
+                    catch (SnapshotException e)
+                    {
+                        listener.sendUserMessage(IProgressListener.Severity.INFO,
+                                        MessageUtil.format(Messages.CollectionFillRatioQuery_IgnoringCollection, obj.getTechnicalName()), e);
+                    }
                 }
             }
         }
