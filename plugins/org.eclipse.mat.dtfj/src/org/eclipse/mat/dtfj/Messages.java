@@ -147,6 +147,7 @@ public class Messages extends NLS
     public static String DTFJIndexBuilder_Pass1;
     public static String DTFJIndexBuilder_Pass2;
     public static String DTFJIndexBuilder_PossibleProblemReadingJavaStackFrames;
+    public static String DTFJIndexBuilder_PossibleProblemReadingJavaStackFramesLocation;
     public static String DTFJIndexBuilder_PossibleProblemReadingJavaStackFramesMethod;
     public static String DTFJIndexBuilder_PossibleProblemReadingNativeStackFrame;
     public static String DTFJIndexBuilder_PrimitiveShouldNotHaveASuperclass;
@@ -173,7 +174,9 @@ public class Messages extends NLS
     public static String DTFJIndexBuilder_ProblemGettingSuperclass;
     public static String DTFJIndexBuilder_ProblemReadingArray;
     public static String DTFJIndexBuilder_ProblemReadingJavaStackFrame;
+    public static String DTFJIndexBuilder_ProblemReadingJavaStackFrameLocation;
     public static String DTFJIndexBuilder_ProblemReadingJavaStackFrames;
+    public static String DTFJIndexBuilder_ProblemReadingJavaStackFramesLocation;
     public static String DTFJIndexBuilder_ProblemReadingJavaStackFramesMethod;
     public static String DTFJIndexBuilder_ProblemReadingJavaStackSection;
     public static String DTFJIndexBuilder_ProblemReadingJavaThreadInformation;

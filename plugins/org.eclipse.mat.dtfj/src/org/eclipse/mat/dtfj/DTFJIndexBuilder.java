@@ -404,6 +404,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
     private int msgNtypeForClassObject = errorCount;
     private int msgNobjectSize = errorCount;
     private int msgNoutboundReferences = errorCount;
+    private int msgNnoSuperClassForArray = errorCount;
+    private int msgNproblemReadingJavaStackFrame = errorCount;
 
     /*
      * (non-Javadoc)
@@ -598,7 +600,11 @@ public class DTFJIndexBuilder implements IIndexBuilder
             {
                 Object next2 = i2.next();
                 if (isCorruptData(next2, listener, Messages.DTFJIndexBuilder_CorruptDataReadingHeapSections, run))
-                    continue;
+                {
+                    // Even a corrupt section might have an address and size
+                    if (!(next2 instanceof ImageSection))
+                        continue;
+                }
                 ImageSection is = (ImageSection) next2;
                 long endAddr = is.getBaseAddress().add(is.getSize()).getAddress();
                 lastAddress = Math.max(lastAddress, endAddr);
@@ -893,9 +899,10 @@ public class DTFJIndexBuilder implements IIndexBuilder
                         continue;
                     JavaStackFrame jf = (JavaStackFrame) next2;
                     if (listener.isCanceled()) { throw new IProgressListener.OperationCanceledException(); }
+                    JavaLocation jl = null;
                     try
                     {
-                        JavaLocation jl = jf.getLocation();
+                        jl = jf.getLocation();
                         JavaMethod jm = jl.getMethod();
                         long frameAddress = getFrameAddress(jf, prevFrameAddress, pointerSize);
                         prevFrameAddress = frameAddress;
@@ -928,9 +935,20 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     }
                     catch (CorruptDataException e)
                     {
-                        listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
-                                        Messages.DTFJIndexBuilder_ProblemReadingJavaStackFrame, frameId,
-                                        format(threadAddress)), e);
+                        if (jl != null)
+                        {
+                            if (msgNproblemReadingJavaStackFrame-- > 0)
+                                listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
+                                                Messages.DTFJIndexBuilder_ProblemReadingJavaStackFrameLocation, frameId,
+                                                jl, format(threadAddress)), e);
+                        }
+                        else
+                        {
+                            if (msgNproblemReadingJavaStackFrame-- > 0)
+                                listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
+                                                Messages.DTFJIndexBuilder_ProblemReadingJavaStackFrame, frameId,
+                                                format(threadAddress)), e);
+                        }
                     }
                 }
             }
@@ -1859,6 +1877,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
         skippedMessages += Math.max(0, -msgNtypeForClassObject);
         skippedMessages += Math.max(0, -msgNobjectSize);
         skippedMessages += Math.max(0, -msgNoutboundReferences);
+        skippedMessages += Math.max(0, -msgNnoSuperClassForArray);
+        skippedMessages += Math.max(0, -msgNproblemReadingJavaStackFrame);
         if (skippedMessages > 0)
         {
             listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
@@ -3104,9 +3124,11 @@ public class DTFJIndexBuilder implements IIndexBuilder
             {
                 // We don't know the size of the frame, so could go beyond the
                 // end and get an error
+                JavaLocation jl = null;
                 try
                 {
-                    JavaMethod jm = jf.getLocation().getMethod();
+                    jl = jf.getLocation();
+                    JavaMethod jm = jl.getMethod();
                     String className = jm.getDeclaringClass().getName();
                     String methodName = jm.getName();
                     String modifiers = getModifiers(jm, listener);
@@ -3118,22 +3140,34 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 }
                 catch (DataUnavailable e2)
                 {
+                    // Location will have been set up
                     listener.sendUserMessage(Severity.INFO, MessageFormat.format(
-                                    Messages.DTFJIndexBuilder_PossibleProblemReadingJavaStackFrames, frameId,
-                                    format(address), searchSize, format(threadAddress)), e);
+                                    Messages.DTFJIndexBuilder_PossibleProblemReadingJavaStackFramesLocation, frameId,
+                                    format(address), searchSize, jl, format(threadAddress)), e);
                 }
                 catch (CorruptDataException e2)
                 {
-                    listener.sendUserMessage(Severity.INFO, MessageFormat.format(
-                                    Messages.DTFJIndexBuilder_PossibleProblemReadingJavaStackFrames, frameId,
-                                    format(address), searchSize, format(threadAddress)), e);
+                    if (jl != null)
+                    {
+                        listener.sendUserMessage(Severity.INFO, MessageFormat.format(
+                                        Messages.DTFJIndexBuilder_PossibleProblemReadingJavaStackFramesLocation, frameId,
+                                        format(address), searchSize, jl, format(threadAddress)), e);
+                    }
+                    else
+                    {
+                        listener.sendUserMessage(Severity.INFO, MessageFormat.format(
+                                        Messages.DTFJIndexBuilder_PossibleProblemReadingJavaStackFrames, frameId,
+                                        format(address), searchSize, format(threadAddress)), e);
+                    }
                 }
             }
             catch (CorruptDataException e)
             {
+                JavaLocation jl = null;
                 try
                 {
-                    JavaMethod jm = jf.getLocation().getMethod();
+                    jl = jf.getLocation();
+                    JavaMethod jm = jl.getMethod();
                     String className = jm.getDeclaringClass().getName();
                     String methodName = jm.getName();
                     String modifiers = getModifiers(jm, listener);
@@ -3146,22 +3180,36 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     {
                         sig = "()"; //$NON-NLS-1$
                     }
-                    listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
-                                    Messages.DTFJIndexBuilder_ProblemReadingJavaStackFramesMethod, frameId,
-                                    format(address), searchSize, modifiers, className, methodName, sig,
-                                    format(threadAddress)), e);
+                    if (msgNproblemReadingJavaStackFrame-- > 0)
+                        listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
+                                        Messages.DTFJIndexBuilder_ProblemReadingJavaStackFramesMethod, frameId,
+                                        format(address), searchSize, modifiers, className, methodName, sig,
+                                        format(threadAddress)), e);
                 }
                 catch (DataUnavailable e2)
                 {
-                    listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
-                                    Messages.DTFJIndexBuilder_ProblemReadingJavaStackFrames, frameId, format(address),
-                                    searchSize, format(threadAddress)), e);
+                    // Location will have been set up
+                    if (msgNproblemReadingJavaStackFrame-- > 0)
+                        listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
+                                        Messages.DTFJIndexBuilder_ProblemReadingJavaStackFramesLocation, frameId,
+                                        format(address), searchSize, jl, format(threadAddress)), e);
                 }
                 catch (CorruptDataException e2)
                 {
-                    listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
-                                    Messages.DTFJIndexBuilder_ProblemReadingJavaStackFrames, frameId, format(address),
-                                    searchSize, format(threadAddress)), e);
+                    if (jl != null)
+                    {
+                        if (msgNproblemReadingJavaStackFrame-- > 0)
+                            listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
+                                            Messages.DTFJIndexBuilder_ProblemReadingJavaStackFramesLocation, frameId,
+                                            format(address), searchSize, jl, format(threadAddress)), e);
+                    }
+                    else
+                    {
+                        if (msgNproblemReadingJavaStackFrame-- > 0)
+                            listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
+                                            Messages.DTFJIndexBuilder_ProblemReadingJavaStackFrames, frameId, format(address),
+                                            searchSize, format(threadAddress)), e);
+                    }
                 }
             }
             // Add all the searched locations in this frame to the master list
@@ -6907,7 +6955,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     // superclass
                     for (sup = j2.getObject().getJavaClass(); sup.getSuperclass() != null; sup = sup.getSuperclass())
                     {}
-                    if (listener != null)
+                    if (listener != null && msgNnoSuperClassForArray-- > 0)
                         listener.sendUserMessage(Severity_INFO, MessageFormat.format(
                                         Messages.DTFJIndexBuilder_NoSuperclassForArray, j2.getName(), sup.getName()),
                                         null);
