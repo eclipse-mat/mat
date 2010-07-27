@@ -11,6 +11,8 @@
 package org.eclipse.mat.ui.internal.acquire;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -24,7 +26,9 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.ErrorDialog;
@@ -38,9 +42,9 @@ import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.internal.acquire.HeapDumpProviderDescriptor;
 import org.eclipse.mat.internal.acquire.HeapDumpProviderRegistry;
 import org.eclipse.mat.query.annotations.descriptors.IAnnotatedObjectDescriptor;
+import org.eclipse.mat.query.registry.AnnotatedObjectArgumentsSet;
 import org.eclipse.mat.query.registry.ArgumentDescriptor;
 import org.eclipse.mat.query.registry.ArgumentFactory;
-import org.eclipse.mat.query.registry.AnnotatedObjectArgumentsSet;
 import org.eclipse.mat.snapshot.acquire.VmInfo;
 import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.editor.PathEditorInput;
@@ -93,7 +97,26 @@ public class AcquireSnapshotAction extends Action implements IWorkbenchWindowAct
 
 					// open the heapdump
 					Path path = new Path(destFile.getAbsolutePath());
-					IEditorDescriptor descriptor = PlatformUI.getWorkbench().getEditorRegistry().getDefaultEditor(path.toOSString());
+                    // Find the content type of the dump
+                    FileInputStream is = null;
+                    IContentType ct;
+                    try
+                    {
+                        is = new FileInputStream(destFile);
+                        ct = Platform.getContentTypeManager().findContentTypeFor(is, destFile.getAbsolutePath());
+                    }
+                    catch (IOException e)
+                    {
+                        ct = null;
+                    }
+                    finally
+                    {
+                        if (is != null)
+                            is.close();
+                    }
+                    IEditorDescriptor descriptor = ct != null ? 
+                                    PlatformUI.getWorkbench().getEditorRegistry().getDefaultEditor(path.toOSString(), ct) : 
+                                    PlatformUI.getWorkbench().getEditorRegistry().getDefaultEditor(path.toOSString());
 
 					try
 					{
