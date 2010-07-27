@@ -11,7 +11,12 @@
 package org.eclipse.mat.ibmvm.acquire;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
+
+import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.util.IProgressListener;
 
 /**
  * Helper dump provider - the IBMDumpProvider delegates to this to do the work for java core dumps.
@@ -46,5 +51,24 @@ public class IBMJavaDumpProvider extends IBMHeapDumpProvider
         else 
             // guess 1MB
             return 1000000L;
+    }
+    
+    /*
+     * Call the superclass java/heapdump jextract method.
+     * Don't compress javacore files as the reader cannot open them.
+     * @param preferredDump
+     * @param dumps
+     * @param udir
+     * @param javahome
+     * @param listener
+     * @return
+     * @throws IOException
+     * @throws InterruptedException
+     * @throws SnapshotException
+     */
+    @Override
+    public File jextract(File preferredDump, boolean compress, List<File>dumps, File udir, File javahome, IProgressListener listener) throws IOException, InterruptedException, SnapshotException
+    {
+        return super.jextract(preferredDump, false, dumps, udir, javahome, listener);
     }
 }
