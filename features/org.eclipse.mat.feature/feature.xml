@@ -99,4 +99,11 @@
          version="0.0.0"
          unpack="false"/>
 
+   <plugin
+         id="org.eclipse.mat.ibmdumps"
+         download-size="35"
+         install-size="35"
+         version="0.0.0"
+         unpack="false"/>
+
 </feature>
