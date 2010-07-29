@@ -202,17 +202,6 @@
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.equinox.launcher.gtk.solaris.x86"
-         os="solaris"
-         ws="gtk"
-         arch="x86"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         fragment="true"
-         unpack="false"/>
-
-   <plugin
          id="org.eclipse.swt.gtk.linux.ppc"
          os="linux"
          ws="gtk"
