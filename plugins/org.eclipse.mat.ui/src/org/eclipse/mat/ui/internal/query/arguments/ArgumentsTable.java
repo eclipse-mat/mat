@@ -51,6 +51,7 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
@@ -73,6 +74,7 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
     private Table table;
     private Font boldFont;
     private Font normalFont;
+    private int tableRowHeight = SWT.DEFAULT;
 
     private List<ITableListener> listeners = Collections.synchronizedList(new ArrayList<ITableListener>());
 
@@ -127,6 +129,14 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
                 modeMap.put(descriptor, mode);
         }
 
+        table.addListener(SWT.MeasureItem, new Listener()
+        {
+            public void handleEvent(Event event)
+            {
+                event.height = tableRowHeight;
+            }
+        });
+
         createTableContent();
 
         new DefaultToolTip(table, ToolTip.NO_RECREATE, false)
@@ -161,23 +171,16 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
 
     private void setTableRowHeight(int height)
     {
-        Font parentFont = table.getFont();
-        FontDescriptor bigger = null;
-        for (int i = 1; table.getItemHeight() < height && i < 5; ++i)
-        {
-            if (bigger != null)
-            {
-                table.setFont(parentFont);
-                resourceManager.destroyFont(bigger);
-            }
-            bigger = FontDescriptor.createFrom(parentFont).increaseHeight(i);
-            Font tableFont = resourceManager.createFont(bigger);
-            table.setFont(tableFont);
-        }
+        tableRowHeight = Math.max(tableRowHeight, height);
     }
 
     public void dispose()
     {
+        // clear error messages
+        errors.clear();
+        errors = null;
+        modeMap.clear();
+        modeMap = null;
         if (resourceManager != null)
         {
             resourceManager.dispose();
