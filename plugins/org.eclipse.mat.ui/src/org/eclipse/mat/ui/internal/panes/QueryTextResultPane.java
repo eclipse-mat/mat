@@ -194,13 +194,13 @@ public class QueryTextResultPane extends AbstractEditorPane implements ISelectio
             menu = m.createMenu(getEditorSite().getActionBars().getStatusLineManager(), browser);
             menu.setVisible(true);
 
-            event.doit = false;
         }
         catch (Exception e)
         {
             ErrorHelper.logThrowableAndShowMessage(e, MessageUtil.format(
                             Messages.QueryTextResultPane_UnableToMapAddress, url.getTarget()));
         }
+        event.doit = false;
     }
 
     private void onQueryLinkEvent(LocationEvent event, QueryObjectLink url)
