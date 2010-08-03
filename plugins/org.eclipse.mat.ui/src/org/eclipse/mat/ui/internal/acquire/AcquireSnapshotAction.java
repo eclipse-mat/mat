@@ -261,6 +261,14 @@ public class AcquireSnapshotAction extends Action implements IWorkbenchWindowAct
 		
 	    private File triggerHeapDump(IProgressListener listener) throws SnapshotException, SnapshotException
 	    {
+	        VmInfo impl = vmInfo;
+	        setupVmInfo(vmInfo, argumentSet);
+            File result = impl.getHeapDumpProvider().acquireDump(vmInfo, preferredLocation, listener);
+            return result;
+	    }
+
+	    static void setupVmInfo(VmInfo vmInfo, AnnotatedObjectArgumentsSet argumentSet) throws SnapshotException
+	    {
 	        try
 	        {
 	            IAnnotatedObjectDescriptor providerDescriptor = (IAnnotatedObjectDescriptor) argumentSet.getDescriptor();
@@ -282,7 +290,7 @@ public class AcquireSnapshotAction extends Action implements IWorkbenchWindowAct
 	                {
 	                    if (argumentSet.getValues().containsKey(parameter))
 	                    {
-	                        Logger.getLogger(getClass().getName()).log(Level.INFO,
+	                        Logger.getLogger(AcquireDumpOperation.class.getName()).log(Level.INFO,
 	                                        MessageUtil.format("Setting null value for: {0}", parameter.getName())); //$NON-NLS-1$
 	                        parameter.getField().set(impl, null);
 	                    }
@@ -340,8 +348,6 @@ public class AcquireSnapshotAction extends Action implements IWorkbenchWindowAct
 	                }
 	            }
 
-	            File result = impl.getHeapDumpProvider().acquireDump(vmInfo, preferredLocation, listener);
-	            return result;
 	        }
 	        catch (IProgressListener.OperationCanceledException e)
 	        {

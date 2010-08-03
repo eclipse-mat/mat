@@ -324,7 +324,10 @@ public class Messages extends NLS
 	public static String InspectorView_GCroot;
 	
 	public static String AcquireDialog_BrowseButton;
-	public static String AcquireDialog_ChooseProcess;
+	public static String AcquireDialog_ChooseDestinationDirectory;
+    public static String AcquireDialog_ChooseDestinationDirectoryAndFile;
+    public static String AcquireDialog_ChooseDestinationDirectoryMessage;
+    public static String AcquireDialog_ChooseProcess;
 	public static String AcquireDialog_ColumnDescription;
 	public static String AcquireDialog_ColumnPID;
 	public static String AcquireDialog_ConfigureButtonLabel;
@@ -332,6 +335,7 @@ public class Messages extends NLS
 	public static String AcquireDialog_DialogName;
 	public static String AcquireDialog_HeapDumpProviderColumnHeader;
 	public static String AcquireDialog_RefreshButtonLabel;
+	public static String AcquireDialog_SaveFileLocation;
 	public static String AcquireDialog_SaveLocation;
 
 	

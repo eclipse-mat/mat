@@ -30,43 +30,43 @@ import org.eclipse.ui.PlatformUI;
 
 public class ProviderArgumentsWizardPage extends WizardPage implements ITableListener, ProcessSelectionListener
 {
-	private ProviderArgumentsTable table;
+    private ProviderArgumentsTable table;
 
-	private AcquireDialog acquireDialog;
-	private QueryContextHelp helpPopup;
+    private AcquireDialog acquireDialog;
+    private QueryContextHelp helpPopup;
 
-	public ProviderArgumentsWizardPage(AcquireDialog acquireDialog)
-	{
-		super(Messages.ProviderArgumentsWizzardPage_HeapDumpProviderArgumentsTitle, Messages.ProviderArgumentsWizzardPage_HeapDumpProviderArgumentsTitle, null);
-		this.acquireDialog = acquireDialog;
-	}
+    public ProviderArgumentsWizardPage(AcquireDialog acquireDialog)
+    {
+        super(Messages.ProviderArgumentsWizzardPage_HeapDumpProviderArgumentsTitle, Messages.ProviderArgumentsWizzardPage_HeapDumpProviderArgumentsTitle, null);
+        this.acquireDialog = acquireDialog;
+    }
 
-	public void createControl(Composite parent)
-	{
-		ScrolledComposite composite = new ScrolledComposite(parent, SWT.V_SCROLL | SWT.H_SCROLL | SWT.BORDER);
+    public void createControl(Composite parent)
+    {
+        ScrolledComposite composite = new ScrolledComposite(parent, SWT.V_SCROLL | SWT.H_SCROLL | SWT.BORDER);
 
-		composite.setLayout(new GridLayout());
-		composite.setExpandHorizontal(true);
-		composite.setExpandVertical(true);
-		GridDataFactory.fillDefaults().grab(true, true).applyTo(composite);
+        composite.setLayout(new GridLayout());
+        composite.setExpandHorizontal(true);
+        composite.setExpandVertical(true);
+        GridDataFactory.fillDefaults().grab(true, true).applyTo(composite);
 
-		Composite tableComposite = new Composite(composite, SWT.NONE);
-		GridDataFactory.fillDefaults().grab(true, true).indent(0, 0).applyTo(tableComposite);
+        Composite tableComposite = new Composite(composite, SWT.NONE);
+        GridDataFactory.fillDefaults().grab(true, true).indent(0, 0).applyTo(tableComposite);
 
-		Dialog.applyDialogFont(composite);
-		table = new ProviderArgumentsTable(tableComposite, SWT.FULL_SELECTION | SWT.SINGLE);
-		table.addListener(this);
+        Dialog.applyDialogFont(composite);
+        table = new ProviderArgumentsTable(tableComposite, SWT.FULL_SELECTION | SWT.SINGLE);
+        table.addListener(this);
 
-		tableComposite.layout();
-		tableComposite.pack();
+        tableComposite.layout();
+        tableComposite.pack();
 
-		PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, "org.eclipse.mat.ui.help.acquire_arguments"); //$NON-NLS-1$
-		composite.setContent(tableComposite);
-		setControl(composite);
+        PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, "org.eclipse.mat.ui.help.acquire_arguments"); //$NON-NLS-1$
+        composite.setContent(tableComposite);
+        setControl(composite);
 
-		acquireDialog.addProcessSelectionListener(this);
-		table.addListener(this);
-		
+        acquireDialog.addProcessSelectionListener(this);
+        table.addListener(this);
+
         Listener listener = new Listener()
         {
             public void handleEvent(Event event)
@@ -76,73 +76,74 @@ public class ProviderArgumentsWizardPage extends WizardPage implements ITableLis
         };
         getShell().addListener(SWT.Resize, listener);
         getShell().addListener(SWT.Move, listener);
-	}
+    }
 
-	/* package */void updateDescription()
-	{
-		setDescription(table.getProviderDescriptor().getName());
-		relocateHelp(true);
-		getContainer().updateButtons();
-	}
+    /* package */void updateDescription()
+    {
+        setDescription(table.getProviderDescriptor().getName());
+        relocateHelp(true);
+        getContainer().updateButtons();
+    }
 
-	public ProviderArgumentsTable getTable()
-	{
-		return table;
-	}
+    public ProviderArgumentsTable getTable()
+    {
+        return table;
+    }
 
-	public AnnotatedObjectArgumentsSet getArgumentSet()
-	{
-		return table.getArgumentSet();
-	}
+    public AnnotatedObjectArgumentsSet getArgumentSet()
+    {
+        return table.getArgumentSet();
+    }
 
-	public void onInputChanged()
-	{
-		updateDescription();
+    public void onInputChanged()
+    {
+        updateDescription();
 //		getContainer().updateButtons();
-	}
+        acquireDialog.updateFileName();
+    }
 
-	public void onError(String message)
-	{
-		setErrorMessage(message);
-		// a work around: calling onFocus ensures a correct update of the error
-		// message. Without this call it doesn't update the message correct.
-		onFocus(null);
-	}
+    public void onError(String message)
+    {
+        setErrorMessage(message);
+        // a work around: calling onFocus ensures a correct update of the error
+        // message. Without this call it doesn't update the message correct.
+        onFocus(null);
+    }
 
-	public void onFocus(String message)
-	{
-		if (getErrorMessage() != null) setMessage(getErrorMessage(), IMessageProvider.ERROR);
-		else if (message != null) setMessage(message, IMessageProvider.INFORMATION);
-		else setMessage(table.getProviderDescriptor().getName());
-		getContainer().updateButtons();
-	}
+    public void onFocus(String message)
+    {
+        if (getErrorMessage() != null) setMessage(getErrorMessage(), IMessageProvider.ERROR);
+        else if (message != null) setMessage(message, IMessageProvider.INFORMATION);
+        else setMessage(table.getProviderDescriptor().getName());
+        getContainer().updateButtons();
+    }
 
-	@Override
-	public boolean isPageComplete()
-	{
-		return table != null && table.getArgumentSet() != null && table.getArgumentSet().isExecutable();
-	}
+    @Override
+    public boolean isPageComplete()
+    {
+        return table != null && table.getArgumentSet() != null && table.getArgumentSet().isExecutable();
+    }
 
-	public void relocateHelp(final boolean create)
-	{
-		final AnnotatedObjectArgumentsSet argumentSet = table.getArgumentSet();
-		if (argumentSet == null) return;
+    public void relocateHelp(final boolean create)
+    {
+        final AnnotatedObjectArgumentsSet argumentSet = table.getArgumentSet();
+        if (argumentSet == null) return;
 
-		if (argumentSet.getDescriptor().isHelpAvailable() && //
-				(create || (helpPopup != null && helpPopup.getShell() != null)))
-		{
-			if (getShell() == null)
-			{
-				helpPopup.close();
-				return;
-			}
-			getShell().getDisplay().timerExec(100, new Runnable() {
-				public void run()
-				{
-					if (getShell() != null && !getShell().isDisposed())
-					{
-						Rectangle myBounds = getShell().getBounds();
-						Rectangle helpBounds = new Rectangle(myBounds.x, myBounds.y + myBounds.height, myBounds.width, SWT.DEFAULT);
+        if (argumentSet.getDescriptor().isHelpAvailable() && //
+                        (create || (helpPopup != null && helpPopup.getShell() != null)))
+        {
+            if (getShell() == null)
+            {
+                helpPopup.close();
+                return;
+            }
+            getShell().getDisplay().timerExec(100, new Runnable() {
+                public void run()
+                {
+                    if (getShell() != null && !getShell().isDisposed())
+                    {
+                        Rectangle myBounds = getShell().getBounds();
+                        Rectangle helpBounds = new Rectangle(myBounds.x, myBounds.y + myBounds.height, myBounds.width, SWT.DEFAULT);
 
                         if (helpPopup != null)
                         {
@@ -158,17 +159,16 @@ public class ProviderArgumentsWizardPage extends WizardPage implements ITableLis
                             }
                         }
 
-						helpPopup = new QueryContextHelp(getShell(), argumentSet.getDescriptor(), helpBounds);
-						helpPopup.open();
-					}
-				}
-			});
-		}
-	}
+                        helpPopup = new QueryContextHelp(getShell(), argumentSet.getDescriptor(), helpBounds);
+                        helpPopup.open();
+                    }
+                }
+            });
+        }
+    }
 
-	public void processSelected(AnnotatedObjectArgumentsSet argumentSet)
-	{
-		table.providerSelected(argumentSet);
-	}
-	
+    public void processSelected(AnnotatedObjectArgumentsSet argumentSet)
+    {
+        table.providerSelected(argumentSet);
+    }
 }

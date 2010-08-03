@@ -49,6 +49,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DirectoryDialog;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
@@ -60,6 +61,7 @@ public class AcquireDialog extends WizardPage
     private static final String LAST_DIRECTORY_KEY = AcquireDialog.class.getName() + ".lastDir"; //$NON-NLS-1$
 
     private Table localVMsTable;
+    private Label saveLocationLabel;
     private Text folderText;
     private Button configureButton;
     private Button refreshButton;
@@ -97,20 +99,7 @@ public class AcquireDialog extends WizardPage
         {
             public void widgetSelected(SelectionEvent e)
             {
-                getContainer().updateButtons();
-                String proposedFileName = getProcess().getProposedFileName();
-                if (proposedFileName == null)
-                	proposedFileName = "java_%pid%"; //$NON-NLS-1$
-                
-                proposedFileName = proposedFileName.replace("%pid%", String.valueOf(getProcess().getPid())); //$NON-NLS-1$
-                proposedFileName = getSelectedDirectory() + File.separatorChar + proposedFileName;
-                folderText.setText(proposedFileName);
-                
-                // notify listeners
-                for (ProcessSelectionListener listener : listeners)
-				{
-					listener.processSelected(getProcessArgumentsSet());
-				}
+                selectionChanged();
             }
 
             public void widgetDefaultSelected(SelectionEvent e)
@@ -143,6 +132,8 @@ public class AcquireDialog extends WizardPage
 			
 			public void widgetSelected(SelectionEvent e)
 			{
+		        localVMsTable.deselectAll();
+		        selectionChanged();
 				refreshTable();
 			}
 		});
@@ -157,13 +148,15 @@ public class AcquireDialog extends WizardPage
             	ProviderConfigurationDialog configDialog = new ProviderConfigurationDialog(getShell());
             	if (configDialog.open() == IDialogConstants.OK_ID)
             	{
+                    localVMsTable.deselectAll();
+                    selectionChanged();
             		refreshTable();
             	}
 
             }
         });
         
-        Label saveLocationLabel = new Label(top, SWT.NONE);
+        saveLocationLabel = new Label(top, SWT.NONE);
         saveLocationLabel.setText(Messages.AcquireDialog_SaveLocation);
         GridDataFactory.swtDefaults().span(2, 1).applyTo(saveLocationLabel);
 
@@ -188,8 +181,41 @@ public class AcquireDialog extends WizardPage
         {
             public void widgetSelected(SelectionEvent e)
             {
-                DirectoryDialog dialog = new DirectoryDialog(top.getShell());
-                String folder = dialog.open();
+                String folder;
+                if (localVMsTable.getSelectionIndex() == -1)
+                {
+                    // No VM selected, so just choose the directory as the file will be
+                    // overwritten once a VM is chosen.
+                    DirectoryDialog dialog = new DirectoryDialog(top.getShell());
+                    dialog.setFilterPath(AcquireDialog.this.getSelectedDirectory());
+                    dialog.setText(Messages.AcquireDialog_ChooseDestinationDirectory);
+                    dialog.setMessage(Messages.AcquireDialog_ChooseDestinationDirectoryMessage);
+                    folder = dialog.open();
+                }
+                else
+                {
+                    FileDialog dialog = new FileDialog(top.getShell(), SWT.SAVE);
+                    File f = new File(AcquireDialog.this.getSelectedPath());
+                    if (f.isDirectory())
+                    {
+                        dialog.setFilterPath(f.getPath());
+                    }
+                    else
+                    {
+                        dialog.setFilterPath(f.getParent());
+                        dialog.setFileName(f.getName());
+                        String name = f.getName();
+                        int i = name.lastIndexOf('.');
+                        if (i >= 0)
+                        {
+                            dialog.getFilterExtensions();
+                            dialog.setFilterExtensions(new String[] { "*" + name.substring(i), "*.*" }); //$NON-NLS-1$ //$NON-NLS-2$
+                        }
+                    }
+                    dialog.setText(Messages.AcquireDialog_ChooseDestinationDirectoryAndFile);
+                    dialog.setOverwrite(true);
+                    folder = dialog.open();
+                }
 
                 if (folder != null && folder.length() > 0)
                     folderText.setText(folder);
@@ -249,7 +275,8 @@ public class AcquireDialog extends WizardPage
     @Override
     public boolean canFlipToNextPage()
     {
-        return localVMsTable.getSelectionIndex() != -1 && folderText.getText().length() > 0;
+        // There needs to be a valid process and a valid dump name
+        return localVMsTable.getSelectionIndex() != -1 && folderText.getText().length() > 0 && !(new File(getSelectedPath()).isDirectory());
     }
 
 	@Override
@@ -289,12 +316,12 @@ public class AcquireDialog extends WizardPage
     	
     	// if the selection is a folder, just return it
     	File f = new File(selectedPath);
-    	if (f.exists() && f.isDirectory())
+    	if (f.isDirectory())
     		return selectedPath;
     	
     	// otherwise return what seems to be the deepest folder
-    	int i = selectedPath.lastIndexOf(File.separatorChar);
-    	return i == -1 ? selectedPath : selectedPath.substring(0, i);
+    	String dir = f.getParent();
+    	return dir == null ? selectedPath : dir;
     }
 
     public void saveSettings()
@@ -313,7 +340,40 @@ public class AcquireDialog extends WizardPage
     }
     
 	
-	private  class GetVMListRunnable implements IRunnableWithProgress
+    void updateFileName()
+    {
+        VmInfo process = getProcess();
+        if (process == null)
+        {
+            folderText.setText(getSelectedDirectory());
+            saveLocationLabel.setText(Messages.AcquireDialog_SaveLocation);
+            saveLocationLabel.pack();
+        } else {
+            String proposedFileName = process.getProposedFileName();
+            if (proposedFileName == null)
+                proposedFileName = "java_%pid%"; //$NON-NLS-1$
+
+            proposedFileName = proposedFileName.replace("%pid%", String.valueOf(getProcess().getPid())); //$NON-NLS-1$
+            proposedFileName = new File(getSelectedDirectory(), proposedFileName).getPath();
+            folderText.setText(proposedFileName);
+            saveLocationLabel.setText(Messages.AcquireDialog_SaveFileLocation);
+            saveLocationLabel.pack();
+        }
+    }
+
+	private void selectionChanged()
+    {
+        updateFileName();
+        // notify listeners
+        for (ProcessSelectionListener listener : listeners)
+        {
+        	listener.processSelected(getProcessArgumentsSet());
+        }
+        // The button states might depend on the listeners changing
+        getContainer().updateButtons();
+    }
+
+    private  class GetVMListRunnable implements IRunnableWithProgress
 	{
 		private IStatus status;
 		private IRunnableContext context;
