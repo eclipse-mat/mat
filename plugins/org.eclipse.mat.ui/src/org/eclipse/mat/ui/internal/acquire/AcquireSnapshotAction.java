@@ -180,7 +180,7 @@ public class AcquireSnapshotAction extends Action implements IWorkbenchWindowAct
 			@Override
 			public boolean canFinish()
 			{
-				return argumentsPage.isPageComplete();
+				return acquireDialog.isPageComplete() && argumentsPage.isPageComplete();
 			}
 
 		};

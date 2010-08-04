@@ -172,6 +172,23 @@ public class AcquireDialog extends WizardPage
         	public void modifyText(ModifyEvent e)
         	{
         		getContainer().updateButtons();
+        		String errorMessage = null;
+        		int level= NONE;
+        		if (localVMsTable.getSelectionIndex() != -1 && folderText.getText().length() > 0)
+        		{
+        		    File f = new File(AcquireDialog.this.getSelectedPath());
+        		    if (f.isDirectory())
+        		    {
+        		        errorMessage = Messages.AcquireDialog_FileIsDirectory;
+        		        level = ERROR;
+        		    }
+        		    else if (f.exists())
+        		    {
+        		        errorMessage = Messages.AcquireDialog_FileExists;
+        		        level = WARNING;
+        		    }
+        		}
+        		AcquireDialog.this.setMessage(errorMessage, level);
         	}
         });
 
@@ -271,18 +288,12 @@ public class AcquireDialog extends WizardPage
 		}
 		return vms;
 	}
-    
-    @Override
-    public boolean canFlipToNextPage()
-    {
-        // There needs to be a valid process and a valid dump name
-        return localVMsTable.getSelectionIndex() != -1 && folderText.getText().length() > 0 && !(new File(getSelectedPath()).isDirectory());
-    }
 
 	@Override
     public boolean isPageComplete()
     {
-        return canFlipToNextPage() && getProcessArgumentsSet().getDescriptor().getArguments().size() == 0;
+        // There needs to be a valid process and a valid dump name
+        return localVMsTable.getSelectionIndex() != -1 && folderText.getText().length() > 0 && !(new File(getSelectedPath()).isDirectory());
     }
 
 	public AnnotatedObjectArgumentsSet getProcessArgumentsSet()

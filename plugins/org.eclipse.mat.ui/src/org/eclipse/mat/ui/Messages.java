@@ -333,7 +333,9 @@ public class Messages extends NLS
 	public static String AcquireDialog_ConfigureButtonLabel;
 	public static String AcquireDialog_DialogDescription;
 	public static String AcquireDialog_DialogName;
-	public static String AcquireDialog_HeapDumpProviderColumnHeader;
+	public static String AcquireDialog_FileExists;
+    public static String AcquireDialog_FileIsDirectory;
+    public static String AcquireDialog_HeapDumpProviderColumnHeader;
 	public static String AcquireDialog_RefreshButtonLabel;
 	public static String AcquireDialog_SaveFileLocation;
 	public static String AcquireDialog_SaveLocation;
