@@ -123,9 +123,9 @@ public class AcquireDialog extends WizardPage
         TableColumn column = new TableColumn(localVMsTable, SWT.RIGHT);
         column.setText(Messages.AcquireDialog_ColumnDescription);
         column.setWidth(150);
-        column = new TableColumn(localVMsTable, SWT.LEFT);
+        column = new TableColumn(localVMsTable, SWT.RIGHT);
         column.setText(Messages.AcquireDialog_ColumnPID);
-        column.setWidth(40);
+        column.setWidth(70);
         column = new TableColumn(localVMsTable, SWT.LEFT);
         column.setText(Messages.AcquireDialog_HeapDumpProviderColumnHeader);
         column.setWidth(200);
