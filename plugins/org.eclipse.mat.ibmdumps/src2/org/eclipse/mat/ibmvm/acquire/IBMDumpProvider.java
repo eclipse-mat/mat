@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Properties;
 
 import org.eclipse.mat.SnapshotException;
-import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.Help;
 import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.snapshot.acquire.VmInfo;
@@ -49,12 +48,6 @@ import com.ibm.tools.attach.VirtualMachineDescriptor;
 @Help("help for IBM Dump (using attach API)")
 public class IBMDumpProvider extends BaseProvider
 {
-    @Argument
-    public DumpType defaultType = DumpType.SYSTEM;
-
-    @Argument
-    public boolean defaultCompress = false;
-
     /**
      * Helper class to load an agent (blocking call)
      * allowing the main thread to monitor its progress
@@ -277,13 +270,6 @@ public class IBMDumpProvider extends BaseProvider
     public File acquireDump(VmInfo info, File preferredLocation, IProgressListener listener) throws SnapshotException
     {
         IBMVmInfo vminfo = (IBMVmInfo)info;
-        // Validate file name extension
-        String fn1 = preferredLocation.getName();
-        String fn2 = info.getProposedFileName();
-        if (!fn1.endsWith(fn2.substring(Math.max(0, fn2.length() - 4))))
-        {
-            preferredLocation = new File(preferredLocation.getParentFile(), fn2);
-        }
         IBMDumpProvider helper = getDumpProvider(vminfo);
         // Delegate to the appropriate helper
         if (helper != this) return helper.acquireDump(info, preferredLocation, listener);
@@ -580,7 +566,7 @@ public class IBMDumpProvider extends BaseProvider
         {
             IBMVmInfo vminfo = (IBMVmInfo)info;
             String vm = vminfo.getPidName();
-            String vm2 = vm + "," + info.getProposedFileName() + "," + info.getDescription();  //$NON-NLS-1$//$NON-NLS-2$
+            String vm2 = vm + INFO_SEPARATOR + info.getProposedFileName() + INFO_SEPARATOR + info.getDescription();
             if (s.length < 4)
             {
                 System.out.println(vm2);

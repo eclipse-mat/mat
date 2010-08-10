@@ -24,7 +24,10 @@ public class IBMExecVmInfo extends IBMVmInfo
 {
     @Argument
     public File javaexecutable;
-    
+
+    @Argument(isMandatory = false)
+    public String vmoptions[];
+
     IBMExecVmInfo(String pid, String description, boolean heapDumpEnabled, String proposedFileName, IHeapDumpProvider heapDumpProvider)
     {
         super(pid, description, heapDumpEnabled, proposedFileName, heapDumpProvider);

@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.mat.ui.internal.acquire;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -33,9 +34,9 @@ import org.eclipse.mat.query.registry.AnnotatedObjectArgumentsSet;
 import org.eclipse.mat.query.registry.ArgumentDescriptor;
 import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.internal.query.arguments.ArgumentEditor;
-import org.eclipse.mat.ui.internal.query.arguments.TableEditorFactory;
 import org.eclipse.mat.ui.internal.query.arguments.ArgumentEditor.IEditorListener;
 import org.eclipse.mat.ui.internal.query.arguments.LinkEditor.Mode;
+import org.eclipse.mat.ui.internal.query.arguments.TableEditorFactory;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.TableEditor;
@@ -146,7 +147,12 @@ public class ProviderArgumentsTable implements IEditorListener/*, ProcessSelecti
 
     private void setTableRowHeight(int height)
     {
-        tableRowHeight = Math.max(tableRowHeight, height);
+        if (height > tableRowHeight)
+        {
+            tableRowHeight = height;
+            table.pack();
+            table.getParent().pack();
+        }
     }
 
     public AnnotatedObjectArgumentsSet getArgumentSet()
@@ -474,10 +480,36 @@ public class ProviderArgumentsTable implements IEditorListener/*, ProcessSelecti
             {
                 try
                 {
+                    Object defaultValue;
                     if (newProviderDescriptor instanceof HeapDumpProviderDescriptor)
-                        ad.setDefaultValue(ad.getField().get(((HeapDumpProviderDescriptor)newProviderDescriptor).getHeapDumpProvider()));
+                    {
+                        defaultValue = ad.getField().get(((HeapDumpProviderDescriptor)newProviderDescriptor).getHeapDumpProvider());
+                    }
                     else if (newProviderDescriptor instanceof VmInfoDescriptor)
-                        ad.setDefaultValue(ad.getField().get(((VmInfoDescriptor)newProviderDescriptor).getVmInfo()));
+                    {
+                        defaultValue = ad.getField().get(((VmInfoDescriptor)newProviderDescriptor).getVmInfo());
+                    }
+                    else
+                    {
+                        // Should never happen
+                        defaultValue = null;
+                    }
+                    if (ad.isArray() && defaultValue != null)
+                    {
+                        // internally, all multiple values have their values held as arrays
+                        // therefore we convert the array once and for all
+                        int size = Array.getLength(defaultValue);
+                        List<Object> l = new ArrayList<Object>(size);
+                        for (int ii = 0; ii < size; ii++)
+                        {
+                            l.add(Array.get(defaultValue, ii));
+                        }
+                        ad.setDefaultValue(Collections.unmodifiableList(l));
+                    }
+                    else
+                    {
+                        ad.setDefaultValue(defaultValue);
+                    }
                 }
                 catch (IllegalAccessException e)
                 {}

@@ -14,8 +14,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.runtime.Platform;
@@ -27,6 +27,7 @@ import org.eclipse.mat.snapshot.acquire.IHeapDumpProvider;
 import org.eclipse.mat.snapshot.acquire.VmInfo;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.IProgressListener.Severity;
+import org.eclipse.mat.util.MessageUtil;
 
 /**
  * Enables the creation of dumps from IBM VMs when a non-IBM VM
@@ -38,18 +39,15 @@ import org.eclipse.mat.util.IProgressListener.Severity;
 @Name("IBM Dump (using helper VM)")
 public class IBMExecDumpProvider extends BaseProvider
 {
-    @Argument
-    public DumpType defaultType = DumpType.SYSTEM;
-
-    @Argument
-    public boolean defaultCompress = false;
-
     private static final String PLUGIN_ID = "org.eclipse.mat.ibmdump"; //$NON-NLS-1$
     private static final String JAVA_EXEC = "java"; //$NON-NLS-1$
     private static boolean abort = false;
     
     @Argument
     public File javaexecutable;
+    
+    @Argument(isMandatory = false)
+    public String vmoptions[] = {"-version:1.6"}; //$NON-NLS-1$
 
     public File acquireDump(VmInfo info, File preferredLocation, IProgressListener listener) throws SnapshotException
     {
@@ -62,7 +60,19 @@ public class IBMExecDumpProvider extends BaseProvider
         {
             String jar = getExecJar().getAbsolutePath();
             final String execPath = info2.javaexecutable.getPath();
-            pb.command(execPath, "-jar", jar, info2.type.toString(), vm, Boolean.toString(info2.compress), preferredLocation.getAbsolutePath()); //$NON-NLS-1$
+            List<String> args = new ArrayList<String>(8);
+            args.add(execPath);
+            if (info2.vmoptions != null)
+            {
+                args.addAll(Arrays.asList(info2.vmoptions));
+            }
+            args.add("-jar"); //$NON-NLS-1$
+            args.add(jar);
+            args.add(info2.type.toString());
+            args.add(vm);
+            args.add(Boolean.toString(info2.compress));
+            args.add(preferredLocation.getAbsolutePath());
+            pb.command(args);
             p = pb.start();
             StringBuffer err = new StringBuffer();
             StringBuffer in = new StringBuffer();
@@ -110,7 +120,7 @@ public class IBMExecDumpProvider extends BaseProvider
                     while (true);
                     if (rc != 0) 
                     {
-                        throw new IOException(MessageFormat.format(Messages
+                        throw new IOException(MessageUtil.format(Messages
                                     .getString("IBMExecDumpProvider.ReturnCode"), execPath, rc, err.toString())); //$NON-NLS-1$
                     }
                     String ss[] = in.toString().split("[\\n\\r]+"); //$NON-NLS-1$
@@ -272,7 +282,15 @@ public class IBMExecDumpProvider extends BaseProvider
         try
         {
             String jar = getExecJar().getAbsolutePath();
-            pb.command(execPath, "-jar", jar); //$NON-NLS-1$
+            List<String> args = new ArrayList<String>(4);
+            args.add(execPath);
+            if (vmoptions != null)
+            {
+                args.addAll(Arrays.asList(vmoptions));
+            }
+            args.add("-jar"); //$NON-NLS-1$
+            args.add(jar);
+            pb.command(args);
             p = pb.start();
             StringBuffer err = new StringBuffer();
             StringBuffer in = new StringBuffer();
@@ -307,15 +325,15 @@ public class IBMExecDumpProvider extends BaseProvider
                     if (rc != 0)
                     {
                         listener.sendUserMessage(Severity.WARNING,
-                                        MessageFormat.format(Messages.getString("IBMExecDumpProvider.ProblemListingVMsRC"), execPath, rc, err.toString()), null); //$NON-NLS-1$
+                                        MessageUtil.format(Messages.getString("IBMExecDumpProvider.ProblemListingVMsRC"), execPath, rc, err.toString()), null); //$NON-NLS-1$
                         ar = null;
                         return ar;
                     }
                     String ss[] = in.toString().split("[\\n\\r]+"); //$NON-NLS-1$
                     for (String s : ss)
                     {
-                        // pid,proposed filename,description
-                        String s2[] = s.split(",", 3); //$NON-NLS-1$
+                        // pid;proposed filename;description
+                        String s2[] = s.split(INFO_SEPARATOR, 3);
                         if (s2.length >= 3)
                         {
                             // Exclude the helper process
@@ -323,6 +341,7 @@ public class IBMExecDumpProvider extends BaseProvider
                             {
                                 IBMExecVmInfo ifo = new IBMExecVmInfo(s2[0], s2[2], true, null, this);
                                 ifo.javaexecutable = javaExec;
+                                ifo.vmoptions = vmoptions;
                                 ifo.type = defaultType;
                                 ifo.compress = defaultCompress;
                                 ar.add(ifo);
@@ -342,12 +361,12 @@ public class IBMExecDumpProvider extends BaseProvider
         }
         catch (IOException e)
         {
-            listener.sendUserMessage(Severity.WARNING, MessageFormat.format(Messages.getString("IBMExecDumpProvider.ProblemListingVMs"), execPath), e); //$NON-NLS-1$
+            listener.sendUserMessage(Severity.WARNING, MessageUtil.format(Messages.getString("IBMExecDumpProvider.ProblemListingVMs"), execPath), e); //$NON-NLS-1$
             ar = null;
         }
         catch (InterruptedException e)
         {
-            listener.sendUserMessage(Severity.WARNING, MessageFormat.format(Messages.getString("IBMExecDumpProvider.ProblemListingVMs"), execPath), e); //$NON-NLS-1$
+            listener.sendUserMessage(Severity.WARNING, MessageUtil.format(Messages.getString("IBMExecDumpProvider.ProblemListingVMs"), execPath), e); //$NON-NLS-1$
             ar = null;
         }
         return ar;

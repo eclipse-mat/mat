@@ -14,6 +14,7 @@ import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -363,12 +364,40 @@ public class AcquireDialog extends WizardPage
             String proposedFileName = process.getProposedFileName();
             if (proposedFileName == null)
                 proposedFileName = "java_%pid%"; //$NON-NLS-1$
-
             proposedFileName = proposedFileName.replace("%pid%", String.valueOf(getProcess().getPid())); //$NON-NLS-1$
-            proposedFileName = new File(getSelectedDirectory(), proposedFileName).getPath();
-            folderText.setText(proposedFileName);
+
+            // Also replace date, time, and sequence number in {0} {1} {2}
+            int pid = process.getPid();
+            Date date = new Date();
+            String errorMessage = null;
+            String proposedFilePath;
+            int i = 1;
+            do
+            {
+                String proposedFileName2;
+                try
+                {
+                    proposedFileName2 = MessageUtil.format(proposedFileName, date, pid, i);
+                }
+                catch (IllegalArgumentException e)
+                {
+                    errorMessage = e.getLocalizedMessage();
+                    proposedFileName2 = proposedFileName;
+                }
+                final File proposedFile = new File(getSelectedDirectory(), proposedFileName2);
+                proposedFilePath = proposedFile.getPath();
+                if (proposedFileName2.equals(proposedFileName) || !proposedFile.exists())
+                    break;
+            }
+            while (++i < 10000);
+            folderText.setText(proposedFilePath);
             saveLocationLabel.setText(Messages.AcquireDialog_SaveFileLocation);
             saveLocationLabel.pack();
+            if (errorMessage != null)
+            {
+                // Set error after setting the text, which would clear the error message
+                setMessage(MessageUtil.format(Messages.AcquireDialog_InvalidFilenameTemplate, errorMessage, getProviderDescriptor(process).getName()), WARNING);
+            }
         }
     }
 

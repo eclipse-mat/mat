@@ -10,9 +10,6 @@
  *******************************************************************************/
 package org.eclipse.mat.ibmvm.acquire;
 
-import java.text.MessageFormat;
-import java.util.Date;
-
 import org.eclipse.mat.ibmvm.agent.DumpAgent;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.snapshot.acquire.IHeapDumpProvider;
@@ -79,19 +76,19 @@ public class IBMVmInfo extends VmInfo
         String ret = super.getProposedFileName();
         if (ret == null)
         {
-            Date date = new Date();
+            BaseProvider provider = (BaseProvider)getHeapDumpProvider();
             if (type == DumpType.SYSTEM)
                 if (compress)
-                    ret = MessageFormat.format("core.{0,date,yyyyMMdd.HHmmss}.{1}.0001.dmp.zip", date, pid);//$NON-NLS-1$
+                    ret = provider.systemDumpZipTemplate;
                 else
-                    ret = MessageFormat.format("core.{0,date,yyyyMMdd.HHmmss}.{1}.0001.dmp", date, pid);//$NON-NLS-1$
+                    ret = provider.systemDumpTemplate;
             else if (type == DumpType.HEAP)
                 if (compress)
-                    ret = MessageFormat.format("heapdump.{0,date,yyyyMMdd.HHmmss}.{1}.0001.phd.gz", date, pid);//$NON-NLS-1$
+                    ret = provider.heapDumpZipTemplate;
                 else
-                    ret = MessageFormat.format("heapdump.{0,date,yyyyMMdd.HHmmss}.{1}.0001.phd", date, pid);//$NON-NLS-1$
+                    ret = provider.heapDumpTemplate;
             else if (type == DumpType.JAVA)
-                ret = MessageFormat.format("javacore.{0,date,yyyyMMdd.HHmmss}.{1}.0001.txt", date, pid);//$NON-NLS-1$
+                ret = provider.javaDumpTemplate;
         }
         return ret;
     }

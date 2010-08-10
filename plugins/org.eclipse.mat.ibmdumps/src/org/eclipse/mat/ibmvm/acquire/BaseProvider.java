@@ -22,6 +22,7 @@ import java.util.ResourceBundle;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.snapshot.acquire.IHeapDumpProvider;
 
 /**
@@ -30,8 +31,28 @@ import org.eclipse.mat.snapshot.acquire.IHeapDumpProvider;
  * @author ajohnson
  *
  */
-abstract class BaseProvider implements IHeapDumpProvider
+public abstract class BaseProvider implements IHeapDumpProvider
 {
+    @Argument
+    public DumpType defaultType = DumpType.SYSTEM;
+
+    @Argument
+    public boolean defaultCompress = false;
+
+    @Argument
+    public String systemDumpTemplate = "core.{0,date,yyyyMMdd.HHmmss}.{1,number,0}.{2,number,0000}.dmp"; //$NON-NLS-1$;
+
+    @Argument
+    public String systemDumpZipTemplate = "core.{0,date,yyyyMMdd.HHmmss}.{1,number,0}.{2,number,0000}.dmp.zip"; //$NON-NLS-1$;
+
+    @Argument
+    public String heapDumpTemplate = "heapdump.{0,date,yyyyMMdd.HHmmss}.{1,number,0}.{2,number,0000}.phd";//$NON-NLS-1$;
+
+    @Argument
+    public String heapDumpZipTemplate = "heapdump.{0,date,yyyyMMdd.HHmmss}.{1,number,0}.{2,number,0000}.phd.gz"; //$NON-NLS-1$;
+
+    @Argument
+    public String javaDumpTemplate = "javacore.{0,date,yyyyMMdd.HHmmss}.{1,number,0}.{2,number,0000}.txt"; //$NON-NLS-1$;
 
     static final int SLEEP_TIMEOUT = 1000; // milliseconds
     static final int GROW_COUNT = 5 * 60 * 1000 / SLEEP_TIMEOUT;
@@ -39,6 +60,7 @@ abstract class BaseProvider implements IHeapDumpProvider
     static final int CREATE_COUNT = 30 * 1000 / SLEEP_TIMEOUT;
     static final int GROWING_COUNT = (CREATE_COUNT + GROW_COUNT) * 2; // progress = 67% file length, 33% waiting time
     static final int TOTAL_WORK = CREATE_COUNT + GROWING_COUNT + GROW_COUNT;
+    static final String INFO_SEPARATOR = ";"; //$NON-NLS-1$
 
     /**
      * Make a temporary jar containing the requested files

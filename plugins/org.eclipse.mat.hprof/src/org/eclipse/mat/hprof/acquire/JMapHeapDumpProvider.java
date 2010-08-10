@@ -36,7 +36,7 @@ public class JMapHeapDumpProvider implements IHeapDumpProvider
 	private static final String PLUGIN_ID = "org.eclipse.mat.hprof"; //$NON-NLS-1$
 	private static final String LAST_JDK_DIRECTORY_KEY = JMapHeapDumpProvider.class.getName() + ".lastJDKDir"; //$NON-NLS-1$
 	private static final String LAST_JMAP_JDK_DIRECTORY_KEY = JMapHeapDumpProvider.class.getName() + ".lastJmapJDKDir"; //$NON-NLS-1$
-	private static final String FILE_PATTERN = "java_pid%pid%.hprof"; //$NON-NLS-1$
+	private static final String FILE_PATTERN = "java_pid{1,number,0}.{2,number,0000}.hprof"; //$NON-NLS-1$
 
 	@Argument(isMandatory = false, advice = Advice.DIRECTORY)
 	public File jdkHome;
