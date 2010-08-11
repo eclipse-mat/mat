@@ -29,15 +29,15 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.ContextDerivedData;
+import org.eclipse.mat.query.ContextDerivedData.DerivedColumn;
+import org.eclipse.mat.query.ContextDerivedData.DerivedOperation;
 import org.eclipse.mat.query.ContextProvider;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IQueryContext;
-import org.eclipse.mat.query.ContextDerivedData.DerivedColumn;
-import org.eclipse.mat.query.ContextDerivedData.DerivedOperation;
 import org.eclipse.mat.query.refined.Filter;
 import org.eclipse.mat.query.refined.RefinedStructuredResult;
-import org.eclipse.mat.query.refined.TotalsRow;
 import org.eclipse.mat.query.refined.RefinedStructuredResult.DerivedDataJobDefinition;
+import org.eclipse.mat.query.refined.TotalsRow;
 import org.eclipse.mat.query.registry.QueryResult;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.Messages;
@@ -56,6 +56,8 @@ import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ControlEditor;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.SelectionEvent;
@@ -963,6 +965,17 @@ public abstract class RefinedResultViewer
         final Text text = new Text(composite, SWT.NONE);
         final int inset = showBorder ? 1 : 0;
 
+        // Once the item goes e.g. on sort, remove the filter to avoid operating
+        // on the disposed item.
+        final DisposeListener disposeListener = new DisposeListener()
+        {
+            public void widgetDisposed(DisposeEvent e)
+            {
+                composite.dispose();
+            }
+        };
+        item.addDisposeListener(disposeListener);
+
         composite.addListener(SWT.Resize, new Listener()
         {
             public void handleEvent(Event e)
@@ -980,6 +993,7 @@ public abstract class RefinedResultViewer
                 {
                     case SWT.FocusOut:
                         updateCriteria(filter, columnIndex, text.getText());
+                        item.removeDisposeListener(disposeListener);
                         composite.dispose();
                         break;
 
@@ -999,6 +1013,7 @@ public abstract class RefinedResultViewer
                                 // $JL-SWITCH$ fall through
                                 updateCriteria(filter, columnIndex, text.getText());
                             case SWT.TRAVERSE_ESCAPE:
+                                item.removeDisposeListener(disposeListener);
                                 composite.dispose();
                                 e.doit = false;
                         }
