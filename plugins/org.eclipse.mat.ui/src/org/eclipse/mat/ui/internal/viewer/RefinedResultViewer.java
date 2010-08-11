@@ -993,8 +993,12 @@ public abstract class RefinedResultViewer
                 {
                     case SWT.FocusOut:
                         updateCriteria(filter, columnIndex, text.getText());
-                        item.removeDisposeListener(disposeListener);
-                        composite.dispose();
+                        // Updating the criteria can dispose the TreeItem!
+                        if (!item.isDisposed())
+                        {
+                            item.removeDisposeListener(disposeListener);
+                            composite.dispose();
+                        }
                         break;
 
                     case SWT.Verify:
@@ -1013,8 +1017,12 @@ public abstract class RefinedResultViewer
                                 // $JL-SWITCH$ fall through
                                 updateCriteria(filter, columnIndex, text.getText());
                             case SWT.TRAVERSE_ESCAPE:
-                                item.removeDisposeListener(disposeListener);
-                                composite.dispose();
+                                // Updating the criteria can dispose the TreeItem!
+                                if (!item.isDisposed())
+                                {
+                                    item.removeDisposeListener(disposeListener);
+                                    composite.dispose();
+                                }
                                 e.doit = false;
                         }
                         break;
