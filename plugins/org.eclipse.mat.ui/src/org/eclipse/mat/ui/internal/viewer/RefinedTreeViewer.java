@@ -78,6 +78,8 @@ public class RefinedTreeViewer extends RefinedResultViewer
             public void handleEvent(Event event)
             {
                 TreeItem widget = (TreeItem) event.item;
+                if (widget == null)
+                    return;
                 if (widget.isDisposed())
                     return;
 

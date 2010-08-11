@@ -327,6 +327,8 @@ public abstract class RefinedResultViewer
             public void handleEvent(Event event)
             {
                 Item widget = (Item) event.item;
+                if (widget == null)
+                    return;
                 Object data = widget.getData();
                 if (data != null)
                     return;
