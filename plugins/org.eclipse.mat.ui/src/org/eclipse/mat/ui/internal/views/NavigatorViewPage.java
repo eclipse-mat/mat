@@ -544,8 +544,7 @@ public class NavigatorViewPage extends Page implements ISelectionProvider, IDoub
         editor.getNavigatorState().removeChangeStateListener(this);
         if (font != null)
             font.dispose();
-        if (greyColor != null)
-            greyColor.dispose();
+        // greyColor is a system color so should not be disposed
         super.dispose();
     }
 }
