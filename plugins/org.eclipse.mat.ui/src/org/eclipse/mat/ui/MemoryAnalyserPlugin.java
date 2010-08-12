@@ -7,11 +7,10 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Benjamin Maskalla - patch for 318618, use createFromURL
  *******************************************************************************/
 package org.eclipse.mat.ui;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,10 +24,7 @@ import org.eclipse.core.runtime.dynamichelpers.IExtensionTracker;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.mat.query.registry.QueryDescriptor;
 import org.eclipse.mat.ui.internal.ErrorLogHandler;
-import org.eclipse.mat.ui.snapshot.ImageHelper.ImageImageDescriptor;
-import org.eclipse.swt.SWTException;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -69,7 +65,6 @@ public class MemoryAnalyserPlugin extends AbstractUIPlugin
 
         String QUERY = "icons/query_browser.gif"; //$NON-NLS-1$
         String QUERY_DISABLED = "icons/query_disabled.gif"; //$NON-NLS-1$
-        String MISSING_IMAGE = "icons/missing_image.gif"; //$NON-NLS-1$
         String OQL = "icons/oql.gif"; //$NON-NLS-1$
 
         String IMPORT_REPORT = "icons/import_report.gif"; //$NON-NLS-1$
@@ -193,12 +188,7 @@ public class MemoryAnalyserPlugin extends AbstractUIPlugin
         ImageDescriptor descriptor = imagePathCache.get(path);
         if (descriptor == null)
         {
-            Image image = loadImage(path);
-            if (image == null)
-                descriptor = getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.MISSING_IMAGE);
-            else
-                descriptor = new ImageImageDescriptor(image);
-
+            descriptor = ImageDescriptor.createFromURL(path);
             imagePathCache.put(path, descriptor);
         }
 
@@ -208,38 +198,6 @@ public class MemoryAnalyserPlugin extends AbstractUIPlugin
     public Image getImage(URL path)
     {
         return getImage(getImageDescriptor(path));
-    }
-
-    private Image loadImage(URL path)
-    {
-        InputStream stream = null;
-        try
-        {
-            stream = path.openStream();
-            return new Image(PlatformUI.getWorkbench().getDisplay(), stream);
-        }
-        catch (SWTException e)
-        {
-            MemoryAnalyserPlugin.log(e);
-            return null;
-        }
-        catch (IOException e)
-        {
-            MemoryAnalyserPlugin.log(e);
-            return null;
-        }
-        finally
-        {
-            try
-            {
-                if (stream != null)
-                    stream.close();
-            }
-            catch (IOException ignore)
-            {
-                // $JL-EXC$
-            }
-        }
     }
 
     public ImageDescriptor getImageDescriptor(QueryDescriptor query)
