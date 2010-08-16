@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2010 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation - alignment and order of columns
  *******************************************************************************/
 package org.eclipse.mat.ui.util;
 
@@ -18,6 +19,7 @@ import java.util.Map;
 
 import org.eclipse.mat.query.refined.Filter;
 import org.eclipse.mat.ui.Messages;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
@@ -30,12 +32,16 @@ import org.eclipse.swt.widgets.TreeItem;
 
 public abstract class Copy
 {
+    private static final String LINE_SEPARATOR = "\r\n"; //$NON-NLS-1$
+    private static final String COLUMN_SEPARATOR = "|"; //$NON-NLS-1$
     protected Control control;
     protected Item[] selection;
     private Map<Integer, Integer> columnLengths = new HashMap<Integer, Integer>();
+    private int order[];
+    private int align[];
     
 	/**
-	 * Append content to be copied. Implementations should put the contnet to
+	 * Append content to be copied. Implementations should put the content to
 	 * their own storage - buffer, file, etc...
 	 * 
 	 * @param string
@@ -106,6 +112,27 @@ public abstract class Copy
         }
         else
         {
+            // Find the alignment and order of the columns
+            align = new int[columns.length];
+            if (control instanceof Table)
+            {
+                Table table = (Table) control;
+                order = table.getColumnOrder();
+                for (int i = 0; i < columns.length; ++i)
+                {
+                    align[i] = table.getColumn(i).getAlignment();
+                }
+            }
+            else
+            {
+                Tree tree = (Tree) control;
+                order = tree.getColumnOrder();
+                for (int i = 0; i < columns.length; ++i)
+                {
+                    align[i] = tree.getColumn(i).getAlignment();
+                }
+            }
+
             // find the length of columns by running through all the
             // entries and finding the longest one
             for (int columnIndex = 0; columnIndex < numberOfColumns; columnIndex++)
@@ -116,21 +143,22 @@ public abstract class Copy
             // add column names to the result buffer
             for (int i = 0; i < numberOfColumns; i++)
             {
-                if (i == 0)
-                    append(align(columns[i].getText(), true, columnLengths.get(0)));
-                else
-                    append("|" + align(columns[i].getText(), false, columnLengths.get(i))); //$NON-NLS-1$ 
+                int col = order[i];
+                if (i != 0)
+                    append(COLUMN_SEPARATOR);
+                append(align(columns[col].getText(), align[col], columnLengths.get(col), i + 1 == numberOfColumns));
             }
-            append("\r\n"); //$NON-NLS-1$
+            append(LINE_SEPARATOR);
             
             String dashedLine = getDashedLine(numberOfColumns);
-            append(dashedLine + "\r\n"); //$NON-NLS-1$
+            append(dashedLine + LINE_SEPARATOR);
 
             for (Object item : items)
             {
                 boolean addLineBreak = true;
-                for (int columnIndex = 0; columnIndex < numberOfColumns; columnIndex++)
+                for (int i = 0; i < numberOfColumns; i++)
                 {
+                    int columnIndex = order[i];
                     String value = "";//$NON-NLS-1$
                     if (item instanceof TableItem)
                     {
@@ -151,26 +179,22 @@ public abstract class Copy
                             value = "";//$NON-NLS-1$
                     }
 
-                    if (columnIndex == 0)
-                    	if (numberOfColumns == 1)
-                    		append(value); // no align with empty spaces at the end needed
-                    	else
-                    		append(align(value, true, columnLengths.get(0)));
-                    else
-                        append("|" + align(value, false, columnLengths.get(columnIndex)));//$NON-NLS-1$
+                    if (i != 0)
+                        append(COLUMN_SEPARATOR);
+                    append(align(value, align[columnIndex], columnLengths.get(columnIndex), i + 1 == numberOfColumns));
 
                 }
                 if (addLineBreak)
-                    append("\r\n");//$NON-NLS-1$
+                    append(LINE_SEPARATOR);
                 if (item instanceof TreeItem && ((TreeItem) item).getExpanded() && toPrint((TreeItem) item))
                 {
                     addNextLineToClipboard(new StringBuilder(), (TreeItem) item, numberOfColumns,
-                                    columnLengths.get(0));
+                                    columnLengths.get(order[0]));
                 }
             }
 
             columnLengths.clear();
-            append(dashedLine + "\r\n"); //$NON-NLS-1$
+            append(dashedLine + LINE_SEPARATOR);
         }
         done();
 
@@ -199,7 +223,7 @@ public abstract class Copy
 
             append(value);
             if (addLineBreak)
-                append("\r\n");//$NON-NLS-1$
+                append(LINE_SEPARATOR);
 
             if (item instanceof TreeItem && ((TreeItem) item).getExpanded() && toPrint((TreeItem) item))
             {
@@ -219,22 +243,27 @@ public abstract class Copy
             level = getLevel(level, children.length, j);
             if (selection == null || !skip(children[j]))
             {
-                if (numberOfColumns < 2)
+                if (numberOfColumns < 1)
                 {
-                	// no append of empty spaces needed
-                    append(level + children[j].getText());
+                    // no append of empty spaces needed
+                    append(level.toString());
+                    append(children[j].getText());
                 }
                 else
                 {
-                	// add the first column with the tree branches prefix
-                	append(level + align(children[j].getText(0), true, length - level.length()));
-                	// add the rest of the columns
-                	for (int i = 1; i < numberOfColumns; i++)
+                    int col = order[0];
+                    // add the first column with the tree branches prefix
+                    append(level.toString());
+                    append(align(children[j].getText(col), align[col], length - level.length(), numberOfColumns == 1));
+                    // add the rest of the columns
+                    for (int i = 1; i < numberOfColumns; i++)
                     {
-                        append("|" + align(children[j].getText(i), false, columnLengths.get(i))); //$NON-NLS-1$ 
+                        col = order[i];
+                        append(COLUMN_SEPARATOR);
+                        append(align(children[j].getText(col), align[col], columnLengths.get(col), i + 1 == numberOfColumns));
                     }
                 }
-                append("\r\n"); //$NON-NLS-1$
+                append(LINE_SEPARATOR);
 
                 if (children[j].getExpanded())
                 {
@@ -266,37 +295,58 @@ public abstract class Copy
             return 0;
     }
 
-    private static String align(String s, boolean left, int length)
+    /**
+     * Align a string in a field.
+     * Right aligned fields have a space either side of the longest entry
+     * @param s the data
+     * @param alignment SWT.LEFT, SWT.RIGHT
+     * @param length the size of the field
+     * @param last whether this is the last field in a line, so trailing spaces can be omitted
+     * @return
+     */
+    private static String align(String s, int alignment, int length, boolean last)
     {
         StringBuilder buf = new StringBuilder(length);
-        if (s != null)
+        if (s == null)
         {
-            if (s.length() > length)
+            s = ""; //$NON-NLS-1$
+            if (last)
                 return s;
+        }
+        if (s.length() > length)
+        {
+            // For right align, we can fit a slightly bigger string
+            if (alignment == SWT.RIGHT && s.length() == length + 1)
+                s = s + ' ';
+            return s;
+        }
 
-            int blanks = length - s.length();
-            if (left)
-            {
-                buf.append(s);
-            }
-
-            for (int i = 0; i < blanks; i++)
-                buf.append(' ');
-            if (!left)
-            {
-                // always add a space in the beginning of the line for right
-                // alignment
-                buf.append(' ');
-                buf.append(s);
-                buf.append(' ');
-            }
+        int blanks = length - s.length();
+        int left;
+        int right;
+        if (alignment == SWT.RIGHT)
+        {
+            // For right align have a space either side for readability
+            left = blanks + 1;
+            right = 1;
+        }
+        else if (alignment == SWT.CENTER)
+        {
+            left = blanks / 2;
+            right = blanks - left;
         }
         else
         {
-            for (int i = 0; i < length; i++)
+            left = 0;
+            right = blanks;
+        }
+        for (int i = 0; i < left; i++)
+            buf.append(' ');
+        buf.append(s);
+        if (!last)
+        {
+            for (int i = 0; i < right; i++)
                 buf.append(' ');
-            if (!left)
-                buf.append(' ').append(' ');
         }
         return buf.toString();
     }
@@ -306,10 +356,16 @@ public abstract class Copy
     	StringBuilder dashes = new StringBuilder();
         int dashesLength = 0;
         for (int i = 0; i < numberOfColumns; i++)
-            dashesLength = dashesLength + columnLengths.get(i);
+        {
+            int col = order[i];
+            // column separator
+            if (i != 0)
+                dashesLength += COLUMN_SEPARATOR.length();
+            dashesLength = dashesLength + align(null, align[col], columnLengths.get(col), false).length();
+        }
 
         // length of all the columns included empty spaces
-        for (int i = 0; i < dashesLength + numberOfColumns * 2; i++)
+        for (int i = 0; i < dashesLength; i++)
             dashes.append('-');
         return dashes.toString();
     }
@@ -333,8 +389,8 @@ public abstract class Copy
 
             if (items[i] instanceof TreeItem && ((TreeItem) items[i]).getExpanded())
             {
-                if (columnNumber == 0)
-                    lengthToCompare = compare((TreeItem) items[i], length, new StringBuilder());
+                if (columnNumber == order[0])
+                    lengthToCompare = compare((TreeItem) items[i], length, columnNumber, new StringBuilder());
                 else
                     lengthToCompare = getOtherColumnLength((TreeItem) items[i], length, columnNumber);
 
@@ -374,7 +430,7 @@ public abstract class Copy
         return length;
     }
 
-    private int compare(TreeItem item, int length, StringBuilder level)
+    private int compare(TreeItem item, int length, int columnNumber, StringBuilder level)
     {
         int lengthToCompare = 0;
         TreeItem[] children = item.getItems();
@@ -383,13 +439,13 @@ public abstract class Copy
             if (selection != null && skip(children[i]))
                 continue;
             level = getLevel(level, children.length, i);
-            lengthToCompare = children[i].getText(0).length() + level.length();
+            lengthToCompare = children[i].getText(columnNumber).length() + level.length();
             if (lengthToCompare > length)
                 length = lengthToCompare;
 
             if (children[i].getExpanded())
             {
-                lengthToCompare = compare(children[i], length, level);
+                lengthToCompare = compare(children[i], length, columnNumber, level);
                 if (lengthToCompare > length)
                     length = lengthToCompare;
             }
