@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 SAP AG.
+ * Copyright (c) 2008, 2010 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation - test AS clause
  *******************************************************************************/
 package org.eclipse.mat.tests.snapshot;
 
@@ -272,6 +273,30 @@ public class OQLTest
     public void testErrorRuntimeException() throws SnapshotException
     {
         execute("select s from objects 0 where dominatorof(s) = 0");
+    }
+
+    /**
+     * Test spaces in as clause
+     * @throws SnapshotException
+     */
+    @Test
+    public void testAsSpaces() throws SnapshotException
+    {
+        IOQLQuery q1 = SnapshotFactory.createQuery("SELECT s.@objectId AS \"A B\" FROM java.lang.Object s");
+        String s = q1.toString();
+        IOQLQuery q2 = SnapshotFactory.createQuery(s);
+    }
+
+    /**
+     * Test empty as clause
+     * @throws SnapshotException
+     */
+    @Test
+    public void testAsEmpty() throws SnapshotException
+    {
+        IOQLQuery q1 = SnapshotFactory.createQuery("SELECT s.@objectId AS \"\" FROM java.lang.Object s");
+        String s = q1.toString();
+        IOQLQuery q2 = SnapshotFactory.createQuery(s);
     }
 
     // //////////////////////////////////////////////////////////////

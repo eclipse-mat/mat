@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation - bug fix for printing AS clause
  *******************************************************************************/
 package org.eclipse.mat.parser.internal.oql.compiler;
 
@@ -344,7 +345,13 @@ public class Query
                 if (column.getName() != null)
                 {
                     buf.append(" AS ");//$NON-NLS-1$
-                    buf.append(column.getName());
+                    String name = column.getName();
+                    boolean quote = name.length() == 0 || name.indexOf(' ') >= 0; 
+                    if (quote)
+                        buf.append('"');
+                    buf.append(name);
+                    if (quote)
+                        buf.append('"');
                 }
 
                 if (iter.hasNext())
