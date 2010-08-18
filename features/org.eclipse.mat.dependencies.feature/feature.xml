@@ -176,7 +176,7 @@
          version="0.0.0"
          fragment="true"
          unpack="false"/>
-         
+
    <plugin
          id="org.eclipse.swt.gtk.solaris.x86"
          os="solaris"
@@ -187,7 +187,7 @@
          version="0.0.0"
          fragment="true"
          unpack="false"/>
-         
+
    <plugin
          id="org.eclipse.swt.gtk.linux.ppc"
          os="linux"
@@ -198,7 +198,7 @@
          version="0.0.0"
          fragment="true"
          unpack="false"/>
-         
+
    <plugin
          id="org.eclipse.swt.gtk.linux.x86_64"
          os="linux"
@@ -654,13 +654,6 @@
 
    <plugin
          id="org.eclipse.birt.chart.engine.extension"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.birt.core"
          download-size="0"
          install-size="0"
          version="0.0.0"
