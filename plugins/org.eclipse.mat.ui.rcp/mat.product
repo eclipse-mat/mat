@@ -16,10 +16,6 @@ Visit http://www.eclipse.org/mat
    </aboutInfo>
 
    <configIni use="default">
-      <linux>/org.eclipse.mat.ui.rcp/config.ini</linux>
-      <macosx>/org.eclipse.mat.ui.rcp/config.ini</macosx>
-      <solaris>/org.eclipse.mat.ui.rcp/config.ini</solaris>
-      <win32>/org.eclipse.mat.ui.rcp/config.ini</win32>
    </configIni>
 
    <launcherArgs>
@@ -55,5 +51,9 @@ Visit http://www.eclipse.org/mat
       <feature id="org.eclipse.mat.ui.rcp.feature" version="1.0.100.qualifier"/>
    </features>
 
+   <configurations>
+      <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
+      <plugin id="org.eclipse.equinox.ds" autoStart="true" startLevel="2" />
+   </configurations>
 
 </product>
