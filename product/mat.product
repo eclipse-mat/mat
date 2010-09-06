@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="Memory Analyzer Tool" id="org.eclipse.mat.ui.rcp.MemoryAnalyzer" application="org.eclipse.mat.ui.rcp.application" version="1.0.0" useFeatures="true" includeLaunchers="true">
+<product name="Memory Analyzer Tool" id="org.eclipse.mat.ui.rcp.MemoryAnalyzer" application="org.eclipse.mat.ui.rcp.application" version="1.0.100" useFeatures="true" includeLaunchers="true">
 
    <aboutInfo>
       <image path="/parent/product/icons/eclipse_lg.gif"/>
@@ -16,10 +16,6 @@ Visit http://www.eclipse.org/mat
    </aboutInfo>
 
    <configIni use="default">
-      <linux>/parent/product/config.ini</linux>
-      <macosx>/parent/product/config.ini</macosx>
-      <solaris>/parent/product/config.ini</solaris>
-      <win32>/parent/product/config.ini</win32>
    </configIni>
 
    <launcherArgs>
@@ -31,7 +27,10 @@ Visit http://www.eclipse.org/mat
    <windowImages i16="/parent/product/icons/memory_analyzer_16.gif"/>
 
    <splash
-      location="org.eclipse.mat.ui.rcp" />
+      location="org.eclipse.mat.ui.rcp"
+      startupProgressRect="5,275,445,15"
+      startupMessageRect="7,252,445,20"
+      startupForegroundColor="000000" />
    <launcher name="MemoryAnalyzer">
       <macosx icon="/product/macosx/MemoryAnalyzer.icns"/>
       <solaris/>
@@ -45,7 +44,6 @@ Visit http://www.eclipse.org/mat
    <vm>
    </vm>
 
-
    <plugins>
    </plugins>
 
@@ -56,5 +54,9 @@ Visit http://www.eclipse.org/mat
       <feature id="org.eclipse.mat.ui.rcp.feature" version="1.0.100.qualifier"/>
    </features>
 
+   <configurations>
+      <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
+      <plugin id="org.eclipse.equinox.ds" autoStart="true" startLevel="2" />
+   </configurations>
 
 </product>
