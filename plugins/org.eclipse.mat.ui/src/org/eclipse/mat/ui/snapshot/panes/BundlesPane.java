@@ -29,7 +29,6 @@ import org.eclipse.mat.ui.internal.panes.QueryResultPane;
 import org.eclipse.mat.ui.internal.viewer.RefinedResultViewer;
 import org.eclipse.mat.ui.util.EasyToolBarDropDown;
 import org.eclipse.mat.ui.util.PopupMenu;
-import org.eclipse.ui.PlatformUI;
 
 public class BundlesPane extends QueryResultPane
 {
@@ -74,7 +73,7 @@ public class BundlesPane extends QueryResultPane
                     final QueryResult queryResult = new QueryResult(null, "bundle_registry -groupBy " + target.name(),//$NON-NLS-1$
                                     tree);
 
-                    PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()
+                    top.getDisplay().asyncExec(new Runnable()
                     {
                         public void run()
                         {

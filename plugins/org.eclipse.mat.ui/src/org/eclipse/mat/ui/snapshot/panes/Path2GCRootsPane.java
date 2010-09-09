@@ -34,7 +34,6 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.ui.PlatformUI;
 
 public class Path2GCRootsPane extends QueryResultPane
 {
@@ -116,7 +115,7 @@ public class Path2GCRootsPane extends QueryResultPane
         @Override
         protected IStatus doRun(IProgressMonitor monitor)
         {
-            PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()
+            nextPathButton.getDisplay().asyncExec(new Runnable()
             {
                 public void run()
                 {
@@ -134,7 +133,7 @@ public class Path2GCRootsPane extends QueryResultPane
 
                     if (ancestors != null)
                     {
-                        PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()
+                        viewer.getControl().getDisplay().asyncExec(new Runnable()
                         {
                             public void run()
                             {
@@ -155,7 +154,7 @@ public class Path2GCRootsPane extends QueryResultPane
             }
             finally
             {
-                PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()
+                nextPathButton.getDisplay().asyncExec(new Runnable()
                 {
                     public void run()
                     {

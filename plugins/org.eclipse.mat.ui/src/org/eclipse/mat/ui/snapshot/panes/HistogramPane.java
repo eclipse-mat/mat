@@ -242,7 +242,7 @@ public class HistogramPane extends QueryResultPane
 
                     final Histogram delta = histogram.diffWithBaseline(baseline);
 
-                    PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()
+                    top.getDisplay().asyncExec(new Runnable()
                     {
                         public void run()
                         {
@@ -365,7 +365,7 @@ public class HistogramPane extends QueryResultPane
                                     : new QueryResult(QueryRegistry.instance().getQuery("histogram"),//$NON-NLS-1$
                                                     "histogram -groupBy " + groupBy.name(), result);//$NON-NLS-1$
 
-                    PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()
+                    top.getDisplay().asyncExec(new Runnable()
                     {
                         public void run()
                         {

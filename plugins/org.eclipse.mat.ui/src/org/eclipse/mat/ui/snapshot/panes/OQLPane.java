@@ -266,7 +266,7 @@ public class OQLPane extends CompositeHeapEditorPane
                 argumentSet.setArgumentValue("queryString", queryString);//$NON-NLS-1$
                 final QueryResult result = argumentSet.execute(new ProgressMonitorWrapper(monitor));
 
-                PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()
+                OQLPane.this.queryString.getDisplay().asyncExec(new Runnable()
                 {
                     public void run()
                     {
@@ -276,7 +276,7 @@ public class OQLPane extends CompositeHeapEditorPane
             }
             catch (final Exception e)
             {
-                PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()
+                OQLPane.this.queryString.getDisplay().asyncExec(new Runnable()
                 {
                     public void run()
                     {

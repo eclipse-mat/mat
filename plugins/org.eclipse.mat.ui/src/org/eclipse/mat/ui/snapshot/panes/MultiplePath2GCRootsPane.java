@@ -26,7 +26,6 @@ import org.eclipse.mat.ui.util.EasyToolBarDropDown;
 import org.eclipse.mat.ui.util.PopupMenu;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.ui.PlatformUI;
 
 public class MultiplePath2GCRootsPane extends QueryResultPane
 {
@@ -109,7 +108,7 @@ public class MultiplePath2GCRootsPane extends QueryResultPane
                     final QueryResult queryResult = new QueryResult(null, "multiple_path -groupBy " + target.name(), //$NON-NLS-1$
                                     original.groupBy(target));
 
-                    PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()
+                    top.getDisplay().asyncExec(new Runnable()
                     {
                         public void run()
                         {

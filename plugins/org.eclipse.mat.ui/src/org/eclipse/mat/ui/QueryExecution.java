@@ -40,8 +40,8 @@ import org.eclipse.mat.ui.internal.browser.QueryHistory;
 import org.eclipse.mat.ui.internal.query.arguments.ArgumentsWizard;
 import org.eclipse.mat.ui.util.ErrorHelper;
 import org.eclipse.mat.ui.util.PaneState;
-import org.eclipse.mat.ui.util.ProgressMonitorWrapper;
 import org.eclipse.mat.ui.util.PaneState.PaneType;
+import org.eclipse.mat.ui.util.ProgressMonitorWrapper;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.VoidProgressListener;
 import org.eclipse.ui.PlatformUI;
@@ -131,7 +131,7 @@ public class QueryExecution
 
         final QueryResult r = result;
 
-        PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()
+        editor.getSite().getWorkbenchWindow().getWorkbench().getDisplay().asyncExec(new Runnable()
         {
             public void run()
             {

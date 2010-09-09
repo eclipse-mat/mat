@@ -91,7 +91,6 @@ import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.part.ViewPart;
 
@@ -812,7 +811,7 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
                         // update visual viewer
                         final Object toShow = prepareVisualInfo(object);
 
-                        PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()
+                        topTableViewer.getControl().getDisplay().asyncExec(new Runnable()
                         {
                             public void run()
                             {
@@ -1080,7 +1079,7 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
 
     private void clearInput()
     {
-        PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()
+        topTableViewer.getControl().getDisplay().asyncExec(new Runnable()
         {
             public void run()
             {

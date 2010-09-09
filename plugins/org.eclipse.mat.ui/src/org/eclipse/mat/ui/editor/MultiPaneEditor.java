@@ -54,8 +54,8 @@ import org.eclipse.mat.ui.snapshot.ImageHelper.ImageImageDescriptor;
 import org.eclipse.mat.ui.util.ErrorHelper;
 import org.eclipse.mat.ui.util.NavigatorState;
 import org.eclipse.mat.ui.util.PaneState;
-import org.eclipse.mat.ui.util.PopupMenu;
 import org.eclipse.mat.ui.util.PaneState.PaneType;
+import org.eclipse.mat.ui.util.PopupMenu;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
@@ -90,7 +90,6 @@ import org.eclipse.ui.IURIEditorInput;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.forms.widgets.Form;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.part.EditorPart;
@@ -166,7 +165,7 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
             @Override
             public void done(final IJobChangeEvent event)
             {
-                PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()
+                parent.getDisplay().asyncExec(new Runnable()
                 {
                     public void run()
                     {

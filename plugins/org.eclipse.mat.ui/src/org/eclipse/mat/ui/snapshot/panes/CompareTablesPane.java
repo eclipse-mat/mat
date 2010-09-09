@@ -30,7 +30,6 @@ import org.eclipse.mat.ui.internal.panes.QueryResultPane;
 import org.eclipse.mat.ui.internal.viewer.RefinedResultViewer;
 import org.eclipse.mat.ui.util.EasyToolBarDropDown;
 import org.eclipse.mat.ui.util.PopupMenu;
-import org.eclipse.ui.PlatformUI;
 
 public class CompareTablesPane extends QueryResultPane
 {
@@ -182,7 +181,7 @@ public class CompareTablesPane extends QueryResultPane
 				protected IStatus run(IProgressMonitor monitor)
 				{
 
-					PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+					top.getDisplay().asyncExec(new Runnable() {
 						public void run()
 						{
 							CompareTablesPane.this.diffOption = diffOption;
@@ -225,7 +224,7 @@ public class CompareTablesPane extends QueryResultPane
 				protected IStatus run(IProgressMonitor monitor)
 				{
 
-					PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+					top.getDisplay().asyncExec(new Runnable() {
 						public void run()
 						{
 							deactivateViewer();

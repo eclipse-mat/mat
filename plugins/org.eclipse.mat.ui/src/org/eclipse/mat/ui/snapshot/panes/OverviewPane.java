@@ -51,7 +51,6 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.cheatsheets.OpenCheatSheetAction;
 import org.eclipse.ui.forms.events.HyperlinkEvent;
 import org.eclipse.ui.forms.events.IHyperlinkListener;
@@ -395,7 +394,7 @@ public class OverviewPane extends HeapEditorPane implements IHyperlinkListener, 
                         final IResult result = CommandLine.execute(ctx, "pie_biggest_objects",//$NON-NLS-1$
                                         new ProgressMonitorWrapper(monitor));
 
-                        PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()
+                        sectionClient.getDisplay().asyncExec(new Runnable()
                         {
                             public void run()
                             {

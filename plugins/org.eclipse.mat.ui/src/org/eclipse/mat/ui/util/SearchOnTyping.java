@@ -39,7 +39,6 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
-import org.eclipse.ui.PlatformUI;
 
 public class SearchOnTyping
 {
@@ -329,18 +328,21 @@ public class SearchOnTyping
         @Override
         protected IStatus run(IProgressMonitor monitor)
         {
-            PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()
+            if (!filterText.isDisposed())
             {
-                public void run()
+                filterText.getDisplay().asyncExec(new Runnable()
                 {
-                    if (filterText.isDisposed())
-                        return;
+                    public void run()
+                    {
+                        if (filterText.isDisposed())
+                            return;
 
-                    String t = filterText.getText();
-                    if (text.equals(t))
-                        thingy.select(text.toLowerCase());
-                }
-            });
+                        String t = filterText.getText();
+                        if (text.equals(t))
+                            thingy.select(text.toLowerCase());
+                    }
+                });
+            }
 
             return Status.OK_STATUS;
         }

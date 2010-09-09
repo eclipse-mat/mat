@@ -18,8 +18,8 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
-import org.eclipse.mat.query.ContextProvider;
 import org.eclipse.mat.query.ContextDerivedData.DerivedOperation;
+import org.eclipse.mat.query.ContextProvider;
 import org.eclipse.mat.query.refined.RefinedStructuredResult.ICalculationProgress;
 import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.internal.viewer.RefinedResultViewer.ControlItem;
@@ -27,7 +27,6 @@ import org.eclipse.mat.ui.util.ErrorHelper;
 import org.eclipse.mat.ui.util.ProgressMonitorWrapper;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.swt.widgets.Item;
-import org.eclipse.ui.PlatformUI;
 
 /* package */abstract class DerivedDataJob extends Job implements ICalculationProgress
 {
@@ -108,7 +107,7 @@ import org.eclipse.ui.PlatformUI;
             final int[] done = computed.toArray();
             computed.clear();
 
-            PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()
+            viewer.getControl().getDisplay().asyncExec(new Runnable()
             {
                 public void run()
                 {
@@ -161,7 +160,7 @@ import org.eclipse.ui.PlatformUI;
             final int[] done = computed.toArray();
             computed.clear();
 
-            PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()
+            viewer.getControl().getDisplay().asyncExec(new Runnable()
             {
                 public void run()
                 {
