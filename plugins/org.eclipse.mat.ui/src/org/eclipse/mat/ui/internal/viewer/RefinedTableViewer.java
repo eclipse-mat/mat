@@ -320,5 +320,28 @@ public class RefinedTableViewer extends RefinedResultViewer
                 return 20;
             return 18;
         }
+
+        public int[] getColumnOrder()
+        {
+            return table.getColumnOrder();
+        }
+
+        public void setColumnOrder(int order[])
+        {
+            table.setColumnOrder(order);
+        }
+
+        public int getColumnWidth(int col)
+        {
+            TableColumn column = (TableColumn) columns[col];
+            return column.getWidth();
+        }
+
+        public void setColumnWidth(int col, int width)
+        {
+            width = Math.min(MAX_COLUMN_WIDTH, Math.max(MIN_COLUMN_WIDTH, width));
+            TableColumn column = (TableColumn) columns[col];
+            column.setWidth(width);
+        }
     }
 }

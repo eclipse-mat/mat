@@ -167,6 +167,14 @@ public abstract class RefinedResultViewer
         Rectangle getTextBounds(Widget item, int index);
 
         int getLineHeightEstimation();
+
+        int[] getColumnOrder();
+
+        void setColumnOrder(int order[]);
+
+        int getColumnWidth(int column);
+
+        void setColumnWidth(int column, int width);
     }
 
     /** pane in which the viewer is embedded */
@@ -340,6 +348,13 @@ public abstract class RefinedResultViewer
                 {
                     if (adapter.indexOf(widget) != 0)
                         ctrl = (ControlItem) control.getData(Key.CONTROL);
+                    else
+                    {
+                        // Select the filter row and open the filter editor
+                        int columnIndex = 0;
+                        Filter filter = RefinedResultViewer.this.result.getFilter()[columnIndex];
+                        activateEditor(widget, filter, columnIndex);
+                    }
                 }
                 else
                 {
@@ -796,11 +811,11 @@ public abstract class RefinedResultViewer
     {
         Action columnsAction = new Action(Messages.RefinedResultViewer_ConfigureColumns) 
         {
-        	@Override
-        	public void run()
-        	{
-        		configureColumns();
-        	}
+            @Override
+            public void run()
+            {
+                configureColumns();
+            }
         };
 
         menu.add(columnsAction);
@@ -1013,8 +1028,137 @@ public abstract class RefinedResultViewer
                         break;
 
                     case SWT.Traverse:
+                        int newIndex = -1;
                         switch (e.detail)
                         {
+                            case SWT.TRAVERSE_ARROW_NEXT:
+                                if ((e.stateMask & SWT.SHIFT) == SWT.SHIFT && (e.keyCode == SWT.ARROW_DOWN))
+                                {
+                                    // Reorder columns
+                                    int order[] = adapter.getColumnOrder();
+                                    for (int i = 0; i < order.length - 1; ++i)
+                                    {
+                                        if (order[i] == columnIndex)
+                                        {
+                                            order[i] = order[i+1];
+                                            order[i+1] = columnIndex;
+                                            adapter.setColumnOrder(order);
+                                            break;
+                                        }
+                                    }
+                                    e.doit = false;
+                                }
+                                else if ((e.stateMask & SWT.CTRL) == SWT.CTRL && (e.keyCode == SWT.ARROW_DOWN))
+                                {
+                                    // Resize column
+                                    // Updating the criteria can dispose the TreeItem!
+                                    updateCriteria(filter, columnIndex, text.getText());
+                                    if (!item.isDisposed())
+                                    {
+                                        item.removeDisposeListener(disposeListener);
+                                        composite.dispose();
+                                    }
+                                    newIndex = columnIndex;
+                                    int width = adapter.getColumnWidth(columnIndex);
+                                    adapter.setColumnWidth(columnIndex, width + 1);
+                                    e.doit = false;
+                                }
+                                else if (e.keyCode == SWT.ARROW_DOWN)
+                                {
+                                    // Sort column in descending order
+                                    updateCriteria(filter, columnIndex, text.getText());
+                                    resort(columns[columnIndex], SWT.DOWN);
+                                    e.doit = false;
+                                }
+                                break;
+                            case SWT.TRAVERSE_TAB_NEXT:
+                                if ((e.stateMask & SWT.CTRL) == 0)
+                                {
+                                    // Move to next column
+                                    // Updating the criteria can dispose the TreeItem!
+                                    updateCriteria(filter, columnIndex, text.getText());
+                                    if (!item.isDisposed())
+                                    {
+                                        item.removeDisposeListener(disposeListener);
+                                        composite.dispose();
+                                    }
+                                    // Columns can be reordered, so tab in the display order
+                                    int order[] = adapter.getColumnOrder();
+                                    newIndex = order[0];
+                                    for (int i = 1; i < order.length; ++i)
+                                    {
+                                        if (order[i-1] == columnIndex)
+                                        {
+                                            newIndex = order[i];
+                                            break;
+                                        }
+                                    }
+                                    e.doit = false;
+                                }
+                                break;
+                            case SWT.TRAVERSE_ARROW_PREVIOUS:
+                                if ((e.stateMask & SWT.SHIFT) == SWT.SHIFT && (e.keyCode == SWT.ARROW_UP))
+                                {
+                                    // Reorder columns
+                                    int order[] = adapter.getColumnOrder();
+                                    for (int i = 1; i < order.length; ++i)
+                                    {
+                                        if (order[i] == columnIndex)
+                                        {
+                                            order[i] = order[i-1];
+                                            order[i-1] = columnIndex;
+                                            adapter.setColumnOrder(order);
+                                            break;
+                                        }
+                                    }
+                                    e.doit = false;
+                                }
+                                else if ((e.stateMask & SWT.CTRL) == SWT.CTRL && (e.keyCode == SWT.ARROW_UP))
+                                {
+                                    // Resize column
+                                    updateCriteria(filter, columnIndex, text.getText());
+                                    if (!item.isDisposed())
+                                    {
+                                        item.removeDisposeListener(disposeListener);
+                                        composite.dispose();
+                                    }
+                                    newIndex = columnIndex;
+                                    int width = adapter.getColumnWidth(columnIndex);
+                                    adapter.setColumnWidth(columnIndex, width - 1);
+                                    e.doit = false;
+                                }
+                                else if (e.keyCode == SWT.ARROW_UP)
+                                {
+                                    // Sort column in ascending order
+                                    updateCriteria(filter, columnIndex, text.getText());
+                                    resort(columns[columnIndex], SWT.UP);
+                                    e.doit = false;
+                                }
+                                break;
+                            case SWT.TRAVERSE_TAB_PREVIOUS:
+                                if ((e.stateMask & SWT.CTRL) == 0)
+                                {
+                                    // Move to previous column
+                                    // Updating the criteria can dispose the TreeItem!
+                                    if (!item.isDisposed())
+                                    {
+                                        item.removeDisposeListener(disposeListener);
+                                        composite.dispose();
+                                    }
+                                    // Columns can be reordered, so tab in the display order
+                                    int order[] = adapter.getColumnOrder();
+                                    newIndex = order[order.length - 1];
+                                    for (int i = 1; i < order.length; ++i)
+                                    {
+                                        if (order[i] == columnIndex)
+                                        {
+                                            newIndex = order[i-1];
+                                            break;
+                                        }
+                                    }
+                                    e.doit = false;
+                                }
+                                break;
                             case SWT.TRAVERSE_RETURN:
                                 // $JL-SWITCH$ fall through
                                 updateCriteria(filter, columnIndex, text.getText());
@@ -1026,8 +1170,14 @@ public abstract class RefinedResultViewer
                                     composite.dispose();
                                 }
                                 e.doit = false;
+                                break;
                         }
-                        break;
+                        if (newIndex >= 0)
+                        {
+                            Filter f[] = result.getFilter();
+                            // Need a new version of the item
+                            activateEditor(adapter.getItem(null, 0), f[newIndex], newIndex);
+                        }
                 }
             }
 
@@ -1206,7 +1356,12 @@ public abstract class RefinedResultViewer
             direction = queryColumn.isNumeric() ? SWT.DOWN : SWT.UP;
 
         control.getParent().setRedraw(false);
+        resort(column, direction);
+    }
 
+    private final void resort(Item column, int direction)
+    {
+        Column queryColumn = (Column) column.getData();
         try
         {
             adapter.setSortColumn(column);

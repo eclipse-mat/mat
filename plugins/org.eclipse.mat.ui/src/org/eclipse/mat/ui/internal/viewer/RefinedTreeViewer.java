@@ -18,10 +18,10 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.mat.query.Column;
+import org.eclipse.mat.query.ContextDerivedData.DerivedOperation;
 import org.eclipse.mat.query.ContextProvider;
 import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.IResultTree;
-import org.eclipse.mat.query.ContextDerivedData.DerivedOperation;
 import org.eclipse.mat.query.refined.RefinedTree;
 import org.eclipse.mat.query.refined.TotalsRow;
 import org.eclipse.mat.query.registry.QueryResult;
@@ -369,10 +369,11 @@ public class RefinedTreeViewer extends RefinedResultViewer
         tree.setData(Key.CONTROL, ctrl);
 
         TreeItem[] items = tree.getItems();
-        for (int ii = 0; ii < items.length; ii++)
+        for (int ii = 1; ii < items.length; ii++)
             items[ii].dispose();
 
-        applyFilterData(new TreeItem(tree, SWT.NONE, 0));
+        if (tree.getItemCount() == 0)
+            applyFilterData(new TreeItem(tree, SWT.NONE, 0));
         applyUpdating(new TreeItem(tree, SWT.NONE, 1));
 
         new RefinedResultViewer.RetrieveChildrenJob(this, ctrl, null, null).schedule();
@@ -386,10 +387,11 @@ public class RefinedTreeViewer extends RefinedResultViewer
             tree.setData(Key.CONTROL, ctrl);
 
             TreeItem[] items = tree.getItems();
-            for (int ii = 0; ii < items.length; ii++)
+            for (int ii = 1; ii < items.length; ii++)
                 items[ii].dispose();
 
-            applyFilterData(new TreeItem(tree, SWT.NONE, 0));
+            if (tree.getItemCount() == 0)
+                applyFilterData(new TreeItem(tree, SWT.NONE, 0));
 
             int visible = ctrl.totals.getVisibleItems();
             for (int ii = 0; ii < visible; ii++)
@@ -690,6 +692,29 @@ public class RefinedTreeViewer extends RefinedResultViewer
             if (System.getProperty("os.name").indexOf("Vista") >= 0)//$NON-NLS-1$//$NON-NLS-2$
                 return 19;
             return 18;
+        }
+
+        public int[] getColumnOrder()
+        {
+            return tree.getColumnOrder();
+        }
+
+        public void setColumnOrder(int order[])
+        {
+            tree.setColumnOrder(order);
+        }
+
+        public int getColumnWidth(int col)
+        {
+            TreeColumn column = (TreeColumn) columns[col];
+            return column.getWidth();
+        }
+
+        public void setColumnWidth(int col, int width)
+        {
+            width = Math.min(MAX_COLUMN_WIDTH, Math.max(MIN_COLUMN_WIDTH, width));
+            TreeColumn column = (TreeColumn) columns[col];
+            column.setWidth(width);
         }
     }
 }
