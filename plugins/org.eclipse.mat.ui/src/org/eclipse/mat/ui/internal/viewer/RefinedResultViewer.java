@@ -1046,7 +1046,8 @@ public abstract class RefinedResultViewer
                                             break;
                                         }
                                     }
-                                    e.doit = false;
+                                    e.doit = true;
+                                    e.detail = SWT.TRAVERSE_NONE;
                                 }
                                 else if ((e.stateMask & SWT.CTRL) == SWT.CTRL && (e.keyCode == SWT.ARROW_DOWN))
                                 {
@@ -1068,7 +1069,8 @@ public abstract class RefinedResultViewer
                                     // Sort column in descending order
                                     updateCriteria(filter, columnIndex, text.getText());
                                     resort(columns[columnIndex], SWT.DOWN);
-                                    e.doit = false;
+                                    e.doit = true;
+                                    e.detail = SWT.TRAVERSE_NONE;
                                 }
                                 break;
                             case SWT.TRAVERSE_TAB_NEXT:
@@ -1111,7 +1113,8 @@ public abstract class RefinedResultViewer
                                             break;
                                         }
                                     }
-                                    e.doit = false;
+                                    e.doit = true;
+                                    e.detail = SWT.TRAVERSE_NONE;
                                 }
                                 else if ((e.stateMask & SWT.CTRL) == SWT.CTRL && (e.keyCode == SWT.ARROW_UP))
                                 {
@@ -1132,7 +1135,8 @@ public abstract class RefinedResultViewer
                                     // Sort column in ascending order
                                     updateCriteria(filter, columnIndex, text.getText());
                                     resort(columns[columnIndex], SWT.UP);
-                                    e.doit = false;
+                                    e.doit = true;
+                                    e.detail = SWT.TRAVERSE_NONE;
                                 }
                                 break;
                             case SWT.TRAVERSE_TAB_PREVIOUS:
