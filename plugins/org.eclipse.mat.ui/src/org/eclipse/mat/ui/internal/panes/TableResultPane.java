@@ -36,7 +36,6 @@ import org.eclipse.mat.ui.util.ProgressMonitorWrapper;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.ui.PlatformUI;
 
 public class TableResultPane extends QueryResultPane
 {
@@ -175,7 +174,7 @@ public class TableResultPane extends QueryResultPane
                                             target);
                             final IResult subject = t.process(new ProgressMonitorWrapper(monitor));
 
-                            PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()
+                            top.getDisplay().asyncExec(new Runnable()
                             {
                                 public void run()
                                 {

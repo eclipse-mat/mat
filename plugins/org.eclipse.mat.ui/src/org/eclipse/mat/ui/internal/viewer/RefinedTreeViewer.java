@@ -46,7 +46,6 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.widgets.Widget;
-import org.eclipse.ui.PlatformUI;
 
 public class RefinedTreeViewer extends RefinedResultViewer
 {
@@ -193,7 +192,7 @@ public class RefinedTreeViewer extends RefinedResultViewer
                 ctrl.notifyAll();
             }
 
-            PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()
+            if (!viewer.control.isDisposed()) viewer.control.getDisplay().asyncExec(new Runnable()
             {
                 public void run()
                 {
@@ -232,7 +231,7 @@ public class RefinedTreeViewer extends RefinedResultViewer
                 {
                     viewer.result.calculateTotals(elements, ctrl.totals, new VoidProgressListener());
 
-                    PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()
+                    if (!viewer.control.isDisposed()) viewer.control.getDisplay().asyncExec(new Runnable()
                     {
                         public void run()
                         {

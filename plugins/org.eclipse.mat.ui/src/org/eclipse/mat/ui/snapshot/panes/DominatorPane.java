@@ -35,7 +35,6 @@ import org.eclipse.mat.ui.util.ProgressMonitorWrapper;
 import org.eclipse.mat.util.VoidProgressListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.ui.PlatformUI;
 
 public class DominatorPane extends QueryResultPane
 {
@@ -168,7 +167,7 @@ public class DominatorPane extends QueryResultPane
                         final QueryResult queryResult = new QueryResult(null, "dominator_tree -groupBy " //$NON-NLS-1$
                                         + target.name(), tree);
 
-                        PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()
+                        top.getDisplay().asyncExec(new Runnable()
                         {
                             public void run()
                             {

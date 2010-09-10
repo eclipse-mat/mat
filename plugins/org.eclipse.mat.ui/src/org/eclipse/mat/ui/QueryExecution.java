@@ -131,7 +131,7 @@ public class QueryExecution
 
         final QueryResult r = result;
 
-        editor.getSite().getWorkbenchWindow().getWorkbench().getDisplay().asyncExec(new Runnable()
+        editor.getSite().getShell().getDisplay().asyncExec(new Runnable()
         {
             public void run()
             {

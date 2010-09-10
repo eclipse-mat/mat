@@ -1446,7 +1446,7 @@ public abstract class RefinedResultViewer
             }
             catch (RuntimeException e)
             {
-                PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()
+                if (!viewer.control.isDisposed()) viewer.control.getDisplay().asyncExec(new Runnable()
                 {
                     public void run()
                     {
@@ -1491,7 +1491,7 @@ public abstract class RefinedResultViewer
             {
                 viewer.result.calculateTotals(ctrl.children, ctrl.totals, new ProgressMonitorWrapper(monitor));
 
-                PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()
+                if (!viewer.control.isDisposed()) viewer.control.getDisplay().asyncExec(new Runnable()
                 {
                     public void run()
                     {
@@ -1536,7 +1536,7 @@ public abstract class RefinedResultViewer
 
         private void updateDisplay()
         {
-            PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable()
+            if (!viewer.control.isDisposed()) viewer.control.getDisplay().syncExec(new Runnable()
             {
                 public void run()
                 {
@@ -1616,7 +1616,7 @@ public abstract class RefinedResultViewer
         {
             viewer.result.sort(list);
 
-            PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()
+            if (!viewer.control.isDisposed()) viewer.control.getDisplay().asyncExec(new Runnable()
             {
                 public void run()
                 {
