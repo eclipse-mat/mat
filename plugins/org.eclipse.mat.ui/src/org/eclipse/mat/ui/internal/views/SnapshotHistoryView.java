@@ -574,7 +574,8 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
 
         int lastDot = name.lastIndexOf('.');
         final String prefix = lastDot >= 0 ? name.substring(0, lastDot) : name;
-        final Pattern pattern = Pattern.compile("\\.(.*\\.)?index$");//$NON-NLS-1$
+        // Delete threads file as well as indexes
+        final Pattern pattern = Pattern.compile("\\.(([^.]*\\.)?index|threads)$");//$NON-NLS-1$
 
         String[] indexFiles = directory.list(new FilenameFilter()
         {
