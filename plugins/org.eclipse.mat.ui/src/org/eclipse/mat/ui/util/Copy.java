@@ -32,7 +32,7 @@ import org.eclipse.swt.widgets.TreeItem;
 
 public abstract class Copy
 {
-    private static final String LINE_SEPARATOR = "\r\n"; //$NON-NLS-1$
+    private static final String LINE_SEPARATOR = System.getProperty("line.separator", "\n"); //$NON-NLS-1$ //$NON-NLS-2$
     private static final String COLUMN_SEPARATOR = "|"; //$NON-NLS-1$
     protected Control control;
     protected Item[] selection;
