@@ -30,6 +30,7 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.mat.internal.snapshot.SnapshotQueryContext;
+import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.SnapshotFactory;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
@@ -40,6 +41,7 @@ import org.eclipse.mat.ui.internal.GettingStartedWizard;
 import org.eclipse.mat.ui.snapshot.ParseHeapDumpJob;
 import org.eclipse.mat.ui.snapshot.views.SnapshotOutlinePage;
 import org.eclipse.mat.util.MessageUtil;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IFileEditorInput;
@@ -48,10 +50,40 @@ import org.eclipse.ui.IPersistableElement;
 import org.eclipse.ui.IURIEditorInput;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.part.EditorPart;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 
 public class HeapEditor extends MultiPaneEditor implements ISelectionProvider
 {
+
+    /**
+     * Extension to the normal query context to allow access to the UI display.
+     * Used as a safe way to get the display for RAP.
+     */
+    private static final class UISnapshotQueryContext extends SnapshotQueryContext
+    {
+        private Display display;
+
+        private UISnapshotQueryContext(ISnapshot snapshot, EditorPart editor)
+        {
+            super(snapshot);
+            display = editor.getSite().getShell().getDisplay();
+        }
+
+        @Override
+        public boolean available(Class<?> type, Argument.Advice advice)
+        {
+            if (type.isAssignableFrom(Display.class)) { return true; }
+            return super.available(type, advice);
+        }
+
+        @Override
+        public Object get(Class<?> type, Argument.Advice advice)
+        {
+            if (type.isAssignableFrom(Display.class)) { return type.cast(display); }
+            return super.get(type, advice);
+        }
+    }
 
     class SnapshotEditorInput implements ISnapshotEditorInput
     {
@@ -242,7 +274,7 @@ public class HeapEditor extends MultiPaneEditor implements ISelectionProvider
             protected void finished(ISnapshot snapshot)
             {
                 ((SnapshotEditorInput) snapshotInput).setSnapshot(snapshot);
-                setQueryContext(new SnapshotQueryContext(snapshot));
+                setQueryContext(new UISnapshotQueryContext(snapshot, HeapEditor.this));
             }
         };
     }

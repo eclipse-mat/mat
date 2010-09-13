@@ -26,7 +26,7 @@ import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
-import org.eclipse.ui.PlatformUI;
+import org.eclipse.swt.widgets.Display;
 
 public abstract class CopyActions implements IQuery
 {
@@ -35,6 +35,9 @@ public abstract class CopyActions implements IQuery
 
     @Argument
     public List<IContextObject> elements;
+
+    @Argument
+    public Display display;
 
     public IResult execute(IProgressListener listener) throws Exception
     {
@@ -60,11 +63,11 @@ public abstract class CopyActions implements IQuery
 
             if (buf.length() > 0)
             {
-                PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()
+                display.asyncExec(new Runnable()
                 {
                     public void run()
                     {
-                        Clipboard clipboard = new Clipboard(PlatformUI.getWorkbench().getDisplay());
+                        Clipboard clipboard = new Clipboard(display);
                         clipboard.setContents(new Object[] { buf.toString() }, new Transfer[] { TextTransfer
                                         .getInstance() });
                         clipboard.dispose();

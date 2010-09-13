@@ -33,8 +33,8 @@ import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.ui.PlatformUI;
 
 @Icon("/icons/copy.gif")
 public class SaveValueAsQuery implements IQuery
@@ -47,6 +47,9 @@ public class SaveValueAsQuery implements IQuery
 
     @Argument(advice = Advice.SAVE)
     public File file;
+
+    @Argument
+    public Display display;
 
     public IResult execute(IProgressListener listener) throws Exception
     {
@@ -75,11 +78,11 @@ public class SaveValueAsQuery implements IQuery
 
             final boolean[] goAhead = new boolean[1];
 
-            PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable()
+            display.syncExec(new Runnable()
             {
                 public void run()
                 {
-                    MessageBox box = new MessageBox(PlatformUI.getWorkbench().getDisplay().getActiveShell(), //
+                    MessageBox box = new MessageBox(display.getActiveShell(), //
                                     SWT.YES | SWT.NO);
                     box.setText(Messages.SaveValueAsQuery_Overwrite);
                     box.setMessage(MessageUtil.format(Messages.SaveValueAsQuery_FileExists, file.getAbsolutePath()));
