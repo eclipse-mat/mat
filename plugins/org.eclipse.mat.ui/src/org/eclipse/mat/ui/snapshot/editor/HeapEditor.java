@@ -262,7 +262,11 @@ public class HeapEditor extends MultiPaneEditor implements ISelectionProvider
         {
             GettingStartedWizard wizard = new GettingStartedWizard(this);
             WizardDialog dialog = new WizardDialog(getSite().getShell(), wizard);
-            dialog.setBlockOnOpen(false);
+            // Normally use block on open = false, so overview page comes up.
+            // If there is a Open Heap Dump dialog open then the main shell has focus.
+            // We can get the wizard on top using setBlockOnOpen false
+            // but then it hides the open heap dump dialog with focus.
+            dialog.setBlockOnOpen(getSite().getShell().isFocusControl());
             dialog.create();
             dialog.open();
         }
