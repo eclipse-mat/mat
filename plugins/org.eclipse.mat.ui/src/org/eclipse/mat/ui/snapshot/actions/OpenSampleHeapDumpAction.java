@@ -12,10 +12,12 @@ package org.eclipse.mat.ui.snapshot.actions;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URL;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -68,10 +70,12 @@ public class OpenSampleHeapDumpAction extends Action implements ICheatSheetActio
                 query = query + " \"" + params[2] + "\"";//$NON-NLS-1$//$NON-NLS-2$
             }
             openEditor(absolutePath, query, params[2]);
+            notifyResult(true);
         }
         catch (PartInitException e)
         {
             ErrorHelper.logThrowableAndShowMessage(e);
+            notifyResult(false);
         }
     }
 
@@ -192,7 +196,9 @@ public class OpenSampleHeapDumpAction extends Action implements ICheatSheetActio
         try
         {
             Bundle bundle = Platform.getBundle(pluginId);
-            in = bundle.getResource(path).openStream();
+            URL url = bundle.getResource(path);
+            if (url == null) throw new FileNotFoundException(path);
+            in = url.openStream();
             out = new BufferedOutputStream(new FileOutputStream(extractedFile));
             byte[] buffer = new byte[2048];
             for (;;)

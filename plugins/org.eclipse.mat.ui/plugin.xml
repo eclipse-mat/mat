@@ -252,15 +252,6 @@
 		</key>
 	</extension>
 
-	<extension point="org.eclipse.ui.intro.configExtension">
-		<!-- config extendsions to the RCP welcome page -->		
-		<configExtension configId="org.eclipse.mat.ui.rcp.introConfig" content="intro/all_tutorials.xml" />
-		
-		<!-- config extensions to the universal (IDE) Welcome Page -->
-		<configExtension configId="org.eclipse.ui.intro.universalConfig" content="intro/overview_ide.xml" />
-		<configExtension configId="org.eclipse.ui.intro.universalConfig" content="intro/tutorials_ide.xml" />
-    </extension>
-	
 	<extension point="org.eclipse.mat.report.query">
 		<query impl="org.eclipse.mat.ui.snapshot.actions.CopyActions$Address" />
 		<query impl="org.eclipse.mat.ui.snapshot.actions.CopyActions$FQClassName" />
@@ -268,40 +259,12 @@
 		<query impl="org.eclipse.mat.ui.snapshot.actions.SaveValueAsQuery" />
 	</extension>
 
-	<extension point="org.eclipse.ui.cheatsheets.cheatSheetContent">
-		<category id="org.eclipse.mat.tutorials" name="Memory Analyzer"/>
-		
-		<cheatsheet 
-				id="org.eclipse.mat.tutorials.object_query_language"
-				contentFile="tutorials/object_query_language.xml"
-				category="org.eclipse.mat.tutorials"            
-				name="OQL Tutorial" />
+   <extension point="org.eclipse.ui.intro.configExtension">
+      <standbyContentPart
+            id="org.eclipse.mat.cheatsheet"
+            class="org.eclipse.mat.ui.internal.CheatSheetStandbyContent"
+            pluginId="org.eclipse.mat.ui"/>
+   </extension>
 
-		<cheatsheet
-				id="org.eclipse.mat.tutorials.basicTutorial"
-				contentFile="tutorials/basic_tutorial.xml"
-				category="org.eclipse.mat.tutorials"
-				composite="false"
-				name="Basics"/>
 
-		<cheatsheet
-				id="org.eclipse.mat.tutorials.component_report"
-				contentFile="tutorials/component_report.xml"
-				category="org.eclipse.mat.tutorials"
-				composite="false"
-				name="Component Report"/>
-
-		<cheatsheet
-				id="org.eclipse.mat.tutorials.bestFeaturesTutorial"
-				contentFile="tutorials/best_features_tutorial.xml"
-				category="org.eclipse.mat.tutorials"
-				name="Best Features Tutorial"/>
-
-		<cheatsheet
-				id="org.eclipse.mat.tutorials.findingProblemsTutorial"
-				contentFile="tutorials/memory_hunting.xml"
-				category="org.eclipse.mat.tutorials"
-				name="Finding Memory Problems Tutorial"/>
-	</extension>
- 
 </plugin>
