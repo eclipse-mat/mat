@@ -34,7 +34,8 @@ public class OpenPreferenceAction extends Action
 {
     private static final Set<String> ALLOWED_IDS = new HashSet<String>(Arrays.asList(new String[] {
                     "org.eclipse.ui.net.NetPreferences", //$NON-NLS-1$
-                    "org.eclipse.update.internal.ui.preferences.MainPreferencePage" })); //$NON-NLS-1$
+                    "org.eclipse.update.internal.ui.preferences.MainPreferencePage", //$NON-NLS-1$
+                    "org.eclipse.mat.jruby.preferences.JRubyPreferences"})); //$NON-NLS-1$
 
     PreferenceRegistry reg;
 
