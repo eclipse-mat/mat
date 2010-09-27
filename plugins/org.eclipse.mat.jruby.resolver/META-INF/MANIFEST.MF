@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: %Bundle-Name
+Bundle-SymbolicName: org.eclipse.mat.jruby.resolver;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: %Bundle-Vendor
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Require-Bundle: org.eclipse.mat.api;bundle-version="[1.0.0,2.0.0)",
+ org.eclipse.core.runtime
+Import-Package: org.jruby;resolution:=optional,
+ org.jruby.runtime;resolution:=optional,
+ org.jruby.internal.runtime;resolution:=optional,
+ org.jruby.javasupport;resolution:=optional
+Export-Package: org.eclipse.mat.jruby.resolver
