@@ -82,6 +82,10 @@ public class InstallJRubyWizardPage extends WizardPage {
 			}
 		});
 		
+		final Label helpText = new Label(container, SWT.NONE);
+		helpText.setText(Messages.InstallJRubyWizardPage_HelpMessage);
+		helpText.setLayoutData(new GridData(SWT.WRAP, SWT.BOTTOM, true, true, 2, 1));
+		
 		if (isOnStartup()) {
 			Button checkOnStartupCheckbox = new Button(container, SWT.CHECK);
 			checkOnStartupCheckbox.setText(Messages.JRubyPreferencePage_CheckOnStartup);

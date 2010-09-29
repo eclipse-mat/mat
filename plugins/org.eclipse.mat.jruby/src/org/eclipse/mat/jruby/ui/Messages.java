@@ -21,6 +21,7 @@ public class Messages extends NLS {
 
 	public static String InstallJRubyWizardPage_Title;
 	public static String InstallJRubyWizardPage_Description;
+	public static String InstallJRubyWizardPage_HelpMessage;
 	public static String InstallJRubyWizardPage_FileLocation;
 	public static String InstallJRubyWizardPage_Browse;
 	public static String InstallJRubyWizardPage_FileDialogTitle;
