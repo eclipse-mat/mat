@@ -6,7 +6,7 @@
    <feature url="features/org.eclipse.mat.feature_1.0.100.@qualifier@.jar" id="org.eclipse.mat.feature" version="1.0.100.@qualifier@">
       <category name="Memory Analyzer"/>
    </feature>
-   <feature url="features/org.eclipse.mat.jruby.feature_1.0.100.@qualifier@.jar" id="org.eclipse.mat.jruby.feature" version="1.0.0.@qualifier@">
+   <feature url="features/org.eclipse.mat.jruby.feature_1.0.100.@qualifier@.jar" id="org.eclipse.mat.jruby.feature" version="1.0.100.@qualifier@">
       <category name="Memory Analyzer"/>
    </feature>
    <category-def name="Memory Analyzer" label="Memory Analyzer"/>
