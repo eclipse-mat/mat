@@ -22,7 +22,7 @@
 <repository location="%workspaceUrl%p2tool/eclipse-test-framework/repo"/>
 </location>
 <location includeAllPlatforms="false" includeMode="planner" type="InstallableUnit">
-<unit id="com.ibm.dtfj.feature.feature.group" version="1.3.2.200909291456"/>
+<unit id="com.ibm.dtfj.feature.feature.group" version="1.4.0.201007061358"/>
 <repository location="%workspaceUrl%p2tool/dtfj-updatesite/repo"/>
 </location>
 <location includeAllPlatforms="false" includeMode="planner" type="InstallableUnit">
