@@ -24,7 +24,10 @@ import org.eclipse.mat.util.IProgressListener;
  * This information is exposed in the Leak suspects reports. It could help the
  * user who generated the report to open a trouble ticket in the proper
  * component, and this is especially helpful when the user is not familiar with
- * the analyzed coding
+ * the analyzed coding.
+ * 
+ * Implementations of this interface need to be
+ * registered using the <code>org.eclipse.mat.api.ticketResolver</code> extension point.
  */
 public interface ITroubleTicketResolver
 {
@@ -38,14 +41,14 @@ public interface ITroubleTicketResolver
 
 	/**
 	 * Return a proposal for the component (e.g. the bugzilla product MAT) based
-	 * on a class
+	 * on a class.
 	 * 
 	 * @param clazz
 	 *            the class for which the component should be proposed
 	 * @param listener
 	 *            a progress listener
 	 * 
-	 * @return a String for the proposed component
+	 * @return a String for the proposed component, or null if no proposal.
 	 * @throws SnapshotException
 	 */
 	public String resolveByClass(IClass clazz, IProgressListener listener) throws SnapshotException;
@@ -59,7 +62,7 @@ public interface ITroubleTicketResolver
 	 * @param listener
 	 *            a progress listener
 	 * 
-	 * @return a String for the proposed component
+	 * @return a String for the proposed component, or null if no proposal.
 	 * @throws SnapshotException
 	 */
 	public String resolveByClassLoader(IClassLoader classLoader, IProgressListener listener) throws SnapshotException;

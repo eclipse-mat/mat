@@ -16,10 +16,14 @@ import org.eclipse.mat.util.IProgressListener;
 
 /**
  * The allows details about a local variable for a thread of a type understood
- * by this resolver to be interpreted and attached to the thread descrition.
+ * by this resolver to be interpreted and attached to the thread description.
  * The request might be a request into a web server, and the resolver could
  * extract the URL etc.
- *
+ * Implementations of this interface need to be
+ * registered using the <code>org.eclipse.mat.api.requestResolver</code> extension point.
+ * Implementations of this interface should be tagged with the {@link Subject} or 
+ * {@link Subjects} annotation to specify the types of objects 
+ * in the dump they describe.
  */
 public interface IRequestDetailsResolver
 {

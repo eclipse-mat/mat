@@ -15,7 +15,10 @@ import org.eclipse.mat.query.Column;
 import org.eclipse.mat.util.IProgressListener;
 
 /**
- * Extracts detailed information about a thread
+ * Extracts detailed information about a thread.
+ * This is used by the thread queries ThreadOverviewQuery and ThreadInfoQuery.
+ * Implementations of this interface need to be
+ * registered using the <code>org.eclipse.mat.api.threadResolver</code> extension point.
  */
 public interface IThreadDetailsResolver
 {
@@ -26,7 +29,7 @@ public interface IThreadDetailsResolver
     Column[] getColumns();
 
     /**
-     * Extract basic information e.g. for ThreadOverviewQuery
+     * Extract basic information about a thread, for example for ThreadOverviewQuery.
      * @param thread to extract the information from and to attach the information
      * @param listener to log progress and report errors
      * @throws SnapshotException
@@ -34,7 +37,7 @@ public interface IThreadDetailsResolver
     void complementShallow(IThreadInfo thread, IProgressListener listener) throws SnapshotException;
 
     /**
-     * Extract detailed information e.g. for ThreadInfoQuery
+     * Extract detailed information about a thread, for example for ThreadInfoQuery.
      * @param thread to extract the information from and to attach the information
      * @param listener to log progress and report errors
      * @throws SnapshotException
