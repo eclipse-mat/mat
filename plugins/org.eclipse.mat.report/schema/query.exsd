@@ -80,35 +80,41 @@ context menu of a heap object.
          <meta.section type="examples"/>
       </appInfo>
       <documentation>
-         Following is an example of a query declaration: 
-&lt;p&gt;
+         &lt;p&gt;
+Following is an example of a query declaration: 
 &lt;pre&gt;
    &lt;extension point=&quot;org.eclipse.mat.report.query&quot;&gt;
       &lt;query impl=&quot;org.eclipse.mat.demo.DemoQuery&quot;/&gt;
    &lt;/extension&gt;
 &lt;/pre&gt;
 &lt;/p&gt;
-      </documentation>
-   </annotation>
-
-   <annotation>
-      <appInfo>
-         <meta.section type="apiInfo"/>
-      </appInfo>
-      <documentation>
-         The value of the impl attribute must represent an implementor of &lt;samp&gt;org.eclipse.mat.query.IQuery&lt;/samp&gt;.
-The public fields in the query can be tagged with the &lt;code&gt;@Argument&lt;/code&gt; annotation so they can be filled in by the query wizard. Argument types include
-&lt;dl&gt;
-&lt;dt&gt;ISnapshot&lt;/dt&gt;
-&lt;dd&gt;the snapshot&lt;/dd&gt;
-&lt;dt&gt;IHeapObjectArgument&lt;/dt&gt;
-&lt;dd&gt;one or more objects&lt;/dd&gt;
-&lt;dt&gt;int&lt;/dt&gt;
-&lt;dd&gt;a single object&lt;/dd&gt;
-&lt;dt&gt;boolean&lt;/dt&gt;
-&lt;dd&gt;a flag&lt;/dd&gt;
-&lt;/dl&gt;
-Queries can be tagged with @Name @Help @HelpURL @Icon @Menu @Category @CommandName. These annotations can also be held in an annotations.properties file for ease of translation.
+&lt;p&gt;
+This is the Java code.
+&lt;pre&gt;
+@CommandName(&quot;DemoQuery&quot;)
+public class org.eclipse.mat.demo.DemoQuery implements IQuery
+{
+    @Argument
+    public ISnapshot snapshot;
+    
+    @Argument
+    public boolean myflag;
+    
+    public IResult execute(IProgressListener listener) throws Exception
+    {
+        ...
+    }
+}
+&lt;/pre&gt;
+&lt;/p&gt;
+&lt;p&gt;
+This is the translatable text in &lt;code&gt;annotations.properties&lt;/code&gt; in the same package.
+&lt;pre&gt;
+DemoQuery.name = Demonstration Query
+DemoQuery.help = A sample query.
+DemoQuery.myflag.help = A boolean flag to control the query.
+&lt;/pre&gt;
+&lt;/p&gt;
       </documentation>
    </annotation>
 
@@ -126,11 +132,45 @@ Queries can be tagged with @Name @Help @HelpURL @Icon @Menu @Category @CommandNa
          <meta.section type="copyright"/>
       </appInfo>
       <documentation>
-         Copyright (c) 2008 SAP AG and others.&lt;br&gt;
+         Copyright (c) 2008, 2010 SAP AG and IBM Corporation.&lt;br&gt;
 All rights reserved. This program and the accompanying materials are made 
 available under the terms of the Eclipse Public License v1.0 which 
 accompanies this distribution, and is available at 
 &lt;a href=&quot;http://www.eclipse.org/legal/epl-v10.html&quot;&gt;http://www.eclipse.org/legal/epl-v10.html&lt;/a&gt;
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="apiInfo"/>
+      </appInfo>
+      <documentation>
+         The value of the impl attribute must represent an implementor of &lt;samp&gt;org.eclipse.mat.query.IQuery&lt;/samp&gt;.
+The public fields in the query can be tagged with the &lt;code&gt;@Argument&lt;/code&gt; annotation so they can be filled in by the query wizard. Argument types include
+&lt;dl&gt;
+&lt;dt&gt;ISnapshot&lt;/dt&gt;
+&lt;dd&gt;the snapshot&lt;/dd&gt;
+&lt;dt&gt;IHeapObjectArgument&lt;/dt&gt;
+&lt;dd&gt;one or more objects&lt;/dd&gt;
+&lt;dt&gt;int&lt;/dt&gt;
+&lt;dd&gt;a single object - when tagged with &lt;code&gt;@Argument(advice = Advice.HEAP_OBJECT)&lt;/code&gt;&lt;/dd&gt;
+&lt;dt&gt;int[]&lt;/dt&gt;
+&lt;dd&gt;multiple objects - when tagged with &lt;code&gt;@Argument(advice = Advice.HEAP_OBJECT)&lt;/code&gt;&lt;/dd&gt;
+&lt;dt&gt;boolean&lt;/dt&gt;
+&lt;dd&gt;a flag&lt;/dd&gt;
+&lt;/dl&gt;
+Queries can be tagged with 
+&lt;ul&gt;
+&lt;li&gt;@Name&lt;/li&gt;
+&lt;li&gt;@Help&lt;/li&gt;
+&lt;li&gt;@HelpURL&lt;/li&gt;
+&lt;li&gt;@Icon&lt;/li&gt;
+&lt;li&gt;@Menu&lt;/li&gt;
+&lt;li&gt;@Category&lt;/li&gt;
+&lt;li&gt;@CommandName&lt;/li&gt;
+&lt;/ul&gt;
+
+These annotations can also be held in an annotations.properties file for ease of translation.
       </documentation>
    </annotation>
 
