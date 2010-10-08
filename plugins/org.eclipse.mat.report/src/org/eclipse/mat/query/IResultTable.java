@@ -25,7 +25,9 @@ public interface IResultTable extends IStructuredResult
      * 
      * @param rowId
      *            The row number.
-     * @return The row object.
+     * @return The row object, which can be passed to 
+     * {@link IStructuredResult#getContext(Object)} or
+     * {@link IStructuredResult#getColumnValue(Object, int)}. 
      */
     Object getRow(int rowId);
 

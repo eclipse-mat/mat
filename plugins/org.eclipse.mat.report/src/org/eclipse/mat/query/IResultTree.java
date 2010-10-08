@@ -19,6 +19,10 @@ public interface IResultTree extends IStructuredResult
 {
     /**
      * Returns the root elements of the tree.
+     * @return list of elements which can be passed to 
+     * {@link IResultTree#getChildren(Object)} or 
+     * {@link IStructuredResult#getContext(Object)} or
+     * {@link IStructuredResult#getColumnValue(Object, int)}.
      */
     List<?> getElements();
 
@@ -29,6 +33,10 @@ public interface IResultTree extends IStructuredResult
 
     /**
      * Returns the child elements of the given parent.
+     * @param parent
+     *            The row object as returned by the
+     *            {@link IResultTree#getElements()} or
+     *            {@link IResultTree#getChildren(Object)} methods.
      */
     List<?> getChildren(Object parent);
 }

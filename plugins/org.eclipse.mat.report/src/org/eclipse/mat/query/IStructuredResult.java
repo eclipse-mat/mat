@@ -29,6 +29,7 @@ public interface IStructuredResult extends IResult
      * @param row
      *            The row object as returned by the
      *            {@link IResultTable#getRow(int)} or
+     *            {@link IResultTree#getElements()} or
      *            {@link IResultTree#getChildren(Object)} methods
      * @param columnIndex
      *            The index of the column.
@@ -43,6 +44,7 @@ public interface IStructuredResult extends IResult
      * @param row
      *            The row object as returned by the
      *            {@link IResultTable#getRow(int)} or
+     *            {@link IResultTree#getElements()} or
      *            {@link IResultTree#getChildren(Object)} methods.
      */
     IContextObject getContext(Object row);
