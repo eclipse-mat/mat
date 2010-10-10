@@ -221,7 +221,8 @@ public class SearchOnTyping
 
         public void keyPressed(KeyEvent e)
         {
-            if (!Character.isISOControl(e.character))
+            // Space is used for keyboard selection, so exclude it
+            if (!Character.isISOControl(e.character) && e.character != ' ')
             {
                 SearchPopup search = new SearchPopup(thingy, Character.toString(e.character));
                 search.open();
