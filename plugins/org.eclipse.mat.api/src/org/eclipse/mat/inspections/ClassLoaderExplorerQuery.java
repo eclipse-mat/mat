@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2010 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation - child view
  *******************************************************************************/
 package org.eclipse.mat.inspections;
 
@@ -20,6 +21,7 @@ import java.util.List;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.HashMapIntObject;
+import org.eclipse.mat.collect.SetInt;
 import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.ContextProvider;
@@ -38,6 +40,7 @@ import org.eclipse.mat.snapshot.OQL;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IClassLoader;
 import org.eclipse.mat.snapshot.model.IObject;
+import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.snapshot.query.Icons;
 import org.eclipse.mat.util.IProgressListener;
 
@@ -47,32 +50,53 @@ public class ClassLoaderExplorerQuery implements IQuery
     @Argument
     public ISnapshot snapshot;
 
+    @Argument(flag = Argument.UNFLAGGED, isMandatory = false)
+    public IHeapObjectArgument objects;
+
+    @Argument(isMandatory = false)
+    public boolean tree;
+    
     public IResult execute(IProgressListener listener) throws Exception
     {
         // collect all class loader instances
         HashMapIntObject<Node> classLoader = new HashMapIntObject<Node>();
+        // Collect root nodes
+        SetInt roots = new SetInt();
+        if (objects != null)
+        {
+            for (int ia[] : objects)
+            {
+                if (listener.isCanceled()) new IProgressListener.OperationCanceledException();
+                for (int objectId : ia)
+                {
+                    
+                    if (snapshot.isClassLoader(objectId))
+                    {
+                        roots.add(objectId);
+                    }
+                    else if (snapshot.isClass(objectId))
+                    {
+                        IClass clazz = (IClass)snapshot.getObject(objectId);
+                        roots.add(clazz.getClassLoaderId());
+                    }
+                    else
+                    {
+                        IObject obj = snapshot.getObject(objectId);
+                        IClass clazz = obj.getClazz();
+                        roots.add(clazz.getClassLoaderId());
+                    }
+                }
+            }
+        }
         Collection<IClass> classes = snapshot.getClassesByName(IClass.JAVA_LANG_CLASSLOADER, true);
         if (classes != null)
             for (IClass clazz : classes)
                 for (int objectId : clazz.getObjectIds())
                     classLoader.put(objectId, new Node(objectId));
-
         // assign defined classes
         for (IClass clazz : snapshot.getClasses())
         {
-            Node node = classLoader.get(clazz.getClassLoaderId());
-            if (node == null)
-            {
-                // node can be null, if the class hierarchy information is not
-                // contained in the heap dump (e.g. PHD)
-                int objectId = clazz.getClassLoaderId();
-                node = new Node(objectId);
-                classLoader.put(objectId, node);
-            }
-            if (node.definedClasses == null)
-                node.definedClasses = new ArrayList<IClass>();
-            node.definedClasses.add(clazz);
-            node.instantiatedObjects += clazz.getNumberOfObjects();
+            addClass(classLoader, clazz);
         }
 
         // create hierarchy
@@ -104,13 +128,48 @@ public class ClassLoaderExplorerQuery implements IQuery
                 node.name = cl.getTechnicalName();
 
             IObject parent = (IObject) cl.resolveValue("parent"); //$NON-NLS-1$
+            boolean showNode = true;
             if (parent != null)
-                node.parent = classLoader.get(parent.getObjectId());
+            {
+                Node parentNode = classLoader.get(parent.getObjectId());
+                if (!tree)
+                {
+                    node.parent = parentNode;
+                }
+                if (tree)
+                {
+                    if (parentNode != null)
+                    {
+                        if (parentNode.children == null)
+                            parentNode.children = new ArrayList<Node>();
+                        parentNode.children.add(node);
+                        showNode = false;
+                    }
+                }
+            }
 
-            nodes.add(node);
+            if (objects == null ? showNode : roots.contains(node.classLoaderId))
+                nodes.add(node);
         }
 
         return new Result(snapshot, nodes);
+    }
+
+    private void addClass(HashMapIntObject<Node> classLoader, IClass clazz)
+    {
+        Node node = classLoader.get(clazz.getClassLoaderId());
+        if (node == null)
+        {
+            // node can be null, if the class hierarchy information is not
+            // contained in the heap dump (e.g. PHD)
+            int objectId = clazz.getClassLoaderId();
+            node = new Node(objectId);
+            classLoader.put(objectId, node);
+        }
+        if (node.definedClasses == null)
+            node.definedClasses = new ArrayList<IClass>();
+        node.definedClasses.add(clazz);
+        node.instantiatedObjects += clazz.getNumberOfObjects();
     }
 
     private static class Node
@@ -121,6 +180,7 @@ public class ClassLoaderExplorerQuery implements IQuery
         int instantiatedObjects;
 
         List<IClass> definedClasses;
+        List<Node> children;
 
         public Node(int classLoaderId)
         {
@@ -136,6 +196,14 @@ public class ClassLoaderExplorerQuery implements IQuery
         public Parent(Node node)
         {
             this.node = node;
+        }
+    }
+
+    private static class Child extends Parent
+    {
+        public Child(Node node)
+        {
+            super(node);
         }
     }
 
@@ -265,7 +333,7 @@ public class ClassLoaderExplorerQuery implements IQuery
             if (element instanceof IClass)
                 return false;
             Node node = element instanceof Node ? (Node) element : ((Parent) element).node;
-            return node.parent != null || node.definedClasses != null;
+            return node.parent != null || node.definedClasses != null || node.children != null;
         }
 
         public List<?> getChildren(Object parent)
@@ -273,10 +341,17 @@ public class ClassLoaderExplorerQuery implements IQuery
             Node node = parent instanceof Node ? (Node) parent : ((Parent) parent).node;
 
             int size = node.definedClasses != null ? node.definedClasses.size() + 1 : 1;
+            if (node.children != null) size += node.children.size();
             List<Object> children = new ArrayList<Object>(size);
 
             if (node.parent != null)
                 children.add(new Parent(node.parent));
+
+            if (node.children != null)
+            {
+                for (Node n : node.children)
+                    children.add(new Child(n));
+            }
 
             if (node.definedClasses != null)
                 children.addAll(node.definedClasses);
@@ -340,6 +415,8 @@ public class ClassLoaderExplorerQuery implements IQuery
                 return Icons.CLASS;
 
             Node node = row instanceof Node ? (Node) row : ((Parent) row).node;
+            if (row instanceof Child)
+                return Icons.inbound(snapshot, node.classLoaderId);
             return node.parent != null ? Icons.outbound(snapshot, node.classLoaderId) //
                             : Icons.forObject(snapshot, node.classLoaderId);
         }
