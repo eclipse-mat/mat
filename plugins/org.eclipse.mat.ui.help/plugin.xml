@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.2"?><!--
-    Copyright (c) 2008 SAP AG.
+    Copyright (c) 2008, 2010 SAP AG and IBM Corporation.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
    
     Contributors:
         SAP AG - initial API and implementation
+        IBM Corporation - javadoc
  -->
 
 <plugin>
@@ -65,4 +66,40 @@
 				name="Finding Memory Problems Tutorial"/>
 	</extension>
 
+	<extension point="org.eclipse.pde.core.javadoc">
+    <javadoc
+          archive="false"
+          path="doc">
+       <plugin
+             id="org.eclipse.mat.api">
+       </plugin>
+       <plugin
+             id="org.eclipse.mat.parser">
+       </plugin>
+       <plugin
+             id="org.eclipse.mat.report">
+       </plugin>
+       <plugin
+             id="org.eclipse.mat.hprof">
+       </plugin>
+       <plugin
+             id="org.eclipse.mat.dtfj">
+       </plugin>
+       <plugin
+             id="org.eclipse.mat.ibmdumps">
+       </plugin>
+       <plugin
+             id="org.eclipse.mat.ui">
+       </plugin>
+       <plugin
+             id="org.eclipse.mat.jdt">
+       </plugin>
+       <plugin
+             id="org.eclipse.mat.chart">
+       </plugin>
+       <plugin
+             id="org.eclipse.mat.chart.ui">
+       </plugin>
+    </javadoc>
+	</extension>
 </plugin>
