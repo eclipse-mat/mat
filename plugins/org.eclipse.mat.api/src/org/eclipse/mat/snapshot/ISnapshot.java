@@ -38,10 +38,15 @@ import org.eclipse.mat.util.IProgressListener;
  * only for display purposes). In order to simplify working with them and for
  * performance reasons compared to <code>Collection&lt;Integer&gt;</code> some
  * helper classes are provided and you are strongly advised to use them:
- * BitField (for huge fixed bit fields), ArrayIntBig and ArrayLongBig (for huge
- * growing arrays) and ArrayIntCompressed and ArrayLongCompressed (for
- * fixed-size compressed arrays).
- * 
+ * {@link org.eclipse.mat.collect.BitField} (for huge fixed bit fields), 
+ * {@link org.eclipse.mat.collect.ArrayIntBig} and 
+ * {@link org.eclipse.mat.collect.ArrayLongBig} (for huge growing arrays),
+ * {@link org.eclipse.mat.collect.ArrayIntCompressed} and
+ * {@link org.eclipse.mat.collect.ArrayLongCompressed} (for fixed-size compressed arrays),
+ * {@link org.eclipse.mat.collect.ArrayInt} and 
+ * {@link org.eclipse.mat.collect.ArrayLong} for large lists of ints or longs,
+ * {@link org.eclipse.mat.collect.SetInt} and 
+ * {@link org.eclipse.mat.collect.SetLong} for large sets of ints or longs.
  * @noimplement
  */
 public interface ISnapshot
