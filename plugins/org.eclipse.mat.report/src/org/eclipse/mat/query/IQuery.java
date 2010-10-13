@@ -35,10 +35,9 @@ import org.eclipse.mat.util.IProgressListener;
  * <ul>
  * <li>{@link Pattern}</li>
  * <li>boolean flags</li>
-  * <li>int parm</li>
+ * <li>int parm</li>
+ * <li>File file optionally tagged with tagged with {@link Advice.DIRECTORY} or  {@link Advice.SAVE}.</li>
  * </ul>
- * Implementations of this interface need to be
- * registered using the <code>org.eclipse.mat.api.query</code> extension point.
  * The implementation can be tagged with the following annotations to control the placement
  * and help in the query menus.
  * <ul>
