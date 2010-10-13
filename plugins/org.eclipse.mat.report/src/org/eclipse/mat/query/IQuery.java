@@ -29,14 +29,14 @@ import org.eclipse.mat.util.IProgressListener;
  * <li>{@link org.eclipse.mat.snapshot.query.IHeapObjectArgument}</li>
  * <li>{@link IContextObject}</li>
  * <li>{@link IContextObjectSet}</li>
- * <li>int or int[] tagged with {@link Advice.HEAP_OBJECT}.</li>
+ * <li>int or int[] tagged with {@link Advice#HEAP_OBJECT}.</li>
  * </ul>
  * Typical arguments to be supplied by the user of the query include
  * <ul>
  * <li>{@link Pattern}</li>
  * <li>boolean flags</li>
  * <li>int parm</li>
- * <li>File file optionally tagged with tagged with {@link Advice.DIRECTORY} or  {@link Advice.SAVE}.</li>
+ * <li>File file optionally tagged with tagged with {@link Advice#DIRECTORY} or  {@link Advice#SAVE}.</li>
  * </ul>
  * The implementation can be tagged with the following annotations to control the placement
  * and help in the query menus.
@@ -46,7 +46,7 @@ import org.eclipse.mat.util.IProgressListener;
  * <li>{@link org.eclipse.mat.query.annotations.CommandName}</li>
  * <li>{@link org.eclipse.mat.query.annotations.Icon}</li>
  * <li>{@link org.eclipse.mat.query.annotations.Help}</li>
- * <li>{@link org.eclipse.mat.query.annotations.HelpURL}</li>
+ * <li>{@link org.eclipse.mat.query.annotations.HelpUrl}</li>
  * <li>{@link org.eclipse.mat.query.annotations.Menu}</li>
  * </ul>
  * 
