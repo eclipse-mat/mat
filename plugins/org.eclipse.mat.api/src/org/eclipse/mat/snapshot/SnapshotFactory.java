@@ -36,6 +36,8 @@ public final class SnapshotFactory
     /**
      * Describes the snapshot factory implementation.
      * Implemented in the parser plugin.
+     * Implementations of this interface need to be
+     * registered using the <code>org.eclipse.mat.api.factory</code> extension point.
      * @noimplement
      */
     public interface Implementation
