@@ -23,14 +23,32 @@ import org.eclipse.mat.util.IProgressListener;
  * Interface representing a query on the heap dump.
  * Arguments can be injected into the query using public fields marked with the {@link Argument} annotation.
  * Typical arguments are
- * {@link ISnapshot}, 
- * {@link IHeapObjectArgument},
- * {@link IContentObject}, 
- * {@link IContextObjectSet}, 
- * int or int[] tagged with {@link Advice.HEAP_OBJECT}.
- * Typical arguments to be supplied by the user of the query include {@link Pattern}, boolean flags, int.
+ * <ul>
+ * <li>{@link org.eclipse.mat.snapshot.ISnapshot}</li> 
+ * <li>{@link org.eclipse.mat.snapshot.query.IHeapObjectArgument}</li>
+ * <li>{@link IContextObject}</li>
+ * <li>{@link IContextObjectSet}</li>
+ * <li>int or int[] tagged with {@link Advice.HEAP_OBJECT}.</li>
+ * </ul>
+ * Typical arguments to be supplied by the user of the query include
+ * <ul>
+ * <li>{@link Pattern}</li>
+ * <li>boolean flags</li>
+  * <li>int parm</li>
+ * </ul>
  * Implementations of this interface need to be
  * registered using the <code>org.eclipse.mat.api.query</code> extension point.
+ * The implementation can be tagged with the following annotations to control the placement
+ * and help in the query menus.
+ * <ul>
+ * <li>{@link org.eclipse.mat.query.annotations.Name}</li>
+ * <li>{@link org.eclipse.mat.query.annotations.Category}</li>
+ * <li>{@link org.eclipse.mat.query.annotations.CommandName}</li>
+ * <li>{@link org.eclipse.mat.query.annotations.Icon}</li>
+ * <li>{@link org.eclipse.mat.query.annotations.Help}</li>
+ * <li>{@link org.eclipse.mat.query.annotations.HelpURL}</li>
+ * <li>{@link org.eclipse.mat.query.annotations.Menu}</li>
+ * </ul>
  */
 public interface IQuery
 {
