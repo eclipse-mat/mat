@@ -18,6 +18,8 @@ import org.eclipse.mat.util.IProgressListener;
 
 /**
  * Provides functionality to acquire a heap dump from a locally running Java process
+ * Implementations of this interface need to be
+ * registered using the <code>org.eclipse.mat.api.heapDumpProvider</code> extension point.
  * 
  * @author ktsvetkov
  * @since 1.0
