@@ -611,7 +611,8 @@ public interface ISnapshot
     /**
      * Get additional JVM information, if available.
      * <p>
-     * 
+     * For example, from the supplied snapshot implementation {@link org.eclipse.mat.parser.internal.SnapshotImpl}
+     * the extra information is obtained via {@link org.eclipse.mat.parser.IObjectReader#getAddons(Class<A>)}.
      * @return SnapshotAddons - extended information, e.g. perm info, OoM stack
      *         trace info, JVM arguments, etc.
      * @throws SnapshotException

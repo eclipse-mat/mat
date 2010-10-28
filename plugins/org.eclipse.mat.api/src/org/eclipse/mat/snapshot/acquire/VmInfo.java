@@ -10,9 +10,26 @@
  *******************************************************************************/
 package org.eclipse.mat.snapshot.acquire;
 
+import org.eclipse.mat.query.annotations.Argument;
+import org.eclipse.mat.query.annotations.Argument.Advice;
+
 /**
- * Instances of this class are descriptors of locally running Java processes
- * 
+ * Instances of this class are descriptors of locally running Java processes.
+ * Arguments can be injected into the query using public fields marked with the {@link Argument} annotation.
+ * Typical arguments to be supplied by the user of the heap dump provider include
+ * <ul>
+ * <li>boolean flags</li>
+ * <li>int parm</li>
+ * <li>File file optionally tagged with tagged with {@link Advice#DIRECTORY} or  {@link Advice#SAVE}.</li>
+ * <li>enum - an enum</li>
+ * </ul>
+ * The implementation can be tagged with the following annotations to control the description and help text.
+ * <ul>
+ * <li>{@link org.eclipse.mat.query.annotations.Name}</li>
+ * <li>{@link org.eclipse.mat.query.annotations.Help}</li>
+ * <li>{@link org.eclipse.mat.query.annotations.HelpUrl}</li>
+ * <li>{@link org.eclipse.mat.query.annotations.Usage}</li>
+ * </ul>
  * @author ktsvetkov
  * @since 1.0
  * 
