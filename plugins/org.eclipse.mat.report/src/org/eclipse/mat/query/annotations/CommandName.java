@@ -19,7 +19,8 @@ import java.lang.annotation.Target;
 /**
  * (Optionally) annotates the command name of the query. If not provided, the
  * name of the query is changed to lower case letters and spaces are replaced by
- * underscore. This name is used in the Query Browser command line and in
+ * underscore. This name is used in the Query Browser command line,
+ * as the command name in the tab of a query and in
  * {@link org.eclipse.snapshot.query.SnapshotQuery#lookup(String, org.eclipse.snapshot.ISnapshot)}.
  */
 @Target( { TYPE })

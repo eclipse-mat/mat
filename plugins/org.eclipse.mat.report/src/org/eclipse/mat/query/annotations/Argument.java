@@ -16,8 +16,14 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import org.eclipse.mat.query.IQuery;
+
 /**
  * Annotates a member variable to be an query argument.
+ * Memory Analyzer queries implementing {@link IQuery} use @Argument
+ * to annotate query arguments.
+ * Heap dump providers using implementations of {@link org.eclipse.mat.snapshot.acquire.IHeapDumpProvider} 
+ * and subclasses of {@link org.eclipse.mat.snapshot.acquire.VmInfo} can use @Argument to annotate extra arguments.
  */
 @Target( { FIELD })
 @Retention(RUNTIME)

@@ -13,6 +13,7 @@ package org.eclipse.mat.query;
 
 import java.util.regex.Pattern;
 
+import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.Argument.Advice;
 import org.eclipse.mat.query.results.CompositeResult;
@@ -23,13 +24,16 @@ import org.eclipse.mat.util.IProgressListener;
 /**
  * Interface representing a query on the heap dump.
  * Arguments can be injected into the query using public fields marked with the {@link Argument} annotation.
- * Typical arguments are
+ * Typical arguments for a {@link org.eclipse.mat.snapshot.query.SnapshotQuery} are
  * <ul>
  * <li>{@link org.eclipse.mat.snapshot.ISnapshot}</li> 
  * <li>{@link org.eclipse.mat.snapshot.query.IHeapObjectArgument}</li>
  * <li>{@link IContextObject}</li>
  * <li>{@link IContextObjectSet}</li>
+ * <li>{@link IObject} - a object from the heap</li>
  * <li>int or int[] tagged with {@link Advice#HEAP_OBJECT}.</li>
+ * <li>{@link ArrayInt} - list of object ids</li>
+ * <li>{@link IHeapObjectArgument} - some heap objects</li>
  * </ul>
  * Typical arguments to be supplied by the user of the query include
  * <ul>
@@ -37,6 +41,7 @@ import org.eclipse.mat.util.IProgressListener;
  * <li>boolean flags</li>
  * <li>int parm</li>
  * <li>File file optionally tagged with tagged with {@link Advice#DIRECTORY} or  {@link Advice#SAVE}.</li>
+ * <li>enum - an enum</li>
  * </ul>
  * The implementation can be tagged with the following annotations to control the placement
  * and help in the query menus.
@@ -48,6 +53,7 @@ import org.eclipse.mat.util.IProgressListener;
  * <li>{@link org.eclipse.mat.query.annotations.Help}</li>
  * <li>{@link org.eclipse.mat.query.annotations.HelpUrl}</li>
  * <li>{@link org.eclipse.mat.query.annotations.Menu}</li>
+ * <li>{@link org.eclipse.mat.query.annotations.Usage}</li>
  * </ul>
  * 
  * Implementations of this interface need to be
