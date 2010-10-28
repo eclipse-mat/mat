@@ -40,9 +40,9 @@ import org.eclipse.mat.collect.IteratorInt;
 import org.eclipse.mat.collect.SetInt;
 import org.eclipse.mat.parser.IObjectReader;
 import org.eclipse.mat.parser.index.IIndexReader;
-import org.eclipse.mat.parser.index.IndexManager;
 import org.eclipse.mat.parser.index.IIndexReader.IOne2OneIndex;
 import org.eclipse.mat.parser.index.IIndexReader.IOne2SizeIndex;
+import org.eclipse.mat.parser.index.IndexManager;
 import org.eclipse.mat.parser.internal.snapshot.HistogramBuilder;
 import org.eclipse.mat.parser.internal.snapshot.MultiplePathsFromGCRootsComputerImpl;
 import org.eclipse.mat.parser.internal.snapshot.ObjectCache;
@@ -60,6 +60,7 @@ import org.eclipse.mat.parser.model.XClassHistogramRecord;
 import org.eclipse.mat.parser.model.XGCRootInfo;
 import org.eclipse.mat.parser.model.XSnapshotInfo;
 import org.eclipse.mat.snapshot.DominatorsSummary;
+import org.eclipse.mat.snapshot.DominatorsSummary.ClassDominatorRecord;
 import org.eclipse.mat.snapshot.ExcludedReferencesDescriptor;
 import org.eclipse.mat.snapshot.Histogram;
 import org.eclipse.mat.snapshot.IMultiplePathsFromGCRootsComputer;
@@ -67,16 +68,15 @@ import org.eclipse.mat.snapshot.IPathsFromGCRootsComputer;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.PathsFromGCRootsTree;
 import org.eclipse.mat.snapshot.UnreachableObjectsHistogram;
-import org.eclipse.mat.snapshot.DominatorsSummary.ClassDominatorRecord;
 import org.eclipse.mat.snapshot.model.GCRootInfo;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IThreadStack;
 import org.eclipse.mat.snapshot.model.NamedReference;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.VoidProgressListener;
-import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
 
 public final class SnapshotImpl implements ISnapshot
 {
@@ -1975,6 +1975,14 @@ public final class SnapshotImpl implements ISnapshot
         return rootsPerThread;
     }
 
+    /**
+     * Get additional JVM information, if available.
+     * <p>
+     * A known type is {@link UnreachableObjectsHistogram}. 
+     * Extra information can be obtained from an implementation of {@link IObjectReader#getAddon(Class)}.
+     * @param the type of the data. For example, {@link UnreachableObjectsHistogram}.class
+     * @return the extra data
+     */
     @SuppressWarnings("unchecked")
     public <A> A getSnapshotAddons(Class<A> addon) throws SnapshotException
     {

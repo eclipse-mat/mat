@@ -92,9 +92,19 @@ public class DTFJHeapObjectReader implements IObjectReader
         DTFJIndexBuilder.releaseDump(file, true);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.eclipse.mat.parser.IObjectReader#getAddon(java.lang.Class)
+    /**
+     * Returns extra data to be provided by {@link ISnapshot#getSnapshotAddons(Class<A> addon)}.
+     * Also can be returned via {@link org.eclipse.mat.query.annotations.Argument}.
+     * @see IObjectReader#getAddon(Class)
+     * @param addon the type of the extra data required from the dump
+     *  Types supported by DTFJHeapObjectReader include
+     *  <ul>
+     *  <li>{@link com.ibm.dtfj.image.Image}</li>
+     *  <li>{@link com.ibm.dtfj.image.ImageAddressSpace}</li>
+     *  <li>{@link com.ibm.dtfj.image.ImageProcess}</li>
+     *  <li>{@link com.ibm.dtfj.java.JavaRuntime}</li>
+     *  </ul>
+     * @return the extra data
      */
     public <A> A getAddon(Class<A> addon) throws SnapshotException
     {

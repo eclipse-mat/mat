@@ -193,6 +193,15 @@ public class HprofHeapObjectReader implements IObjectReader
         return hprofDump.read(objectId, filePosition, snapshot);
     }
 
+    /**
+     * Returns extra data to be provided by {@link ISnapshot#getSnapshotAddons(Class<A> addon)}.
+     * Also can be returned via {@link org.eclipse.mat.query.annotations.Argument}.
+     * @see org.eclipse.mat.parser.IObjectReader#getAddon(Class)
+     * @param addon the type of the extra data required from the dump.
+     * HprofHeapObjectReader can be extended using an {@link IRuntimeEnhancer} extension
+     * to return extra data.
+     * @return the extra data
+     */
     public <A> A getAddon(Class<A> addon) throws SnapshotException
     {
         for (IRuntimeEnhancer enhancer : enhancers)
