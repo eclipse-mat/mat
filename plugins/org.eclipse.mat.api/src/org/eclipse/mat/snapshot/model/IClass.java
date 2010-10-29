@@ -28,6 +28,8 @@ public interface IClass extends IObject
 
     /**
      * Returns the fully qualified class name of this class.
+     * The package components are separated by dots '.'.
+     * Inner classes use $ to separate the parts.
      */
     public String getName();
 
@@ -54,11 +56,15 @@ public interface IClass extends IObject
     /**
      * Returns field descriptors for all member variables of instances of this
      * class.
+     * If the snapshot data format does not contain field data then this will be an
+     * empty list.
      */
     public List<FieldDescriptor> getFieldDescriptors();
 
     /**
      * Returns the static fields and it values.
+     * If the snapshot data format does not contain field data then this will be an
+     * empty list.
      */
     public List<Field> getStaticFields();
 

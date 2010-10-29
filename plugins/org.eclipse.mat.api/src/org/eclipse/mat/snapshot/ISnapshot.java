@@ -171,6 +171,8 @@ public interface ISnapshot
     /**
      * Get all objects referencing the given object.
      * <p>
+     * This is the inverse of {@link #getOutboundReferentIds(int[], IProgressListener).
+     * <p>
      * Performance: Relatively fast - single index operation.
      * 
      * @param objectId
@@ -182,6 +184,18 @@ public interface ISnapshot
 
     /**
      * Get all objects referenced by the given object.
+     * <p>
+     * This shows the keep-alive relationship between objects and includes:
+     * <ul>
+     * <li>a reference from an object to its type (class)</li>
+     * <li>reference fields in objects</li>
+     * <li>references in object arrays</li>
+     * <li>a references from a class to its class loader</li>
+     * <li>a reference from a class to its superclass</li>
+     * <li>static reference fields in class objects</li>
+     * <li>classes loaded by a class loader</li>
+     * </ul>
+     * This is the inverse of {@link #getInboundReferentIds(int[], IProgressListener).
      * <p>
      * Performance: Relatively fast - single index operation.
      * 
@@ -328,6 +342,28 @@ public interface ISnapshot
     public int[] getRetainedSet(int[] objectIds, String[] fieldNames, IProgressListener progressMonitor)
                     throws SnapshotException;
 
+    /**
+     * Get retained set of objects for the given fields at the given objects
+     * (excluding the given objects).
+     * <p>
+     * The retained set includes the objects referenced by the fields on the
+     * given objects and all objects which are lifetime-dependent on them, i.e.
+     * which would be garbage collected if the references at the given fields at
+     * the given objects would be nulled.
+     * <p>
+     * Performance: Usually extremely slow - on index; depending on the number
+     * of objects and the references (deep).
+     * 
+     * @param objectIds
+     *            objects on which the retained set should be determined
+     * @param excludedReferences
+     *            references which should not be followed
+     * @param progressMonitor
+     *            progress listener informing about the current state of
+     *            execution
+     * @return retained set of objects for the given objects
+     * @throws SnapshotException
+     */
     public int[] getRetainedSet(int[] objectIds, ExcludedReferencesDescriptor[] excludedReferences,
                     IProgressListener progressMonitor) throws SnapshotException;
 
