@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation - optional columns
  *******************************************************************************/
 package org.eclipse.mat.inspections.threads;
 
@@ -87,7 +88,7 @@ public class ThreadOverviewQuery implements IQuery
             this.snapshot = snapshot;
             this.infos = infos;
 
-            this.columns = ThreadInfoImpl.getColumns().toArray(new Column[0]);
+            this.columns = ThreadInfoImpl.getUsedColumns(infos).toArray(new Column[0]);
         }
 
         public ResultMetaData getResultMetaData()

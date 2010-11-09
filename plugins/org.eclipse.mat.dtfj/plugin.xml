@@ -35,4 +35,10 @@
             objectReader="org.eclipse.mat.dtfj.DTFJHeapObjectReader">
       </parser>
    </extension>
+   <extension
+         point="org.eclipse.mat.api.threadResolver">
+      <resolver
+            impl="org.eclipse.mat.dtfj.ThreadDetailsResolver">
+      </resolver>
+   </extension>
 </plugin>

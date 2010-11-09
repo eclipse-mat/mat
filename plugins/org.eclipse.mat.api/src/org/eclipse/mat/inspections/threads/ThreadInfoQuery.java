@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2010 SAP AG & IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation - optional columns
  *******************************************************************************/
 package org.eclipse.mat.inspections.threads;
 
@@ -99,7 +100,7 @@ public class ThreadInfoQuery implements IQuery
         properties.setCommand("list_objects 0x" + Long.toHexString(tInfo.getThreadObject().getObjectAddress())); //$NON-NLS-1$
 
         List<NameValuePair> pairs = new ArrayList<NameValuePair>();
-        for (Column column : ThreadInfoImpl.getColumns())
+        for (Column column : tInfo.getUsedColumns())
         {
             Object value = tInfo.getValue(column);
             String f = value == null ? "" : column.getFormatter() != null ? column.getFormatter().format(value) //$NON-NLS-1$

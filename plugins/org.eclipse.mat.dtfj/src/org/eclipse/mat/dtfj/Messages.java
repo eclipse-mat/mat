@@ -227,6 +227,29 @@ public class Messages extends NLS
     public static String DTFJIndexBuilder_UsingConservativeGarbageCollectionRoots;
     public static String DTFJIndexBuilder_UsingDTFJRoots;
     public static String DTFJIndexBuilder_UsingProcessPointerSizeNotAddressSpacePointerSize;
+    public static String ThreadDetailsResolver_alive;
+    public static String ThreadDetailsResolver_blocked_on_monitor_enter;
+    public static String ThreadDetailsResolver_DTFJ_Name;
+    public static String ThreadDetailsResolver_in_native;
+    public static String ThreadDetailsResolver_in_object_wait;
+    public static String ThreadDetailsResolver_interrupted;
+    public static String ThreadDetailsResolver_JNIEnv;
+    public static String ThreadDetailsResolver_Native_id;
+    public static String ThreadDetailsResolver_Native_stack;
+    public static String ThreadDetailsResolver_parked;
+    public static String ThreadDetailsResolver_Priority;
+    public static String ThreadDetailsResolver_runnable;
+    public static String ThreadDetailsResolver_sleeping;
+    public static String ThreadDetailsResolver_suspended;
+    public static String ThreadDetailsResolver_State;
+    public static String ThreadDetailsResolver_State_value;
+    public static String ThreadDetailsResolver_terminated;
+    public static String ThreadDetailsResolver_vendor1;
+    public static String ThreadDetailsResolver_vendor2;
+    public static String ThreadDetailsResolver_vendor3;
+    public static String ThreadDetailsResolver_waiting;
+    public static String ThreadDetailsResolver_waiting_indefinitely;
+    public static String ThreadDetailsResolver_waiting_with_timeout;
     static
     {
         // initialize resource bundle

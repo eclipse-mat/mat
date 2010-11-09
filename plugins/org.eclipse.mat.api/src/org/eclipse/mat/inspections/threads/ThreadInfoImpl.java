@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2010 SAP AG & IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation - optional columns
  *******************************************************************************/
 package org.eclipse.mat.inspections.threads;
 
@@ -131,7 +132,7 @@ import org.eclipse.mat.util.IProgressListener;
         }
     }
 
-    /* package */static List<Column> getColumns()
+    /* package */List<Column> getUsedColumns()
     {
         List<Column> answer = new ArrayList<Column>();
         answer.addAll(defaultColumns);
@@ -140,7 +141,32 @@ import org.eclipse.mat.util.IProgressListener;
             Column[] cols = resolver.getColumns();
             if (cols != null)
                 for (int ii = 0; ii < cols.length; ii++)
-                    answer.add(cols[ii]);
+                {
+                    if (properties.containsKey(cols[ii]))
+                        answer.add(cols[ii]);
+                }
+        }
+
+        return answer;
+    }
+
+    /* package */static List<Column> getUsedColumns(List<ThreadInfoImpl> threads)
+    {
+        List<Column> answer = new ArrayList<Column>();
+        answer.addAll(defaultColumns);
+        for (IThreadDetailsResolver resolver : ThreadDetailResolverRegistry.instance().delegates())
+        {
+            Column[] cols = resolver.getColumns();
+            if (cols != null)
+                for (int ii = 0; ii < cols.length; ii++)
+                {
+                    for (ThreadInfoImpl thread : threads)
+                        if (thread.properties.containsKey(cols[ii]))
+                        {
+                            answer.add(cols[ii]);
+                            break;
+                        }
+                }
         }
 
         return answer;
