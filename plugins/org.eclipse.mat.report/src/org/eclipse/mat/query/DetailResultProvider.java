@@ -21,8 +21,9 @@ public abstract class DetailResultProvider
     private String label;
 
     /**
-     * Constructor with a description.
-     * @param label
+     * Constructor of object to enhance details of rows of a table.
+     * Used to give more detailed information about rows in a table as another IResult.
+     * @param label the description used for example as a query menu item or as a link in an HTML report.
      */
     public DetailResultProvider(String label)
     {
