@@ -41,6 +41,11 @@ public final class ResultMetaData
             return this;
         }
 
+        /**
+         * Add a {@link DetailResultProvider} which can provide enhanced information about a result.
+         * @param provider
+         * @return this Builder
+         */
         public Builder addDetailResult(DetailResultProvider provider)
         {
             data.resultProviders.add(provider);
