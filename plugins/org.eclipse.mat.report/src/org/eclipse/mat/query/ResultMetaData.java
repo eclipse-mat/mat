@@ -34,6 +34,9 @@ public final class ResultMetaData
         /**
          * Add a named {@link ContextProvider} to display additional context
          * menus.
+         * For example, a row may represent two different sets of object(s) and
+         * in a query menu it may be useful for the user to choose which set before running
+         * the next query on a selection.
          */
         public Builder addContext(ContextProvider provider)
         {
