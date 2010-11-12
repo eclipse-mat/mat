@@ -107,7 +107,7 @@ public interface ISnapshot
      *            flag indicating whether or not to include also classes derived
      *            from matching classes (the name isn't taken into account for
      *            sub classes anymore)
-     * @return collection of matching classes
+     * @return collection of matching classes - current implementations can return null if there is no class found
      * @throws SnapshotException
      */
     public Collection<IClass> getClassesByName(String name, boolean includeSubClasses) throws SnapshotException;
