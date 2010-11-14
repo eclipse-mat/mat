@@ -12,6 +12,10 @@ package org.eclipse.mat.query;
 
 /**
  * Interface to mark a query result.
+ * There are several implementations of IResult supplied with Memory Analyzer,
+ * together with user interface code to display them.
+ * The org.eclipse.mat.ui.editorPanes extension can be used to extend 
+ * the Memory Analyzer user interface to display new custom IResult types.
  */
 public interface IResult
 {
