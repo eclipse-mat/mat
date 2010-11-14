@@ -20,6 +20,11 @@ import org.eclipse.mat.report.ITestResult;
 
 /**
  * Return multiple result types.
+ * If it is returned from an IQuery without {@link #setAsHtml(boolean)} being set to true
+ * then the Memory Analyzer graphical user interface displays each result as a separate tab.
+ * If {@link #setAsHtml(boolean)} has been set true or 
+ * if the CompositeResult is incorporated into an HTML report then each result appears 
+ * as a separate HTML section.
  */
 public final class CompositeResult implements IResult
 {
