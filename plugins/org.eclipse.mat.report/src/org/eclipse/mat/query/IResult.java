@@ -19,6 +19,9 @@ public interface IResult
     /**
      * (Optionally) Return meta data of the result needed to fine-tune the
      * display of the result.
+     * This could include an additional context, an additional query to run on
+     * selected data from the result , additional calculated columns,
+     * or an indication that the results are already presorted.
      */
     ResultMetaData getResultMetaData();
 }
