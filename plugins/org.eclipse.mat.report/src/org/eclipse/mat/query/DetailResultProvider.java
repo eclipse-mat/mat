@@ -14,7 +14,7 @@ import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.util.IProgressListener;
 
 /**
- * Used to give more detailed information about rows in a table.
+ * Used to give more detailed information about rows in a table as another IResult.
  */
 public abstract class DetailResultProvider
 {
