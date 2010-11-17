@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Dimitar Giormov - initial API and implementation
+ *    Krum Tsvetkov - cleanup jruby dependency
  *******************************************************************************/
 package org.eclipse.mat.jruby.resolver;
 
@@ -24,13 +25,9 @@ import org.eclipse.mat.snapshot.extension.IThreadInfo;
 import org.eclipse.mat.snapshot.extension.Subject;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
+import org.eclipse.mat.snapshot.model.IObjectArray;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.osgi.util.NLS;
-import org.jruby.Ruby;
-import org.jruby.RubyArray;
-import org.jruby.internal.runtime.RubyRunnable;
-import org.jruby.runtime.ThreadContext;
-import org.jruby.runtime.ThreadContext.RubyStackTraceElement;
 
 /**
  * Utilities for extracting Ruby stack traces from Java processes.
@@ -39,39 +36,29 @@ import org.jruby.runtime.ThreadContext.RubyStackTraceElement;
  */
 @Subject("org.jruby.internal.runtime.RubyRunnable")
 public class RubyStacktraceDumper implements IRequestDetailsResolver {
+	
+	public final static String RUBY_RUNNABLE_CLASS = "org.jruby.internal.runtime.RubyRunnable";
+	public final static String THREAD_CONTEXT_CLASS = "org.jruby.runtime.ThreadContext";
 
 	public void complement(ISnapshot snapshot, IThreadInfo thread, int[] javaLocals, int thisJavaLocal, IProgressListener listener) throws SnapshotException {
-        // Instantiate a Ruby runtime so we can reuse the logic for printing stacktraces
-        // (which is very non-trivial!)
-        // TODO: Make this available from Ruby so we can reuse a runtime.
-        // This would also enable hot-linking the stacktrace from within Eclipse,
-        // which only understands the stack trace output if the process is launched 
-        // as a Ruby target rather than Java.
-		Ruby ruby = null;
-		try {
-			ruby = Ruby.newInstance();
-		} catch (NoClassDefFoundError e) {
-			thread.addRequest(
-					Messages.RubyStacktraceDumper_NoJRuby, 
-					new TextResult(Messages.RubyStacktraceDumper_NoJRubyDetails, true));
-			return;
-		}
         
-        for (Entry<String, RubyStackTraceElement[]> entry : getAllStackTraces(snapshot).entrySet()) {
+        for (Entry<String, FrameModel[]> entry : getAllStackTraces(snapshot).entrySet()) {
             String javaThreadName = entry.getKey();
-            RubyStackTraceElement[] backtraceFrames = entry.getValue();
+            FrameModel[] backtraceFrames = entry.getValue();
             CompositeResult result = new CompositeResult();
             
-            RubyArray backtrace = (RubyArray) ThreadContext.createBacktraceFromFrames(ruby, backtraceFrames);
-            if (javaThreadName == null && backtrace.size() == 1 && "<script>:1".equals(((String) backtrace.get(0)).trim())) {
-            	continue;
-            }
+// FIXME: find out what the commented code was doing
+//            if (javaThreadName == null && backtraceFrames.length == 1 && "<script>:1".equals(((String) backtrace[0]).trim())) {
+//            	continue;
+//            }
             if(!thread.getThreadObject().getClassSpecificName().equals(javaThreadName)){
             	continue;
             }
             
+            PrintableStackFrame[] stackTraceFrames = buildPrintableStack(backtraceFrames);
+            
             StringBuilder stackTrace = new StringBuilder();
-            for (Object element : backtrace){
+            for (PrintableStackFrame element : stackTraceFrames){
                 stackTrace.append(NLS.bind(Messages.RubyStacktraceDumper_StackTraceLine, element));
             }
 
@@ -93,25 +80,23 @@ public class RubyStacktraceDumper implements IRequestDetailsResolver {
      * Extracts the Ruby stack trace for all active Ruby threads in the given heap dump.
      * @throws SnapshotException 
      */
-    public static Map<String, RubyStackTraceElement[]> getAllStackTraces(final ISnapshot model) throws SnapshotException {
+    public static Map<String, FrameModel[]> getAllStackTraces(final ISnapshot model) throws SnapshotException {
         // Build a mapping between RubyThreads and Java Thread names.
         // The key is the RubyRunnable class, which is used in some way for any new Ruby thread.
         // TODO: This doesn't cover the root/main Ruby thread, which adopts the current Java thread!
         // There may be other cases I'm not covering as well.
-        final Map<RubyThreadProxy, String> javaThreadNameForRubyThread = new HashMap<RubyThreadProxy, String>();
-//        final JavaClass rubyRunnableClass = model.findClass(RubyRunnable.class.getName());
-        Collection<IClass> classesByName = model.getClassesByName(RubyRunnable.class.getName(), false);
+        final Map<IObject, String> javaThreadNameForRubyThread = new HashMap<IObject, String>();
+        Collection<IClass> classesByName = model.getClassesByName(RUBY_RUNNABLE_CLASS, false);
         for (IClass rubyRunnableClass : classesByName) {
         	int[] objectIds = rubyRunnableClass.getObjectIds();
         	for (int id : objectIds) {
         		IObject runnable = model.getObject(id);
-        		final RubyRunnableProxy runnableProxy = HeapDumpProxy.make(RubyRunnableProxy.class, RubyRunnable.class, runnable);
-        		final RubyThreadProxy rubyThread = runnableProxy.rubyThread();
-        		final ThreadProxy thread = runnableProxy.javaThread();
+        		IObject rubyThread = (IObject) runnable.resolveValue("rubyThread");
+        		IObject thread = (IObject) runnable.resolveValue("javaThread");
                 
                 // javaThread isn't set until RubyRunnable#run() is called, so it might be null.
                 if (thread != null) {
-                    final String threadName = new String(thread.name());
+                    final String threadName = new String(thread.getClassSpecificName());
                     
                     javaThreadNameForRubyThread.put(rubyThread, threadName);
                 }
@@ -119,44 +104,38 @@ public class RubyStacktraceDumper implements IRequestDetailsResolver {
 		}
         
         // Now build up the actual stack traces. All the state we need is in ThreadContext instances.
-        final Map<String, RubyStackTraceElement[]> stackTraces = new HashMap<String, RubyStackTraceElement[]>();
-        Collection<IClass> classesByName2 = model.getClassesByName(ThreadContext.class.getName(), false);
+        final Map<String, FrameModel[]> stackTraces = new HashMap<String, FrameModel[]>();
+        Collection<IClass> classesByName2 = model.getClassesByName(THREAD_CONTEXT_CLASS, false);
         for (IClass threadContextClass : classesByName2) {
         	int[] objectIds = threadContextClass.getObjectIds();
         	for (int id : objectIds) {
         		IObject threadContext = model.getObject(id);
-        		final ThreadContextProxy threadContextProxy = HeapDumpProxy.make(ThreadContextProxy.class, ThreadContext.class, threadContext);
 
-        		final RubyThreadProxy rubyThread = threadContextProxy.thread();
-        		final String javaThreadName = javaThreadNameForRubyThread.get(rubyThread);
+        		IObject rubyThread = (IObject) threadContext.resolveValue("thread");
+        		final String javaThreadName = javaThreadNameForRubyThread.get(rubyThread); // TODO check if this works
 
-        		final String currentFile = threadContextProxy.file();
-        		final int currentLine = threadContextProxy.line();
+        		final String currentFile = ((IObject) threadContext.resolveValue("file")).getClassSpecificName();
+        		final int currentLine = (Integer) threadContext.resolveValue("line");
 
-        		final FrameProxy[] frames = threadContextProxy.frameStack();
-        		final int frameIndex = threadContextProxy.frameIndex();
+        		IObjectArray frames = (IObjectArray) threadContext.resolveValue("frameStack");
+        		final int frameIndex = (Integer) threadContext.resolveValue("frameIndex");
         		// + 1 for the fact that frameIndex is the index of the top of the stack, 
         		// + 1 for the extra frame to include the current file/line number.
         		final int traceSize = frameIndex + 2;
-        		final RubyStackTraceElement[] backtraceFrames = new RubyStackTraceElement[traceSize];
+        		final FrameModel[] backtraceFrames = new FrameModel[traceSize];
 
         		// Fill in the extra stack frame for the current location.
         		// The class/method names won't be used - they come from the next frame up.
-        		backtraceFrames[0] = new RubyStackTraceElement(
+        		backtraceFrames[0] = new FrameModel(
         				Messages.RubyStacktraceDumper_Unknown, Messages.RubyStacktraceDumper_Unknown, 
         				currentFile, currentLine + 1, false);
 
         		// This is pretty much identical to ThreadContext#buildTrace(RubyStackTraceElement[])
+        		long[] addresses = frames.getReferenceArray();
         		for (int i = 0; i <= frameIndex; i++) {
-        			final FrameProxy frame = frames[i];
-
-        			final String frameFileName = frame.fileName();
-        			final int frameLine = frame.line();
-        			final String methodName = getMethodNameFromFrame(frame);
-        			final String moduleName = getClassNameFromFrame(frame);
-        			final boolean isBindingFrame = frame.isBindingFrame();
-
-        			backtraceFrames[traceSize - 1 - i] = new RubyStackTraceElement(moduleName, methodName, frameFileName, frameLine + 1, isBindingFrame);
+        			IObject frameObject = model.getObject(model.mapAddressToId(addresses[i]));
+        			FrameModel frame = new FrameModel(frameObject);
+        			backtraceFrames[traceSize - 1 - i] = frame;
         		}
 
         		stackTraces.put(javaThreadName, backtraceFrames);
@@ -166,35 +145,7 @@ public class RubyStacktraceDumper implements IRequestDetailsResolver {
         return stackTraces;
     }
     
-    /**
-     * Extract the class name for a frame (proxy). We need a non-null String or else the
-     * {@link StackTraceElement} constructor will complain. 
-     * <p>
-     * Derived from ThreadContext version,
-     * with the added wrinkle that the klazz field is lazily filled in and hence might
-     * be <code>null</code>.
-     * @param current
-     */
-    private static String getClassNameFromFrame(FrameProxy current) {
-        String klazzName = Messages.RubyStacktraceDumper_Unknown;
-        final RubyModuleProxy klazz = current.klazz();
-        if (klazz != null) {
-            final String fullName = klazz.fullName();
-            if (fullName != null) {
-                klazzName = fullName;
-            }
-        }
-        return klazzName;
-    }
-    
-    /**
-     * Extract the method name for a frame (proxy). We need a non-null String or else the
-     * {@link StackTraceElement} constructor will complain. 
-     * <p>
-     * Derived from ThreadContext version.
-     * @param current
-     */
-    private static String getMethodNameFromFrame(FrameProxy current) {
+    private static String getMethodNameFromFrame(FrameModel current) {
         String methodName = current.name();
         if (current.name() == null) {
             methodName = Messages.RubyStacktraceDumper_Unknown;
@@ -202,41 +153,129 @@ public class RubyStacktraceDumper implements IRequestDetailsResolver {
         return methodName;
     }
     
-    /**
-     * Proxy classes for use with {@link HeapDumpProxy}. 
-     */
+    private static PrintableStackFrame[] buildPrintableStack(FrameModel[] frames)
+    {
+    	PrintableStackFrame[] result = new PrintableStackFrame[frames.length - 1];
+    	for (int i = 0; i < result.length; i++)
+    	{
+    		int line = frames[i].line;
+    		if (i > 0) line += 1; // TODO not sure why +1?
+    		// take the method name from the next frame
+    		String methodName = getMethodNameFromFrame(frames[i + 1]);
+    		result[i] = new PrintableStackFrame(frames[i].fileName, line, methodName);
+    	}
+    	
+    	return result;
+    }
     
-    public static interface ThreadContextProxy {
-        RubyThreadProxy thread();
+    public static class FrameModel {
+    	
+		String fileName;
+        int line;
+        String name;
+        String moduleName;
+        boolean isBindingFrame;
+    	
+        public FrameModel(IObject object) throws SnapshotException
+		{
+			super();
+			fileName = ((IObject) object.resolveValue("fileName")).getClassSpecificName();
+			line = (Integer) object.resolveValue("line");
+			IObject nameObject = (IObject) object.resolveValue("name");
+			if (nameObject != null)
+				name = nameObject.getClassSpecificName();
+			IObject klazz = (IObject) object.resolveValue("klazz");
+			moduleName = getClassNameFromFrame(klazz);
+			isBindingFrame = (Boolean) object.resolveValue("isBindingFrame");
+		}
         
-        FrameProxy[] frameStack();
-        int frameIndex();
+        public FrameModel(String moduleName, String methodName, String frameFileName, int frameLine, boolean isBindingFrame) throws SnapshotException
+		{
+			this.fileName = frameFileName;
+			this.line = frameLine;
+			this.name = methodName;
+			this.moduleName = moduleName;
+			this.isBindingFrame = isBindingFrame;
+		}
         
-        String file();
-        int line();
+        private String getClassNameFromFrame(IObject klazz) throws SnapshotException {
+            String klazzName = Messages.RubyStacktraceDumper_Unknown;
+            String fullName = null;
+            if (klazz != null) {
+            	IObject fullNameObject = (IObject) klazz.resolveValue("fullName");
+            	if (fullNameObject != null)
+            		fullName = fullNameObject.getClassSpecificName();
+                if (fullName != null && !"".equals(fullName.trim())) {
+                    klazzName = fullName;
+                }
+            }
+            return klazzName;
+        }        
+        
+		String fileName()
+		{
+			return fileName;
+		}
+		
+        int line()
+        {
+        	return line;
+        }
+        
+        String name()
+        {
+        	return name;
+        }
+        
+        String moduleName()
+        {
+        	return moduleName;
+        }
+        
+        boolean isBindingFrame()
+        {
+        	return isBindingFrame;
+        }
+        
+        @Override
+        public String toString()
+        {
+        	return fileName + ":" + line + " in " + getMethodNameFromFrame(this);
+        }
     }
     
-    public static interface RubyRunnableProxy {
-        RubyThreadProxy rubyThread();
-        ThreadProxy javaThread();
-    }
-    
-    public static interface RubyThreadProxy {}
-    
-    public static interface ThreadProxy {
-        char[] name();
-    }
-    
-    public static interface FrameProxy {
-        String fileName();
-        int line();
-        String name();
-        RubyModuleProxy klazz();
-        boolean isBindingFrame();
-    }
-    
-    public static interface RubyModuleProxy {
-        String fullName();
+    private static class PrintableStackFrame
+    {
+    	String fileName;
+    	int line;
+    	String methodName;
+
+    	public PrintableStackFrame(String fileName, int line, String methodName)
+		{
+			super();
+			this.fileName = fileName;
+			this.line = line;
+			this.methodName = methodName;
+		}
+		public String getFileName()
+		{
+			return fileName;
+		}
+		public int getLine()
+		{
+			return line;
+		}
+		public String getMethodName()
+		{
+			return methodName;
+		}
+        
+        @Override
+        public String toString()
+        {
+        	return new StringBuilder(fileName).append(':').append(line).append(" in '").append(methodName).append('\'').toString();
+        }
+        
     }
     
 }
