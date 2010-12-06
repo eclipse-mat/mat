@@ -31,16 +31,17 @@ import org.eclipse.core.runtime.content.IContentType;
 import org.osgi.framework.BundleContext;
 
 /**
- * Controls the loading of this plugin and finds the available DTFJ implementations.
+ * Controls the loading of this plugin and finds the available DTFJ
+ * implementations.
+ * 
  * @author ajohnson
- *
  */
 public class InitDTFJ extends Plugin implements IRegistryChangeListener
 {
 
     private static final String DTFJ_NAMESPACE = "com.ibm.dtfj.api"; //$NON-NLS-1$
     private static final String DTFJ_IMAGEFACTORY = "imagefactory"; //$NON-NLS-1$
-    
+
     private static final Map<String, Map<String, String>> allexts = new HashMap<String, Map<String, String>>();
 
     private static InitDTFJ plugin;
@@ -54,8 +55,11 @@ public class InitDTFJ extends Plugin implements IRegistryChangeListener
         super.start(context);
         plugin = this;
         IExtensionRegistry reg = Platform.getExtensionRegistry();
-        reg.addRegistryChangeListener(this, DTFJ_NAMESPACE);
-        registerFileExtensions();
+        if (reg != null)
+        {
+            reg.addRegistryChangeListener(this, DTFJ_NAMESPACE);
+            registerFileExtensions(reg);
+        }
     }
 
     /**
@@ -65,9 +69,11 @@ public class InitDTFJ extends Plugin implements IRegistryChangeListener
     public void stop(BundleContext context) throws Exception
     {
         IExtensionRegistry reg = Platform.getExtensionRegistry();
-        removalAllExtensions();
-        reg.removeRegistryChangeListener(this);
-        DTFJIndexBuilder.clearCachedDumps();
+        if (reg != null)
+        {
+            removeAllExtensions(reg);
+            reg.removeRegistryChangeListener(this);
+        }
         plugin = null;
         super.stop(context);
     }
@@ -78,27 +84,30 @@ public class InitDTFJ extends Plugin implements IRegistryChangeListener
     public void registryChanged(IRegistryChangeEvent event)
     {
         IExtensionRegistry reg = Platform.getExtensionRegistry();
-        IContributor cont = getContributor(reg);
-        // Find the standard Eclipse content types extension point
-        IExtensionPoint contentPoint = contentExtensionPoint(reg);
-
-        for (IExtensionDelta delta : event.getExtensionDeltas(DTFJ_NAMESPACE, DTFJ_IMAGEFACTORY))
+        if (reg != null)
         {
-            IExtension dtfjExtension = delta.getExtension();
+            IContributor cont = getContributor(reg);
+            // Find the standard Eclipse content types extension point
+            IExtensionPoint contentPoint = contentExtensionPoint(reg);
 
-            switch (delta.getKind())
+            for (IExtensionDelta delta : event.getExtensionDeltas(DTFJ_NAMESPACE, DTFJ_IMAGEFACTORY))
             {
-                case IExtensionDelta.ADDED:
-                    try
-                    {
-                        contributeParserExtension(reg, cont, contentPoint, dtfjExtension);
-                    }
-                    catch (UnsupportedEncodingException e2)
-                    {}
-                    break;
-                case IExtensionDelta.REMOVED:
-                    removeParserExtension(reg, cont, dtfjExtension);
-                    break;
+                IExtension dtfjExtension = delta.getExtension();
+
+                switch (delta.getKind())
+                {
+                    case IExtensionDelta.ADDED:
+                        try
+                        {
+                            contributeParserExtension(reg, cont, contentPoint, dtfjExtension);
+                        }
+                        catch (UnsupportedEncodingException e2)
+                        {}
+                        break;
+                    case IExtensionDelta.REMOVED:
+                        removeParserExtension(reg, cont, dtfjExtension);
+                        break;
+                }
             }
         }
     }
@@ -125,10 +134,12 @@ public class InitDTFJ extends Plugin implements IRegistryChangeListener
 
     /**
      * Remove all the DTFJ parsers.
+     * 
+     * @param reg
+     *            the extension registry
      */
-    private void removalAllExtensions()
+    private void removeAllExtensions(IExtensionRegistry reg)
     {
-        IExtensionRegistry reg = Platform.getExtensionRegistry();
         IContributor cont = getContributor(reg);
 
         IExtensionPoint dtfjPoint = dtfjExtensionPoint(reg);
@@ -140,17 +151,20 @@ public class InitDTFJ extends Plugin implements IRegistryChangeListener
             {
                 removeParserExtension(reg, cont, ex);
             }
+            // Only clear cached dumps if there was an extension point present, so we had the DTFJ interface present
+            DTFJIndexBuilder.clearCachedDumps();
         }
         allexts.clear();
     }
 
     /**
      * Convert DTFJ extensions into MAT parser extensions
+     * 
+     * @param reg
+     *            the extension registry
      */
-    void registerFileExtensions()
+    void registerFileExtensions(IExtensionRegistry reg)
     {
-        IExtensionRegistry reg = Platform.getExtensionRegistry();
-
         try
         {
             IContributor cont = getContributor(reg);
@@ -258,11 +272,11 @@ public class InitDTFJ extends Plugin implements IRegistryChangeListener
                         exts = addExtension(exts, genParser(ref, contentPoint));
                     }
                 }
-                
+
                 Map<String, String> vals = new HashMap<String, String>();
-                vals.put("id", id);  //$NON-NLS-1$
-                vals.put("name", name);  //$NON-NLS-1$
-                vals.put("fileExtension", exts);  //$NON-NLS-1$
+                vals.put("id", id); //$NON-NLS-1$
+                vals.put("name", name); //$NON-NLS-1$
+                vals.put("fileExtension", exts); //$NON-NLS-1$
                 String fullid = cont.getName() + "." + id; //$NON-NLS-1$
                 allexts.put(fullid, vals);
             }
@@ -329,7 +343,7 @@ public class InitDTFJ extends Plugin implements IRegistryChangeListener
         }
         return exts;
     }
-    
+
     /**
      * This is created and called from the MAT parser handling code
      * It provides a list of parsers
