@@ -38,6 +38,57 @@ import com.ibm.icu.text.DecimalFormat;
  */
 public class ThreadDetailsResolver implements IThreadDetailsResolver
 {
+    private final ThreadDetailsResolver1 delegate;
+
+    /**
+     * Create a DTFJ thread details resolver. If DTFJ is not available, create a
+     * resolver that does nothing.
+     */
+    public ThreadDetailsResolver()
+    {
+        ThreadDetailsResolver1 delegate = null;
+        try
+        {
+            delegate = new ThreadDetailsResolver1();
+        }
+        catch (NoClassDefFoundError e)
+        {
+            // If the DTFJ feature is not available then this might happen, so ignore.
+        }
+        this.delegate = delegate;
+    }
+
+    /**
+     * The columns that can be extracted via DTFJ
+     */
+    public Column[] getColumns()
+    {
+        if (delegate != null)
+            return delegate.getColumns();
+        return null;
+    }
+
+    /**
+     * Add basic DTFJ information.
+     */
+    public void complementShallow(IThreadInfo thread, IProgressListener listener) throws SnapshotException
+    {
+        if (delegate != null)
+            delegate.complementShallow(thread, listener);
+    }
+
+    /**
+     * Add detailed DTFJ information, including native thread stack.
+     */
+    public void complementDeep(IThreadInfo thread, IProgressListener listener) throws SnapshotException
+    {
+        if (delegate != null)
+            delegate.complementDeep(thread, listener);
+    }
+}
+
+class ThreadDetailsResolver1 implements IThreadDetailsResolver
+{
     /**
      * Formatter to display addresses etc. in hex
      */
