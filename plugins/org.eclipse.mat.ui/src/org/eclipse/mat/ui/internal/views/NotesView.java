@@ -377,7 +377,7 @@ public class NotesView extends ViewPart implements IPartListener, Observer
     {
         undoManager.disconnect();
         getSite().getPage().removePartListener(this);
-        getSite().getShell().removeDisposeListener(disposeListener);
+        // The parent composite has been disposed, so there is no need to remove the disposeListener.
         if (font != null)
             font.dispose();
         if (hyperlinkColor != null)
