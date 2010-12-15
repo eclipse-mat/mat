@@ -19,6 +19,7 @@
   <packaging>pom</packaging>
   
   <modules>
+
 	<module>org.eclipse.mat.api</module>
 	<module>org.eclipse.mat.chart</module>
 	<module>org.eclipse.mat.chart.ui</module>
@@ -33,6 +34,7 @@
 	<module>org.eclipse.mat.ui.help</module>
 	<module>org.eclipse.mat.ui.rcp</module>
 	<module>org.eclipse.mat.ibmdumps</module>
+	<module>org.eclipse.mat.jruby.resolver</module>
   </modules>
 
 </project>
