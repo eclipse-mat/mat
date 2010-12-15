@@ -21,6 +21,7 @@ plugin@org.eclipse.mat.chart.ui=SVN,trunk,svn://dev.eclipse.org/svnroot/tools/or
 plugin@org.eclipse.mat.tests=SVN,trunk,svn://dev.eclipse.org/svnroot/tools/org.eclipse.mat,,plugins/org.eclipse.mat.tests
 fragment@org.eclipse.mat.tests.junit=SVN,trunk,svn://dev.eclipse.org/svnroot/tools/org.eclipse.mat,,plugins/org.eclipse.mat.tests.junit
 plugin@org.eclipse.mat.ui.rcp=SVN,trunk,svn://dev.eclipse.org/svnroot/tools/org.eclipse.mat,,plugins/org.eclipse.mat.ui.rcp
+plugin@org.eclipse.mat.jruby.resolver=SVN,trunk,svn://dev.eclipse.org/svnroot/tools/org.eclipse.mat,,plugins/org.eclipse.mat.jruby.resolver
 
 #for running tests
 plugin@org.eclipse.test=v20081002,:pserver:anonymous@dev.eclipse.org:/cvsroot/eclipse,
