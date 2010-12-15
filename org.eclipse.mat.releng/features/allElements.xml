@@ -25,10 +25,6 @@
 	 		<property name="type" value="feature" />
 	 		<property name="id" value="org.eclipse.mat.test.feature" />
  		</ant>
- 		<ant antfile="${genericTargets}" target="${target}">
-	 		<property name="type" value="feature" />
-	 		<property name="id" value="org.eclipse.mat.jruby.feature" />
- 		</ant>
  	</target>
  
 	<!-- ====================================================================== -->
@@ -66,10 +62,5 @@
  	<target name="assemble.org.eclipse.mat.test.feature">
  		<ant antfile="${assembleScriptName}" dir="${buildDirectory}"/>
  	</target>
- 	<target name="assemble.org.eclipse.mat.jruby.feature">
- 		<ant antfile="${assembleScriptName}" dir="${buildDirectory}"/>
- 	</target>
- 	
- 	
 	
 </project>
