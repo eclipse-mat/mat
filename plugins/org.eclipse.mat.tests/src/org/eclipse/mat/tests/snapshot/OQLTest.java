@@ -299,6 +299,32 @@ public class OQLTest
         IOQLQuery q2 = SnapshotFactory.createQuery(s);
     }
 
+    /**
+     * Test AND clause is not collapsed.
+     * @throws SnapshotException
+     */
+    @Test
+    public void testAndClauseSpaces() throws SnapshotException
+    {
+        final String queryString = "SELECT s.value FROM INSTANCEOF java.lang.Number s WHERE (true and s.value)";
+        IOQLQuery q1 = SnapshotFactory.createQuery(queryString);
+        String s = q1.toString();
+        System.out.println(s);
+        IOQLQuery q2 = SnapshotFactory.createQuery(s);
+        execute(s);
+    }
+
+    /**
+     * Test AND clause is evaluated.
+     * @throws SnapshotException
+     */
+    @Test
+    public void testAndClause() throws SnapshotException
+    {
+        IResultTable res = (IResultTable)execute("SELECT s.value FROM INSTANCEOF java.lang.Number s WHERE (s.value and true)");
+        assert 3 ==  res.getRowCount() : "3 non-zero Numbers expected";
+    }
+
     // //////////////////////////////////////////////////////////////
     // internal helper
     // //////////////////////////////////////////////////////////////

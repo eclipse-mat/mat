@@ -66,7 +66,7 @@ abstract class Operation extends Expression
         for (int ii = 0; ii < args.length; ii++)
         {
             if (ii != 0)
-                buf.append(getSymbol());
+                buf.append(' ').append(getSymbol()).append(' ');
 
             buf.append(args[ii]);
         }
@@ -906,7 +906,8 @@ abstract class Operation extends Expression
         if (object instanceof Number)
         {
             double value = ((Number) object).doubleValue();
-            return value != 0 && value != -0 && !Double.isNaN(value);
+            // NaN -> false. Is this expected?
+            return value != 0 && !Double.isNaN(value);
         }
         else if (object instanceof Boolean)
         {
