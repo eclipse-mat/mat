@@ -31,7 +31,7 @@ public class RegTestUtils
         }
     };
 
-    public static FilenameFilter cleanupFilter = new FilenameFilter()
+    public static final FilenameFilter cleanupFilter = new FilenameFilter()
     {
         public boolean accept(File dir, String name)
         {
