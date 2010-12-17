@@ -325,7 +325,7 @@ public class HashEntriesQuery implements IQuery
 	{
 		IInstance entry = (IInstance) snapshot.getObject(entryId);
 		int keyId, valueId;
-		keyId = valueId = entryId = -1;
+		keyId = valueId = -1;
 
 		for (Field field : entry.getFields())
 		{
