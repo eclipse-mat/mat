@@ -30,24 +30,18 @@ public final class PrettyPrinter
         if (!(obj instanceof Integer))
             return null;
         Integer count = (Integer)obj; 
-        if (count == null)
-            return null;
         if (count.intValue() == 0)
             return ""; //$NON-NLS-1$
 
-        obj = (IPrimitiveArray) stringObject.resolveValue("value"); //$NON-NLS-1$
+        obj = stringObject.resolveValue("value"); //$NON-NLS-1$
         if (!(obj instanceof IPrimitiveArray))
             return null;
         IPrimitiveArray charArray = (IPrimitiveArray)obj;
-        if (charArray == null)
-            return null;
 
         obj = stringObject.resolveValue("offset"); //$NON-NLS-1$
         if (!(obj instanceof Integer))
             return null;
         Integer offset = (Integer)obj; 
-        if (offset == null)
-            return null;
 
         return arrayAsString(charArray, offset, count, limit);
     }
