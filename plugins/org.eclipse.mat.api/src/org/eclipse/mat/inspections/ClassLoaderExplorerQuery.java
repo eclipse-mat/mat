@@ -66,10 +66,10 @@ public class ClassLoaderExplorerQuery implements IQuery
         {
             for (int ia[] : objects)
             {
-                if (listener.isCanceled()) new IProgressListener.OperationCanceledException();
+                if (listener.isCanceled())
+                    throw new IProgressListener.OperationCanceledException();
                 for (int objectId : ia)
                 {
-                    
                     if (snapshot.isClassLoader(objectId))
                     {
                         roots.add(objectId);
