@@ -23,4 +23,31 @@
 
   <artifactId>org.eclipse.mat.ui.help</artifactId>
   <packaging>eclipse-plugin</packaging>
+  
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>1.6</version>
+        <executions>
+          <execution>
+            <phase>generate-sources</phase>
+            <configuration>
+              <target>
+                <property name="compile_classpath" refid="maven.compile.classpath"/>
+                <property name="runtime_classpath" refid="maven.runtime.classpath"/>
+                <property name="test_classpath" refid="maven.test.classpath"/>
+                <property name="plugin_classpath" refid="maven.plugin.classpath"/>
+                <ant target="post.build.jars" inheritRefs="true" antfile="extrabuild.xml"/>
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+  
 </project>
