@@ -1287,13 +1287,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 if (!foundFields)
                 {
                     List<FieldDescriptor> fd = ci.getFieldDescriptors();
-                    for (FieldDescriptor fds : fd)
-                    {
-                        if (fds.getType() == IObject.Type.OBJECT)
-                        {
-                            foundFields = true;
-                        }
-                    }
+                    if (!fd.isEmpty())
+                        foundFields = true;
                 }
             }
         }
@@ -7393,48 +7388,17 @@ public class DTFJIndexBuilder implements IIndexBuilder
     private synchronized static void clearCachedDump(File dump)
     {
         boolean cleanup;
-        boolean closeFailed = false;
-        boolean softRefCleared = false;
-        Image dumpImage = null;
         synchronized (imageMap)
         {
-            SoftReference<Image> sr = imageMap.remove(dump);
-            cleanup = sr != null;
-            if (cleanup)
-            {
-                dumpImage = sr.get();
-            }
+            cleanup = imageMap.remove(dump) != null;
         }
         if (cleanup)
         {
-            if (dumpImage != null)
-            {
-                try
-                {
-                    // DTFJ 1.4
-                    dumpImage.close();
-                }
-                catch (NoSuchMethodError e)
-                {
-                    closeFailed = true;
-                    dumpImage = null;
-                }
-            }
-            else
-            {
-                softRefCleared = true;
-            }
-            if (closeFailed)
-            {
-                // We couldn't close a DTFJ image, so GC and finalize to
-                // attempt to clean up any temporary files
-                System.gc();
-                System.runFinalization();
-            }
-            else if (softRefCleared)
-            {
-                System.runFinalization();
-            }
+            // There is no way to close a DTFJ image, so GC and finalize to
+            // attempt
+            // to clean up any temporary files
+            System.gc();
+            System.runFinalization();
         }
     }
 
@@ -7443,12 +7407,10 @@ public class DTFJIndexBuilder implements IIndexBuilder
      */
     static void clearCachedDumps()
     {
-        boolean closeFailed = false;
-        boolean softRefCleared = false;
-        List<SoftReference<Image>>toClean;
+        boolean cleanup;
         synchronized (imageMap)
         {
-            toClean = new ArrayList<SoftReference<Image>>(imageMap.values());
+            cleanup = !imageMap.isEmpty();
             imageMap.clear();
             if (clearTimer != null)
             {
@@ -7457,37 +7419,12 @@ public class DTFJIndexBuilder implements IIndexBuilder
             }
             imageCount = 0;
         }
-        for (SoftReference<Image> sr : toClean)
+        if (cleanup)
         {
-            Image dumpImage = sr.get();
-            sr.clear();
-            if (dumpImage != null)
-            {
-                try
-                {
-                    // DTFJ 1.4
-                    dumpImage.close();
-                }
-                catch (NoSuchMethodError e)
-                {
-                    closeFailed = true;
-                    dumpImage = null;
-                }
-            }
-            else
-            {
-                softRefCleared = true;
-            }
-        }
-        if (closeFailed)
-        {
-            // We couldn't close a DTFJ image, so GC and finalize to
-            // attempt to clean up any temporary files
+            // There is no way to close a DTFJ image, so GC and finalize to
+            // attempt
+            // to clean up any temporary files
             System.gc();
-            System.runFinalization();
-        }
-        else if (softRefCleared)
-        {
             System.runFinalization();
         }
     }
