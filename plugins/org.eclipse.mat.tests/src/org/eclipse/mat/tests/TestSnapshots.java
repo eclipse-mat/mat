@@ -53,6 +53,7 @@ public class TestSnapshots
 
     private static DirDeleter deleterThread;
     private static Map<String, ISnapshot> snapshots = new HashMap<String, ISnapshot>();
+    private static List<ISnapshot> pristineSnapshots = new ArrayList<ISnapshot>();
 
     static
     {
@@ -72,7 +73,7 @@ public class TestSnapshots
      * @param pristine If true, return a brand new snapshot, not a cached version
      * @return
      */
-    public static ISnapshot getSnapshot(String name, Map<String, String> options, boolean pristine)
+    public static ISnapshot getSnapshot(String dumpname, Map<String, String> options, boolean pristine)
     {
         try
         {
@@ -80,16 +81,13 @@ public class TestSnapshots
 
             if (!pristine)
             {
-                ISnapshot answer = snapshots.get(name);
+                ISnapshot answer = snapshots.get(dumpname);
                 if (answer != null)
                     return answer;
             }
 
-            String names[] = name.split(";");
-            if (names.length > 1)
-            {
-                name = names[0];
-            }
+            String names[] = dumpname.split(";");
+            String name = names[0];
             File sourceHeapDump = getResourceFile(name);
 
             int index = name.lastIndexOf('.');
@@ -124,7 +122,14 @@ public class TestSnapshots
             }
 
             ISnapshot answer = SnapshotFactory.openSnapshot(snapshot, options, new VoidProgressListener());
-            snapshots.put(name, answer);
+            if (pristine)
+            {
+                pristineSnapshots.add(answer);
+            }
+            else
+            {
+                snapshots.put(dumpname, answer);
+            }
             return answer;
         }
         catch (Exception e)
@@ -161,15 +166,7 @@ public class TestSnapshots
                 File parent = file.getParentFile();
                 parent.mkdirs();
 
-                int count;
-                byte data[] = new byte[BUFSIZE];
-                FileOutputStream fos = new FileOutputStream(file);
-                BufferedOutputStream bos = new BufferedOutputStream(fos, BUFSIZE);
-                while ((count = is.read(data, 0, BUFSIZE)) != -1)
-                    bos.write(data, 0, count);
-
-                bos.flush();
-                bos.close();
+                copyStreamToFile(is, file, BUFSIZE);
                 file.deleteOnExit();
             }
             catch (IOException e)
@@ -190,15 +187,7 @@ public class TestSnapshots
                 File parent = file.getParentFile();
                 parent.mkdirs();
 
-                int count;
-                byte data[] = new byte[BUFSIZE];
-                FileOutputStream fos = new FileOutputStream(file);
-                BufferedOutputStream bos = new BufferedOutputStream(fos, BUFSIZE);
-                while ((count = is.read(data, 0, BUFSIZE)) != -1)
-                    bos.write(data, 0, count);
-
-                bos.flush();
-                bos.close();
+                copyStreamToFile(is, file, BUFSIZE);
                 file.deleteOnExit();
             }
             catch (IOException e)
@@ -207,6 +196,34 @@ public class TestSnapshots
             }
         }
         return file;
+    }
+
+    private static void copyStreamToFile(InputStream is, File file, final int BUFSIZE) throws IOException
+    {
+        int count;
+        byte data[] = new byte[BUFSIZE];
+        FileOutputStream fos = new FileOutputStream(file);
+        try
+        {
+            BufferedOutputStream bos = new BufferedOutputStream(fos, BUFSIZE);
+            try
+            {
+                while ((count = is.read(data, 0, BUFSIZE)) != -1)
+                    bos.write(data, 0, count);
+            }
+            finally
+            {
+                bos.close();
+            }
+        }
+        catch (IOException e)
+        {
+            if (!file.delete())
+            {
+                System.out.println("Unable to delete "+file);
+            }
+            throw e;
+        }
     }
 
     /* test if assertions are enabled */
@@ -247,10 +264,30 @@ public class TestSnapshots
     private static void copyFile(File in, File out) throws IOException
     {
         FileChannel sourceChannel = new FileInputStream(in).getChannel();
-        FileChannel destinationChannel = new FileOutputStream(out).getChannel();
-        sourceChannel.transferTo(0, sourceChannel.size(), destinationChannel);
-        sourceChannel.close();
-        destinationChannel.close();
+        try
+        {
+            FileChannel destinationChannel = new FileOutputStream(out).getChannel();
+            try
+            {
+                sourceChannel.transferTo(0, sourceChannel.size(), destinationChannel);
+            }
+            finally
+            {
+                destinationChannel.close();
+            }
+        }
+        catch (IOException e)
+        {
+            if (!out.delete())
+            {
+                System.err.println("Unable to delete " + out);
+            }
+            throw e;
+        }
+        finally
+        {
+            sourceChannel.close();
+        }
     }
 
     private static class DirDeleter extends Thread
@@ -267,6 +304,14 @@ public class TestSnapshots
         {
             synchronized (this)
             {
+                for (ISnapshot sn : snapshots.values())
+                {
+                    sn.dispose();
+                }
+                for (ISnapshot sn : pristineSnapshots)
+                {
+                    sn.dispose();
+                }
                 for (File dir : dirList)
                     deleteDirectory(dir);
             }
@@ -283,11 +328,19 @@ public class TestSnapshots
                     if (fileArray[i].isDirectory())
                         deleteDirectory(fileArray[i]);
                     else
-                        fileArray[i].delete();
+                    {
+                        if (!fileArray[i].delete())
+                        {
+                            System.err.println("Unable to delete "+fileArray[i]);
+                        }
+                    }
                 }
             }
 
-            dir.delete();
+            if (!dir.delete())
+            {
+                System.err.println("Unable to delete "+dir);
+            }
         }
     }
 
