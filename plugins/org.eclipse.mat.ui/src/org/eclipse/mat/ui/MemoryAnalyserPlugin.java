@@ -116,13 +116,13 @@ public class MemoryAnalyserPlugin extends AbstractUIPlugin
 
     public MemoryAnalyserPlugin()
     {
-        plugin = this;
     }
 
     @Override
     public void start(BundleContext context) throws Exception
     {
         super.start(context);
+        plugin = this;
 
         tracker = new ExtensionTracker(Platform.getExtensionRegistry());
 
