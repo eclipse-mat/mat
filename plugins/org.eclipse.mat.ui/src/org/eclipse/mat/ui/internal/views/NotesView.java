@@ -297,7 +297,7 @@ public class NotesView extends ViewPart implements IPartListener, Observer
     {
         String path = (String) arg;
 
-        if (path == null || path.equals(this.resource))
+        if (path == null || new File(path).equals(this.resource))
         {
             updateTextViewer();
         }
