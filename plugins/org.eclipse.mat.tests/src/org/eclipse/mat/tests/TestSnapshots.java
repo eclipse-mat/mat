@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 SAP AG.
+ * Copyright (c) 2008, 2011 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation - clean up snapshots better
  *******************************************************************************/
 package org.eclipse.mat.tests;
 
@@ -306,11 +307,11 @@ public class TestSnapshots
             {
                 for (ISnapshot sn : snapshots.values())
                 {
-                    sn.dispose();
+                    SnapshotFactory.dispose(sn);
                 }
                 for (ISnapshot sn : pristineSnapshots)
                 {
-                    sn.dispose();
+                    SnapshotFactory.dispose(sn);
                 }
                 for (File dir : dirList)
                     deleteDirectory(dir);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009,2010 IBM Corporation.
+ * Copyright (c) 2009,2011 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -37,6 +37,7 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.TreeSet;
+import java.util.WeakHashMap;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
@@ -52,10 +53,10 @@ import org.eclipse.mat.collect.IteratorInt;
 import org.eclipse.mat.collect.IteratorLong;
 import org.eclipse.mat.parser.IIndexBuilder;
 import org.eclipse.mat.parser.IPreliminaryIndex;
-import org.eclipse.mat.parser.index.IndexManager;
-import org.eclipse.mat.parser.index.IndexWriter;
 import org.eclipse.mat.parser.index.IIndexReader.IOne2ManyIndex;
 import org.eclipse.mat.parser.index.IIndexReader.IOne2SizeIndex;
+import org.eclipse.mat.parser.index.IndexManager;
+import org.eclipse.mat.parser.index.IndexWriter;
 import org.eclipse.mat.parser.index.IndexWriter.SizeIndexCollectorUncompressed;
 import org.eclipse.mat.parser.model.ClassImpl;
 import org.eclipse.mat.parser.model.XGCRootInfo;
@@ -101,6 +102,8 @@ import com.ibm.dtfj.runtime.ManagedRuntime;
  */
 public class DTFJIndexBuilder implements IIndexBuilder
 {
+    /** The key to store the runtime id out of the dump */
+    static final String RUNTIME_ID_KEY = "$runtimeId"; //$NON-NLS-1$
     /** How many elements in an object array to examine at once */
     private static final int ARRAY_PIECE_SIZE = 100000;
     /** How many bytes to scan in a native stack frame when looking for GC roots */
@@ -180,12 +183,17 @@ public class DTFJIndexBuilder implements IIndexBuilder
     private File dump;
     /** The string prefix used to build the index files */
     private String pfx;
-    /** The DTFJ Image */
-    private Image image;
-    /** The DTFJ version of the Java runtime */
-    private JavaRuntime run;
+    /**
+     * The requested runtime id, or null. In the rare case of more than one Java
+     * runtime in a dump then this can be used to select another JVM.
+     */
+    private String runtimeId = System.getProperty("MAT_DTFJ_RUNTIME_ID"); //$NON-NLS-1$
+    /** All the key DTFJ data */
+    private RuntimeInfo dtfjInfo;
     /** Used to cache DTFJ images */
-    private static final HashMap<File, SoftReference<Image>> imageMap = new HashMap<File, SoftReference<Image>>();
+    private static final Map<File, ImageSoftReference> imageMap = new HashMap<File, ImageSoftReference>();
+    /** Used to store the factory */
+    private static final Map<Image, ImageFactory> factoryMap = Collections.synchronizedMap(new WeakHashMap<Image, ImageFactory>()); 
     /** Used to keep count of the active images */
     private static int imageCount;
     /** Used to clear the cache of images */
@@ -415,8 +423,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
     public void cancel()
     {
         // Close DTFJ Image if possible
-        image = null;
-        releaseDump(dump, true);
+        if (dtfjInfo != null)
+            releaseDump(dump, dtfjInfo, true);
 
         if (outRefs != null)
         {
@@ -504,8 +512,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         // Free memory
         objectToSize = null;
         missedRoots = null;
-        image = null;
-        releaseDump(dump, false);
+        releaseDump(dump, dtfjInfo, false);
         // Debug
         listener.done();
     }
@@ -533,7 +540,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         // The dump may have changed, so reread it
         clearCachedDump(dump);
         Serializable dumpType = ifo.getProperty("$heapFormat"); //$NON-NLS-1$
-        image = getDump(dump, dumpType);
+        dtfjInfo = getDump(dump, dumpType);
 
         long now1 = System.currentTimeMillis();
         listener.sendUserMessage(Severity.INFO, MessageFormat.format(
@@ -542,7 +549,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         // Basic information
         try
         {
-            ifo.setCreationDate(new Date(image.getCreationTime()));
+            ifo.setCreationDate(new Date(dtfjInfo.getImage().getCreationTime()));
         }
         catch (DataUnavailable e)
         {
@@ -553,12 +560,16 @@ public class DTFJIndexBuilder implements IIndexBuilder
         listener.worked(1);
         workCountSoFar += 1;
         listener.subTask(Messages.DTFJIndexBuilder_FindingJVM);
-        RuntimeInfo runInfo = getRuntime(image, listener);
-        run = runInfo.javaRuntime;
+        dtfjInfo = getRuntime(dtfjInfo.getImage(), runtimeId, listener);
+        final String actualRuntimeId = dtfjInfo.getRuntimeId();
+        if (actualRuntimeId != null)
+        {
+            index.getSnapshotInfo().setProperty(RUNTIME_ID_KEY, actualRuntimeId);
+        }
 
         try
         {
-            ifo.setJvmInfo(run.getVersion());
+            ifo.setJvmInfo(dtfjInfo.getJavaRuntime().getVersion());
             listener.sendUserMessage(Severity.INFO, MessageFormat.format(Messages.DTFJIndexBuilder_JVMVersion, ifo
                             .getJvmInfo()), null);
         }
@@ -567,7 +578,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             listener.sendUserMessage(Severity.WARNING, Messages.DTFJIndexBuilder_NoRuntimeVersionFound, e);
             try
             {
-                ifo.setJvmInfo(run.getFullVersion());
+                ifo.setJvmInfo(dtfjInfo.getJavaRuntime().getFullVersion());
                 listener.sendUserMessage(Severity.INFO, MessageFormat.format(Messages.DTFJIndexBuilder_JVMFullVersion,
                                 ifo.getJvmInfo()), null);
             }
@@ -577,7 +588,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             }
         }
 
-        int pointerSize = getPointerSize(runInfo, listener);
+        int pointerSize = getPointerSize(dtfjInfo, listener);
         ifo.setIdentifierSize(getPointerBytes(pointerSize));
 
         listener.worked(1);
@@ -590,16 +601,16 @@ public class DTFJIndexBuilder implements IIndexBuilder
 
         // Find last address of heap - use for dummy class addresses
         long lastAddress = 0x0;
-        for (Iterator<?> i = run.getHeaps(); i.hasNext();)
+        for (Iterator<?> i = dtfjInfo.getJavaRuntime().getHeaps(); i.hasNext();)
         {
             Object next = i.next();
-            if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingHeaps, run))
+            if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingHeaps, dtfjInfo.getJavaRuntime()))
                 continue;
             JavaHeap jh = (JavaHeap) next;
             for (Iterator<?> i2 = jh.getSections(); i2.hasNext();)
             {
                 Object next2 = i2.next();
-                if (isCorruptData(next2, listener, Messages.DTFJIndexBuilder_CorruptDataReadingHeapSections, run))
+                if (isCorruptData(next2, listener, Messages.DTFJIndexBuilder_CorruptDataReadingHeapSections, dtfjInfo.getJavaRuntime()))
                 {
                     // Even a corrupt section might have an address and size
                     if (!(next2 instanceof ImageSection))
@@ -625,10 +636,10 @@ public class DTFJIndexBuilder implements IIndexBuilder
         boolean foundBootLoader = false;
         HashMap<JavaObject, JavaClassLoader> loaders = new HashMap<JavaObject, JavaClassLoader>();
         HashSet<JavaClass> loaderTypes = new HashSet<JavaClass>();
-        for (Iterator<?> i = run.getJavaClassLoaders(); i.hasNext();)
+        for (Iterator<?> i = dtfjInfo.getJavaRuntime().getJavaClassLoaders(); i.hasNext();)
         {
             Object next = i.next();
-            if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingClassLoaders1, run))
+            if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingClassLoaders1, dtfjInfo.getJavaRuntime()))
                 continue;
             JavaClassLoader jcl = (JavaClassLoader) next;
             long loaderAddress = 0;
@@ -754,10 +765,10 @@ public class DTFJIndexBuilder implements IIndexBuilder
         listener.worked(1);
         workCountSoFar += 1;
         listener.subTask(Messages.DTFJIndexBuilder_FindingClasses);
-        for (Iterator<?> i = run.getJavaClassLoaders(); i.hasNext();)
+        for (Iterator<?> i = dtfjInfo.getJavaRuntime().getJavaClassLoaders(); i.hasNext();)
         {
             Object next = i.next();
-            if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingClassLoaders, run))
+            if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingClassLoaders, dtfjInfo.getJavaRuntime()))
                 continue;
             JavaClassLoader jcl = (JavaClassLoader) next;
             for (Iterator<?> j = jcl.getDefinedClasses(); j.hasNext();)
@@ -776,16 +787,16 @@ public class DTFJIndexBuilder implements IIndexBuilder
         listener.subTask(Messages.DTFJIndexBuilder_FindingObjects);
         int objProgress = 0;
         final int s2 = indexToAddress.size();
-        for (Iterator<?> i = run.getHeaps(); i.hasNext();)
+        for (Iterator<?> i = dtfjInfo.getJavaRuntime().getHeaps(); i.hasNext();)
         {
             Object next = i.next();
-            if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingHeaps, run))
+            if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingHeaps, dtfjInfo.getJavaRuntime()))
                 continue;
             JavaHeap jh = (JavaHeap) next;
             for (Iterator<?> j = jh.getObjects(); j.hasNext();)
             {
                 Object next2 = j.next();
-                if (isCorruptData(next2, listener, Messages.DTFJIndexBuilder_CorruptDataReadingObjects, run))
+                if (isCorruptData(next2, listener, Messages.DTFJIndexBuilder_CorruptDataReadingObjects, dtfjInfo.getJavaRuntime()))
                     continue;
                 JavaObject jo = (JavaObject) next2;
 
@@ -811,10 +822,10 @@ public class DTFJIndexBuilder implements IIndexBuilder
         listener.worked(1);
         workCountSoFar += 1;
         listener.subTask(Messages.DTFJIndexBuilder_FindingClassesCachedByClassLoaders);
-        for (Iterator<?> i = run.getJavaClassLoaders(); i.hasNext();)
+        for (Iterator<?> i = dtfjInfo.getJavaRuntime().getJavaClassLoaders(); i.hasNext();)
         {
             Object next = i.next();
-            if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingClassLoaders, run))
+            if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingClassLoaders, dtfjInfo.getJavaRuntime()))
                 continue;
             if (listener.isCanceled()) { throw new IProgressListener.OperationCanceledException(); }
             JavaClassLoader jcl = (JavaClassLoader) next;
@@ -860,10 +871,10 @@ public class DTFJIndexBuilder implements IIndexBuilder
         listener.worked(1);
         workCountSoFar += 1;
         listener.subTask(Messages.DTFJIndexBuilder_FindingThreadObjectsMissingFromHeap);
-        for (Iterator<?> i = run.getThreads(); i.hasNext();)
+        for (Iterator<?> i = dtfjInfo.getJavaRuntime().getThreads(); i.hasNext();)
         {
             Object next = i.next();
-            if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingThreads, run))
+            if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingThreads, dtfjInfo.getJavaRuntime()))
                 continue;
             JavaThread th = (JavaThread) next;
             JavaObject threadObject;
@@ -973,10 +984,10 @@ public class DTFJIndexBuilder implements IIndexBuilder
         listener.worked(1);
         workCountSoFar += 1;
         listener.subTask(Messages.DTFJIndexBuilder_FindingMonitorObjects);
-        for (Iterator<?> i = run.getMonitors(); i.hasNext();)
+        for (Iterator<?> i = dtfjInfo.getJavaRuntime().getMonitors(); i.hasNext();)
         {
             Object next = i.next();
-            if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingMonitors, run))
+            if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingMonitors, dtfjInfo.getJavaRuntime()))
                 continue;
             JavaMonitor jm = (JavaMonitor) next;
             JavaObject obj = jm.getObject();
@@ -1583,16 +1594,16 @@ public class DTFJIndexBuilder implements IIndexBuilder
 
         int objProgress2 = 0;
         // Find all the objects
-        for (Iterator<?> i = run.getHeaps(); i.hasNext();)
+        for (Iterator<?> i = dtfjInfo.getJavaRuntime().getHeaps(); i.hasNext();)
         {
             Object next = i.next();
-            if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingHeaps, run))
+            if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingHeaps, dtfjInfo.getJavaRuntime()))
                 continue;
             JavaHeap jh = (JavaHeap) next;
             for (Iterator<?> j = jh.getObjects(); j.hasNext();)
             {
                 Object next2 = j.next();
-                if (isCorruptData(next2, listener, Messages.DTFJIndexBuilder_CorruptDataReadingObjects, run))
+                if (isCorruptData(next2, listener, Messages.DTFJIndexBuilder_CorruptDataReadingObjects, dtfjInfo.getJavaRuntime()))
                     continue;
                 JavaObject jo = (JavaObject) next2;
 
@@ -1893,7 +1904,6 @@ public class DTFJIndexBuilder implements IIndexBuilder
         gcRoot = null;
         threadRoots = null;
         // leave the DTFJ image around as we need to reopen the image later
-        run = null;
         dummyClassAddress = null;
         dummyMethodAddress = null;
         dummyMethodAddress2 = null;
@@ -2139,10 +2149,10 @@ public class DTFJIndexBuilder implements IIndexBuilder
         PrintWriter pw = createThreadInfoFile();
         
         threadRoots = new HashMapIntObject<HashMapIntObject<List<XGCRootInfo>>>();
-        for (Iterator<?> i = run.getThreads(); i.hasNext();)
+        for (Iterator<?> i = dtfjInfo.getJavaRuntime().getThreads(); i.hasNext();)
         {
             Object next = i.next();
-            if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingThreads, run))
+            if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingThreads, dtfjInfo.getJavaRuntime()))
                 continue;
             JavaThread th = (JavaThread) next;
             listener.worked(1);
@@ -2243,10 +2253,10 @@ public class DTFJIndexBuilder implements IIndexBuilder
         // Monitor GC roots
         listener.subTask(Messages.DTFJIndexBuilder_GeneratingMonitorRoots);
 
-        for (Iterator<?> i = run.getMonitors(); i.hasNext();)
+        for (Iterator<?> i = dtfjInfo.getJavaRuntime().getMonitors(); i.hasNext();)
         {
             Object next = i.next();
-            if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingMonitors, run))
+            if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingMonitors, dtfjInfo.getJavaRuntime()))
                 continue;
             JavaMonitor jm = (JavaMonitor) next;
             JavaObject obj = jm.getObject();
@@ -2302,7 +2312,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             Iterator<?> it;
             try
             {
-                it = run.getHeapRoots();
+                it = dtfjInfo.getJavaRuntime().getHeapRoots();
                 // Javacore reader returns null
                 if (it == null)
                 {
@@ -2326,7 +2336,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 for (; it.hasNext();)
                 {
                     Object next = it.next();
-                    if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingRoots, run))
+                    if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingRoots, dtfjInfo.getJavaRuntime()))
                         continue;
                     JavaReference r = (JavaReference) next;
                     processRoot(r, null, gcRoot2, threadRoots2, pointerSize, listener);
@@ -2338,10 +2348,10 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 {
                 	pw = createThreadInfoFile();
                 }
-                for (Iterator<?> thit = run.getThreads(); thit.hasNext();)
+                for (Iterator<?> thit = dtfjInfo.getJavaRuntime().getThreads(); thit.hasNext();)
                 {
                     Object next = thit.next();
-                    if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingThreads, run))
+                    if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingThreads, dtfjInfo.getJavaRuntime()))
                         continue;
                     JavaThread th = (JavaThread) next;
 
@@ -2386,7 +2396,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                         for (Iterator<?> i3 = jf.getHeapRoots(); i3.hasNext();)
                         {
                             Object next3 = i3.next();
-                            if (isCorruptData(next3, listener, Messages.DTFJIndexBuilder_CorruptDataReadingRoots, run))
+                            if (isCorruptData(next3, listener, Messages.DTFJIndexBuilder_CorruptDataReadingRoots, dtfjInfo.getJavaRuntime()))
                                 continue;
                             JavaReference r = (JavaReference) next3;
                             processRoot(r, th, gcRoot2, threadRoots2, pointerSize, listener);
@@ -4311,34 +4321,92 @@ public class DTFJIndexBuilder implements IIndexBuilder
                             .toString(), format(addr)), new CorruptDataException(d));
     }
 
+    /**
+     * Holds key DTFJ information.
+     * @author ajohnson
+     */
     static class RuntimeInfo {
-        final ImageAddressSpace imageAddressSpace;
-        final ImageProcess imageProcess;
-        final JavaRuntime javaRuntime;
-        public RuntimeInfo(ImageAddressSpace space, ImageProcess process, JavaRuntime runtime)
+        private ImageFactory factory;
+        private Image image;
+        private ImageAddressSpace imageAddressSpace;
+        private ImageProcess imageProcess;
+        private JavaRuntime javaRuntime;
+        private String runtimeId;
+        public RuntimeInfo(Image img, ImageAddressSpace space, ImageProcess process, JavaRuntime runtime, String id)
         {
+            factory = factoryMap.get(img);
+            image = img;
             imageAddressSpace = space;
             imageProcess = process;
             javaRuntime = runtime;
+            runtimeId = id;
+        }
+        public ImageFactory getImageFactory()
+        {
+            if (factory == null)
+                throw new IllegalStateException();
+            return factory;
+        }
+        public Image getImage()
+        {
+            if (image == null)
+                throw new IllegalStateException();
+            return image;
+        }
+        public ImageAddressSpace getImageAddressSpace()
+        {
+            if (imageAddressSpace == null)
+                throw new IllegalStateException();
+            return imageAddressSpace;
+        }
+        public ImageProcess getImageProcess()
+        {
+            if (imageProcess == null)
+                throw new IllegalStateException();
+            return imageProcess;
+        }
+        public JavaRuntime getJavaRuntime()
+        {
+            if (javaRuntime == null)
+                throw new IllegalStateException();
+            return javaRuntime;
+        }
+        public String getRuntimeId()
+        {
+            return runtimeId;
+        }
+        /**
+         * Allows objects to be garbage collected.
+         */
+        public void clear() {
+            factory = null;
+            image = null;
+            imageAddressSpace = null;
+            imageProcess = null;
+            javaRuntime = null;
         }
     }
     /**
      * Find a Java runtime from the image
      * 
-     * @param image
+     * @param image the image to find the JavaRuntime from
+     * @param requestedId the runtime id such as 0.0.0 or 1.2.3, or null for the only/first one.
      * @param listener
-     * @return
+     * @return A filled in RuntimeInfo object.
      */
-    static RuntimeInfo getRuntime(Image image, IProgressListener listener) throws IOException
+    static RuntimeInfo getRuntime(Image image, Serializable requestedId, IProgressListener listener) throws IOException
     {
         ImageAddressSpace ias = null;
         ImageProcess proc = null;
         JavaRuntime run = null;
+        String fullRuntimeId = null;
         int nAddr = 0;
         int nProc = 0;
+        int nJavaRuntimes = 0;
         String lastAddr = ""; //$NON-NLS-1$
         String lastProc = ""; //$NON-NLS-1$
-        for (Iterator<?> i1 = image.getAddressSpaces(); i1.hasNext();)
+        int addrId = 0;
+        for (Iterator<?> i1 = image.getAddressSpaces(); i1.hasNext(); ++addrId)
         {
             Object next1 = i1.next();
             if (isCorruptData(next1, listener, Messages.DTFJIndexBuilder_CorruptDataReadingAddressSpaces))
@@ -4346,7 +4414,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
             ias = (ImageAddressSpace) next1;
             ++nAddr;
             lastAddr = ias.toString();
-            for (Iterator<?> i2 = ias.getProcesses(); i2.hasNext();)
+            int procId = 0;
+            for (Iterator<?> i2 = ias.getProcesses(); i2.hasNext(); ++procId)
             {
                 Object next2 = i2.next();
                 if (isCorruptData(next2, listener, Messages.DTFJIndexBuilder_CorruptDataReadingProcesses))
@@ -4367,16 +4436,20 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     if (listener != null)
                         listener.sendUserMessage(Severity.INFO, Messages.DTFJIndexBuilder_ErrorReadingProcessID, e);
                 }
-                for (Iterator<?> i3 = proc.getRuntimes(); i3.hasNext();)
+                int runtimeId = 0;
+                for (Iterator<?> i3 = proc.getRuntimes(); i3.hasNext(); ++runtimeId)
                 {
                     Object next3 = i3.next();
                     if (isCorruptData(next3, listener, Messages.DTFJIndexBuilder_CorruptDataReadingRuntimes))
                         continue;
+                    String currentId = addrId+"."+procId+"."+runtimeId;  //$NON-NLS-1$//$NON-NLS-2$
                     if (next3 instanceof JavaRuntime)
                     {
-                        if (run == null)
+                        ++nJavaRuntimes;
+                        if (run == null && requestedId == null || currentId.equals(requestedId))
                         {
                             run = (JavaRuntime) next3;
+                            fullRuntimeId = currentId;
                         }
                         else
                         {
@@ -4393,7 +4466,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                             }
                             if (listener != null)
                                 listener.sendUserMessage(Severity.INFO, MessageFormat.format(
-                                                Messages.DTFJIndexBuilder_IgnoringExtraJavaRuntime, version), e1);
+                                                Messages.DTFJIndexBuilder_IgnoringExtraJavaRuntime, currentId, version), e1);
                         }
                     }
                     else
@@ -4411,14 +4484,28 @@ public class DTFJIndexBuilder implements IIndexBuilder
                         }
                         if (listener != null)
                             listener.sendUserMessage(Severity.INFO, MessageFormat.format(
-                                            Messages.DTFJIndexBuilder_IgnoringManagedRuntime, version), e1);
+                                            Messages.DTFJIndexBuilder_IgnoringManagedRuntime, currentId, version), e1);
                     }
                 }
             }
         }
-        if (run == null) { throw new IOException(MessageFormat.format(
-                        Messages.DTFJIndexBuilder_UnableToFindJavaRuntime, nAddr, lastAddr, nProc, lastProc)); }
-        return new RuntimeInfo(ias, proc, run);
+        if (run == null)
+        {
+            if (requestedId != null)
+            {
+                throw new IOException(MessageFormat.format(Messages.DTFJIndexBuilder_UnableToFindJavaRuntimeId,
+                                requestedId, nAddr, lastAddr, nProc, lastProc));
+            }
+            else
+            {
+                throw new IOException(MessageFormat.format(Messages.DTFJIndexBuilder_UnableToFindJavaRuntime, nAddr,
+                                lastAddr, nProc, lastProc));
+            }
+        }
+        // Don't force a runtimeId if there is only one
+        if (requestedId == null && nJavaRuntimes <= 1)
+            fullRuntimeId = null;
+        return new RuntimeInfo(image, ias, proc, run, fullRuntimeId);
     }
 
     /**
@@ -4434,7 +4521,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
     {
         int pointerSize = 0;
         long maxAddress = 0;
-        ImageAddressSpace ias = info.imageAddressSpace;
+        ImageAddressSpace ias = info.getImageAddressSpace();
         for (Iterator<?> it = ias.getImageSections(); it.hasNext();)
         {
             Object next1 = it.next();
@@ -4444,8 +4531,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
             maxAddress = Math.max(maxAddress, sect.getBaseAddress().getAddress());
             maxAddress = Math.max(maxAddress, sect.getBaseAddress().getAddress() + sect.getSize() - 1);
         }
-        ImageProcess proc = info.imageProcess;
-        JavaRuntime run = info.javaRuntime;
+        ImageProcess proc = info.getImageProcess();
+        JavaRuntime run = info.getJavaRuntime();
         // 31,32,64 bits - conversion done later
         pointerSize = proc.getPointerSize();
 
@@ -7065,10 +7152,10 @@ public class DTFJIndexBuilder implements IIndexBuilder
      */
     private JavaClassLoader getClassLoader2(JavaClass j1, IProgressListener listener) throws CorruptDataException
     {
-        for (Iterator<?> i = run.getJavaClassLoaders(); i.hasNext();)
+        for (Iterator<?> i = dtfjInfo.getJavaRuntime().getJavaClassLoaders(); i.hasNext();)
         {
             Object next = i.next();
-            if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingClassLoaders1, run))
+            if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingClassLoaders1, dtfjInfo.getJavaRuntime()))
                 continue;
             JavaClassLoader jcl = (JavaClassLoader) next;
             for (Iterator<?> j = jcl.getDefinedClasses(); j.hasNext();)
@@ -7301,22 +7388,126 @@ public class DTFJIndexBuilder implements IIndexBuilder
      */
     public void init(File file, String prefix)
     {
-        dump = file;
+        /*
+         * Store the absolute file path as the absolute file will be used when
+         * reopening the dump in DTFJHeapObjectReader.open()
+         */
+        dump = file.getAbsoluteFile();
         pfx = prefix;
+    }
+
+    /**
+     * A counted cache for DTFJ Images.
+     */
+    static class ImageSoftReference extends SoftReference<Image>
+    {
+        // Use count
+        private int count = 1;
+        // This dump is out of date, so should be closed when no longer used.
+        private boolean old;
+
+        public ImageSoftReference(Image o)
+        {
+            super(o);
+        }
+
+        /**
+         * Get the image to use again, increment the use count.
+         * @return
+         */
+        public Image obtain()
+        {
+            // This dump is out of date, don't reuse.
+            if (old)
+                return null;
+            Image x = get();
+            if (x != null)
+            {
+                ++count;
+            }
+            return x;
+        }
+
+        /**
+         * Stop using the image.
+         * 
+         * @param x1
+         *            the image we want to stop using. It might not be the same
+         *            if another thread opened a dump at the same time and put
+         *            it into the cache.
+         * @return true if the image matched the saved one in the soft
+         *         reference so that we need to keep it around for the cache.
+         */
+        public boolean release(Image x1)
+        {
+            Image x = get();
+            if (x == x1)
+            {
+                --count;
+                return true;
+            }
+            return false;
+        }
+
+        /**
+         * Release any resources associated with the image, provided it is not in use.
+         */
+        public void close()
+        {
+            boolean closeFailed = false;
+            boolean softRefCleared = false;
+            Image dumpImage = get();
+            clear();
+            if (dumpImage != null)
+            {
+                // Don't close the dump if it is still in use
+                if (count == 0)
+                {
+                    factoryMap.remove(dumpImage);
+                    try
+                    {
+                        // DTFJ 1.4
+                        dumpImage.close();
+                    }
+                    catch (NoSuchMethodError e)
+                    {
+                        closeFailed = true;
+                        dumpImage = null;
+                    }
+                }
+            }
+            else
+            {
+                softRefCleared = true;
+            }
+            if (closeFailed)
+            {
+                // We couldn't close a DTFJ image, so GC and finalize to
+                // attempt to clean up any temporary files
+                System.gc();
+                System.runFinalization();
+            }
+            else if (softRefCleared)
+            {
+                System.runFinalization();
+            }
+        }
     }
 
     /**
      * Helper method to get a cached DTFJ image. Uses soft references to avoid
      * running out of memory.
      * 
+     * @param dump the dump file
      * @param format
      *            The id of the DTFJ plugin
+     * @return A RuntimeInfo with just the image filled in.
      * @throws Error
      *             , IOException
      */
-    static Image getDump(File dump, Serializable format) throws Error, IOException
+    static RuntimeInfo getDump(File dump, Serializable format) throws Error, IOException
     {
-        SoftReference<Image> softReference;
+        ImageSoftReference softReference;
         Image im;
         synchronized (imageMap)
         {
@@ -7326,24 +7517,36 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 clearTimer.cancel();
                 clearTimer = null;
             }
+            // Find an existing image for the dump file
             softReference = imageMap.get(dump);
             if (softReference != null)
             {
-                im = softReference.get();
+                im = softReference.obtain();
                 if (im != null)
                 {
                     ++imageCount;
-                    return im;
+                    return new RuntimeInfo(im, null, null, null, null);
                 }
             }
         }
+        // Failed, so get a new image for the dump
         im = getUncachedDump(dump, format);
         synchronized (imageMap)
         {
-            imageMap.put(dump, new SoftReference<Image>(im));
+            // Check no new one obtained by another thread meanwhile.
+            softReference = imageMap.get(dump);
+            if (softReference == null || softReference.get() == null)
+            {
+                // Create a new soft reference
+                imageMap.put(dump, new ImageSoftReference(im));
+            }
+            else
+            {
+            }
+            // If we didn't create the soft reference then we will free the image on releasing the dump.
             ++imageCount;
         }
-        return im;
+        return new RuntimeInfo(im, null, null, null, null);
     }
 
     /**
@@ -7352,18 +7555,50 @@ public class DTFJIndexBuilder implements IIndexBuilder
      * after the last image is released. A good initial parse will be followed
      * by an heap object reader open, so don't start a timer after a good parse.
      * @param dump The dump to be freed
+     * @param dtfj The DTFJ objects. Contents cleared on return.
      * @param free If true and the total use count goes to zero, schedule cleanup
      */
-    static void releaseDump(File dump, boolean free)
+    static void releaseDump(File dump, RuntimeInfo dtfj, boolean free)
     {
+        // Already released?
+        if (dtfj.image == null)
+            return;
+        ImageSoftReference closeDump = null;
         synchronized (imageMap)
         {
-            if (imageMap.get(dump) != null)
+            ImageSoftReference sr = imageMap.get(dump);
+            if (sr != null && sr.release(dtfj.image))
             {
-                // Valid dump
-                --imageCount;
+                dtfj.clear();
+                // Do not cache unused images if it is out of date or the plugin is not running
+                if (sr.count == 0 && (sr.old || InitDTFJ.getDefault() == null))
+                {
+                    // The dump was out of date, and is now unused so free it.
+                    imageMap.remove(dump);
+                    closeDump = sr;
+                }
             }
-            if (imageCount <= 0 && free)
+            else
+            {
+                // Is an image in the cache
+                ImageSoftReference newsr = new ImageSoftReference(dtfj.image);
+                // Do not cache the image if the plugin is not running
+                if ((sr == null || sr.get() == null) && InitDTFJ.getDefault() != null)
+                {
+                    // There was no image in the cache, so save this one.
+                    imageMap.put(dump, newsr);
+                    dtfj.clear();
+                }
+                else
+                {
+                    // There is already an image, so discard this one.
+                    // The use count was 1 on creation, so set it to 0.
+                    newsr.release(dtfj.image);
+                    dtfj.clear();
+                    closeDump = newsr;
+                }
+            }
+            if (--imageCount <= 0 && free)
             {
                 if (clearTimer == null)
                     clearTimer = new Timer();
@@ -7378,6 +7613,10 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 }, 30 * 1000L);
             }
         }
+        if (closeDump != null)
+        {
+            closeDump.close();
+        }
     }
 
     /**
@@ -7385,46 +7624,97 @@ public class DTFJIndexBuilder implements IIndexBuilder
      * 
      * @param dump
      */
-    private synchronized static void clearCachedDump(File dump)
+    private static void clearCachedDump(File dump)
     {
-        boolean cleanup;
+        ImageSoftReference sr;
         synchronized (imageMap)
         {
-            cleanup = imageMap.remove(dump) != null;
+            sr = imageMap.get(dump);
+            if (sr == null)
+            {
+                // ignore
+            }
+            else if (sr.count > 1)
+            {
+                // Multiple users, so can't remove from the map
+                sr.old = true;
+                // we can't close it now
+                sr = null;
+            }
+            else if (sr.count == 1)
+            {
+                /* If there was only one user then we can remove it
+                 * and that user will close it when it is released.
+                 */
+                sr = imageMap.remove(dump);
+            }
+            else
+            {
+                /*
+                 * found, but not in use, so close it
+                 */
+                sr = imageMap.remove(dump);
+            }
         }
-        if (cleanup)
+        if (sr != null)
         {
-            // There is no way to close a DTFJ image, so GC and finalize to
-            // attempt
-            // to clean up any temporary files
-            System.gc();
-            System.runFinalization();
+            sr.close();
         }
     }
 
     /**
-     * Forget about all cached dumps
+     * Forget about all cached dumps which are not in use.
      */
     static void clearCachedDumps()
     {
-        boolean cleanup;
+        boolean closeFailed = false;
+        boolean softRefCleared = false;
+        List<ImageSoftReference>toClean;
         synchronized (imageMap)
         {
-            cleanup = !imageMap.isEmpty();
-            imageMap.clear();
-            if (clearTimer != null)
+            toClean = new ArrayList<ImageSoftReference>();
+            for (Iterator<Map.Entry<File, ImageSoftReference>> it = imageMap.entrySet().iterator(); it.hasNext(); )
             {
-                clearTimer.cancel();
-                clearTimer = null;
+                Map.Entry<File, ImageSoftReference> e = it.next();
+                if (e.getValue().count == 0)
+                {
+                    toClean.add(e.getValue());
+                    it.remove();
+                }
             }
-            imageCount = 0;
         }
-        if (cleanup)
+        for (ImageSoftReference sr : toClean)
         {
-            // There is no way to close a DTFJ image, so GC and finalize to
-            // attempt
-            // to clean up any temporary files
+            Image dumpImage = sr.get();
+            sr.clear();
+            if (dumpImage != null)
+            {
+                factoryMap.remove(dumpImage);
+                try
+                {
+                    // DTFJ 1.4
+                    dumpImage.close();
+                }
+                catch (NoSuchMethodError e)
+                {
+                    closeFailed = true;
+                    dumpImage = null;
+                }
+            }
+            else
+            {
+                softRefCleared = true;
+            }
+        }
+        if (closeFailed)
+        {
+            // We couldn't close a DTFJ image, so GC and finalize to
+            // attempt to clean up any temporary files
             System.gc();
+            System.runFinalization();
+        }
+        else if (softRefCleared)
+        {
             System.runFinalization();
         }
     }
@@ -7652,6 +7942,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
                                             try
                                             {
                                                 image = fact.getImage(dumpFile, metaFile);
+                                                // Save the factory too
+                                                factoryMap.put(image, fact);
                                                 return image;
                                             }
                                             catch (FileNotFoundException e)
@@ -7665,6 +7957,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
                                             try
                                             {
                                                 image = fact.getImage(dumpFile);
+                                                // Save the factory too
+                                                factoryMap.put(image, fact);
                                                 return image;
                                             }
                                             catch (RuntimeException e)

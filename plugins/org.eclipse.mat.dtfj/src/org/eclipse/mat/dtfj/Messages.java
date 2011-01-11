@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009,2010 IBM Corporation.
+ * Copyright (c) 2009,2011 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -202,6 +202,7 @@ public class Messages extends NLS
     public static String DTFJIndexBuilder_UnableToFindClassLoader;
     public static String DTFJIndexBuilder_UnableToFindDTFJForFormat;
     public static String DTFJIndexBuilder_UnableToFindJavaRuntime;
+    public static String DTFJIndexBuilder_UnableToFindJavaRuntimeId;
     public static String DTFJIndexBuilder_UnableToFindReachabilityOfRoot;
     public static String DTFJIndexBuilder_UnableToFindReferenceTypeOfRoot;
     public static String DTFJIndexBuilder_UnableToFindRoot;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009,2010 IBM Corporation.
+ * Copyright (c) 2009,2011 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,6 +12,7 @@ package org.eclipse.mat.dtfj;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ import org.eclipse.mat.parser.model.InstanceImpl;
 import org.eclipse.mat.parser.model.ObjectArrayImpl;
 import org.eclipse.mat.parser.model.PrimitiveArrayImpl;
 import org.eclipse.mat.snapshot.ISnapshot;
+import org.eclipse.mat.snapshot.SnapshotInfo;
 import org.eclipse.mat.snapshot.model.Field;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.ObjectReference;
@@ -36,6 +38,7 @@ import com.ibm.dtfj.image.CorruptDataException;
 import com.ibm.dtfj.image.DataUnavailable;
 import com.ibm.dtfj.image.Image;
 import com.ibm.dtfj.image.ImageAddressSpace;
+import com.ibm.dtfj.image.ImageFactory;
 import com.ibm.dtfj.image.ImagePointer;
 import com.ibm.dtfj.image.ImageProcess;
 import com.ibm.dtfj.image.MemoryAccessException;
@@ -65,14 +68,8 @@ public class DTFJHeapObjectReader implements IObjectReader
     private static final boolean getExtraInfo = true;
     /** the file */
     private File file;
-    /** the actual DTFJ image */
-    private Image image;
-    /** the JVM */
-    private JavaRuntime jvm;
-    /** the address space the Java runtime is in */
-    private ImageAddressSpace addrSpace;
-    /** the process the Java runtime is in */
-    private ImageProcess process;
+    /** All the key DTFJ data */
+    private RuntimeInfo dtfjInfo;
     /**
      * whether to give up and throw an exception if reading object data fails,
      * or whether to carry on getting more data
@@ -85,11 +82,8 @@ public class DTFJHeapObjectReader implements IObjectReader
      */
     public void close() throws IOException
     {
-        // No way to close the dump, so just remove refs
-        image = null;
-        jvm = null;
-        addrSpace = null;
-        DTFJIndexBuilder.releaseDump(file, true);
+        // Close the dump
+        DTFJIndexBuilder.releaseDump(file, dtfjInfo, true);
     }
 
     /**
@@ -108,6 +102,11 @@ public class DTFJHeapObjectReader implements IObjectReader
      */
     public <A> A getAddon(Class<A> addon) throws SnapshotException
     {
+        ImageFactory factory = dtfjInfo.getImageFactory();
+        Image image = dtfjInfo.getImage();
+        ImageAddressSpace addrSpace = dtfjInfo.getImageAddressSpace();
+        ImageProcess process = dtfjInfo.getImageProcess();
+        JavaRuntime jvm = dtfjInfo.getJavaRuntime();
         if (image != null && addon.isAssignableFrom(image.getClass()))
         {
             return addon.cast(image);
@@ -124,6 +123,10 @@ public class DTFJHeapObjectReader implements IObjectReader
         {
             return addon.cast(process);
         }
+        else if (factory != null && addon.isAssignableFrom(factory.getClass()))
+        {
+            return addon.cast(factory);
+        }
         else
         {
             return null;
@@ -139,14 +142,12 @@ public class DTFJHeapObjectReader implements IObjectReader
     public void open(ISnapshot snapshot) throws IOException
     {
         file = new File(snapshot.getSnapshotInfo().getPath());
-        image = DTFJIndexBuilder.getDump(file, snapshot.getSnapshotInfo()
-                        .getProperty("$heapFormat")); //$NON-NLS-1$
+        SnapshotInfo snapinfo = snapshot.getSnapshotInfo();
+        RuntimeInfo info = DTFJIndexBuilder.getDump(file, snapinfo.getProperty("$heapFormat")); //$NON-NLS-1$
+        Serializable runtimeId = snapinfo.getProperty(DTFJIndexBuilder.RUNTIME_ID_KEY);
         // Find the JVM
-        RuntimeInfo info = DTFJIndexBuilder.getRuntime(image, null);
-        addrSpace = info.imageAddressSpace;
-        process = info.imageProcess;
-        jvm = info.javaRuntime;
-    }
+        dtfjInfo = DTFJIndexBuilder.getRuntime(info.getImage(), runtimeId, null);
+     }
 
     /*
      * (non-Javadoc)
@@ -159,7 +160,7 @@ public class DTFJHeapObjectReader implements IObjectReader
         try
         {
             // DTFJ is not thread safe, but MAT is multi-threaded
-            synchronized (image)
+            synchronized (dtfjInfo.getImage())
             {
                 if (getExtraInfo)
                 {
@@ -218,7 +219,7 @@ public class DTFJHeapObjectReader implements IObjectReader
         if (getExtraInfo)
         {
             long prevFrameAddress = 0;
-            for (Iterator<?> i = jvm.getThreads(); i.hasNext();)
+            for (Iterator<?> i = dtfjInfo.getJavaRuntime().getThreads(); i.hasNext();)
             {
                 Object next = i.next();
                 if (next instanceof CorruptData)
@@ -309,12 +310,12 @@ public class DTFJHeapObjectReader implements IObjectReader
      */
     private JavaObject getJavaObjectByAddress0(long addr) throws CorruptDataException, MemoryAccessException
     {
-        ImagePointer ip = addrSpace.getPointer(addr);
+        ImagePointer ip = dtfjInfo.getImageAddressSpace().getPointer(addr);
         try
         {
             // Previous versions of DTFJ might not have this method, so handle
             // that possibility
-            JavaObject jo = jvm.getObjectAtAddress(ip);
+            JavaObject jo = dtfjInfo.getJavaRuntime().getObjectAtAddress(ip);
             return jo;
         }
         catch (DataUnavailable e)
@@ -338,7 +339,7 @@ public class DTFJHeapObjectReader implements IObjectReader
     private JavaObject getJavaObjectByAddress(long addr)
     {
         // Now look for thread objects
-        for (Iterator<?> i = jvm.getThreads(); i.hasNext();)
+        for (Iterator<?> i = dtfjInfo.getJavaRuntime().getThreads(); i.hasNext();)
         {
             Object next = i.next();
             if (next instanceof CorruptData)
@@ -363,7 +364,7 @@ public class DTFJHeapObjectReader implements IObjectReader
         }
 
         // Now look for monitor objects
-        for (Iterator<?> i = jvm.getMonitors(); i.hasNext();)
+        for (Iterator<?> i = dtfjInfo.getJavaRuntime().getMonitors(); i.hasNext();)
         {
             Object next = i.next();
             if (next instanceof CorruptData)
@@ -376,7 +377,7 @@ public class DTFJHeapObjectReader implements IObjectReader
         }
 
         // Now look for class loader objects
-        for (Iterator<?> i = jvm.getJavaClassLoaders(); i.hasNext();)
+        for (Iterator<?> i = dtfjInfo.getJavaRuntime().getJavaClassLoaders(); i.hasNext();)
         {
             Object next = i.next();
             if (next instanceof CorruptData)
@@ -394,7 +395,7 @@ public class DTFJHeapObjectReader implements IObjectReader
         }
 
         // Now look for ordinary objects on the heap
-        for (Iterator<?> i = jvm.getHeaps(); i.hasNext();)
+        for (Iterator<?> i = dtfjInfo.getJavaRuntime().getHeaps(); i.hasNext();)
         {
             Object next = i.next();
             if (next instanceof CorruptData)
@@ -863,7 +864,7 @@ public class DTFJHeapObjectReader implements IObjectReader
             try
             {
                 // DTFJ is not thread safe, but MAT is multi-threaded
-                synchronized (image)
+                synchronized (dtfjInfo.getImage())
                 {
                     res = getPrimitiveData(da.getJo(), array.getType(), offset, length);
                 }
@@ -916,7 +917,7 @@ public class DTFJHeapObjectReader implements IObjectReader
             try
             {
                 // DTFJ is not thread safe, but MAT is multi-threaded
-                synchronized (image)
+                synchronized (dtfjInfo.getImage())
                 {
                     res = getObjectData(da.getJo(), offset, length);
                 }
