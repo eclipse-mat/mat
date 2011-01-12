@@ -565,6 +565,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
         if (actualRuntimeId != null)
         {
             index.getSnapshotInfo().setProperty(RUNTIME_ID_KEY, actualRuntimeId);
+            listener.sendUserMessage(Severity.INFO,
+                            MessageFormat.format(Messages.DTFJIndexBuilder_DTFJJavaRuntime, actualRuntimeId), null);
         }
 
         try
@@ -7634,19 +7636,17 @@ public class DTFJIndexBuilder implements IIndexBuilder
             {
                 // ignore
             }
-            else if (sr.count > 1)
+            else if (sr.count >= 1)
             {
-                // Multiple users, so can't remove from the map
+                /*
+                 * Multiple users, so can't remove from the map
+                 * If there was only one user then we can't remove it
+                 * because if the cache were then empty on release it
+                 * would be added back into the cache.
+                 */
                 sr.old = true;
                 // we can't close it now
                 sr = null;
-            }
-            else if (sr.count == 1)
-            {
-                /* If there was only one user then we can remove it
-                 * and that user will close it when it is released.
-                 */
-                sr = imageMap.remove(dump);
             }
             else
             {

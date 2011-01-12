@@ -77,6 +77,7 @@ public class Messages extends NLS
     public static String DTFJIndexBuilder_DTFJGetReferencesMissingAllReferences;
     public static String DTFJIndexBuilder_DTFJGetReferencesMissingID;
     public static String DTFJIndexBuilder_DTFJIndexBuilder_CorruptDataReadingNativeStackSection;
+    public static String DTFJIndexBuilder_DTFJJavaRuntime;
     public static String DTFJIndexBuilder_DTFJRootsDisabled;
     public static String DTFJIndexBuilder_DuplicateJavaStackFrame;
     public static String DTFJIndexBuilder_ErrorGettingOutboundReferences;
