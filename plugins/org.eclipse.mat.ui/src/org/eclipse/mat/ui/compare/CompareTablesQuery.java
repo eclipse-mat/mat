@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.mat.query.Column;
+import org.eclipse.mat.query.ContextProvider;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IIconProvider;
 import org.eclipse.mat.query.IQuery;
@@ -25,7 +26,9 @@ import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.query.ResultMetaData;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin.ISharedImages;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.MessageUtil;
 
 import com.ibm.icu.text.DecimalFormat;
 
@@ -270,14 +273,29 @@ public class CompareTablesQuery implements IQuery
 
 		public IContextObject getContext(Object row)
 		{
-			// TODO Auto-generated method stub
-			return null;
+            final ComparedRow cr = (ComparedRow) row;
+            Object r = cr.getRows()[0];
+            return tables[0].getContext(r);
 		}
 
 		public ResultMetaData getResultMetaData()
 		{
-			// TODO Auto-generated method stub
-			return null;
+            ResultMetaData.Builder bb = new ResultMetaData.Builder();
+            for (int i = 0; i < tables.length; ++i)
+            {
+                final int j = i;
+                String title = MessageUtil.format(Messages.CompareTablesQuery_Table, i + 1);
+                bb.addContext(new ContextProvider(title)
+                {
+                    public IContextObject getContext(Object row)
+                    {
+                        final ComparedRow cr = (ComparedRow) row;
+                        Object r = cr.getRows()[j];
+                        return r != null ? tables[j].getContext(r) : null;
+                    }
+                });
+            }
+            return bb.build();
 		}
 
 		private Object getAbsoluteValue(ComparedRow cr, int comparedColumnIdx, int tableIdx)
