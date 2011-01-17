@@ -274,8 +274,18 @@ public class CompareTablesQuery implements IQuery
 		public IContextObject getContext(Object row)
 		{
             final ComparedRow cr = (ComparedRow) row;
-            Object r = cr.getRows()[0];
-            return tables[0].getContext(r);
+            // Find a context from one of the tables
+            IContextObject ret = null;
+            for (int i = 0; i < tables.length; ++i)
+            {
+                Object r = cr.getRows()[i];
+                if (r != null)
+                {
+                    ret = tables[i].getContext(r);
+                    break;
+                }
+            }
+            return ret;
 		}
 
 		public ResultMetaData getResultMetaData()
