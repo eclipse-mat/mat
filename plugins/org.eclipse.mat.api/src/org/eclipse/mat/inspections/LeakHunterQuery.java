@@ -37,11 +37,12 @@ import org.eclipse.mat.inspections.util.ObjectTreeFactory;
 import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.internal.snapshot.inspections.MultiplePath2GCRootsQuery;
 import org.eclipse.mat.query.IContextObject;
+import org.eclipse.mat.query.IContextObjectSet;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
-import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.Argument.Advice;
+import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.results.CompositeResult;
 import org.eclipse.mat.query.results.ListResult;
 import org.eclipse.mat.query.results.TextResult;
@@ -673,7 +674,7 @@ public class LeakHunterQuery implements IQuery
             @Override
             public IContextObject getContext(final Object row)
             {
-                return new IContextObject()
+                return new IContextObjectSet()
                 {
 
                     public int getObjectId()
@@ -681,6 +682,15 @@ public class LeakHunterQuery implements IQuery
                         return ((ClassHistogramRecord) row).getClassId();
                     }
 
+                    public int[] getObjectIds()
+                    {
+                        return ((ClassHistogramRecord) row).getObjectIds();
+                    }
+
+                    public String getOQL()
+                    {
+                        return null;
+                    }
                 };
             }
         };
