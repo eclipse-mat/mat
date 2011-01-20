@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.mat.tests.snapshot;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -36,6 +38,7 @@ public class OQLTest
         SnapshotFactory.createQuery("SELECT * FROM something.distinct.Object");
         SnapshotFactory.createQuery("SELECT * FROM something.from.Object");
         SnapshotFactory.createQuery("SELECT * FROM something.in.Object");
+        SnapshotFactory.createQuery("SELECT * FROM something.is.Object");
         SnapshotFactory.createQuery("SELECT * FROM something.like.Object");
         SnapshotFactory.createQuery("SELECT * FROM something.not.Object");
         SnapshotFactory.createQuery("SELECT * FROM something.objects.Object");
@@ -309,7 +312,6 @@ public class OQLTest
         final String queryString = "SELECT s.value FROM INSTANCEOF java.lang.Number s WHERE (true and s.value)";
         IOQLQuery q1 = SnapshotFactory.createQuery(queryString);
         String s = q1.toString();
-        System.out.println(s);
         IOQLQuery q2 = SnapshotFactory.createQuery(s);
         execute(s);
     }
@@ -324,6 +326,55 @@ public class OQLTest
         IResultTable res = (IResultTable)execute("SELECT s.value FROM INSTANCEOF java.lang.Number s WHERE (s.value and true)");
         assert 3 ==  res.getRowCount() : "3 non-zero Numbers expected";
     }
+
+    @Test
+    public void testConversionsLong1() throws SnapshotException
+    {
+        // Array of 2 Strings and an object array
+        int res[] = (int[])execute("SELECT OBJECTS @referenceArray.get(0) FROM OBJECTS 0x17c17128");
+        assertEquals(1, res.length);
+    }
+
+    @Test
+    public void testConversionsLong() throws SnapshotException
+    {
+        // Array of 2 Strings and an object array
+        int res[] = (int[])execute("SELECT OBJECTS @referenceArray FROM OBJECTS 0x17c17128");
+        assertEquals(3, res.length);
+    }
+
+    @Test
+    public void testGetClasses1() throws SnapshotException
+    {
+        // 21 byte arrays
+        int res[] = (int[])execute("SELECT * FROM ${snapshot}.getClasses().get(2)");
+        assertEquals(21, res.length);
+    }
+
+    @Test
+    public void testGetClasses2() throws SnapshotException
+    {
+        // 21 byte arrays
+        int res[] = (int[])execute("SELECT * FROM (SELECT OBJECTS s FROM OBJECTS ${snapshot}.getClasses().get(2).@objectId s)");
+        assertEquals(21, res.length);
+    }
+
+    @Test
+    public void testGetClasses3() throws SnapshotException
+    {
+        // 21 byte arrays
+        Class s = (Class)execute("SELECT * FROM OBJECTS ${snapshot}.getClasses().@class");
+        assertEquals("class java.util.Arrays$ArrayList", s.toString());
+    }
+
+    @Test
+    public void testGetClasses4() throws SnapshotException
+    {
+        // 492 Strings
+        int[] objectIds = (int[])execute("select * from java.lang.String s where (select * from objects ${snapshot}.isClass(s.@objectId)) = false");
+        assertEquals(492, objectIds.length);
+    }
+    
 
     // //////////////////////////////////////////////////////////////
     // internal helper

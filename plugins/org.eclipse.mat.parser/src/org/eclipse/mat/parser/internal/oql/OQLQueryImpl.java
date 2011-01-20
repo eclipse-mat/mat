@@ -15,6 +15,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -1162,27 +1163,68 @@ public class OQLQueryImpl implements IOQLQuery
             if (listener.isCanceled())
                 throw new IProgressListener.OperationCanceledException();
 
-            Object object = set.getColumnValue(set.getRow(ii), 0);
-            if (object == null)
+            Object rowObject = set.getColumnValue(set.getRow(ii), 0);
+            /**
+             * Convert arrays or collections of IObjects
+             * or ints or int arrays or IObjects
+             * or longs or arrays of longs into object ids.
+             */
+            Iterable<?> it;
+            if (rowObject instanceof Iterable)
             {
-                // acceptable value -> do nothing
+                it = (Iterable<?>)rowObject;
             }
-            else if (object instanceof Integer)
+            else if (rowObject instanceof Object[])
             {
-                resultSet.add(((Integer) object).intValue());
-            }
-            else if (object instanceof int[])
-            {
-                resultSet.addAll((int[]) object);
-            }
-            else if (object instanceof IObject)
-            {
-                resultSet.add(((IObject) object).getObjectId());
+                it = Arrays.asList((Object[])rowObject);
             }
             else
             {
-                throw new SnapshotException(MessageUtil.format(Messages.OQLQueryImpl_Error_ResultMustReturnObjectList,
-                                new Object[] { set.getOQLQuery(), String.valueOf(object) }));
+                it = Collections.singleton(rowObject);
+            }
+            for (Object object : it)
+            {
+                if (object == null)
+                {
+                    // acceptable value -> do nothing
+                }
+                else if (object instanceof Integer)
+                {
+                    resultSet.add(((Integer) object).intValue());
+                }
+                else if (object instanceof int[])
+                {
+                    resultSet.addAll((int[]) object);
+                }
+                else if (object instanceof IObject)
+                {
+                    resultSet.add(((IObject) object).getObjectId());
+                }
+                else if (object instanceof Long)
+                {
+                    long addr = ((Long) object).longValue();
+                    if (addr != 0)
+                    {
+                        int id = ctx.getSnapshot().mapAddressToId(addr);
+                        resultSet.add(id);
+                    }
+                }
+                else if (object instanceof long[])
+                {
+                    for (long addr : (long[])object)
+                    {
+                        if (addr != 0)
+                        {
+                            int id = ctx.getSnapshot().mapAddressToId(addr);
+                            resultSet.add(id);
+                        }
+                    }
+                }
+                else
+                {
+                    throw new SnapshotException(MessageUtil.format(Messages.OQLQueryImpl_Error_ResultMustReturnObjectList,
+                                    new Object[] { set.getOQLQuery(), String.valueOf(rowObject) }));
+                }
             }
         }
     }

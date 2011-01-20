@@ -12,6 +12,9 @@ package org.eclipse.mat.parser.internal.oql.compiler;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -20,9 +23,9 @@ import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.parser.internal.Messages;
 import org.eclipse.mat.parser.internal.oql.compiler.CompilerImpl.ConstantExpression;
 import org.eclipse.mat.snapshot.model.IObject;
+import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.PatternUtil;
-import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
 
 class MethodCallExpression extends Expression
 {
@@ -58,7 +61,25 @@ class MethodCallExpression extends Expression
         }
 
         // find appropriate method
-        Method[] methods = subject.getClass().getMethods();
+        Method[] methods;
+        final Class<? extends Object> subjectClass = subject.getClass();
+        methods = subjectClass.getMethods();
+        if (!Modifier.isPublic(subjectClass.getModifiers()))
+        {
+            // Non-public class public methods are only accessible via
+            // interfaces. For example java.util.Arrays$ArrayList.get()
+            ArrayList<Method> m = new ArrayList<Method>();
+            for (Class<?> superClass = subjectClass; superClass != null; superClass = superClass.getSuperclass())
+            {
+                for (Class<?> c : superClass.getInterfaces())
+                {
+                    m.addAll(Arrays.asList(c.getMethods()));
+                }
+            }
+            // Then add the original methods
+            m.addAll(Arrays.asList(methods));
+            methods = m.toArray(new Method[m.size()]);
+        }
         for (int ii = 0; ii < methods.length; ii++)
         {
             if (methods[ii].getName().equals(this.name))
