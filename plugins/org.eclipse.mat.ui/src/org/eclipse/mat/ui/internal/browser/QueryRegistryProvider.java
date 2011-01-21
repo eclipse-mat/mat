@@ -47,7 +47,7 @@ public class QueryRegistryProvider extends QueryBrowserProvider
 
         for (QueryDescriptor query : queries)
         {
-            if (query.accept(context) && (policy == null || policy.accept(query)))
+            if (query.accept(context) && policy.accept(query))
                 answer.add(new CQQElement(query));
         }
 

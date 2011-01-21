@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2011 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson - move Policy to org.eclipse.mat.ui.internal.browser
  *******************************************************************************/
 package org.eclipse.mat.ui.util;
 
@@ -25,24 +26,18 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.mat.SnapshotException;
-import org.eclipse.mat.internal.snapshot.HeapObjectContextArgument;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.ContextProvider;
 import org.eclipse.mat.query.DetailResultProvider;
 import org.eclipse.mat.query.IContextObject;
-import org.eclipse.mat.query.IContextObjectSet;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.IStructuredResult;
-import org.eclipse.mat.query.annotations.Argument;
-import org.eclipse.mat.query.registry.ArgumentDescriptor;
 import org.eclipse.mat.query.registry.ArgumentSet;
 import org.eclipse.mat.query.registry.CategoryDescriptor;
 import org.eclipse.mat.query.registry.QueryDescriptor;
 import org.eclipse.mat.query.registry.QueryRegistry;
 import org.eclipse.mat.query.registry.QueryResult;
 import org.eclipse.mat.snapshot.ISnapshot;
-import org.eclipse.mat.snapshot.model.IObject;
-import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.QueryExecution;
@@ -50,6 +45,7 @@ import org.eclipse.mat.ui.MemoryAnalyserPlugin.ISharedImages;
 import org.eclipse.mat.ui.editor.AbstractEditorPane;
 import org.eclipse.mat.ui.editor.AbstractPaneJob;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
+import org.eclipse.mat.ui.internal.browser.Policy;
 import org.eclipse.mat.ui.internal.browser.QueryBrowserPopup;
 import org.eclipse.mat.ui.snapshot.actions.CopyActions;
 import org.eclipse.mat.util.MessageUtil;
@@ -194,119 +190,6 @@ public class QueryContextMenu
         }
 
         return label;
-    }
-
-    private static class Policy implements IPolicy
-    {
-        private final boolean multiRowSelection;
-        private final boolean multiObjectSelection;
-        private Class<? extends IContextObject> type;
-        private List<IContextObject> context;
-        private String label;
-
-        public Policy(List<IContextObject> menuContext, String selectionLabel)
-        {
-            multiRowSelection = menuContext.size() > 1;
-            multiObjectSelection = multiRowSelection || menuContext.get(0) instanceof IContextObjectSet;
-
-            type = IContextObjectSet.class;
-            for (IContextObject obj : menuContext)
-            {
-                if (!IContextObjectSet.class.isAssignableFrom(obj.getClass()))
-                {
-                    type = IContextObject.class;
-                    break;
-                }
-            }
-            context = menuContext;
-            label = selectionLabel;
-        }
-
-        public boolean accept(QueryDescriptor query)
-        {
-            boolean heapObjectArgExists = false;
-            boolean heapObjectArgIsMultiple = false;
-
-            boolean contextObjectArgExists = false;
-            boolean contextObjectArgIsMultiple = false;
-
-            for (ArgumentDescriptor argument : query.getArguments())
-            {
-                if (isHeapObject(argument))
-                {
-                    heapObjectArgExists = true;
-                    heapObjectArgIsMultiple = heapObjectArgIsMultiple || argument.isMultiple()
-                                    || IHeapObjectArgument.class.isAssignableFrom(argument.getType());
-                }
-                else if (argument.getType().isAssignableFrom(type))
-                {
-                    contextObjectArgExists = true;
-                    contextObjectArgIsMultiple = contextObjectArgIsMultiple || argument.isMultiple();
-                }
-            }
-
-            if (!heapObjectArgExists && !contextObjectArgExists)
-                return false;
-            if (heapObjectArgExists && !heapObjectArgIsMultiple && multiObjectSelection)
-                return false;
-            if (contextObjectArgExists && !contextObjectArgIsMultiple && multiRowSelection)
-                return false;
-
-            return true;
-        }
-
-        private boolean isHeapObject(ArgumentDescriptor argument)
-        {
-            Class<?> argType = argument.getType();
-
-            if (argType.isAssignableFrom(int.class) && argument.getAdvice() == Argument.Advice.HEAP_OBJECT)
-                return true;
-            if (argType.isAssignableFrom(IObject.class))
-                return true;
-            if (argType.isAssignableFrom(IHeapObjectArgument.class))
-                return true;
-
-            return false;
-        }
-        
-        public void fillInObjectArguments(ISnapshot snapshot, QueryDescriptor query, ArgumentSet set)
-        {
-            // avoid JavaNCSS parsing error
-            final Class<?> intClass = int.class;
-
-            for (ArgumentDescriptor argument : query.getArguments())
-            {
-                if ((intClass.isAssignableFrom(argument.getType()) && argument.getAdvice() == Argument.Advice.HEAP_OBJECT) //
-                                || IObject.class.isAssignableFrom(argument.getType()) //
-                                || IHeapObjectArgument.class.isAssignableFrom(argument.getType()))
-                {
-                    set.setArgumentValue(argument, new HeapObjectContextArgument(snapshot, context, label));
-                }
-                else if (IContextObjectSet.class.isAssignableFrom(argument.getType()))
-                {
-                    if (argument.isMultiple())
-                    {
-                        set.setArgumentValue(argument, context);
-                    }
-                    else
-                    {
-                        set.setArgumentValue(argument, context.get(0));
-                    }
-                }
-                else if (IContextObject.class.isAssignableFrom(argument.getType()))
-                {
-                    if (argument.isMultiple())
-                    {
-                        set.setArgumentValue(argument, context);
-                    }
-                    else
-                    {
-                        set.setArgumentValue(argument, context.get(0));
-                    }
-                }
-            }
-        }
-
     }
 
     private void resultMenu(PopupMenu menu, IStructuredSelection selection)

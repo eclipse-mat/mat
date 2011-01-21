@@ -30,6 +30,7 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.mat.internal.snapshot.SnapshotQueryContext;
+import org.eclipse.mat.query.IContextObjectSet;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.SnapshotFactory;
@@ -74,6 +75,8 @@ public class HeapEditor extends MultiPaneEditor implements ISelectionProvider
         public boolean available(Class<?> type, Argument.Advice advice)
         {
             if (type.isAssignableFrom(Display.class)) { return true; }
+            // The context will be checked and filled in by the policy
+            if (type.isAssignableFrom(IContextObjectSet.class)) { return true; }
             return super.available(type, advice);
         }
 

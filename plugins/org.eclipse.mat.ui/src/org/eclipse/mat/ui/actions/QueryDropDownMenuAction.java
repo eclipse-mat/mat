@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2011 SAP AG & IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson - default policy
  *******************************************************************************/
 package org.eclipse.mat.ui.actions;
 
@@ -20,9 +21,11 @@ import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
 import org.eclipse.mat.ui.internal.actions.ExecuteQueryAction;
+import org.eclipse.mat.ui.internal.browser.Policy;
 import org.eclipse.mat.ui.internal.browser.QueryBrowserPopup;
 import org.eclipse.mat.ui.internal.browser.QueryHistory;
 import org.eclipse.mat.ui.util.EasyToolBarDropDown;
+import org.eclipse.mat.ui.util.IPolicy;
 import org.eclipse.mat.ui.util.PopupMenu;
 
 public class QueryDropDownMenuAction extends EasyToolBarDropDown
@@ -61,7 +64,8 @@ public class QueryDropDownMenuAction extends EasyToolBarDropDown
     @Override
     public void contribute(PopupMenu menu)
     {
-        addCategorySubMenu(menu, QueryRegistry.instance().getRootCategory());
+        IPolicy policy = new Policy();
+        addCategorySubMenu(menu, QueryRegistry.instance().getRootCategory(), policy);
 
         menu.addSeparator();
 
@@ -70,7 +74,7 @@ public class QueryDropDownMenuAction extends EasyToolBarDropDown
         addHistory(menu);
     }
 
-    private void addCategorySubMenu(PopupMenu menu, CategoryDescriptor category)
+    private void addCategorySubMenu(PopupMenu menu, CategoryDescriptor category, IPolicy policy)
     {
         for (Object item : category.getChildren())
         {
@@ -79,12 +83,12 @@ public class QueryDropDownMenuAction extends EasyToolBarDropDown
                 CategoryDescriptor subCategory = (CategoryDescriptor) item;
                 PopupMenu categoryItem = new PopupMenu(subCategory.getName());
                 menu.add(categoryItem);
-                addCategorySubMenu(categoryItem, subCategory);
+                addCategorySubMenu(categoryItem, subCategory, policy);
             }
             else if (item instanceof QueryDescriptor)
             {
                 QueryDescriptor query = (QueryDescriptor) item;
-                if (query.accept(editor.getQueryContext()))
+                if (query.accept(editor.getQueryContext()) && policy.accept(query))
                     menu.add(new ExecuteQueryAction(editor, query));
             }
         }

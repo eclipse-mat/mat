@@ -100,7 +100,7 @@ public class QueryBrowserPopup extends PopupDialog
 
     public QueryBrowserPopup(MultiPaneEditor editor, boolean onlyHistory)
     {
-        this(editor, onlyHistory, null);
+        this(editor, onlyHistory, new Policy());
     }
     
     public QueryBrowserPopup(MultiPaneEditor editor, boolean onlyHistory, org.eclipse.mat.ui.util.IPolicy policy)
