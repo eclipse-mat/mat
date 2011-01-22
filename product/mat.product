@@ -24,7 +24,7 @@ Visit http://www.eclipse.org/mat
 -XstartOnFirstThread</vmArgsMac>
    </launcherArgs>
 
-   <windowImages i16="/parent/product/icons/memory_analyzer_16.gif"/>
+   <windowImages i16="/parent/product/icons/memory_analyzer_16.gif" i32="/parent/product/icons/memory_analyzer_32.gif"/>
 
    <splash
       location="org.eclipse.mat.ui.rcp"
