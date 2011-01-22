@@ -28,6 +28,8 @@ import org.eclipse.mat.util.HTMLUtils;
 
     public static void beginPage(final AbstractPart part, HtmlArtefact artefact, String title, String encoding)
     {
+        artefact.append("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"" +
+                        " \"http://www.w3.org/TR/html4/loose.dtd\">");
         artefact.append("<html><head>");
         try
         {
@@ -126,7 +128,7 @@ import org.eclipse.mat.util.HTMLUtils;
         boolean showHeading = part.params().shallow().getBoolean(Params.Html.SHOW_HEADING, true);
         if (!showHeading)
         {
-            artefact.append("<a name=\"").append(part.getId()).append("\"/>");
+            artefact.append("<a name=\"").append(part.getId()).append("\"></a>");
         }
         else
         {
@@ -177,7 +179,7 @@ import org.eclipse.mat.util.HTMLUtils;
 
         if (!showHeading)
         {
-            artefact.append("<a name=\"").append(query.getId()).append("\"/>");
+            artefact.append("<a name=\"").append(query.getId()).append("\"></a>");
         }
         else
         {

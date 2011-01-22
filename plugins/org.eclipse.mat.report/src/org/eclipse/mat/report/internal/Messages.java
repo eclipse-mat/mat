@@ -43,6 +43,9 @@ public final class Messages extends NLS
     public static String HtmlOutputter_Error_MovingFile;
     public static String HtmlOutputter_Label_Details;
     public static String HtmlOutputter_Label_NotApplicable;
+    public static String HtmlOutputter_Label_AllObjects;
+    public static String HtmlOutputter_Label_FirstObjects;
+    public static String HtmlOutputter_Label_AllNObjects;
     public static String HtmlOutputter_Msg_TreeIsLimited;
     public static String PageSnippets_Label_HideUnhide;
     public static String PageSnippets_Label_CreatedBy;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2011 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson - add extra links for multiple objects
  *******************************************************************************/
 package org.eclipse.mat.report.internal;
 
@@ -17,8 +18,10 @@ import java.util.List;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.Column;
+import org.eclipse.mat.query.ContextProvider;
 import org.eclipse.mat.query.DetailResultProvider;
 import org.eclipse.mat.query.IContextObject;
+import org.eclipse.mat.query.IContextObjectSet;
 import org.eclipse.mat.query.IDecorator;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.IStructuredResult;
@@ -40,6 +43,7 @@ import org.eclipse.mat.util.VoidProgressListener;
 @Renderer(target = "html")
 public class HtmlOutputter implements IOutputter
 {
+    private int maxLinkObjects = 10;
 
     public void embedd(Context context, IResult result, Writer writer) throws IOException
     {
@@ -433,13 +437,61 @@ public class HtmlOutputter implements IOutputter
         }
     }
 
+    /**
+     * Is this new context significantly different from the base context and worth displaying.
+     * If they both are simple contexts and the new id is different and not -1, then display it.
+     * If either are IContextObjectSets then they probably are different.
+     * @param c1
+     * @param c2
+     * @return
+     */
+    private boolean moreContextObjects(IContextObject c1, IContextObject c2) {
+        if (c2 == null) return false;
+        if (c1 == null) return true;
+        if (c1.equals(c2)) return false;
+        if (c1.getObjectId() != c2.getObjectId() && c2.getObjectId() != -1) return true;
+        if (!(c1 instanceof IContextObjectSet) && !(c2 instanceof IContextObjectSet)) return false;
+        return true;
+    }
+
     @SuppressWarnings("nls")
     private void renderLink(Context context, Writer artefact, IStructuredResult thing, Object row, String label)
                     throws IOException
     {
+        IContextObject ctx = thing.getContext(row);
+        renderContext(context, label, ctx, artefact);
+        boolean first = true;
+        boolean done = false;
+        for (ContextProvider prov : thing.getResultMetaData().getContextProviders())
+        {
+            IContextObject ctx1 = prov.getContext(row);
+            if (moreContextObjects(ctx, ctx1))
+            {
+                if (first)
+                {
+                    first = false;
+                    // unordered lists in tables don't work with the internal browser
+                    //artefact.append("<ul>");
+                    done = true;
+                }
+                artefact.append("<br>");
+                //artefact.append("<li>");
+                renderContext(context, prov.getLabel(), ctx1, artefact);
+                //artefact.append("</li>");
+            }
+        }
+        if (done)
+        {
+            //artefact.append("</ul>");
+        }
+    }
+
+    @SuppressWarnings("nls")
+    private void renderContext(Context context, String label, IContextObject ctx, Writer artefact)
+                    throws IOException
+    {
         int objectId = -1;
 
-        IContextObject ctx = thing.getContext(row);
         if (ctx != null)
             objectId = ctx.getObjectId();
 
@@ -459,6 +511,52 @@ public class HtmlOutputter implements IOutputter
         else
         {
             artefact.append(label);
+        }
+        if (ctx instanceof IContextObjectSet)
+        {
+            IContextObjectSet set = (IContextObjectSet)ctx;
+            String oqlCommand = set.getOQL();
+            int objs[] = set.getObjectIds();
+            if (objs.length > 0)
+            {
+                int n = Math.min(maxLinkObjects, objs.length);
+                if (objs.length > n && oqlCommand != null)
+                {
+                    artefact.append("<br><a href=\"");
+                    StringBuilder sb = new StringBuilder("oql");
+                    sb.append(" ");
+                    sb.append('"').append(oqlCommand).append('"');
+                    artefact.append(QueryObjectLink.forQuery(sb.toString())).append("\">");
+                    artefact.append(Messages.HtmlOutputter_Label_AllObjects);
+                    artefact.append("</a>");
+                }
+                else
+                {
+                    artefact.append("<br><a href=\"");
+                    StringBuilder sb = new StringBuilder("list_objects");
+                    for (int i = 0; i < n; ++i)
+                    {
+                        try
+                        {
+                            String externalIdentifier = context.getQueryContext().mapToExternalIdentifier(objs[i]);
+                            sb.append(" ");
+                            sb.append(externalIdentifier);
+                        }
+                        catch (SnapshotException e)
+                        {}
+                    }
+                    artefact.append(QueryObjectLink.forQuery(sb.toString())).append("\">");
+                    if (n < objs.length)
+                    {
+                        artefact.append(MessageUtil.format(Messages.HtmlOutputter_Label_FirstObjects, n, objs.length));
+                    }
+                    else
+                    {
+                        artefact.append(MessageUtil.format(Messages.HtmlOutputter_Label_AllNObjects, objs.length));
+                    }
+                    artefact.append("</a>");
+                }
+            }
         }
     }
 
