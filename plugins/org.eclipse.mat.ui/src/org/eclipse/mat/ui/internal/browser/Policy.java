@@ -127,6 +127,9 @@ public class Policy implements IPolicy
     
     public void fillInObjectArguments(ISnapshot snapshot, QueryDescriptor query, ArgumentSet set)
     {
+        // If there is no useful context then we can't return any useful data
+        if (!singleRowSelection && ! multiRowSelection)
+            return;
         // avoid JavaNCSS parsing error
         final Class<?> intClass = int.class;
 

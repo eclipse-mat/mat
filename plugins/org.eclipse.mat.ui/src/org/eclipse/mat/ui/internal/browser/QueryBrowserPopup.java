@@ -28,9 +28,13 @@ import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.resource.LocalResourceManager;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.query.IQueryContext;
+import org.eclipse.mat.query.registry.ArgumentSet;
 import org.eclipse.mat.query.registry.CategoryDescriptor;
+import org.eclipse.mat.query.registry.CommandLine;
 import org.eclipse.mat.query.registry.QueryDescriptor;
 import org.eclipse.mat.query.registry.QueryRegistry;
+import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.QueryExecution;
@@ -85,6 +89,7 @@ public class QueryBrowserPopup extends PopupDialog
 
     private List<QueryBrowserProvider> providers;
     private MultiPaneEditor editor;
+    private IPolicy policy;
 
     private Text filterText;
     private QueryContextHelp helpText;
@@ -109,6 +114,7 @@ public class QueryBrowserPopup extends PopupDialog
                         Messages.QueryBrowserPopup_StartTyping);
 
         this.editor = editor;
+        this.policy = policy;
 
         QueryBrowserPopup.this.providers = new ArrayList<QueryBrowserProvider>();
         providers.add(new QueryHistoryProvider(editor.getQueryContext(), policy));
@@ -458,7 +464,21 @@ public class QueryBrowserPopup extends PopupDialog
 
             close();
 
-            QueryExecution.executeCommandLine(editor, null, cmdLine);
+            IQueryContext context = editor.getQueryContext();
+            ArgumentSet argumentSet = CommandLine.parse(context, cmdLine);
+            boolean reproducable = true;
+            if (!argumentSet.isExecutable() && context.available(ISnapshot.class, null))
+            {
+                // Fill in some missing arguments from the policy
+                ISnapshot snapshot = (ISnapshot) context.get(ISnapshot.class, null);
+                QueryDescriptor query = argumentSet.getQueryDescriptor();
+                String before = argumentSet.toString();
+                policy.fillInObjectArguments(snapshot, query, argumentSet);
+                String after = argumentSet.toString();
+                // See if the arguments have changed
+                reproducable = before.equals(after);
+            }
+            QueryExecution.execute(editor, null, null, argumentSet, false, reproducable);
         }
         catch (SnapshotException e)
         {

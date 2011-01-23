@@ -224,7 +224,7 @@ public class ArgumentSet
         // all mandatory parameters must be set
         for (ArgumentDescriptor parameter : query.getArguments())
         {
-            if (parameter.isMandatory() && !values.containsKey(parameter) && parameter.getDefaultValue() == null)
+            if (parameter.isMandatory() && values.get(parameter) == null && parameter.getDefaultValue() == null)
                 return false;
         }
 

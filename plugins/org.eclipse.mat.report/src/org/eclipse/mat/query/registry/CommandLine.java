@@ -160,6 +160,8 @@ public class CommandLine
                 String flag = arg.substring(1).toLowerCase(Locale.ENGLISH);
                 ArgumentDescriptor argDescriptor = descriptor.byFlag(flag);
                 if (argDescriptor == null)
+                    argDescriptor = descriptor.byFlag(arg.substring(1));
+                if (argDescriptor == null)
                     throw new SnapshotException(MessageUtil.format(Messages.CommandLine_Error_MissingArgument,
                                     descriptor.getName(), flag));
 
