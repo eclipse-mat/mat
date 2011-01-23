@@ -257,6 +257,7 @@
 		<query impl="org.eclipse.mat.ui.snapshot.actions.CopyActions$FQClassName" />
 		<query impl="org.eclipse.mat.ui.snapshot.actions.CopyActions$Value" />
 		<query impl="org.eclipse.mat.ui.snapshot.actions.SaveValueAsQuery" />
+		<query impl="org.eclipse.mat.ui.snapshot.actions.CopyOQL" />
 	</extension>
 
    <extension point="org.eclipse.ui.intro.configExtension">
