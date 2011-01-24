@@ -384,9 +384,41 @@ public class CompareTablesQuery implements IQuery
 			return null;
 		}
 
+		/**
+		 * Get the icon for the row.
+		 * Chose the icon from the underlying tables if they all agree,
+		 * others choose a special compare icon.
+		 */
 		public URL getIcon(Object row)
 		{
-			return ISharedImages.class.getResource(ISharedImages.COMPARE);
+			URL ret = null;
+            final ComparedRow cr = (ComparedRow) row;
+            // Find the rows from the tables
+            boolean foundIcon = false;
+            for (int i = 0; i < tables.length; ++i)
+            {
+                Object r = cr.getRows()[i];
+                if (r != null)
+                {
+                    URL tableIcon = (tables[i] instanceof IIconProvider) ? ((IIconProvider) tables[i]).getIcon(r)
+                                    : null;
+                    if (foundIcon)
+                    {
+                        if (ret == null ? tableIcon != null : !ret.equals(tableIcon))
+                        {
+                            // Mismatch, so use compare icon instead
+                            ret = ISharedImages.class.getResource("/" + ISharedImages.COMPARE); //$NON-NLS-1$
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        ret = tableIcon;
+                        foundIcon = true;
+                    }
+                }
+            }
+			return ret;
 		}
 
 		public Mode getMode()
