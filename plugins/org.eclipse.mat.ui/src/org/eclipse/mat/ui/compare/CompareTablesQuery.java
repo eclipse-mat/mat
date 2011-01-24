@@ -37,6 +37,9 @@ public class CompareTablesQuery implements IQuery
 	@Argument
 	public IResultTable[] tables;
 
+	@Argument
+	public boolean[] sameEditor;
+
 	@Argument(isMandatory = false)
 	public Mode mode = Mode.ABSOLUTE;
 
@@ -278,6 +281,8 @@ public class CompareTablesQuery implements IQuery
             IContextObject ret = null;
             for (int i = 0; i < tables.length; ++i)
             {
+                if (!sameEditor[i])
+                    continue;
                 Object r = cr.getRows()[i];
                 if (r != null)
                 {
@@ -293,6 +298,8 @@ public class CompareTablesQuery implements IQuery
             ResultMetaData.Builder bb = new ResultMetaData.Builder();
             for (int i = 0; i < tables.length; ++i)
             {
+                if (!sameEditor[i])
+                    continue;
                 final int j = i;
                 String title = MessageUtil.format(Messages.CompareTablesQuery_Table, i + 1);
                 bb.addContext(new ContextProvider(title)

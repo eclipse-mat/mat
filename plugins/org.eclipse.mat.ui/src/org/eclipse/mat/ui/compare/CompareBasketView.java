@@ -324,11 +324,14 @@ public class CompareBasketView extends ViewPart
 			MultiPaneEditor editor = getEditor();
 			CompareTablesQuery compareQuery = new CompareTablesQuery();
 			IResultTable[] tables = new IResultTable[results.size()];
+			boolean[] sameEditor = new boolean[results.size()];
 			for (int i = 0; i < tables.length; i++)
 			{
 				tables[i] = results.get(i).table;
+				sameEditor[i] = editor.equals(results.get(i).editor);
 			}
 			compareQuery.tables = tables;
+			compareQuery.sameEditor = sameEditor;
 
 			try
 			{
