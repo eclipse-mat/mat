@@ -133,12 +133,12 @@ public class CollectionFillRatioQuery implements IQuery
     private static double getFillRatio(CollectionUtil.Info info, IObject hashtableObject) throws SnapshotException
     {
         int size = info.getSize(hashtableObject);
-        IObjectArray table = info.getBackingArray(hashtableObject);
+        int capacity = info.getCapacity(hashtableObject);
 
-        if (table == null || table.getLength() == 0)
+        if (capacity == 0)
             return 1; // 100% if the array has length 0 --> the good ones
 
-        return (double) size / (double) table.getLength();
+        return (double) size / (double) capacity;
     }
 
 }

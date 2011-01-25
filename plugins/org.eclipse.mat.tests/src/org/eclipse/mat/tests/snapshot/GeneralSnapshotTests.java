@@ -22,12 +22,14 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.SnapshotFactory;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IStackFrame;
 import org.eclipse.mat.snapshot.model.IThreadStack;
+import org.eclipse.mat.snapshot.query.SnapshotQuery;
 import org.eclipse.mat.tests.TestSnapshots;
 import org.eclipse.mat.util.VoidProgressListener;
 import org.junit.Test;
@@ -193,6 +195,15 @@ public class GeneralSnapshotTests
         assertEquals("Total heap size", n, total);
     }
 
+    @Test
+    public void topComponents() throws SnapshotException
+    {
+        SnapshotQuery query = SnapshotQuery.lookup("component_report_top", snapshot);
+        query.setArgument("aggressive", true);
+        IResult result = query.execute(new VoidProgressListener());
+        assertTrue(result != null);
+    }
+    
     /**
      * Test caching of snapshots
      * @throws SnapshotException

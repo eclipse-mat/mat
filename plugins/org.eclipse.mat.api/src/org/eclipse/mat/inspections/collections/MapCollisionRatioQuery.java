@@ -24,7 +24,6 @@ import org.eclipse.mat.query.quantize.Quantize;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
-import org.eclipse.mat.snapshot.model.IObjectArray;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.snapshot.query.RetainedSizeDerivedData;
 import org.eclipse.mat.util.IProgressListener;
@@ -124,11 +123,10 @@ public class MapCollisionRatioQuery implements IQuery
         int size = info.getSize(hashtableObject);
         if (size <= 0)
             return size;
+        // No backing array, so no collisions
+        if (!info.hasBackingArray())
+        	return 0;
 
-        IObjectArray table = info.getBackingArray(hashtableObject);
-        if (table == null)
-            return 0;
-
-        return (double) (size - CollectionUtil.getNumberOfNoNullArrayElements(table)) / (double) size;
+        return (double) (size - info.getNumberOfNoNullArrayElements(hashtableObject)) / (double) size;
     }
 }

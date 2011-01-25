@@ -120,7 +120,7 @@ public final class CollectionUtil
 						if (!isMap())
 						{
 							// E.g. ArrayList
-							int count = getNumberOfNoNullArrayElements(array);
+							int count = CollectionUtil.getNumberOfNoNullArrayElements(array);
 							value = count;
 						}
 						else
@@ -335,6 +335,29 @@ public final class CollectionUtil
 			return this;
 		}
 
+        /**
+         */
+        public int getNumberOfNoNullArrayElements(IObject collection) throws SnapshotException
+        {
+            IObjectArray arrayObject = getBackingArray(collection);
+            if (arrayObject == null)
+                return 0;
+            return CollectionUtil.getNumberOfNoNullArrayElements(arrayObject);
+        }
+
+        public int getCapacity(IObject collection) throws SnapshotException
+        {
+            IObjectArray arrayObject = getBackingArray(collection);
+            if (arrayObject == null)
+                return 0;
+            IObjectArray table = getBackingArray(collection);
+
+            if (table == null)
+            {
+                return 0;
+            }
+            return table.getLength();
+        }
 	}
 
 	public static List<Info> getKnownCollections(ISnapshot snapshot) throws SnapshotException
@@ -393,30 +416,30 @@ public final class CollectionUtil
 	// helper methods
 	// //////////////////////////////////////////////////////////////
 
-	public static int getNumberOfNoNullArrayElements(IObjectArray arrayObject)
-	{
-		// Fast path using referentIds for arrays with same number of outbounds
-		// (+class id) as length
-		// or no outbounds other than the class
-		ISnapshot snapshot = arrayObject.getSnapshot();
-		try
-		{
-			final int[] outs = snapshot.getOutboundReferentIds(arrayObject.getObjectId());
-			if (outs.length == 1 || outs.length == arrayObject.getLength() + 1)
-			{
-				return outs.length - 1;
-			}
-		}
-		catch (SnapshotException e)
-		{}
-		long[] elements = arrayObject.getReferenceArray();
-		int result = 0;
-		for (int i = 0; i < elements.length; i++)
-		{
-			if (elements[i] != 0) result++;
-		}
-		return result;
-	}
+    public static int getNumberOfNoNullArrayElements(IObjectArray arrayObject)
+    {
+        // Fast path using referentIds for arrays with same number of outbounds
+        // (+class id) as length
+        // or no outbounds other than the class
+        ISnapshot snapshot = arrayObject.getSnapshot();
+        try
+        {
+            final int[] outs = snapshot.getOutboundReferentIds(arrayObject.getObjectId());
+            if (outs.length == 1 || outs.length == arrayObject.getLength() + 1)
+            {
+                return outs.length - 1;
+            }
+        }
+        catch (SnapshotException e)
+        {}
+        long[] elements = arrayObject.getReferenceArray();
+        int result = 0;
+        for (int i = 0; i < elements.length; i++)
+        {
+            if (elements[i] != 0) result++;
+        }
+        return result;
+    }
 
 	// //////////////////////////////////////////////////////////////
 	// private parts
@@ -624,7 +647,7 @@ public final class CollectionUtil
 	{
 		/* package */ConcurrentHashMapInfo()
 		{
-			super("java.util.concurrent.ConcurrentHashMap", null, null, "key", "value");
+			super("java.util.concurrent.ConcurrentHashMap", null, "segments", "key", "value"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 			setCollectionExtractor(CONCURRENT_HASH_MAP_EXTRACTOR);
 		}
 		
@@ -632,7 +655,9 @@ public final class CollectionUtil
 		@Override
 		public int getSize(IObject collection) throws SnapshotException
 		{
-			IObjectArray segmentsArray = (IObjectArray) collection.resolveValue("segments"); //$NON-NLS-1$
+			IObjectArray segmentsArray = getBackingArray(collection);
+            if (segmentsArray == null)
+                return 0;			
 			ISnapshot snapshot = collection.getSnapshot();
 			int size = 0;
 			Info segmentInfo = getInfo("java.util.concurrent.ConcurrentHashMap$Segment"); //$NON-NLS-1$
@@ -649,6 +674,56 @@ public final class CollectionUtil
 			
 			return size;
 		}
+		
+		@Override
+	    public boolean hasSize()
+	    {
+	        return true;
+	    }
+	    
+        @Override
+        public int getNumberOfNoNullArrayElements(IObject collection) throws SnapshotException
+        {
+            IObjectArray segmentsArray = getBackingArray(collection);
+            if (segmentsArray == null)
+                return 0;
+            ISnapshot snapshot = collection.getSnapshot();
+            int result = 0;
+            Info segmentInfo = getInfo("java.util.concurrent.ConcurrentHashMap$Segment"); //$NON-NLS-1$
+
+            long[] refs = segmentsArray.getReferenceArray();
+            for (long addr : refs)
+            {
+                if (addr != 0)
+                {
+                    int segmentId = snapshot.mapAddressToId(addr);
+                    result += segmentInfo.getNumberOfNoNullArrayElements(snapshot.getObject(segmentId));
+                }
+            }
+            return result;
+        }
+
+        @Override
+        public int getCapacity(IObject collection) throws SnapshotException
+        {
+            IObjectArray segmentsArray = getBackingArray(collection);
+            if (segmentsArray == null)
+                return 0;
+            ISnapshot snapshot = collection.getSnapshot();
+            int result = 0;
+            Info segmentInfo = getInfo("java.util.concurrent.ConcurrentHashMap$Segment"); //$NON-NLS-1$
+
+            long[] refs = segmentsArray.getReferenceArray();
+            for (long addr : refs)
+            {
+                if (addr != 0)
+                {
+                    int segmentId = snapshot.mapAddressToId(addr);
+                    result += segmentInfo.getCapacity(snapshot.getObject(segmentId));
+                }
+            }
+            return result;
+        }
 	}
 
 	private static class ConcurrentHashMapEntryExtractor implements ICollectionExtractor
@@ -656,7 +731,9 @@ public final class CollectionUtil
 		public int[] extractEntries(int objectId, Info info, ISnapshot snapshot, IProgressListener listener) throws SnapshotException
 		{
 			IObject concurrentMap = snapshot.getObject(objectId);
-			IObjectArray segmentsArray = (IObjectArray) concurrentMap.resolveValue("segments"); //$NON-NLS-1$
+            IObjectArray segmentsArray = info.getBackingArray(concurrentMap);
+            if (segmentsArray == null)
+                return new int[0];
 			ArrayInt result = new ArrayInt();
 			Info segmentInfo = getInfo("java.util.concurrent.ConcurrentHashMap$Segment"); //$NON-NLS-1$
 

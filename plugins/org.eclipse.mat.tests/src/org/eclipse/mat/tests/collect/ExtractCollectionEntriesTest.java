@@ -11,6 +11,7 @@
 package org.eclipse.mat.tests.collect;
 
 import org.eclipse.mat.SnapshotException;
+import static org.junit.Assert.*;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.snapshot.ISnapshot;
@@ -42,6 +43,13 @@ public class ExtractCollectionEntriesTest
 		ISnapshot snapshot = TestSnapshots.getSnapshot(TestSnapshots.IBM_JDK6_32BIT_SYSTEM, false);
 		checkCollection(0xcb1d88, 454, snapshot);
 	}
+
+    @Test
+    public void testHashMapSize_IBM_JDK6_PHD() throws SnapshotException
+    {
+        ISnapshot snapshot = TestSnapshots.getSnapshot(TestSnapshots.IBM_JDK6_32BIT_HEAP_AND_JAVA, false);
+        checkCollectionSize(0xcb1d88, 454, snapshot);
+    }
 
 	@Test
 	public void testHashMapEntries_IBM_JDK142() throws SnapshotException
@@ -96,6 +104,13 @@ public class ExtractCollectionEntriesTest
 		checkCollection(0xcf7808, 26, snapshot);
 	}
 
+    @Test
+    public void testHashtableSize_IBM_JDK6_PHD() throws SnapshotException
+    {
+        ISnapshot snapshot = TestSnapshots.getSnapshot(TestSnapshots.IBM_JDK6_32BIT_HEAP_AND_JAVA, false);
+        checkCollectionSize(0xcf7808, 26, snapshot);
+    }
+
 	@Test
 	public void testHashtableEntries_IBM_JDK142() throws SnapshotException
 	{
@@ -116,6 +131,13 @@ public class ExtractCollectionEntriesTest
 		ISnapshot snapshot = TestSnapshots.getSnapshot(TestSnapshots.IBM_JDK6_32BIT_SYSTEM, false);
 		checkCollection(0xcb1808, 71, snapshot);
 	}
+
+    @Test
+    public void testPropertiesSize_IBM_JDK6_PHD() throws SnapshotException
+    {
+        ISnapshot snapshot = TestSnapshots.getSnapshot(TestSnapshots.IBM_JDK6_32BIT_HEAP_AND_JAVA, false);
+        checkCollectionSize(0xcb1808, 71, snapshot);
+    }
 
 	@Test
 	public void testPropertiesEntries_IBM_JDK142() throws SnapshotException
@@ -147,6 +169,13 @@ public class ExtractCollectionEntriesTest
 		checkCollection(0xcb1c10, 2, snapshot);
 	}
 
+    @Test
+    public void testThreadLocalMapSize_IBM_JDK6_PHD() throws SnapshotException
+    {
+        ISnapshot snapshot = TestSnapshots.getSnapshot(TestSnapshots.IBM_JDK6_32BIT_HEAP_AND_JAVA, false);
+        checkCollectionSize(0xcb1c10, 2, snapshot);
+    }
+
 	@Test
 	public void testThreadLocalMapEntries_IBM_JDK142() throws SnapshotException
 	{
@@ -168,6 +197,13 @@ public class ExtractCollectionEntriesTest
 		checkCollection(0xcb4958, 5, snapshot);
 	}
 
+    @Test
+    public void testConcurrentHashMapSegmentSize_IBM_JDK6_PHD() throws SnapshotException
+    {
+        ISnapshot snapshot = TestSnapshots.getSnapshot(TestSnapshots.IBM_JDK6_32BIT_HEAP_AND_JAVA, false);
+        checkCollectionSize(0xcb4958, 5, snapshot);
+    }	
+
 	@Test
 	public void testConcurrentHashMapEntries_Sun_JDK6() throws SnapshotException
 	{
@@ -176,11 +212,18 @@ public class ExtractCollectionEntriesTest
 	}
 
 	@Test
-	public void testConcurrentHashMapEntriesEntries_IBM_JDK6() throws SnapshotException
+	public void testConcurrentHashMapEntries_IBM_JDK6() throws SnapshotException
 	{
 		ISnapshot snapshot = TestSnapshots.getSnapshot(TestSnapshots.IBM_JDK6_32BIT_SYSTEM, false);
 		checkCollection(0xcb4578, 19, snapshot);
 	}
+
+    @Test
+    public void testConcurrentHashMapSize_IBM_JDK6_PHD() throws SnapshotException
+    {
+        ISnapshot snapshot = TestSnapshots.getSnapshot(TestSnapshots.IBM_JDK6_32BIT_HEAP_AND_JAVA, false);
+        checkCollectionSize(0xcb4578, 19, snapshot);
+    }
 
 	@Test
 	public void testTreeMapEntries_Sun_JDK6() throws SnapshotException
@@ -220,7 +263,80 @@ public class ExtractCollectionEntriesTest
 
 		assert rowCount == numEntries : MessageUtil.format("Expected to extract {0} entries from collection 0x{1} [{2}], but got {3} entries in the result", //$NON-NLS-1$
 				numEntries, Long.toHexString(objAddress), snapshot.getSnapshotInfo().getPath(), rowCount);
-
+		
+		checkCollectionSize(objAddress, numEntries, snapshot);
 	}
 
+	/**
+	 * Also run the size query
+	 * @param objAddress
+	 * @param numEntries
+	 * @param snapshot
+	 * @throws SnapshotException
+	 */
+	private void checkCollectionSize(long objAddress, int numEntries, ISnapshot snapshot) throws SnapshotException
+	    {
+        SnapshotQuery query2 = SnapshotQuery.parse("collections_grouped_by_size 0x" + Long.toHexString(objAddress), snapshot); //$NON-NLS-1$
+        IResult result2 = query2.execute(new VoidProgressListener());
+        IResultTable table2 = (IResultTable) result2;
+        int rowCount2 = table2.getRowCount();
+        assertEquals(1, rowCount2);
+        Object row = table2.getRow(0);
+        int sizeBucket = (Integer)table2.getColumnValue(row, 0);
+        assertEquals(numEntries, sizeBucket);
+
+        checkCollectionFillRatio(objAddress, numEntries, snapshot);
+        checkMapCollisionRatio(objAddress, numEntries, snapshot);
+	}
+
+    /**
+     * Also run the fill ratio query
+     * @param objAddress
+     * @param numEntries
+     * @param snapshot
+     * @throws SnapshotException
+     */
+    private void checkCollectionFillRatio(long objAddress, int numEntries, ISnapshot snapshot) throws SnapshotException
+        {
+        SnapshotQuery query2 = SnapshotQuery.parse("collection_fill_ratio 0x" + Long.toHexString(objAddress), snapshot); //$NON-NLS-1$
+        IResult result2 = query2.execute(new VoidProgressListener());
+        IResultTable table2 = (IResultTable) result2;
+        int rowCount2 = table2.getRowCount();
+        if (snapshot.getClassOf(snapshot.mapAddressToId(objAddress)).getName().equals("java.util.TreeMap"))
+        {
+            // TreeMaps don't appear in the fill ratio report
+            assertEquals(0, rowCount2);
+        }
+        else
+        {
+            assertEquals(1, rowCount2);
+            Object row = table2.getRow(0);
+            double v = (Double)table2.getColumnValue(row, 0);
+            assertTrue(v > 0.0);
+        }
+    }
+
+    /**
+     * Also run the map collision ratio query
+     * @param objAddress
+     * @param numEntries
+     * @param snapshot
+     * @throws SnapshotException
+     */
+    private void checkMapCollisionRatio(long objAddress, int numEntries, ISnapshot snapshot) throws SnapshotException
+        {
+        SnapshotQuery query2 = SnapshotQuery.parse("map_collision_ratio 0x" + Long.toHexString(objAddress), snapshot); //$NON-NLS-1$
+        IResult result2 = query2.execute(new VoidProgressListener());
+        IResultTable table2 = (IResultTable) result2;
+        int rowCount2 = table2.getRowCount();
+        assertEquals(1, rowCount2);
+        Object row = table2.getRow(0);
+        double v = (Double)table2.getColumnValue(row, 0);
+        assertTrue(v >= 0.0);
+        // 100% collisions shouldn't be possible
+        assertTrue(v < 1.0);
+        // No collisions possible if no entries
+        if (numEntries == 0)
+            assertTrue(v == 0.0);
+    }
 }
