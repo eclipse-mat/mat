@@ -102,6 +102,7 @@
 							<ws>win32</ws>
 							<arch>x86_64</arch>
 						</environment>
+<!-- 
 						<environment>
 							<os>macosx</os>
 							<ws>carbon</ws>
@@ -137,6 +138,7 @@
 							<ws>motif</ws>
 							<arch>ia64_32</arch>
 						</environment>
+ -->
 						<environment>
 							<os>linux</os>
 							<ws>gtk</ws>
@@ -147,6 +149,7 @@
 							<ws>gtk</ws>
 							<arch>x86_64</arch>
 						</environment>
+<!-- 
 						<environment>
 							<os>linux</os>
 							<ws>gtk</ws>
@@ -157,6 +160,7 @@
 							<ws>gtk</ws>
 							<arch>ppc64</arch>
 						</environment>
+-->
 					</environments>
 					
 					<ignoreTychoRepositories>true</ignoreTychoRepositories>
