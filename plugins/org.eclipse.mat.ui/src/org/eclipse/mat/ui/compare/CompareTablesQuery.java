@@ -13,14 +13,18 @@ import java.net.URL;
 import java.text.Format;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.ContextProvider;
 import org.eclipse.mat.query.IContextObject;
+import org.eclipse.mat.query.IContextObjectSet;
 import org.eclipse.mat.query.IIconProvider;
 import org.eclipse.mat.query.IQuery;
+import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.query.ResultMetaData;
@@ -37,11 +41,16 @@ public class CompareTablesQuery implements IQuery
 	@Argument
 	public IResultTable[] tables;
 
+    @Argument
+    public IQueryContext queryContext;
+	
 	@Argument
-	public boolean[] sameEditor;
+	public IQueryContext[] queryContexts;
 
 	@Argument(isMandatory = false)
 	public Mode mode = Mode.ABSOLUTE;
+
+    private boolean[] sameEditor;
 
 	public enum Mode
 	{
@@ -71,6 +80,12 @@ public class CompareTablesQuery implements IQuery
 		IResultTable base = tables[0];
 		Column[] baseColumns = base.getColumns();
 		Column key = baseColumns[0];
+
+		sameEditor = new boolean[tables.length];
+		for (int i = 0; i < tables.length; ++i)
+		{
+		    sameEditor[i] = (queryContext.equals(queryContexts[i]) || queryContexts[i] == null);
+		}
 
 		List<ComparedColumn> attributes = new ArrayList<ComparedColumn>();
 		for (int i = 1; i < baseColumns.length; i++)
@@ -276,19 +291,11 @@ public class CompareTablesQuery implements IQuery
 
 		public IContextObject getContext(Object row)
 		{
-            final ComparedRow cr = (ComparedRow) row;
             // Find a context from one of the tables
             IContextObject ret = null;
-            for (int i = 0; i < tables.length; ++i)
+            for (int i = 0; i < tables.length && ret == null; ++i)
             {
-                if (!sameEditor[i])
-                    continue;
-                Object r = cr.getRows()[i];
-                if (r != null)
-                {
-                    ret = tables[i].getContext(r);
-                    break;
-                }
+                ret = getContextFromTable(i, row);
             }
             return ret;
 		}
@@ -296,21 +303,270 @@ public class CompareTablesQuery implements IQuery
 		public ResultMetaData getResultMetaData()
 		{
             ResultMetaData.Builder bb = new ResultMetaData.Builder();
+            int previous = -1;
             for (int i = 0; i < tables.length; ++i)
             {
                 if (!sameEditor[i])
                     continue;
-                final int j = i;
+                final int i2 = i;
                 String title = MessageUtil.format(Messages.CompareTablesQuery_Table, i + 1);
-                bb.addContext(new ContextProvider(title)
+                ContextProvider prov = new ContextProvider(title)
                 {
                     public IContextObject getContext(Object row)
                     {
-                        final ComparedRow cr = (ComparedRow) row;
-                        Object r = cr.getRows()[j];
-                        return r != null ? tables[j].getContext(r) : null;
+                        return getContextFromTable(i2, row);
                     }
-                });
+                };
+
+                if (previous >= 0)
+                {
+                    for (int op = 0; op < 4; ++op)
+                    {
+                        final int op1 = op;
+                        // intersection, union, difference, difference
+                        String oo[] = new String[] { "\u2229", "\u222A", "\u2216", "\u2216" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
+                        String title1;
+                        final LinkedList<Integer> toDo = new LinkedList<Integer>();
+                        if (mode == Mode.ABSOLUTE)
+                        {
+                            StringBuilder bf = new StringBuilder(MessageUtil.format(Messages.CompareTablesQuery_Table,
+                                            previous + 1));
+                            toDo.add(previous);
+                            if (op == 3)
+                            {
+                                for (int k = previous + 1; k <= i; ++k)
+                                {
+                                    bf.insert(0, oo[op]);
+                                    bf.insert(0, MessageUtil.format(Messages.CompareTablesQuery_Table, k + 1));
+                                    toDo.addFirst(k);
+                                }
+                            }
+                            else
+                            {
+                                for (int k = previous + 1; k <= i; ++k)
+                                {
+                                    bf.append(oo[op]);
+                                    bf.append(MessageUtil.format(Messages.CompareTablesQuery_Table, k + 1));
+                                    toDo.add(k);
+                                }
+                            }
+                            title1 = bf.toString();
+                        }
+                        else
+                        {
+                            if (op == 3)
+                            {
+                                title1 = MessageUtil.format(Messages.CompareTablesQuery_Table, i + 1) + oo[op]
+                                                + MessageUtil.format(Messages.CompareTablesQuery_Table, previous + 1);
+                                toDo.add(i);
+                                toDo.add(previous);
+                            }
+                            else
+                            {
+                                title1 = MessageUtil.format(Messages.CompareTablesQuery_Table, previous + 1) + oo[op]
+                                                + MessageUtil.format(Messages.CompareTablesQuery_Table, i + 1);
+                                toDo.add(previous);
+                                toDo.add(i);
+                            }
+                        }
+
+                        ContextProvider prov2 = new ContextProvider(title1)
+                        {
+                            public IContextObject getContext(final Object row)
+                            {
+                                int nullContexts = 0;
+                                for (int i = 0; i < toDo.size(); ++i)
+                                {
+                                    if (getContextFromTable(i, row) == null)
+                                    {
+                                        ++nullContexts;
+                                    }
+                                    else
+                                    {
+                                        break;
+                                    }
+                                }
+                                // If all the contexts were null then skip this generated context too
+                                if (nullContexts == toDo.size())
+                                    return null;
+                                // First non-null context
+                                final IContextObject cb = getContextFromTable(nullContexts, row);
+                                
+                                return new IContextObjectSet()
+                                {
+                                    public int getObjectId()
+                                    {
+                                        return cb.getObjectId();
+                                    }
+
+                                    public String getOQL()
+                                    {
+                                        return null;
+                                    }
+                                    public int[] getObjectIds()
+                                    {
+                                        LinkedList<Integer> toDo2 = new LinkedList<Integer>(toDo);
+                                        int j = toDo2.remove();
+                                        final IContextObject cb = getContextFromTable(j, row);
+                                        int b[] = getObjectIdsFromContext(cb, row);
+                                        ArrayInt bb;
+                                        if (b == null)
+                                        {
+                                            bb = new ArrayInt();
+                                        }
+                                        else
+                                        {
+                                            bb = new ArrayInt(b);
+                                            bb.sort();
+                                        }
+
+                                        while (!toDo2.isEmpty())
+                                        {
+                                            j = toDo2.remove();
+                                            IContextObject ca = getContextFromTable(j, row);
+                                            int a[] = getObjectIdsFromContext(ca, row);
+                                            ArrayInt aa;
+                                            if (a == null)
+                                            {
+                                                aa = new ArrayInt();
+                                            }
+                                            else
+                                            {
+                                                aa = new ArrayInt(a);
+                                                aa.sort();
+                                            }
+                                            switch (op1)
+                                            {
+                                                case 0:
+                                                    bb = intersectionArray(aa, bb);
+                                                    break;
+                                                case 1:
+                                                    bb = unionArray(aa, bb);
+                                                    break;
+                                                case 2:
+                                                case 3:
+                                                    bb = diffArray(aa, bb);
+                                                    break;
+                                            }
+                                        }
+
+                                        final int res[] = bb.toArray();
+                                        return res;
+                                    }
+
+                                    /**
+                                     * Union of aa from bb
+                                     * 
+                                     * @param aa
+                                     * @param bb
+                                     * @return
+                                     */
+                                    private ArrayInt unionArray(ArrayInt aa, ArrayInt bb)
+                                    {
+                                        if (aa.size() == 0)
+                                            return bb;
+                                        if (bb.size() == 0)
+                                            return aa;
+                                        ArrayInt cc = new ArrayInt();
+                                        int j = 0;
+                                        for (int i = 0; i < bb.size(); ++i)
+                                        {
+                                            while (j < aa.size() && aa.get(j) < bb.get(i))
+                                            {
+                                                cc.add(aa.get(j));
+                                                ++j;
+                                            }
+                                            cc.add(bb.get(i));
+                                            if (j < aa.size() && aa.get(j) == bb.get(i))
+                                            {
+                                                ++j;
+                                            }
+                                        }
+                                        return cc;
+                                    }
+
+                                    /**
+                                     * Remove aa from bb
+                                     * 
+                                     * @param aa
+                                     * @param bb
+                                     * @return
+                                     */
+                                    private ArrayInt diffArray(ArrayInt aa, ArrayInt bb)
+                                    {
+                                        if (bb.size() == 0)
+                                            return bb;
+                                        if (aa.size() == 0)
+                                            return bb;
+                                        ArrayInt cc = new ArrayInt();
+                                        int j = 0;
+                                        for (int i = 0; i < bb.size(); ++i)
+                                        {
+                                            while (j < aa.size() && aa.get(j) < bb.get(i))
+                                                ++j;
+                                            if (j < aa.size() && aa.get(j) == bb.get(i))
+                                            {
+                                                ++j;
+                                            }
+                                            else
+                                            {
+                                                cc.add(bb.get(i));
+                                            }
+                                        }
+                                        return cc;
+                                    }
+
+                                    private ArrayInt intersectionArray(ArrayInt aa, ArrayInt bb)
+                                    {
+                                        if (aa.size() == 0)
+                                            return aa;
+                                        if (bb.size() == 0)
+                                            return bb;
+                                        ArrayInt cc = new ArrayInt();
+                                        int j = 0;
+                                        for (int i = 0; i < bb.size(); ++i)
+                                        {
+                                            while (j < aa.size() && aa.get(j) < bb.get(i))
+                                                ++j;
+                                            if (j < aa.size() && aa.get(j) == bb.get(i))
+                                            {
+                                                cc.add(bb.get(i));
+                                                ++j;
+                                            }
+                                        }
+                                        return cc;
+                                    }
+
+                                    private int[] getObjectIdsFromContext(IContextObject b, Object row)
+                                    {
+                                        int bobjs[];
+                                        if (b instanceof IContextObjectSet)
+                                        {
+                                            bobjs = ((IContextObjectSet) b).getObjectIds();
+                                        }
+                                        else if (b != null)
+                                        {
+                                            int id = b.getObjectId();
+                                            if (id >= 0)
+                                                bobjs = new int[] { id };
+                                            else
+                                                bobjs = null;
+                                        }
+                                        else
+                                        {
+                                            bobjs = null;
+                                        }
+                                        return bobjs;
+                                    }
+                                };
+                            }
+                        };
+                        bb.addContext(prov2);
+                    }
+                }
+                bb.addContext(prov);
+                if (mode == Mode.DIFF_TO_PREVIOUS || previous == -1)
+                    previous = i;
             }
             return bb.build();
 		}
@@ -485,6 +741,19 @@ public class CompareTablesQuery implements IQuery
 			columns = result.toArray(new Column[result.size()]);
 			setFormatter();
 		}
-	}
 
+        IContextObject getContextFromTable(int i, Object row)
+        {
+            if (!sameEditor[i])
+                return null;
+            final ComparedRow cr = (ComparedRow) row;
+            IContextObject ret = null;
+            Object r = cr.getRows()[i];
+            if (r != null)
+            {
+                ret = tables[i].getContext(r);
+            }
+            return ret;
+        }
+    }
 }

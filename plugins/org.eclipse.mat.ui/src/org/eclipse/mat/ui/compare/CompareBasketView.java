@@ -29,6 +29,7 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.query.registry.QueryResult;
@@ -40,8 +41,9 @@ import org.eclipse.mat.ui.editor.AbstractEditorPane;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
 import org.eclipse.mat.ui.internal.panes.TableResultPane;
 import org.eclipse.mat.ui.snapshot.panes.HistogramPane;
-import org.eclipse.mat.ui.util.PaneState;
+import org.eclipse.mat.ui.util.ErrorHelper;
 import org.eclipse.mat.ui.util.NavigatorState.IStateChangeListener;
+import org.eclipse.mat.ui.util.PaneState;
 import org.eclipse.mat.util.VoidProgressListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
@@ -324,14 +326,15 @@ public class CompareBasketView extends ViewPart
 			MultiPaneEditor editor = getEditor();
 			CompareTablesQuery compareQuery = new CompareTablesQuery();
 			IResultTable[] tables = new IResultTable[results.size()];
-			boolean[] sameEditor = new boolean[results.size()];
+			IQueryContext[] contexts = new IQueryContext[results.size()];
 			for (int i = 0; i < tables.length; i++)
 			{
 				tables[i] = results.get(i).table;
-				sameEditor[i] = editor.equals(results.get(i).editor);
+				contexts[i] = results.get(i).editor.getQueryContext();
 			}
 			compareQuery.tables = tables;
-			compareQuery.sameEditor = sameEditor;
+	        compareQuery.queryContext = editor.getQueryContext();
+			compareQuery.queryContexts = contexts;
 
 			try
 			{
@@ -342,7 +345,7 @@ public class CompareBasketView extends ViewPart
 			}
 			catch (Exception e)
 			{
-				e.printStackTrace();
+			    ErrorHelper.logThrowable(e);
 			}
 		}
 	}
