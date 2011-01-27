@@ -24,9 +24,10 @@ import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.IResultTree;
 import org.eclipse.mat.query.ResultMetaData;
+import org.eclipse.mat.query.ResultMetaData.Builder;
 import org.eclipse.mat.query.annotations.Argument;
-import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.Argument.Advice;
+import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.util.IProgressListener;
@@ -239,7 +240,12 @@ public class BigDropsQuery implements IQuery, IResultTree
 
     public ResultMetaData getResultMetaData()
     {
-        return null;
+        Builder b = new ResultMetaData.Builder();
+        for (ContextProvider prov : getContextProviders())
+        {
+            b.addContext(prov);
+        }
+        return b.build();
     }
 
     public Column[] getColumns()
