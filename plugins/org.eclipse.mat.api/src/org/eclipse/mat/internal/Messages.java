@@ -95,6 +95,8 @@ public class Messages extends NLS
     public static String Column_RetainedHeap;
     public static String Column_ShallowHeap;
 
+    public static String CompareTablesQuery_Table;
+
     public static String ComponentReportQuery_Classes;
     public static String ComponentReportQuery_ClassLoader;
     public static String ComponentReportQuery_CollectionFillRatios;

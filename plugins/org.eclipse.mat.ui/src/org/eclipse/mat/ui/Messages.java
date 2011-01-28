@@ -49,12 +49,11 @@ public class Messages extends NLS
 	public static String CompareBasketView_RemoveButtonLabel;
 	public static String CompareBasketView_RemoveTooltip;
 	public static String CompareBasketView_ResultsToBeComparedColumnHeader;
-	public static String CompareTablesPane_AbsoluteValues;
-	public static String CompareTablesPane_ChooseDiffOptionTooltip;
-	public static String CompareTablesPane_DifferenceToBaseTable;
-	public static String CompareTablesPane_DifferenceToPrecedingTable;
-	public static String CompareTablesPane_SelectDisplayedColumnsTooltip;
-    public static String CompareTablesQuery_Table;
+    public static String CompareTablesPane_AbsoluteValues;
+    public static String CompareTablesPane_ChooseDiffOptionTooltip;
+    public static String CompareTablesPane_DifferenceToBaseTable;
+    public static String CompareTablesPane_DifferenceToPrecedingTable;
+    public static String CompareTablesPane_SelectDisplayedColumnsTooltip;
 	public static String Copy_ErrorInExport;
     public static String DerivedDataJob_CalculatingRetainedSizes;
     public static String DominatorPane_Group;

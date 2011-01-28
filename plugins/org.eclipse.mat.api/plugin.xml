@@ -25,6 +25,8 @@
 		<query impl="org.eclipse.mat.internal.snapshot.inspections.ShowInDominatorQuery"/>
 		<query impl="org.eclipse.mat.internal.snapshot.inspections.Path2GCRootsQuery"/>
 		<query impl="org.eclipse.mat.internal.snapshot.inspections.MultiplePath2GCRootsQuery"/>
+		<!-- comparisons -->
+		<query impl="org.eclipse.mat.internal.snapshot.inspections.CompareTablesQuery"/>
 		
 		<!-- core -->
 		<query impl="org.eclipse.mat.inspections.HistogramQuery"/>
@@ -91,7 +93,7 @@
 		<query impl="org.eclipse.mat.inspections.eclipse.LeakingPlugins"/>
 		<query impl="org.eclipse.mat.inspections.osgi.BundleRegistryQuery"/>
 		<query impl="org.eclipse.mat.inspections.threads.ThreadStackQuery"/>
-  
+
 	</extension>
 	
 	<extension point="org.eclipse.mat.api.nameResolver">

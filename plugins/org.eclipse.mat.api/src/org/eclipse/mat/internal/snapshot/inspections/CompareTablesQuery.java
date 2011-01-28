@@ -1,13 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2010 SAP AG. 
+ * Copyright (c) 2010, 2011 SAP AG and IBM Corporation. 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0 
  * which accompanies this distribution, and is available at 
  * http://www.eclipse.org/legal/epl-v10.html 
  * 
  * Contributors: SAP AG - initial API and implementation
+ * Andrew Johnson - conversion to proper query, set operations via contexts
  ******************************************************************************/
-package org.eclipse.mat.ui.compare;
+package org.eclipse.mat.internal.snapshot.inspections;
 
 import java.net.URL;
 import java.text.Format;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.mat.collect.ArrayInt;
+import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.ContextProvider;
 import org.eclipse.mat.query.IContextObject;
@@ -29,13 +31,15 @@ import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.query.ResultMetaData;
 import org.eclipse.mat.query.annotations.Argument;
-import org.eclipse.mat.ui.MemoryAnalyserPlugin.ISharedImages;
-import org.eclipse.mat.ui.Messages;
+import org.eclipse.mat.query.annotations.Icon;
+import org.eclipse.mat.snapshot.ISnapshot;
+import org.eclipse.mat.snapshot.query.Icons;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 
 import com.ibm.icu.text.DecimalFormat;
 
+@Icon("/META-INF/icons/compare.gif")
 public class CompareTablesQuery implements IQuery
 {
 	@Argument
@@ -50,7 +54,7 @@ public class CompareTablesQuery implements IQuery
 	@Argument(isMandatory = false)
 	public Mode mode = Mode.ABSOLUTE;
 
-    private boolean[] sameEditor;
+    private boolean[] sameSnapshot;
 
 	public enum Mode
 	{
@@ -75,16 +79,17 @@ public class CompareTablesQuery implements IQuery
 	{
 		if (tables == null) return null;
 
-		if (tables.length == 1) return tables[0];
+		// Length 1 table is valid, and we need to process it in case it is from a different snapshot
 
 		IResultTable base = tables[0];
 		Column[] baseColumns = base.getColumns();
 		Column key = baseColumns[0];
 
-		sameEditor = new boolean[tables.length];
+		sameSnapshot = new boolean[tables.length];
+		ISnapshot sn = (ISnapshot)queryContext.get(ISnapshot.class, null);
 		for (int i = 0; i < tables.length; ++i)
 		{
-		    sameEditor[i] = (queryContext.equals(queryContexts[i]) || queryContexts[i] == null);
+		    sameSnapshot[i] = (queryContexts[i] == null || sn.equals((ISnapshot)queryContexts[i].get(ISnapshot.class, null)));
 		}
 
 		List<ComparedColumn> attributes = new ArrayList<ComparedColumn>();
@@ -306,7 +311,7 @@ public class CompareTablesQuery implements IQuery
             int previous = -1;
             for (int i = 0; i < tables.length; ++i)
             {
-                if (!sameEditor[i])
+                if (!sameSnapshot[i])
                     continue;
                 final int i2 = i;
                 String title = MessageUtil.format(Messages.CompareTablesQuery_Table, i + 1);
@@ -670,7 +675,7 @@ public class CompareTablesQuery implements IQuery
                         if (ret == null ? tableIcon != null : !ret.equals(tableIcon))
                         {
                             // Mismatch, so use compare icon instead
-                            ret = ISharedImages.class.getResource("/" + ISharedImages.COMPARE); //$NON-NLS-1$
+                            ret = Icons.getURL("compare.gif"); //$NON-NLS-1$
                             break;
                         }
                     }
@@ -744,7 +749,7 @@ public class CompareTablesQuery implements IQuery
 
         IContextObject getContextFromTable(int i, Object row)
         {
-            if (!sameEditor[i])
+            if (!sameSnapshot[i])
                 return null;
             final ComparedRow cr = (ComparedRow) row;
             IContextObject ret = null;

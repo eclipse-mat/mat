@@ -17,6 +17,7 @@ import java.util.List;
 import org.eclipse.mat.internal.snapshot.HeapObjectContextArgument;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IContextObjectSet;
+import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.registry.ArgumentDescriptor;
 import org.eclipse.mat.query.registry.ArgumentSet;
@@ -77,6 +78,9 @@ public class Policy implements IPolicy
         boolean contextObjectArgExists = false;
         boolean contextObjectArgIsMultiple = false;
 
+        // Disallow table arguments until we have argument editor for it
+        boolean tableArgExists = false;
+
         for (ArgumentDescriptor argument : query.getArguments())
         {
             if (isHeapObject(argument))
@@ -93,6 +97,10 @@ public class Policy implements IPolicy
                 {
                     return false;
                 }
+            } 
+            else if (IResultTable.class.isAssignableFrom(argument.getType()))
+            {
+                tableArgExists = true;
             }
         }
 
@@ -105,6 +113,10 @@ public class Policy implements IPolicy
             return false;
         }
         if (contextObjectArgExists && (multiRowSelection ? !contextObjectArgIsMultiple : !singleRowSelection))
+        {
+            return false;
+        }
+        if (tableArgExists)
         {
             return false;
         }

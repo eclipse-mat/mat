@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 SAP AG.
+ * Copyright (c) 2010, 2011 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,13 +19,13 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.mat.internal.snapshot.inspections.CompareTablesQuery.ComparedColumn;
+import org.eclipse.mat.internal.snapshot.inspections.CompareTablesQuery.Mode;
+import org.eclipse.mat.internal.snapshot.inspections.CompareTablesQuery.TableComparisonResult;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.registry.QueryResult;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.Messages;
-import org.eclipse.mat.ui.compare.CompareTablesQuery.ComparedColumn;
-import org.eclipse.mat.ui.compare.CompareTablesQuery.Mode;
-import org.eclipse.mat.ui.compare.CompareTablesQuery.TableComparisonResult;
 import org.eclipse.mat.ui.internal.panes.QueryResultPane;
 import org.eclipse.mat.ui.internal.viewer.RefinedResultViewer;
 import org.eclipse.mat.ui.util.EasyToolBarDropDown;

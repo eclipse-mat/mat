@@ -1,11 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2010 SAP AG. 
+ * Copyright (c) 2010, 2011 SAP AG and IBM Corporation
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0 
  * which accompanies this distribution, and is available at 
  * http://www.eclipse.org/legal/epl-v10.html 
  * 
  * Contributors: SAP AG - initial API and implementation
+ * Andrew Johnson - compare tables query browser
  ******************************************************************************/
 package org.eclipse.mat.ui.compare;
 
@@ -32,23 +33,31 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.IResultTable;
+import org.eclipse.mat.query.registry.ArgumentDescriptor;
+import org.eclipse.mat.query.registry.ArgumentSet;
+import org.eclipse.mat.query.registry.QueryDescriptor;
 import org.eclipse.mat.query.registry.QueryResult;
+import org.eclipse.mat.snapshot.ISnapshot;
+import org.eclipse.mat.snapshot.query.SnapshotQuery;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.QueryExecution;
-import org.eclipse.mat.ui.compare.CompareTablesQuery.Mode;
 import org.eclipse.mat.ui.editor.AbstractEditorPane;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
+import org.eclipse.mat.ui.internal.browser.QueryBrowserPopup;
 import org.eclipse.mat.ui.internal.panes.TableResultPane;
 import org.eclipse.mat.ui.snapshot.panes.HistogramPane;
 import org.eclipse.mat.ui.util.ErrorHelper;
+import org.eclipse.mat.ui.util.IPolicy;
 import org.eclipse.mat.ui.util.NavigatorState.IStateChangeListener;
 import org.eclipse.mat.ui.util.PaneState;
 import org.eclipse.mat.util.VoidProgressListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
@@ -249,6 +258,7 @@ public class CompareBasketView extends ViewPart
 		manager.add(moveDownAction);
 		manager.add(moveUpAction);
 		manager.add(removeAction);
+        manager.add(compareAction);
 	}
 
 	class ComparedResult
@@ -321,32 +331,57 @@ public class CompareBasketView extends ViewPart
 		}
 
 		@Override
-		public void run()
+		public void runWithEvent(Event event)
 		{
-			MultiPaneEditor editor = getEditor();
-			CompareTablesQuery compareQuery = new CompareTablesQuery();
-			IResultTable[] tables = new IResultTable[results.size()];
-			IQueryContext[] contexts = new IQueryContext[results.size()];
-			for (int i = 0; i < tables.length; i++)
-			{
-				tables[i] = results.get(i).table;
-				contexts[i] = results.get(i).editor.getQueryContext();
-			}
-			compareQuery.tables = tables;
-	        compareQuery.queryContext = editor.getQueryContext();
-			compareQuery.queryContexts = contexts;
+		    try
+		    {
+                List<ComparedResult> results = CompareBasketView.this.results;
+                boolean useContext = event.widget instanceof MenuItem;
+                if (useContext)
+                {
+                    TableItem[] items = table.getSelection();
+                    results = new ArrayList<ComparedResult>();
+                    for (TableItem item : items)
+                    {
+                        results.add((ComparedResult) item.getData());
+                    }
+                }
+                else
+                {
+                    results = CompareBasketView.this.results;
+                }
+                MultiPaneEditor editor = getEditor();
 
-			try
-			{
-				compareQuery.mode = Mode.ABSOLUTE;
-				IResult absolute = compareQuery.execute(new VoidProgressListener());
-				QueryResult queryResult = new QueryResult(null, Messages.CompareBasketView_ComparedTablesResultTitle, absolute);
-				QueryExecution.displayResult(editor, null, null, queryResult, false);
-			}
-			catch (Exception e)
-			{
-			    ErrorHelper.logThrowable(e);
-			}
+                final List<IResultTable> tables = new ArrayList<IResultTable>(results.size());
+                final List<IQueryContext> contexts = new ArrayList<IQueryContext>(results.size());
+                for (int i = 0; i < results.size(); i++)
+                {
+                    tables.add(results.get(i).table);
+                    contexts.add(results.get(i).editor.getQueryContext());
+                }
+
+                if (useContext)
+                {
+                    IPolicy pol = new ComparePolicy(tables, contexts);
+                    new QueryBrowserPopup(editor, false, pol).open();
+                }
+                else
+                {
+                    String query = "comparetablesquery"; //$NON-NLS-1$
+                    SnapshotQuery compareQuery = SnapshotQuery.lookup(query,
+                                    (ISnapshot) editor.getQueryContext().get(ISnapshot.class, null));
+                    compareQuery.setArgument("tables", tables); //$NON-NLS-1$
+                    compareQuery.setArgument("queryContexts", contexts); //$NON-NLS-1$
+                    IResult absolute = compareQuery.execute(new VoidProgressListener());
+                    QueryResult queryResult = new QueryResult(null,
+                                    Messages.CompareBasketView_ComparedTablesResultTitle, absolute);
+                    QueryExecution.displayResult(editor, null, null, queryResult, false);
+                }
+            }
+            catch (Exception e)
+            {
+                ErrorHelper.logThrowable(e);
+            }
 		}
 	}
 
@@ -478,7 +513,72 @@ public class CompareBasketView extends ViewPart
 
 	}
 
-	private void updateButtons()
+	private static final class ComparePolicy implements IPolicy
+    {
+        private final List<IResultTable> tables;
+        private final List<IQueryContext> contexts;
+    
+        private ComparePolicy(List<IResultTable> tables, List<IQueryContext> contexts)
+        {
+            this.tables = tables;
+            this.contexts = contexts;
+        }
+    
+        /**
+         * Only operate on queries with multiple tables and query contexts
+         */
+        public boolean accept(QueryDescriptor query)
+        {
+            boolean foundTables = false;
+            boolean foundContexts = false;
+            for (ArgumentDescriptor argument : query.getArguments()) {
+                if (IResultTable.class.isAssignableFrom(argument.getType()))
+                {
+                    if (argument.isMultiple())
+                        foundTables = true;
+                }
+    
+                else if (IQueryContext.class.isAssignableFrom(argument.getType()))
+                {
+                    if (argument.isMultiple())
+                    {
+                        foundContexts = true;
+                    }
+                }
+            }
+            return foundTables && foundContexts;
+        }
+    
+        public void fillInObjectArguments(ISnapshot snapshot, QueryDescriptor query, ArgumentSet set)
+        {
+            for (ArgumentDescriptor argument : query.getArguments()) {
+                if (IResultTable.class.isAssignableFrom(argument.getType()))
+                {
+                    if (argument.isMultiple())
+                    {
+                        set.setArgumentValue(argument, tables);
+                    }
+                    else
+                    {
+                        set.setArgumentValue(argument, tables.get(0));
+                    }
+                }
+                else if (IQueryContext.class.isAssignableFrom(argument.getType()))
+                {
+                    /*
+                     * Only fill in multiple contexts from the tables.
+                     * A single is the editor context.
+                     */
+                    if (argument.isMultiple())
+                    {
+                        set.setArgumentValue(argument, contexts);
+                    }
+                } 
+            }
+        }
+    }
+
+    private void updateButtons()
 	{
 		compareAction.setEnabled(results.size() > 1);
 		clearAction.setEnabled(results.size() > 0);
