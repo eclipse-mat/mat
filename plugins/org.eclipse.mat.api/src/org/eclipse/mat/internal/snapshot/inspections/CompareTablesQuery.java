@@ -32,6 +32,8 @@ import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.query.ResultMetaData;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.Icon;
+import org.eclipse.mat.query.annotations.Menu;
+import org.eclipse.mat.query.annotations.Menu.Entry;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.query.Icons;
 import org.eclipse.mat.util.IProgressListener;
@@ -40,6 +42,8 @@ import org.eclipse.mat.util.MessageUtil;
 import com.ibm.icu.text.DecimalFormat;
 
 @Icon("/META-INF/icons/compare.gif")
+@Menu({ @Entry(options = "-setop ALL")
+})
 public class CompareTablesQuery implements IQuery
 {
 	@Argument
@@ -53,6 +57,9 @@ public class CompareTablesQuery implements IQuery
 
 	@Argument(isMandatory = false)
 	public Mode mode = Mode.ABSOLUTE;
+
+	@Argument(isMandatory = false)
+	public Operation setOp = Operation.NONE;
 
     private boolean[] sameSnapshot;
 
@@ -73,6 +80,15 @@ public class CompareTablesQuery implements IQuery
 		{
 			return label;
 		}
+	}
+
+	public enum Operation
+	{
+	    NONE,
+	    ALL,
+	    INTERSECTION,
+	    UNION,
+	    DIFFERENCE
 	}
 
 	public IResult execute(IProgressListener listener) throws Exception
@@ -103,7 +119,7 @@ public class CompareTablesQuery implements IQuery
 			attributes.add(new ComparedColumn(baseColumns[i], indexes, true));
 		}
 
-		return new TableComparisonResult(mergeKeys(), key, attributes, mode);
+		return new TableComparisonResult(mergeKeys(), key, attributes, mode, setOp);
 	}
 
 	private int getColumnIndex(String name, IResultTable table)
@@ -231,8 +247,9 @@ public class CompareTablesQuery implements IQuery
 		private List<ComparedColumn> displayedColumns;
 		private Column[] columns;
 		private Mode mode;
+		private Operation setOp;
 
-		public TableComparisonResult(List<ComparedRow> rows, Column key, List<ComparedColumn> comparedColumns, Mode mode)
+		public TableComparisonResult(List<ComparedRow> rows, Column key, List<ComparedColumn> comparedColumns, Mode mode, Operation setOp)
 		{
 			this.key = key;
 			this.mode = mode;
@@ -240,6 +257,7 @@ public class CompareTablesQuery implements IQuery
 			this.comparedColumns = comparedColumns;
 			updateColumns();
 			setMode(mode);
+			this.setOp = setOp;
 		}
 
 		public Object getRow(int rowId)
@@ -313,36 +331,25 @@ public class CompareTablesQuery implements IQuery
             {
                 if (!sameSnapshot[i])
                     continue;
-                final int i2 = i;
-                String title = MessageUtil.format(Messages.CompareTablesQuery_Table, i + 1);
-                ContextProvider prov = new ContextProvider(title)
-                {
-                    public IContextObject getContext(Object row)
-                    {
-                        return getContextFromTable(i2, row);
-                    }
-                };
 
-                if (previous >= 0)
+                if (setOp != Operation.NONE && previous >= 0)
                 {
                     for (int op = 0; op < 4; ++op)
                     {
+                        if (setOp == Operation.INTERSECTION && op != 0) continue;
+                        if (setOp == Operation.UNION && op != 1) continue;
+                        if (setOp == Operation.DIFFERENCE && op != 2) continue;
                         final int op1 = op;
                         // intersection, union, difference, difference
-                        String oo[] = new String[] { "\u2229", "\u222A", "\u2216", "\u2216" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
                         String title1;
                         final LinkedList<Integer> toDo = new LinkedList<Integer>();
                         if (mode == Mode.ABSOLUTE)
                         {
-                            StringBuilder bf = new StringBuilder(MessageUtil.format(Messages.CompareTablesQuery_Table,
-                                            previous + 1));
                             toDo.add(previous);
                             if (op == 3)
                             {
                                 for (int k = previous + 1; k <= i; ++k)
                                 {
-                                    bf.insert(0, oo[op]);
-                                    bf.insert(0, MessageUtil.format(Messages.CompareTablesQuery_Table, k + 1));
                                     toDo.addFirst(k);
                                 }
                             }
@@ -350,28 +357,87 @@ public class CompareTablesQuery implements IQuery
                             {
                                 for (int k = previous + 1; k <= i; ++k)
                                 {
-                                    bf.append(oo[op]);
-                                    bf.append(MessageUtil.format(Messages.CompareTablesQuery_Table, k + 1));
                                     toDo.add(k);
                                 }
                             }
-                            title1 = bf.toString();
                         }
                         else
                         {
                             if (op == 3)
                             {
-                                title1 = MessageUtil.format(Messages.CompareTablesQuery_Table, i + 1) + oo[op]
-                                                + MessageUtil.format(Messages.CompareTablesQuery_Table, previous + 1);
                                 toDo.add(i);
                                 toDo.add(previous);
                             }
                             else
                             {
-                                title1 = MessageUtil.format(Messages.CompareTablesQuery_Table, previous + 1) + oo[op]
-                                                + MessageUtil.format(Messages.CompareTablesQuery_Table, i + 1);
                                 toDo.add(previous);
                                 toDo.add(i);
+                            }
+                        }
+                        // Convert the list of tables to a readable menu item
+                        if (toDo.size() == 2)
+                        {
+                            switch (op)
+                            {
+                            case 0:
+                                title1 = MessageUtil.format(Messages.CompareTablesQuery_IntersectionOf2, toDo.get(0), toDo.get(1));
+                                break;
+                            case 1:
+                                title1 = MessageUtil.format(Messages.CompareTablesQuery_UnionOf2, toDo.get(0), toDo.get(1));
+                                break;
+                            case 2:
+                            case 3:
+                            default:
+                                title1 = MessageUtil.format(Messages.CompareTablesQuery_DifferenceOf2, toDo.get(0), toDo.get(1));
+                                break;
+                            }
+                        } else {
+                            String soFar;
+                            switch (op)
+                            {
+                                case 0:
+                                    soFar = MessageUtil.format(Messages.CompareTablesQuery_IntersectionFirst, toDo.get(0), toDo.get(1));
+                                break;
+                                case 1:
+                                    soFar = MessageUtil.format(Messages.CompareTablesQuery_UnionFirst, toDo.get(0), toDo.get(1));
+                                    break;
+                                case 2:
+                                case 3:
+                                default:
+                                    soFar = MessageUtil.format(Messages.CompareTablesQuery_DifferenceFirst, toDo.get(0), toDo.get(1));
+                                    break;
+                            }
+                            for (int t = 2; t < toDo.size() - 1; ++t)
+                            {
+                                switch (op)
+                                {
+                                case 0:
+                                    soFar = MessageUtil.format(Messages.CompareTablesQuery_IntersectionMiddle, soFar, toDo.get(t));
+                                break;
+                                case 1:
+                                    soFar = MessageUtil.format(Messages.CompareTablesQuery_UnionMiddle, soFar, toDo.get(t));
+                                    break;
+                                case 2:
+                                case 3:
+                                default:
+                                    soFar = MessageUtil.format(Messages.CompareTablesQuery_DifferenceMiddle, soFar, toDo.get(t));
+                                    break;
+                                }
+                            }
+                            int t = toDo.size() - 1;
+                            switch (op)
+                            {
+                            case 0:
+                                title1 = MessageUtil.format(Messages.CompareTablesQuery_IntersectionLast, soFar, toDo.get(t));
+                            break;
+                            case 1:
+                                title1 = MessageUtil.format(Messages.CompareTablesQuery_UnionLast, soFar, toDo.get(t));
+                                break;
+                            case 2:
+                            case 3:
+                            default:
+                                title1 = MessageUtil.format(Messages.CompareTablesQuery_DifferenceLast, soFar, toDo.get(t));
+                                break;
                             }
                         }
 
@@ -569,7 +635,19 @@ public class CompareTablesQuery implements IQuery
                         bb.addContext(prov2);
                     }
                 }
-                bb.addContext(prov);
+                if (setOp == Operation.NONE || setOp == Operation.ALL)
+                {
+                    final int i2 = i;
+                    String title = MessageUtil.format(Messages.CompareTablesQuery_Table, i + 1);
+                    ContextProvider prov = new ContextProvider(title)
+                    {
+                        public IContextObject getContext(Object row)
+                        {
+                            return getContextFromTable(i2, row);
+                        }
+                    };
+                    bb.addContext(prov);
+                }
                 if (mode == Mode.DIFF_TO_PREVIOUS || previous == -1)
                     previous = i;
             }
