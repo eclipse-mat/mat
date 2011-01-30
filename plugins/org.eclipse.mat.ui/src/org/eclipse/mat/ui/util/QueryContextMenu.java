@@ -350,7 +350,7 @@ public class QueryContextMenu
         return (label.length() > 100) ? label.substring(0, 100) + "..." : label; //$NON-NLS-1$
     }
 
-    private static final class QueryAction extends Action
+    public static final class QueryAction extends Action
     {
         MultiPaneEditor editor;
         QueryDescriptor query;

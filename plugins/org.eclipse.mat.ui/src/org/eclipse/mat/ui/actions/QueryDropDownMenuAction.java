@@ -27,6 +27,7 @@ import org.eclipse.mat.ui.internal.browser.QueryHistory;
 import org.eclipse.mat.ui.util.EasyToolBarDropDown;
 import org.eclipse.mat.ui.util.IPolicy;
 import org.eclipse.mat.ui.util.PopupMenu;
+import org.eclipse.mat.ui.util.QueryContextMenu.QueryAction;
 
 public class QueryDropDownMenuAction extends EasyToolBarDropDown
 {
@@ -34,13 +35,26 @@ public class QueryDropDownMenuAction extends EasyToolBarDropDown
     private MultiPaneEditor editor;
 
     private Action queryBrowser;
+    
+    private IPolicy policy;
+    
+    private static final IPolicy defaultPolicy = new Policy();
+    
+    private boolean showHistory;
 
     public QueryDropDownMenuAction(MultiPaneEditor editor)
+    {
+        this(editor, defaultPolicy, true);
+    }
+
+    public QueryDropDownMenuAction(MultiPaneEditor editor, IPolicy policy, boolean showHistory)
     {
         super(Messages.QueryDropDownMenuAction_OpenQueryBrowser, MemoryAnalyserPlugin
                         .getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.QUERY), editor);
 
         this.editor = editor;
+        this.policy = policy;
+        this.showHistory = showHistory;
 
         makeActions();
     }
@@ -52,7 +66,7 @@ public class QueryDropDownMenuAction extends EasyToolBarDropDown
             @Override
             public void run()
             {
-                new QueryBrowserPopup(editor).open();
+                new QueryBrowserPopup(editor, false, policy).open();
             }
         };
         queryBrowser.setImageDescriptor(MemoryAnalyserPlugin
@@ -64,14 +78,14 @@ public class QueryDropDownMenuAction extends EasyToolBarDropDown
     @Override
     public void contribute(PopupMenu menu)
     {
-        IPolicy policy = new Policy();
         addCategorySubMenu(menu, QueryRegistry.instance().getRootCategory(), policy);
 
         menu.addSeparator();
 
         menu.add(queryBrowser);
 
-        addHistory(menu);
+        if (showHistory)
+            addHistory(menu);
     }
 
     private void addCategorySubMenu(PopupMenu menu, CategoryDescriptor category, IPolicy policy)
@@ -89,7 +103,12 @@ public class QueryDropDownMenuAction extends EasyToolBarDropDown
             {
                 QueryDescriptor query = (QueryDescriptor) item;
                 if (query.accept(editor.getQueryContext()) && policy.accept(query))
-                    menu.add(new ExecuteQueryAction(editor, query));
+                {
+                    if (defaultPolicy.equals(policy))
+                        menu.add(new ExecuteQueryAction(editor, query));
+                    else
+                        menu.add(new QueryAction(editor, query, policy));
+                }
             }
         }
     }

@@ -18,6 +18,7 @@ import java.util.Set;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
@@ -42,22 +43,23 @@ import org.eclipse.mat.snapshot.query.SnapshotQuery;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.QueryExecution;
+import org.eclipse.mat.ui.actions.QueryDropDownMenuAction;
 import org.eclipse.mat.ui.editor.AbstractEditorPane;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
-import org.eclipse.mat.ui.internal.browser.QueryBrowserPopup;
 import org.eclipse.mat.ui.internal.panes.TableResultPane;
 import org.eclipse.mat.ui.snapshot.panes.HistogramPane;
 import org.eclipse.mat.ui.util.ErrorHelper;
 import org.eclipse.mat.ui.util.IPolicy;
 import org.eclipse.mat.ui.util.NavigatorState.IStateChangeListener;
 import org.eclipse.mat.ui.util.PaneState;
+import org.eclipse.mat.ui.util.PopupMenu;
 import org.eclipse.mat.util.VoidProgressListener;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.MenuAdapter;
+import org.eclipse.swt.events.MenuEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
@@ -248,6 +250,28 @@ public class CompareBasketView extends ViewPart
 		});
 		Menu menu = menuMgr.createContextMenu(table);
 		this.table.setMenu(menu);
+        menu.addMenuListener(new MenuAdapter()
+        {
+            @Override
+            public void menuShown(MenuEvent e)
+            {
+                TableItem[] items = table.getSelection();
+                final List<IResultTable> tables = new ArrayList<IResultTable>(items.length);
+                final List<IQueryContext> contexts = new ArrayList<IQueryContext>(items.length);
+                for (TableItem item : items)
+                {
+                    ComparedResult result = (ComparedResult) item.getData();
+                    tables.add(result.table);
+                    contexts.add(result.editor.getQueryContext());
+                }
+                QueryDropDownMenuAction qa = new QueryDropDownMenuAction(getEditor(), new ComparePolicy(tables, contexts), false);
+                PopupMenu menu1 = new PopupMenu();
+                qa.contribute(menu1);
+                qa.getHelpListener();
+                IStatusLineManager statusLineManager = getEditor().getEditorSite().getActionBars().getStatusLineManager();
+                menu1.addToMenu(statusLineManager, table.getMenu());
+            }
+        });
 	}
 
 	private void editorContextMenuAboutToShow(IMenuManager manager)
@@ -258,7 +282,6 @@ public class CompareBasketView extends ViewPart
 		manager.add(moveDownAction);
 		manager.add(moveUpAction);
 		manager.add(removeAction);
-        manager.add(compareAction);
 	}
 
 	class ComparedResult
@@ -331,25 +354,10 @@ public class CompareBasketView extends ViewPart
 		}
 
 		@Override
-		public void runWithEvent(Event event)
+		public void run()
 		{
 		    try
 		    {
-                List<ComparedResult> results = CompareBasketView.this.results;
-                boolean useContext = event.widget instanceof MenuItem;
-                if (useContext)
-                {
-                    TableItem[] items = table.getSelection();
-                    results = new ArrayList<ComparedResult>();
-                    for (TableItem item : items)
-                    {
-                        results.add((ComparedResult) item.getData());
-                    }
-                }
-                else
-                {
-                    results = CompareBasketView.this.results;
-                }
                 MultiPaneEditor editor = getEditor();
 
                 final List<IResultTable> tables = new ArrayList<IResultTable>(results.size());
@@ -360,23 +368,15 @@ public class CompareBasketView extends ViewPart
                     contexts.add(results.get(i).editor.getQueryContext());
                 }
 
-                if (useContext)
-                {
-                    IPolicy pol = new ComparePolicy(tables, contexts);
-                    new QueryBrowserPopup(editor, false, pol).open();
-                }
-                else
-                {
-                    String query = "comparetablesquery"; //$NON-NLS-1$
-                    SnapshotQuery compareQuery = SnapshotQuery.lookup(query,
-                                    (ISnapshot) editor.getQueryContext().get(ISnapshot.class, null));
-                    compareQuery.setArgument("tables", tables); //$NON-NLS-1$
-                    compareQuery.setArgument("queryContexts", contexts); //$NON-NLS-1$
-                    IResult absolute = compareQuery.execute(new VoidProgressListener());
-                    QueryResult queryResult = new QueryResult(null,
-                                    Messages.CompareBasketView_ComparedTablesResultTitle, absolute);
-                    QueryExecution.displayResult(editor, null, null, queryResult, false);
-                }
+                String query = "comparetablesquery"; //$NON-NLS-1$
+                SnapshotQuery compareQuery = SnapshotQuery.lookup(query,
+                                (ISnapshot) editor.getQueryContext().get(ISnapshot.class, null));
+                compareQuery.setArgument("tables", tables); //$NON-NLS-1$
+                compareQuery.setArgument("queryContexts", contexts); //$NON-NLS-1$
+                IResult absolute = compareQuery.execute(new VoidProgressListener());
+                QueryResult queryResult = new QueryResult(null, Messages.CompareBasketView_ComparedTablesResultTitle,
+                                absolute);
+                QueryExecution.displayResult(editor, null, null, queryResult, false);
             }
             catch (Exception e)
             {
