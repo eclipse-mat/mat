@@ -380,15 +380,15 @@ public class CompareTablesQuery implements IQuery
                             switch (op)
                             {
                             case 0:
-                                title1 = MessageUtil.format(Messages.CompareTablesQuery_IntersectionOf2, toDo.get(0), toDo.get(1));
+                                title1 = MessageUtil.format(Messages.CompareTablesQuery_IntersectionOf2, toDo.get(0)+1, toDo.get(1)+1);
                                 break;
                             case 1:
-                                title1 = MessageUtil.format(Messages.CompareTablesQuery_UnionOf2, toDo.get(0), toDo.get(1));
+                                title1 = MessageUtil.format(Messages.CompareTablesQuery_UnionOf2, toDo.get(0)+1, toDo.get(1)+1);
                                 break;
                             case 2:
                             case 3:
                             default:
-                                title1 = MessageUtil.format(Messages.CompareTablesQuery_DifferenceOf2, toDo.get(0), toDo.get(1));
+                                title1 = MessageUtil.format(Messages.CompareTablesQuery_DifferenceOf2, toDo.get(0)+1, toDo.get(1)+1);
                                 break;
                             }
                         } else {
@@ -396,15 +396,15 @@ public class CompareTablesQuery implements IQuery
                             switch (op)
                             {
                                 case 0:
-                                    soFar = MessageUtil.format(Messages.CompareTablesQuery_IntersectionFirst, toDo.get(0), toDo.get(1));
+                                    soFar = MessageUtil.format(Messages.CompareTablesQuery_IntersectionFirst, toDo.get(0)+1, toDo.get(1)+1);
                                 break;
                                 case 1:
-                                    soFar = MessageUtil.format(Messages.CompareTablesQuery_UnionFirst, toDo.get(0), toDo.get(1));
+                                    soFar = MessageUtil.format(Messages.CompareTablesQuery_UnionFirst, toDo.get(0)+1, toDo.get(1)+1);
                                     break;
                                 case 2:
                                 case 3:
                                 default:
-                                    soFar = MessageUtil.format(Messages.CompareTablesQuery_DifferenceFirst, toDo.get(0), toDo.get(1));
+                                    soFar = MessageUtil.format(Messages.CompareTablesQuery_DifferenceFirst, toDo.get(0)+1, toDo.get(1)+1);
                                     break;
                             }
                             for (int t = 2; t < toDo.size() - 1; ++t)
@@ -412,15 +412,15 @@ public class CompareTablesQuery implements IQuery
                                 switch (op)
                                 {
                                 case 0:
-                                    soFar = MessageUtil.format(Messages.CompareTablesQuery_IntersectionMiddle, soFar, toDo.get(t));
+                                    soFar = MessageUtil.format(Messages.CompareTablesQuery_IntersectionMiddle, soFar, toDo.get(t)+1);
                                 break;
                                 case 1:
-                                    soFar = MessageUtil.format(Messages.CompareTablesQuery_UnionMiddle, soFar, toDo.get(t));
+                                    soFar = MessageUtil.format(Messages.CompareTablesQuery_UnionMiddle, soFar, toDo.get(t)+1);
                                     break;
                                 case 2:
                                 case 3:
                                 default:
-                                    soFar = MessageUtil.format(Messages.CompareTablesQuery_DifferenceMiddle, soFar, toDo.get(t));
+                                    soFar = MessageUtil.format(Messages.CompareTablesQuery_DifferenceMiddle, soFar, toDo.get(t)+1);
                                     break;
                                 }
                             }
@@ -428,15 +428,15 @@ public class CompareTablesQuery implements IQuery
                             switch (op)
                             {
                             case 0:
-                                title1 = MessageUtil.format(Messages.CompareTablesQuery_IntersectionLast, soFar, toDo.get(t));
+                                title1 = MessageUtil.format(Messages.CompareTablesQuery_IntersectionLast, soFar, toDo.get(t)+1);
                             break;
                             case 1:
-                                title1 = MessageUtil.format(Messages.CompareTablesQuery_UnionLast, soFar, toDo.get(t));
+                                title1 = MessageUtil.format(Messages.CompareTablesQuery_UnionLast, soFar, toDo.get(t)+1);
                                 break;
                             case 2:
                             case 3:
                             default:
-                                title1 = MessageUtil.format(Messages.CompareTablesQuery_DifferenceLast, soFar, toDo.get(t));
+                                title1 = MessageUtil.format(Messages.CompareTablesQuery_DifferenceLast, soFar, toDo.get(t)+1);
                                 break;
                             }
                         }
