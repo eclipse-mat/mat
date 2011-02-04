@@ -104,6 +104,10 @@ public class Messages extends NLS
     public static String CompareTablesQuery_IntersectionMiddle;
     public static String CompareTablesQuery_IntersectionOf2;
     public static String CompareTablesQuery_Table;
+    public static String CompareTablesQuery_SymmetricDifferenceFirst;
+    public static String CompareTablesQuery_SymmetricDifferenceLast;
+    public static String CompareTablesQuery_SymmetricDifferenceMiddle;
+    public static String CompareTablesQuery_SymmetricDifferenceOf2;
     public static String CompareTablesQuery_UnionFirst;
     public static String CompareTablesQuery_UnionLast;
     public static String CompareTablesQuery_UnionMiddle;

@@ -35,6 +35,7 @@ import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.query.annotations.Menu;
 import org.eclipse.mat.query.annotations.Menu.Entry;
 import org.eclipse.mat.snapshot.ISnapshot;
+import org.eclipse.mat.snapshot.OQL;
 import org.eclipse.mat.snapshot.query.Icons;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
@@ -88,6 +89,7 @@ public class CompareTablesQuery implements IQuery
 	    ALL,
 	    INTERSECTION,
 	    UNION,
+	    SYMMETRIC_DIFFERENCE,
 	    DIFFERENCE
 	}
 
@@ -334,19 +336,20 @@ public class CompareTablesQuery implements IQuery
 
                 if (setOp != Operation.NONE && previous >= 0)
                 {
-                    for (int op = 0; op < 4; ++op)
+                    for (int op = 0; op < 5; ++op)
                     {
                         if (setOp == Operation.INTERSECTION && op != 0) continue;
                         if (setOp == Operation.UNION && op != 1) continue;
-                        if (setOp == Operation.DIFFERENCE && op != 2) continue;
+                        if (setOp == Operation.SYMMETRIC_DIFFERENCE && op != 2) continue;
+                        if (setOp == Operation.DIFFERENCE && op != 3) continue;
                         final int op1 = op;
-                        // intersection, union, difference, difference
+                        // intersection, union, symmetric difference, difference, difference
                         String title1;
                         final LinkedList<Integer> toDo = new LinkedList<Integer>();
                         if (mode == Mode.ABSOLUTE)
                         {
                             toDo.add(previous);
-                            if (op == 3)
+                            if (op == 4)
                             {
                                 for (int k = previous + 1; k <= i; ++k)
                                 {
@@ -363,7 +366,7 @@ public class CompareTablesQuery implements IQuery
                         }
                         else
                         {
-                            if (op == 3)
+                            if (op == 4)
                             {
                                 toDo.add(i);
                                 toDo.add(previous);
@@ -386,7 +389,10 @@ public class CompareTablesQuery implements IQuery
                                 title1 = MessageUtil.format(Messages.CompareTablesQuery_UnionOf2, toDo.get(0)+1, toDo.get(1)+1);
                                 break;
                             case 2:
+                                title1 = MessageUtil.format(Messages.CompareTablesQuery_SymmetricDifferenceOf2, toDo.get(0)+1, toDo.get(1)+1);
+                                break;                                
                             case 3:
+                            case 4:
                             default:
                                 title1 = MessageUtil.format(Messages.CompareTablesQuery_DifferenceOf2, toDo.get(0)+1, toDo.get(1)+1);
                                 break;
@@ -397,12 +403,15 @@ public class CompareTablesQuery implements IQuery
                             {
                                 case 0:
                                     soFar = MessageUtil.format(Messages.CompareTablesQuery_IntersectionFirst, toDo.get(0)+1, toDo.get(1)+1);
-                                break;
+                                    break;
                                 case 1:
                                     soFar = MessageUtil.format(Messages.CompareTablesQuery_UnionFirst, toDo.get(0)+1, toDo.get(1)+1);
                                     break;
                                 case 2:
+                                    soFar = MessageUtil.format(Messages.CompareTablesQuery_SymmetricDifferenceFirst, toDo.get(0)+1, toDo.get(1)+1);
+                                    break;
                                 case 3:
+                                case 4:
                                 default:
                                     soFar = MessageUtil.format(Messages.CompareTablesQuery_DifferenceFirst, toDo.get(0)+1, toDo.get(1)+1);
                                     break;
@@ -418,7 +427,10 @@ public class CompareTablesQuery implements IQuery
                                     soFar = MessageUtil.format(Messages.CompareTablesQuery_UnionMiddle, soFar, toDo.get(t)+1);
                                     break;
                                 case 2:
+                                    soFar = MessageUtil.format(Messages.CompareTablesQuery_SymmetricDifferenceMiddle, soFar, toDo.get(t)+1);
+                                    break;
                                 case 3:
+                                case 4:
                                 default:
                                     soFar = MessageUtil.format(Messages.CompareTablesQuery_DifferenceMiddle, soFar, toDo.get(t)+1);
                                     break;
@@ -434,7 +446,10 @@ public class CompareTablesQuery implements IQuery
                                 title1 = MessageUtil.format(Messages.CompareTablesQuery_UnionLast, soFar, toDo.get(t)+1);
                                 break;
                             case 2:
+                                title1 = MessageUtil.format(Messages.CompareTablesQuery_SymmetricDifferenceLast, soFar, toDo.get(t)+1);
+                                break;
                             case 3:
+                            case 4:
                             default:
                                 title1 = MessageUtil.format(Messages.CompareTablesQuery_DifferenceLast, soFar, toDo.get(t)+1);
                                 break;
@@ -443,6 +458,23 @@ public class CompareTablesQuery implements IQuery
 
                         ContextProvider prov2 = new ContextProvider(title1)
                         {
+                            public URL getIcon()
+                            {
+                                switch (op1)
+                                {
+                                case 0:
+                                    return Icons.getURL("set_intersection.gif"); //$NON-NLS-1$
+                                case 1:
+                                    return Icons.getURL("set_union.gif"); //$NON-NLS-1$
+                                case 2:
+                                    return Icons.getURL("set_symmetric_difference.gif"); //$NON-NLS-1$
+                                case 3:
+                                    return Icons.getURL("set_differenceA.gif"); //$NON-NLS-1$
+                                case 4:
+                                    return Icons.getURL("set_differenceB.gif"); //$NON-NLS-1$
+                                }
+                                return null;
+                            }
                             public IContextObject getContext(final Object row)
                             {
                                 int nullContexts = 0;
@@ -472,14 +504,149 @@ public class CompareTablesQuery implements IQuery
 
                                     public String getOQL()
                                     {
+                                        LinkedList<Integer> toDo2 = new LinkedList<Integer>(toDo);
+                                        switch (op1)
+                                        {
+                                            // Intersection
+                                            case 0:
+                                                String resultOQL0 = null;
+                                                for (int j : toDo2)
+                                                {
+                                                    IContextObject cb = getContextFromTable(j, row);
+                                                    if (cb == null)
+                                                        continue;
+                                                    String oql = getOQLfromContext(cb);
+                                                    if (oql != null)
+                                                    {
+                                                        if (resultOQL0 == null)
+                                                            resultOQL0 = oql;
+                                                        else
+                                                        {
+                                                            resultOQL0 = OQLintersection(resultOQL0, oql);
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        return null;
+                                                    }
+                                                }
+                                                return resultOQL0;
+                                            // Union
+                                            case 1:
+                                                StringBuilder resultOQL = new StringBuilder();
+                                                for (int j : toDo2)
+                                                {
+                                                    IContextObject cb = getContextFromTable(j, row);
+                                                    if (cb == null)
+                                                        continue;
+                                                    String oql = getOQLfromContext(cb);
+                                                    if (oql != null)
+                                                    {
+                                                        OQL.union(resultOQL, oql);
+                                                    }
+                                                    else
+                                                    {
+                                                        return null;
+                                                    }
+                                                }
+                                                // Remove duplicates
+                                                resultOQL.insert(0, "SELECT DISTINCT OBJECTS @objectId FROM OBJECTS ("); //$NON-NLS-1$
+                                                resultOQL.append(")"); //$NON-NLS-1$
+                                                return resultOQL.toString();
+                                            // Symmetric Difference
+                                            case 2:
+                                                String resultOQL2 = null;
+                                                for (int j : toDo2)
+                                                {
+                                                    IContextObject cb = getContextFromTable(j, row);
+                                                    if (cb == null)
+                                                        continue;
+                                                    String oql = getOQLfromContext(cb);
+                                                    if (oql != null)
+                                                    {
+                                                        if (resultOQL2 == null)
+                                                            resultOQL2 = oql;
+                                                        else
+                                                        {
+                                                            // A^B = A&~B | ~A&B
+                                                            StringBuilder sb = new StringBuilder();
+                                                            sb.append(OQLexcept(resultOQL2, oql));
+                                                            OQL.union(sb, OQLexcept(oql, resultOQL2));
+                                                            resultOQL2 = sb.toString();
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        return null;
+                                                    }
+                                                }
+                                                return resultOQL2;
+                                            // Difference
+                                            case 3:
+                                            case 4:
+                                                String resultOQL3 = null;
+                                                for (int j : toDo2)
+                                                {
+                                                    IContextObject cb = getContextFromTable(j, row);
+                                                    if (cb == null)
+                                                        continue;
+                                                    String oql = getOQLfromContext(cb);
+                                                    if (oql != null)
+                                                    {
+                                                        if (resultOQL3 == null)
+                                                            resultOQL3 = oql;
+                                                        else
+                                                        {
+                                                            resultOQL3 = OQLexcept(resultOQL3, oql);
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        return null;
+                                                    }
+                                                }
+                                                return resultOQL3;
+                                        }
                                         return null;
                                     }
+
+                                    /**
+                                     * Simulate EXCEPT
+                                     * @param oql1
+                                     * @param oql2
+                                     * @return
+                                     */
+                                    private String OQLexcept(String oql1, String oql2)
+                                    {
+                                        //SELECT * FROM OBJECTS (a) where @objectid in (b)
+                                        oql1 = "SELECT * FROM OBJECTS ("+oql1+")" +  //$NON-NLS-1$//$NON-NLS-2$
+                                            " WHERE @objectId not in ("+oql2+")";  //$NON-NLS-1$//$NON-NLS-2$
+                                        return oql1;
+                                    }
+
+                                    /**
+                                     * Simulate INTERSECT
+                                     * @param oql1
+                                     * @param oql2
+                                     * @return
+                                     */
+                                    private String OQLintersection(String oql1, String oql2)
+                                    {
+                                        //SELECT * FROM OBJECTS (a) where @objectid in (b)
+                                        oql1 = "SELECT * FROM OBJECTS (" + oql1 + ")" + //$NON-NLS-1$//$NON-NLS-2$
+                                                        " WHERE @objectId in (" + oql2 + ")"; //$NON-NLS-1$//$NON-NLS-2$
+                                        return oql1;
+                                    }
+
+                                    /**
+                                     * Calculate the object ids
+                                     */
                                     public int[] getObjectIds()
                                     {
                                         LinkedList<Integer> toDo2 = new LinkedList<Integer>(toDo);
                                         int j = toDo2.remove();
                                         final IContextObject cb = getContextFromTable(j, row);
-                                        int b[] = getObjectIdsFromContext(cb, row);
+                                        int b[] = getObjectIdsFromContext(cb);
                                         ArrayInt bb;
                                         if (b == null)
                                         {
@@ -495,7 +662,7 @@ public class CompareTablesQuery implements IQuery
                                         {
                                             j = toDo2.remove();
                                             IContextObject ca = getContextFromTable(j, row);
-                                            int a[] = getObjectIdsFromContext(ca, row);
+                                            int a[] = getObjectIdsFromContext(ca);
                                             ArrayInt aa;
                                             if (a == null)
                                             {
@@ -515,7 +682,10 @@ public class CompareTablesQuery implements IQuery
                                                     bb = unionArray(aa, bb);
                                                     break;
                                                 case 2:
+                                                    bb = symdiffArray(aa, bb);
+                                                    break;
                                                 case 3:
+                                                case 4:
                                                     bb = diffArray(aa, bb);
                                                     break;
                                             }
@@ -587,6 +757,13 @@ public class CompareTablesQuery implements IQuery
                                         return cc;
                                     }
 
+                                    /**
+                                     * Intersection of aa and bb
+                                     * 
+                                     * @param aa
+                                     * @param bb
+                                     * @return
+                                     */
                                     private ArrayInt intersectionArray(ArrayInt aa, ArrayInt bb)
                                     {
                                         if (aa.size() == 0)
@@ -608,7 +785,41 @@ public class CompareTablesQuery implements IQuery
                                         return cc;
                                     }
 
-                                    private int[] getObjectIdsFromContext(IContextObject b, Object row)
+                                    /**
+                                     * Symmetric difference of aa and bb
+                                     * 
+                                     * @param aa
+                                     * @param bb
+                                     * @return
+                                     */
+                                    private ArrayInt symdiffArray(ArrayInt aa, ArrayInt bb)
+                                    {
+                                        if (aa.size() == 0)
+                                            return bb;
+                                        if (bb.size() == 0)
+                                            return aa;
+                                        ArrayInt cc = new ArrayInt();
+                                        int j = 0;
+                                        for (int i = 0; i < bb.size(); ++i)
+                                        {
+                                            while (j < aa.size() && aa.get(j) < bb.get(i))
+                                            {
+                                                cc.add(aa.get(j));
+                                                ++j;
+                                            }
+                                            if (j < aa.size() && aa.get(j) == bb.get(i))
+                                            {
+                                                ++j;
+                                            }
+                                            else
+                                            {
+                                                cc.add(bb.get(i));
+                                            }
+                                        }
+                                        return cc;
+                                    }
+
+                                    private int[] getObjectIdsFromContext(IContextObject b)
                                     {
                                         int bobjs[];
                                         if (b instanceof IContextObjectSet)
@@ -628,6 +839,28 @@ public class CompareTablesQuery implements IQuery
                                             bobjs = null;
                                         }
                                         return bobjs;
+                                    }
+
+                                    private String getOQLfromContext(IContextObject b)
+                                    {
+                                        String oql;
+                                        if (b instanceof IContextObjectSet)
+                                        {
+                                            oql = ((IContextObjectSet) b).getOQL();
+                                        }
+                                        else if (b != null)
+                                        {
+                                            int id = b.getObjectId();
+                                            if (id >= 0)
+                                                oql = "SELECT * FROM OBJECTS "+id; //$NON-NLS-1$
+                                            else
+                                                oql = null;
+                                        }
+                                        else
+                                        {
+                                            oql = null;
+                                        }
+                                        return oql;
                                     }
                                 };
                             }
