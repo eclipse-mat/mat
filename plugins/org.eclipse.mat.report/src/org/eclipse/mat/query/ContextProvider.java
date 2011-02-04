@@ -10,11 +10,15 @@
  *******************************************************************************/
 package org.eclipse.mat.query;
 
+import java.net.URL;
+
 import org.eclipse.mat.query.ContextDerivedData.DerivedOperation;
 
 /**
  * Base class for context provider which is an object which returns the heap
  * objects represented by an arbitrary row in a table/tree.
+ * This is used by {@link IResult#getResultMetaData()} to provide additional information
+ * about rows in a report.
  * 
  * @see org.eclipse.mat.query.IContextObject
  * @see org.eclipse.mat.query.IContextObjectSet
@@ -25,6 +29,8 @@ public abstract class ContextProvider
     private DerivedOperation[] operations;
 
     /**
+     * Creates a ContextProvider which will be queried later to find out
+     * more details about a row in a report.
      * @param label
      *            The label used for context menus.
      */
@@ -33,6 +39,13 @@ public abstract class ContextProvider
         this(label, new DerivedOperation[0]);
     }
 
+    /**
+     * Creates a ContextProvider which will be queried later to find out
+     * more details about a row in a report.
+     * @param label
+     *            The label used for context menus.
+     * @param operations operations which can be used to calculate extra column information
+     */
     public ContextProvider(String label, DerivedOperation... operations)
     {
         this.label = label;
@@ -48,7 +61,9 @@ public abstract class ContextProvider
     }
 
     /**
-     * The label for this context provider
+     * The label for this context provider.
+     * Used for context menus to provide a root menu item, with all
+     * the queries for this context as sub-items.
      * @return the label
      */
     public String getLabel()
@@ -65,6 +80,11 @@ public abstract class ContextProvider
         return label == null;
     }
 
+    /**
+     * Used to see if two context providers are the same.
+     * @param other
+     * @return
+     */
     public final boolean hasSameTarget(ContextProvider other)
     {
         if (label == null)
@@ -73,9 +93,24 @@ public abstract class ContextProvider
             return label.equals(other.label);
     }
 
+    /**
+     * Extra operations to calculate more columns.
+     * @return
+     */
     public DerivedOperation[] getOperations()
     {
         return operations;
+    }
+
+    /**
+     * Returns an icon which could be used on context menus as a top level 
+     * to represent this entire type of data available from an {@link IStructuredResult}.
+     * @return
+     * @since 1.1
+     */
+    public URL getIcon()
+    {
+        return null;
     }
 
     /**

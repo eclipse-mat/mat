@@ -85,7 +85,7 @@ public class HtmlOutputter implements IOutputter
 
     public void process(Context context, IResult result, Writer writer) throws IOException
     {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(result.toString());
     }
 
     // //////////////////////////////////////////////////////////////
@@ -389,6 +389,9 @@ public class HtmlOutputter implements IOutputter
                         if (link != null)
                         {
                             artefact.append("<a href=\"").append(link).append("\">");
+                            String iconUrl = context.addIcon(p.getIcon());
+                            if (iconUrl != null)
+                                artefact.append("<img src=\"").append(iconUrl).append("\">");
                             artefact.append(p.getLabel());
                             artefact.append("</a>");
                         }
@@ -459,7 +462,7 @@ public class HtmlOutputter implements IOutputter
                     throws IOException
     {
         IContextObject ctx = thing.getContext(row);
-        renderContext(context, label, ctx, artefact);
+        renderContext(context, label, null, ctx, artefact);
         boolean first = true;
         boolean done = false;
         for (ContextProvider prov : thing.getResultMetaData().getContextProviders())
@@ -476,7 +479,9 @@ public class HtmlOutputter implements IOutputter
                 }
                 artefact.append("<br>");
                 //artefact.append("<li>");
-                renderContext(context, prov.getLabel(), ctx1, artefact);
+                String iconURL = context.addIcon(prov.getIcon());
+                String contextLabel = HTMLUtils.escapeText(prov.getLabel());
+                renderContext(context, contextLabel, iconURL, ctx1, artefact);
                 //artefact.append("</li>");
             }
         }
@@ -487,7 +492,7 @@ public class HtmlOutputter implements IOutputter
     }
 
     @SuppressWarnings("nls")
-    private void renderContext(Context context, String label, IContextObject ctx, Writer artefact)
+    private void renderContext(Context context, String label, String iconURL, IContextObject ctx, Writer artefact)
                     throws IOException
     {
         int objectId = -1;
@@ -500,16 +505,22 @@ public class HtmlOutputter implements IOutputter
             try
             {
                 String externalIdentifier = context.getQueryContext().mapToExternalIdentifier(objectId);
-                artefact.append("<a href=\"").append(QueryObjectLink.forObject(externalIdentifier)).append("\">")
-                                .append(label).append("</a>");
+                artefact.append("<a href=\"").append(QueryObjectLink.forObject(externalIdentifier)).append("\">");
+                if (iconURL != null)
+                    artefact.append("<img src=\"").append(iconURL).append("\">");
+                artefact.append(label).append("</a>");
             }
             catch (SnapshotException exception)
             {
+                if (iconURL != null)
+                    artefact.append("<img src=\"").append(iconURL).append("\">");
                 artefact.append(label);
             }
         }
         else
         {
+            if (iconURL != null)
+                artefact.append("<img src=\"").append(iconURL).append("\">");
             artefact.append(label);
         }
         if (ctx instanceof IContextObjectSet)

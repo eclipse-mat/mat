@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.mat.query;
 
+import java.net.URL;
+
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.util.IProgressListener;
 
@@ -30,9 +32,23 @@ public abstract class DetailResultProvider
         this.label = label;
     }
 
+    /**
+     * The description, which can be used as an extra menu item name.
+     * @return
+     */
     public final String getLabel()
     {
         return label;
+    }
+
+    /**
+     * The icon associated with this provider. This could be used on a context menu.
+     * @return
+     * @since 1.1
+     */
+    public URL getIcon()
+    {
+        return null;
     }
 
     /**
