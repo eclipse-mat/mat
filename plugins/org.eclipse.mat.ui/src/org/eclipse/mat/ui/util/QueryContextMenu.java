@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.mat.ui.util;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -39,9 +40,9 @@ import org.eclipse.mat.query.registry.QueryRegistry;
 import org.eclipse.mat.query.registry.QueryResult;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
+import org.eclipse.mat.ui.MemoryAnalyserPlugin.ISharedImages;
 import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.QueryExecution;
-import org.eclipse.mat.ui.MemoryAnalyserPlugin.ISharedImages;
 import org.eclipse.mat.ui.editor.AbstractEditorPane;
 import org.eclipse.mat.ui.editor.AbstractPaneJob;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
@@ -133,6 +134,11 @@ public class QueryContextMenu
             if (menuLabel != null)
             {
                 menu = new PopupMenu(menuLabel);
+                URL url = p.getIcon();
+                if (url != null)
+                {
+                    menu.setImageDescriptor(MemoryAnalyserPlugin.getDefault().getImageDescriptor(url));
+                }
                 manager.add(menu);
             }
 
@@ -205,7 +211,7 @@ public class QueryContextMenu
                 {
                     final PaneState originator = editor.getActiveEditor().getPaneState();
 
-                    menu.add(new Action(r.getLabel())
+                    menu.add(new Action(r.getLabel(), r.getIcon() != null ? MemoryAnalyserPlugin.getDefault().getImageDescriptor(r.getIcon()) : null)
                     {
                         @Override
                         public void run()
