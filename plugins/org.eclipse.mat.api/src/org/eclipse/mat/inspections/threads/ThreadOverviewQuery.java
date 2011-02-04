@@ -111,6 +111,16 @@ public class ThreadOverviewQuery implements IQuery
                                 }
 
                                 @Override
+                                public URL getIcon()
+                                {
+                                    try {
+                                        return SnapshotQuery.lookup("thread_details", snapshot).getDescriptor().getIcon(); //$NON-NLS-1$
+                                    } catch (SnapshotException e) {
+                                        return null;
+                                    }
+                                }
+                                
+                                @Override
                                 public IResult getResult(Object row, IProgressListener listener)
                                                 throws SnapshotException
                                 {

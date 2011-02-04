@@ -224,6 +224,10 @@ public class ClassLoaderExplorerQuery implements IQuery
                             .addContext(new ContextProvider(Messages.ClassLoaderExplorerQuery_ClassLoader)
                             {
                                 @Override
+                                public URL getIcon() {
+                                    return Icons.CLASSLOADER_INSTANCE;
+                                }
+                                @Override
                                 public IContextObject getContext(Object row)
                                 {
                                     return !(row instanceof IClass) ? Result.this.getContext(row) : null;
@@ -232,6 +236,10 @@ public class ClassLoaderExplorerQuery implements IQuery
                             .addContext(new ContextProvider(Messages.ClassLoaderExplorerQuery_Class)
                             {
                                 @Override
+                                public URL getIcon() {
+                                    return Icons.CLASS_INSTANCE;
+                                }
+                                @Override
                                 public IContextObject getContext(Object row)
                                 {
                                     return row instanceof IClass ? Result.this.getContext(row) : null;
@@ -239,6 +247,10 @@ public class ClassLoaderExplorerQuery implements IQuery
                             }) //
                             .addContext(new ContextProvider(Messages.ClassLoaderExplorerQuery_DefinedClasses)
                             {
+                                @Override
+                                public URL getIcon() {
+                                    return Icons.CLASS;
+                                }
                                 @Override
                                 public IContextObject getContext(Object row)
                                 {
@@ -275,6 +287,10 @@ public class ClassLoaderExplorerQuery implements IQuery
                             }) //
                             .addContext(new ContextProvider(Messages.ClassLoaderExplorerQuery_Instances)
                             {
+                                @Override
+                                public URL getIcon() {
+                                    return Icons.OBJECT_INSTANCE;
+                                }
                                 @Override
                                 public IContextObject getContext(Object row)
                                 {
