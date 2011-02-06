@@ -203,7 +203,10 @@ public class CompareBasketView extends ViewPart
 					editors.remove(part);
 					results.removeAll(toBeRemoved);
 
-					tableViewer.refresh();
+                    if (!table.isDisposed())
+                    {
+                        tableViewer.refresh();
+                    }
 					updateButtons();
 				}
 
