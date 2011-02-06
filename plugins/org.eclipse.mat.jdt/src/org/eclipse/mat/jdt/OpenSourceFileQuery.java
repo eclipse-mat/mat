@@ -17,6 +17,7 @@ import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.CommandName;
+import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
@@ -24,6 +25,7 @@ import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.swt.widgets.Display;
 
 @CommandName("open_source_file")
+@Icon("/icons/jcu_obj.gif") // Icon from org.eclipse.jdt.ui/icons/full/obj16/jcu_obj.gif
 public class OpenSourceFileQuery implements IQuery
 {
     @Argument
