@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.mat.ui;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -108,7 +110,7 @@ public class MemoryAnalyserPlugin extends AbstractUIPlugin
     private static MemoryAnalyserPlugin plugin;
 
     private Map<ImageDescriptor, Image> imageCache = new HashMap<ImageDescriptor, Image>(20);
-    private Map<URL, ImageDescriptor> imagePathCache = new HashMap<URL, ImageDescriptor>(20);
+    private Map<URI, ImageDescriptor> imagePathCache = new HashMap<URI, ImageDescriptor>(20);
     private IExtensionTracker tracker;
     private Logger logger;
     private ErrorLogHandler errorLogHandler;
@@ -185,11 +187,19 @@ public class MemoryAnalyserPlugin extends AbstractUIPlugin
 
     public ImageDescriptor getImageDescriptor(URL path)
     {
-        ImageDescriptor descriptor = imagePathCache.get(path);
+        // Use URI for maps to avoid blocking equals operation
+        URI pathKey;
+        try {
+            pathKey = path.toURI();
+        } catch (URISyntaxException e) {
+            // Will cause a missing image to be used instead
+            pathKey = null;
+        }
+        ImageDescriptor descriptor = imagePathCache.get(pathKey);
         if (descriptor == null)
         {
             descriptor = ImageDescriptor.createFromURL(path);
-            imagePathCache.put(path, descriptor);
+            imagePathCache.put(pathKey, descriptor);
         }
 
         return descriptor;

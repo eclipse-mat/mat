@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.mat.ui.snapshot.actions;
 
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -181,11 +182,24 @@ public class OpenIconAssistAction extends Action implements IWorkbenchWindowActi
                     {
                         icon = thisIcon;
                     }
-                    else if ((thisIcon != null && !thisIcon.equals(icon)) //
-                                    || (thisIcon == null && icon != null))
+                    else
                     {
-                        itemsWithDifferentIcons = true;
-                        break;
+                        try
+                        {
+                            // Use URI for comparisons to avoid blocking
+                            // operation
+                            if (icon == null ? thisIcon != null : thisIcon == null
+                                            || !icon.toURI().equals(thisIcon.toURI()))
+                            {
+                                itemsWithDifferentIcons = true;
+                                break;
+                            }
+                        }
+                        catch (URISyntaxException e)
+                        {
+                            itemsWithDifferentIcons = true;
+                            break;
+                        }
                     }
 
                     isFirst = false;
