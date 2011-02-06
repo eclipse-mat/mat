@@ -10,6 +10,7 @@
  ******************************************************************************/
 package org.eclipse.mat.internal.snapshot.inspections;
 
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.Format;
 import java.util.ArrayList;
@@ -983,9 +984,19 @@ public class CompareTablesQuery implements IQuery
                                     : null;
                     if (foundIcon)
                     {
-                        if (ret == null ? tableIcon != null : !ret.equals(tableIcon))
+                        try
                         {
-                            // Mismatch, so use compare icon instead
+                            if (ret == null ? tableIcon != null : tableIcon == null
+                                            || !ret.toURI().equals(tableIcon.toURI()))
+                            {
+                                // Mismatch, so use compare icon instead
+                                ret = Icons.getURL("compare.gif"); //$NON-NLS-1$
+                                break;
+                            }
+                        }
+                        catch (URISyntaxException e)
+                        {
+                            // URI problem, so use compare icon instead
                             ret = Icons.getURL("compare.gif"); //$NON-NLS-1$
                             break;
                         }
