@@ -20,6 +20,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -126,7 +128,7 @@ public class ResultRenderer
 
     private File directory;
 
-    private Map<URL, String> icon2name = new HashMap<URL, String>();
+    private Map<URI, String> icon2name = new HashMap<URI, String>();
 
     public ResultRenderer()
     {
@@ -169,8 +171,8 @@ public class ResultRenderer
             File iconDir = new File(directory, DIR_ICONS);
             iconDir.mkdir();
 
-            for (Map.Entry<URL, String> entry : icon2name.entrySet())
-                copyResource(entry.getKey(), new File(iconDir, entry.getValue()));
+            for (Map.Entry<URI, String> entry : icon2name.entrySet())
+                copyResource(entry.getKey().toURL(), new File(iconDir, entry.getValue()));
         }
     }
 
@@ -347,14 +349,25 @@ public class ResultRenderer
         if (icon == null)
             return null;
 
-        String name = icon2name.get(icon);
+        // URLs are bad for maps as the host has to be resolved by the name server
+        URI iconKey;
+        try
+        {
+            iconKey = icon.toURI();
+        }
+        catch (URISyntaxException e)
+        {
+            // Safe enough for a bad icon
+            return null;
+        }
+        String name = icon2name.get(iconKey);
         if (name == null)
         {
             String f = icon.getFile();
             int p = f.lastIndexOf('.');
 
             String extension = p < 0 ? f : f.substring(p);
-            icon2name.put(icon, name = "i" + icon2name.size() + extension); //$NON-NLS-1$
+            icon2name.put(iconKey, name = "i" + icon2name.size() + extension); //$NON-NLS-1$
         }
 
         HtmlArtefact artefact = ((HtmlArtefact) part.getObject(Key.ARTEFACT));
