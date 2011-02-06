@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2011 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation - get display for RAP
  *******************************************************************************/
 package org.eclipse.mat.jdt;
 
@@ -36,6 +37,7 @@ import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.SimpleStringTokenizer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
@@ -51,11 +53,14 @@ public class OpenSourceFileJob extends Job
 
     private List<IType> matches;
 
-    public OpenSourceFileJob(String className)
+    private Display display;
+
+    public OpenSourceFileJob(String className, Display display)
     {
         super(MessageUtil.format(Messages.OpenSourceFileJob_LookingFor, className));
         this.className = className;
         this.setUser(true);
+        this.display = display;
     }
 
     @Override
@@ -189,13 +194,13 @@ public class OpenSourceFileJob extends Job
 
     private void displayResult()
     {
-        PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()
+        display.asyncExec(new Runnable()
         {
             public void run()
             {
                 if (matches.isEmpty())
                 {
-                    MessageBox box = new MessageBox(PlatformUI.getWorkbench().getDisplay().getActiveShell(),
+                    MessageBox box = new MessageBox(display.getActiveShell(),
                                     SWT.ICON_INFORMATION);
                     box.setText(Messages.OpenSourceFileJob_NotFound);
                     box.setMessage(MessageUtil.format(Messages.OpenSourceFileJob_TypeNotFound, className));
@@ -218,7 +223,7 @@ public class OpenSourceFileJob extends Job
 
     private IType selectType(List<IType> matches)
     {
-        ListDialog dialog = new ListDialog(PlatformUI.getWorkbench().getDisplay().getActiveShell());
+        ListDialog dialog = new ListDialog(display.getActiveShell());
 
         dialog.setLabelProvider(new LabelProvider()
         {

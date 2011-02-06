@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2011 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation - get display for RAP
  *******************************************************************************/
 package org.eclipse.mat.jdt;
 
@@ -20,6 +21,7 @@ import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.swt.widgets.Display;
 
 @CommandName("open_source_file")
 public class OpenSourceFileQuery implements IQuery
@@ -30,6 +32,9 @@ public class OpenSourceFileQuery implements IQuery
     @Argument
     public IContextObject subject;
 
+    @Argument
+    public Display display;
+    
     public IResult execute(IProgressListener listener) throws Exception
     {
         int objectId = subject.getObjectId();
@@ -47,7 +52,7 @@ public class OpenSourceFileQuery implements IQuery
         IObject obj = snapshot.getObject(objectId);
 
         String className = obj instanceof IClass ? ((IClass) obj).getName() : obj.getClazz().getName();
-        new OpenSourceFileJob(className).schedule();
+        new OpenSourceFileJob(className, display).schedule();
         throw new IProgressListener.OperationCanceledException();
     }
 
