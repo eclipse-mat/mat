@@ -2546,19 +2546,21 @@ public class DTFJIndexBuilder implements IIndexBuilder
     }
 
     /**
-     * Set the size of the stack frame.
-     * We can only have one size, so choose the biggest sensible size.
+     * Set the size of the stack frame type.
+     * We can only have one size as the frame type instance size, 
+     * so choose the first sensible size.
+     * We store other sizes using the indexToSize index. 
      * @param frameId
      * @param size in bytes
      */
-    private void setFrameSize(int frameId, long size)
+    private long setFrameSize(int frameId, long size)
     {
         int clsId = objectToClass.get(frameId);
         ClassImpl cls = idToClass.get(clsId);
         if (cls != null && cls.getName().contains(METHOD_NAME))
         {
             long prevSize = cls.getHeapSizePerInstance();
-            
+
             if (prevSize <= 0 || prevSize == JAVA_STACK_FRAME_SIZE)
             {
                 // The previous size wasn't valid, so set it now
@@ -2575,7 +2577,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 if (size != prevSize)
                     indexToSize.set(frameId, size);
             }
-         }
+        }
+        return size;
     }
 
     private HashMap<Integer, String> addMissedRoots(HashMap<Integer, String> roots)
@@ -7482,17 +7485,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             {
                 softRefCleared = true;
             }
-            if (closeFailed)
-            {
-                // We couldn't close a DTFJ image, so GC and finalize to
-                // attempt to clean up any temporary files
-                System.gc();
-                System.runFinalization();
-            }
-            else if (softRefCleared)
-            {
-                System.runFinalization();
-            }
+            cleanUp(closeFailed, softRefCleared);
         }
     }
 
@@ -7706,17 +7699,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 softRefCleared = true;
             }
         }
-        if (closeFailed)
-        {
-            // We couldn't close a DTFJ image, so GC and finalize to
-            // attempt to clean up any temporary files
-            System.gc();
-            System.runFinalization();
-        }
-        else if (softRefCleared)
-        {
-            System.runFinalization();
-        }
+        cleanUp(closeFailed, softRefCleared);
     }
 
     /**
@@ -8229,6 +8212,26 @@ public class DTFJIndexBuilder implements IIndexBuilder
             }
         }
         return defaultValue;
+    }
+
+    /**
+     * If explicit close failed for some reason then try using finalization.
+     * @param closeFailed
+     * @param softRefCleared
+     */
+    private static void cleanUp(boolean closeFailed, boolean softRefCleared)
+    {
+        if (closeFailed)
+        {
+            // We couldn't close a DTFJ image, so GC and finalize to
+            // attempt to clean up any temporary files
+            System.gc();
+            System.runFinalization();
+        }
+        else if (softRefCleared)
+        {
+            System.runFinalization();
+        }
     }
 }
 
