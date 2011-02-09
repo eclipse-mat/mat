@@ -7,9 +7,17 @@
 
 	<target name="initProperties">
 		<mkdir dir="p2tool"/>
+		<!--
 		<makeurl property="target.baseUrl">
 			<path location="p2tool/."/>
 		</makeurl>
+		FeaturesAndBundlesPublisher get confused by escaped spaces in file names, 
+		so use another way
+		-->
+		<pathconvert property="target.baseUrl" targetos="unix">
+			<path location="p2tool/"/>
+			<regexpmapper from="^/?(.*)" to="file:/\1/"/>
+		</pathconvert>
 		<property environment="env"/>
 	</target>
 
@@ -25,22 +33,60 @@
 		<replace file="${ant.file}/../org.eclipse.mat.targetdef/mat-site.target" token="%workspaceUrl%" value="${workspace.baseUrl}"/>
 	</target>
 
-	<target name="downloadEclipse">
+	<target name="downloadEclipse" depends="init,downloadEclipseLinuxPPC,downloadEclipseWin32">
+		<!-- Convert installation to also being a repository, in case we want to use this too -->
+		<java jar="p2tool/eclipse/eclipse/plugins/org.eclipse.equinox.launcher_1.1.0.v20100507.jar" fork="true" maxmemory="512m" failonerror="true">
+	            <arg value="-consoleLog" />
+	            <arg value="-application" />
+	            <arg value="org.eclipse.equinox.p2.publisher.FeaturesAndBundlesPublisher"/>
+	    		<arg value="-metadataRepository"/> 
+	    		<arg value="${target.baseUrl}eclipse/repo"/>
+	    		<arg value="-artifactRepository"/> 
+	    		<arg value="${target.baseUrl}eclipse/repo"/>
+	    		<arg value="-source"/> 
+	    		<arg value="p2tool/eclipse/eclipse"/> 
+	    		<arg value="-publishArtifacts"/> 
+	        </java>
+	    <copy file="p2tool/eclipse/repo/content.xml" todir="p2tool/eclipse/eclipse"/>
+	    <delete dir="p2tool/eclipse/repo"/>
+	</target>
+
+	<target name="downloadEclipseLinuxPPC" depends="check-downloadWin32" unless="win32.present">
 		<get 
 			src="http://download.eclipse.org/eclipse/downloads/drops/R-3.6-201006080911/eclipse-SDK-3.6-linux-gtk-ppc.tar.gz"
 			dest="p2tool/eclipse-SDK-3.6-linux-gtk-ppc.tar.gz"
+			usetimestamp="true"
 			verbose="true"/>
 
-	    	<delete dir="p2tool/eclipse"/>
+		<delete dir="p2tool/eclipse"/>
 		<untar src="p2tool/eclipse-SDK-3.6-linux-gtk-ppc.tar.gz" dest="p2tool/eclipse" compression="gzip"/>
+	</target>
+
+	<target name="check-downloadWin32">
+		<available file="p2tool/eclipse-SDK-3.6-win32.zip" property="win32.present"/>
+	</target>
+	
+	<!-- Uses this target if you happen to have the Windows version around
+		and in the p2tools directory.
+		The build only uses the jars, so works with either -->
+	<target name="downloadEclipseWin32" depends="check-downloadWin32" if="win32.present">
+		<get 
+			src="http://download.eclipse.org/eclipse/downloads/drops/R-3.6-201006080911/eclipse-SDK-3.6-win32.zip"
+			dest="p2tool/eclipse-SDK-3.6-win32.zip"
+			usetimestamp="true"
+			verbose="true"/>
+		<delete dir="p2tool/eclipse"/>
+		<unzip src="p2tool/eclipse-SDK-3.6-win32.zip" dest="p2tool/eclipse"/>
 	</target>
 	
 	<target name="downloadDeltaPack" description="downloadDeltaPack" depends="downloadEclipse">
 		<get	
 			src="http://download.eclipse.org/eclipse/downloads/drops/R-3.6-201006080911/eclipse-3.6-delta-pack.zip"
 			dest="p2tool/eclipse-3.6-delta-pack.zip"
+			usetimestamp="true"
 			verbose="true"/>
 		
+		<delete dir="p2tool/eclipse-delta-pack"/>
 		<unzip src="p2tool/eclipse-3.6-delta-pack.zip" dest="p2tool/eclipse-delta-pack"/>
 	
 		<java jar="p2tool/eclipse/eclipse/plugins/org.eclipse.equinox.launcher_1.1.0.v20100507.jar" fork="true" maxmemory="512m" failonerror="true">
@@ -61,7 +107,8 @@
 	<target name="downloadTestFramework" description="description" depends="downloadEclipse">
 		<get 
     		src="http://download.eclipse.org/eclipse/downloads/drops/R-3.6-201006080911/eclipse-test-framework-3.6.zip" 
-    		dest="p2tool/eclipse-test-framework.zip"/>
+    		dest="p2tool/eclipse-test-framework.zip"
+			usetimestamp="true"/>
     	<delete dir="p2tool/eclipse-test-framework"/>
 		<unzip src="p2tool/eclipse-test-framework.zip" dest="p2tool/eclipse-test-framework"/>
 
@@ -83,7 +130,8 @@
     <target name="downloadDTFJ" description="description" depends="downloadEclipse">
     	<get 
     		src="ftp://ftp.software.ibm.com/software/java/support/tools/dtfj/dtfj-updatesite.zip" 
-    		dest="p2tool/dtfj-updatesite.zip"/>
+    		dest="p2tool/dtfj-updatesite.zip"
+    		usetimestamp="true"/>
     	<delete dir="p2tool/dtfj-updatesite"/>
 		<unzip src="p2tool/dtfj-updatesite.zip" dest="p2tool/dtfj-updatesite"/>
     	<java jar="p2tool/eclipse/eclipse/plugins/org.eclipse.equinox.launcher_1.1.0.v20100507.jar" fork="true" maxmemory="512m" failonerror="true">
