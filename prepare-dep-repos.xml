@@ -7,14 +7,14 @@
 
 	<target name="initProperties">
 		<mkdir dir="p2tool"/>
-		<!--
 		<makeurl property="target.baseUrl">
 			<path location="p2tool/."/>
 		</makeurl>
+		<!--
 		FeaturesAndBundlesPublisher get confused by escaped spaces in file names, 
 		so use another way
 		-->
-		<pathconvert property="target.baseUrl" targetos="unix">
+		<pathconvert property="target.baseUrlRaw" targetos="unix">
 			<path location="p2tool/"/>
 			<regexpmapper from="^/?(.*)" to="file:/\1/"/>
 		</pathconvert>
@@ -40,9 +40,9 @@
 	            <arg value="-application" />
 	            <arg value="org.eclipse.equinox.p2.publisher.FeaturesAndBundlesPublisher"/>
 	    		<arg value="-metadataRepository"/> 
-	    		<arg value="${target.baseUrl}eclipse/repo"/>
+	    		<arg value="${target.baseUrlRaw}eclipse/repo"/>
 	    		<arg value="-artifactRepository"/> 
-	    		<arg value="${target.baseUrl}eclipse/repo"/>
+	    		<arg value="${target.baseUrlRaw}eclipse/repo"/>
 	    		<arg value="-source"/> 
 	    		<arg value="p2tool/eclipse/eclipse"/> 
 	    		<arg value="-publishArtifacts"/> 
@@ -94,9 +94,9 @@
 	            <arg value="-application" />
 	            <arg value="org.eclipse.equinox.p2.publisher.FeaturesAndBundlesPublisher"/>
 	    		<arg value="-mr"/> 
-	    		<arg value="${target.baseUrl}eclipse-delta-pack/repo"/> 
+	    		<arg value="${target.baseUrlRaw}eclipse-delta-pack/repo"/> 
 	    		<arg value="-ar"/> 
-	    		<arg value="${target.baseUrl}eclipse-delta-pack/repo"/> 
+	    		<arg value="${target.baseUrlRaw}eclipse-delta-pack/repo"/> 
 	    		<arg value="-source"/> 
 	    		<arg value="p2tool/eclipse-delta-pack/eclipse"/> 
 	    		<arg value="-compress"/> 
@@ -117,9 +117,9 @@
             <arg value="-application" />
             <arg value="org.eclipse.equinox.p2.publisher.FeaturesAndBundlesPublisher"/>
     		<arg value="-mr"/> 
-    		<arg value="${target.baseUrl}eclipse-test-framework/repo"/> 
+    		<arg value="${target.baseUrlRaw}eclipse-test-framework/repo"/> 
     		<arg value="-ar"/> 
-    		<arg value="${target.baseUrl}eclipse-test-framework/repo"/> 
+    		<arg value="${target.baseUrlRaw}eclipse-test-framework/repo"/> 
     		<arg value="-source"/> 
     		<arg value="p2tool/eclipse-test-framework/eclipse"/> 
     		<arg value="-compress"/> 
@@ -139,9 +139,9 @@
             <arg value="-application" />
             <arg value="org.eclipse.equinox.p2.publisher.UpdateSitePublisher"/>
     		<arg value="-mr"/> 
-    		<arg value="${target.baseUrl}dtfj-updatesite/repo"/> 
+    		<arg value="${target.baseUrlRaw}dtfj-updatesite/repo"/> 
     		<arg value="-ar"/> 
-    		<arg value="${target.baseUrl}dtfj-updatesite/repo"/> 
+    		<arg value="${target.baseUrlRaw}dtfj-updatesite/repo"/> 
     		<arg value="-source"/> 
     		<arg value="p2tool/dtfj-updatesite"/> 
     		<arg value="-compress"/> 
