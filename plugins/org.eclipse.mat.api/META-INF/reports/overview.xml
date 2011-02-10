@@ -1,5 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2010 SAP AG.
+    Copyright (c) 2008, 2011 SAP AG and IBM Corporation.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -7,8 +8,9 @@
    
     Contributors:
         SAP AG - initial API and implementation
+        Andrew Johnson - add schema
  -->
-<section name="%overview.title">
+<section name="%overview.title" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="report.xsd">
 	<param key="html.collapsed" value="false" />
 	<param key="filename_suffix" value="%overview.suffix" />
 
@@ -18,8 +20,7 @@
 	</query>
 	<query name="%overview.system_properties">
 		<param key="html.separate_file" value="true" />
-		<param key="sort_column" value="#1" />
-		<param key="sort_order" value="ASC" />
+		<param key="sort_column" value="#1=ASC" />
 		<param key="hide_column" value="#0" />
 		<param key="limit" value="1000" />
 		<command>system_properties</command>
