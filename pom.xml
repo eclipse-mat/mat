@@ -25,15 +25,15 @@
 		when 0.11.0 is released -->
 <!--		
 -->
-	<repositories>
-		<repository>
+	<pluginRepositories>
+		<pluginRepository>
 			<id>sonatype-snapshots</id>
 			<url>https://repository.sonatype.org/content/groups/sonatype-public-grid/</url>
 			<snapshots>
 				<enabled>true</enabled>
 			</snapshots>
-		</repository>
-	</repositories>
+		</pluginRepository>
+	</pluginRepositories>
 
   <modules>
 	<module>plugins</module>
