@@ -9,7 +9,9 @@
     Contributors:
         Andrew Johnson - initial API and implementation
  -->
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns="http://www.eclipse.org/mat/report.xsd"
+        targetNamespace="http://www.eclipse.org/mat/report.xsd">
 
 	<xs:element name="param">
 		<xs:complexType>

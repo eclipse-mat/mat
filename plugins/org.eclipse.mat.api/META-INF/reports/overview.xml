@@ -10,7 +10,9 @@
         SAP AG - initial API and implementation
         Andrew Johnson - add schema
  -->
-<section name="%overview.title" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="report.xsd">
+<section name="%overview.title" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://www.eclipse.org/mat/report.xsd" xsi:schemaLocation="http://www.eclipse.org/mat/report.xsd report.xsd">
+
 	<param key="html.collapsed" value="false" />
 	<param key="filename_suffix" value="%overview.suffix" />
 
