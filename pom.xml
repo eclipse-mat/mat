@@ -17,8 +17,23 @@
   <name>MAT Parent (Incubation)</name>
 
   <properties>
-    <tycho-version>0.8.0</tycho-version>
+    <tycho-version>0.11.0-SNAPSHOT</tycho-version>
+<!--    <tycho-version>0.8.0</tycho-version>-->
   </properties>
+
+	<!-- this is needed for accessing tycho 0.11.0-SNAPSHOT , should be removed 
+		when 0.11.0 is released -->
+<!--		
+-->
+	<repositories>
+		<repository>
+			<id>sonatype-snapshots</id>
+			<url>https://repository.sonatype.org/content/groups/sonatype-public-grid/</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
 
   <modules>
 	<module>plugins</module>
@@ -97,12 +112,12 @@
 							<ws>win32</ws>
 							<arch>x86</arch>
 						</environment>
+<!-- 
 						<environment>
 							<os>win32</os>
 							<ws>win32</ws>
 							<arch>x86_64</arch>
 						</environment>
-<!-- 
 						<environment>
 							<os>macosx</os>
 							<ws>carbon</ws>
@@ -144,12 +159,12 @@
 							<ws>gtk</ws>
 							<arch>x86</arch>
 						</environment>
+<!-- 
 						<environment>
 							<os>linux</os>
 							<ws>gtk</ws>
 							<arch>x86_64</arch>
 						</environment>
-<!-- 
 						<environment>
 							<os>linux</os>
 							<ws>gtk</ws>

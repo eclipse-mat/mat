@@ -10,15 +10,15 @@
 <repository location="http://download.eclipse.org/releases/helios"/>
 </location>
 <location includeAllPlatforms="false" includeMode="planner" type="InstallableUnit">
-<unit id="org.eclipse.birt.chart.feature.group" version="2.6.0.v20100617-7f9T0FQCnv7wz02TTZ0LE1"/>
+<unit id="org.eclipse.birt.chart.feature.group" version="0.0.0"/>
 <repository location="http://download.eclipse.org/birt/update-site/2.6-interim/"/>
 </location>
 <location includeAllPlatforms="false" includeMode="planner" type="InstallableUnit">
-<unit id="org.eclipse.emf.feature.group" version="2.6.0.v20100614-1136"/>
+<unit id="org.eclipse.emf.feature.group" version="0.0.0"/>
 <repository location="http://download.eclipse.org/modeling/emf/updates/interim/"/>
 </location>
 <location includeAllPlatforms="false" includeMode="slicer" type="InstallableUnit">
-<unit id="org.eclipse.test.feature.group" version="3.5.0.r20080925-7P7VBiBcJ99q9ZEO14C38"/>
+<unit id="org.eclipse.test.feature.group" version="0.0.0"/>
 <repository location="%workspaceUrl%p2tool/eclipse-test-framework/repo"/>
 </location>
 <location includeAllPlatforms="false" includeMode="planner" type="InstallableUnit">
@@ -26,7 +26,7 @@
 <repository location="%workspaceUrl%p2tool/dtfj-updatesite/repo"/>
 </location>
 <location includeAllPlatforms="false" includeMode="planner" type="InstallableUnit">
-<unit id="org.eclipse.equinox.executable.feature.group" version="3.4.0.v20100524-7M7K-FIhIez-egBko15H73"/>
+<unit id="org.eclipse.equinox.executable.feature.group" version="0.0.0"/>
 <repository location="%workspaceUrl%p2tool/eclipse-delta-pack/repo"/>
 </location>
 </locations>

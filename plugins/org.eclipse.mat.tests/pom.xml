@@ -13,5 +13,36 @@
 
   <artifactId>org.eclipse.mat.tests</artifactId>
   <packaging>eclipse-test-plugin</packaging>
+  
+  <build>
+	<plugins>
+  	  <plugin>
+  	    <groupId>org.sonatype.tycho</groupId>
+  	    <artifactId>maven-osgi-test-plugin</artifactId>
+  	    <configuration>
+ 	      <dependencies>
+	        <dependency>
+	          <type>eclipse-plugin</type>
+	  	      <groupId>org.eclipse.mat</groupId>
+	          <artifactId>org.eclipse.mat.parser</artifactId>
+	          <version>0.0.0</version>
+	        </dependency>
+	        <dependency>
+	          <type>eclipse-plugin</type>
+	  	      <groupId>org.eclipse.mat</groupId>
+	          <artifactId>org.eclipse.mat.hprof</artifactId>
+	          <version>0.0.0</version>
+	        </dependency>
+	        <dependency>
+	          <type>eclipse-plugin</type>
+	  	      <groupId>org.eclipse.mat</groupId>
+	          <artifactId>org.eclipse.mat.dtfj</artifactId>
+	          <version>0.0.0</version>
+	        </dependency>
+	      </dependencies>
+	    </configuration>
+      </plugin>
+	</plugins>
+  </build>
 
 </project>
