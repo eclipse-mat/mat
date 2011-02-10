@@ -19,7 +19,7 @@ if [ "x$mvnSettings" != "x" ]; then
 	settingsOpts="-s $mvnSettings"
 fi
 
-MVN_CALL="$M2_HOME/bin/mvn -Dmaven.repo.local=../.repository $proxyOpts -fae $mvnSettings clean install findbugs:findbugs"
+MVN_CALL="$M2_HOME/bin/mvn -Dmaven.repo.local=../.repository $proxyOpts -fae $mvnSettings clean install $additionalPlugins"
 echo $MVN_CALL
 eval $MVN_CALL
 
