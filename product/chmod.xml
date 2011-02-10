@@ -12,6 +12,7 @@
 <target name="chmod"
         description="Modifiies the file permissions of MAT scripts">
 		<echo>Try to change file persmissions for script files before they are packed</echo>
-		<chmod file="**/ParseHeapDump.sh" perm="755"/>
+		<chmod dir="target/products" perm="755" 
+		       includes="**/ParseHeapDump.sh"/>
 </target>
 </project>
