@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2011 IBM Corporation.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+   
+    Contributors:
+        Andrew Johnson - initial API and implementation
+ -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://www.eclipse.org/mat/report.xsd"
+	targetNamespace="http://www.eclipse.org/mat/report.xsd">
+
+	<xs:element name="param">
+		<xs:annotation>
+			<xs:documentation>This allows output of a query to be controlled.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:attribute name="key" type="paramkey" use="required"></xs:attribute>
+			<xs:attribute name="value" type="translatablestring"
+				use="required"></xs:attribute>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:simpleType name="paramkey">
+		<xs:annotation>
+			<xs:documentation>The name of a parameter to control a report.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="format" />
+			<xs:enumeration value="filename" />
+			<xs:enumeration value="filename_suffix" />
+
+			<xs:enumeration value="html.collapsed" />
+			<xs:enumeration value="html.separate_file" />
+			<xs:enumeration value="html.is_important" />
+			<xs:enumeration value="html.show_table_header" />
+			<xs:enumeration value="html.show_heading" />
+			<xs:enumeration value="html.show_totals" />
+			<xs:enumeration value="html.render_details" />
+
+			<xs:enumeration value="sort_column" />
+			<xs:enumeration value="filter" />
+			<xs:enumeration value="limit" />
+			<xs:enumeration value="hide_column" />
+
+			<xs:enumeration value="derived_data_column" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="translatedstring">
+		<xs:annotation>
+			<xs:documentation>A string with a leading % to be used as key into
+				the plugin properties file to provided translated text.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:pattern value="%[A-Za-z0-9_.]*" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="untranslatedstring">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="([^%].*)|" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="translatablestring">
+		<xs:annotation>
+			<xs:documentation>A readable string or a string that will be
+				translated according to the plugin.properties file.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:union memberTypes="translatedstring untranslatedstring" />
+	</xs:simpleType>
+
+	<xs:element name="query">
+		<xs:annotation>
+			<xs:documentation>The gives details for a query to be executed - both the command and any parameters controlling display of the query.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="param" maxOccurs="unbounded" minOccurs="0"></xs:element>
+				<xs:element ref="command"></xs:element>
+			</xs:sequence>
+			<xs:attribute name="name" type="translatablestring" use="required" />
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="template">
+		<xs:annotation>
+			<xs:documentation>A reference to another report to be run, via plugin id and name.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:pattern value="\w+(.\w)*:\w+"></xs:pattern>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+
+	<xs:element name="command">
+		<xs:annotation>
+			<xs:documentation>
+				This specifies a query command to be executed.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:pattern value="\S.*"></xs:pattern>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+
+	<xs:element name="section">
+		<xs:annotation>
+			<xs:documentation>A whole section of a report, made up of other sections or queries.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="param" maxOccurs="unbounded" minOccurs="0"></xs:element>
+				<xs:choice maxOccurs="unbounded" minOccurs="1">
+					<xs:element ref="query">
+					</xs:element>
+					<xs:element ref="section">
+					</xs:element>
+					<xs:element ref="template">
+					</xs:element>
+				</xs:choice>
+			</xs:sequence>
+			<xs:attribute name="name" type="translatablestring" use="required" />
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

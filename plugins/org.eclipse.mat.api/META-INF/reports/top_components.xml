@@ -10,7 +10,8 @@
         Andrew Johnson - add schema
  -->
 <query name="%top_components.title" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns="http://www.eclipse.org/mat/report.xsd" xsi:schemaLocation="http://www.eclipse.org/mat/report.xsd report.xsd">
+	xmlns="http://www.eclipse.org/mat/report.xsd"
+	xsi:schemaLocation="http://www.eclipse.org/mat/report.xsd ../../../org.eclipse.mat.report/schema/report.xsd">
 
 	<param key="filename_suffix" value="%top_components.suffix" />
 	<command>component_report_top -t 1</command>
