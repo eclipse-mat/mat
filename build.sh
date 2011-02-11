@@ -28,7 +28,7 @@ set result=$?
 ant -file prepare-dep-repos.xml cleanup
 
 echo result=$result
-if [ "$result" == "0" ]; then
+if [ "x$result" == "x" ]; then
 	ant -file copy-build-results.xml
 fi
 
