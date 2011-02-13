@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="Memory Analyzer Tool" uid="org.eclipse.mat.ui.rcp.MemoryAnalyzer" id="MemoryAnalyzer" application="org.eclipse.mat.ui.rcp.application" version="1.0.100" useFeatures="true" includeLaunchers="true">
+<product name="Memory Analyzer Tool" uid="org.eclipse.mat.ui.rcp.MemoryAnalyzer" id="org.eclipse.mat.ui.rcp.MemoryAnalyzer" application="org.eclipse.mat.ui.rcp.application" version="1.0.100" useFeatures="true" includeLaunchers="true">
 
    <aboutInfo>
       <image path="/parent/product/icons/eclipse_lg.gif"/>

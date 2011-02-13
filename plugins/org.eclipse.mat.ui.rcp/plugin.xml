@@ -101,6 +101,7 @@
 			<property name="windowImages" value="icons/memory_analyzer_16.gif,icons/memory_analyzer_32.gif"/>
 			<property name="aboutText" value="%product.aboutText"/>
 			<property name="preferenceCustomization" value="plugin_customization.ini"/>
+			<property name="aboutImage" value="icons/eclipse_lg.gif"/>
       </product>
    </extension>
 
