@@ -97,6 +97,7 @@ public class DTFJHeapObjectReader implements IObjectReader
      *  <li>{@link com.ibm.dtfj.image.ImageAddressSpace}</li>
      *  <li>{@link com.ibm.dtfj.image.ImageProcess}</li>
      *  <li>{@link com.ibm.dtfj.java.JavaRuntime}</li>
+     *  <li>{@link com.ibm.dtfj.image.ImageFactory} since 1.1</li>
      *  </ul>
      * @return the extra data
      */
