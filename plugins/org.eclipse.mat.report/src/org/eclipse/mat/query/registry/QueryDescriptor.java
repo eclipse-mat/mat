@@ -46,9 +46,10 @@ public class QueryDescriptor extends AnnotatedObjectDescriptor
         else
         {
             int p = name.indexOf('|');
-            this.name = p >= 0 ? name.substring(p + 1) : name;
+            String name1 = p >= 0 ? name.substring(p + 1) : name;
             int sortOrder = 100;
             int end = p;
+            // Babel pseudo-translation gives mat123456:101|Java Basics
             // Skip over trailing garbage introduced by pseudo-translation
             while (end > 0 && !Character.isDigit(name.charAt(end - 1))) --end;
             // Extract the longest number - useful for pseudo-translation
@@ -57,12 +58,15 @@ public class QueryDescriptor extends AnnotatedObjectDescriptor
                 try
                 {
                     sortOrder = Integer.parseInt(name.substring(start, end));
+                    // Add pseudo-translation prefix to the name
+                    name1 = name.substring(0, start) + name1;
                     break;
                 }
                 catch (NumberFormatException e)
                 {}
             }
             this.sortOrder = sortOrder;
+            this.name = name1;
         }
 
         this.category = category;

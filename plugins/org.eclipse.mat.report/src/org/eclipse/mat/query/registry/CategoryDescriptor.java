@@ -36,9 +36,10 @@ public final class CategoryDescriptor
         else
         {
             int p = identifier.indexOf('|');
-            this.name = p >= 0 ? identifier.substring(p + 1) : identifier;
+            String name1 = p >= 0 ? identifier.substring(p + 1) : identifier;
             int sortOrder = 100;
             int end = p;
+            // Babel pseudo-translation gives mat123456:101|Java Basics
             // Skip over trailing garbage introduced by pseudo-translation
             while (end > 0 && !Character.isDigit(identifier.charAt(end - 1))) --end;
             // Extract the longest number - useful for pseudo-translation
@@ -47,11 +48,14 @@ public final class CategoryDescriptor
                 try
                 {
                     sortOrder = Integer.parseInt(identifier.substring(start, end));
+                    // Add pseudo-translation prefix to the name
+                    name1 = identifier.substring(0, start) + name1;
                     break;
                 }
                 catch (NumberFormatException e)
                 {}
             }
+            this.name = name1;
             this.sortOrder = sortOrder;
         }
 
