@@ -1,10 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site pack200="true">
    <feature url="features/org.eclipse.mat.chart.feature_0.0.0.jar" id="org.eclipse.mat.chart.feature" version="0.0.0">
-      <category name="Memory Analyzer (Incubation)"/>
+      <category name="Memory Analyzer IDE"/>
+      <category name="Memory Analyzer RCP"/>
    </feature>
    <feature url="features/org.eclipse.mat.feature_0.0.0.jar" id="org.eclipse.mat.feature" version="0.0.0">
-      <category name="Memory Analyzer (Incubation)"/>
+      <category name="Memory Analyzer IDE"/>
+      <category name="Memory Analyzer RCP"/>
    </feature>
-   <category-def name="Memory Analyzer (Incubation)" label="Memory Analyzer (Incubation)"/>
+   <feature url="features/org.eclipse.mat.ui.rcp.feature_0.0.0.qualifier.jar" id="org.eclipse.mat.ui.rcp.feature" version="0.0.0">
+      <category name="Memory Analyzer RCP"/>
+   </feature>
+   <category-def name="Memory Analyzer IDE" label="Memory Analyzer for Eclipse IDE">
+      <description>
+         Memory Analyzer features suitable for installing into or updating an Eclipse IDE.
+      </description>
+   </category-def>
+   <category-def name="Memory Analyzer RCP" label="Stand-alone Memory Analyzer">
+      <description>
+         Memory Analyzer features suitable for updating a stand-alone version of Memory Analyzer which is based on Eclipse RCP.
+      </description>
+   </category-def>
 </site>
