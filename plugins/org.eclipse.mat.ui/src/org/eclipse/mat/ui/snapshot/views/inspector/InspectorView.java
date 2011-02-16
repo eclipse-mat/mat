@@ -67,6 +67,10 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.dnd.Clipboard;
+import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.MenuAdapter;
 import org.eclipse.swt.events.MenuEvent;
 import org.eclipse.swt.events.PaintEvent;
@@ -106,6 +110,7 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
     private TableViewer attributesTable;
     private TableViewer staticsTable;
     private TreeViewer classHierarchyTree;
+    private StyledText resolvedValue;
     private boolean pinSelection = false;
     private Font font;
 
@@ -435,7 +440,7 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
     private void createTopTable(Composite parent)
     {
         Composite composite = new Composite(parent, SWT.NONE);
-        topTableViewer = new TableViewer(composite, SWT.FULL_SELECTION);
+        topTableViewer = new TableViewer(composite, SWT.FULL_SELECTION | SWT.MULTI);
 
         Table table = topTableViewer.getTable();
         TableColumnLayout columnLayout = new TableColumnLayout();
@@ -444,7 +449,7 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
         TableColumn column = new TableColumn(table, SWT.LEFT);
         columnLayout.setColumnData(column, new ColumnWeightData(100, 10));
 
-        // on win32, item height is reported to low the first time around
+        // on win32, item height is reported too low the first time around
         int itemHeight = table.getItemHeight() + 1;
         if (itemHeight < 17)
             itemHeight = 17;
@@ -504,13 +509,61 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
         classHierarchyTree = createHierarchyTree(tabFolder);
         classHierarchyTab.setControl(classHierarchyTree.getTree().getParent());
 
+        CTabItem valueTab = new CTabItem(tabFolder, SWT.NULL);
+        valueTab.setText(Messages.InspectorView_Value);
+        resolvedValue = createValue(tabFolder);
+        valueTab.setControl(resolvedValue);
+
+        getViewSite().getActionBars().setGlobalActionHandler(ActionFactory.COPY.getId(), new Action()
+        {
+            @Override
+            public void run()
+            {
+                if (topTableViewer.getControl().isFocusControl())
+                {
+                    Copy.copyToClipboard(topTableViewer.getControl());
+                }
+                else
+                {
+                    int s = tabFolder.getSelectionIndex();
+                    switch (s)
+                    {
+                        case 0:
+                            Copy.copyToClipboard(staticsTable.getControl());
+                            break;
+                        case 1:
+                            Copy.copyToClipboard(attributesTable.getControl());
+                            break;
+                        case 2:
+                            Copy.copyToClipboard(classHierarchyTree.getControl());
+                            break;
+                        case 3:
+                            String buffer = resolvedValue.getSelectionText();
+                            Clipboard clipboard = new Clipboard(resolvedValue.getDisplay());
+                            clipboard.setContents(new Object[] { buffer.toString() },
+                                            new Transfer[] { TextTransfer.getInstance() });
+                            clipboard.dispose();
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+        });
+
         tabFolder.setSelection(0);
+    }
+
+    private StyledText createValue(CTabFolder parent)
+    {
+        StyledText ret = new StyledText(parent, SWT.READ_ONLY | SWT.MULTI | SWT.WRAP);
+        return ret;
     }
 
     private TreeViewer createHierarchyTree(CTabFolder parent)
     {
         Composite composite = new Composite(parent, SWT.NONE);
-        TreeViewer classHierarchyTree = new TreeViewer(composite, SWT.FULL_SELECTION);
+        TreeViewer classHierarchyTree = new TreeViewer(composite, SWT.FULL_SELECTION | SWT.MULTI);
         classHierarchyTree.setContentProvider(new HierarchyTreeContentProvider());
         classHierarchyTree.setLabelProvider(new HierarchyLabelProvider(-1));
 
@@ -531,19 +584,10 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
         composite.setLayout(columnLayout);
         GridDataFactory.fillDefaults().grab(true, true).align(SWT.FILL, SWT.FILL).applyTo(composite);
 
-        final TableViewer viewer = new TableViewer(composite, SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION);
+        final TableViewer viewer = new TableViewer(composite, SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.MULTI);
         Table table = viewer.getTable();
         viewer.setContentProvider(new FieldsContentProvider());
         viewer.setLabelProvider(new FieldsLabelProvider(this, table.getFont()));
-
-        getViewSite().getActionBars().setGlobalActionHandler(ActionFactory.COPY.getId(), new Action()
-        {
-            @Override
-            public void run()
-            {
-                Copy.copyToClipboard(viewer.getControl());
-            }
-        });
 
         TableColumn tableColumn = new TableColumn(table, SWT.LEFT);
         tableColumn.setText(Messages.InspectorView_Type);
@@ -837,6 +881,9 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
                                     classHierarchyTree.getTree().setRedraw(true);
                                 }
 
+                                String txt = object.getClassSpecificName();
+                                resolvedValue.setText(txt != null ? txt : "");//$NON-NLS-1$
+
                                 if (!pinSelection)// no tab pinned
                                 {
                                     int selectionIndex = tabFolder.getSelectionIndex();
@@ -1106,6 +1153,11 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
                 if (classHierarchyTree.getContentProvider() != null)
                 {
                     classHierarchyTree.setInput(new Object[] { new Object() });
+                }
+
+                if (!resolvedValue.isDisposed())
+                {
+                    resolvedValue.setText(""); //$NON-NLS-1$
                 }
 
                 for (Menu menu : contextMenus)
