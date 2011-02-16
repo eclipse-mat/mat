@@ -830,6 +830,8 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
                     return;
             }
 
+            final ISnapshot savedSnapshot = snapshot;
+
             Job job = new Job(Messages.InspectorView_UpdateObjectDetails)
             {
 
@@ -838,10 +840,10 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
                 {
                     try
                     {
-                        if (snapshot == null)
+                        if (snapshot == null || savedSnapshot != snapshot)
                             return Status.OK_STATUS;
 
-                        final IObject object = snapshot.getObject(objectId);
+                        final IObject object = savedSnapshot.getObject(objectId);
 
                         // prepare object info
                         final List<Object> classInfos = prepareClassInfo(object);
@@ -1055,6 +1057,7 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
                                         .getName()));
                     }
 
+                    ISnapshot snapshot = object.getSnapshot();
                     if (object instanceof IClass)
                         details.add(new ObjectNode(snapshot.getObject(((IClass) object).getClassLoaderId())));
                     else
@@ -1099,6 +1102,7 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
 
                         RGB[] rgbs = new RGB[array.getLength()];
                         long[] refs = array.getReferenceArray();
+                        ISnapshot snapshot = palette.getSnapshot();
                         for (int ii = 0; ii < refs.length; ii++)
                         {
                             int id = snapshot.mapAddressToId(refs[ii]);

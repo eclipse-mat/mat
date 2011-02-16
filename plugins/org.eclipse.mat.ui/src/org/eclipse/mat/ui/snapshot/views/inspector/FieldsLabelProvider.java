@@ -15,6 +15,7 @@ import org.eclipse.jface.viewers.ITableFontProvider;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.Field;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
@@ -93,18 +94,21 @@ class FieldsLabelProvider extends LabelProvider implements ITableLabelProvider, 
     {
         try
         {
-            IObject object = this.inspectorView.snapshot.getObject(this.inspectorView.snapshot
-                            .mapAddressToId(objectAddress));
-            String text = object.getClassSpecificName();
-            if (text == null)
-                text = object.getTechnicalName();
-            return text;
+            ISnapshot snapshot = this.inspectorView.snapshot;
+            if (snapshot != null)
+            {
+                IObject object = snapshot.getObject(snapshot.mapAddressToId(objectAddress));
+                String text = object.getClassSpecificName();
+                if (text == null)
+                    text = object.getTechnicalName();
+                return text;
+            }
         }
         catch (SnapshotException e)
         {
             // $JL-EXC$
-            return "0x" + Long.toHexString(objectAddress);//$NON-NLS-1$
         }
+        return "0x" + Long.toHexString(objectAddress);//$NON-NLS-1$
     }
 
     public Font getFont(Object element, int columnIndex)
