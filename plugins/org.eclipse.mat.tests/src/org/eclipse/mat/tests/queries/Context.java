@@ -8,7 +8,7 @@
  * Contributors:
  *    Andrew Johnson - initial API and implementation
  *******************************************************************************/
-package org.eclipse.mat.tests.regression.query;
+package org.eclipse.mat.tests.queries;
 
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IContextObjectSet;

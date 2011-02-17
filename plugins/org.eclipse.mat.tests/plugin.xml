@@ -49,16 +49,19 @@
             impl="org.eclipse.mat.tests.regression.query.RetainedSizeForHistogramQuery">
       </query>
       <query
-            impl="org.eclipse.mat.tests.regression.query.Context$ContextObjectQuery">
+            impl="org.eclipse.mat.tests.queries.Context$ContextObjectQuery">
       </query>
       <query
-            impl="org.eclipse.mat.tests.regression.query.Context$ContextObjectQueries">
+            impl="org.eclipse.mat.tests.queries.Context$ContextObjectQueries">
       </query>
       <query
-            impl="org.eclipse.mat.tests.regression.query.Context$ContextObjectSetQuery">
+            impl="org.eclipse.mat.tests.queries.Context$ContextObjectSetQuery">
       </query>
       <query
-            impl="org.eclipse.mat.tests.regression.query.Context$ContextObjectSetQueries">
+            impl="org.eclipse.mat.tests.queries.Context$ContextObjectSetQueries">
+      </query>
+      <query
+            impl="org.eclipse.mat.tests.queries.CompositeResultTest">
       </query>
    </extension>
 
