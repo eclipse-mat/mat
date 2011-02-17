@@ -155,8 +155,8 @@ public final class CategoryDescriptor
         int slash = name.indexOf('/');
         String subIdentifier = slash < 0 ? name : name.substring(0, slash);
 
-        int pipe = subIdentifier.indexOf('|');
-        String subName = pipe >= 0 ? subIdentifier.substring(pipe + 1) : subIdentifier;
+        CategoryDescriptor newCat = new CategoryDescriptor(subIdentifier);
+        String subName = newCat.getName();
 
         CategoryDescriptor subCat = null;
         for (Object child : children)
@@ -175,7 +175,7 @@ public final class CategoryDescriptor
 
         if (subCat == null)
         {
-            subCat = new CategoryDescriptor(subIdentifier);
+            subCat = newCat;
             subCat.parent = this;
             children.add(subCat);
         }

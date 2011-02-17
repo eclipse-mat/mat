@@ -15,9 +15,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
-import java.util.MissingResourceException;
-import java.util.ResourceBundle;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -48,7 +45,6 @@ import org.eclipse.mat.ui.editor.AbstractPaneJob;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
 import org.eclipse.mat.ui.internal.browser.Policy;
 import org.eclipse.mat.ui.internal.browser.QueryBrowserPopup;
-import org.eclipse.mat.ui.snapshot.actions.CopyActions;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.swt.widgets.Control;
 
@@ -299,39 +295,35 @@ public class QueryContextMenu
         // check for null -> copy action might not exist!
         if (control == null)
             return;
-        // read from annotations.properties
-        try
+        // Choose the same category as the copy address query
+        QueryDescriptor qd = QueryRegistry.instance().getQuery("address"); //$NON-NLS-1$
+        if (qd != null)
         {
-            ResourceBundle rb = ResourceBundle.getBundle(CopyActions.Address.class.getPackage().getName()
-                            + ".annotations", //$NON-NLS-1$
-                            Locale.getDefault(), CopyActions.Address.class.getClassLoader());
-            String value = rb.getString(CopyActions.Address.class.getSimpleName() + ".category"); //$NON-NLS-1$
-            // get rid of "101|"
-            int position = value.indexOf("|"); //$NON-NLS-1$
-            String menuName = (position < 0) ? value : value.substring(position + 1);
-            Action copySelectionAction = new Action()
+            // Remove any prefix e.g. 101|Copy. Works for pseudo-translated category names
+            String menuName = QueryRegistry.instance().getRootCategory().resolve(qd.getCategory()).getName();
+            PopupMenu menu2 = menu.getChildMenu(menuName);
+            if (menu2 != null)
+                menu = menu2;
+        }
+
+        Action copySelectionAction = new Action()
+        {
+            @Override
+            public String getText()
             {
-                @Override
-                public String getText()
-                {
-                    return Messages.QueryContextMenu_Selection;
-                }
+                return Messages.QueryContextMenu_Selection;
+            }
 
-                @Override
-                public void run()
-                {
-                    Copy.copyToClipboard(control);
-                }
+            @Override
+            public void run()
+            {
+                Copy.copyToClipboard(control);
+            }
 
-            };
-            copySelectionAction.setImageDescriptor(MemoryAnalyserPlugin.getImageDescriptor(ISharedImages.COPY));
-            copySelectionAction.setToolTipText(Messages.QueryContextMenu_CopySelectionToTheClipboard);
-            menu.getChildMenu(menuName).add(copySelectionAction);
-        }
-        catch (MissingResourceException e)
-        {
-            ErrorHelper.logThrowable(e);
-        }
+        };
+        copySelectionAction.setImageDescriptor(MemoryAnalyserPlugin.getImageDescriptor(ISharedImages.COPY));
+        copySelectionAction.setToolTipText(Messages.QueryContextMenu_CopySelectionToTheClipboard);
+        menu.add(copySelectionAction);
     }
 
     /**
