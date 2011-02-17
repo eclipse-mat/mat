@@ -260,7 +260,7 @@ public class QueryResultPane extends AbstractEditorPane implements ISelectionPro
         }
         else
         {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException(subject.getClass().getName());
         }
     }
 

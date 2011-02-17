@@ -240,8 +240,20 @@ public class QueryExecution
 
             for (CompositeResult.Entry r : results)
             {
-                doDisplayResult(editor, originator, stateToReopen, new QueryResult(result, result.getQuery(), result
-                                .getCommand(), r.getResult()), isReproducable);
+                QueryResult qr;
+                if (r.getResult() instanceof CompositeResult && ((CompositeResult) r.getResult()).asHtml())
+                {
+                    qr = convertToHtml(editor, result, (CompositeResult) r.getResult());
+                }
+                else if (r.getResult() instanceof Spec)
+                {
+                    qr = convertToHtml(editor, result, (Spec) r.getResult());
+                }
+                else
+                {
+                    qr = new QueryResult(result, result.getQuery(), result.getCommand(), r.getResult());
+                }
+                doDisplayResult(editor, originator, stateToReopen, qr, isReproducable);
             }
         }
         else
