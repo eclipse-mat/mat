@@ -35,6 +35,7 @@ public class OpenPreferenceAction extends Action
     private static final Set<String> ALLOWED_IDS = new HashSet<String>(Arrays.asList(new String[] {
                     "org.eclipse.ui.net.NetPreferences", //$NON-NLS-1$
                     "org.eclipse.update.internal.ui.preferences.MainPreferencePage"})); //$NON-NLS-1$
+    private static final String MAT_PREFIX = "org.eclipse.mat."; //$NON-NLS-1$
 
     PreferenceRegistry reg;
 
@@ -107,7 +108,7 @@ public class OpenPreferenceAction extends Action
         protected Node createDelegate(IConfigurationElement configElement) throws CoreException
         {
             String id = configElement.getAttribute("id"); //$NON-NLS-1$
-            return ALLOWED_IDS.contains(id) ? new Node(id, configElement) : null;
+			return id.startsWith(MAT_PREFIX) || ALLOWED_IDS.contains(id) ? new Node(id, configElement) : null; 
         }
 
         @Override

@@ -229,6 +229,12 @@ public class Messages extends NLS
     public static String DTFJIndexBuilder_UsingConservativeGarbageCollectionRoots;
     public static String DTFJIndexBuilder_UsingDTFJRoots;
     public static String DTFJIndexBuilder_UsingProcessPointerSizeNotAddressSpacePointerSize;
+    public static String DTFJPreferencePage_AllMethods;
+    public static String DTFJPreferencePage_Description;
+    public static String DTFJPreferencePage_MethodsAsClasses;
+    public static String DTFJPreferencePage_NoMethods;
+    public static String DTFJPreferencePage_RunningMethods;
+    public static String DTFJPreferencePage_RuntimeID;
     public static String ThreadDetailsResolver_alive;
     public static String ThreadDetailsResolver_blocked_on_monitor_enter;
     public static String ThreadDetailsResolver_DTFJ_Name;

@@ -41,4 +41,18 @@
             impl="org.eclipse.mat.dtfj.ThreadDetailsResolver">
       </resolver>
    </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="org.eclipse.mat.dtfj.DTFJPreferencePage"
+            id="org.eclipse.mat.DTFJPreferences"
+            name="%dtfjPreferenceTitle">
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="org.eclipse.mat.dtfj.PreferenceInitializer">
+      </initializer>
+   </extension>
 </plugin>
