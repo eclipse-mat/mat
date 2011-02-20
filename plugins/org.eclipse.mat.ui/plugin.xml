@@ -71,7 +71,7 @@
 	        icon="icons/compare.gif"
 	        id="org.eclipse.mat.ui.views.CompareBasketView"
 	        name="Compare Basket">
-	    </view>        
+	    </view>
 	</extension>
 
 	<extension point="org.eclipse.mat.ui.editorPanes">
@@ -265,6 +265,20 @@
             id="org.eclipse.mat.cheatsheet"
             class="org.eclipse.mat.ui.internal.CheatSheetStandbyContent"
             pluginId="org.eclipse.mat.ui"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="org.eclipse.mat.ui.internal.UIPreferencePage"
+            id="org.eclipse.mat.ui.Preferences"
+            name="%preferences.name">
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="org.eclipse.mat.ui.internal.PreferenceInitializer">
+      </initializer>
    </extension>
 
 
