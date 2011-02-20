@@ -102,6 +102,7 @@ import com.ibm.dtfj.runtime.ManagedRuntime;
  */
 public class DTFJIndexBuilder implements IIndexBuilder
 {
+    private static final String PLUGIN_ID = InitDTFJ.getDefault().getBundle().getSymbolicName();
     /** The key to store the runtime id out of the dump */
     static final String RUNTIME_ID_KEY = "$runtimeId"; //$NON-NLS-1$
     /** How many elements in an object array to examine at once */
@@ -151,12 +152,13 @@ public class DTFJIndexBuilder implements IIndexBuilder
     /** Whether to skip heap roots marked marked as weak/soft reference etc. */
     private static final boolean skipWeakRoots = true;
     /** Whether to represent all methods as pseudo-classes */
-    private final boolean getExtraInfo2 = PreferenceConstants.ALL_METHODS_AS_CLASSES.equals(InitDTFJ.getDefault()
-                    .getPreferenceStore().getString(PreferenceConstants.P_METHODS));
+    private final boolean getExtraInfo2 = PreferenceConstants.ALL_METHODS_AS_CLASSES
+                    .equals(Platform.getPreferencesService().getString(PLUGIN_ID,
+                                    PreferenceConstants.P_METHODS, "", null)); //$NON-NLS-1$
     /** Whether to represent stack frames and methods as objects and classes */
     private final boolean getExtraInfo = getExtraInfo2
-                    || PreferenceConstants.RUNNING_METHODS_AS_CLASSES.equals(InitDTFJ.getDefault().getPreferenceStore()
-                                    .getString(PreferenceConstants.P_METHODS));
+                    || PreferenceConstants.RUNNING_METHODS_AS_CLASSES.equals(Platform.getPreferencesService()
+                                    .getString(PLUGIN_ID, PreferenceConstants.P_METHODS, "", null)); //$NON-NLS-1$
     /** Separator between the package/class name and the method name */
     private static final String METHOD_NAME_PREFIX = "."; //$NON-NLS-1$
     /** Unique string only found in method names */
@@ -190,7 +192,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
      * The requested runtime id, or null. In the rare case of more than one Java
      * runtime in a dump then this can be used to select another JVM.
      */
-    private String runtimeId = InitDTFJ.getDefault().getPreferenceStore().getString(PreferenceConstants.P_RUNTIMEID);
+    private String runtimeId = Platform.getPreferencesService().getString(PLUGIN_ID, PreferenceConstants.P_RUNTIMEID,
+                    "", null); //$NON-NLS-1$
     /** All the key DTFJ data */
     private RuntimeInfo dtfjInfo;
     /** Used to cache DTFJ images */

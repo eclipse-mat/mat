@@ -373,10 +373,11 @@ public class InitDTFJ extends Plugin implements IRegistryChangeListener
     /**
      * Storage for preferences.
      */
-    private ScopedPreferenceStore preferenceStore;
+    private IPreferenceStore preferenceStore;
     
     public IPreferenceStore getPreferenceStore() {
-        // Copied from AbstractUIPlugin
+        // Copied from AbstractUIPlugin, so that InitDTFJ doesn't have a hard dependency
+        // on org.eclipse.ui
         // Create the preference store lazily.
         if (preferenceStore == null) {
             preferenceStore = new ScopedPreferenceStore(new InstanceScope(),getBundle().getSymbolicName());
