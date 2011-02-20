@@ -12,7 +12,7 @@ package org.eclipse.mat.ui.internal.query.arguments;
 
 import java.io.File;
 
-import org.eclipse.core.runtime.Preferences;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.annotations.Argument.Advice;
@@ -121,7 +121,7 @@ public class FileOpenDialogEditor extends ArgumentEditor
 
             public void widgetSelected(SelectionEvent e)
             {
-                Preferences prefs = MemoryAnalyserPlugin.getDefault().getPluginPreferences();
+                IPreferenceStore prefs = MemoryAnalyserPlugin.getDefault().getPreferenceStore();
                 String lastDirectory = prefs.getString(LAST_DIRECTORY_KEY);
                 if (text.getText() != null)
                 {
@@ -133,42 +133,42 @@ public class FileOpenDialogEditor extends ArgumentEditor
 
                 if (descriptor.getAdvice() == Advice.DIRECTORY)
                 {
-                	DirectoryDialog dialog = new DirectoryDialog(getShell());
-                	
-                	if (lastDirectory != null && lastDirectory.length() > 0)
-                		dialog.setFilterPath(lastDirectory);
-                	else
-                		dialog.setFilterPath(System.getProperty("user.home")); //$NON-NLS-1$
-                	
-                	String selectedDirectory = dialog.open();
-                	if (selectedDirectory != null)
-                	{
-                		prefs.setValue(LAST_DIRECTORY_KEY, selectedDirectory);
-                		text.setText(selectedDirectory);
-                	}
+                    DirectoryDialog dialog = new DirectoryDialog(getShell());
+
+                    if (lastDirectory != null && lastDirectory.length() > 0)
+                        dialog.setFilterPath(lastDirectory);
+                    else
+                        dialog.setFilterPath(System.getProperty("user.home")); //$NON-NLS-1$
+
+                    String selectedDirectory = dialog.open();
+                    if (selectedDirectory != null)
+                    {
+                        prefs.setValue(LAST_DIRECTORY_KEY, selectedDirectory);
+                        text.setText(selectedDirectory);
+                    }
                 }
                 else // default: a file
                 {
-                	FileDialog dialog = new FileDialog(getShell(), descriptor.getAdvice() == Advice.SAVE ? SWT.SAVE : SWT.OPEN);
-                	dialog.setText(Messages.FileOpenDialogEditor_ChooseFile);
-                	
-                	if (lastDirectory != null && lastDirectory.length() > 0)
-                		dialog.setFilterPath(lastDirectory);
-                	else
-                		dialog.setFilterPath(System.getProperty("user.home")); //$NON-NLS-1$
-                	
-                	dialog.open();
-                	String[] names = dialog.getFileNames();
-                	if (names != null && names.length > 0)
-                	{
-                		final String filterPath = dialog.getFilterPath();
-                		prefs.setValue(LAST_DIRECTORY_KEY, filterPath);
-                		
-                		text.setText(filterPath + File.separator + names[0]);
-                	}
+                    FileDialog dialog = new FileDialog(getShell(), descriptor.getAdvice() == Advice.SAVE ? SWT.SAVE
+                                    : SWT.OPEN);
+                    dialog.setText(Messages.FileOpenDialogEditor_ChooseFile);
+
+                    if (lastDirectory != null && lastDirectory.length() > 0)
+                        dialog.setFilterPath(lastDirectory);
+                    else
+                        dialog.setFilterPath(System.getProperty("user.home")); //$NON-NLS-1$
+
+                    dialog.open();
+                    String[] names = dialog.getFileNames();
+                    if (names != null && names.length > 0)
+                    {
+                        final String filterPath = dialog.getFilterPath();
+                        prefs.setValue(LAST_DIRECTORY_KEY, filterPath);
+
+                        text.setText(filterPath + File.separator + names[0]);
+                    }
                 }
-                	
-                
+
             }
 
         });
