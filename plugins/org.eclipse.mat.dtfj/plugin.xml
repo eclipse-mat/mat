@@ -44,8 +44,9 @@
    <extension
          point="org.eclipse.ui.preferencePages">
       <page
+            category="org.eclipse.mat.ui.Preferences"
             class="org.eclipse.mat.dtfj.DTFJPreferencePage"
-            id="org.eclipse.mat.DTFJPreferences"
+            id="org.eclipse.mat.dtfj.DTFJPreferences"
             name="%dtfjPreferenceTitle">
       </page>
    </extension>
