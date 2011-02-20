@@ -357,7 +357,13 @@ public class Messages extends NLS
 
 
 
-	static
+	public static String UIPreferencePage_HideGettingStartedWizard;
+    public static String UIPreferencePage_KeepUnreachableObjects;
+    public static String UIPreferencePage_PreferencesSubtitle;
+
+
+
+    static
     {
         // initialize resource bundle
         NLS.initializeMessages(BUNDLE_NAME, Messages.class);

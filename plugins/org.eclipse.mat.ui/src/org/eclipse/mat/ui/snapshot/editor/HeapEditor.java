@@ -20,8 +20,8 @@ import java.util.Set;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -290,7 +290,7 @@ public class HeapEditor extends MultiPaneEditor implements ISelectionProvider
         updateToolbar();
 
         // show getting started wizard if user did not hide it
-        Preferences prefs = MemoryAnalyserPlugin.getDefault().getPluginPreferences();
+        IPreferenceStore prefs = MemoryAnalyserPlugin.getDefault().getPreferenceStore();
         boolean hideWizard = prefs.getBoolean(GettingStartedWizard.HIDE_WIZARD_KEY);
 
         if (!hideWizard)

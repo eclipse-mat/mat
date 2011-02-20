@@ -12,8 +12,8 @@ package org.eclipse.mat.ui.actions;
 
 import java.io.File;
 
-import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.registry.Converters;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
@@ -47,7 +47,7 @@ public class RunExternalReportAction extends Action
         dialog.setFilterExtensions(new String[] { "*.xml" });//$NON-NLS-1$
         dialog.setFilterNames(new String[] { Messages.RunExternalReportAction_ReportDefinitions });
 
-        Preferences prefs = MemoryAnalyserPlugin.getDefault().getPluginPreferences();
+        IPreferenceStore prefs = MemoryAnalyserPlugin.getDefault().getPreferenceStore();
         String lastDirectory = prefs.getString(LAST_DIRECTORY_KEY);
         if (lastDirectory != null && lastDirectory.length() > 0)
             dialog.setFilterPath(lastDirectory);

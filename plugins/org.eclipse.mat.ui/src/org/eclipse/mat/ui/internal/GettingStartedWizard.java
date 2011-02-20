@@ -15,11 +15,11 @@ import java.io.FilenameFilter;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.layout.TableColumnLayout;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -87,7 +87,7 @@ public class GettingStartedWizard extends Wizard
     @Override
     public boolean performFinish()
     {
-        Preferences prefs = MemoryAnalyserPlugin.getDefault().getPluginPreferences();
+        IPreferenceStore prefs = MemoryAnalyserPlugin.getDefault().getPreferenceStore();
         prefs.setValue(HIDE_WIZARD_KEY, !choicePage.askAgain.getSelection());
 
         if (action != null)
@@ -99,7 +99,7 @@ public class GettingStartedWizard extends Wizard
     @Override
     public boolean performCancel()
     {
-        Preferences prefs = MemoryAnalyserPlugin.getDefault().getPluginPreferences();
+        IPreferenceStore prefs = MemoryAnalyserPlugin.getDefault().getPreferenceStore();
         prefs.setValue(HIDE_WIZARD_KEY, !choicePage.askAgain.getSelection());
 
         return true;
@@ -170,7 +170,7 @@ public class GettingStartedWizard extends Wizard
             askAgain.setText(Messages.GettingStartedWizard_ShowThisDialog);
             askAgain.setFont(JFaceResources.getFontRegistry().get(JFaceResources.DIALOG_FONT));
 
-            Preferences prefs = MemoryAnalyserPlugin.getDefault().getPluginPreferences();
+            IPreferenceStore prefs = MemoryAnalyserPlugin.getDefault().getPreferenceStore();
             askAgain.setSelection(!prefs.getBoolean(HIDE_WIZARD_KEY));
 
             setControl(composite);

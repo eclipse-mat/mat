@@ -11,12 +11,14 @@
 package org.eclipse.mat.ui.rcp.actions;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.preference.IPreferenceNode;
 import org.eclipse.jface.preference.PreferenceDialog;
 import org.eclipse.jface.preference.PreferenceManager;
 import org.eclipse.jface.preference.PreferenceNode;
@@ -51,8 +53,28 @@ public class OpenPreferenceAction extends Action
             reg = new PreferenceRegistry();
 
         PreferenceManager manager = new PreferenceManager('/');
+        // Recreate tree structure
+        HashMap<String, Node>nodes = new HashMap<String, Node>();
         for (Node node : reg.delegates())
-            manager.addToRoot(node);
+        {
+            node.subNode = false;
+            for (IPreferenceNode subNode : node.getSubNodes())
+                node.remove(subNode.getId());
+            nodes.put(node.getId(), node);
+        }
+        for (Node node : reg.delegates())
+        {
+            if (nodes.containsKey(node.getCategory()))
+            {
+                nodes.get(node.getCategory()).add(node);
+                node.subNode = true;
+            }
+        }
+        for (Node node : nodes.values())
+        {
+            if (!node.subNode)
+                manager.addToRoot(node);
+        }
 
         PreferenceDialog dialog = new PreferenceDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
                         manager);
@@ -62,6 +84,7 @@ public class OpenPreferenceAction extends Action
     private class Node extends PreferenceNode
     {
         private IConfigurationElement configElement;
+        private boolean subNode;
 
         public Node(String id, IConfigurationElement configurationElement)
         {
@@ -72,6 +95,11 @@ public class OpenPreferenceAction extends Action
         public String getLabelText()
         {
             return configElement.getAttribute("name"); //$NON-NLS-1$
+        }
+
+        public String getCategory()
+        {
+            return configElement.getAttribute("category"); //$NON-NLS-1$
         }
 
         public void createPage()

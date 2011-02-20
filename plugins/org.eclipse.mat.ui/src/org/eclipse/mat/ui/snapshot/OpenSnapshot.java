@@ -23,10 +23,10 @@ import java.util.regex.Pattern;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jface.dialogs.IInputValidator;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.mat.snapshot.SnapshotFactory;
 import org.eclipse.mat.snapshot.SnapshotFormat;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
@@ -49,7 +49,7 @@ public class OpenSnapshot
 
         public boolean go(Shell shell)
         {
-            Preferences prefs = MemoryAnalyserPlugin.getDefault().getPluginPreferences();
+            IPreferenceStore prefs = MemoryAnalyserPlugin.getDefault().getPreferenceStore();
             String lastDirectory = prefs.getString(LAST_DIRECTORY_KEY);
 
             FileDialog dialog = new FileDialog(shell, SWT.OPEN | SWT.MULTI);
