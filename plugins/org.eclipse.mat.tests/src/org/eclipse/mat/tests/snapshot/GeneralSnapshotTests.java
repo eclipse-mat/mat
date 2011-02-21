@@ -21,6 +21,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.snapshot.ISnapshot;
@@ -40,6 +42,7 @@ import org.junit.runners.Parameterized.Parameters;
 @RunWith(value = Parameterized.class)
 public class GeneralSnapshotTests
 {
+    String hasMethods;
 
     @Parameters
     public static Collection<Object[]> data()
@@ -51,7 +54,9 @@ public class GeneralSnapshotTests
             {TestSnapshots.IBM_JDK6_32BIT_JAVA},
             {TestSnapshots.IBM_JDK6_32BIT_HEAP_AND_JAVA},
             {TestSnapshots.IBM_JDK6_32BIT_SYSTEM},
-            {"methods"},
+            {"allMethods"},
+            {"runningMethods"},
+            {"noMethods"},
             {TestSnapshots.IBM_JDK142_32BIT_HEAP},
             {TestSnapshots.IBM_JDK142_32BIT_JAVA},
             {TestSnapshots.IBM_JDK142_32BIT_HEAP_AND_JAVA},
@@ -61,8 +66,14 @@ public class GeneralSnapshotTests
 
     public GeneralSnapshotTests(String snapshotname)
     {
-        if (snapshotname.equals("methods")) {
-            snapshot = snapshot2(TestSnapshots.IBM_JDK6_32BIT_SYSTEM, true);
+        if (snapshotname.equals("allMethods")) {
+            snapshot = snapshot2(TestSnapshots.IBM_JDK6_32BIT_SYSTEM, "all");
+        }
+        else if (snapshotname.equals("runningMethods")) {
+            snapshot = snapshot2(TestSnapshots.IBM_JDK6_32BIT_SYSTEM, "running");
+        }
+        else if (snapshotname.equals("noMethods")) {
+            snapshot = snapshot2(TestSnapshots.IBM_JDK6_32BIT_SYSTEM, "none");
         }
         else
         {
@@ -73,18 +84,23 @@ public class GeneralSnapshotTests
     /**
      * Create a snapshot with the methods as classes option
      */
-    public ISnapshot snapshot2(String snapshotname, boolean includeMethods)
+    public ISnapshot snapshot2(String snapshotname, String includeMethods)
     {
-        String prop = "mat.methods_as_classes";
-        String mt = System.getProperty(prop);
+        final String dtfjPlugin = "org.eclipse.mat.dtfj";
+        final String key = "methodsAsClasses";
+        IEclipsePreferences preferences = new InstanceScope().getNode(dtfjPlugin);
+        String prev = preferences.get(key, null);
+        preferences.put(key, includeMethods);
         try {
-            System.setProperty(prop, Boolean.toString(includeMethods));
-            return TestSnapshots.getSnapshot(snapshotname, true);
+            // Tag the snapshot name so we don't end up with the wrong version
+            ISnapshot ret = TestSnapshots.getSnapshot(snapshotname+";#"+includeMethods, false);
+            hasMethods = includeMethods;
+            return ret;
         } finally {
-            if (mt != null) 
-                System.setProperty(prop, mt);
+            if (prev != null)
+                preferences.put(key, prev);
             else
-                System.clearProperty(prop);
+                preferences.remove(key);
         }
     }
 
@@ -177,16 +193,20 @@ public class GeneralSnapshotTests
                     assertEquals("snapshot object heap size / object heap size "+obj, n, n2);
                 }
                 total += n;
-                if (prev >= 0) {
-                    if (prev != n && !cls.isArrayType() && cls.getClazz() != cls)
+                if (prev >= 0)
+                {
+                    if (prev != n && !cls.isArrayType() && !(obj instanceof IClass))
                     {
                         // This might not be a problem as variable sized plain objects
                         // are now permitted using the array index to record the alternative sizes.
                         // However, the current dumps don't appear to have them, so test for it here.
                         // Future dumps may make this test fail.
-                        assertEquals("Variable size plain objects "+cls, prev, n);
+                        assertEquals("Variable size plain objects " + cls + " " + obj, prev, n);
                     }
-                } else {
+                }
+                else if (!(obj instanceof IClass))
+                {
+                    // IClass objects are variably sized, so don't track those
                     prev = n;
                 }
             }
@@ -202,6 +222,37 @@ public class GeneralSnapshotTests
         query.setArgument("aggressive", true);
         IResult result = query.execute(new VoidProgressListener());
         assertTrue(result != null);
+    }
+
+    @Test
+    public void testMethods() throws SnapshotException
+    {
+        int methods = 0;
+        int methodsWithObjects = 0;
+        for (IClass cls : snapshot.getClasses())
+        {
+            if (cls.getName().contains("("))
+            {
+                ++methods;
+                if (cls.getObjectIds().length > 0)
+                    ++methodsWithObjects;
+            }
+        }
+        if ("all".equals(hasMethods))
+        {
+            assertTrue(methods > 0);
+            assertTrue(methods > methodsWithObjects);
+        }
+        else if ("running".equals(hasMethods))
+        {
+            assertTrue(methods > 0);
+            assertEquals(methods, methodsWithObjects);
+        }
+        else
+        {
+            assertEquals(0, methodsWithObjects);
+            assertEquals(0, methods);
+        }
     }
     
     /**

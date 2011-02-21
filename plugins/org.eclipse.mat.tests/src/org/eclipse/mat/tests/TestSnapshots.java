@@ -114,6 +114,9 @@ public class TestSnapshots
             // Extra dump files
             for (int i = 1; i < names.length; ++i)
             {
+                // Identifier used to create a unique dump
+                if (names[i].startsWith("#"))
+                    continue;
                 File extraDump = getResourceFile(names[i]);
                 assert extraDump != null : "Unable to find snapshot resource: " + names[i];
                 assert extraDump.exists();
