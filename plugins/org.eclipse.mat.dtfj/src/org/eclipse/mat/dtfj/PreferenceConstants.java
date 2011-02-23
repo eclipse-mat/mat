@@ -20,6 +20,7 @@ public class PreferenceConstants
     public static final String NO_METHODS_AS_CLASSES = "none"; //$NON-NLS-1$
     public static final String RUNNING_METHODS_AS_CLASSES = "running"; //$NON-NLS-1$
     public static final String ALL_METHODS_AS_CLASSES = "all"; //$NON-NLS-1$
+    public static final String FRAMES_ONLY = "frames"; //$NON-NLS-1$
 
     /** Runtime id for use when a dump contains more than one Java runtime */
     public static final String P_RUNTIMEID = "runtimeId"; //$NON-NLS-1$

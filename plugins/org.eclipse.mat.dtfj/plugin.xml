@@ -56,4 +56,10 @@
             class="org.eclipse.mat.dtfj.PreferenceInitializer">
       </initializer>
    </extension>
+   <extension
+         point="org.eclipse.mat.api.nameResolver">
+      <resolver
+            impl="org.eclipse.mat.dtfj.StackFrameResolver">
+      </resolver>
+   </extension>
 </plugin>

@@ -32,6 +32,7 @@ import org.eclipse.mat.snapshot.SnapshotInfo;
 import org.eclipse.mat.snapshot.model.Field;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.ObjectReference;
+import org.eclipse.mat.util.VoidProgressListener;
 
 import com.ibm.dtfj.image.CorruptData;
 import com.ibm.dtfj.image.CorruptDataException;
@@ -47,6 +48,7 @@ import com.ibm.dtfj.java.JavaClassLoader;
 import com.ibm.dtfj.java.JavaField;
 import com.ibm.dtfj.java.JavaHeap;
 import com.ibm.dtfj.java.JavaLocation;
+import com.ibm.dtfj.java.JavaMethod;
 import com.ibm.dtfj.java.JavaMonitor;
 import com.ibm.dtfj.java.JavaObject;
 import com.ibm.dtfj.java.JavaRuntime;
@@ -167,7 +169,7 @@ public class DTFJHeapObjectReader implements IObjectReader
                 {
                     // See if the class looks like a method
                     ClassImpl cls = (ClassImpl) snapshot.getClassOf(objectId);
-                    if (cls.getName().contains(DTFJIndexBuilder.METHOD_NAME))
+                    if (cls.getName().contains(DTFJIndexBuilder.METHOD_NAME_SIG) || cls.getName().equals(DTFJIndexBuilder.STACK_FRAME))
                     {
                         // Get the special method/stack frame data
                         IObject ret = createObject2(snapshot, objectId, addr, cls);
@@ -251,10 +253,30 @@ public class DTFJHeapObjectReader implements IObjectReader
                         // These fields should match those in the method
                         // class
                         List<Field> fields = new ArrayList<Field>();
+                        if (!cls.getName().contains(DTFJIndexBuilder.METHOD_NAME_SIG))
+                        {
+                            try
+                            {
+                                JavaLocation jl = jsf.getLocation();
+                                JavaMethod jm = jl.getMethod();
+                                JavaClass jc = jm.getDeclaringClass();
+                                String name = jc.getName().replace('/', '.');
+                                String methodName = name
+                                                + DTFJIndexBuilder.METHOD_NAME_PREFIX
+                                                + DTFJIndexBuilder.getMethodName(jl.getMethod(),
+                                                                new VoidProgressListener());
+                                Field f = new Field(DTFJIndexBuilder.METHOD_NAME, IObject.Type.OBJECT, methodName);
+                                fields.add(f);
+                            }
+                            catch (DataUnavailable e)
+                            {}
+                            catch (CorruptDataException e)
+                            {}
+                        }
                         try
                         {
                             JavaLocation jl = jsf.getLocation();
-                            Field f = new Field("lineNumber", IObject.Type.INT, Integer.valueOf(jl.getLineNumber())); //$NON-NLS-1$
+                            Field f = new Field(DTFJIndexBuilder.FILE_NAME, IObject.Type.OBJECT, jl.getFilename());
                             fields.add(f);
                         }
                         catch (DataUnavailable e)
@@ -264,8 +286,17 @@ public class DTFJHeapObjectReader implements IObjectReader
                         try
                         {
                             JavaLocation jl = jsf.getLocation();
-                            Field f = new Field("compilationLevel", IObject.Type.INT, Integer.valueOf(jl //$NON-NLS-1$
-                                            .getCompilationLevel()));
+                            Field f = new Field(DTFJIndexBuilder.LINE_NUMBER, IObject.Type.INT, Integer.valueOf(jl.getLineNumber()));
+                            fields.add(f);
+                        }
+                        catch (DataUnavailable e)
+                        {}
+                        catch (CorruptDataException e)
+                        {}
+                        try
+                        {
+                            JavaLocation jl = jsf.getLocation();
+                            Field f = new Field(DTFJIndexBuilder.COMPILATION_LEVEL, IObject.Type.INT, Integer.valueOf(jl.getCompilationLevel()));
                             fields.add(f);
                         }
                         catch (ClassCastException e)
@@ -277,8 +308,7 @@ public class DTFJHeapObjectReader implements IObjectReader
                         try
                         {
                             JavaLocation jl = jsf.getLocation();
-                            Field f = new Field("locationAddress", IObject.Type.LONG, Long.valueOf(jl //$NON-NLS-1$
-                                            .getAddress().getAddress()));
+                            Field f = new Field(DTFJIndexBuilder.LOCATION_ADDRESS, IObject.Type.LONG, Long.valueOf(jl.getAddress().getAddress()));
                             fields.add(f);
                         }
                         catch (ClassCastException e)
@@ -287,9 +317,9 @@ public class DTFJHeapObjectReader implements IObjectReader
                         }
                         catch (CorruptDataException e)
                         {}
-                        Field f = new Field("frameNumber", IObject.Type.INT, Integer.valueOf(depth)); //$NON-NLS-1$
+                        Field f = new Field(DTFJIndexBuilder.FRAME_NUMBER, IObject.Type.INT, Integer.valueOf(depth));
                         fields.add(f);
-                        f = new Field("stackDepth", IObject.Type.INT, Integer.valueOf(totalDepth - depth)); //$NON-NLS-1$
+                        f = new Field(DTFJIndexBuilder.STACK_DEPTH, IObject.Type.INT, Integer.valueOf(totalDepth - depth));
                         fields.add(f);
                         InstanceImpl inst = new InstanceImpl(objectId, addr, cls, fields);
                         return inst;

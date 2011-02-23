@@ -102,6 +102,33 @@ import com.ibm.dtfj.runtime.ManagedRuntime;
  */
 public class DTFJIndexBuilder implements IIndexBuilder
 {
+    /*
+     * Names used as pseudo-class names
+     * Not translatable 
+     */
+    static final String METHOD = "<method>"; //$NON-NLS-1$
+    private static final String METHOD_TYPE = "<method type>"; //$NON-NLS-1$
+    static final String STACK_FRAME = "<stack frame>"; //$NON-NLS-1$
+    private static final String NATIVE_MEMORY = "<native memory>"; //$NON-NLS-1$
+    private static final String NATIVE_MEMORY_TYPE = "<native memory type>"; //$NON-NLS-1$
+    /*
+     * Field names for pseudo classes.
+     * Not translatable 
+     */
+    static final String STACK_DEPTH = "stackDepth"; //$NON-NLS-1$
+    static final String FRAME_NUMBER = "frameNumber"; //$NON-NLS-1$
+    static final String LOCATION_ADDRESS = "locationAddress"; //$NON-NLS-1$
+    static final String COMPILATION_LEVEL = "compilationLevel"; //$NON-NLS-1$
+    static final String LINE_NUMBER = "lineNumber"; //$NON-NLS-1$
+    private static final String DECLARING_CLASS = "declaringClass"; //$NON-NLS-1$
+    static final String METHOD_NAME = "methodName"; //$NON-NLS-1$
+    static final String FILE_NAME = "fileName"; //$NON-NLS-1$
+
+    /** Separator between the package/class name and the method name */
+    static final String METHOD_NAME_PREFIX = "."; //$NON-NLS-1$
+    /** Unique string only found in method names */
+    static final String METHOD_NAME_SIG = "("; //$NON-NLS-1$
+
     private static final String PLUGIN_ID = InitDTFJ.getDefault().getBundle().getSymbolicName();
     /** The key to store the runtime id out of the dump */
     static final String RUNTIME_ID_KEY = "$runtimeId"; //$NON-NLS-1$
@@ -151,18 +178,15 @@ public class DTFJIndexBuilder implements IIndexBuilder
     private static final boolean useSystemClassRoots = true;
     /** Whether to skip heap roots marked marked as weak/soft reference etc. */
     private static final boolean skipWeakRoots = true;
+    private final String methodsAsClassesPref = Platform.getPreferencesService().getString(PLUGIN_ID,
+                    PreferenceConstants.P_METHODS, "", null); //$NON-NLS-1$
     /** Whether to represent all methods as pseudo-classes */
-    private final boolean getExtraInfo2 = PreferenceConstants.ALL_METHODS_AS_CLASSES
-                    .equals(Platform.getPreferencesService().getString(PLUGIN_ID,
-                                    PreferenceConstants.P_METHODS, "", null)); //$NON-NLS-1$
+    private final boolean getExtraInfo2 = PreferenceConstants.ALL_METHODS_AS_CLASSES.equals(methodsAsClassesPref);
+    /** Whether to represent only the stack frames as pseudo-objects */
+    private final boolean getExtraInfo3 = PreferenceConstants.FRAMES_ONLY.equals(methodsAsClassesPref);
     /** Whether to represent stack frames and methods as objects and classes */
-    private final boolean getExtraInfo = getExtraInfo2
-                    || PreferenceConstants.RUNNING_METHODS_AS_CLASSES.equals(Platform.getPreferencesService()
-                                    .getString(PLUGIN_ID, PreferenceConstants.P_METHODS, "", null)); //$NON-NLS-1$
-    /** Separator between the package/class name and the method name */
-    private static final String METHOD_NAME_PREFIX = "."; //$NON-NLS-1$
-    /** Unique string only found in method names */
-    static final String METHOD_NAME = "("; //$NON-NLS-1$
+    private final boolean getExtraInfo = getExtraInfo2 || getExtraInfo3
+                    || PreferenceConstants.RUNNING_METHODS_AS_CLASSES.equals(methodsAsClassesPref);
     /** name of java.lang.Class */
     private static final String JAVA_LANG_CLASS ="java/lang/Class"; //$NON-NLS-1$
     /** name of java.lang.ClassLoader */
@@ -932,16 +956,43 @@ public class DTFJIndexBuilder implements IIndexBuilder
                                 long methodAddress = getMethodAddress(jm, listener);
                                 if (!allFrames.containsKey(frameAddress))
                                 {
-                                    allMethods.add(jm);
+                                    if (!getExtraInfo3)
+                                        allMethods.add(jm);
                                     allFrames.put(frameAddress, methodAddress);
                                 }
                                 else
                                 {
+                                    String newMethodName;
+                                    try
+                                    {
+                                        newMethodName = getMethodName(jm, listener);
+                                    }
+                                    catch (CorruptDataException e)
+                                    {
+                                        newMethodName = format(methodAddress);
+                                    }
+                                    String oldMethodName;
+                                    long oldMethodAddress = allFrames.get(frameAddress);
+                                    try
+                                    {
+                                        JavaMethod oldJm = methodAddresses.get(allFrames.get(frameAddress));
+                                        if (oldJm != null)
+                                        {
+                                            oldMethodName = getMethodName(oldJm, listener);
+                                        }
+                                        else
+                                        {
+                                            oldMethodName = format(oldMethodAddress);
+                                        }
+                                    }
+                                    catch (CorruptDataException e)
+                                    {
+                                        oldMethodName = format(allFrames.get(oldMethodAddress));
+                                    }
                                     listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
                                                     Messages.DTFJIndexBuilder_DuplicateJavaStackFrame, frameId,
-                                                    format(frameAddress), format(methodAddress), format(allFrames
-                                                                    .get(frameAddress)), format(threadAddress)),
-                                                                    null);
+                                                    format(frameAddress), newMethodName, oldMethodName,
+                                                    format(threadAddress)), null);
                                 }
                             }
                             else
@@ -1060,6 +1111,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         long nativeTypeAddr = 0;
         long methodTypeAddr = 0;
         long methodAddr = 0;
+        long stackFrameAddr = 0;
         if (getExtraInfo)
         {
             // Dummy address for the native memory and method pseudo-type
@@ -1069,18 +1121,27 @@ public class DTFJIndexBuilder implements IIndexBuilder
             nativeTypeAddr = nextClassAddress;
             indexToAddress.add(nativeTypeAddr);
             nextClassAddress += 8;
-            methodTypeAddr = nextClassAddress;
-            indexToAddress.add(methodTypeAddr);
-            nextClassAddress += 8;
-            methodAddr = nextClassAddress;
-            indexToAddress.add(methodAddr);
-            nextClassAddress += 8;
-            
-            // Extra objects when dealing with stack frames as objects
-            // Add the methods
-            for (JavaMethod jm : allMethods)
+            if (getExtraInfo3)
             {
-                indexToAddress.add(getMethodAddress(jm, listener));
+                stackFrameAddr = nextClassAddress;
+                indexToAddress.add(stackFrameAddr);
+                nextClassAddress += 8;
+            }
+            else
+            {
+                methodTypeAddr = nextClassAddress;
+                indexToAddress.add(methodTypeAddr);
+                nextClassAddress += 8;
+                methodAddr = nextClassAddress;
+                indexToAddress.add(methodAddr);
+                nextClassAddress += 8;
+
+                // Extra objects when dealing with stack frames as objects
+                // Add the methods
+                for (JavaMethod jm : allMethods)
+                {
+                    indexToAddress.add(getMethodAddress(jm, listener));
+                }
             }
             // Add the frames
             for (long frame : allFrames.keySet())
@@ -1169,9 +1230,18 @@ public class DTFJIndexBuilder implements IIndexBuilder
 
         int nClasses = allClasses.size();
 
+        int pseudoClasses;
         if (getExtraInfo)
         {
-            nClasses += allMethods.size() + 1; // For method pseudo-type
+            if (getExtraInfo3)
+                pseudoClasses = 3;
+            else
+                pseudoClasses = 4;
+            nClasses += allMethods.size() + pseudoClasses; // For method pseudo-types
+        }
+        else
+        {
+            pseudoClasses = 0;
         }
 
         // Make the ID to address array ready for reverse lookups
@@ -1185,7 +1255,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         {
             listener.sendUserMessage(Severity.INFO, MessageFormat.format(
                             Messages.DTFJIndexBuilder_FoundIdentifiersObjectsClassesMethods, indexToAddress.size(),
-                            indexToAddress.size() - nClasses - allFrames.size(), allFrames.size(), nClasses - allMethods.size() - 1, allMethods.size()), null);
+                            indexToAddress.size() - nClasses - allFrames.size(), allFrames.size(), nClasses - allMethods.size() - pseudoClasses, allMethods.size()), null);
         }
         else
         {
@@ -1333,20 +1403,41 @@ public class DTFJIndexBuilder implements IIndexBuilder
 
         if (getExtraInfo)
         {
-            ClassImpl nativeType = genDummyType("<native memory type>", nativeTypeAddr, nativeAddr, null, idToClass, bootLoaderAddress, listener); //$NON-NLS-1$
-            ClassImpl nativeMemory = genDummyType("<native memory>", nativeAddr, 0L, nativeType, idToClass, bootLoaderAddress, listener); //$NON-NLS-1$
-            ClassImpl methodType = genDummyType("<method type>", methodTypeAddr, nativeTypeAddr, nativeType, idToClass, bootLoaderAddress, listener); //$NON-NLS-1$
-            ClassImpl method = genDummyType("<method>", methodAddr, nativeAddr, methodType, idToClass, bootLoaderAddress, listener); //$NON-NLS-1$
-            for (JavaMethod jm : allMethods)
+            ClassImpl nativeType = genDummyType(NATIVE_MEMORY_TYPE, nativeTypeAddr, nativeAddr, null, new FieldDescriptor[0], idToClass, bootLoaderAddress, listener);
+            ClassImpl nativeMemory = genDummyType(NATIVE_MEMORY, nativeAddr, 0L, nativeType, new FieldDescriptor[0], idToClass, bootLoaderAddress, listener);
+            if (getExtraInfo3)
             {
-                try
+                FieldDescriptor[] fld = new FieldDescriptor[] { new FieldDescriptor(LINE_NUMBER, IObject.Type.INT),
+                                new FieldDescriptor(COMPILATION_LEVEL, IObject.Type.INT),
+                                new FieldDescriptor(LOCATION_ADDRESS, IObject.Type.LONG),
+                                new FieldDescriptor(FILE_NAME, IObject.Type.OBJECT),
+                                new FieldDescriptor(METHOD_NAME, IObject.Type.OBJECT),
+                                new FieldDescriptor(FRAME_NUMBER, IObject.Type.INT),
+                                new FieldDescriptor(STACK_DEPTH, IObject.Type.INT) };
+                ClassImpl stackFrame = genDummyType(STACK_FRAME, stackFrameAddr, nativeAddr, nativeType, fld, idToClass, bootLoaderAddress, listener);
+            }
+            else
+            {
+                FieldDescriptor[] fld = new FieldDescriptor[] { new FieldDescriptor(LINE_NUMBER, IObject.Type.INT),
+                                new FieldDescriptor(COMPILATION_LEVEL, IObject.Type.INT),
+                                new FieldDescriptor(LOCATION_ADDRESS, IObject.Type.LONG),
+                                new FieldDescriptor(FILE_NAME, IObject.Type.OBJECT),
+                                new FieldDescriptor(FRAME_NUMBER, IObject.Type.INT),
+                                new FieldDescriptor(STACK_DEPTH, IObject.Type.INT) };
+                ClassImpl methodType = genDummyType(METHOD_TYPE, methodTypeAddr, nativeTypeAddr, nativeType, new FieldDescriptor[0], idToClass, bootLoaderAddress, listener);
+                ClassImpl method = genDummyType(METHOD, methodAddr, nativeAddr, methodType, fld, idToClass, bootLoaderAddress, listener);
+
+                for (JavaMethod jm : allMethods)
                 {
-                    ClassImpl ci = genClass(jm, methodAddr, methodType, idToClass, bootLoaderAddress, listener);
-                }
-                catch (CorruptDataException e)
-                {
-                    listener.sendUserMessage(Severity.ERROR,
-                                    Messages.DTFJIndexBuilder_ProblemBuildingClassObjectForMethod, e);
+                    try
+                    {
+                        ClassImpl ci = genClass(jm, methodAddr, methodType, idToClass, bootLoaderAddress, listener);
+                    }
+                    catch (CorruptDataException e)
+                    {
+                        listener.sendUserMessage(Severity.ERROR,
+                                        Messages.DTFJIndexBuilder_ProblemBuildingClassObjectForMethod, e);
+                    }
                 }
             }
         }
@@ -1502,16 +1593,23 @@ public class DTFJIndexBuilder implements IIndexBuilder
 
         if (getExtraInfo)
         {
-            // fix up outbound refs for methods
-            for (JavaMethod m2 : allMethods)
-            {
-                long claddr = getMethodAddress(m2, listener);
-                addDummyTypeRefs(claddr, refd);
-            }
             addDummyTypeRefs(nativeAddr, refd);
             addDummyTypeRefs(nativeTypeAddr, refd);
-            addDummyTypeRefs(methodTypeAddr, refd);
-            addDummyTypeRefs(methodAddr, refd);
+            if (getExtraInfo3)
+            {
+                addDummyTypeRefs(stackFrameAddr, refd);
+            }
+            else
+            {
+                // fix up outbound refs for methods
+                for (JavaMethod m2 : allMethods)
+                {
+                    long claddr = getMethodAddress(m2, listener);
+                    addDummyTypeRefs(claddr, refd);
+                }
+                addDummyTypeRefs(methodTypeAddr, refd);
+                addDummyTypeRefs(methodAddr, refd);
+            }
         }
 
         if (getExtraInfo)
@@ -1520,7 +1618,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             for (long addr : allFrames.keySet())
             {
                 int objId = indexToAddress.reverse(addr);
-                long frameTypeAddr = allFrames.get(addr);
+                long frameTypeAddr = getExtraInfo3 ? stackFrameAddr : allFrames.get(addr);
                 int clsId = indexToAddress.reverse(frameTypeAddr);
                 objectToClass.set(objId, clsId);
             }
@@ -1944,7 +2042,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
 
     /**
      * Get the address of a stack frame
-     * If the frame address isn't found then use the previous frame address + 8
+     * If the frame address isn't found then use the previous frame address + pointer size rounded up to 4 bytes
      * @param jf
      * @param prevFrameAddress
      * @param pointerSize in bits
@@ -1962,8 +2060,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
             frameAddress = 0;
         }
         if (frameAddress == 0 && prevFrameAddress != 0)
-        {    
-            frameAddress = prevFrameAddress + 8;
+        {  
+            frameAddress = prevFrameAddress + (pointerSize + 31) / 32 * 4;
         }
         return frameAddress;
     }
@@ -2561,9 +2659,13 @@ public class DTFJIndexBuilder implements IIndexBuilder
      */
     private long setFrameSize(int frameId, long size)
     {
+        // If we are just interest in frames for local variables
+        // then having sizes on the stack, not heap, confuses the overall picture
+        if (getExtraInfo3)
+            return size;
         int clsId = objectToClass.get(frameId);
         ClassImpl cls = idToClass.get(clsId);
-        if (cls != null && cls.getName().contains(METHOD_NAME))
+        if (cls != null && cls.getName().contains(METHOD_NAME_SIG))
         {
             long prevSize = cls.getHeapSizePerInstance();
 
@@ -3942,7 +4044,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             if (!cache.containsKey(load))
                 cache.put(load, new ArrayLong());
             ArrayLong classes = cache.get(load);
-            if (!(getExtraInfo2 && ci.getName().contains(METHOD_NAME)))
+            if (!(getExtraInfo2 && ci.getName().contains(METHOD_NAME_SIG)))
             {
                 // Skip method classes - they are also found via the declaring
                 // class
@@ -6539,7 +6641,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         {
             jc = m.getDeclaringClass();
             ObjectReference val = new ObjectReference(null, getClassAddress(jc, listener));
-            statics = new Field[] { new Field("declaring_class", IObject.Type.OBJECT, val) }; //$NON-NLS-1$
+            statics = new Field[] { new Field(DECLARING_CLASS, IObject.Type.OBJECT, val) };
             // Set up class loaders
             JavaClassLoader load = getClassLoader(jc, listener);
             loader = getLoaderAddress(load, bootLoaderAddress);
@@ -6579,12 +6681,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             superId = -1;
         }
         
-        FieldDescriptor[] fld = new FieldDescriptor[] { new FieldDescriptor("lineNumber", IObject.Type.INT), //$NON-NLS-1$
-                        new FieldDescriptor("compilationLevel", IObject.Type.INT), //$NON-NLS-1$
-                        new FieldDescriptor("locationAddress", IObject.Type.LONG), //$NON-NLS-1$
-                        new FieldDescriptor("frameNumber", IObject.Type.INT), //$NON-NLS-1$
-                        new FieldDescriptor("stackDepth", IObject.Type.INT) }; //$NON-NLS-1$
-        ClassImpl ci = new ClassImpl(claddr, name, sup, loader, statics, fld);
+        ClassImpl ci = new ClassImpl(claddr, name, sup, loader, statics, new FieldDescriptor[0]);
         debugPrint("building method class " + name + " " + format(claddr)); //$NON-NLS-1$ //$NON-NLS-2$
         // Fix the indexes
         final long claddr2 = ci.getObjectAddress();
@@ -6639,19 +6736,20 @@ public class DTFJIndexBuilder implements IIndexBuilder
         jlc.addInstance(size);
         return ci;
     }
-    
+
     /**
      * Generate a pseudo-type for methods
      * @param cname name of the pseudo-class
      * @param claddr A dummy address
      * @param superType the super class address
      * @param type The type of this type (or null to use itself)
+     * @param fields the field descriptors for this type
      * @param hm
      * @param bootLoaderAddress
      * @param listener
      * @return
      */
-    private ClassImpl genDummyType(String cname, long claddr, long superType, ClassImpl type, HashMapIntObject<ClassImpl> hm, long bootLoaderAddress, IProgressListener listener)
+    private ClassImpl genDummyType(String cname, long claddr, long superType, ClassImpl type, FieldDescriptor[] fields, HashMapIntObject<ClassImpl> hm, long bootLoaderAddress, IProgressListener listener)
     {
         long loader = bootLoaderAddress;
         Field statics[] = new Field[0];
@@ -6705,7 +6803,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         return ci;
     }
 
-    private String getMethodName(JavaMethod meth, IProgressListener listener) throws CorruptDataException
+    static String getMethodName(JavaMethod meth, IProgressListener listener) throws CorruptDataException
     {
         String name = meth.getName();
         try

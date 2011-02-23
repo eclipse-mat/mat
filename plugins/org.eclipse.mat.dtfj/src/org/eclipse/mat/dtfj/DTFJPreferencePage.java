@@ -50,6 +50,7 @@ public class DTFJPreferencePage extends FieldEditorPreferencePage implements IWo
                         1,
                         new String[][] {
                                         { Messages.DTFJPreferencePage_NoMethods, PreferenceConstants.NO_METHODS_AS_CLASSES },
+                                        { Messages.DTFJPreferencePage_OnlyStackFrames, PreferenceConstants.FRAMES_ONLY },
                                         { Messages.DTFJPreferencePage_RunningMethods, PreferenceConstants.RUNNING_METHODS_AS_CLASSES },
                                         { Messages.DTFJPreferencePage_AllMethods, PreferenceConstants.ALL_METHODS_AS_CLASSES } },
                         getFieldEditorParent(), true));

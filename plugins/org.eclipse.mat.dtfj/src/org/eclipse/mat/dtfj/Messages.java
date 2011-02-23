@@ -233,8 +233,14 @@ public class Messages extends NLS
     public static String DTFJPreferencePage_Description;
     public static String DTFJPreferencePage_MethodsAsClasses;
     public static String DTFJPreferencePage_NoMethods;
+    public static String DTFJPreferencePage_OnlyStackFrames;
     public static String DTFJPreferencePage_RunningMethods;
     public static String DTFJPreferencePage_RuntimeID;
+    public static String StackFrameResolver_file;
+    public static String StackFrameResolver_file_line;
+    public static String StackFrameResolver_method;
+    public static String StackFrameResolver_method_file;
+    public static String StackFrameResolver_method_file_line;
     public static String ThreadDetailsResolver_alive;
     public static String ThreadDetailsResolver_blocked_on_monitor_enter;
     public static String ThreadDetailsResolver_DTFJ_Name;
