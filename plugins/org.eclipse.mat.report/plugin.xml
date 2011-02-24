@@ -11,9 +11,9 @@
  -->
 
 <plugin>
-	<extension-point id="query" name="Query" schema="schema/query.exsd"/>
-	<extension-point id="report" name="Report" schema="schema/report.exsd"/>
-	<extension-point id="renderer" name="Query Result Renderer" schema="schema/renderer.exsd"/>
+	<extension-point id="query" name="%extension-point.query.name" schema="schema/query.exsd"/>
+	<extension-point id="report" name="%extension-point.report.name" schema="schema/report.exsd"/>
+	<extension-point id="renderer" name="%extension-point.renderer.name" schema="schema/renderer.exsd"/>
 
 	<extension point="org.eclipse.mat.report.renderer">
 		<renderer impl="org.eclipse.mat.report.internal.CSVOutputter" />
