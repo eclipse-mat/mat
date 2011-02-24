@@ -11,7 +11,7 @@
  -->
 
 <plugin>
-   <extension-point id="enhancer" name="HPROF Enhancement" schema="schema/enhancer.exsd"/>
+   <extension-point id="enhancer" name="%extension-point.enhancer.name" schema="schema/enhancer.exsd"/>
    
    <extension
          id="hprof"
