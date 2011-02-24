@@ -15,7 +15,7 @@
 <plugin>
    <extension
          id="dtfj"
-         name="DTFJ dumps"
+         name="%extension.content.name"
          point="org.eclipse.core.contenttype.contentTypes">
          <content-type
                base-type="org.eclipse.mat.JavaHeapDump"
