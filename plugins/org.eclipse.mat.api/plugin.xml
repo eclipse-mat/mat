@@ -11,13 +11,13 @@
  -->
 
 <plugin>
-	<extension-point id="factory" name="Snapshot Factory" schema="schema/factory.exsd"/>
+	<extension-point id="factory" name="%extension-point.factory.name" schema="schema/factory.exsd"/>
 	
-	<extension-point id="nameResolver" name="Class Specific Name Resolver" schema="schema/nameResolver.exsd"/>
-	<extension-point id="threadResolver" name="Thread Details Resolver" schema="schema/threadResolver.exsd"/>
-	<extension-point id="requestResolver" name="Request Details Resolver" schema="schema/requestResolver.exsd"/>
-	<extension-point id="ticketResolver" name="Trouble Ticket Resolver" schema="schema/ticketResolver.exsd"/>
- <extension-point id="heapDumpProvider" name="Heap Dump Provider" schema="schema/heapDumpProvider.exsd"/>
+	<extension-point id="nameResolver" name="%extension-point.classResolver.name" schema="schema/nameResolver.exsd"/>
+	<extension-point id="threadResolver" name="%extension-point.threadResolver.name" schema="schema/threadResolver.exsd"/>
+	<extension-point id="requestResolver" name="%extension-point.requestResolver.name" schema="schema/requestResolver.exsd"/>
+	<extension-point id="ticketResolver" name="%extension-point.ticketResolver.name" schema="schema/ticketResolver.exsd"/>
+	<extension-point id="heapDumpProvider" name="%extension-point.heapDumpProvider.name" schema="schema/heapDumpProvider.exsd"/>
 	
 	<extension point="org.eclipse.mat.report.query">
 		<!-- internal queries exposed to the UI -->
