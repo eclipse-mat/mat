@@ -70,7 +70,7 @@
 	        class="org.eclipse.mat.ui.compare.CompareBasketView"
 	        icon="icons/compare.gif"
 	        id="org.eclipse.mat.ui.views.CompareBasketView"
-	        name="Compare Basket">
+	        name="%view.name.Compare">
 	    </view>
 	</extension>
 
@@ -149,14 +149,14 @@
 		</actionSet>
 		<actionSet
 			id="org.eclipse.mat.ui.actionSet.openAcquireDialog"
-			label="Acquire Heap Dump" visible="false">
+			label="%actionSet.label.Acquire" visible="false">
 			<action
 				id="org.eclipse.mat.ui.openAcquireDialog"
 				class="org.eclipse.mat.ui.internal.acquire.AcquireSnapshotAction"
 				icon="icons/acquire.gif"
-				label="Acquire Heap Dump ..." menubarPath="file/new.ext" style="push"
+				label="%action.label.Acquire" menubarPath="file/new.ext" style="push"
 				toolbarPath="org.eclipse.ui.workbench.file/new.ext"
-				tooltip="Acquire heap dump from a locally running VM" />
+				tooltip="%action.tooltip.Acquire" />
 		</actionSet>
 	</extension>
 	
@@ -202,7 +202,7 @@
 		</command>
 		<command
 			id="org.eclipse.mat.ui.acquire.HeapDump"
-			name="Acquire Heap Dump">
+			name="%command.name.Acquire">
 		</command>
 	</extension>
 
