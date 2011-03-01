@@ -921,7 +921,10 @@ public class CompareTablesQuery implements IQuery
 
 			if (value == null && firstTableValue instanceof Number) return null;
 
-			if (value instanceof Number && firstTableValue == null) return value;
+			if (value instanceof Number && firstTableValue == null)
+			{
+                return ratio ? null : value;
+			}
 
 			if (value instanceof Number && firstTableValue instanceof Number)
 			{
@@ -953,7 +956,10 @@ public class CompareTablesQuery implements IQuery
 
 			if (value == null && previousTableValue instanceof Number) return null;
 
-			if (value instanceof Number && previousTableValue == null) return value;
+			if (value instanceof Number && previousTableValue == null)
+			{
+                return ratio ? null : value;
+			}
 
 			if (value instanceof Number && previousTableValue instanceof Number)
 			{
