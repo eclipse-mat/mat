@@ -36,7 +36,11 @@ public class CompareTablesPane extends QueryResultPane
 
 	public enum DiffOption
 	{
-		ABSOLUTE(Messages.CompareTablesPane_AbsoluteValues), DIFF_TO_BASE(Messages.CompareTablesPane_DifferenceToBaseTable), DIFF_TO_PREV(Messages.CompareTablesPane_DifferenceToPrecedingTable);
+        ABSOLUTE(Messages.CompareTablesPane_AbsoluteValues), DIFF_TO_BASE(
+                        Messages.CompareTablesPane_DifferenceToBaseTable), DIFF_RATIO_TO_BASE(
+                        Messages.CompareTablesPane_PercentageDifferenceToBaseTable), DIFF_TO_PREV(
+                        Messages.CompareTablesPane_DifferenceToPrecedingTable), DIFF_RATIO_TO_PREV(
+                        Messages.CompareTablesPane_PercentageDifferenceToPrecedingTable);
 
 		String label;
 
@@ -73,6 +77,12 @@ public class CompareTablesPane extends QueryResultPane
 			case DIFF_TO_PREVIOUS:
 				diffOption = DiffOption.DIFF_TO_PREV;
 				break;
+            case DIFF_RATIO_TO_FIRST:
+                diffOption = DiffOption.DIFF_RATIO_TO_BASE;
+                break;
+            case DIFF_RATIO_TO_PREVIOUS:
+                diffOption = DiffOption.DIFF_RATIO_TO_PREV;
+                break;				
 
 			default:
 				break;
@@ -164,6 +174,15 @@ public class CompareTablesPane extends QueryResultPane
 				mode = Mode.DIFF_TO_FIRST;
 
 				break;
+				
+            case DIFF_RATIO_TO_PREV:
+                mode = Mode.DIFF_RATIO_TO_PREVIOUS;
+
+                break;
+            case DIFF_RATIO_TO_BASE:
+                mode = Mode.DIFF_RATIO_TO_FIRST;
+
+                break;				
 
 			default:
 				break;

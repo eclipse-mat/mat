@@ -42,6 +42,7 @@ import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 
 import com.ibm.icu.text.DecimalFormat;
+import com.ibm.icu.text.NumberFormat;
 
 @Icon("/META-INF/icons/compare.gif")
 @Menu({ @Entry(options = "-setop ALL")
@@ -69,7 +70,9 @@ public class CompareTablesQuery implements IQuery
 	{
 		ABSOLUTE("ABSOLUTE"), // //$NON-NLS-1$
 		DIFF_TO_FIRST("DIFF_TO_FIRST"), // //$NON-NLS-1$
-		DIFF_TO_PREVIOUS("DIFF_TO_PREVIOUS"); //$NON-NLS-1$
+		DIFF_TO_PREVIOUS("DIFF_TO_PREVIOUS"), //$NON-NLS-1$
+	    DIFF_RATIO_TO_FIRST("DIFF_RATIO_TO_FIRST"), // //$NON-NLS-1$
+	    DIFF_RATIO_TO_PREVIOUS("DIFF_RATIO_TO_PREVIOUS"); //$NON-NLS-1$
 
 		String label;
 
@@ -298,9 +301,13 @@ public class CompareTablesQuery implements IQuery
 			case ABSOLUTE:
 				return getAbsoluteValue(cr, comparedColumnIdx, tableIdx);
 			case DIFF_TO_FIRST:
-				return getDiffToFirst(cr, comparedColumnIdx, tableIdx);
+				return getDiffToFirst(cr, comparedColumnIdx, tableIdx, false);
 			case DIFF_TO_PREVIOUS:
-				return getDiffToPrevious(cr, comparedColumnIdx, tableIdx);
+				return getDiffToPrevious(cr, comparedColumnIdx, tableIdx, false);
+            case DIFF_RATIO_TO_FIRST:
+                return getDiffToFirst(cr, comparedColumnIdx, tableIdx, true);
+            case DIFF_RATIO_TO_PREVIOUS:
+                return getDiffToPrevious(cr, comparedColumnIdx, tableIdx, true);				
 
 			default:
 				break;
@@ -882,7 +889,7 @@ public class CompareTablesQuery implements IQuery
                     };
                     bb.addContext(prov);
                 }
-                if (mode == Mode.DIFF_TO_PREVIOUS || previous == -1)
+                if (mode == Mode.DIFF_TO_PREVIOUS || mode == Mode.DIFF_RATIO_TO_PREVIOUS ||previous == -1)
                     previous = i;
             }
             return bb.build();
@@ -899,7 +906,7 @@ public class CompareTablesQuery implements IQuery
 			return tables[tableIdx].getColumnValue(tableRow, tableColumnIdx);
 		}
 
-		private Object getDiffToFirst(ComparedRow cr, int comparedColumnIdx, int tableIdx)
+		private Object getDiffToFirst(ComparedRow cr, int comparedColumnIdx, int tableIdx, boolean ratio)
 		{
 			Object tableRow = cr.getRows()[tableIdx];
 			if (tableRow == null) return null;
@@ -918,12 +925,20 @@ public class CompareTablesQuery implements IQuery
 
 			if (value instanceof Number && firstTableValue instanceof Number)
 			{
-				return computeDiff((Number) firstTableValue, (Number) value);
+                Object ret = computeDiff((Number) firstTableValue, (Number) value);
+                if (ratio && ret instanceof Number)
+                {
+                    return Double.valueOf(((Number) ret).doubleValue() / ((Number) firstTableValue).doubleValue());
+                }
+                else
+                {
+                    return ret;
+                }
 			}
 			return null;
 		}
 
-		private Object getDiffToPrevious(ComparedRow cr, int comparedColumnIdx, int tableIdx)
+		private Object getDiffToPrevious(ComparedRow cr, int comparedColumnIdx, int tableIdx, boolean ratio)
 		{
 			Object tableRow = cr.getRows()[tableIdx];
 			if (tableRow == null) return null;
@@ -942,7 +957,15 @@ public class CompareTablesQuery implements IQuery
 
 			if (value instanceof Number && previousTableValue instanceof Number)
 			{
-				return computeDiff((Number) previousTableValue, (Number) value);
+                Object ret = computeDiff((Number) previousTableValue, (Number) value);
+                if (ratio && ret instanceof Number)
+                {
+                    return Double.valueOf(((Number) ret).doubleValue() / ((Number) previousTableValue).doubleValue());
+                }
+                else
+                {
+                    return ret;
+                }
 			}
 			return null;
 		}
@@ -1026,20 +1049,40 @@ public class CompareTablesQuery implements IQuery
 		{
 			int i = 1;
 			Format formatter = new DecimalFormat("+#,##0;-#,##0"); //$NON-NLS-1$
+            Format formatterPercent = NumberFormat.getPercentInstance();
 
 			for (ComparedColumn comparedColumn : displayedColumns)
 			{
 				Column c = comparedColumn.description;
 				for (int j = 0; j < comparedColumn.getColumnIndexes().length; j++)
 				{
-					if (mode != Mode.ABSOLUTE && j > 0)
-					{
-						columns[i].formatting(formatter);
-					}
-					else
-					{
-						columns[i].formatting(c.getFormatter());
-					}
+                    if ((mode == Mode.DIFF_RATIO_TO_FIRST || mode == Mode.DIFF_RATIO_TO_PREVIOUS) && j > 0)
+                    {
+                        columns[i].formatting(formatterPercent);
+                        columns[i].noTotals();
+                    }
+                    else if (mode != Mode.ABSOLUTE && j > 0)
+                    {
+                        if (!columns[i].getCalculateTotals())
+                        {
+                            // Set the totals mode
+                            columns[i] = new Column(columns[i].getLabel(), columns[i].getType(), columns[i].getAlign(),
+                                            columns[i].getSortDirection(), columns[i].getFormatter(),
+                                            columns[i].getComparator());
+                        }
+                        columns[i].formatting(formatter);
+                    }
+                    else
+                    {
+                        if (!columns[i].getCalculateTotals())
+                        {
+                            // Set the totals mode
+                            columns[i] = new Column(columns[i].getLabel(), columns[i].getType(), columns[i].getAlign(),
+                                            columns[i].getSortDirection(), columns[i].getFormatter(),
+                                            columns[i].getComparator());
+                        }
+                        columns[i].formatting(c.getFormatter());
+                    }
 					i++;
 				}
 			}
