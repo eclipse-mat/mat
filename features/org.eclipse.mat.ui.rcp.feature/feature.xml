@@ -32,7 +32,6 @@
       <import plugin="org.eclipse.core.filesystem" version="1.1.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.ui.ide" version="3.3.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.ui.cheatsheets" version="3.3.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.platform" version="3.3.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.ui.forms" version="3.3.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.help.base" version="3.3.0" match="greaterOrEqual"/>
       <import feature="org.eclipse.mat.chart.feature" version="1.0.0" match="greaterOrEqual"/>
