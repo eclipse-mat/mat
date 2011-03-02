@@ -57,6 +57,7 @@ Visit http://www.eclipse.org/mat
    <configurations>
       <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
       <plugin id="org.eclipse.equinox.ds" autoStart="true" startLevel="2" />
+      <property name="osgi.requiredJavaVersion" value="1.5.0"/>
    </configurations>
 
 </product>
