@@ -307,7 +307,7 @@ public class CompareTablesQuery implements IQuery
             case DIFF_RATIO_TO_FIRST:
                 return getDiffToFirst(cr, comparedColumnIdx, tableIdx, true);
             case DIFF_RATIO_TO_PREVIOUS:
-                return getDiffToPrevious(cr, comparedColumnIdx, tableIdx, true);				
+                return getDiffToPrevious(cr, comparedColumnIdx, tableIdx, true);
 
 			default:
 				break;
@@ -1055,7 +1055,11 @@ public class CompareTablesQuery implements IQuery
 		{
 			int i = 1;
 			Format formatter = new DecimalFormat("+#,##0;-#,##0"); //$NON-NLS-1$
-            Format formatterPercent = NumberFormat.getPercentInstance();
+            NumberFormat formatterPercent = NumberFormat.getPercentInstance();
+            if (formatterPercent instanceof DecimalFormat)
+            {
+                ((DecimalFormat)formatterPercent).setPositivePrefix("+"); //$NON-NLS-1$
+            }
 
 			for (ComparedColumn comparedColumn : displayedColumns)
 			{
@@ -1069,18 +1073,27 @@ public class CompareTablesQuery implements IQuery
                     }
                     else if (mode != Mode.ABSOLUTE && j > 0)
                     {
-                        if (!columns[i].getCalculateTotals())
+                        if (!columns[i].getCalculateTotals() && c.getCalculateTotals())
                         {
                             // Set the totals mode
                             columns[i] = new Column(columns[i].getLabel(), columns[i].getType(), columns[i].getAlign(),
                                             columns[i].getSortDirection(), columns[i].getFormatter(),
                                             columns[i].getComparator());
                         }
-                        columns[i].formatting(formatter);
+                        if (c.getFormatter() instanceof DecimalFormat)
+                        {
+                            DecimalFormat fm = ((DecimalFormat) c.getFormatter().clone());
+                            fm.setPositivePrefix("+"); //$NON-NLS-1$
+                            columns[i].formatting(fm);
+                        }
+                        else
+                        {
+                            columns[i].formatting(formatter);
+                        }
                     }
                     else
                     {
-                        if (!columns[i].getCalculateTotals())
+                        if (!columns[i].getCalculateTotals() && c.getCalculateTotals())
                         {
                             // Set the totals mode
                             columns[i] = new Column(columns[i].getLabel(), columns[i].getType(), columns[i].getAlign(),
