@@ -53,6 +53,8 @@ public class Messages extends NLS
     public static String CompareTablesPane_ChooseDiffOptionTooltip;
     public static String CompareTablesPane_DifferenceToBaseTable;
     public static String CompareTablesPane_DifferenceToPrecedingTable;
+    public static String CompareTablesPane_PercentageDifferenceToBaseTable;
+    public static String CompareTablesPane_PercentageDifferenceToPrecedingTable;
     public static String CompareTablesPane_SelectDisplayedColumnsTooltip;
 	public static String Copy_ErrorInExport;
     public static String DerivedDataJob_CalculatingRetainedSizes;
