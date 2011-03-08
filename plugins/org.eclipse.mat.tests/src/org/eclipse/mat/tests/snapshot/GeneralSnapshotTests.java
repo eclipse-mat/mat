@@ -56,6 +56,7 @@ public class GeneralSnapshotTests
             {TestSnapshots.IBM_JDK6_32BIT_SYSTEM},
             {"allMethods"},
             {"runningMethods"},
+            {"framesOnly"},
             {"noMethods"},
             {TestSnapshots.IBM_JDK142_32BIT_HEAP},
             {TestSnapshots.IBM_JDK142_32BIT_JAVA},
@@ -71,6 +72,9 @@ public class GeneralSnapshotTests
         }
         else if (snapshotname.equals("runningMethods")) {
             snapshot = snapshot2(TestSnapshots.IBM_JDK6_32BIT_SYSTEM, "running");
+        }
+        else if (snapshotname.equals("framesOnly")) {
+            snapshot = snapshot2(TestSnapshots.IBM_JDK6_32BIT_SYSTEM, "frames");
         }
         else if (snapshotname.equals("noMethods")) {
             snapshot = snapshot2(TestSnapshots.IBM_JDK6_32BIT_SYSTEM, "none");
@@ -231,7 +235,7 @@ public class GeneralSnapshotTests
         int methodsWithObjects = 0;
         for (IClass cls : snapshot.getClasses())
         {
-            if (cls.getName().contains("("))
+            if (cls.getName().contains("(") || cls.getName().equals("<stack frame>"))
             {
                 ++methods;
                 if (cls.getObjectIds().length > 0)
@@ -247,6 +251,11 @@ public class GeneralSnapshotTests
         {
             assertTrue(methods > 0);
             assertEquals(methods, methodsWithObjects);
+        }
+        else if ("frames".equals(hasMethods))
+        {
+            assertEquals(1, methods);
+            assertTrue(methodsWithObjects > 0);
         }
         else
         {
