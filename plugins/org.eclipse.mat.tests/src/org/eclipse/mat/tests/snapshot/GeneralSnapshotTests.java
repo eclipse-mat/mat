@@ -24,9 +24,12 @@ import java.util.Collection;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.collect.SetInt;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.SnapshotFactory;
+import org.eclipse.mat.snapshot.model.GCRootInfo;
+import org.eclipse.mat.snapshot.model.GCRootInfo.Type;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IStackFrame;
@@ -42,47 +45,68 @@ import org.junit.runners.Parameterized.Parameters;
 @RunWith(value = Parameterized.class)
 public class GeneralSnapshotTests
 {
-    String hasMethods;
+    enum Methods {
+        NONE,
+        FRAMES_ONLY,
+        RUNNING_METHODS,
+        ALL_METHODS
+    }
+    final Methods hasMethods;
+    enum Stacks {
+        NONE,
+        FRAMES,
+        FRAMES_AND_OBJECTS
+    };
+    final Stacks stackInfo;
 
     @Parameters
     public static Collection<Object[]> data()
     {
         return Arrays.asList(new Object[][] {
-            {TestSnapshots.SUN_JDK6_32BIT},
-            {TestSnapshots.SUN_JDK5_64BIT},
-            {TestSnapshots.IBM_JDK6_32BIT_HEAP},
-            {TestSnapshots.IBM_JDK6_32BIT_JAVA},
-            {TestSnapshots.IBM_JDK6_32BIT_HEAP_AND_JAVA},
-            {TestSnapshots.IBM_JDK6_32BIT_SYSTEM},
-            {"allMethods"},
-            {"runningMethods"},
-            {"framesOnly"},
-            {"noMethods"},
-            {TestSnapshots.IBM_JDK142_32BIT_HEAP},
-            {TestSnapshots.IBM_JDK142_32BIT_JAVA},
-            {TestSnapshots.IBM_JDK142_32BIT_HEAP_AND_JAVA},
-            {TestSnapshots.IBM_JDK142_32BIT_SYSTEM},
+            {TestSnapshots.SUN_JDK6_32BIT, Stacks.NONE},
+            {TestSnapshots.SUN_JDK5_64BIT, Stacks.NONE},
+            {TestSnapshots.SUN_JDK6_18_32BIT, Stacks.FRAMES_AND_OBJECTS},
+            {TestSnapshots.SUN_JDK6_18_64BIT, Stacks.FRAMES_AND_OBJECTS},
+            {TestSnapshots.SUN_JDK5_13_32BIT, Stacks.NONE}, 
+            {TestSnapshots.IBM_JDK6_32BIT_HEAP, Stacks.NONE},
+            {TestSnapshots.IBM_JDK6_32BIT_JAVA, Stacks.FRAMES},
+            {TestSnapshots.IBM_JDK6_32BIT_HEAP_AND_JAVA, Stacks.FRAMES},
+            {TestSnapshots.IBM_JDK6_32BIT_SYSTEM, Stacks.FRAMES_AND_OBJECTS},
+            {"allMethods", Stacks.FRAMES_AND_OBJECTS},
+            {"runningMethods", Stacks.FRAMES_AND_OBJECTS},
+            {"framesOnly", Stacks.FRAMES_AND_OBJECTS},
+            {"noMethods", Stacks.FRAMES_AND_OBJECTS},
+            {TestSnapshots.IBM_JDK142_32BIT_HEAP, Stacks.NONE},
+            {TestSnapshots.IBM_JDK142_32BIT_JAVA, Stacks.FRAMES},
+            {TestSnapshots.IBM_JDK142_32BIT_HEAP_AND_JAVA, Stacks.FRAMES},
+            {TestSnapshots.IBM_JDK142_32BIT_SYSTEM, Stacks.FRAMES},
         });
     }
 
-    public GeneralSnapshotTests(String snapshotname)
+    public GeneralSnapshotTests(String snapshotname, Stacks s)
     {
         if (snapshotname.equals("allMethods")) {
             snapshot = snapshot2(TestSnapshots.IBM_JDK6_32BIT_SYSTEM, "all");
+            hasMethods = Methods.ALL_METHODS;
         }
         else if (snapshotname.equals("runningMethods")) {
             snapshot = snapshot2(TestSnapshots.IBM_JDK6_32BIT_SYSTEM, "running");
+            hasMethods = Methods.RUNNING_METHODS;
         }
         else if (snapshotname.equals("framesOnly")) {
             snapshot = snapshot2(TestSnapshots.IBM_JDK6_32BIT_SYSTEM, "frames");
+            hasMethods = Methods.FRAMES_ONLY;
         }
         else if (snapshotname.equals("noMethods")) {
             snapshot = snapshot2(TestSnapshots.IBM_JDK6_32BIT_SYSTEM, "none");
+            hasMethods = Methods.NONE;
         }
         else
         {
             snapshot = TestSnapshots.getSnapshot(snapshotname, false);
+            hasMethods = Methods.NONE;
         }
+        stackInfo = s;
     }
 
     /**
@@ -98,7 +122,6 @@ public class GeneralSnapshotTests
         try {
             // Tag the snapshot name so we don't end up with the wrong version
             ISnapshot ret = TestSnapshots.getSnapshot(snapshotname+";#"+includeMethods, false);
-            hasMethods = includeMethods;
             return ret;
         } finally {
             if (prev != null)
@@ -116,27 +139,44 @@ public class GeneralSnapshotTests
         int frames = 0;
         int foundTop = 0;
         int foundNotTop = 0;
+        SetInt objs = new SetInt();
         for (IClass thrdcls : snapshot.getClassesByName("java.lang.Thread", true))
         {
             for (int o : thrdcls.getObjectIds())
             {
-                IThreadStack stk = snapshot.getThreadStack(o);
-                if (stk != null)
+                objs.add(o);
+            }
+        }
+        /*
+         *  PHD+javacore sometimes doesn't mark javacore threads as type Thread as
+         *  javacore thread id is not a real object id  
+         */
+        for (int o : snapshot.getGCRoots())
+        {
+            for (GCRootInfo g : snapshot.getGCRootInfo(o)) {
+                if (g.getType() == Type.THREAD_OBJ) {
+                    objs.add(o);
+                }
+            }
+        }
+        for (int o : objs.toArray())
+        {
+            IThreadStack stk = snapshot.getThreadStack(o);
+            if (stk != null)
+            {
+                int i = 0;
+                for (IStackFrame frm : stk.getStackFrames())
                 {
-                    int i = 0;
-                    for (IStackFrame frm : stk.getStackFrames())
+                    int os[] = frm.getLocalObjectsIds();
+                    if (os != null)
                     {
-                        int os[] = frm.getLocalObjectsIds();
-                        if (os != null)
-                        {
-                            if (i == 0)
-                                foundTop += os.length;
-                            else
-                                foundNotTop += os.length;
-                        }
-                        ++i;
-                        ++frames;
+                        if (i == 0)
+                            foundTop += os.length;
+                        else
+                            foundNotTop += os.length;
                     }
+                    ++i;
+                    ++frames;
                 }
             }
         }
@@ -145,6 +185,12 @@ public class GeneralSnapshotTests
         if (frames > 0 && foundNotTop > 0)
         {
             assertTrue("Expected some objects on top of stack", foundTop > 0);
+        }
+        if (this.stackInfo != Stacks.NONE)
+        {
+            assertTrue(frames > 0);
+            if (this.stackInfo == Stacks.FRAMES_AND_OBJECTS)
+                assertTrue(foundNotTop > 0 || foundTop > 0);
         }
     }
 
@@ -242,17 +288,17 @@ public class GeneralSnapshotTests
                     ++methodsWithObjects;
             }
         }
-        if ("all".equals(hasMethods))
+        if (hasMethods == Methods.ALL_METHODS)
         {
             assertTrue(methods > 0);
             assertTrue(methods > methodsWithObjects);
         }
-        else if ("running".equals(hasMethods))
+        else if (hasMethods == Methods.RUNNING_METHODS)
         {
             assertTrue(methods > 0);
             assertEquals(methods, methodsWithObjects);
         }
-        else if ("frames".equals(hasMethods))
+        else if (hasMethods == Methods.FRAMES_ONLY)
         {
             assertEquals(1, methods);
             assertTrue(methodsWithObjects > 0);
@@ -263,7 +309,13 @@ public class GeneralSnapshotTests
             assertEquals(0, methods);
         }
     }
-    
+
+    @Test
+    public void testClassLoaders() throws SnapshotException
+    {
+        assertTrue(snapshot.getSnapshotInfo().getNumberOfClassLoaders() > 1);
+    }
+
     /**
      * Test caching of snapshots
      * @throws SnapshotException
