@@ -234,7 +234,8 @@ public class ResultRenderer
             }
         }
 
-        if ("html".equals(format)) //$NON-NLS-1$
+        // Also handle the case where the proper handler can't be found, so continue with html
+        if ("html".equals(format) || outputter.equals(html)) //$NON-NLS-1$
             doProcess(outputter, test, result, rInfo, true);
         else
             doProcessAlien(format, outputter, test, result, rInfo);

@@ -316,6 +316,46 @@ public class GeneralSnapshotTests
         assertTrue(snapshot.getSnapshotInfo().getNumberOfClassLoaders() > 1);
     }
 
+    @Test 
+    public void testRegressionReport() throws SnapshotException
+    {
+        SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.tests:regression", snapshot);
+        IResult t = query.execute(new VoidProgressListener());
+        assertNotNull(t);
+    }
+
+    @Test 
+    public void testPerformanceReport() throws SnapshotException
+    {
+        SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.tests:performance", snapshot);
+        IResult t = query.execute(new VoidProgressListener());
+        assertNotNull(t);
+    }
+
+    @Test 
+    public void testLeakSuspectsReport() throws SnapshotException
+    {
+        SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.api:suspects", snapshot);
+        IResult t = query.execute(new VoidProgressListener());
+        assertNotNull(t);
+    }
+
+    @Test 
+    public void testOverviewReport() throws SnapshotException
+    {
+        SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.api:overview", snapshot);
+        IResult t = query.execute(new VoidProgressListener());
+        assertNotNull(t);
+    }
+
+    @Test 
+    public void testTopComponentsReport() throws SnapshotException
+    {
+        SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.api:top_components", snapshot);
+        IResult t = query.execute(new VoidProgressListener());
+        assertNotNull(t);
+    }
+
     /**
      * Test caching of snapshots
      * @throws SnapshotException
