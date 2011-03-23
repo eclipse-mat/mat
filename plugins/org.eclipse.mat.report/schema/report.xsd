@@ -42,6 +42,8 @@
 			<xs:enumeration value="html.show_totals" />
 			<xs:enumeration value="html.render_details" />
 
+			<xs:enumeration value="rendering.pattern" />
+
 			<xs:enumeration value="sort_column" />
 			<xs:enumeration value="filter" />
 			<xs:enumeration value="limit" />
