@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.mat.SnapshotException;
@@ -41,6 +42,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.osgi.framework.Version;
 
 @RunWith(value = Parameterized.class)
 public class GeneralSnapshotTests
@@ -103,6 +105,8 @@ public class GeneralSnapshotTests
         }
         else
         {
+            // DTFJ 1.5 cannot read javacore 1.4.2 dumps any more
+            assumeTrue(!snapshotname.equals(TestSnapshots.IBM_JDK142_32BIT_JAVA) || Platform.getBundle("com.ibm.dtfj.j9").getVersion().compareTo(Version.parseVersion("1.5")) < 0);
             snapshot = TestSnapshots.getSnapshot(snapshotname, false);
             hasMethods = Methods.NONE;
         }
