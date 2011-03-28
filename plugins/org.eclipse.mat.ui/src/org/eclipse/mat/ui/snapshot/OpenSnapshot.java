@@ -137,8 +137,11 @@ public class OpenSnapshot
             sortedTypes.addAll(types);
             types = new ArrayList<SnapshotFormat>(sortedTypes);
 
-            String[] filterExtensions = new String[types.size() + 1];
-            String[] filterNames = new String[types.size() + 1];
+            // Extensions length is the number of types
+            // plus 1 for "All Known Formats"
+            // plus 1 for the *.* wildcard
+            String[] filterExtensions = new String[types.size() + 2];
+            String[] filterNames = new String[types.size() + 2];
 
             // first element: all heap dump formats
             filterExtensions[0] = null;
@@ -165,6 +168,10 @@ public class OpenSnapshot
                 else
                     filterExtensions[0] += ";" + filterExtensions[ii + 1];//$NON-NLS-1$
             }
+
+            // Add in the wildcard
+            filterExtensions[types.size() + 1] = "*.*"; //$NON-NLS-1$
+            filterNames[types.size() + 1] = Messages.OpenSnapshot_AllFiles;
 
             dialog.setFilterExtensions(filterExtensions);
             dialog.setFilterNames(filterNames);

@@ -182,6 +182,7 @@ public class Messages extends NLS
     public static String OpenOQLStudioAction_OpenOQLStudio;
     public static String OpenSampleHeapDumpAction_ErrorOpeningEditor;
     public static String OpenSampleHeapDumpAction_NoEditorToOpen;
+    public static String OpenSnapshot_AllFiles;
     public static String OpenSnapshot_AllKnownFormats;
     public static String OpenSnapshot_FileAlreadyExists;
     public static String OpenSnapshot_FileMustHaveExtension;
