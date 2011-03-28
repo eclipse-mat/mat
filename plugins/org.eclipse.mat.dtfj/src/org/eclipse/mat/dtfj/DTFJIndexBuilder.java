@@ -5263,7 +5263,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             long ad = il.next();
             int id = indexToAddress.reverse(ad);
             // debugPrint("object id "+objId+" ref to "+id+" 0x"+format(ad));
-            if (id >= 0)
+            if (id >= 0 && objId != id)
             {
                 refd[id] = true;
             }
