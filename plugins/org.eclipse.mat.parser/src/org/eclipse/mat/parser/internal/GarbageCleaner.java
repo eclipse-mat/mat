@@ -588,7 +588,13 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
                 // the reachable ones will have already marked
                 // its outbound refs.
                 for (int out : preOutbound.get(ii))
-                    inbounds[out] = true;
+                {
+                    // Exclude objects pointing to themselves
+                    if (out != ii)
+                    {
+                        inbounds[out] = true;
+                    }
+                }
             }
         }
 
