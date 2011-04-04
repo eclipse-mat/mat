@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others.
+ * Copyright (c) 2008, 2011 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation – accessibility related fixes 
  *    Chris Grindstaff
  *******************************************************************************/
 package org.eclipse.mat.ui.snapshot.views.inspector;
@@ -56,6 +57,7 @@ import org.eclipse.mat.snapshot.model.IObjectArray;
 import org.eclipse.mat.snapshot.model.IPrimitiveArray;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.Messages;
+import org.eclipse.mat.ui.accessibility.AccessibleToolbarAdapter;
 import org.eclipse.mat.ui.snapshot.ImageHelper;
 import org.eclipse.mat.ui.snapshot.editor.HeapEditor;
 import org.eclipse.mat.ui.snapshot.editor.ISnapshotEditorInput;
@@ -476,6 +478,8 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
         GridDataFactory.fillDefaults().grab(true, true).align(SWT.FILL, SWT.FILL).applyTo(tabFolder);
 
         ToolBar toolBar = new ToolBar(tabFolder, SWT.HORIZONTAL | SWT.FLAT);
+        // Add custom AccessibleAdapter, passing in associated ToolBar.
+        toolBar.getAccessible().addAccessibleListener(new AccessibleToolbarAdapter(toolBar) );
         tabFolder.setTopRight(toolBar);
         // set the height of the tab to display the tool bar correctly
         tabFolder.setTabHeight(Math.max(toolBar.computeSize(SWT.DEFAULT, SWT.DEFAULT).y, tabFolder.getTabHeight()));

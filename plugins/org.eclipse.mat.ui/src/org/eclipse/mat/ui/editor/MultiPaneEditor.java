@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others.
+ * Copyright (c) 2008, 2011 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation – accessibility related fixes 
  *******************************************************************************/
 package org.eclipse.mat.ui.editor;
 
@@ -50,6 +51,7 @@ import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.Messages;
+import org.eclipse.mat.ui.accessibility.AccessibleToolbarAdapter;
 import org.eclipse.mat.ui.snapshot.ImageHelper.ImageImageDescriptor;
 import org.eclipse.mat.ui.util.ErrorHelper;
 import org.eclipse.mat.ui.util.NavigatorState;
@@ -214,11 +216,15 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
 
         // create tool bar
         ToolBar toolbar = new ToolBar(composite, SWT.FLAT);
+        // Add custom AccessibleAdapter, passing in associated ToolBar.
+        toolbar.getAccessible().addAccessibleListener(new AccessibleToolbarAdapter(toolbar) );
         GridDataFactory.fillDefaults().grab(true, false).indent(0, 2).applyTo(toolbar);
         toolbarMgr = new ToolBarManager(toolbar);
 
         // create tool bar
         toolbar = new ToolBar(composite, SWT.FLAT);
+        // Add custom AccessibleAdapter, passing in associated ToolBar.
+        toolbar.getAccessible().addAccessibleListener(new AccessibleToolbarAdapter(toolbar) );
         GridDataFactory.fillDefaults().grab(false, false).indent(0, 2).applyTo(toolbar);
         toolbarMgrHelp = new ToolBarManager(toolbar);
 
