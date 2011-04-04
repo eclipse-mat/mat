@@ -18,26 +18,27 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.collect.BitField;
 import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.collect.IteratorInt;
-import org.eclipse.mat.parser.index.IndexManager;
-import org.eclipse.mat.parser.index.IndexWriter;
 import org.eclipse.mat.parser.index.IIndexReader.IOne2LongIndex;
 import org.eclipse.mat.parser.index.IIndexReader.IOne2ManyIndex;
 import org.eclipse.mat.parser.index.IIndexReader.IOne2OneIndex;
 import org.eclipse.mat.parser.index.IIndexReader.IOne2SizeIndex;
+import org.eclipse.mat.parser.index.IndexManager;
 import org.eclipse.mat.parser.index.IndexManager.Index;
 import org.eclipse.mat.parser.index.IndexReader.SizeIndexReader;
+import org.eclipse.mat.parser.index.IndexWriter;
 import org.eclipse.mat.parser.internal.snapshot.ObjectMarker;
 import org.eclipse.mat.parser.model.ClassImpl;
 import org.eclipse.mat.parser.model.XGCRootInfo;
 import org.eclipse.mat.snapshot.UnreachableObjectsHistogram;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.SilentProgressListener;
-import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
 
 /* package */class GarbageCleaner
 {
@@ -115,10 +116,9 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
                 {
                     int newRoot;
                     newRoot = (Integer)un;
-                    markUnreachbleAsGCRoots(idx, reachable, newNoOfObjects, newRoot, listener);
-                    newNoOfObjects = oldNoOfObjects;
+                    newNoOfObjects = markUnreachableAsGCRoots(idx, reachable, newNoOfObjects, newRoot, listener);
                 }
-                else
+                if (newNoOfObjects < oldNoOfObjects)
                 {
                     createHistogramOfUnreachableObjects(idx, reachable);
                 }
@@ -566,7 +566,7 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
     // mark unreachable objects as GC unknown
     // //////////////////////////////////////////////////////////////
 
-    private static void markUnreachbleAsGCRoots(final PreliminaryIndexImpl idx, //
+    private static int markUnreachableAsGCRoots(final PreliminaryIndexImpl idx, //
                     boolean[] reachable, //
                     int noReachableObjects, //
                     int extraRootType, IProgressListener listener)
@@ -575,11 +575,8 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
         final IOne2LongIndex identifiers = idx.identifiers;
         final IOne2ManyIndex preOutbound = idx.outbound;
 
-        int root[] = new int[1];
-        ObjectMarker marker = new ObjectMarker(root, reachable, preOutbound, new SilentProgressListener(listener));
-
         // find objects not referenced by any other object
-        boolean inbounds[] = new boolean[noOfObjects];
+        byte inbounds[] = new byte[noOfObjects];
         for (int ii = 0; ii < noOfObjects; ++ii)
         {
             if (!reachable[ii])
@@ -592,21 +589,88 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
                     // Exclude objects pointing to themselves
                     if (out != ii)
                     {
-                        inbounds[out] = true;
+                        // Avoid overflow
+                        if (inbounds[out] != -1) inbounds[out]++;
                     }
                 }
             }
         }
 
-        for (int pass = 0; pass < 2; ++pass)
+        // First pass mark only the unreferenced objects
+        ArrayInt unref = new ArrayInt();
+        for (int ii = 0; ii < noOfObjects; ++ii)
         {
-            // First pass mark only the unreferenced objects, second
-            // pass do everything else
-            for (int ii = 0; ii < noOfObjects && noReachableObjects < noOfObjects; ++ii)
+            // Do the objects with no inbounds first
+            if (!reachable[ii] && inbounds[ii] == 0)
             {
-                // Do the objects with no inbounds first
-                if (!reachable[ii] && (pass == 1 || !inbounds[ii]))
+                // Identify this unreachable object as a root,
+                // No need to mark it as the marker will do that
+                unref.add(ii);
+
+                XGCRootInfo xgc = new XGCRootInfo(identifiers.get(ii), 0, extraRootType);
+                xgc.setObjectId(ii);
+
+                ArrayList<XGCRootInfo> xgcs = new ArrayList<XGCRootInfo>(1);
+                xgcs.add(xgc);
+                idx.gcRoots.put(ii, xgcs);
+            }
+        }
+        // See what else is now reachable
+        ObjectMarker marker2 = new ObjectMarker(unref.toArray(), reachable, preOutbound, new SilentProgressListener(listener));
+        int marked2 = marker2.markSingleThreaded();
+        noReachableObjects += marked2;
+
+        // find remaining unreachable objects
+        unref.clear();
+        for (int ii = 0; ii < noOfObjects; ++ii)
+        {
+            if (!reachable[ii])
+            {
+                // Add to list
+                unref.add(ii);
+            }
+        }
+
+        int root[] = new int[1];
+        ObjectMarker marker = new ObjectMarker(root, reachable, preOutbound, new SilentProgressListener(listener));
+        int passes = 10;
+        for (int pass = 0; pass < passes; ++pass)
+        {
+            // find remaining unreachable objects
+            ArrayInt unref2 = new ArrayInt();
+            byte outbounds[] = new byte[noOfObjects];
+            for (IteratorInt it = unref.iterator(); it.hasNext();)
+            {
+                int ii = it.next();
+                if (!reachable[ii])
                 {
+                    // We only need search the unreachable objects as
+                    // the reachable ones will have already marked
+                    // its outbound refs.
+                    unref2.add(ii);
+                    for (int out : preOutbound.get(ii))
+                    {
+                        // Exclude objects pointing to themselves
+                        // and only count unreachable refs
+                        // We only need to recount outbound refs as the
+                        // inbound ref count will be unchanged.
+                        if (out != ii && !reachable[out])
+                        {
+                            // Avoid overflow
+                            if (outbounds[ii] != -1) outbounds[ii]++;
+                        }
+                    }
+                }
+            }
+            unref = unref2;
+
+            // choose some of the remaining unreachable objects as roots
+            for (IteratorInt it = unref.iterator(); it.hasNext() && noReachableObjects < noOfObjects;)
+            {
+                int ii = it.next();
+                ii = selectRoot(ii, pass, passes, reachable, preOutbound, outbounds, inbounds);
+
+                if (ii >= 0) {
                     // Identify this unreachable object as a root,
                     // and see what else is now reachable
                     // No need to mark it as the marker will do that
@@ -628,5 +692,70 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
         // update GC root information
         idx.setGcRoots(idx.gcRoots);
         idx.getSnapshotInfo().setNumberOfGCRoots(idx.gcRoots.size());
+        return noReachableObjects;
+    }
+
+    /**
+     * Decide on next root to choose.
+     * A sophisticated version would convert the object graph to a DAG
+     * of strongly connected components and choose an example member from
+     * each (currently unreached) source strongly connected component.
+     * This version is not minimal but covers the object graph.
+     * @param ii candidate root
+     * @param pass from 0 to passes -1
+     * @param passes number of passes
+     * @param reachable which object have already been marked
+     * @param preOutbound the outbound refs for each object
+     * @param outbounds count of outbounds (as 0..255)
+     * @param inbounds count of inbounds (as 0..255)
+     * @return candidate root or -1
+     */
+    private static int selectRoot(int ii, int pass, int passes, boolean[] reachable, final IOne2ManyIndex preOutbound,
+                    byte[] outbounds, byte[] inbounds)
+    {
+        if (reachable[ii])
+            return -1;
+
+        // Check for objects with 1 inbound, pointing to another object 
+        // with 1 inbound, pointing back to this.
+        // The cycle has no entry, so must be a root.
+        if (pass == 0)
+        {
+            if ((inbounds[ii] & 0xff) == 1)
+            {
+                for (int out : preOutbound.get(ii))
+                {
+                    // Exclude objects pointing to themselves
+                    // and only count unreachable refs
+                    if (out != ii && !reachable[out])
+                    {
+                        if ((inbounds[out] & 0xff) != 1)
+                            continue;
+                        for (int out2 : preOutbound.get(out))
+                        {
+                            if (out2 == ii)
+                            {
+                                // Choose as a root as this cycle of objects
+                                // has no external entry
+                                return ii;
+                            }
+                        }
+                    }
+                }
+            }
+            return -1;
+        }
+
+        // Don't do objects with only one inbound until the end as perhaps the
+        // predecessor will get marked.
+        // Don't choose an object with no unref outbounds as we should choose a
+        // predecessor of this object instead.
+        // Choose objects with lots of outbounds first as they might mark
+        // a lot of objects.
+        boolean chooseAsRoot = (outbounds[ii] & 0xff) > 0
+                        && (pass == passes - 1 || (inbounds[ii] & 0xff) > 1
+                                        && (outbounds[ii] & 0xff) - (inbounds[ii] & 0xff) >= passes - pass - 2);
+
+        return chooseAsRoot ? ii : -1;
     }
 }
