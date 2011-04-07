@@ -249,8 +249,11 @@ public class CompareTablesQuery implements IQuery
 	{
 		private Column key;
 		private List<ComparedRow> rows;
+		/** each compared column is a column from the original table, and is displayed as several actual columns, one or more for each table */
 		private List<ComparedColumn> comparedColumns;
+		/** each displayed column is a column from the original table, and is displayed as several actual columns, one or more for each table */
 		private List<ComparedColumn> displayedColumns;
+		/** Actual columns displayed */
 		private Column[] columns;
 		private Mode mode;
 		private Operation setOp;
@@ -291,8 +294,17 @@ public class CompareTablesQuery implements IQuery
 			ComparedRow cr = (ComparedRow) row;
 			if (columnIndex == 0) return cr.getKey();
 
-			int comparedColumnIdx = (columnIndex - 1) / tables.length;
-			int tableIdx = (columnIndex - 1) % tables.length;
+            /*
+             * Each compared column has several subcolumns for data from each
+             * table. The first column is the key and is common for all tables,
+             * so there is only one actual column. For absolute or difference
+             * modes there is one column per table. For percentage modes there
+             * is one column for the first table and two for the rest.
+             */
+            int subCols = mode == Mode.DIFF_RATIO_TO_FIRST || mode == Mode.DIFF_RATIO_TO_PREVIOUS ? tables.length
+                            + tables.length - 1 : tables.length;
+            int comparedColumnIdx = (columnIndex - 1) / subCols;
+            int tableIdx = (columnIndex - 1) % subCols;
 
 			if (tableIdx == 0) return getAbsoluteValue(cr, comparedColumnIdx, tableIdx);
 
@@ -305,9 +317,9 @@ public class CompareTablesQuery implements IQuery
 			case DIFF_TO_PREVIOUS:
 				return getDiffToPrevious(cr, comparedColumnIdx, tableIdx, false);
             case DIFF_RATIO_TO_FIRST:
-                return getDiffToFirst(cr, comparedColumnIdx, tableIdx, true);
+                return getDiffToFirst(cr, comparedColumnIdx, (tableIdx + 1) / 2, tableIdx % 2 == 0);
             case DIFF_RATIO_TO_PREVIOUS:
-                return getDiffToPrevious(cr, comparedColumnIdx, tableIdx, true);
+                return getDiffToPrevious(cr, comparedColumnIdx, (tableIdx + 1) / 2, tableIdx % 2 == 0);
 
 			default:
 				break;
@@ -906,6 +918,21 @@ public class CompareTablesQuery implements IQuery
 			return tables[tableIdx].getColumnValue(tableRow, tableColumnIdx);
 		}
 
+        private Object percentDivide(Number d1, Number d2)
+        {
+            if (d1.doubleValue() == 0.0
+                            && d2.doubleValue() == 0.0
+                            && (d2 instanceof Integer || d2 instanceof Long || d2 instanceof Byte || d2 instanceof Short))
+            {
+                // Helps sorting if 0 -> 0 maps to +0% rather than NaN%
+                return Double.valueOf(0.0);
+            }
+            else
+            {
+                return Double.valueOf(d1.doubleValue() / d2.doubleValue());
+            }
+        }
+		
 		private Object getDiffToFirst(ComparedRow cr, int comparedColumnIdx, int tableIdx, boolean ratio)
 		{
 			Object tableRow = cr.getRows()[tableIdx];
@@ -931,7 +958,7 @@ public class CompareTablesQuery implements IQuery
                 Object ret = computeDiff((Number) firstTableValue, (Number) value);
                 if (ratio && ret instanceof Number)
                 {
-                    return Double.valueOf(((Number) ret).doubleValue() / ((Number) firstTableValue).doubleValue());
+                    return percentDivide((Number)ret, (Number)firstTableValue); 
                 }
                 else
                 {
@@ -966,7 +993,7 @@ public class CompareTablesQuery implements IQuery
                 Object ret = computeDiff((Number) previousTableValue, (Number) value);
                 if (ratio && ret instanceof Number)
                 {
-                    return Double.valueOf(((Number) ret).doubleValue() / ((Number) previousTableValue).doubleValue());
+                    return percentDivide((Number)ret, (Number)previousTableValue); 
                 }
                 else
                 {
@@ -1048,7 +1075,7 @@ public class CompareTablesQuery implements IQuery
 		public void setMode(Mode mode)
 		{
 			this.mode = mode;
-			setFormatter();
+			updateColumns();
 		}
 
 		private void setFormatter()
@@ -1066,12 +1093,7 @@ public class CompareTablesQuery implements IQuery
 				Column c = comparedColumn.description;
 				for (int j = 0; j < comparedColumn.getColumnIndexes().length; j++)
 				{
-                    if ((mode == Mode.DIFF_RATIO_TO_FIRST || mode == Mode.DIFF_RATIO_TO_PREVIOUS) && j > 0)
-                    {
-                        columns[i].formatting(formatterPercent);
-                        columns[i].noTotals();
-                    }
-                    else if (mode != Mode.ABSOLUTE && j > 0)
+                    if (mode != Mode.ABSOLUTE && j > 0)
                     {
                         if (!columns[i].getCalculateTotals() && c.getCalculateTotals())
                         {
@@ -1103,6 +1125,12 @@ public class CompareTablesQuery implements IQuery
                         columns[i].formatting(c.getFormatter());
                     }
 					i++;
+					if ((mode == Mode.DIFF_RATIO_TO_FIRST || mode == Mode.DIFF_RATIO_TO_PREVIOUS) && j > 0)
+                    {
+                        columns[i].formatting(formatterPercent);
+                        columns[i].noTotals();
+                        i++;
+                    }
 				}
 			}
 		}
@@ -1122,7 +1150,29 @@ public class CompareTablesQuery implements IQuery
 					displayedColumns.add(comparedColumn);
 					for (int j = 0; j < comparedColumn.getColumnIndexes().length; j++)
 					{
-						result.add(new Column(c.getLabel() + " #" + (j + 1), c.getType(), c.getAlign(), c.getSortDirection(), c.getFormatter(), null)); //$NON-NLS-1$
+                        String label;
+                        final int prev = mode == Mode.DIFF_TO_PREVIOUS || mode == Mode.DIFF_RATIO_TO_PREVIOUS ? j - 1 : 0;
+                        if (j == 0 || mode == Mode.ABSOLUTE)
+                        {
+                            label = MessageUtil.format(Messages.CompareTablesQuery_ColumnAbsolute, c.getLabel(), j);
+                        }
+                        else
+                        {
+                            label = MessageUtil.format(Messages.CompareTablesQuery_ColumnDifference,
+                                                       c.getLabel(), j,
+                                                       prev);
+                        }
+                        result.add(new Column(label, c.getType(), c.getAlign(), c.getSortDirection(), c.getFormatter(),
+                                        null));
+                        // For percentage modes also add a percent change column for subsequent tables
+                        if (j > 0 && (mode == Mode.DIFF_RATIO_TO_FIRST || mode == Mode.DIFF_RATIO_TO_PREVIOUS))
+                        {
+                            label = MessageUtil.format(Messages.CompareTablesQuery_ColumnPercentDifference,
+                                                       c.getLabel(), j, 
+                                                       prev);
+                            result.add(new Column(label, c.getType(), c.getAlign(), c.getSortDirection(), c
+                                            .getFormatter(), null));
+                        }
 					}
 				}
 			}

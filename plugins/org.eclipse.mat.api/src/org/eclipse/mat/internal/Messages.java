@@ -95,6 +95,9 @@ public class Messages extends NLS
     public static String Column_RetainedHeap;
     public static String Column_ShallowHeap;
 
+    public static String CompareTablesQuery_ColumnAbsolute;
+    public static String CompareTablesQuery_ColumnDifference;
+    public static String CompareTablesQuery_ColumnPercentDifference;
     public static String CompareTablesQuery_DifferenceFirst;
     public static String CompareTablesQuery_DifferenceLast;
     public static String CompareTablesQuery_DifferenceMiddle;
