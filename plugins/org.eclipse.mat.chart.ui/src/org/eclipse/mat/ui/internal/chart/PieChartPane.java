@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2011 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation - accessibility improvements
  *******************************************************************************/
 package org.eclipse.mat.ui.internal.chart;
 
@@ -19,6 +20,8 @@ import org.eclipse.birt.chart.device.IDeviceRenderer;
 import org.eclipse.birt.chart.event.StructureSource;
 import org.eclipse.birt.chart.model.Chart;
 import org.eclipse.birt.chart.model.attribute.CallBackValue;
+import org.eclipse.birt.chart.model.attribute.impl.ColorDefinitionImpl;
+import org.eclipse.birt.chart.model.layout.Plot;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -39,15 +42,25 @@ import org.eclipse.mat.ui.editor.AbstractEditorPane;
 import org.eclipse.mat.ui.util.PopupMenu;
 import org.eclipse.mat.ui.util.QueryContextMenu;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.accessibility.AccessibleAdapter;
+import org.eclipse.swt.accessibility.AccessibleEvent;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.PaintEvent;
+import org.eclipse.swt.events.PaintListener;
+import org.eclipse.swt.events.TraverseEvent;
+import org.eclipse.swt.events.TraverseListener;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.forms.widgets.FormText;
 
 public class PieChartPane extends AbstractEditorPane implements ISelectionProvider
 {
     List<ISelectionChangedListener> listeners = new ArrayList<ISelectionChangedListener>();
+    private TraverseListener traverseListener;
 
     FormText label;
     ChartCanvas canvas;
@@ -58,6 +71,7 @@ public class PieChartPane extends AbstractEditorPane implements ISelectionProvid
     List<? extends Slice> slices;
     Slice current;
     private Menu menu;
+    String sliceName = null; // Used for screen reader
 
     @Override
     public void initWithArgument(Object argument)
@@ -77,6 +91,48 @@ public class PieChartPane extends AbstractEditorPane implements ISelectionProvid
             IResultPie pie = (IResultPie) (queryResult).getSubject();
             slices = pie.getSlices();
             canvas.setChart(ChartBuilder.create(pie, true));
+            canvas.getAccessible().addAccessibleListener(new AccessibleAdapter()
+            {
+
+                @Override
+                public void getName(AccessibleEvent e)
+                {
+                    e.result = sliceName;
+                }
+
+            });
+
+            canvas.addPaintListener(new PaintListener()
+            {
+                public void paintControl(PaintEvent e)
+                {
+                    // Only draw the bounding box if we are in focus
+                    if (canvas.isFocusControl())
+                    {
+                        e.gc.drawFocus(canvas.getBounds().x, canvas.getBounds().y, canvas.getBounds().width, canvas
+                                        .getBounds().height);
+                    }
+                }
+            });
+            canvas.addFocusListener(new FocusListener()
+            {
+
+                public void focusGained(FocusEvent e)
+                {
+                    canvas.redraw();
+                }
+
+                public void focusLost(FocusEvent e)
+                {
+                    Color tmpCol = canvas.getParent().getBackground();
+                    Plot p = canvas.getChart().getPlot();
+                    p.setBackground(ColorDefinitionImpl.create(tmpCol.getRed(), tmpCol.getGreen(), tmpCol.getBlue()));
+                    canvas.setChart(canvas.getChart());
+                    canvas.redraw();
+                }
+
+            });
+
             canvas.redraw();
         }
     }
@@ -85,17 +141,30 @@ public class PieChartPane extends AbstractEditorPane implements ISelectionProvid
     {
         Composite top = new Composite(parent, SWT.NONE);
         top.setBackground(parent.getDisplay().getSystemColor(SWT.COLOR_WHITE));
-        
-        // prevent TAB-ing into the chart canvas. Bug 306803
-        top.setTabList(new Control[0]);
+
+        // Add a traverse listener or the canvas breaks the
+        // ability to tab between the different viewers.
+        traverseListener = new TraverseListener()
+        {
+            public void keyTraversed(TraverseEvent e)
+            {
+                if (e.detail == SWT.TRAVERSE_TAB_NEXT || e.detail == SWT.TRAVERSE_TAB_PREVIOUS)
+                {
+                    e.doit = true;
+                }
+            }
+        };
 
         GridLayoutFactory.fillDefaults().numColumns(1).margins(0, 0).spacing(0, 0).applyTo(top);
 
         canvas = new ChartCanvas(top, SWT.NONE);
         GridDataFactory.fillDefaults().grab(true, true).hint(SWT.DEFAULT, 300).applyTo(canvas);
 
+        canvas.addTraverseListener(traverseListener);
+
         label = new FormText(top, SWT.NONE);
         label.setBackground(parent.getDisplay().getSystemColor(SWT.COLOR_WHITE));
+
         GridDataFactory.fillDefaults().grab(true, false).indent(5, 0).hint(SWT.DEFAULT, 45).applyTo(label);
 
         canvas.renderer.setProperty(IDeviceRenderer.UPDATE_NOTIFIER, new CallBackListener());
@@ -129,15 +198,58 @@ public class PieChartPane extends AbstractEditorPane implements ISelectionProvid
             StructureSource structuredSource = (StructureSource) source;
             DataPointHints dph = (DataPointHints) structuredSource.getSource();
             Slice slice = slices.get(dph.getIndex());
+            KeyEvent keyEvent = null;
 
+            try
+            {
+                if (event instanceof KeyEvent)
+                {
+                    keyEvent = (KeyEvent) event;
+                    switch (keyEvent.keyCode)
+                    {
+                        case SWT.ARROW_UP:
+                            if (dph.getIndex() == 0)
+                            {
+                                dph.setIndex(slices.size() - 1);
+                            }
+                            else
+                            {
+                                dph.setIndex(dph.getIndex() - 1);
+                            }
+                            break;
+                        case SWT.ARROW_DOWN:
+                            if (dph.getIndex() == (slices.size() - 1))
+                            {
+                                dph.setIndex(0);
+                            }
+                            else
+                            {
+                                dph.setIndex(dph.getIndex() + 1);
+                            }
+                            break;
+                        default:
+                    }
+                    slice = slices.get(dph.getIndex());
+                }
+            }
+            catch (IndexOutOfBoundsException e)
+            {
+                dph.setIndex(0);
+            }
             if (current != slice)
             {
                 label.setText("<form>" + slice.getDescription() + "</form>", true, false); //$NON-NLS-1$//$NON-NLS-2$
                 current = slice;
+                sliceName = slice.getDescription().toString();
+                formatSliceName();
+                // Trigger a change text event so that screen readers will read
+                // out the new value
+                canvas.getAccessible().textSelectionChanged();
                 fireSelectionEvent();
             }
 
-            if (slice != null && "click".equals(value.getIdentifier())) //$NON-NLS-1$
+            if (slice != null
+                            && ("click".equals(value.getIdentifier()) || (keyEvent != null && keyEvent.character == ' '))) //$NON-NLS-1$
             {
                 IContextObject ctx = slice.getContext();
                 if (ctx != null)
@@ -151,6 +263,18 @@ public class PieChartPane extends AbstractEditorPane implements ISelectionProvid
                     menu.setVisible(true);
                 }
             }
+        }
+
+        /*
+         * remove any html tags so they are not read by the screen reader
+         */
+        private void formatSliceName()
+        {
+            sliceName = sliceName.replaceAll("<b>", ""); //$NON-NLS-1$ //$NON-NLS-2$
+            sliceName = sliceName.replaceAll("<p>", ""); //$NON-NLS-1$ //$NON-NLS-2$
+            sliceName = sliceName.replaceAll("</p>", ""); //$NON-NLS-1$ //$NON-NLS-2$
+            sliceName = sliceName.replaceAll("</b>", ""); //$NON-NLS-1$ //$NON-NLS-2$
+            sliceName = sliceName.replaceAll("<br/>", ""); //$NON-NLS-1$ //$NON-NLS-2$
         }
 
         public Chart getDesignTimeModel()

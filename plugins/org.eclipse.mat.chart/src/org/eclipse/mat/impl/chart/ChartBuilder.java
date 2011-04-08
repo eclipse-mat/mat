@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2011 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation - accessibility improvements
  *******************************************************************************/
 package org.eclipse.mat.impl.chart;
 
@@ -143,12 +144,22 @@ public class ChartBuilder
         if (isInteractive)
         {
             pieSeries.getTriggers().add(
+                            TriggerImpl.create(TriggerCondition.ONFOCUS_LITERAL, ActionImpl.create(
+                                            ActionType.CALL_BACK_LITERAL, CallBackValueImpl.create("focus"))));//$NON-NLS-1$
+
+            pieSeries.getTriggers().add(
                             TriggerImpl.create(TriggerCondition.ONCLICK_LITERAL, ActionImpl.create(
                                             ActionType.CALL_BACK_LITERAL, CallBackValueImpl.create("click"))));//$NON-NLS-1$
 
             pieSeries.getTriggers().add(
                             TriggerImpl.create(TriggerCondition.ONMOUSEOVER_LITERAL, ActionImpl.create(
                                             ActionType.CALL_BACK_LITERAL, CallBackValueImpl.create("tooltip"))));//$NON-NLS-1$
+            pieSeries.getTriggers().add(
+                            TriggerImpl.create(
+                                            TriggerCondition.ONKEYDOWN_LITERAL,
+                                            ActionImpl.create(ActionType.CALL_BACK_LITERAL,
+                                                            CallBackValueImpl.create("keypress"))));//$NON-NLS-1$
+            
         }
 
         SeriesDefinition sdBase = SeriesDefinitionImpl.create();
