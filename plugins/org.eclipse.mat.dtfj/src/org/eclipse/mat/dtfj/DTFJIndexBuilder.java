@@ -439,6 +439,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
     private int msgNunexpectedModifiers = errorCount;
     private int msgNcorruptSection = errorCount;
     private int msgNclassForObject = errorCount;
+    private int msgNcomponentClass = errorCount;
     private int msgNtypeForClassObject = errorCount;
     private int msgNobjectSize = errorCount;
     private int msgNoutboundReferences = errorCount;
@@ -780,18 +781,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
 
         // Holds all of the classes as DTFJ JavaClass - just used in this
         // method.
-        // Make a tree set so that going over all the classes is
-        // predictable and cache friendly.
-        final IProgressListener listen = listener;
-        TreeSet<JavaClass> allClasses = new TreeSet<JavaClass>(new Comparator<JavaClass>()
-        {
-            public int compare(JavaClass o1, JavaClass o2)
-            {
-                long clsaddr1 = getClassAddress(o1, listen);
-                long clsaddr2 = getClassAddress(o2, listen);
-                return clsaddr1 < clsaddr2 ? -1 : clsaddr1 > clsaddr2 ? 1 : 0;
-            }
-        });
+        // Use a hash set to collect the classes and sort them later
+        Set<JavaClass> allClasses = new LinkedHashSet<JavaClass>();
 
         // Find all the classes (via the class loaders), and remember them
         listener.worked(1);
@@ -809,7 +800,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 if (isCorruptData(next2, listener, Messages.DTFJIndexBuilder_CorruptDataReadingClasses, jcl))
                     continue;
                 JavaClass j2 = (JavaClass) next2;
-                allClasses.add(j2);
+                rememberClass(j2, allClasses, listener);
             }
         }
 
@@ -880,8 +871,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
                         listener.sendUserMessage(Severity.INFO, MessageFormat.format(
                                         Messages.DTFJIndexBuilder_AddingExtraClassOfUnknownNameViaCachedList, j2), e);
                     }
+                    rememberClass(j2, allClasses, listener);
                 }
-                allClasses.add(j2);
             }
         }
 
@@ -1023,6 +1014,20 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 }
             }
         }
+        // Make a tree set so that going over all the classes is
+        // predictable and cache friendly.
+        final IProgressListener listen = listener;
+        TreeSet<JavaClass> sortedClasses = new TreeSet<JavaClass>(new Comparator<JavaClass>()
+        {
+            public int compare(JavaClass o1, JavaClass o2)
+            {
+                long clsaddr1 = getClassAddress(o1, listen);
+                long clsaddr2 = getClassAddress(o2, listen);
+                return clsaddr1 < clsaddr2 ? -1 : clsaddr1 > clsaddr2 ? 1 : 0;
+            }
+        });
+        sortedClasses.addAll(allClasses);
+        allClasses = sortedClasses;
         if (getExtraInfo && getExtraInfo2)
         {
             listener.worked(1);
@@ -1991,6 +1996,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         skippedMessages += Math.max(0, -msgNunexpectedModifiers);
         skippedMessages += Math.max(0, -msgNcorruptSection);
         skippedMessages += Math.max(0, -msgNclassForObject);
+        skippedMessages += Math.max(0, -msgNcomponentClass);
         skippedMessages += Math.max(0, -msgNtypeForClassObject);
         skippedMessages += Math.max(0, -msgNobjectSize);
         skippedMessages += Math.max(0, -msgNoutboundReferences);
@@ -2796,27 +2802,56 @@ public class DTFJIndexBuilder implements IIndexBuilder
         try
         {
             JavaClass cls = jo.getJavaClass();
-            // Check if class is not in class loader list - some array classes
-            // are this way and the primitive types
-            while (cls.isArray())
-            {
-                if (!allClasses.contains(cls))
-                {
-                    if (debugInfo) debugPrint("Adding extra array class " + getClassName(cls, listener)); //$NON-NLS-1$
-                    allClasses.add(cls);
-                }
-                cls = cls.getComponentType();
-            }
-            if (!allClasses.contains(cls))
-            {
-                if (debugInfo) debugPrint("Adding extra class or component class " + getClassName(cls, listener)); //$NON-NLS-1$
-                allClasses.add(cls);
-            }
+            rememberClass(cls, allClasses, listener);
         }
         catch (CorruptDataException e)
         {
             if (msgNclassForObject-- > 0) listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
                             Messages.DTFJIndexBuilder_ProblemFindingClassesForObject, format(objAddress)), e);
+        }
+    }
+
+    /**
+     * Record the class and all its superclasses
+     * @param cls
+     * @param allClasses
+     * @param listener
+     */
+    private void rememberClass(JavaClass cls, Set<JavaClass> allClasses, IProgressListener listener)
+    {
+        if (!allClasses.contains(cls))
+        {
+            if (debugInfo)
+                debugPrint("Adding extra class " + getClassName(cls, listener)); //$NON-NLS-1$
+            allClasses.add(cls);
+            try
+            {
+                // Check if component classes are not in class loader list.
+                // Some array classes are this way and the primitive types.
+                while (cls.isArray())
+                {
+                    cls = cls.getComponentType();
+                    if (!allClasses.contains(cls))
+                    {
+                        if (debugInfo)
+                            debugPrint("Adding extra array component class " + getClassName(cls, listener)); //$NON-NLS-1$
+                        allClasses.add(cls);
+                    }
+                    else
+                    {
+                        // We have already added this type
+                        break;
+                    }
+                }
+
+            }
+            catch (CorruptDataException e)
+            {
+                if (msgNcomponentClass-- > 0)
+                    listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
+                                    Messages.DTFJIndexBuilder_ProblemFindingComponentClass,
+                                    format(getClassAddress(cls, listener))), e);
+            }
         }
     }
 

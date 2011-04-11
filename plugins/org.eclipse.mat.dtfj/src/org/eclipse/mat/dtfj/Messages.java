@@ -161,6 +161,7 @@ public class Messages extends NLS
     public static String DTFJIndexBuilder_ProblemDetirminingFinalizeMethodSig;
     public static String DTFJIndexBuilder_ProblemFindingClassesForObject;
     public static String DTFJIndexBuilder_ProblemFindingClassLoaderInformation;
+    public static String DTFJIndexBuilder_ProblemFindingComponentClass;
     public static String DTFJIndexBuilder_ProblemFindingJavaLangClass;
     public static String DTFJIndexBuilder_ProblemFindingJavaLangClassViaName;
     public static String DTFJIndexBuilder_ProblemFindingRootInformation;
