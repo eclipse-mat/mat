@@ -24,6 +24,7 @@ import org.eclipse.birt.chart.factory.RunTimeContext;
 import org.eclipse.birt.chart.model.Chart;
 import org.eclipse.birt.chart.model.attribute.Bounds;
 import org.eclipse.birt.chart.model.attribute.impl.BoundsImpl;
+import org.eclipse.birt.chart.model.attribute.impl.ColorDefinitionImpl;
 import org.eclipse.birt.chart.script.IScriptClassLoader;
 import org.eclipse.birt.chart.util.PluginSettings;
 import org.eclipse.mat.query.IResult;
@@ -43,7 +44,7 @@ public class HtmlPieChartRenderer implements IOutputter
 
             String imageFile = "chart" + context.getId() + ".png"; //$NON-NLS-1$ //$NON-NLS-2$
 
-            Chart chart = ChartBuilder.create(pie, false);
+            Chart chart = ChartBuilder.create(pie, false, ColorDefinitionImpl.WHITE(), ColorDefinitionImpl.BLACK());
 
             PluginSettings ps = PluginSettings.instance();
             IDeviceRenderer render = ps.getDevice("dv.PNG"); //$NON-NLS-1$

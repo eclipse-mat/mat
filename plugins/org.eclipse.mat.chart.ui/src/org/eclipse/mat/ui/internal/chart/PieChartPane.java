@@ -90,7 +90,16 @@ public class PieChartPane extends AbstractEditorPane implements ISelectionProvid
             queryResult = (QueryResult) argument;
             IResultPie pie = (IResultPie) (queryResult).getSubject();
             slices = pie.getSlices();
-            canvas.setChart(ChartBuilder.create(pie, true));
+
+            // Get the system colors
+            Color bgColor = canvas.getParent().getBackground();
+            Color fgColor = canvas.getParent().getForeground();
+
+            Chart chart = ChartBuilder.create(pie, true, ColorDefinitionImpl.create(bgColor.getRed(), bgColor
+                            .getGreen(), bgColor.getBlue()), ColorDefinitionImpl.create(fgColor.getRed(), fgColor
+                            .getGreen(), fgColor.getBlue()));
+
+            canvas.setChart(chart);
             canvas.getAccessible().addAccessibleListener(new AccessibleAdapter()
             {
 
@@ -140,7 +149,6 @@ public class PieChartPane extends AbstractEditorPane implements ISelectionProvid
     public void createPartControl(Composite parent)
     {
         Composite top = new Composite(parent, SWT.NONE);
-        top.setBackground(parent.getDisplay().getSystemColor(SWT.COLOR_WHITE));
 
         // Add a traverse listener or the canvas breaks the
         // ability to tab between the different viewers.
@@ -163,8 +171,6 @@ public class PieChartPane extends AbstractEditorPane implements ISelectionProvid
         canvas.addTraverseListener(traverseListener);
 
         label = new FormText(top, SWT.NONE);
-        label.setBackground(parent.getDisplay().getSystemColor(SWT.COLOR_WHITE));
-
         GridDataFactory.fillDefaults().grab(true, false).indent(5, 0).hint(SWT.DEFAULT, 45).applyTo(label);
 
         canvas.renderer.setProperty(IDeviceRenderer.UPDATE_NOTIFIER, new CallBackListener());

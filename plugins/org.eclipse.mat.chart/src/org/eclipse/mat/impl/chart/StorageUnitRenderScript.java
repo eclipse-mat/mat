@@ -11,7 +11,6 @@
 package org.eclipse.mat.impl.chart;
 
 import org.eclipse.birt.chart.computation.DataPointHints;
-import org.eclipse.birt.chart.model.attribute.impl.ColorDefinitionImpl;
 import org.eclipse.birt.chart.model.component.Label;
 import org.eclipse.birt.chart.script.ChartEventHandlerAdapter;
 import org.eclipse.birt.chart.script.IChartScriptContext;
@@ -24,7 +23,6 @@ public class StorageUnitRenderScript extends ChartEventHandlerAdapter
         double value = ((Double) dph.getOrthogonalValue()).doubleValue();
         long longValue = (long)value;
         label.getCaption().setValue(Units.Storage.of(longValue).format(longValue));
-        label.setBackground(ColorDefinitionImpl.create(255, 255, 255));
     }
 
 }

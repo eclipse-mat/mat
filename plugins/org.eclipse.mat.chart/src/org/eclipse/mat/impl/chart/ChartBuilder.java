@@ -47,7 +47,8 @@ public class ChartBuilder
 {
 
     @SuppressWarnings("unchecked")
-    public static final Chart create(IResultPie pie, boolean isInteractive)
+    public static final Chart create(IResultPie pie, boolean isInteractive, ColorDefinition background,
+                    ColorDefinition foreground)
     {
         float fontSize = Platform.OS_MACOSX.equals(Platform.getOS()) ? 10f : 8f;
 
@@ -102,14 +103,27 @@ public class ChartBuilder
         else
         {
             chart.getLegend().setVisible(true);
-            chart.getLegend().setBackground(ColorDefinitionImpl.WHITE());
+
+            if (background != null)
+            {
+                chart.getLegend().setBackground(
+                                ColorDefinitionImpl.create(background.getRed(), background.getGreen(),
+                                                background.getBlue()));
+            }
             chart.getLegend().getText().getFont().setSize(fontSize);
         }
 
-        Plot p = chart.getPlot();
-        p.setBackground(ColorDefinitionImpl.WHITE());
-        p.getClientArea().setBackground(ColorDefinitionImpl.WHITE());
-        chart.getBlock().setBackground(ColorDefinitionImpl.WHITE());
+        if (background != null)
+        {
+            Plot p = chart.getPlot();
+            p.setBackground(ColorDefinitionImpl.create(background.getRed(), background.getGreen(), background.getBlue()));
+            p.getClientArea()
+                            .setBackground(ColorDefinitionImpl.create(background.getRed(), background.getGreen(),
+                                            background.getBlue()));
+            chart.getBlock()
+                            .setBackground(ColorDefinitionImpl.create(background.getRed(), background.getGreen(),
+                                            background.getBlue()));
+        }
 
         Series seLabels = SeriesImpl.create();
         seLabels.setDataSet(TextDataSetImpl.create(labels));
@@ -140,6 +154,23 @@ public class ChartBuilder
         pieSeries.setLabelPosition(Position.OUTSIDE_LITERAL);
         pieSeries.getLabel().getCaption().getFont().setSize(fontSize);
         pieSeries.setExplosion(5);
+
+        if (foreground != null)
+        {
+            pieSeries.getLabel()
+                            .getCaption()
+                            .setColor(ColorDefinitionImpl.create(foreground.getRed(), foreground.getGreen(),
+                                            foreground.getBlue()));
+            pieSeries.getLeaderLineAttributes()
+                            .setColor(ColorDefinitionImpl.create(foreground.getRed(), foreground.getGreen(),
+                                            foreground.getBlue()));
+        }
+        if (background != null)
+        {
+            pieSeries.getLabel()
+                            .setBackground(ColorDefinitionImpl.create(background.getRed(), background.getGreen(),
+                                            background.getBlue()));
+        }
 
         if (isInteractive)
         {
