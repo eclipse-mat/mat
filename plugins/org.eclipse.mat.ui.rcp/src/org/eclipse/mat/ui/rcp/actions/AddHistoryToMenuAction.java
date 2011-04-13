@@ -203,7 +203,7 @@ public class AddHistoryToMenuAction extends ContributionItem
             if (i == 10)
                 continue;
             final int historyIndex = i;
-            PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable()
+            window.getWorkbench().getDisplay().syncExec(new Runnable()
             {
                 public void run()
                 {
@@ -217,15 +217,15 @@ public class AddHistoryToMenuAction extends ContributionItem
                         {
                             try
                             {
-                                IDE.openEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(),
+                                IDE.openEditor(window.getActivePage(),
                                                 new PathEditorInput(new Path(entry.getFilePath())),
                                                 entry.getEditorId(), true);
-                                if (PlatformUI.getWorkbench().getIntroManager().getIntro() != null)
+                                if (window.getWorkbench().getIntroManager().getIntro() != null)
                                 {
                                     // if this action was called with open
                                     // welcome page - set it to standby mode.
-                                    PlatformUI.getWorkbench().getIntroManager().setIntroStandby(
-                                                    PlatformUI.getWorkbench().getIntroManager().getIntro(), true);
+                                    window.getWorkbench().getIntroManager().setIntroStandby(
+                                                    window.getWorkbench().getIntroManager().getIntro(), true);
                                 }
                             }
                             catch (final PartInitException ex)
