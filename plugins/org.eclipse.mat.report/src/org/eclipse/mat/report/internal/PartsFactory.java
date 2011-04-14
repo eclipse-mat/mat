@@ -43,7 +43,7 @@ public class PartsFactory
         AbstractPart answer = null;
 
         if (spec instanceof SectionSpec)
-            answer = new SectionPart(String.valueOf(nextId++), parent, artefact, (SectionSpec) spec);
+            answer = new SectionPart(String.valueOf(nextId++), parent, artefact, (SectionSpec) spec, null);
         else if (spec instanceof QuerySpec)
             answer = new QueryPart(String.valueOf(nextId++), parent, artefact, (QuerySpec) spec);
 
@@ -63,7 +63,7 @@ public class PartsFactory
         AbstractPart answer = null;
 
         if (spec instanceof SectionSpec)
-            answer = new SectionPart(template.getId(), template.getParent(), artefact, (SectionSpec) spec);
+            answer = new SectionPart(template.getId(), template.getParent(), artefact, (SectionSpec) spec, template.getCommand());
         else if (spec instanceof QuerySpec)
             answer = new QueryPart(template.getId(), template.getParent(), artefact, (QuerySpec) spec);
 

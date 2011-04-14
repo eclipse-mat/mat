@@ -13,11 +13,10 @@ package org.eclipse.mat.report.internal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 /**
- * @noimplement
+ * @noextend
  */
 public abstract class Parameters
 {
@@ -41,9 +40,10 @@ public abstract class Parameters
         if (value == null)
             return null;
 
+        int p0 = 0;
         while (true)
         {
-            int p1 = value.indexOf("${"); //$NON-NLS-1$
+            int p1 = value.indexOf("${", p0); //$NON-NLS-1$
             if (p1 < 0)
                 return value;
 
@@ -51,7 +51,11 @@ public abstract class Parameters
             if (p2 < 0)
                 return value;
 
-            value = value.substring(0, p1) + get(value.substring(p1 + 2, p2)) + value.substring(p2 + 1);
+            // change "" to value.substring(p1, p2 + 1) to leave unknown ${xxx} unchanged
+            String subst = get(value.substring(p1 + 2, p2), ""); //$NON-NLS-1$
+            value = value.substring(0, p1) + subst + value.substring(p2 + 1);
+            // Restart search from end of substitution
+            p0 = p1 + subst.length();
         }
     }
 

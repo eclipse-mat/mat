@@ -104,6 +104,10 @@ public abstract class AbstractPart
         return children;
     }
 
+    public String getCommand() {
+        return null;
+    }
+
     public abstract AbstractPart execute(IQueryContext context, ResultRenderer renderer, IProgressListener listener)
                     throws SnapshotException, IOException;
 

@@ -22,8 +22,9 @@ import org.eclipse.mat.util.IProgressListener;
 
 public class SectionPart extends AbstractPart
 {
+    String command;
 
-    /* package */SectionPart(String id, AbstractPart parent, DataFile artefact, SectionSpec spec)
+    /* package */SectionPart(String id, AbstractPart parent, DataFile artefact, SectionSpec spec, String command)
     {
         super(id, parent, artefact, spec);
 
@@ -34,12 +35,19 @@ public class SectionPart extends AbstractPart
             spec.setName(""); //$NON-NLS-1$
             params().put(Params.Html.SHOW_HEADING, Boolean.FALSE.toString());
         }
+        this.command = command;
     }
 
+    @Override
     /* package */void init(PartsFactory factory)
     {
         for (Spec child : ((SectionSpec) spec).getChildren())
             children.add(factory.create(this, child));
+    }
+
+    @Override
+    public String getCommand() {
+        return command;
     }
 
     @Override

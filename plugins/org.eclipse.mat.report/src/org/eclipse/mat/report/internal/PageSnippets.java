@@ -102,6 +102,29 @@ import org.eclipse.mat.util.HTMLUtils;
         artefact.append("</ul></div>\n");
     }
 
+    private static void addCommandLink(AbstractPart part, HtmlArtefact artefact)
+    {
+        if (part.getCommand() != null) {
+            String cmdString = null;
+
+            try
+            {
+                cmdString = URLEncoder.encode(part.getCommand(), "UTF-8");
+            }
+            catch (UnsupportedEncodingException e)
+            {
+                // $JL-EXC$
+                // should never happen as UTF-8 is always supported
+                cmdString = part.getCommand();
+            }
+
+            artefact.append(" <a href=\"").append(QueryObjectLink.forQuery(part.getCommand())) //
+                            .append("\" title=\"" + Messages.PageSnippets_Label_OpenInMemoryAnalyzer + " ") //
+                            .append(cmdString).append("\"><img src=\"") //
+                            .append(artefact.getPathToRoot()).append("img/open.gif\"></a>");
+        }
+    }
+
     public static void endPage(HtmlArtefact artefact)
     {
         artefact.append("<br>");
@@ -154,7 +177,7 @@ import org.eclipse.mat.util.HTMLUtils;
             artefact.append("<a name=\"").append(part.getId()).append("\">");
             artefact.append(HTMLUtils.escapeText(part.spec().getName()));
             artefact.append("</a>");
-
+            addCommandLink(part, artefact);
             artefact.append("</h").append(v).append(">");
         }
     }
@@ -170,7 +193,9 @@ import org.eclipse.mat.util.HTMLUtils;
 
         artefact.append("<a href=\"").append(artefact.getPathToRoot()).append(filename).append("\">");
         artefact.append(HTMLUtils.escapeText(part.spec().getName()));
-        artefact.append("</a></h").append(v).append(">");
+        artefact.append("</a>");
+        addCommandLink(part, artefact);
+        artefact.append("</h").append(v).append(">");
     }
 
     public static void queryHeading(HtmlArtefact artefact, QueryPart query, boolean forceExpansion)
@@ -199,28 +224,7 @@ import org.eclipse.mat.util.HTMLUtils;
 
             artefact.append("<a name=\"").append(query.getId()).append("\">");
             artefact.append(HTMLUtils.escapeText(query.spec().getName())).append("</a>");
-
-            if (query.getCommand() != null)
-            {
-                String cmdString = null;
-
-                try
-                {
-                    cmdString = URLEncoder.encode(query.getCommand(), "UTF-8");
-                }
-                catch (UnsupportedEncodingException e)
-                {
-                    // $JL-EXC$
-                    // should never happen as UTF-8 is always supported
-                    cmdString = query.getCommand();
-                }
-
-                artefact.append(" <a href=\"").append(QueryObjectLink.forQuery(query.getCommand())) //
-                                .append("\" title=\"" + Messages.PageSnippets_Label_OpenInMemoryAnalyzer + " ") //
-                                .append(cmdString).append("\"><img src=\"") //
-                                .append(artefact.getPathToRoot()).append("img/open.gif\"></a>");
-            }
-
+            addCommandLink(query, artefact);
             artefact.append("</h5>");
         }
     }
