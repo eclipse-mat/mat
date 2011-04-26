@@ -12,6 +12,7 @@
 package org.eclipse.mat.tests.snapshot;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -27,6 +28,7 @@ import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.tests.TestSnapshots;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.VoidProgressListener;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class OQLTest
@@ -121,6 +123,152 @@ public class OQLTest
         assert table.getRowCount() == 2;
         assert "main".equals(table.getColumnValue(table.getRow(0), 0));
         assert "0x12832b50".equals(table.getColumnValue(table.getRow(1), 0));
+    }
+
+    @Test
+    public void testUnionCommand1() throws SnapshotException
+    {
+        String oql = "select * from objects 0,1 union (select * from objects 1,2)";
+        IOQLQuery q1 = SnapshotFactory.createQuery(oql);
+        String oql2 = q1.toString();
+        IOQLQuery q2 = SnapshotFactory.createQuery(oql2);
+        String oql3 = q2.toString();
+        assertEquals(oql2, oql3);
+    }
+
+    @Test
+    public void testUnionCommand1a() throws SnapshotException
+    {
+        int[] r = (int[])execute("select * from objects 0,1 union (select * from objects 1,2)");
+        // Should this be 3 (distinct elements) or 4 (union all)
+        //assertEquals(3, r.length);
+        //assertEquals(4, r.length);
+        assertTrue(r.length == 3 || r.length == 4);
+    }
+
+    @Ignore("Bug 343845")
+    @Test
+    public void testUnionCommand2() throws SnapshotException
+    {
+        String oql = "select s from objects 0,1 s union (select t from objects 1,2 t)";
+        Object r = execute(oql);
+        IOQLQuery.Result oo = (IOQLQuery.Result)r;
+        String oql2 = oo.getOQLQuery();
+        r = execute(oql2);
+        oo = (IOQLQuery.Result)r;
+        String oql3 = oo.getOQLQuery();
+        assertEquals(oql2, oql3);
+    }
+
+    @Test
+    public void testUnionCommand2a() throws SnapshotException
+    {
+        IResultTable t = (IResultTable)execute("select s from objects 0,1 s union (select t from objects 1,2 t)");
+        // Should this be 3 (distinct elements) or 4 (union all)
+        //assertEquals(3, t.getRowCount());
+        //assertEquals(4, t.getRowCount());
+        assertTrue(t.getRowCount() == 3 || t.getRowCount() == 4);
+    }
+
+    @Test
+    public void testUnionCommand3() throws SnapshotException
+    {
+        String oql = "select * from notfound union (select * from objects 1,2)";
+        IOQLQuery q1 = SnapshotFactory.createQuery(oql);
+        String oql2 = q1.toString();
+        IOQLQuery q2 = SnapshotFactory.createQuery(oql2);
+        String oql3 = q2.toString();
+        assertEquals(oql2, oql3);
+    }
+
+    @Ignore("Bug 343845")
+    @Test
+    public void testUnionCommand3a() throws SnapshotException
+    {
+        int[] r = (int[])execute("select * from notfound union (select * from objects 1,2)");
+        assertEquals(2, r.length);
+    }
+
+    @Ignore("Bug 343845")
+    @Test
+    public void testUnionCommand4() throws SnapshotException
+    {
+        String oql = "select s from notfound s union (select t from objects 1,2 t)";
+        Object r = execute(oql);
+        IOQLQuery.Result oo = (IOQLQuery.Result)r;
+        String oql2 = oo.getOQLQuery();
+        r = execute(oql2);
+        oo = (IOQLQuery.Result)r;
+        String oql3 = oo.getOQLQuery();
+        assertEquals(oql2, oql3);
+    }
+
+    @Ignore("Bug 343845")
+    @Test
+    public void testUnionCommand4a() throws SnapshotException
+    {
+        IResultTable t = (IResultTable)execute("select s from notfound s union (select t from objects 1,2 t)");
+        assertEquals(2, t.getRowCount());
+    }
+
+    @Test
+    public void testUnionCommand5() throws SnapshotException
+    {
+        String oql = "select * from objects 0,1 union (select * from notfound)";
+        IOQLQuery q1 = SnapshotFactory.createQuery(oql);
+        String oql2 = q1.toString();
+        IOQLQuery q2 = SnapshotFactory.createQuery(oql2);
+        String oql3 = q2.toString();
+        assertEquals(oql2, oql3);
+    }
+
+    @Test
+    public void testUnionCommand5a() throws SnapshotException
+    {
+        int[] r = (int[])execute("select * from objects 0,1 union (select * from notfound)");
+        assertEquals(2, r.length);
+    }
+
+    @Test
+    public void testUnionCommand6() throws SnapshotException
+    {
+        String oql = "select s from objects 0,1 s union (select t from notfound t)";
+        Object r = execute(oql);
+        IOQLQuery.Result oo = (IOQLQuery.Result)r;
+        String oql2 = oo.getOQLQuery();
+        r = execute(oql2);
+        oo = (IOQLQuery.Result)r;
+        String oql3 = oo.getOQLQuery();
+        assertEquals(oql2, oql3);
+    }
+
+
+    @Test
+    public void testUnionCommand6a() throws SnapshotException
+    {
+        IResultTable t = (IResultTable)execute("select s from objects 0,1 s union (select t from notfound t)");
+        assertEquals(2, t.getRowCount());
+    }
+
+    @Test
+    public void testUnionCommand7() throws SnapshotException
+    {
+        int[] r = (int[])execute("select distinct * from objects 0,0,1 union (select * from objects 1,1,2,2)");
+        assertEquals(6, r.length);
+    }
+
+    @Test
+    public void testUnionCommand8() throws SnapshotException
+    {
+        int[] r = (int[])execute("select * from objects 0,0,1 union (select distinct * from objects 1,1,2,2)");
+        assertEquals(5, r.length);
+    }
+
+    @Test
+    public void testUnionCommand9() throws SnapshotException
+    {
+        int[] r = (int[])execute("select distinct * from objects 0,0,1 union (select distinct * from objects 1,1,2,2)");
+        assertEquals(4, r.length);
     }
 
     @Test
