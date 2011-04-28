@@ -591,7 +591,20 @@ public class DominatorQuery implements IQuery
             {
                 int dominatedId = roots[ii];
 
-                int clId = snapshot.getClassOf(dominatedId).getClassLoaderId();
+                int clId;
+                if (snapshot.isClass(dominatedId))
+                {
+                    IClass cl = (IClass)snapshot.getObject(dominatedId);
+                    clId = cl.getClassLoaderId();
+                }
+                else if (snapshot.isClassLoader(dominatedId))
+                {
+                    clId = dominatedId;
+                }
+                else
+                {
+                    clId = snapshot.getClassOf(dominatedId).getClassLoaderId();
+                }
 
                 GroupedNode node = classLoader2node.get(clId);
                 if (node == null)

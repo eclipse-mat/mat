@@ -27,6 +27,7 @@ import org.eclipse.mat.report.Params;
 import org.eclipse.mat.report.QuerySpec;
 import org.eclipse.mat.report.SectionSpec;
 import org.eclipse.mat.snapshot.ISnapshot;
+import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.query.SnapshotQuery;
 import org.eclipse.mat.util.IProgressListener;
@@ -81,7 +82,19 @@ public class TopComponentsReportQuery implements IQuery
 
         for (int ii = 0; ii < topDominators.length; ii++)
         {
-            int classLoaderId = snapshot.getClassOf(topDominators[ii]).getClassLoaderId();
+            int classLoaderId;
+            if (snapshot.isClass(topDominators[ii]))
+            {
+                classLoaderId = ((IClass) snapshot.getObject(topDominators[ii])).getClassLoaderId();
+            }
+            else if (snapshot.isClassLoader(topDominators[ii]))
+            {
+                classLoaderId = topDominators[ii];
+            }
+            else
+            {
+                classLoaderId = snapshot.getClassOf(topDominators[ii]).getClassLoaderId();
+            }
 
             Record loaderRecord = id2loader.get(classLoaderId);
             if (loaderRecord == null)

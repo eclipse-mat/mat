@@ -740,10 +740,51 @@ public final class TQuantize
 
             int objectId = ctx.getObjectId();
             if (objectId < 0)
+            {
+                if (ctx instanceof IContextObjectSet)
+                {
+                    // See if all the objects have the same class loader
+                    IContextObjectSet ctx2 = (IContextObjectSet) ctx;
+                    int clsId = -1;
+                    for (int objectId2 : ctx2.getObjectIds())
+                    {
+                        int clsId2 = getClassId(objectId2);
+                        if (clsId == -1)
+                        {
+                            clsId = clsId2;
+                        }
+                        else if (clsId != clsId2)
+                        {
+                            // Mismatch, so can't accumulate into one class
+                            // loader
+                            return -1;
+                        }
+                    }
+                    return clsId;
+                }
                 return -1;
+            }
 
-            IObject obj = quantize.snapshot.getObject(objectId);
-            return obj instanceof IClass ? ((IClass) obj).getClassLoaderId() : obj.getClazz().getClassLoaderId();
+            return getClassId(objectId);
+        }
+
+        private int getClassId(int objectId) throws SnapshotException
+        {
+            int clId;
+            if (quantize.snapshot.isClass(objectId))
+            {
+                IClass cl = (IClass)quantize.snapshot.getObject(objectId);
+                clId = cl.getClassLoaderId();
+            }
+            else if (quantize.snapshot.isClassLoader(objectId))
+            {
+                clId = objectId;
+            }
+            else
+            {
+                clId = quantize.snapshot.getClassOf(objectId).getClassLoaderId();
+            }
+            return clId;
         }
     }
 
