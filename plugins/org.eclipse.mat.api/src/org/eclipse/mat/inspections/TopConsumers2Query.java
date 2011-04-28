@@ -65,7 +65,7 @@ public class TopConsumers2Query implements IQuery
     @Argument
     public ISnapshot snapshot;
 
-    @Argument(advice = Advice.HEAP_OBJECT, isMandatory = false, flag = Argument.UNFLAGGED)
+    @Argument(advice = Advice.HEAP_OBJECT, isMandatory = true, flag = Argument.UNFLAGGED)
     public int[] objects;
 
     @Argument(isMandatory = false, flag = "t")
@@ -380,15 +380,29 @@ public class TopConsumers2Query implements IQuery
             classRecord.incUsedHeapSize(usedHeap);
             classRecord.incRetainedHeapSize(topDominatorRetainedHeap[ii]);
 
-            ClassLoaderHistogramRecord loaderRecord = id2loader.get(clazz.getClassLoaderId());
+            int clId;
+            if (snapshot.isClass(topDominators[ii]))
+            {
+                IClass cl = (IClass)snapshot.getObject(topDominators[ii]);
+                clId = cl.getClassLoaderId();
+            }
+            else if (snapshot.isClassLoader(topDominators[ii]))
+            {
+                clId = topDominators[ii];
+            }
+            else
+            {
+                clId = clazz.getClassLoaderId();
+            }
+            ClassLoaderHistogramRecord loaderRecord = id2loader.get(clId);
             if (loaderRecord == null)
             {
-                IObject loader = snapshot.getObject(clazz.getClassLoaderId());
+                IObject loader = snapshot.getObject(clId);
                 String name = loader.getClassSpecificName();
                 if (name == null)
                     name = loader.getTechnicalName();
                 loaderRecord = new ClassLoaderHistogramRecord(name, loader.getObjectId(), null, 0, 0, 0);
-                id2loader.put(clazz.getClassLoaderId(), loaderRecord);
+                id2loader.put(clId, loaderRecord);
             }
             loaderRecord.incNumberOfObjects();
             loaderRecord.incUsedHeapSize(usedHeap);
