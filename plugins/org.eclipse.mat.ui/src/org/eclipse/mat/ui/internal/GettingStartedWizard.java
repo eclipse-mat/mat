@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2011 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation - accessibility improvements
  *******************************************************************************/
 package org.eclipse.mat.ui.internal;
 
@@ -39,8 +40,13 @@ import org.eclipse.mat.ui.actions.ImportReportAction;
 import org.eclipse.mat.ui.internal.actions.ExecuteQueryAction;
 import org.eclipse.mat.ui.snapshot.editor.HeapEditor;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.accessibility.AccessibleAdapter;
+import org.eclipse.swt.accessibility.AccessibleEvent;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
@@ -115,6 +121,8 @@ public class GettingStartedWizard extends Wizard
         private Button leakReport;
         private Button openReports;
         private Button askAgain;
+        private static String space = " ";    //$NON-NLS-1$
+        private static String fullStop = "."; //$NON-NLS-1$
 
         public ChoicePage()
         {
@@ -127,43 +135,134 @@ public class GettingStartedWizard extends Wizard
         public void createControl(Composite parent)
         {
             Composite composite = new Composite(parent, SWT.NONE);
-            GridLayoutFactory.fillDefaults().applyTo(composite);
-
             Composite choices = new Composite(composite, SWT.NONE);
-            GridDataFactory.fillDefaults().grab(false, true).applyTo(choices);
 
-            GridLayoutFactory.fillDefaults().applyTo(choices);
+            FormLayout formLayout = new FormLayout();
+            choices.setLayout(formLayout);
+            composite.setLayout(formLayout);
 
             leakReport = new Button(choices, SWT.RADIO);
             leakReport.setText(Messages.GettingStartedWizard_LeakSuspectReport);
             leakReport.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DIALOG_FONT));
             leakReport.addListener(SWT.Selection, this);
 
-            Label description = new Label(choices, SWT.WRAP);
-            description.setText(Messages.GettingStartedWizard_LeakSuspectReportDescription);
-            GridDataFactory.fillDefaults().indent(18, 0).hint(description.computeSize(300, SWT.DEFAULT)).applyTo(
-                            description);
-            description.setFont(JFaceResources.getFontRegistry().get(JFaceResources.DIALOG_FONT));
+            // Set the button's accessible name to the text + description
+            leakReport.getAccessible().addAccessibleListener(new AccessibleAdapter()
+            {
+
+                @Override
+                public void getName(AccessibleEvent e)
+                {
+                    e.result = Messages.GettingStartedWizard_LeakSuspectReport + fullStop + space
+                                    + Messages.GettingStartedWizard_LeakSuspectReportDescription;
+                }
+            });
 
             componentReport = new Button(choices, SWT.RADIO);
             componentReport.setText(Messages.GettingStartedWizard_ComponentReport);
             componentReport.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DIALOG_FONT));
             componentReport.addListener(SWT.Selection, this);
-            description = new Label(choices, SWT.WRAP);
-            description.setText(Messages.GettingStartedWizard_ComponentReportDescription);
-            GridDataFactory.fillDefaults().indent(18, 0).hint(description.computeSize(300, SWT.DEFAULT)).applyTo(
-                            description);
-            description.setFont(JFaceResources.getFontRegistry().get(JFaceResources.DIALOG_FONT));
+
+            // Set the button's accessible name to the text + description
+            componentReport.getAccessible().addAccessibleListener(new AccessibleAdapter()
+            {
+
+                @Override
+                public void getName(AccessibleEvent e)
+                {
+                    e.result = Messages.GettingStartedWizard_ComponentReport + fullStop + space
+                                    + Messages.GettingStartedWizard_ComponentReportDescription;
+                }
+            });
 
             openReports = new Button(choices, SWT.RADIO);
             openReports.setText(Messages.GettingStartedWizard_ReOpenExistingReports);
             openReports.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DIALOG_FONT));
             openReports.addListener(SWT.Selection, this);
-            description = new Label(choices, SWT.WRAP);
-            description.setText(Messages.GettingStartedWizard_ExistingReportsLocation);
-            GridDataFactory.fillDefaults().indent(18, 0).hint(description.computeSize(300, SWT.DEFAULT)).applyTo(
-                            description);
-            description.setFont(JFaceResources.getFontRegistry().get(JFaceResources.DIALOG_FONT));
+
+            // Set the button's accessible name to the text + description
+            openReports.getAccessible().addAccessibleListener(new AccessibleAdapter()
+            {
+
+                @Override
+                public void getName(AccessibleEvent e)
+                {
+                    e.result = Messages.GettingStartedWizard_ReOpenExistingReports + fullStop + space
+                                    + Messages.GettingStartedWizard_ExistingReportsLocation;
+                }
+            });
+
+            Label leakDescription = new Label(choices, SWT.WRAP);
+            // Set the label's accessible name to space as we are reading this
+            // with the button
+            leakDescription.getAccessible().addAccessibleListener(new AccessibleAdapter()
+            {
+
+                @Override
+                public void getName(AccessibleEvent e)
+                {
+                    e.result = space;
+                }
+            });
+            leakDescription.setText(Messages.GettingStartedWizard_LeakSuspectReportDescription);
+            leakDescription.setFont(JFaceResources.getFontRegistry().get(JFaceResources.DIALOG_FONT));
+
+            Label componentDescription = new Label(choices, SWT.WRAP);
+            componentDescription.setText(Messages.GettingStartedWizard_ComponentReportDescription);
+            componentDescription.setFont(JFaceResources.getFontRegistry().get(JFaceResources.DIALOG_FONT));
+
+            // Set the label's accessible name to space as we are reading this
+            // with the button
+            componentDescription.getAccessible().addAccessibleListener(new AccessibleAdapter()
+            {
+
+                @Override
+                public void getName(AccessibleEvent e)
+                {
+                    e.result = space;
+                }
+            });
+            Label openDescription = new Label(choices, SWT.WRAP);
+            openDescription.setText(Messages.GettingStartedWizard_ExistingReportsLocation);
+            openDescription.setFont(JFaceResources.getFontRegistry().get(JFaceResources.DIALOG_FONT));
+
+            // Set the label's accessible name to space as we are reading this
+            // with the button
+            openDescription.getAccessible().addAccessibleListener(new AccessibleAdapter()
+            {
+
+                @Override
+                public void getName(AccessibleEvent e)
+                {
+                    e.result = space;
+                }
+            });
+
+            // Layout the buttons this way so that JAWS reads them as a group
+            FormData data = new FormData();
+            leakReport.setLayoutData(data);
+
+            data = new FormData(450, SWT.DEFAULT);
+            data.top = new FormAttachment(leakReport, 10, SWT.DEFAULT);
+            leakDescription.setLayoutData(data);
+
+            data = new FormData();
+            data.top = new FormAttachment(leakDescription, 10, SWT.DEFAULT);
+            componentReport.setLayoutData(data);
+
+            data = new FormData(450, SWT.DEFAULT);
+            data.top = new FormAttachment(componentReport, 10, SWT.DEFAULT);
+            componentDescription.setLayoutData(data);
+
+            data = new FormData();
+            data.top = new FormAttachment(componentDescription, 10, SWT.DEFAULT);
+            openReports.setLayoutData(data);
+
+            data = new FormData(450, SWT.DEFAULT);
+            data.top = new FormAttachment(openReports, 10, SWT.DEFAULT);
+            openDescription.setLayoutData(data);
+
+            choices.pack();
 
             askAgain = new Button(composite, SWT.CHECK);
             askAgain.setSelection(true);
@@ -172,6 +271,12 @@ public class GettingStartedWizard extends Wizard
 
             IPreferenceStore prefs = MemoryAnalyserPlugin.getDefault().getPreferenceStore();
             askAgain.setSelection(!prefs.getBoolean(HIDE_WIZARD_KEY));
+
+            data = new FormData();
+            data.top = new FormAttachment(choices, 20, SWT.DEFAULT);
+            askAgain.setLayoutData(data);
+
+            composite.pack();
 
             setControl(composite);
         }
