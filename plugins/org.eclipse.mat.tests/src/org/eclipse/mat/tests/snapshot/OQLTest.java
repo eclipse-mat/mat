@@ -146,7 +146,6 @@ public class OQLTest
         assertTrue(r.length == 3 || r.length == 4);
     }
 
-    @Ignore("Bug 343845")
     @Test
     public void testUnionCommand2() throws SnapshotException
     {
@@ -181,7 +180,6 @@ public class OQLTest
         assertEquals(oql2, oql3);
     }
 
-    @Ignore("Bug 343845")
     @Test
     public void testUnionCommand3a() throws SnapshotException
     {
@@ -189,7 +187,6 @@ public class OQLTest
         assertEquals(2, r.length);
     }
 
-    @Ignore("Bug 343845")
     @Test
     public void testUnionCommand4() throws SnapshotException
     {
@@ -203,7 +200,6 @@ public class OQLTest
         assertEquals(oql2, oql3);
     }
 
-    @Ignore("Bug 343845")
     @Test
     public void testUnionCommand4a() throws SnapshotException
     {

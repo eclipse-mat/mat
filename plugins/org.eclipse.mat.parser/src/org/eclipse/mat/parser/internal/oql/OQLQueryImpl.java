@@ -670,7 +670,7 @@ public class OQLQueryImpl implements IOQLQuery
             unionResultSet = new UnionResultSet();
             unionResultSet.addResultSet((ResultSet) result);
         }
-        else
+        else if (result instanceof IntResult)
         {
             IntResult intResult = (IntResult) result;
             unionIntResult = new IntArrayResult(intResult.size());
@@ -705,6 +705,17 @@ public class OQLQueryImpl implements IOQLQuery
                 else if (unionIntResult != null)
                 {
                     unionIntResult.addAll((IntResult) unionResult);
+                }
+                // If no combined result has been created then get one now.
+                else if (this.query.getSelectClause().getSelectList().isEmpty() || this.query.getSelectClause().isAsObjects())
+                {
+                    unionIntResult = new IntArrayResult(0);
+                    unionIntResult.addAll((IntResult) unionResult);
+                }
+                else
+                {
+                    unionResultSet = new UnionResultSet();
+                    unionResultSet.addResultSet((ResultSet) unionResult);
                 }
             }
         }
@@ -1059,14 +1070,14 @@ public class OQLQueryImpl implements IOQLQuery
         }
         else if (select.isAsObjects())
         {
-            ResultSet temp = new ResultSet(this, objectIds.toArray());
+            ResultSet temp = new ResultSet(getSelectQuery(), objectIds.toArray());
             IntResult r = createIntResult(objectIds.size());
             convertToObjects(temp, r, listener);
             return r;
         }
         else
         {
-            return new ResultSet(this, objectIds.toArray());
+            return new ResultSet(getSelectQuery(), objectIds.toArray());
         }
     }
 
@@ -1083,14 +1094,14 @@ public class OQLQueryImpl implements IOQLQuery
         }
         else if (select.isAsObjects())
         {
-            ObjectResultSet temp = new ObjectResultSet(this, objects);
+            ObjectResultSet temp = new ObjectResultSet(getSelectQuery(), objects);
             IntResult r = createIntResult(temp.getRowCount());
             convertToObjects(temp, r, listener);
             return r;
         }
         else
         {
-            return new ObjectResultSet(this, objects);
+            return new ObjectResultSet(getSelectQuery(), objects);
         }
     }
 
@@ -1108,15 +1119,28 @@ public class OQLQueryImpl implements IOQLQuery
         }
         else if (select.isAsObjects())
         {
-            ObjectResultSet temp = new ObjectResultSet(this, Arrays.asList(new Object[] { object }));
+            ObjectResultSet temp = new ObjectResultSet(getSelectQuery(), Arrays.asList(new Object[] { object }));
             IntResult r = createIntResult(temp.getRowCount());
             convertToObjects(temp, r, listener);
             return r;
         }
         else
         {
-            return new ObjectResultSet(this, Arrays.asList(new Object[] { object }));
+            return new ObjectResultSet(getSelectQuery(), Arrays.asList(new Object[] { object }));
         }
+    }
+
+    /**
+     * Get an query without the union clause for results before applying the union clause.
+     * @return A new query without the union clause.
+     */
+    private OQLQueryImpl getSelectQuery() {
+        Query q2 = new Query();
+        q2.setSelectClause(query.getSelectClause());
+        q2.setFromClause(query.getFromClause());
+        q2.setWhereClause(query.getWhereClause());
+        OQLQueryImpl qi = new OQLQueryImpl(ctx, q2);
+        return qi;
     }
 
     private IntArrayResult convertToObjectIds(List<?> objects) throws SnapshotException
