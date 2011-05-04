@@ -713,14 +713,13 @@ public class LeakHunterQuery implements IQuery
 
             if (!mapping.isEmpty())
             {
-                builder.append("<p><b>").append(resolver.getTicketSystem()).append("</b><br>"); //$NON-NLS-1$ //$NON-NLS-2$
+                builder.append("<br><b>").append(resolver.getTicketSystem()).append("</b><br>"); //$NON-NLS-1$ //$NON-NLS-2$
                 for (Map.Entry<String, String> entry : mapping.entrySet())
                 {
                     builder.append(
                                     MessageUtil.format(Messages.LeakHunterQuery_TicketForSuspect, entry.getKey(), entry
                                                     .getValue())).append("<br>"); //$NON-NLS-1$
                 }
-                builder.append("</p>"); //$NON-NLS-1$
             }
         }
     }
