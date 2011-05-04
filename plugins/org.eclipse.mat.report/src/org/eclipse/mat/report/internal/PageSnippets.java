@@ -20,6 +20,7 @@ import java.util.Locale;
 import org.eclipse.mat.query.registry.QueryObjectLink;
 import org.eclipse.mat.report.Params;
 import org.eclipse.mat.report.internal.ResultRenderer.HtmlArtefact;
+import org.eclipse.mat.report.internal.ResultRenderer.Key;
 import org.eclipse.mat.util.HTMLUtils;
 
 @SuppressWarnings("nls")
@@ -48,7 +49,7 @@ import org.eclipse.mat.util.HTMLUtils;
                         "code.js\" type=\"text/javascript\"></script>");
         artefact.append("</head><body onload=\"preparepage();\">");
 
-        artefact.append("<input type=\"hidden\" id=\"$imageBase\" value=\"").append(artefact.getPathToRoot()).append(
+        artefact.append("<input type=\"hidden\" id=\"imageBase\" value=\"").append(artefact.getPathToRoot()).append(
                         "img/\">");
 
         artefact.append("<div id=\"header\"><ul>");
@@ -77,10 +78,10 @@ import org.eclipse.mat.util.HTMLUtils;
 
             for (AbstractPart p : path)
             {
-                HtmlArtefact page = (HtmlArtefact) p.getObject("artefact");
+                HtmlArtefact page = (HtmlArtefact) p.getObject(Key.ARTEFACT);
                 tmp = p;
                 while (page == null)
-                    page = (HtmlArtefact) (tmp = tmp.getParent()).getObject("artefact");
+                    page = (HtmlArtefact) (tmp = tmp.getParent()).getObject(Key.ARTEFACT);
 
                 artefact.append("<li>");
                 if (!isFirst)
@@ -121,7 +122,7 @@ import org.eclipse.mat.util.HTMLUtils;
             artefact.append(" <a href=\"").append(QueryObjectLink.forQuery(part.getCommand())) //
                             .append("\" title=\"" + Messages.PageSnippets_Label_OpenInMemoryAnalyzer + " ") //
                             .append(cmdString).append("\"><img src=\"") //
-                            .append(artefact.getPathToRoot()).append("img/open.gif\"></a>");
+                            .append(artefact.getPathToRoot()).append("img/open.gif\" alt=\"\"></a>");
         }
     }
 
@@ -167,12 +168,12 @@ import org.eclipse.mat.util.HTMLUtils;
                                 .append(Messages.PageSnippets_Label_HideUnhide) //
                                 .append("\"><img src=\"") //
                                 .append(artefact.getPathToRoot()).append(isExpanded ? OPENED : CLOSED) //
-                                .append("\"></a> ");
+                                .append("\" alt=\"\"></a> ");
             }
 
             if (part.getStatus() != null)
                 artefact.append("<img src=\"").append(artefact.getPathToRoot()) //
-                                .append("img/").append(part.getStatus().name().toLowerCase(Locale.ENGLISH) + ".gif\"> ");
+                                .append("img/").append(part.getStatus().name().toLowerCase(Locale.ENGLISH) + ".gif\" alt=\"\"> ");
 
             artefact.append("<a name=\"").append(part.getId()).append("\">");
             artefact.append(HTMLUtils.escapeText(part.spec().getName()));
@@ -189,7 +190,7 @@ import org.eclipse.mat.util.HTMLUtils;
 
         if (part instanceof QueryPart && part.getStatus() != null)
             artefact.append("<img src=\"").append(artefact.getPathToRoot()).append("img/").append(
-                            part.getStatus().name().toLowerCase(Locale.ENGLISH) + ".gif\"> ");
+                            part.getStatus().name().toLowerCase(Locale.ENGLISH) + ".gif\" alt=\"\"> ");
 
         artefact.append("<a href=\"").append(artefact.getPathToRoot()).append(filename).append("\">");
         artefact.append(HTMLUtils.escapeText(part.spec().getName()));
@@ -216,11 +217,11 @@ import org.eclipse.mat.util.HTMLUtils;
                             .append("'); return false;\" title=\"") //
                             .append(Messages.PageSnippets_Label_HideUnhide) //
                             .append("\"><img src=\"") //
-                            .append(artefact.getPathToRoot()).append(isExpanded ? OPENED : CLOSED).append("\"></a> ");
+                            .append(artefact.getPathToRoot()).append(isExpanded ? OPENED : CLOSED).append("\" alt=\"\"></a> ");
 
             if (query.getStatus() != null)
                 artefact.append("<img src=\"").append(artefact.getPathToRoot()).append("img/").append(
-                                query.getStatus().name().toLowerCase(Locale.ENGLISH) + ".gif\"> ");
+                                query.getStatus().name().toLowerCase(Locale.ENGLISH) + ".gif\" alt=\"\"> ");
 
             artefact.append("<a name=\"").append(query.getId()).append("\">");
             artefact.append(HTMLUtils.escapeText(query.spec().getName())).append("</a>");

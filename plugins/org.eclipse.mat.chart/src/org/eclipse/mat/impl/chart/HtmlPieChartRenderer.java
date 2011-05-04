@@ -104,7 +104,7 @@ public class HtmlPieChartRenderer implements IOutputter
             String imageMap = ((IImageMapEmitter) render).getImageMap();
             String mapName = "chart" + context.getId() + "map"; //$NON-NLS-1$ //$NON-NLS-2$
             writer.append("<map name='").append(mapName).append("'>").append(imageMap).append("</map>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-            writer.append("<img src=\"").append(imageFile).append("\" width=\"800\" height=\"350\" usemap='#").append(mapName).append("'>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            writer.append("<img src=\"").append(imageFile).append("\" width=\"800\" height=\"350\" usemap='#").append(mapName).append("' alt=\"\">"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         }
         catch (LinkageError e)
         {

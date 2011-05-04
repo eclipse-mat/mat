@@ -47,7 +47,7 @@ public class ResultRenderer
     /* package */static final String DIR_PAGES = "pages"; //$NON-NLS-1$
     /* package */static final String DIR_ICONS = "icons"; //$NON-NLS-1$
 
-    private interface Key
+    interface Key
     {
         String IS_EXPANDABLE = "isExpandable"; //$NON-NLS-1$
         String ARTEFACT = "artefact"; //$NON-NLS-1$
@@ -519,7 +519,7 @@ public class ResultRenderer
             toc.append("<li>");
 
             if (part.getStatus() != null)
-                toc.append("<img src=\"img/").append(part.getStatus().name().toLowerCase(Locale.ENGLISH) + ".gif\"> ");
+                toc.append("<img src=\"img/").append(part.getStatus().name().toLowerCase(Locale.ENGLISH) + ".gif\" alt=\"\"> ");
 
             HtmlArtefact page = (HtmlArtefact) part.getObject(Key.ARTEFACT);
             AbstractPart p = part;

@@ -10,7 +10,7 @@
  *******************************************************************************/
 function hide(obj, a)
 {
-	var imageBase = document.getElementById('$imageBase');
+	var imageBase = document.getElementById('imageBase');
 	var div = document.getElementById(a).style;
 	
 	if (div.display == "none")
@@ -38,7 +38,7 @@ function preparepage()
 
 function rendertrees()
 {
-	var imageBase = document.getElementById('$imageBase');
+	var imageBase = document.getElementById('imageBase');
 
 	var tables=document.getElementsByTagName('table');
 	for (var i=0;i<tables.length;i++)
@@ -162,7 +162,7 @@ function stripe(table)
 
 function collapsible()
 {
-	var imageBase = document.getElementById('$imageBase');
+	var imageBase = document.getElementById('imageBase');
 	closedImage = imageBase.value + 'closed.gif';
 	openedImage = imageBase.value + 'opened.gif';
 	nochildrenImage = imageBase.value + 'nochildren.gif';

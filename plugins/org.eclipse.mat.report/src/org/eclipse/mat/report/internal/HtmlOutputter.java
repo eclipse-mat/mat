@@ -126,7 +126,7 @@ public class HtmlOutputter implements IOutputter
 
                 String iconUrl = context.addIcon(table.getIcon(row));
                 if (iconUrl != null)
-                    artefact.append("<img src=\"").append(iconUrl).append("\">");
+                    artefact.append("<img src=\"").append(iconUrl).append("\" alt=\"\">");
                 renderColumnValue(context, artefact, table, columns, row, 0);
 
                 artefact.append("</td>");
@@ -211,7 +211,7 @@ public class HtmlOutputter implements IOutputter
 
                         renderTreeIndentation(artefact, branches);
 
-                        artefact.append("<img src=\"").append(iconUrl).append("\">");
+                        artefact.append("<img src=\"").append(iconUrl).append("\" alt=\"\">");
                         artefact.append("<ul><li>").append(totalsRow.getLabel(i)).append("</li></ul>").append("</td>");
                     }
                     else
@@ -289,7 +289,7 @@ public class HtmlOutputter implements IOutputter
 
                 String iconUrl = context.addIcon(tree.getIcon(element));
                 if (iconUrl != null)
-                    artefact.append("<img src=\"").append(iconUrl).append("\">");
+                    artefact.append("<img src=\"").append(iconUrl).append("\" alt=\"\">");
 
                 artefact.append("<ul><li>");
                 renderColumnValue(context, artefact, tree, columns, element, 0);
@@ -391,7 +391,7 @@ public class HtmlOutputter implements IOutputter
                             artefact.append("<a href=\"").append(link).append("\">");
                             String iconUrl = context.addIcon(p.getIcon());
                             if (iconUrl != null)
-                                artefact.append("<img src=\"").append(iconUrl).append("\">");
+                                artefact.append("<img src=\"").append(iconUrl).append("\" alt=\"\">");
                             artefact.append(p.getLabel());
                             artefact.append("</a>");
                         }
@@ -507,20 +507,20 @@ public class HtmlOutputter implements IOutputter
                 String externalIdentifier = context.getQueryContext().mapToExternalIdentifier(objectId);
                 artefact.append("<a href=\"").append(QueryObjectLink.forObject(externalIdentifier)).append("\">");
                 if (iconURL != null)
-                    artefact.append("<img src=\"").append(iconURL).append("\">");
+                    artefact.append("<img src=\"").append(iconURL).append("\" alt=\"\">");
                 artefact.append(label).append("</a>");
             }
             catch (SnapshotException exception)
             {
                 if (iconURL != null)
-                    artefact.append("<img src=\"").append(iconURL).append("\">");
+                    artefact.append("<img src=\"").append(iconURL).append("\" alt=\"\">");
                 artefact.append(label);
             }
         }
         else
         {
             if (iconURL != null)
-                artefact.append("<img src=\"").append(iconURL).append("\">");
+                artefact.append("<img src=\"").append(iconURL).append("\" alt=\"\">");
             artefact.append(label);
         }
         if (ctx instanceof IContextObjectSet)
