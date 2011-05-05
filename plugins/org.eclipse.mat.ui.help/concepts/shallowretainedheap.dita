@@ -56,7 +56,9 @@
 			well as all other objects only accessible through these objects. The
 			retained size is the total heap size of all objects contained in the
 			retained set.</p>
-		<image href="../mimes/62ff1436.png"></image>
+		<image href="../mimes/62ff1436.png">
+			<alt>Example object graph</alt>
+		</image>
 		<p>The Minimum Retained Size gives a good (under)estimation of the
 			retained size which is calculated ways faster than the
 			exact retained size of a set of objects. It only depends on the

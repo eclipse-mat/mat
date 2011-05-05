@@ -37,57 +37,75 @@
 				</sthead>
 				<strow>
 					<stentry>
-						<image href="../mimes/i-arrayobject.png"></image>
+						<image href="../mimes/i-arrayobject.png">
+							<alt>Array object icon</alt>
+						</image>
 					</stentry>
 					<stentry>Array object</stentry>
 				</strow>
 				<strow>
 					<stentry>
-						<image href="../mimes/i-class.png"></image>
+						<image href="../mimes/i-class.png">
+							<alt>Class icon</alt>
+						</image>
 					</stentry>
 					<stentry>Instances grouped by class</stentry>
 				</strow>
 				<strow>
 					<stentry>
-						<image href="../mimes/i-package.png"></image>
+						<image href="../mimes/i-package.png">
+							<alt>Package icon</alt>
+						</image>
 					</stentry>
 					<stentry>Package</stentry>
 				</strow>
 				<strow>
 					<stentry>
-						<image href="../mimes/i-superclass.png"></image>
+						<image href="../mimes/i-superclass.png">
+							<alt>superclass icon</alt>
+						</image>
 					</stentry>
 					<stentry>Super class</stentry>
 				</strow>
 				<strow>
 					<stentry>
-						<image href="../mimes/i-classobject.png"></image>
+						<image href="../mimes/i-classobject.png">
+							<alt>class object icon</alt>
+						</image>
 					</stentry>
 					<stentry>Class object</stentry>
 				</strow>
 				<strow>
 					<stentry>
-						<image href="../mimes/i-classloaderobject.png"></image>
+						<image href="../mimes/i-classloaderobject.png">
+							<alt>class loader icon</alt>
+						</image>
 					</stentry>
 					<stentry>Class loader object</stentry>
 				</strow>
 				<strow>
 					<stentry>
-						<image href="../mimes/i-heapdump.png"></image>
+						<image href="../mimes/i-heapdump.png">
+							<alt>heap dump icon></alt>
+						</image>
 					</stentry>
 					<stentry>Heap dump</stentry>
 				</strow>
 				<strow>
 					<stentry>
-						<image href="../mimes/i-objectaddress.png"></image>
+						<image href="../mimes/i-objectaddress.png">
+							<alt>Object address icon</alt>
+						</image>
 					</stentry>
 					<stentry>Object address</stentry>
 				</strow>
 				<strow>
 					<stentry>
-						<image href="../mimes/i-otherobject.png"></image>
+						<image href="../mimes/i-otherobject.png">
+							<alt>other object icon</alt>
+						</image>
 					</stentry>
-					<stentry>Other object</stentry>
+					<stentry>Other object; not a class, classloader or array object</stentry>
 				</strow>
 				<strow>
 					<stentry></stentry>
@@ -97,19 +115,25 @@
 				</strow>
 				<strow>
 					<stentry>
-						<image href="../mimes/i-horefabove.png"></image>
+						<image href="../mimes/i-horefabove.png">
+							<alt>icon for heap object referencing one above</alt>
+						</image>
 					</stentry>
 					<stentry>This heap object references the one above</stentry>
 				</strow>
 				<strow>
 					<stentry>
-						<image href="../mimes/i-horefbelow.png"></image>
+						<image href="../mimes/i-horefbelow.png">
+							<alt>icon for heap object referencing one below</alt>
+						</image>
 					</stentry>
 					<stentry>This heap object references the one below</stentry>
 				</strow>
 				<strow>
 					<stentry>
-						<image href="../mimes/i-hoisgcroot.png"></image>
+						<image href="../mimes/i-hoisgcroot.png">
+							<alt>icon for heap object which is a Garbage Collection Root</alt>
+						</image>
 					</stentry>
 					<stentry>This heap object is a Garbage Collection Root
 					</stentry>
@@ -122,167 +146,221 @@
 				</strow>
 				<strow>
 					<stentry>
-						<image href="../mimes/i-dominatortree.png"></image>
+						<image href="../mimes/i-dominatortree.png">
+							<alt>Dominator tree toolbar icon</alt>
+						</image>
 					</stentry>
 					<stentry>Dominator tree</stentry>
 				</strow>
 				<strow>
 					<stentry>
-						<image href="../mimes/i-querybrowser.png"></image>
+						<image href="../mimes/i-querybrowser.png">
+							<alt>Query browser toolbar icon</alt>
+						</image>
 					</stentry>
 					<stentry>Query browser</stentry>
 				</strow>
 				<strow>
 					<stentry>
-						<image href="../mimes/i-retainedset.png"></image>
+						<image href="../mimes/i-retainedset.png">
+							<alt>Retained set toolbar icon</alt>
+						</image>
 					</stentry>
 					<stentry>Retained set / Customized retained set</stentry>
 				</strow>
 				<strow>
 					<stentry>
-						<image href="../mimes/i-expert.png"></image>
+						<image href="../mimes/i-expert.png">
+							<alt>Run a report toolbar icon</alt>
+						</image>
 					</stentry>
 					<stentry>Run a report</stentry>
 				</strow>
 				<strow>
 					<stentry>
-						<image href="../mimes/i-compare.png"></image>
+						<image href="../mimes/i-compare.png">
+							<alt>Compare histogram toolbar icon</alt>
+						</image>
 					</stentry>
-					<stentry>Compare</stentry>
+					<stentry>Compare, compare basket</stentry>
 				</strow>
 				<strow>
 					<stentry>
-						<image href="../mimes/i-showhg.png"></image>
+						<image href="../mimes/i-showhg.png">
+							<alt>Show as histogram toolbar icon</alt>
+						</image>
 					</stentry>
 					<stentry>Show as histogram</stentry>
 				</strow>
 				<strow>
 					<stentry>
-						<image href="../mimes/i-calcrs.png"></image>
+						<image href="../mimes/i-calcrs.png">
+							<alt>calculator icon</alt>
+						</image>
 					</stentry>
 					<stentry>Calculate retained size</stentry>
 				</strow>
 				<strow>
 					<stentry>
-						<image href="../mimes/i-idominators.png"></image>
+						<image href="../mimes/i-idominators.png">
+							<alt>Immediate dominators icon</alt>
+						</image>
 					</stentry>
 					<stentry>Immediate Dominators</stentry>
 				</strow>
 				<strow>
 					<stentry>
-						<image href="../mimes/i-histogram.png"></image>
+						<image href="../mimes/i-histogram.png">
+							<alt>histogram icon</alt>
+						</image>
 					</stentry>
 					<stentry>Histogram</stentry>
 				</strow>
 				<strow>
 					<stentry>
-						<image href="../mimes/i-thread.png"></image>
+						<image href="../mimes/i-thread.png">
+							<alt>thread icon</alt>
+						</image>
 					</stentry>
 					<stentry>Thread related query</stentry>
 				</strow>
 				<strow>
 					<stentry>
-						<image href="../mimes/i-pathtogc.png"></image>
+						<image href="../mimes/i-pathtogc.png">
+							<alt>path to GC roots icon></alt>
+						</image>
 					</stentry>
 					<stentry>Paths to GC Roots</stentry>
 				</strow>
 				<strow>
 					<stentry>
-						<image href="../mimes/i-export.png"></image>
+						<image href="../mimes/i-export.png">
+							<alt>export icon</alt>
+						</image>
 					</stentry>
 					<stentry>Export drop-down menu</stentry>
 				</strow>
 				<strow>
 					<stentry>
-						<image href="../mimes/i-search.png"></image>
+						<image href="../mimes/i-search.png">
+							<alt>search icon</alt>
+						</image>
 					</stentry>
 					<stentry>Search object by its address</stentry>
 				</strow>
 				<strow>
 					<stentry>
-						<image href="../mimes/i-filter.png"></image>
+						<image href="../mimes/i-filter.png">
+							<alt>filter icon</alt>
+						</image>
 					</stentry>
 					<stentry>Filter</stentry>
 				</strow>
 				<strow>
 					<stentry>
-						<image href="../mimes/i-oqleditor.png"></image>
+						<image href="../mimes/i-oqleditor.png">
+							<alt>OQL icon</alt>
+						</image>
 					</stentry>
 					<stentry>Object Query Language Editor</stentry>
 				</strow>
 				<strow>
 					<stentry>
-						<image href="../mimes/i-shallow.png"></image>
+						<image href="../mimes/i-shallow.png">
+							<alt>object size icon</alt>
+						</image>
 					</stentry>
 					<stentry>Shallow / heap sizes (in Object Inspector)
 					</stentry>
 				</strow>
 				<strow>
 					<stentry>
-						<image href="../mimes/i-grouping.png"></image>
+						<image href="../mimes/i-grouping.png">
+							<alt>grouping icon</alt>
+						</image>
 					</stentry>
 					<stentry>Grouping drop-down menu</stentry>
 				</strow>
 				<strow>
 					<stentry>
-						<image href="../mimes/i-objectinspectorview.png"></image>
+						<image href="../mimes/i-objectinspectorview.png">
+							<alt>pin icon</alt>
+						</image>
 					</stentry>
 					<stentry>Pin current Object Inspector view (keep the content
 						constant)</stentry>
 				</strow>
 				<strow>
 					<stentry>
-						<image href="../mimes/i-oom.png"></image>
+						<image href="../mimes/i-oom.png">
+							<alt>Out of memory icon</alt>
+						</image>
 					</stentry>
 					<stentry>Out of Memory stack trace (not always available)
 					</stentry>
 				</strow>
 				<strow>
 					<stentry>
-						<image href="../mimes/i-totalsrow.png"></image>
+						<image href="../mimes/i-totalsrow.png">
+							<alt>summation icon</alt>
+						</image>
 					</stentry>
 					<stentry>Totals row. Decorated with + means that not all the
 						children are shown and the list can be expanded</stentry>
 				</strow>
 				<strow>
 					<stentry>
-						<image href="../mimes/i-openexportsr.png"></image>
+						<image href="../mimes/i-openexportsr.png">
+							<alt>open report icon</alt>
+						</image>
 					</stentry>
 					<stentry>Open expert system report</stentry>
 				</strow>
 				<strow>
 					<stentry>
-						<image href="../mimes/i-overview.png"></image>
+						<image href="../mimes/i-overview.png">
+							<alt>information icon</alt>
+						</image>
 					</stentry>
 					<stentry>Overview pane</stentry>
 				</strow>
 				<strow>
 					<stentry>
-						<image href="../mimes/i-openhd.png"></image>
+						<image href="../mimes/i-openhd.png">
+							<alt>open heap dump icon</alt>
+						</image>
 					</stentry>
 					<stentry>Open the heap dump</stentry>
 				</strow>
 				<strow>
 					<stentry>
-						<image href="../mimes/i-openhdff.png"></image>
+						<image href="../mimes/i-openhdff.png">
+							<alt>open heap dump file icon</alt>
+						</image>
 					</stentry>
 					<stentry>Open the heap dump from a file</stentry>
 				</strow>
 				<strow>
 					<stentry>
-						<image href="../mimes/i-finalizers.png"></image>
+						<image href="../mimes/i-finalizers.png">
+							<alt>finalizers flag icon</alt>
+						</image>
 					</stentry>
 					<stentry>Finalizers overview</stentry>
 				</strow>
 				<strow>
 					<stentry>
-						<image href="../mimes/i-export_xls.png"></image>
+						<image href="../mimes/i-export_xls.png">
+							<alt>Export to CSV icon</alt>
+						</image>
 					</stentry>
-					<stentry>Export to .xls</stentry>
+					<stentry>Export to .csv</stentry>
 				</strow>
 				<strow>
 					<stentry>
-						<image href="../mimes/i-export_html.png"></image>
+						<image href="../mimes/i-export_html.png">
+							<alt>Export to HTML</alt>
+						</image>
 					</stentry>
 					<stentry>Export to .html</stentry>
 				</strow>
@@ -294,34 +372,44 @@
 				</strow>
 				<strow>
 					<stentry>
-						<image href="../mimes/i-notesview.png"></image>
+						<image href="../mimes/i-notesview.png">
+							<alt>Notes icon</alt>
+						</image>
 					</stentry>
 					<stentry>Notes View - write and edit you notes in this view.
 						All the notes are stored together with the heap dump.</stentry>
 				</strow>
 				<strow>
 					<stentry>
-						<image href="../mimes/i-historyview.png"></image>
+						<image href="../mimes/i-historyview.png">
+							<alt>history icon</alt>
+						</image>
 					</stentry>
 					<stentry>History View - list of recently opened heap dumps
 					</stentry>
 				</strow>
 				<strow>
 					<stentry>
-						<image href="../mimes/i-hddetails.png"></image>
+						<image href="../mimes/i-hddetails.png">
+							<alt>details of heap dump icon</alt>
+						</image>
 					</stentry>
 					<stentry>Heap Dump Details</stentry>
 				</strow>
 				<strow>
 					<stentry>
-						<image href="../mimes/i-objectinspector.png"></image>
+						<image href="../mimes/i-objectinspector.png">
+							<alt>inspector icon</alt>
+						</image>
 					</stentry>
 					<stentry>Object Inspector - detailed information for the
 						selected object</stentry>
 				</strow>
 				<strow>
 					<stentry>
-						<image href="../mimes/i-errorlog.png"></image>
+						<image href="../mimes/i-errorlog.png">
+							<alt>error icon</alt>
+						</image>
 					</stentry>
 					<stentry>Error Log - report the errors to our Bugzilla
 					</stentry>

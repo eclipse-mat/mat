@@ -34,12 +34,16 @@
 FROM [ INSTANCEOF ] &lt;class name="name"&gt;
 [ WHERE &lt;filter-expression&gt; ]
 &lt;/filter-expression&gt;&lt;/class&gt;</codeblock>
-<p>To open an OQL editor use the toolbar button <image href="../mimes/i-oqleditor.png"></image>:</p>  
+<p>To open an OQL editor use the toolbar button <image href="../mimes/i-oqleditor.png">
+<alt>open object query language button</alt>
+</image>:</p>  
 <p>OQL editor is divided into two areas:</p>
 <ul><li>Text area to type in the query (upper area)</li>
 <li>Result area to display the result of the query execution</li></ul>
 <image href="../mimes/m2fd32fba.png" alt="screen shot of query result"/>
-<p>Use Ctrl-Enter or toolbar button <image href="../mimes/4fd3f07a.png"></image> to execute the query.</p>
+<p>Use Ctrl-Enter or toolbar button <image href="../mimes/4fd3f07a.png">
+<alt>Execute Query button</alt>
+</image> to execute the query.</p>
 <p>Basic OQL syntax is as follows:</p>
 <codeblock>
 SELECT *

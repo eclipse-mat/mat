@@ -54,12 +54,12 @@
 				So you can use the context menu to open further views on
 				the object at hand. Use the @ symbol to access Java
 				attributes and methods of the objects. There are also a
-				number of build-in function available to extract common
+				number of built-in functions available to extract common
 				information:
 			</p>
 
 			<pre class="codeblock">SELECT toString(s), s.@usedHeapSize,
-				s.@retainedHeapSize FROM java.lang.String s</pre>
+    s.@retainedHeapSize FROM java.lang.String s</pre>
 
 			<p>
 				The section on
@@ -74,8 +74,8 @@
 			<p>Use the AS keyword to name the columns:</p>
 
 			<pre class="codeblock">SELECT toString(s) AS Value,
-       		s.@usedHeapSize AS "Shallow Size",
-      		 s.@retainedHeapSize AS "Retained Size"
+    s.@usedHeapSize AS "Shallow Size",
+    s.@retainedHeapSize AS "Retained Size"
 			FROM java.lang.String s</pre>
 
 			<p>

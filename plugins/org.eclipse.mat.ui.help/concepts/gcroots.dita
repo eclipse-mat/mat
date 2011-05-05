@@ -30,7 +30,7 @@
 			outside the heap. The following reasons make an object a GC root:</p>
 		<dl>
 			<dlentry>
-			<dt>System Class</dt><dd>Class loaded by boot-strap/system class loader. For
+			<dt>System Class</dt><dd>Class loaded by bootstrap/system class loader. For
 				example, everything from the rt.jar like
 				<cmdname>java.util.*</cmdname>
 				.

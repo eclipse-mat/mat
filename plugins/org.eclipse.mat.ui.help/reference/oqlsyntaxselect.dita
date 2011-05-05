@@ -49,11 +49,11 @@
 				So you can use the context menu to open further views on
 				the object at hand. Use the @ symbol to access Java
 				attributes and methods of the objects. There are also a
-				number of build-in function available to extract common
+				number of built-in functions available to extract common
 				information:
 			</p>
 			<codeblock>SELECT toString(s), s.@usedHeapSize,
-				s.@retainedHeapSize FROM java.lang.String s</codeblock>
+    s.@retainedHeapSize FROM java.lang.String s</codeblock>
 			<p>
 				The section on
 				<xref href="propertyaccessors.dita">
@@ -64,8 +64,8 @@
 			<p><b>Provide column names</b></p>
 			<p>Use the AS keyword to name the columns:</p>
 			<codeblock>SELECT toString(s) AS Value,
-       		s.@usedHeapSize AS "Shallow Size",
-      		 s.@retainedHeapSize AS "Retained Size"
+    s.@usedHeapSize AS "Shallow Size",
+    s.@retainedHeapSize AS "Retained Size"
 			FROM java.lang.String s</codeblock>
 			<p>
 				Use the

@@ -74,7 +74,9 @@
 			<li>The edges in the dominator tree do not directly correspond to
 				object references from the object graph.</li>
 		</ul>
-		<image href="../mimes/m2268b281.png"></image>
+		<image href="../mimes/m2268b281.png">
+			<alt>Object graph transformed to dominator tree</alt>
+		</image>
 
 	</conbody>
 	<related-links>

@@ -31,7 +31,7 @@
 	<refbody>
 		<section>
 			<p>
-				Memory Analyzer has a build-in object query language
+				Memory Analyzer has a built-in object query language
 				(OQL) that allows to query the heap dump with custom
 				SQL-like queries. Just think of classes as tables,
 				objects as rows, and fields as columns. The basic syntax

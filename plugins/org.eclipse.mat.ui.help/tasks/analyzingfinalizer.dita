@@ -34,7 +34,9 @@
 				tasks in the finalizer can block the garbage collection. To get the
 				finalizers overview select Finalizer Overview Query from the query
 				list:</p>
-			<image href="../mimes/finalizers.png" />
+			<image href="../mimes/finalizers.png">
+				<alt>Finalizer overview menu option and report</alt>
+			</image>
 			<p>This query includes the following subqueries:</p>
 			<table>
 				<tgroup cols="2">

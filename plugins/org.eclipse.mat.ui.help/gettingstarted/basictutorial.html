@@ -50,7 +50,7 @@
 
 			<p>
 				Open
-				<img src="../mimes/me76fc4.png"/>
+				<img src="../mimes/me76fc4.png" alt=""/>
 				<a href="javascript:liveAction(&#34;org.eclipse.mat.ui&#34;,&#34;org.eclipse.mat.ui.snapshot.actions.OpenSampleHeapDumpAction&#34;,&#34;org.eclipse.mat.ui.help/heapdump/HeapDumpSample.hprof&#34;)">
 					a sample heap dump</a>
 				if you view this page inside the Eclipse help center.
@@ -93,7 +93,7 @@
 				<span class="menucascade">
 					<span class="uicontrol">File</span>
 					 &gt; <span class="uicontrol">
-						<img src="../mimes/i-openhd.png"/>
+						<img src="../mimes/i-openhd.png" alt=""/>
 						Open Heap Dump...
 					</span>
 				</span>
@@ -144,7 +144,7 @@
 
 			<p>
 				To approximate the retained sizes for all rows, pick
-				<img src="../mimes/i-calcrs.png"/>
+				<img src="../mimes/i-calcrs.png" alt="Calculate retained size"/> icon
 				from the tool bar. Alternatively, select a couple rows and use the
 				context menu.
 			</p>
@@ -177,12 +177,12 @@
 
 			<p>
 				Another important feature is the facility to
-				<strong>group any histogram by class loader or packages</strong>
+				<strong>group any histogram by class loader, packages or superclass</strong>
 				.
 			</p>
 
 
-			<img src="basictutorial_group_by.png" alt="Group the histogram by class loader or package via the too bar"/>
+			<img src="basictutorial_group_by.png" alt="Group the histogram by class loader or package via the tool bar"/>
 
 			<p>
 				Any decent application loads different components by different
@@ -207,6 +207,13 @@
 
 
 			<img src="basictutorail_by_package.png" alt="Histogram grouped by packages"/>
+			
+			<p>
+				Grouping the histogram by superclass provides an easy way to find for example all the subclasses of java.util.AbstractMap, etc...
+			</p>
+
+			
+			<img src="basictutorial_by_superclass.png" alt="Histogram grouped by superclass"/>
 
 			<p>
 				<strong>Step 4 - The Dominator Tree</strong>
@@ -278,7 +285,7 @@
 
 			<p>
 				Learn more in this blog posting:
-				<a href="http://dev.eclipse.org/blogs/memoryanalyzer/2008/05/27/automated-heap-dump-analysis-finding-memory-leaks-with-one-click/">Automated Heap Dump Analysis: Finding Memory Leaks with One
+				<a href="http://memoryanalyzer.blogspot.com/2008/05/automated-heap-dump-analysis-finding.html">Automated Heap Dump Analysis: Finding Memory Leaks with One
 					Click</a>
 				.
 			</p>
