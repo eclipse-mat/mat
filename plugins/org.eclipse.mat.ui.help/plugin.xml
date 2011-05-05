@@ -31,39 +31,49 @@
 	</extension>
 
 	<extension point="org.eclipse.ui.cheatsheets.cheatSheetContent">
-		<category id="org.eclipse.mat.tutorials" name="Memory Analyzer"/>
+		<category id="org.eclipse.mat.tutorials" name="%cheatsheet.category.name"/>
 		
 		<cheatsheet 
 				id="org.eclipse.mat.tutorials.object_query_language"
-				contentFile="tutorials/object_query_language.xml"
+				contentFile="$nl$/tutorials/object_query_language.xml"
 				category="org.eclipse.mat.tutorials"
-				name="OQL Tutorial" />
+				name="%cheatsheet.oql.name">
+			<description>%cheatsheet.oql.description</description>
+		</cheatsheet>
 
 		<cheatsheet
 				id="org.eclipse.mat.tutorials.basicTutorial"
-				contentFile="tutorials/basic_tutorial.xml"
+				contentFile="$nl$/tutorials/basic_tutorial.xml"
 				category="org.eclipse.mat.tutorials"
 				composite="false"
-				name="Basics"/>
+				name="%cheatsheet.basic.name">
+			<description>%cheatsheet.basic.description</description>
+		</cheatsheet>
 
 		<cheatsheet
 				id="org.eclipse.mat.tutorials.component_report"
-				contentFile="tutorials/component_report.xml"
+				contentFile="$nl$/tutorials/component_report.xml"
 				category="org.eclipse.mat.tutorials"
 				composite="false"
-				name="Component Report"/>
+				name="%cheatsheet.component.name">
+			<description>%cheatsheet.component.description</description>
+		</cheatsheet>
 
 		<cheatsheet
 				id="org.eclipse.mat.tutorials.bestFeaturesTutorial"
-				contentFile="tutorials/best_features_tutorial.xml"
+				contentFile="$nl$/tutorials/best_features_tutorial.xml"
 				category="org.eclipse.mat.tutorials"
-				name="Best Features Tutorial"/>
+				name="%cheatsheet.best.name">
+			<description>%cheatsheet.best.description</description>
+		</cheatsheet>
 
 		<cheatsheet
 				id="org.eclipse.mat.tutorials.findingProblemsTutorial"
-				contentFile="tutorials/memory_hunting.xml"
+				contentFile="$nl$/tutorials/memory_hunting.xml"
 				category="org.eclipse.mat.tutorials"
-				name="Finding Memory Problems Tutorial"/>
+				name="%cheatsheet.finding.name">
+			<description>%cheatsheet.finding.description</description>
+		</cheatsheet>
 	</extension>
 
 	<extension point="org.eclipse.pde.core.javadoc">
