@@ -63,7 +63,7 @@
 			<simpletable relcolwidth="2* 2* 2* 3*" id="javabean_prop">
 				<strow>
 					<stentry>Any heap object</stentry>
-					<stentry><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IObject.html#field_summary" format="html">IObject</xref></stentry>
+					<stentry><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IObject.html#method_summary" format="html">IObject</xref></stentry>
 					<stentry>objectId</stentry>
 					<stentry>id of snapshot object</stentry>
 				</strow>
@@ -77,7 +77,13 @@
 					<stentry />
 					<stentry />
 					<stentry>class</stentry>
-					<stentry>class of this object</stentry>
+					<stentry>Java class of this object</stentry>
+				</strow>
+				<strow>
+					<stentry />
+					<stentry />
+					<stentry>clazz</stentry>
+					<stentry>IClass of this object. See also classof(object).</stentry>
 				</strow>
 				<strow>
 					<stentry />
@@ -99,15 +105,29 @@
 				</strow>
 				<strow>
 					<stentry>Class object</stentry>
-					<stentry><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IClass.html#field_summary" format="html">IClass</xref></stentry>
+					<stentry><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IClass.html#method_summary" format="html">IClass</xref></stentry>
 					<stentry>classLoaderId</stentry>
 					<stentry>id of the class loader</stentry>
 				</strow>
 				<strow>
 					<stentry>Any array</stentry>
-					<stentry><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IArray.html#field_summary" format="html">IArray</xref></stentry>
+					<stentry><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IArray.html#method_summary" format="html">IArray</xref></stentry>
 					<stentry>length</stentry>
 					<stentry>length of the array</stentry>
+				</strow>
+				<strow>
+					<stentry>Primitive array</stentry>
+					<stentry><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IPrimitiveArray.html#method_summary" format="html">IPrimitiveArray</xref></stentry>
+					<stentry>valueArray</stentry>
+					<stentry>the values in the array</stentry>
+				</strow>
+				<strow>
+					<stentry>Reference array</stentry>
+					<stentry><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IObjectArray.html#method_summary" format="html">IObjectArray</xref></stentry>
+					<stentry>referenceArray</stentry>
+					<stentry>the objects in the array (as long values, the addresses of the objects)
+					Access a particular element using get() and convert to an object using OBJECTS.
+					</stentry>
 				</strow>
 			</simpletable>
 		</section>
@@ -122,7 +142,7 @@
 			</p>
 			<simpletable relcolwidth="2* 2* 2* 3*" id="javabean_prop">
 				<strow>
-					<stentry>$snapshot</stentry>
+					<stentry>${snapshot}</stentry>
 					<stentry><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/ISnapshot.html#method_summary" format="html">ISnapshot</xref></stentry>
 					<stentry>
 						<codeblock><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/ISnapshot.html#getClasses()" format="html">getClasses()</xref></codeblock>
@@ -167,12 +187,49 @@
 						The address of a snapshot object as a long integer
 					</stentry>
 				</strow>
+				<strow>
+					<stentry>Primitive array</stentry>
+					<stentry><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IPrimitiveArray.html#method_summary" format="html">IPrimitiveArray</xref></stentry>
+					<stentry>
+						<codeblock><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IPrimitiveArray.html#getValueAt(int)" format="html">getValueAt(int index)</xref></codeblock>
+					</stentry>
+					<stentry>a value from the array</stentry>
+				</strow>
+				<strow>
+					<stentry>Java primitive array, Java object array or Java list (returned from reflection)</stentry>
+					<stentry>[] or List</stentry>
+					<stentry>
+						<codeblock>get(int index)</codeblock>
+					</stentry>
+					<stentry>a value from the array or list</stentry>
+				</strow>
 			</simpletable>
 		</section>
 		<section>
-			<title>Build-in OQL functions</title>
+			<title>Reading values from primitive arrays</title>
+			<codeblock>SELECT s.getValueAt(2) FROM int[] s WHERE (s.@length > 2)</codeblock>
+			<p>
+				This reads the value of the element at index 2 from all int[] arrays which have at least 3 elements.
+			</p>
+		</section>
+		<section>
+			<title>Reading objects from object arrays</title>
+			<codeblock>SELECT OBJECTS s.@referenceArray.get(2) FROM java.lang.Object[] s WHERE (s.@length > 2)</codeblock>
+			<p> First method:
+				this reads as a long address the element at index 2 from all Object[] arrays which have at least 3 elements and
+				converts them into objects.
+			</p>
+			<codeblock>SELECT OBJECTS s.getReferenceArray(2,1) FROM java.lang.Object[] s WHERE (s.@length > 2)</codeblock>
+			<p> Second method:
+				this reads as an array of long[] 1 element starting at index 2  from all Object[] arrays which have at least 3 elements and
+				converts the contents of those arrays into objects.
+			</p>
+
+		</section>
+		<section>
+			<title>Built-in OQL functions</title>
 			<codeblock>&lt;function&gt;( &lt;parameter&gt; )</codeblock>
-			<p>Build-in functions.</p>
+			<p>Built-in functions.</p>
 			<simpletable relcolwidth="2* 3*" id="oql_functions">
 				<strow>
 					<stentry>

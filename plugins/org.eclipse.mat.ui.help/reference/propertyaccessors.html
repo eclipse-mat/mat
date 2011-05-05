@@ -69,7 +69,7 @@
 			<a name="propertyaccessors__javabean_prop"><!-- --></a><table cellpadding="4" cellspacing="0" summary="" id="propertyaccessors__javabean_prop" border="1" class="simpletableborder"><tr>
 					<td valign="top" width="22.22222222222222%">Any heap object</td>
 
-					<td valign="top" width="22.22222222222222%"><a href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IObject.html#field_summary">IObject</a></td>
+					<td valign="top" width="22.22222222222222%"><a href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IObject.html#method_summary">IObject</a></td>
 
 					<td valign="top" width="22.22222222222222%">objectId</td>
 
@@ -93,7 +93,17 @@
 
 					<td valign="top">class</td>
 
-					<td valign="top">class of this object</td>
+					<td valign="top">Java class of this object</td>
+
+				</tr>
+<tr>
+					<td valign="top">&#xA0;</td>
+
+					<td valign="top">&#xA0;</td>
+
+					<td valign="top">clazz</td>
+
+					<td valign="top">IClass of this object. See also classof(object).</td>
 
 				</tr>
 <tr>
@@ -129,7 +139,7 @@
 <tr>
 					<td valign="top">Class object</td>
 
-					<td valign="top"><a href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IClass.html#field_summary">IClass</a></td>
+					<td valign="top"><a href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IClass.html#method_summary">IClass</a></td>
 
 					<td valign="top">classLoaderId</td>
 
@@ -139,11 +149,33 @@
 <tr>
 					<td valign="top">Any array</td>
 
-					<td valign="top"><a href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IArray.html#field_summary">IArray</a></td>
+					<td valign="top"><a href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IArray.html#method_summary">IArray</a></td>
 
 					<td valign="top">length</td>
 
 					<td valign="top">length of the array</td>
+
+				</tr>
+<tr>
+					<td valign="top">Primitive array</td>
+
+					<td valign="top"><a href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IPrimitiveArray.html#method_summary">IPrimitiveArray</a></td>
+
+					<td valign="top">valueArray</td>
+
+					<td valign="top">the values in the array</td>
+
+				</tr>
+<tr>
+					<td valign="top">Reference array</td>
+
+					<td valign="top"><a href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IObjectArray.html#method_summary">IObjectArray</a></td>
+
+					<td valign="top">referenceArray</td>
+
+					<td valign="top">the objects in the array (as long values, the addresses of the objects)
+					Access a particular element using get() and convert to an object using OBJECTS.
+					</td>
 
 				</tr>
 </table>
@@ -162,7 +194,7 @@
 			</p>
 
 			<a name="propertyaccessors__javabean_prop"><!-- --></a><table cellpadding="4" cellspacing="0" summary="" id="propertyaccessors__javabean_prop" border="1" class="simpletableborder"><tr>
-					<td valign="top" width="22.22222222222222%">$snapshot</td>
+					<td valign="top" width="22.22222222222222%">${snapshot}</td>
 
 					<td valign="top" width="22.22222222222222%"><a href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/ISnapshot.html#method_summary">ISnapshot</a></td>
 
@@ -232,15 +264,70 @@
 					</td>
 
 				</tr>
+<tr>
+					<td valign="top">Primitive array</td>
+
+					<td valign="top"><a href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IPrimitiveArray.html#method_summary">IPrimitiveArray</a></td>
+
+					<td valign="top">
+						<pre class="codeblock"><a href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IPrimitiveArray.html#getValueAt(int)">getValueAt(int index)</a></pre>
+
+					</td>
+
+					<td valign="top">a value from the array</td>
+
+				</tr>
+<tr>
+					<td valign="top">Java primitive array, Java object array or Java list (returned from reflection)</td>
+
+					<td valign="top">[] or List</td>
+
+					<td valign="top">
+						<pre class="codeblock">get(int index)</pre>
+
+					</td>
+
+					<td valign="top">a value from the array or list</td>
+
+				</tr>
 </table>
 
 		</div>
 
-		<div class="section"><h2 class="sectiontitle">Build-in OQL functions</h2>
+		<div class="section"><h2 class="sectiontitle">Reading values from primitive arrays</h2>
+			
+			<pre class="codeblock">SELECT s.getValueAt(2) FROM int[] s WHERE (s.@length &gt; 2)</pre>
+
+			<p>
+				This reads the value of the element at index 2 from all int[] arrays which have at least 3 elements.
+			</p>
+
+		</div>
+
+		<div class="section"><h2 class="sectiontitle">Reading objects from object arrays</h2>
+			
+			<pre class="codeblock">SELECT OBJECTS s.@referenceArray.get(2) FROM java.lang.Object[] s WHERE (s.@length &gt; 2)</pre>
+
+			<p> First method:
+				this reads as a long address the element at index 2 from all Object[] arrays which have at least 3 elements and
+				converts them into objects.
+			</p>
+
+			<pre class="codeblock">SELECT OBJECTS s.getReferenceArray(2,1) FROM java.lang.Object[] s WHERE (s.@length &gt; 2)</pre>
+
+			<p> Second method:
+				this reads as an array of long[] 1 element starting at index 2  from all Object[] arrays which have at least 3 elements and
+				converts the contents of those arrays into objects.
+			</p>
+
+
+		</div>
+
+		<div class="section"><h2 class="sectiontitle">Built-in OQL functions</h2>
 			
 			<pre class="codeblock">&lt;function&gt;( &lt;parameter&gt; )</pre>
 
-			<p>Build-in functions.</p>
+			<p>Built-in functions.</p>
 
 			<a name="propertyaccessors__oql_functions"><!-- --></a><table cellpadding="4" cellspacing="0" summary="" id="propertyaccessors__oql_functions" border="1" class="simpletableborder"><tr>
 					<td valign="top" width="40%">

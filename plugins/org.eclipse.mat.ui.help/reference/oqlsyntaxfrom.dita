@@ -55,7 +55,7 @@
 				the following query, which calls a method directly on
 				the ISnapshot object:
 			</p>
-			<codeblock>SELECT * FROM $snapshot.getClasses()</codeblock>
+			<codeblock>SELECT * FROM ${snapshot}.getClasses()</codeblock>
 		</section>
 		<section>
 			<title>Include sub classes</title>
@@ -73,7 +73,7 @@
 				<cmdname>java.lang.ref.Reference</cmdname>
 				. By the way, the same result has the following query
 			</p>
-			<codeblock>SELECT * FROM $snapshot.getClassesByName("java.lang.ref.Reference", true)</codeblock>
+			<codeblock>SELECT * FROM ${snapshot}.getClassesByName("java.lang.ref.Reference", true)</codeblock>
 		</section>
 		<section>
 			<title>
