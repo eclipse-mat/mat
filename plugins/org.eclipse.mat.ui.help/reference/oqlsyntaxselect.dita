@@ -99,14 +99,22 @@
 				<cmdname>DISTINCT</cmdname>
 				keyword to only select unique objects:
 			</p>
-			<codeblock>SELECT DISTINCT classof(s) FROM java.lang.String s</codeblock>
+			<codeblock>SELECT DISTINCT * FROM OBJECTS 0,1,1,2</codeblock>
+			<p>
+				Use the
+				<cmdname>DISTINCT OBJECTS</cmdname>
+				keyword to only select unique objects from the result of the selected clause:
+			</p>
+			<codeblock>SELECT DISTINCT OBJECTS classof(s) FROM java.lang.String s</codeblock>
 			<p>
 				The function
 				<cmdname>classof</cmdname>
 				returns the class object. Of course, all Strings have
-				the same class. Without the
-				<cmdname>DISTINCT</cmdname>
-				keyword, the query would result in a list with as many
+				the same class. The <cmdname>OBJECTS</cmdname> converts the underlying row with a String object
+				and a displayed value of the class object
+				to the object represented by the result of the <cmdname>classof</cmdname> function.
+				Without the <cmdname>DISTINCT OBJECTS</cmdname>
+				keywords, the query would result in a list with as many
 				rows with the same class as there are Strings.
 			</p>
 		</section>
