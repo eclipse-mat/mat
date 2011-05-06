@@ -57,6 +57,30 @@
 			<p>The memory intensive parts is the parsing. Try parsing the heap
 				dump from the command line. Once it has been parsed, it usually can
 				be opened with less memory in the GUI.</p>
+				
+			<p>The preference page is opened via a menu option.
+				<menucascade>
+					<uicontrol>Window</uicontrol>
+					<uicontrol>Preferences</uicontrol>
+				</menucascade>
+			</p>
+			<p>The preferences page allows various aspects of Memory Analyzer to be controlled.
+			<image href="../mimes/preferences.png">
+				<alt>preferences page showing general options with DTFJ subpage</alt>
+			</image>
+			<dl>
+			<dlentry>
+				<dt>Keep unreachable objects</dt>
+				<dd>Objects that appear unreachable from GC roots are not discarded in an early stage of 
+				Memory Analyzer processing, but are retained for further analysis.</dd>
+			</dlentry>
+			<dlentry>
+				<dt>Hide the getting started wizard</dt>
+				<dd>Controls whether to display a wizard for leak suspects, top components after opening
+				a snapshot.</dd>
+			</dlentry>
+			</dl>
+			</p>
 		</context>
 	</taskbody>
 </task>

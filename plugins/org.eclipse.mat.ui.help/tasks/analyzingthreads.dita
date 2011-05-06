@@ -78,6 +78,64 @@
 				are used not only for memory-related problems, but also for a wide range of other problems 
 				e.g. unresponsive applications.
 			</p>
+			<p>The DTFJ parser allows more control over viewing thread stacks. This is configured using the 
+			DTFJ Parser preferences page. The options are as follows.
+			<dl>
+			<dlentry>
+				<dt>Normal</dt>
+				<dd>Stack frames are only shown in the thread stacks view.</dd>
+			</dlentry>
+			<dlentry>
+				<dt>Only stack frames as pseudo-objects</dt>
+				<dd>Stack frames are shown in all views such as paths to GC roots, outbound references from threads, as pseudo-objects.
+				Local variables references in the stack frames are shown as outbound references from the frame.
+				This makes it easy to find which stack frames keep objects alive. The size of the stack frame is the
+				size on the Java stack, not the heap.</dd>
+			</dlentry>
+			<dlentry>
+				<dt>Stack frames as pseudo-objects and running methods as pseudo-classes</dt>
+				<dd>Stack frames are shown in all views such as paths to GC roots, outbound references from threads, as pseudo-objects.
+				Local variables references in the stack frames are shown as outbound references from the frame.
+				This makes it easy to find which stack frames keep objects alive. 
+				The stack frames are given a pseudo-type depending based on the method which is running in the frame.
+				By viewing the number of instances of that pseudo-type it is easy to see which methods are running across
+				all the threads and which methods use a lot of stack. This can help solve StackOverflowErrors.</dd>
+			</dlentry>
+			<dlentry>
+				<dt>Stack frames as pseudo-objects and all methods as pseudo-classes</dt>
+				<dd>Stack frames are shown in all views such as paths to GC roots, outbound references from threads, as pseudo-objects.
+				Local variables references in the stack frames are shown as outbound references from the frame.
+				This makes it easy to find which stack frames keep objects alive. 
+				The stack frames are given a pseudo-type depending based on the method which is running in the frame.
+				By viewing the number of instances of that pseudo-type it is easy to see which methods are running across
+				all the threads and which methods use a lot of stack. This can help solve StackOverflowErrors.
+				All other methods are also created as pseudo-class objects. The size of the method pseudo-class object is
+				the size of the byte code and JITted code, which in other modes is accumulated into the size of the
+				defining class. This makes it easy to find method which consume a lot of non-heap memory for byte code
+				and JITted code.</dd>
+			</dlentry>
+			</dl>
+			</p>
+			<p><b>Normal operation with stack frames not considered as objects.</b></p>
+			<p>
+			<image href="../mimes/thread_frames0.png" alt="outbound references from thread without stack frames as objects"></image>
+			</p>
+			<p><b>Stack frames as pseudo-objects.</b></p>
+			<p> Note that the type of the stack frame is <codeph>&lt;stack frame&gt;</codeph>.
+			<image href="../mimes/thread_frames1.png" alt="outbound references from thread with stack frames as objects"></image>
+			</p>
+			<p><b>Stack frames as pseudo-objects and running methods as pseudo-classes.</b></p>
+			<p>Note the different types for the stack frame such as <codeph>java.io.FileStream.getBytes([BIII)I;</codeph>.
+			<image href="../mimes/thread_frames2.png" alt="outbound references from thread with stack frames as objects and methods as classes"></image>
+			The class histogram shows that only running methods are pseudo-classes, and the size of the class object is 0.
+			<image href="../mimes/thread_classes2.png" alt="class histogram showing running methods as pseudo-classes"></image>
+			</p>
+			<p><b>Stack frames as pseudo-objects and all methods as pseudo-classes.</b></p>
+			<p>The outbound references tree looks the same,
+			but the class histogram has a lot more pseudo-classes with 0 instances (i.e. with no running methods), and the 
+			pseudo-class objects have a non-zero size.
+			<image href="../mimes/thread_classes3.png" alt="class histogram showing all methods as pseudo-classes"></image>
+			</p>
 		</context>
 	</taskbody>
 </task>
