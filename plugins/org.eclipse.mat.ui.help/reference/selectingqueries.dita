@@ -45,6 +45,21 @@
 				their category. When a query is marked, a detailed description of the query
 				is displayed at the bottom. This description contains also the information
 				about the arguments for this query. </p>
+			<p>
+				The query browser (&quot;Search Queries...&quot;) is also available in the context menu.
+				It offers only queries valid for the current selection, and is easier to use as it can display
+				some or all the queries, and shows also the help for each query.
+			</p>
+			<p>
+				<image href="../mimes/search_queries_context.png">
+					<alt>Search Queries Context Menu</alt>
+				</image>
+			</p>
+			<p>
+				<image href="../mimes/search_queries.png">
+					<alt>Start Typing To Limit the Selection...</alt>
+				</image>
+			</p>
 			<p> If a query has arguments a wizard is opened up when the query is selected. All
 				arguments are displayed in an table, the mandatory arguments are bold. In
 				the message area at the top information is displayed about the mandatory

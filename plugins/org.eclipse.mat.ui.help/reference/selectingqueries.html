@@ -49,6 +49,20 @@
 				is displayed at the bottom. This description contains also the information
 				about the arguments for this query. </p>
 
+			<p>
+				The query browser ("Search Queries...") is also available in the context menu.
+				It offers only queries valid for the current selection, and is easier to use as it can display
+				some or all the queries, and shows also the help for each query.
+			</p>
+
+			<p>
+				<img src="../mimes/search_queries_context.png" alt="Search Queries Context Menu"/>
+			</p>
+
+			<p>
+				<img src="../mimes/search_queries.png" alt="Start Typing To Limit the Selection..."/>
+			</p>
+
 			<p> If a query has arguments a wizard is opened up when the query is selected. All
 				arguments are displayed in an table, the mandatory arguments are bold. In
 				the message area at the top information is displayed about the mandatory
@@ -82,157 +96,157 @@
 				<strong>}</strong>, <strong>)</strong>, <strong>?</strong>, <strong>*</strong> and <strong>+</strong>.</p>
 
 			<table cellpadding="4" cellspacing="0" summary="" border="1" class="simpletableborder"><tr>
-					<th valign="bottom" align="left" id="d9146e127" width="50%">
+					<th valign="bottom" align="left" id="d9146e149" width="50%">
 						Pattern Syntax
 					</th>
 
-					<th valign="bottom" align="left" id="d9146e130" width="50%">Details</th>
+					<th valign="bottom" align="left" id="d9146e152" width="50%">Details</th>
 
 				</tr>
 <tr>
-					<td valign="top" headers="d9146e127">
+					<td valign="top" headers="d9146e149">
 						<pre class="codeblock">[abc]</pre>
 
 					</td>
 
-					<td valign="top" headers="d9146e130">
+					<td valign="top" headers="d9146e152">
 						a, b, or c (simple class)
 					</td>
 
 				</tr>
 <tr>
-					<td valign="top" headers="d9146e127">
+					<td valign="top" headers="d9146e149">
 						<pre class="codeblock">[^abc]</pre>
 
 					</td>
 
-					<td valign="top" headers="d9146e130">
+					<td valign="top" headers="d9146e152">
 						Any character except a, b, or c (negation)
 					</td>
 
 				</tr>
 <tr>
-					<td valign="top" headers="d9146e127">
+					<td valign="top" headers="d9146e149">
 						<pre class="codeblock">outbounds( object )</pre>
 
 					</td>
 
-					<td valign="top" headers="d9146e130">outbound referrer</td>
+					<td valign="top" headers="d9146e152">outbound referrer</td>
 
 				</tr>
 <tr>
-					<td valign="top" headers="d9146e127">
+					<td valign="top" headers="d9146e149">
 						<pre class="codeblock">[a-zA-Z]</pre>
 
 					</td>
 
-					<td valign="top" headers="d9146e130">a through z, or A through Z, inclusive (range)</td>
+					<td valign="top" headers="d9146e152">a through z, or A through Z, inclusive (range)</td>
 
 				</tr>
 <tr>
-					<td valign="top" headers="d9146e127">
+					<td valign="top" headers="d9146e149">
 						<pre class="codeblock">[a-d[m-p]]</pre>
 
 					</td>
 
-					<td valign="top" headers="d9146e130">a through d, or m through p: [a-dm-p] (union)</td>
+					<td valign="top" headers="d9146e152">a through d, or m through p: [a-dm-p] (union)</td>
 
 				</tr>
 <tr>
-					<td valign="top" headers="d9146e127">
+					<td valign="top" headers="d9146e149">
 						<pre class="codeblock">[a-z&amp;&amp;[def]]</pre>
 
 					</td>
 
-					<td valign="top" headers="d9146e130">
+					<td valign="top" headers="d9146e152">
 						d, e, or f (intersection)
 					</td>
 
 				</tr>
 <tr>
-					<td valign="top" headers="d9146e127">
+					<td valign="top" headers="d9146e149">
 						<pre class="codeblock">[a-z&amp;&amp;[^bc]]</pre>
 
 					</td>
 
-					<td valign="top" headers="d9146e130">
+					<td valign="top" headers="d9146e152">
 						a through z, except for b and c: [ad-z] (subtraction)
 					</td>
 
 				</tr>
 <tr>
-					<td valign="top" headers="d9146e127">
+					<td valign="top" headers="d9146e149">
 						<pre class="codeblock">[a-z&amp;&amp;[^m-p]]</pre>
 
 					</td>
 
-					<td valign="top" headers="d9146e130">
+					<td valign="top" headers="d9146e152">
 						a through z, and not m through p: [a-lq-z] (subtraction)
 					</td>
 
 				</tr>
 <tr>
-					<td valign="top" headers="d9146e127">
+					<td valign="top" headers="d9146e149">
 						<pre class="codeblock">\d</pre>
 
 					</td>
 
-					<td valign="top" headers="d9146e130">
+					<td valign="top" headers="d9146e152">
 						A digit: [0-9]
 					</td>
 
 				</tr>
 <tr>
-					<td valign="top" headers="d9146e127">
+					<td valign="top" headers="d9146e149">
 						<pre class="codeblock">\D</pre>
 
 					</td>
 
-					<td valign="top" headers="d9146e130">
+					<td valign="top" headers="d9146e152">
 						A non-digit: [^0-9]
 					</td>
 
 				</tr>
 <tr>
-					<td valign="top" headers="d9146e127">
+					<td valign="top" headers="d9146e149">
 						<pre class="codeblock">\s</pre>
 
 					</td>
 
-					<td valign="top" headers="d9146e130">
+					<td valign="top" headers="d9146e152">
 						A whitespace character: [ \t\n\x0B\f\r]
 					</td>
 
 				</tr>
 <tr>
-					<td valign="top" headers="d9146e127">
+					<td valign="top" headers="d9146e149">
 						<pre class="codeblock">\S</pre>
 
 					</td>
 
-					<td valign="top" headers="d9146e130">
+					<td valign="top" headers="d9146e152">
 						 A non-whitespace character: [^\s]
 					</td>
 
 				</tr>
 <tr>
-					<td valign="top" headers="d9146e127">
+					<td valign="top" headers="d9146e149">
 						<pre class="codeblock">\w</pre>
 
 					</td>
 
-					<td valign="top" headers="d9146e130">
+					<td valign="top" headers="d9146e152">
 						 A word character: [a-zA-Z_0-9]
 					</td>
 
 				</tr>
 <tr>
-					<td valign="top" headers="d9146e127">
+					<td valign="top" headers="d9146e149">
 						<pre class="codeblock">\W</pre>
 
 					</td>
 
-					<td valign="top" headers="d9146e130">
+					<td valign="top" headers="d9146e152">
 						 A non-word character: [^\w]
 					</td>
 
