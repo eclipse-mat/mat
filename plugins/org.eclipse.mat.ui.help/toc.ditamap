@@ -22,6 +22,7 @@
 		<topicref href="tasks/analyzingthreads.dita" type="task" />
 		<topicref href="tasks/analyzingjavacollectionusage.dita" type="task" />
 		<topicref href="tasks/analyzingfinalizer.dita" type="task" />
+		<topicref href="tasks/comparingdata.dita" type="task" />
 		<topicref href="tasks/exportdata.dita" type="task" />
 		<topicref href="tasks/configure_mat.dita" type="task" />
 	</topichead>

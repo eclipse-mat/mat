@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2011 SAP AG and IBM Corporation.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+   
+    Contributors:
+        SAP AG - initial documentation
+        IBM Corporation - documentation on IBM specific dumps
+ -->
+<!DOCTYPE task PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd" >
+<task id="task_comparingdata" xml:lang="en-us">
+	<title>Comparing Objects</title>
+	<prolog>
+		<copyright>
+			<copyryear year=""></copyryear>
+			<copyrholder>
+				Copyright (c) 2011 SAP AG and IBM Corporation.
+			    All rights reserved. This program and the accompanying materials
+			    are made available under the terms of the Eclipse Public License v1.0
+			    which accompanies this distribution, and is available at
+			    http://www.eclipse.org/legal/epl-v10.html
+			</copyrholder>
+		</copyright>
+	</prolog>
+
+	<taskbody>
+		<context>
+		    <p><b>Introduction</b></p>
+			<p>
+		    Before looking into the capabilities that Memory Analyzer offers in the area of comparison
+		    let us make some explanation. Object IDs which are provided in the heap dump formats supported by MAT
+		    are just the addresses at which the objects are located. As objects are often moved and 
+		    reordered by the JVM during a GC these addressed change. Therefore they cannot be used to compare the objects.
+		    This basically means that if one compares two different heap dumps (although from the same process) it is not
+		    possible to point to the concrete objects different between the two heap dumps.
+		    However, one can still perform comparison on the aggregated results (e.g. the class histogram)
+		    and analyze how the amount of object and the memory they take has changed.
+			</p>
+
+			<p>
+				Memory Analyzer offers the possibility to compare not only the global class histograms of two different
+				heap dumps, but an arbitrary number of table-formatted results - for example the 
+				retained sets of three different objects. It doesn't matter if the tables which 
+				are compared come from one and the same or different heap dumps.
+			</p>
+			<p>
+				This means that one has the possibility to do things like:
+				<ul>
+				<li>Compare the retained set of a specific package across several heap dumps</li>
+				<li>Compare how the retained sets for application objects A1, A2 and A3 (all in the 
+				same heap dump) differ from each other</li>
+				</ul> 
+			</p>
+			<p>				
+				Here is a quick description how to compare several retained set tables.
+			</p>
+				
+			<p>
+				<b>1. Move all tables to be compared to the Compare Basket</b>
+			</p>
+			<p>
+				All queries which are executed in Memory Analyzer can be seen in the Navigation History View.
+				From this view one can add the results to be compared to the Compare Basket. 
+				The Navigation History is still per heap dump, therefore if one wants to compare 
+				tables from different heap dumps then they have to be added one by one.
+				Multiple tables from one heap dump can be added at a time. 
+			</p>			
+			<p>
+				<image href="../mimes/nn_add_to_compare_basket.png">
+					<alt>Move from Navigation History to Compare Basket</alt>
+				</image>
+			</p>
+			<p>
+				<b>2. Modify the order of the tables</b>
+			</p>
+			<p>
+				Using the tool bar of the Compare Basket one can modify the order in which talbes 
+				should be compared, i.e. select which result should be the baseline, which comes second, etc...
+			</p>
+			<p>
+				<image href="../mimes/nn_compare_basket.png">
+					<alt>Modify the Tables Order in the Compare Basket</alt>
+				</image>
+			</p>
+			<p>
+				<b>3. Execute the comparison</b>
+			</p>
+			<p>
+				Once the preferred order is achieved just click the execute button...
+			</p>
+			<p>
+				<image href="../mimes/nn_click_compare.png">
+					<alt>Click Compare</alt>
+				</image>
+			</p>
+			<p>
+				... and see the result.
+			</p>
+			<p>
+				<image href="../mimes/nn_compared_tables_absolute.png">
+					<alt>Modify the Tables Order in the Compare Basket</alt>
+				</image>
+			</p>
+			<p>
+				<b>4. Customize the displayed result</b>
+			</p>
+			<p>
+				By default the absolute values of all tables will be shown for every compared property,
+				e.g. number of objects, shallow size, etc... One can now change between deltas and
+				absolute values, as well as select which columns should be compared:
+			</p>
+			<p>
+				<image href="../mimes/nn_select_compare_option.png">
+					<alt>Switch between Absolute Values and Deltas</alt>
+				</image>
+				<image href="../mimes/nn_select_columns.png">
+					<alt>Select Columns To Be Compared</alt>
+				</image>				
+			</p>
+			<p>
+				<image href="../mimes/nn_compared_result_delta.png">
+					<alt>Modified Comparison Result</alt>
+				</image>
+			</p>			
+
+		</context>
+	</taskbody>
+</task>
