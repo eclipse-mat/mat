@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2010 SAP AG and others.
+    Copyright (c) 2008, 2011 SAP AG and others.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -11,15 +11,15 @@
  -->
 <!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd" >
 <reference id="ref_noteworthy" xml:lang="en-us">
-	<title>New &amp; Noteworthy</title>
+	<title>New and Noteworthy</title>
 	<shortdesc>Here are descriptions of some of the more interesting or
-		significant changes made to the Memory Analyzer for the 1.0 release.
+		significant changes made to the Memory Analyzer for the 1.1 release.
 	</shortdesc>
 	<prolog>
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2008, 2010 SAP AG and others.
+				Copyright (c) 2008, 2011 SAP AG and others.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License v1.0
 			    which accompanies this distribution, and is available at
@@ -28,172 +28,56 @@
 		</copyright>
 	</prolog>
 	<refbody>
-	
 		<section>
-			<title>Acquire Heap Dumps from within MAT</title>
-			<p>
-				It is possible now to acquire a heap dump from a locally running JVM directly
-				from Memory Analyzer. The triggered heap dump is then parsed and opened in
-				the tool.
+			<title>Extract Ruby Related Details from the Heap Dumps</title>
+			<p>The Leak Suspects report has been extended to contain Ruby relevant information
+			if a suspect thread was executing JRuby code somewhere on its call-stack.
+			If possible MAT will point out which ruby script was being executed, and also provide
+			the Ruby call-stack (next to the Java call-stack) of the thread. 
 			</p>
-			<p>
-				This functionality is achieved using heap dump provider extensions. 
-				Currently there is one heap dump provider which can trigger HPROF heap dumps
-				with the help of 'jmap' (part of Sun based JDKs), and several heap dump providers
-				for IBM JVMs.
-			</p>
-			<p>
-			<image href="mimes/nn_acquire_menu.png">
-				<alt>The menu "File" -> "Acquire Heap Dump" can be used to trigger heap dumps</alt>
+			<image href="mimes/rubydetails.png">
+				<alt>Ruby details added to the Leaks report</alt>
 			</image>
+			<p>Detailed ruby stack trace can also be extracted for JRuby threads using the context menu
+			"Java Basics" -> "Thread Details" on a Thread object.
 			</p>
-			<p>
-			<image href="mimes/acquire.png">
-				<alt>The "Acquire Dialog" provides the possibility to select the Java process to be dumped, 
-				as well as to configure some parameters needed to execute this operation.</alt>
+		</section>	
+		<section>
+			<title>Set Operations on Compared Tables</title>
+			<p>When comparing tables from one and the same heap dump, it is now possible
+			to perform different set operations on the comparison result. 
+			</p>
+			<image href="mimes/compare_basket_context_menu.png">
+				<alt>Context menu in the Compare Basket</alt>
 			</image>
-			</p>
-			
-
+			<image href="mimes/setops_menu.png">
+				<alt>Set Operations contxt menu</alt>
+			</image>
 		</section>
-		
 		<section>
-			<title>More Flexible Compare Functionality</title>
-			<p>
-				It is now possible to compare not only the global class histograms of two different
-				heap dumps, but an arbitrary number of table-formatted results - for example the 
-				retained sets of three different objects. It doesn't matter if the tables which 
-				are compared come from one and the same or different heap dumps.
+			<title>Links to Objects in HTML Reports</title>
+			<p>If a Memory Analyzer report (e.g. the Leak Suspect report) is open in the tool itself and not
+			in a browser, then it will be possible to list at least some of the objects "behind" a row
+			in tables (e.g. in a Histogram).
+			Up to now only links to single objects were rendered. Now also the first up to 10 objects can be listed:
+			 
 			</p>
-			<p>
-				
-				This means that one has now the possibility to do things like:
-				<ul>
-				<li>Compare the retained set of a specific package across several heap dumps</li>
-				<li>Compare how the retained sets for application objects A1, A2 and A3 (all in the 
-				same heap dump) differ from each other</li>
-				</ul> 
-			</p>
-			<p>				
-				Here is a quick description how to compare several retained set tables.
-			</p>
-				
-			<p>
-				<b>1. Move all tables to be compared to the Compare Basket</b>
-			</p>
-			<p>
-				All queries which are executed in Memory Analyzer can be seen in the Navigation History View.
-				From this view one can add the results to be compared to the Compare Basket. 
-				The Navigation History is still per heap dump, therefore if one wants to compare 
-				tables from different heap dumps then they have to be added one by one.
-				Multiple tables from one heap dump can be added at a time. 
-			</p>			
-			<p>
-				<image href="mimes/nn_add_to_compare_basket.png">
-					<alt>Move from Navigation History to Compare Basket</alt>
-				</image>
-			</p>
-			<p>
-				<b>2. Modify the order of the tables</b>
-			</p>
-			<p>
-				Using the tool bar of the Compare Basket one can modify the order in which talbes 
-				should be compared, i.e. select which result should be the baseline, which comes second, etc...
-			</p>
-			<p>
-				<image href="mimes/nn_compare_basket.png">
-					<alt>Modify the Tables Order in the Compare Basket</alt>
-				</image>
-			</p>
-			<p>
-				<b>3. Execute the comparison</b>
-			</p>
-			<p>
-				Once the preferred order is achieved just click the execute button...
-			</p>
-			<p>
-				<image href="mimes/nn_click_compare.png">
-					<alt>Click Compare</alt>
-				</image>
-			</p>
-			<p>
-				... and see the result.
-			</p>
-			<p>
-				<image href="mimes/nn_compared_tables_absolute.png">
-					<alt>Modify the Tables Order in the Compare Basket</alt>
-				</image>
-			</p>
-			<p>
-				<b>4. Customize the displayed result</b>
-			</p>
-			<p>
-				By default the absolute values of all tables will be shown for every compared property,
-				e.g. number of objects, shallow size, etc... One can now change between deltas and
-				absolute values, as well as select which columns should be compared:
-			</p>
-			<p>
-				<image href="mimes/nn_select_compare_option.png">
-					<alt>Switch between Absolute Values and Deltas</alt>
-				</image>
-				<image href="mimes/nn_select_columns.png">
-					<alt>Select Columns To Be Compared</alt>
-				</image>				
-			</p>
-			<p>
-				<image href="mimes/nn_compared_result_delta.png">
-					<alt>Modified Comparison Result</alt>
-				</image>
-			</p>			
+			<image href="mimes/report_link_to_objects.png">
+				<alt>Open a list of objects directly from the HTML report</alt>
+			</image>
 		</section>
-		
 		<section>
-			<title>Grouping by Superclass</title>
-			<p>
-				Now it is also possible to group objects by superclass in a histogram. 
-				This provides an easy way to find for example all the subclasses of java.util.AbstractMap, etc...
+			<title>Accessibility Improvements</title>
+			<p>This release of MAT contains a series of accessibility improvements
+			related to better support for keyboard navigation, screen reader (JAWS),
+			and high contrast mode.
 			</p>
-			<p>
-				<image href="mimes/nn_group_by_superclass.png">
-					<alt>Group a Histogram by Superclass</alt>
-				</image>
-			</p>
-		</section>
-		
+		</section>	
 		<section>
-			<title>&quot;Search Queries...&quot; in the Context Menu</title>
+			<title>New and Noteworthy for Memory Analyzer 1.0</title>
 			<p>
-				The query browser (&quot;Search Queries...&quot;) is now also available in the context menu.
-				It offers only queries valid for the current selection, and is easier to use as it can display
-				some or all the queries, and shows also the help for each query.
-			</p>
-			<p>
-				<image href="mimes/search_queries_context.png">
-					<alt>Search Queries Context Menu</alt>
-				</image>
-			</p>
-			<p>
-				<image href="mimes/search_queries.png">
-					<alt>Start Typing To Limit the Selection...</alt>
-				</image>
-			</p>			
-		</section>
-		
-		<section>
-			<title>API Reference</title>
-			<p>
-				To make things easier for people interested in extending Memory Analyzer or writing MAT queries
-				for their specific purposes, a new section &quot;API Reference&quot; was added to the Help
-				topics of Memory Analyzer. It contains Javadoc as well as descriptions for 
-				the different extension points which MAT provides.
-			</p>
-		</section>		
-
-		<section>
-			<title>New &amp; Noteworthy for Memory Analyzer 0.8</title>
-			<p>
-				The New &amp; Noteworthy document for version 0.8 is available 
-				<xref format="html" href="http://www.eclipse.org/mat/0.8/noteworthy.html">here</xref>.
+				The New and Noteworthy document for version 1.0 is available 
+				<xref format="html" href="http://www.eclipse.org/mat/1.0/noteworthy.html">here</xref>.
 			</p>
 		</section>
 
