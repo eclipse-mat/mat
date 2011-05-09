@@ -57,56 +57,82 @@
 			<p>				
 				Here is a quick description how to compare several retained set tables.
 			</p>
+		</context>
 				
-			<p>
-				<b>1. Move all tables to be compared to the Compare Basket</b>
-			</p>
+		<steps>
+			<step>
+			<cmd>
+				<b>Move all tables to be compared to the Compare Basket</b>
+			</cmd>
+			<info>
 			<p>
 				All queries which are executed in Memory Analyzer can be seen in the Navigation History View.
 				From this view one can add the results to be compared to the Compare Basket. 
 				The Navigation History is still per heap dump, therefore if one wants to compare 
 				tables from different heap dumps then they have to be added one by one.
-				Multiple tables from one heap dump can be added at a time. 
-			</p>			
-			<p>
+				Multiple tables from one heap dump can be added at a time.
+			</p> 
+			</info>			
+			<stepresult>
 				<image href="../mimes/nn_add_to_compare_basket.png">
 					<alt>Move from Navigation History to Compare Basket</alt>
 				</image>
-			</p>
+			</stepresult>
+			</step>
+			<step>
+			<cmd>
+				<b>Modify the order of the tables</b>
+			</cmd>
+			<info>
 			<p>
-				<b>2. Modify the order of the tables</b>
-			</p>
-			<p>
-				Using the tool bar of the Compare Basket one can modify the order in which talbes 
+				Using the tool bar of the Compare Basket one can modify the order in which tables 
 				should be compared, i.e. select which result should be the baseline, which comes second, etc...
 			</p>
-			<p>
+			</info>
+			<stepresult>
 				<image href="../mimes/nn_compare_basket.png">
 					<alt>Modify the Tables Order in the Compare Basket</alt>
 				</image>
-			</p>
-			<p>
-				<b>3. Execute the comparison</b>
-			</p>
-			<p>
+			</stepresult>
+			</step>
+			<step>
+			<cmd>
+				<b>Execute the comparison</b>
+			</cmd>
+			<choices>
+			<choice>
 				Once the preferred order is achieved just click the execute button...
-			</p>
 			<p>
 				<image href="../mimes/nn_click_compare.png">
 					<alt>Click Compare</alt>
 				</image>
 			</p>
+			</choice>
+			<choice>
+				or to compare a subset of the tables, bring up the context menu on selected table entries.
+				When comparing tables from one and the same heap dump, it is now possible
+			to perform different set operations on the comparison result.
+				<image href="../mimes/compare_basket_context_menu.png">
+					<alt>Context menu in the Compare Basket</alt>
+				</image>
+			</choice>
+			</choices>
+			<stepresult>
 			<p>
 				... and see the result.
 			</p>
 			<p>
 				<image href="../mimes/nn_compared_tables_absolute.png">
-					<alt>Modify the Tables Order in the Compare Basket</alt>
+					<alt>Comparison table</alt>
 				</image>
 			</p>
-			<p>
-				<b>4. Customize the displayed result</b>
-			</p>
+			</stepresult>
+			</step>
+			<step>
+			<cmd>
+				<b>Customize the displayed result</b>
+			</cmd>
+			<info>
 			<p>
 				By default the absolute values of all tables will be shown for every compared property,
 				e.g. number of objects, shallow size, etc... One can now change between deltas and
@@ -120,12 +146,28 @@
 					<alt>Select Columns To Be Compared</alt>
 				</image>				
 			</p>
+			</info>
+			<stepresult>
 			<p>
 				<image href="../mimes/nn_compared_result_delta.png">
 					<alt>Modified Comparison Result</alt>
 				</image>
-			</p>			
-
-		</context>
+			</p>
+			</stepresult>
+			</step>
+			<step>
+			<cmd>
+				<b>Context menu with set operations</b>
+			</cmd>
+			<info>
+				<p>If the tables have been compared using <menucascade><uicontrol>Compare Tables with all set operations</uicontrol>
+					</menucascade> then it is possible to perform different set operations on the comparison result.
+				</p>
+				<image href="../mimes/setops_menu.png">
+					<alt>Set Operations context menu</alt>
+				</image>
+			</info>
+			</step>
+		</steps>
 	</taskbody>
 </task>
