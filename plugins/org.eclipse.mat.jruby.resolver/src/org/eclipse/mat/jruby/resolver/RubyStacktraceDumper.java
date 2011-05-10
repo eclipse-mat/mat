@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 SAP AG.
+ * Copyright (c) 2010, 2011 SAP AG.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,7 @@ package org.eclipse.mat.jruby.resolver;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -22,10 +23,11 @@ import org.eclipse.mat.query.results.TextResult;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.extension.IRequestDetailsResolver;
 import org.eclipse.mat.snapshot.extension.IThreadInfo;
-import org.eclipse.mat.snapshot.extension.Subject;
+import org.eclipse.mat.snapshot.extension.Subjects;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IObjectArray;
+import org.eclipse.mat.snapshot.model.NamedReference;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.osgi.util.NLS;
 
@@ -34,7 +36,7 @@ import org.eclipse.osgi.util.NLS;
  * 
  * @author Dimitar Giormov
  */
-@Subject("org.jruby.internal.runtime.RubyRunnable")
+@Subjects({"java.lang.Thread", "org.jruby.Main"})
 public class RubyStacktraceDumper implements IRequestDetailsResolver {
 	
 	public final static String RUBY_RUNNABLE_CLASS = "org.jruby.internal.runtime.RubyRunnable";
@@ -42,15 +44,15 @@ public class RubyStacktraceDumper implements IRequestDetailsResolver {
 
 	public void complement(ISnapshot snapshot, IThreadInfo thread, int[] javaLocals, int thisJavaLocal, IProgressListener listener) throws SnapshotException {
         
-        for (Entry<String, FrameModel[]> entry : getAllStackTraces(snapshot).entrySet()) {
+		if (snapshot.getClassesByName(THREAD_CONTEXT_CLASS, false) == null){
+			return;
+		}
+		Map<String, FrameModel[]> allStackTraces = getAllStackTraces(snapshot);
+        for (Entry<String, FrameModel[]> entry : allStackTraces.entrySet()) {
             String javaThreadName = entry.getKey();
             FrameModel[] backtraceFrames = entry.getValue();
             CompositeResult result = new CompositeResult();
             
-// FIXME: find out what the commented code was doing
-//            if (javaThreadName == null && backtraceFrames.length == 1 && "<script>:1".equals(((String) backtrace[0]).trim())) {
-//            	continue;
-//            }
             if(!thread.getThreadObject().getClassSpecificName().equals(javaThreadName)){
             	continue;
             }
@@ -76,43 +78,46 @@ public class RubyStacktraceDumper implements IRequestDetailsResolver {
         }
     }
     
+	
+	private IObject findIncomingThreadRef(ISnapshot model, IObject threadContext) throws SnapshotException{
+		Collection<IClass> classesByName = model.getClassesByName("java.lang.Thread", false);
+    	for (IClass javaThreads : classesByName) {
+    		int[] objectIds = javaThreads.getObjectIds();
+    		for (int id : objectIds) {
+    			IObject jThread = model.getObject(id);
+    			List<NamedReference> outboundReferences = jThread.getOutboundReferences();
+    			for (NamedReference namedReference : outboundReferences) {
+    				IObject object = model.getObject(namedReference.getObjectId());
+    				if(object.getTechnicalName().startsWith(THREAD_CONTEXT_CLASS)){
+    					if (object.getObjectId() == threadContext.getObjectId()){
+    						return jThread;
+    					}
+    				}
+				}
+    		}
+    	}
+    	return null;
+	}
     /**
      * Extracts the Ruby stack trace for all active Ruby threads in the given heap dump.
      * @throws SnapshotException 
      */
-    public static Map<String, FrameModel[]> getAllStackTraces(final ISnapshot model) throws SnapshotException {
-        // Build a mapping between RubyThreads and Java Thread names.
-        // The key is the RubyRunnable class, which is used in some way for any new Ruby thread.
-        // TODO: This doesn't cover the root/main Ruby thread, which adopts the current Java thread!
-        // There may be other cases I'm not covering as well.
+    public Map<String, FrameModel[]> getAllStackTraces(final ISnapshot model) throws SnapshotException {
         final Map<IObject, String> javaThreadNameForRubyThread = new HashMap<IObject, String>();
-        Collection<IClass> classesByName = model.getClassesByName(RUBY_RUNNABLE_CLASS, false);
-        for (IClass rubyRunnableClass : classesByName) {
-        	int[] objectIds = rubyRunnableClass.getObjectIds();
-        	for (int id : objectIds) {
-        		IObject runnable = model.getObject(id);
-        		IObject rubyThread = (IObject) runnable.resolveValue("rubyThread");
-        		IObject thread = (IObject) runnable.resolveValue("javaThread");
-                
-                // javaThread isn't set until RubyRunnable#run() is called, so it might be null.
-                if (thread != null) {
-                    final String threadName = new String(thread.getClassSpecificName());
-                    
-                    javaThreadNameForRubyThread.put(rubyThread, threadName);
-                }
-			}
-		}
+        gatherThreadMap(model, javaThreadNameForRubyThread);
         
         // Now build up the actual stack traces. All the state we need is in ThreadContext instances.
         final Map<String, FrameModel[]> stackTraces = new HashMap<String, FrameModel[]>();
         Collection<IClass> classesByName2 = model.getClassesByName(THREAD_CONTEXT_CLASS, false);
+        //If the thread name cannot be found a default name with index is assigned.
+        int tempIndex = 0;
         for (IClass threadContextClass : classesByName2) {
         	int[] objectIds = threadContextClass.getObjectIds();
         	for (int id : objectIds) {
         		IObject threadContext = model.getObject(id);
 
         		IObject rubyThread = (IObject) threadContext.resolveValue("thread");
-        		final String javaThreadName = javaThreadNameForRubyThread.get(rubyThread); // TODO check if this works
+        		String javaThreadName = javaThreadNameForRubyThread.get(rubyThread); // TODO check if this works
 
         		final String currentFile = ((IObject) threadContext.resolveValue("file")).getClassSpecificName();
         		final int currentLine = (Integer) threadContext.resolveValue("line");
@@ -138,12 +143,81 @@ public class RubyStacktraceDumper implements IRequestDetailsResolver {
         			backtraceFrames[traceSize - 1 - i] = frame;
         		}
 
+        		if (javaThreadName == null){
+        			javaThreadName = "Unknown Thread" + tempIndex++;
+        		}
         		stackTraces.put(javaThreadName, backtraceFrames);
 			}
         }
 
         return stackTraces;
     }
+
+	protected void gatherThreadMap(final ISnapshot model,
+			final Map<IObject, String> javaThreadNameForRubyThread)
+			throws SnapshotException {
+		if (model.getClassesByName(RUBY_RUNNABLE_CLASS, false) != null) {
+        	Collection<IClass> classesByName = model.getClassesByName(RUBY_RUNNABLE_CLASS, false);
+        	for (IClass rubyRunnableClass : classesByName) {
+        		int[] objectIds = rubyRunnableClass.getObjectIds();
+        		for (int id : objectIds) {
+        			IObject runnable = model.getObject(id);
+        			IObject rubyThread = (IObject) runnable.resolveValue("rubyThread");
+        			IObject thread = (IObject) runnable.resolveValue("javaThread");
+
+        			// javaThread isn't set until RubyRunnable#run() is called, so it might be null.
+        			if (thread != null) {
+        				final String threadName = new String(thread.getClassSpecificName());
+
+        				javaThreadNameForRubyThread.put(rubyThread, threadName);
+        			}
+        		}
+        	}
+        } 
+		if (model.getClassesByName(THREAD_CONTEXT_CLASS, false) != null) {
+        	Collection<IClass> classesByName = model.getClassesByName(THREAD_CONTEXT_CLASS, false);
+        	for (IClass threadContextClass : classesByName) {
+        		int[] objectIds = threadContextClass.getObjectIds();
+        		for (int id : objectIds) {
+        			IObject tctxt = model.getObject(id);
+        			IObject thread = findIncomingThreadRef(model, tctxt);
+        			// javaThread isn't set until RubyRunnable#run() is called, so it might be null.
+        			if (thread != null) {
+        				final String threadName = new String(thread.getClassSpecificName());
+        				javaThreadNameForRubyThread.put(tctxt, threadName);
+        			}
+        		}
+        	}
+        }
+//		else {
+        	Collection<IClass> classesByName = model.getClassesByName("java.lang.Thread", false);
+        	for (IClass javaThreads : classesByName) {
+        		int[] objectIds = javaThreads.getObjectIds();
+        		IObject rubyThread = null;
+        		IObject thread = null;
+        		for (int id : objectIds) {
+        			IObject jThread = model.getObject(id);
+        			List<NamedReference> outboundReferences = jThread.getOutboundReferences();
+        			rubyThread = null;
+        			for (NamedReference namedReference : outboundReferences) {
+        				IObject object = model.getObject(namedReference.getObjectId());
+        				if(object.getTechnicalName().startsWith(THREAD_CONTEXT_CLASS)){
+        					rubyThread = (IObject) object.resolveValue("thread");
+        					thread = jThread;
+        					break;
+        				}
+					}
+        			
+
+        			// javaThread isn't set until RubyRunnable#run() is called, so it might be null.
+        			if (thread != null && rubyThread != null) {
+        				final String threadName = new String(thread.getClassSpecificName() != null ? thread.getClassSpecificName() : thread.getTechnicalName());
+        				javaThreadNameForRubyThread.put(rubyThread, threadName);
+        			}
+        		}
+        	}
+//        }
+	}
     
     private static String getMethodNameFromFrame(FrameModel current) {
         String methodName = current.name();
