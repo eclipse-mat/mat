@@ -31,6 +31,7 @@ import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.SnapshotHistoryService;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin.ISharedImages;
 import org.eclipse.mat.ui.SnapshotHistoryService.Entry;
+import org.eclipse.mat.ui.accessibility.AccessibleCompositeAdapter;
 import org.eclipse.mat.ui.editor.PathEditorInput;
 import org.eclipse.mat.ui.snapshot.views.SnapshotOutlinePage;
 import org.eclipse.mat.ui.util.ErrorHelper;
@@ -196,6 +197,7 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
         tableColumn.setText(Messages.SnapshotHistoryView_RecentlyUsedFiles);
         tableColumn.setWidth(400);
         table.setHeaderVisible(true);
+        AccessibleCompositeAdapter.access(table);
 
         table.addMouseListener(new MouseAdapter()
         {

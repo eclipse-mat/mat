@@ -38,6 +38,7 @@ import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.QueryExecution;
+import org.eclipse.mat.ui.accessibility.AccessibleCompositeAdapter;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
 import org.eclipse.mat.ui.util.ErrorHelper;
 import org.eclipse.mat.ui.util.IPolicy;
@@ -222,6 +223,7 @@ public class QueryBrowserPopup extends PopupDialog
         textLayout.setFont(table.getFont());
         textLayout.setText(Messages.QueryBrowserPopup_Categories);
         textLayout.setFont(boldFont);
+        AccessibleCompositeAdapter.access(table);
 
         tableColumnLayout.setColumnData(new TableColumn(table, SWT.NONE), new ColumnWeightData(100, 100));
         table.getShell().addControlListener(new ControlAdapter()

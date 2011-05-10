@@ -18,6 +18,7 @@ import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.refined.RefinedTable;
 import org.eclipse.mat.query.refined.TotalsRow;
 import org.eclipse.mat.query.registry.QueryResult;
+import org.eclipse.mat.ui.accessibility.AccessibleCompositeAdapter;
 import org.eclipse.mat.ui.editor.AbstractEditorPane;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
 import org.eclipse.swt.SWT;
@@ -176,6 +177,7 @@ public class RefinedTableViewer extends RefinedResultViewer
             table = new Table(parent, SWT.VIRTUAL | SWT.FULL_SELECTION | SWT.MULTI);
             table.setHeaderVisible(true);
             table.setLinesVisible(true);
+            AccessibleCompositeAdapter.access(table);
 
             table.addListener(SWT.SetData, new Listener()
             {

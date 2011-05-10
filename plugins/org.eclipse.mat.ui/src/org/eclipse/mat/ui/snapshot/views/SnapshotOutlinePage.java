@@ -28,6 +28,7 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.SnapshotInfo;
+import org.eclipse.mat.ui.accessibility.AccessibleCompositeAdapter;
 import org.eclipse.mat.ui.snapshot.editor.ISnapshotEditorInput;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.swt.SWT;
@@ -252,6 +253,8 @@ public abstract class SnapshotOutlinePage extends Page implements IContentOutlin
         treeViewer = new TreeViewer(parent, SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION);
 
         createColumns();
+
+        AccessibleCompositeAdapter.access(treeViewer.getTree());
 
         treeViewer.getTree().setLinesVisible(true);
         treeViewer.getTree().setHeaderVisible(true);

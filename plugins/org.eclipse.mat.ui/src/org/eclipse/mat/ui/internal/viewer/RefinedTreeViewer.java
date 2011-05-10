@@ -26,6 +26,7 @@ import org.eclipse.mat.query.refined.RefinedTree;
 import org.eclipse.mat.query.refined.TotalsRow;
 import org.eclipse.mat.query.registry.QueryResult;
 import org.eclipse.mat.ui.Messages;
+import org.eclipse.mat.ui.accessibility.AccessibleCompositeAdapter;
 import org.eclipse.mat.ui.editor.AbstractEditorPane;
 import org.eclipse.mat.ui.editor.AbstractPaneJob;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
@@ -549,6 +550,7 @@ public class RefinedTreeViewer extends RefinedResultViewer
             tree = new Tree(parent, SWT.FULL_SELECTION | SWT.MULTI);
             tree.setHeaderVisible(true);
             tree.setLinesVisible(true);
+            AccessibleCompositeAdapter.access(tree);
 
             return tree;
         }

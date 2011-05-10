@@ -35,9 +35,10 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
+import org.eclipse.mat.ui.MemoryAnalyserPlugin.ISharedImages;
 import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.QueryExecution;
-import org.eclipse.mat.ui.MemoryAnalyserPlugin.ISharedImages;
+import org.eclipse.mat.ui.accessibility.AccessibleCompositeAdapter;
 import org.eclipse.mat.ui.compare.CompareBasketView;
 import org.eclipse.mat.ui.editor.AbstractEditorPane;
 import org.eclipse.mat.ui.editor.CompositeHeapEditorPane;
@@ -45,8 +46,8 @@ import org.eclipse.mat.ui.editor.EditorPaneRegistry;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
 import org.eclipse.mat.ui.util.Copy;
 import org.eclipse.mat.ui.util.ErrorHelper;
-import org.eclipse.mat.ui.util.PaneState;
 import org.eclipse.mat.ui.util.NavigatorState.IStateChangeListener;
+import org.eclipse.mat.ui.util.PaneState;
 import org.eclipse.mat.ui.util.PaneState.PaneType;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
@@ -154,6 +155,7 @@ public class NavigatorViewPage extends Page implements ISelectionProvider, IDoub
     {
         treeViewer = new TreeViewer(parent);
         createContextMenu(treeViewer.getTree());
+        AccessibleCompositeAdapter.access(treeViewer.getTree());
 
         treeViewer.setContentProvider(new NavigatorContentProvider());
         treeViewer.setLabelProvider(new NavigatorLabelProvider());

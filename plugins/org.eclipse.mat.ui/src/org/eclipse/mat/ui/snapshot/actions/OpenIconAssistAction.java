@@ -37,6 +37,7 @@ import org.eclipse.mat.query.registry.QueryDescriptor;
 import org.eclipse.mat.query.registry.QueryRegistry;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.Messages;
+import org.eclipse.mat.ui.accessibility.AccessibleCompositeAdapter;
 import org.eclipse.mat.ui.snapshot.ImageHelper;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlEvent;
@@ -284,6 +285,7 @@ public class OpenIconAssistAction extends Action implements IWorkbenchWindowActi
             shell = new Shell(parent, checkStyle(style));
             TableViewer viewer = new TableViewer(shell, SWT.WRAP | SWT.V_SCROLL | SWT.H_SCROLL);
             table = viewer.getTable();
+            AccessibleCompositeAdapter.access(table);
             TableColumn tc1 = new TableColumn(table, SWT.CENTER);
             TableColumn tc2 = new TableColumn(table, SWT.LEFT);
             tc1.setWidth(25);

@@ -43,6 +43,7 @@ import org.eclipse.mat.snapshot.query.SnapshotQuery;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.QueryExecution;
+import org.eclipse.mat.ui.accessibility.AccessibleCompositeAdapter;
 import org.eclipse.mat.ui.actions.QueryDropDownMenuAction;
 import org.eclipse.mat.ui.editor.AbstractEditorPane;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
@@ -97,6 +98,7 @@ public class CompareBasketView extends ViewPart
 	{
 		tableViewer = new TableViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION);
 		this.table = tableViewer.getTable();
+        AccessibleCompositeAdapter.access(table);
 
 		TableViewerColumn column = new TableViewerColumn(tableViewer, SWT.LEFT);
 		TableColumn tableColumn = column.getColumn();
@@ -576,7 +578,7 @@ public class CompareBasketView extends ViewPart
                     {
                         set.setArgumentValue(argument, contexts);
                     }
-                } 
+                }
             }
         }
     }

@@ -57,6 +57,7 @@ import org.eclipse.mat.snapshot.model.IObjectArray;
 import org.eclipse.mat.snapshot.model.IPrimitiveArray;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.Messages;
+import org.eclipse.mat.ui.accessibility.AccessibleCompositeAdapter;
 import org.eclipse.mat.ui.accessibility.AccessibleToolbarAdapter;
 import org.eclipse.mat.ui.snapshot.ImageHelper;
 import org.eclipse.mat.ui.snapshot.editor.HeapEditor;
@@ -445,6 +446,7 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
         topTableViewer = new TableViewer(composite, SWT.FULL_SELECTION | SWT.MULTI);
 
         Table table = topTableViewer.getTable();
+        AccessibleCompositeAdapter.access(table);
         TableColumnLayout columnLayout = new TableColumnLayout();
         composite.setLayout(columnLayout);
 
@@ -572,6 +574,7 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
         classHierarchyTree.setLabelProvider(new HierarchyLabelProvider(-1));
 
         Tree tree = classHierarchyTree.getTree();
+        AccessibleCompositeAdapter.access(tree);
         TreeColumnLayout columnLayout = new TreeColumnLayout();
         composite.setLayout(columnLayout);
 
@@ -590,6 +593,7 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
 
         final TableViewer viewer = new TableViewer(composite, SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.MULTI);
         Table table = viewer.getTable();
+        AccessibleCompositeAdapter.access(table);
         viewer.setContentProvider(new FieldsContentProvider());
         viewer.setLabelProvider(new FieldsLabelProvider(this, table.getFont()));
 

@@ -28,6 +28,7 @@ import org.eclipse.mat.query.registry.ArgumentDescriptor;
 import org.eclipse.mat.query.registry.ArgumentFactory;
 import org.eclipse.mat.snapshot.acquire.IHeapDumpProvider;
 import org.eclipse.mat.ui.Messages;
+import org.eclipse.mat.ui.accessibility.AccessibleCompositeAdapter;
 import org.eclipse.mat.ui.internal.browser.QueryContextHelp;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
@@ -259,6 +260,7 @@ public class ProviderConfigurationDialog extends Dialog
 		
 		availableProvidersTable.setHeaderVisible(true);
 		availableProvidersTable.setLinesVisible(true);
+        AccessibleCompositeAdapter.access(availableProvidersTable);
 		
 		Collection<HeapDumpProviderDescriptor> providers = HeapDumpProviderRegistry.instance().getHeapDumpProviders();
 		for (HeapDumpProviderDescriptor heapDumpProviderDescriptor : providers)

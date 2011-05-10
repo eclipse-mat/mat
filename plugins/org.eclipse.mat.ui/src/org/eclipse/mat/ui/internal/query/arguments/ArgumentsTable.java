@@ -41,6 +41,7 @@ import org.eclipse.mat.snapshot.SnapshotFactory;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.ui.Messages;
+import org.eclipse.mat.ui.accessibility.AccessibleCompositeAdapter;
 import org.eclipse.mat.ui.internal.query.arguments.LinkEditor.Mode;
 import org.eclipse.mat.ui.internal.query.arguments.TextEditor.DecoratorType;
 import org.eclipse.mat.util.MessageUtil;
@@ -110,6 +111,7 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
         table.setFont(parentFont);
         table.setLinesVisible(true);
         table.setHeaderVisible(true);
+        AccessibleCompositeAdapter.access(table);
 
         TableColumn column = new TableColumn(table, SWT.NONE);
         column.setText(ARGUMENT);
