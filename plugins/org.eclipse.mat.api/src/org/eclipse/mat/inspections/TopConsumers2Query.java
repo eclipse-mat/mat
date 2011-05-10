@@ -65,7 +65,7 @@ public class TopConsumers2Query implements IQuery
     @Argument
     public ISnapshot snapshot;
 
-    @Argument(advice = Advice.HEAP_OBJECT, isMandatory = true, flag = Argument.UNFLAGGED)
+    @Argument(advice = Advice.HEAP_OBJECT, isMandatory = false, flag = Argument.UNFLAGGED)
     public int[] objects;
 
     @Argument(isMandatory = false, flag = "t")
