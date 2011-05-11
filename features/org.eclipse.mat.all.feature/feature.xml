@@ -2,7 +2,7 @@
 <feature
       id="org.eclipse.mat.all.feature"
       label="%featureName"
-      version="1.0.100.qualifier"
+      version="1.1.0.qualifier"
       provider-name="%providerName">
 
    <description>
@@ -18,7 +18,7 @@
    </license>
 
    <url>
-      <update label="%updateSiteName" url="http://download.eclipse.org/mat/1.0/update-site/"/>
+      <update label="%updateSiteName" url="http://download.eclipse.org/mat/1.1/update-site/"/>
    </url>
 
    <includes
