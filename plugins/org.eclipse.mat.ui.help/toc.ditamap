@@ -18,7 +18,7 @@
 		<topicref href="tasks/listbiggestobjects.dita" type="task" />
 		<topicref href="tasks/findingresponsibleobjects.dita" type="task" />
 		<topicref href="tasks/queryingheapobjects.dita" type="task" />
-		<topicref href="tasks/analyzingclassloader.dita" type="task" />
+		<topicref href="tasks/analyzingclassloader.dita" type="reference" />
 		<topicref href="tasks/analyzingthreads.dita" type="task" />
 		<topicref href="tasks/analyzingjavacollectionusage.dita" type="task" />
 		<topicref href="tasks/analyzingfinalizer.dita" type="task" />
