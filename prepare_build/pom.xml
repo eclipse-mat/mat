@@ -31,19 +31,11 @@
 						<phase>compile</phase>
 						<configuration>
 							<target>
-								<property environment="env" />
-								<echo message="Setting proxy: ${env.proxyHost}:${env.proxyPort}" />
-								<setproxy proxyhost="${env.proxyHost}" proxyport="${env.proxyPort}" />
-
-								<mkdir dir="${project.build.outputDirectory}" />
-
-								<get
-									src="ftp://ftp.software.ibm.com/software/java/support/tools/dtfj/dtfj-updatesite.zip"
-									dest="${project.build.outputDirectory}/dtfj-updatesite.zip"
-									usetimestamp="true" />
-								<unzip src="${project.build.outputDirectory}/dtfj-updatesite.zip"
-									dest="${project.basedir}/target/source" />
-
+								<property name="compile_classpath" refid="maven.compile.classpath" />
+								<property name="runtime_classpath" refid="maven.runtime.classpath" />
+								<property name="test_classpath" refid="maven.test.classpath" />
+								<property name="plugin_classpath" refid="maven.plugin.classpath" />
+								<ant target="default" inheritRefs="true" antfile="build.xml" />
 							</target>
 						</configuration>
 						<goals>
@@ -67,7 +59,7 @@
 						<goals>
 							<goal>run</goal>
 						</goals>
-					</execution>					
+					</execution>
 				</executions>
 			</plugin>
 
@@ -87,31 +79,6 @@
 					<compress>false</compress>
 				</configuration>
 			</plugin>
-
-<!--			<plugin>-->
-<!--				<artifactId>maven-antrun-plugin</artifactId>-->
-<!--				<version>1.6</version>-->
-<!--				<executions>-->
-<!--					<execution>-->
-<!--						<phase>package</phase>-->
-<!--						<configuration>-->
-<!--							<target>-->
-<!--								<makeurl property="workspace.baseUrl">-->
-<!--									<path location="${project.basedir}" />-->
-<!--								</makeurl>-->
-<!--								<echo message="Replacing location in target with: ${workspace.baseUrl}" />-->
-<!--								<replace-->
-<!--									file="${project.basedir}/../org.eclipse.mat.targetdef/mat-site.target"-->
-<!--									token="%workspaceUrl%" value="${workspace.baseUrl}target/repository" />-->
-<!--							</target>-->
-<!--						</configuration>-->
-<!--						<goals>-->
-<!--							<goal>run</goal>-->
-<!--						</goals>-->
-<!--					</execution>-->
-<!--				</executions>-->
-<!--			</plugin>-->
-
 		</plugins>
 	</build>
 </project> 
