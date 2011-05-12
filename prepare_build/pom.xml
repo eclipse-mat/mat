@@ -1,0 +1,117 @@
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>tycho-extras-tests</groupId>
+	<artifactId>publishedRepository</artifactId>
+	<version>1.1.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<!-- this is needed for accessing tycho 0.11.0-SNAPSHOT , should be removed 
+		when 0.11.0 is released -->
+	<!-- -->
+	<pluginRepositories>
+		<pluginRepository>
+			<id>sonatype-snapshots</id>
+			<url>https://repository.sonatype.org/content/groups/sonatype-public-grid/</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>
+
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.6</version>
+				<executions>
+					<execution>
+						<id>download_dtfj</id>
+						<phase>compile</phase>
+						<configuration>
+							<target>
+								<property environment="env" />
+								<echo message="Setting proxy: ${env.proxyHost}:${env.proxyPort}" />
+								<setproxy proxyhost="${env.proxyHost}" proxyport="${env.proxyPort}" />
+
+								<mkdir dir="${project.build.outputDirectory}" />
+
+								<get
+									src="ftp://ftp.software.ibm.com/software/java/support/tools/dtfj/dtfj-updatesite.zip"
+									dest="${project.build.outputDirectory}/dtfj-updatesite.zip"
+									usetimestamp="true" />
+								<unzip src="${project.build.outputDirectory}/dtfj-updatesite.zip"
+									dest="${project.basedir}/target/source" />
+
+							</target>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>modify_target</id>
+						<phase>package</phase>
+						<configuration>
+							<target>
+								<makeurl property="workspace.baseUrl">
+									<path location="${project.basedir}" />
+								</makeurl>
+								<echo message="Replacing location in target with: ${workspace.baseUrl}" />
+								<replace
+									file="${project.basedir}/../org.eclipse.mat.targetdef/mat-site.target"
+									token="%workspaceUrl%" value="${workspace.baseUrl}target/repository" />
+							</target>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>					
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.sonatype.tycho</groupId>
+				<artifactId>tycho-p2-extras-plugin</artifactId>
+				<version>0.11.0-SNAPSHOT</version>
+				<executions>
+					<execution>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>publish-features-and-bundles</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<compress>false</compress>
+				</configuration>
+			</plugin>
+
+<!--			<plugin>-->
+<!--				<artifactId>maven-antrun-plugin</artifactId>-->
+<!--				<version>1.6</version>-->
+<!--				<executions>-->
+<!--					<execution>-->
+<!--						<phase>package</phase>-->
+<!--						<configuration>-->
+<!--							<target>-->
+<!--								<makeurl property="workspace.baseUrl">-->
+<!--									<path location="${project.basedir}" />-->
+<!--								</makeurl>-->
+<!--								<echo message="Replacing location in target with: ${workspace.baseUrl}" />-->
+<!--								<replace-->
+<!--									file="${project.basedir}/../org.eclipse.mat.targetdef/mat-site.target"-->
+<!--									token="%workspaceUrl%" value="${workspace.baseUrl}target/repository" />-->
+<!--							</target>-->
+<!--						</configuration>-->
+<!--						<goals>-->
+<!--							<goal>run</goal>-->
+<!--						</goals>-->
+<!--					</execution>-->
+<!--				</executions>-->
+<!--			</plugin>-->
+
+		</plugins>
+	</build>
+</project> 

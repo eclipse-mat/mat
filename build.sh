@@ -6,8 +6,6 @@ if [ "x$M2_HOME" == "x" ]; then
 	exit 1
 fi
 
-ant -file prepare-dep-repos.xml
-
 if [ "x$proxyHost" != "x" ]; then
 	proxyOpts="-DproxySet=true -Dhttp.proxyHost=$proxyHost -Dhttp.proxyPort=$proxyPort"
 	if [ "x$nonProxyHosts" != "x" ] ; then
@@ -19,13 +17,21 @@ if [ "x$mvnSettings" != "x" ]; then
 	settingsOpts="-s $mvnSettings"
 fi
 
+cd prepare_build
+MVN_PREPARE_CALL="$M2_HOME/bin/mvn -Dmaven.repo.local=../.repository -DproxyHost=$proxyHost -DproxyPort=$proxyPort $settingsOpts clean install
+echo $MVN_PREPARE_CALL
+eval $MVN_PREPARE_CALL
+set result=$?
+cd ..
+if [ "x$result" != "x" ]; then
+	exit $result
+fi
+
 MVN_CALL="$M2_HOME/bin/mvn -Dmaven.repo.local=../.repository $proxyOpts -fae $mvnSettings clean install $additionalPlugins"
 echo $MVN_CALL
 eval $MVN_CALL
 
 set result=$?
-
-ant -file prepare-dep-repos.xml cleanup
 
 echo result=$result
 if [ "x$result" == "x" ]; then

@@ -1,48 +1,57 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>org.eclipse.mat</groupId>
-    <artifactId>plugins</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
-  </parent>
+	<parent>
+		<groupId>org.eclipse.mat</groupId>
+		<artifactId>plugins</artifactId>
+		<version>1.1.0-SNAPSHOT</version>
+	</parent>
 
-  <artifactId>org.eclipse.mat.tests</artifactId>
-  <packaging>eclipse-test-plugin</packaging>
-  
-  <build>
-	<plugins>
-  	  <plugin>
-  	    <groupId>org.sonatype.tycho</groupId>
-  	    <artifactId>maven-osgi-test-plugin</artifactId>
-  	    <configuration>
- 	      <dependencies>
-	        <dependency>
-	          <type>eclipse-plugin</type>
-	  	      <groupId>org.eclipse.mat</groupId>
-	          <artifactId>org.eclipse.mat.parser</artifactId>
-	          <version>0.0.0</version>
-	        </dependency>
-	        <dependency>
-	          <type>eclipse-plugin</type>
-	  	      <groupId>org.eclipse.mat</groupId>
-	          <artifactId>org.eclipse.mat.hprof</artifactId>
-	          <version>0.0.0</version>
-	        </dependency>
-	        <dependency>
-	          <type>eclipse-plugin</type>
-	  	      <groupId>org.eclipse.mat</groupId>
-	          <artifactId>org.eclipse.mat.dtfj</artifactId>
-	          <version>0.0.0</version>
-	        </dependency>
-	      </dependencies>
-	    </configuration>
-      </plugin>
-	</plugins>
-  </build>
+	<artifactId>org.eclipse.mat.tests</artifactId>
+	<packaging>eclipse-test-plugin</packaging>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.sonatype.tycho</groupId>
+				<artifactId>maven-osgi-test-plugin</artifactId>
+				<configuration>
+					<dependencies>
+						<dependency>
+							<type>eclipse-plugin</type>
+							<groupId>org.eclipse.mat</groupId>
+							<artifactId>org.eclipse.mat.parser</artifactId>
+							<version>0.0.0</version>
+						</dependency>
+						<dependency>
+							<type>eclipse-plugin</type>
+							<groupId>org.eclipse.mat</groupId>
+							<artifactId>org.eclipse.mat.hprof</artifactId>
+							<version>0.0.0</version>
+						</dependency>
+						<dependency>
+							<type>eclipse-plugin</type>
+							<groupId>org.eclipse.mat</groupId>
+							<artifactId>org.eclipse.mat.dtfj</artifactId>
+							<version>0.0.0</version>
+						</dependency>
+						<dependency>
+							<type>p2-installable-unit</type>
+							<artifactId>com.ibm.dtfj.feature.feature.group</artifactId>
+							<version>0.0.0</version>
+						</dependency>				
+						<dependency>
+							<type>p2-installable-unit</type>
+							<artifactId>org.eclipse.sdk.ide</artifactId>
+							<version>0.0.0</version>
+						</dependency>			
+					</dependencies>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 
 </project>

@@ -7,7 +7,7 @@ if not defined M2_HOME (
 )
 echo on
 
-call ant.bat -file prepare-dep-repos.xml
+REM call ant.bat -file prepare-dep-repos.xml
 
 if defined proxyHost (
 	if defined nonProxyHosts (
@@ -20,12 +20,25 @@ if defined proxyHost (
 if defined mvnSettings (
 	set settingsOpts=-s %mvnSettings%
 )
+if defined mvnRepository (
+	set repoOpts=-Dmaven.repo.local=%mvnRepository%
+)
 
-set MVN_CALL=%M2_HOME%\bin\mvn.bat -Dmaven.repo.local=c:\build\hudson_home\jobs\mat-0.8.0-tycho\workspace\.repository %proxyOpts% -fae %settingsOpts% clean install findbugs:findbugs
+cd prepare_build
+set MVN_PREPARE_CALL=%M2_HOME%\bin\mvn.bat %repoOpts% -DproxyHost=%proxyHost% -DproxyPort=%proxyPort% %settingsOpts% clean install
+echo %MVN_PREPARE_CALL%
+call %MVN_PREPARE_CALL%
+set result=%ERRORLEVEL%
+cd ..
+if not %result%==0 (
+	exit /B %result%
+)
+
+set MVN_CALL=%M2_HOME%\bin\mvn.bat %repoOpts% %proxyOpts% -fae %settingsOpts% clean install findbugs:findbugs
 echo %MVN_CALL%
 call %MVN_CALL% 
 set result=%ERRORLEVEL%
 
-call ant.bat -file prepare-dep-repos.xml cleanup
+REM call ant.bat -file prepare-dep-repos.xml cleanup
 
 exit /B %result%

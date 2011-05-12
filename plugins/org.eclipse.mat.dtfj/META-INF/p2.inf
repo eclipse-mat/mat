@@ -1,0 +1,4 @@
+requires.0.namespace = osgi.bundle
+requires.0.name = com.ibm.dtfj.api
+requires.0.optional = true
+requires.0.greedy = false

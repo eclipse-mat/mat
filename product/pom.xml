@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><!-- Copyright (c) 2010 SAP AG. All rights reserved. This program and the 	accompanying materials are made available under the terms of the Eclipse 	Public License v1.0 which accompanies this distribution, and is available 	at http://www.eclipse.org/legal/epl-v10.html Contributors: SAP AG - initial 	API and implementation -->
+<?xml version="1.0" encoding="UTF-8"?><!-- Copyright (c) 2010, 2011 SAP AG. All rights reserved. This program and the 	accompanying materials are made available under the terms of the Eclipse 	Public License v1.0 which accompanies this distribution, and is available 	at http://www.eclipse.org/legal/epl-v10.html Contributors: SAP AG - initial 	API and implementation -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
@@ -27,8 +27,7 @@
 							<goal>materialize-products</goal>
 						</goals>
 					</execution>
-					<execution>					<!-- Move the archive-products goal to a later phase and try to change 						change file permissions of the shell scripts, before the scripts 						are packed. This workaround should be removed once tycho supports						setting files permissions for the root files.					 -->						<phase>verify</phase>
-						<id>archive-products</id>
+					<execution>						<id>archive-products</id>
 						<goals>
 							<goal>archive-products</goal>
 						</goals>
@@ -42,7 +41,6 @@
 						</product>
 					</products>
 				</configuration>
-			</plugin>						<!-- Call an ant task to execute chmod -->			<plugin>				<artifactId>maven-antrun-plugin</artifactId>				<version>1.6</version>				<executions>					<execution>						<phase>package</phase>						<configuration>							<target>								<property name="compile_classpath" refid="maven.compile.classpath" />								<property name="runtime_classpath" refid="maven.runtime.classpath" />								<property name="test_classpath" refid="maven.test.classpath" />								<property name="plugin_classpath" refid="maven.plugin.classpath" />								<ant target="chmod" inheritRefs="true" antfile="chmod.xml" />							</target>						</configuration>						<goals>							<goal>run</goal>						</goals>					</execution>				</executions>			</plugin>
-		</plugins>
+			</plugin>		</plugins>
 	</build>
 </project>

@@ -1,198 +1,143 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 
-  <prerequisites>
-    <maven>3.0</maven>
-  </prerequisites>
+	<prerequisites>
+		<maven>3.0</maven>
+	</prerequisites>
 
   <groupId>org.eclipse.mat</groupId>
   <artifactId>parent</artifactId>
   <version>1.1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
-  <name>MAT Parent</name>
+	<name>MAT Parent</name>
 
-  <properties>
-    <tycho-version>0.11.0-SNAPSHOT</tycho-version>
-<!--    <tycho-version>0.8.0</tycho-version>-->
-  </properties>
+	<properties>
+		<tycho-version>0.11.0</tycho-version>
+	</properties>
 
-	<!-- this is needed for accessing tycho 0.11.0-SNAPSHOT , should be removed 
-		when 0.11.0 is released -->
-<!--		
--->
-	<pluginRepositories>
-		<pluginRepository>
-			<id>sonatype-snapshots</id>
-			<url>https://repository.sonatype.org/content/groups/sonatype-public-grid/</url>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</pluginRepository>
-	</pluginRepositories>
+	<repositories>
+		<repository>
+			<id>Helios</id>
+			<url>http://download.eclipse.org/releases/helios</url>
+			<layout>p2</layout>
+		</repository>
+	</repositories>
 
-  <modules>
-	<module>plugins</module>
-	<module>features</module>
-	<module>org.eclipse.mat.targetdef</module>
-	<module>org.eclipse.mat.updatesite</module>
-	<module>product</module>
-  </modules>
+	<modules>
+		<module>org.eclipse.mat.targetdef</module> 
+		<module>plugins</module>
+		<module>features</module>
+		<module>org.eclipse.mat.updatesite</module>
+		<module>product</module>
+	</modules>
 
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.sonatype.tycho</groupId>
-        <artifactId>tycho-maven-plugin</artifactId>
-        <version>${tycho-version}</version>
-        <extensions>true</extensions>
-      </plugin>
-	<plugin>
-		<groupId>org.sonatype.tycho</groupId>
-		<artifactId>target-platform-configuration</artifactId>
-		<version>${tycho-version}</version>
-		<configuration>
-			<resolver>p2</resolver>
-		</configuration>
-	</plugin>
-   </plugins>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.sonatype.tycho</groupId>
-          <artifactId>maven-osgi-compiler-plugin</artifactId>
-          <version>${tycho-version}</version>
-          <configuration>
-            <encoding>UTF-8</encoding>
-          </configuration>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-resources-plugin</artifactId>
-          <version>2.4.1</version>
-          <configuration>
-            <encoding>ISO-8859-1</encoding>
-          </configuration>
-        </plugin>
-		<plugin>
-			<groupId>org.sonatype.tycho</groupId>
-			<artifactId>maven-osgi-test-plugin</artifactId>
-			<version>${tycho-version}</version>
-			<configuration>
-				<argLine>-ea -Xmx768m</argLine>
-				<testFailureIgnore>true</testFailureIgnore> <!-- currently not supported (ignored) with tycho, see https://issues.sonatype.org/browse/TYCHO-333 -->
-				<includes>
-					<include>**/AllTests.class</include>
-				</includes>
-			</configuration>
-		</plugin>		
-        <plugin>
-          <groupId>org.sonatype.tycho</groupId>
-          <artifactId>target-platform-configuration</artifactId>
-          <version>${tycho-version}</version>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.sonatype.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<extensions>true</extensions>
+			</plugin>
+			<plugin>
+				<groupId>org.sonatype.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho-version}</version>
 				<configuration>
 					<resolver>p2</resolver>
-					<target>
-						<artifact>
-							<groupId>org.eclipse.mat</groupId>
-							<artifactId>org.eclipse.mat.targetdef</artifactId>
-							<version>${project.version}</version>
-							<classifier>mat-site</classifier>
-						</artifact>
-					</target>
-					
-					<environments>
-						<environment>
-							<os>win32</os>
-							<ws>win32</ws>
-							<arch>x86</arch>
-						</environment>
-<!-- 
-						<environment>
-							<os>win32</os>
-							<ws>win32</ws>
-							<arch>x86_64</arch>
-						</environment>
-						<environment>
-							<os>macosx</os>
-							<ws>carbon</ws>
-							<arch>x86</arch>
-						</environment>
-						<environment>
-							<os>macosx</os>
-							<ws>cocoa</ws>
-							<arch>x86</arch>
-						</environment>
-						<environment>
-							<os>macosx</os>
-							<ws>cocoa</ws>
-							<arch>x86_64</arch>
-						</environment>
-						<environment>
-							<os>solaris</os>
-							<ws>gtk</ws>
-							<arch>x86</arch>
-						</environment>
-						<environment>
-							<os>solaris</os>
-							<ws>gtk</ws>
-							<arch>sparc</arch>
-						</environment>
-						<environment>
-							<os>aix</os>
-							<ws>motif</ws>
-							<arch>ppc</arch>
-						</environment>
-						<environment>
-							<os>hpux</os>
-							<ws>motif</ws>
-							<arch>ia64_32</arch>
-						</environment>
- -->
-						<environment>
-							<os>linux</os>
-							<ws>gtk</ws>
-							<arch>x86</arch>
-						</environment>
-<!-- 
-						<environment>
-							<os>linux</os>
-							<ws>gtk</ws>
-							<arch>x86_64</arch>
-						</environment>
-						<environment>
-							<os>linux</os>
-							<ws>gtk</ws>
-							<arch>ppc</arch>
-						</environment>
-						<environment>
-							<os>linux</os>
-							<ws>gtk</ws>
-							<arch>ppc64</arch>
-						</environment>
--->
-					</environments>
-					
-					<ignoreTychoRepositories>true</ignoreTychoRepositories>
 				</configuration>
-        </plugin>
-		<plugin>
-			<groupId>org.codehaus.mojo</groupId>
-			<artifactId>findbugs-maven-plugin</artifactId>
-			<version>2.3.2-SNAPSHOT</version>
-			<configuration>
-				<findbugsXmlOutput>true</findbugsXmlOutput>
-				<findbugsXmlWithMessages>true</findbugsXmlWithMessages>
-				<xmlOutput>true</xmlOutput>
-			</configuration>
-		</plugin>		
-      </plugins>
-    </pluginManagement>
-  </build>
+			</plugin>
+		</plugins>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.sonatype.tycho</groupId>
+					<artifactId>maven-osgi-compiler-plugin</artifactId>
+					<version>${tycho-version}</version>
+					<configuration>
+						<encoding>UTF-8</encoding>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-resources-plugin</artifactId>
+					<version>2.4.1</version>
+					<configuration>
+						<encoding>ISO-8859-1</encoding>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.sonatype.tycho</groupId>
+					<artifactId>maven-osgi-test-plugin</artifactId>
+					<version>${tycho-version}</version>
+					<configuration>
+						<argLine>-ea -Xmx768m</argLine>
+						<testFailureIgnore>true</testFailureIgnore> <!-- currently not supported (ignored) with tycho, see https://issues.sonatype.org/browse/TYCHO-333 -->
+						<includes>
+							<include>**/AllTests.class</include>
+						</includes>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.sonatype.tycho</groupId>
+					<artifactId>target-platform-configuration</artifactId>
+					<version>${tycho-version}</version>
+					<configuration>
+						<resolver>p2</resolver>
+						 <target> 
+						 <artifact> 
+						 <groupId>org.eclipse.mat</groupId> 
+						 <artifactId>org.eclipse.mat.targetdef</artifactId> 
+						 <version>${project.version}</version> 
+						 <classifier>mat-site</classifier> 
+						 </artifact> 
+						 </target> 
+
+						<environments>
+							<environment>
+								<os>win32</os>
+								<ws>win32</ws>
+								<arch>x86</arch>
+							</environment>
+							<!-- <environment> <os>win32</os> <ws>win32</ws> <arch>x86_64</arch> 
+								</environment> <environment> <os>macosx</os> <ws>carbon</ws> <arch>x86</arch> 
+								</environment> <environment> <os>macosx</os> <ws>cocoa</ws> <arch>x86</arch> 
+								</environment> <environment> <os>macosx</os> <ws>cocoa</ws> <arch>x86_64</arch> 
+								</environment> <environment> <os>solaris</os> <ws>gtk</ws> <arch>x86</arch> 
+								</environment> <environment> <os>solaris</os> <ws>gtk</ws> <arch>sparc</arch> 
+								</environment> <environment> <os>aix</os> <ws>motif</ws> <arch>ppc</arch> 
+								</environment> <environment> <os>hpux</os> <ws>motif</ws> <arch>ia64_32</arch> 
+								</environment> -->
+							<environment>
+								<os>linux</os>
+								<ws>gtk</ws>
+								<arch>x86</arch>
+							</environment>
+							<!-- <environment> <os>linux</os> <ws>gtk</ws> <arch>x86_64</arch> 
+								</environment> <environment> <os>linux</os> <ws>gtk</ws> <arch>ppc</arch> 
+								</environment> <environment> <os>linux</os> <ws>gtk</ws> <arch>ppc64</arch> 
+								</environment> -->
+						</environments>
+
+						<ignoreTychoRepositories>true</ignoreTychoRepositories>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>findbugs-maven-plugin</artifactId>
+					<version>2.3.2</version>
+					<configuration>
+						<findbugsXmlOutput>true</findbugsXmlOutput>
+						<findbugsXmlWithMessages>true</findbugsXmlWithMessages>
+						<xmlOutput>true</xmlOutput>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
 </project>
 

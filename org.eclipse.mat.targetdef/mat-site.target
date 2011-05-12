@@ -4,30 +4,13 @@
 <target name="MAT Target">
 <locations>
 <location includeAllPlatforms="false" includeMode="planner" type="InstallableUnit">
-<unit id="org.eclipse.datatools.enablement.sdk.feature.feature.group" version="1.8.0.v201005280400-7I97-FE9JfhXjGyyrcS_FeiNlq43"/>
-<unit id="org.eclipse.cdt.feature.group" version="7.0.0.201006141710"/>
 <unit id="org.eclipse.sdk.ide" version="3.6.0.I20100608-0911"/>
+<unit id="org.eclipse.birt.feature.group" version="0.0.0"/>
 <repository location="http://download.eclipse.org/releases/helios"/>
 </location>
 <location includeAllPlatforms="false" includeMode="planner" type="InstallableUnit">
-<unit id="org.eclipse.birt.chart.feature.group" version="0.0.0"/>
-<repository location="http://download.eclipse.org/birt/update-site/2.6-interim/"/>
-</location>
-<location includeAllPlatforms="false" includeMode="planner" type="InstallableUnit">
-<unit id="org.eclipse.emf.feature.group" version="0.0.0"/>
-<repository location="http://download.eclipse.org/modeling/emf/updates/interim/"/>
-</location>
-<location includeAllPlatforms="false" includeMode="slicer" type="InstallableUnit">
-<unit id="org.eclipse.test.feature.group" version="0.0.0"/>
-<repository location="%workspaceUrl%p2tool/eclipse-test-framework/repo"/>
-</location>
-<location includeAllPlatforms="false" includeMode="planner" type="InstallableUnit">
 <unit id="com.ibm.dtfj.feature.feature.group" version="0.0.0"/>
-<repository location="%workspaceUrl%p2tool/dtfj-updatesite/repo"/>
-</location>
-<location includeAllPlatforms="false" includeMode="planner" type="InstallableUnit">
-<unit id="org.eclipse.equinox.executable.feature.group" version="0.0.0"/>
-<repository location="%workspaceUrl%p2tool/eclipse-delta-pack/repo"/>
+<repository location="%workspaceUrl%"/>
 </location>
 </locations>
 </target>
