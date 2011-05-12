@@ -18,7 +18,7 @@ if [ "x$mvnSettings" != "x" ]; then
 fi
 
 cd prepare_build
-MVN_PREPARE_CALL="$M2_HOME/bin/mvn -Dmaven.repo.local=../.repository -DproxyHost=$proxyHost -DproxyPort=$proxyPort $settingsOpts clean install
+MVN_PREPARE_CALL="$M2_HOME/bin/mvn -Dmaven.repo.local=../.repository -DproxyHost=$proxyHost -DproxyPort=$proxyPort $settingsOpts clean install"
 echo $MVN_PREPARE_CALL
 eval $MVN_PREPARE_CALL
 set result=$?
