@@ -24,7 +24,7 @@
 	<module>org.eclipse.mat.chart.feature</module>
 	<module>org.eclipse.mat.dependencies.feature</module>
 	<module>org.eclipse.mat.feature</module>
-	<module>org.eclipse.mat.test.feature</module>
+<!--	<module>org.eclipse.mat.test.feature</module>-->
 	<module>org.eclipse.mat.ui.rcp.feature</module>
   </modules>
 
