@@ -49,6 +49,7 @@
       <topic label="Selecting Queries" href="reference/selectingqueries.html"/>
       <topic label="Icons Assist" href="reference/iconassist.html"/>
       <topic label="Tips and Tricks" href="reference/tipsandtricks.html"/>
+      <topic label="Extending Memory Analyzer" href="reference/extendingmat.html"/>
       <topic label="API Reference" href="doc/index.html"/>
    </topic>
    <topic label="New and Noteworthy" href="noteworthy.html"/>

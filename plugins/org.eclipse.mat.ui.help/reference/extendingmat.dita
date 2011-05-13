@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2011 SAP AG.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+   
+    Contributors:
+        SAP AG - initial API and implementation
+ -->
+<!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd" >
+<reference id="ref_tips" xml:lang="en-us">
+	<title>Extending Memory Analyzer</title>
+	<shortdesc />
+	<prolog>
+		<copyright>
+			<copyryear year=""></copyryear>
+			<copyrholder>
+				Copyright (c) 2011 SAP AG and others.
+			    All rights reserved. This program and the accompanying materials
+			    are made available under the terms of the Eclipse Public License v1.0
+			    which accompanies this distribution, and is available at
+			    http://www.eclipse.org/legal/epl-v10.html
+			</copyrholder>
+		</copyright>
+	</prolog>
+
+	<refbody>
+		<section>
+			<p> Memory Analyzer offers a set of API and extension points which
+			allow the tool to be extended by custom-developed inspections, reports,
+			heap dump parsers, etc...
+			
+			More documentation can be found in the <xref format="html" href="http://wiki.eclipse.org/index.php?title=MemoryAnalyzer/Contributor_Reference#Writing_plugins_for_the_Memory_Analyzer">Wiki pages</xref> of the project:
+			</p>
+		</section>
+	</refbody>
+</reference>

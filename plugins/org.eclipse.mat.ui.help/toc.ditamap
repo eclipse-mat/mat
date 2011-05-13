@@ -50,6 +50,7 @@
 		<topicref href="reference/selectingqueries.dita" type="reference" />
 		<topicref href="reference/iconassist.dita" type="reference" />
 		<topicref href="reference/tipsandtricks.dita" type="reference" />
+		<topicref href="reference/extendingmat.dita" type="reference" />
 		<topicref navtitle="API Reference" format="html" href="doc/index.html" type="reference" />
 	</topichead>
 	<topicref href="noteworthy.dita" type="reference" />
