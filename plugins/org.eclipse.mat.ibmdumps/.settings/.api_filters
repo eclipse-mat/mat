@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?><component id="org.eclipse.mat.ibmdumps" version="2">
+    <resource path="META-INF/MANIFEST.MF" type="classes.org.eclipse.mat.ibmvm.acquire.IBMDumpProvider">
+        <filter comment="Never intended as an API" id="305324134">
+            <message_arguments>
+                <message_argument value="classes.org.eclipse.mat.ibmvm.acquire.IBMDumpProvider"/>
+                <message_argument value="org.eclipse.mat.ibmdumps_1.1.0"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/mat/ibmvm/acquire/BaseProvider.java" type="org.eclipse.mat.ibmvm.acquire.BaseProvider">
+        <filter comment="Never intended as an API" id="1143996420">
+            <message_arguments>
+                <message_argument value="org.eclipse.mat.ibmvm.acquire.BaseProvider"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/mat/ibmvm/acquire/DumpFactory.java" type="org.eclipse.mat.ibmvm.acquire.DumpFactory">
+        <filter comment="Never intended as an API" id="305365105">
+            <message_arguments>
+                <message_argument value="org.eclipse.mat.ibmvm.acquire.DumpFactory"/>
+                <message_argument value="org.eclipse.mat.ibmdumps_1.1.0"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/mat/ibmvm/acquire/DumpType.java" type="org.eclipse.mat.ibmvm.acquire.DumpType">
+        <filter id="305365105">
+            <message_arguments>
+                <message_argument value="org.eclipse.mat.ibmvm.acquire.DumpType"/>
+                <message_argument value="org.eclipse.mat.ibmdumps_1.1.0"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/mat/ibmvm/acquire/IBMExecDumpProvider.java" type="org.eclipse.mat.ibmvm.acquire.IBMExecDumpProvider">
+        <filter id="305365105">
+            <message_arguments>
+                <message_argument value="org.eclipse.mat.ibmvm.acquire.IBMExecDumpProvider"/>
+                <message_argument value="org.eclipse.mat.ibmdumps_1.1.0"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/mat/ibmvm/acquire/IBMExecVmInfo.java" type="org.eclipse.mat.ibmvm.acquire.IBMExecVmInfo">
+        <filter comment="Never intended as an API" id="305365105">
+            <message_arguments>
+                <message_argument value="org.eclipse.mat.ibmvm.acquire.IBMExecVmInfo"/>
+                <message_argument value="org.eclipse.mat.ibmdumps_1.1.0"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/mat/ibmvm/acquire/IBMJavaDumpProvider.java" type="org.eclipse.mat.ibmvm.acquire.IBMJavaDumpProvider">
+        <filter comment="Never intended as an API" id="305365105">
+            <message_arguments>
+                <message_argument value="org.eclipse.mat.ibmvm.acquire.IBMJavaDumpProvider"/>
+                <message_argument value="org.eclipse.mat.ibmdumps_1.1.0"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/mat/ibmvm/acquire/IBMVmInfo.java" type="org.eclipse.mat.ibmvm.acquire.IBMVmInfo">
+        <filter id="305365105">
+            <message_arguments>
+                <message_argument value="org.eclipse.mat.ibmvm.acquire.IBMVmInfo"/>
+                <message_argument value="org.eclipse.mat.ibmdumps_1.1.0"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/mat/ibmvm/acquire/Messages.java" type="org.eclipse.mat.ibmvm.acquire.Messages">
+        <filter comment="Never intended as an API" id="305365105">
+            <message_arguments>
+                <message_argument value="org.eclipse.mat.ibmvm.acquire.Messages"/>
+                <message_argument value="org.eclipse.mat.ibmdumps_1.1.0"/>
+            </message_arguments>
+        </filter>
+    </resource>
+</component>

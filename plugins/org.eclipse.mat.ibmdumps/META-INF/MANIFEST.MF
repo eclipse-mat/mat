@@ -5,12 +5,11 @@ Bundle-Name: %Bundle-Name
 Bundle-Vendor: %Bundle-Vendor
 Bundle-Version: 1.1.0.qualifier
 Class-Path: bin/
-Export-Package: org.eclipse.mat.ibmvm.acquire,
- org.eclipse.mat.ibmvm.agent
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.3.100",
  org.eclipse.mat.api;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Eclipse-LazyStart: true
+Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: bin/,
  classes/,
  .
