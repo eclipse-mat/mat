@@ -2,11 +2,9 @@
 <site pack200="true">
    <feature url="features/org.eclipse.mat.chart.feature_0.0.0.jar" id="org.eclipse.mat.chart.feature" version="0.0.0">
       <category name="Memory Analyzer IDE"/>
-      <category name="Memory Analyzer RCP"/>
    </feature>
    <feature url="features/org.eclipse.mat.feature_0.0.0.jar" id="org.eclipse.mat.feature" version="0.0.0">
       <category name="Memory Analyzer IDE"/>
-      <category name="Memory Analyzer RCP"/>
    </feature>
    <feature url="features/org.eclipse.mat.ui.rcp.feature_0.0.0.qualifier.jar" id="org.eclipse.mat.ui.rcp.feature" version="0.0.0">
       <category name="Memory Analyzer RCP"/>

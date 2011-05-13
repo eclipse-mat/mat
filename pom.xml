@@ -8,10 +8,10 @@
 		<maven>3.0</maven>
 	</prerequisites>
 
-  <groupId>org.eclipse.mat</groupId>
-  <artifactId>parent</artifactId>
-  <version>1.1.0-SNAPSHOT</version>
-  <packaging>pom</packaging>
+	<groupId>org.eclipse.mat</groupId>
+	<artifactId>parent</artifactId>
+	<version>1.1.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
 
 	<name>MAT Parent</name>
 
@@ -19,16 +19,8 @@
 		<tycho-version>0.11.0</tycho-version>
 	</properties>
 
-	<repositories>
-		<repository>
-			<id>Helios</id>
-			<url>http://download.eclipse.org/releases/helios</url>
-			<layout>p2</layout>
-		</repository>
-	</repositories>
-
 	<modules>
-		<module>org.eclipse.mat.targetdef</module> 
+		<module>org.eclipse.mat.targetdef</module>
 		<module>plugins</module>
 		<module>features</module>
 		<module>org.eclipse.mat.updatesite</module>
@@ -88,14 +80,14 @@
 					<version>${tycho-version}</version>
 					<configuration>
 						<resolver>p2</resolver>
-						 <target> 
-						 <artifact> 
-						 <groupId>org.eclipse.mat</groupId> 
-						 <artifactId>org.eclipse.mat.targetdef</artifactId> 
-						 <version>${project.version}</version> 
-						 <classifier>mat-site</classifier> 
-						 </artifact> 
-						 </target> 
+						<target>
+							<artifact>
+								<groupId>org.eclipse.mat</groupId>
+								<artifactId>org.eclipse.mat.targetdef</artifactId>
+								<version>${project.version}</version>
+								<classifier>mat-site</classifier>
+							</artifact>
+						</target>
 
 						<environments>
 							<environment>
@@ -103,24 +95,66 @@
 								<ws>win32</ws>
 								<arch>x86</arch>
 							</environment>
-							<!-- <environment> <os>win32</os> <ws>win32</ws> <arch>x86_64</arch> 
-								</environment> <environment> <os>macosx</os> <ws>carbon</ws> <arch>x86</arch> 
-								</environment> <environment> <os>macosx</os> <ws>cocoa</ws> <arch>x86</arch> 
-								</environment> <environment> <os>macosx</os> <ws>cocoa</ws> <arch>x86_64</arch> 
-								</environment> <environment> <os>solaris</os> <ws>gtk</ws> <arch>x86</arch> 
-								</environment> <environment> <os>solaris</os> <ws>gtk</ws> <arch>sparc</arch> 
-								</environment> <environment> <os>aix</os> <ws>motif</ws> <arch>ppc</arch> 
-								</environment> <environment> <os>hpux</os> <ws>motif</ws> <arch>ia64_32</arch> 
-								</environment> -->
+							<environment>
+								<os>win32</os>
+								<ws>win32</ws>
+								<arch>x86_64</arch>
+							</environment>
+<!--							<environment>-->
+<!--								<os>macosx</os>-->
+<!--								<ws>carbon</ws>-->
+<!--								<arch>x86</arch>-->
+<!--							</environment>-->
+<!--							<environment>-->
+<!--								<os>macosx</os>-->
+<!--								<ws>cocoa</ws>-->
+<!--								<arch>x86</arch>-->
+<!--							</environment>-->
+<!--							<environment>-->
+<!--								<os>macosx</os>-->
+<!--								<ws>cocoa</ws>-->
+<!--								<arch>x86_64</arch>-->
+<!--							</environment>-->
+							<environment>
+								<os>solaris</os>
+								<ws>gtk</ws>
+								<arch>x86</arch>
+							</environment>
+							<environment>
+								<os>solaris</os>
+								<ws>gtk</ws>
+								<arch>sparc</arch>
+							</environment>
+							<environment>
+								<os>aix</os>
+								<ws>motif</ws>
+								<arch>ppc</arch>
+							</environment>
+							<environment>
+								<os>hpux</os>
+								<ws>motif</ws>
+								<arch>ia64_32</arch>
+							</environment>
 							<environment>
 								<os>linux</os>
 								<ws>gtk</ws>
 								<arch>x86</arch>
 							</environment>
-							<!-- <environment> <os>linux</os> <ws>gtk</ws> <arch>x86_64</arch> 
-								</environment> <environment> <os>linux</os> <ws>gtk</ws> <arch>ppc</arch> 
-								</environment> <environment> <os>linux</os> <ws>gtk</ws> <arch>ppc64</arch> 
-								</environment> -->
+							<environment>
+								<os>linux</os>
+								<ws>gtk</ws>
+								<arch>x86_64</arch>
+							</environment>
+							<environment>
+								<os>linux</os>
+								<ws>gtk</ws>
+								<arch>ppc</arch>
+							</environment>
+							<environment>
+								<os>linux</os>
+								<ws>gtk</ws>
+								<arch>ppc64</arch>
+							</environment>
 						</environments>
 
 						<ignoreTychoRepositories>true</ignoreTychoRepositories>
