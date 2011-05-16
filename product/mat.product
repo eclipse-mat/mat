@@ -44,6 +44,17 @@ Visit http://www.eclipse.org/mat
    <vm>
    </vm>
 
+   <license>
+        <url>%product.licenseURL</url>
+        <text>
+   %product.license
+         </text>
+   </license>
+
+   <copyright>
+      %copyright
+   </copyright>
+
    <plugins>
    </plugins>
 
