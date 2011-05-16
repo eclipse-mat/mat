@@ -28,7 +28,8 @@
 
 	<refbody>
 		<section>
-			<p> Memory Analyzer offers a set of API and extension points which
+			<p> Memory Analyzer offers a set of 
+			<xref href="../doc/overview-summary.html" format="html">API and extension points</xref> which
 			allow the tool to be extended by custom-developed inspections, reports,
 			heap dump parsers, etc...
 			

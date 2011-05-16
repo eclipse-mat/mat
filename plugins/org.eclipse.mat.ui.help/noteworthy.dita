@@ -67,6 +67,21 @@
 			</image>
 		</section>
 		<section>
+			<title>Thread details from DTFJ dumps</title>
+			<p>Additional thread information is now available from DTFJ dumps.
+			</p>
+			<image href="mimes/thread_details.png">
+				<alt>Extra thread detail from a DTFJ dump</alt>
+			</image>
+		</section>
+		<section>
+			<title>Value tab in object inspector</title>
+			<p>The value tab shows a readable value for some objects. This is the same text as in the list objects query.</p>
+			<image href="mimes/inspector_value.png">
+				<alt>Value tab in object inspector</alt>
+			</image>
+		</section>
+		<section>
 			<title>Accessibility Improvements</title>
 			<p>This release of MAT contains a series of accessibility improvements
 			related to better support for keyboard navigation, screen reader (JAWS),

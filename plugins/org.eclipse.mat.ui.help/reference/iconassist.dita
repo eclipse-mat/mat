@@ -86,7 +86,7 @@
 				<strow>
 					<stentry>
 						<image href="../mimes/i-heapdump.png">
-							<alt>heap dump icon></alt>
+							<alt>heap dump icon</alt>
 						</image>
 					</stentry>
 					<stentry>Heap dump</stentry>
@@ -227,7 +227,7 @@
 				<strow>
 					<stentry>
 						<image href="../mimes/i-pathtogc.png">
-							<alt>path to GC roots icon></alt>
+							<alt>path to GC roots icon</alt>
 						</image>
 					</stentry>
 					<stentry>Paths to GC Roots</stentry>

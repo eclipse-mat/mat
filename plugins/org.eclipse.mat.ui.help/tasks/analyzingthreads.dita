@@ -40,7 +40,9 @@
 				</menucascade>
 				query:
 			</p>
-			<image href="../mimes/threads_overview.png" alt="screen shot of thread overview"></image>
+			<image href="../mimes/threads_overview.png">
+				<alt>screen shot of thread overview</alt>
+			</image>
 			<p>
 				The query provide some properties like Name, Object, Context Classloader, etc...
 				for each of the threads.
@@ -57,6 +59,13 @@
 				query will contain such information (if available), some overview information, and 
 				possibly the stacktrace of the thread.
 			</p>
+			<p>
+				For DTFJ based dumps (IBM system dumps and IBM PHD files with associated java dump) the thread
+				details view gives more information, including the thread state, priority and native stack trace.
+				<image href="../mimes/thread_details.png">
+					<alt>Thread details from a DTFJ dump showing DTFJ Name, JNIEnv, Priority, State and Native id.</alt>
+				</image>
+			</p>
 			
 			<p><b>Threads Stacks</b></p>			
 			<p>
@@ -70,7 +79,9 @@
 				with no objects as parameter. To view the call stacks of particular selection of threads use
 				the same query from the context menu. 
 			</p>
-			<image href="../mimes/thread_stack.png" alt="screen shot of thread stack"></image>
+			<image href="../mimes/thread_stack.png">
+				<alt>screen shot of thread stack</alt>
+			</image>
 			<p>
 				Exploring the call-stacks and the local Java objects is a powerful feature, giving a
 				debugger like capabilities over a snapshot. It allows analyzing in details the reason
@@ -118,23 +129,33 @@
 			</p>
 			<p><b>Normal operation with stack frames not considered as objects.</b></p>
 			<p>
-			<image href="../mimes/thread_frames0.png" alt="outbound references from thread without stack frames as objects"></image>
+			<image href="../mimes/thread_frames0.png">
+				<alt>outbound references from thread without stack frames as objects</alt>
+			</image>
 			</p>
 			<p><b>Stack frames as pseudo-objects.</b></p>
 			<p> Note that the type of the stack frame is <codeph>&lt;stack frame&gt;</codeph>.
-			<image href="../mimes/thread_frames1.png" alt="outbound references from thread with stack frames as objects"></image>
+			<image href="../mimes/thread_frames1.png">
+				<alt>outbound references from thread with stack frames as objects</alt>
+			</image>
 			</p>
 			<p><b>Stack frames as pseudo-objects and running methods as pseudo-classes.</b></p>
 			<p>Note the different types for the stack frame such as <codeph>java.io.FileStream.getBytes([BIII)I;</codeph>.
-			<image href="../mimes/thread_frames2.png" alt="outbound references from thread with stack frames as objects and methods as classes"></image>
+			<image href="../mimes/thread_frames2.png">
+				<alt>outbound references from thread with stack frames as objects and methods as classes</alt>
+			</image>
 			The class histogram shows that only running methods are pseudo-classes, and the size of the class object is 0.
-			<image href="../mimes/thread_classes2.png" alt="class histogram showing running methods as pseudo-classes"></image>
+			<image href="../mimes/thread_classes2.png">
+				<alt>class histogram showing running methods as pseudo-classes</alt>
+			</image>
 			</p>
 			<p><b>Stack frames as pseudo-objects and all methods as pseudo-classes.</b></p>
 			<p>The outbound references tree looks the same,
 			but the class histogram has a lot more pseudo-classes with 0 instances (i.e. with no running methods), and the 
 			pseudo-class objects have a non-zero size.
-			<image href="../mimes/thread_classes3.png" alt="class histogram showing all methods as pseudo-classes"></image>
+			<image href="../mimes/thread_classes3.png">
+				<alt>class histogram showing all methods as pseudo-classes</alt>
+			</image>
 			</p>
 		</context>
 	</taskbody>
