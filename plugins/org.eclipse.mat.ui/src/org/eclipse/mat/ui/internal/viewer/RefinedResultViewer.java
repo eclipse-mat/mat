@@ -980,6 +980,8 @@ public abstract class RefinedResultViewer
         boolean showBorder = false;
         final Composite composite = new Composite(control, SWT.NONE);
         final Text text = new Text(composite, SWT.NONE);
+        // Make text editor appear on Linux
+        text.setText(" "); //$NON-NLS-1$
         final int inset = showBorder ? 1 : 0;
 
         // Once the item goes e.g. on sort, remove the filter to avoid operating
