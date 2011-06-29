@@ -103,6 +103,22 @@ public class RefinedTreeViewer extends RefinedResultViewer
                 }
             }
         });
+
+        tree.addListener(SWT.PaintItem, new Listener()
+        {
+            public void handleEvent(final Event event)
+            {
+                if (!((event.detail & SWT.FOCUSED) != 0))
+                    return;
+
+                int w = 0;
+                for (int i = 0; i < tree.getColumnCount(); ++i)
+                {
+                    w += tree.getColumn(i).getWidth();
+                }
+                event.gc.drawFocus(0, event.y, w - 1, event.height);
+            }
+        });
     }
     
     @Override
