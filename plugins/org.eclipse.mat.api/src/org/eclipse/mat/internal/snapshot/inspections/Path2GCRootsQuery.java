@@ -34,6 +34,7 @@ import org.eclipse.mat.query.ISelectionProvider;
 import org.eclipse.mat.query.ResultMetaData;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.CommandName;
+import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.query.annotations.Menu;
 import org.eclipse.mat.query.annotations.Menu.Entry;
@@ -57,6 +58,7 @@ import org.eclipse.mat.util.IProgressListener;
                 @Entry(options = "-excludes java.lang.ref.PhantomReference:referent java.lang.ref.WeakReference:referent"), //
                 @Entry(options = "-excludes java.lang.ref.Reference:referent") //
 })
+@HelpUrl("/org.eclipse.mat.ui.help/reference/inspections/path_to_gc_roots.html")
 public class Path2GCRootsQuery implements IQuery
 {
 

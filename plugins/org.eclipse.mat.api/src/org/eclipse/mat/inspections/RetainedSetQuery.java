@@ -15,6 +15,7 @@ import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.CommandName;
+import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.snapshot.Histogram;
 import org.eclipse.mat.snapshot.ISnapshot;
@@ -24,6 +25,7 @@ import org.eclipse.mat.util.MessageUtil;
 
 @CommandName("show_retained_set")
 @Icon("/META-INF/icons/show_retained_set.gif")
+@HelpUrl("/org.eclipse.mat.ui.help/reference/inspections/retained_set.html")
 public class RetainedSetQuery implements IQuery
 {
     @Argument
