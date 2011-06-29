@@ -11,6 +11,9 @@
  *******************************************************************************/
 package org.eclipse.mat.inspections;
 
+import java.beans.IntrospectionException;
+import java.beans.PropertyDescriptor;
+import java.beans.SimpleBeanInfo;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,6 +56,45 @@ public class HeapDumpInfoQuery implements IQuery
             return propertyName;
         }
 
+    }
+
+    /**
+     * Provides translatable names for the columns.
+     * @author ajohnson
+     *
+     */
+    public static class TextEntryBeanInfo extends SimpleBeanInfo
+    {
+        public TextEntryBeanInfo()
+        {
+        }
+        public PropertyDescriptor[] getPropertyDescriptors()
+        {
+            PropertyDescriptor ret[];
+            try
+            {
+                final PropertyDescriptor propertyDescriptor1 = new PropertyDescriptor("propertyName", TextEntry.class, "getPropertyName", null) //$NON-NLS-1$ //$NON-NLS-2$
+                {
+                    public String getDisplayName()
+                    {
+                        return Messages.HeapDumpInfoQuery_PropertyName;
+                    }
+                };
+                final PropertyDescriptor propertyDescriptor2 = new PropertyDescriptor("propertyValue", TextEntry.class, "getPropertyValue", null) //$NON-NLS-1$ //$NON-NLS-2$
+                {
+                    public String getDisplayName()
+                    {
+                        return Messages.HeapDumpInfoQuery_ProperyValue;
+                    }
+                };
+                ret = new PropertyDescriptor[] { propertyDescriptor1, propertyDescriptor2 };
+            }
+            catch (IntrospectionException e)
+            {
+                ret = null;
+            }
+            return ret;
+        }
     }
 
     @Argument

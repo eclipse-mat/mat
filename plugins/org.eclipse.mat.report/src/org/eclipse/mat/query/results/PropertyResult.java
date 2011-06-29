@@ -33,6 +33,9 @@ import org.eclipse.mat.report.internal.Messages;
 /**
  * Extract properties from an object and display as a result table.
  * Compare to {@link ListResult} which extracts and displays from a list of objects.
+ * The column names are derived from the property names.
+ * If the names are required to be internationalized then a BeanInfo can be provided for the
+ * subject class which provides a display name for the property descriptor.
  */
 public class PropertyResult implements IResultTable, IIconProvider
 {
@@ -93,8 +96,11 @@ public class PropertyResult implements IResultTable, IIconProvider
 
                 if (d != null)
                 {
+                    String columnName = d.getDisplayName();
+                    if (columnName.equals(d.getName()))
+                        columnName = fixName(d.getName());
                     Object v = d.getReadMethod().invoke(subject, (Object[]) null);
-                    Pair p = new Pair(fixName(d.getName()), fixValue(v));
+                    Pair p = new Pair(columnName, fixValue(v));
                     rows.add(p);
                 }
             }

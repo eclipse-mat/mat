@@ -52,6 +52,9 @@ import org.eclipse.mat.query.ResultMetaData;
  *    return new ListResult(NameValuePair.class, pairs, "name", "value")
  * </code>
  * </pre>
+ * The column names are derived from the property names.
+ * If the names are required to be internationalized then a BeanInfo can be provided for the
+ * type which provides a display name for the property descriptor.
  */
 public class ListResult implements IResultTable, IIconProvider
 {
@@ -119,7 +122,10 @@ public class ListResult implements IResultTable, IIconProvider
 
 				if (d != null)
 				{
-					columns.add(new Column(fixName(d.getName()), d.getPropertyType()));
+                    String columnName = d.getDisplayName();
+                    if (columnName.equals(d.getName()))
+                        columnName = fixName(d.getName());
+					columns.add(new Column(columnName, d.getPropertyType()));
 					providers.add(new MethodValueProvider(d.getReadMethod()));
 				}
 			}

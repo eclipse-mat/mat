@@ -314,6 +314,8 @@ public class Messages extends NLS
     public static String HeapDumpInfoQuery_NumClassLoadersFormat;
     public static String HeapDumpInfoQuery_NumGCRootsFormat;
     public static String HeapDumpInfoQuery_NumObjectsFormat;
+    public static String HeapDumpInfoQuery_PropertyName;
+    public static String HeapDumpInfoQuery_ProperyValue;
     public static String HeapDumpInfoQuery_TimeFormat;
 
     public static String HeapDumpProviderRegistry_ErrorGettingArgumentErrorMsg;
@@ -357,6 +359,11 @@ public class Messages extends NLS
     public static String HistogramQuery_GroupBySuperclass;
     public static String HistogramQuery_HistogramOf;
     public static String HistogramQuery_IllegalArgument;
+
+    public static String HistogramRecordBeanInfo_Label;
+    public static String HistogramRecordBeanInfo_NumberOfObjects;
+    public static String HistogramRecordBeanInfo_RetainedHeapSize;
+    public static String HistogramRecordBeanInfo_UsedHeapSize;
 
     public static String ImmediateDominatorsQuery_Column_DominatedShallowHeap;
     public static String ImmediateDominatorsQuery_ColumnDominatedObjects;
