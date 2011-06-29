@@ -11,14 +11,16 @@ PARSER_BEGIN(OQLParser)
 package org.eclipse.mat.parser.internal.oql.parser;
 
 import java.math.BigInteger;
-import java.util.List;
 import java.util.ArrayList;
 import java.util.LinkedList;
-
+import java.util.List;
+import java.util.Locale;
+import org.eclipse.mat.parser.internal.Messages;
 import org.eclipse.mat.parser.internal.oql.ICompiler;
 import org.eclipse.mat.parser.internal.oql.compiler.Attribute;
-import org.eclipse.mat.parser.internal.oql.compiler.Query;
 import org.eclipse.mat.parser.internal.oql.compiler.Expression;
+import org.eclipse.mat.parser.internal.oql.compiler.Query;
+import org.eclipse.mat.util.MessageUtil;
 
 public class OQLParser
 {
@@ -77,8 +79,8 @@ public class OQLParser
     	for(String keyword : keywords)
     		buf.append("\n\t\"").append(keyword).append('"');
     		
-    	String msg = java.text.MessageUtil.format(
-    		"Encountered \"{0}\" at line {1}, column {2}.\nWas expecting one of: {3}",
+    	String msg = MessageUtil.format(
+    		Messages.OQLParser_Encountered_X_at_line_X_column_X_Was_expecting_one_of_X,
     		currentToken.next.image,
     		currentToken.next.beginLine,
     		currentToken.next.beginColumn,
