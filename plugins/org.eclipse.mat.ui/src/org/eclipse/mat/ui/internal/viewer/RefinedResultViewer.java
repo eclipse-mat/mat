@@ -1034,7 +1034,7 @@ public abstract class RefinedResultViewer
                         switch (e.detail)
                         {
                             case SWT.TRAVERSE_ARROW_NEXT:
-                                if ((e.stateMask & SWT.SHIFT) == SWT.SHIFT && (e.keyCode == SWT.ARROW_DOWN))
+                                if ((e.stateMask & SWT.MOD2) == SWT.MOD2 && (e.keyCode == SWT.ARROW_DOWN))
                                 {
                                     // Reorder columns
                                     int order[] = adapter.getColumnOrder();
@@ -1051,7 +1051,7 @@ public abstract class RefinedResultViewer
                                     e.doit = true;
                                     e.detail = SWT.TRAVERSE_NONE;
                                 }
-                                else if ((e.stateMask & SWT.CTRL) == SWT.CTRL && (e.keyCode == SWT.ARROW_DOWN))
+                                else if ((e.stateMask & SWT.MOD1) == SWT.MOD1 && (e.keyCode == SWT.ARROW_DOWN))
                                 {
                                     // Resize column
                                     // Updating the criteria can dispose the TreeItem!
@@ -1076,7 +1076,7 @@ public abstract class RefinedResultViewer
                                 }
                                 break;
                             case SWT.TRAVERSE_TAB_NEXT:
-                                if ((e.stateMask & SWT.CTRL) == 0)
+                                if ((e.stateMask & SWT.MOD1) == 0)
                                 {
                                     // Move to next column
                                     // Updating the criteria can dispose the TreeItem!
@@ -1101,7 +1101,7 @@ public abstract class RefinedResultViewer
                                 }
                                 break;
                             case SWT.TRAVERSE_ARROW_PREVIOUS:
-                                if ((e.stateMask & SWT.SHIFT) == SWT.SHIFT && (e.keyCode == SWT.ARROW_UP))
+                                if ((e.stateMask & SWT.MOD2) == SWT.MOD2 && (e.keyCode == SWT.ARROW_UP))
                                 {
                                     // Reorder columns
                                     int order[] = adapter.getColumnOrder();
@@ -1118,7 +1118,7 @@ public abstract class RefinedResultViewer
                                     e.doit = true;
                                     e.detail = SWT.TRAVERSE_NONE;
                                 }
-                                else if ((e.stateMask & SWT.CTRL) == SWT.CTRL && (e.keyCode == SWT.ARROW_UP))
+                                else if ((e.stateMask & SWT.MOD1) == SWT.MOD1 && (e.keyCode == SWT.ARROW_UP))
                                 {
                                     // Resize column
                                     updateCriteria(filter, columnIndex, text.getText());
@@ -1142,7 +1142,7 @@ public abstract class RefinedResultViewer
                                 }
                                 break;
                             case SWT.TRAVERSE_TAB_PREVIOUS:
-                                if ((e.stateMask & SWT.CTRL) == 0)
+                                if ((e.stateMask & SWT.MOD1) == 0)
                                 {
                                     // Move to previous column
                                     // Updating the criteria can dispose the TreeItem!

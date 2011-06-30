@@ -222,7 +222,13 @@ public class SearchOnTyping
         public void keyPressed(KeyEvent e)
         {
             // Space is used for keyboard selection, so exclude it
-            if (!Character.isISOControl(e.character) && e.character != ' ' && (e.stateMask & (SWT.MOD1|SWT.MOD3)) == 0)
+            // numpad multiply etc are used for tree expansion
+            if (!Character.isISOControl(e.character) && e.character != ' '
+                            && (e.stateMask & (SWT.MOD1 | SWT.MOD3)) == 0
+                            && e.keyCode != SWT.KEYPAD_ADD
+                            && e.keyCode != SWT.KEYPAD_SUBTRACT
+                            && e.keyCode != SWT.KEYPAD_MULTIPLY
+                            && e.keyCode != SWT.KEYPAD_DIVIDE)
             {
                 SearchPopup search = new SearchPopup(thingy, Character.toString(e.character));
                 search.open();

@@ -54,6 +54,52 @@
 					</stentry>
 				</strow>
 				<strow>
+					<stentry>Filter</stentry>
+					<stentry>
+						To show only rows of a table or tree matching a filter, 
+						click the top row, or press enter when the top row is selected.
+						Then type the required filter for the column. Multiple filters can be used.
+						In the example the "(1,909 filtered)" on the totals row means 1909 rows have been excluded by the filter.
+						<p>
+						For text columns a regular expression is used as a filter.
+						</p>
+						<p>
+						For numeric columns a numeric comparison is used as a filter.
+						Use one of the following:
+						<ul>
+						<li>Intervals: 1000..10000 1%..10%</li>
+						<li>Upper Boundary: &lt;=10000 &lt;1%</li>
+						<li>Lower Boundary: &gt;1000 &gt;=5%</li>
+						</ul>
+						</p>
+						<image href="../mimes/filter.png" align="left" placement="break" />
+					</stentry>
+				</strow>
+				<strow>
+					<stentry>Resize and reorder columns</stentry>
+					<stentry>
+						To resize or rearrange columns using the keyboard select a filter entry
+						for the column as above.
+						<ul>
+						<li>Use &lt;Ctrl&gt; or &lt;Command&gt; 
+						up and down cursor keys to resize the column.</li>
+						<li>Use &lt;Alt&gt; up and down cursor keys to change the position of the column.</li>
+						<li>Use use &lt;Ctrl&gt; or &lt;Command&gt; &lt;Numpad plus&gt; to expand
+						columns to full width.</li>
+						</ul>
+					</stentry>
+				</strow>
+				<strow>
+					<stentry>Keyboard navigation of trees</stentry>
+					<stentry>
+						<ul>
+						<li>Use &lt;Numpad plus&gt; or &lt;enter&gt; to expand a row.</li>
+						<li>Use &lt;Numpad minus&gt; or &lt;enter&gt; to collapse a row.</li>
+						<li>Use &lt;Numpad multiply&gt; to fully expand a row and its descendants.</li>
+						</ul>
+					</stentry>
+				</strow>
+				<strow>
 					<stentry>Notes, Hyperlinks in Notes View</stentry>
 					<stentry>
 						Notes View recognizes and highlights object addresses. Activating
