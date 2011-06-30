@@ -198,10 +198,16 @@ public class SnapshotHistoryService
                 list = new LinkedList<Entry>();
 
                 ObjectInputStream oin = new ObjectInputStream(new FileInputStream(file));
-                int size = oin.readInt();
-                for (int ii = 0; ii < size; ii++)
-                    list.add((Entry) oin.readObject());
-                oin.close();
+                try
+                {
+                    int size = oin.readInt();
+                    for (int ii = 0; ii < size; ii++)
+                        list.add((Entry) oin.readObject());
+                }
+                finally
+                {
+                    oin.close();
+                }
 
                 for (Iterator<Entry> iter = list.iterator(); iter.hasNext();)
                 {
@@ -252,11 +258,17 @@ public class SnapshotHistoryService
             if (!copy.isEmpty())
             {
                 ObjectOutputStream oout = new ObjectOutputStream(new FileOutputStream(FILE_NAME));
-                oout.writeInt(copy.size());
-                for (Entry entry : copy)
-                    oout.writeObject(entry);
-                oout.flush();
-                oout.close();
+                try
+                {
+                    oout.writeInt(copy.size());
+                    for (Entry entry : copy)
+                        oout.writeObject(entry);
+                    oout.flush();
+                }
+                finally
+                {
+                    oout.close();
+                }
             }
             else
             {
