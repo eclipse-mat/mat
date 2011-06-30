@@ -47,7 +47,7 @@ public class BiggestObjectsPieQuery implements IQuery
             retainedHeapBySlices += slice.getValue();
             count++;
 
-            if (slice.getValue() < totalHeapSize / 100)
+            if (slice.getValue() < totalHeapSize / 100.0)
                 break;
 
             if (listener.isCanceled())
