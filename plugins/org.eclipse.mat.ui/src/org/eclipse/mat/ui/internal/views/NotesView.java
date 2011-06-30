@@ -13,10 +13,11 @@ package org.eclipse.mat.ui.internal.views;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
@@ -81,6 +82,8 @@ import org.eclipse.ui.part.ViewPart;
 
 public class NotesView extends ViewPart implements IPartListener, Observer
 {
+    private static final String NOTES_ENCODING = "UTF8"; //$NON-NLS-1$
+
     private static final int UNDO_LEVEL = 10;
 
     private File resource;
@@ -591,29 +594,35 @@ public class NotesView extends ViewPart implements IPartListener, Observer
                 File notesFile = getDefaultNotesFile(resourcePath);
                 if (notesFile.exists())
                 {
-                    FileReader fileReader = new FileReader(getDefaultNotesFile(resourcePath));
-
-                    BufferedReader myInput = new BufferedReader(fileReader);
-
+                    FileInputStream fileInput = new FileInputStream(getDefaultNotesFile(resourcePath));
                     try
                     {
-                        String s;
-                        StringBuffer b = new StringBuffer();
-                        while ((s = myInput.readLine()) != null)
-                        {
-                            b.append(s);
-                            b.append("\n");//$NON-NLS-1$
-                        }
-                        return b.toString();
-                    }
-                    finally
-                    {
+                        BufferedReader myInput = new BufferedReader(new InputStreamReader(fileInput, NOTES_ENCODING));
+
                         try
                         {
-                            myInput.close();
+                            String s;
+                            StringBuffer b = new StringBuffer();
+                            while ((s = myInput.readLine()) != null)
+                            {
+                                b.append(s);
+                                b.append("\n");//$NON-NLS-1$
+                            }
+                            return b.toString();
                         }
-                        catch (IOException ignore)
-                        {}
+                        finally
+                        {
+                            try
+                            {
+                                myInput.close();
+                            }
+                            catch (IOException ignore)
+                            {}
+                        }
+                    } 
+                    finally
+                    {
+                        fileInput.close();
                     }
                 }
             }
@@ -639,10 +648,16 @@ public class NotesView extends ViewPart implements IPartListener, Observer
             File notesFile = getDefaultNotesFile(resource);
 
             fout = new FileOutputStream(notesFile);
-            OutputStreamWriter out = new OutputStreamWriter(new BufferedOutputStream(fout), "UTF8");//$NON-NLS-1$
-            out.write(notes);
-            out.flush();
-            out.close();
+            OutputStreamWriter out = new OutputStreamWriter(new BufferedOutputStream(fout), NOTES_ENCODING);
+            try
+            {
+                out.write(notes);
+                out.flush();
+            }
+            finally
+            {
+                out.close();
+            }
         }
         catch (FileNotFoundException e)
         {
