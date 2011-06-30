@@ -34,6 +34,8 @@ import org.eclipse.mat.util.VoidProgressListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ControlEditor;
 import org.eclipse.swt.custom.TreeEditor;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
@@ -71,6 +73,32 @@ public class RefinedTreeViewer extends RefinedResultViewer
                 doExpand(parentItem);
             }
 
+        });
+
+        tree.addKeyListener(new KeyAdapter()
+        {
+            public void keyPressed(KeyEvent event)
+            {
+                if (event.keyCode == SWT.KEYPAD_DIVIDE)
+                {
+                    for (TreeItem item : tree.getSelection())
+                    {
+                        collapse(item);
+                    }
+                }
+            }
+
+            private void collapse(TreeItem parentItem)
+            {
+                if (parentItem != null && parentItem.getExpanded())
+                {
+                    parentItem.setExpanded(false);
+                    for (TreeItem sub : parentItem.getItems())
+                    {
+                        collapse(sub);
+                    }
+                }
+            }
         });
 
         tree.addListener(SWT.DefaultSelection, new Listener()
