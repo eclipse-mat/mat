@@ -99,59 +99,64 @@ public class SaveValueAsQuery implements IQuery
 
     private void writeStringData() throws Exception
     {
-        FileOutputStream out = null;
+        FileOutputStream out = new FileOutputStream(file);
 
         try
         {
-            out = new FileOutputStream(file);
             PrintWriter writer = new PrintWriter(new BufferedWriter(new OutputStreamWriter(out, System
                             .getProperty("file.encoding")))); //$NON-NLS-1$
-
-            boolean isFirst = true;
-
-            for (IContextObject object : objects)
+            try
             {
-                if (object.getObjectId() < 0)
-                    continue;
 
-                if (!isFirst)
-                    writer.append('\n');
+                boolean isFirst = true;
 
-                IObject subject = snapshot.getObject(object.getObjectId());
-                ExportInfo info = ExportInfo.of(subject);
-                if (info == null)
+                for (IContextObject object : objects)
                 {
-                    String name = subject.getClassSpecificName();
-                    writer.append(name != null ? name : subject.getTechnicalName());
-                }
-                else
-                {
-                    IPrimitiveArray charArray = info.getCharArray();
-                    final int length = charArray.getLength();
-                    final int end = info.getOffset() + info.getCount();
+                    if (object.getObjectId() < 0)
+                        continue;
 
-                    int offset = info.getOffset();
+                    if (!isFirst)
+                        writer.append('\n');
 
-                    while (offset < end)
+                    IObject subject = snapshot.getObject(object.getObjectId());
+                    ExportInfo info = ExportInfo.of(subject);
+                    if (info == null)
                     {
-                        int read = Math.min(4092, length - offset);
-                        char[] array = (char[]) charArray.getValueArray(offset, read);
-
-                        writer.append(new String(array));
-
-                        offset += read;
+                        String name = subject.getClassSpecificName();
+                        writer.append(name != null ? name : subject.getTechnicalName());
                     }
+                    else
+                    {
+                        IPrimitiveArray charArray = info.getCharArray();
+                        final int length = charArray.getLength();
+                        final int end = info.getOffset() + info.getCount();
+
+                        int offset = info.getOffset();
+
+                        while (offset < end)
+                        {
+                            int read = Math.min(4092, length - offset);
+                            char[] array = (char[]) charArray.getValueArray(offset, read);
+
+                            writer.append(new String(array));
+
+                            offset += read;
+                        }
+                    }
+
+                    isFirst = false;
                 }
 
-                isFirst = false;
+                writer.flush();
             }
-
-            writer.flush();
+            finally
+            {
+                writer.close();
+            }
         }
         finally
         {
-            if (out != null)
-                out.close();
+            out.close();
         }
     }
 
@@ -170,93 +175,97 @@ public class SaveValueAsQuery implements IQuery
 
         IPrimitiveArray array = (IPrimitiveArray) object;
 
-        FileOutputStream out = null;
+        FileOutputStream out = new FileOutputStream(file);
 
         try
         {
-            out = new FileOutputStream(file);
             DataOutputStream writer = new DataOutputStream(new BufferedOutputStream(out));
-
-            int size = array.getLength();
-
-            int offset = 0;
-
-            while (offset < size)
+            try 
             {
-                int read = Math.min(4092, size - offset);
-                Object valueArray = array.getValueArray(offset, read);
+                int size = array.getLength();
 
-                switch (array.getType())
+                int offset = 0;
+
+                while (offset < size)
                 {
-                    case IObject.Type.BOOLEAN:
+                    int read = Math.min(4092, size - offset);
+                    Object valueArray = array.getValueArray(offset, read);
+
+                    switch (array.getType())
                     {
-                        boolean[] a = (boolean[]) valueArray;
-                        for (int ii = 0; ii < a.length; ii++)
-                            writer.writeBoolean(a[ii]);
-                        break;
+                        case IObject.Type.BOOLEAN:
+                        {
+                            boolean[] a = (boolean[]) valueArray;
+                            for (int ii = 0; ii < a.length; ii++)
+                                writer.writeBoolean(a[ii]);
+                            break;
+                        }
+                        case IObject.Type.BYTE:
+                        {
+                            byte[] a = (byte[]) valueArray;
+                            writer.write(a);
+                            break;
+                        }
+                        case IObject.Type.CHAR:
+                        {
+                            char[] a = (char[]) valueArray;
+                            for (int ii = 0; ii < a.length; ii++)
+                                writer.writeChar(a[ii]);
+                            break;
+                        }
+                        case IObject.Type.DOUBLE:
+                        {
+                            double[] a = (double[]) valueArray;
+                            for (int ii = 0; ii < a.length; ii++)
+                                writer.writeDouble(a[ii]);
+                            break;
+                        }
+                        case IObject.Type.FLOAT:
+                        {
+                            float[] a = (float[]) valueArray;
+                            for (int ii = 0; ii < a.length; ii++)
+                                writer.writeFloat(a[ii]);
+                            break;
+                        }
+                        case IObject.Type.INT:
+                        {
+                            int[] a = (int[]) valueArray;
+                            for (int ii = 0; ii < a.length; ii++)
+                                writer.writeInt(a[ii]);
+                            break;
+                        }
+                        case IObject.Type.LONG:
+                        {
+                            long[] a = (long[]) valueArray;
+                            for (int ii = 0; ii < a.length; ii++)
+                                writer.writeLong(a[ii]);
+                            break;
+                        }
+                        case IObject.Type.SHORT:
+                        {
+                            short[] a = (short[]) valueArray;
+                            for (int ii = 0; ii < a.length; ii++)
+                                writer.writeShort(a[ii]);
+                            break;
+                        }
+                        default:
+                            throw new SnapshotException(MessageUtil.format(
+                                            Messages.SaveValueAsQuery_UnrecognizedPrimitiveArrayType, array.getType()));
                     }
-                    case IObject.Type.BYTE:
-                    {
-                        byte[] a = (byte[]) valueArray;
-                        writer.write(a);
-                        break;
-                    }
-                    case IObject.Type.CHAR:
-                    {
-                        char[] a = (char[]) valueArray;
-                        for (int ii = 0; ii < a.length; ii++)
-                            writer.writeChar(a[ii]);
-                        break;
-                    }
-                    case IObject.Type.DOUBLE:
-                    {
-                        double[] a = (double[]) valueArray;
-                        for (int ii = 0; ii < a.length; ii++)
-                            writer.writeDouble(a[ii]);
-                        break;
-                    }
-                    case IObject.Type.FLOAT:
-                    {
-                        float[] a = (float[]) valueArray;
-                        for (int ii = 0; ii < a.length; ii++)
-                            writer.writeFloat(a[ii]);
-                        break;
-                    }
-                    case IObject.Type.INT:
-                    {
-                        int[] a = (int[]) valueArray;
-                        for (int ii = 0; ii < a.length; ii++)
-                            writer.writeInt(a[ii]);
-                        break;
-                    }
-                    case IObject.Type.LONG:
-                    {
-                        long[] a = (long[]) valueArray;
-                        for (int ii = 0; ii < a.length; ii++)
-                            writer.writeLong(a[ii]);
-                        break;
-                    }
-                    case IObject.Type.SHORT:
-                    {
-                        short[] a = (short[]) valueArray;
-                        for (int ii = 0; ii < a.length; ii++)
-                            writer.writeShort(a[ii]);
-                        break;
-                    }
-                    default:
-                        throw new SnapshotException(MessageUtil.format(
-                                        Messages.SaveValueAsQuery_UnrecognizedPrimitiveArrayType, array.getType()));
+
+                    offset += read;
                 }
 
-                offset += read;
+                writer.flush();
             }
-
-            writer.flush();
+            finally
+            {
+                writer.close();
+            }
         }
         finally
         {
-            if (out != null)
-                out.close();
+            out.close();
         }
     }
 }
