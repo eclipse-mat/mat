@@ -73,8 +73,14 @@ public class QueryHistory
             try
             {
                 ObjectInputStream oin = new ObjectInputStream(new FileInputStream(file));
-                history = (LinkedList<String>) oin.readObject();
-                oin.close();
+                try
+                {
+                    history = (LinkedList<String>) oin.readObject();
+                }
+                finally
+                {
+                    oin.close();
+                }
             }
             catch (Exception ignore)
             {
@@ -93,9 +99,23 @@ public class QueryHistory
         {
             if (!history.isEmpty())
             {
-                ObjectOutputStream oout = new ObjectOutputStream(new FileOutputStream(FILE_NAME));
-                oout.writeObject(history);
-                oout.close();
+                final FileOutputStream out = new FileOutputStream(FILE_NAME);
+                try
+                {
+                    ObjectOutputStream oout = new ObjectOutputStream(out);
+                    try
+                    {
+                        oout.writeObject(history);
+                    }
+                    finally
+                    {
+                        oout.close();
+                    }
+                }
+                finally
+                {
+                    out.close();
+                }
             }
             else
             {
