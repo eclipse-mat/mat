@@ -81,7 +81,7 @@ public class OpenPreferenceAction extends Action
         dialog.open();
     }
 
-    private class Node extends PreferenceNode
+    private static class Node extends PreferenceNode
     {
         private IConfigurationElement configElement;
         private boolean subNode;
@@ -124,7 +124,7 @@ public class OpenPreferenceAction extends Action
         }
     }
 
-    private class PreferenceRegistry extends RegistryReader<Node>
+    private static class PreferenceRegistry extends RegistryReader<Node>
     {
 
         public PreferenceRegistry()
@@ -136,7 +136,7 @@ public class OpenPreferenceAction extends Action
         protected Node createDelegate(IConfigurationElement configElement) throws CoreException
         {
             String id = configElement.getAttribute("id"); //$NON-NLS-1$
-			return id.startsWith(MAT_PREFIX) || ALLOWED_IDS.contains(id) ? new Node(id, configElement) : null; 
+            return id.startsWith(MAT_PREFIX) || ALLOWED_IDS.contains(id) ? new Node(id, configElement) : null; 
         }
 
         @Override
