@@ -59,7 +59,7 @@ import org.eclipse.ui.forms.widgets.FormText;
 
 public class PieChartPane extends AbstractEditorPane implements ISelectionProvider
 {
-    List<ISelectionChangedListener> listeners = new ArrayList<ISelectionChangedListener>();
+    List<ISelectionChangedListener> selectionListeners = new ArrayList<ISelectionChangedListener>();
     private TraverseListener traverseListener;
 
     FormText label;
@@ -315,12 +315,12 @@ public class PieChartPane extends AbstractEditorPane implements ISelectionProvid
 
     public void addSelectionChangedListener(ISelectionChangedListener listener)
     {
-        listeners.add(listener);
+        selectionListeners.add(listener);
     }
 
     public void removeSelectionChangedListener(ISelectionChangedListener listener)
     {
-        listeners.remove(listener);
+        selectionListeners.remove(listener);
     }
 
     public ISelection getSelection()
@@ -339,7 +339,7 @@ public class PieChartPane extends AbstractEditorPane implements ISelectionProvid
 
     private void fireSelectionEvent()
     {
-        List<ISelectionChangedListener> receivers = new ArrayList<ISelectionChangedListener>(listeners);
+        List<ISelectionChangedListener> receivers = new ArrayList<ISelectionChangedListener>(selectionListeners);
         SelectionChangedEvent event = new SelectionChangedEvent(this, getSelection());
         for (ISelectionChangedListener listener : receivers)
             listener.selectionChanged(event);
