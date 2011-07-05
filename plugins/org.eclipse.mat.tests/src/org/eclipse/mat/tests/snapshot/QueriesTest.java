@@ -25,7 +25,6 @@ import org.eclipse.mat.tests.TestSnapshots;
 import org.eclipse.mat.util.VoidProgressListener;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class QueriesTest
@@ -47,7 +46,6 @@ public class QueriesTest
      * Enable test when fix is available
      * @throws SnapshotException
      */
-    @Ignore("Bug 338027")
     @Test
     public void testDominatorByLoader() throws SnapshotException
     {
