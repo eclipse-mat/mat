@@ -73,7 +73,7 @@ public class OQLPane extends CompositeHeapEditorPane
     {
         SashForm sash = new SashForm(parent, SWT.VERTICAL | SWT.SMOOTH);
 
-        queryString = new StyledText(sash, SWT.MULTI);
+        queryString = new StyledText(sash, SWT.MULTI | SWT.WRAP);
         queryString.setFont(JFaceResources.getFont(JFaceResources.TEXT_FONT));
         queryString.setText(Messages.OQLPane_F1ForHelp);
         queryString.selectAll();
@@ -384,7 +384,7 @@ public class OQLPane extends CompositeHeapEditorPane
                     StyleRange style2 = new StyleRange();
                     style2.start = start + queryRange.x;
                     style2.length = queryRange.y - start;
-                    style2.foreground = PlatformUI.getWorkbench().getDisplay().getSystemColor(SWT.COLOR_RED);
+                    style2.foreground = queryString.getDisplay().getSystemColor(SWT.COLOR_RED);
                     queryString.replaceStyleRanges(0, queryString.getCharCount(), new StyleRange[] { style2 });
 
                     createExceptionPane(e, query);
