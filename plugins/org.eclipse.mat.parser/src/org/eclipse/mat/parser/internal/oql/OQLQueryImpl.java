@@ -1034,7 +1034,7 @@ public class OQLQueryImpl implements IOQLQuery
 
         Boolean result = (Boolean) query.getWhereClause().compute(ctx);
 
-        return result.booleanValue();
+        return result == null ? false : result.booleanValue();
     }
 
     private Object filterAndSelect(IntResult objectIds, IProgressListener listener) throws SnapshotException
