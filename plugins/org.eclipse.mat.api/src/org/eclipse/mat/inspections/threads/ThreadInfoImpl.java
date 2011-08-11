@@ -28,6 +28,7 @@ import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.extension.IRequestDetailsResolver;
 import org.eclipse.mat.snapshot.extension.IThreadDetailsResolver;
 import org.eclipse.mat.snapshot.extension.IThreadInfo;
+import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.NamedReference;
 import org.eclipse.mat.snapshot.model.ThreadToLocalReference;
@@ -84,10 +85,17 @@ import org.eclipse.mat.util.IProgressListener;
         int[] localVars = getLocalVarsForThread(info.subject);
         for (int localId : localVars)
         {
-            String className = snapshot.getClassOf(localId).getName();
-            IRequestDetailsResolver resolver = RequestDetailResolverRegistry.instance().lookup(className);
-            if (resolver != null)
-                resolver.complement(snapshot, info, localVars, localId, listener);
+            IClass clazz = snapshot.getClassOf(localId);
+            while (clazz != null)
+            {
+                IRequestDetailsResolver resolver = RequestDetailResolverRegistry.instance().lookup(clazz.getName());
+                if (resolver != null)
+                {
+                    resolver.complement(snapshot, info, localVars, localId, listener);
+                    break;
+                }
+                clazz = clazz.getSuperClass();
+            }
         }
     }
 
