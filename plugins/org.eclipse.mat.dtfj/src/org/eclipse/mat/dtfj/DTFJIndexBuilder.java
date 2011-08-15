@@ -365,6 +365,11 @@ public class DTFJIndexBuilder implements IIndexBuilder
         {
             return null;
         }
+
+		public long getInstanceSize() throws DataUnavailable,
+				CorruptDataException {
+			throw new DataUnavailable();
+		}
     }
 
     /**
