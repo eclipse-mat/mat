@@ -27,7 +27,7 @@ if [ "x$result" != "x" ]; then
 	exit $result
 fi
 
-MVN_CALL="$M2_HOME/bin/mvn -Dmaven.repo.local=../.repository $proxyOpts -fae $mvnSettings clean install $additionalPlugins"
+MVN_CALL="$M2_HOME/bin/mvn -Dmaven.repo.local=../.repository $proxyOpts -fae $mvnArguments clean install $additionalPlugins"
 echo $MVN_CALL
 eval $MVN_CALL
 
