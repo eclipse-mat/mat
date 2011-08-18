@@ -16,47 +16,63 @@
 	<name>MAT Parent</name>
 
 	<properties>
-<!--		<tycho-version>0.13.0-SNAPSHOT</tycho-version>-->
-		<tycho-version>0.12.0</tycho-version>
+		<!-- Need Tycho 0.13.0 because of MacOS RCPs build -->
+		<tycho-version>0.13.0-SNAPSHOT</tycho-version>
 		<signer-input-directory>/home/data/httpd/download-staging.priv/tools/mat</signer-input-directory>
 		<download-publish-path>/home/data/httpd/download.eclipse.org/mat/latest/updates-nightly</download-publish-path>
 	</properties>
 
-<!--	<pluginRepositories>-->
-<!--		<pluginRepository>-->
-<!--			<id>sonatype</id>-->
-<!--			<url>http://repository.sonatype.org/content/groups/sonatype-public-grid/</url>-->
-<!--			<snapshots>-->
-<!--				<enabled>true</enabled>-->
-<!--			</snapshots>-->
-<!--			<releases>-->
-<!--				<enabled>true</enabled>-->
-<!--			</releases>-->
-<!--		</pluginRepository>-->
-<!--	</pluginRepositories>-->
-  <pluginRepositories>
-    <pluginRepository>
-      <id>maven.eclipse.org</id>
-      <url>http://maven.eclipse.org/nexus/content/repositories/milestone-indigo</url>
-    </pluginRepository>
-    <!-- TODO: need 1.0.1.2-SNAPSHOT of the signing plugin until bugfix for
-         https://bugs.eclipse.org/bugs/show_bug.cgi?id=347591
-         is available in maven.eclipse.org -->
-    <pluginRepository>
-      <id>intalio-dash-signing-plugin</id>
-      <url>http://intalio.org/public/maven2</url>
-      <snapshots>
-       <enabled>true</enabled>
-      </snapshots>
-      <releases>
-       <enabled>true</enabled>
-      </releases>
-    </pluginRepository>
-  </pluginRepositories>
+	<pluginRepositories>
+		<!-- Repository for the SNAPSHOT version of Tycho -->
+		<pluginRepository>
+			<id>sonatype</id>
+			<url>http://repository.sonatype.org/content/groups/sonatype-public-grid/</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+		</pluginRepository>
+		<!-- Repository for the signing/publishing plugins -->
+		<pluginRepository>
+			<id>maven.eclipse.org</id>
+			<url>http://maven.eclipse.org/nexus/content/repositories/milestone-indigo</url>
+		</pluginRepository>
+		<!-- TODO: need 1.0.1.2-SNAPSHOT of the signing plugin until bugfix for 
+			https://bugs.eclipse.org/bugs/show_bug.cgi?id=347591 is available in maven.eclipse.org -->
+		<pluginRepository>
+			<id>intalio-dash-signing-plugin</id>
+			<url>http://intalio.org/public/maven2</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+		</pluginRepository>
+	</pluginRepositories>
 
+	<repositories>
+		<repository>
+			<id>helios</id>
+			<layout>p2</layout>
+			<url>http://download.eclipse.org/releases/helios</url>
+		</repository>
+		<repository>
+			<id>dtfj</id>
+			<layout>p2</layout>
+			<url>file:/${basedir}/../../prepare_build/target/repository</url>
+		</repository>
+		<!-- workaround needed because the sub-projects are in different depth -->
+		<repository>
+			<id>dtfj2</id>
+			<layout>p2</layout>
+			<url>file:/${basedir}/../prepare_build/target/repository</url>
+		</repository>
+	</repositories>
 
 	<modules>
-		<module>org.eclipse.mat.targetdef</module>
 		<module>plugins</module>
 		<module>features</module>
 		<module>org.eclipse.mat.updatesite</module>
@@ -116,14 +132,6 @@
 					<version>${tycho-version}</version>
 					<configuration>
 						<resolver>p2</resolver>
-						<target>
-							<artifact>
-								<groupId>org.eclipse.mat</groupId>
-								<artifactId>org.eclipse.mat.targetdef</artifactId>
-								<version>${project.version}</version>
-								<classifier>mat-site</classifier>
-							</artifact>
-						</target>
 
 						<environments>
 							<environment>
@@ -136,21 +144,21 @@
 								<ws>win32</ws>
 								<arch>x86_64</arch>
 							</environment>
-<!--							<environment>-->
-<!--								<os>macosx</os>-->
-<!--								<ws>carbon</ws>-->
-<!--								<arch>x86</arch>-->
-<!--							</environment>-->
-<!--							<environment>-->
-<!--								<os>macosx</os>-->
-<!--								<ws>cocoa</ws>-->
-<!--								<arch>x86</arch>-->
-<!--							</environment>-->
-<!--							<environment>-->
-<!--								<os>macosx</os>-->
-<!--								<ws>cocoa</ws>-->
-<!--								<arch>x86_64</arch>-->
-<!--							</environment>-->
+							<environment>
+								<os>macosx</os>
+								<ws>carbon</ws>
+								<arch>x86</arch>
+							</environment>
+							<environment>
+								<os>macosx</os>
+								<ws>cocoa</ws>
+								<arch>x86</arch>
+							</environment>
+							<environment>
+								<os>macosx</os>
+								<ws>cocoa</ws>
+								<arch>x86_64</arch>
+							</environment>
 							<environment>
 								<os>solaris</os>
 								<ws>gtk</ws>
@@ -206,13 +214,14 @@
 						<xmlOutput>true</xmlOutput>
 					</configuration>
 				</plugin>
-	<plugin>
-		<groupId>org.eclipse.dash.maven</groupId>
-		<artifactId>eclipse-maven-signing-plugin</artifactId>
-		<!-- TODO: need 1.0.1.2-SNAPSHOT of the signing plugin until bugfix for 
-			https://bugs.eclipse.org/bugs/show_bug.cgi?id=347591 is available in maven.eclipse.org -->
-		<version>1.0.1.2-SNAPSHOT</version>
-	</plugin>
+				<plugin>
+					<groupId>org.eclipse.dash.maven</groupId>
+					<artifactId>eclipse-maven-signing-plugin</artifactId>
+					<!-- TODO: need 1.0.1.2-SNAPSHOT of the signing plugin until bugfix 
+						for https://bugs.eclipse.org/bugs/show_bug.cgi?id=347591 is available in 
+						maven.eclipse.org -->
+					<version>1.0.1.2-SNAPSHOT</version>
+				</plugin>
 			</plugins>
 		</pluginManagement>
 	</build>
