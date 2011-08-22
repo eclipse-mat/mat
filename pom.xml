@@ -37,20 +37,8 @@
 		<!-- Repository for the signing/publishing plugins -->
 		<pluginRepository>
 			<id>maven.eclipse.org</id>
-			<url>http://maven.eclipse.org/nexus/content/repositories/milestone-indigo</url>
+			<url>http://maven.eclipse.org/nexus/content/groups/public/</url>
 		</pluginRepository>
-		<!-- TODO: need 1.0.1.2-SNAPSHOT of the signing plugin until bugfix for 
-			https://bugs.eclipse.org/bugs/show_bug.cgi?id=347591 is available in maven.eclipse.org -->
-<!--		<pluginRepository>-->
-<!--			<id>intalio-dash-signing-plugin</id>-->
-<!--			<url>http://intalio.org/public/maven2</url>-->
-<!--			<snapshots>-->
-<!--				<enabled>true</enabled>-->
-<!--			</snapshots>-->
-<!--			<releases>-->
-<!--				<enabled>true</enabled>-->
-<!--			</releases>-->
-<!--		</pluginRepository>-->
 	</pluginRepositories>
 
 	<repositories>
@@ -217,10 +205,7 @@
 				<plugin>
 					<groupId>org.eclipse.dash.maven</groupId>
 					<artifactId>eclipse-maven-signing-plugin</artifactId>
-					<!-- TODO: need 1.0.1.2-SNAPSHOT of the signing plugin until bugfix 
-						for https://bugs.eclipse.org/bugs/show_bug.cgi?id=347591 is available in 
-						maven.eclipse.org -->
-					<version>1.0.1.2-SNAPSHOT</version>
+					<version>1.0.2</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>
