@@ -19,7 +19,8 @@
 		<!-- Need Tycho 0.13.0 because of MacOS RCPs build -->
 		<tycho-version>0.13.0-SNAPSHOT</tycho-version>
 		<signer-input-directory>/home/data/httpd/download-staging.priv/tools/mat</signer-input-directory>
-		<download-publish-path>/home/data/httpd/download.eclipse.org/mat/latest/updates-nightly</download-publish-path>
+		<download-publish-path>/home/data/httpd/download.eclipse.org/mat/snapshots/update-site</download-publish-path>
+		<download-publish-rcp-path>/home/data/httpd/download.eclipse.org/mat/snapshots/rcp</download-publish-rcp-path>
 	</properties>
 
 	<pluginRepositories>
