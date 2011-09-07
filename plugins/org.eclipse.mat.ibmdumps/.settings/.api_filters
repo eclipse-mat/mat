@@ -3,14 +3,7 @@
         <filter comment="Never intended as an API" id="305324134">
             <message_arguments>
                 <message_argument value="classes.org.eclipse.mat.ibmvm.acquire.IBMDumpProvider"/>
-                <message_argument value="org.eclipse.mat.ibmdumps_1.1.0"/>
-            </message_arguments>
-        </filter>
-    </resource>
-    <resource path="src/org/eclipse/mat/ibmvm/acquire/BaseProvider.java" type="org.eclipse.mat.ibmvm.acquire.BaseProvider">
-        <filter comment="Never intended as an API" id="1143996420">
-            <message_arguments>
-                <message_argument value="org.eclipse.mat.ibmvm.acquire.BaseProvider"/>
+                <message_argument value="org.eclipse.mat.ibmdumps_1.1.1"/>
             </message_arguments>
         </filter>
     </resource>
@@ -18,7 +11,7 @@
         <filter comment="Never intended as an API" id="305365105">
             <message_arguments>
                 <message_argument value="org.eclipse.mat.ibmvm.acquire.DumpFactory"/>
-                <message_argument value="org.eclipse.mat.ibmdumps_1.1.0"/>
+                <message_argument value="org.eclipse.mat.ibmdumps_1.1.1"/>
             </message_arguments>
         </filter>
     </resource>
@@ -26,7 +19,7 @@
         <filter id="305365105">
             <message_arguments>
                 <message_argument value="org.eclipse.mat.ibmvm.acquire.DumpType"/>
-                <message_argument value="org.eclipse.mat.ibmdumps_1.1.0"/>
+                <message_argument value="org.eclipse.mat.ibmdumps_1.1.1"/>
             </message_arguments>
         </filter>
     </resource>
@@ -34,7 +27,7 @@
         <filter id="305365105">
             <message_arguments>
                 <message_argument value="org.eclipse.mat.ibmvm.acquire.IBMExecDumpProvider"/>
-                <message_argument value="org.eclipse.mat.ibmdumps_1.1.0"/>
+                <message_argument value="org.eclipse.mat.ibmdumps_1.1.1"/>
             </message_arguments>
         </filter>
     </resource>
@@ -42,7 +35,7 @@
         <filter comment="Never intended as an API" id="305365105">
             <message_arguments>
                 <message_argument value="org.eclipse.mat.ibmvm.acquire.IBMExecVmInfo"/>
-                <message_argument value="org.eclipse.mat.ibmdumps_1.1.0"/>
+                <message_argument value="org.eclipse.mat.ibmdumps_1.1.1"/>
             </message_arguments>
         </filter>
     </resource>
@@ -50,7 +43,7 @@
         <filter comment="Never intended as an API" id="305365105">
             <message_arguments>
                 <message_argument value="org.eclipse.mat.ibmvm.acquire.IBMJavaDumpProvider"/>
-                <message_argument value="org.eclipse.mat.ibmdumps_1.1.0"/>
+                <message_argument value="org.eclipse.mat.ibmdumps_1.1.1"/>
             </message_arguments>
         </filter>
     </resource>
@@ -58,7 +51,7 @@
         <filter id="305365105">
             <message_arguments>
                 <message_argument value="org.eclipse.mat.ibmvm.acquire.IBMVmInfo"/>
-                <message_argument value="org.eclipse.mat.ibmdumps_1.1.0"/>
+                <message_argument value="org.eclipse.mat.ibmdumps_1.1.1"/>
             </message_arguments>
         </filter>
     </resource>
@@ -66,7 +59,7 @@
         <filter comment="Never intended as an API" id="305365105">
             <message_arguments>
                 <message_argument value="org.eclipse.mat.ibmvm.acquire.Messages"/>
-                <message_argument value="org.eclipse.mat.ibmdumps_1.1.0"/>
+                <message_argument value="org.eclipse.mat.ibmdumps_1.1.1"/>
             </message_arguments>
         </filter>
     </resource>
