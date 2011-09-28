@@ -17,24 +17,13 @@
 
 	<properties>
 		<!-- Need Tycho 0.13.0 because of MacOS RCPs build -->
-		<tycho-version>0.13.0-SNAPSHOT</tycho-version>
+		<tycho-version>0.13.0</tycho-version>
 		<signer-input-directory>/home/data/httpd/download-staging.priv/tools/mat</signer-input-directory>
 		<download-publish-path>/home/data/httpd/download.eclipse.org/mat/snapshots/update-site</download-publish-path>
 		<download-publish-rcp-path>/home/data/httpd/download.eclipse.org/mat/snapshots/rcp</download-publish-rcp-path>
 	</properties>
 
 	<pluginRepositories>
-		<!-- Repository for the SNAPSHOT version of Tycho -->
-		<pluginRepository>
-			<id>sonatype</id>
-			<url>http://repository.sonatype.org/content/groups/sonatype-public-grid/</url>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-		</pluginRepository>
 		<!-- Repository for the signing/publishing plugins -->
 		<pluginRepository>
 			<id>maven.eclipse.org</id>
