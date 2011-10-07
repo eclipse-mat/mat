@@ -507,6 +507,7 @@ public class Messages extends NLS
     public static String TaskInfo_State_WaitingSyncIO;
 
     public static String ThreadInfoImpl_Column_ContextClassLoader;
+    public static String ThreadInfoImpl_Column_IsDaemon;
     public static String ThreadInfoImpl_Column_Instance;
     public static String ThreadInfoImpl_Column_Name;
 
