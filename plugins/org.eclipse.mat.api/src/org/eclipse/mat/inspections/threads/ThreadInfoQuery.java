@@ -19,6 +19,7 @@ import org.eclipse.mat.inspections.InspectionAssert;
 import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.IQuery;
+import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.Icon;
@@ -28,6 +29,7 @@ import org.eclipse.mat.query.results.TextResult;
 import org.eclipse.mat.report.Params;
 import org.eclipse.mat.report.QuerySpec;
 import org.eclipse.mat.report.SectionSpec;
+import org.eclipse.mat.report.Spec;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.extension.IThreadInfo;
 import org.eclipse.mat.snapshot.model.IObject;
@@ -140,8 +142,11 @@ public class ThreadInfoQuery implements IQuery
             for (CompositeResult.Entry rInfo : requests.getResultEntries())
             {
                 QuerySpec thread = new QuerySpec(rInfo.getName());
-                thread.set(Params.Html.SHOW_HEADING, Boolean.FALSE.toString());
-                thread.set(Params.Rendering.PATTERN, Params.Rendering.PATTERN_OVERVIEW_DETAILS);
+                IResult res = rInfo.getResult();
+                if (res instanceof CompositeResult || res instanceof Spec) {
+                    thread.set(Params.Html.SHOW_HEADING, Boolean.FALSE.toString());
+                    thread.set(Params.Rendering.PATTERN, Params.Rendering.PATTERN_OVERVIEW_DETAILS);
+                }
                 thread.setResult(rInfo.getResult());
                 rSpec.add(thread);
             }
