@@ -215,7 +215,7 @@ public final class RefinedResultBuilder
         {
             setSortOrder(indices[0], directions[0]);
         }
-        else
+        else if (indices.length > 1)
         {
             Column.SortDirection direction = directions[0];
             if (direction == null)
