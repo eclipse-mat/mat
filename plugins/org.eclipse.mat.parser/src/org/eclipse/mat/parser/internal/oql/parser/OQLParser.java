@@ -1355,119 +1355,6 @@ public class OQLParser implements OQLParserConstants
         }
     }
 
-    private boolean jj_3R_28()
-    {
-        if (jj_scan_token(IDENTIFIER))
-            return true;
-        return false;
-    }
-
-    private boolean jj_3R_26()
-    {
-        if (jj_scan_token(IMPLEMENTS))
-            return true;
-        return false;
-    }
-
-    private boolean jj_3R_15()
-    {
-        jj_lookingAhead = true;
-        jj_semLA = seeUnreservedKeyword("WHERE");
-        jj_lookingAhead = false;
-        if (!jj_semLA || jj_3R_27())
-            return true;
-        if (jj_scan_token(IDENTIFIER))
-            return true;
-        return false;
-    }
-
-    private boolean jj_3R_25()
-    {
-        if (jj_3R_31())
-            return true;
-        return false;
-    }
-
-    private boolean jj_3R_24()
-    {
-        if (jj_3R_30())
-            return true;
-        return false;
-    }
-
-    private boolean jj_3_2()
-    {
-        if (jj_3R_16())
-            return true;
-        return false;
-    }
-
-    private boolean jj_3R_23()
-    {
-        if (jj_3R_29())
-            return true;
-        return false;
-    }
-
-    private boolean jj_3R_31()
-    {
-        if (jj_scan_token(IDENTIFIER))
-            return true;
-        return false;
-    }
-
-    private boolean jj_3_1()
-    {
-        if (jj_3R_15())
-            return true;
-        return false;
-    }
-
-    private boolean jj_3R_22()
-    {
-        if (jj_scan_token(GE))
-            return true;
-        return false;
-    }
-
-    private boolean jj_3R_16()
-    {
-        Token xsp;
-        if (jj_3R_28())
-            return true;
-        while (true)
-        {
-            xsp = jj_scanpos;
-            if (jj_3R_28())
-            {
-                jj_scanpos = xsp;
-                break;
-            }
-        }
-        return false;
-    }
-
-    private boolean jj_3R_21()
-    {
-        if (jj_scan_token(LE))
-            return true;
-        return false;
-    }
-
-    private boolean jj_3R_20()
-    {
-        if (jj_scan_token(50))
-            return true;
-        return false;
-    }
-
-    private boolean jj_3R_19()
-    {
-        if (jj_scan_token(LT))
-            return true;
-        return false;
-    }
-
     private boolean jj_3_4()
     {
         if (jj_scan_token(46))
@@ -1577,6 +1464,119 @@ public class OQLParser implements OQLParserConstants
                 }
             }
         }
+        return false;
+    }
+
+    private boolean jj_3R_28()
+    {
+        if (jj_scan_token(IDENTIFIER))
+            return true;
+        return false;
+    }
+
+    private boolean jj_3R_26()
+    {
+        if (jj_scan_token(IMPLEMENTS))
+            return true;
+        return false;
+    }
+
+    private boolean jj_3R_25()
+    {
+        if (jj_3R_31())
+            return true;
+        return false;
+    }
+
+    private boolean jj_3R_15()
+    {
+        jj_lookingAhead = true;
+        jj_semLA = seeUnreservedKeyword("WHERE");
+        jj_lookingAhead = false;
+        if (!jj_semLA || jj_3R_27())
+            return true;
+        if (jj_scan_token(IDENTIFIER))
+            return true;
+        return false;
+    }
+
+    private boolean jj_3R_24()
+    {
+        if (jj_3R_30())
+            return true;
+        return false;
+    }
+
+    private boolean jj_3_2()
+    {
+        if (jj_3R_16())
+            return true;
+        return false;
+    }
+
+    private boolean jj_3R_23()
+    {
+        if (jj_3R_29())
+            return true;
+        return false;
+    }
+
+    private boolean jj_3R_31()
+    {
+        if (jj_scan_token(IDENTIFIER))
+            return true;
+        return false;
+    }
+
+    private boolean jj_3R_16()
+    {
+        Token xsp;
+        if (jj_3R_28())
+            return true;
+        while (true)
+        {
+            xsp = jj_scanpos;
+            if (jj_3R_28())
+            {
+                jj_scanpos = xsp;
+                break;
+            }
+        }
+        return false;
+    }
+
+    private boolean jj_3_1()
+    {
+        if (jj_3R_15())
+            return true;
+        return false;
+    }
+
+    private boolean jj_3R_22()
+    {
+        if (jj_scan_token(GE))
+            return true;
+        return false;
+    }
+
+    private boolean jj_3R_21()
+    {
+        if (jj_scan_token(LE))
+            return true;
+        return false;
+    }
+
+    private boolean jj_3R_20()
+    {
+        if (jj_scan_token(50))
+            return true;
+        return false;
+    }
+
+    private boolean jj_3R_19()
+    {
+        if (jj_scan_token(LT))
+            return true;
         return false;
     }
 
