@@ -111,7 +111,7 @@ MORE :
 {
   "//" : IN_SINGLE_LINE_COMMENT
 |
-  <"/**" ~["/"]> { input_stream.backup(1); } : IN_FORMAL_COMMENT
+  <START_FORMAL_COMMENT: "/**" ~["/"]> { input_stream.backup(1); } : IN_FORMAL_COMMENT
 |
   "/*" : IN_MULTI_LINE_COMMENT
 }
@@ -137,7 +137,7 @@ SPECIAL_TOKEN :
 <IN_SINGLE_LINE_COMMENT,IN_FORMAL_COMMENT,IN_MULTI_LINE_COMMENT>
 MORE :
 {
-  < ~[] >
+  < INSIDE_COMMENT: ~[] >
 }
 
 /* LITERALS */

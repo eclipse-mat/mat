@@ -23,11 +23,15 @@ public interface OQLParserConstants
     /** End of File. */
     int EOF = 0;
     /** RegularExpression Id. */
+    int START_FORMAL_COMMENT = 7;
+    /** RegularExpression Id. */
     int SINGLE_LINE_COMMENT = 9;
     /** RegularExpression Id. */
     int FORMAL_COMMENT = 10;
     /** RegularExpression Id. */
     int MULTI_LINE_COMMENT = 11;
+    /** RegularExpression Id. */
+    int INSIDE_COMMENT = 12;
     /** RegularExpression Id. */
     int INTEGER_LITERAL = 13;
     /** RegularExpression Id. */
@@ -92,12 +96,12 @@ public interface OQLParserConstants
 
     /** Literal token values. */
     String[] tokenImage = { "<EOF>", "\" \"", "\"\\t\"", "\"\\n\"", "\"\\r\"", "\"\\f\"", "\"//\"",
-                    "<token of kind 7>", "\"/*\"", "<SINGLE_LINE_COMMENT>", "\"*/\"", "\"*/\"", "<token of kind 12>",
-                    "<INTEGER_LITERAL>", "<LONG_LITERAL>", "<DECIMAL_LITERAL>", "<HEX_LITERAL>", "<OCTAL_LITERAL>",
-                    "<FLOATING_POINT_LITERAL>", "<EXPONENT>", "<CHARACTER_LITERAL>", "<STRING_LITERAL>",
-                    "\"INSTANCEOF\"", "\"true\"", "\"false\"", "\"or\"", "\"and\"", "\"null\"", "\"implements\"",
-                    "\"$\"", "<IDENTIFIER>", "<LETTER>", "<PART_LETTER>", "\"<\"", "\"!\"", "\"==\"", "\"<=\"",
-                    "\">=\"", "\"!=\"", "\";\"", "\"*\"", "\",\"", "\".\"", "\"{\"", "\"}\"", "\"@\"", "\"(\"",
-                    "\")\"", "\"[]\"", "\"=\"", "\">\"", "\"+\"", "\"-\"", "\"/\"", };
+                    "<START_FORMAL_COMMENT>", "\"/*\"", "<SINGLE_LINE_COMMENT>", "\"*/\"", "\"*/\"",
+                    "<INSIDE_COMMENT>", "<INTEGER_LITERAL>", "<LONG_LITERAL>", "<DECIMAL_LITERAL>", "<HEX_LITERAL>",
+                    "<OCTAL_LITERAL>", "<FLOATING_POINT_LITERAL>", "<EXPONENT>", "<CHARACTER_LITERAL>",
+                    "<STRING_LITERAL>", "\"INSTANCEOF\"", "\"true\"", "\"false\"", "\"or\"", "\"and\"", "\"null\"",
+                    "\"implements\"", "\"$\"", "<IDENTIFIER>", "<LETTER>", "<PART_LETTER>", "\"<\"", "\"!\"", "\"==\"",
+                    "\"<=\"", "\">=\"", "\"!=\"", "\";\"", "\"*\"", "\",\"", "\".\"", "\"{\"", "\"}\"", "\"@\"",
+                    "\"(\"", "\")\"", "\"[]\"", "\"=\"", "\">\"", "\"+\"", "\"-\"", "\"/\"", };
 
 }
