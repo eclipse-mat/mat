@@ -44,13 +44,17 @@ import org.eclipse.mat.util.IProgressListener;
     // //////////////////////////////////////////////////////////////
 
     private static final Column COL_CLASSNAME = new Column(Messages.Column_ClassName);
+    private static final Column COL_NAME = new Column(Messages.ThreadInfoImpl_Column_Name);
+    private static final Column COL_INSTANCE = new Column(Messages.ThreadStackQuery_Column_ObjectStackFrame);
     private static final Column COL_SHALLOW = new Column(Messages.Column_ShallowHeap, int.class);
     private static final Column COL_RETAINED = new Column(Messages.Column_RetainedHeap, long.class);
     private static final Column COL_CONTEXTCL = new Column(Messages.ThreadInfoImpl_Column_ContextClassLoader);
     private static final Column COL_ISDAEMON = new Column(Messages.ThreadInfoImpl_Column_IsDaemon, Boolean.class);
 
     private static final List<Column> defaultColumns = Arrays.asList(new Column[] {
-                    COL_CLASSNAME, //
+                    //COL_CLASSNAME, //
+                    COL_INSTANCE, //
+                    COL_NAME, //
                     COL_SHALLOW, //
                     COL_RETAINED, //
                     COL_CONTEXTCL,
@@ -115,8 +119,9 @@ import org.eclipse.mat.util.IProgressListener;
 
     private static void extractGeneralAttribtes(ThreadInfoImpl info) throws SnapshotException
     {
-        info.name = ClassSpecificNameResolverRegistry.resolve(info.subject);
-        info.className = info.subject.getTechnicalName() + "  " + info.name;
+        info.className = info.subject.getDisplayName();
+        info.name = info.subject.getClassSpecificName();
+        info.instance = info.subject.getTechnicalName();
         info.shallowHeap = info.subject.getUsedHeapSize();
         info.retainedHeap = info.subject.getRetainedHeapSize();
         info.isDaemon = resolveIsDaemon(info.subject);
@@ -213,6 +218,7 @@ import org.eclipse.mat.util.IProgressListener;
     // general attributes
     private String name;
     private String className;
+    private String instance;
     private long shallowHeap;
     private long retainedHeap;
     private String contextClassLoader;
@@ -246,6 +252,11 @@ import org.eclipse.mat.util.IProgressListener;
     public String getClassName()
     {
         return className;
+    }
+
+    public String getInstance()
+    {
+        return instance;
     }
 
     public long getShallowHeap()
@@ -316,6 +327,10 @@ import org.eclipse.mat.util.IProgressListener;
     {
         if (column == COL_CLASSNAME)
             return getClassName();
+        else if (column == COL_NAME)
+            return getName();
+        else if (column == COL_INSTANCE)
+            return getInstance();
         else if (column == COL_SHALLOW)
             return getShallowHeap();
         else if (column == COL_RETAINED)

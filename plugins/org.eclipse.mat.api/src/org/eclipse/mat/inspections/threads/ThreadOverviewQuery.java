@@ -177,6 +177,7 @@ public class ThreadOverviewQuery implements IQuery
         Column[] columns;
         HashMapIntObject<Object> root2element;
         ObjectListResult.Outbound objectList;
+        int colMap[];
 
         public ThreadInfoList(ISnapshot snapshot, List<ThreadOverviewNode> infos)
         {
@@ -199,6 +200,21 @@ public class ThreadOverviewQuery implements IQuery
             objectList = new ObjectListResult.Outbound(snapshot, roots.toArray());
             for (Object o : objectList.getElements())
                 root2element.put(objectList.getContext(o).getObjectId(), o);
+            // Find matching columns in the object list
+            colMap = new int[columns.length];
+            Column[] objColumns = objectList.getColumns();
+            for (int i = 0; i < columns.length; ++i)
+            {
+                colMap[i] = i == 0 ? 0 : -1;
+                for (int j = 0; j < objColumns.length; ++j)
+                {
+                    if (columns[i].equals(objColumns[j]))
+                    {
+                        colMap[i] = j;
+                        break;
+                    }
+                }
+            }
         }
 
         public ResultMetaData getResultMetaData()
@@ -275,7 +291,9 @@ public class ThreadOverviewQuery implements IQuery
                 }
                 else
                 {
-                    return objectList.getColumnValue(row, columnIndex);
+                    int newColumnIndex = colMap[columnIndex];
+                    if (newColumnIndex >= 0)
+                        return objectList.getColumnValue(row, newColumnIndex);
                 }
                 return null;
             }

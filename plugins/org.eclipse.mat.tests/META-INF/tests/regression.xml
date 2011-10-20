@@ -58,6 +58,8 @@
 		<param key="filename" value="Paths_from_GC_Root.csv" />
 		<param key="html.separate_file" value="true" />
 		<param key="limit" value="100" />
+		<!--  Test sorting by non-existing columns -->
+		<param key="sort_column" value="NOT EXIST" />
 		<command>path2gc_reg_test</command>
 	</query>
 	<query name="Merged Paths from GC Roots">
@@ -79,7 +81,7 @@
 		<param key="filename" value="Thread_Overview.csv" />
 		<param key="format" value="csv" />
 		<param key="html.separate_file" value="true" />
-		<param key="sort_column" value="Name,Instance" />
+		<param key="sort_column" value="Name,Object / Stack Frame" />
 		<param key="limit" value="1000" />
 		<command>thread_overview</command>
 	</query>		
