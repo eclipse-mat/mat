@@ -25,7 +25,7 @@ import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
-import org.eclipse.mat.snapshot.query.ObjectListResult;
+import org.eclipse.mat.snapshot.query.SnapshotQuery;
 import org.eclipse.mat.util.IProgressListener;
 
 @CommandName("finalizer_thread")
@@ -39,7 +39,9 @@ public class FinalizerThreadQuery implements IQuery
     public IResult execute(IProgressListener listener) throws Exception
     {
         int finalizerThreadObjects[] = getFinalizerThreads(snapshot);
-        return new ObjectListResult.Outbound(snapshot, finalizerThreadObjects);
+        SnapshotQuery q = SnapshotQuery.lookup("thread_overview", snapshot); //$NON-NLS-1$
+        q.setArgument("objects", finalizerThreadObjects); //$NON-NLS-1$
+        return q.execute(listener);
     }
 
     static int[] getFinalizerThreads(ISnapshot snapshot) throws Exception
@@ -76,8 +78,7 @@ public class FinalizerThreadQuery implements IQuery
         int[] finalizerThreadObjects = finalizerThreadClasses.iterator().next().getObjectIds();
         if (finalizerThreadObjects == null)
             throw new Exception(Messages.FinalizerThreadQuery_ErrorMsg_FinalizerThreadInstanceNotFound);
-        if (finalizerThreadObjects.length != 1)
-            throw new Exception(Messages.FinalizerThreadQuery_ErrorMsg_MultipleFinalizerThreadClasses);
+        // HPUX with -Djava.finalizer.threadCount=5 has more than one finalizer thread
         return finalizerThreadObjects;
     }
 
@@ -96,8 +97,7 @@ public class FinalizerThreadQuery implements IQuery
         for (int objectId : finalizerThreadObjects)
         {
             IObject o = snapshot.getObject(objectId);
-            CommonNameResolver.ThreadResolver t = new CommonNameResolver.ThreadResolver();
-            String name = t.resolve(o);
+            String name = o.getClassSpecificName();
             if (name != null && name.equals(finalizerThreadName))
             {
                 finalizerThreadObjects[finalizerThreadObjectsLength++] = objectId;
