@@ -17,7 +17,7 @@ import java.util.List;
 import org.eclipse.mat.internal.snapshot.HeapObjectContextArgument;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IContextObjectSet;
-import org.eclipse.mat.query.IResultTable;
+import org.eclipse.mat.query.IStructuredResult;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.registry.ArgumentDescriptor;
 import org.eclipse.mat.query.registry.ArgumentSet;
@@ -98,7 +98,7 @@ public class Policy implements IPolicy
                     return false;
                 }
             } 
-            else if (IResultTable.class.isAssignableFrom(argument.getType()))
+            else if (IStructuredResult.class.isAssignableFrom(argument.getType()))
             {
                 tableArgExists = true;
             }

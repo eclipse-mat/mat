@@ -69,6 +69,7 @@ public class QueryResultPane extends AbstractEditorPane implements ISelectionPro
 
     protected Composite top;
     protected RefinedResultViewer viewer;
+    protected QueryResult srcQueryResult;
 
     public void createPartControl(Composite parent)
     {
@@ -87,7 +88,8 @@ public class QueryResultPane extends AbstractEditorPane implements ISelectionPro
     @Override
     public void initWithArgument(Object argument)
     {
-        RefinedResultViewer viewer = createViewer((QueryResult) argument);
+        srcQueryResult = (QueryResult)argument;
+        RefinedResultViewer viewer = createViewer(srcQueryResult);
 
         activateViewer(viewer);
 
@@ -408,6 +410,11 @@ public class QueryResultPane extends AbstractEditorPane implements ISelectionPro
     public void removeSelectionChangedListener(ISelectionChangedListener listener)
     {
         listeners.remove(listener);
+    }
+
+    public QueryResult getSrcQueryResult()
+    {
+        return srcQueryResult;
     }
 
 }

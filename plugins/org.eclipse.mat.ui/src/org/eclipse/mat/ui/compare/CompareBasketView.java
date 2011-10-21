@@ -34,6 +34,8 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.IResultTable;
+import org.eclipse.mat.query.IResultTree;
+import org.eclipse.mat.query.IStructuredResult;
 import org.eclipse.mat.query.registry.ArgumentDescriptor;
 import org.eclipse.mat.query.registry.ArgumentSet;
 import org.eclipse.mat.query.registry.QueryDescriptor;
@@ -47,6 +49,7 @@ import org.eclipse.mat.ui.accessibility.AccessibleCompositeAdapter;
 import org.eclipse.mat.ui.actions.QueryDropDownMenuAction;
 import org.eclipse.mat.ui.editor.AbstractEditorPane;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
+import org.eclipse.mat.ui.internal.panes.QueryResultPane;
 import org.eclipse.mat.ui.internal.panes.TableResultPane;
 import org.eclipse.mat.ui.snapshot.panes.HistogramPane;
 import org.eclipse.mat.ui.util.ErrorHelper;
@@ -160,8 +163,15 @@ public class CompareBasketView extends ViewPart
 		{
 			entry = new ComparedResult(state, editor, (IResultTable) ((TableResultPane) pane).getSrcQueryResult().getSubject());
 		}
+	    else if (pane instanceof QueryResultPane)
+        {
+            entry = new ComparedResult(state, editor, (IResultTree) ((QueryResultPane) pane).getSrcQueryResult().getSubject());
+	    }
 
-		results.add(entry);
+		if (entry != null)
+		{
+		    results.add(entry);
+		}
 		tableViewer.refresh();
 
 		clearAction.setEnabled(true);
@@ -240,7 +250,9 @@ public class CompareBasketView extends ViewPart
 	public static boolean accepts(PaneState state, MultiPaneEditor editor)
 	{
 		AbstractEditorPane pane = editor.getEditor(state);
-		return (pane instanceof HistogramPane) || (pane instanceof TableResultPane);
+		return (pane instanceof HistogramPane) || (pane instanceof TableResultPane) ||
+		                pane instanceof QueryResultPane && 
+		                ((QueryResultPane) pane).getSrcQueryResult().getSubject() instanceof IResultTree;
 	}
 
 	private void hookContextMenu()
@@ -261,7 +273,7 @@ public class CompareBasketView extends ViewPart
             public void menuShown(MenuEvent e)
             {
                 TableItem[] items = table.getSelection();
-                final List<IResultTable> tables = new ArrayList<IResultTable>(items.length);
+                final List<IStructuredResult> tables = new ArrayList<IStructuredResult>(items.length);
                 final List<IQueryContext> contexts = new ArrayList<IQueryContext>(items.length);
                 for (TableItem item : items)
                 {
@@ -293,9 +305,9 @@ public class CompareBasketView extends ViewPart
 	{
 		PaneState state;
 		MultiPaneEditor editor;
-		IResultTable table;
+		IStructuredResult table;
 
-		public ComparedResult(PaneState state, MultiPaneEditor editor, IResultTable table)
+		public ComparedResult(PaneState state, MultiPaneEditor editor, IStructuredResult table)
 		{
 			super();
 			this.state = state;
@@ -365,7 +377,7 @@ public class CompareBasketView extends ViewPart
 		    {
                 MultiPaneEditor editor = getEditor();
 
-                final List<IResultTable> tables = new ArrayList<IResultTable>(results.size());
+                final List<IStructuredResult> tables = new ArrayList<IStructuredResult>(results.size());
                 final List<IQueryContext> contexts = new ArrayList<IQueryContext>(results.size());
                 for (int i = 0; i < results.size(); i++)
                 {
@@ -520,10 +532,10 @@ public class CompareBasketView extends ViewPart
 
 	private static final class ComparePolicy implements IPolicy
     {
-        private final List<IResultTable> tables;
+        private final List<IStructuredResult> tables;
         private final List<IQueryContext> contexts;
     
-        private ComparePolicy(List<IResultTable> tables, List<IQueryContext> contexts)
+        private ComparePolicy(List<IStructuredResult> tables, List<IQueryContext> contexts)
         {
             this.tables = tables;
             this.contexts = contexts;
@@ -537,13 +549,24 @@ public class CompareBasketView extends ViewPart
             boolean foundTables = false;
             boolean foundContexts = false;
             for (ArgumentDescriptor argument : query.getArguments()) {
-                if (IResultTable.class.isAssignableFrom(argument.getType()))
+                if (IStructuredResult.class.isAssignableFrom(argument.getType()))
                 {
                     if (argument.isMultiple())
+                    {
+                        for (IStructuredResult res : tables)
+                        {
+                            if (!argument.getType().isAssignableFrom(res.getClass()))
+                            {
+                                // Can't convert table/tree
+                                return false;
+                            }
+                        }
                         foundTables = true;
+                    }
                 }
-    
-                else if (IQueryContext.class.isAssignableFrom(argument.getType()))
+            }
+            for (ArgumentDescriptor argument : query.getArguments()) {
+                if (IQueryContext.class.isAssignableFrom(argument.getType()))
                 {
                     if (argument.isMultiple())
                     {
@@ -557,7 +580,7 @@ public class CompareBasketView extends ViewPart
         public void fillInObjectArguments(ISnapshot snapshot, QueryDescriptor query, ArgumentSet set)
         {
             for (ArgumentDescriptor argument : query.getArguments()) {
-                if (IResultTable.class.isAssignableFrom(argument.getType()))
+                if (IStructuredResult.class.isAssignableFrom(argument.getType()))
                 {
                     if (argument.isMultiple())
                     {

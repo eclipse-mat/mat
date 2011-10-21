@@ -30,6 +30,8 @@ import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.IResultTable;
+import org.eclipse.mat.query.IResultTree;
+import org.eclipse.mat.query.IStructuredResult;
 import org.eclipse.mat.query.ResultMetaData;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.Icon;
@@ -50,7 +52,7 @@ import com.ibm.icu.text.NumberFormat;
 public class CompareTablesQuery implements IQuery
 {
 	@Argument
-	public IResultTable[] tables;
+	public IStructuredResult[] tables;
 
     @Argument
     public IQueryContext queryContext;
@@ -103,7 +105,7 @@ public class CompareTablesQuery implements IQuery
 
 		// Length 1 table is valid, and we need to process it in case it is from a different snapshot
 
-		IResultTable base = tables[0];
+		IStructuredResult base = tables[0];
 		Column[] baseColumns = base.getColumns();
 		Column key = baseColumns[0];
 
@@ -128,7 +130,7 @@ public class CompareTablesQuery implements IQuery
 		return new TableComparisonResult(mergeKeys(), key, attributes, mode, setOp);
 	}
 
-	private int getColumnIndex(String name, IResultTable table)
+	private int getColumnIndex(String name, IStructuredResult table)
 	{
 		Column[] columns = table.getColumns();
 		for (int i = 0; i < columns.length; i++)
@@ -143,10 +145,38 @@ public class CompareTablesQuery implements IQuery
 		Map<Object, Object[]> map = new HashMap<Object, Object[]>();
 		for (int i = 0; i < tables.length; i++)
 		{
-			for (int j = 0; j < tables[i].getRowCount(); j++)
+		    IStructuredResult table = tables[i];
+		    int size;
+		    if (table instanceof IResultTable)
+		    {
+		        size = ((IResultTable)table).getRowCount();
+		    }
+		    else if (table instanceof IResultTree)
+		    {
+		        size = ((IResultTree)table).getElements().size();
+		    }
+		    else
+		    {
+		        size = 0;
+		    }
+		    
+			for (int j = 0; j < size; j++)
 			{
-				Object row = tables[i].getRow(j);
-				Object key = tables[i].getColumnValue(row, 0);
+			    
+				Object row;
+	            if (table instanceof IResultTable)
+	            {
+	                row = ((IResultTable)table).getRow(j);
+	            }
+	            else if (table instanceof IResultTree)
+	            {
+	                row = ((IResultTree)table).getElements().get(j);
+	            }
+	            else
+	            {
+	                row = null;
+	            }
+				Object key = table.getColumnValue(row, 0);
 				Object[] rows = map.get(key);
 				if (rows == null)
 				{

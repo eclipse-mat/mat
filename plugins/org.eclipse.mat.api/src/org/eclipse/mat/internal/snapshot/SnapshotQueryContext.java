@@ -16,7 +16,7 @@ import java.text.ParsePosition;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.ContextDerivedData;
-import org.eclipse.mat.query.IResultTable;
+import org.eclipse.mat.query.IStructuredResult;
 import org.eclipse.mat.query.annotations.Argument.Advice;
 import org.eclipse.mat.query.registry.QueryContextImpl;
 import org.eclipse.mat.snapshot.ISnapshot;
@@ -68,7 +68,7 @@ public class SnapshotQueryContext extends QueryContextImpl
             {
                 return true;
             }
-            else if (type.isAssignableFrom(IResultTable.class))
+            else if (IStructuredResult.class.isAssignableFrom(type))
             {
                 // For compare queries
                 return true;
