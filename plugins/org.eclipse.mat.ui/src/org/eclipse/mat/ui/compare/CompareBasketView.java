@@ -378,18 +378,18 @@ public class CompareBasketView extends ViewPart
                 MultiPaneEditor editor = getEditor();
 
                 final List<IStructuredResult> tables = new ArrayList<IStructuredResult>(results.size());
-                final List<IQueryContext> contexts = new ArrayList<IQueryContext>(results.size());
+                final List<ISnapshot> snapshots = new ArrayList<ISnapshot>(results.size());
                 for (int i = 0; i < results.size(); i++)
                 {
                     tables.add(results.get(i).table);
-                    contexts.add(results.get(i).editor.getQueryContext());
+                    snapshots.add((ISnapshot)results.get(i).editor.getQueryContext().get(ISnapshot.class, null));
                 }
 
                 String query = "comparetablesquery"; //$NON-NLS-1$
                 SnapshotQuery compareQuery = SnapshotQuery.lookup(query,
                                 (ISnapshot) editor.getQueryContext().get(ISnapshot.class, null));
                 compareQuery.setArgument("tables", tables); //$NON-NLS-1$
-                compareQuery.setArgument("queryContexts", contexts); //$NON-NLS-1$
+                compareQuery.setArgument("snapshots", snapshots); //$NON-NLS-1$
                 IResult absolute = compareQuery.execute(new VoidProgressListener());
                 QueryResult queryResult = new QueryResult(null, Messages.CompareBasketView_ComparedTablesResultTitle,
                                 absolute);
