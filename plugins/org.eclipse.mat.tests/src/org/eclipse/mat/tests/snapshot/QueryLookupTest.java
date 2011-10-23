@@ -10,18 +10,21 @@
  *******************************************************************************/
 package org.eclipse.mat.tests.snapshot;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.IResult;
-import org.eclipse.mat.query.annotations.descriptors.IArgumentDescriptor;
+import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.query.annotations.descriptors.IAnnotatedObjectDescriptor;
+import org.eclipse.mat.query.annotations.descriptors.IArgumentDescriptor;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.query.SnapshotQuery;
 import org.eclipse.mat.tests.TestSnapshots;
 import org.eclipse.mat.util.VoidProgressListener;
+import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 public class QueryLookupTest
@@ -68,4 +71,30 @@ public class QueryLookupTest
 		assert result != null : "The " + queryId + " query must return a non-null result";
 	}
 
+	   @Test
+	    public void testCompare() throws SnapshotException
+	    {
+	        String queryId = "comparetablesquery";
+	        ISnapshot snapshot1 = TestSnapshots.getSnapshot(TestSnapshots.SUN_JDK6_18_32BIT, false);
+	        ISnapshot snapshot2 = TestSnapshots.getSnapshot(TestSnapshots.SUN_JDK6_18_64BIT, false);
+	        
+            SnapshotQuery query1 = SnapshotQuery.lookup("histogram", snapshot1);
+            IResult result1 = query1.execute(new VoidProgressListener());
+            
+            SnapshotQuery query2 = SnapshotQuery.lookup("histogram", snapshot2);
+            IResult result2 = query2.execute(new VoidProgressListener());
+	        
+	        SnapshotQuery query3 = SnapshotQuery.lookup(queryId, snapshot1);
+	        
+	        List<IResultTable>r = new ArrayList<IResultTable>();
+	        r.add((IResultTable)result1);
+            r.add((IResultTable)result2);
+	        query3.setArgument("tables", r);
+	        ArrayList<ISnapshot> snapshots = new ArrayList<ISnapshot>();
+	        snapshots.add(snapshot1);
+            snapshots.add(snapshot2);
+	        query3.setArgument("snapshots", snapshots);
+	        IResultTable r2 = (IResultTable)query3.execute(new VoidProgressListener());
+	        assertTrue(r2 != null);
+	    }
 }

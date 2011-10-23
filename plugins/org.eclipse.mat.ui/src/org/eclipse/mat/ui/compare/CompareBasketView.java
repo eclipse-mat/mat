@@ -281,7 +281,7 @@ public class CompareBasketView extends ViewPart
                     tables.add(result.table);
                     contexts.add(result.editor.getQueryContext());
                 }
-                QueryDropDownMenuAction qa = new QueryDropDownMenuAction(getEditor(), new ComparePolicy(tables, contexts), false);
+                QueryDropDownMenuAction qa = new QueryDropDownMenuAction(getEditor(), new ComparePolicy(tables, contexts, getEditor().getQueryContext()), false);
                 PopupMenu menu1 = new PopupMenu();
                 qa.contribute(menu1);
                 qa.getHelpListener();
@@ -534,11 +534,21 @@ public class CompareBasketView extends ViewPart
     {
         private final List<IStructuredResult> tables;
         private final List<IQueryContext> contexts;
+        private final IQueryContext currentContext;
+        private final List<ISnapshot> snapshots;
+        private final ISnapshot currentSnapshot;
     
-        private ComparePolicy(List<IStructuredResult> tables, List<IQueryContext> contexts)
+        private ComparePolicy(List<IStructuredResult> tables, List<IQueryContext> contexts, IQueryContext currentContext)
         {
             this.tables = tables;
             this.contexts = contexts;
+            this.currentContext = currentContext;
+            snapshots = new ArrayList<ISnapshot>();
+            for (IQueryContext ctx : contexts)
+            {
+                snapshots.add((ISnapshot)ctx.get(ISnapshot.class, null));
+            }
+            currentSnapshot = (ISnapshot)currentContext.get(ISnapshot.class, null);
         }
     
         /**
@@ -548,6 +558,7 @@ public class CompareBasketView extends ViewPart
         {
             boolean foundTables = false;
             boolean foundContexts = false;
+            boolean foundSnapshots = false;
             for (ArgumentDescriptor argument : query.getArguments()) {
                 if (IStructuredResult.class.isAssignableFrom(argument.getType()))
                 {
@@ -573,8 +584,39 @@ public class CompareBasketView extends ViewPart
                         foundContexts = true;
                     }
                 }
+                if (ISnapshot.class.isAssignableFrom(argument.getType()))
+                {
+                    if (argument.isMultiple())
+                    {
+                        foundSnapshots = true;
+                    }
+                }
             }
-            return foundTables && foundContexts;
+            if (!(foundContexts || foundSnapshots))
+            {
+                foundContexts = true;
+                for (IQueryContext ctx : contexts)
+                {
+                    if (!ctx.equals(currentContext))
+                    {
+                        foundContexts = false;
+                        break;
+                    }
+                }
+            }
+            if (!(foundContexts || foundSnapshots))
+            {
+                foundSnapshots = true;
+                for (ISnapshot snap : snapshots)
+                {
+                    if (!snap.equals(currentSnapshot))
+                    {
+                        foundSnapshots = false;
+                        break;
+                    }
+                }
+            }
+            return foundTables && (foundContexts || foundSnapshots);
         }
     
         public void fillInObjectArguments(ISnapshot snapshot, QueryDescriptor query, ArgumentSet set)
@@ -600,6 +642,17 @@ public class CompareBasketView extends ViewPart
                     if (argument.isMultiple())
                     {
                         set.setArgumentValue(argument, contexts);
+                    }
+                }
+                else if (ISnapshot.class.isAssignableFrom(argument.getType()))
+                {
+                    /*
+                     * Only fill in multiple snapshots from the tables.
+                     * A single snapshot is the editor snapshot.
+                     */
+                    if (argument.isMultiple())
+                    {
+                        set.setArgumentValue(argument, snapshots);
                     }
                 }
             }

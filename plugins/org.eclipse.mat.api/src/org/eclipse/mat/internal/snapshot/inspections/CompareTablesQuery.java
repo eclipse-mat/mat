@@ -57,8 +57,8 @@ public class CompareTablesQuery implements IQuery
     @Argument
     public IQueryContext queryContext;
 	
-	@Argument
-	public IQueryContext[] queryContexts;
+	@Argument(isMandatory = false)
+    public ISnapshot[] snapshots;
 
 	@Argument(isMandatory = false)
 	public Mode mode = Mode.ABSOLUTE;
@@ -66,6 +66,9 @@ public class CompareTablesQuery implements IQuery
 	@Argument(isMandatory = false)
 	public Operation setOp = Operation.NONE;
 
+    @Argument(isMandatory = false)
+    public int keyColumn = 1;
+	
     private boolean[] sameSnapshot;
 
 	public enum Mode
@@ -107,18 +110,20 @@ public class CompareTablesQuery implements IQuery
 
 		IStructuredResult base = tables[0];
 		Column[] baseColumns = base.getColumns();
-		Column key = baseColumns[0];
+		Column key = baseColumns[keyColumn-1];
 
 		sameSnapshot = new boolean[tables.length];
 		ISnapshot sn = (ISnapshot)queryContext.get(ISnapshot.class, null);
 		for (int i = 0; i < tables.length; ++i)
 		{
-		    sameSnapshot[i] = (queryContexts[i] == null || sn.equals((ISnapshot)queryContexts[i].get(ISnapshot.class, null)));
+		    sameSnapshot[i] = (snapshots[i] == null || sn.equals(snapshots[i]));
 		}
 
 		List<ComparedColumn> attributes = new ArrayList<ComparedColumn>();
-		for (int i = 1; i < baseColumns.length; i++)
+		for (int i = 0; i < baseColumns.length; i++)
 		{
+		    if (i == keyColumn-1)
+		        continue;
 			int[] indexes = new int[tables.length];
 			for (int j = 0; j < indexes.length; j++)
 			{
@@ -176,7 +181,7 @@ public class CompareTablesQuery implements IQuery
 	            {
 	                row = null;
 	            }
-				Object key = table.getColumnValue(row, 0);
+				Object key = table.getColumnValue(row, keyColumn-1);
 				Object[] rows = map.get(key);
 				if (rows == null)
 				{
