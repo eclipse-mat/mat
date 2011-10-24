@@ -36,19 +36,25 @@ public class FinalizerQuery implements IQuery
         SectionSpec spec = new SectionSpec(Messages.FinalizerQuery_Finalizers);
 
         IResult result = SnapshotQuery.lookup("finalizer_in_processing", snapshot).execute(listener); //$NON-NLS-1$
-        spec.add(new QuerySpec(Messages.FinalizerQuery_InProcessing, result));
+        QuerySpec inProcessing = new QuerySpec(Messages.FinalizerQuery_InProcessing, result);
+        inProcessing.setCommand("finalizer_in_processing"); //$NON-NLS-1$
+        spec.add(inProcessing);
 
         result = SnapshotQuery.lookup("finalizer_queue", snapshot).execute(listener); //$NON-NLS-1$
         QuerySpec finalizerQueue = new QuerySpec(Messages.FinalizerQuery_ReadyForFinalizer, result);
+        finalizerQueue.setCommand("finalizer_queue"); //$NON-NLS-1$
         spec.add(finalizerQueue);
         finalizerQueue.set(Params.Html.SHOW_HEADING, Boolean.FALSE.toString());
 
         result = SnapshotQuery.lookup("finalizer_thread", snapshot).execute(listener); //$NON-NLS-1$
-        spec.add(new QuerySpec(Messages.FinalizerQuery_FinalizerThread, result));
+        QuerySpec finalizerThread = new QuerySpec(Messages.FinalizerQuery_FinalizerThread, result);
+        finalizerThread.setCommand("finalizer_thread"); //$NON-NLS-1$
+        spec.add(finalizerThread);
 
         result = SnapshotQuery.lookup("finalizer_thread_locals", snapshot).execute(listener); //$NON-NLS-1$
-        spec.add(new QuerySpec(Messages.FinalizerQuery_FinalizerThreadLocals, result));
-
+        QuerySpec finalizerLocals = new QuerySpec(Messages.FinalizerQuery_FinalizerThreadLocals, result);
+        finalizerLocals.setCommand("finalizer_thread_locals"); //$NON-NLS-1$
+        spec.add(finalizerLocals);
         return spec;
     }
 }

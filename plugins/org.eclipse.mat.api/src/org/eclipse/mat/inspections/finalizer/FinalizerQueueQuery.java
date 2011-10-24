@@ -24,6 +24,7 @@ import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.report.QuerySpec;
 import org.eclipse.mat.report.SectionSpec;
+import org.eclipse.mat.snapshot.Histogram;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.GCRootInfo;
 import org.eclipse.mat.snapshot.model.IClass;
@@ -40,6 +41,13 @@ public class FinalizerQueueQuery implements IQuery
 {
     @Argument
     public ISnapshot snapshot;
+    
+    public enum Mode {
+        BOTH, LIST, HISTOGRAM
+    };
+
+    @Argument(isMandatory = false)
+    public Mode mode = Mode.BOTH;
 
     public IResult execute(IProgressListener listener) throws Exception
     {
@@ -115,15 +123,28 @@ public class FinalizerQueueQuery implements IQuery
         }
 
         SectionSpec spec = new SectionSpec(Messages.FinalizerQueueQuery_ReadyForFinalizerThread);
+        ObjectListResult.Outbound objResult = new ObjectListResult.Outbound(snapshot, result.toArray());
         QuerySpec objList = new QuerySpec(Messages.FinalizerQueueQuery_ReadyForFinalizerThread_List, //
-                        new ObjectListResult.Outbound(snapshot, result.toArray()));
+                        objResult);
+        objList.setCommand("finalizer_queue -mode "+Mode.LIST.name()); //$NON-NLS-1$
         spec.add(objList);
 
+        Histogram histogramResult = snapshot.getHistogram(result.toArray(), listener);
         QuerySpec histogram = new QuerySpec(Messages.FinalizerQueueQuery_ReadyForFinalizerThread_Histogram, //
-                        snapshot.getHistogram(result.toArray(), listener));
+                        histogramResult);
         histogram.set("sort_column", Messages.Column_RetainedHeap); //$NON-NLS-1$
         histogram.set("derived_data_column", "_default_=APPROXIMATE"); //$NON-NLS-1$//$NON-NLS-2$
+        histogram.setCommand("finalizer_queue -mode "+Mode.HISTOGRAM.name()); //$NON-NLS-1$
         spec.add(histogram);
-        return spec;
+        switch (mode)
+        {
+            case BOTH:
+            default:
+                return spec;
+            case LIST:
+                return objResult;
+            case HISTOGRAM:
+                return histogramResult;
+        }
     }
 }
