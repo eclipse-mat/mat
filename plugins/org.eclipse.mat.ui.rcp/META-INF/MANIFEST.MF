@@ -6,15 +6,33 @@ Bundle-Version: 1.1.1.qualifier
 Bundle-Vendor: %Bundle-Vendor
 Require-Bundle: org.eclipse.mat.ui.help;bundle-version="1.0.0",
  org.eclipse.mat.ui;bundle-version="1.0.0",
- org.eclipse.ui.intro;bundle-version="3.2.100",
  org.eclipse.core.runtime;bundle-version="3.3.100",
- org.eclipse.ui;bundle-version="3.3.0",
  org.eclipse.core.resources;bundle-version="3.3.0",
  org.eclipse.core.filesystem;bundle-version="1.1.0",
- org.eclipse.ui.ide;bundle-version="3.3.0",
- org.eclipse.ui.cheatsheets;bundle-version="3.3.0",
- org.eclipse.ui.forms;bundle-version="3.3.0",
  org.eclipse.help.base;bundle-version="3.3.0"
+Import-Package: org.eclipse.core.commands.common,
+ org.eclipse.jface.action,
+ org.eclipse.jface.dialogs,
+ org.eclipse.jface.preference,
+ org.eclipse.jface.resource,
+ org.eclipse.jface.window,
+ org.eclipse.swt,
+ org.eclipse.swt.custom,
+ org.eclipse.swt.events,
+ org.eclipse.swt.graphics,
+ org.eclipse.swt.widgets,
+ org.eclipse.ui,
+ org.eclipse.ui.actions,
+ org.eclipse.ui.application,
+ org.eclipse.ui.cheatsheets,
+ org.eclipse.ui.forms.events,
+ org.eclipse.ui.forms.widgets,
+ org.eclipse.ui.help,
+ org.eclipse.ui.ide,
+ org.eclipse.ui.intro,
+ org.eclipse.ui.intro.config,
+ org.eclipse.ui.plugin,
+ org.eclipse.ui.views
 Eclipse-LazyStart: true
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: J2SE-1.5

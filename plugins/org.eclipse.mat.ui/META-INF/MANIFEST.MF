@@ -8,15 +8,7 @@ Bundle-Activator: org.eclipse.mat.ui.MemoryAnalyserPlugin
 Require-Bundle: org.eclipse.mat.api;bundle-version="1.0.0";visibility:=reexport,
  org.eclipse.core.runtime;bundle-version="3.3.100",
  org.eclipse.core.resources;bundle-version="3.3.0",
- org.eclipse.core.filesystem;bundle-version="1.1.0",
- org.eclipse.ui;bundle-version="3.3.0",
- org.eclipse.ui.ide;bundle-version="3.3.0",
- org.eclipse.ui.views;bundle-version="3.2.100",
- org.eclipse.jface.text;bundle-version="3.3.0",
- org.eclipse.ui.cheatsheets;bundle-version="3.3.0",
- org.eclipse.ui.forms;bundle-version="3.3.0",
-  org.eclipse.ui.intro;bundle-version="3.3.0",
- org.eclipse.help;bundle-version="3.3.0"
+ org.eclipse.core.filesystem;bundle-version="1.1.0"
 Eclipse-LazyStart: true
 Bundle-ActivationPolicy: lazy
 Export-Package: org.eclipse.mat.ui;x-friends:="org.eclipse.mat.chart.ui,org.eclipse.mat.ui.rcp",
@@ -25,7 +17,48 @@ Export-Package: org.eclipse.mat.ui;x-friends:="org.eclipse.mat.chart.ui,org.ecli
  org.eclipse.mat.ui.internal;x-friends:="org.eclipse.mat.ui.rcp",
  org.eclipse.mat.ui.util;x-friends:="org.eclipse.mat.chart.ui,org.eclipse.mat.ui.rcp"
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
-Import-Package: com.ibm.icu.text;version="3.6.1"
+Import-Package: com.ibm.icu.text;version="3.6.1",
+ org.eclipse.core.commands,
+ org.eclipse.core.commands.common,
+ org.eclipse.help,
+ org.eclipse.ui,
+ org.eclipse.ui.actions,
+ org.eclipse.ui.cheatsheets,
+ org.eclipse.ui.dialogs,
+ org.eclipse.ui.forms.events,
+ org.eclipse.ui.forms.widgets,
+ org.eclipse.ui.help,
+ org.eclipse.ui.ide,
+ org.eclipse.ui.intro,
+ org.eclipse.ui.intro.config,
+ org.eclipse.ui.model,
+ org.eclipse.ui.part,
+ org.eclipse.ui.plugin,
+ org.eclipse.ui.progress,
+ org.eclipse.ui.themes,
+ org.eclipse.ui.views.contentoutline,
+ org.eclipse.jface.action,
+ org.eclipse.jface.dialogs,
+ org.eclipse.jface.fieldassist,
+ org.eclipse.jface.layout,
+ org.eclipse.jface.operation,
+ org.eclipse.jface.preference,
+ org.eclipse.jface.resource,
+ org.eclipse.jface.text,
+ org.eclipse.jface.text.hyperlink,
+ org.eclipse.jface.util,
+ org.eclipse.jface.viewers,
+ org.eclipse.jface.window,
+ org.eclipse.jface.wizard,
+ org.eclipse.swt,
+ org.eclipse.swt.accessibility,
+ org.eclipse.swt.browser,
+ org.eclipse.swt.custom,
+ org.eclipse.swt.dnd,
+ org.eclipse.swt.events,
+ org.eclipse.swt.graphics,
+ org.eclipse.swt.layout,
+ org.eclipse.swt.widgets
 Bundle-Localization: plugin
 Bundle-Copyright: Copyright (c) 2008, 2011 SAP AG, IBM Corporation and others. 
  All rights reserved. This program and the accompanying materials 
