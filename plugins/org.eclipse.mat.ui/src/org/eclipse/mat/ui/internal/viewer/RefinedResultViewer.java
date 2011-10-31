@@ -380,6 +380,14 @@ public abstract class RefinedResultViewer
     
     protected void applyTextAndImage(Item item, Object element)
     {
+        if (element == null)
+        {
+            /*
+             * Possibly a virtual table which is not yet updated, so wait for
+             * the update.
+             */
+            return;
+        }
         item.setData(element);
         adapter.apply(item, adapter.getFont());
 
