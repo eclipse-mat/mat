@@ -132,21 +132,25 @@ public class RefinedTreeViewer extends RefinedResultViewer
             }
         });
 
-        tree.addListener(SWT.PaintItem, new Listener()
+        Listener focusBoxListener = new Listener()
         {
             public void handleEvent(final Event event)
             {
-                if (!((event.detail & SWT.FOCUSED) != 0))
-                    return;
-
-                int w = 0;
-                for (int i = 0; i < tree.getColumnCount(); ++i)
+                if ((event.detail & SWT.FOCUSED) != 0)
                 {
-                    w += tree.getColumn(i).getWidth();
+                    int w = 0;
+                    for (int i = 0; i < tree.getColumnCount(); ++i)
+                    {
+                        w += tree.getColumn(i).getWidth();
+                    }
+                    event.gc.drawFocus(0, event.y, w - 1, event.height);
                 }
-                event.gc.drawFocus(0, event.y, w - 1, event.height);
             }
-        });
+        };
+        // Needed for the focus box on Windows 7, PaintItem doesn't work
+        tree.addListener(SWT.EraseItem, focusBoxListener);
+        // Needed for the focus box on Windows XP - perhaps EraseItem is enough
+        tree.addListener(SWT.PaintItem, focusBoxListener);
     }
     
     @Override
@@ -692,7 +696,16 @@ public class RefinedTreeViewer extends RefinedResultViewer
 
         public int indexOf(Item item)
         {
-            return tree.indexOf((TreeItem) item);
+            TreeItem treeItem = (TreeItem) item;
+            TreeItem parent = treeItem.getParentItem();
+            if (parent == null)
+            {
+                return tree.indexOf(treeItem);
+            }
+            else
+            {
+                return parent.indexOf(treeItem);
+            }
         }
 
         public Rectangle getBounds(Item item, int index)
