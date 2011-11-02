@@ -25,7 +25,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.mat.SnapshotException;
-import org.eclipse.mat.collect.ArrayIntBig;
+import org.eclipse.mat.internal.snapshot.HeapObjectContextArgument;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IContextObjectSet;
 import org.eclipse.mat.query.IResult;
@@ -39,7 +39,7 @@ import org.eclipse.mat.query.registry.ArgumentSet;
 import org.eclipse.mat.query.registry.QueryDescriptor;
 import org.eclipse.mat.query.registry.QueryRegistry;
 import org.eclipse.mat.query.registry.QueryResult;
-import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
+import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.QueryExecution;
@@ -52,7 +52,6 @@ import org.eclipse.mat.ui.internal.viewer.RefinedTreeViewer;
 import org.eclipse.mat.ui.snapshot.editor.HeapEditor;
 import org.eclipse.mat.ui.util.ErrorHelper;
 import org.eclipse.mat.ui.util.PopupMenu;
-import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
@@ -147,7 +146,7 @@ public class QueryResultPane extends AbstractEditorPane implements ISelectionPro
             @Override
             public void run()
             {
-                final ArrayIntBig ids = new ArrayIntBig();
+                boolean foundObj = false;
                 // we are interested in the objectIds of the 1st level elements
                 List<?> elements = subject.getElements();
                 final List<IContextObject> contextObjects = new ArrayList<IContextObject>();
@@ -161,14 +160,14 @@ public class QueryResultPane extends AbstractEditorPane implements ISelectionPro
 
                     if (context instanceof IContextObjectSet)
                     {
-                        ids.addAll(((IContextObjectSet) context).getObjectIds());
+                        foundObj = foundObj || ((IContextObjectSet) context).getObjectIds().length > 0;
                     }
                     else if (context.getObjectId() >= 0)
                     {
-                        ids.add(context.getObjectId());
+                        foundObj = true;;
                     }
                 }
-                if (ids.isEmpty())
+                if (!foundObj)
                 {
                     ErrorHelper.showInfoMessage(Messages.QueryResultPane_InfoMessage);
                 }
@@ -178,54 +177,8 @@ public class QueryResultPane extends AbstractEditorPane implements ISelectionPro
                     IEditorPart editor = site.getPage().getActiveEditor();
                     QueryDescriptor descriptor = QueryRegistry.instance().getQuery("histogram"); //$NON-NLS-1$
                     ArgumentSet set = descriptor.createNewArgumentSet(getQueryContext());
-                    set.setArgumentValue(descriptor.getArgumentByName("objects"), new IHeapObjectArgument() //$NON-NLS-1$
-                                    {
-
-                                        public int[] getIds(IProgressListener listener) throws SnapshotException
-                                        {
-                                            return ids.toArray();
-                                        }
-
-                                        public String getLabel()
-                                        {
-                                            return getTitle();
-                                        }
-
-                                        public Iterator<int[]> iterator()
-                                        {
-                                            return new Iterator<int[]>()
-                                            {
-                                                Iterator<IContextObject> iter = contextObjects.iterator();
-
-                                                public boolean hasNext()
-                                                {
-                                                    return iter.hasNext();
-                                                }
-
-                                                public int[] next()
-                                                {
-                                                    IContextObject ctx = iter.next();
-
-                                                    if (ctx instanceof IContextObjectSet)
-                                                        return ((IContextObjectSet) ctx).getObjectIds();
-                                                    else
-                                                        return new int[] { ctx.getObjectId() };
-                                                }
-
-                                                public void remove()
-                                                {
-                                                    throw new UnsupportedOperationException();
-                                                }
-                                            };
-                                        }
-
-                                        @Override
-                                        public String toString()
-                                        {
-                                            return getLabel();
-                                        }
-
-                                    });
+                    HeapObjectContextArgument objs = new HeapObjectContextArgument((ISnapshot)getQueryContext().get(ISnapshot.class, null), contextObjects, getTitle());
+                    set.setArgumentValue(descriptor.getArgumentByName("objects"), objs); //$NON-NLS-1$
 
                     QueryExecution.execute((HeapEditor) editor, ((HeapEditor) editor).getActiveEditor().getPaneState(),
                                     null, set, false, false);
