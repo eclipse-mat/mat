@@ -39,15 +39,12 @@ import org.eclipse.swt.widgets.MessageBox;
 
 public class TableResultPane extends QueryResultPane
 {
-    protected QueryResult srcQueryResult;
 	protected RefinedStructuredResult srcStructured;
     protected TQuantize.Target groupedBy;
 
     @Override
     public void initWithArgument(Object argument)
     {
-        srcQueryResult = (QueryResult) argument;
-
         super.initWithArgument(argument);
 
         srcStructured = viewer.getResult();
@@ -92,11 +89,6 @@ public class TableResultPane extends QueryResultPane
         manager.add(groupingAction);
     }
     
-    public QueryResult getSrcQueryResult()
-	{
-		return srcQueryResult;
-	}
-
 	public RefinedStructuredResult getSrcStructured()
 	{
 		return srcStructured;
