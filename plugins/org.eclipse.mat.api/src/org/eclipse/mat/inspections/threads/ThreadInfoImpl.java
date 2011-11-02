@@ -32,7 +32,6 @@ import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.NamedReference;
 import org.eclipse.mat.snapshot.model.ThreadToLocalReference;
-import org.eclipse.mat.snapshot.registry.ClassSpecificNameResolverRegistry;
 import org.eclipse.mat.snapshot.registry.RequestDetailResolverRegistry;
 import org.eclipse.mat.snapshot.registry.ThreadDetailResolverRegistry;
 import org.eclipse.mat.util.IProgressListener;
