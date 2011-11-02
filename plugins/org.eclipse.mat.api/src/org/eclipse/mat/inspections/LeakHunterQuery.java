@@ -396,7 +396,7 @@ public class LeakHunterQuery implements IQuery
         try
         {
             IResult result = SnapshotQuery.lookup("path2gc", snapshot) //$NON-NLS-1$
-                            .set("object", describedObject) //$NON-NLS-1$
+                            .setArgument("object", describedObject) //$NON-NLS-1$
                             .execute(listener);
             composite.addResult(Messages.LeakHunterQuery_ShortestPaths, result);
         }
@@ -732,7 +732,7 @@ public class LeakHunterQuery implements IQuery
         try
         {
             threadDetails = (ThreadInfoQuery.Result) SnapshotQuery.lookup("thread_details", snapshot) //$NON-NLS-1$
-                            .set("threadIds", threadId) //$NON-NLS-1$
+                            .setArgument("threadIds", threadId) //$NON-NLS-1$
                             .execute(listener);
 
             // append overview & keywords
