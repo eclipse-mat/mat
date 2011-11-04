@@ -459,7 +459,7 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
             itemHeight = 17;
 
         int scrollbarHeight = 2;
-        if (!"win32".equals(Platform.getOS()))//$NON-NLS-1$
+        if (!Platform.OS_WIN32.equals(Platform.getOS()))//$NON-NLS-1$
             scrollbarHeight = table.getHorizontalBar().getSize().y;
 
         int detailsHeight = 9 * itemHeight + scrollbarHeight;
