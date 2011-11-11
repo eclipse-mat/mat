@@ -20,6 +20,13 @@
             notree="false"
             source="1.5" 
             splitindex="true" use="true" version="true" overview="../org.eclipse.mat.api/src/overview.html">
+            <tag name="noimplement" scope="types" description="No Implement:" />
+            <tag name="noextend" scope="types" description="No Extend:" />
+            <tag name="noreference" scope="methods,constructors,fields" description="No Reference:" />
+            <tag name="noinstantiate" scope="types" description="No Instantiate:" />
+            <tag name="nooverride" scope="methods" description="No Override:" />
+            <tag name="category" scope="methods,constructors,fields" description="Category:" />
+            <link href="http://help.eclipse.org/indigo/topic/org.eclipse.platform.doc.isv/reference/api" />
             <packageset dir="../org.eclipse.mat.report/src" defaultexcludes="yes">
               <include name="**"/>
             </packageset>
