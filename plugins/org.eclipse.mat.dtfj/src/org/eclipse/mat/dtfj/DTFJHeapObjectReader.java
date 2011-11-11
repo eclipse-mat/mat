@@ -89,7 +89,7 @@ public class DTFJHeapObjectReader implements IObjectReader
     }
 
     /**
-     * Returns extra data to be provided by {@link ISnapshot#getSnapshotAddons(Class<A> addon)}.
+     * Returns extra data to be provided by {@link ISnapshot#getSnapshotAddons(Class addon)}.
      * Also can be returned via {@link org.eclipse.mat.query.annotations.Argument}.
      * @see IObjectReader#getAddon(Class)
      * @param addon the type of the extra data required from the dump

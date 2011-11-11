@@ -83,7 +83,7 @@ public abstract class ContextProvider
     /**
      * Used to see if two context providers are the same.
      * @param other
-     * @return
+     * @return true if they are the same
      */
     public final boolean hasSameTarget(ContextProvider other)
     {
@@ -95,7 +95,7 @@ public abstract class ContextProvider
 
     /**
      * Extra operations to calculate more columns.
-     * @return
+     * @return an array of extra operations, could be empty, but not null 
      */
     public DerivedOperation[] getOperations()
     {
@@ -105,7 +105,7 @@ public abstract class ContextProvider
     /**
      * Returns an icon which could be used on context menus as a top level 
      * to represent this entire type of data available from an {@link IStructuredResult}.
-     * @return
+     * @return a URL which can be used to get the icon, can be null
      * @since 1.1
      */
     public URL getIcon()

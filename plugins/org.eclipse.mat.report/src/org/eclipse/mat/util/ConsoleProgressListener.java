@@ -17,7 +17,8 @@ import org.eclipse.mat.report.internal.Messages;
 
 /**
  * Class used as progress listener for the console. You can obtain one instance
- * via the {@link IEnvironment}.
+ * via the {@link org.eclipse.mat.query.IQuery#execute} method if the query is run from
+ * Memory Analyzer run in batch mode.
  */
 public class ConsoleProgressListener implements IProgressListener
 {

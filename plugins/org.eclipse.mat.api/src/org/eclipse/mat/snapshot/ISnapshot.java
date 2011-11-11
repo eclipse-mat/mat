@@ -171,7 +171,7 @@ public interface ISnapshot
     /**
      * Get all objects referencing the given object.
      * <p>
-     * This is the inverse of {@link #getOutboundReferentIds(int[], IProgressListener).
+     * This is the inverse of {@link #getOutboundReferentIds(int[], IProgressListener)}.
      * <p>
      * Performance: Relatively fast - single index operation.
      * 
@@ -195,7 +195,7 @@ public interface ISnapshot
      * <li>static reference fields in class objects</li>
      * <li>classes loaded by a class loader</li>
      * </ul>
-     * This is the inverse of {@link #getInboundReferentIds(int[], IProgressListener).
+     * This is the inverse of {@link #getInboundReferentIds(int[], IProgressListener)}.
      * <p>
      * Performance: Relatively fast - single index operation.
      * 

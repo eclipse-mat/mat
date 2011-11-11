@@ -27,10 +27,10 @@ public interface IRuntimeEnhancer
 	 * Returns addon information of certain type if such information is attached
 	 * to the HPROF snapshot
 	 * 
-	 * @param <A>
+	 * @param <A> The type of the additional information
 	 * @param snapshot
-	 * @param addon
-	 * @return
+	 * @param addon the class of the required extra information
+	 * @return the extra information, or null
 	 * @throws SnapshotException
 	 */
 	<A> A getAddon(ISnapshot snapshot, Class<A> addon) throws SnapshotException;

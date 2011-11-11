@@ -34,7 +34,7 @@ public abstract class DetailResultProvider
 
     /**
      * The description, which can be used as an extra menu item name.
-     * @return
+     * @return the description
      */
     public final String getLabel()
     {
@@ -43,7 +43,7 @@ public abstract class DetailResultProvider
 
     /**
      * The icon associated with this provider. This could be used on a context menu.
-     * @return
+     * @return a URL which can be used to get the icon, can be null
      * @since 1.1
      */
     public URL getIcon()

@@ -54,7 +54,7 @@ public @interface Menu
         /**
          * The label for the menu item, optionally preceded by a number indicating the menu order with a vertical bar separator.
          * The equivalent of the {@link Name} for an ordinary query.
-         * @return
+         * @return the label
          */
         String label() default "";
 

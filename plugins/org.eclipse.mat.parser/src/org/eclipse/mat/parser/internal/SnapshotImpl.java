@@ -1980,7 +1980,7 @@ public final class SnapshotImpl implements ISnapshot
      * <p>
      * A known type is {@link UnreachableObjectsHistogram}. 
      * Extra information can be obtained from an implementation of {@link IObjectReader#getAddon(Class)}.
-     * @param the type of the data. For example, {@link UnreachableObjectsHistogram}.class
+     * @param addon the type of the data. For example, {@link UnreachableObjectsHistogram}.class
      * @return the extra data
      */
     @SuppressWarnings("unchecked")

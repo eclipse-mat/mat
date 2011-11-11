@@ -20,7 +20,7 @@ import org.eclipse.mat.snapshot.model.IObject;
 /**
  * Holds detailed information about a thread.
  * Used by implementations of IThreadDetailsResolver to add information about threads.
- * Supplied as an argument to {@link IRequestDetailsResolver.complement} method.
+ * Supplied as an argument to {@link IRequestDetailsResolver#complement} method.
  */
 public interface IThreadInfo
 {

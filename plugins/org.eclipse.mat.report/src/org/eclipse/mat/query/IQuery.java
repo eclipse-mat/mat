@@ -30,7 +30,7 @@ import org.eclipse.mat.util.IProgressListener;
  * <li>{@link org.eclipse.mat.snapshot.query.IHeapObjectArgument} - some heap objects</li>
  * <li>{@link IContextObject}</li>
  * <li>{@link IContextObjectSet}</li>
- * <li>{@link IObject} - a object from the heap</li>
+ * <li>{@link org.eclipse.mat.snapshot.model.IObject} - a object from the heap</li>
  * <li>int or int[] tagged with {@link Advice#HEAP_OBJECT}.</li>
  * <li>{@link ArrayInt} - list of object ids</li>
  * <li>a type returned by {@link org.eclipse.mat.snapshot.ISnapshot#getSnapshotAddons(Class)}</li>
