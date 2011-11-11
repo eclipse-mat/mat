@@ -20,7 +20,7 @@
    <url>
       <update label="%updateSiteName" url="http://download.eclipse.org/mat/1.1/update-site/"/>
    </url>
-   
+
    <requires>
       <import plugin="org.eclipse.mat.api" version="1.1.1" match="greaterOrEqual"/>
       <import plugin="org.junit4" version="4.3.1" match="greaterOrEqual"/>
@@ -50,26 +50,25 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
+
    <plugin
          id="org.junit"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
+
    <plugin
          id="org.junit4"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
-   <plugin
-         id="org.apache.ant"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
+
    <plugin
          id="org.eclipse.test"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
+
    <plugin
          id="org.eclipse.ant.optional.junit"
          download-size="0"
