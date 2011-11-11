@@ -120,7 +120,7 @@ public class VmInfo
 	/**
 	 * Indicate if a heap dump can be acquired from the described process
 	 * 
-	 * @return
+	 * @return true if the heap dump can be triggered
 	 */
 	public boolean isHeapDumpEnabled()
 	{
@@ -140,7 +140,7 @@ public class VmInfo
 	/**
 	 * Get the heap dump provider which returned this VmInfo
 	 * 
-	 * @return
+	 * @return the heap dump provider
 	 */
 	public IHeapDumpProvider getHeapDumpProvider()
 	{
@@ -160,8 +160,11 @@ public class VmInfo
 	/**
 	 * Returns a proposed file name under which the heap dump should be saved,
 	 * e.g. java_pid%pid%.hprof for HPROF files
+	 * or a file name template subject to substitution using {@link org.eclipse.mat.util.MessageUtil#format}
+	 * with three parameters, {@link java.util.Date} date, int pid, int index
+	 * For example: mydumpname.{0,date,yyyyMMdd.HHmmss}.{1,number,0}.{2,number,0000}.dmp
 	 * 
-	 * @return
+	 * @return a suggested file name template
 	 */
 	public String getProposedFileName()
 	{

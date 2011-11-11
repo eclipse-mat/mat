@@ -99,7 +99,7 @@ class IBMHeapDumpProvider extends IBMDumpProvider {
      * @param udir
      * @param javahome
      * @param listener
-     * @return
+     * @return the resultant file
      * @throws IOException
      * @throws InterruptedException
      * @throws SnapshotException

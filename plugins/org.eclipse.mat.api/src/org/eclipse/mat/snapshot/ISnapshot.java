@@ -171,7 +171,7 @@ public interface ISnapshot
     /**
      * Get all objects referencing the given object.
      * <p>
-     * This is the inverse of {@link #getOutboundReferentIds(int[], IProgressListener)}.
+     * This is the inverse of {@link #getOutboundReferentIds(int)}.
      * <p>
      * Performance: Relatively fast - single index operation.
      * 
@@ -195,7 +195,8 @@ public interface ISnapshot
      * <li>static reference fields in class objects</li>
      * <li>classes loaded by a class loader</li>
      * </ul>
-     * This is the inverse of {@link #getInboundReferentIds(int[], IProgressListener)}.
+     * <p>
+     * This is the inverse of {@link #getInboundRefererIds(int)}.
      * <p>
      * Performance: Relatively fast - single index operation.
      * 
@@ -212,6 +213,8 @@ public interface ISnapshot
      * Hint: This method is handy if you want to learn which classes reference a
      * class. Therefore you would call this method with all objects of your
      * class of interest and get a histogram out of the result.
+     * <p>
+     * This is the inverse of {@link #getOutboundReferentIds(int[], IProgressListener)}.
      * <p>
      * Performance: Fast to slow - on index; depending on the number of objects
      * and the references.
@@ -232,6 +235,7 @@ public interface ISnapshot
      * Hint: This method is handy if you want to learn which classes are
      * referenced by a class. Therefore you would call this method with all
      * objects of your class of interest and get a histogram out of the result.
+     * This is the inverse of {@link #getInboundRefererIds(int[], IProgressListener)}.
      * <p>
      * Performance: Fast to slow - on index; depending on the number of objects
      * and the references.

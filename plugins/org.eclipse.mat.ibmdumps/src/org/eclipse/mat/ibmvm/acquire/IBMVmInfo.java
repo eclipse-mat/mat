@@ -57,7 +57,7 @@ public class IBMVmInfo extends VmInfo
     
     /**
      * Command to pass to the agent to generate dumps of this type
-     * @return
+     * @return the command to be executed e.g. by {@link IBMDumpProvider.AgentLoader#IBMDumpProvider.AgentLoader()}
      */
     String agentCommand()
     {

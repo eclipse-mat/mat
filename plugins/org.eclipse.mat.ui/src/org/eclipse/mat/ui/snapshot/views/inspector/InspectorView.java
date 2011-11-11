@@ -7,7 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
- *    IBM Corporation – accessibility related fixes 
+ *    IBM Corporation - accessibility related fixes 
  *    Chris Grindstaff
  *******************************************************************************/
 package org.eclipse.mat.ui.snapshot.views.inspector;
