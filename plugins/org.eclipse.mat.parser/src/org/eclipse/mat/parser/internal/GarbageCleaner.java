@@ -135,7 +135,7 @@ import org.eclipse.mat.util.SilentProgressListener;
 
             List<ClassImpl> classes2remove = new ArrayList<ClassImpl>();
 
-            final IOne2OneIndex preA2size = idx.array2size;
+            final IOne2SizeIndex preA2size = idx.array2size;
 
             for (int ii = 0, jj = 0; ii < oldNoOfObjects; ii++)
             {
@@ -151,7 +151,7 @@ import org.eclipse.mat.util.SilentProgressListener;
                     int classId = object2classId.get(ii);
                     ClassImpl clazz = classesById.get(classId);
 
-                    int arraySize = preA2size.get(ii);
+                    long arraySize = preA2size.getSize(ii);
                     if (arraySize > 0)
                     {
                         clazz.removeInstance(arraySize);
@@ -275,7 +275,7 @@ import org.eclipse.mat.util.SilentProgressListener;
             IOne2OneIndex newIdx = new IndexWriter.IntIndexStreamer().writeTo(indexFile,
                             new NewObjectIntIterator()
                             {
-                                IOne2OneIndex a2size = preA2size;
+                                IOne2SizeIndex a2size = preA2size;
                                 int newIndex = 0;
 
                                 @Override

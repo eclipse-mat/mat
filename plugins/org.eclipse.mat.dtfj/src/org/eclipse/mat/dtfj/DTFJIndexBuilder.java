@@ -3024,17 +3024,19 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 {
                     // Allow for objects of the same type with different sizes
                     long oldSize = cls.getHeapSizePerInstance();
-                    if (oldSize >= 0)
-                    {
-                        // Different size to before, so use the array size table
-                        if (oldSize != size)
-	                        indexToSize.set(objId, size);
-                    }
-                    else
+                    if (oldSize < 0)
                     {
                         // First time, so set the size
                         cls.setHeapSizePerInstance(size);
+                        // Check what we stored
+                        oldSize = cls.getHeapSizePerInstance();
                     }
+                    if (oldSize != size)
+                    {
+                        // Different size to before, so use the array size table
+                        indexToSize.set(objId, size);
+                    }
+
                     // For calculating purge sizes
                     objectToSize.set(objId, size);
                 }
