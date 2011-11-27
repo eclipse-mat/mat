@@ -1,61 +1,63 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML>
-<HEAD><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<HEAD><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>HPROF Enhancement</title>
-<style>@import url("file:/C:/Program Files/eclipse/plugins/org.eclipse.sdk_3.3.3.r33x_r20080129/book.css");</style>
-<style>@import url("file:/C:/Program Files/eclipse/configuration/org.eclipse.osgi/bundles/449/1/.cp/schema.css");</style>
+<style type="text/css">@import url("file:/C:/Users/IBM_ADMIN/eclipse/configuration/org.eclipse.osgi/bundles/1230/1/.cp/book.css");</style>
+<style type="text/css">@import url("file:/C:/Users/IBM_ADMIN/eclipse/configuration/org.eclipse.osgi/bundles/1230/1/.cp/schema.css");</style>
 </HEAD>
 <BODY>
-<H1><CENTER>HPROF Enhancement</CENTER></H1>
+<H1 style="text-align:center">HPROF Enhancement</H1>
 <p></p>
-<h6 class=CaptionFigColumn id=header>Identifier: </h6>org.eclipse.mat.hprof.enhancer<p></p>
-<h6 class=CaptionFigColumn id=header>Since: </h6>0.7.0
+<h6 class="CaptionFigColumn SchemaHeader">Identifier: </h6>org.eclipse.mat.hprof.enhancer<p></p>
+<h6 class="CaptionFigColumn SchemaHeader">Since: </h6>0.7.0
 <p></p>
 
-<p>
-<h6 class=CaptionFigColumn id=header>Description: </h6><p>This extension point can be used to provide more details
+<h6 class="CaptionFigColumn SchemaHeader">Description: </h6><p>This extension point can be used to provide more details
 about the heap dump which are not contained in the HPROF format
 itself. For example, SAP has extended the Hotspot-based SAPJVM
 to write perm space information, OoM stack traces, interfaces
-and object generations whenever a HPROF dump is written.</p></p>
-<p><h6 class=CaptionFigColumn id=header>Configuration Markup:</h6></p>
-<p class=code id=dtd>&lt;!ELEMENT <a name="e.extension">extension</a> (<a href="#e.enhancer">enhancer</a>)+&gt;</p>
-<p class=code id=dtd>&lt;!ATTLIST extension</p>
-<p class=code id=dtdAttlist>point&nbsp;CDATA #REQUIRED<p class=code id=dtdAttlist>id&nbsp;&nbsp;&nbsp;&nbsp;CDATA #IMPLIED<p class=code id=dtdAttlist>name&nbsp;&nbsp;CDATA #IMPLIED&gt;</p>
+and object generations whenever a HPROF dump is written.</p><p></p>
+<h6 class="CaptionFigColumn SchemaHeader">Configuration Markup:</h6>
 <p></p>
-<ul class=ConfigMarkup id=attlistDesc>
+<p class="code SchemaDtd">&lt;!ELEMENT <a name="e.extension">extension</a> (<a href="#e.enhancer">enhancer</a>)+&gt;</p>
+<p class="code SchemaDtd">&lt;!ATTLIST extension</p>
+<p class="code SchemaDtdAttlist">point&nbsp;CDATA #REQUIRED</p><p class="code SchemaDtdAttlist">id&nbsp;&nbsp;&nbsp;&nbsp;CDATA #IMPLIED</p><p class="code SchemaDtdAttlist">name&nbsp;&nbsp;CDATA #IMPLIED</p>&gt;</p>
+<p></p>
+<ul class="ConfigMarkupAttlistDesc">
 </ul>
-<br><p class=code id=dtd>&lt;!ELEMENT <a name="e.enhancer">enhancer</a> EMPTY&gt;</p>
-<p class=code id=dtd>&lt;!ATTLIST enhancer</p>
-<p class=code id=dtdAttlist>parser&nbsp;&nbsp;CDATA #REQUIRED<p class=code id=dtdAttlist>runtime&nbsp;CDATA #REQUIRED&gt;</p>
+<br><p class="code SchemaDtd">&lt;!ELEMENT <a name="e.enhancer">enhancer</a> EMPTY&gt;</p>
+<p class="code SchemaDtd">&lt;!ATTLIST enhancer</p>
+<p class="code SchemaDtdAttlist">parser&nbsp;&nbsp;CDATA #REQUIRED</p><p class="code SchemaDtdAttlist">runtime&nbsp;CDATA #REQUIRED</p>&gt;</p>
 <p></p>
-<ul class=ConfigMarkup id=attlistDesc>
+<ul class="ConfigMarkupAttlistDesc">
 <li><b>parser</b> - implementor of <a href="org/eclipse/mat/hprof/extension/IParsingEnhancer.html"><samp>org.eclipse.mat.hprof.extension.IParsingEnhancer</samp></a> called during the parsing of the HPROF dump to add information</li>
 <li><b>runtime</b> - implementor of <a href="org/eclipse/mat/hprof/extension/IRuntimeEnhancer.html"><samp>org.eclipse.mat.hprof.extension.IRuntimeEnhancer</samp></a> called when analysing the dump</li>
 </ul>
-<br><h6 class=CaptionFigColumn id=header>Examples: </h6>Following is an example of a Hprof enhancer declaration: 
+<br><h6 class="CaptionFigColumn SchemaHeader">Examples: </h6>Following is an example of a Hprof enhancer declaration: 
 <p>
-<pre>
-   <p class=code id=tag>&lt;extension point=<p class=code id=cstring>&quot;org.eclipse.mat.hprof.enhancer&quot;</p><p class=code id=tag>&gt;</p>
-      <p class=code id=tag>&lt;enhancer parser=<p class=code id=cstring>&quot;com.acme.HprofExtraParser&quot;</p><p class=code id=tag> 
-            runtime=<p class=code id=cstring>&quot;com.acme.HprofExtraRuntime&quot;</p><p class=code id=tag> /&gt;</p>
-   <p class=code id=tag>&lt;/extension&gt;</p>
-</pre>
+<pre class="Example"><span class="code SchemaTag">
+   &lt;extension point=</span><span class="code SchemaCstring">&quot;org.eclipse.mat.hprof.enhancer&quot;</span><span class="code SchemaTag">&gt;
+      &lt;enhancer parser=</span><span class="code SchemaCstring">&quot;com.acme.HprofExtraParser&quot;</span><span class="code SchemaTag"> 
+            runtime=</span><span class="code SchemaCstring">&quot;com.acme.HprofExtraRuntime&quot;</span><span class="code SchemaTag"> /&gt;
+   &lt;/extension&gt;
+</span></pre>
 </p>
 <p></p>
 
-<h6 class=CaptionFigColumn id=header>API Information: </h6>The value of the parser attribute must represent an implementor of <samp>org.eclipse.mat.hprof.extension.IParsingEnhancer</samp>.
+<h6 class="CaptionFigColumn SchemaHeader">API Information: </h6>The value of the parser attribute must represent an implementor of <samp>org.eclipse.mat.hprof.extension.IParsingEnhancer</samp>.
 The value of the runtime attribute must represent an implementor of <samp>org.eclipse.mat.hprof.extension.IRuntimeEnhancer</samp>.
 <p></p>
 
+<h6 class="CaptionFigColumn SchemaHeader">Supplied Implementation: </h6>No standard implementations are provided with Memory Analyzer from Eclipse.org.
+<p></p>
+
 <br>
-<p class=note id=copyright>
-Copyright (c) 2008 SAP AG and others.<br>
+<p class="note SchemaCopyright">
+Copyright (c) 2008,2011 SAP AG and IBM Corporation.<br>
 All rights reserved. This program and the accompanying materials are made 
 available under the terms of the Eclipse Public License v1.0 which 
 accompanies this distribution, and is available at 
 <a href="http://www.eclipse.org/legal/epl-v10.html">http://www.eclipse.org/legal/epl-v10.html</a>
-<p></p>
 
 </p>
 </BODY>

@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!-- Schema file written by PDE -->
-<schema targetNamespace="org.eclipse.mat.api">
+<schema targetNamespace="org.eclipse.mat.api" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
       <appInfo>
          <meta.schema plugin="org.eclipse.mat.api" id="ticketResolver" name="Trouble Ticket Resolver"/>
@@ -14,6 +14,11 @@ to file a precise bug report.&lt;/p&gt;
    </annotation>
 
    <element name="extension">
+      <annotation>
+         <appInfo>
+            <meta.element />
+         </appInfo>
+      </annotation>
       <complexType>
          <sequence minOccurs="1" maxOccurs="unbounded">
             <element ref="resolver"/>
@@ -62,6 +67,15 @@ to file a precise bug report.&lt;/p&gt;
 
    <annotation>
       <appInfo>
+         <meta.section type="apiInfo"/>
+      </appInfo>
+      <documentation>
+         The value of the impl attribute must represent an implementor of &lt;samp&gt;org.eclipse.mat.snapshot.extension.ITroubleTicketResolver&lt;/samp&gt;.
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
          <meta.section type="since"/>
       </appInfo>
       <documentation>
@@ -85,21 +99,13 @@ to file a precise bug report.&lt;/p&gt;
       </documentation>
    </annotation>
 
-   <annotation>
-      <appInfo>
-         <meta.section type="apiInfo"/>
-      </appInfo>
-      <documentation>
-         The value of the impl attribute must represent an implementor of &lt;samp&gt;org.eclipse.mat.snapshot.extension.ITroubleTicketResolver&lt;/samp&gt;.
-      </documentation>
-   </annotation>
 
    <annotation>
       <appInfo>
          <meta.section type="copyright"/>
       </appInfo>
       <documentation>
-         Copyright (c) 2008 SAP AG and others.&lt;br&gt;
+         Copyright (c) 2008,2010 SAP AG and IBM Corporation.&lt;br&gt;
 All rights reserved. This program and the accompanying materials are made 
 available under the terms of the Eclipse Public License v1.0 which 
 accompanies this distribution, and is available at 

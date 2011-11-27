@@ -1,19 +1,18 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML>
-<HEAD><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<HEAD><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Request Details Resolver</title>
-<style>@import url("file:/C:/Program Files/eclipse/plugins/org.eclipse.sdk_3.3.3.r33x_r20080129/book.css");</style>
-<style>@import url("file:/C:/Program Files/eclipse/configuration/org.eclipse.osgi/bundles/449/1/.cp/schema.css");</style>
+<style type="text/css">@import url("file:/C:/Users/IBM_ADMIN/eclipse/configuration/org.eclipse.osgi/bundles/1230/1/.cp/book.css");</style>
+<style type="text/css">@import url("file:/C:/Users/IBM_ADMIN/eclipse/configuration/org.eclipse.osgi/bundles/1230/1/.cp/schema.css");</style>
 </HEAD>
 <BODY>
-<H1><CENTER>Request Details Resolver</CENTER></H1>
+<H1 style="text-align:center">Request Details Resolver</H1>
 <p></p>
-<h6 class=CaptionFigColumn id=header>Identifier: </h6>org.eclipse.mat.api.requestResolver<p></p>
-<h6 class=CaptionFigColumn id=header>Since: </h6>0.7.0
+<h6 class="CaptionFigColumn SchemaHeader">Identifier: </h6>org.eclipse.mat.api.requestResolver<p></p>
+<h6 class="CaptionFigColumn SchemaHeader">Since: </h6>0.7.0
 <p></p>
 
-<p>
-<h6 class=CaptionFigColumn id=header>Description: </h6><p>The Leak Suspect report tries to display the current activity of a
+<h6 class="CaptionFigColumn SchemaHeader">Description: </h6><p>The Leak Suspect report tries to display the current activity of a
 suspicious thread. For example, a HTTP worker thread used by a web container
 usually contains information about the request URL currently processed.
 This information is helpful to better understand the current problem.</p>
@@ -25,32 +24,33 @@ assume that the thread is executing this HTTP request. Of course, this
 requires some implementation knowlege and may change from version to
 version. The Memory Analyzer checks if a request details resolver is
 configured for one of the Java local objects and asks the resolver to
-provide a summary and detail page.</p></p>
-<p><h6 class=CaptionFigColumn id=header>Configuration Markup:</h6></p>
-<p class=code id=dtd>&lt;!ELEMENT <a name="e.extension">extension</a> (<a href="#e.resolver">resolver</a>)+&gt;</p>
-<p class=code id=dtd>&lt;!ATTLIST extension</p>
-<p class=code id=dtdAttlist>point&nbsp;CDATA #REQUIRED<p class=code id=dtdAttlist>id&nbsp;&nbsp;&nbsp;&nbsp;CDATA #IMPLIED<p class=code id=dtdAttlist>name&nbsp;&nbsp;CDATA #IMPLIED&gt;</p>
+provide a summary and detail page.</p><p></p>
+<h6 class="CaptionFigColumn SchemaHeader">Configuration Markup:</h6>
 <p></p>
-<ul class=ConfigMarkup id=attlistDesc>
+<p class="code SchemaDtd">&lt;!ELEMENT <a name="e.extension">extension</a> (<a href="#e.resolver">resolver</a>)+&gt;</p>
+<p class="code SchemaDtd">&lt;!ATTLIST extension</p>
+<p class="code SchemaDtdAttlist">point&nbsp;CDATA #REQUIRED</p><p class="code SchemaDtdAttlist">id&nbsp;&nbsp;&nbsp;&nbsp;CDATA #IMPLIED</p><p class="code SchemaDtdAttlist">name&nbsp;&nbsp;CDATA #IMPLIED</p>&gt;</p>
+<p></p>
+<ul class="ConfigMarkupAttlistDesc">
 </ul>
-<br><p class=code id=dtd>&lt;!ELEMENT <a name="e.resolver">resolver</a> EMPTY&gt;</p>
-<p class=code id=dtd>&lt;!ATTLIST resolver</p>
-<p class=code id=dtdAttlist>impl&nbsp;CDATA #REQUIRED&gt;</p>
+<br><p class="code SchemaDtd">&lt;!ELEMENT <a name="e.resolver">resolver</a> EMPTY&gt;</p>
+<p class="code SchemaDtd">&lt;!ATTLIST resolver</p>
+<p class="code SchemaDtdAttlist">impl&nbsp;CDATA #REQUIRED</p>&gt;</p>
 <p></p>
-<ul class=ConfigMarkup id=attlistDesc>
+<ul class="ConfigMarkupAttlistDesc">
 <li><b>impl</b> - implementor of <a href="org/eclipse/mat/snapshot/extension/IRequestDetailsResolver.html"><samp>org.eclipse.mat.snapshot.extension.IRequestDetailsResolver</samp></a> annotated with <samp>@Subject</samp> or <samp>@Subjects</samp></li>
 </ul>
-<br><h6 class=CaptionFigColumn id=header>Examples: </h6>Following is an example of a request resolver declaration: 
+<br><h6 class="CaptionFigColumn SchemaHeader">Examples: </h6>Following is an example of a request resolver declaration: 
 <p>
-<pre>
-   <p class=code id=tag>&lt;extension point=<p class=code id=cstring>&quot;org.eclipse.mat.api.requestResolver&quot;</p><p class=code id=tag>&gt;</p>
-      <p class=code id=tag>&lt;resolver impl=<p class=code id=cstring>&quot;org.eclipse.mat.inspections.jetty.JettyRequestResolver&quot;</p><p class=code id=tag>/&gt;</p>
-   <p class=code id=tag>&lt;/extension&gt;</p>
-</pre>
+<pre class="Example"><span class="code SchemaTag">
+   &lt;extension point=</span><span class="code SchemaCstring">&quot;org.eclipse.mat.api.requestResolver&quot;</span><span class="code SchemaTag">&gt;
+      &lt;resolver impl=</span><span class="code SchemaCstring">&quot;org.eclipse.mat.inspections.jetty.JettyRequestResolver&quot;</span><span class="code SchemaTag">/&gt;
+   &lt;/extension&gt;
+</span></pre>
 </p>
 The implemenation could look like this:
 <p>
-<pre>
+<pre class="Example"><span class="code SchemaTag">
    @Subject("org.mortbay.jetty.Request")
    public class JettyRequestResolver implements IRequestDetailsResolver
    {
@@ -68,26 +68,25 @@ The implemenation could look like this:
         
        thread.addRequest(summary, details);
    }
-</pre>
+</span></pre>
 </p>
 The <samp>@Subject</samp> tells the Memory Analyzer, to use this request details
 resolver for all instances of type "org.mortbay.jetty.Request". In this
 <p></p>
 
-<h6 class=CaptionFigColumn id=header>API Information: </h6>The value of the impl attribute must represent an implementor of <a href="org/eclipse/mat/snapshot/extension/IRequestDetailsResolver.html"> <samp>org.eclipse.mat.snapshot.extension.IRequestDetailsResolver</samp></a>.
+<h6 class="CaptionFigColumn SchemaHeader">API Information: </h6>The value of the impl attribute must represent an implementor of <a href="org/eclipse/mat/snapshot/extension/IRequestDetailsResolver.html"> <samp>org.eclipse.mat.snapshot.extension.IRequestDetailsResolver</samp></a>.
 <p></p>
 
-<h6 class=CaptionFigColumn id=header>Supplied Implementation: </h6>The Memory Analyzer supplies a sample request details resolver for Jetty: <samp>org.eclipse.mat.inspections.jetty.JettyRequestResolver</samp>.
+<h6 class="CaptionFigColumn SchemaHeader">Supplied Implementation: </h6>The Memory Analyzer supplies a sample request details resolver for Jetty: <samp>org.eclipse.mat.inspections.jetty.JettyRequestResolver</samp>.
 <p></p>
 
 <br>
-<p class=note id=copyright>
+<p class="note SchemaCopyright">
 Copyright (c) 2008 SAP AG and others.<br>
 All rights reserved. This program and the accompanying materials are made 
 available under the terms of the Eclipse Public License v1.0 which 
 accompanies this distribution, and is available at 
 <a href="http://www.eclipse.org/legal/epl-v10.html">http://www.eclipse.org/legal/epl-v10.html</a>
-<p></p>
 
 </p>
 </BODY>

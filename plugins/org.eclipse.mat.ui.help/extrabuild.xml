@@ -1,5 +1,5 @@
 <!--
-    Copyright (c) IBM Corporation SAP AG.
+    Copyright (c) 2010,2011 IBM Corporation and SAP AG.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -64,29 +64,52 @@
               <include name="**"/>
             </packageset>
         </javadoc>
+        <!-- Copy the schema definitions as HTML, fixing up imports of style sheets -->
         <copy todir="doc">
             <fileset dir="../org.eclipse.mat.api/doc">
               <include name="org_eclipse_mat_*.html"/>
             </fileset>
+            <filterchain>
+                <replaceregex pattern="file:/([^&quot;/]*/)*" replace="" flags="g" />
+            </filterchain>
         </copy>
         <copy todir="doc">
             <fileset dir="../org.eclipse.mat.hprof/doc">
               <include name="org_eclipse_mat_*.html"/>
             </fileset>
+            <filterchain>
+                <replaceregex pattern="file:/([^&quot;/]*/)*" replace="" flags="g" />
+            </filterchain>
         </copy>
         <copy todir="doc">
             <fileset dir="../org.eclipse.mat.parser/doc">
               <include name="org_eclipse_mat_*.html"/>
             </fileset>
+            <filterchain>
+                <replaceregex pattern="file:/([^&quot;/]*/)*" replace="" flags="g" />
+            </filterchain>
         </copy>
         <copy todir="doc">
             <fileset dir="../org.eclipse.mat.report/doc">
               <include name="org_eclipse_mat_*.html"/>
             </fileset>
+            <filterchain>
+                <replaceregex pattern="file:/([^&quot;/]*/)*" replace="" flags="g" />
+            </filterchain>
         </copy>
         <copy todir="doc">
             <fileset dir="../org.eclipse.mat.ui/doc">
               <include name="org_eclipse_mat_*.html"/>
+            </fileset>
+            <filterchain>
+                <replaceregex pattern="file:/([^&quot;/]*/)*" replace="" flags="g" />
+            </filterchain>
+        </copy>
+        <!-- Copy the style sheets -->
+        <copy todir="doc">
+            <fileset dir=".">
+                <include name="book.css"/>
+                <include name="schema.css"/>
             </fileset>
         </copy>
 </target>

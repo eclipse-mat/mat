@@ -1,63 +1,62 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML>
-<HEAD><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<HEAD><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Multi Pane Editor Contributions</title>
-<style>@import url("file:/C:/Program Files/eclipse/plugins/org.eclipse.sdk_3.3.3.r33x_r20080129/book.css");</style>
-<style>@import url("file:/C:/Program Files/eclipse/configuration/org.eclipse.osgi/bundles/449/1/.cp/schema.css");</style>
+<style type="text/css">@import url("file:/C:/Users/IBM_ADMIN/eclipse/configuration/org.eclipse.osgi/bundles/1230/1/.cp/book.css");</style>
+<style type="text/css">@import url("file:/C:/Users/IBM_ADMIN/eclipse/configuration/org.eclipse.osgi/bundles/1230/1/.cp/schema.css");</style>
 </HEAD>
 <BODY>
-<H1><CENTER>Multi Pane Editor Contributions</CENTER></H1>
+<H1 style="text-align:center">Multi Pane Editor Contributions</H1>
 <p></p>
-<h6 class=CaptionFigColumn id=header>Identifier: </h6>org.eclipse.mat.ui.editorContributions<p></p>
-<h6 class=CaptionFigColumn id=header>Since: </h6>0.7.0
+<h6 class="CaptionFigColumn SchemaHeader">Identifier: </h6>org.eclipse.mat.ui.editorContributions<p></p>
+<h6 class="CaptionFigColumn SchemaHeader">Since: </h6>0.7.0
 <p></p>
 
-<p>
-<h6 class=CaptionFigColumn id=header>Description: </h6><p>The Memory Analyzer uses an extended Eclipse editor to display the heap dump.
-This extension point can be used to contribute items to the toolbar of the editor.</p></p>
-<p><h6 class=CaptionFigColumn id=header>Configuration Markup:</h6></p>
-<p class=code id=dtd>&lt;!ELEMENT <a name="e.extension">extension</a> (<a href="#e.contribution">contribution</a>+)&gt;</p>
-<p class=code id=dtd>&lt;!ATTLIST extension</p>
-<p class=code id=dtdAttlist>point&nbsp;CDATA #REQUIRED<p class=code id=dtdAttlist>id&nbsp;&nbsp;&nbsp;&nbsp;CDATA #IMPLIED<p class=code id=dtdAttlist>name&nbsp;&nbsp;CDATA #IMPLIED&gt;</p>
+<h6 class="CaptionFigColumn SchemaHeader">Description: </h6><p>The Memory Analyzer uses an extended Eclipse editor to display the heap dump.
+This extension point can be used to contribute items to the toolbar of the editor.</p><p></p>
+<h6 class="CaptionFigColumn SchemaHeader">Configuration Markup:</h6>
 <p></p>
-<ul class=ConfigMarkup id=attlistDesc>
+<p class="code SchemaDtd">&lt;!ELEMENT <a name="e.extension">extension</a> (<a href="#e.contribution">contribution</a>+)&gt;</p>
+<p class="code SchemaDtd">&lt;!ATTLIST extension</p>
+<p class="code SchemaDtdAttlist">point&nbsp;CDATA #REQUIRED</p><p class="code SchemaDtdAttlist">id&nbsp;&nbsp;&nbsp;&nbsp;CDATA #IMPLIED</p><p class="code SchemaDtdAttlist">name&nbsp;&nbsp;CDATA #IMPLIED</p>&gt;</p>
+<p></p>
+<ul class="ConfigMarkupAttlistDesc">
 </ul>
-<br><p class=code id=dtd>&lt;!ELEMENT <a name="e.contribution">contribution</a> EMPTY&gt;</p>
-<p class=code id=dtd>&lt;!ATTLIST contribution</p>
-<p class=code id=dtdAttlist>editorClass&nbsp;CDATA #REQUIRED<p class=code id=dtdAttlist>class&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CDATA #REQUIRED<p class=code id=dtdAttlist>sequenceNr&nbsp;&nbsp;CDATA #REQUIRED&gt;</p>
+<br><p class="code SchemaDtd">&lt;!ELEMENT <a name="e.contribution">contribution</a> EMPTY&gt;</p>
+<p class="code SchemaDtd">&lt;!ATTLIST contribution</p>
+<p class="code SchemaDtdAttlist">editorClass&nbsp;CDATA #REQUIRED</p><p class="code SchemaDtdAttlist">class&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CDATA #REQUIRED</p><p class="code SchemaDtdAttlist">sequenceNr&nbsp;&nbsp;CDATA #REQUIRED</p>&gt;</p>
 <p></p>
-<ul class=ConfigMarkup id=attlistDesc>
+<ul class="ConfigMarkupAttlistDesc">
 <li><b>editorClass</b> - the editor to which the contributions apply <samp>org.eclipse.mat.ui.editor.MultiPaneEditor</samp></li>
 <li><b>class</b> - implementor of <a href="org/eclipse/mat/ui/editor/IMultiPaneEditorContributor.html"><samp>org.eclipse.mat.ui.editor.IMultiPaneEditorContributor</samp></a> which adds the contributions</li>
 <li><b>sequenceNr</b> - a sequence number indicating the order in which contributions are added</li>
 </ul>
-<br><h6 class=CaptionFigColumn id=header>Examples: </h6>Following is an example of a editor contribution declaration: 
+<br><h6 class="CaptionFigColumn SchemaHeader">Examples: </h6>Following is an example of a editor contribution declaration: 
 <p>
-<pre>
-   <p class=code id=tag>&lt;extension point=<p class=code id=cstring>&quot;org.eclipse.mat.ui.editorContributions&quot;</p><p class=code id=tag>&gt;</p>
-      <p class=code id=tag>&lt;contribution
-            class=<p class=code id=cstring>&quot;org.eclipse.mat.ui.snapshot.editor.HeapEditorContributions&quot;</p><p class=code id=tag>
-            editorClass=<p class=code id=cstring>&quot;org.eclipse.mat.ui.snapshot.editor.HeapEditor&quot;</p><p class=code id=tag>
-            sequenceNr=<p class=code id=cstring>&quot;1&quot;</p><p class=code id=tag> /&gt;</p>
-   <p class=code id=tag>&lt;/extension&gt;</p>
-</pre>
+<pre class="Example"><span class="code SchemaTag">
+   &lt;extension point=</span><span class="code SchemaCstring">&quot;org.eclipse.mat.ui.editorContributions&quot;</span><span class="code SchemaTag">&gt;
+      &lt;contribution
+            class=</span><span class="code SchemaCstring">&quot;org.eclipse.mat.ui.snapshot.editor.HeapEditorContributions&quot;</span><span class="code SchemaTag">
+            editorClass=</span><span class="code SchemaCstring">&quot;org.eclipse.mat.ui.snapshot.editor.HeapEditor&quot;</span><span class="code SchemaTag">
+            sequenceNr=</span><span class="code SchemaCstring">&quot;1&quot;</span><span class="code SchemaTag"> /&gt;
+   &lt;/extension&gt;
+</span></pre>
 </p>
 <p></p>
 
-<h6 class=CaptionFigColumn id=header>API Information: </h6>The value of the class attribute must represent an implementor of <samp>org.eclipse.mat.ui.editor.IMultiPaneEditorContributor</samp>.
+<h6 class="CaptionFigColumn SchemaHeader">API Information: </h6>The value of the class attribute must represent an implementor of <samp>org.eclipse.mat.ui.editor.IMultiPaneEditorContributor</samp>.
 <p></p>
 
-<h6 class=CaptionFigColumn id=header>Supplied Implementation: </h6>The Memory Analyzer supplies one contribution to the heap editor itself. Check out the <samp>org.eclipse.mat.ui.snapshot.editor.HeapEditorContributions</samp> for more details.
+<h6 class="CaptionFigColumn SchemaHeader">Supplied Implementation: </h6>The Memory Analyzer supplies one contribution to the heap editor itself. Check out the <samp>org.eclipse.mat.ui.snapshot.editor.HeapEditorContributions</samp> for more details.
 <p></p>
 
 <br>
-<p class=note id=copyright>
-Copyright (c) 2008 SAP AG and others.<br>
+<p class="note SchemaCopyright">
+Copyright (c) 2008,2010 SAP AG and others.<br>
 All rights reserved. This program and the accompanying materials are made 
 available under the terms of the Eclipse Public License v1.0 which 
 accompanies this distribution, and is available at 
 <a href="http://www.eclipse.org/legal/epl-v10.html">http://www.eclipse.org/legal/epl-v10.html</a>
-<p></p>
 
 </p>
 </BODY>

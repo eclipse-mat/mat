@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!-- Schema file written by PDE -->
-<schema targetNamespace="org.eclipse.mat.api">
+<schema targetNamespace="org.eclipse.mat.api" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
       <appInfo>
          <meta.schema plugin="org.eclipse.mat.api" id="requestResolver" name="Request Details Resolver"/>
@@ -23,6 +23,11 @@ provide a summary and detail page.&lt;/p&gt;
    </annotation>
 
    <element name="extension">
+      <annotation>
+         <appInfo>
+            <meta.element />
+         </appInfo>
+      </annotation>
       <complexType>
          <sequence minOccurs="1" maxOccurs="unbounded">
             <element ref="resolver"/>
@@ -120,15 +125,6 @@ resolver for all instances of type &quot;org.mortbay.jetty.Request&quot;. In thi
 
    <annotation>
       <appInfo>
-         <meta.section type="apiInfo"/>
-      </appInfo>
-      <documentation>
-         The value of the impl attribute must represent an implementor of &lt;a href=&quot;org/eclipse/mat/snapshot/extension/IRequestDetailsResolver.html&quot;&gt; &lt;samp&gt;org.eclipse.mat.snapshot.extension.IRequestDetailsResolver&lt;/samp&gt;&lt;/a&gt;.
-      </documentation>
-   </annotation>
-
-   <annotation>
-      <appInfo>
          <meta.section type="implementation"/>
       </appInfo>
       <documentation>
@@ -146,6 +142,15 @@ All rights reserved. This program and the accompanying materials are made
 available under the terms of the Eclipse Public License v1.0 which 
 accompanies this distribution, and is available at 
 &lt;a href=&quot;http://www.eclipse.org/legal/epl-v10.html&quot;&gt;http://www.eclipse.org/legal/epl-v10.html&lt;/a&gt;
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="apiInfo"/>
+      </appInfo>
+      <documentation>
+         The value of the impl attribute must represent an implementor of &lt;a href=&quot;org/eclipse/mat/snapshot/extension/IRequestDetailsResolver.html&quot;&gt; &lt;samp&gt;org.eclipse.mat.snapshot.extension.IRequestDetailsResolver&lt;/samp&gt;&lt;/a&gt;.
       </documentation>
    </annotation>
 

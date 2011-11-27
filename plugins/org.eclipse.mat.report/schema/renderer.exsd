@@ -6,10 +6,10 @@
          <meta.schema plugin="org.eclipse.mat.api" id="renderer" name="Query Result Renderer"/>
       </appInfo>
       <documentation>
-         The Memory Analyzer reports utilize the renderer to create
+         The Memory Analyzer report generator utilizes the renderer to create
 a textual representation of the query results, e.g. the table,
 trees, histograms, etc. Out of the box, HTML and CSV are supported.
-This is the extension point to add alternative renderer.
+This is the extension point to add an alternative renderer.
       </documentation>
    </annotation>
 
@@ -113,19 +113,10 @@ In the report, use the &quot;format&quot; parameter to specify the output format
 
    <annotation>
       <appInfo>
-         <meta.section type="apiInfo"/>
-      </appInfo>
-      <documentation>
-         The value of the impl attribute must represent an implementor of &lt;samp&gt;org.eclipse.mat.report.IOutputter&lt;/samp&gt;.
-      </documentation>
-   </annotation>
-
-   <annotation>
-      <appInfo>
          <meta.section type="implementation"/>
       </appInfo>
       <documentation>
-         The Memory Analyzer supplies two renderer: one for HTML, one for CSV (comma separated values).
+         The Memory Analyzer supplies two renderers: one for HTML, one for CSV (comma separated values).
       </documentation>
    </annotation>
 
@@ -139,6 +130,15 @@ All rights reserved. This program and the accompanying materials are made
 available under the terms of the Eclipse Public License v1.0 which 
 accompanies this distribution, and is available at 
 &lt;a href=&quot;http://www.eclipse.org/legal/epl-v10.html&quot;&gt;http://www.eclipse.org/legal/epl-v10.html&lt;/a&gt;
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="apiInfo"/>
+      </appInfo>
+      <documentation>
+         The value of the impl attribute must represent an implementor of &lt;samp&gt;org.eclipse.mat.report.IOutputter&lt;/samp&gt;.
       </documentation>
    </annotation>
 

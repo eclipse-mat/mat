@@ -68,6 +68,40 @@ context menu of a heap object.
 
    <annotation>
       <appInfo>
+         <meta.section type="apiInfo"/>
+      </appInfo>
+      <documentation>
+         The value of the impl attribute must represent an implementor of &lt;samp&gt;org.eclipse.mat.query.IQuery&lt;/samp&gt;.
+The public fields in the query can be tagged with the &lt;code&gt;@Argument&lt;/code&gt; annotation so they can be filled in by the query wizard. Argument types include
+&lt;dl&gt;
+&lt;dt&gt;ISnapshot&lt;/dt&gt;
+&lt;dd&gt;the snapshot&lt;/dd&gt;
+&lt;dt&gt;IHeapObjectArgument&lt;/dt&gt;
+&lt;dd&gt;one or more objects&lt;/dd&gt;
+&lt;dt&gt;int&lt;/dt&gt;
+&lt;dd&gt;a single object - when tagged with &lt;code&gt;@Argument(advice = Advice.HEAP_OBJECT)&lt;/code&gt;&lt;/dd&gt;
+&lt;dt&gt;int[]&lt;/dt&gt;
+&lt;dd&gt;multiple objects - when tagged with &lt;code&gt;@Argument(advice = Advice.HEAP_OBJECT)&lt;/code&gt;&lt;/dd&gt;
+&lt;dt&gt;boolean&lt;/dt&gt;
+&lt;dd&gt;a flag&lt;/dd&gt;
+&lt;/dl&gt;
+Queries can be tagged with 
+&lt;ul&gt;
+&lt;li&gt;@Name&lt;/li&gt;
+&lt;li&gt;@Help&lt;/li&gt;
+&lt;li&gt;@HelpURL&lt;/li&gt;
+&lt;li&gt;@Icon&lt;/li&gt;
+&lt;li&gt;@Menu&lt;/li&gt;
+&lt;li&gt;@Category&lt;/li&gt;
+&lt;li&gt;@CommandName&lt;/li&gt;
+&lt;/ul&gt;
+
+These annotations can also be held in an annotations.properties file for ease of translation.
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
          <meta.section type="since"/>
       </appInfo>
       <documentation>
@@ -137,40 +171,6 @@ All rights reserved. This program and the accompanying materials are made
 available under the terms of the Eclipse Public License v1.0 which 
 accompanies this distribution, and is available at 
 &lt;a href=&quot;http://www.eclipse.org/legal/epl-v10.html&quot;&gt;http://www.eclipse.org/legal/epl-v10.html&lt;/a&gt;
-      </documentation>
-   </annotation>
-
-   <annotation>
-      <appInfo>
-         <meta.section type="apiInfo"/>
-      </appInfo>
-      <documentation>
-         The value of the impl attribute must represent an implementor of &lt;samp&gt;org.eclipse.mat.query.IQuery&lt;/samp&gt;.
-The public fields in the query can be tagged with the &lt;code&gt;@Argument&lt;/code&gt; annotation so they can be filled in by the query wizard. Argument types include
-&lt;dl&gt;
-&lt;dt&gt;ISnapshot&lt;/dt&gt;
-&lt;dd&gt;the snapshot&lt;/dd&gt;
-&lt;dt&gt;IHeapObjectArgument&lt;/dt&gt;
-&lt;dd&gt;one or more objects&lt;/dd&gt;
-&lt;dt&gt;int&lt;/dt&gt;
-&lt;dd&gt;a single object - when tagged with &lt;code&gt;@Argument(advice = Advice.HEAP_OBJECT)&lt;/code&gt;&lt;/dd&gt;
-&lt;dt&gt;int[]&lt;/dt&gt;
-&lt;dd&gt;multiple objects - when tagged with &lt;code&gt;@Argument(advice = Advice.HEAP_OBJECT)&lt;/code&gt;&lt;/dd&gt;
-&lt;dt&gt;boolean&lt;/dt&gt;
-&lt;dd&gt;a flag&lt;/dd&gt;
-&lt;/dl&gt;
-Queries can be tagged with 
-&lt;ul&gt;
-&lt;li&gt;@Name&lt;/li&gt;
-&lt;li&gt;@Help&lt;/li&gt;
-&lt;li&gt;@HelpURL&lt;/li&gt;
-&lt;li&gt;@Icon&lt;/li&gt;
-&lt;li&gt;@Menu&lt;/li&gt;
-&lt;li&gt;@Category&lt;/li&gt;
-&lt;li&gt;@CommandName&lt;/li&gt;
-&lt;/ul&gt;
-
-These annotations can also be held in an annotations.properties file for ease of translation.
       </documentation>
    </annotation>
 

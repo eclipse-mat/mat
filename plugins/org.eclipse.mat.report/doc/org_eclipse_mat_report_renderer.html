@@ -1,9 +1,9 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML>
-<HEAD><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<HEAD><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Query Result Renderer</title>
-<style type="text/css">@import url("file:/C:/Program Files/eclipse/plugins/org.eclipse.sdk_3.6.0.v201006080911/book.css");</style>
-<style type="text/css">@import url("file:/C:/Program Files/eclipse/configuration/org.eclipse.osgi/bundles/396/1/.cp/schema.css");</style>
+<style type="text/css">@import url("file:/C:/Users/IBM_ADMIN/eclipse/configuration/org.eclipse.osgi/bundles/1230/1/.cp/book.css");</style>
+<style type="text/css">@import url("file:/C:/Users/IBM_ADMIN/eclipse/configuration/org.eclipse.osgi/bundles/1230/1/.cp/schema.css");</style>
 </HEAD>
 <BODY>
 <H1 style="text-align:center">Query Result Renderer</H1>
@@ -12,10 +12,10 @@
 <h6 class="CaptionFigColumn SchemaHeader">Since: </h6>0.7.0
 <p></p>
 
-<h6 class="CaptionFigColumn SchemaHeader">Description: </h6>The Memory Analyzer reports utilize the renderer to create
+<h6 class="CaptionFigColumn SchemaHeader">Description: </h6>The Memory Analyzer report generator utilizes the renderer to create
 a textual representation of the query results, e.g. the table,
 trees, histograms, etc. Out of the box, HTML and CSV are supported.
-This is the extension point to add alternative renderer.<p></p>
+This is the extension point to add an alternative renderer.<p></p>
 <h6 class="CaptionFigColumn SchemaHeader">Configuration Markup:</h6>
 <p></p>
 <p class="code SchemaDtd">&lt;!ELEMENT <a name="e.extension">extension</a> (<a href="#e.renderer">renderer</a>)+&gt;</p>
@@ -65,7 +65,7 @@ In the report, use the "format" parameter to specify the output format:
 <h6 class="CaptionFigColumn SchemaHeader">API Information: </h6>The value of the impl attribute must represent an implementor of <samp>org.eclipse.mat.report.IOutputter</samp>.
 <p></p>
 
-<h6 class="CaptionFigColumn SchemaHeader">Supplied Implementation: </h6>The Memory Analyzer supplies two renderer: one for HTML, one for CSV (comma separated values).
+<h6 class="CaptionFigColumn SchemaHeader">Supplied Implementation: </h6>The Memory Analyzer supplies two renderers: one for HTML, one for CSV (comma separated values).
 <p></p>
 
 <br>
