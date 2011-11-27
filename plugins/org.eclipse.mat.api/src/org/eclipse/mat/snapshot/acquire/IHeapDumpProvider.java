@@ -51,7 +51,7 @@ public interface IHeapDumpProvider
 	 * @param listener
 	 *            a progress listener
 	 * 
-	 * @return List<? extends VmInfo> the list of processes ({@link VmInfo})
+	 * @return A List of VMs, of a type which extends {@link VmInfo}.
 	 * 
 	 * @throws SnapshotException
 	 */
