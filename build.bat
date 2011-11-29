@@ -34,10 +34,12 @@ if not %result%==0 (
 	exit /B %result%
 )
 
+cd parent
 set MVN_CALL=%M2_HOME%\bin\mvn.bat %repoOpts% %proxyOpts% -fae %settingsOpts% clean install findbugs:findbugs
 echo %MVN_CALL%
 call %MVN_CALL% 
 set result=%ERRORLEVEL%
+cd ..
 
 REM call ant.bat -file prepare-dep-repos.xml cleanup
 

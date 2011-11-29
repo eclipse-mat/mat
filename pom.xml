@@ -51,10 +51,32 @@
 	</repositories>
 
 	<modules>
-		<module>plugins</module>
-		<module>features</module>
-		<module>org.eclipse.mat.updatesite</module>
-		<module>product</module>
+		<!-- plugins -->
+		<module>../plugins/org.eclipse.mat.api</module>
+		<module>../plugins/org.eclipse.mat.chart</module>
+		<module>../plugins/org.eclipse.mat.chart.ui</module>
+		<module>../plugins/org.eclipse.mat.dtfj</module>
+		<module>../plugins/org.eclipse.mat.hprof</module>
+		<module>../plugins/org.eclipse.mat.jdt</module>
+		<module>../plugins/org.eclipse.mat.parser</module>
+		<module>../plugins/org.eclipse.mat.report</module>
+		<module>../plugins/org.eclipse.mat.tests</module>
+		<module>../plugins/org.eclipse.mat.tests.junit</module>
+		<module>../plugins/org.eclipse.mat.ui</module>
+		<module>../plugins/org.eclipse.mat.ui.help</module>
+		<module>../plugins/org.eclipse.mat.ui.rcp</module>
+		<module>../plugins/org.eclipse.mat.ibmdumps</module>
+		<module>../plugins/org.eclipse.mat.jruby.resolver</module>
+		<!-- features -->
+		<module>../features/org.eclipse.mat.all.feature</module>
+		<module>../features/org.eclipse.mat.chart.feature</module>
+		<module>../features/org.eclipse.mat.dependencies.feature</module>
+		<module>../features/org.eclipse.mat.feature</module>
+		<module>../features/org.eclipse.mat.ui.rcp.feature</module>
+		<!-- update site -->
+		<module>../org.eclipse.mat.updatesite</module>
+		<!-- standalone RCP application -->
+		<module>../product</module>
 	</modules>
 
 	<build>
