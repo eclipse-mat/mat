@@ -28,7 +28,7 @@ if [ "x$result" != "x" ]; then
 fi
 
 cd parent
-MVN_CALL="$M2_HOME/bin/mvn -Dmaven.repo.local=../../.repository $proxyOpts -fae $mvnArguments clean install $additionalPlugins"
+MVN_CALL="$M2_HOME/bin/mvn -Dmaven.repo.local=../../.repository $proxyOpts $mvnArguments clean install $additionalPlugins"
 echo $MVN_CALL
 eval $MVN_CALL
 
