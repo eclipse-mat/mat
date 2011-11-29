@@ -17,7 +17,7 @@
 	</target>
 
 	<target name="initProperties">
-		<property name="buildResultsDir" value="../latestBuildResults" />
+		<property name="buildResultsDir" value="../../latestBuildResults" />
 		<property name="producedRCPsDir" value="product/target/products" />
 		<property name="producedUpdateSiteDir" value="org.eclipse.mat.updatesite/target/site" />
 		<property environment="env" />

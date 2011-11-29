@@ -31,7 +31,7 @@ cd parent
 MVN_CALL="$M2_HOME/bin/mvn -Dmaven.repo.local=../../.repository $proxyOpts -fae $mvnArguments clean install $additionalPlugins"
 echo $MVN_CALL
 eval $MVN_CALL
-cd ..
+
 
 set result=$?
 
@@ -40,4 +40,5 @@ if [ "x$result" == "x" ]; then
 	ant -file copy-build-results.xml
 fi
 
+cd ..
 exit $result
