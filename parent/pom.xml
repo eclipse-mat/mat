@@ -23,13 +23,18 @@
 		<download-publish-rcp-path>/home/data/httpd/download.eclipse.org/mat/snapshots/rcp</download-publish-rcp-path>
 	</properties>
 
-<!-- 	<pluginRepositories> -->
-<!-- 		Repository for the signing/publishing plugins -->
-<!-- 		<pluginRepository> -->
-<!-- 			<id>maven.eclipse.org</id> -->
-<!-- 			<url>http://maven.eclipse.org/nexus/content/groups/public/</url> -->
-<!-- 		</pluginRepository> -->
-<!-- 	</pluginRepositories> -->
+	<profiles>
+		<profile>
+			<id>build-server</id>
+			<pluginRepositories>
+				<!-- Repository for the signing/publishing plugins -->
+				<pluginRepository>
+					<id>maven.eclipse.org</id>
+					<url>http://maven.eclipse.org/nexus/content/groups/public/</url>
+				</pluginRepository>
+			</pluginRepositories>
+		</profile>
+	</profiles>
 
 	<repositories>
 		<repository>
