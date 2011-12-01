@@ -81,7 +81,7 @@
 		<!-- update site -->
 		<module>../org.eclipse.mat.updatesite</module>
 		<!-- standalone RCP application -->
-		<module>../product</module>
+		<module>../org.eclipse.mat.product</module>
 	</modules>
 
 	<build>

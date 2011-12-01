@@ -4,7 +4,7 @@
 <product name="Memory Analyzer Tool" uid="org.eclipse.mat.ui.rcp.MemoryAnalyzer" id="org.eclipse.mat.ui.rcp.MemoryAnalyzer" application="org.eclipse.mat.ui.rcp.application" version="1.2.0" useFeatures="true" includeLaunchers="true">
 
    <aboutInfo>
-      <image path="/parent/product/icons/eclipse_lg.gif"/>
+      <image path="/parent/org.eclipse.mat.product/icons/eclipse_lg.gif"/>
       <text>
          Eclipse Memory Analyzer
 
@@ -24,7 +24,7 @@ Visit http://www.eclipse.org/mat
 -XstartOnFirstThread</vmArgsMac>
    </launcherArgs>
 
-   <windowImages i16="/parent/product/icons/memory_analyzer_16.gif" i32="/parent/product/icons/memory_analyzer_32.gif"/>
+   <windowImages i16="/parent/org.eclipse.mat.product/icons/memory_analyzer_16.gif" i32="/parent/org.eclipse.mat.product/icons/memory_analyzer_32.gif"/>
 
    <splash
       location="org.eclipse.mat.ui.rcp"
@@ -32,7 +32,7 @@ Visit http://www.eclipse.org/mat
       startupMessageRect="7,252,445,20"
       startupForegroundColor="000000" />
    <launcher name="MemoryAnalyzer">
-      <macosx icon="../product/macosx/MemoryAnalyzer.icns"/>
+      <macosx icon="../org.eclipse.mat.product/macosx/MemoryAnalyzer.icns"/>
       <solaris/>
       <win useIco="false">
          <bmp/>
