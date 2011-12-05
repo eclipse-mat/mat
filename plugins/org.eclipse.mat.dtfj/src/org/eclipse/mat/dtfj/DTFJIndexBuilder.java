@@ -55,7 +55,7 @@ import org.eclipse.mat.parser.IIndexBuilder;
 import org.eclipse.mat.parser.IPreliminaryIndex;
 import org.eclipse.mat.parser.index.IIndexReader.IOne2ManyIndex;
 import org.eclipse.mat.parser.index.IIndexReader.IOne2SizeIndex;
-import org.eclipse.mat.parser.index.IndexManager;
+import org.eclipse.mat.parser.index.IndexManager.Index;
 import org.eclipse.mat.parser.index.IndexWriter;
 import org.eclipse.mat.parser.index.IndexWriter.SizeIndexCollectorUncompressed;
 import org.eclipse.mat.parser.model.ClassImpl;
@@ -1491,7 +1491,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
 
         // Do the object refs to other refs
         IOne2ManyIndex out2b;
-        outRefs = new IndexWriter.IntArray1NWriter(indexToAddress.size(), IndexManager.Index.OUTBOUND.getFile(pfx
+        outRefs = new IndexWriter.IntArray1NWriter(indexToAddress.size(), Index.OUTBOUND.getFile(pfx
                         + "temp.")); //$NON-NLS-1$
 
         // Keep track of all objects which are referred to. Remaining objects
@@ -1829,7 +1829,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
 
         index.setObject2classId(objectToClass);
 
-        arrayToSize = indexToSize.writeTo(IndexManager.Index.A2SIZE.getFile(pfx + "temp.")); //$NON-NLS-1$
+        arrayToSize = indexToSize.writeTo(Index.A2SIZE.getFile(pfx + "temp.")); //$NON-NLS-1$
         indexToSize = null;
         index.setArray2size(arrayToSize);
 
