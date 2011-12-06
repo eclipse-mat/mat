@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 SAP AG.
+ * Copyright (c) 2009, 2011 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation - validation of indices
  *******************************************************************************/
 package org.eclipse.mat.parser.internal;
 
@@ -38,12 +39,37 @@ public class Messages extends NLS
     public static String IndexReader_Error_IndexIsEmbedded;
     public static String MethodCallExpression_Error_MethodNotFound;
     public static String MultiplePathsFromGCRootsComputerImpl_FindingPaths;
+    public static String SnapshotFactoryImpl_ClassIDNotFound;
+    public static String SnapshotFactoryImpl_ClassImplNotFound;
+    public static String SnapshotFactoryImpl_ClassIndexAddressNoLoaderID;
+    public static String SnapshotFactoryImpl_ClassIndexAddressNotEqualClassObjectAddress;
+    public static String SnapshotFactoryImpl_ClassIndexAddressTypeIDNotEqualClassImplClassId;
+    public static String SnapshotFactoryImpl_ClassIndexNotEqualClassObjectID;
+    public static String SnapshotFactoryImpl_EmptyOutbounds;
     public static String SnapshotFactoryImpl_Error_NoParserRegistered;
     public static String SnapshotFactoryImpl_Error_OpeningHeapDump;
     public static String SnapshotFactoryImpl_Error_ReparsingHeapDump;
     public static String SnapshotFactoryImpl_ErrorOpeningHeapDump;
+    public static String SnapshotFactoryImpl_GCRootIDDoesNotMatchIndex;
+    public static String SnapshotFactoryImpl_GCRootIDOutOfRange;
+    public static String SnapshotFactoryImpl_GCThreadIDOutOfRange;
+    public static String SnapshotFactoryImpl_GCThreadRootIDDoesNotMatchIndex;
+    public static String SnapshotFactoryImpl_GCThreadRootIDOutOfRange;
+    public static String SnapshotFactoryImpl_IndexAddressFoundAtOtherID;
+    public static String SnapshotFactoryImpl_IndexAddressHasSameAddressAsPrevious;
+    public static String SnapshotFactoryImpl_IndexAddressIsSmallerThanPrevious;
+    public static String SnapshotFactoryImpl_IndexAddressNegativeArraySize;
+    public static String SnapshotFactoryImpl_InvalidFirstOutbound;
+    public static String SnapshotFactoryImpl_InvalidOutbound;
+    public static String SnapshotFactoryImpl_NoOutbounds;
+    public static String SnapshotFactoryImpl_ObjDescClass;
+    public static String SnapshotFactoryImpl_ObjDescObjType;
+    public static String SnapshotFactoryImpl_ObjDescObjTypeAddress;
+    public static String SnapshotFactoryImpl_ObjectsFoundButClassesHadObjectsAndClassesInTotal;
     public static String SnapshotFactoryImpl_ReparsingHeapDumpAsIndexOutOfDate;
     public static String SnapshotFactoryImpl_ReparsingHeapDumpWithOutOfDateIndex;
+    public static String SnapshotFactoryImpl_ValidatingGCRoots;
+    public static String SnapshotFactoryImpl_ValidatingIndices;
     public static String SnapshotImpl_BuildingHistogram;
     public static String SnapshotImpl_Error_DomTreeNotAvailable;
     public static String SnapshotImpl_Error_ObjectNotFound;
@@ -92,8 +118,8 @@ public class Messages extends NLS
 
 	public static String OQLParser_Encountered_X_at_line_X_column_X_Was_expecting_one_of_X;
 	public static String OQLParser_Missing_return_statement_in_function;
-
-	static
+	
+    static
     {
         // initialize resource bundle
         NLS.initializeMessages(BUNDLE_NAME, Messages.class);

@@ -31,7 +31,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
@@ -2016,7 +2015,6 @@ public class DTFJIndexBuilder implements IIndexBuilder
         long now2 = System.currentTimeMillis();
         listener.sendUserMessage(Severity.INFO, MessageFormat.format(Messages.DTFJIndexBuilder_TookmsToParseFile,
                         (now2 - now1), dump), null);
-        validateIndices(listener);
         // Free some memory
         gcRoot = null;
         threadRoots = null;
@@ -7394,145 +7392,6 @@ public class DTFJIndexBuilder implements IIndexBuilder
         }
         // debugPrint("d2 = "+d);
         return d;
-    }
-
-    /**
-     * Check that indices look valid
-     * 
-     * @param listener
-     */
-    private void validateIndices(IProgressListener listener)
-    {
-        final int maxIndex = indexToAddress.size();
-        long prevAddress = -1;
-        int nObjs = 0;
-        int nObjsFromClass = 0;
-        int nCls = 0;
-        for (int i = 0; i < maxIndex; ++i)
-        {
-            long addr = indexToAddress.get(i);
-            if (prevAddress == addr)
-            {
-                String desc = objDesc(i);
-                int j = indexToAddress.reverse(addr);
-                String desc2 = objDesc(j);
-                listener.sendUserMessage(Severity.ERROR, MessageFormat.format(
-                                Messages.DTFJIndexBuilder_IndexAddressHasSameAddressAsPrevious, i, desc, format(addr),
-                                desc2), null);
-            }
-            if (prevAddress > addr)
-            {
-                String desc = objDesc(i);
-                listener.sendUserMessage(Severity.ERROR, MessageFormat.format(
-                                Messages.DTFJIndexBuilder_IndexAddressIsSmallerThanPrevious, i, desc, format(addr),
-                                format(prevAddress)), null);
-            }
-            prevAddress = addr;
-            int j = indexToAddress.reverse(addr);
-            if (i != j)
-            {
-                String desc1 = objDesc(i);
-                String desc2 = objDesc(j);
-                listener.sendUserMessage(Severity.ERROR,
-                                MessageFormat.format(Messages.DTFJIndexBuilder_IndexAddressFoundAtOtherID, i,
-                                                format(addr), j, desc1, desc2), null);
-            }
-            int clsId = objectToClass.get(i);
-            if (clsId < 0)
-            {
-                listener.sendUserMessage(Severity.ERROR, MessageFormat.format(
-                                Messages.DTFJIndexBuilder_ClassIDNotFound, i, format(addr), clsId), null);
-            }
-            else
-            {
-                ClassImpl ci = idToClass.get(clsId);
-                if (ci == null)
-                {
-                    listener.sendUserMessage(Severity.ERROR, MessageFormat.format(
-                                    Messages.DTFJIndexBuilder_ClassImplNotFound, i, format(addr), clsId), null);
-                }
-            }
-            ClassImpl ci = idToClass.get(i);
-            if (ci == null)
-            {
-                ++nObjs;
-                // Ordinary object
-                long size = arrayToSize.getSize(i);
-                if (size < 0)
-                {
-                    ci = idToClass.get(clsId);
-                    listener.sendUserMessage(Severity.ERROR, MessageFormat.format(
-                                    Messages.DTFJIndexBuilder_IndexAddressNegativeArraySize, i, format(addr), size, ci
-                                                    .getTechnicalName()), null);
-                }
-            }
-            else
-            {
-                ++nCls;
-                long addr2 = ci.getObjectAddress();
-                if (addr != addr2)
-                {
-                    listener.sendUserMessage(Severity.ERROR, MessageFormat.format(
-                                    Messages.DTFJIndexBuilder_ClassIndexAddressNotEqualClassObjectAddress, i,
-                                    format(addr), format(addr2), ci.getTechnicalName()), null);
-                }
-                int id = ci.getObjectId();
-                if (i != id)
-                {
-                    listener.sendUserMessage(Severity.ERROR, MessageFormat.format(
-                                    Messages.DTFJIndexBuilder_ClassIndexNotEqualClassObjectID, i, format(addr), id, ci
-                                                    .getTechnicalName()), null);
-                }
-                int clsId2 = ci.getClassId();
-                if (clsId != clsId2)
-                {
-                    listener.sendUserMessage(Severity.ERROR, MessageFormat.format(
-                                    Messages.DTFJIndexBuilder_ClassIndexAddressTypeIDNotEqualClassImplClassId, i,
-                                    format(addr), clsId, clsId2, ci.getTechnicalName()), null);
-                }
-                long ldrAddr = ci.getClassLoaderAddress();
-                int ldr = ci.getClassLoaderId();
-                if (ldr < 0)
-                {
-                    listener.sendUserMessage(Severity.ERROR, MessageFormat.format(
-                                    Messages.DTFJIndexBuilder_ClassIndexAddressNoLoaderID, i, format(addr), clsId, ldr,
-                                    format(ldrAddr), ci.getTechnicalName()), null);
-                }
-                nObjsFromClass += ci.getNumberOfObjects();
-            }
-        }
-        if (nObjsFromClass != nObjs + nCls)
-        {
-            listener.sendUserMessage(Severity.ERROR, MessageFormat.format(
-                            Messages.DTFJIndexBuilder_ObjectsFoundButClassesHadObjectsAndClassesInTotal, nObjs, nCls,
-                            nObjsFromClass), null);
-        }
-        // Check some GC information
-        for (IteratorInt it = gcRoot.keys(); it.hasNext();)
-        {
-            int idx = it.next();
-            if (idx < 0 || idx >= maxIndex)
-            {
-                listener.sendUserMessage(Severity.ERROR, MessageFormat.format(
-                                Messages.DTFJIndexBuilder_GCRootIDOutOfRange, idx, maxIndex), null);
-            }
-            for (ListIterator<XGCRootInfo> it2 = gcRoot.get(idx).listIterator(); it2.hasNext();)
-            {
-                XGCRootInfo ifo = it2.next();
-                int objid = ifo.getObjectId();
-                if (objid != idx)
-                {
-                    listener.sendUserMessage(Severity.ERROR, MessageFormat.format(
-                                    Messages.DTFJIndexBuilder_GCRootIDDoesNotMatchIndex, objid, idx), null);
-                }
-            }
-        }
-        // Force a GC
-        /*
-         * try { byte b[] = new byte[1500000000]; } catch (OutOfMemoryError e) {
-         * byte b[] = new byte[100000]; } try { byte b[] = new byte[1400000000];
-         * } catch (OutOfMemoryError e) { }
-         */
     }
 
     /*

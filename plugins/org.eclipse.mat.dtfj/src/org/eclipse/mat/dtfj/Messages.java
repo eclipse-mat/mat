@@ -35,12 +35,6 @@ public class Messages extends NLS
     public static String DTFJIndexBuilder_CheckRefsObject;
     public static String DTFJIndexBuilder_ClassAtAddressNotFound;
     public static String DTFJIndexBuilder_ClassHasNoAddress;
-    public static String DTFJIndexBuilder_ClassIDNotFound;
-    public static String DTFJIndexBuilder_ClassImplNotFound;
-    public static String DTFJIndexBuilder_ClassIndexAddressNoLoaderID;
-    public static String DTFJIndexBuilder_ClassIndexAddressNotEqualClassObjectAddress;
-    public static String DTFJIndexBuilder_ClassIndexAddressTypeIDNotEqualClassImplClassId;
-    public static String DTFJIndexBuilder_ClassIndexNotEqualClassObjectID;
     public static String DTFJIndexBuilder_ClassLoaderAtAddressNotFound;
     public static String DTFJIndexBuilder_ClassLoaderObjectNotFound;
     public static String DTFJIndexBuilder_ClassLoaderObjectNotFoundType;
@@ -99,8 +93,6 @@ public class Messages extends NLS
     public static String DTFJIndexBuilder_FindingThreadObjectsMissingFromHeap;
     public static String DTFJIndexBuilder_FoundIdentifiersObjectsClasses;
     public static String DTFJIndexBuilder_FoundIdentifiersObjectsClassesMethods;
-    public static String DTFJIndexBuilder_GCRootIDDoesNotMatchIndex;
-    public static String DTFJIndexBuilder_GCRootIDOutOfRange;
     public static String DTFJIndexBuilder_GeneratingExtraRootsFromFinalizables;
     public static String DTFJIndexBuilder_GeneratingExtraRootsMarkingAllUnreferenced;
     public static String DTFJIndexBuilder_GeneratingGlobalRoots;
@@ -114,10 +106,6 @@ public class Messages extends NLS
     public static String DTFJIndexBuilder_IgnoringJavaStackFrame;
     public static String DTFJIndexBuilder_IgnoringManagedRuntime;
     public static String DTFJIndexBuilder_ImageAddressSpaceEqualsBroken;
-    public static String DTFJIndexBuilder_IndexAddressFoundAtOtherID;
-    public static String DTFJIndexBuilder_IndexAddressHasSameAddressAsPrevious;
-    public static String DTFJIndexBuilder_IndexAddressIsSmallerThanPrevious;
-    public static String DTFJIndexBuilder_IndexAddressNegativeArraySize;
     public static String DTFJIndexBuilder_InterfaceShouldNotHaveASuperclass;
     public static String DTFJIndexBuilder_InvalidArrayElement;
     public static String DTFJIndexBuilder_InvalidField;
@@ -144,7 +132,6 @@ public class Messages extends NLS
     public static String DTFJIndexBuilder_ObjDescObjType;
     public static String DTFJIndexBuilder_ObjDescObjTypeAddress;
     public static String DTFJIndexBuilder_ObjectIsFinalizable;
-    public static String DTFJIndexBuilder_ObjectsFoundButClassesHadObjectsAndClassesInTotal;
     public static String DTFJIndexBuilder_Pass1;
     public static String DTFJIndexBuilder_Pass2;
     public static String DTFJIndexBuilder_PossibleProblemReadingJavaStackFrames;
