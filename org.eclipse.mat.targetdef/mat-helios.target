@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.6"?>
+
+<target name="MAT Helios Target" sequenceNumber="1">
+<locations>
+<location includeAllPlatforms="false" includeMode="planner" includeSource="false" type="InstallableUnit">
+<unit id="org.eclipse.birt.feature.group" version="0.0.0"/>
+<unit id="org.eclipse.sdk.ide" version="0.0.0"/>
+<repository location="http://download.eclipse.org/releases/helios"/>
+</location>
+</locations>
+</target>
