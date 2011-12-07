@@ -18,28 +18,27 @@ import org.eclipse.mat.snapshot.acquire.IHeapDumpProvider;
 /**
  * @noextend This class is not intended to be subclassed by clients.
  * @author ktsvetkov
- *
  */
 public class HeapDumpProviderDescriptor extends AnnotatedObjectDescriptor
 {
-	protected final Class<? extends IHeapDumpProvider> subject;
-	protected final IHeapDumpProvider provider;
+    protected final Class<? extends IHeapDumpProvider> subject;
+    protected final IHeapDumpProvider provider;
 
-	public HeapDumpProviderDescriptor(String identifier, String name, String usage, String help, String helpUrl, Locale helpLocale,
-			IHeapDumpProvider provider)
-	{
-		super(identifier, name, usage, null, help, helpUrl, helpLocale);
-		this.provider = provider;
-		this.subject = provider.getClass();
-	}
+    public HeapDumpProviderDescriptor(String identifier, String name, String usage, String help, String helpUrl,
+                    Locale helpLocale, IHeapDumpProvider provider)
+    {
+        super(identifier, name, usage, null, help, helpUrl, helpLocale);
+        this.provider = provider;
+        this.subject = provider.getClass();
+    }
 
-	public Class<? extends IHeapDumpProvider> getSubject()
-	{
-		return subject;
-	}
-	
-	public IHeapDumpProvider getHeapDumpProvider()
-	{
-		return provider;
-	}
+    public Class<? extends IHeapDumpProvider> getSubject()
+    {
+        return subject;
+    }
+
+    public IHeapDumpProvider getHeapDumpProvider()
+    {
+        return provider;
+    }
 }
