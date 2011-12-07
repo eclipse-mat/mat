@@ -208,7 +208,10 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
 
                 indexBuilder.fill(idx, listener);
 
-                validateIndices(idx, listener);
+                if (ParserPlugin.getDefault().isDebugging())
+                {
+                    validateIndices(idx, listener);
+                }
 
                 SnapshotImplBuilder builder = new SnapshotImplBuilder(idx.getSnapshotInfo());
 
