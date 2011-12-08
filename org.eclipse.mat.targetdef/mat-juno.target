@@ -8,5 +8,9 @@
 <unit id="org.eclipse.sdk.ide" version="4.2.0.I20111028-1100"/>
 <repository location="http://download.eclipse.org/releases/juno"/>
 </location>
+<location includeAllPlatforms="false" includeMode="planner" type="InstallableUnit">
+<unit id="com.ibm.dtfj.feature.feature.group" version="0.0.0"/>
+<repository location="jar:ftp://ftp.software.ibm.com/software/java/support/tools/dtfj/dtfj-updatesite.zip!/"/>
+</location>
 </locations>
 </target>
