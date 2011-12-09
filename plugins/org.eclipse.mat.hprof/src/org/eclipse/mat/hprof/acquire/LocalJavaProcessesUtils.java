@@ -39,7 +39,7 @@ public class LocalJavaProcessesUtils
 		Process p = null;
 		try
 		{
-			p = Runtime.getRuntime().exec(jps); //$NON-NLS-1$
+			p = Runtime.getRuntime().exec(new String[]{jps});
 			error = new StreamCollector(p.getErrorStream());
 			error.start();
 			output = new StreamCollector(p.getInputStream());
