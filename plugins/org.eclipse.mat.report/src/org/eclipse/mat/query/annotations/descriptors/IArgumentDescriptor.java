@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 SAP AG.
+ * Copyright (c) 2010,2011 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation - documentation
  *******************************************************************************/
 package org.eclipse.mat.query.annotations.descriptors;
 
@@ -15,7 +16,7 @@ import java.lang.reflect.Field;
 import org.eclipse.mat.query.annotations.Argument;
 
 /**
- * A descriptor for fields annotated with the annotation @Argument
+ * A descriptor for fields annotated with the annotation @Argument.
  * @since 1.0
  *
  */
@@ -47,7 +48,8 @@ public interface IArgumentDescriptor
 	public Field getField();
 
 	/**
-	 * Get the flag
+	 * Get the flag which is used in the command line to introduce the argument.
+	 * See  {@link org.eclipse.mat.query.annotations.Argument#flag}.
 	 * @return the flag
 	 */
 	public String getFlag();
@@ -77,7 +79,7 @@ public interface IArgumentDescriptor
 	public boolean isMandatory();
 
 	/**
-	 * Get the name of the parameter
+	 * Get the name of the parameter, for example the field name of the argument in its class.
 	 * @return the name
 	 */
 	public String getName();
@@ -90,7 +92,7 @@ public interface IArgumentDescriptor
 	public Class<?> getType();
 
 	/**
-	 * Get any help on the field provided by the annotation @Help
+	 * Get any help on the field, for example provided by the annotation {@link org.eclipse.mat.query.annotations.Help}
 	 * @return the help string
 	 */
 	public String getHelp();

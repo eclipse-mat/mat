@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 SAP AG.
+ * Copyright (c) 2010,2011 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation - documentation
  *******************************************************************************/
 package org.eclipse.mat.query.registry;
 
@@ -15,7 +16,11 @@ import java.util.Map;
 
 import org.eclipse.mat.query.annotations.descriptors.IAnnotatedObjectDescriptor;
 
-
+/**
+ * Container class for annotated objects and arguments.
+ * Holds information about an annotated object (e.g. a query) and all its
+ * parameters and the current values of the arguments.
+ */
 public class AnnotatedObjectArgumentsSet
 {
 	private IAnnotatedObjectDescriptor descriptor;
@@ -31,6 +36,10 @@ public class AnnotatedObjectArgumentsSet
         values.put(arg, value);
     }
     
+    /**
+     * Are all the required arguments set explicitly or with a default value?
+     * @return
+     */
     public boolean isExecutable()
     {
         // all mandatory parameters must be set
