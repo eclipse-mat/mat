@@ -100,7 +100,7 @@ it in the overview columns and/or in the details page of a thread.&lt;/p&gt;
          <meta.section type="implementation"/>
       </appInfo>
       <documentation>
-         The thread details resolver &lt;code&gt;org.eclipse.mat.dtfj.ThreadDetailsResolver&lt;/code&gt;, which delegates to &lt;code&gt;org.eclipse.mat.dtfj.ThreadDetailsResolver1&lt;code&gt; extracts extra thread information from IBM DTFJ dumps such as native stack information, thread states and priority. This resolver is in the DTFJ dump reader plugin &lt;samp&gt;org.eclipse.mat.dtfj&lt;/samp&gt;.
+         The thread details resolver &lt;code&gt;org.eclipse.mat.dtfj.ThreadDetailsResolver&lt;/code&gt;, which delegates to &lt;code&gt;org.eclipse.mat.dtfj.ThreadDetailsResolver1&lt;/code&gt; extracts extra thread information from IBM DTFJ dumps such as native stack information, thread states and priority. This resolver is in the DTFJ dump reader plugin &lt;samp&gt;org.eclipse.mat.dtfj&lt;/samp&gt;.
       </documentation>
    </annotation>
 
