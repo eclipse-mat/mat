@@ -38,7 +38,7 @@ public class AnnotatedObjectArgumentsSet
     
     /**
      * Are all the required arguments set explicitly or with a default value?
-     * @return
+     * @return true if the query is read to go
      */
     public boolean isExecutable()
     {

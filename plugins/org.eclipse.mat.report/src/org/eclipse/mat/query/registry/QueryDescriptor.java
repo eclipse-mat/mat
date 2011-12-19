@@ -82,7 +82,7 @@ public class QueryDescriptor extends AnnotatedObjectDescriptor
 
     /**
      * The menu category provided by {@link org.eclipse.mat.query.annotations.Category}.
-     * @return
+     * @return the category as a translated string
      */
     public String getCategory()
     {
@@ -91,7 +91,7 @@ public class QueryDescriptor extends AnnotatedObjectDescriptor
 
     /**
      * The type of the query object, to be instantiated and the arguments injected when the query is run.
-     * @return
+     * @return the type, suitable for instantiation with {@link Class#newInstance()}
      */
     public Class<? extends IQuery> getCommandType()
     {
@@ -109,8 +109,9 @@ public class QueryDescriptor extends AnnotatedObjectDescriptor
     }
 
     /**
-     * A short description of the query - about 80 characters.
-     * @return
+     * A short description of the query - about 80 characters, truncated from the full help
+     * at a sentence boundary.
+     * @return a translated short description
      */
     public String getShortDescription()
     {
@@ -161,7 +162,7 @@ public class QueryDescriptor extends AnnotatedObjectDescriptor
     /**
      * Can the query be satisfied by the current context, possibly with other user supplied arguments?
      * @param context
-     * @return
+     * @return true if the query is suitable for use with the current context
      */
     public boolean accept(IQueryContext context)
     {
@@ -183,7 +184,7 @@ public class QueryDescriptor extends AnnotatedObjectDescriptor
     /**
      * Explain any parameters which cannot be filled in from the provided context.
      * @param context
-     * @return
+     * @return a description of the problem arguments
      */
     public String explain(IQueryContext context)
     {
@@ -220,7 +221,7 @@ public class QueryDescriptor extends AnnotatedObjectDescriptor
 
     /**
      * Whether to not prompt the user for further arguments.
-     * @return
+     * @return false if the query is a standard query where the user can be asked for more arguments
      */
     public boolean isShallow()
     {
