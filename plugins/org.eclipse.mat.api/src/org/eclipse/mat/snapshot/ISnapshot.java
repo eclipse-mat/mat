@@ -155,7 +155,7 @@ public interface ISnapshot
      * of the classes exist among the given objects along with the memory
      * consumption.
      * <p>
-     * Performance: Fast to medium - on index (object id -> class id); depending
+     * Performance: Fast to medium - on index (object id -&gt; class id); depending
      * on the number of objects.
      * 
      * @param objectIds
