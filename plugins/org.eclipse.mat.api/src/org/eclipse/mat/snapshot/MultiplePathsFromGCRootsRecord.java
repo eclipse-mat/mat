@@ -111,7 +111,7 @@ public class MultiplePathsFromGCRootsRecord
     /**
      * Get all the paths going through the object (getObjectId())
      * 
-     * @return List<int[]> each element in the list is an int[] representing a
+     * @return List&lt;int[]&gt; each element in the list is an int[] representing a
      *         path
      */
     public List<int[]> getPaths()

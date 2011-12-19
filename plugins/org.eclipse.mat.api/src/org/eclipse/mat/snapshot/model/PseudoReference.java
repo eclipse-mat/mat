@@ -26,7 +26,7 @@ public class PseudoReference extends NamedReference
      * Create a PseudoReference
      * @param snapshot the dump
      * @param address the address of the object
-     * @param name the description of the reference e.g. <class>, <classloader>
+     * @param name the description of the reference e.g. &lt;class&gt;, &lt;classloader&gt;
      */
     public PseudoReference(ISnapshot snapshot, long address, String name)
     {

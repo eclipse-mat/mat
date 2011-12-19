@@ -89,7 +89,7 @@ public class ConfigurationElement
     /**
      * Get the properties and the value of the configuration element.
      * 
-     * @return List<PropertyPair> properties
+     * @return List&lt;PropertyPair&gt; properties
      */
     public List<PropertyPair> getPropertiesAndValues()
     {
@@ -128,7 +128,7 @@ public class ConfigurationElement
     /**
      * Get nested configuration elements
      * 
-     * @return List<ConfigurationElement> nested configuration elements
+     * @return List&lt;ConfigurationElement&gt; nested configuration elements
      */
     public List<ConfigurationElement> getConfigurationElements()
     {

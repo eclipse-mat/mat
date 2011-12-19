@@ -34,7 +34,7 @@ public class OSGiModel
     /**
      * Get descriptors of all the bundles, found in BundleRepository
      * 
-     * @return List<BundleDescriptor> list of objects, describing the bundle
+     * @return List&lt;BundleDescriptor&gt; list of objects, describing the bundle
      */
     public List<BundleDescriptor> getBundleDescriptors()
     {
@@ -56,7 +56,7 @@ public class OSGiModel
     /**
      * Get all the services found in ServiceRegistry
      * 
-     * @return List<Service> list of services
+     * @return List&lt;Service&gt; list of services
      */
     public List<Service> getServices()
     {
@@ -66,7 +66,7 @@ public class OSGiModel
     /**
      * Get all the extension points found in ExtensionRegistry
      * 
-     * @return List<ExtensionPoint> list of extension points
+     * @return List&lt;ExtensionPoint&gt; list of extension points
      */
     public List<ExtensionPoint> getExtensionPoints()
     {

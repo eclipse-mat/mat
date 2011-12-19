@@ -268,9 +268,9 @@ public interface ISnapshot
      * @param excludeMap
      *            a map specifying paths through which objects have to be
      *            avoided and not reported. Each entry in the map has the IClass
-     *            as a key, and a Set<String> set, specifying which fields
+     *            as a key, and a Set&lt;String&gt; set, specifying which fields
      *            exactly from this key class have to be avoided. If for a key
-     *            IClass the value (Set<String>) null is specified, then paths
+     *            IClass the value (Set&lt;String&gt;) null is specified, then paths
      *            through any of the fields will be avoided
      * @return interactive computer for paths from GC roots to the given object
      * @throws SnapshotException
@@ -289,9 +289,9 @@ public interface ISnapshot
      * @param excludeMap
      *            a map specifying paths through which objects have to be
      *            avoided and not reported. Each entry in the map has the IClass
-     *            as a key, and a Set<String> set, specifying which fields
+     *            as a key, and a Set&lt;String&gt; set, specifying which fields
      *            exactly from this key class have to be avoided. If for a key
-     *            IClass the value (Set<String>) null is specified, then paths
+     *            IClass the value (Set&lt;String&gt;) null is specified, then paths
      *            through any of the fields will be avoided
      * @return IMultiplePathsFromGCRootsComputer The object which can be used to
      *         carry out the actual computation and

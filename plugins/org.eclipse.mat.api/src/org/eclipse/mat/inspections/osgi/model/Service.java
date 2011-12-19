@@ -67,7 +67,7 @@ public class Service
     /**
      * Get bundle descriptors for all the bundles, using this service
      * 
-     * @return List<BundleDescriptor> list of descriptors of the bundles, using
+     * @return List&lt;BundleDescriptor&gt; list of descriptors of the bundles, using
      *         this service
      */
     public List<BundleDescriptor> getBundlesUsing()
@@ -98,7 +98,7 @@ public class Service
     /**
      * Get service's properties
      * 
-     * @return List<ServiceProperty> properties, key-value pairs
+     * @return List&lt;ServiceProperty&gt; properties, key-value pairs
      */
     public List<ServiceProperty> getProperties()
     {

@@ -100,7 +100,7 @@ public class ExtensionPoint
     }
 
     /**
-     * @return List<Extension> list of extensions of this extension point
+     * @return List&lt;Extension&gt; list of extensions of this extension point
      */
     public List<Extension> getExtensions()
     {
