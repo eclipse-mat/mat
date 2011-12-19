@@ -28,7 +28,7 @@ import org.eclipse.swt.widgets.Widget;
 
 /**
  * AccessibleCompositeAdapter Accessibility utility class provides a single
- * encapsulated implementation of accessibility enhancements for Table & Tree
+ * encapsulated implementation of accessibility enhancements for Table and Tree
  * Controls within MAT. The implementation is essentially the same for both
  * types of view, adding an Accessible Listener to cause a specially constructed
  * name for each item to be passed to the accessibility client (Screen Reader).
