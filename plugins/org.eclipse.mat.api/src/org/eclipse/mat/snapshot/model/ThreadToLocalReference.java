@@ -27,7 +27,7 @@ public class ThreadToLocalReference extends PseudoReference
      * Create a thread to local reference
      * @param snapshot the snapshot
      * @param address the address of the object
-     * @param name the description of the reference e.g. the root types surrounded by '<' '>'
+     * @param name the description of the reference e.g. the root types surrounded by '&lt;' '&gt;'
      * @param localObjectId the local reference object id
      * @param gcRootInfo a description of the root type e.g. Java local etc.
      */
