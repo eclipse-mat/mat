@@ -351,13 +351,13 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
     }
 
     /**
-     * read pane configuration & create initial set of pages
+     * read pane configuration and create initial set of pages
      */
     protected void createInitialPanes()
     {}
 
     /**
-     * read configured contributors & create
+     * read configured contributors and create
      */
     private void createContributors()
     {
@@ -466,7 +466,7 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
     }
 
     /**
-     * Create & add a new pane if only if a pane with that id does not exist.
+     * Create and add a new pane if only if a pane with that id does not exist.
      */
     public void addNewPage(String paneId, Object argument, boolean isSingelton)
     {
@@ -474,7 +474,7 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
     }
 
     /**
-     * Create & add a new pane if only if a pane with that id does not exist.
+     * Create and add a new pane if only if a pane with that id does not exist.
      */
     public void addNewPage(String paneId, Object argument, boolean isSingelton, boolean doFocus)
     {
@@ -482,7 +482,7 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
     }
 
     /**
-     * Create & add a new pane to the folder.
+     * Create and add a new pane to the folder.
      */
     public void addNewPage(String id, Object argument)
     {
