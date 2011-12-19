@@ -207,7 +207,7 @@ public abstract class IndexWriter
          * This array would be approximately 0x18 + 0x8 * 0x7fffffff = 0x400000010 bytes, too big for an int.
          * Expanding the array size array to longs could be overkill.
          * Instead we do some simple compression - values 0 - 0x7fffffff convert as now,
-         * int values 0x80000000 to 0xffffffff convert to (n & 0x7fffffffL)*8 + 0x80000000L.
+         * int values 0x80000000 to 0xffffffff convert to <code>(n &amp; 0x7fffffffL)*8 + 0x80000000L</code>.
          * @param y the long value in the range -1 to 0x7fffffff, 0x80000000L to 0x400000000L
          * @return the compressed value as an int
          */
