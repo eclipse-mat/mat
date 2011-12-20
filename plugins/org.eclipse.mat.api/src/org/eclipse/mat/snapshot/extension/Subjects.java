@@ -18,6 +18,18 @@ import java.lang.annotation.Target;
 
 /**
  * Used to tag resolvers with the names of classes that they handle.
+ * Can be used as follows:
+ * <code>
+ * <pre>
+ * @Subjects({"com.example.class1", "com.example.Class2"})
+ * </pre>
+ * </code>
+ * or
+ * <code>
+ * <pre>
+ * @Subjects("com.example.class1")
+ * </pre>
+ * </code>
  */
 @Target( { TYPE })
 @Retention(RUNTIME)
