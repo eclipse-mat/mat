@@ -4558,9 +4558,15 @@ public class DTFJIndexBuilder implements IIndexBuilder
         int nJavaRuntimes = 0;
         String lastAddr = ""; //$NON-NLS-1$
         String lastProc = ""; //$NON-NLS-1$
+        String lastJavaRuntime = ""; //$NON-NLS-1$
         // Cope with an empty String from preferences
         if ("".equals(requestedId)) //$NON-NLS-1$
             requestedId = null;
+        // Split out the address space, process, runtime
+        String sp[] = ((requestedId instanceof String ? (String)requestedId:"")).split("\\.", 3); //$NON-NLS-1$ //$NON-NLS-2$
+        String id0 = sp[0];
+        String id1 = sp.length > 1 ? sp[1] : ""; //$NON-NLS-1$
+        String id2 = sp.length > 2 ? sp[2] : ""; //$NON-NLS-1$
         int addrId = 0;
         for (Iterator<?> i1 = image.getAddressSpaces(); i1.hasNext(); ++addrId)
         {
@@ -4570,6 +4576,13 @@ public class DTFJIndexBuilder implements IIndexBuilder
             ias = (ImageAddressSpace) next1;
             ++nAddr;
             lastAddr = ias.toString();
+            // If the toString name is just the default Object.toString with a default hashcode then it isn't any good as a comparison
+            String defaultToString = ias.getClass().getName()+'@'+Integer.toHexString(System.identityHashCode(ias));
+            if (lastAddr.equals(defaultToString))
+                lastAddr = Integer.toString(addrId);
+            // Extract out any hex id
+            if (lastAddr.matches(".*0x[0-9A-Fa-f]+")) //$NON-NLS-1$
+                lastAddr = lastAddr.substring(lastAddr.lastIndexOf("0x")); //$NON-NLS-1$
             int procId = 0;
             for (Iterator<?> i2 = ias.getProcesses(); i2.hasNext(); ++procId)
             {
@@ -4581,16 +4594,21 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 try
                 {
                     lastProc = proc.getID();
+                    // Avoid confusion of small process ids with nProc index
+                    if (lastProc.matches("[0123456789]")) //$NON-NLS-1$
+                        lastProc = "0x"+lastProc; //$NON-NLS-1$
                 }
                 catch (DataUnavailable e)
                 {
                     if (listener != null)
                         listener.sendUserMessage(Severity.INFO, Messages.DTFJIndexBuilder_ErrorReadingProcessID, e);
+                    lastProc = Integer.toString(procId);
                 }
                 catch (CorruptDataException e)
                 {
                     if (listener != null)
                         listener.sendUserMessage(Severity.INFO, Messages.DTFJIndexBuilder_ErrorReadingProcessID, e);
+                    lastProc = Integer.toString(procId);
                 }
                 int runtimeId = 0;
                 for (Iterator<?> i3 = proc.getRuntimes(); i3.hasNext(); ++runtimeId)
@@ -4601,28 +4619,57 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     String currentId = addrId+"."+procId+"."+runtimeId;  //$NON-NLS-1$//$NON-NLS-2$
                     if (next3 instanceof JavaRuntime)
                     {
-                        ++nJavaRuntimes;
-                        if (run == null && requestedId == null || currentId.equals(requestedId))
+                        JavaRuntime runtime = (JavaRuntime)next3;
+                        try
                         {
-                            run = (JavaRuntime) next3;
+                            lastJavaRuntime = format(runtime.getJavaVM().getAddress());
+                        }
+                        catch (CorruptDataException e)
+                        {
+                            lastJavaRuntime = Integer.toString(runtimeId);
+                        }
+                        ++nJavaRuntimes;
+                        
+                        Exception e1 = null;
+                        String version = null;
+                        try
+                        {
+                            version = runtime.getVersion();
+                        }
+                        catch (CorruptDataException e)
+                        {
+                            e1 = e;
+                        }
+                        if (run == null && (requestedId == null 
+                            || currentId.equals(requestedId) 
+                            || (id0.length() == 0 || id0.equals(lastAddr) || id0.equals(Integer.toString(addrId)))
+                            && (id1.length() == 0 || id1.equals(lastProc) || id1.equals(Integer.toString(procId)))
+                            && (id2.length() == 0 || id2.equals(lastJavaRuntime) ||id2.equals(Integer.toString(runtimeId)))
+                          ))
+                        {
+                            run = runtime;
                             fullRuntimeId = currentId;
+                            if (requestedId != null && listener != null)
+                            {
+                                listener.sendUserMessage(Severity.INFO, MessageFormat.format(
+                                                Messages.DTFJIndexBuilder_FoundJavaRuntime, currentId, lastAddr, lastProc, lastJavaRuntime, version), e1);
+                            }
                         }
                         else
                         {
-                            ManagedRuntime mr = (ManagedRuntime) next3;
-                            Exception e1 = null;
-                            String version = null;
-                            try
-                            {
-                                version = mr.getVersion();
-                            }
-                            catch (CorruptDataException e)
-                            {
-                                e1 = e;
-                            }
                             if (listener != null)
-                                listener.sendUserMessage(Severity.INFO, MessageFormat.format(
-                                                Messages.DTFJIndexBuilder_IgnoringExtraJavaRuntime, currentId, version), e1);
+                            {
+                                if (requestedId == null)
+                                {
+                                    listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
+                                                    Messages.DTFJIndexBuilder_IgnoringExtraJavaRuntimeWithoutRuntimeId, currentId, lastAddr, lastProc, lastJavaRuntime, version), e1);
+                                }
+                                else
+                                {
+                                    listener.sendUserMessage(Severity.INFO, MessageFormat.format(
+                                                Messages.DTFJIndexBuilder_IgnoringExtraJavaRuntime, currentId, lastAddr, lastProc, lastJavaRuntime, version), e1);
+                                }
+                            }
                         }
                     }
                     else
@@ -4640,7 +4687,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                         }
                         if (listener != null)
                             listener.sendUserMessage(Severity.INFO, MessageFormat.format(
-                                            Messages.DTFJIndexBuilder_IgnoringManagedRuntime, currentId, version), e1);
+                                            Messages.DTFJIndexBuilder_IgnoringManagedRuntime, currentId, lastAddr, lastProc, lastJavaRuntime, version), e1);
                     }
                 }
             }
@@ -4650,12 +4697,12 @@ public class DTFJIndexBuilder implements IIndexBuilder
             if (requestedId != null)
             {
                 throw new IOException(MessageFormat.format(Messages.DTFJIndexBuilder_UnableToFindJavaRuntimeId,
-                                requestedId, nAddr, lastAddr, nProc, lastProc));
+                                requestedId, nAddr, lastAddr, nProc, lastProc, nJavaRuntimes, lastJavaRuntime));
             }
             else
             {
                 throw new IOException(MessageFormat.format(Messages.DTFJIndexBuilder_UnableToFindJavaRuntime, nAddr,
-                                lastAddr, nProc, lastProc));
+                                lastAddr, nProc, lastProc, nJavaRuntimes, lastJavaRuntime));
             }
         }
         // Don't force a runtimeId if there is only one

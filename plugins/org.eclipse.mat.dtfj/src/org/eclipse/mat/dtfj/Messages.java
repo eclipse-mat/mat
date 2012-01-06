@@ -93,6 +93,7 @@ public class Messages extends NLS
     public static String DTFJIndexBuilder_FindingThreadObjectsMissingFromHeap;
     public static String DTFJIndexBuilder_FoundIdentifiersObjectsClasses;
     public static String DTFJIndexBuilder_FoundIdentifiersObjectsClassesMethods;
+    public static String DTFJIndexBuilder_FoundJavaRuntime;
     public static String DTFJIndexBuilder_GeneratingExtraRootsFromFinalizables;
     public static String DTFJIndexBuilder_GeneratingExtraRootsMarkingAllUnreferenced;
     public static String DTFJIndexBuilder_GeneratingGlobalRoots;
@@ -103,6 +104,7 @@ public class Messages extends NLS
     public static String DTFJIndexBuilder_HugeJavaStackSection;
     public static String DTFJIndexBuilder_HugeNativeStackSection;
     public static String DTFJIndexBuilder_IgnoringExtraJavaRuntime;
+    public static String DTFJIndexBuilder_IgnoringExtraJavaRuntimeWithoutRuntimeId;
     public static String DTFJIndexBuilder_IgnoringJavaStackFrame;
     public static String DTFJIndexBuilder_IgnoringManagedRuntime;
     public static String DTFJIndexBuilder_ImageAddressSpaceEqualsBroken;
