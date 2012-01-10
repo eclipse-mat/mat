@@ -68,6 +68,7 @@ public class Messages extends NLS
     public static String SnapshotFactoryImpl_ObjectsFoundButClassesHadObjectsAndClassesInTotal;
     public static String SnapshotFactoryImpl_ReparsingHeapDumpAsIndexOutOfDate;
     public static String SnapshotFactoryImpl_ReparsingHeapDumpWithOutOfDateIndex;
+    public static String SnapshotFactoryImpl_UnableToDeleteIndexFile;
     public static String SnapshotFactoryImpl_ValidatingGCRoots;
     public static String SnapshotFactoryImpl_ValidatingIndices;
     public static String SnapshotImpl_BuildingHistogram;

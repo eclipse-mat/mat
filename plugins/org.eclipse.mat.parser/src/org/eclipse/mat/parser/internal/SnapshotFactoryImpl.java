@@ -91,7 +91,7 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
             if (indexFile.exists())
             {
                 // check if hprof file is newer than index file
-                if (file.lastModified() < indexFile.lastModified())
+                if (file.lastModified() <= indexFile.lastModified())
                 {
                     answer = SnapshotImpl.readFromFile(file, prefix, listener);
                 }
@@ -116,7 +116,7 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
 
         if (answer == null)
         {
-            deleteIndexFiles(file);
+            deleteIndexFiles(file, prefix, listener);
             answer = parse(file, prefix, args, listener);
         }
 
@@ -540,18 +540,18 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
         return clsInfo;
     }
 
-    private void deleteIndexFiles(File file)
+    private void deleteIndexFiles(File file, final String prefix, IProgressListener listener)
     {
-        File directory = file.getParentFile();
+        File prefixFile = new File(prefix);
+        File directory = prefixFile.getParentFile();
         if (directory == null)
             directory = new File("."); //$NON-NLS-1$
+        
+        final String fragment = prefixFile.getName();
 
-        String filename = file.getName();
-
-        int p = filename.lastIndexOf('.');
-        final String fragment = p >= 0 ? filename.substring(0, p) : filename;
-        final Pattern indexPattern = Pattern.compile("\\.(.*\\.)?index$");//$NON-NLS-1$
-        final Pattern logPattern = Pattern.compile("\\.inbound\\.index.*\\.log$");//$NON-NLS-1$
+        final Pattern indexPattern = Pattern.compile("([^.]+\\.)?index$"); //$NON-NLS-1$
+        final Pattern threadPattern = Pattern.compile("threads$"); //$NON-NLS-1$
+        final Pattern logPattern = Pattern.compile("inbound\\.index.*\\.log$"); //$NON-NLS-1$
 
         File[] files = directory.listFiles(new FileFilter()
         {
@@ -562,14 +562,23 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
 
                 String name = f.getName();
                 return name.startsWith(fragment)
-                                && (indexPattern.matcher(name).matches() || logPattern.matcher(name).matches());
+                                && (indexPattern.matcher(name.substring(fragment.length())).matches()
+                                  || threadPattern.matcher(name.substring(fragment.length())).matches() 
+                                  || logPattern.matcher(name.substring(fragment.length())).matches());
             }
         });
 
         if (files != null)
         {
             for (File f : files)
-                f.delete();
+            {
+                boolean deleted = f.delete();
+                if (!deleted)
+                {
+                    listener.sendUserMessage(Severity.WARNING,
+                                    MessageUtil.format(Messages.SnapshotFactoryImpl_UnableToDeleteIndexFile, f.toString()), null);
+                }
+            }
         }
     }
 }
