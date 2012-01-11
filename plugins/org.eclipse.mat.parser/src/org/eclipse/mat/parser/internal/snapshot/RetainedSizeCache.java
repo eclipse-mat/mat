@@ -22,15 +22,31 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.eclipse.mat.collect.HashMapIntLong;
+import org.eclipse.mat.parser.index.IIndexReader;
 import org.eclipse.mat.parser.internal.Messages;
 import org.eclipse.mat.parser.model.XSnapshotInfo;
 
-public class RetainedSizeCache
+public class RetainedSizeCache implements IIndexReader
 {
     private String filename;
     private HashMapIntLong id2size;
     private boolean isDirty = false;
+    
+    /**
+     * File is expected to exist, and is read in the new format.
+     * @param f
+     */
+    public RetainedSizeCache(File f)
+    {
+        doRead(f, false);
+    }
 
+    /**
+     * Reads file i2sv2.index in new format,
+     * or file i2s.index in the old format,
+     * or creates an empty map.
+     * @param snapshotInfo
+     */
     public RetainedSizeCache(XSnapshotInfo snapshotInfo)
     {
         this.filename = snapshotInfo.getPrefix() + "i2sv2.index"; //$NON-NLS-1$
@@ -159,6 +175,24 @@ public class RetainedSizeCache
                 id2size = new HashMapIntLong();
             }
         }
+    }
+
+    public int size()
+    {
+        return id2size.size();
+    }
+
+    public void unload() throws IOException
+    {
+        close();
+    }
+
+    public void delete()
+    {
+        close();
+
+        File file = new File(filename);
+        file.delete();
     }
 
 }

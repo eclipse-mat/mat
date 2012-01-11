@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others.
+ * Copyright (c) 2008, 2011 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation - validation of indices
  *******************************************************************************/
 package org.eclipse.mat.parser.internal;
 
@@ -43,6 +44,7 @@ import org.eclipse.mat.parser.index.IIndexReader;
 import org.eclipse.mat.parser.index.IIndexReader.IOne2OneIndex;
 import org.eclipse.mat.parser.index.IIndexReader.IOne2SizeIndex;
 import org.eclipse.mat.parser.index.IndexManager;
+import org.eclipse.mat.parser.index.IndexManager.Index;
 import org.eclipse.mat.parser.internal.snapshot.HistogramBuilder;
 import org.eclipse.mat.parser.internal.snapshot.MultiplePathsFromGCRootsComputerImpl;
 import org.eclipse.mat.parser.internal.snapshot.ObjectCache;
@@ -97,7 +99,8 @@ public final class SnapshotImpl implements ISnapshot
 
         try
         {
-            fis = new FileInputStream(prefix + "index");//$NON-NLS-1$
+            File indexFile = new File(prefix + "index"); //$NON-NLS-1$
+            fis = new FileInputStream(indexFile);
             listener.worked(1);
             ObjectInputStream in = new ObjectInputStream(new BufferedInputStream(fis));
 
@@ -227,7 +230,6 @@ public final class SnapshotImpl implements ISnapshot
 
     // stored in separate files
     private IndexManager indexManager;
-    private RetainedSizeCache retainedSizeCache;
 
     // runtime data
     private IObjectReader heapObjectReader;
@@ -261,7 +263,11 @@ public final class SnapshotImpl implements ISnapshot
         this.indexManager = indexManager;
 
         // initialize data
-        this.retainedSizeCache = new RetainedSizeCache(snapshotInfo);
+        if (indexManager.i2sv2 == null)
+        {
+            // If the class+classloader retained size cache doesn't exist then create it
+            indexManager.setReader(Index.I2RETAINED, new RetainedSizeCache(snapshotInfo));
+        }
 
         this.classCacheByName = new HashMap<String, List<IClass>>(this.classCache.size());
         for (Iterator<ClassImpl> iter = this.classCache.values(); iter.hasNext();)
@@ -1476,10 +1482,7 @@ public final class SnapshotImpl implements ISnapshot
             error = e1;
         }
 
-        retainedSizeCache.close();
-        
         classCacheByName.clear();
-        classCacheByName = null;
 
         if (error != null)
             throw new RuntimeException(error);
@@ -1967,7 +1970,7 @@ public final class SnapshotImpl implements ISnapshot
 
     public RetainedSizeCache getRetainedSizeCache()
     {
-        return retainedSizeCache;
+        return indexManager.i2sv2;
     }
 
     public HashMapIntObject<HashMapIntObject<XGCRootInfo[]>> getRootsPerThread()

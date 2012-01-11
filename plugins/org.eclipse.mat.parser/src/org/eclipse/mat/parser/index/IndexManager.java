@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
+import org.eclipse.mat.parser.internal.snapshot.RetainedSizeCache;
 import org.eclipse.mat.util.MessageUtil;
 
 /**
@@ -27,14 +28,37 @@ public class IndexManager
      */
     public enum Index
     {
+        /** Inbounds: object id to N outbound object ids */
         INBOUND("inbound", IndexReader.InboundReader.class), //$NON-NLS-1$
+        /** Outbounds: object id to N inbound object ids */
         OUTBOUND("outbound", IndexReader.IntIndex1NSortedReader.class), //$NON-NLS-1$
+        /** Object to class: object id to 1 class id */
         O2CLASS("o2c", IndexReader.IntIndexReader.class), //$NON-NLS-1$
+        /** Index to address: object id to address (as a long) */
         IDENTIFIER("idx", IndexReader.LongIndexReader.class), //$NON-NLS-1$
+        /** Array to size: array (or non-default sized object) id to size (as an encoded int) */
         A2SIZE("a2s", IndexReader.SizeIndexReader.class), //$NON-NLS-1$
+        /** Dominated: object id to N dominated object ids */
         DOMINATED("domOut", IndexReader.IntIndex1NReader.class), //$NON-NLS-1$
+        /** Object to retained size: object in dominator tree to retained size (as a long) */
         O2RETAINED("o2ret", IndexReader.LongIndexReader.class), //$NON-NLS-1$
-        DOMINATOR("domIn", IndexReader.IntIndexReader.class);//$NON-NLS-1$
+        /** Dominator of: object id to the id of its dominator */
+        DOMINATOR("domIn", IndexReader.IntIndexReader.class), //$NON-NLS-1$
+        /**
+         * Retained size cache.
+         * Retained size cache for a class: class+all instances.
+         * Retained size cache for a class loader: loader+all classes+all instances. 
+         * @since 1.2
+         */
+        I2RETAINED("i2sv2", RetainedSizeCache.class); //$NON-NLS-1$
+        /*
+         * Other indexes:
+         * i2s
+         *  Old version of class retained size cache
+         * threads
+         *  text file holding details of thread stacks and local variables
+         * index - master index
+         */
 
         public String filename;
         Class<? extends IIndexReader> impl;
@@ -60,6 +84,8 @@ public class IndexManager
     public IIndexReader.IOne2ManyIndex domOut;
     public IIndexReader.IOne2LongIndex o2ret;
     public IIndexReader.IOne2OneIndex domIn;
+    /** @noreference This field is not intended to be referenced by clients. */
+    public RetainedSizeCache i2sv2;
 
     public void setReader(final Index index, final IIndexReader reader)
     {
