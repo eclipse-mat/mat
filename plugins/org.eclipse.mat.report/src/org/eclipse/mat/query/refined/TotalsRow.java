@@ -111,7 +111,7 @@ public class TotalsRow
         String msg = null;
 
         if (hasMore)
-            msg = MessageUtil.format(Messages.TotalsRow_Label_TotalVisible, visibleItems, numberOfItems);
+            msg = MessageUtil.format(Messages.TotalsRow_Label_TotalVisible, visibleItems, numberOfItems, (numberOfItems - visibleItems));
         else
             msg = MessageUtil.format(Messages.TotalsRow_Label_Total, numberOfItems);
 

@@ -1337,6 +1337,33 @@ public abstract class RefinedResultViewer
             Object row = items[ii].getData();
             if (row != null)
                 selection.add(row);
+            else
+            {
+                // Expand a totals row into all remaining objects
+                final Item parent = adapter.getParentItem(items[ii]);
+                ControlItem ctrl = null;
+                if (parent == null)
+                {
+                    // Exclude the filter row
+                    if (adapter.indexOf(items[ii]) != 0)
+                    {
+                        ctrl = (ControlItem) control.getData(Key.CONTROL);
+                    }
+                }
+                else
+                {
+                    // Subtree, so no filter row
+                    ctrl = (ControlItem) parent.getData(Key.CONTROL);
+                }
+                if (ctrl != null && ctrl.getTotals() != null)
+                {
+                    // Add all the undisplayed items to the list
+                    for (int jj = ctrl.getTotals().getVisibleItems(); jj < ctrl.children.size(); ++jj)
+                    {
+                        selection.add(ctrl.children.get(jj));
+                    }
+                }
+            }
         }
 
         return new StructuredSelection(selection);
