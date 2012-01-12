@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2012 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation - various fixes including accessibility
  *******************************************************************************/
 package org.eclipse.mat.ui.internal.viewer;
 
@@ -462,6 +463,7 @@ public class RefinedTreeViewer extends RefinedResultViewer
         else
         {
             TreeItem parent = (TreeItem) parentItem;
+            boolean expanded = parent.getExpanded();
             parent.setData(Key.CONTROL, ctrl);
 
             TreeItem[] items = parent.getItems();
@@ -474,6 +476,8 @@ public class RefinedTreeViewer extends RefinedResultViewer
                 TreeItem item = new TreeItem(parent, SWT.NONE, ii);
                 doUpdateChild(item, ctrl, ctrl.children.get(ii));
             }
+
+            parent.setExpanded(expanded);
 
             boolean isTotalsRowVisible = ctrl.totals.isVisible();
 
