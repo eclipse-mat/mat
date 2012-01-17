@@ -166,7 +166,7 @@ public class Pass1Parser extends AbstractParser
         long id = readID();
         byte[] chars = new byte[(int) (length - idSize)];
         in.readFully(chars);
-        handler.getConstantPool().put(id, new String(chars));
+        handler.getConstantPool().put(id, new String(chars, "UTF-8"));
     }
 
     private void readLoadClass() throws IOException
