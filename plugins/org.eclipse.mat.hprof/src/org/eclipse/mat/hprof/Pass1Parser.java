@@ -94,8 +94,8 @@ public class Pass1Parser extends AbstractParser
 
                 long length = readUnsignedInt();
                 if (length < 0)
-                    throw new SnapshotException(MessageUtil.format(Messages.Pass1Parser_Error_IllegalRecordLength, in
-                                    .position()));
+                    throw new SnapshotException(MessageUtil.format(Messages.Pass1Parser_Error_IllegalRecordLength, length,
+                                    in.position(), record));
 
                 if (curPos + length - 9 > fileSize)
                     monitor.sendUserMessage(Severity.WARNING, MessageUtil.format(
@@ -104,6 +104,9 @@ public class Pass1Parser extends AbstractParser
                 switch (record)
                 {
                     case Constants.Record.STRING_IN_UTF8:
+                        if (((int)(length - idSize) < 0))
+                            throw new SnapshotException(MessageUtil.format(Messages.Pass1Parser_Error_IllegalRecordLength, length,
+                                            in.position(), record));
                         readString(length);
                         break;
                     case Constants.Record.LOAD_CLASS:

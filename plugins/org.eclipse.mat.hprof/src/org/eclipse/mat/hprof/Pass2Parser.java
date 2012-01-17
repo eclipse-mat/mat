@@ -75,8 +75,8 @@ public class Pass2Parser extends AbstractParser
 
                 long length = readUnsignedInt();
                 if (length < 0)
-                    throw new SnapshotException(MessageUtil.format(Messages.Pass1Parser_Error_IllegalRecordLength, in
-                                    .position()));
+                    throw new SnapshotException(MessageUtil.format(Messages.Pass1Parser_Error_IllegalRecordLength, length,
+                                    in.position(), record));
 
                 switch (record)
                 {
