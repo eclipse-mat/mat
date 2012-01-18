@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2012 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -98,7 +98,8 @@ public class ArgumentsWizardPage extends WizardPage implements ArgumentsTable.IT
             setMessage(message, IMessageProvider.INFORMATION);
         else
             setMessage(argumentSet.getQueryDescriptor().getShortDescription());
-        getContainer().updateButtons();
+        if (getContainer() != null)
+            getContainer().updateButtons();
     }
 
     public void onModeChange(Mode mode)

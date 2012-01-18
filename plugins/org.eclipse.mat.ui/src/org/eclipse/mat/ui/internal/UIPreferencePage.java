@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 IBM Corporation.
+ * Copyright (c) 2011,2012 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,7 @@ import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.Messages;
+import org.eclipse.mat.ui.internal.query.arguments.ArgumentsWizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
@@ -48,6 +49,8 @@ public class UIPreferencePage extends FieldEditorPreferencePage implements IWork
         addField(new BooleanFieldEditor(PreferenceConstants.P_KEEP_UNREACHABLE_OBJECTS, Messages.UIPreferencePage_KeepUnreachableObjects,
                         getFieldEditorParent()));
         addField(new BooleanFieldEditor(GettingStartedWizard.HIDE_WIZARD_KEY, Messages.UIPreferencePage_HideGettingStartedWizard,
+                        getFieldEditorParent()));
+        addField(new BooleanFieldEditor(ArgumentsWizard.HIDE_QUERY_HELP, Messages.UIPreferencePage_HideQueryHelp,
                         getFieldEditorParent()));
     }
 

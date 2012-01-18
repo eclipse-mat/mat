@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others.
+ * Copyright (c) 2008, 2012 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,10 +7,12 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation - optional help
  *******************************************************************************/
 package org.eclipse.mat.ui.internal.query.arguments;
 
 import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.annotations.Category;
@@ -27,6 +29,8 @@ import org.eclipse.swt.widgets.Listener;
 
 public class ArgumentsWizard extends Wizard
 {
+    public final static String HIDE_QUERY_HELP = "pref:HideQueryHelp";
+
     private IQueryContext context;
     private ArgumentSet argumentSet;
     private QueryContextHelp helpPopup;
@@ -71,6 +75,17 @@ public class ArgumentsWizard extends Wizard
         };
         getShell().addListener(SWT.Resize, listener);
         getShell().addListener(SWT.Move, listener);
+
+        getShell().getDisplay().addFilter(SWT.KeyDown, new Listener()
+        {
+            public void handleEvent(Event event)
+            {
+                if (event.keyCode == SWT.F1)
+                {
+                    relocateHelp(true);
+                }
+            }
+        });
     }
 
     @Override
@@ -87,7 +102,11 @@ public class ArgumentsWizard extends Wizard
     public void addPages()
     {
         addPage(new ArgumentsWizardPage(context, argumentSet));
-        relocateHelp(true);
+        IPreferenceStore prefs = MemoryAnalyserPlugin.getDefault().getPreferenceStore();
+        if (!prefs.getBoolean(HIDE_QUERY_HELP))
+        {
+            relocateHelp(true);
+        }
     }
 
     public void relocateHelp(boolean create)
@@ -97,7 +116,8 @@ public class ArgumentsWizard extends Wizard
         {            
             if (getShell()==null)
             {
-                helpPopup.close();
+                if (helpPopup != null)
+                    helpPopup.close();
                 return;
             }
             getShell().getDisplay().timerExec(100, new Runnable()
@@ -110,7 +130,7 @@ public class ArgumentsWizard extends Wizard
                         Rectangle helpBounds = new Rectangle(myBounds.x, myBounds.y + myBounds.height, myBounds.width,
                                         SWT.DEFAULT);
 
-                        if (helpPopup != null)
+                        if (helpPopup != null && helpPopup.getShell() != null)
                         {
                             helpPopup.resize(helpBounds);
                             return;
