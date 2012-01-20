@@ -54,7 +54,7 @@ public class DTFJPreferencePage extends FieldEditorPreferencePage implements IWo
                                         { Messages.DTFJPreferencePage_RunningMethods, PreferenceConstants.RUNNING_METHODS_AS_CLASSES },
                                         { Messages.DTFJPreferencePage_AllMethods, PreferenceConstants.ALL_METHODS_AS_CLASSES } },
                         getFieldEditorParent(), true));
-        final StringFieldEditor editor = new StringFieldEditor(PreferenceConstants.P_RUNTIMEID, Messages.DTFJPreferencePage_RuntimeID, 8, getFieldEditorParent());
+        final StringFieldEditor editor = new StringFieldEditor(PreferenceConstants.P_RUNTIMEID, Messages.DTFJPreferencePage_RuntimeID, 15, getFieldEditorParent());
         addField(editor);
     }
 
