@@ -281,11 +281,13 @@ public class CompareBasketView extends ViewPart
                     tables.add(result.table);
                     contexts.add(result.editor.getQueryContext());
                 }
-                QueryDropDownMenuAction qa = new QueryDropDownMenuAction(getEditor(), new ComparePolicy(tables, contexts, getEditor().getQueryContext()), false);
+                MultiPaneEditor editor = getEditor();
+                if (editor == null)
+                    return;
+                QueryDropDownMenuAction qa = new QueryDropDownMenuAction(editor, new ComparePolicy(tables, contexts, editor.getQueryContext()), false);
                 PopupMenu menu1 = new PopupMenu();
                 qa.contribute(menu1);
-                qa.getHelpListener();
-                IStatusLineManager statusLineManager = getEditor().getEditorSite().getActionBars().getStatusLineManager();
+                IStatusLineManager statusLineManager = getViewSite().getActionBars().getStatusLineManager();
                 menu1.addToMenu(statusLineManager, table.getMenu());
             }
         });
@@ -571,8 +573,8 @@ public class CompareBasketView extends ViewPart
                                 // Can't convert table/tree
                                 return false;
                             }
+                            foundTables = true;
                         }
-                        foundTables = true;
                     }
                 }
             }

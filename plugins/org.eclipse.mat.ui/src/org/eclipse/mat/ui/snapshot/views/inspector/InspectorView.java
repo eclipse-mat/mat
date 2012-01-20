@@ -258,10 +258,7 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
 
             PopupMenu popup = new PopupMenu();
             fillContextMenu(popup, viewer);
-            if (editor != null)
-            {
-                popup.addToMenu(editor.getEditorSite().getActionBars().getStatusLineManager(), menu);
-            }
+            popup.addToMenu(getViewSite().getActionBars().getStatusLineManager(), menu);
         }
 
     }

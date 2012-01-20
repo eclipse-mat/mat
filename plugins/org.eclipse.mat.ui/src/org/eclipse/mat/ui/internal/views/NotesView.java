@@ -477,7 +477,7 @@ public class NotesView extends ViewPart implements IPartListener, Observer
                 if (menu != null && !menu.isDisposed())
                     menu.dispose();
 
-                menu = popupMenu.createMenu(editor.getEditorSite().getActionBars().getStatusLineManager(), PlatformUI
+                menu = popupMenu.createMenu(getViewSite().getActionBars().getStatusLineManager(), PlatformUI
                                 .getWorkbench().getDisplay().getActiveShell());
                 menu.setVisible(true);
             }
