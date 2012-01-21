@@ -27,6 +27,7 @@ import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.CommandName;
+import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.snapshot.ExcludedReferencesDescriptor;
 import org.eclipse.mat.snapshot.Histogram;
@@ -38,6 +39,7 @@ import org.eclipse.mat.util.MessageUtil;
 
 @CommandName("customized_retained_set")
 @Icon("/META-INF/icons/show_retained_set.gif")
+@HelpUrl("/org.eclipse.mat.ui.help/concepts/shallowretainedheap.html")
 public class CustomizedRetainedSetQuery implements IQuery
 {
     @Argument

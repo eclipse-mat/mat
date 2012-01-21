@@ -34,6 +34,7 @@ import org.eclipse.mat.query.IResultTree;
 import org.eclipse.mat.query.IStructuredResult;
 import org.eclipse.mat.query.ResultMetaData;
 import org.eclipse.mat.query.annotations.Argument;
+import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.query.annotations.Menu;
 import org.eclipse.mat.query.annotations.Menu.Entry;
@@ -47,6 +48,7 @@ import com.ibm.icu.text.DecimalFormat;
 import com.ibm.icu.text.NumberFormat;
 
 @Icon("/META-INF/icons/compare.gif")
+@HelpUrl("/org.eclipse.mat.ui.help/tasks/comparingdata.html")
 @Menu({ @Entry(options = "-setop ALL")
 })
 public class CompareTablesQuery implements IQuery

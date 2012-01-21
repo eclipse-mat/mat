@@ -25,7 +25,7 @@ import org.eclipse.mat.util.MessageUtil;
 
 @CommandName("show_retained_set")
 @Icon("/META-INF/icons/show_retained_set.gif")
-@HelpUrl("/org.eclipse.mat.ui.help/reference/inspections/retained_set.html")
+@HelpUrl("/org.eclipse.mat.ui.help/concepts/shallowretainedheap.html")
 public class RetainedSetQuery implements IQuery
 {
     @Argument

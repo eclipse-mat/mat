@@ -36,6 +36,7 @@ import org.eclipse.mat.query.IResultTree;
 import org.eclipse.mat.query.ResultMetaData;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.CommandName;
+import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IClass;
@@ -49,6 +50,7 @@ import org.eclipse.mat.util.IProgressListener;
 
 @CommandName("thread_overview")
 @Icon("/META-INF/icons/threads.gif")
+@HelpUrl("/org.eclipse.mat.ui.help/tasks/analyzingthreads.html")
 public class ThreadOverviewQuery implements IQuery
 {
     @Argument

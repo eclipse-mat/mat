@@ -12,12 +12,14 @@ package org.eclipse.mat.internal.snapshot.inspections;
 
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.CommandName;
+import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.util.IProgressListener;
 
 @CommandName("show_dominator_tree")
 @Icon("/META-INF/icons/dominator_tree.gif")
+@HelpUrl("/org.eclipse.mat.ui.help/concepts/dominatortree.html")
 public class ShowInDominatorQuery extends DominatorQuery
 {
     @Argument(flag = Argument.UNFLAGGED)
