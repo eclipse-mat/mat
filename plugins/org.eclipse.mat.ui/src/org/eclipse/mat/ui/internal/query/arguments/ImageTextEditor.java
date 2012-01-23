@@ -160,7 +160,7 @@ public class ImageTextEditor extends TextEditor
             public void linkActivated(HyperlinkEvent e)
             {
                 PlatformUI.getWorkbench().getHelpSystem().displayHelpResource(
-                                "/org.eclipse.mat.ui.help/reference/selectingqueries.html#queryarguments__"//$NON-NLS-1$
+                                "/org.eclipse.mat.ui.help/reference/selectingqueries.html#ref_queryarguments__"//$NON-NLS-1$
                                                 + decorator.getHelpLink());
             }
         });

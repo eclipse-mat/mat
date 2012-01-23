@@ -12,9 +12,8 @@ package org.eclipse.mat.ui.internal;
 
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.jface.preference.IPreferenceStore;
-
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
-import org.eclipse.mat.ui.internal.query.arguments.ArgumentsWizard;
+import org.eclipse.mat.ui.internal.query.arguments.ArgumentsWizardPage;
 
 /**
  * Class used to initialize default preference values.
@@ -30,7 +29,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		IPreferenceStore store = MemoryAnalyserPlugin.getDefault().getPreferenceStore();
 		store.setDefault(GettingStartedWizard.HIDE_WIZARD_KEY, false);
 	    store.setDefault(PreferenceConstants.P_KEEP_UNREACHABLE_OBJECTS, false);
-	    store.setDefault(ArgumentsWizard.HIDE_QUERY_HELP, false);
+	    store.setDefault(ArgumentsWizardPage.HIDE_QUERY_HELP, false);
 	}
 
 }

@@ -14,7 +14,7 @@ import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.Messages;
-import org.eclipse.mat.ui.internal.query.arguments.ArgumentsWizard;
+import org.eclipse.mat.ui.internal.query.arguments.ArgumentsWizardPage;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
@@ -50,7 +50,7 @@ public class UIPreferencePage extends FieldEditorPreferencePage implements IWork
                         getFieldEditorParent()));
         addField(new BooleanFieldEditor(GettingStartedWizard.HIDE_WIZARD_KEY, Messages.UIPreferencePage_HideGettingStartedWizard,
                         getFieldEditorParent()));
-        addField(new BooleanFieldEditor(ArgumentsWizard.HIDE_QUERY_HELP, Messages.UIPreferencePage_HideQueryHelp,
+        addField(new BooleanFieldEditor(ArgumentsWizardPage.HIDE_QUERY_HELP, Messages.UIPreferencePage_HideQueryHelp,
                         getFieldEditorParent()));
     }
 

@@ -14,22 +14,30 @@ import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.registry.ArgumentSet;
+import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.Messages;
+import org.eclipse.mat.ui.internal.browser.QueryContextHelp;
 import org.eclipse.mat.ui.internal.query.arguments.LinkEditor.Mode;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.PlatformUI;
 
 public class ArgumentsWizardPage extends WizardPage implements ArgumentsTable.ITableListener
 {
+    public final static String HIDE_QUERY_HELP = "pref:HideQueryHelp";
     private IQueryContext context;
     private ArgumentSet argumentSet;
     private ArgumentsTable table;
+    private QueryContextHelp helpPopup;
 
     public ArgumentsWizardPage(IQueryContext context, ArgumentSet argumentSet)
     {
@@ -66,9 +74,23 @@ public class ArgumentsWizardPage extends WizardPage implements ArgumentsTable.IT
         tableComposite.layout();
         tableComposite.pack();
 
-        PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, "org.eclipse.mat.ui.help.query_arguments"); //$NON-NLS-1$
         composite.setContent(tableComposite);
         setControl(composite);
+        
+        Listener listener = new Listener()
+        {
+            public void handleEvent(Event event)
+            {
+                relocateHelp(false);
+            }
+        };
+        getShell().addListener(SWT.Resize, listener);
+        getShell().addListener(SWT.Move, listener);
+        IPreferenceStore prefs = MemoryAnalyserPlugin.getDefault().getPreferenceStore();
+        if (!prefs.getBoolean(HIDE_QUERY_HELP))
+        {
+            relocateHelp(true);
+        }
     }
 
     @Override
@@ -106,6 +128,53 @@ public class ArgumentsWizardPage extends WizardPage implements ArgumentsTable.IT
     {
         IDialogSettings settings = getDialogSettings();
         settings.put(ArgumentsWizard.class.getName(), mode.getModeType());
+    }
+
+    public void relocateHelp(boolean create)
+    {
+        if (argumentSet.getQueryDescriptor().isHelpAvailable() && //
+                        (create || (helpPopup != null && helpPopup.getShell() != null)))
+        {            
+            if (getShell()==null)
+            {
+                if (helpPopup != null)
+                    helpPopup.close();
+                return;
+            }
+            getShell().getDisplay().timerExec(100, new Runnable()
+            {
+                public void run()
+                {
+                    if (getShell() != null && !getShell().isDisposed())
+                    {
+                        Rectangle myBounds = getShell().getBounds();
+                        Rectangle helpBounds = new Rectangle(myBounds.x, myBounds.y + myBounds.height, myBounds.width,
+                                        SWT.DEFAULT);
+    
+                        if (helpPopup != null && helpPopup.getShell() != null)
+                        {
+                            helpPopup.resize(helpBounds);
+                            return;
+                        }
+    
+                        helpPopup = new QueryContextHelp(getShell(), argumentSet.getQueryDescriptor(), helpBounds);
+                        helpPopup.open();
+                    }
+                }
+            });
+        }
+    }
+
+    //@Override
+    public void performHelp()
+    {
+        String helpUrl = argumentSet.getQueryDescriptor().getHelpUrl();
+        if (helpUrl != null)
+        {
+             PlatformUI.getWorkbench().getHelpSystem().displayHelpResource(helpUrl);
+        }
+        relocateHelp(true);
+        PlatformUI.getWorkbench().getHelpSystem().displayHelp("org.eclipse.mat.ui.help.query_arguments"); //$NON-NLS-1$
     }
 
 }

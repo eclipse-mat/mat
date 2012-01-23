@@ -12,7 +12,6 @@
 package org.eclipse.mat.ui.internal.query.arguments;
 
 import org.eclipse.jface.dialogs.IDialogSettings;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.annotations.Category;
@@ -20,20 +19,12 @@ import org.eclipse.mat.query.registry.ArgumentSet;
 import org.eclipse.mat.query.registry.QueryDescriptor;
 import org.eclipse.mat.query.registry.QueryRegistry;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
-import org.eclipse.mat.ui.internal.browser.QueryContextHelp;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
 
 public class ArgumentsWizard extends Wizard
 {
-    public final static String HIDE_QUERY_HELP = "pref:HideQueryHelp";
-
     private IQueryContext context;
     private ArgumentSet argumentSet;
-    private QueryContextHelp helpPopup;
 
     public ArgumentsWizard(IQueryContext context, ArgumentSet argumentSet)
     {
@@ -65,27 +56,6 @@ public class ArgumentsWizard extends Wizard
     public void createPageControls(Composite pageContainer)
     {
         super.createPageControls(pageContainer);
-
-        Listener listener = new Listener()
-        {
-            public void handleEvent(Event event)
-            {
-                relocateHelp(false);
-            }
-        };
-        getShell().addListener(SWT.Resize, listener);
-        getShell().addListener(SWT.Move, listener);
-
-        getShell().getDisplay().addFilter(SWT.KeyDown, new Listener()
-        {
-            public void handleEvent(Event event)
-            {
-                if (event.keyCode == SWT.F1)
-                {
-                    relocateHelp(true);
-                }
-            }
-        });
     }
 
     @Override
@@ -102,46 +72,6 @@ public class ArgumentsWizard extends Wizard
     public void addPages()
     {
         addPage(new ArgumentsWizardPage(context, argumentSet));
-        IPreferenceStore prefs = MemoryAnalyserPlugin.getDefault().getPreferenceStore();
-        if (!prefs.getBoolean(HIDE_QUERY_HELP))
-        {
-            relocateHelp(true);
-        }
-    }
-
-    public void relocateHelp(boolean create)
-    {
-        if (argumentSet.getQueryDescriptor().isHelpAvailable() && //
-                        (create || (helpPopup != null && helpPopup.getShell() != null)))
-        {            
-            if (getShell()==null)
-            {
-                if (helpPopup != null)
-                    helpPopup.close();
-                return;
-            }
-            getShell().getDisplay().timerExec(100, new Runnable()
-            {
-                public void run()
-                {
-                    if (getShell() != null && !getShell().isDisposed())
-                    {
-                        Rectangle myBounds = getShell().getBounds();
-                        Rectangle helpBounds = new Rectangle(myBounds.x, myBounds.y + myBounds.height, myBounds.width,
-                                        SWT.DEFAULT);
-
-                        if (helpPopup != null && helpPopup.getShell() != null)
-                        {
-                            helpPopup.resize(helpBounds);
-                            return;
-                        }
-
-                        helpPopup = new QueryContextHelp(getShell(), argumentSet.getQueryDescriptor(), helpBounds);
-                        helpPopup.open();
-                    }
-                }
-            });
-        }
     }
 
     @Override
