@@ -46,6 +46,7 @@ import org.eclipse.mat.query.registry.AnnotatedObjectArgumentsSet;
 import org.eclipse.mat.query.registry.ArgumentDescriptor;
 import org.eclipse.mat.query.registry.ArgumentFactory;
 import org.eclipse.mat.snapshot.acquire.VmInfo;
+import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.editor.PathEditorInput;
 import org.eclipse.mat.ui.util.ErrorHelper;
@@ -120,7 +121,7 @@ public class AcquireSnapshotAction extends Action implements IWorkbenchWindowAct
 
 					try
 					{
-						IDE.openEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), new PathEditorInput(path), descriptor.getId(),
+						IDE.openEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), new PathEditorInput(path), descriptor != null ? descriptor.getId() : MemoryAnalyserPlugin.EDITOR_ID,
 								true);
 						if (PlatformUI.getWorkbench().getIntroManager().getIntro() != null)
 						{
@@ -190,7 +191,9 @@ public class AcquireSnapshotAction extends Action implements IWorkbenchWindowAct
 		wizard.setWindowTitle(Messages.AcquireSnapshotAction_AcquireDialogName);
 		wizard.setNeedsProgressMonitor(true);
 
-		new WizardDialog(shell, wizard).open();
+		WizardDialog dialog = new WizardDialog(shell, wizard);
+		dialog.setHelpAvailable(true);
+		dialog.open();
 	}
 
 	private void showError(String msg)
