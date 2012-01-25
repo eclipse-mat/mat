@@ -24,7 +24,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.preferences.InstanceScope;
-import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.operation.IRunnableContext;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -37,6 +36,7 @@ import org.eclipse.mat.query.registry.AnnotatedObjectArgumentsSet;
 import org.eclipse.mat.snapshot.acquire.VmInfo;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.Messages;
+import org.eclipse.mat.ui.internal.acquire.AcquireSnapshotAction.AcquireWizard;
 import org.eclipse.mat.ui.util.ErrorHelper;
 import org.eclipse.mat.ui.util.ProgressMonitorWrapper;
 import org.eclipse.mat.util.IProgressListener;
@@ -146,14 +146,8 @@ public class AcquireDialog extends WizardPage
         {
             public void widgetSelected(SelectionEvent e)
             {
-            	ProviderConfigurationDialog configDialog = new ProviderConfigurationDialog(getShell());
-            	if (configDialog.open() == IDialogConstants.OK_ID)
-            	{
-                    localVMsTable.deselectAll();
-                    selectionChanged();
-            		refreshTable();
-            	}
-
+                AcquireWizard aw = (AcquireWizard)AcquireDialog.this.getWizard();
+                aw.getContainer().showPage(aw.configPage);
             }
         });
         
@@ -350,7 +344,16 @@ public class AcquireDialog extends WizardPage
     {
     	listeners.add(listener);
     }
-    
+
+    void clearSelection() {
+        localVMsTable.deselectAll();
+    }
+
+    void refresh() {
+        localVMsTable.deselectAll();
+        selectionChanged();
+        refreshTable();
+    }
 	
     void updateFileName()
     {
@@ -413,7 +416,7 @@ public class AcquireDialog extends WizardPage
         getContainer().updateButtons();
     }
 
-    private  class GetVMListRunnable implements IRunnableWithProgress
+    private class GetVMListRunnable implements IRunnableWithProgress
 	{
 		private IStatus status;
 		private IRunnableContext context;

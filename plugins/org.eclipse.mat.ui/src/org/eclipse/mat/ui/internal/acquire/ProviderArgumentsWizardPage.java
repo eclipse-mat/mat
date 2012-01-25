@@ -81,7 +81,8 @@ public class ProviderArgumentsWizardPage extends WizardPage implements ITableLis
     /* package */void updateDescription()
     {
         setDescription(table.getProviderDescriptor().getName());
-        relocateHelp(true);
+        if (isCurrentPage())
+            relocateHelp(true);
         getContainer().updateButtons();
     }
 
@@ -100,6 +101,10 @@ public class ProviderArgumentsWizardPage extends WizardPage implements ITableLis
         updateDescription();
 //		getContainer().updateButtons();
         acquireDialog.updateFileName();
+    }
+
+    public void onValueChanged()
+    {
     }
 
     public void onError(String message)
@@ -170,5 +175,18 @@ public class ProviderArgumentsWizardPage extends WizardPage implements ITableLis
     public void processSelected(AnnotatedObjectArgumentsSet argumentSet)
     {
         table.providerSelected(argumentSet);
+    }
+
+    public void setVisible(boolean f)
+    {
+        if (!f && helpPopup != null)
+        {
+            helpPopup.close();
+        }
+        else if (f)
+        {
+            relocateHelp(true);
+        }
+        super.setVisible(f);
     }
 }

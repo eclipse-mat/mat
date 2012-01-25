@@ -76,6 +76,8 @@ public class ProviderArgumentsTable implements IEditorListener/*, ProcessSelecti
     {
         void onInputChanged();
 
+        void onValueChanged();
+
         void onError(String message);
 
         void onFocus(String message);
@@ -333,7 +335,7 @@ public class ProviderArgumentsTable implements IEditorListener/*, ProcessSelecti
         onError(null, null);
 
         boolean isLastOne = descriptor.isMultiple()
-        && (myIndex + 1 == table.getItemCount() || ((ArgumentEditor) table.getItem(myIndex + 1).getData()).getDescriptor() != descriptor);
+                        && (myIndex + 1 == table.getItemCount() || ((ArgumentEditor) table.getItem(myIndex + 1).getData()).getDescriptor() != descriptor);
 
         // update lists
         if (descriptor.isMultiple())
@@ -398,9 +400,10 @@ public class ProviderArgumentsTable implements IEditorListener/*, ProcessSelecti
                 // ignore - set later on generating the dump
             }
         }
-        
+
         // inform about value changes
         fireInputChangedEvent();
+        fireValueChangedEvent();
     }
 
     private void fireInputChangedEvent()
@@ -409,6 +412,15 @@ public class ProviderArgumentsTable implements IEditorListener/*, ProcessSelecti
         {
             for (ITableListener listener : listeners)
                 listener.onInputChanged();
+        }
+    }
+
+    private void fireValueChangedEvent()
+    {
+        synchronized (listeners)
+        {
+            for (ITableListener listener : listeners)
+                listener.onValueChanged();
         }
     }
 

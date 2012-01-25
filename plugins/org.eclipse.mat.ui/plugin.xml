@@ -280,6 +280,32 @@
             class="org.eclipse.mat.ui.internal.PreferenceInitializer">
       </initializer>
    </extension>
+   <extension
+         point="org.eclipse.ui.newWizards">
+      <wizard
+            class="org.eclipse.mat.ui.internal.acquire.AcquireSnapshotAction$AcquireWizard"
+            finalPerspective="org.eclipse.mat.ui.perspective"
+            icon="icons/acquire.gif"
+            id="org.eclipse.mat.ui.wizard"
+            name="%wizard.new.name"
+            project="false">
+         <description>
+            %wizard.new.description
+         </description>
+      </wizard>
+   </extension>
+   <extension
+         point="org.eclipse.ui.importWizards">
+      <wizard
+            class="org.eclipse.mat.ui.internal.acquire.AcquireSnapshotAction$AcquireWizard"
+            icon="icons/acquire.gif"
+            id="org.eclipse.mat.ui.wizard2"
+            name="%wizard.import.name">
+         <description>
+            %wizard.import.description
+         </description>
+      </wizard>
+   </extension>
 
 
 </plugin>
