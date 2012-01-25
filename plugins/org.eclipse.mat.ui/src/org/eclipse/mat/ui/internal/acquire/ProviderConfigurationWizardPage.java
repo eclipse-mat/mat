@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 SAP AG and others.
+ * Copyright (c) 2010, 2012 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,8 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation - refactor for new/import wizard as WizardPage,
+ *       rename from ProviderConfigurationDialog
  *******************************************************************************/
 package org.eclipse.mat.ui.internal.acquire;
 
