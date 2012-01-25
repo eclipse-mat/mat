@@ -348,6 +348,7 @@ public class AcquireDialog extends WizardPage
 
     void clearSelection() {
         localVMsTable.deselectAll();
+        selectionChanged();
     }
 
     void refresh() {

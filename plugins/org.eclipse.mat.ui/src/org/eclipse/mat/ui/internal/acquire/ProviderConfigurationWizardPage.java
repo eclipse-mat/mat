@@ -354,11 +354,16 @@ public class ProviderConfigurationWizardPage extends WizardPage implements ITabl
 
     public void onValueChanged()
     {
-        // We do care if the user changes a parameter for finding VMs
-        changed = true;
-        // The list of VMs will be refreshed when we leave this page, but clear the 
-        // selection now so the finish button doesn't work.
-        acquireDialog.clearSelection();
+        if (!changed)
+        {
+            // We do care if the user changes a parameter for finding VMs
+            // The list of VMs will be refreshed when we leave this page, but clear the 
+            // selection now so the finish button doesn't work.
+            acquireDialog.clearSelection();
+            // set the changed flag afterwards so updating the buttons doesn't
+            // force an applychanges immediately
+            changed = true;
+        }
     }
 
     public void onError(String message)
