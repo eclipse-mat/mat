@@ -38,6 +38,7 @@ public class RetainedSizeCache implements IIndexReader
      */
     public RetainedSizeCache(File f)
     {
+        this.filename = f.getAbsolutePath();
         doRead(f, false);
     }
 
