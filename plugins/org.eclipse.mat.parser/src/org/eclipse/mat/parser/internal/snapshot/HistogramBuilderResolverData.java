@@ -11,9 +11,7 @@
 package org.eclipse.mat.parser.internal.snapshot;
 
 /**
- * @deprecated Use
- *             {@link HistogramBuilder#toHistogram(SnapshotImpl, boolean)
- *             instead}
+ * @deprecated Use {@link HistogramBuilder#toHistogram(SnapshotImpl, boolean)} instead
  */
 @Deprecated
 public class HistogramBuilderResolverData

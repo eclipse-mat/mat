@@ -14,9 +14,7 @@ import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.parser.internal.SnapshotImpl;
 
 /**
- * @deprecated Use
- *             {@link HistogramBuilder#toHistogram(SnapshotImpl, boolean)
- *             instead}
+ * @deprecated Use {@link HistogramBuilder#toHistogram(SnapshotImpl, boolean)} instead
  */
 @Deprecated
 public interface IHistogramBuilderResolver
