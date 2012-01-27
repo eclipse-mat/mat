@@ -108,11 +108,28 @@ public class QueryLookupTest
         assertNotNull(query);
     }
 
-    @Test(expected = SnapshotException.class)
-    public void testSubjectsAnnotation() throws SnapshotException
+    /**
+     * BundleLoaderProxy present
+     * @throws SnapshotException
+     */
+    @Test()
+    public void testSubjectsAnnotation1() throws SnapshotException
     {
         ISnapshot snapshot = TestSnapshots.getSnapshot(TestSnapshots.SUN_JDK6_18_32BIT, false);
         SnapshotQuery query = SnapshotQuery.lookup("leaking_bundles", snapshot);
+        assertNotNull(query);
+    }
+
+
+    /**
+     * BundleRepository not present
+     * @throws SnapshotException
+     */
+    @Test(expected = SnapshotException.class)
+    public void testSubjectsAnnotation2() throws SnapshotException
+    {
+        ISnapshot snapshot = TestSnapshots.getSnapshot(TestSnapshots.SUN_JDK6_18_32BIT, false);
+        SnapshotQuery query = SnapshotQuery.lookup("bundle_registry", snapshot);
         assertNotNull(query);
     }
 }
