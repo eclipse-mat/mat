@@ -125,7 +125,7 @@ public interface ISnapshot
      * @param includeSubClasses
      *            flag indicating whether or not to include also classes derived
      *            from matching classes (the name isn't taken into account for
-     *            sub classes anymore)
+     *            subclasses anymore)
      * @return collection of matching classes
      * @throws SnapshotException
      */

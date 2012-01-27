@@ -45,7 +45,7 @@ public class QueryHistoryProvider extends QueryBrowserProvider
         {
             HQQElement element = new HQQElement(entry);
             QueryDescriptor query = element.getQuery();
-            if (query != null && query.accept(context) && policy.accept(query))
+            if (query != null && query.accept(context) && policy.accept(query) && !unsuitableSubjects(query, context))
                 answer.add(element);
         }
 

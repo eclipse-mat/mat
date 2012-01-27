@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.mat.snapshot.query;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -22,8 +24,8 @@ import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.IStructuredResult;
 import org.eclipse.mat.query.annotations.Argument;
-import org.eclipse.mat.query.annotations.descriptors.IArgumentDescriptor;
 import org.eclipse.mat.query.annotations.descriptors.IAnnotatedObjectDescriptor;
+import org.eclipse.mat.query.annotations.descriptors.IArgumentDescriptor;
 import org.eclipse.mat.query.refined.RefinedResultBuilder;
 import org.eclipse.mat.query.registry.ArgumentDescriptor;
 import org.eclipse.mat.query.registry.ArgumentFactory;
@@ -33,6 +35,9 @@ import org.eclipse.mat.query.registry.QueryDescriptor;
 import org.eclipse.mat.query.registry.QueryRegistry;
 import org.eclipse.mat.query.registry.QueryResult;
 import org.eclipse.mat.snapshot.ISnapshot;
+import org.eclipse.mat.snapshot.extension.Subject;
+import org.eclipse.mat.snapshot.extension.Subjects;
+import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
@@ -65,10 +70,73 @@ public class SnapshotQuery
         IQueryContext context = new SnapshotQueryContext(snapshot);
         if (!query.accept(context))
             throw new SnapshotException(query.explain(context));
+        checkSubjects(name, snapshot, query, context);
 
         ArgumentSet arguments = query.createNewArgumentSet(context);
 
         return new SnapshotQuery(snapshot, arguments);
+    }
+
+    private static void checkSubjects(String name, ISnapshot snapshot, QueryDescriptor query, IQueryContext queryContext) throws SnapshotException
+    {
+        if (unsuitableSubjects(query, queryContext))
+        {
+            throw new SnapshotException(MessageUtil.format(Messages.SnapshotQuery_ErrorMsg_UnsuitableSubjects, name, Arrays.asList(extractSubjects(query))));
+        }
+    }
+
+    private static boolean unsuitableSubjects(QueryDescriptor query, IQueryContext queryContext)
+    {
+        final String cls[];
+        boolean skip;
+        cls = extractSubjects(query);
+        if (cls != null)
+        {
+            ISnapshot snapshot =  (ISnapshot)queryContext.get(ISnapshot.class, null);
+            int count = 0;
+            for (String cn : cls)
+            {
+                try
+                {
+                    Collection<IClass> ss = snapshot.getClassesByName(cn, false);
+                    if (ss == null || ss.size() == 0)
+                        continue;
+                    count += ss.size();
+                    break;
+                }
+                catch (SnapshotException e)
+                {}
+            }
+            skip = (count == 0);
+        }
+        else
+        {
+            skip = false;
+        }
+        return skip;
+    }
+
+    private static String[] extractSubjects(QueryDescriptor query)
+    {
+        final String[] cls;
+        Subjects subjects = query.getCommandType().getClass().getAnnotation(Subjects.class);
+        if (subjects != null) 
+        {
+            cls = subjects.value();
+        }
+        else
+        {
+            Subject s = query.getCommandType().getAnnotation(Subject.class);
+            if (s != null)
+            {
+                cls = new String[] { s.value() };
+            }
+            else
+            {
+                cls = null;
+            }
+        }
+        return cls;
     }
 
     /**

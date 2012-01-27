@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.mat.ui.actions;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.jface.action.Action;
@@ -23,7 +24,9 @@ import org.eclipse.mat.ui.editor.MultiPaneEditor;
 import org.eclipse.mat.ui.internal.actions.ExecuteQueryAction;
 import org.eclipse.mat.ui.internal.browser.Policy;
 import org.eclipse.mat.ui.internal.browser.QueryBrowserPopup;
-import org.eclipse.mat.ui.internal.browser.QueryHistory;
+import org.eclipse.mat.ui.internal.browser.QueryBrowserPopup.Element;
+import org.eclipse.mat.ui.internal.browser.QueryBrowserProvider;
+import org.eclipse.mat.ui.internal.browser.QueryHistoryProvider;
 import org.eclipse.mat.ui.util.EasyToolBarDropDown;
 import org.eclipse.mat.ui.util.IPolicy;
 import org.eclipse.mat.ui.util.PopupMenu;
@@ -42,6 +45,8 @@ public class QueryDropDownMenuAction extends EasyToolBarDropDown
     
     private boolean showHistory;
 
+    private QueryHistoryProvider qhp;
+
     public QueryDropDownMenuAction(MultiPaneEditor editor)
     {
         this(editor, defaultPolicy, true);
@@ -57,6 +62,10 @@ public class QueryDropDownMenuAction extends EasyToolBarDropDown
         this.showHistory = showHistory;
 
         makeActions();
+        if (showHistory)
+        {
+            qhp = new QueryHistoryProvider(editor.getQueryContext(), policy);
+        }
     }
 
     private void makeActions()
@@ -102,7 +111,7 @@ public class QueryDropDownMenuAction extends EasyToolBarDropDown
             else if (item instanceof QueryDescriptor)
             {
                 QueryDescriptor query = (QueryDescriptor) item;
-                if (query.accept(editor.getQueryContext()) && policy.accept(query))
+                if (query.accept(editor.getQueryContext()) && policy.accept(query) && !QueryBrowserProvider.unsuitableSubjects(query, editor.getQueryContext()))
                 {
                     if (defaultPolicy.equals(policy))
                         menu.add(new ExecuteQueryAction(editor, query));
@@ -115,7 +124,8 @@ public class QueryDropDownMenuAction extends EasyToolBarDropDown
 
     private void addHistory(PopupMenu menu)
     {
-        List<String> history = QueryHistory.getHistoryEntries();
+        // Use the query history provider to take account of context, policy and subjects
+        List<Element> history = Arrays.asList(qhp.getElements());
         if (!history.isEmpty())
         {
             menu.addSeparator();
@@ -125,8 +135,9 @@ public class QueryDropDownMenuAction extends EasyToolBarDropDown
             menu.add(historyMenu);
 
             int count = 0;
-            for (String cmd : history)
+            for (Element element : history)
             {
+                String cmd = element.getLabel();
                 historyMenu.add(new ExecuteQueryAction(editor, cmd));
 
                 if (++count == 10)

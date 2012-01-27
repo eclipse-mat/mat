@@ -24,9 +24,9 @@ import org.eclipse.mat.inspections.osgi.model.OSGiModel;
 import org.eclipse.mat.inspections.osgi.model.Service;
 import org.eclipse.mat.inspections.osgi.model.Service.ServiceProperty;
 import org.eclipse.mat.inspections.osgi.model.eclipse.ConfigurationElement;
+import org.eclipse.mat.inspections.osgi.model.eclipse.ConfigurationElement.PropertyPair;
 import org.eclipse.mat.inspections.osgi.model.eclipse.Extension;
 import org.eclipse.mat.inspections.osgi.model.eclipse.ExtensionPoint;
-import org.eclipse.mat.inspections.osgi.model.eclipse.ConfigurationElement.PropertyPair;
 import org.eclipse.mat.internal.MATPlugin;
 import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.Column;
@@ -40,11 +40,13 @@ import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.snapshot.ISnapshot;
+import org.eclipse.mat.snapshot.extension.Subject;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 
 @CommandName("bundle_registry")
 @Icon("/META-INF/icons/osgi/registry.gif")
+@Subject("org.eclipse.osgi.framework.internal.core.BundleRepository")
 public class BundleRegistryQuery implements IQuery
 {
     @Argument

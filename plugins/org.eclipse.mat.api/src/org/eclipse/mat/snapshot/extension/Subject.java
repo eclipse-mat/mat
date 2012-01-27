@@ -24,6 +24,9 @@ import java.lang.annotation.Target;
  * @Subject("com.example.class1")
  * </pre>
  * </code>
+ * See {@link Subjects} for multiple class names.
+ * <p>Experimental: can also be used to tag queries which only make sense when the class
+ * is present in the snapshot.
  */
 @Target( { TYPE })
 @Retention(RUNTIME)

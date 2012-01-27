@@ -487,6 +487,8 @@ public class Messages extends NLS
     public static String SnapshotQuery_ErrorMsg_NoResult;
     public static String SnapshotQuery_ErrorMsg_QueryNotAvailable;
     public static String SnapshotQuery_ErrorMsg_UnkownArgument;
+    public static String SnapshotQuery_ErrorMsg_UnsuitableSubjects;
+
     public static String SnapshotQuery_ErrorMsg_UnsupportedTyp;
 
     public static String SoftReferenceStatQuery_Label_Referenced;
