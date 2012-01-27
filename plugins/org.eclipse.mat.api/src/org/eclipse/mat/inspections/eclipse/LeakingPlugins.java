@@ -20,7 +20,7 @@ import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.results.TextResult;
 import org.eclipse.mat.snapshot.ISnapshot;
-import org.eclipse.mat.snapshot.extension.Subject;
+import org.eclipse.mat.snapshot.extension.Subjects;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IClassLoader;
 import org.eclipse.mat.snapshot.model.IObject;
@@ -28,7 +28,7 @@ import org.eclipse.mat.snapshot.query.ObjectListResult;
 import org.eclipse.mat.util.IProgressListener;
 
 @CommandName("leaking_bundles")
-@Subject("org.eclipse.osgi.framework.internal.core.BundleLoaderProxy")
+@Subjects({"org.eclipse.osgi.framework.internal.core.BundleLoaderProxy", "org.eclipse.osgi.internal.loader.BundleLoaderProxy"})
 public class LeakingPlugins implements IQuery
 {
     @Argument
@@ -39,6 +39,9 @@ public class LeakingPlugins implements IQuery
         // collect stale all class loaders
         Collection<IClass> classes = snapshot.getClassesByName(
                         "org.eclipse.osgi.framework.internal.core.BundleLoaderProxy", true); //$NON-NLS-1$
+        // Eclipse 3.5 and later?
+        if (classes == null)
+            classes = snapshot.getClassesByName("org.eclipse.osgi.internal.loader.BundleLoaderProxy", true); //$NON-NLS-1$
 
         ArrayInt result = new ArrayInt();
 
