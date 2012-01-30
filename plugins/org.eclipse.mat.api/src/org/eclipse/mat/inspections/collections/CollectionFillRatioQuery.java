@@ -83,7 +83,7 @@ public class CollectionFillRatioQuery implements IQuery
             CollectionUtil.Info info = new CollectionUtil.Info(collection, size_attribute, array_attribute);
             Collection<IClass> classes = snapshot.getClassesByName(collection, true);
 
-            if (classes.isEmpty())
+            if (classes == null || classes.isEmpty())
                 listener.sendUserMessage(IProgressListener.Severity.WARNING, MessageUtil.format(
                                 Messages.CollectionFillRatioQuery_ClassNotFound, collection), null);
 
