@@ -58,10 +58,14 @@ public class JRubyScriptResolver implements IRequestDetailsResolver {
 			String removedMethodName = realClassName.substring(0, realClassName.lastIndexOf('.'));
 			
 			
-			Collection<IClass> classesByName = snapshot.getClassesByName(removedMethodName, true);
-			for (IClass iClass : classesByName) {
-				possibleBundleSuspects.add(snapshot.getObject(iClass.getClassLoaderId()).getClassSpecificName());
-			}
+            Collection<IClass> classesByName = snapshot.getClassesByName(removedMethodName, true);
+            if (classesByName != null)
+            {
+                for (IClass iClass : classesByName)
+                {
+                    possibleBundleSuspects.add(snapshot.getObject(iClass.getClassLoaderId()).getClassSpecificName());
+                }
+            }
 		}
         CompositeResult result = new CompositeResult();
         

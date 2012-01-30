@@ -40,7 +40,7 @@ public class LeakingPlugins implements IQuery
         Collection<IClass> classes = snapshot.getClassesByName(
                         "org.eclipse.osgi.framework.internal.core.BundleLoaderProxy", true); //$NON-NLS-1$
         // Eclipse 3.5 and later?
-        if (classes == null)
+        if (classes == null || classes.isEmpty())
             classes = snapshot.getClassesByName("org.eclipse.osgi.internal.loader.BundleLoaderProxy", true); //$NON-NLS-1$
 
         ArrayInt result = new ArrayInt();

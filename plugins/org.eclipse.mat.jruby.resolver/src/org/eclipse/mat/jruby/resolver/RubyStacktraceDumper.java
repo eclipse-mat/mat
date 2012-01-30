@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2011 SAP AG.
+ * Copyright (c) 2010, 2012 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *    Dimitar Giormov - initial API and implementation
  *    Krum Tsvetkov - cleanup jruby dependency
+ *    Andrew Johnson - cleanup getClassesByName
  *******************************************************************************/
 package org.eclipse.mat.jruby.resolver;
 
@@ -44,7 +45,8 @@ public class RubyStacktraceDumper implements IRequestDetailsResolver {
 
 	public void complement(ISnapshot snapshot, IThreadInfo thread, int[] javaLocals, int thisJavaLocal, IProgressListener listener) throws SnapshotException {
         
-		if (snapshot.getClassesByName(THREAD_CONTEXT_CLASS, false) == null){
+		Collection<IClass> threadContextClasses = snapshot.getClassesByName(THREAD_CONTEXT_CLASS, false);
+        if (threadContextClasses == null || threadContextClasses.isEmpty()){
 			return;
 		}
 		Map<String, FrameModel[]> allStackTraces = getAllStackTraces(snapshot);
@@ -78,25 +80,27 @@ public class RubyStacktraceDumper implements IRequestDetailsResolver {
         }
     }
     
-	
+
 	private IObject findIncomingThreadRef(ISnapshot model, IObject threadContext) throws SnapshotException{
-		Collection<IClass> classesByName = model.getClassesByName("java.lang.Thread", false);
-    	for (IClass javaThreads : classesByName) {
-    		int[] objectIds = javaThreads.getObjectIds();
-    		for (int id : objectIds) {
-    			IObject jThread = model.getObject(id);
-    			List<NamedReference> outboundReferences = jThread.getOutboundReferences();
-    			for (NamedReference namedReference : outboundReferences) {
-    				IObject object = model.getObject(namedReference.getObjectId());
-    				if(object.getTechnicalName().startsWith(THREAD_CONTEXT_CLASS)){
-    					if (object.getObjectId() == threadContext.getObjectId()){
-    						return jThread;
-    					}
-    				}
-				}
-    		}
-    	}
-    	return null;
+	    Collection<IClass> classesByName = model.getClassesByName("java.lang.Thread", false);
+	    if (classesByName != null) {
+	        for (IClass javaThreads : classesByName) {
+	            int[] objectIds = javaThreads.getObjectIds();
+	            for (int id : objectIds) {
+	                IObject jThread = model.getObject(id);
+	                List<NamedReference> outboundReferences = jThread.getOutboundReferences();
+	                for (NamedReference namedReference : outboundReferences) {
+	                    IObject object = model.getObject(namedReference.getObjectId());
+	                    if(object.getTechnicalName().startsWith(THREAD_CONTEXT_CLASS)){
+	                        if (object.getObjectId() == threadContext.getObjectId()){
+	                            return jThread;
+	                        }
+	                    }
+	                }
+	            }
+	        }
+	    }
+	    return null;
 	}
     /**
      * Extracts the Ruby stack trace for all active Ruby threads in the given heap dump.
@@ -111,43 +115,45 @@ public class RubyStacktraceDumper implements IRequestDetailsResolver {
         Collection<IClass> classesByName2 = model.getClassesByName(THREAD_CONTEXT_CLASS, false);
         //If the thread name cannot be found a default name with index is assigned.
         int tempIndex = 0;
-        for (IClass threadContextClass : classesByName2) {
-        	int[] objectIds = threadContextClass.getObjectIds();
-        	for (int id : objectIds) {
-        		IObject threadContext = model.getObject(id);
+        if (classesByName2 != null) {
+            for (IClass threadContextClass : classesByName2) {
+                int[] objectIds = threadContextClass.getObjectIds();
+                for (int id : objectIds) {
+                    IObject threadContext = model.getObject(id);
 
-        		IObject rubyThread = (IObject) threadContext.resolveValue("thread");
-        		String javaThreadName = javaThreadNameForRubyThread.get(rubyThread); // TODO check if this works
+                    IObject rubyThread = (IObject) threadContext.resolveValue("thread");
+                    String javaThreadName = javaThreadNameForRubyThread.get(rubyThread); // TODO check if this works
 
-        		final String currentFile = ((IObject) threadContext.resolveValue("file")).getClassSpecificName();
-        		final int currentLine = (Integer) threadContext.resolveValue("line");
+                    final String currentFile = ((IObject) threadContext.resolveValue("file")).getClassSpecificName();
+                    final int currentLine = (Integer) threadContext.resolveValue("line");
 
-        		IObjectArray frames = (IObjectArray) threadContext.resolveValue("frameStack");
-        		final int frameIndex = (Integer) threadContext.resolveValue("frameIndex");
-        		// + 1 for the fact that frameIndex is the index of the top of the stack, 
-        		// + 1 for the extra frame to include the current file/line number.
-        		final int traceSize = frameIndex + 2;
-        		final FrameModel[] backtraceFrames = new FrameModel[traceSize];
+                    IObjectArray frames = (IObjectArray) threadContext.resolveValue("frameStack");
+                    final int frameIndex = (Integer) threadContext.resolveValue("frameIndex");
+                    // + 1 for the fact that frameIndex is the index of the top of the stack, 
+                    // + 1 for the extra frame to include the current file/line number.
+                    final int traceSize = frameIndex + 2;
+                    final FrameModel[] backtraceFrames = new FrameModel[traceSize];
 
-        		// Fill in the extra stack frame for the current location.
-        		// The class/method names won't be used - they come from the next frame up.
-        		backtraceFrames[0] = new FrameModel(
-        				Messages.RubyStacktraceDumper_Unknown, Messages.RubyStacktraceDumper_Unknown, 
-        				currentFile, currentLine + 1, false);
+                    // Fill in the extra stack frame for the current location.
+                    // The class/method names won't be used - they come from the next frame up.
+                    backtraceFrames[0] = new FrameModel(
+                                    Messages.RubyStacktraceDumper_Unknown, Messages.RubyStacktraceDumper_Unknown, 
+                                    currentFile, currentLine + 1, false);
 
-        		// This is pretty much identical to ThreadContext#buildTrace(RubyStackTraceElement[])
-        		long[] addresses = frames.getReferenceArray();
-        		for (int i = 0; i <= frameIndex; i++) {
-        			IObject frameObject = model.getObject(model.mapAddressToId(addresses[i]));
-        			FrameModel frame = new FrameModel(frameObject);
-        			backtraceFrames[traceSize - 1 - i] = frame;
-        		}
+                    // This is pretty much identical to ThreadContext#buildTrace(RubyStackTraceElement[])
+                    long[] addresses = frames.getReferenceArray();
+                    for (int i = 0; i <= frameIndex; i++) {
+                        IObject frameObject = model.getObject(model.mapAddressToId(addresses[i]));
+                        FrameModel frame = new FrameModel(frameObject);
+                        backtraceFrames[traceSize - 1 - i] = frame;
+                    }
 
-        		if (javaThreadName == null){
-        			javaThreadName = "Unknown Thread" + tempIndex++;
-        		}
-        		stackTraces.put(javaThreadName, backtraceFrames);
-			}
+                    if (javaThreadName == null){
+                        javaThreadName = "Unknown Thread" + tempIndex++;
+                    }
+                    stackTraces.put(javaThreadName, backtraceFrames);
+                }
+            }
         }
 
         return stackTraces;
@@ -156,9 +162,9 @@ public class RubyStacktraceDumper implements IRequestDetailsResolver {
 	protected void gatherThreadMap(final ISnapshot model,
 			final Map<IObject, String> javaThreadNameForRubyThread)
 			throws SnapshotException {
-		if (model.getClassesByName(RUBY_RUNNABLE_CLASS, false) != null) {
-        	Collection<IClass> classesByName = model.getClassesByName(RUBY_RUNNABLE_CLASS, false);
-        	for (IClass rubyRunnableClass : classesByName) {
+		Collection<IClass> rubyRunnableClasses = model.getClassesByName(RUBY_RUNNABLE_CLASS, false);
+        if (rubyRunnableClasses != null) {
+        	for (IClass rubyRunnableClass : rubyRunnableClasses) {
         		int[] objectIds = rubyRunnableClass.getObjectIds();
         		for (int id : objectIds) {
         			IObject runnable = model.getObject(id);
@@ -174,9 +180,9 @@ public class RubyStacktraceDumper implements IRequestDetailsResolver {
         		}
         	}
         } 
-		if (model.getClassesByName(THREAD_CONTEXT_CLASS, false) != null) {
-        	Collection<IClass> classesByName = model.getClassesByName(THREAD_CONTEXT_CLASS, false);
-        	for (IClass threadContextClass : classesByName) {
+		Collection<IClass> threadContextClasses = model.getClassesByName(THREAD_CONTEXT_CLASS, false);
+        if (threadContextClasses != null) {
+        	for (IClass threadContextClass : threadContextClasses) {
         		int[] objectIds = threadContextClass.getObjectIds();
         		for (int id : objectIds) {
         			IObject tctxt = model.getObject(id);
@@ -190,8 +196,9 @@ public class RubyStacktraceDumper implements IRequestDetailsResolver {
         	}
         }
 //		else {
-        	Collection<IClass> classesByName = model.getClassesByName("java.lang.Thread", false);
-        	for (IClass javaThreads : classesByName) {
+        Collection<IClass> threadClasses = model.getClassesByName("java.lang.Thread", false);
+        if (threadClasses != null) {	
+            for (IClass javaThreads : threadClasses) {
         		int[] objectIds = javaThreads.getObjectIds();
         		IObject rubyThread = null;
         		IObject thread = null;
@@ -216,7 +223,8 @@ public class RubyStacktraceDumper implements IRequestDetailsResolver {
         			}
         		}
         	}
-//        }
+        }
+//      }
 	}
     
     private static String getMethodNameFromFrame(FrameModel current) {

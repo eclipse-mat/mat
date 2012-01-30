@@ -729,7 +729,7 @@ public class ComponentReportQuery implements IQuery
                     throws SnapshotException
     {
         Collection<IClass> classes = snapshot.getClassesByName(className, true);
-        if (classes == null)
+        if (classes == null || classes.isEmpty())
         {
             addEmptyResult(componentReport, messages.ReferenceStatistics,
                             messages.Msg_NoReferencesFound);
@@ -866,7 +866,7 @@ public class ComponentReportQuery implements IQuery
                     throws SnapshotException
     {
         Collection<IClass> classes = snapshot.getClassesByName("java.lang.ref.Finalizer", true); //$NON-NLS-1$
-        if (classes == null)
+        if (classes == null || classes.isEmpty())
         {
             addEmptyResult(componentReport, Messages.ComponentReportQuery_FinalizerStatistics,
                             Messages.ComponentReportQuery_Msg_NoFinalizerObjects);

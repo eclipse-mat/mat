@@ -99,7 +99,7 @@ public class SnapshotQuery
                 try
                 {
                     Collection<IClass> ss = snapshot.getClassesByName(cn, false);
-                    if (ss == null || ss.size() == 0)
+                    if (ss == null || ss.isEmpty())
                         continue;
                     count += ss.size();
                     break;
