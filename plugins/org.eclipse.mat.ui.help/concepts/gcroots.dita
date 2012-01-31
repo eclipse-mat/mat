@@ -74,7 +74,7 @@
 				file/network I/O methods or reflection.</dd>
 			</dlentry>
 			<dlentry>
-			<dt>Finalizer</dt><dd>An object which is in a queue awaiting its finalizer to be run.
+			<dt>Finalizable</dt><dd>An object which is in a queue awaiting its finalizer to be run.
 			</dd>
 			</dlentry>
 			<dlentry>
@@ -86,6 +86,11 @@
 			<dt>Unreachable</dt><dd>An object which is unreachable from any other root, but has been 
 			marked as a root by MAT to retain objects which otherwise would not
 			be included in the analysis.
+			</dd>
+			</dlentry>
+			<dlentry>
+			<dt>Java Stack Frame</dt><dd>A Java stack frame, holding local variables. Only generated when the
+			dump is parsed with the preference set to treat Java stack frames as objects.
 			</dd>
 			</dlentry>
 			<dlentry>
