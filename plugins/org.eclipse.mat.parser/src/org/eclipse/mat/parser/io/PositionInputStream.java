@@ -82,15 +82,15 @@ public class PositionInputStream extends FilterInputStream implements DataInput
 
     public final int skipBytes(long n) throws IOException
     {
-        int total = 0;
-        int cur = 0;
+        long total = 0;
+        long cur = 0;
 
-        while ((total < n) && ((cur = (int) skip(n - total)) > 0))
+        while ((total < n) && ((cur = skip(n - total)) > 0))
         {
             total += cur;
         }
 
-        return total;
+        return (int)total;
     }
 
     public final void readFully(byte b[]) throws IOException

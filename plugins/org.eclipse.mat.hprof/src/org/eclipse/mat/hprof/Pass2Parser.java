@@ -284,7 +284,7 @@ public class Pass2Parser extends AbstractParser
         handler.addObject(heapObject, segmentStartPost);
 
         int elementSize = IPrimitiveArray.ELEMENT_SIZE[elementType];
-        in.skipBytes(elementSize * size);
+        in.skipBytes((long)elementSize * size);
     }
 
 }

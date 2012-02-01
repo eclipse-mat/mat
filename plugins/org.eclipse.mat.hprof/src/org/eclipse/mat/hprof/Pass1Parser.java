@@ -435,7 +435,7 @@ public class Pass1Parser extends AbstractParser
         if (arrayType == null)
             handler.reportRequiredObjectArray(arrayClassObjectID);
 
-        in.skipBytes(size * idSize);
+        in.skipBytes((long)size * idSize);
     }
 
     private void readPrimitiveArrayDump(long segmentStartPos) throws SnapshotException, IOException
@@ -457,7 +457,7 @@ public class Pass1Parser extends AbstractParser
             handler.reportRequiredPrimitiveArray(elementType);
 
         int elementSize = IPrimitiveArray.ELEMENT_SIZE[elementType];
-        in.skipBytes(elementSize * size);
+        in.skipBytes((long)elementSize * size);
     }
 
     private String getStringConstant(long address)
