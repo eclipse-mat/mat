@@ -12,6 +12,7 @@
 package org.eclipse.mat.inspections.collections;
 
 import java.util.Collection;
+import java.util.Collections;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.HashMapIntObject;
@@ -76,8 +77,10 @@ public class CollectionsBySizeQuery implements IQuery
 
             CollectionUtil.Info info = new CollectionUtil.Info(collection, size_attribute, null);
             Collection<IClass> classes = snapshot.getClassesByName(collection, true);
+            if (classes == null)
+                classes = Collections.emptySet();
 
-            if (classes == null || classes.isEmpty())
+            if (classes.isEmpty())
                 listener.sendUserMessage(IProgressListener.Severity.WARNING, MessageUtil.format(
                                 Messages.CollectionsBySizeQuery_ClassNotFound, collection), null);
 
