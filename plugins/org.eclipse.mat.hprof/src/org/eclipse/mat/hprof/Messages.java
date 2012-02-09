@@ -52,6 +52,7 @@ public class Messages extends NLS
     public static String Pass1Parser_Info_UsingDumpIndex;
     public static String Pass1Parser_Info_WroteThreadsTo;
     public static String Pass1Parser_Error_WritingThreadsInformation;
+    public static String Pass1Parser_UnexpectedEndPosition;
     static
     {
         // initialize resource bundle

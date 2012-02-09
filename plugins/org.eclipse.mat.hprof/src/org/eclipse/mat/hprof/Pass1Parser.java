@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others.
+ * Copyright (c) 2008, 2012 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation - additional debug information
  *******************************************************************************/
 package org.eclipse.mat.hprof;
 
@@ -22,6 +23,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.HashMapLongObject;
 import org.eclipse.mat.parser.io.PositionInputStream;
@@ -32,9 +34,9 @@ import org.eclipse.mat.snapshot.model.GCRootInfo;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IPrimitiveArray;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.IProgressListener.Severity;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.SimpleMonitor;
-import org.eclipse.mat.util.IProgressListener.Severity;
 
 public class Pass1Parser extends AbstractParser
 {
@@ -49,6 +51,9 @@ public class Pass1Parser extends AbstractParser
     private HashMapLongObject<List<JavaLocal>> thread2locals = new HashMapLongObject<List<JavaLocal>>();
     private IHprofParserHandler handler;
     private SimpleMonitor.Listener monitor;
+    private final boolean verbose = Platform.inDebugMode()
+                    && HprofPlugin.getDefault().isDebugging()
+                    && Boolean.parseBoolean(Platform.getDebugOption("org.eclipse.mat.hprof/debug/parser")); //$NON-NLS-1$
 
     public Pass1Parser(IHprofParserHandler handler, SimpleMonitor.Listener monitor)
     {
@@ -93,6 +98,8 @@ public class Pass1Parser extends AbstractParser
                 in.skipBytes(4); // time stamp
 
                 long length = readUnsignedInt();
+                if (verbose)
+                    System.out.println("Read record type "+record+", length "+length+" at position 0x"+Long.toHexString(curPos)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 if (length < 0)
                     throw new SnapshotException(MessageUtil.format(Messages.Pass1Parser_Error_IllegalRecordLength, length,
                                     in.position(), record));
@@ -169,7 +176,7 @@ public class Pass1Parser extends AbstractParser
         long id = readID();
         byte[] chars = new byte[(int) (length - idSize)];
         in.readFully(chars);
-        handler.getConstantPool().put(id, new String(chars, "UTF-8"));
+        handler.getConstantPool().put(id, new String(chars, "UTF-8")); //$NON-NLS-1$
     }
 
     private void readLoadClass() throws IOException
@@ -227,6 +234,8 @@ public class Pass1Parser extends AbstractParser
             }
 
             int segmentType = in.readUnsignedByte();
+            if (verbose)
+                System.out.println("    Read heap sub-record type "+segmentType+" at position 0x"+Long.toHexString(segmentStartPos)); //$NON-NLS-1$ //$NON-NLS-2$
             switch (segmentType)
             {
                 case Constants.DumpSegment.ROOT_UNKNOWN:
@@ -275,6 +284,10 @@ public class Pass1Parser extends AbstractParser
 
             segmentStartPos = in.position();
         }
+        if (verbose)
+            System.out.println("    Finished heap sub-records."); //$NON-NLS-1$
+        if (segmentStartPos != segmentsEndPos)
+            monitor.sendUserMessage(Severity.WARNING, MessageUtil.format(Messages.Pass1Parser_UnexpectedEndPosition, Long.toHexString(segmentsEndPos - length), length, Long.toHexString(segmentStartPos), Long.toHexString(segmentsEndPos)), null);
     }
 
     private void readGCThreadObject(int gcType) throws IOException
