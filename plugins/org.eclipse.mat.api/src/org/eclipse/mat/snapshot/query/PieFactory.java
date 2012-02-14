@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2009 SAP AG and others.
+ * Copyright (c) 2008, 2012 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,9 +7,11 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation - improvements, bug 364505
  *******************************************************************************/
 package org.eclipse.mat.snapshot.query;
 
+import java.awt.Color;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -112,11 +114,29 @@ public final class PieFactory
      */
     public Slice addSlice(int objectId) throws SnapshotException
     {
+        return addSlice(objectId, null);
+    }
+
+    /**
+     * Create and add a new slice for the given object. The size of the slice is
+     * determined by the retained size.
+     * <p>
+     * To use this method, one needs to pass a {@link ISnapshot} to the
+     * constructor.
+     * 
+     * @param objectId
+     *            object id
+     * @param color
+     *            Explicit color of the slice
+     * @return a new slice
+     */
+    public Slice addSlice(int objectId, Color color) throws SnapshotException
+    {
         if (snapshot == null)
             throw new NullPointerException(Messages.PieFactory_ErrorMsg_NoSnapshotAvailable);
 
         IObject obj = snapshot.getObject(objectId);
-        return addSlice(obj);
+        return addSlice(obj, color);
     }
 
     /**
@@ -128,8 +148,22 @@ public final class PieFactory
      */
     public Slice addSlice(IObject object)
     {
+        return addSlice(object, null);
+    }
+    
+    /**
+     * Create and add a new slice for the given object. The size of the slice is
+     * determined by the retained size.
+     * 
+     * @param object
+     * @param color
+     *        Explicit color of the slice
+     * @return a new slice
+     */
+    public Slice addSlice(IObject object, Color color)
+    {
         return addSlice(object.getObjectId(), object.getDisplayName(), object.getUsedHeapSize(), object
-                        .getRetainedHeapSize());
+                        .getRetainedHeapSize(), color);
     }
 
     /**
@@ -147,10 +181,31 @@ public final class PieFactory
      */
     public Slice addSlice(int objectId, String label, long usedHeapSize, long retainedHeapSize)
     {
+        return addSlice(objectId, label, usedHeapSize, retainedHeapSize, null);
+    }
+    
+    /**
+     *Create and add a new slice for the given object.
+     * 
+     * @param objectId
+     *            object id
+     * @param label
+     *            (optionally) a label describing the object (for display)
+     * @param usedHeapSize
+     *            (optionally) the used heap size (for display)
+     * @param retainedHeapSize
+     *            the retained size which determines the size of the slice
+     * @param color
+     *            the color to use for the slice
+     * @return a new slice
+     */
+    public Slice addSlice(int objectId, String label, long usedHeapSize, long retainedHeapSize, Color color)
+    {
         SliceImpl slice = new SliceImpl(objectId);
         slice.label = label != null ? label : ""; //$NON-NLS-1$
         slice.shallowSize = usedHeapSize;
         slice.retainedSize = retainedHeapSize;
+        slice.color = color;
         slices.add(slice);
 
         retainedHeapBySlices += slice.retainedSize;
@@ -206,6 +261,7 @@ public final class PieFactory
         String label;
         long shallowSize;
         long retainedSize;
+        Color color;
 
         private SliceImpl(int objectId)
         {
@@ -256,6 +312,11 @@ public final class PieFactory
             {
                 return null;
             }
+        }
+        
+        public Color getColor()
+        {
+            return color;
         }
     }
 

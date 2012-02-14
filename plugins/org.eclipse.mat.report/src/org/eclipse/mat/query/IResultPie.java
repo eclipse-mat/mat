@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2012 SAP AG.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,9 +7,11 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation - improvements, bug 364505
  *******************************************************************************/
 package org.eclipse.mat.query;
 
+import java.awt.Color;
 import java.util.List;
 
 /**
@@ -33,6 +35,8 @@ public interface IResultPie extends IResult
         String getDescription();
 
         IContextObject getContext();
+        
+        Color getColor();
     }
 
     /**

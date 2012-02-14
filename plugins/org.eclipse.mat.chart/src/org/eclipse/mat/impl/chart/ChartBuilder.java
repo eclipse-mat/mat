@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 SAP AG and others.
+ * Copyright (c) 2008, 2012 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,10 +7,11 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
- *    IBM Corporation - accessibility improvements
+ *    IBM Corporation - accessibility improvements, bug 364505
  *******************************************************************************/
 package org.eclipse.mat.impl.chart;
 
+import java.awt.Color;
 import java.util.List;
 
 import org.eclipse.birt.chart.model.Chart;
@@ -18,6 +19,7 @@ import org.eclipse.birt.chart.model.ChartWithoutAxes;
 import org.eclipse.birt.chart.model.attribute.ActionType;
 import org.eclipse.birt.chart.model.attribute.Anchor;
 import org.eclipse.birt.chart.model.attribute.ColorDefinition;
+import org.eclipse.birt.chart.model.attribute.Fill;
 import org.eclipse.birt.chart.model.attribute.Position;
 import org.eclipse.birt.chart.model.attribute.TriggerCondition;
 import org.eclipse.birt.chart.model.attribute.impl.CallBackValueImpl;
@@ -45,8 +47,6 @@ import org.eclipse.mat.util.Units;
 
 public class ChartBuilder
 {
-
-    @SuppressWarnings("unchecked")
     public static final Chart create(IResultPie pie, boolean isInteractive, ColorDefinition background,
                     ColorDefinition foreground)
     {
@@ -134,13 +134,22 @@ public class ChartBuilder
 
         chart.getSeriesDefinitions().add(sd);
 
-        EList entries = sd.getSeriesPalette().getEntries();
+        EList<Fill> entries = sd.getSeriesPalette().getEntries();
         entries.clear();
         int index = 0;
         while (index < slices.size() - 1)
         {
             int[] color = COLORS[index % COLORS.length];
-            ColorDefinition defn = ColorDefinitionImpl.create(color[0], color[1], color[2]);
+            ColorDefinition defn;
+            Color explicitColor = slices.get(index).getColor();
+            if (explicitColor == null)
+            {
+                defn = ColorDefinitionImpl.create(color[0], color[1], color[2]);
+            }
+            else
+            {
+                defn = ColorDefinitionImpl.create(explicitColor.getRed(), explicitColor.getGreen(), explicitColor.getBlue());
+            }
             entries.add(defn);
 
             index++;
