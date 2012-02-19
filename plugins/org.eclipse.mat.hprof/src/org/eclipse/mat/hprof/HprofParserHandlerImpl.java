@@ -26,10 +26,11 @@ import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.collect.HashMapLongObject;
 import org.eclipse.mat.collect.IteratorLong;
 import org.eclipse.mat.parser.IPreliminaryIndex;
-import org.eclipse.mat.parser.index.IndexWriter;
 import org.eclipse.mat.parser.index.IIndexReader.IOne2LongIndex;
 import org.eclipse.mat.parser.index.IndexManager.Index;
+import org.eclipse.mat.parser.index.IndexWriter;
 import org.eclipse.mat.parser.model.ClassImpl;
+import org.eclipse.mat.parser.model.PrimitiveArrayImpl;
 import org.eclipse.mat.parser.model.XGCRootInfo;
 import org.eclipse.mat.parser.model.XSnapshotInfo;
 import org.eclipse.mat.snapshot.model.Field;
@@ -65,6 +66,13 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
 
     private HashMapLongObject<HashMapLongObject<List<XGCRootInfo>>> threadAddressToLocals = new HashMapLongObject<HashMapLongObject<List<XGCRootInfo>>>();
 
+    // The size of (possibly compressed) references in the heap
+    private int refSize;
+    // The size of uncompressed pointers in the object headers in the heap
+    private int pointerSize;
+    // The alignment between successive objects
+    private int objectAlign;
+
     // //////////////////////////////////////////////////////////////
     // lifecycle
     // //////////////////////////////////////////////////////////////
@@ -82,6 +90,9 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
 
         // sort and assign preliminary object ids
         identifiers.sort();
+
+        // See what the actual object alignment is
+        calculateAlignment();
 
         // if necessary, create required classes not contained in the heap
         if (!requiredArrayClassIDs.isEmpty() || !requiredPrimitiveArrays.isEmpty())
@@ -165,6 +176,51 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
         constantPool = null;
     }
 
+    /**
+     * Calculate possible restrictions on object alignment by finding the GCD of differences
+     * between object addresses (ignoring address 0).
+     */
+    private void calculateAlignment()
+    {
+        // Minimum alignment of 8 bytes
+        final int minAlign = 8;
+        // Maximum alignment of 256 bytes
+        final int maxAlign = 256;
+        long prev = 0;
+        long align = 0;
+        for (IteratorLong it = identifiers.iterator(); it.hasNext(); )
+        {
+            long next = it.next();
+            if (next == 0)
+                continue;
+            long diff = next - prev;
+            prev = next;
+            if (next == diff)
+                continue;
+            if (align == 0)
+            {
+                align = diff;
+            }
+            else
+            {
+                long mx = Math.max(align, diff);
+                long mn = Math.min(align, diff);
+                long d = mx % mn;
+                while (d != 0) {
+                    mx = mn;
+                    mn = d;
+                    d = mx % mn;
+                }
+                align = mn;
+                // Minimum alignment
+                if (align <= minAlign)
+                    break;
+            }
+        }
+        // Sanitise the alignment
+        objectAlign = Math.max((int)Math.min(align, maxAlign), minAlign);
+    }
+
     private void createRequiredFakeClasses() throws IOException, SnapshotException
     {
         // we know: system class loader has object address 0
@@ -215,32 +271,32 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
         identifiers.sort();
     }
 
-	private int calculateInstanceSize(ClassImpl clazz)
-	{
-		if (!clazz.isArrayType())
-		{
-			return alignUpToX(calculateSizeRecursive(clazz), 8);
-		}
-		else
-		{
-			// use the instanceSize only to pass the proper ID size
-			// arrays calculate the rest themselves.
-			return info.getIdentifierSize();
-		}
-	}
+    private int calculateInstanceSize(ClassImpl clazz)
+    {
+        if (!clazz.isArrayType())
+        {
+            return alignUpToX(calculateSizeRecursive(clazz), objectAlign);
+        }
+        else
+        {
+            // use the referenceSize only to pass the proper ID size
+            // arrays calculate the rest themselves.
+            return refSize;
+        }
+    }
     
 	private int calculateSizeRecursive(ClassImpl clazz)
 	{
 		if (clazz.getSuperClassAddress() == 0)
 		{
-			return 2 * info.getIdentifierSize();
+			return pointerSize + refSize;
 		}
 		ClassImpl superClass = classesByAddress.get(clazz.getSuperClassAddress());
 		int ownFieldsSize = 0;
 		for (FieldDescriptor field : clazz.getFieldDescriptors())
 			ownFieldsSize += sizeOf(field);
 
-		return alignUpToX(ownFieldsSize + calculateSizeRecursive(superClass), info.getIdentifierSize());
+		return alignUpToX(ownFieldsSize + calculateSizeRecursive(superClass), refSize);
 	}
 
     private int calculateClassSize(ClassImpl clazz)
@@ -248,14 +304,14 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
         int staticFieldsSize = 0;
         for (Field field : clazz.getStaticFields())
             staticFieldsSize += sizeOf(field);
-        return alignUpToX(staticFieldsSize, 8);
+        return alignUpToX(staticFieldsSize, objectAlign);
     }
 
     private int sizeOf(FieldDescriptor field)
     {
         int type = field.getType();
         if (type == 2)
-            return info.getIdentifierSize();
+            return refSize;
 
         return IPrimitiveArray.ELEMENT_SIZE[type];
     }
@@ -263,6 +319,12 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
     private int alignUpToX(int n, int x)
     {
         int r = n % x;
+        return r == 0 ? n : n + x - r;
+    }
+
+    private long alignUpToX(long n, int x)
+    {
+        long r = n % x;
         return r == 0 ? n : n + x - r;
     }
 
@@ -376,11 +438,18 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
         }
         else if (IHprofParserHandler.IDENTIFIER_SIZE.equals(name))
         {
-            info.setIdentifierSize(Integer.parseInt(value));
+            int idSize = Integer.parseInt(value);
+            info.setIdentifierSize(idSize);
+            pointerSize = idSize;
+            refSize = idSize;
         }
         else if (IHprofParserHandler.CREATION_DATE.equals(name))
         {
             info.setCreationDate(new Date(Long.parseLong(value)));
+        }
+        else if (IHprofParserHandler.REFERENCE_SIZE.equals(name))
+        {
+            refSize = Integer.parseInt(value);
         }
     }
 
@@ -526,6 +595,18 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
     public XSnapshotInfo getSnapshotInfo()
     {
         return info;
+    }
+
+    public long getObjectArrayHeapSize(ClassImpl arrayType, int size)
+    {
+        long usedHeapSize = alignUpToX(pointerSize + refSize + 4 + size * arrayType.getHeapSizePerInstance(), objectAlign);
+        return usedHeapSize;
+    }
+
+    public long getPrimitiveArrayHeapSize(byte elementType, int size)
+    {
+        long usedHeapSize = alignUpToX(alignUpToX(pointerSize + refSize + 4, refSize) + size * (long)PrimitiveArrayImpl.ELEMENT_SIZE[(int) elementType], objectAlign);
+        return usedHeapSize;
     }
 
 }

@@ -51,6 +51,9 @@ public class Pass1Parser extends AbstractParser
     private HashMapLongObject<List<JavaLocal>> thread2locals = new HashMapLongObject<List<JavaLocal>>();
     private IHprofParserHandler handler;
     private SimpleMonitor.Listener monitor;
+    private long previousArrayStart;
+    private long previousArrayUncompressedEnd;
+    private boolean foundCompressed;
     private final boolean verbose = Platform.inDebugMode()
                     && HprofPlugin.getDefault().isDebugging()
                     && Boolean.parseBoolean(Platform.getDebugOption("org.eclipse.mat.hprof/debug/parser")); //$NON-NLS-1$
@@ -437,6 +440,13 @@ public class Pass1Parser extends AbstractParser
     private void readObjectArrayDump(long segmentStartPos) throws IOException
     {
         long address = readID();
+        if (!foundCompressed && idSize == 8 && address > previousArrayStart && address < previousArrayUncompressedEnd)
+        {
+            monitor.sendUserMessage(Severity.INFO, MessageUtil.format(Messages.Pass1Parser_DetectedCompressedReferences,Long.toHexString(address), Long.toHexString(previousArrayStart)), null);
+            handler.addProperty(IHprofParserHandler.REFERENCE_SIZE, "4"); //$NON-NLS-1$
+            foundCompressed = true;
+        }
+
         handler.reportInstance(address, segmentStartPos);
 
         in.skipBytes(4);
@@ -449,6 +459,8 @@ public class Pass1Parser extends AbstractParser
             handler.reportRequiredObjectArray(arrayClassObjectID);
 
         in.skipBytes((long)size * idSize);
+        previousArrayStart = address;
+        previousArrayUncompressedEnd = address + 16 + size * 8;
     }
 
     private void readPrimitiveArrayDump(long segmentStartPos) throws SnapshotException, IOException

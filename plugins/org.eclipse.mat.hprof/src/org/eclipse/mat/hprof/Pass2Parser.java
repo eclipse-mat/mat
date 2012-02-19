@@ -20,8 +20,6 @@ import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.hprof.IHprofParserHandler.HeapObject;
 import org.eclipse.mat.parser.io.PositionInputStream;
 import org.eclipse.mat.parser.model.ClassImpl;
-import org.eclipse.mat.parser.model.ObjectArrayImpl;
-import org.eclipse.mat.parser.model.PrimitiveArrayImpl;
 import org.eclipse.mat.snapshot.model.FieldDescriptor;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
@@ -157,7 +155,7 @@ public class Pass2Parser extends AbstractParser
                     readObjectArrayDump(segmentStartPos);
                     break;
                 case Constants.DumpSegment.PRIMITIVE_ARRAY_DUMP:
-                    readPrimitveArrayDump(segmentStartPos);
+                    readPrimitiveArrayDump(segmentStartPos);
                     break;
                 default:
                     throw new SnapshotException(MessageUtil.format(Messages.Pass1Parser_Error_InvalidHeapDumpFile,
@@ -244,8 +242,8 @@ public class Pass2Parser extends AbstractParser
                             Messages.Pass2Parser_Error_HandlerMustCreateFakeClassForAddress, Long
                                             .toHexString(arrayClassObjectID)));
 
-        HeapObject heapObject = new HeapObject(handler.mapAddressToId(id), id, arrayType, ObjectArrayImpl
-                        .doGetUsedHeapSize(arrayType, size));
+        long usedHeapSize = handler.getObjectArrayHeapSize(arrayType, size);
+        HeapObject heapObject = new HeapObject(handler.mapAddressToId(id), id, arrayType, usedHeapSize);
         heapObject.references.add(arrayType.getObjectAddress());
         heapObject.isArray = true;
 
@@ -259,7 +257,7 @@ public class Pass2Parser extends AbstractParser
         handler.addObject(heapObject, segmentStartPos);
     }
 
-    private void readPrimitveArrayDump(long segmentStartPost) throws SnapshotException, IOException
+    private void readPrimitiveArrayDump(long segmentStartPost) throws SnapshotException, IOException
     {
         long id = readID();
 
@@ -276,8 +274,8 @@ public class Pass2Parser extends AbstractParser
             throw new RuntimeException(MessageUtil.format(Messages.Pass2Parser_Error_HandleMustCreateFakeClassForName,
                             name));
 
-        HeapObject heapObject = new HeapObject(handler.mapAddressToId(id), id, clazz, PrimitiveArrayImpl
-                        .doGetUsedHeapSize(clazz, size, elementType));
+        long usedHeapSize = handler.getPrimitiveArrayHeapSize(elementType, size);
+        HeapObject heapObject = new HeapObject(handler.mapAddressToId(id), id, clazz, usedHeapSize);
         heapObject.references.add(clazz.getObjectAddress());
         heapObject.isArray = true;
 

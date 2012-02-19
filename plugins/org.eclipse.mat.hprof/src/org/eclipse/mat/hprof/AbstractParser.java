@@ -94,6 +94,7 @@ import org.eclipse.mat.util.MessageUtil;
 
     protected PositionInputStream in;
     protected Version version;
+    // The size of identifiers in the dump file
     protected int idSize;
 
     /* package */AbstractParser()

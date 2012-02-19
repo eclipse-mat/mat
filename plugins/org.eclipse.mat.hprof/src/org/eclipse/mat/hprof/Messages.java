@@ -39,7 +39,8 @@ public class Messages extends NLS
 	public static String JMapHeapDumpProvider_WaitForHeapDump;
 	public static String LocalJavaProcessesUtils_ErrorGettingProcesses;
 	public static String LocalJavaProcessesUtils_ErrorGettingProcessListJPS;
-	public static String Pass1Parser_Error_IllegalRecordLength;
+	public static String Pass1Parser_DetectedCompressedReferences;
+    public static String Pass1Parser_Error_IllegalRecordLength;
     public static String Pass1Parser_Error_IllegalType;
     public static String Pass1Parser_Error_InvalidHeapDumpFile;
     public static String Pass1Parser_Error_invalidHPROFFile;
