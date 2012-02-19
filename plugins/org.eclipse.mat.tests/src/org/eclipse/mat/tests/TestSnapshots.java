@@ -38,10 +38,14 @@ public class TestSnapshots
     public static final String SUN_JDK6_32BIT = "dumps/sun_jdk6_32bit.hprof";
     public static final String SUN_JDK6_18_32BIT = "dumps/sun_jdk6_18_x32.hprof";
     public static final String SUN_JDK6_18_64BIT = "dumps/sun_jdk6_18_x64.hprof";
+    public static final String SUN_JDK6_30_64BIT_COMPRESSED_OOPS = "dumps/sun_jdk6_30_x64_compressedOops.hprof";
+    public static final String SUN_JDK6_30_64BIT_NOCOMPRESSED_OOPS = "dumps/sun_jdk6_30_x64_nocompressedOops.hprof";
     public static final String SUN_JDK5_13_32BIT = "dumps/sun_jdk5_13_x32.hprof";
     public static final String HISTOGRAM_SUN_JDK6_18_32BIT = "dumps/histogram_sun_jdk6_18_x32.txt";
     public static final String HISTOGRAM_SUN_JDK5_13_32BIT = "dumps/histogram_sun_jdk5_13_x32.txt";
     public static final String HISTOGRAM_SUN_JDK6_18_64BIT = "dumps/histogram_sun_jdk6_18_x64.txt";
+    public static final String HISTOGRAM_SUN_JDK6_30_64BIT_COMPRESSED_OOPS = "dumps/sun_jdk6_30_x64_compressedOops.notes.txt";
+    public static final String HISTOGRAM_SUN_JDK6_30_64BIT_NOCOMPRESSED_OOPS = "dumps/sun_jdk6_30_x64_nocompressedOops.notes.txt";
     public static final String IBM_JDK6_32BIT_SYSTEM = "dumps/core.20100112.141124.11580.0001.dmp.zip";
     public static final String IBM_JDK6_32BIT_HEAP = "dumps/heapdump.20100112.141124.11580.0002.phd";
     public static final String IBM_JDK6_32BIT_JAVA = "dumps/javacore.20100112.141124.11580.0003.txt";
