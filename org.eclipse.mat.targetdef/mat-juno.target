@@ -5,7 +5,7 @@
 <locations>
 <location includeAllPlatforms="false" includeMode="planner" includeSource="false" type="InstallableUnit">
 <unit id="org.eclipse.birt.feature.group" version="3.7.1.v20110905-BDF9E8OGTzuHfoz-Au7-CWvXDn6N"/>
-<unit id="org.eclipse.sdk.ide" version="4.2.0.I20111028-1100"/>
+<unit id="org.eclipse.sdk.ide" version="4.2.0.I20111209-2100"/>
 <repository location="http://download.eclipse.org/releases/juno"/>
 </location>
 <location includeAllPlatforms="false" includeMode="planner" type="InstallableUnit">
