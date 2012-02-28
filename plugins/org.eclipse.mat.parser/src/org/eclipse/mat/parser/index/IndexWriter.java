@@ -344,7 +344,7 @@ public abstract class IndexWriter
             for (int ii = 0; ii < length; ii++)
             {
                 answer[ii] = array.get(pageIndex++);
-                if (pageIndex >= pageSize)
+                if (pageIndex >= pageSize && ii + 1 < length)
                 {
                     array = getPage(++page);
                     pageIndex = 0;
@@ -1165,7 +1165,7 @@ public abstract class IndexWriter
             for (int ii = 0; ii < length; ii++)
             {
                 answer[ii] = array.get(pageIndex++);
-                if (pageIndex >= pageSize)
+                if (pageIndex >= pageSize && ii + 1 < length)
                 {
                     array = getPage(++page);
                     pageIndex = 0;
