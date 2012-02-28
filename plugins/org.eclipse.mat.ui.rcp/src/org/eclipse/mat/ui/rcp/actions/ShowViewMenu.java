@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2012 SAP AG.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,7 +18,6 @@ import java.util.Map;
 import org.eclipse.jface.action.ContributionItem;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IContributionItem;
-import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.mat.ui.internal.Perspective;
@@ -34,19 +33,9 @@ import org.eclipse.ui.views.IViewRegistry;
 public class ShowViewMenu extends ContributionItem
 {
     private IWorkbenchWindow window;
-    protected boolean dirty = true;
 
     private Map<String, IAction> actions = new HashMap<String, IAction>(10);
-
-    private IMenuListener menuListener = new IMenuListener()
-    {
-        public void menuAboutToShow(IMenuManager manager)
-        {
-            manager.markDirty();
-            dirty = true;
-        }
-    };
-
+    
     public ShowViewMenu(IWorkbenchWindow window)
     {
         this.window = window;
@@ -54,12 +43,8 @@ public class ShowViewMenu extends ContributionItem
 
     public void fill(Menu menu, int index)
     {
-        if (getParent() instanceof MenuManager)
-        {
-            ((MenuManager) getParent()).addMenuListener(menuListener);
-        }
-
-        if (!dirty) { return; }
+        // removed own handling of 'dirty' because of
+        // https://bugs.eclipse.org/bugs/show_bug.cgi?id=372647
 
         MenuManager manager = new MenuManager();
         fillMenu(manager);
@@ -77,7 +62,6 @@ public class ShowViewMenu extends ContributionItem
                 items[i].fill(menu, index++);
             }
         }
-        dirty = false;
     }
 
     private void fillMenu(IMenuManager innerMgr)
@@ -123,11 +107,6 @@ public class ShowViewMenu extends ContributionItem
             }
         }
         return action;
-    }
-
-    public boolean isDirty()
-    {
-        return dirty;
     }
 
     /**
