@@ -15,6 +15,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeSet;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -24,6 +26,7 @@ import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.ui.util.ErrorHelper;
+import org.eclipse.mat.util.PatternUtil;
 
 /**
  * Provides the list of classnames in the snapshot that starts with the provided
@@ -89,6 +92,54 @@ public class ClassesSuggestionProvider implements SuggestionProvider
                     {
                         foundLast = true;
                     }
+                }
+            }
+            // Regular expression matching
+            if (context.startsWith("\""))
+            {
+                String context2 = context.substring(1);
+                if (context2.endsWith("\""))
+                {
+                    // Terminated with double-quote, so expression complete
+                    context2 = context2.substring(0, context2.length() - 1);
+                }
+                else if (context2.endsWith("["))
+                {
+                    // Partial array name, so complete it now so that the regex is valid
+                    context2 = context2 + "].*";
+                }
+                else if (!context2.endsWith(".*"))
+                {
+                    // Allow anything to end
+                    context2 = context2 + ".*";
+                }
+                // Convert array name to regex safe form
+                context2 = PatternUtil.smartFix(context2, false);
+                try
+                {
+                    Pattern p = Pattern.compile(context2);
+                    it = orderedList.iterator();
+
+                    foundFirst = false;
+                    while (it.hasNext())
+                    {
+                        ContentAssistElement cp = it.next();
+                        String cName = cp.getClassName();
+                        if (p.matcher(cName).matches())
+                        {
+                            if (!foundFirst)
+                            {
+                                // Add the regex to the list
+                                tempList.add(new ContentAssistElement("\"" + context2 + "\"", null));
+                                foundFirst = true;
+                            }
+                            tempList.add(cp);
+                        }
+                    }
+                }
+                catch (PatternSyntaxException e)
+                {
+                    // Ignore - the user just made a mistake
                 }
             }
         }

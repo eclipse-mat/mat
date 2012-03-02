@@ -58,6 +58,7 @@ public class OQLTextViewerConfiguration extends SourceViewerConfiguration
     public OQLTextViewerConfiguration(ISnapshot snapshot, Color comment, Color keyword)
     {
         super();
+        
         // if (snapshot == null) {
         // throw new
         // IllegalArgumentException("Cannot instantiate content assist without snapshot");

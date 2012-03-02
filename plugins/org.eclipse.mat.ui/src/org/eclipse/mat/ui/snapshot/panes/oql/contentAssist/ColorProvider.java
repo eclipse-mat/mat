@@ -21,8 +21,8 @@ public interface ColorProvider
 {
 
     public static RGB COMMENT_COLOR = new RGB(93, 142, 116);
-    public static String COMMENT_COLOR_PREF = "comment_color";
+    public static String COMMENT_COLOR_PREF = "comment_color"; //$NON-NLS-1$
 
     public static RGB KEYWORD_COLOR = new RGB(146, 55, 117);
-    public static String KEYWORD_COLOR_PREF = "keyword_color";
+    public static String KEYWORD_COLOR_PREF = "keyword_color"; //$NON-NLS-1$
 }
