@@ -11,7 +11,6 @@
 package org.eclipse.mat.ui.snapshot.panes.oql.contentAssist;
 
 import org.eclipse.jface.text.ITextViewer;
-import org.eclipse.jface.text.TextViewer;
 
 /**
  * A ContextExtractor extract the part of the current TextViewer that is the 

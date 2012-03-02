@@ -20,13 +20,11 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentPartitioner;
-import org.eclipse.jface.text.rules.DefaultPartitioner;
-import org.eclipse.jface.text.rules.FastPartitioner;
-import org.eclipse.jface.text.rules.RuleBasedPartitioner;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.mat.SnapshotException;
@@ -46,12 +44,13 @@ import org.eclipse.mat.ui.editor.AbstractPaneJob;
 import org.eclipse.mat.ui.editor.CompositeHeapEditorPane;
 import org.eclipse.mat.ui.editor.EditorPaneRegistry;
 import org.eclipse.mat.ui.snapshot.panes.oql.OQLTextViewerConfiguration;
+import org.eclipse.mat.ui.snapshot.panes.oql.contentAssist.ColorProvider;
 import org.eclipse.mat.ui.snapshot.panes.oql.textPartitioning.OQLPartitionScanner;
 import org.eclipse.mat.ui.snapshot.panes.oql.textPartitioning.PatchedFastPartitioner;
 import org.eclipse.mat.ui.util.ErrorHelper;
 import org.eclipse.mat.ui.util.PaneState;
-import org.eclipse.mat.ui.util.ProgressMonitorWrapper;
 import org.eclipse.mat.ui.util.PaneState.PaneType;
+import org.eclipse.mat.ui.util.ProgressMonitorWrapper;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StyleRange;
@@ -60,10 +59,10 @@ import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -74,13 +73,15 @@ import org.eclipse.ui.actions.ActionFactory.IWorkbenchAction;
 
 public class OQLPane extends CompositeHeapEditorPane
 {
-	private SourceViewer queryViewer;
+    private SourceViewer queryViewer;
     private StyledText queryString;
+
+    private Color commentCol;
+    private Color keywordCol;
 
     private Action executeAction;
     private Action copyQueryStringAction;
     private Action contentAssistAction;
-    
 
     // //////////////////////////////////////////////////////////////
     // initialization methods
@@ -91,42 +92,37 @@ public class OQLPane extends CompositeHeapEditorPane
         SashForm sash = new SashForm(parent, SWT.VERTICAL | SWT.SMOOTH);
 
         queryViewer = new SourceViewer(sash, null, SWT.MULTI | SWT.WRAP);
-        //queryString = new StyledText(sash, SWT.MULTI | SWT.WRAP);
         queryString = queryViewer.getTextWidget();
         queryString.setFont(JFaceResources.getFont(JFaceResources.TEXT_FONT));
-        //queryString.setText(Messages.OQLPane_F1ForHelp);
         queryString.selectAll();
+        RGB rgb = PreferenceConverter.getColor(MemoryAnalyserPlugin.getDefault().getPreferenceStore(), ColorProvider.COMMENT_COLOR_PREF);
+        commentCol = new Color(parent.getDisplay(), rgb);
+        rgb = PreferenceConverter.getColor(MemoryAnalyserPlugin.getDefault().getPreferenceStore(), ColorProvider.KEYWORD_COLOR_PREF);
+        keywordCol = new Color(parent.getDisplay(), rgb);
         IDocument d = createDocument();
         d.set(Messages.OQLPane_F1ForHelp);
         queryViewer.setDocument(d);
-        queryViewer.configure(new OQLTextViewerConfiguration(getSnapshot()));
-        
-        /*queryString.addModifyListener(new ModifyListener()
-        {
-            public void modifyText(ModifyEvent e)
-            {
-                queryString.setStyleRanges(new StyleRange[0]);
-            }
-        });*/
+        queryViewer.configure(new OQLTextViewerConfiguration(getSnapshot(), commentCol, keywordCol));
 
         PlatformUI.getWorkbench().getHelpSystem().setHelp(queryString, "org.eclipse.mat.ui.help.oql"); //$NON-NLS-1$
         queryString.addKeyListener(new KeyAdapter()
         {
             public void keyPressed(KeyEvent e)
             {
-            	if (e.keyCode == '\r' && (e.stateMask & SWT.MOD1) != 0)
+                if (e.keyCode == '\r' && (e.stateMask & SWT.MOD1) != 0)
                 {
                     executeAction.run();
                     e.doit = false;
                 }
-            	//ctrl space combination for content assist
-            	else if (e.keyCode == ' ' && (e.stateMask & SWT.CTRL) != 0){
-                	contentAssistAction.run();
+                else if (e.keyCode == ' ' && (e.stateMask & SWT.MOD1) != 0)
+                {
+                    //ctrl space combination for content assist
+                    contentAssistAction.run();
                 }
             }
 
         });
-        
+
         queryString.addFocusListener(new FocusListener()
         {
 
@@ -151,33 +147,42 @@ public class OQLPane extends CompositeHeapEditorPane
         hookContextMenu();
 
     }
-    
+
+    @Override
+    public void dispose()
+    {
+        commentCol.dispose();
+        keywordCol.dispose();
+    }
+
     /**
      * Creates the document to be associated to the SourceViewer for OQL queries
      * @return the Document instance
      */
-    private IDocument createDocument(){
-    	IDocument doc = new Document();
-    	IDocumentPartitioner partitioner = 
-    			new PatchedFastPartitioner(
-    					new OQLPartitionScanner(), 
-    					new String[] {
-    						IDocument.DEFAULT_CONTENT_TYPE,
-    						OQLPartitionScanner.SELECT_CLAUSE,
-    						OQLPartitionScanner.FROM_CLAUSE,
-    						OQLPartitionScanner.WHERE_CLAUSE,
-    						OQLPartitionScanner.UNION_CLAUSE,
-    						OQLPartitionScanner.COMMENT_CLAUSE
-    					});
-    	partitioner.connect(doc);
-    	doc.setDocumentPartitioner(partitioner);
-    	return doc;
+    private IDocument createDocument()
+    {
+        IDocument doc = new Document();
+        IDocumentPartitioner partitioner = 
+                        new PatchedFastPartitioner(
+                                        new OQLPartitionScanner(), 
+                                        new String[] {
+                                            IDocument.DEFAULT_CONTENT_TYPE,
+                                            OQLPartitionScanner.SELECT_CLAUSE,
+                                            OQLPartitionScanner.FROM_CLAUSE,
+                                            OQLPartitionScanner.WHERE_CLAUSE,
+                                            OQLPartitionScanner.UNION_CLAUSE,
+                                            OQLPartitionScanner.COMMENT_CLAUSE
+                                        });
+        partitioner.connect(doc);
+        doc.setDocumentPartitioner(partitioner);
+        return doc;
     }
-    
-    private ISnapshot getSnapshot() {
-    	IQueryContext context = getEditor().getQueryContext();
-    	ISnapshot snapshot = (ISnapshot)context.get(ISnapshot.class, null);
-    	return snapshot;
+
+    private ISnapshot getSnapshot()
+    {
+        IQueryContext context = getEditor().getQueryContext();
+        ISnapshot snapshot = (ISnapshot)context.get(ISnapshot.class, null);
+        return snapshot;
     }
 
     private void makeActions()
@@ -195,14 +200,15 @@ public class OQLPane extends CompositeHeapEditorPane
             }
         };
         copyQueryStringAction.setAccelerator(globalAction.getAccelerator());
-        
-        contentAssistAction = new Action() {
 
-			@Override
-			public void run() {
-				queryViewer.doOperation(ISourceViewer.CONTENTASSIST_PROPOSALS);
-			}
-		};
+        contentAssistAction = new Action()
+        {
+            @Override
+            public void run()
+            {
+                queryViewer.doOperation(ISourceViewer.CONTENTASSIST_PROPOSALS);
+            }
+        };
     }
 
     protected int findInText(String query, int line, int column)
@@ -254,7 +260,6 @@ public class OQLPane extends CompositeHeapEditorPane
         if (param instanceof String)
         {
             queryViewer.getDocument().set((String) param);
-        	//queryString.setText((String) param);
             executeAction.run();
         }
         else if (param instanceof QueryResult)
@@ -264,8 +269,7 @@ public class OQLPane extends CompositeHeapEditorPane
         }
         else if (param instanceof PaneState)
         {
-        	queryViewer.getDocument().set(((PaneState) param).getIdentifier());
-            //queryString.setText(((PaneState) param).getIdentifier());
+            queryViewer.getDocument().set(((PaneState) param).getIdentifier());
             new ExecuteQueryAction((PaneState) param).run();
         }
     }
@@ -274,7 +278,6 @@ public class OQLPane extends CompositeHeapEditorPane
     {
         IOQLQuery.Result subject = (IOQLQuery.Result) (queryResult).getSubject();
         queryViewer.getDocument().set(subject.getOQLQuery());
-        //queryString.setText(subject.getOQLQuery());
 
         AbstractEditorPane pane = EditorPaneRegistry.instance().createNewPane(subject, this.getClass());
 
@@ -304,7 +307,7 @@ public class OQLPane extends CompositeHeapEditorPane
     @Override
     public void setFocus()
     {
-    	queryString.setFocus();
+        queryString.setFocus();
     }
 
     // //////////////////////////////////////////////////////////////
