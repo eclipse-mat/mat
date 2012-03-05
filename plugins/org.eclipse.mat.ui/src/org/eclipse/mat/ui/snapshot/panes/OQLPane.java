@@ -114,7 +114,7 @@ public class OQLPane extends CompositeHeapEditorPane
                     executeAction.run();
                     e.doit = false;
                 }
-                else if (e.keyCode == ' ' && (e.stateMask & SWT.MOD1) != 0)
+                else if (e.keyCode == ' ' && (e.stateMask & SWT.CTRL) != 0)
                 {
                     //ctrl space combination for content assist
                     contentAssistAction.run();
