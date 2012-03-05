@@ -36,6 +36,15 @@ public interface IResultPie extends IResult
 
         IContextObject getContext();
         
+    }
+    
+    /**
+     * A slice of the pie with color information
+     * 
+     * @since 1.2
+     */
+    public interface ColoredSlice extends Slice
+    {
         Color getColor();
     }
 

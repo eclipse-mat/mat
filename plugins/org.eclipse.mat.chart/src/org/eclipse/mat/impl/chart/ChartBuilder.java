@@ -41,6 +41,7 @@ import org.eclipse.birt.chart.model.type.impl.PieSeriesImpl;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.mat.query.IResultPie;
+import org.eclipse.mat.query.IResultPie.ColoredSlice;
 import org.eclipse.mat.query.IResultPie.Slice;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.Units;
@@ -141,7 +142,12 @@ public class ChartBuilder
         {
             int[] color = COLORS[index % COLORS.length];
             ColorDefinition defn;
-            Color explicitColor = slices.get(index).getColor();
+            Color explicitColor = null;
+            Slice slice = slices.get(index); 
+            if (slice instanceof ColoredSlice)
+            {
+                explicitColor = ((ColoredSlice) slice).getColor();
+            }
             if (explicitColor == null)
             {
                 defn = ColorDefinitionImpl.create(color[0], color[1], color[2]);

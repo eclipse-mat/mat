@@ -129,6 +129,7 @@ public final class PieFactory
      * @param color
      *            Explicit color of the slice
      * @return a new slice
+     * @since 1.2
      */
     public Slice addSlice(int objectId, Color color) throws SnapshotException
     {
@@ -159,6 +160,7 @@ public final class PieFactory
      * @param color
      *        Explicit color of the slice
      * @return a new slice
+     * @since 1.2
      */
     public Slice addSlice(IObject object, Color color)
     {
@@ -198,6 +200,7 @@ public final class PieFactory
      * @param color
      *            the color to use for the slice
      * @return a new slice
+     * @since 1.2
      */
     public Slice addSlice(int objectId, String label, long usedHeapSize, long retainedHeapSize, Color color)
     {
@@ -252,7 +255,7 @@ public final class PieFactory
         }
     }
 
-    private final static class SliceImpl implements IResultPie.Slice, Serializable
+    private final static class SliceImpl implements IResultPie.ColoredSlice, Serializable
     {
         private static final long serialVersionUID = 1L;
 
