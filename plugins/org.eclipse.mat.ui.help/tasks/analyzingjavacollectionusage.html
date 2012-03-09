@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html
   PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html lang="en-us" xml:lang="en-us">
+<html xml:lang="en-us" lang="en-us">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <meta name="DC.Type" content="task"/>
@@ -14,28 +14,28 @@
 <link rel="stylesheet" type="text/css" href="../styles/commonltr.css"/>
 <title>Analyzing Java Collection Usage</title>
 </head>
-<body id="task_analyzingjavacollectionusage"><a name="task_analyzingjavacollectionusage"><!-- --></a>
+<body id="task_analyzingjavacollectionusage">
 
 
-	<h1 class="topictitle1">Analyzing Java Collection Usage</h1>
+	<h1 class="title topictitle1">Analyzing Java Collection Usage</h1>
 
 	
 
-	<div>
-		<div class="section">
-			<p>A collection is an object that are used to store, retrieve and
+	<div class="body taskbody">
+		<div class="section context">
+			<p class="p">A collection is an object that are used to store, retrieve and
 				manipulate the data. Memory Analyzer offers the following queries to
 				analyze java collections:</p>
 
 			
-<div class="tablenoborder"><table cellpadding="4" cellspacing="0" summary="" frame="border" border="1" rules="all">
-					<tbody>
-						<tr>
-							<td class="cellrowborder" valign="top">
-								<strong>Array Fill Ratio Query</strong>
+<div class="tablenoborder"><table cellpadding="4" cellspacing="0" summary="" class="table" frame="border" border="1" rules="all">
+					<tbody class="tbody">
+						<tr class="row">
+							<td class="entry" valign="top">
+								<strong class="ph b">Array Fill Ratio Query</strong>
 							</td>
 
-							<td class="cellrowborder" valign="top">Prints a frequency distribution of fill ratios of
+							<td class="entry" valign="top">Prints a frequency distribution of fill ratios of
 								non-primitive arrays. The fill ratio is the proportion of
 								non-null elements in the array. The arrays are then accumulated
 								into as many segments as parameterized. Primitive arrays cannot
@@ -44,65 +44,65 @@
 
 						</tr>
 
-						<tr>
-							<td class="cellrowborder" valign="top">
-								<strong>Arrays Grouped by Size Query</strong>
+						<tr class="row">
+							<td class="entry" valign="top">
+								<strong class="ph b">Arrays Grouped by Size Query</strong>
 							</td>
 
-							<td class="cellrowborder" valign="top">Distribution histogram of given arrays grouped
+							<td class="entry" valign="top">Distribution histogram of given arrays grouped
 								by the size.</td>
 
 						</tr>
 
-						<tr>
-							<td class="cellrowborder" valign="top">
-								<strong>Collection Fill Ratio Query</strong>
+						<tr class="row">
+							<td class="entry" valign="top">
+								<strong class="ph b">Collection Fill Ratio Query</strong>
 							</td>
 
-							<td class="cellrowborder" valign="top">
-								<p>Prints a frequency distribution of fill ratios of given
+							<td class="entry" valign="top">
+								<p class="p">Prints a frequency distribution of fill ratios of given
 									collections. The following collections can be used for the
 									query:</p>
 
-								<ul>
-									<li>
-										<pre class="codeblock">java.util.ArrayList</pre>
+								<ul class="ul">
+									<li class="li">
+										<pre class="pre codeblock">java.util.ArrayList</pre>
 
 									</li>
 
-									<li>
-										<pre class="codeblock">java.util.HashMap</pre>
+									<li class="li">
+										<pre class="pre codeblock">java.util.HashMap</pre>
 
 									</li>
 
-									<li>
-										<pre class="codeblock">java.util.Hashtable</pre>
+									<li class="li">
+										<pre class="pre codeblock">java.util.Hashtable</pre>
 
 									</li>
 
-									<li>
-										<pre class="codeblock">java.util.Properties</pre>
+									<li class="li">
+										<pre class="pre codeblock">java.util.Properties</pre>
 
 									</li>
 
-									<li>
-										<pre class="codeblock">java.util.Vector</pre>
+									<li class="li">
+										<pre class="pre codeblock">java.util.Vector</pre>
 
 									</li>
 
-									<li>
-										<pre class="codeblock">java.util.WeakHashMap</pre>
+									<li class="li">
+										<pre class="pre codeblock">java.util.WeakHashMap</pre>
 
 									</li>
 
-									<li>
-										<pre class="codeblock">java.util.concurrent.ConcurrentHashMap$Segment</pre>
+									<li class="li">
+										<pre class="pre codeblock">java.util.concurrent.ConcurrentHashMap$Segment</pre>
 
 									</li>
 
 								</ul>
 
-								<p>One additional custom collection (e.g. non-JDK) collection
+								<p class="p">One additional custom collection (e.g. non-JDK) collection
 									can be specified by the 'collection', 'size_attribute' and
 									'array_attribute' argument.</p>
 
@@ -110,60 +110,60 @@
 
 						</tr>
 
-						<tr>
-							<td class="cellrowborder" valign="top">
-								<strong>Collections Grouped By Size Query</strong>
+						<tr class="row">
+							<td class="entry" valign="top">
+								<strong class="ph b">Collections Grouped By Size Query</strong>
 							</td>
 
-							<td class="cellrowborder" valign="top">
-								<p>Distribution histogram of given collections by
+							<td class="entry" valign="top">
+								<p class="p">Distribution histogram of given collections by
 									their size. The following collections can be used for the
 									query. Known collections:</p>
 
-								<ul>
-									<li>
-										<pre class="codeblock">java.util.ArrayList</pre>
+								<ul class="ul">
+									<li class="li">
+										<pre class="pre codeblock">java.util.ArrayList</pre>
 
 									</li>
 
-									<li>
-										<pre class="codeblock">java.util.TreeMap</pre>
+									<li class="li">
+										<pre class="pre codeblock">java.util.TreeMap</pre>
 
 									</li>
 
-									<li>
-										<pre class="codeblock">java.util.HashMap</pre>
+									<li class="li">
+										<pre class="pre codeblock">java.util.HashMap</pre>
 
 									</li>
 
-									<li>
-										<pre class="codeblock">java.util.Hashtable</pre>
+									<li class="li">
+										<pre class="pre codeblock">java.util.Hashtable</pre>
 
 									</li>
 
-									<li>
-										<pre class="codeblock">java.util.Properties</pre>
+									<li class="li">
+										<pre class="pre codeblock">java.util.Properties</pre>
 
 									</li>
 
-									<li>
-										<pre class="codeblock">java.util.Vector</pre>
+									<li class="li">
+										<pre class="pre codeblock">java.util.Vector</pre>
 
 									</li>
 
-									<li>
-										<pre class="codeblock">java.util.WeakHashMap</pre>
+									<li class="li">
+										<pre class="pre codeblock">java.util.WeakHashMap</pre>
 
 									</li>
 
-									<li>
-										<pre class="codeblock">java.util.concurrent.ConcurrentHashMap$Segment</pre>
+									<li class="li">
+										<pre class="pre codeblock">java.util.concurrent.ConcurrentHashMap$Segment</pre>
 
 									</li>
 
 								</ul>
 
-								<p>One additional custom collection (e.g. non-JDK) collection
+								<p class="p">One additional custom collection (e.g. non-JDK) collection
 									can be specified by the 'collection', 'size_attribute' and
 									'array_attribute' argument.</p>
 
@@ -171,83 +171,83 @@
 
 						</tr>
 
-						<tr>
-							<td class="cellrowborder" valign="top">
-								<strong>Extract List Values Query</strong>
+						<tr class="row">
+							<td class="entry" valign="top">
+								<strong class="ph b">Extract List Values Query</strong>
 							</td>
 
-							<td class="cellrowborder" valign="top">
-								<p>Lists elements of a LinkedList, ArrayList or Vector
+							<td class="entry" valign="top">
+								<p class="p">Lists elements of a LinkedList, ArrayList or Vector
 									object.</p>
 
 							</td>
 
 						</tr>
 
-						<tr>
-							<td class="cellrowborder" valign="top">
-								<strong>Hash Entries Query</strong>
+						<tr class="row">
+							<td class="entry" valign="top">
+								<strong class="ph b">Hash Entries Query</strong>
 							</td>
 
-							<td class="cellrowborder" valign="top">
-								<p>Extracts the key-value pairs from hash maps and
+							<td class="entry" valign="top">
+								<p class="p">Extracts the key-value pairs from hash maps and
 									hashtables.</p>
 
 							</td>
 
 						</tr>
 
-						<tr>
-							<td class="cellrowborder" valign="top">
-								<strong>Extract Hash Set Value Query</strong>
+						<tr class="row">
+							<td class="entry" valign="top">
+								<strong class="ph b">Extract Hash Set Value Query</strong>
 							</td>
 
-							<td class="cellrowborder" valign="top">
-								<p>Lists elements of a HashSet.</p>
+							<td class="entry" valign="top">
+								<p class="p">Lists elements of a HashSet.</p>
 
 							</td>
 
 						</tr>
 
-						<tr>
-							<td class="cellrowborder" valign="top">
-								<strong>Map Collision Ratio Query</strong>
+						<tr class="row">
+							<td class="entry" valign="top">
+								<strong class="ph b">Map Collision Ratio Query</strong>
 							</td>
 
-							<td class="cellrowborder" valign="top">
-								<p>Prints a frequency distribution of the collision ratios
+							<td class="entry" valign="top">
+								<p class="p">Prints a frequency distribution of the collision ratios
 									of map-like collections. The following map-like collections can
 									be used for the query.</p>
 
-								<ul>
-									<li>
-										<pre class="codeblock">java.util.HashMap</pre>
+								<ul class="ul">
+									<li class="li">
+										<pre class="pre codeblock">java.util.HashMap</pre>
 
 									</li>
 
-									<li>
-										<pre class="codeblock">java.util.Properties</pre>
+									<li class="li">
+										<pre class="pre codeblock">java.util.Properties</pre>
 
 									</li>
 
-									<li>
-										<pre class="codeblock">java.util.Hashtable</pre>
+									<li class="li">
+										<pre class="pre codeblock">java.util.Hashtable</pre>
 
 									</li>
 
-									<li>
-										<pre class="codeblock">java.util.WeakHashMap</pre>
+									<li class="li">
+										<pre class="pre codeblock">java.util.WeakHashMap</pre>
 
 									</li>
 
-									<li>
-										<pre class="codeblock">java.util.concurrent.ConcurrentHashMap$Segment</pre>
+									<li class="li">
+										<pre class="pre codeblock">java.util.concurrent.ConcurrentHashMap$Segment</pre>
 
 									</li>
 
 								</ul>
 
-								<p> One additional custom map-like (e.g. non-JDK) collection can
+								<p class="p"> One additional custom map-like (e.g. non-JDK) collection can
 									be specified by the 'collection', 'size_attribute' and
 									'array_attribute' argument.</p>
 
@@ -255,12 +255,12 @@
 
 						</tr>
 
-						<tr>
-							<td class="cellrowborder" valign="top">
-								<strong>Primitive Arrays with a Constant Value</strong>
+						<tr class="row">
+							<td class="entry" valign="top">
+								<strong class="ph b">Primitive Arrays with a Constant Value</strong>
 							</td>
 
-							<td class="cellrowborder" valign="top">
+							<td class="entry" valign="top">
 								Lists all primitive arrays (from a selection) which are filled with one and the
 								same value
 							</td>
@@ -272,12 +272,9 @@
 				</table>
 </div>
 
-			<p>
+			<p class="p">
 				All these queries are accessible from the toolbar drop-down menu:
-				<span class="menucascade">
-					<span class="uicontrol">Open Query Browser</span>
-					 &gt; <span class="uicontrol">Java Collections</span>
-				</span>
+				<span class="ph menucascade"><span class="ph uicontrol">Open Query Browser</span> &gt; <span class="ph uicontrol">Java Collections</span></span>
 			</p>
 
 		</div>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html
   PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html lang="en-us" xml:lang="en-us">
+<html xml:lang="en-us" lang="en-us">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <meta name="DC.Type" content="task"/>
@@ -14,16 +14,16 @@
 <link rel="stylesheet" type="text/css" href="../styles/commonltr.css"/>
 <title>Analyzing Finalizer</title>
 </head>
-<body id="task_analyzingfinalizer"><a name="task_analyzingfinalizer"><!-- --></a>
+<body id="task_analyzingfinalizer">
 
 
-	<h1 class="topictitle1">Analyzing Finalizer</h1>
+	<h1 class="title topictitle1">Analyzing Finalizer</h1>
 
 	
 
-	<div>
-		<div class="section">
-			<p> Finalizers are executed when the internal garbage collection
+	<div class="body taskbody">
+		<div class="section context">
+			<p class="p"> Finalizers are executed when the internal garbage collection
 				cleans up the objects. Since you have no control over the finalizer
 				execution, it is recommended not to use them. Because the memory can
 				only be released when the finalize method finished, long running
@@ -31,85 +31,85 @@
 				finalizers overview select Finalizer Overview Query from the query
 				list:</p>
 
-			<img src="../mimes/finalizers.png" alt="Finalizer overview menu option and report"/>
-			<p>This query includes the following subqueries:</p>
+			<img class="image" src="../mimes/finalizers.png" alt="Finalizer overview menu option and report"/>
+			<p class="p">This query includes the following subqueries:</p>
 
 			
-<div class="tablenoborder"><table cellpadding="4" cellspacing="0" summary="" frame="border" border="1" rules="all">
-					<tbody>
-						<tr>
-							<td class="cellrowborder" valign="top">
-								<strong>Finalizer in Processing</strong>
+<div class="tablenoborder"><table cellpadding="4" cellspacing="0" summary="" class="table" frame="border" border="1" rules="all">
+					<tbody class="tbody">
+						<tr class="row">
+							<td class="entry" valign="top">
+								<strong class="ph b">Finalizer in Processing</strong>
 							</td>
 
-							<td class="cellrowborder" valign="top">
-								<p> Extract object currently processed by Finalizer Thread. This
+							<td class="entry" valign="top">
+								<p class="p"> Extract object currently processed by Finalizer Thread. This
 									query return the currently processed object by the Finalizer
 									Thread if any. The returned object can be processed for one of
 									the following reasons:</p>
 
-								<ul>
-									<li>it is blocking</li>
+								<ul class="ul">
+									<li class="li">it is blocking</li>
 
-									<li>it is long running</li>
+									<li class="li">it is long running</li>
 
-									<li> it the finalizer queue was or is still full.</li>
+									<li class="li"> it the finalizer queue was or is still full.</li>
 
 								</ul>
 
-								<p> Use the finalizer queue query to check the queue.</p>
+								<p class="p"> Use the finalizer queue query to check the queue.</p>
 
 							</td>
 
 						</tr>
 
-						<tr>
-							<td class="cellrowborder" valign="top">
-								<strong>Ready for Finalizer Thread</strong>
+						<tr class="row">
+							<td class="entry" valign="top">
+								<strong class="ph b">Ready for Finalizer Thread</strong>
 							</td>
 
-							<td class="cellrowborder" valign="top">
-								<p> This query shows the objects ready for finalization in their
+							<td class="entry" valign="top">
+								<p class="p"> This query shows the objects ready for finalization in their
 									processing order. Following reasons can cause a full finalizer
 									queue:</p>
 
-								<ul>
-									<li> The currently processed object is blocking or long running
+								<ul class="ul">
+									<li class="li"> The currently processed object is blocking or long running
 										(please use our finalizer in processing query to check).</li>
 
-									<li> The application made use of too many objects with
+									<li class="li"> The application made use of too many objects with
 										finalize() which are queued up in memory.</li>
 
 								</ul>
 
-								<p> Additionally a class-level summary of the objects is provided</p>
+								<p class="p"> Additionally a class-level summary of the objects is provided</p>
 
 							</td>
 
 						</tr>
 
-						<tr>
-							<td class="cellrowborder" valign="top">
-								<strong>Finalizer Thread</strong>
+						<tr class="row">
+							<td class="entry" valign="top">
+								<strong class="ph b">Finalizer Thread</strong>
 							</td>
 
-							<td class="cellrowborder" valign="top"> This query shows the daemon thread which performs the
+							<td class="entry" valign="top"> This query shows the daemon thread which performs the
 								object finalizations.</td>
 
 						</tr>
 
-						<tr>
-							<td class="cellrowborder" valign="top">
-								<strong>Finalizer Thread Locals</strong>
+						<tr class="row">
+							<td class="entry" valign="top">
+								<strong class="ph b">Finalizer Thread Locals</strong>
 							</td>
 
-							<td class="cellrowborder" valign="top">
-								<p>
+							<td class="entry" valign="top">
+								<p class="p">
 									This query shows the thread locals of the daemon thread that
 									performs the object finalizations. If there are any, this
 									indicates miss-use in at least one of the processed finalizers
 									(
-									<span class="cmdname">finalize()</span>
+									<span class="keyword cmdname">finalize()</span>
 									implemented wrong) and might cause severe problems (e.g.
 									unreclaimed memory permanently hold by the finalizer thread or
 									finalizer processed under useless thread locals harming

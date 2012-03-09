@@ -55,7 +55,7 @@
 				<li>
 					<cmdname>jmap -dump:format=b,file=&lt;filename.hprof&gt; &lt;pid&gt;</cmdname>
 				</li>
-				<li>JConsole (see sample usage in <xref format="html" href="../gettingstarted/basictutorial.html">Basic Tutorial</xref>)</li>
+				<li>JConsole (see sample usage in <xref href="../gettingstarted/basictutorial.dita">Basic Tutorial</xref>)</li>
 				<li>Memory Analyzer (see bottom of page)</li>
 			</ul>
 			<p>The following table shows the availability of VM options and tools on the various platforms:</p>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html
   PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html lang="en-us" xml:lang="en-us">
+<html xml:lang="en-us" lang="en-us">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <meta name="DC.Type" content="task"/>
@@ -15,39 +15,39 @@
 <link rel="stylesheet" type="text/css" href="../styles/commonltr.css"/>
 <title>Querying Heap Objects (OQL)</title>
 </head>
-<body id="task_queryingheapobjects"><a name="task_queryingheapobjects"><!-- --></a>
+<body id="task_queryingheapobjects">
 
 
-	<h1 class="topictitle1">Querying Heap Objects (OQL)</h1>
+	<h1 class="title topictitle1">Querying Heap Objects (OQL)</h1>
 
 	
 
-	<div>
-		<div class="section">
-			<p>Memory Analyzer allows to query the heap dump with custom
+	<div class="body taskbody">
+		<div class="section context">
+			<p class="p">Memory Analyzer allows to query the heap dump with custom
 				SQL-like queries. OQL represents classes as tables, objects as rows,
 				and fields as columns.</p>
 
-			<pre class="codeblock">SELECT *
+			<pre class="pre codeblock">SELECT *
 FROM [ INSTANCEOF ] &lt;class name="name"&gt;
 [ WHERE &lt;filter-expression&gt; ]
 &lt;/filter-expression&gt;&lt;/class&gt;</pre>
 
-<p>To open an OQL editor use the toolbar button <img src="../mimes/i-oqleditor.png" alt="open object query language button"/>:</p>
+<p class="p">To open an OQL editor use the toolbar button <img class="image" src="../mimes/i-oqleditor.png" alt="open object query language button"/>:</p>
   
-<p>OQL editor is divided into two areas:</p>
+<p class="p">OQL editor is divided into two areas:</p>
 
-<ul><li>Text area to type in the query (upper area)</li>
+<ul class="ul"><li class="li">Text area to type in the query (upper area)</li>
 
-<li>Result area to display the result of the query execution</li>
+<li class="li">Result area to display the result of the query execution</li>
 </ul>
 
-<img src="../mimes/m2fd32fba.png" alt="screen shot of query result"/>
-<p>Use Ctrl-Enter or toolbar button <img src="../mimes/4fd3f07a.png" alt="Execute Query button"/> to execute the query.</p>
+<img class="image" src="../mimes/m2fd32fba.png" alt="screen shot of query result"/>
+<p class="p">Use Ctrl-Enter or toolbar button <img class="image" src="../mimes/4fd3f07a.png" alt="Execute Query button"/> to execute the query.</p>
 
-<p>Basic OQL syntax is as follows:</p>
+<p class="p">Basic OQL syntax is as follows:</p>
 
-<pre class="codeblock">
+<pre class="pre codeblock">
 SELECT *
 FROM [ INSTANCEOF ] &lt;class name&gt;
 [ WHERE &lt;filter-expression&gt; ]
@@ -57,8 +57,8 @@ FROM [ INSTANCEOF ] &lt;class name&gt;
 
 </div>
 
-	<div><div class="relinfo relref"><strong>Related reference</strong><br/>
-<div><a href="../reference/oqlsyntax.html">OQL Syntax</a></div>
+	<div class="related-links"><div class="relinfo relref"><strong>Related reference</strong><br/>
+<div><a class="link" href="../reference/oqlsyntax.html">OQL Syntax</a></div>
 </div>
 </div>
 

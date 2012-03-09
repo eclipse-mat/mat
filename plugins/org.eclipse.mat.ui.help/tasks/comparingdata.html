@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html
   PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html lang="en-us" xml:lang="en-us">
+<html xml:lang="en-us" lang="en-us">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <meta name="DC.Type" content="task"/>
@@ -14,18 +14,18 @@
 <link rel="stylesheet" type="text/css" href="../styles/commonltr.css"/>
 <title>Comparing Objects</title>
 </head>
-<body id="task_comparingdata"><a name="task_comparingdata"><!-- --></a>
+<body id="task_comparingdata">
 
 
-	<h1 class="topictitle1">Comparing Objects</h1>
+	<h1 class="title topictitle1">Comparing Objects</h1>
 
 	
 
-	<div>
-		<div class="section">
-		    <p><strong>Introduction</strong></p>
+	<div class="body taskbody">
+		<div class="section context">
+		    <p class="p"><strong class="ph b">Introduction</strong></p>
 
-			<p>
+			<p class="p">
 		    Before looking into the capabilities that Memory Analyzer offers in the area of comparison
 		    let us make some explanation. Object IDs which are provided in the heap dump formats supported by MAT
 		    are just the addresses at which the objects are located. As objects are often moved and 
@@ -37,7 +37,7 @@
 			</p>
 
 
-			<p>
+			<p class="p">
 				Memory Analyzer offers the possibility to compare not only the global class histograms of two different
 				heap dumps, but an arbitrary number of table-formatted results - for example the 
 				retained sets of three different objects. It doesn't matter if the tables which 
@@ -46,29 +46,29 @@
 
 			<div class="p">
 				This means that one has the possibility to do things like:
-				<ul>
-				<li>Compare the retained set of a specific package across several heap dumps</li>
+				<ul class="ul">
+				<li class="li">Compare the retained set of a specific package across several heap dumps</li>
 
-				<li>Compare how the retained sets for application objects A1, A2 and A3 (all in the 
+				<li class="li">Compare how the retained sets for application objects A1, A2 and A3 (all in the 
 				same heap dump) differ from each other</li>
 
 				</ul>
  
 			</div>
 
-			<p>				
+			<p class="p">				
 				Here is a quick description how to compare several retained set tables.
 			</p>
 
 		</div>
 
 				
-		<ol><li class="stepexpand">
-			<span>
-				<strong>Move all tables to be compared to the Compare Basket</strong>
+		<ol class="ol steps"><li class="li step">
+			<span class="ph cmd">
+				<strong class="ph b">Move all tables to be compared to the Compare Basket</strong>
 			</span><br/>
 			 
-			<p>
+			<p class="p">
 				All queries which are executed in Memory Analyzer can be seen in the Navigation History View.
 				From this view one can add the results to be compared to the Compare Basket. 
 				The Navigation History is still per heap dump, therefore if one wants to compare 
@@ -78,91 +78,90 @@
  
 						
 			 
-				<img src="../mimes/nn_add_to_compare_basket.png" alt="Move from Navigation History to Compare Basket"/>
+				<img class="image" src="../mimes/nn_add_to_compare_basket.png" alt="Move from Navigation History to Compare Basket"/>
 			
 			</li>
-<li class="stepexpand">
-			<span>
-				<strong>Modify the order of the tables</strong>
+<li class="li step">
+			<span class="ph cmd">
+				<strong class="ph b">Modify the order of the tables</strong>
 			</span><br/>
 			 
-			<p>
+			<p class="p">
 				Using the tool bar of the Compare Basket one can modify the order in which tables 
 				should be compared, i.e. select which result should be the baseline, which comes second, etc...
 			</p>
 
 			
 			 
-				<img src="../mimes/nn_compare_basket.png" alt="Modify the Tables Order in the Compare Basket"/>
+				<img class="image" src="../mimes/nn_compare_basket.png" alt="Modify the Tables Order in the Compare Basket"/>
 			
 			</li>
-<li class="stepexpand">
-			<span>
-				<strong>Execute the comparison</strong>
+<li class="li step">
+			<span class="ph cmd">
+				<strong class="ph b">Execute the comparison</strong>
 			</span><br/>
-			<ul>
-			<li>
+			<ul class="ul choices">
+			<li class="li choice">
 				Once the preferred order is achieved just click the execute button...
-			<p>
-				<img src="../mimes/nn_click_compare.png" alt="Click Compare"/>
+			<p class="p">
+				<img class="image" src="../mimes/nn_click_compare.png" alt="Click Compare"/>
 			</p>
 
 			</li>
 
-			<li>
+			<li class="li choice">
 				or to compare a subset of the tables, bring up the context menu on selected table entries.
 				When comparing tables from one and the same heap dump, it is now possible
 			to perform different set operations on the comparison result.
-				<img src="../mimes/compare_basket_context_menu.png" alt="Context menu in the Compare Basket"/>
+				<img class="image" src="../mimes/compare_basket_context_menu.png" alt="Context menu in the Compare Basket"/>
 			</li>
 
 			</ul>
 
 			 
-			<p>
+			<p class="p">
 				... and see the result.
 			</p>
 
-			<p>
-				<img src="../mimes/nn_compared_tables_absolute.png" alt="Comparison table"/>
+			<p class="p">
+				<img class="image" src="../mimes/nn_compared_tables_absolute.png" alt="Comparison table"/>
 			</p>
 
 			
 			</li>
-<li class="stepexpand">
-			<span>
-				<strong>Customize the displayed result</strong>
+<li class="li step">
+			<span class="ph cmd">
+				<strong class="ph b">Customize the displayed result</strong>
 			</span><br/>
 			 
-			<p>
+			<p class="p">
 				By default the absolute values of all tables will be shown for every compared property,
 				e.g. number of objects, shallow size, etc... One can now change between deltas and
 				absolute values, as well as select which columns should be compared:
 			</p>
 
-			<p>
-				<img src="../mimes/nn_select_compare_option.png" alt="Switch between Absolute Values and Deltas"/>
-				<img src="../mimes/nn_select_columns.png" alt="Select Columns To Be Compared"/>				
+			<p class="p">
+				<img class="image" src="../mimes/nn_select_compare_option.png" alt="Switch between Absolute Values and Deltas"/>
+				<img class="image" src="../mimes/nn_select_columns.png" alt="Select Columns To Be Compared"/>				
 			</p>
 
 			
 			 
-			<p>
-				<img src="../mimes/nn_compared_result_delta.png" alt="Modified Comparison Result"/>
+			<p class="p">
+				<img class="image" src="../mimes/nn_compared_result_delta.png" alt="Modified Comparison Result"/>
 			</p>
 
 			
 			</li>
-<li class="stepexpand">
-			<span>
-				<strong>Context menu with set operations</strong>
+<li class="li step">
+			<span class="ph cmd">
+				<strong class="ph b">Context menu with set operations</strong>
 			</span><br/>
 			 
-				<p>If the tables have been compared using <span class="menucascade"><span class="uicontrol">Compare Tables with all set operations</span>
-					</span> then it is possible to perform different set operations on the comparison result.
+				<p class="p">If the tables have been compared using <span class="ph menucascade"><span class="ph uicontrol">Compare Tables with all set operations</span></span> then it is possible to perform different set operations on the comparison result.
 				</p>
 
-				<img src="../mimes/setops_menu.png" alt="Set Operations context menu"/>
+				<img class="image" src="../mimes/setops_menu.png" alt="Set Operations context menu"/>
 			
 			</li>
 </ol>

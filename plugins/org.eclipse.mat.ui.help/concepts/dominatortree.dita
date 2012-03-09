@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2010 SAP AG and others.
+    Copyright (c) 2008, 2012 SAP AG and others.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -80,7 +80,7 @@
 
 	</conbody>
 	<related-links>
-		<link href="shallowretainedheap.html" format="html" type="task">
+		<link href="shallowretainedheap.dita" type="task">
 			<linktext>Shallow vs. Retained Size</linktext>
 		</link>
 	</related-links>

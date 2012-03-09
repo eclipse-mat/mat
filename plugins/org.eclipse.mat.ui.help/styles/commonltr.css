@@ -1,4 +1,10 @@
 /*
+ | This file is part of the DITA Open Toolkit project hosted on 
+ | Sourceforge.net. See the accompanying license.txt file for 
+ | applicable licenses.
+*/
+
+/*
  | (c) Copyright IBM Corp. 2004, 2005 All Rights Reserved.
  */
  
@@ -36,7 +42,7 @@
 .relref { margin-top: 1em; margin-bottom: 1em }
 .relinfo { margin-top: 1em; margin-bottom: 1em }
 .breadcrumb { font-size : smaller; margin-bottom: 1em }
-.prereq { margin-left : 20px;}
+dt.prereq { margin-left : 20px;}
 
 /* Set heading sizes, getting smaller for deeper nesting */
 .topictitle1 { margin-top: 0pc; margin-bottom: .1em; font-size: 1.34em; }
@@ -48,6 +54,8 @@
 .sectiontitle { margin-top: 1em; margin-bottom: 0em; color: black; font-size: 1.17em; font-weight: bold;}
 .section { margin-top: 1em; margin-bottom: 1em }
 .example { margin-top: 1em; margin-bottom: 1em }
+div.tasklabel { margin-top: 1em; margin-bottom: 1em; }
+h2.tasklabel, h3.tasklabel, h4.tasklabel, h5.tasklabel, h6.tasklabel { font-size: 100%; }
 
 /* All note formats have the same default presentation */
 .note { margin-top: 1em; margin-bottom : 1em;}
@@ -69,6 +77,8 @@
 .danger { margin-top: 1em; margin-bottom : 1em;}
 .cautiontitle { font-weight: bold }
 .caution { font-weight: bold; margin-bottom : 1em; }
+.warning { margin-top: 1em; margin-bottom : 1em;}
+.warningtitle { font-weight: bold }
 
 /* Simple lists do not get a bullet */
 ul.simple { list-style-type: none }
@@ -108,7 +118,21 @@ div.imagecenter { text-align: center }
 div.imageright { text-align: right }
 div.imagejustify { text-align: justify }
 
+/* The cell border can be turned on with
+   {border-right:solid}
+   This value creates a very thick border in Firefox (does not match other tables)
+
+   Firefox works with 
+   {border-right:solid 1pt}
+   but this causes a barely visible line in IE */
+.cellrowborder { border-left:none; border-top:none; border-right:solid 1px; border-bottom:solid 1px }
+.row-nocellborder { border-left:none; border-right:none; border-top:none; border-right: hidden; border-bottom:solid 1px}
+.cell-norowborder { border-top:none; border-bottom:none; border-left:none; border-bottom: hidden; border-right:solid 1px}
+.nocellnorowborder { border:none; border-right: hidden;border-bottom: hidden }
+
 pre.screen { padding: 5px 5px 5px 5px; border: outset; background-color: #CCCCCC; margin-top: 2px; margin-bottom : 2px; white-space: pre}
+
+span.filepath { font-family:monospace }
 
 /* copied from common.css */
 body {

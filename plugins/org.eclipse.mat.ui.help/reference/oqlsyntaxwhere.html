@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html
   PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html lang="en-us" xml:lang="en-us">
+<html xml:lang="en-us" lang="en-us">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <meta name="DC.Type" content="reference"/>
@@ -17,22 +17,22 @@
 <link rel="stylesheet" type="text/css" href="../styles/commonltr.css"/>
 <title>WHERE Clause</title>
 </head>
-<body id="ref_oqlsyntaxwhere"><a name="ref_oqlsyntaxwhere"><!-- --></a>
+<body id="ref_oqlsyntaxwhere">
 
 
-	<h1 class="topictitle1">WHERE Clause</h1>
-
-	
+	<h1 class="title topictitle1">WHERE Clause</h1>
 
 	
 
-	<div><p/>
+	
 
-		<div class="section"><h2 class="sectiontitle">
+	<div class="body refbody"><p class="shortdesc"/>
+
+		<div class="section"><h2 class="title sectiontitle">
 				&gt;=, &lt;=, &gt;, &lt;, [ NOT ] LIKE, [ NOT ] IN
 				(relational operations)
 			</h2>
-			<p>
+			<p class="p">
 				The WHERE clause specifies search conditions, that
 				remove unwanted data from the query result. The
 				following operators, are in order of precedence. The
@@ -41,31 +41,31 @@
 			</p>
 
 			
-			<pre class="codeblock">SELECT * FROM java.lang.String s WHERE s.count &gt;= 100</pre>
+			<pre class="pre codeblock">SELECT * FROM java.lang.String s WHERE s.count &gt;= 100</pre>
 
-			<pre class="codeblock">SELECT * FROM java.lang.String s WHERE toString(s) LIKE ".*day"</pre>
+			<pre class="pre codeblock">SELECT * FROM java.lang.String s WHERE toString(s) LIKE ".*day"</pre>
 
-			<pre class="codeblock">SELECT * FROM java.lang.String s WHERE s.value NOT IN dominators(s)</pre>
-
-		</div>
-
-		<div class="section"><h2 class="sectiontitle">=, != (equality operations)</h2>
-			
-			<pre class="codeblock">SELECT * FROM java.lang.String s WHERE toString(s) = "monday"</pre>
+			<pre class="pre codeblock">SELECT * FROM java.lang.String s WHERE s.value NOT IN dominators(s)</pre>
 
 		</div>
 
-		<div class="section"><h2 class="sectiontitle">AND (conditional AND operation)</h2>
+		<div class="section"><h2 class="title sectiontitle">=, != (equality operations)</h2>
 			
-			<pre class="codeblock">SELECT * FROM java.lang.String s WHERE s.count &gt; 100 AND s.@retainedHeapSize &gt; s.@usedHeapSize</pre>
+			<pre class="pre codeblock">SELECT * FROM java.lang.String s WHERE toString(s) = "monday"</pre>
 
 		</div>
 
-		<div class="section"><h2 class="sectiontitle">OR (conditional OR operation)</h2>
+		<div class="section"><h2 class="title sectiontitle">AND (conditional AND operation)</h2>
 			
-			<pre class="codeblock">SELECT * FROM java.lang.String s WHERE s.count &gt; 1000 OR s.value.@length &gt; 1000</pre>
+			<pre class="pre codeblock">SELECT * FROM java.lang.String s WHERE s.count &gt; 100 AND s.@retainedHeapSize &gt; s.@usedHeapSize</pre>
 
-			<p>
+		</div>
+
+		<div class="section"><h2 class="title sectiontitle">OR (conditional OR operation)</h2>
+			
+			<pre class="pre codeblock">SELECT * FROM java.lang.String s WHERE s.count &gt; 1000 OR s.value.@length &gt; 1000</pre>
+
+			<p class="p">
 				Operators can be applied to expressions, constant
 				literals and sub queries. Valid expressions are
 				explained in the next sections.
@@ -73,11 +73,11 @@
 
 		</div>
 
-		<div class="section"><h2 class="sectiontitle">Literal Expression</h2>
+		<div class="section"><h2 class="title sectiontitle">Literal Expression</h2>
 			
-			<p>Boolean, String, Integer, Long and null literals:</p>
+			<p class="p">Boolean, String, Integer, Long and null literals:</p>
 
-			<pre class="codeblock">SELECT * FROM java.lang.String s
+			<pre class="pre codeblock">SELECT * FROM java.lang.String s
          WHERE ( s.count &gt; 1000 ) = true
          WHERE toString(s) = "monday"
          WHERE dominators(s).size() = 0
@@ -89,9 +89,9 @@
 
 	</div>
 
-<div>
+<div class="related-links">
 <div class="familylinks">
-<div class="parentlink"><strong>Parent topic:</strong> <a href="../reference/oqlsyntax.html">OQL Syntax</a></div>
+<div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="../reference/oqlsyntax.html">OQL Syntax</a></div>
 </div>
 </div>
 

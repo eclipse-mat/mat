@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html
   PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html lang="en-us" xml:lang="en-us">
+<html xml:lang="en-us" lang="en-us">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <meta name="DC.Type" content="reference"/>
@@ -18,28 +18,28 @@
 <link rel="stylesheet" type="text/css" href="../styles/commonltr.css"/>
 <title>Query Matrix</title>
 </head>
-<body id="ref_querymatrix"><a name="ref_querymatrix"><!-- --></a>
+<body id="ref_querymatrix">
 
 
-	<h1 class="topictitle1">Query Matrix</h1>
+	<h1 class="title topictitle1">Query Matrix</h1>
 
 	
 	
 
 
-	<div><p>
+	<div class="body refbody"><p class="shortdesc">
 		There is no exact algorithm for memory analysis. The following
 		table divides existing heap dump queries by the usage
 		categories.
 	</p>
 
-		<div class="section"><h2 class="sectiontitle">Overview</h2>
+		<div class="section"><h2 class="title sectiontitle">Overview</h2>
 			
 
-			<a name="ref_querymatrix__querymatrixoverview"><!-- --></a><table cellpadding="4" cellspacing="0" summary="" id="ref_querymatrix__querymatrixoverview" border="1" class="simpletableborder"><tr>
-					<td valign="top" width="40%">Histogram</td>
+			<table cellpadding="4" cellspacing="0" summary="" id="ref_querymatrix__querymatrixoverview" border="1" class="simpletable"><tr class="strow">
+					<td valign="top" class="stentry" width="40%">Histogram</td>
 
-					<td valign="top" width="60%">
+					<td valign="top" class="stentry" width="60%">
 						Class histogram is a list of all the objects in
 						the heap dump. You see the number of objects,
 						shallow and retained sizes for every class. The
@@ -48,16 +48,16 @@
 						a good starting point for further analysis.
 						Histogram can be opened by pressing the toolbar
 						button
-						<img src="../mimes/i-histogram.png"/>
+						<img class="image" src="../mimes/i-histogram.png"/>
 						or by activating the action link on the Overview
 						pane.
 					</td>
 
 				</tr>
-<tr>
-					<td valign="top">Top Consumers</td>
+<tr class="strow">
+					<td valign="top" class="stentry">Top Consumers</td>
 
-					<td valign="top">
+					<td valign="top" class="stentry">
 						Top Consumers query returns information about
 						the biggest objects grouped by class, class
 						loader, and package as HTML page. The total heap
@@ -65,34 +65,34 @@
 					</td>
 
 				</tr>
-<tr>
-					<td valign="top">Heap Dump Overview</td>
+<tr class="strow">
+					<td valign="top" class="stentry">Heap Dump Overview</td>
 
-					<td valign="top">
-						<p>
+					<td valign="top" class="stentry">
+						<p class="p">
 							When a heap dump is opened the Overview
 							editor already provides a first analysis on
 							the heap dump:
 						</p>
 
-						<ul>
-							<li>
+						<ul class="ul">
+							<li class="li">
 								Check the size of the heap dump, how
 								many object, classes, class loaders it
 								has.
 							</li>
 
-							<li>Look at the biggest objects.</li>
+							<li class="li">Look at the biggest objects.</li>
 
 						</ul>
 
-						<p>
+						<p class="p">
 							The Heap Dump Overview report can be opened
 							via the toolbar:
 						</p>
 
-						<img src="../mimes/6f9c3893.png"/>
-						<p>Overview report contains a histogram and a top consumers overview.</p>
+						<img class="image" src="../mimes/6f9c3893.png"/>
+						<p class="p">Overview report contains a histogram and a top consumers overview.</p>
 
 					</td>
 
@@ -103,11 +103,11 @@
 
 	</div>
 
-<div>
+<div class="related-links">
 <ul class="ullinks">
-<li class="ulchildlink"><strong><a href="../reference/findingmemoryleak.html">Finding Memory Leak</a></strong><br/>
+<li class="link ulchildlink"><strong><a href="../reference/findingmemoryleak.html">Finding Memory Leak</a></strong><br/>
 </li>
-<li class="ulchildlink"><strong><a href="../reference/analyzingmemoryconsumption.html">Analyzing Memory Consumption</a></strong><br/>
+<li class="link ulchildlink"><strong><a href="../reference/analyzingmemoryconsumption.html">Analyzing Memory Consumption</a></strong><br/>
 </li>
 </ul>
 </div>

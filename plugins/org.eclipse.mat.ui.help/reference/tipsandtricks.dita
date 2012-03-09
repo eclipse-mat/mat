@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2010 SAP AG.
+    Copyright (c) 2008, 2012 SAP AG and IBM Corporation.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
    
     Contributors:
         SAP AG - initial API and implementation
+        IBM Corporation - updates for value tab, OQL etc.
  -->
 <!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd" >
 <reference id="ref_tips" xml:lang="en-us">
@@ -178,6 +179,19 @@
 						Filtering operates as normal, and the rows excluded by the filter are not part of
 						the entries obtained by selecting the totals row.
 						<image href="../mimes/totals_menu.png" align="left" placement="break" />
+					</stentry>
+				</strow>
+				<strow>
+					<stentry id="oqlcompletion">OQL autocompletion</stentry>
+					<stentry>
+						The Object Query Language (OQL) pane has syntax highlighting for OQL
+						keywords. It also offers suggestions for class names for the 
+						SELECT FROM clause, both simple class names and regular expressions.
+						The class name list is brought up on typing a dot '.'. Control-space
+						can also be used to bring up the list.
+						<image href="../mimes/oql_completion1.png" align="left" placement="break" />
+						The regular expression list appears on typing a double-quote '"'.
+						<image href="../mimes/oql_completion2.png" align="left" placement="break" />
 					</stentry>
 				</strow>
 			</simpletable>

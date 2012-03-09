@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html
   PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html lang="en-us" xml:lang="en-us">
+<html xml:lang="en-us" lang="en-us">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <meta name="DC.Type" content="reference"/>
@@ -17,69 +17,69 @@
 <link rel="stylesheet" type="text/css" href="../styles/commonltr.css"/>
 <title>Selecting Queries</title>
 </head>
-<body id="ref_queryarguments"><a name="ref_queryarguments"><!-- --></a>
+<body id="ref_queryarguments">
 
 
-	<h1 class="topictitle1">Selecting Queries</h1>
-
-	
+	<h1 class="title topictitle1">Selecting Queries</h1>
 
 	
 
+	
 
-	<div><p/>
+
+	<div class="body refbody"><p class="shortdesc"/>
 
 		<div class="section">
-			<p> Memory Analyzer provides a set of queries to analyze a heap dump. These
+			<p class="p"> Memory Analyzer provides a set of queries to analyze a heap dump. These
 				queries are grouped into several categories. </p>
 
-			<p> You can select a query out of the drop-down toolbar menu. </p>
+			<p class="p"> You can select a query out of the drop-down toolbar menu. </p>
 
-			<br/><div class="imageleft"><img class="imageleft" src="../mimes/189608b9.png"/></div><br/>
-			<p> In the menu you can also access the list of already executed queries via the
-				<span class="cmdname">History</span> entry. The Query Selector which can be
+			<br/><div class="imageleft"><img class="image imageleft" src="../mimes/189608b9.png"/></div><br/>
+			<p class="p"> In the menu you can also access the list of already executed queries via the
+				<span class="keyword cmdname">History</span> entry. The Query Selector which can be
 				quickly accessed with the
-				<span class="cmdname">Ctrl+Q</span> key combination. </p>
+				<span class="keyword cmdname">Ctrl+Q</span> key combination. </p>
 
-			<br/><div class="imageleft"><img class="imageleft" src="../mimes/select_queries.png"/></div><br/>
-			<p> The Query Selector consists of an input field, where you can search for
+			<br/><div class="imageleft"><img class="image imageleft" src="../mimes/select_queries.png"/></div><br/>
+			<p class="p"> The Query Selector consists of an input field, where you can search for
 				queries, below the input field you can find the history of already executed
 				queries and below the history the list of all available queries grouped by
 				their category. When a query is marked, a detailed description of the query
 				is displayed at the bottom. This description contains also the information
 				about the arguments for this query. </p>
 
-			<p>
+			<p class="p">
 				The query browser ("Search Queries...") is also available in the context menu.
 				It offers only queries valid for the current selection, and is easier to use as it can display
 				some or all the queries, and shows also the help for each query.
 			</p>
 
-			<p>
-				<img src="../mimes/search_queries_context.png" alt="Search Queries Context Menu"/>
+			<p class="p">
+				<img class="image" src="../mimes/search_queries_context.png" alt="Search Queries Context Menu"/>
 			</p>
 
-			<p>
-				<img src="../mimes/search_queries.png" alt="Start Typing To Limit the Selection..."/>
+			<p class="p">
+				<img class="image" src="../mimes/search_queries.png" alt="Start Typing To Limit the Selection..."/>
 			</p>
 
-			<p> If a query has arguments a wizard is opened up when the query is selected. All
+			<p class="p"> If a query has arguments a wizard is opened up when the query is selected. All
 				arguments are displayed in an table, the mandatory arguments are bold. In
 				the message area at the top information is displayed about the mandatory
 				arguments. At the bottom the detailed description is displayed like in the
 				query selector. </p>
 
-			<br/><div class="imageleft"><img class="imageleft" src="../mimes/36c94924.png"/></div><br/>
+			<br/><div class="imageleft"><img class="image imageleft" src="../mimes/36c94924.png"/></div><br/>
 			
-			<p id="ref_queryarguments__arguments"><a name="ref_queryarguments__arguments"><!-- --></a>
-				<strong>Providing Query Arguments</strong>
+			<p class="p" id="ref_queryarguments__arguments">
+				<strong class="ph b">Providing Query Arguments</strong>
 			</p>
 
-			<p>To add the arguments to a query you may use a query browser or an arguments
+			<p class="p">To add the arguments to a query you may use a query browser or an arguments
 				dialog.</p>
 
-			<br/><div class="imageleft"><img class="imageleft" src="../mimes/arguments_wizard.png"/></div><br/>
-			<p>Mandatory arguments are in boldface. Tooltips and help infopop that are
+			<br/><div class="imageleft"><img class="image imageleft" src="../mimes/arguments_wizard.png"/></div><br/>
+			<p class="p">Mandatory arguments are in boldface. Tooltips and help infopop that are
 				below the dialog provide argument description. Message area of the dialog
 				itself shows information about the selected argument or an error message if
 				you have entered a not valid value. Some queries require a set of objects as an
@@ -87,166 +87,166 @@
 				mode of the dialog. On the figure below you can see the simple mode. A set of
 				objects is defined by a pattern. </p>
 
-			<br/><div class="imageleft"><img class="imageleft" src="../mimes/arguments_pattern.png"/></div><br/>
-			<p id="ref_queryarguments__pattern"><a name="ref_queryarguments__pattern"><!-- --></a>
-				<strong>Pattern Syntax</strong>
+			<br/><div class="imageleft"><img class="image imageleft" src="../mimes/arguments_pattern.png"/></div><br/>
+			<p class="p" id="ref_queryarguments__pattern">
+				<strong class="ph b">Pattern Syntax</strong>
 			</p>
 
-			<p>The metacharacters that are supported by a pattern are:<strong>(</strong>, <strong>[</strong>, <strong>{</strong> ,<strong>\</strong>, <strong>^</strong>, <strong>-</strong>, <strong>$</strong>, <strong>|</strong>, <strong>]</strong>,
-				<strong>}</strong>, <strong>)</strong>, <strong>?</strong>, <strong>*</strong> and <strong>+</strong>.</p>
+			<p class="p">The metacharacters that are supported by a pattern are:<strong class="ph b">(</strong>, <strong class="ph b">[</strong>, <strong class="ph b">{</strong> ,<strong class="ph b">\</strong>, <strong class="ph b">^</strong>, <strong class="ph b">-</strong>, <strong class="ph b">$</strong>, <strong class="ph b">|</strong>, <strong class="ph b">]</strong>,
+				<strong class="ph b">}</strong>, <strong class="ph b">)</strong>, <strong class="ph b">?</strong>, <strong class="ph b">*</strong> and <strong class="ph b">+</strong>.</p>
 
-			<table cellpadding="4" cellspacing="0" summary="" border="1" class="simpletableborder"><tr>
-					<th valign="bottom" align="left" id="d9010e149" width="50%">
+			<table cellpadding="4" cellspacing="0" summary="" border="1" class="simpletable"><tr class="sthead">
+					<th valign="bottom" align="left" id="d10876e149" class="stentry" width="50%">
 						Pattern Syntax
 					</th>
 
-					<th valign="bottom" align="left" id="d9010e152" width="50%">Details</th>
+					<th valign="bottom" align="left" id="d10876e152" class="stentry" width="50%">Details</th>
 
 				</tr>
-<tr>
-					<td valign="top" headers="d9010e149">
-						<pre class="codeblock">[abc]</pre>
+<tr class="strow">
+					<td valign="top" headers="d10876e149" class="stentry">
+						<pre class="pre codeblock">[abc]</pre>
 
 					</td>
 
-					<td valign="top" headers="d9010e152">
+					<td valign="top" headers="d10876e152" class="stentry">
 						a, b, or c (simple class)
 					</td>
 
 				</tr>
-<tr>
-					<td valign="top" headers="d9010e149">
-						<pre class="codeblock">[^abc]</pre>
+<tr class="strow">
+					<td valign="top" headers="d10876e149" class="stentry">
+						<pre class="pre codeblock">[^abc]</pre>
 
 					</td>
 
-					<td valign="top" headers="d9010e152">
+					<td valign="top" headers="d10876e152" class="stentry">
 						Any character except a, b, or c (negation)
 					</td>
 
 				</tr>
-<tr>
-					<td valign="top" headers="d9010e149">
-						<pre class="codeblock">outbounds( object )</pre>
+<tr class="strow">
+					<td valign="top" headers="d10876e149" class="stentry">
+						<pre class="pre codeblock">outbounds( object )</pre>
 
 					</td>
 
-					<td valign="top" headers="d9010e152">outbound referrer</td>
+					<td valign="top" headers="d10876e152" class="stentry">outbound referrer</td>
 
 				</tr>
-<tr>
-					<td valign="top" headers="d9010e149">
-						<pre class="codeblock">[a-zA-Z]</pre>
+<tr class="strow">
+					<td valign="top" headers="d10876e149" class="stentry">
+						<pre class="pre codeblock">[a-zA-Z]</pre>
 
 					</td>
 
-					<td valign="top" headers="d9010e152">a through z, or A through Z, inclusive (range)</td>
+					<td valign="top" headers="d10876e152" class="stentry">a through z, or A through Z, inclusive (range)</td>
 
 				</tr>
-<tr>
-					<td valign="top" headers="d9010e149">
-						<pre class="codeblock">[a-d[m-p]]</pre>
+<tr class="strow">
+					<td valign="top" headers="d10876e149" class="stentry">
+						<pre class="pre codeblock">[a-d[m-p]]</pre>
 
 					</td>
 
-					<td valign="top" headers="d9010e152">a through d, or m through p: [a-dm-p] (union)</td>
+					<td valign="top" headers="d10876e152" class="stentry">a through d, or m through p: [a-dm-p] (union)</td>
 
 				</tr>
-<tr>
-					<td valign="top" headers="d9010e149">
-						<pre class="codeblock">[a-z&amp;&amp;[def]]</pre>
+<tr class="strow">
+					<td valign="top" headers="d10876e149" class="stentry">
+						<pre class="pre codeblock">[a-z&amp;&amp;[def]]</pre>
 
 					</td>
 
-					<td valign="top" headers="d9010e152">
+					<td valign="top" headers="d10876e152" class="stentry">
 						d, e, or f (intersection)
 					</td>
 
 				</tr>
-<tr>
-					<td valign="top" headers="d9010e149">
-						<pre class="codeblock">[a-z&amp;&amp;[^bc]]</pre>
+<tr class="strow">
+					<td valign="top" headers="d10876e149" class="stentry">
+						<pre class="pre codeblock">[a-z&amp;&amp;[^bc]]</pre>
 
 					</td>
 
-					<td valign="top" headers="d9010e152">
+					<td valign="top" headers="d10876e152" class="stentry">
 						a through z, except for b and c: [ad-z] (subtraction)
 					</td>
 
 				</tr>
-<tr>
-					<td valign="top" headers="d9010e149">
-						<pre class="codeblock">[a-z&amp;&amp;[^m-p]]</pre>
+<tr class="strow">
+					<td valign="top" headers="d10876e149" class="stentry">
+						<pre class="pre codeblock">[a-z&amp;&amp;[^m-p]]</pre>
 
 					</td>
 
-					<td valign="top" headers="d9010e152">
+					<td valign="top" headers="d10876e152" class="stentry">
 						a through z, and not m through p: [a-lq-z] (subtraction)
 					</td>
 
 				</tr>
-<tr>
-					<td valign="top" headers="d9010e149">
-						<pre class="codeblock">\d</pre>
+<tr class="strow">
+					<td valign="top" headers="d10876e149" class="stentry">
+						<pre class="pre codeblock">\d</pre>
 
 					</td>
 
-					<td valign="top" headers="d9010e152">
+					<td valign="top" headers="d10876e152" class="stentry">
 						A digit: [0-9]
 					</td>
 
 				</tr>
-<tr>
-					<td valign="top" headers="d9010e149">
-						<pre class="codeblock">\D</pre>
+<tr class="strow">
+					<td valign="top" headers="d10876e149" class="stentry">
+						<pre class="pre codeblock">\D</pre>
 
 					</td>
 
-					<td valign="top" headers="d9010e152">
+					<td valign="top" headers="d10876e152" class="stentry">
 						A non-digit: [^0-9]
 					</td>
 
 				</tr>
-<tr>
-					<td valign="top" headers="d9010e149">
-						<pre class="codeblock">\s</pre>
+<tr class="strow">
+					<td valign="top" headers="d10876e149" class="stentry">
+						<pre class="pre codeblock">\s</pre>
 
 					</td>
 
-					<td valign="top" headers="d9010e152">
+					<td valign="top" headers="d10876e152" class="stentry">
 						A whitespace character: [ \t\n\x0B\f\r]
 					</td>
 
 				</tr>
-<tr>
-					<td valign="top" headers="d9010e149">
-						<pre class="codeblock">\S</pre>
+<tr class="strow">
+					<td valign="top" headers="d10876e149" class="stentry">
+						<pre class="pre codeblock">\S</pre>
 
 					</td>
 
-					<td valign="top" headers="d9010e152">
+					<td valign="top" headers="d10876e152" class="stentry">
 						 A non-whitespace character: [^\s]
 					</td>
 
 				</tr>
-<tr>
-					<td valign="top" headers="d9010e149">
-						<pre class="codeblock">\w</pre>
+<tr class="strow">
+					<td valign="top" headers="d10876e149" class="stentry">
+						<pre class="pre codeblock">\w</pre>
 
 					</td>
 
-					<td valign="top" headers="d9010e152">
+					<td valign="top" headers="d10876e152" class="stentry">
 						 A word character: [a-zA-Z_0-9]
 					</td>
 
 				</tr>
-<tr>
-					<td valign="top" headers="d9010e149">
-						<pre class="codeblock">\W</pre>
+<tr class="strow">
+					<td valign="top" headers="d10876e149" class="stentry">
+						<pre class="pre codeblock">\W</pre>
 
 					</td>
 
-					<td valign="top" headers="d9010e152">
+					<td valign="top" headers="d10876e152" class="stentry">
 						 A non-word character: [^\w]
 					</td>
 
@@ -254,34 +254,34 @@
 </table>
 				
  
-			<p>In advanced mode, you can define a set of objects with a pattern, object
+			<p class="p">In advanced mode, you can define a set of objects with a pattern, object
 				addresses or an Object Query Language (OQL) query. Icons and help messages
 				give you information about the type of the argument.</p>
 
-			<br/><div class="imageleft"><img class="imageleft" src="../mimes/arguments_advanced.png"/></div><br/>
-			<p>You may enter a single parameter per line, such as a pattern, an object
+			<br/><div class="imageleft"><img class="image imageleft" src="../mimes/arguments_advanced.png"/></div><br/>
+			<p class="p">You may enter a single parameter per line, such as a pattern, an object
 				address, or an OQL query. Additional line for this type of the argument is
 				added automatically, thus multiple arguments can be entered.</p>
 
-			<p id="ref_queryarguments__address"><a name="ref_queryarguments__address"><!-- --></a>
-				<strong>Object Address Syntax</strong>
+			<p class="p" id="ref_queryarguments__address">
+				<strong class="ph b">Object Address Syntax</strong>
 			</p>
 
-			<p>The object address has a hexadecimal form, that is it starts with the
+			<p class="p">The object address has a hexadecimal form, that is it starts with the
 				hex-prefix 0x and consists of one or more letters A-F and digits 0-9.</p>
 
-			<p>
-				<strong>Example:</strong> 0x36d99c88</p>
+			<p class="p">
+				<strong class="ph b">Example:</strong> 0x36d99c88</p>
 
 			
-			<p id="ref_queryarguments__oql_query"><a name="ref_queryarguments__oql_query"><!-- --></a>For more information about OQL, refer to the <a href="oqlsyntax.html">OQL syntax details</a></p>
+			<p class="p" id="ref_queryarguments__oql_query">For more information about OQL, refer to the <a class="xref" href="oqlsyntax.html">OQL syntax details</a></p>
 
 		</div>
 
 	</div>
 
-	<div><div class="relinfo relref"><strong>Related reference</strong><br/>
-<div><a href="querymatrix.html">Query Matrix</a></div>
+	<div class="related-links"><div class="relinfo relref"><strong>Related reference</strong><br/>
+<div><a class="link" href="querymatrix.html" title="There is no exact algorithm for memory analysis. The following table divides existing heap dump queries by the usage categories.">Query Matrix</a></div>
 </div>
 </div>
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html
   PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html lang="en-us" xml:lang="en-us">
+<html xml:lang="en-us" lang="en-us">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <meta name="DC.Type" content="reference"/>
@@ -16,15 +16,15 @@
 <link rel="stylesheet" type="text/css" href="../styles/commonltr.css"/>
 <title>Analyze Class Loader</title>
 </head>
-<body id="task_analyzingclassloader"><a name="task_analyzingclassloader"><!-- --></a>
+<body id="task_analyzingclassloader">
 
 
-	<h1 class="topictitle1">Analyze Class Loader</h1>
+	<h1 class="title topictitle1">Analyze Class Loader</h1>
 
 	
 	
 	
-	<div><p>
+	<div class="body refbody"><p class="shortdesc">
 		Class loaders load classes into the memory of the JVM. When
 		analyzing the heap, class loaders are very important for two reasons:
 		First, applications typically load components using separate class
@@ -32,23 +32,19 @@
 		which can also be depleted.
 	</p>
 
-		<div class="section"><h2 class="sectiontitle">Class Loader Explorer</h2>
+		<div class="section"><h2 class="title sectiontitle">Class Loader Explorer</h2>
 			
 			<div class="p">
 				To get an overview, run the
-				<span class="menucascade">
-					<span class="uicontrol">Query Browser</span>
-					 &gt; <span class="uicontrol">Java Basics</span>
-					 &gt; <span class="uicontrol">Class Loader Explorer</span>
-				</span>
+				<span class="ph menucascade"><span class="ph uicontrol">Query Browser</span> &gt; <span class="ph uicontrol">Java Basics</span> &gt; <span class="ph uicontrol">Class Loader Explorer</span></span>
 				inspection on the heap dump.
 
-				<ul>
-					<li>The Memory Analyzer attaches a meaningful label to the class
+				<ul class="ul">
+					<li class="li">The Memory Analyzer attaches a meaningful label to the class
 						loader - in the case of OSGi bundles it is the bundle id. Looking
 						out for duplicate entries!</li>
 
-					<li>Next to the class loader name, the table contains the defined
+					<li class="li">Next to the class loader name, the table contains the defined
 						classes and the number of live instances. If one and the same
 						component is loaded multiple times, the number of live instances
 						can indicate which class loaders is more alive and which one
@@ -59,11 +55,11 @@
 			</div>
 
 
-			<img src="analyzingclassloader_explorer.png" alt="Class Loader Explorer"/>
+			<img class="image" src="analyzingclassloader_explorer.png" alt="Class Loader Explorer"/>
 
-			<p>
+			<p class="p">
 				Find more information in this blog posting:
-				<a href="http://dev.eclipse.org/blogs/memoryanalyzer/2008/05/17/the-unknown-generation-perm/">The Unknown Generation: Perm</a>
+				<a class="xref" href="http://dev.eclipse.org/blogs/memoryanalyzer/2008/05/17/the-unknown-generation-perm/">The Unknown Generation: Perm</a>
 			</p>
 
 

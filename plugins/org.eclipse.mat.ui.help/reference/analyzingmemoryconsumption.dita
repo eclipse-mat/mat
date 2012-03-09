@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2010 SAP AG and others.
+    Copyright (c) 2008, 2012 SAP AG and others.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -31,7 +31,7 @@
 	<refbody>
 		<section>
 			<p>
-				An easy way to start looking for areas for optimization is to use the <xref format="html" href="inspections/component_report.html">Component Report</xref>.
+				An easy way to start looking for areas for optimization is to use the <xref href="inspections/component_report.dita">Component Report</xref>.
 				Additionally, the following queries may be useful to perform the analysis manually: 
 			</p>
 			<simpletable relcolwidth="2* 3*"
@@ -60,7 +60,7 @@
 					<stentry>
 							A number of queries provided under the <b>Collections</b> query group give the opportunity
 							to analyze the ways collections are used e.g. how much they are filled, what the sizes are,
-							what the collision ratio (for hash maps) is, etc... See <xref format="html" href="../tasks/analyzingjavacollectionusage.html">Analyzing Java Collection Usage</xref>. 
+							what the collision ratio (for hash maps) is, etc... See <xref href="../tasks/analyzingjavacollectionusage.dita">Analyzing Java Collection Usage</xref>. 
 					</stentry>
 				</strow>
 				<strow>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2010 SAP AG and others.
+    Copyright (c) 2008, 2012 SAP AG and others.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
    
     Contributors:
         SAP AG - initial API and implementation
+        IBM Corporation - autocompletion
  -->
 <!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd" >
 <reference id="ref_oqlsyntaxfrom" xml:lang="en-us">
@@ -92,6 +93,15 @@
 				Please note, that currently the FROM OBJECTS term is in
 				the test phase!
 			</note>
+		</section>
+		<section>
+			<title>
+				Autocompletion
+			</title>
+			<p>
+				The OQL pane now has autocompletion for class names
+				and regular expresions. See <xref href="tipsandtricks.dita#oqlcompletion">OQL autocompletion</xref>.
+			</p>
 		</section>
 	</refbody>
 </reference>

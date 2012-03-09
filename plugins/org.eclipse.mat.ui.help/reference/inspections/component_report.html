@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html
   PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html lang="en-us" xml:lang="en-us">
+<html xml:lang="en-us" lang="en-us">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <meta name="DC.Type" content="reference"/>
@@ -16,82 +16,82 @@
 <link rel="stylesheet" type="text/css" href="../../styles/commonltr.css"/>
 <title>Component Report</title>
 </head>
-<body id="ref_inspections_component_report"><a name="ref_inspections_component_report"><!-- --></a>
+<body id="ref_inspections_component_report">
 
 
-	<h1 class="topictitle1">Component Report</h1>
+	<h1 class="title topictitle1">Component Report</h1>
 
 	
 	
 		
-	<div><p>Analyze a component for possible memory waste and
+	<div class="body refbody"><p class="shortdesc">Analyze a component for possible memory waste and
 		other inefficiencies.</p>
 
-		<div class="section" id="ref_inspections_component_report__introduction"><a name="ref_inspections_component_report__introduction"><!-- --></a><h2 class="sectiontitle">Introduction</h2>
+		<div class="section" id="ref_inspections_component_report__introduction"><h2 class="title sectiontitle">Introduction</h2>
 			
-			<p>A heap dump contains millions of objects. But which of those
+			<p class="p">A heap dump contains millions of objects. But which of those
 				belong to your component? And what conclusions can you draw from
 				them? This is where the Component Report can help.</p>
 
-			<p>
+			<p class="p">
 				Before starting, one has to decide what constitutes a component.
 				Typically, a component is either a set of classes in a
-				<strong>common root package</strong>
+				<strong class="ph b">common root package</strong>
 				or a set of classes loaded by the same
-				<strong>class loader</strong>
+				<strong class="ph b">class loader</strong>
 				.
 			</p>
 
-			<p>
+			<p class="p">
 				Using this root set of objects, the component report calculates a
 				customized retained set. This retained set includes all objects kept
 				alive by the root set. Additionally, it assumes that all objects
 				that have become
-				<em>finalizable</em>
+				<em class="ph i">finalizable</em>
 				actually have been finalized and that also all soft references have
 				been cleared.
 			</p>
 
 		</div>
 
-		<div class="section" id="ref_inspections_component_report__run"><a name="ref_inspections_component_report__run"><!-- --></a><h2 class="sectiontitle">Executing the Component Report</h2>
+		<div class="section" id="ref_inspections_component_report__run"><h2 class="title sectiontitle">Executing the Component Report</h2>
 			
-			<p> To run the report for a common root package, select the component
+			<p class="p"> To run the report for a common root package, select the component
 				report from the tool bar and provide a regular expression to match
 				the package:</p>
 
-			<img src="component_report_package.png" alt="Regular expression to match common root package to be used for the component report."/>
-			<p> Alternatively, one can group the class histogram by class loader
+			<img class="image" src="component_report_package.png" alt="Regular expression to match common root package to be used for the component report."/>
+			<p class="p"> Alternatively, one can group the class histogram by class loader
 				and then right-click the appropriate class loader and select the
 				component report:</p>
 
-			<img src="component_report_classloader.png" alt="Group histogram by class loader."/>
+			<img class="image" src="component_report_classloader.png" alt="Group histogram by class loader."/>
 		</div>
 
-		<div class="section" id="ref_inspections_component_report__overview"><a name="ref_inspections_component_report__overview"><!-- --></a><h2 class="sectiontitle">Overview</h2>
+		<div class="section" id="ref_inspections_component_report__overview"><h2 class="title sectiontitle">Overview</h2>
 			
-			<p>The component report is rendered as HTML. It is stored in a ZIP
+			<p class="p">The component report is rendered as HTML. It is stored in a ZIP
 				file next to the heap dump file.</p>
 
-			<img src="component_report_overview.png" alt="Overview section of the component report."/>
+			<img class="image" src="component_report_overview.png" alt="Overview section of the component report."/>
 			<div class="p">
-				<ol class="arrows">
-					<li>Details about the size, the number of classes, the
+				<ol class="ol arrows">
+					<li class="li">Details about the size, the number of classes, the
 						number of objects and the number of different class loaders.</li>
 
-					<li>The pie chart shows the size of the component relative to
+					<li class="li">The pie chart shows the size of the component relative to
 						the total heap size.</li>
 
-					<li>
+					<li class="li">
 						The
-						<a href="top_consumers.html" title="Find out which classes, class loaders and packages are using the most memory.">Top Consumers</a>
+						<a class="xref" href="top_consumers.html" title="Find out which classes, class loaders and packages are using the most memory.">Top Consumers</a>
 						section lists the biggest object, classes, class loader and
 						packages which are retained by the component. It provides a good
 						overview of what is actually kept alive by the component.
 					</li>
 
-					<li>
-						<a href="retained_set.html" title="All objects kept alive just because of the selected objects.">Retained Set
+					<li class="li">
+						<a class="xref" href="retained_set.html" title="All objects kept alive just because of the selected objects.">Retained Set
 						</a>
 						displays all objects grouped by classes which are retained.
 					</li>
@@ -102,13 +102,13 @@
 
 		</div>
 
-		<div class="section" id="ref_inspections_component_report__strings"><a name="ref_inspections_component_report__strings"><!-- --></a><h2 class="sectiontitle">Duplicate Strings</h2>
+		<div class="section" id="ref_inspections_component_report__strings"><h2 class="title sectiontitle">Duplicate Strings</h2>
 			
-			<p>
+			<p class="p">
 				Duplicate Strings are a prime example for memory waste: multiple
 				char arrays with identical content. To find the duplicates, the
 				report
-				<a href="group_by_value.html" title="Group a set of objects by value.">groups</a>
+				<a class="xref" href="group_by_value.html" title="Group a set of objects by value.">groups</a>
 				the char arrays by their value. It lists all char arrays with 10 or
 				more instances with identical content.
 			</p>
@@ -116,40 +116,40 @@
 			<div class="p">
 				The content of the char arrays typically gives away ideas how to
 				reduce the duplicates:
-				<ul>
-					<li>
+				<ul class="ul">
+					<li class="li">
 						Sometimes the duplicate strings are used as
-						<strong>keys or values in hash maps</strong>
+						<strong class="ph b">keys or values in hash maps</strong>
 						. For example, when reading heap dumps, MAT itself used to read
 						the char constant denoting the type of an attribute into memory.
 						It turned out that the heap was littered with many 'L's for
 						references, 'B's for bytes, and 'Z's for booleans, etc. By
 						replacing the
-						<samp class="codeph">char</samp>
+						<samp class="ph codeph">char</samp>
 						with an
-						<samp class="codeph">int</samp>
+						<samp class="ph codeph">int</samp>
 						, MAT could save some of the precious memory. Alternatively,
 						Enumerations could do the same trick.
 					</li>
 
-					<li>
+					<li class="li">
 						When reading
-						<strong>XML documents</strong>
+						<strong class="ph b">XML documents</strong>
 						, fragments like
-						<samp class="codeph">UTF-8</samp>
+						<samp class="ph codeph">UTF-8</samp>
 						, tag names or tag content remains in memory. Again, think about
 						using Enumerations for the repetitive content.
 					</li>
 
-					<li>
+					<li class="li">
 						Another option is
-						<a href="http://java.sun.com/javase/6/docs/api/java/lang/String.html#intern()">interning</a>
+						<a class="xref" href="http://java.sun.com/javase/6/docs/api/java/lang/String.html#intern()">interning</a>
 						the String. This adds the string to a pool of strings which is
 						maintained privately by the class
-						<samp class="codeph">String</samp>
+						<samp class="ph codeph">String</samp>
 						. For each unique string, the pool will keep on instance alive.
 						However, if you are interning, make sure do it
-						<strong>responsibly</strong>
+						<strong class="ph b">responsibly</strong>
 						: A big pool of strings will have maintenance costs and one cannot
 						rely on interned strings being garbage collected.
 					</li>
@@ -160,27 +160,27 @@
 
 		</div>
 
-		<div class="section" id="ref_inspections_component_report__emptycol"><a name="ref_inspections_component_report__emptycol"><!-- --></a><h2 class="sectiontitle">Empty Collections</h2>
+		<div class="section" id="ref_inspections_component_report__emptycol"><h2 class="title sectiontitle">Empty Collections</h2>
 			
-			<p>Even if collections are empty, they usually consume memory
+			<p class="p">Even if collections are empty, they usually consume memory
 				through their internal object array. Imagine a tree structure where
 				every node eagerly creates array lists to hold its children, but
 				only a few nodes actually possess children.</p>
 
-			<p>
+			<p class="p">
 				One remedy is the lazy initialization of the collections: create the
 				collection only when it is actually needed. To find out who is
 				responsible for the empty collections, use the
-				<a href="immediate_dominators.html" title="Find out who is keeping alive a set of objects.">immediate
+				<a class="xref" href="immediate_dominators.html" title="Find out who is keeping alive a set of objects.">immediate
 					dominators</a>
 				command.
 			</p>
 
 		</div>
 
-		<div class="section" id="ref_inspections_component_report__colfillratio"><a name="ref_inspections_component_report__colfillratio"><!-- --></a><h2 class="sectiontitle">Collection Fill Ratio</h2>
+		<div class="section" id="ref_inspections_component_report__colfillratio"><h2 class="title sectiontitle">Collection Fill Ratio</h2>
 			
-			<p>Just like empty ones, collections with only a few elements
+			<p class="p">Just like empty ones, collections with only a few elements
 				also take up a lot of memory. Again, the backing array of the
 				collection is the main culprit. The examination of the fill ratios
 				using a heap dump from a production system gives hints to what
@@ -188,24 +188,24 @@
 
 		</div>
 
-		<div class="section" id="ref_inspections_component_report__softref"><a name="ref_inspections_component_report__softref"><!-- --></a><h2 class="sectiontitle">Soft Reference Statistics</h2>
+		<div class="section" id="ref_inspections_component_report__softref"><h2 class="title sectiontitle">Soft Reference Statistics</h2>
 			
 			<div class="p">
 				Soft references are cleared by the virtual machine in response to
 				memory demand. Usually, soft references are used to implement
 				caches: keep the objects around while there is sufficient memory,
 				clear the objects if free memory becomes low.
-				<ul>
-					<li>Usually objects are cached, because they are expensive
+				<ul class="ul">
+					<li class="li">Usually objects are cached, because they are expensive
 						to re-create. Across a whole application, soft referenced objects
 						might carry very different costs. However, the virtual machine
 						cannot know this and clears the objects on some least recently
 						used algorithm. From the outside, this is very unpredictable and
 						difficult to fine tune.</li>
 
-					<li>
+					<li class="li">
 						Furthermore, soft references can impose a
-						<em>stop-the-world</em>
+						<em class="ph i">stop-the-world</em>
 						phase during garbage collection. Oversimplified, the GC marks the
 						object graph behind the soft references while the virtual machine
 						is stopped.
@@ -217,18 +217,18 @@
 
 		</div>
 
-		<div class="section" id="ref_inspections_component_report__finalizer"><a name="ref_inspections_component_report__finalizer"><!-- --></a><h2 class="sectiontitle">Finalizer Statistics</h2>
+		<div class="section" id="ref_inspections_component_report__finalizer"><h2 class="title sectiontitle">Finalizer Statistics</h2>
 			
 			<div class="p">
 				Objects which implement the
-				<samp class="codeph">finalize</samp>
+				<samp class="ph codeph">finalize</samp>
 				method are included in the component report, because those objects
 				can have serious implications for the memory of a Java Virtual
 				Machine:
-				<ul>
-					<li>
+				<ul class="ul">
+					<li class="li">
 						Whenever an object with finalizer is created, a corresponding
-						<samp class="codeph">java.lang.ref.Finalizer</samp>
+						<samp class="ph codeph">java.lang.ref.Finalizer</samp>
 						object is created. If the object is only reachable via its
 						finalizer, it is placed in the queue of the finalizer thread and
 						processed. Only then the next garbage collection will actually
@@ -236,21 +236,21 @@
 						collections until the memory is freed.
 					</li>
 
-					<li>When using Sun's current virtual machine implementation,
+					<li class="li">When using Sun's current virtual machine implementation,
 						the finalizer thread is a single thread processing the finalizer
 						objects sequentially. One blocking finalizer queue therefore can
 						easily keep alive big chunks of memory (all those other objects
 						ready to be finalized).</li>
 
-					<li>
+					<li class="li">
 						Depending on the actual algorithm, finalizer may require a
-						<em>stop-the-world</em>
+						<em class="ph i">stop-the-world</em>
 						pause during garbage collections. This, of course, can have
 						serious implications for the responsiveness of the whole
 						application.
 					</li>
 
-					<li>Last not least, the time of execution of the finalizer is
+					<li class="li">Last not least, the time of execution of the finalizer is
 						up to the VM and therefore unpredictable.</li>
 
 				</ul>
@@ -259,14 +259,14 @@
 
 		</div>
 
-		<div class="section" id="ref_inspections_component_report__mapcollision"><a name="ref_inspections_component_report__mapcollision"><!-- --></a><h2 class="sectiontitle">Map Collision Ratios</h2>
+		<div class="section" id="ref_inspections_component_report__mapcollision"><h2 class="title sectiontitle">Map Collision Ratios</h2>
 			
-			<p>This sections analyzes the collision ratios of hash maps. Maps
+			<p class="p">This sections analyzes the collision ratios of hash maps. Maps
 				place the values in different buckets based on the hash code of the
 				keys. If the hash code points to the same bucket, the elements
 				inside the bucket are typically compared linearly.</p>
 
-			<p>High collision ratios can indicate sub-optimal hash codes.
+			<p class="p">High collision ratios can indicate sub-optimal hash codes.
 				This is not a memory problem (a better hash code does not save
 				space) but rather performance problem because of the linear access
 				inside the buckets.</p>

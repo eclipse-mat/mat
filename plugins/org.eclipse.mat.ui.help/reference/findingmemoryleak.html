@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html
   PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html lang="en-us" xml:lang="en-us">
+<html xml:lang="en-us" lang="en-us">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <meta name="DC.Type" content="reference"/>
@@ -17,57 +17,57 @@
 <link rel="stylesheet" type="text/css" href="../styles/commonltr.css"/>
 <title>Finding Memory Leak</title>
 </head>
-<body id="ref_findingmemoryleak"><a name="ref_findingmemoryleak"><!-- --></a>
+<body id="ref_findingmemoryleak">
 
 
-	<h1 class="topictitle1">Finding Memory Leak</h1>
-
-	
+	<h1 class="title topictitle1">Finding Memory Leak</h1>
 
 	
 
+	
 
-	<div><p/>
+
+	<div class="body refbody"><p class="shortdesc"/>
 
 		<div class="section">
-			<p>
+			<p class="p">
 				The following 4-step approach proved to be most
 				efficient to detect memory issues:
 			</p>
 
-			<ol>
-				<li>
+			<ol class="ol">
+				<li class="li">
 					Get an overview of the heap dump. See:
-					<em>Overview</em>
+					<em class="ph i">Overview</em>
 				</li>
 
-				<li>
+				<li class="li">
 					Find big memory chunks (single objects or groups of
 					objects).
 				</li>
 
-				<li>Inspect the content of this memory chunk.</li>
+				<li class="li">Inspect the content of this memory chunk.</li>
 
-				<li>
+				<li class="li">
 					If the content of the memory chunk is too big check
 					who keeps this memory chunk alive
 				</li>
 
 			</ol>
 
-			<p>
-				This sequence of actions is automated in Memory Analyzer by the <a href="../tasks/runningleaksuspectreport.html">Leak Suspects Report</a>.
+			<p class="p">
+				This sequence of actions is automated in Memory Analyzer by the <a class="xref" href="../tasks/runningleaksuspectreport.html">Leak Suspects Report</a>.
 			</p>
 
-			<p>
+			<p class="p">
 				The following table contains a list of queries that are
 				most helpful in analyzing memory leak issues.
 			</p>
 
-			<a name="ref_findingmemoryleak__findingmemoryleak"><!-- --></a><table cellpadding="4" cellspacing="0" summary="" id="ref_findingmemoryleak__findingmemoryleak" border="1" class="simpletableborder"><tr>
-					<td valign="top" width="40%">Dominator Tree</td>
+			<table cellpadding="4" cellspacing="0" summary="" id="ref_findingmemoryleak__findingmemoryleak" border="1" class="simpletable"><tr class="strow">
+					<td valign="top" class="stentry" width="40%">Dominator Tree</td>
 
-					<td valign="top" width="60%">
+					<td valign="top" class="stentry" width="60%">
 						In Dominator Tree every node is responsible for
 						keeping its children alive. The tree is sorted
 						by the retained size, so you find single big
@@ -78,51 +78,51 @@
 					</td>
 
 				</tr>
-<tr>
-					<td valign="top">Top Consumers</td>
+<tr class="strow">
+					<td valign="top" class="stentry">Top Consumers</td>
 
-					<td valign="top">
+					<td valign="top" class="stentry">
 						Top Consumers query returns information about
 						the biggest objects grouped by class, class
 						loader, and package.
 					</td>
 
 				</tr>
-<tr>
-					<td valign="top">Paths to GC Roots</td>
+<tr class="strow">
+					<td valign="top" class="stentry">Paths to GC Roots</td>
 
-					<td valign="top">
+					<td valign="top" class="stentry">
 						Paths to GC Roots query helps to identify who is
 						responsible for keeping a single object in the
 						heap. It is reasonably to run this query on a
 						possible suspect (memory accumulation point),
 						which you can find e.g. using Big Drops in
 						Dominator Tree Query (see
-						<em>Big Drop</em>
+						<em class="ph i">Big Drop</em>
 						entry further down for more details).
 					</td>
 
 				</tr>
-<tr>
-				    <td valign="top">Duplicate Classes</td>
+<tr class="strow">
+				    <td valign="top" class="stentry">Duplicate Classes</td>
 
-					<td valign="top">
+					<td valign="top" class="stentry">
 						Lists classes loaded multiple times. Grouping the result by class loader points to the class loaders that load the same class multiple times. Possible cause: Several versions of the same library are deployed.
 					</td>
 
 				</tr>
-<tr>
-				    <td valign="top">Big Drops in Dominator Tree Query</td>
+<tr class="strow">
+				    <td valign="top" class="stentry">Big Drops in Dominator Tree Query</td>
 
-					<td valign="top">
+					<td valign="top" class="stentry">
 						Displays memory accumulation points in the dominator tree. Displayed are objects with a big difference between the retained size of the parent and the children and the first "interesting" dominator of the accumulation point. These are places where the memory of many small objects is accumulated under one object. 
 					</td>
 
 				</tr>
-<tr>
-				    <td valign="top">Leak Suspects Report</td>
+<tr class="strow">
+				    <td valign="top" class="stentry">Leak Suspects Report</td>
 
-					<td valign="top">
+					<td valign="top" class="stentry">
 						The Leak Suspects query analyzes the heap dump, searches for memory leak and provides an illustrative description of the identified suspects. 
 					</td>
 
@@ -133,9 +133,9 @@
 
 	</div>
 
-<div>
+<div class="related-links">
 <div class="familylinks">
-<div class="parentlink"><strong>Parent topic:</strong> <a href="../reference/querymatrix.html" title="There is no exact algorithm for memory analysis. The following table divides existing heap dump queries by the usage categories.">Query Matrix</a></div>
+<div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="../reference/querymatrix.html" title="There is no exact algorithm for memory analysis. The following table divides existing heap dump queries by the usage categories.">Query Matrix</a></div>
 </div>
 </div>
 

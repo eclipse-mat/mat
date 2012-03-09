@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2010 SAP AG.
+    Copyright (c) 2008, 2012 SAP AG and others.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -219,8 +219,8 @@
 			<p>
 				<b>Example:</b> 0x36d99c88</p>
 			
-			<p id="oql_query">For more information about OQL, refer to the <xref href="oqlsyntax.html" format="html" type="reference">OQL syntax details</xref></p>
+			<p id="oql_query">For more information about OQL, refer to the <xref href="oqlsyntax.dita" type="reference">OQL syntax details</xref></p>
 		</section>
 	</refbody>
-	<related-links><link href="querymatrix.html" format="html" type="reference"><linktext>Query Matrix</linktext></link></related-links>
+	<related-links><link href="querymatrix.dita" type="reference"><linktext>Query Matrix</linktext></link></related-links>
 </reference>

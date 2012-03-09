@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html
   PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html lang="en-us" xml:lang="en-us">
+<html xml:lang="en-us" lang="en-us">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <meta name="DC.Type" content="reference"/>
@@ -17,48 +17,48 @@
 <link rel="stylesheet" type="text/css" href="../styles/commonltr.css"/>
 <title>Property Accessors</title>
 </head>
-<body id="propertyaccessors"><a name="propertyaccessors"><!-- --></a>
+<body id="propertyaccessors">
 
 
-	<h1 class="topictitle1">Property Accessors</h1>
+	<h1 class="title topictitle1">Property Accessors</h1>
 
 	
 	
 
-	<div><p/>
+	<div class="body refbody"><p class="shortdesc"/>
 
-		<div class="section"><h2 class="sectiontitle">Accessing fields of the heap object</h2>
+		<div class="section"><h2 class="title sectiontitle">Accessing fields of the heap object</h2>
 			
-			<p> Properties of heap objects are accessed using a simple dot
+			<p class="p"> Properties of heap objects are accessed using a simple dot
 				notation:</p>
 
-			<p> [ &lt;alias&gt;. ] &lt;field&gt; . &lt;field&gt;.
+			<p class="p"> [ &lt;alias&gt;. ] &lt;field&gt; . &lt;field&gt;.
 				&lt;field&gt;
 			</p>
 
-			<p>
+			<p class="p">
 				An
-				<strong>alias</strong>
+				<strong class="ph b">alias</strong>
 				can be defined in the
-				<a href="oqlsyntaxfrom.html">FROM Clause</a>
+				<a class="xref" href="oqlsyntaxfrom.html">FROM Clause</a>
 				to identify the current object, i.e. row in the SQL
 				analogy, on which the OQL statement operates. Without
 				alias, the field is assumed to be one of the fields of
 				the current object.
-				<strong>Fields</strong>
+				<strong class="ph b">Fields</strong>
 				are attributes of the Java objects in the heap dump. Use
 				the
-				<span class="cmdname">Object Inspector</span>
+				<span class="keyword cmdname">Object Inspector</span>
 				to find out about the available fields of an object.
 			</p>
 
 		</div>
 
-		<div class="section"><h2 class="sectiontitle">Accessing Java Bean properties</h2>
+		<div class="section"><h2 class="title sectiontitle">Accessing Java Bean properties</h2>
 			
-			<p>[ &lt;alias&gt;. ] @&lt;attribute&gt; ...</p>
+			<p class="p">[ &lt;alias&gt;. ] @&lt;attribute&gt; ...</p>
 
-			<p>
+			<p class="p">
 				Using the @ symbol, OQL accesses attributes of the
 				underlying Java objects used by Memory Analyzer to represent
 				objects in the heap dump. The attributes are resolved via
@@ -66,114 +66,114 @@
 				commonly used Java attributes.
 			</p>
 
-			<a name="propertyaccessors__javabean_prop"><!-- --></a><table cellpadding="4" cellspacing="0" summary="" id="propertyaccessors__javabean_prop" border="1" class="simpletableborder"><tr>
-					<td valign="top" width="22.22222222222222%">Any heap object</td>
+			<table cellpadding="4" cellspacing="0" summary="" id="propertyaccessors__javabean_prop" border="1" class="simpletable"><tr class="strow">
+					<td valign="top" class="stentry" width="22.22222222222222%">Any heap object</td>
 
-					<td valign="top" width="22.22222222222222%"><a href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IObject.html#method_summary">IObject</a></td>
+					<td valign="top" class="stentry" width="22.22222222222222%"><a class="xref" href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IObject.html#method_summary">IObject</a></td>
 
-					<td valign="top" width="22.22222222222222%">objectId</td>
+					<td valign="top" class="stentry" width="22.22222222222222%">objectId</td>
 
-					<td valign="top" width="33.33333333333333%">id of snapshot object</td>
-
-				</tr>
-<tr>
-					<td valign="top">&#xA0;</td>
-
-					<td valign="top">&#xA0;</td>
-
-					<td valign="top">objectAddress</td>
-
-					<td valign="top">address of snapshot object</td>
+					<td valign="top" class="stentry" width="33.33333333333333%">id of snapshot object</td>
 
 				</tr>
-<tr>
-					<td valign="top">&#xA0;</td>
+<tr class="strow">
+					<td valign="top" class="stentry"> </td>
 
-					<td valign="top">&#xA0;</td>
+					<td valign="top" class="stentry"> </td>
 
-					<td valign="top">class</td>
+					<td valign="top" class="stentry">objectAddress</td>
 
-					<td valign="top">Java class of this object</td>
-
-				</tr>
-<tr>
-					<td valign="top">&#xA0;</td>
-
-					<td valign="top">&#xA0;</td>
-
-					<td valign="top">clazz</td>
-
-					<td valign="top">IClass of this object. See also classof(object).</td>
+					<td valign="top" class="stentry">address of snapshot object</td>
 
 				</tr>
-<tr>
-					<td valign="top">&#xA0;</td>
+<tr class="strow">
+					<td valign="top" class="stentry"> </td>
 
-					<td valign="top">&#xA0;</td>
+					<td valign="top" class="stentry"> </td>
 
-					<td valign="top">usedHeapSize</td>
+					<td valign="top" class="stentry">class</td>
 
-					<td valign="top">shallow heap size</td>
-
-				</tr>
-<tr>
-					<td valign="top">&#xA0;</td>
-
-					<td valign="top">&#xA0;</td>
-
-					<td valign="top">retainedHeapSize</td>
-
-					<td valign="top">retained heap size</td>
+					<td valign="top" class="stentry">Java class of this object</td>
 
 				</tr>
-<tr>
-					<td valign="top">&#xA0;</td>
+<tr class="strow">
+					<td valign="top" class="stentry"> </td>
 
-					<td valign="top">&#xA0;</td>
+					<td valign="top" class="stentry"> </td>
 
-					<td valign="top">displayName</td>
+					<td valign="top" class="stentry">clazz</td>
 
-					<td valign="top">display name</td>
-
-				</tr>
-<tr>
-					<td valign="top">Class object</td>
-
-					<td valign="top"><a href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IClass.html#method_summary">IClass</a></td>
-
-					<td valign="top">classLoaderId</td>
-
-					<td valign="top">id of the class loader</td>
+					<td valign="top" class="stentry">IClass of this object. See also classof(object).</td>
 
 				</tr>
-<tr>
-					<td valign="top">Any array</td>
+<tr class="strow">
+					<td valign="top" class="stentry"> </td>
 
-					<td valign="top"><a href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IArray.html#method_summary">IArray</a></td>
+					<td valign="top" class="stentry"> </td>
 
-					<td valign="top">length</td>
+					<td valign="top" class="stentry">usedHeapSize</td>
 
-					<td valign="top">length of the array</td>
-
-				</tr>
-<tr>
-					<td valign="top">Primitive array</td>
-
-					<td valign="top"><a href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IPrimitiveArray.html#method_summary">IPrimitiveArray</a></td>
-
-					<td valign="top">valueArray</td>
-
-					<td valign="top">the values in the array</td>
+					<td valign="top" class="stentry">shallow heap size</td>
 
 				</tr>
-<tr>
-					<td valign="top">Reference array</td>
+<tr class="strow">
+					<td valign="top" class="stentry"> </td>
 
-					<td valign="top"><a href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IObjectArray.html#method_summary">IObjectArray</a></td>
+					<td valign="top" class="stentry"> </td>
 
-					<td valign="top">referenceArray</td>
+					<td valign="top" class="stentry">retainedHeapSize</td>
 
-					<td valign="top">the objects in the array (as long values, the addresses of the objects)
+					<td valign="top" class="stentry">retained heap size</td>
+
+				</tr>
+<tr class="strow">
+					<td valign="top" class="stentry"> </td>
+
+					<td valign="top" class="stentry"> </td>
+
+					<td valign="top" class="stentry">displayName</td>
+
+					<td valign="top" class="stentry">display name</td>
+
+				</tr>
+<tr class="strow">
+					<td valign="top" class="stentry">Class object</td>
+
+					<td valign="top" class="stentry"><a class="xref" href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IClass.html#method_summary">IClass</a></td>
+
+					<td valign="top" class="stentry">classLoaderId</td>
+
+					<td valign="top" class="stentry">id of the class loader</td>
+
+				</tr>
+<tr class="strow">
+					<td valign="top" class="stentry">Any array</td>
+
+					<td valign="top" class="stentry"><a class="xref" href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IArray.html#method_summary">IArray</a></td>
+
+					<td valign="top" class="stentry">length</td>
+
+					<td valign="top" class="stentry">length of the array</td>
+
+				</tr>
+<tr class="strow">
+					<td valign="top" class="stentry">Primitive array</td>
+
+					<td valign="top" class="stentry"><a class="xref" href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IPrimitiveArray.html#method_summary">IPrimitiveArray</a></td>
+
+					<td valign="top" class="stentry">valueArray</td>
+
+					<td valign="top" class="stentry">the values in the array</td>
+
+				</tr>
+<tr class="strow">
+					<td valign="top" class="stentry">Reference array</td>
+
+					<td valign="top" class="stentry"><a class="xref" href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IObjectArray.html#method_summary">IObjectArray</a></td>
+
+					<td valign="top" class="stentry">referenceArray</td>
+
+					<td valign="top" class="stentry">the objects in the array (as long values, the addresses of the objects)
 					Access a particular element using get() and convert to an object using OBJECTS.
 					</td>
 
@@ -182,140 +182,140 @@
 
 		</div>
 
-		<div class="section"><h2 class="sectiontitle">Calling Java methods</h2>
+		<div class="section"><h2 class="title sectiontitle">Calling Java methods</h2>
 			
-			<pre class="codeblock">[ &lt;alias&gt; . ] @&lt;method&gt;( [ &lt;expression&gt;, &lt;expression&gt; ] ) ...</pre>
+			<pre class="pre codeblock">[ &lt;alias&gt; . ] @&lt;method&gt;( [ &lt;expression&gt;, &lt;expression&gt; ] ) ...</pre>
 
-			<p>
+			<p class="p">
 				Adding ( ) forces OQL to interpret this as a Java method
 				call. The call is executed via reflection. The following table lists some
 				common Java methods on the underlying Java objects used by Memory Analyzer to represent
 				objects in the heap dump.
 			</p>
 
-			<a name="propertyaccessors__javabean_prop"><!-- --></a><table cellpadding="4" cellspacing="0" summary="" id="propertyaccessors__javabean_prop" border="1" class="simpletableborder"><tr>
-					<td valign="top" width="22.22222222222222%">${snapshot}</td>
+			<table cellpadding="4" cellspacing="0" summary="" id="propertyaccessors__javabean_prop" border="1" class="simpletable"><tr class="strow">
+					<td valign="top" class="stentry" width="22.22222222222222%">${snapshot}</td>
 
-					<td valign="top" width="22.22222222222222%"><a href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/ISnapshot.html#method_summary">ISnapshot</a></td>
+					<td valign="top" class="stentry" width="22.22222222222222%"><a class="xref" href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/ISnapshot.html#method_summary">ISnapshot</a></td>
 
-					<td valign="top" width="22.22222222222222%">
-						<pre class="codeblock"><a href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/ISnapshot.html#getClasses()">getClasses()</a></pre>
+					<td valign="top" class="stentry" width="22.22222222222222%">
+						<pre class="pre codeblock"><a class="xref" href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/ISnapshot.html#getClasses()">getClasses()</a></pre>
 
 					</td>
 
-					<td valign="top" width="33.33333333333333%">a collection of all classes</td>
+					<td valign="top" class="stentry" width="33.33333333333333%">a collection of all classes</td>
 
 				</tr>
-<tr>
-					<td valign="top">&#xA0;</td>
+<tr class="strow">
+					<td valign="top" class="stentry"> </td>
 
-					<td valign="top">&#xA0;</td>
+					<td valign="top" class="stentry"> </td>
 
-					<td valign="top">
-						<pre class="codeblock"><a href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/ISnapshot.html#getClassesByName(java.util.regex.Pattern, boolean)">getClassesByName(String name, boolean includeSubClasses)</a></pre>
+					<td valign="top" class="stentry">
+						<pre class="pre codeblock"><a class="xref" href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/ISnapshot.html#getClassesByName(java.util.regex.Pattern, boolean)">getClassesByName(String name, boolean includeSubClasses)</a></pre>
 
 					</td>
 
-					<td valign="top">a collection of classes</td>
+					<td valign="top" class="stentry">a collection of classes</td>
 
 				</tr>
-<tr>
-					<td valign="top">Class object</td>
+<tr class="strow">
+					<td valign="top" class="stentry">Class object</td>
 
-					<td valign="top"><a href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IClass.html#method_summary">IClass</a></td>
+					<td valign="top" class="stentry"><a class="xref" href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IClass.html#method_summary">IClass</a></td>
 
-					<td valign="top">
-						<pre class="codeblock"><a href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IClass.html#hasSuperClass()">hasSuperClass()</a></pre>
+					<td valign="top" class="stentry">
+						<pre class="pre codeblock"><a class="xref" href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IClass.html#hasSuperClass()">hasSuperClass()</a></pre>
 
 					</td>
 
-					<td valign="top">
+					<td valign="top" class="stentry">
 						result is true if the class has a super class
 					</td>
 
 				</tr>
-<tr>
-					<td valign="top">&#xA0;</td>
+<tr class="strow">
+					<td valign="top" class="stentry"> </td>
 
-					<td valign="top">&#xA0;</td>
+					<td valign="top" class="stentry"> </td>
 
-					<td valign="top">
-						<pre class="codeblock"><a href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IClass.html#isArrayType()">isArrayType()</a></pre>
+					<td valign="top" class="stentry">
+						<pre class="pre codeblock"><a class="xref" href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IClass.html#isArrayType()">isArrayType()</a></pre>
 
 					</td>
 
-					<td valign="top">
+					<td valign="top" class="stentry">
 						the result is true if the class is an array type
 					</td>
 
 				</tr>
-<tr>
-					<td valign="top">Any heap object</td>
+<tr class="strow">
+					<td valign="top" class="stentry">Any heap object</td>
 
-					<td valign="top"><a href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IObject.html#method_summary">IObject</a></td>
+					<td valign="top" class="stentry"><a class="xref" href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IObject.html#method_summary">IObject</a></td>
 
-					<td valign="top">
-						<pre class="codeblock"><a href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IObject.html#getObjectAddress()">getObjectAddress()</a></pre>
+					<td valign="top" class="stentry">
+						<pre class="pre codeblock"><a class="xref" href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IObject.html#getObjectAddress()">getObjectAddress()</a></pre>
 
 					</td>
 
-					<td valign="top">
+					<td valign="top" class="stentry">
 						The address of a snapshot object as a long integer
 					</td>
 
 				</tr>
-<tr>
-					<td valign="top">Primitive array</td>
+<tr class="strow">
+					<td valign="top" class="stentry">Primitive array</td>
 
-					<td valign="top"><a href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IPrimitiveArray.html#method_summary">IPrimitiveArray</a></td>
+					<td valign="top" class="stentry"><a class="xref" href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IPrimitiveArray.html#method_summary">IPrimitiveArray</a></td>
 
-					<td valign="top">
-						<pre class="codeblock"><a href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IPrimitiveArray.html#getValueAt(int)">getValueAt(int index)</a></pre>
+					<td valign="top" class="stentry">
+						<pre class="pre codeblock"><a class="xref" href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IPrimitiveArray.html#getValueAt(int)">getValueAt(int index)</a></pre>
 
 					</td>
 
-					<td valign="top">a value from the array</td>
+					<td valign="top" class="stentry">a value from the array</td>
 
 				</tr>
-<tr>
-					<td valign="top">Java primitive array, Java object array or Java list (returned from reflection)</td>
+<tr class="strow">
+					<td valign="top" class="stentry">Java primitive array, Java object array or Java list (returned from reflection)</td>
 
-					<td valign="top">[] or List</td>
+					<td valign="top" class="stentry">[] or List</td>
 
-					<td valign="top">
-						<pre class="codeblock">get(int index)</pre>
+					<td valign="top" class="stentry">
+						<pre class="pre codeblock">get(int index)</pre>
 
 					</td>
 
-					<td valign="top">a value from the array or list</td>
+					<td valign="top" class="stentry">a value from the array or list</td>
 
 				</tr>
 </table>
 
 		</div>
 
-		<div class="section"><h2 class="sectiontitle">Reading values from primitive arrays</h2>
+		<div class="section"><h2 class="title sectiontitle">Reading values from primitive arrays</h2>
 			
-			<pre class="codeblock">SELECT s.getValueAt(2) FROM int[] s WHERE (s.@length &gt; 2)</pre>
+			<pre class="pre codeblock">SELECT s.getValueAt(2) FROM int[] s WHERE (s.@length &gt; 2)</pre>
 
-			<p>
+			<p class="p">
 				This reads the value of the element at index 2 from all int[] arrays which have at least 3 elements.
 			</p>
 
 		</div>
 
-		<div class="section"><h2 class="sectiontitle">Reading objects from object arrays</h2>
+		<div class="section"><h2 class="title sectiontitle">Reading objects from object arrays</h2>
 			
-			<pre class="codeblock">SELECT OBJECTS s.@referenceArray.get(2) FROM java.lang.Object[] s WHERE (s.@length &gt; 2)</pre>
+			<pre class="pre codeblock">SELECT OBJECTS s.@referenceArray.get(2) FROM java.lang.Object[] s WHERE (s.@length &gt; 2)</pre>
 
-			<p> First method:
+			<p class="p"> First method:
 				this reads as a long address the element at index 2 from all Object[] arrays which have at least 3 elements and
 				converts them into objects.
 			</p>
 
-			<pre class="codeblock">SELECT OBJECTS s.getReferenceArray(2,1) FROM java.lang.Object[] s WHERE (s.@length &gt; 2)</pre>
+			<pre class="pre codeblock">SELECT OBJECTS s.getReferenceArray(2,1) FROM java.lang.Object[] s WHERE (s.@length &gt; 2)</pre>
 
-			<p> Second method:
+			<p class="p"> Second method:
 				this reads as an array of long[] 1 element starting at index 2  from all Object[] arrays which have at least 3 elements and
 				converts the contents of those arrays into objects.
 			</p>
@@ -323,78 +323,78 @@
 
 		</div>
 
-		<div class="section"><h2 class="sectiontitle">Built-in OQL functions</h2>
+		<div class="section"><h2 class="title sectiontitle">Built-in OQL functions</h2>
 			
-			<pre class="codeblock">&lt;function&gt;( &lt;parameter&gt; )</pre>
+			<pre class="pre codeblock">&lt;function&gt;( &lt;parameter&gt; )</pre>
 
-			<p>Built-in functions.</p>
+			<p class="p">Built-in functions.</p>
 
-			<a name="propertyaccessors__oql_functions"><!-- --></a><table cellpadding="4" cellspacing="0" summary="" id="propertyaccessors__oql_functions" border="1" class="simpletableborder"><tr>
-					<td valign="top" width="40%">
-						<pre class="codeblock">toHex( number )</pre>
+			<table cellpadding="4" cellspacing="0" summary="" id="propertyaccessors__oql_functions" border="1" class="simpletable"><tr class="strow">
+					<td valign="top" class="stentry" width="40%">
+						<pre class="pre codeblock">toHex( number )</pre>
 
 					</td>
 
-					<td valign="top" width="60%">Print the number as hexadecimal</td>
+					<td valign="top" class="stentry" width="60%">Print the number as hexadecimal</td>
 
 				</tr>
-<tr>
-					<td valign="top">
-						<pre class="codeblock">toString( object )</pre>
+<tr class="strow">
+					<td valign="top" class="stentry">
+						<pre class="pre codeblock">toString( object )</pre>
 
 					</td>
 
-					<td valign="top">
+					<td valign="top" class="stentry">
 						Returns the value of an object, e.g. the content
 						of a String etc.
 					</td>
 
 				</tr>
-<tr>
-					<td valign="top">
-						<pre class="codeblock">dominators( object )</pre>
+<tr class="strow">
+					<td valign="top" class="stentry">
+						<pre class="pre codeblock">dominators( object )</pre>
 
 					</td>
 
-					<td valign="top">
+					<td valign="top" class="stentry">
 						The objects immediately dominated by the object
 					</td>
 
 				</tr>
-<tr>
-					<td valign="top">
-						<pre class="codeblock">outbounds( object )</pre>
+<tr class="strow">
+					<td valign="top" class="stentry">
+						<pre class="pre codeblock">outbounds( object )</pre>
 
 					</td>
 
-					<td valign="top">outbound referrer</td>
+					<td valign="top" class="stentry">outbound referrer</td>
 
 				</tr>
-<tr>
-					<td valign="top">
-						<pre class="codeblock">inbounds( object )</pre>
+<tr class="strow">
+					<td valign="top" class="stentry">
+						<pre class="pre codeblock">inbounds( object )</pre>
 
 					</td>
 
-					<td valign="top">inbound referrer</td>
+					<td valign="top" class="stentry">inbound referrer</td>
 
 				</tr>
-<tr>
-					<td valign="top">
-						<pre class="codeblock">classof( object )</pre>
+<tr class="strow">
+					<td valign="top" class="stentry">
+						<pre class="pre codeblock">classof( object )</pre>
 
 					</td>
 
-					<td valign="top">the class of the current object</td>
+					<td valign="top" class="stentry">the class of the current object</td>
 
 				</tr>
-<tr>
-					<td valign="top">
-						<pre class="codeblock">dominatorof( object )</pre>
+<tr class="strow">
+					<td valign="top" class="stentry">
+						<pre class="pre codeblock">dominatorof( object )</pre>
 
 					</td>
 
-					<td valign="top">
+					<td valign="top" class="stentry">
 						the immediate dominator, -1 if none
 					</td>
 
@@ -406,9 +406,9 @@
 
 	</div>
 
-<div>
+<div class="related-links">
 <div class="familylinks">
-<div class="parentlink"><strong>Parent topic:</strong> <a href="../reference/oqlsyntax.html">OQL Syntax</a></div>
+<div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="../reference/oqlsyntax.html">OQL Syntax</a></div>
 </div>
 </div>
 

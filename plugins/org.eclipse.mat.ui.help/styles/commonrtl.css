@@ -42,7 +42,7 @@
 .relref { margin-top: 1em; margin-bottom: 1em }
 .relinfo { margin-top: 1em; margin-bottom: 1em }
 .breadcrumb { font-size : smaller; margin-bottom: 1em }
-.prereq { margin-right : 20px;}
+dt.prereq { margin-right : 20px;}
 
 /* Set heading sizes, getting smaller for deeper nesting */
 .topictitle1 { margin-top: 0pc; margin-bottom: .1em; font-size: 1.34em; }
@@ -54,6 +54,8 @@
 .sectiontitle { margin-top: 1em; margin-bottom: 0em; color: black; font-size: 1.17em; font-weight: bold;}
 .section { margin-top: 1em; margin-bottom: 1em }
 .example { margin-top: 1em; margin-bottom: 1em }
+div.tasklabel { margin-top: 1em; margin-bottom: 1em; }
+h2.tasklabel, h3.tasklabel, h4.tasklabel, h5.tasklabel, h6.tasklabel { font-size: 100%; }
 
 /* All note formats have the same default presentation */
 .note { margin-top: 1em; margin-bottom : 1em;}
@@ -75,6 +77,8 @@
 .danger { margin-top: 1em; margin-bottom : 1em;}
 .cautiontitle { font-weight: bold }
 .caution { font-weight: bold; margin-bottom : 1em; }
+.warning { margin-top: 1em; margin-bottom : 1em;}
+.warningtitle { font-weight: bold }
 
 /* Simple lists do not get a bullet */
 ul.simple { list-style-type: none }

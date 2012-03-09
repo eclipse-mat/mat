@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html
   PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html lang="en-us" xml:lang="en-us">
+<html xml:lang="en-us" lang="en-us">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <meta name="DC.Type" content="task"/>
@@ -15,17 +15,17 @@
 <link rel="stylesheet" type="text/css" href="../styles/commonltr.css"/>
 <title>Finding Responsible Objects</title>
 </head>
-<body id="task_findingresponsibleobjects"><a name="task_findingresponsibleobjects"><!-- --></a>
+<body id="task_findingresponsibleobjects">
 
 
-	<h1 class="topictitle1">Finding Responsible Objects</h1>
+	<h1 class="title topictitle1">Finding Responsible Objects</h1>
 
 	
 
-	<div>
-		<div class="section">
-			<strong>Immediate Dominators</strong>
-			<p>This query finds and aggregates all objects dominating a given
+	<div class="body taskbody">
+		<div class="section context">
+			<strong class="ph b">Immediate Dominators</strong>
+			<p class="p">This query finds and aggregates all objects dominating a given
 				set of objects on class level. It is very useful to quickly find out
 				who is responsible for a set of objects, as it directly answers 
 				the question "who keeps these objects alive" instead of answering
@@ -35,22 +35,19 @@
 				and directly see the responsible application classes.
 			</p>
 
-			<p>Choice of options:</p>
+			<p class="p">Choice of options:</p>
 
-			<ul>
-				<li>Selecting entries and using the context menu</li>
+			<ul class="ul">
+				<li class="li">Selecting entries and using the context menu</li>
 
 			</ul>
 
-			<br/><img src="../mimes/exec_immediate_dominators.png" alt="screen shot of the context menu"/><br/>
+			<br/><img class="image" src="../mimes/exec_immediate_dominators.png" alt="screen shot of the context menu"/><br/>
 			<div class="p">
-			<ul>
-				<li>
+			<ul class="ul">
+				<li class="li">
 					The toolbar command
-					<span class="menucascade">
-						<span class="uicontrol">Query Browser</span>
-						 &gt; <span class="uicontrol">Immediate Dominators</span>
-					</span>
+					<span class="ph menucascade"><span class="ph uicontrol">Query Browser</span> &gt; <span class="ph uicontrol">Immediate Dominators</span></span>
 					starts a wizard to select an object set.
 				</li>
 
@@ -58,16 +55,16 @@
 
 			</div>
 
-			<br/><img src="../mimes/6ac427cd.png" alt="screen shot execute immediate dominators"/><br/>
+			<br/><img class="image" src="../mimes/6ac427cd.png" alt="screen shot execute immediate dominators"/><br/>
 			
-			<p>
+			<p class="p">
 			The immediate dominators of all char arrays are all objects
 			responsible for keeping the
-			<span class="cmdname">char[]</span>
+			<span class="keyword cmdname">char[]</span>
 			alive. The result will contain most likely
-			<span class="cmdname">java.lang.String</span>
+			<span class="keyword cmdname">java.lang.String</span>
 			objects. If you add the skip pattern
-			<span class="cmdname">java.*</span>
+			<span class="keyword cmdname">java.*</span>
 			, and you will see the non-JDK classes responsible for the char
 			arrays.
 			</p>
@@ -76,8 +73,8 @@
 
 	</div>
 
-	<div><div class="relinfo relconcepts"><strong>Related concepts</strong><br/>
-<div><a href="../concepts/dominatortree.html">Dominator Tree</a></div>
+	<div class="related-links"><div class="relinfo relconcepts"><strong>Related concepts</strong><br/>
+<div><a class="link" href="../concepts/dominatortree.html">Dominator Tree</a></div>
 </div>
 </div>
 

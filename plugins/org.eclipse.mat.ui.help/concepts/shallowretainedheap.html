@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html
   PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html lang="en-us" xml:lang="en-us">
+<html xml:lang="en-us" lang="en-us">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <meta name="DC.Type" content="concept"/>
@@ -14,16 +14,16 @@
 <link rel="stylesheet" type="text/css" href="../styles/commonltr.css"/>
 <title>Shallow vs. Retained Heap</title>
 </head>
-<body id="concept_shallowretainedsize"><a name="concept_shallowretainedsize"><!-- --></a>
+<body id="concept_shallowretainedsize">
 
 
-	<h1 class="topictitle1">Shallow vs. Retained Heap</h1>
+	<h1 class="title topictitle1">Shallow vs. Retained Heap</h1>
 
 	
 	
-	<div>
-		<p>
-			<strong>Shallow heap</strong>
+	<div class="body conbody">
+		<p class="p">
+			<strong class="ph b">Shallow heap</strong>
 			is the memory consumed by one object. An object needs 32 or 64 bits
 			(depending on the OS architecture) per reference, 4 bytes per
 			Integer, 8 bytes per Long, etc. Depending on the heap dump format the
@@ -31,24 +31,24 @@
 			real consumption of the VM.
 		</p>
 
-		<p>
-			<strong>Retained set</strong>
+		<p class="p">
+			<strong class="ph b">Retained set</strong>
 			of X is the set of objects which would be removed by GC when X is garbage 
 			collected.
 		</p>
 
-		<p>
-			<strong>Retained heap</strong>
+		<p class="p">
+			<strong class="ph b">Retained heap</strong>
 			of X is the sum of shallow sizes of all objects in the retained set
 			of X, i.e. memory kept alive by X.
 		</p>
 
-		<p>Generally speaking, shallow heap of an object is its size
+		<p class="p">Generally speaking, shallow heap of an object is its size
 			in the heap and retained size of the same object is the amount of
 			heap memory that will be freed when the object is garbage collected.
 		</p>
 
-		<p>The retained set for a leading set of objects, such as all
+		<p class="p">The retained set for a leading set of objects, such as all
 			objects of a particular class or all objects of all classes loaded by
 			a particular class loader or simply a bunch of arbitrary objects, is
 			the set of objects that is released if all objects of that leading
@@ -57,8 +57,8 @@
 			retained size is the total heap size of all objects contained in the
 			retained set.</p>
 
-		<img src="../mimes/62ff1436.png" alt="Example object graph"/>
-		<p>The Minimum Retained Size gives a good (under)estimation of the
+		<img class="image" src="../mimes/62ff1436.png" alt="Example object graph"/>
+		<p class="p">The Minimum Retained Size gives a good (under)estimation of the
 			retained size which is calculated ways faster than the
 			exact retained size of a set of objects. It only depends on the
 			number of objects in the inspected set, not the number of objects in

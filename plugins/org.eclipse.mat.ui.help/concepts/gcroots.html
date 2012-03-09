@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html
   PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html lang="en-us" xml:lang="en-us">
+<html xml:lang="en-us" lang="en-us">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <meta name="DC.Type" content="concept"/>
@@ -14,72 +14,72 @@
 <link rel="stylesheet" type="text/css" href="../styles/commonltr.css"/>
 <title>Garbage Collection Roots</title>
 </head>
-<body id="concept_gcroots"><a name="concept_gcroots"><!-- --></a>
+<body id="concept_gcroots">
 
 
-	<h1 class="topictitle1">Garbage Collection Roots</h1>
+	<h1 class="title topictitle1">Garbage Collection Roots</h1>
 
 	
 	
-	<div>
-		<p> A garbage collection root is an object that is accessible from
+	<div class="body conbody">
+		<p class="p"> A garbage collection root is an object that is accessible from
 			outside the heap. The following reasons make an object a GC root:</p>
 
-		<dl>
+		<dl class="dl">
 			
-			<dt class="dlterm">System Class</dt>
-<dd>Class loaded by bootstrap/system class loader. For
+			<dt class="dt dlterm">System Class</dt>
+<dd class="dd">Class loaded by bootstrap/system class loader. For
 				example, everything from the rt.jar like
-				<span class="cmdname">java.util.*</span>
+				<span class="keyword cmdname">java.util.*</span>
 				.
 			</dd>
 
 			
 			
-			<dt class="dlterm">JNI Local</dt>
-<dd>Local variable in native code, such as user defined
+			<dt class="dt dlterm">JNI Local</dt>
+<dd class="dd">Local variable in native code, such as user defined
 				JNI code or JVM internal code.</dd>
 
 			
 			
-			<dt class="dlterm"> JNI Global</dt>
-<dd>Global variable in native code, such as user
+			<dt class="dt dlterm"> JNI Global</dt>
+<dd class="dd">Global variable in native code, such as user
 				defined JNI code or JVM internal code.</dd>
 
 			
 			
-			<dt class="dlterm">Thread Block</dt>
-<dd>Object referred to from a currently active thread block.</dd>
+			<dt class="dt dlterm">Thread Block</dt>
+<dd class="dd">Object referred to from a currently active thread block.</dd>
 
 			
 			
-			<dt class="dlterm">Thread</dt>
-<dd>A started, but not stopped, thread.</dd>
+			<dt class="dt dlterm">Thread</dt>
+<dd class="dd">A started, but not stopped, thread.</dd>
 
 			
 			
-			<dt class="dlterm">Busy Monitor</dt>
-<dd>Everything that has called
-				<span class="cmdname">wait()</span>
+			<dt class="dt dlterm">Busy Monitor</dt>
+<dd class="dd">Everything that has called
+				<span class="keyword cmdname">wait()</span>
 				or
-				<span class="cmdname">notify()</span>
+				<span class="keyword cmdname">notify()</span>
 				or that is synchronized. For example, by calling
-				<span class="cmdname">synchronized(Object)</span>
+				<span class="keyword cmdname">synchronized(Object)</span>
 				or by entering a synchronized method. Static method means class,
 				non-static method means object.
 			</dd>
 
 			
 			
-			<dt class="dlterm">Java Local</dt>
-<dd>Local variable. For example, input parameters or
+			<dt class="dt dlterm">Java Local</dt>
+<dd class="dd">Local variable. For example, input parameters or
 				locally created objects of methods that are still in the stack of a
 				thread.</dd>
 
 			
 			
-			<dt class="dlterm">Native Stack</dt>
-<dd>In or out parameters in native code, such as user
+			<dt class="dt dlterm">Native Stack</dt>
+<dd class="dd">In or out parameters in native code, such as user
 				defined JNI code or JVM internal code. This is often the case as
 				many methods have native parts and the objects handled as method
 				parameters become GC roots. For example, parameters used for
@@ -87,36 +87,36 @@
 
 			
 			
-			<dt class="dlterm">Finalizable</dt>
-<dd>An object which is in a queue awaiting its finalizer to be run.
+			<dt class="dt dlterm">Finalizable</dt>
+<dd class="dd">An object which is in a queue awaiting its finalizer to be run.
 			</dd>
 
 			
 			
-			<dt class="dlterm">Unfinalized</dt>
-<dd>An object which has a finalize method, but has not been finalized and
+			<dt class="dt dlterm">Unfinalized</dt>
+<dd class="dd">An object which has a finalize method, but has not been finalized and
 			is not yet on the finalizer queue.
 			</dd>
 
 			
 			
-			<dt class="dlterm">Unreachable</dt>
-<dd>An object which is unreachable from any other root, but has been 
+			<dt class="dt dlterm">Unreachable</dt>
+<dd class="dd">An object which is unreachable from any other root, but has been 
 			marked as a root by MAT to retain objects which otherwise would not
 			be included in the analysis.
 			</dd>
 
 			
 			
-			<dt class="dlterm">Java Stack Frame</dt>
-<dd>A Java stack frame, holding local variables. Only generated when the
+			<dt class="dt dlterm">Java Stack Frame</dt>
+<dd class="dd">A Java stack frame, holding local variables. Only generated when the
 			dump is parsed with the preference set to treat Java stack frames as objects.
 			</dd>
 
 			
 			
-			<dt class="dlterm">Unknown</dt>
-<dd>An object of unknown root type. Some dumps, such as IBM Portable Heap Dump files,
+			<dt class="dt dlterm">Unknown</dt>
+<dd class="dd">An object of unknown root type. Some dumps, such as IBM Portable Heap Dump files,
 			do not have root information. For these dumps the MAT parser marks objects which are have
 			no inbound references or are unreachable from any other root as roots of this type. 
 			This ensures that MAT retains all the objects in the dump.

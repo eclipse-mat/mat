@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2010 SAP AG and others.
+    Copyright (c) 2008, 2012 SAP AG and others.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -50,7 +50,7 @@
 				</li>
 			</ol>
 			<p>
-				This sequence of actions is automated in Memory Analyzer by the <xref format="html" href="../tasks/runningleaksuspectreport.html">Leak Suspects Report</xref>.
+				This sequence of actions is automated in Memory Analyzer by the <xref href="../tasks/runningleaksuspectreport.dita">Leak Suspects Report</xref>.
 			</p>
 			<p>
 				The following table contains a list of queries that are

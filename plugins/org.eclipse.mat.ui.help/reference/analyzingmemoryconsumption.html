@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html
   PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html lang="en-us" xml:lang="en-us">
+<html xml:lang="en-us" lang="en-us">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <meta name="DC.Type" content="reference"/>
@@ -17,112 +17,112 @@
 <link rel="stylesheet" type="text/css" href="../styles/commonltr.css"/>
 <title>Analyzing Memory Consumption</title>
 </head>
-<body id="ref_analyzingmemoryconsumption"><a name="ref_analyzingmemoryconsumption"><!-- --></a>
+<body id="ref_analyzingmemoryconsumption">
 
 
-	<h1 class="topictitle1">Analyzing Memory Consumption</h1>
-
-	
+	<h1 class="title topictitle1">Analyzing Memory Consumption</h1>
 
 	
 
+	
 
-	<div><p/>
+
+	<div class="body refbody"><p class="shortdesc"/>
 
 		<div class="section">
-			<p>
-				An easy way to start looking for areas for optimization is to use the <a href="inspections/component_report.html">Component Report</a>.
+			<p class="p">
+				An easy way to start looking for areas for optimization is to use the <a class="xref" href="inspections/component_report.html" title="Analyze a component for possible memory waste and other inefficiencies.">Component Report</a>.
 				Additionally, the following queries may be useful to perform the analysis manually: 
 			</p>
 
-			<a name="ref_analyzingmemoryconsumption__analyzingmemoryconsumptiontable"><!-- --></a><table cellpadding="4" cellspacing="0" summary="" id="ref_analyzingmemoryconsumption__analyzingmemoryconsumptiontable" border="1" class="simpletableborder"><tr>
-					<td valign="top" width="40%">Class Histogram</td>
+			<table cellpadding="4" cellspacing="0" summary="" id="ref_analyzingmemoryconsumption__analyzingmemoryconsumptiontable" border="1" class="simpletable"><tr class="strow">
+					<td valign="top" class="stentry" width="40%">Class Histogram</td>
 
-					<td valign="top" width="60%">
+					<td valign="top" class="stentry" width="60%">
 							Memory Analyzer provides a developer with a
 							possibility to focus on a particular piece
 							of code by using filters in the Class
 							Histogram:
-							<br/><div class="imageleft"><img class="imageleft" src="../mimes/7507ab60.png" alt="Filter of java.util.* in top row of histogram"/></div><br/>
+							<br/><div class="imageleft"><img class="image imageleft" src="../mimes/7507ab60.png" alt="Filter of java.util.* in top row of histogram"/></div><br/>
 					</td>
 
 				</tr>
-<tr>
-					<td valign="top">Retained Set</td>
+<tr class="strow">
+					<td valign="top" class="stentry">Retained Set</td>
 
-					<td valign="top">
+					<td valign="top" class="stentry">
 							Looking what a set of objects retains (how much memory and what types of
 							objects) may give some ideas where to optimize. 
 					</td>
 
 				</tr>
-<tr>
-					<td valign="top">Collections query group</td>
+<tr class="strow">
+					<td valign="top" class="stentry">Collections query group</td>
 
-					<td valign="top">
-							A number of queries provided under the <strong>Collections</strong> query group give the opportunity
+					<td valign="top" class="stentry">
+							A number of queries provided under the <strong class="ph b">Collections</strong> query group give the opportunity
 							to analyze the ways collections are used e.g. how much they are filled, what the sizes are,
-							what the collision ratio (for hash maps) is, etc... See <a href="../tasks/analyzingjavacollectionusage.html">Analyzing Java Collection Usage</a>. 
+							what the collision ratio (for hash maps) is, etc... See <a class="xref" href="../tasks/analyzingjavacollectionusage.html">Analyzing Java Collection Usage</a>. 
 					</td>
 
 				</tr>
-<tr>
-					<td valign="top">Group by Value</td>
+<tr class="strow">
+					<td valign="top" class="stentry">Group by Value</td>
 
-					<td valign="top">
+					<td valign="top" class="stentry">
 						The Group by Value query provides the possibility to group a set of objects 
 						by the value of a certain field. It is very useful for searching redundant 
 						data.
 					</td>
 
 				</tr>
-<tr>
-					<td valign="top">Immediate Dominators</td>
+<tr class="strow">
+					<td valign="top" class="stentry">Immediate Dominators</td>
 
-					<td valign="top">
+					<td valign="top" class="stentry">
 							When you have found a suspect, that consumes
 							a lot of memory, you can use the dominators
 							query to find out what keeps this suspect in
 							memory. With this query you can also skip
 							the dominators that are of no interest for
 							you, e.g.
-							<span class="cmdname">java.*</span>
+							<span class="keyword cmdname">java.*</span>
 							packages:
 
-						<br/><div class="imageleft"><img class="imageleft" src="../mimes/m317da505.png" alt="skip parameter in query wizard for immediate dominators query"/></div><br/>image&gt;
+						<br/><div class="imageleft"><img class="image imageleft" src="../mimes/m317da505.png" alt="skip parameter in query wizard for immediate dominators query"/></div><br/>image&gt;
 					</td>
 
 				</tr>
-<tr>
-					<td valign="top">OQL</td>
+<tr class="strow">
+					<td valign="top" class="stentry">OQL</td>
 
-					<td valign="top">
-						<p>
+					<td valign="top" class="stentry">
+						<p class="p">
 							The two most common ways to "waste" memory
 							are:
 						</p>
 
-						<ul>
-							<li>
+						<ul class="ul">
+							<li class="li">
 								Inefficient use of data structures, like
 								keeping millions of empty lists or
 								HashMaps. With OQL you can easily find
 								e.g. all instances of ArrayList which
 								are empty and have never been modified:
-								<pre class="codeblock">SELECT * FROM java.util.ArrayList WHERE size=0 AND modCount=0</pre>
+								<pre class="pre codeblock">SELECT * FROM java.util.ArrayList WHERE size=0 AND modCount=0</pre>
 
 							</li>
 
-							<li>
+							<li class="li">
 								A lot of redundant data, e.g. redundant
-								<span class="cmdname">Strings</span>
+								<span class="keyword cmdname">Strings</span>
 								or
-								<span class="cmdname">char[]</span>
+								<span class="keyword cmdname">char[]</span>
 								. Below you can find two examples of OQL
 								queries to operate with Strings:
-								<pre class="codeblock">SELECT * FROM java.lang.String s WHERE s.count &gt;= 100</pre>
+								<pre class="pre codeblock">SELECT * FROM java.lang.String s WHERE s.count &gt;= 100</pre>
 
-								<pre class="codeblock">SELECT * FROM java.lang.String s WHERE toString(s) LIKE ".*day"</pre>
+								<pre class="pre codeblock">SELECT * FROM java.lang.String s WHERE toString(s) LIKE ".*day"</pre>
 
 							</li>
 
@@ -137,9 +137,9 @@
 
 	</div>
 
-<div>
+<div class="related-links">
 <div class="familylinks">
-<div class="parentlink"><strong>Parent topic:</strong> <a href="../reference/querymatrix.html" title="There is no exact algorithm for memory analysis. The following table divides existing heap dump queries by the usage categories.">Query Matrix</a></div>
+<div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="../reference/querymatrix.html" title="There is no exact algorithm for memory analysis. The following table divides existing heap dump queries by the usage categories.">Query Matrix</a></div>
 </div>
 </div>
 

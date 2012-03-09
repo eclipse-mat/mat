@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html
   PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html lang="en-us" xml:lang="en-us">
+<html xml:lang="en-us" lang="en-us">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <meta name="DC.Type" content="task"/>
@@ -14,74 +14,90 @@
 <link rel="stylesheet" type="text/css" href="../styles/commonltr.css"/>
 <title>Memory Analyzer Configuration</title>
 </head>
-<body id="task_configure_mat"><a name="task_configure_mat"><!-- --></a>
+<body id="task_configure_mat">
 
 
-	<h1 class="topictitle1">Memory Analyzer Configuration</h1>
+	<h1 class="title topictitle1">Memory Analyzer Configuration</h1>
 
 	
 
-	<div>
-		<div class="section">
-			<p>
+	<div class="body taskbody">
+		<div class="section context">
+			<p class="p">
 				Well, analyzing big heap dumps can also require more heap space.
 				Give it
 				some more memory (possible by running on a 64-bit machine):
 			</p>
 
 
-			<samp class="codeph">MemoryAnalyzer.exe -vmargs -Xmx4g</samp>
+			<samp class="ph codeph">MemoryAnalyzer.exe -vmargs -Xmx4g</samp>
 
-			<p>Alternatively, edit the MemoryAnalyzer.ini to
+			<p class="p">Alternatively, edit the MemoryAnalyzer.ini to
 				contain:</p>
 
 
 			<div class="p">
-				<pre class="codeblock">-vmargs
+				<pre class="pre codeblock">-vmargs
 -Xmx2g</pre>
 
 			</div>
 
 
-			<p>
+			<p class="p">
 				For more details, check out the section
-				<a href="http://help.eclipse.org/ganymede/topic/org.eclipse.platform.doc.user/tasks/running_eclipse.htm">Running Eclipse</a>
+				<a class="xref" href="http://help.eclipse.org/ganymede/topic/org.eclipse.platform.doc.user/tasks/running_eclipse.htm">Running Eclipse</a>
 				in the Help Center. It also contains more details if you are running
 				on Mac OS X.
 			</p>
 
 
-			<p>If you are running the Memory Analyzer inside your Eclipse SDK,
+			<p class="p">If you are running the Memory Analyzer inside your Eclipse SDK,
 				you need to edit the eclipse.ini file.</p>
 
 
-			<p>The memory intensive parts is the parsing. Try parsing the heap
+			<p class="p">The memory intensive parts is the parsing. Try parsing the heap
 				dump from the command line. Once it has been parsed, it usually can
 				be opened with less memory in the GUI.</p>
 
 				
-			<p>The preference page is opened via a menu option.
-				<span class="menucascade">
-					<span class="uicontrol">Window</span>
-					 &gt; <span class="uicontrol">Preferences</span>
-				</span>
+			<p class="p">The preference page is opened via a menu option.
+				<span class="ph menucascade"><span class="ph uicontrol">Window</span> &gt; <span class="ph uicontrol">Preferences</span></span>
 			</p>
 
 			<div class="p">The preferences page allows various aspects of Memory Analyzer to be controlled.
-			<img src="../mimes/preferences.png" alt="preferences page showing general options with DTFJ subpage"/>
-			<dl>
+			<img class="image" src="../mimes/preferences.png" alt="preferences page showing general options with DTFJ subpage"/>
+			<dl class="dl">
 			
-				<dt class="dlterm">Keep unreachable objects</dt>
+				<dt class="dt dlterm">Keep unreachable objects</dt>
 
-				<dd>Objects that appear unreachable from GC roots are not discarded in an early stage of 
+				<dd class="dd">Objects that appear unreachable from GC roots are not discarded in an early stage of 
 				Memory Analyzer processing, but are retained for further analysis.</dd>
 
 			
 			
-				<dt class="dlterm">Hide the getting started wizard</dt>
+				<dt class="dt dlterm">Hide the getting started wizard</dt>
 
-				<dd>Controls whether to display a wizard for leak suspects, top components after opening
+				<dd class="dd">Controls whether to display a wizard for leak suspects, top components after opening
 				a snapshot.</dd>
+
+			
+			
+				<dt class="dt dlterm">Hide popup query help</dt>
+
+				<dd class="dd">Do not display the help panel underneath the query wizard, unless F1 or the help button
+				is pressed.</dd>
+
+			
+			
+				<dt class="dt dlterm">OQL comment color</dt>
+
+				<dd class="dd">Modify the color of comments in the Object Query Language (OQL) studio.</dd>
+
+			
+			
+				<dt class="dt dlterm">OQL keyword color</dt>
+
+				<dd class="dd">Modify the color of keywords in the Object Query Language (OQL) studio.</dd>
 
 			
 			</dl>

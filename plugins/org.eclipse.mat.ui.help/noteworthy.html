@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html
   PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html lang="en-us" xml:lang="en-us">
+<html xml:lang="en-us" lang="en-us">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <meta name="DC.Type" content="reference"/>
@@ -16,83 +16,83 @@
 <link rel="stylesheet" type="text/css" href="styles/commonltr.css"/>
 <title>New and Noteworthy</title>
 </head>
-<body id="ref_noteworthy"><a name="ref_noteworthy"><!-- --></a>
+<body id="ref_noteworthy">
 
 
-	<h1 class="topictitle1">New and Noteworthy</h1>
+	<h1 class="title topictitle1">New and Noteworthy</h1>
 
 	
 	
-	<div><p>Here are descriptions of some of the more interesting or
+	<div class="body refbody"><p class="shortdesc">Here are descriptions of some of the more interesting or
 		significant changes made to the Memory Analyzer for the 1.1 release.
 	</p>
 
-		<div class="section"><h2 class="sectiontitle">Extract Ruby Related Details from the Heap Dumps</h2>
+		<div class="section"><h2 class="title sectiontitle">Extract Ruby Related Details from the Heap Dumps</h2>
 			
-			<p>The Leak Suspects report has been extended to contain Ruby relevant information
+			<p class="p">The Leak Suspects report has been extended to contain Ruby relevant information
 			if a suspect thread was executing JRuby code somewhere on its call-stack.
 			If possible MAT will point out which ruby script was being executed, and also provide
 			the Ruby call-stack (next to the Java call-stack) of the thread. 
 			</p>
 
-			<img src="mimes/rubydetails.png" alt="Ruby details added to the Leaks report"/>
-			<p>Detailed ruby stack trace can also be extracted for JRuby threads using the context menu
+			<img class="image" src="mimes/rubydetails.png" alt="Ruby details added to the Leaks report"/>
+			<p class="p">Detailed ruby stack trace can also be extracted for JRuby threads using the context menu
 			"Java Basics" -&gt; "Thread Details" on a Thread object.
 			</p>
 
 		</div>
 	
-		<div class="section"><h2 class="sectiontitle">Set Operations on Compared Tables</h2>
+		<div class="section"><h2 class="title sectiontitle">Set Operations on Compared Tables</h2>
 			
-			<p>When comparing tables from one and the same heap dump, it is now possible
+			<p class="p">When comparing tables from one and the same heap dump, it is now possible
 			to perform different set operations on the comparison result. 
 			</p>
 
-			<img src="mimes/compare_basket_context_menu.png" alt="Context menu in the Compare Basket"/>
-			<img src="mimes/setops_menu.png" alt="Set Operations context menu"/>
+			<img class="image" src="mimes/compare_basket_context_menu.png" alt="Context menu in the Compare Basket"/>
+			<img class="image" src="mimes/setops_menu.png" alt="Set Operations context menu"/>
 		</div>
 
-		<div class="section"><h2 class="sectiontitle">Links to Objects in HTML Reports</h2>
+		<div class="section"><h2 class="title sectiontitle">Links to Objects in HTML Reports</h2>
 			
-			<p>If a Memory Analyzer report (e.g. the Leak Suspect report) is open in the tool itself and not
+			<p class="p">If a Memory Analyzer report (e.g. the Leak Suspect report) is open in the tool itself and not
 			in a browser, then it will be possible to list at least some of the objects "behind" a row
 			in tables (e.g. in a Histogram).
 			Up to now only links to single objects were rendered. Now also the first up to 10 objects can be listed:
 			 
 			</p>
 
-			<img src="mimes/report_link_to_objects.png" alt="Open a list of objects directly from the HTML report"/>
+			<img class="image" src="mimes/report_link_to_objects.png" alt="Open a list of objects directly from the HTML report"/>
 		</div>
 
-		<div class="section"><h2 class="sectiontitle">Thread details from DTFJ dumps</h2>
+		<div class="section"><h2 class="title sectiontitle">Thread details from DTFJ dumps</h2>
 			
-			<p>Additional thread information is now available from DTFJ dumps.
+			<p class="p">Additional thread information is now available from DTFJ dumps.
 			</p>
 
-			<img src="mimes/thread_details.png" alt="Extra thread detail from a DTFJ dump"/>
+			<img class="image" src="mimes/thread_details.png" alt="Extra thread detail from a DTFJ dump"/>
 		</div>
 
-		<div class="section"><h2 class="sectiontitle">Value tab in object inspector</h2>
+		<div class="section"><h2 class="title sectiontitle">Value tab in object inspector</h2>
 			
-			<p>The value tab shows a readable value for some objects. This is the same text as in the list objects query.</p>
+			<p class="p">The value tab shows a readable value for some objects. This is the same text as in the list objects query.</p>
 
-			<img src="mimes/inspector_value.png" alt="Value tab in object inspector"/>
+			<img class="image" src="mimes/inspector_value.png" alt="Value tab in object inspector"/>
 		</div>
 
-		<div class="section"><h2 class="sectiontitle">Accessibility Improvements</h2>
+		<div class="section"><h2 class="title sectiontitle">Accessibility Improvements</h2>
 			
-			<p>This release of MAT contains a series of accessibility improvements
+			<p class="p">This release of MAT contains a series of accessibility improvements
 			related to better support for keyboard navigation, screen reader (JAWS),
 			and high contrast mode.
 			</p>
 
 		</div>
 	
-		<div class="section"><h2 class="sectiontitle">New and Noteworthy for Memory Analyzer 1.0</h2>
+		<div class="section"><h2 class="title sectiontitle">New and Noteworthy for Memory Analyzer 1.0</h2>
 			
-			<p>
+			<p class="p">
 				The New and Noteworthy document for version 1.0 is available 
-				<a href="http://www.eclipse.org/mat/1.0/noteworthy.html">here</a>.
+				<a class="xref" href="http://www.eclipse.org/mat/1.0/noteworthy.html">here</a>.
 			</p>
 
 		</div>

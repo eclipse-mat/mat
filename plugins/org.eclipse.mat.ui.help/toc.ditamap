@@ -34,6 +34,14 @@
 			</topicref>
 			<topicref href="reference/inspections/immediate_dominators.dita"
 				type="reference" />
+			<topicref href="reference/inspections/group_by_value.dita"
+				type="reference" />
+			<topicref href="reference/inspections/path_to_gc_roots.dita"
+				type="reference" />
+			<topicref href="reference/inspections/retained_set.dita"
+				type="reference" />
+			<topicref href="reference/inspections/top_consumers.dita"
+				type="reference" />
 		</topicref>
 		<topicref href="reference/querymatrix.dita" type="reference">
 			<topicref href="reference/findingmemoryleak.dita" type="reference" />

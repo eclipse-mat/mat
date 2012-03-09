@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html
   PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html lang="en-us" xml:lang="en-us">
+<html xml:lang="en-us" lang="en-us">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <meta name="DC.Type" content="reference"/>
@@ -17,39 +17,39 @@
 <link rel="stylesheet" type="text/css" href="../styles/commonltr.css"/>
 <title>SELECT Clause</title>
 </head>
-<body id="ref_oqlsyntaxselect"><a name="ref_oqlsyntaxselect"><!-- --></a>
+<body id="ref_oqlsyntaxselect">
 
 
-	<h1 class="topictitle1">SELECT Clause</h1>
-
-	
+	<h1 class="title topictitle1">SELECT Clause</h1>
 
 	
 
-	<div><p/>
+	
+
+	<div class="body refbody"><p class="shortdesc"/>
 
 		<div class="section">
-			<p>
+			<p class="p">
 				The SELECT clause determines what to extract from the
 				heap dump. To display objects and be able to browse the
 				outgoing references, use the
-				<span class="cmdname">*</span>
+				<span class="keyword cmdname">*</span>
 				symbol:
 			</p>
 
-			<pre class="codeblock">SELECT * FROM java.lang.String</pre>
+			<pre class="pre codeblock">SELECT * FROM java.lang.String</pre>
 
 
-			<p><strong>Select specific columns</strong></p>
+			<p class="p"><strong class="ph b">Select specific columns</strong></p>
 
-			<p>
+			<p class="p">
 				Alternatively, one can select the fields to be
 				displayed:
 			</p>
 
-			<pre class="codeblock">SELECT toString(s), s.count, s.value FROM java.lang.String s</pre>
+			<pre class="pre codeblock">SELECT toString(s), s.count, s.value FROM java.lang.String s</pre>
 
-			<p>
+			<p class="p">
 				The resulting table knows about the underlying object.
 				So you can use the context menu to open further views on
 				the object at hand. Use the @ symbol to access Java
@@ -58,84 +58,84 @@
 				information:
 			</p>
 
-			<pre class="codeblock">SELECT toString(s), s.@usedHeapSize,
+			<pre class="pre codeblock">SELECT toString(s), s.@usedHeapSize,
     s.@retainedHeapSize FROM java.lang.String s</pre>
 
-			<p>
+			<p class="p">
 				The section on
-				<a href="propertyaccessors.html">
+				<a class="xref" href="propertyaccessors.html">
 					Property Accessors
 				</a>
 				contains details on the commonly available attributes.
 			</p>
 
-			<p><strong>Provide column names</strong></p>
+			<p class="p"><strong class="ph b">Provide column names</strong></p>
 
-			<p>Use the AS keyword to name the columns:</p>
+			<p class="p">Use the AS keyword to name the columns:</p>
 
-			<pre class="codeblock">SELECT toString(s) AS Value,
+			<pre class="pre codeblock">SELECT toString(s) AS Value,
     s.@usedHeapSize AS "Shallow Size",
     s.@retainedHeapSize AS "Retained Size"
 			FROM java.lang.String s</pre>
 
-			<p>
+			<p class="p">
 				Use the
-				<span class="cmdname">AS RETAINED SET</span>
+				<span class="keyword cmdname">AS RETAINED SET</span>
 				keyword to get the set of objects retained by your
 				selection:
 			</p>
 
-			<pre class="codeblock">SELECT AS RETAINED SET * FROM java.lang.String</pre>
+			<pre class="pre codeblock">SELECT AS RETAINED SET * FROM java.lang.String</pre>
 
-			<p><strong>Flatten select items into an object list</strong></p>
+			<p class="p"><strong class="ph b">Flatten select items into an object list</strong></p>
 
-			<p>
+			<p class="p">
 				Use the
-				<span class="cmdname">OBJECTS</span>
+				<span class="keyword cmdname">OBJECTS</span>
 				to interpret the items in the
-				<span class="cmdname">SELECT</span>
+				<span class="keyword cmdname">SELECT</span>
 				clause as objects:
 			</p>
 
-			<pre class="codeblock">SELECT OBJECTS dominators(s) FROM java.lang.String s</pre>
+			<pre class="pre codeblock">SELECT OBJECTS dominators(s) FROM java.lang.String s</pre>
 
-			<p>
+			<p class="p">
 				The function
-				<span class="cmdname">dominators()</span>
+				<span class="keyword cmdname">dominators()</span>
 				returns an array of objects. Therefore the query returns
 				a list of object lists, i.e. arrays. By using the
 				keyword
-				<span class="cmdname">OBJECTS</span>
+				<span class="keyword cmdname">OBJECTS</span>
 				, we force the OQL to reduce this into a single list of
 				objects.
 			</p>
 
-			<p><strong>Select unique objects</strong></p>
+			<p class="p"><strong class="ph b">Select unique objects</strong></p>
 
-			<p>
+			<p class="p">
 				Use the
-				<span class="cmdname">DISTINCT</span>
+				<span class="keyword cmdname">DISTINCT</span>
 				keyword to only select unique objects:
 			</p>
 
-			<pre class="codeblock">SELECT DISTINCT * FROM OBJECTS 0,1,1,2</pre>
+			<pre class="pre codeblock">SELECT DISTINCT * FROM OBJECTS 0,1,1,2</pre>
 
-			<p>
+			<p class="p">
 				Use the
-				<span class="cmdname">DISTINCT OBJECTS</span>
+				<span class="keyword cmdname">DISTINCT OBJECTS</span>
 				keyword to only select unique objects from the result of the selected clause:
 			</p>
 
-			<pre class="codeblock">SELECT DISTINCT OBJECTS classof(s) FROM java.lang.String s</pre>
+			<pre class="pre codeblock">SELECT DISTINCT OBJECTS classof(s) FROM java.lang.String s</pre>
 
-			<p>
+			<p class="p">
 				The function
-				<span class="cmdname">classof</span>
+				<span class="keyword cmdname">classof</span>
 				returns the class object. Of course, all Strings have
-				the same class. The <span class="cmdname">OBJECTS</span> converts the underlying row with a String object
+				the same class. The <span class="keyword cmdname">OBJECTS</span> converts the underlying row with a String object
 				and a displayed value of the class object
-				to the object represented by the result of the <span class="cmdname">classof</span> function.
-				Without the <span class="cmdname">DISTINCT OBJECTS</span>
+				to the object represented by the result of the <span class="keyword cmdname">classof</span> function.
+				Without the <span class="keyword cmdname">DISTINCT OBJECTS</span>
 				keywords, the query would result in a list with as many
 				rows with the same class as there are Strings.
 			</p>
@@ -144,9 +144,9 @@
 
 	</div>
 
-<div>
+<div class="related-links">
 <div class="familylinks">
-<div class="parentlink"><strong>Parent topic:</strong> <a href="../reference/oqlsyntax.html">OQL Syntax</a></div>
+<div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="../reference/oqlsyntax.html">OQL Syntax</a></div>
 </div>
 </div>
 

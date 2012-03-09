@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2010 SAP AG.
+    Copyright (c) 2008, 2012 SAP AG and IBM Corporation.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
    
     Contributors:
         SAP AG - initial API and implementation
+        IBM Corporation - preference page and OQL
  -->
 <!DOCTYPE task PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd" >
 <task id="task_configure_mat" xml:lang="en-us">
@@ -78,6 +79,19 @@
 				<dt>Hide the getting started wizard</dt>
 				<dd>Controls whether to display a wizard for leak suspects, top components after opening
 				a snapshot.</dd>
+			</dlentry>
+			<dlentry>
+				<dt>Hide popup query help</dt>
+				<dd>Do not display the help panel underneath the query wizard, unless F1 or the help button
+				is pressed.</dd>
+			</dlentry>
+			<dlentry>
+				<dt>OQL comment color</dt>
+				<dd>Modify the color of comments in the Object Query Language (OQL) studio.</dd>
+			</dlentry>
+			<dlentry>
+				<dt>OQL keyword color</dt>
+				<dd>Modify the color of keywords in the Object Query Language (OQL) studio.</dd>
 			</dlentry>
 			</dl>
 			</p>
