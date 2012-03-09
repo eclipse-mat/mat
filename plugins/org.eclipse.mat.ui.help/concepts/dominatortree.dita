@@ -80,7 +80,7 @@
 
 	</conbody>
 	<related-links>
-		<link href="shallowretainedheap.dita" type="task">
+		<link href="shallowretainedheap.dita" type="concept">
 			<linktext>Shallow vs. Retained Size</linktext>
 		</link>
 	</related-links>
