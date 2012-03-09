@@ -34,7 +34,7 @@ public class OQLScanner extends RuleBasedScanner
     {
         IToken tKeyWord = new Token(new TextAttribute(color));
 
-        IRule[] r = new IRule[1];
+        IRule[] r = new IRule[4];
         WordRule wr = new WordRule(new IWordDetector()
         {
 
@@ -52,9 +52,81 @@ public class OQLScanner extends RuleBasedScanner
         wr.addWord("FROM", tKeyWord); //$NON-NLS-1$
         wr.addWord("WHERE", tKeyWord); //$NON-NLS-1$
         wr.addWord("UNION", tKeyWord); //$NON-NLS-1$
-
+        
+        wr.addWord("DISTINCT", tKeyWord); //$NON-NLS-1$
+        wr.addWord("INSTANCEOF", tKeyWord); //$NON-NLS-1$
+        wr.addWord("AS", tKeyWord); //$NON-NLS-1$
+        wr.addWord("RETAINED", tKeyWord); //$NON-NLS-1$
+        wr.addWord("SET", tKeyWord); //$NON-NLS-1$
+        wr.addWord("OBJECTS", tKeyWord); //$NON-NLS-1$
+       
         r[0] = wr;
+        
+        // Add some constants
+        WordRule wr2 = new WordRule(new IWordDetector()
+        {
 
+            public boolean isWordPart(char arg0)
+            {
+                return arg0 != ' ' && arg0 != '\n' && arg0 != ')' && arg0 != '!' && arg0 != '=';
+            }
+
+            public boolean isWordStart(char arg0)
+            {
+                return arg0 != ' ';
+            }
+        }, Token.UNDEFINED, true);
+        wr2.addWord("true", tKeyWord); //$NON-NLS-1$
+        wr2.addWord("false", tKeyWord); //$NON-NLS-1$
+        wr2.addWord("null", tKeyWord); //$NON-NLS-1$
+        
+        r[1] = wr;
+        
+        WordRule wr3 = new WordRule(new IWordDetector()
+        {
+
+            public boolean isWordPart(char arg0)
+            {
+                return arg0 != ' ' && arg0 != '\n' && arg0 != '(';
+            }
+
+            public boolean isWordStart(char arg0)
+            {
+                return arg0 != ' ';
+            }
+        }, Token.UNDEFINED, true);
+        wr3.addWord("or", tKeyWord); //$NON-NLS-1$
+        wr3.addWord("and", tKeyWord); //$NON-NLS-1$
+        wr3.addWord("not", tKeyWord); //$NON-NLS-1$
+        wr3.addWord("like", tKeyWord); //$NON-NLS-1$
+        wr3.addWord("in", tKeyWord); //$NON-NLS-1$
+
+        r[2] = wr3;
+        
+        // Add functions (case sensitive)
+        WordRule wr4 = new WordRule(new IWordDetector()
+        {
+
+            public boolean isWordPart(char arg0)
+            {
+                return arg0 != ' ' && arg0 != '\n' && arg0 != '(';
+            }
+
+            public boolean isWordStart(char arg0)
+            {
+                return arg0 != ' ';
+            }
+        }, Token.UNDEFINED, false);
+        wr4.addWord("toHex", tKeyWord); //$NON-NLS-1$
+        wr4.addWord("toString", tKeyWord); //$NON-NLS-1$
+        wr4.addWord("dominators", tKeyWord); //$NON-NLS-1$
+        wr4.addWord("dominatorof", tKeyWord); //$NON-NLS-1$
+        wr4.addWord("outbounds", tKeyWord); //$NON-NLS-1$
+        wr4.addWord("inbounds", tKeyWord); //$NON-NLS-1$
+        wr4.addWord("classof", tKeyWord); //$NON-NLS-1$
+
+        r[3] = wr4;
+        
         setRules(r);
     }
 }
