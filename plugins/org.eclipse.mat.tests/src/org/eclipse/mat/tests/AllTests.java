@@ -25,6 +25,7 @@ import org.junit.runners.Suite.SuiteClasses;
                 org.eclipse.mat.tests.collect.CommandTests.class, //
                 org.eclipse.mat.tests.collect.ExtractCollectionEntriesTest.class, //
                 org.eclipse.mat.tests.parser.TestIndex.class, //
+                org.eclipse.mat.tests.parser.TestIndex1to1.class, //
                 org.eclipse.mat.tests.snapshot.DominatorTreeTest.class, //
                 org.eclipse.mat.tests.snapshot.TestUnreachableObjects.class, //
                 org.eclipse.mat.tests.snapshot.GeneralSnapshotTests.class, //

@@ -45,6 +45,8 @@ public class TestIndex
     int P = 6;
     // Increase this for the huge tests
     long MAXELEMENTS = 30000000L;
+    // Increase this for the huge tests
+    long MAXELEMENTS2 = 30000000L;
     static final boolean verbose = false;
 
     @Parameters
@@ -88,7 +90,7 @@ public class TestIndex
     @Test
     public void test1ToN() throws IOException
     {
-        assumeTrue((long) M * N < MAXELEMENTS);
+        assumeTrue((long) M * N < MAXELEMENTS2);
         int ii[][] = new int[P + 1][];
         for (int p = 0; p < P + 1; p++)
         {
@@ -236,6 +238,109 @@ public class TestIndex
                     if (verbose)
                         System.out.println("Reading " + j + "/" + M);
                     long i3[] = i2.get(j);
+                    int p = j % (P + 1);
+                    // Junit array comparison is too slow
+                    if (!Arrays.equals(ii[p], i3))
+                        Assert.assertArrayEquals(ii[p], i3);
+                }
+            }
+            finally
+            {
+                i2.close();
+            }
+        }
+        finally
+        {
+            indexFile.delete();
+        }
+    }
+
+    @Test
+    public void test1ToNSorted() throws IOException
+    {
+        assumeTrue((long) M * N < MAXELEMENTS2);
+        int ii[][] = new int[P + 1][];
+        for (int p = 0; p < P + 1; p++)
+        {
+            int nn = N + p;
+            ii[p] = new int[nn];
+            for (int i = 0; i < nn; ++i)
+            {
+                ii[p][i] = i;
+            }
+        }
+        File indexFile = File.createTempFile("1toN", ".index");
+        try
+        {
+            IndexWriter.IntArray1NSortedWriter f = new IndexWriter.IntArray1NSortedWriter(M, indexFile);
+            for (int j = 0; j < M; ++j)
+            {
+                // Vary the length a little
+                int p = j % (P + 1);
+                if (verbose)
+                    System.out.println("Writing " + j + "/" + M);
+                f.log(j, ii[p]);
+            }
+            IOne2ManyIndex i2 = f.flush();
+            try
+            {
+                for (int j = 0; j < M; ++j)
+                {
+                    if (verbose)
+                        System.out.println("Reading " + j + "/" + M);
+                    int i3[] = i2.get(j);
+                    int p = j % (P + 1);
+                    // Junit array comparison is too slow
+                    if (!Arrays.equals(ii[p], i3))
+                        Assert.assertArrayEquals(ii[p], i3);
+                }
+            }
+            finally
+            {
+                i2.close();
+            }
+        }
+        finally
+        {
+            indexFile.delete();
+        }
+    }
+
+    @Test
+    public void test1ToNSortedReader() throws IOException
+    {
+        assumeTrue((long) M * N < MAXELEMENTS2);
+        int ii[][] = new int[P + 1][];
+        for (int p = 0; p < P + 1; p++)
+        {
+            int nn = N + p;
+            ii[p] = new int[nn];
+            for (int i = 0; i < nn; ++i)
+            {
+                ii[p][i] = i;
+            }
+        }
+        File indexFile = File.createTempFile("1toN", ".index");
+        try
+        {
+            IndexWriter.IntArray1NSortedWriter f = new IndexWriter.IntArray1NSortedWriter(M, indexFile);
+            for (int j = 0; j < M; ++j)
+            {
+                // Vary the length a little
+                int p = j % (P + 1);
+                if (verbose)
+                    System.out.println("Writing " + j + "/" + M);
+                f.log(j, ii[p]);
+            }
+            IOne2ManyIndex i2 = f.flush();
+            i2 = new IndexReader.IntIndex1NSortedReader(indexFile);
+            try
+            {
+                for (int j = 0; j < M; ++j)
+                {
+                    if (verbose)
+                        System.out.println("Reading " + j + "/" + M);
+                    int i3[] = i2.get(j);
                     int p = j % (P + 1);
                     // Junit array comparison is too slow
                     if (!Arrays.equals(ii[p], i3))

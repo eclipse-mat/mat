@@ -20,6 +20,7 @@ import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayIntCompressed;
 import org.eclipse.mat.collect.ArrayLongCompressed;
 import org.eclipse.mat.collect.HashMapIntObject;
+import org.eclipse.mat.parser.index.IndexWriter.ArrayIntLongCompressed;
 import org.eclipse.mat.parser.internal.Messages;
 import org.eclipse.mat.parser.io.SimpleBufferedRandomAccessInputStream;
 
@@ -31,7 +32,32 @@ public abstract class IndexReader
     public static final boolean DEBUG = false;
 
     /**
-     * Creates a int to int index reader
+     * An int to int index reader.
+     * 
+     * Disk file structure:
+     * <pre>
+     * Page 0: ArrayIntCompressed
+     * Page 1: ArrayIntCompressed
+     * ...
+     * Page n: ArrayIntCompressed>
+     * page 0 start in file (8)
+     * page 1 start in file (8)
+     * ...
+     * page n start in file (8)
+     * page n+1 start in file (8) (i.e. location of 'page 0 start in file' field)
+     * page size (4)
+     * total size (4)
+     * </pre>
+     * 
+     * Experimental for version 1.2: 
+     * The disk format has been enhanced to allow more than
+     * 2^31 entries by using the page n+1 start pointer to find the start
+     * of the page offsets, and so the number of pages, and the size field
+     * is then negative and used to measure the number of entries on the
+     * last page (from 1 to page size).
+     * This is experimental and index files with 2^31 entries or more
+     * are not compatible with 1.1 or earlier and might not be compatible
+     * with 1.3 or later.
      */
     public static class IntIndexReader extends IndexWriter.IntIndex<SoftReference<ArrayIntCompressed>> implements
                     IIndexReader.IOne2OneIndex
@@ -42,7 +68,7 @@ public abstract class IndexReader
         public SimpleBufferedRandomAccessInputStream in;
         long[] pageStart;
 
-        public IntIndexReader(File indexFile, IndexWriter.Pages<SoftReference<ArrayIntCompressed>> pages, int size,
+        IntIndexReader(File indexFile, IndexWriter.Pages<SoftReference<ArrayIntCompressed>> pages, long size,
                         int pageSize, long[] pageStart)
         {
             this.size = size;
@@ -56,6 +82,12 @@ public abstract class IndexReader
                 open();
         }
 
+        public IntIndexReader(File indexFile, IndexWriter.Pages<SoftReference<ArrayIntCompressed>> pages, int size,
+                        int pageSize, long[] pageStart)
+        {
+            this(indexFile, pages, (long)size, pageSize, pageStart);
+        }
+
         public IntIndexReader(File indexFile) throws IOException
         {
             this(new SimpleBufferedRandomAccessInputStream(new RandomAccessFile(indexFile, "r")), 0, indexFile.length());//$NON-NLS-1$
@@ -65,14 +97,27 @@ public abstract class IndexReader
         public IntIndexReader(SimpleBufferedRandomAccessInputStream in, long start, long length) throws IOException
         {
             this.in = in;
-            this.in.seek(start + length - 8);
+            this.in.seek(start + length - 16);
 
+            long lastOffset = this.in.readLong();
             int pageSize = this.in.readInt();
             int size = this.in.readInt();
 
-            init(size, pageSize);
+            int pages;
+            if (size >= 0)
+            {
+                init(size, pageSize);
 
-            int pages = (size / pageSize) + (size % pageSize > 0 ? 2 : 1);
+                pages = (size / pageSize) + (size % pageSize > 0 ? 2 : 1);
+            }
+            else
+            {
+                // large dump format, find number of pages using offsets
+                pages = (int)((start + length - 8 - lastOffset) / 8);
+                // then find the total size from pages and entries in last page
+                long sizeL = (pages - 2L) * pageSize - size;
+                init(sizeL, pageSize);
+            }
 
             pageStart = new long[pages];
 
@@ -168,6 +213,62 @@ public abstract class IndexReader
                 indexFile.delete();
         }
 
+    }
+
+    /**
+     * Internal class used to index using large offsets
+     * into the body of stream of entries of a 1 to N index.
+     * This looks like an IntIndexReader but the pages can hold
+     * long values.
+     */
+    static class PositionIndexReader extends IntIndexReader
+    {
+        public PositionIndexReader(File indexFile) throws IOException
+        {
+            super(indexFile);
+        }
+        public PositionIndexReader(SimpleBufferedRandomAccessInputStream in, long start, long length) throws IOException
+        {
+            super(in, start, length);
+        }
+        public PositionIndexReader(File indexFile, IndexWriter.Pages<SoftReference<ArrayIntCompressed>> pages, int size,
+                        int pageSize, long[] pageStart)
+        {
+            super(indexFile, pages, (long)size, pageSize, pageStart);
+        }
+
+        @Override
+        long getPos(int index) {
+            int page = page(index);
+            int offset = offset(index);
+            ArrayIntLongCompressed a = getPage(page);
+            return a.getPos(offset);
+        }
+
+        @Override
+        protected ArrayIntLongCompressed getPage(int page)
+        {
+            SoftReference<ArrayIntCompressed> ref = pages.get(page);
+            ArrayIntCompressed array = ref == null ? null : ref.get();
+            if (array instanceof ArrayIntLongCompressed)
+            {
+                return (ArrayIntLongCompressed)array;
+            }
+            else 
+            {
+                synchronized (LOCK)
+                {
+                    if (array == null)
+                        array = super.getPage(page);
+                    ArrayIntLongCompressed ret = new ArrayIntLongCompressed(array);
+                    synchronized (pages)
+                    {
+                        pages.put(page, new SoftReference<ArrayIntCompressed>(ret));
+                    }
+                    return ret;
+                }
+            }
+        }
     }
 
     /**
@@ -283,7 +384,7 @@ public abstract class IndexReader
                 in.seek(indexLength - 8);
                 long divider = in.readLong();
 
-                this.header = new IntIndexReader(in, divider, indexLength - divider - 8);
+                this.header = new PositionIndexReader(in, divider, indexLength - divider - 8);
                 this.body = new IntIndexReader(in, 0, divider);
 
                 this.body.LOCK = this.header.LOCK;
@@ -309,7 +410,7 @@ public abstract class IndexReader
 
         public int[] get(int index)
         {
-            int p = header.get(index);
+            long p = header.getPos(index);
 
             int length = body.get(p);
 
@@ -399,31 +500,45 @@ public abstract class IndexReader
             super(indexFile, header, body);
         }
 
+        /**
+         * The header holds positions encoded as p+1 into the body
+         * There is no length field - the length is up to the next one,
+         * which is greater than the first.
+         * 0 means no data
+         * E.g.
+         * 10 6 1 0 14
+         * Reading item 0 gets from [10,14)
+         * Reading item 1 gets from [6,14)
+         * Reading item 2 gets from [1,14)
+         * Reading item 3 gets an empty array
+         */
         public int[] get(int index)
         {
-            int p[] = null;
+            long p0;
+            long p1;
 
             if (index + 1 < header.size())
             {
-                p = header.getNext(index++, 2);
-                if (p[0] == 0)
+                p0 = header.getPos(index++);
+                p1 = header.getPos(index);
+                if (p0 == 0)
                     return new int[0];
 
-                for (index++; p[1] < p[0] && index < header.size(); index++)
-                    p[1] = header.get(index);
+                for (index++; p1 < p0 && index < header.size(); index++)
+                    p1 = header.getPos(index);
 
-                if (p[1] < p[0])
-                    p[1] = body.size() + 1;
+                if (p1 < p0)
+                    p1 = body.size + 1;
             }
             else
             {
-                p = new int[] { header.get(index), 0 };
-                if (p[0] == 0)
+                p0 = header.getPos(index);
+                if (p0 == 0)
                     return new int[0];
-                p[1] = body.size() + 1;
+                p1 = body.size + 1;
             }
 
-            return body.getNext(p[0] - 1, p[1] - p[0]);
+            return body.getNext(p0 - 1, (int)(p1 - p0));
         }
 
     }
@@ -445,16 +560,46 @@ public abstract class IndexReader
             if (key == null)
                 return new int[0];
 
-            int[] pos = (int[]) key;
-
-            synchronized (this)
+            if (key instanceof long[])
             {
-                return body.getNext(pos[0], pos[1]);
+                long[] pos = (long[]) key;
+
+                synchronized (this)
+                {
+                    return body.getNext(pos[0], (int)pos[1]);
+                }
+            }
+            else
+            {
+                int[] pos = (int[]) key;
+
+                synchronized (this)
+                {
+                    return body.getNext(pos[0], pos[1]);
+                }
             }
         }
 
     }
 
+    /**
+     * Creates a int to long index reader
+     * 
+     * Disk file structure:
+     * <pre>
+     * Page 0: ArrayLongCompressed
+     * Page 1: ArrayLongCompressed
+     * ...
+     * Page n: ArrayLongCompressed>
+     * page 0 start in file (8)
+     * page 1 start in file (8)
+     * ...
+     * page n start in file (8)
+     * page n+1 start in file (8) (i.e. location of 'page 0 start in file' field)
+     * page size (4)
+     * total size (4)
+     * </pre>
+     */
     public static class LongIndexReader extends IndexWriter.LongIndex implements IIndexReader.IOne2LongIndex
     {
         Object LOCK = new Object();
