@@ -726,7 +726,15 @@ public abstract class IndexWriter
             this.body.openStream(this.out, 0);
         }
 
-        public void log(Identifier identifer, int index, ArrayLong references) throws IOException
+        public void log(Identifier identifier, int index, ArrayLong references) throws IOException
+        {
+            log((IIndexReader.IOne2LongIndex)identifier, index, references);
+        }
+
+        /**
+         * @since 1.2
+         */
+        public void log(IIndexReader.IOne2LongIndex identifier, int index, ArrayLong references) throws IOException
         {
             // remove duplicates and convert to identifiers
             // keep pseudo reference as first one
@@ -744,7 +752,7 @@ public abstract class IndexWriter
                 current = references.get(ii);
                 if (last != current)
                 {
-                    int objectId = identifer.reverse(current);
+                    int objectId = identifier.reverse(current);
 
                     if (objectId >= 0)
                     {
@@ -905,7 +913,7 @@ public abstract class IndexWriter
         int bitLength;
         int pageSize;
         BitOutputStream[] segments;
-        int[] segmentSizes;
+        long[] segmentSizes;
 
         /**
          * @throws IOException
@@ -924,7 +932,7 @@ public abstract class IndexWriter
             this.bitLength = mostSignificantBit(size) + 1;
             this.pageSize = (size / segments) + 1;
             this.segments = new BitOutputStream[segments];
-            this.segmentSizes = new int[segments];
+            this.segmentSizes = new long[segments];
         }
 
         public void log(int objectIndex, int refIndex, boolean isPseudo) throws IOException
@@ -982,38 +990,8 @@ public abstract class IndexWriter
                         throw new IProgressListener.OperationCanceledException();
 
                     File segmentFile = new File(this.indexFile.getAbsolutePath() + segment + ".log");//$NON-NLS-1$
-                    if (!segmentFile.exists())
-                        continue;
-
-                    // read & sort payload
-                    segmentIn = new BitInputStream(new FileInputStream(segmentFile));
-
-                    int objIndex[] = new int[segmentSizes[segment]];
-                    int refIndex[] = new int[segmentSizes[segment]];
-
-                    for (int ii = 0; ii < segmentSizes[segment]; ii++)
-                    {
-
-                        boolean isPseudo = segmentIn.readBit() == 1;
-
-                        objIndex[ii] = segmentIn.readInt(bitLength);
-                        refIndex[ii] = segmentIn.readInt(bitLength);
-
-                        if (isPseudo)
-                            refIndex[ii] = -1 - refIndex[ii]; // 0 is a valid!
-                    }
-
-                    segmentIn.close();
-                    segmentIn = null;
-
-                    if (monitor.isCanceled())
-                        throw new IProgressListener.OperationCanceledException();
-
-                    // delete segment log
-                    segmentFile.delete();
-                    segmentFile = null;
-
-                    processSegment(monitor, keyWriter, body, objIndex, refIndex);
+                    int startIndex = segment * pageSize;
+                    processGiantSegmentFile(monitor, keyWriter, body, segmentFile, segmentSizes[segment], segment, startIndex);
                 }
 
                 // write header
@@ -1076,6 +1054,185 @@ public abstract class IndexWriter
                 if (monitor.isCanceled())
                     cancel();
             }
+        }
+
+        private void processGiantSegmentFile(IProgressListener monitor, KeyWriter keyWriter,
+                        IntIndexStreamer body, File segmentFile, long segmentSize, int segment, int startIndex) throws IOException
+                        {
+            final int SUBSIZE = 500000 * 16;
+            if (!segmentFile.exists())
+                return;
+            if (segmentSize < SUBSIZE)
+            {
+                processSegmentFile(monitor, keyWriter, body, segmentFile, (int)segmentSize, segment);
+                return;
+            }
+
+            // read payload and get counts of refs per object
+            BitInputStream segmentIn = new BitInputStream(new FileInputStream(segmentFile));
+            int counts[];
+            try
+            {
+                counts = new int[pageSize];
+                for (long ii = 0; ii < segmentSize; ii++)
+                {
+
+                    segmentIn.readBit();
+
+                    int objIndex = segmentIn.readInt(bitLength);
+                    segmentIn.readInt(bitLength);
+
+                    counts[objIndex - startIndex]++;
+                }
+            }
+            finally
+            {
+                segmentIn.close();
+            }
+
+            if (monitor.isCanceled())
+                throw new IProgressListener.OperationCanceledException();
+
+            // Work out where to split the segment
+            int subsegment[] = new int[pageSize];
+            int subsegSize = SUBSIZE;
+            int subsegs = -1;
+            for (int jj = 0; jj < counts.length; ++jj)
+            {
+                if (counts[jj] > 0 && (long)subsegSize + counts[jj] > SUBSIZE)
+                {
+                    subsegSize = 0;
+                    subsegs++;
+                }
+                subsegSize += counts[jj];
+                subsegment[jj] = subsegs;
+            }
+            ++subsegs;
+
+            if (subsegs <= 1)
+            {
+                // Only one subsegment, so use the original segment
+                processSegmentFile(monitor, keyWriter, body, segmentFile, (int)segmentSize, segment);
+                return;
+            }
+
+            // Create the subsegments
+            BitOutputStream[] subsegments = new BitOutputStream[subsegs];
+            int[] subsegmentSizes = new int[subsegs];
+            try
+            {
+                try
+                {
+                    for (int ss = 0; ss < subsegs; ++ss)
+                    {
+                        File subsegmentFile = new File(this.indexFile.getAbsolutePath() + segment +"." + ss + ".log");//$NON-NLS-1$
+                        subsegments[ss] = new BitOutputStream(new FileOutputStream(subsegmentFile));
+                    }
+
+                    // Partition payload
+                    segmentIn = new BitInputStream(new FileInputStream(segmentFile));
+                    try
+                    {
+                        for (long ii = 0; ii < segmentSize; ii++)
+                        {
+                            if (ii % 1000 == 0 && monitor.isCanceled())
+                                throw new IProgressListener.OperationCanceledException();
+
+                            boolean isPseudo = segmentIn.readBit() == 1;
+
+                            int objectIndex = segmentIn.readInt(bitLength);
+                            int refIndex = segmentIn.readInt(bitLength);
+
+                            int subseg = subsegment[objectIndex - startIndex];
+
+                            subsegments[subseg].writeBit(isPseudo ? 1 : 0);
+                            subsegments[subseg].writeInt(objectIndex, bitLength);
+                            subsegments[subseg].writeInt(refIndex, bitLength);
+
+                            subsegmentSizes[subseg]++;
+
+                        }
+                    }
+                    finally
+                    {
+                        segmentIn.close();
+                    }
+                }
+                finally 
+                {
+                    // Close the subfiles
+                    for (int ss = 0; ss < subsegs; ++ss)
+                    {
+                        if (subsegments[ss] != null)
+                            subsegments[ss].close();
+                    }
+                }
+
+                // delete segment log
+                segmentFile.delete();
+                segmentFile = null;
+
+                // Process the subsegments
+                for (int ss = 0; ss < subsegs; ++ss)
+                {
+                    File subsegmentFile = new File(this.indexFile.getAbsolutePath() + segment +"." + ss + ".log");//$NON-NLS-1$
+                    processSegmentFile(monitor, keyWriter, body, subsegmentFile, subsegmentSizes[ss], segment);
+                }
+            }
+            finally
+            {
+                // Tidy up in case of cancel
+                // Normal operation will have deleted these files
+                for (int ss = 0; ss < subsegs; ++ss)
+                {
+                    File subsegmentFile = new File(this.indexFile.getAbsolutePath() + segment +"." + ss + ".log");//$NON-NLS-1$
+                    if (subsegmentFile.exists())
+                        subsegmentFile.delete();
+                }
+            }
+        }
+
+        private void processSegmentFile(IProgressListener monitor, KeyWriter keyWriter, IntIndexStreamer body, File segmentFile, int segmentSize, int segment) throws IOException
+        {
+            if (!segmentFile.exists())
+                return;
+
+            // read & sort payload
+            BitInputStream segmentIn = new BitInputStream(new FileInputStream(segmentFile));
+
+            int objIndex[];
+            int refIndex[];
+            try
+            {
+                objIndex= new int[segmentSize];
+                refIndex= new int[segmentSize];
+
+                for (int ii = 0; ii < segmentSize; ii++)
+                {
+
+                    boolean isPseudo = segmentIn.readBit() == 1;
+
+                    objIndex[ii] = segmentIn.readInt(bitLength);
+                    refIndex[ii] = segmentIn.readInt(bitLength);
+
+                    if (isPseudo)
+                        refIndex[ii] = -1 - refIndex[ii]; // 0 is a valid!
+                }
+            }
+            finally
+            {
+                segmentIn.close();
+                segmentIn = null;
+            }
+
+            if (monitor.isCanceled())
+                throw new IProgressListener.OperationCanceledException();
+
+            // delete segment log
+            segmentFile.delete();
+            segmentFile = null;
+
+            processSegment(monitor, keyWriter, body, objIndex, refIndex);
         }
 
         private void processSegment(IProgressListener monitor, KeyWriter keyWriter,
