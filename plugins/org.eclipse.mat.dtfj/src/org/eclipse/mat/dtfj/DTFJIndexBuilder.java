@@ -47,15 +47,18 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayLong;
+import org.eclipse.mat.collect.BitField;
 import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.collect.IteratorInt;
 import org.eclipse.mat.collect.IteratorLong;
 import org.eclipse.mat.parser.IIndexBuilder;
 import org.eclipse.mat.parser.IPreliminaryIndex;
+import org.eclipse.mat.parser.index.IIndexReader;
 import org.eclipse.mat.parser.index.IIndexReader.IOne2ManyIndex;
 import org.eclipse.mat.parser.index.IIndexReader.IOne2SizeIndex;
 import org.eclipse.mat.parser.index.IndexManager.Index;
 import org.eclipse.mat.parser.index.IndexWriter;
+import org.eclipse.mat.parser.index.IndexWriter.LongIndexStreamer;
 import org.eclipse.mat.parser.index.IndexWriter.SizeIndexCollectorUncompressed;
 import org.eclipse.mat.parser.model.ClassImpl;
 import org.eclipse.mat.parser.model.XGCRootInfo;
@@ -234,8 +237,10 @@ public class DTFJIndexBuilder implements IIndexBuilder
     private SizeIndexCollectorUncompressed indexToSize;
     /** The array size in bytes index */
     private IOne2SizeIndex arrayToSize;
-    /** The object/class id number to address index */
-    private IndexWriter.Identifier indexToAddress;
+    /** The object/class id number to address index for accumulation of ids */
+    private IndexWriter.Identifier indexToAddress0;
+    /** The object/class id number to address index once all ids are found */
+    private IIndexReader.IOne2LongIndex indexToAddress;
     /** The object id to class id index */
     private IndexWriter.IntIndexCollector objectToClass;
     /** The class id to MAT class information index */
@@ -477,6 +482,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             {}
             arrayToSize = null;
         }
+        indexToAddress0 = null;
         indexToAddress = null;
         objectToClass = null;
         idToClass = null;
@@ -632,7 +638,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         workCountSoFar += 1;
         listener.subTask(Messages.DTFJIndexBuilder_Pass1);
 
-        indexToAddress = new IndexWriter.Identifier();
+        indexToAddress0 = new IndexWriter.Identifier();
 
         // Pass 1
 
@@ -772,7 +778,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             fixedBootLoaderAddress = fixBootLoaderAddress(bootLoaderAddress, bootLoaderAddress);
             // Boot loader with 0 address needs a dummy entry as no Java object
             // for it will be found
-            indexToAddress.add(fixedBootLoaderAddress);
+            indexToAddress0.add(fixedBootLoaderAddress);
             debugPrint("No boot class loader found so adding dummy boot class loader object at " //$NON-NLS-1$
                             + format(fixedBootLoaderAddress));
         }
@@ -780,7 +786,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         {
             // Boot loader with null object implying 0 address needs a dummy entry as no Java
             // object for it will be found
-            indexToAddress.add(fixedBootLoaderAddress);
+            indexToAddress0.add(fixedBootLoaderAddress);
         }
 
         // Holds all of the classes as DTFJ JavaClass - just used in this
@@ -813,7 +819,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         workCountSoFar += 1;
         listener.subTask(Messages.DTFJIndexBuilder_FindingObjects);
         int objProgress = 0;
-        final int s2 = indexToAddress.size();
+        final int s2 = indexToAddress0.size();
         for (Iterator<?> i = dtfjInfo.getJavaRuntime().getHeaps(); i.hasNext();)
         {
             Object next = i.next();
@@ -840,7 +846,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 rememberObject(jo, objAddress, allClasses, listener);
             }
         }
-        final int nobj = indexToAddress.size() - s2;
+        final int nobj = indexToAddress0.size() - s2;
         debugPrint("Objects on heap " + nobj); //$NON-NLS-1$
 
         // Find any more classes (via the class loaders), and remember them
@@ -881,9 +887,9 @@ public class DTFJIndexBuilder implements IIndexBuilder
         }
 
         // Make the ID to address array ready for reverse lookups
-        if (indexToAddress.size() > 0)
+        if (indexToAddress0.size() > 0)
         {
-            indexToAddress.sort();
+            indexToAddress0.sort();
         }
 
         // Holds all of the methods as DTFJ JavaMethod - just used in this
@@ -917,7 +923,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             long threadAddress = getThreadAddress(th, listener);
             if (threadAddress != 0)
             {
-                if (indexToAddress.reverse(threadAddress) < 0)
+                if (indexToAddress0.reverse(threadAddress) < 0)
                 {
                     missingObjects.put(threadAddress, threadObject);
                     listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
@@ -946,7 +952,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                         prevFrameAddress = frameAddress;
                         if (frameAddress != 0)
                         {
-                            if (indexToAddress.reverse(frameAddress) < 0)
+                            if (indexToAddress0.reverse(frameAddress) < 0)
                             {
                                 long methodAddress = getMethodAddress(jm, listener);
                                 if (!allFrames.containsKey(frameAddress))
@@ -1062,7 +1068,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             if (obj != null)
             {
                 long monitorAddress = obj.getID().getAddress();
-                if (indexToAddress.reverse(monitorAddress) < 0)
+                if (indexToAddress0.reverse(monitorAddress) < 0)
                 {
                     missingObjects.put(monitorAddress, obj);
                     listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
@@ -1080,7 +1086,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             {
                 long loaderAddress = obj.getID().getAddress();
                 loaderAddress = fixBootLoaderAddress(bootLoaderAddress, loaderAddress);
-                if (indexToAddress.reverse(loaderAddress) < 0)
+                if (indexToAddress0.reverse(loaderAddress) < 0)
                 {
                     missingObjects.put(loaderAddress, obj);
                     try
@@ -1112,7 +1118,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             }
             else
             {
-                indexToAddress.add(address);
+                indexToAddress0.add(address);
             }
         }
 
@@ -1125,45 +1131,45 @@ public class DTFJIndexBuilder implements IIndexBuilder
         {
             // Dummy address for the native memory and method pseudo-type
             nativeAddr = nextClassAddress;
-            indexToAddress.add(nativeAddr);
+            indexToAddress0.add(nativeAddr);
             nextClassAddress += 8;
             nativeTypeAddr = nextClassAddress;
-            indexToAddress.add(nativeTypeAddr);
+            indexToAddress0.add(nativeTypeAddr);
             nextClassAddress += 8;
             if (getExtraInfo3)
             {
                 stackFrameAddr = nextClassAddress;
-                indexToAddress.add(stackFrameAddr);
+                indexToAddress0.add(stackFrameAddr);
                 nextClassAddress += 8;
             }
             else
             {
                 methodTypeAddr = nextClassAddress;
-                indexToAddress.add(methodTypeAddr);
+                indexToAddress0.add(methodTypeAddr);
                 nextClassAddress += 8;
                 methodAddr = nextClassAddress;
-                indexToAddress.add(methodAddr);
+                indexToAddress0.add(methodAddr);
                 nextClassAddress += 8;
 
                 // Extra objects when dealing with stack frames as objects
                 // Add the methods
                 for (JavaMethod jm : allMethods)
                 {
-                    indexToAddress.add(getMethodAddress(jm, listener));
+                    indexToAddress0.add(getMethodAddress(jm, listener));
                 }
             }
             // Add the frames
             for (long frame : allFrames.keySet())
             {
-                indexToAddress.add(frame);
+                indexToAddress0.add(frame);
             }
             debugPrint("added methods " + allMethods.size() + " frames " + allFrames.size()); //$NON-NLS-1$ //$NON-NLS-2$
         }
 
         // Make the ID to address array ready for reverse lookups
-        if (indexToAddress.size() > 0)
+        if (indexToAddress0.size() > 0)
         {
-            indexToAddress.sort();
+            indexToAddress0.sort();
         }
 
         // Temporary list for classes
@@ -1198,7 +1204,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
              * If the id is null then the object will be too. Double counting is
              * bad.
              */
-            if (indexToAddress.reverse(clsaddr) < 0)
+            if (indexToAddress0.reverse(clsaddr) < 0)
             {
                 // JavaClass == JavaObject, so add the class (which isn't on
                 // the heap) to the list
@@ -1232,7 +1238,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         // Add class ids to object list
         for (int i = 0; i < indexToAddressCls.size(); ++i)
         {
-            indexToAddress.add(indexToAddressCls.get(i));
+            indexToAddress0.add(indexToAddressCls.get(i));
         }
         // Free the class address list for GC
         indexToAddressCls = null;
@@ -1254,10 +1260,21 @@ public class DTFJIndexBuilder implements IIndexBuilder
         }
 
         // Make the ID to address array ready for reverse lookups
-        if (indexToAddress.size() > 0)
+        if (indexToAddress0.size() > 0)
         {
-            indexToAddress.sort();
+            indexToAddress0.sort();
         }
+        if (indexToAddress0.size() > 5000000)
+        {
+            // Write the index to disk and then use the compressed disk version
+            indexToAddress = (new LongIndexStreamer()).writeTo(Index.IDENTIFIER.getFile(pfx + "temp."), indexToAddress0.iterator());
+        }
+        else
+        {
+            // The flat version is bigger but a little quicker
+            indexToAddress = indexToAddress0;
+        }
+        indexToAddress0 = null;
         // Notify the builder about all the identifiers.
         index.setIdentifiers(indexToAddress);
         if (getExtraInfo)
@@ -1495,7 +1512,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
 
         // Keep track of all objects which are referred to. Remaining objects
         // are candidate roots
-        boolean refd[] = new boolean[indexToAddress.size()];
+        BitField refd = new BitField(indexToAddress.size());
 
         // fix up type of class objects
         for (Iterator<ClassImpl> i = idToClass.values(); i.hasNext();)
@@ -1844,14 +1861,14 @@ public class DTFJIndexBuilder implements IIndexBuilder
         {
             int finalizables = 0;
             listener.subTask(Messages.DTFJIndexBuilder_GeneratingExtraRootsFromFinalizables);
-            for (int i = 0; i < refd.length; ++i)
+            for (int i = 0; i < indexToAddress.size(); ++i)
             {
                 int clsId = objectToClass.get(i);
                 long clsAddr = indexToAddress.get(clsId);
                 if (finalizableClass.contains(clsAddr))
                 {
                     long addr = indexToAddress.get(i);
-                    if (!refd[i])
+                    if (!refd.get(i))
                     {
                         if (!gcRoot.containsKey(i))
                         {
@@ -1873,7 +1890,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                             // retained (except isolated cycles),
                             ++finalizables;
                             addRoot(gcRoot, addr, addr, GCRootInfo.Type.FINALIZABLE);
-                            refd[i] = true;
+                            refd.set(i);
                             if (msgNguessFinalizable-- > 0)
                                 listener.sendUserMessage(Severity.INFO, MessageFormat.format(
                                                 Messages.DTFJIndexBuilder_ObjectIsFinalizable, clsInfo, format(addr)),
@@ -1907,9 +1924,9 @@ public class DTFJIndexBuilder implements IIndexBuilder
              */
             index.getSnapshotInfo().setProperty("keep_unreachable_objects", GCRootInfo.Type.UNKNOWN); //$NON-NLS-1$
             int extras = 0;
-            for (int i = 0; i < refd.length; ++i)
+            for (int i = 0; i < indexToAddress.size(); ++i)
             {
-                if (!refd[i])
+                if (!refd.get(i))
                 {
                     long addr = indexToAddress.get(i);
                     if (!gcRoot.containsKey(i))
@@ -1922,7 +1939,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                         // important
                         ++extras;
                         addRoot(gcRoot, addr, addr, GCRootInfo.Type.UNKNOWN);
-                        refd[i] = true;
+                        refd.set(i);
                         debugPrint("extra root " + i + " " + format(addr)); //$NON-NLS-1$ //$NON-NLS-2$
                     }
                 }
@@ -1942,7 +1959,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                             // The loader will be in a cycle with its classes.
                             ++extras;
                             addRoot(gcRoot, addr, addr, GCRootInfo.Type.UNKNOWN);
-                            refd[i] = true;
+                            refd.set(i);
                             debugPrint("extra root " + i + " " + format(addr)); //$NON-NLS-1$ //$NON-NLS-2$
                         }
                     }
@@ -2033,7 +2050,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
      * @param refd record of inbound refs
      * @throws IOException
      */
-    private void addDummyTypeRefs(long methodTypeAddr, boolean[] refd) throws IOException
+    private void addDummyTypeRefs(long methodTypeAddr, BitField refd) throws IOException
     {
         if (methodTypeAddr != 0)
         {
@@ -2799,7 +2816,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
 
         // Always add object; the type can be guessed later and the object might
         // be something important like a thread or class loader
-        indexToAddress.add(objAddress);
+        indexToAddress0.add(objAddress);
         // debugPrint("adding object at "+format(objAddress));
 
         try
@@ -2874,7 +2891,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
      */
     private void processHeapObject(JavaObject jo, long objAddr, int pointerSize,
                     long bootLoaderAddress, HashMap<JavaObject, JavaClassLoader> loaders, ClassImpl jlc,
-                    boolean[] refd, IProgressListener listener)
+                    BitField refd, IProgressListener listener)
                     throws IOException
     {
         objAddr = fixBootLoaderAddress(bootLoaderAddress, objAddr);
@@ -5343,7 +5360,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
      * @param objId source object ID
      * @param ref list of outbound refs
      */
-    private void addRefs(boolean[] refd, int objId, ArrayLong ref)
+    private void addRefs(BitField refd, int objId, ArrayLong ref)
     {
         for (IteratorLong il = ref.iterator(); il.hasNext();)
         {
@@ -5352,7 +5369,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             // debugPrint("object id "+objId+" ref to "+id+" 0x"+format(ad));
             if (id >= 0 && objId != id)
             {
-                refd[id] = true;
+                refd.set(id);
             }
         }
     }
@@ -5811,7 +5828,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
      *            To indicate progress/errors
      * @throws CorruptDataException
      */
-    private void exploreArray(IndexWriter.Identifier m2, long bootLoaderAddress, HashMapIntObject<ClassImpl> hm,
+    private void exploreArray(IIndexReader.IOne2LongIndex m2, long bootLoaderAddress, HashMapIntObject<ClassImpl> hm,
                     JavaObject jo, JavaClass type, ArrayLong aa, int arrayLen, IProgressListener listener)
                     throws CorruptDataException
     {
@@ -6022,7 +6039,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
      *            To indicate progress/errors
      * @throws CorruptDataException
      */
-    private void exploreObject(IndexWriter.Identifier m2, long bootLoaderAddress, HashMapIntObject<ClassImpl> hm,
+    private void exploreObject(IIndexReader.IOne2LongIndex m2, long bootLoaderAddress, HashMapIntObject<ClassImpl> hm,
                     JavaObject jo, JavaClass type, ArrayLong aa, boolean verbose, IProgressListener listener)
     {
         String typeName = getClassName(type, listener);
