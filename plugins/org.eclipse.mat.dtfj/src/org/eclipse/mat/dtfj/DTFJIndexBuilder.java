@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009,2011 IBM Corporation.
+ * Copyright (c) 2009,2012 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,6 +32,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -48,16 +49,22 @@ import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayLong;
 import org.eclipse.mat.collect.BitField;
+import org.eclipse.mat.collect.HashMapIntLong;
 import org.eclipse.mat.collect.HashMapIntObject;
+import org.eclipse.mat.collect.HashMapLongObject;
 import org.eclipse.mat.collect.IteratorInt;
 import org.eclipse.mat.collect.IteratorLong;
+import org.eclipse.mat.collect.SetInt;
+import org.eclipse.mat.collect.SetLong;
 import org.eclipse.mat.parser.IIndexBuilder;
 import org.eclipse.mat.parser.IPreliminaryIndex;
 import org.eclipse.mat.parser.index.IIndexReader;
 import org.eclipse.mat.parser.index.IIndexReader.IOne2ManyIndex;
 import org.eclipse.mat.parser.index.IIndexReader.IOne2SizeIndex;
 import org.eclipse.mat.parser.index.IndexManager.Index;
+import org.eclipse.mat.parser.index.IndexReader.SizeIndexReader;
 import org.eclipse.mat.parser.index.IndexWriter;
+import org.eclipse.mat.parser.index.IndexWriter.IntIndexStreamer;
 import org.eclipse.mat.parser.index.IndexWriter.LongIndexStreamer;
 import org.eclipse.mat.parser.index.IndexWriter.SizeIndexCollectorUncompressed;
 import org.eclipse.mat.parser.model.ClassImpl;
@@ -209,6 +216,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
     /** print out extra information to the console */
     private static final boolean verbose = InitDTFJ.getDefault().isDebugging()
                     && getDebugOption("org.eclipse.mat.dtfj/debug/verbose", false); //$NON-NLS-1$
+    /** How many objects before it is worth saving the index to disk */
+    private static final int INDEX_COUNT_FOR_TEMPFILE = 5000000;
 
     /** The actual dump file */
     private File dump;
@@ -233,16 +242,19 @@ public class DTFJIndexBuilder implements IIndexBuilder
 
     /** The outbound references index */
     private IndexWriter.IntArray1NWriter outRefs;
-    /** The temp object id to size index, for arrays and variable sized objects - used to build arrayToSize */
-    private SizeIndexCollectorUncompressed indexToSize;
+    /** The tempoerary object id to size index, for arrays and variable sized objects - used to build arrayToSize.
+     * Could instead be a {@link SizeIndexCollectorUncompressed} but that is bigger. */
+    private ObjectToSize indexToSize;
     /** The array size in bytes index */
     private IOne2SizeIndex arrayToSize;
     /** The object/class id number to address index for accumulation of ids */
     private IndexWriter.Identifier indexToAddress0;
     /** The object/class id number to address index once all ids are found */
     private IIndexReader.IOne2LongIndex indexToAddress;
-    /** The object id to class id index */
+    /** The object id to class id index for accumulation and lookup */
     private IndexWriter.IntIndexCollector objectToClass;
+    /** The object id to class id index once mapping is done */
+    private IIndexReader.IOne2OneIndex objectToClass1;
     /** The class id to MAT class information index */
     private HashMapIntObject<ClassImpl> idToClass;
     /** The map of object ids to lists of associated GC roots for that object id */
@@ -267,7 +279,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
      * Used to remember method addresses in case two different methods attempt
      * to use the same address
      */
-    private HashMap<Long, JavaMethod> methodAddresses = new HashMap<Long, JavaMethod>();
+    private HashMapLongObject<JavaMethod> methodAddresses = new HashMapLongObject<JavaMethod>();
     /** The next address to use for a class without an address */
     private long nextClassAddress = 0x1000000080000000L;
 
@@ -277,7 +289,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
      * Just used to check efficiency of pseudo roots - holds alternative set of
      * roots.
      */
-    private HashMap<Integer, String> missedRoots;
+    private HashMapIntObject<String> missedRoots;
     /**
      * Used to see how much memory has been freed by the initial garbage
      * collection
@@ -370,10 +382,10 @@ public class DTFJIndexBuilder implements IIndexBuilder
             return null;
         }
 
-		public long getInstanceSize() throws DataUnavailable,
-				CorruptDataException {
-			throw new DataUnavailable();
-		}
+        public long getInstanceSize() throws DataUnavailable, CorruptDataException
+        {
+            throw new DataUnavailable();
+        }
     }
 
     /**
@@ -385,7 +397,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         /** For small objects */
         private byte objectToSize[];
         /** For large objects */
-        private HashMap<Integer, Long> bigObjs = new HashMap<Integer, Long>();
+        private HashMapIntLong bigObjs = new HashMapIntLong();
         private static final int SHIFT = 3;
         private static final int MASK = 0xff;
 
@@ -396,10 +408,20 @@ public class DTFJIndexBuilder implements IIndexBuilder
 
         long get(int index)
         {
-            Long size = bigObjs.get(index);
-            if (size != null)
+            if (bigObjs.containsKey(index))
+            {
+                long size = bigObjs.get(index);
                 return size;
-            return (objectToSize[index] & MASK) << SHIFT;
+            }
+            else
+            {
+                return (objectToSize[index] & MASK) << SHIFT;
+            }
+        }
+
+        long getSize(int index)
+        {
+            return get(index);
         }
 
         /**
@@ -422,9 +444,243 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 bigObjs.put(index, size);
             }
         }
+
+        public IIndexReader.IOne2SizeIndex writeTo(File indexFile) throws IOException
+        {
+            final int size = objectToSize.length;
+            return new SizeIndexReader(new IntIndexStreamer().writeTo(indexFile, new IteratorInt()
+            {
+                int i;
+
+                public boolean hasNext()
+                {
+                    return i < size;
+                }
+
+                public int next()
+                {
+                    if (!hasNext())
+                        throw new NoSuchElementException();
+                    return SizeIndexCollectorUncompressed.compress(getSize(i++));
+                }
+
+            }));
+        }
     }
 
     private ObjectToSize objectToSize;
+
+    /**
+     * Same as HashMapLongObject except that the first
+     * item put will be the first returned.
+     * Relies on key 0 being returned first from {@link HashMapLongObject} and {@link SetLong}.
+     */
+    private static abstract class RefStore<E>
+    {
+        long first;
+        public abstract E put(long key, E value);
+        public abstract int size();
+        public abstract Iterator<HashMapLongObject.Entry<E>> entries();
+        public abstract long[] getAllKeys();
+        public abstract boolean containsKey(long k);
+        public abstract IteratorLong keys();
+    }
+
+    private static class RefMap<E> extends RefStore<E>
+    {
+        final HashMapLongObject<E> map;
+        /**
+         * Create a map
+         */
+        public RefMap()
+        {
+            map = new HashMapLongObject<E>();
+        }
+
+        public E put(long key, E value)
+        {
+            if (size() == 0)
+                first = key;
+            return map.put(key ^ first, value);
+        }
+
+        public int size()
+        {
+            return map.size();
+        }
+
+        public Iterator<HashMapLongObject.Entry<E>> entries()
+        {
+            final Iterator<HashMapLongObject.Entry<E>> it = map.entries();
+            return new Iterator<HashMapLongObject.Entry<E>>() {
+
+                public boolean hasNext()
+                {
+                    return it.hasNext();
+                }
+
+                public HashMapLongObject.Entry<E> next()
+                {
+                    final HashMapLongObject.Entry<E> e = it.next();
+                    return new HashMapLongObject.Entry<E>()
+                    {
+
+                        public long getKey()
+                        {
+                            return e.getKey() ^ first;
+                        }
+
+                        public E getValue()
+                        {
+                            return e.getValue();
+                        }
+
+                    };
+                }
+
+                public void remove()
+                {
+                    it.remove();
+                }
+
+            };
+        }
+
+        public long[] getAllKeys()
+        {
+            long ret[] = map.getAllKeys();
+            for (int i = 0; i < ret.length; ++i)
+            {
+                ret[i] ^= first;
+            }
+            return ret;
+        }
+
+        public boolean containsKey(long k)
+        {
+            return map.containsKey(k ^ first);
+        }
+
+        public IteratorLong keys()
+        {
+            final IteratorLong it = map.keys();
+            return new IteratorLong()
+            {
+
+                public boolean hasNext()
+                {
+                    return it.hasNext();
+                }
+
+                public long next()
+                {
+                    return it.next() ^ first;
+                }
+
+            };
+        }
+    }
+
+    private static class RefSet<E> extends RefStore<E>
+    {
+        final SetLong set;
+        /**
+         * Create a map which just stores keys, not values
+         */
+        public RefSet()
+        {
+            set = new SetLong();
+        }
+
+        /**
+         * Note: returns null if no value already set, or
+         * the supplied value if an existing value is set,
+         * but not the previous value.
+         */
+        public E put(long key, E value)
+        {
+            if (size() == 0)
+                first = key;
+            return set.add(key ^ first) ? null : value;
+        }
+
+        public int size()
+        {
+            return set.size();
+        }
+
+        public Iterator<HashMapLongObject.Entry<E>> entries()
+        {
+            final IteratorLong it = set.iterator();
+            return new Iterator<HashMapLongObject.Entry<E>>()
+            {
+
+                public boolean hasNext()
+                {
+                    return it.hasNext();
+                }
+
+                public HashMapLongObject.Entry<E> next()
+                {
+                    final long e = it.next();
+                    return new HashMapLongObject.Entry<E>()
+                    {
+
+                        public long getKey()
+                        {
+                            return e ^ first;
+                        }
+
+                        public E getValue()
+                        {
+                            throw new UnsupportedOperationException();
+                        }
+
+                    };
+                }
+
+                public void remove()
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+            };
+        }
+
+        public long[] getAllKeys()
+        {
+            long ret[] = set.toArray();
+            for (int i = 0; i < ret.length; ++i)
+            {
+                ret[i] ^= first;
+            }
+            return ret;
+        }
+
+        public boolean containsKey(long k)
+        {
+            return set.contains(k ^ first);
+        }
+
+        public IteratorLong keys()
+        {
+            final IteratorLong it = set.iterator();
+            return new IteratorLong()
+            {
+
+                public boolean hasNext()
+                {
+                    return it.hasNext();
+                }
+
+                public long next()
+                {
+                    return it.next() ^ first;
+                }
+
+            };
+        }
+    }
 
     /* Message counts to reduce duplicated messages */
     private int msgNgetRefsMissing = errorCount;
@@ -476,15 +732,36 @@ public class DTFJIndexBuilder implements IIndexBuilder
             try
             {
                 arrayToSize.close();
-                arrayToSize.delete();
             }
             catch (IOException e)
             {}
+            arrayToSize.delete();
             arrayToSize = null;
         }
         indexToAddress0 = null;
-        indexToAddress = null;
+        if (indexToAddress != null)
+        {
+            try
+            {
+                indexToAddress.close();
+            }
+            catch (IOException e)
+            {}
+            indexToAddress.delete();
+            indexToAddress = null;
+        }
         objectToClass = null;
+        if (objectToClass1 != null)
+        {
+            try
+            {
+                objectToClass1.close();
+            }
+            catch (IOException e)
+            {}
+            objectToClass1.delete();
+            objectToClass1 = null;
+        }
         idToClass = null;
         if (objectToClass2 != null)
         {
@@ -530,7 +807,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 ++count;
                 if (objectToSize != null)
                 {
-                    long objSize = objectToSize.get(i);
+                    long objSize = objectToSize.getSize(i);
                     memFree += objSize;
                     if (verbose)
                     {
@@ -900,7 +1177,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
 
         // See if thread, monitor and class loader objects are present in heap
         // core-sample-dmgr.dmp.zip
-        HashMap<Long, JavaObject> missingObjects = new HashMap<Long, JavaObject>();
+        HashMapLongObject<JavaObject> missingObjects = new HashMapLongObject<JavaObject>();
         listener.worked(1);
         workCountSoFar += 1;
         listener.subTask(Messages.DTFJIndexBuilder_FindingThreadObjectsMissingFromHeap);
@@ -1108,8 +1385,9 @@ public class DTFJIndexBuilder implements IIndexBuilder
         listener.worked(1);
         workCountSoFar += 1;
         listener.subTask(Messages.DTFJIndexBuilder_AddingMissingObjects);
-        for (Map.Entry<Long, JavaObject> entry : missingObjects.entrySet())
+        for (Iterator<HashMapLongObject.Entry<JavaObject>> it = missingObjects.entries(); it.hasNext(); )
         {
+            HashMapLongObject.Entry<JavaObject> entry = it.next();
             JavaObject obj = entry.getValue();
             long address = entry.getKey();
             if (obj != null)
@@ -1264,7 +1542,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         {
             indexToAddress0.sort();
         }
-        if (indexToAddress0.size() > 5000000)
+        if (indexToAddress0.size() >= INDEX_COUNT_FOR_TEMPFILE)
         {
             // Write the index to disk and then use the compressed disk version
             indexToAddress = (new LongIndexStreamer()).writeTo(Index.IDENTIFIER.getFile(pfx + "temp."), indexToAddress0.iterator());
@@ -1489,10 +1767,10 @@ public class DTFJIndexBuilder implements IIndexBuilder
         index.setClassesById(idToClass);
 
         // See which classes would have finalizable objects
-        HashSet<Long> finalizableClass;
+        SetLong finalizableClass;
         if (guessFinalizables)
         {
-            finalizableClass = new HashSet<Long>();
+            finalizableClass = new SetLong();
             for (JavaClass cls : allClasses)
             {
                 long addr = isFinalizable(cls, listener);
@@ -1535,70 +1813,18 @@ public class DTFJIndexBuilder implements IIndexBuilder
         // cache friendly.
         for (JavaClass j2 : allClasses)
         {
-            String clsName = null;
-            long claddr = getClassAddress(j2, listener);
-            int objId = indexToAddress.reverse(claddr);
             if (++objProgress % workObjectsStep2 == 0)
             {
                 listener.worked(work2);
                 workCountSoFar += work2;
                 if (listener.isCanceled()) { throw new IProgressListener.OperationCanceledException(); }
             }
-            ClassImpl ci = idToClass.get(objId);
-            if (debugInfo)
-                debugPrint("Class " + getClassName(j2, listener) + " " + format(claddr) + " " + objId + " " + ci); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-            if (ci == null)
-            {
-                // Perhaps the class was corrupt and never built
+            long claddr = getClassAddress(j2, listener);
+            int objId = indexToAddress.reverse(claddr);
+            // Accumulate the outbound refs
+            ArrayLong ref = exploreClass(indexToAddress, fixedBootLoaderAddress, idToClass, j2, listener);
+            if (ref == null)
                 continue;
-            }
-            int clsId = ci.getClassId();
-            clsName = ci.getName();
-            debugPrint("found class object " + objId + " type " + clsName + " at " + format(ci.getObjectAddress()) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                            + " clsId " + clsId); //$NON-NLS-1$
-            ArrayLong ref = ci.getReferences();
-            // Constant pool references have already been set up as pseudo
-            // fields
-            if (false)
-                for (Iterator<?> i2 = j2.getConstantPoolReferences(); i2.hasNext();)
-                {
-                    Object next = i2.next();
-                    if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingConstantPool, j2))
-                        continue;
-                    if (next instanceof JavaObject)
-                    {
-                        JavaObject jo = (JavaObject) next;
-                        long address = jo.getID().getAddress();
-                        ref.add(address);
-                    }
-                    else if (next instanceof JavaClass)
-                    {
-                        JavaClass jc = (JavaClass) next;
-                        long address = getClassAddress(jc, listener);
-                        ref.add(address);
-                    }
-                }
-            // Superclass address are now added by getReferences()
-            // long supAddr = ci.getSuperClassAddress();
-            // if (supAddr != 0) ref.add(ci.getSuperClassAddress());
-            if (getExtraInfo && getExtraInfo2)
-            {
-                // Add references to methods
-                for (Iterator<?> i = j2.getDeclaredMethods(); i.hasNext();)
-                {
-                    Object next = i.next();
-                    if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingDeclaredMethods, j2))
-                        continue;
-                    JavaMethod jm = (JavaMethod) next;
-                    ref.add(getMethodAddress(jm, listener));
-                }
-            }
-            for (IteratorLong il = ref.iterator(); il.hasNext();)
-            {
-                long ad = il.next();
-                if (false)
-                    debugPrint("ref to " + indexToAddress.reverse(ad) + " " + format(ad) + " for " + objId); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-            }
             try
             {
                 checkRefs(j2, Messages.DTFJIndexBuilder_CheckRefsClass, ref, jlc.getObjectAddress(), bootLoaderAddress,
@@ -1606,6 +1832,10 @@ public class DTFJIndexBuilder implements IIndexBuilder
             }
             catch (CorruptDataException e)
             {
+                String clsName = null;
+                ClassImpl ci = idToClass.get(objId);
+                if (ci != null)
+                    clsName = ci.getName();
                 if (clsName == null)
                     clsName = j2.toString();
                 listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
@@ -1654,7 +1884,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         workCountSoFar += 1;
         listener.subTask(Messages.DTFJIndexBuilder_FindingRoots);
 
-        indexToSize = new IndexWriter.SizeIndexCollectorUncompressed(indexToAddress.size());
+        indexToSize = new ObjectToSize(indexToAddress.size());
 
         // Java 1.4.2 has bootLoader as null and the address of the Java stack
         // frame at the lower memory address
@@ -1663,8 +1893,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
         boolean goodDTFJRoots = processDTFJRoots(pointerSize, scanUp, listener);
 
         // Used to keep track of what extra stuff DTFJ gives
-        HashSet<Integer> prevRoots = rootSet();
-        HashSet<Integer> newRoots;
+        SetInt prevRoots = rootSet();
+        SetInt newRoots;
 
         if (!goodDTFJRoots)
         {
@@ -1692,22 +1922,26 @@ public class DTFJIndexBuilder implements IIndexBuilder
             newRoots = prevRoots;
         }
 
-        HashSet<Integer> newRoots2 = newRoots;
-
         // Debug - find the roots which DTFJ missed
-        newRoots.removeAll(prevRoots);
-        for (int i : newRoots)
+        for (IteratorInt it = newRoots.iterator(); it.hasNext(); )
         {
-            debugPrint("DTFJ Roots missed object id " + i + " " + format(indexToAddress.get(i)) + " " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            int i = it.next();
+            if (!prevRoots.contains(i))
+            {
+                debugPrint("DTFJ Roots missed object id " + i + " " + format(indexToAddress.get(i)) + " " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                             + missedRoots.get(i));
+            }
         }
 
         // Debug - find the roots which only DTFJ found
-        prevRoots.removeAll(newRoots2);
-        for (int i : prevRoots)
+        for (IteratorInt it = prevRoots.iterator(); it.hasNext(); )
         {
-            debugPrint("DTFJ Roots has extra object id " + i + " " + format(indexToAddress.get(i)) + " " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                            + missedRoots.get(i));
+            int i = it.next();
+            if (!newRoots.contains(i))
+            {
+                debugPrint("DTFJ Roots has extra object id " + i + " " + format(indexToAddress.get(i)) + " " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                                + missedRoots.get(i));
+            }
         }
 
         // Mark everything - for debug
@@ -1755,8 +1989,9 @@ public class DTFJIndexBuilder implements IIndexBuilder
             }
         }
         // Objects not on the heap
-        for (Map.Entry<Long, JavaObject> entry : missingObjects.entrySet())
+        for (Iterator<HashMapLongObject.Entry<JavaObject>> it = missingObjects.entries(); it.hasNext(); )
         {
+            HashMapLongObject.Entry<JavaObject> entry = it.next();
             long objAddr = entry.getKey();
             JavaObject jo = entry.getValue();
             processHeapObject(jo, objAddr, pointerSize, bootLoaderAddress, loaders, jlc, refd, listener);
@@ -1842,8 +2077,6 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 outRefs.log(indexToAddress, objId, aa);
             }
         }
-
-        index.setObject2classId(objectToClass);
 
         arrayToSize = indexToSize.writeTo(Index.A2SIZE.getFile(pfx + "temp.")); //$NON-NLS-1$
         indexToSize = null;
@@ -1985,11 +2218,22 @@ public class DTFJIndexBuilder implements IIndexBuilder
             debugPrint(msg);
         }
 
+        if (indexToAddress0.size() >= INDEX_COUNT_FOR_TEMPFILE)
+        {
+            objectToClass1 = objectToClass.writeTo(Index.O2CLASS.getFile(pfx + "temp."));
+        }
+        else
+        {
+            objectToClass1 = objectToClass;
+        }
+        objectToClass = null;
+        index.setObject2classId(objectToClass1);
+
         if (verbose)
         {
             // For identifying purged objects
             idToClass2 = copy(idToClass);
-            objectToClass2 = copy(objectToClass, IndexWriter.mostSignificantBit(maxClsId));
+            objectToClass2 = copy(objectToClass1, IndexWriter.mostSignificantBit(maxClsId));
         }
 
         // If a message count goes below zero then a message has not been
@@ -2438,7 +2682,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             goodDTFJRoots = true;
 
             // For debug
-            missedRoots = new HashMap<Integer, String>();
+            missedRoots = new HashMapIntObject<String>();
 
             // See if the heap roots support is even in DTFJ
             Iterator<?> it;
@@ -2715,11 +2959,11 @@ public class DTFJIndexBuilder implements IIndexBuilder
         return size;
     }
 
-    private HashMap<Integer, String> addMissedRoots(HashMap<Integer, String> roots)
+    private HashMapIntObject<String> addMissedRoots(HashMapIntObject<String> roots)
     {
         // Create information about roots we are not using
         if (roots == null)
-            roots = new HashMap<Integer, String>();
+            roots = new HashMapIntObject<String>();
         for (IteratorInt ii = gcRoot.keys(); ii.hasNext();)
         {
             int i = ii.next();
@@ -2742,9 +2986,9 @@ public class DTFJIndexBuilder implements IIndexBuilder
         return roots;
     }
 
-    private HashSet<Integer> rootSet()
+    private SetInt rootSet()
     {
-        HashSet<Integer> prevRoots = new HashSet<Integer>();
+        SetInt prevRoots = new SetInt();
 
         if (gcRoot != null)
         {
@@ -4076,7 +4320,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
     /**
      * @param objectToClass2
      */
-    private IndexWriter.IntIndexCollector copy(IndexWriter.IntIndexCollector objectToClass1, int bits)
+    private IndexWriter.IntIndexCollector copy(IIndexReader.IOne2OneIndex objectToClass1, int bits)
     {
         IndexWriter.IntIndexCollector objectToClass2 = new IndexWriter.IntIndexCollector(objectToClass1.size(), bits);
         for (int i = 0; i < objectToClass1.size(); ++i)
@@ -4873,8 +5117,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
     }
 
     /**
-     * Gets all the outbound references from an object via DTFJ Compares them to
-     * the supplied refs Optionally replaces them
+     * Gets all the outbound references from an object via DTFJ, compares them to
+     * the supplied refs,  optionally replaces them.
      * 
      * @param type
      * @param desc
@@ -4894,7 +5138,11 @@ public class DTFJIndexBuilder implements IIndexBuilder
         if (!haveDTFJRefs)
             return;
 
-        HashMap<Long, String> objset = new LinkedHashMap<Long, String>();
+        // Performance optimization - don't find references two ways
+        if (!useDTFJRefs && !debugInfo)
+            return;
+
+        RefStore<String> objset = debugInfo ? new RefMap<String>() : new RefSet<String>();
 
         Iterator<?> i2;
         boolean hasDTFJRefs = false;
@@ -5084,13 +5332,12 @@ public class DTFJIndexBuilder implements IIndexBuilder
             // }
 
             // Test for missing references from getReferences()
-            HashSet<Long> inBoth = new HashSet<Long>();
+            SetLong inBoth = new SetLong();
             boolean missingRefs = false;
             for (IteratorLong il = aa.iterator(); il.hasNext();)
             {
                 long l = il.next();
-                Long v = Long.valueOf(l);
-                if (!objset.containsKey(v))
+                if (!objset.containsKey(l))
                 {
                     missingRefs = true;
                     int newObjId = indexToAddress.reverse(l);
@@ -5102,21 +5349,23 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 }
                 else
                 {
-                    inBoth.add(v);
+                    inBoth.add(l);
                 }
             }
             if (false && missingRefs)
             {
                 debugPrint("All DTFJ references from " + desc + " " + name); //$NON-NLS-1$ //$NON-NLS-2$
-                for (Long l : objset.keySet())
+                for (Iterator<HashMapLongObject.Entry<String>> it = objset.entries(); it.hasNext(); )
                 {
-                    debugPrint(format(l) + " " + objset.get(l)); //$NON-NLS-1$
+                    HashMapLongObject.Entry<String> ee = it.next();
+                    debugPrint(format(ee.getKey()) + " " + ee.getValue()); //$NON-NLS-1$
                 }
             }
 
             // Test for extra references from getReferences()
-            for (Map.Entry<Long, String> ee : objset.entrySet())
+            for (Iterator<HashMapLongObject.Entry<String>> it = objset.entries(); it.hasNext(); )
             {
+                HashMapLongObject.Entry<String> ee = it.next();
                 Long l = ee.getKey();
                 if (!inBoth.contains(l))
                 {
@@ -5131,23 +5380,6 @@ public class DTFJIndexBuilder implements IIndexBuilder
             }
         }
 
-        for (Iterator<Long> it = objset.keySet().iterator(); it.hasNext(); )
-        {
-            Long l = it.next();
-            int newObjId = indexToAddress.reverse(l);
-            // Remove unknown references
-            if (newObjId < 0) {
-                it.remove();
-            }
-        }
-
-        long a2[] = new long[objset.size()];
-        int i = 0;
-        for (long l : objset.keySet())
-        {
-            a2[i++] = l;
-        }
-
         if (false && aa.size() > 200)
         {
             debugPrint("aa1 " + aa.size()); //$NON-NLS-1$
@@ -5158,7 +5390,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         }
         if (useDTFJRefs)
         {
-            if (a2.length == 0 || !hasDTFJRefs)
+            if (objset.size() == 0 || !hasDTFJRefs)
             {
                 // Sov has problems with objects of type [B, [C etc.
                 if (!aa.isEmpty() && msgNgetRefsAllMissing-- > 0)
@@ -5169,7 +5401,11 @@ public class DTFJIndexBuilder implements IIndexBuilder
             else
             {
                 aa.clear();
-                aa.addAll(a2);
+                for (IteratorLong it = objset.keys(); it.hasNext(); )
+                {
+                    // Don't bother removing the addresses which can't be converted to an index
+                    aa.add(it.next());
+                }
             }
         }
         if (false && aa.size() > 200)
@@ -5248,7 +5484,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
      *            For displaying messages
      * @throws CorruptDataException
      */
-    private void collectRefs(Iterator<?> i2, HashMap<Long, String> objset, String desc, String name, long objAddr,
+    private void collectRefs(Iterator<?> i2, RefStore<String> objset, String desc, String name, long objAddr,
                     IProgressListener listener)
     {
         // Check the refs
@@ -5309,7 +5545,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 if (!(addr == objAddr && (jr.getReferenceType() == JavaReference.REFERENCE_CLASS_OBJECT || jr
                                 .getReferenceType() == JavaReference.REFERENCE_ASSOCIATED_CLASS)))
                 {
-                    objset.put(Long.valueOf(addr), jr.getDescription());
+                    objset.put(addr, jr.getDescription());
                 }
             }
             catch (DataUnavailable e)
@@ -5816,6 +6052,70 @@ public class DTFJIndexBuilder implements IIndexBuilder
         return 0L;
     }
 
+    private ArrayLong exploreClass(IIndexReader.IOne2LongIndex m2, long bootLoaderAddress, HashMapIntObject<ClassImpl> hm,
+                    JavaClass j2, IProgressListener listener)
+    {
+        String clsName = null;
+        long claddr = getClassAddress(j2, listener);
+        int objId = m2.reverse(claddr);
+        ClassImpl ci = hm.get(objId);
+        if (debugInfo)
+            debugPrint("Class " + getClassName(j2, listener) + " " + format(claddr) + " " + objId + " " + ci); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+        if (ci == null)
+        {
+            // Perhaps the class was corrupt and never built
+            return null;
+        }
+        int clsId = ci.getClassId();
+        clsName = ci.getName();
+        debugPrint("found class object " + objId + " type " + clsName + " at " + format(ci.getObjectAddress()) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                        + " clsId " + clsId); //$NON-NLS-1$
+        ArrayLong ref = ci.getReferences();
+        // Constant pool references have already been set up as pseudo
+        // fields
+        if (false)
+            for (Iterator<?> i2 = j2.getConstantPoolReferences(); i2.hasNext();)
+            {
+                Object next = i2.next();
+                if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingConstantPool, j2))
+                    continue;
+                if (next instanceof JavaObject)
+                {
+                    JavaObject jo = (JavaObject) next;
+                    long address = jo.getID().getAddress();
+                    ref.add(address);
+                }
+                else if (next instanceof JavaClass)
+                {
+                    JavaClass jc = (JavaClass) next;
+                    long address = getClassAddress(jc, listener);
+                    ref.add(address);
+                }
+            }
+        // Superclass address are now added by getReferences()
+        // long supAddr = ci.getSuperClassAddress();
+        // if (supAddr != 0) ref.add(ci.getSuperClassAddress());
+        if (getExtraInfo && getExtraInfo2)
+        {
+            // Add references to methods
+            for (Iterator<?> i = j2.getDeclaredMethods(); i.hasNext();)
+            {
+                Object next = i.next();
+                if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingDeclaredMethods, j2))
+                    continue;
+                JavaMethod jm = (JavaMethod) next;
+                ref.add(getMethodAddress(jm, listener));
+            }
+        }
+        for (IteratorLong il = ref.iterator(); il.hasNext();)
+        {
+            long ad = il.next();
+            if (false)
+                debugPrint("ref to " + m2.reverse(ad) + " " + format(ad) + " for " + objId); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        }
+        return ref;
+    }
+
     /**
      * @param m2
      * @param bootLoaderAddress
@@ -5832,6 +6132,9 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     JavaObject jo, JavaClass type, ArrayLong aa, int arrayLen, IProgressListener listener)
                     throws CorruptDataException
     {
+        // Performance optimization - don't find references two ways
+        if (useDTFJRefs && !debugInfo)
+            return;
         boolean primitive = isPrimitiveArray(type);
         if (!primitive)
         {
@@ -6042,6 +6345,9 @@ public class DTFJIndexBuilder implements IIndexBuilder
     private void exploreObject(IIndexReader.IOne2LongIndex m2, long bootLoaderAddress, HashMapIntObject<ClassImpl> hm,
                     JavaObject jo, JavaClass type, ArrayLong aa, boolean verbose, IProgressListener listener)
     {
+        // Performance optimization - don't find references two ways
+        if (useDTFJRefs && !debugInfo)
+            return;
         String typeName = getClassName(type, listener);
         if (verbose)
         {
