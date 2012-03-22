@@ -2218,7 +2218,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             debugPrint(msg);
         }
 
-        if (indexToAddress0.size() >= INDEX_COUNT_FOR_TEMPFILE)
+        if (objectToClass.size() >= INDEX_COUNT_FOR_TEMPFILE)
         {
             objectToClass1 = objectToClass.writeTo(Index.O2CLASS.getFile(pfx + "temp."));
         }
