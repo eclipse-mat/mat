@@ -2198,6 +2198,30 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     }
                 }
             }
+            // If there are millions of roots then the lists can take a lot of room, so trim them.
+            for (Iterator<HashMapIntObject.Entry<List<XGCRootInfo>>> it = gcRoot.entries(); it.hasNext(); )
+            {
+                HashMapIntObject.Entry<List<XGCRootInfo>> e = it.next();
+                List<XGCRootInfo> l = e.getValue();
+                switch (l.size())
+                {
+                    // The list should always have something in it
+                    case 1:
+                        l = Collections.<XGCRootInfo>singletonList(l.get(0));
+                        break;
+                    default:
+                        if (l instanceof ArrayList)
+                        {
+                            ((ArrayList<XGCRootInfo>)l).trimToSize();
+                        }
+                        else
+                        {
+                            l = new ArrayList<XGCRootInfo>(l);
+                        }
+                        break;
+                }
+                gcRoot.put(e.getKey(), l);
+            }
             listener.sendUserMessage(Severity.INFO, MessageFormat.format(
                             Messages.DTFJIndexBuilder_UnreferenceObjectsMarkedAsRoots, extras), null);
         }
@@ -6506,7 +6530,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         List<XGCRootInfo> rootsForID = gc.get(objectId);
         if (rootsForID == null)
         {
-            rootsForID = new ArrayList<XGCRootInfo>();
+            rootsForID = new ArrayList<XGCRootInfo>(1);
             gc.put(objectId, rootsForID);
         }
         rootsForID.add(rri);
