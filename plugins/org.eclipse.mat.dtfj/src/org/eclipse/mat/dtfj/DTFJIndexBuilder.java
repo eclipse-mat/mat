@@ -1542,7 +1542,12 @@ public class DTFJIndexBuilder implements IIndexBuilder
         {
             indexToAddress0.sort();
         }
-        if (indexToAddress0.size() >= INDEX_COUNT_FOR_TEMPFILE)
+        Runtime runtime = Runtime.getRuntime();
+        long maxFree = runtime.maxMemory() - runtime.totalMemory() + runtime.freeMemory();
+        // If we do not have lots of free space then use a temporary file.
+        // The constant 16 is an experimentally determined value.
+        long indexCountForTempFile = Math.max(INDEX_COUNT_FOR_TEMPFILE, maxFree / 16);
+        if (indexToAddress0.size() >= indexCountForTempFile)
         {
             // Write the index to disk and then use the compressed disk version
             indexToAddress = (new LongIndexStreamer()).writeTo(Index.IDENTIFIER.getFile(pfx + "temp."), indexToAddress0.iterator());
@@ -2242,7 +2247,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             debugPrint(msg);
         }
 
-        if (objectToClass.size() >= INDEX_COUNT_FOR_TEMPFILE)
+        if (objectToClass.size() >= indexCountForTempFile)
         {
             objectToClass1 = objectToClass.writeTo(Index.O2CLASS.getFile(pfx + "temp."));
         }
