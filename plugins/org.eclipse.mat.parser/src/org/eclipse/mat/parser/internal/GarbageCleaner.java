@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +38,7 @@ import org.eclipse.mat.snapshot.UnreachableObjectsHistogram;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
+import org.eclipse.mat.util.IProgressListener.Severity;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.SilentProgressListener;
 
@@ -69,9 +71,9 @@ import org.eclipse.mat.util.SilentProgressListener;
              * START - marking objects use ObjectMarker to mark the reachable
              * objects if more than 1 CPUs are available - use multithreading
              */
-            int numProcessors = Runtime.getRuntime().availableProcessors();
             ObjectMarker marker = new ObjectMarker(newRoots, reachable, preOutbound, new SilentProgressListener(
                             listener));
+            int numProcessors = Runtime.getRuntime().availableProcessors();
             if (numProcessors > 1)
             {
                 try
@@ -136,7 +138,7 @@ import org.eclipse.mat.util.SilentProgressListener;
             List<ClassImpl> classes2remove = new ArrayList<ClassImpl>();
 
             final IOne2SizeIndex preA2size = idx.array2size;
-
+            long memFree = 0;
             for (int ii = 0, jj = 0; ii < oldNoOfObjects; ii++)
             {
                 if (reachable[ii])
@@ -155,6 +157,7 @@ import org.eclipse.mat.util.SilentProgressListener;
                     if (arraySize > 0)
                     {
                         clazz.removeInstance(arraySize);
+                        memFree += arraySize;
                     }
                     else
                     {
@@ -166,14 +169,22 @@ import org.eclipse.mat.util.SilentProgressListener;
                         if (c == null)
                         {
                             clazz.removeInstance(clazz.getHeapSizePerInstance());
+                            memFree += clazz.getHeapSizePerInstance();
                         }
                         else
                         {
                             clazz.removeInstance(c.getUsedHeapSize());
+                            memFree += c.getUsedHeapSize();
                             classes2remove.add(c);
                         }
                     }
                 }
+            }
+            if (newNoOfObjects < oldNoOfObjects)
+            {
+                listener.sendUserMessage(Severity.INFO, MessageUtil.format(
+                                Messages.GarbageCleaner_RemovedUnreachableObjects, oldNoOfObjects
+                                                - newNoOfObjects, memFree), null);
             }
 
             // classes cannot be removed right away
@@ -610,15 +621,38 @@ import org.eclipse.mat.util.SilentProgressListener;
                 XGCRootInfo xgc = new XGCRootInfo(identifiers.get(ii), 0, extraRootType);
                 xgc.setObjectId(ii);
 
-                ArrayList<XGCRootInfo> xgcs = new ArrayList<XGCRootInfo>(1);
-                xgcs.add(xgc);
+                List<XGCRootInfo> xgcs = Collections.singletonList(xgc);
                 idx.gcRoots.put(ii, xgcs);
             }
         }
         // See what else is now reachable
         ObjectMarker marker2 = new ObjectMarker(unref.toArray(), reachable, preOutbound, new SilentProgressListener(listener));
-        int marked2 = marker2.markSingleThreaded();
-        noReachableObjects += marked2;
+        int numProcessors = Runtime.getRuntime().availableProcessors();
+        if (numProcessors > 1 && unref.size() > 1)
+        {
+            try
+            {
+                marker2.markMultiThreaded(numProcessors);
+            }
+            catch (InterruptedException e)
+            {
+                OperationCanceledException oc = new IProgressListener.OperationCanceledException();
+                oc.initCause(e);
+                throw oc;
+            }
+
+            // find the number of new objects. It's not returned by marker
+            int newNoOfObjects = 0;
+            for (boolean b : reachable)
+                if (b)
+                    newNoOfObjects++;
+            noReachableObjects = newNoOfObjects;
+        }
+        else
+        {
+            int marked2 = marker2.markSingleThreaded();
+            noReachableObjects += marked2;
+        }
 
         // find remaining unreachable objects
         unref.clear();
@@ -679,8 +713,7 @@ import org.eclipse.mat.util.SilentProgressListener;
                     XGCRootInfo xgc = new XGCRootInfo(identifiers.get(ii), 0, extraRootType);
                     xgc.setObjectId(ii);
 
-                    ArrayList<XGCRootInfo> xgcs = new ArrayList<XGCRootInfo>(1);
-                    xgcs.add(xgc);
+                    List<XGCRootInfo> xgcs = Collections.singletonList(xgc);
                     idx.gcRoots.put(ii, xgcs);
 
                     int marked = marker.markSingleThreaded();

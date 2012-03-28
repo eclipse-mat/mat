@@ -242,7 +242,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
 
     /** The outbound references index */
     private IndexWriter.IntArray1NWriter outRefs;
-    /** The tempoerary object id to size index, for arrays and variable sized objects - used to build arrayToSize.
+    /** The temporary object id to size index, for arrays and variable sized objects - used to build arrayToSize.
      * Could instead be a {@link SizeIndexCollectorUncompressed} but that is bigger. */
     private ObjectToSize indexToSize;
     /** The array size in bytes index */
@@ -468,7 +468,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         }
     }
 
-    private ObjectToSize objectToSize;
+    private ObjectToSize objectToSize2;
 
     /**
      * Same as HashMapLongObject except that the first
@@ -775,7 +775,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             objectToClass2 = null;
         }
         idToClass2 = null;
-        objectToSize = null;
+        objectToSize2 = null;
     }
 
     /*
@@ -805,9 +805,9 @@ public class DTFJIndexBuilder implements IIndexBuilder
             if (purgedMapping[i] == -1)
             {
                 ++count;
-                if (objectToSize != null)
+                if (objectToSize2 != null)
                 {
-                    long objSize = objectToSize.getSize(i);
+                    long objSize = objectToSize2.getSize(i);
                     memFree += objSize;
                     if (verbose)
                     {
@@ -825,10 +825,13 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 // debugPrint("Remap "+i+"->"+purgedMapping[i]);
             }
         }
-        listener.sendUserMessage(Severity.INFO, MessageFormat.format(Messages.DTFJIndexBuilder_PurgedIdentifiers,
-                        count, memFree), null);
+        if (debugInfo)
+        {
+            listener.sendUserMessage(Severity.INFO, MessageFormat.format(Messages.DTFJIndexBuilder_PurgedIdentifiers,
+                            count, memFree), null);
+        }
         // Free memory
-        objectToSize = null;
+        objectToSize2 = null;
         missedRoots = null;
         releaseDump(dump, dtfjInfo, false);
         // Debug
@@ -1583,8 +1586,11 @@ public class DTFJIndexBuilder implements IIndexBuilder
         debugPrint("Classes " + nClasses); //$NON-NLS-1$
         idToClass = new HashMapIntObject<ClassImpl>(nClasses);
 
-        // For calculating purge sizes
-        objectToSize = new ObjectToSize(indexToAddress.size());
+        if (debugInfo)
+        {
+            // For calculating purge sizes
+            objectToSize2 = new ObjectToSize(indexToAddress.size());
+        }
 
         listener.worked(1);
         workCountSoFar += 1;
@@ -1914,6 +1920,9 @@ public class DTFJIndexBuilder implements IIndexBuilder
             // see what conservative GC would give.
             HashMapIntObject<List<XGCRootInfo>> gcRoot2 = gcRoot;
             HashMapIntObject<HashMapIntObject<List<XGCRootInfo>>> threadRoots2 = threadRoots;
+            File threadsFile = new File(pfx + "threads");
+            File threadsFileSave = new File(pfx + ".save.threads");
+            threadsFile.renameTo(threadsFileSave);
             workCountSoFar = processConservativeRoots(pointerSize, fixedBootLoaderAddress, scanUp, workCountSoFar,
                             listener);
             missedRoots = addMissedRoots(missedRoots);
@@ -1921,6 +1930,9 @@ public class DTFJIndexBuilder implements IIndexBuilder
             // Restore DTFJ Roots
             gcRoot = gcRoot2;
             threadRoots = threadRoots2;
+            // Restore the threads file
+            threadsFile.delete();
+            threadsFileSave.renameTo(threadsFile);
         }
         else
         {
@@ -2029,8 +2041,11 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 bootLoaderType.setHeapSizePerInstance(0);
             bootLoaderType.addInstance(bootLoaderType.getHeapSizePerInstance());
             objectToClass.set(objId, bootLoaderType.getObjectId());
-            // For calculating purge sizes
-            objectToSize.set(objId, bootLoaderType.getHeapSizePerInstance());
+            if (debugInfo)
+            {
+                // For calculating purge sizes
+                objectToSize2.set(objId, bootLoaderType.getHeapSizePerInstance());
+            }
         }
 
         if (getExtraInfo)
@@ -2054,7 +2069,11 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 if (size == 0)
                     size = cls.getHeapSizePerInstance();
                 cls.addInstance(size);
-                objectToSize.set(objId, size);
+                if (debugInfo)
+                {
+                    // For calculating purge sizes
+                    objectToSize2.set(objId, size);
+                }
 
                 aa.add(frameTypeAddr);
                 // Look at each threads root
@@ -3288,8 +3307,11 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     int arrayLen = jo.getArraySize();
                     // Bytes, not elements
                     indexToSize.set(objId, size);
-                    // For calculating purge sizes
-                    objectToSize.set(objId, size);
+                    if (debugInfo)
+                    {
+                        // For calculating purge sizes
+                        objectToSize2.set(objId, size);
+                    }
                     // debugPrint("array size "+size+" arrayLen "+arrayLen);
                     int headerPointer = getPointerBytes(pointerSize);
                     if (headerPointer == 8)
@@ -3325,8 +3347,11 @@ public class DTFJIndexBuilder implements IIndexBuilder
                         indexToSize.set(objId, size);
                     }
 
-                    // For calculating purge sizes
-                    objectToSize.set(objId, size);
+                    if (debugInfo)
+                    {
+                        // For calculating purge sizes
+                        objectToSize2.set(objId, size);
+                    }
                 }
             }
             else
@@ -5899,8 +5924,11 @@ public class DTFJIndexBuilder implements IIndexBuilder
         // TODO should we use segments to get the RAM/ROM class size?
         size += classSize(j2, listener);
         ci.setUsedHeapSize(size);
-        // For calculating purge sizes
-        objectToSize.set(ci.getObjectId(), size);
+        if (debugInfo)
+        {
+            // For calculating purge sizes
+            objectToSize2.set(ci.getObjectId(), size);
+        }
         jlc.addInstance(size);
         debugPrint("build class " + ci.getName() + " at " + ci.getObjectId() + " address " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                         + format(ci.getObjectAddress()) + " loader " + ci.getClassLoaderId() + " super " //$NON-NLS-1$ //$NON-NLS-2$
@@ -7170,8 +7198,11 @@ public class DTFJIndexBuilder implements IIndexBuilder
         }
         ci.setUsedHeapSize(size);
         ci.setHeapSizePerInstance(0);
-        // For calculating purge sizes
-        objectToSize.set(ci.getObjectId(), size);
+        if (debugInfo)
+        {
+            // For calculating purge sizes
+            objectToSize2.set(ci.getObjectId(), size);
+        }
         jlc.addInstance(size);
         return ci;
     }
@@ -7235,8 +7266,11 @@ public class DTFJIndexBuilder implements IIndexBuilder
 
         ci.setUsedHeapSize(size);
         ci.setHeapSizePerInstance(0);
-        // For calculating purge sizes
-        objectToSize.set(ci.getObjectId(), size);
+        if (debugInfo)
+        {
+            // For calculating purge sizes
+            objectToSize2.set(ci.getObjectId(), size);
+        }
         type.addInstance(size);
 
         return ci;

@@ -32,6 +32,7 @@ public class Messages extends NLS
     public static String GarbageCleaner_ReIndexingClasses;
     public static String GarbageCleaner_ReIndexingObjects;
     public static String GarbageCleaner_ReIndexingOutboundIndex;
+    public static String GarbageCleaner_RemovedUnreachableObjects;
     public static String GarbageCleaner_RemovingUnreachableObjects;
     public static String GarbageCleaner_SearchingForUnreachableObjects;
     public static String GarbageCleaner_Writing;
@@ -85,7 +86,7 @@ public class Messages extends NLS
     public static String SnapshotImpl_ReopeningParsedHeapDumpFile;
     public static String SnapshotImpl_RetrievingDominators;
     public static String ObjectArrayImpl_forArray;
-    public static String ObjectMarker_CalculateRetainedSize;
+    public static String ObjectMarker_MarkingObjects;
     public static String Operation_Error_ArgumentOfUnknownClass;
     public static String Operation_Error_CannotCompare;
     public static String Operation_Error_NotInArgumentOfUnknownClass;
