@@ -68,7 +68,7 @@ public class ObjectMarker
             }
         }
 
-        progressListener.beginTask(Messages.ObjectMarker_CalculateRetainedSize, rootsToProcess);
+        progressListener.beginTask(Messages.ObjectMarker_MarkingObjects, rootsToProcess);
 
         int current;
 
@@ -157,7 +157,7 @@ public class ObjectMarker
         }
 
         /* now do the real marking */
-        progressListener.beginTask(Messages.ObjectMarker_CalculateRetainedSize, rootsToProcess);
+        progressListener.beginTask(Messages.ObjectMarker_MarkingObjects, rootsToProcess);
 
         int current;
 
@@ -216,7 +216,7 @@ public class ObjectMarker
             }
         }
 
-        progressListener.beginTask(Messages.ObjectMarker_CalculateRetainedSize, rootsStack.size());
+        progressListener.beginTask(Messages.ObjectMarker_MarkingObjects, rootsStack.size());
 
         // create and start as much marker threads as specified
         DfsThread[] dfsthreads = new DfsThread[numberOfThreads];
