@@ -386,6 +386,11 @@ public class DTFJIndexBuilder implements IIndexBuilder
         {
             throw new DataUnavailable();
         }
+
+        public JavaObject getProtectionDomain() throws DataUnavailable, CorruptDataException
+        {
+            throw new DataUnavailable();
+        }
     }
 
     /**
