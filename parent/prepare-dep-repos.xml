@@ -1,11 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="create-repositories" default="default" basedir="..">
-    <target name="default" depends="init,downloadEclipse,downloadDeltaPack37,downloadTestFramework,downloadDTFJ">
+    <target name="default" depends="init,downloadEclipse,downloadDeltaPack,downloadTestFramework,downloadDTFJ">
     </target>
 
     	<target name="init" depends="initProperties,initProxy,initMatTargetDef"/>
 
-	<target name="initProperties">
+	<target name="initver36">
+		<property e_ver="3.6.2"/>
+		<property e_launch="org.eclipse.equinox.launcher_1.1.1.R36x_v20101122_1400.jar"/>
+		<property e_rel="R-3.6.2-201102101200"/>
+	</target>
+
+	<target name="initver37">
+		<property e_ver="3.7.2"/>
+		<property e_launcher="org.eclipse.equinox.launcher_1.2.0.v20110502.jar"/>
+		<property e_rel="R-3.7.2-201202080800"/>
+	</target>
+
+	<target name="initProperties" depends="initver36">
 		<mkdir dir="p2tool"/>
 		<makeurl property="target.baseUrl">
 			<path location="p2tool/."/>
@@ -35,7 +47,7 @@
 
 	<target name="downloadEclipse" depends="init,downloadEclipseLinuxPPC,downloadEclipseWin32">
 		<!-- Convert installation to also being a repository, in case we want to use this too -->
-		<java jar="p2tool/eclipse/eclipse/plugins/org.eclipse.equinox.launcher_1.1.1.R36x_v20101122_1400.jar" fork="true" maxmemory="512m" failonerror="true">
+		<java jar="p2tool/eclipse/eclipse/plugins/${e_launcher}" fork="true" maxmemory="512m" failonerror="true">
 	            <arg value="-consoleLog" />
 	            <arg value="-application" />
 	            <arg value="org.eclipse.equinox.p2.publisher.FeaturesAndBundlesPublisher"/>
@@ -53,17 +65,17 @@
 
 	<target name="downloadEclipseLinuxPPC" depends="check-downloadWin32" unless="win32.present">
 		<get 
-			src="http://download.eclipse.org/eclipse/downloads/drops/R-3.6.2-201102101200/eclipse-SDK-3.6.2-linux-gtk-ppc.tar.gz"
-			dest="p2tool/eclipse-SDK-3.6.2-linux-gtk-ppc.tar.gz"
+			src="http://download.eclipse.org/eclipse/downloads/drops/${e_rel}/eclipse-SDK-${e_ver}-linux-gtk-ppc.tar.gz"
+			dest="p2tool/eclipse-SDK-${e_ver}-linux-gtk-ppc.tar.gz"
 			usetimestamp="true"
 			verbose="true"/>
 
 		<delete dir="p2tool/eclipse"/>
-		<untar src="p2tool/eclipse-SDK-3.6.2-linux-gtk-ppc.tar.gz" dest="p2tool/eclipse" compression="gzip"/>
+		<untar src="p2tool/eclipse-SDK-${e_ver}-linux-gtk-ppc.tar.gz" dest="p2tool/eclipse" compression="gzip"/>
 	</target>
 
 	<target name="check-downloadWin32">
-		<available file="p2tool/eclipse-SDK-3.6.2-win32.zip" property="win32.present"/>
+		<available file="p2tool/eclipse-SDK-${e_ver}-win32.zip" property="win32.present"/>
 	</target>
 	
 	<!-- Uses this target if you happen to have the Windows version around
@@ -71,25 +83,25 @@
 		The build only uses the jars, so works with either -->
 	<target name="downloadEclipseWin32" depends="check-downloadWin32" if="win32.present">
 		<get 
-			src="http://download.eclipse.org/eclipse/downloads/drops/R-3.6.2-201102101200/eclipse-SDK-3.6.2-win32.zip"
-			dest="p2tool/eclipse-SDK-3.6.2-win32.zip"
+			src="http://download.eclipse.org/eclipse/downloads/drops/${e_rel}/eclipse-SDK-${e_ver}-win32.zip"
+			dest="p2tool/eclipse-SDK-${e_ver}-win32.zip"
 			usetimestamp="true"
 			verbose="true"/>
 		<delete dir="p2tool/eclipse"/>
-		<unzip src="p2tool/eclipse-SDK-3.6.2-win32.zip" dest="p2tool/eclipse"/>
+		<unzip src="p2tool/eclipse-SDK-${e_ver}-win32.zip" dest="p2tool/eclipse"/>
 	</target>
 	
 	<target name="downloadDeltaPack" description="downloadDeltaPack" depends="downloadEclipse">
 		<get	
-			src="http://download.eclipse.org/eclipse/downloads/drops/R-3.6.2-201102101200/eclipse-3.6.2-delta-pack.zip"
-			dest="p2tool/eclipse-3.6.2-delta-pack.zip"
+			src="http://download.eclipse.org/eclipse/downloads/drops/${e_rel}/eclipse-${e_ver}-delta-pack.zip"
+			dest="p2tool/eclipse-${e_ver}-delta-pack.zip"
 			usetimestamp="true"
 			verbose="true"/>
 		
 		<delete dir="p2tool/eclipse-delta-pack"/>
-		<unzip src="p2tool/eclipse-3.6.2-delta-pack.zip" dest="p2tool/eclipse-delta-pack"/>
+		<unzip src="p2tool/eclipse-${e_ver}-delta-pack.zip" dest="p2tool/eclipse-delta-pack"/>
 	
-		<java jar="p2tool/eclipse/eclipse/plugins/org.eclipse.equinox.launcher_1.1.1.R36x_v20101122_1400.jar" fork="true" maxmemory="512m" failonerror="true">
+		<java jar="p2tool/eclipse/eclipse/plugins/${e_launcher}" fork="true" maxmemory="512m" failonerror="true">
 	            <arg value="-consoleLog" />
 	            <arg value="-application" />
 	            <arg value="org.eclipse.equinox.p2.publisher.FeaturesAndBundlesPublisher"/>
@@ -103,41 +115,16 @@
 	    		<arg value="-publishArtifacts"/> 
 	    </java>
     </target>
-	
-	<target name="downloadDeltaPack37" description="downloadDeltaPack" depends="downloadEclipse">
-		<get
-			src="http://download.eclipse.org/eclipse/downloads/drops/R-3.7.2-201202080800/eclipse-3.7.2-delta-pack.zip"
-			dest="p2tool/eclipse-3.7.2-delta-pack.zip"
-			usetimestamp="true"
-			verbose="true"/>
-		
-		<delete dir="p2tool/eclipse-delta-pack"/>
-		<unzip src="p2tool/eclipse-3.7.2-delta-pack.zip" dest="p2tool/eclipse-delta-pack"/>
-	
-		<java jar="p2tool/eclipse/eclipse/plugins/org.eclipse.equinox.launcher_1.1.1.R36x_v20101122_1400.jar" fork="true" maxmemory="512m" failonerror="true">
-	            <arg value="-consoleLog" />
-	            <arg value="-application" />
-	            <arg value="org.eclipse.equinox.p2.publisher.FeaturesAndBundlesPublisher"/>
-	    		<arg value="-mr"/> 
-	    		<arg value="${target.baseUrlRaw}eclipse-delta-pack/repo"/> 
-	    		<arg value="-ar"/> 
-	    		<arg value="${target.baseUrlRaw}eclipse-delta-pack/repo"/> 
-	    		<arg value="-source"/> 
-	    		<arg value="p2tool/eclipse-delta-pack/eclipse"/> 
-	    		<arg value="-compress"/> 
-	    		<arg value="-publishArtifacts"/> 
-	    </java>
-    </target>
-	
+
 	<target name="downloadTestFramework" description="description" depends="downloadEclipse">
 		<get 
-    		src="http://download.eclipse.org/eclipse/downloads/drops/R-3.6.2-201102101200/eclipse-test-framework-3.6.2.zip" 
+    		src="http://download.eclipse.org/eclipse/downloads/drops/${e_rel}/eclipse-test-framework-${e_ver}.zip" 
     		dest="p2tool/eclipse-test-framework.zip"
 			usetimestamp="true"/>
     	<delete dir="p2tool/eclipse-test-framework"/>
 		<unzip src="p2tool/eclipse-test-framework.zip" dest="p2tool/eclipse-test-framework"/>
 
-		<java jar="p2tool/eclipse/eclipse/plugins/org.eclipse.equinox.launcher_1.1.1.R36x_v20101122_1400.jar" fork="true" maxmemory="512m" failonerror="true">
+		<java jar="p2tool/eclipse/eclipse/plugins/${e_launcher}" fork="true" maxmemory="512m" failonerror="true">
             <arg value="-consoleLog" />
             <arg value="-application" />
             <arg value="org.eclipse.equinox.p2.publisher.FeaturesAndBundlesPublisher"/>
@@ -151,7 +138,7 @@
     		<arg value="-publishArtifacts"/> 
         </java>
     </target>
-	
+
     <target name="downloadDTFJ" description="description" depends="downloadEclipse">
     	<get 
     		src="ftp://ftp.software.ibm.com/software/java/support/tools/dtfj/dtfj-updatesite.zip" 
@@ -159,7 +146,7 @@
     		usetimestamp="true"/>
     	<delete dir="p2tool/dtfj-updatesite"/>
 		<unzip src="p2tool/dtfj-updatesite.zip" dest="p2tool/dtfj-updatesite"/>
-    	<java jar="p2tool/eclipse/eclipse/plugins/org.eclipse.equinox.launcher_1.1.1.R36x_v20101122_1400.jar" fork="true" maxmemory="512m" failonerror="true">
+    	<java jar="p2tool/eclipse/eclipse/plugins/${e_launcher}" fork="true" maxmemory="512m" failonerror="true">
             <arg value="-consoleLog" />
             <arg value="-application" />
             <arg value="org.eclipse.equinox.p2.publisher.UpdateSitePublisher"/>
