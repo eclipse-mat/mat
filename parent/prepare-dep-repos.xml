@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="create-repositories" default="default" basedir="..">
-    <target name="default" depends="init,downloadEclipse,downloadDeltaPack,downloadTestFramework,downloadDTFJ">
+    <target name="default" depends="init,downloadEclipse,downloadDeltaPack37,downloadTestFramework,downloadDTFJ">
     </target>
 
     	<target name="init" depends="initProperties,initProxy,initMatTargetDef"/>
@@ -101,8 +101,33 @@
 	    		<arg value="p2tool/eclipse-delta-pack/eclipse"/> 
 	    		<arg value="-compress"/> 
 	    		<arg value="-publishArtifacts"/> 
-	        </java>
-    	</target>
+	    </java>
+    </target>
+	
+	<target name="downloadDeltaPack37" description="downloadDeltaPack" depends="downloadEclipse">
+		<get
+			src="http://download.eclipse.org/eclipse/downloads/drops/R-3.7.2-201202080800/eclipse-3.7.2-delta-pack.zip"
+			dest="p2tool/eclipse-3.7.2-delta-pack.zip"
+			usetimestamp="true"
+			verbose="true"/>
+		
+		<delete dir="p2tool/eclipse-delta-pack"/>
+		<unzip src="p2tool/eclipse-3.7.2-delta-pack.zip" dest="p2tool/eclipse-delta-pack"/>
+	
+		<java jar="p2tool/eclipse/eclipse/plugins/org.eclipse.equinox.launcher_1.1.1.R36x_v20101122_1400.jar" fork="true" maxmemory="512m" failonerror="true">
+	            <arg value="-consoleLog" />
+	            <arg value="-application" />
+	            <arg value="org.eclipse.equinox.p2.publisher.FeaturesAndBundlesPublisher"/>
+	    		<arg value="-mr"/> 
+	    		<arg value="${target.baseUrlRaw}eclipse-delta-pack/repo"/> 
+	    		<arg value="-ar"/> 
+	    		<arg value="${target.baseUrlRaw}eclipse-delta-pack/repo"/> 
+	    		<arg value="-source"/> 
+	    		<arg value="p2tool/eclipse-delta-pack/eclipse"/> 
+	    		<arg value="-compress"/> 
+	    		<arg value="-publishArtifacts"/> 
+	    </java>
+    </target>
 	
 	<target name="downloadTestFramework" description="description" depends="downloadEclipse">
 		<get 
