@@ -179,11 +179,13 @@
 								<ws>motif</ws>
 								<arch>ppc</arch>
 							</environment>
+							<!--  only available in Eclipse 3.7 or later
 							<environment>
 								<os>aix</os>
 								<ws>gtk</ws>
 								<arch>ppc</arch>
 							</environment>
+							 -->
 							<environment>
 								<os>aix</os>
 								<ws>gtk</ws>
