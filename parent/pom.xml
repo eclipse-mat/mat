@@ -179,6 +179,7 @@
 								<ws>motif</ws>
 								<arch>ppc</arch>
 							</environment>
+							<!--
 							<environment>
 								<os>aix</os>
 								<ws>gtk</ws>
@@ -189,6 +190,7 @@
 								<ws>gtk</ws>
 								<arch>ppc64</arch>
 							</environment>
+							-->
 							<environment>
 								<os>hpux</os>
 								<ws>motif</ws>
