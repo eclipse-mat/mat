@@ -149,11 +149,13 @@
 								<ws>win32</ws>
 								<arch>x86_64</arch>
 							</environment>
+							<!--
 							<environment>
 								<os>macosx</os>
 								<ws>carbon</ws>
 								<arch>x86</arch>
 							</environment>
+							-->
 							<environment>
 								<os>macosx</os>
 								<ws>cocoa</ws>
