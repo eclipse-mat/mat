@@ -38,9 +38,9 @@
 
 	<repositories>
 		<repository>
-			<id>juno</id>
+			<id>indigo</id>
 			<layout>p2</layout>
-			<url>http://download.eclipse.org/releases/juno</url>
+			<url>http://download.eclipse.org/releases/indigo</url>
 		</repository>
 		<repository>
 			<id>dtfj</id>
@@ -149,13 +149,11 @@
 								<ws>win32</ws>
 								<arch>x86_64</arch>
 							</environment>
-							<!--
 							<environment>
 								<os>macosx</os>
 								<ws>carbon</ws>
 								<arch>x86</arch>
 							</environment>
-							-->
 							<environment>
 								<os>macosx</os>
 								<ws>cocoa</ws>
@@ -176,6 +174,13 @@
 								<ws>gtk</ws>
 								<arch>sparc</arch>
 							</environment>
+							<!--
+							<environment>
+								<os>aix</os>
+								<ws>motif</ws>
+								<arch>ppc</arch>
+							</environment>
+							-->
 							<environment>
 								<os>aix</os>
 								<ws>gtk</ws>
@@ -201,6 +206,13 @@
 								<ws>gtk</ws>
 								<arch>x86_64</arch>
 							</environment>
+							<!--
+							<environment>
+								<os>linux</os>
+								<ws>gtk</ws>
+								<arch>ppc</arch>
+							</environment>
+							-->
 							<environment>
 								<os>linux</os>
 								<ws>gtk</ws>
