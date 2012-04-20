@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 IBM Corporation.
+ * Copyright (c) 2010, 2012 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -90,9 +90,19 @@ public class ThreadDetailsResolver implements IThreadDetailsResolver
 class ThreadDetailsResolver1 implements IThreadDetailsResolver
 {
     /**
+     * Simple constructor which tests that DTFJ is available
+     */
+    ThreadDetailsResolver1()
+    {
+        // Check that JavaRuntime and so DTFJ is available
+        JavaRuntime.class.getName();
+    }
+
+    /**
      * Formatter to display addresses etc. in hex
      */
-    DecimalFormat hex = new DecimalFormat()
+    DecimalFormat hex = new HexFormat();
+    static class HexFormat extends DecimalFormat
     {
         private static final long serialVersionUID = -420084952258370133L;
 
