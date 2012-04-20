@@ -36,6 +36,11 @@ public class OpenPreferenceAction extends Action
 {
     private static final Set<String> ALLOWED_IDS = new HashSet<String>(Arrays.asList(new String[] {
                     "org.eclipse.ui.net.NetPreferences", //$NON-NLS-1$
+                    "org.eclipse.ui.preferencePages.Workbench", 
+                    "org.eclipse.ui.preferencePages.Keys", 
+                    "org.eclipse.ui.preferencePages.Views",
+                    "org.eclipse.ui.preferencePages.ColorsAndFonts",
+                    // "org.eclipse.ui.preferencePages.ContentTypes", 
                     "org.eclipse.update.internal.ui.preferences.MainPreferencePage"})); //$NON-NLS-1$
     private static final String MAT_PREFIX = "org.eclipse.mat."; //$NON-NLS-1$
 

@@ -307,5 +307,34 @@
       </wizard>
    </extension>
 
+   <extension point="org.eclipse.ui.themes">
+      <themeElementCategory
+            id="org.eclipse.mat.ui.themeElementCategory"
+            label="%themecategory.name.Eclipse_Memory_Analyzer">
+         <description>
+            %themecategory.description.memoryanalyzer
+         </description>
+      </themeElementCategory>
+      <colorDefinition
+            categoryId="org.eclipse.mat.ui.themeElementCategory"
+            id="org.eclipse.mat.ui.oql_comment"
+            isEditable="true"
+            label="%color.oql_comment.label"
+            value="93,142,116">
+         <description>
+            %color.oql_comment.description
+         </description>
+      </colorDefinition>
+      <colorDefinition
+            categoryId="org.eclipse.mat.ui.themeElementCategory"
+            id="org.eclipse.mat.ui.oql_keyword"
+            isEditable="true"
+            label="%color.oql_keyword.label"
+            value="146,55,117">
+         <description>
+            %color.oql_keyword.description
+         </description>
+      </colorDefinition>
+   </extension>
 
 </plugin>

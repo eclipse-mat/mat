@@ -364,8 +364,6 @@ public class Messages extends NLS
     public static String UIPreferencePage_KeepUnreachableObjects;
     public static String UIPreferencePage_PreferencesSubtitle;
     public static String UIPreferencePage_HideQueryHelp;
-    public static String UIPreferencePage_OQLcommentcolor;
-    public static String UIPreferencePage_OQLkeywordcolor;
 
 
 

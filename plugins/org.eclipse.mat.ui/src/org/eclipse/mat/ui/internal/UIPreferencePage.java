@@ -11,12 +11,10 @@
 package org.eclipse.mat.ui.internal;
 
 import org.eclipse.jface.preference.BooleanFieldEditor;
-import org.eclipse.jface.preference.ColorFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.internal.query.arguments.ArgumentsWizardPage;
-import org.eclipse.mat.ui.snapshot.panes.oql.contentAssist.ColorProvider;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
@@ -53,10 +51,6 @@ public class UIPreferencePage extends FieldEditorPreferencePage implements IWork
         addField(new BooleanFieldEditor(GettingStartedWizard.HIDE_WIZARD_KEY, Messages.UIPreferencePage_HideGettingStartedWizard,
                         getFieldEditorParent()));
         addField(new BooleanFieldEditor(ArgumentsWizardPage.HIDE_QUERY_HELP, Messages.UIPreferencePage_HideQueryHelp,
-                        getFieldEditorParent()));
-        addField(new ColorFieldEditor(ColorProvider.COMMENT_COLOR_PREF, Messages.UIPreferencePage_OQLcommentcolor,
-                        getFieldEditorParent()));
-        addField(new ColorFieldEditor(ColorProvider.KEYWORD_COLOR_PREF, Messages.UIPreferencePage_OQLkeywordcolor,
                         getFieldEditorParent()));
     }
 

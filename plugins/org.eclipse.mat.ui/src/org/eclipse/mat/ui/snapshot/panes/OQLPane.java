@@ -20,7 +20,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
-import org.eclipse.jface.preference.PreferenceConverter;
+import org.eclipse.jface.resource.ColorRegistry;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
@@ -62,7 +62,6 @@ import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -70,6 +69,8 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.actions.ActionFactory.IWorkbenchAction;
+import org.eclipse.ui.themes.ITheme;
+import org.eclipse.ui.themes.IThemeManager;
 
 public class OQLPane extends CompositeHeapEditorPane
 {
@@ -95,10 +96,11 @@ public class OQLPane extends CompositeHeapEditorPane
         queryString = queryViewer.getTextWidget();
         queryString.setFont(JFaceResources.getFont(JFaceResources.TEXT_FONT));
         queryString.selectAll();
-        RGB rgb = PreferenceConverter.getColor(MemoryAnalyserPlugin.getDefault().getPreferenceStore(), ColorProvider.COMMENT_COLOR_PREF);
-        commentCol = new Color(parent.getDisplay(), rgb);
-        rgb = PreferenceConverter.getColor(MemoryAnalyserPlugin.getDefault().getPreferenceStore(), ColorProvider.KEYWORD_COLOR_PREF);
-        keywordCol = new Color(parent.getDisplay(), rgb);
+        IThemeManager themeManager = PlatformUI.getWorkbench().getThemeManager();
+        ITheme current = themeManager.getCurrentTheme();
+        ColorRegistry colorRegistry = current.getColorRegistry();
+        commentCol = colorRegistry.get(ColorProvider.COMMENT_COLOR_PREF);
+        keywordCol = colorRegistry.get(ColorProvider.KEYWORD_COLOR_PREF);
         IDocument d = createDocument();
         d.set(Messages.OQLPane_F1ForHelp);
         queryViewer.setDocument(d);
@@ -151,8 +153,6 @@ public class OQLPane extends CompositeHeapEditorPane
     @Override
     public void dispose()
     {
-        commentCol.dispose();
-        keywordCol.dispose();
     }
 
     /**
