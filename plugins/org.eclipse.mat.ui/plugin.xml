@@ -310,7 +310,7 @@
    <extension point="org.eclipse.ui.themes">
       <themeElementCategory
             id="org.eclipse.mat.ui.themeElementCategory"
-            label="%themecategory.name.Eclipse_Memory_Analyzer">
+            label="%themecategory.name.Memory_Analyzer">
          <description>
             %themecategory.description.memoryanalyzer
          </description>

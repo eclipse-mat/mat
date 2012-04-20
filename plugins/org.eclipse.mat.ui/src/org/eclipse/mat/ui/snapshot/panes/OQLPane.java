@@ -20,6 +20,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.preference.JFacePreferences;
 import org.eclipse.jface.resource.ColorRegistry;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.text.Document;
@@ -455,7 +456,9 @@ public class OQLPane extends CompositeHeapEditorPane
                     StyleRange style2 = new StyleRange();
                     style2.start = start + queryRange.x;
                     style2.length = queryRange.y - start;
-                    style2.foreground = queryString.getDisplay().getSystemColor(SWT.COLOR_RED);
+                    style2.foreground = JFaceResources.getColorRegistry().get(JFacePreferences.ERROR_COLOR);
+                    style2.underline = true;
+                    style2.underlineStyle = SWT.UNDERLINE_SQUIGGLE;
                     queryString.replaceStyleRanges(0, queryString.getCharCount(), new StyleRange[] { style2 });
 
                     createExceptionPane(e, query);

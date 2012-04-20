@@ -33,6 +33,7 @@ import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.preference.JFacePreferences;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
@@ -66,7 +67,7 @@ import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
@@ -121,10 +122,11 @@ public class NotesView extends ViewPart implements IPartListener, Observer
         textViewer.setDocument(new Document());
         textViewer.getControl().setEnabled(false);
         textViewer.getTextWidget().setWordWrap(false);
-        font = new Font(parent.getDisplay(), JFaceResources.getDefaultFont().getFontData()[0].getName(), 8, SWT.NORMAL);
+        FontData fd = JFaceResources.getDefaultFont().getFontData()[0];
+        font = new Font(parent.getDisplay(), fd.getName(), fd.getHeight() - 1, SWT.NORMAL);
         textViewer.getControl().setFont(font);
 
-        hyperlinkColor = new Color(null, new RGB(0, 0, 255));
+        hyperlinkColor = JFaceResources.getColorRegistry().get(JFacePreferences.HYPERLINK_COLOR);
 
         getSite().getPage().addPartListener(this);
 
@@ -383,8 +385,6 @@ public class NotesView extends ViewPart implements IPartListener, Observer
         // The parent composite has been disposed, so there is no need to remove the disposeListener.
         if (font != null)
             font.dispose();
-        if (hyperlinkColor != null)
-            hyperlinkColor.dispose();
         if (menu != null)
             menu.dispose();
         super.dispose();
