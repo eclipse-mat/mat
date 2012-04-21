@@ -1170,6 +1170,34 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 }
             }
         }
+        // check for superclasses in case the classloader list is incomplete
+        Set<JavaClass>extraSuperclasses = new HashSet<JavaClass>();
+        for (JavaClass cls : allClasses)
+        {
+            for (JavaClass sup = getSuperclass(cls, listener); sup != null; sup = getSuperclass(sup, listener))
+            {
+                if (!allClasses.contains(sup))
+                {
+                    extraSuperclasses.add(sup);
+                }
+            }
+        }
+        for (JavaClass sup : extraSuperclasses)
+        {
+            try
+            {
+                String className = sup.getName();
+                listener.sendUserMessage(Severity.INFO, MessageFormat.format(
+                                Messages.DTFJIndexBuilder_AddingExtraClassViaSuperclassList, className), null);
+            }
+            catch (CorruptDataException e)
+            {
+                listener.sendUserMessage(Severity.INFO, MessageFormat.format(
+                                Messages.DTFJIndexBuilder_AddingExtraClassOfUnknownNameViaSuperclassList, sup), e);
+            }
+            rememberClass(sup, allClasses, listener);
+        }
+        extraSuperclasses.clear();
 
         // Make the ID to address array ready for reverse lookups
         if (indexToAddress0.size() > 0)

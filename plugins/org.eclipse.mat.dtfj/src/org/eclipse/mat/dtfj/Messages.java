@@ -28,6 +28,8 @@ public class Messages extends NLS
     public static String DTFJHeapObjectReader_UnexpectedTypeName;
     public static String DTFJIndexBuilder_AddingExtraClassOfUnknownNameViaCachedList;
     public static String DTFJIndexBuilder_AddingExtraClassViaCachedList;
+    public static String DTFJIndexBuilder_AddingExtraClassOfUnknownNameViaSuperclassList;
+    public static String DTFJIndexBuilder_AddingExtraClassViaSuperclassList;
     public static String DTFJIndexBuilder_AddingMissingObjects;
     public static String DTFJIndexBuilder_BuildingClasses;
     public static String DTFJIndexBuilder_CheckRefsBootLoader;
