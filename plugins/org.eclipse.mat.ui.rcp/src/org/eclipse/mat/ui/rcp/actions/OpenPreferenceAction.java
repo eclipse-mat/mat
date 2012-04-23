@@ -10,9 +10,14 @@
  *******************************************************************************/
 package org.eclipse.mat.ui.rcp.actions;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
@@ -59,7 +64,7 @@ public class OpenPreferenceAction extends Action
 
         PreferenceManager manager = new PreferenceManager('/');
         // Recreate tree structure
-        HashMap<String, Node>nodes = new HashMap<String, Node>();
+        Map<String, Node>nodes = new LinkedHashMap<String, Node>();
         for (Node node : reg.delegates())
         {
             node.subNode = false;
@@ -69,16 +74,30 @@ public class OpenPreferenceAction extends Action
         }
         for (Node node : reg.delegates())
         {
-            if (nodes.containsKey(node.getCategory()))
+            if (node.getCategory() != null && nodes.containsKey(node.getCategory()))
             {
                 nodes.get(node.getCategory()).add(node);
                 node.subNode = true;
             }
         }
+        List<Node> toSort = new ArrayList<Node>();
         for (Node node : nodes.values())
         {
             if (!node.subNode)
-                manager.addToRoot(node);
+                toSort.add(node);
+        }
+        Collections.sort(toSort, new Comparator<Node>()
+        {
+
+            public int compare(Node object1, Node object2)
+            {
+                return object1.getLabelText().compareTo(object2.getLabelText());
+            }
+
+        });
+        for (Node node : toSort)
+        {
+            manager.addToRoot(node);
         }
 
         PreferenceDialog dialog = new PreferenceDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
