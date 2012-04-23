@@ -86,11 +86,27 @@
 				is pressed.</dd>
 			</dlentry>
 			<dlentry>
-				<dt>OQL comment color</dt>
+				<dt>
+					<menucascade>
+						<uicontrol>General</uicontrol>
+						<uicontrol>Appearance</uicontrol>
+						<uicontrol>Colors and Fonts</uicontrol>
+						<uicontrol>Memory Analyzer</uicontrol>
+						<uicontrol>OQL comment color</uicontrol>
+					</menucascade>
+				</dt>
 				<dd>Modify the color of comments in the Object Query Language (OQL) studio.</dd>
 			</dlentry>
 			<dlentry>
-				<dt>OQL keyword color</dt>
+				<dt>
+					<menucascade>
+						<uicontrol>General</uicontrol>
+						<uicontrol>Appearance</uicontrol>
+						<uicontrol>Colors and Fonts</uicontrol>
+						<uicontrol>Memory Analyzer</uicontrol>
+						<uicontrol>OQL keyword color</uicontrol>
+					</menucascade>
+				</dt>
 				<dd>Modify the color of keywords in the Object Query Language (OQL) studio.</dd>
 			</dlentry>
 			</dl>
