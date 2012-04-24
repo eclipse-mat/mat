@@ -12,8 +12,9 @@ package org.eclipse.mat.parser.internal;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +40,7 @@ import org.eclipse.mat.snapshot.model.IThreadStack;
         BufferedReader in = null;
         try
         {
-            in = new BufferedReader(new FileReader(f));
+            in = new BufferedReader(new InputStreamReader(new FileInputStream(f), "UTF-8")); //$NON-NLS-1$
             String line = in.readLine();
 
             while (line != null)

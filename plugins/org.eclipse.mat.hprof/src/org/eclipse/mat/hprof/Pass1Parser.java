@@ -14,8 +14,9 @@ package org.eclipse.mat.hprof;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -505,7 +506,7 @@ public class Pass1Parser extends AbstractParser
         String outputName = handler.getSnapshotInfo().getPrefix() + "threads"; //$NON-NLS-1$
         try
         {
-            out = new PrintWriter(new FileWriter(outputName));
+            out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(outputName), "UTF-8")); //$NON-NLS-1$
 
             Iterator<StackTrace> it = serNum2stackTrace.values();
             while (it.hasNext())
@@ -524,7 +525,7 @@ public class Pass1Parser extends AbstractParser
                     for (JavaLocal javaLocal : locals)
                     {
                         out
-                                        .println("    objecId=0x" + Long.toHexString(javaLocal.objectId) + ", line=" + javaLocal.lineNumber); //$NON-NLS-1$ //$NON-NLS-2$
+                                        .println("    objectId=0x" + Long.toHexString(javaLocal.objectId) + ", line=" + javaLocal.lineNumber); //$NON-NLS-1$ //$NON-NLS-2$
 
                     }
                 }

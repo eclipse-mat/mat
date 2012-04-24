@@ -13,8 +13,9 @@ package org.eclipse.mat.dtfj;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.lang.ref.SoftReference;
@@ -2428,7 +2429,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         try
         {
             // Used to store thread stack information
-            pw = new PrintWriter(new FileWriter(pfx + "threads")); //$NON-NLS-1$
+            pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(pfx + "threads"), "UTF-8")); //$NON-NLS-1$ //$NON-NLS-2$
         }
         catch (IOException e)
         {}
@@ -2568,7 +2569,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
     private void printLocal(PrintWriter pw, long target, int frameNum)
     {
         if (indexToAddress.reverse(target) >= 0)
-            pw.println("  objecId=0x" + Long.toHexString(target) + ", line=" //$NON-NLS-1$ //$NON-NLS-2$
+            pw.println("  objectId=0x" + Long.toHexString(target) + ", line=" //$NON-NLS-1$ //$NON-NLS-2$
                             + frameNum);
     }
     
