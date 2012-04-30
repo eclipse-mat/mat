@@ -1171,34 +1171,6 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 }
             }
         }
-        // check for superclasses in case the classloader list is incomplete
-        Set<JavaClass>extraSuperclasses = new HashSet<JavaClass>();
-        for (JavaClass cls : allClasses)
-        {
-            for (JavaClass sup = getSuperclass(cls, listener); sup != null; sup = getSuperclass(sup, listener))
-            {
-                if (!allClasses.contains(sup))
-                {
-                    extraSuperclasses.add(sup);
-                }
-            }
-        }
-        for (JavaClass sup : extraSuperclasses)
-        {
-            try
-            {
-                String className = sup.getName();
-                listener.sendUserMessage(Severity.INFO, MessageFormat.format(
-                                Messages.DTFJIndexBuilder_AddingExtraClassViaSuperclassList, className), null);
-            }
-            catch (CorruptDataException e)
-            {
-                listener.sendUserMessage(Severity.INFO, MessageFormat.format(
-                                Messages.DTFJIndexBuilder_AddingExtraClassOfUnknownNameViaSuperclassList, sup), e);
-            }
-            rememberClass(sup, allClasses, listener);
-        }
-        extraSuperclasses.clear();
 
         // Make the ID to address array ready for reverse lookups
         if (indexToAddress0.size() > 0)
@@ -1338,37 +1310,6 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 }
             }
         }
-        // Make a tree set so that going over all the classes is
-        // predictable and cache friendly.
-        final IProgressListener listen = listener;
-        TreeSet<JavaClass> sortedClasses = new TreeSet<JavaClass>(new Comparator<JavaClass>()
-        {
-            public int compare(JavaClass o1, JavaClass o2)
-            {
-                long clsaddr1 = getClassAddress(o1, listen);
-                long clsaddr2 = getClassAddress(o2, listen);
-                return clsaddr1 < clsaddr2 ? -1 : clsaddr1 > clsaddr2 ? 1 : 0;
-            }
-        });
-        sortedClasses.addAll(allClasses);
-        allClasses = sortedClasses;
-        if (getExtraInfo && getExtraInfo2)
-        {
-            listener.worked(1);
-            workCountSoFar += 1;
-            listener.subTask(Messages.DTFJIndexBuilder_FindingAllMethods);
-            for (JavaClass jc : allClasses)
-            {
-                for (Iterator<?> i = jc.getDeclaredMethods(); i.hasNext();)
-                {
-                    Object next = i.next();
-                    if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingDeclaredMethods, jc))
-                        continue;
-                    JavaMethod jm = (JavaMethod) next;
-                    allMethods.add(jm);
-                }
-            }
-        }
         listener.worked(1);
         workCountSoFar += 1;
         listener.subTask(Messages.DTFJIndexBuilder_FindingMonitorObjects);
@@ -1437,6 +1378,73 @@ public class DTFJIndexBuilder implements IIndexBuilder
             }
         }
 
+        // check for superclasses in case the classloader list is incomplete
+        Set<JavaClass>extraSuperclasses = new LinkedHashSet<JavaClass>();
+        for (JavaClass cls : allClasses)
+        {
+            for (JavaClass sup = getSuperclass(cls, listener); sup != null; sup = getSuperclass(sup, listener))
+            {
+                if (!allClasses.contains(sup))
+                {
+                    if (!extraSuperclasses.add(sup))
+                        break;
+                }
+                else
+                {
+                    break;
+                }
+            }
+        }
+        for (JavaClass sup : extraSuperclasses)
+        {
+            try
+            {
+                String className = sup.getName();
+                listener.sendUserMessage(Severity.INFO, MessageFormat.format(
+                                Messages.DTFJIndexBuilder_AddingExtraClassViaSuperclassList, className), null);
+            }
+            catch (CorruptDataException e)
+            {
+                listener.sendUserMessage(Severity.INFO, MessageFormat.format(
+                                Messages.DTFJIndexBuilder_AddingExtraClassOfUnknownNameViaSuperclassList, sup), e);
+            }
+            rememberClass(sup, allClasses, listener);
+        }
+        extraSuperclasses.clear();
+
+        // Make a tree set so that going over all the classes is
+        // predictable and cache friendly.
+        final IProgressListener listen = listener;
+        TreeSet<JavaClass> sortedClasses = new TreeSet<JavaClass>(new Comparator<JavaClass>()
+        {
+            public int compare(JavaClass o1, JavaClass o2)
+            {
+                long clsaddr1 = getClassAddress(o1, listen);
+                long clsaddr2 = getClassAddress(o2, listen);
+                return clsaddr1 < clsaddr2 ? -1 : clsaddr1 > clsaddr2 ? 1 : 0;
+            }
+        });
+        sortedClasses.addAll(allClasses);
+        allClasses = sortedClasses;
+        
+        if (getExtraInfo && getExtraInfo2)
+        {
+            listener.worked(1);
+            workCountSoFar += 1;
+            listener.subTask(Messages.DTFJIndexBuilder_FindingAllMethods);
+            for (JavaClass jc : allClasses)
+            {
+                for (Iterator<?> i = jc.getDeclaredMethods(); i.hasNext();)
+                {
+                    Object next = i.next();
+                    if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingDeclaredMethods, jc))
+                        continue;
+                    JavaMethod jm = (JavaMethod) next;
+                    allMethods.add(jm);
+                }
+            }
+        }
+
         long nativeAddr = 0;
         long nativeTypeAddr = 0;
         long methodTypeAddr = 0;
@@ -1493,6 +1501,39 @@ public class DTFJIndexBuilder implements IIndexBuilder
         //
         JavaClass clsJavaLangClassLoader = null;
         JavaClass clsJavaLangClass = null;
+        for (JavaClass j2 : allClasses)
+        {
+            // First find the class obj for java.lang.Class
+            // This is needed for every other class
+            try
+            {
+                JavaObject clsObject = j2.getObject();
+                if (clsObject != null)
+                {
+                    clsJavaLangClass = clsObject.getJavaClass();
+                    // Found class, so done
+                    break;
+                }
+            }
+            catch (IllegalArgumentException e)
+            {
+                // IllegalArgumentException from
+                // JavaClass.getObject() due to bad class pointer in object
+                listener.sendUserMessage(Severity.ERROR, Messages.DTFJIndexBuilder_ProblemFindingJavaLangClass, e);
+            }
+            catch (CorruptDataException e)
+            {
+                if (msgNcorruptCount-- > 0)
+                    listener
+                                    .sendUserMessage(Severity.WARNING,
+                                                    Messages.DTFJIndexBuilder_ProblemFindingJavaLangClass, e);
+            }
+        }
+        if (clsJavaLangClass != null)
+        {
+            // Just in case it isn't there already
+            allClasses.add(clsJavaLangClass);
+        }
         // Total all the classes and remember the addresses for mapping to IDs
         for (JavaClass cls : allClasses)
         {
@@ -1535,6 +1576,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
         // Check for very corrupt dumps
         if (clsJavaLangClass == null)
         {
+            listener.sendUserMessage(Severity.WARNING,
+                            Messages.DTFJIndexBuilder_ProblemFindingJavaLangClassViaName, null);
             // Create a dummy java/lang/Class
             clsJavaLangClass = new DummyJavaClass(JAVA_LANG_CLASS);
             allClasses.add(clsJavaLangClass);
@@ -1630,62 +1673,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
         workCountSoFar += 1;
         listener.subTask(Messages.DTFJIndexBuilder_BuildingClasses);
 
-        ClassImpl jlc = null;
-        for (JavaClass j2 : allClasses)
-        {
-            // First find the class obj for java.lang.Class
-            // This is needed for every other class
-            try
-            {
-                JavaObject clsObject = j2.getObject();
-                if (clsObject != null)
-                {
-                    clsJavaLangClass = clsObject.getJavaClass();
-                    jlc = genClass(clsJavaLangClass, idToClass, bootLoaderAddress, 0, listener);
-                    genClass2(clsJavaLangClass, jlc, jlc, pointerSize, listener);
-                    // Found class, so done
-                    break;
-                }
-            }
-            catch (IllegalArgumentException e)
-            {
-                // IllegalArgumentException from
-                // JavaClass.getObject() due to bad class pointer in object
-                listener.sendUserMessage(Severity.ERROR, Messages.DTFJIndexBuilder_ProblemFindingJavaLangClass, e);
-            }
-            catch (CorruptDataException e)
-            {
-                if (msgNcorruptCount-- > 0)
-                    listener
-                                    .sendUserMessage(Severity.WARNING,
-                                                    Messages.DTFJIndexBuilder_ProblemFindingJavaLangClass, e);
-            }
-        }
-        // Plan B to find java.lang.Class
-        if (jlc == null)
-            for (JavaClass j2 : allClasses)
-            {
-                // First find the class obj for java.lang.Class
-                // This is needed for every other class
-                try
-                {
-                    String cn = j2.getName();
-                    if (JAVA_LANG_CLASS.equals(cn))
-                    {
-                        clsJavaLangClass = j2;
-                        jlc = genClass(clsJavaLangClass, idToClass, bootLoaderAddress, 0, listener);
-                        genClass2(clsJavaLangClass, jlc, jlc, pointerSize, listener);
-                        debugPrint("Found java.lang.Class " + cn); //$NON-NLS-1$
-                        // Found class, so done
-                        break;
-                    }
-                }
-                catch (CorruptDataException e)
-                {
-                    listener.sendUserMessage(Severity.WARNING,
-                                    Messages.DTFJIndexBuilder_ProblemFindingJavaLangClassViaName, e);
-                }
-            }
+        ClassImpl jlc = genClass(clsJavaLangClass, idToClass, bootLoaderAddress, 0, listener);
+        genClass2(clsJavaLangClass, jlc, jlc, pointerSize, listener);
 
         // Now do java.lang.ClassLoader
         ClassImpl jlcl = clsJavaLangClassLoader != null ? genClass(clsJavaLangClassLoader, idToClass, bootLoaderAddress, 0, listener) : null;
@@ -3165,11 +3154,10 @@ public class DTFJIndexBuilder implements IIndexBuilder
      */
     private void rememberClass(JavaClass cls, Set<JavaClass> allClasses, IProgressListener listener)
     {
-        if (!allClasses.contains(cls))
+        while (allClasses.add(cls))
         {
             if (debugInfo)
                 debugPrint("Adding extra class " + getClassName(cls, listener)); //$NON-NLS-1$
-            allClasses.add(cls);
             try
             {
                 // Check if component classes are not in class loader list.
@@ -3177,11 +3165,10 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 while (cls.isArray())
                 {
                     cls = cls.getComponentType();
-                    if (!allClasses.contains(cls))
+                    if (allClasses.add(cls))
                     {
                         if (debugInfo)
                             debugPrint("Adding extra array component class " + getClassName(cls, listener)); //$NON-NLS-1$
-                        allClasses.add(cls);
                     }
                     else
                     {
@@ -7852,10 +7839,15 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 // javacore reader bug - no semicolon
                 d = d.substring(1);
         }
-        // Convert to MAT style array signature
-        for (; dim > 0; --dim)
+        if (dim > 0)
         {
-            d = d + "[]"; //$NON-NLS-1$
+            StringBuilder a = new StringBuilder(d);
+            // Convert to MAT style array signature
+            for (; dim > 0; --dim)
+            {
+                a.append("[]"); //$NON-NLS-1$
+            }
+            d = a.toString();
         }
         // debugPrint("d2 = "+d);
         return d;
