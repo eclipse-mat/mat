@@ -24,6 +24,7 @@ public class Messages extends NLS
     public static String time;
     public static String date;
     public static String identifier_size;
+    public static String use_compressed_oops;
     public static String identifier_format;
     public static String file_path;
     public static String file_length;

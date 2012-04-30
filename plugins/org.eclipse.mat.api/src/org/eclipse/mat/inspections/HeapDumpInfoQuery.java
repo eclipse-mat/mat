@@ -131,6 +131,15 @@ public class HeapDumpInfoQuery implements IQuery
             entries.add(new TextEntry(Messages.HeapDumpInfoQuery_Column_Date, null));
         }
         entries.add(new TextEntry(Messages.HeapDumpInfoQuery_Column_IdentifierSize, getSize(info.getIdentifierSize())));
+        if (info.getIdentifierSize() == 8) 
+        {
+            Boolean useCompressedOops = (Boolean) info.getProperty("$useCompressedOops"); //$NON-NLS-1$
+            if (useCompressedOops == null)
+            {
+                useCompressedOops = false;
+            }
+            entries.add(new TextEntry(Messages.HeapDumpInfoQuery_Column_UseCompressedOops, useCompressedOops.toString()));
+        }
         entries.add(new TextEntry(Messages.HeapDumpInfoQuery_Column_FilePath, info.getPath()));
         entries.add(new TextEntry(Messages.HeapDumpInfoQuery_Column_FileLength, MessageUtil.format(Messages.HeapDumpInfoQuery_FileLengthFormat, (new File(info.getPath())).length())));
 

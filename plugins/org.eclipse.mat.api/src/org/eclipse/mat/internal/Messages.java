@@ -301,6 +301,7 @@ public class Messages extends NLS
     public static String HeapDumpInfoQuery_Column_FilePath;
     public static String HeapDumpInfoQuery_Column_HeapFormat;
     public static String HeapDumpInfoQuery_Column_IdentifierSize;
+    public static String HeapDumpInfoQuery_Column_UseCompressedOops;
     public static String HeapDumpInfoQuery_Column_JVMVersion;
     public static String HeapDumpInfoQuery_Column_NumClasses;
     public static String HeapDumpInfoQuery_Column_NumClassLoaders;

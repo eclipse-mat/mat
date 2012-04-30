@@ -309,6 +309,15 @@ public abstract class SnapshotOutlinePage extends Page implements IContentOutlin
             category.addChild(new Label(Messages.time, info.getCreationDate(), bInfo.getCreationDate()));
             category.addChild(new Label(Messages.date, info.getCreationDate(), bInfo.getCreationDate()));
             category.addChild(new Label(Messages.identifier_size, info.getIdentifierSize(), bInfo.getIdentifierSize()));
+            if (info.getIdentifierSize() == 8) 
+            {
+                Boolean useCompressedOops = (Boolean) info.getProperty("$useCompressedOops"); //$NON-NLS-1$
+                if (useCompressedOops == null)
+                {
+                    useCompressedOops = false;
+                }
+                category.addChild(new Label(Messages.use_compressed_oops, useCompressedOops.toString(), "")); // TODO baseline
+            }
             category.addChild(new Label(Messages.file_path, info.getPath(), bInfo.getPath()));
             Double fileLength = new Double((double) new File(info.getPath()).length() / (1024 * 1024));
             Double bFileLength = bInfo.getPath() != null ? new Double((double) new File(bInfo.getPath()).length()

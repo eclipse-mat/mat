@@ -450,6 +450,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
         else if (IHprofParserHandler.REFERENCE_SIZE.equals(name))
         {
             refSize = Integer.parseInt(value);
+            info.setProperty("$useCompressedOops", pointerSize == 8 && refSize == 4); //$NON-NLS-1$
         }
     }
 
