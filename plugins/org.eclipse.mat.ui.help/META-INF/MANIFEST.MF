@@ -13,7 +13,7 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="3.3.100",
 Bundle-Localization: plugin
 Import-Package: org.eclipse.ui.intro,
  org.eclipse.ui.cheatsheets
-Bundle-Copyright: Copyright (c) 2008, 2011 SAP AG and IBM Corporation. 
+Bundle-Copyright: Copyright (c) 2008, 2012 SAP AG and IBM Corporation. 
  All rights reserved. This program and the accompanying materials 
  are made available under the terms of the Eclipse Public License v1.0 
  which accompanies this distribution, and is available at 
