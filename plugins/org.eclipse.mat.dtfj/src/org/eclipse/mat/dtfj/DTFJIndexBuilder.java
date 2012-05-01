@@ -269,6 +269,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
     private int modifiersFound;
     /** address space pointer size */
     private int addressSpacePointerSize;
+    /** compressed refs found */
+    private boolean compressedRefs;
 
     /** Used to remember dummy addresses for classes without addresses */
     private HashMap<JavaClass, Long> dummyClassAddress = new HashMap<JavaClass, Long>();
@@ -2307,6 +2309,12 @@ public class DTFJIndexBuilder implements IIndexBuilder
             objectToClass2 = copy(objectToClass1, IndexWriter.mostSignificantBit(maxClsId));
         }
 
+        if (ifo.getIdentifierSize() == 8)
+        {
+            // Compressed refs property
+            ifo.setProperty("$useCompressedOops", compressedRefs); //$NON-NLS-1$
+        }
+
         // If a message count goes below zero then a message has not been
         // printed
         int skippedMessages = 0;
@@ -3345,6 +3353,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                             // quantity.
                             if (false) debugPrint("Array size with "+headerPointer+" pointers calculated "+bigSize+" actual "+size+" arrayLen "+arrayLen); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
                             headerPointer = 4;
+                            compressedRefs = true;
                             bigSize = calculateArraySize(cls, arrayLen, headerPointer);
                             if (false) debugPrint("Array size with "+headerPointer+" pointers calculated "+bigSize+" actual "+size+" arrayLen "+arrayLen); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
                         }
