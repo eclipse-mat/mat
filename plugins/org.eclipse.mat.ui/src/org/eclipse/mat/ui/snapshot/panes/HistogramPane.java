@@ -579,7 +579,8 @@ public class HistogramPane extends QueryResultPane
 
             Object[] result = dialog.getResult();
 
-            return result == null ? null : (IPath) result[0];
+            // Clicking ok without selecting snapshot returns an empty array
+            return result == null || result.length < 1 ? null : (IPath) result[0];
         }
 
     }
