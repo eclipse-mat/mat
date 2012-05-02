@@ -93,6 +93,12 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
 
         // See what the actual object alignment is
         calculateAlignment();
+        
+        // Set property to show if compressed oops are used on x64 bit dumps
+        if (pointerSize == 8) // if x64 bit dump
+        {
+            info.setProperty("$useCompressedOops", refSize == 4); //$NON-NLS-1$
+        }
 
         // if necessary, create required classes not contained in the heap
         if (!requiredArrayClassIDs.isEmpty() || !requiredPrimitiveArrays.isEmpty())
@@ -450,7 +456,6 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
         else if (IHprofParserHandler.REFERENCE_SIZE.equals(name))
         {
             refSize = Integer.parseInt(value);
-            info.setProperty("$useCompressedOops", pointerSize == 8 && refSize == 4); //$NON-NLS-1$
         }
     }
 
