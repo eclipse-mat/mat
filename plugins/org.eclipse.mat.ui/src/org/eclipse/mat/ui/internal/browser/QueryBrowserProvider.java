@@ -81,7 +81,7 @@ public abstract class QueryBrowserProvider
     private static String[] extractSubjects(QueryDescriptor query)
     {
         final String[] cls;
-        Subjects subjects = query.getCommandType().getClass().getAnnotation(Subjects.class);
+        Subjects subjects = query.getCommandType().getAnnotation(Subjects.class);
         if (subjects != null) 
         {
             cls = subjects.value();
