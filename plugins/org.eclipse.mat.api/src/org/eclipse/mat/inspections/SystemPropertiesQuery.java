@@ -17,11 +17,13 @@ import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.snapshot.ISnapshot;
+import org.eclipse.mat.snapshot.extension.Subject;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.query.SnapshotQuery;
 import org.eclipse.mat.util.IProgressListener;
 
+@Subject("java.lang.System")
 @CommandName("system_properties")
 public class SystemPropertiesQuery implements IQuery
 {

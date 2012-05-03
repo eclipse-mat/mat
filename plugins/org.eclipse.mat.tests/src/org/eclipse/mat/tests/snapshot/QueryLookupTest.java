@@ -109,17 +109,16 @@ public class QueryLookupTest
     }
 
     /**
-     * BundleLoaderProxy present
+     * BundleLoaderProxy not present
      * @throws SnapshotException
      */
-    @Test()
+    @Test(expected = SnapshotException.class)
     public void testSubjectsAnnotation1() throws SnapshotException
     {
         ISnapshot snapshot = TestSnapshots.getSnapshot(TestSnapshots.SUN_JDK6_18_32BIT, false);
         SnapshotQuery query = SnapshotQuery.lookup("leaking_bundles", snapshot);
         assertNotNull(query);
     }
-
 
     /**
      * BundleRepository not present
@@ -130,6 +129,30 @@ public class QueryLookupTest
     {
         ISnapshot snapshot = TestSnapshots.getSnapshot(TestSnapshots.SUN_JDK6_18_32BIT, false);
         SnapshotQuery query = SnapshotQuery.lookup("bundle_registry", snapshot);
+        assertNotNull(query);
+    }
+
+    /**
+     * java.lang.System present
+     * @throws SnapshotException
+     */
+    @Test()
+    public void testSubjectsAnnotation3() throws SnapshotException
+    {
+        ISnapshot snapshot = TestSnapshots.getSnapshot(TestSnapshots.SUN_JDK6_18_32BIT, false);
+        SnapshotQuery query = SnapshotQuery.lookup("system_properties", snapshot);
+        assertNotNull(query);
+    }
+
+    /**
+     * char[] present
+     * @throws SnapshotException
+     */
+    @Test()
+    public void testSubjectsAnnotation4() throws SnapshotException
+    {
+        ISnapshot snapshot = TestSnapshots.getSnapshot(TestSnapshots.SUN_JDK6_18_32BIT, false);
+        SnapshotQuery query = SnapshotQuery.lookup("waste_in_char_arrays", snapshot);
         assertNotNull(query);
     }
 }
