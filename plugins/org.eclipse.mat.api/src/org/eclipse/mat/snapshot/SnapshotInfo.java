@@ -155,7 +155,7 @@ public class SnapshotInfo implements Serializable
     }
 
     /**
-     * Get size of the internal identifiers in the heap dump, i.e. 32 or 64 bit.
+     * Get size of the internal identifiers in the heap dump, i.e. 32 or 64 bit, in bytes.
      * 
      * @return size of the internal identifiers in the heap dump, i.e. 32 or 64
      *         bit

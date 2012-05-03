@@ -20,7 +20,7 @@ import org.eclipse.mat.internal.Messages;
  * Provides information about the column names for a {@link HistogramRecord}.
  * Not intended to be directly used by clients.
  * @noextend This class is not intended to be subclassed by clients.
- * @since 1.1
+ * @since 1.2
  */
 public class HistogramRecordBeanInfo extends SimpleBeanInfo
 {

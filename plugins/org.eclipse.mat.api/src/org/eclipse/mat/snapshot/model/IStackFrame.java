@@ -30,7 +30,7 @@ public interface IStackFrame {
 	/**
 	 * Get the text representation of the stack frame
 	 * 
-	 * @return java.lang.String the text representation of the stack fame - class and method
+	 * @return java.lang.String the text representation of the stack frame - class and method
 	 */
 	public String getText();
 
