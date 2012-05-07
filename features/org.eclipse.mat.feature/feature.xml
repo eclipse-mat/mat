@@ -35,7 +35,6 @@
       <import plugin="org.eclipse.ui.cheatsheets" version="3.3.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.ui.forms" version="3.3.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.help" version="3.3.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.help.appserver" version="3.1.200" match="greaterOrEqual"/>
       <import plugin="org.eclipse.help.base" version="3.3.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.help.ui" version="3.3.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.help.webapp" version="3.3.0" match="greaterOrEqual"/>
