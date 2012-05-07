@@ -6,10 +6,10 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <meta name="DC.Type" content="reference"/>
 <meta name="DC.Title" content="New and Noteworthy"/>
-<meta name="abstract" content="Here are descriptions of some of the more interesting or significant changes made to the Memory Analyzer for the 1.1 release."/>
-<meta name="description" content="Here are descriptions of some of the more interesting or significant changes made to the Memory Analyzer for the 1.1 release."/>
-<meta name="copyright" content="Copyright (c) 2008, 2011 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary"/>
-<meta name="DC.Rights.Owner" content="Copyright (c) 2008, 2011 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary"/>
+<meta name="abstract" content="Here are descriptions of some of the more interesting or significant changes made to the Memory Analyzer for the 1.2 release."/>
+<meta name="description" content="Here are descriptions of some of the more interesting or significant changes made to the Memory Analyzer for the 1.2 release."/>
+<meta name="copyright" content="Copyright (c) 2008, 2012 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary"/>
+<meta name="DC.Rights.Owner" content="Copyright (c) 2008, 2012 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary"/>
 <meta name="DC.Format" content="XHTML"/>
 <meta name="DC.Identifier" content="ref_noteworthy"/>
 <meta name="DC.Language" content="en-us"/>
@@ -24,75 +24,41 @@
 	
 	
 	<div class="body refbody"><p class="shortdesc">Here are descriptions of some of the more interesting or
-		significant changes made to the Memory Analyzer for the 1.1 release.
+		significant changes made to the Memory Analyzer for the 1.2 release.
 	</p>
 
-		<div class="section"><h2 class="title sectiontitle">Extract Ruby Related Details from the Heap Dumps</h2>
+		<div class="section"><h2 class="title sectiontitle">Support for Compressed Object Pointers</h2>
 			
-			<p class="p">The Leak Suspects report has been extended to contain Ruby relevant information
-			if a suspect thread was executing JRuby code somewhere on its call-stack.
-			If possible MAT will point out which ruby script was being executed, and also provide
-			the Ruby call-stack (next to the Java call-stack) of the thread. 
+			<p class="p">Memory Analyzer can now display correct object sizes for HPROF heapdumps from Java processes 
+			running on x64 with the option -XX:+UseCompressedOops. The option -XX:+UseCompressedOops
+			specifies that the object pointers used by the VM are compressed in order to reduce memory consumption.
+			The HPROF heap dump file does not provide the information if the option was used or not, and 
+			until now Memory Analyzer always displayed the uncompressed size.
+			The new version does some additional analysis of the object addresses to recognize if 
+			the object pointers are compressed, and show the correct object sizes also for such heap dumps.
 			</p>
 
-			<img class="image" src="mimes/rubydetails.png" alt="Ruby details added to the Leaks report"/>
-			<p class="p">Detailed ruby stack trace can also be extracted for JRuby threads using the context menu
-			"Java Basics" -&gt; "Thread Details" on a Thread object.
+			<p class="p">
+			One can check if the tool assumes compressed pointers or not in the "Heap Dump Details" view.
 			</p>
 
+			<img class="image" src="mimes/compressed_oops.png" alt="Property indicating if compressed pointers are used or not"/>
 		</div>
-	
-		<div class="section"><h2 class="title sectiontitle">Set Operations on Compared Tables</h2>
+
+		
+		<div class="section"><h2 class="title sectiontitle">OQL Syntax Highlighting and Autocompletion</h2>
 			
-			<p class="p">When comparing tables from one and the same heap dump, it is now possible
-			to perform different set operations on the comparison result. 
+			<p class="p">The OQL Editor has been enhanced with autocompletion and syntax highlighting capabilities 
 			</p>
 
-			<img class="image" src="mimes/compare_basket_context_menu.png" alt="Context menu in the Compare Basket"/>
-			<img class="image" src="mimes/setops_menu.png" alt="Set Operations context menu"/>
+			<img class="image" src="mimes/oql_completion1.png" alt="Use code completion in OQL"/>
 		</div>
 
-		<div class="section"><h2 class="title sectiontitle">Links to Objects in HTML Reports</h2>
-			
-			<p class="p">If a Memory Analyzer report (e.g. the Leak Suspect report) is open in the tool itself and not
-			in a browser, then it will be possible to list at least some of the objects "behind" a row
-			in tables (e.g. in a Histogram).
-			Up to now only links to single objects were rendered. Now also the first up to 10 objects can be listed:
-			 
-			</p>
-
-			<img class="image" src="mimes/report_link_to_objects.png" alt="Open a list of objects directly from the HTML report"/>
-		</div>
-
-		<div class="section"><h2 class="title sectiontitle">Thread details from DTFJ dumps</h2>
-			
-			<p class="p">Additional thread information is now available from DTFJ dumps.
-			</p>
-
-			<img class="image" src="mimes/thread_details.png" alt="Extra thread detail from a DTFJ dump"/>
-		</div>
-
-		<div class="section"><h2 class="title sectiontitle">Value tab in object inspector</h2>
-			
-			<p class="p">The value tab shows a readable value for some objects. This is the same text as in the list objects query.</p>
-
-			<img class="image" src="mimes/inspector_value.png" alt="Value tab in object inspector"/>
-		</div>
-
-		<div class="section"><h2 class="title sectiontitle">Accessibility Improvements</h2>
-			
-			<p class="p">This release of MAT contains a series of accessibility improvements
-			related to better support for keyboard navigation, screen reader (JAWS),
-			and high contrast mode.
-			</p>
-
-		</div>
-	
-		<div class="section"><h2 class="title sectiontitle">New and Noteworthy for Memory Analyzer 1.0</h2>
+		<div class="section"><h2 class="title sectiontitle">New and Noteworthy for Memory Analyzer 1.1</h2>
 			
 			<p class="p">
-				The New and Noteworthy document for version 1.0 is available 
-				<a class="xref" href="http://www.eclipse.org/mat/1.0/noteworthy.html">here</a>.
+				The New and Noteworthy document for version 1.1 is available 
+				<a class="xref" href="http://www.eclipse.org/mat/1.1/noteworthy.html">here</a>.
 			</p>
 
 		</div>

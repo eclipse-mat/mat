@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2011 SAP AG and others.
+    Copyright (c) 2008, 2012 SAP AG and others.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -13,13 +13,13 @@
 <reference id="ref_noteworthy" xml:lang="en-us">
 	<title>New and Noteworthy</title>
 	<shortdesc>Here are descriptions of some of the more interesting or
-		significant changes made to the Memory Analyzer for the 1.1 release.
+		significant changes made to the Memory Analyzer for the 1.2 release.
 	</shortdesc>
 	<prolog>
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2008, 2011 SAP AG and others.
+				Copyright (c) 2008, 2012 SAP AG and others.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License v1.0
 			    which accompanies this distribution, and is available at
@@ -29,70 +29,36 @@
 	</prolog>
 	<refbody>
 		<section>
-			<title>Extract Ruby Related Details from the Heap Dumps</title>
-			<p>The Leak Suspects report has been extended to contain Ruby relevant information
-			if a suspect thread was executing JRuby code somewhere on its call-stack.
-			If possible MAT will point out which ruby script was being executed, and also provide
-			the Ruby call-stack (next to the Java call-stack) of the thread. 
+			<title>Support for Compressed Object Pointers</title>
+			<p>Memory Analyzer can now display correct object sizes for HPROF heapdumps from Java processes 
+			running on x64 with the option -XX:+UseCompressedOops. The option -XX:+UseCompressedOops
+			specifies that the object pointers used by the VM are compressed in order to reduce memory consumption.
+			The HPROF heap dump file does not provide the information if the option was used or not, and 
+			until now Memory Analyzer always displayed the uncompressed size.
+			The new version does some additional analysis of the object addresses to recognize if 
+			the object pointers are compressed, and show the correct object sizes also for such heap dumps.
 			</p>
-			<image href="mimes/rubydetails.png">
-				<alt>Ruby details added to the Leaks report</alt>
-			</image>
-			<p>Detailed ruby stack trace can also be extracted for JRuby threads using the context menu
-			"Java Basics" -> "Thread Details" on a Thread object.
-			</p>
-		</section>	
-		<section>
-			<title>Set Operations on Compared Tables</title>
-			<p>When comparing tables from one and the same heap dump, it is now possible
-			to perform different set operations on the comparison result. 
-			</p>
-			<image href="mimes/compare_basket_context_menu.png">
-				<alt>Context menu in the Compare Basket</alt>
-			</image>
-			<image href="mimes/setops_menu.png">
-				<alt>Set Operations context menu</alt>
-			</image>
-		</section>
-		<section>
-			<title>Links to Objects in HTML Reports</title>
-			<p>If a Memory Analyzer report (e.g. the Leak Suspect report) is open in the tool itself and not
-			in a browser, then it will be possible to list at least some of the objects "behind" a row
-			in tables (e.g. in a Histogram).
-			Up to now only links to single objects were rendered. Now also the first up to 10 objects can be listed:
-			 
-			</p>
-			<image href="mimes/report_link_to_objects.png">
-				<alt>Open a list of objects directly from the HTML report</alt>
-			</image>
-		</section>
-		<section>
-			<title>Thread details from DTFJ dumps</title>
-			<p>Additional thread information is now available from DTFJ dumps.
-			</p>
-			<image href="mimes/thread_details.png">
-				<alt>Extra thread detail from a DTFJ dump</alt>
-			</image>
-		</section>
-		<section>
-			<title>Value tab in object inspector</title>
-			<p>The value tab shows a readable value for some objects. This is the same text as in the list objects query.</p>
-			<image href="mimes/inspector_value.png">
-				<alt>Value tab in object inspector</alt>
-			</image>
-		</section>
-		<section>
-			<title>Accessibility Improvements</title>
-			<p>This release of MAT contains a series of accessibility improvements
-			related to better support for keyboard navigation, screen reader (JAWS),
-			and high contrast mode.
-			</p>
-		</section>	
-		<section>
-			<title>New and Noteworthy for Memory Analyzer 1.0</title>
 			<p>
-				The New and Noteworthy document for version 1.0 is available 
-				<xref format="html" href="http://www.eclipse.org/mat/1.0/noteworthy.html">here</xref>.
+			One can check if the tool assumes compressed pointers or not in the "Heap Dump Details" view.
+			</p>
+			<image href="mimes/compressed_oops.png">
+				<alt>Property indicating if compressed pointers are used or not</alt>
+			</image>
+		</section>
+		
+		<section>
+			<title>OQL Syntax Highlighting and Autocompletion</title>
+			<p>The OQL Editor has been enhanced with autocompletion and syntax highlighting capabilities 
+			</p>
+			<image href="mimes/oql_completion1.png">
+				<alt>Use code completion in OQL</alt>
+			</image>
+		</section>
+		<section>
+			<title>New and Noteworthy for Memory Analyzer 1.1</title>
+			<p>
+				The New and Noteworthy document for version 1.1 is available 
+				<xref format="html" href="http://www.eclipse.org/mat/1.1/noteworthy.html">here</xref>.
 			</p>
 		</section>
 
