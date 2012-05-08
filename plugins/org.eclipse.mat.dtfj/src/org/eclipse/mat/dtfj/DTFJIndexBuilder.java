@@ -7811,45 +7811,53 @@ public class DTFJIndexBuilder implements IIndexBuilder
         // MAT expects the name with $, but with [][] for the dimensions
         String d = getClassName(j2, listener).replace('/', '.');
         // debugPrint("d = "+d);
-        int dim = d.lastIndexOf("[") + 1; //$NON-NLS-1$
-        int i = dim;
-        int j = d.length();
-        // Does the class name have L and semicolon around it
-        if (j > 0 && d.charAt(j - 1) == ';')
-        {
-            // If so, remove them
-            --j;
-            if (d.charAt(i) == 'L')
-                ++i;
-            d = d.substring(i, j);
+        // Count leading '['s :
+        int dim = 0;
+        int d_len = d.length();
+        while (dim < d_len && d.charAt(dim)=='[') {
+        	dim++;
         }
-        else if (i > 0)
-        {
-            d = d.substring(i);
-            // Fix up primitive type names
-            // DTFJ J9 array names are okay (char etc.)
-            if (d.equals("Z")) //$NON-NLS-1$
-                d = "boolean"; //$NON-NLS-1$
-            else if (d.equals("B")) //$NON-NLS-1$
-                d = "byte"; //$NON-NLS-1$
-            else if (d.equals("S")) //$NON-NLS-1$
-                d = "short"; //$NON-NLS-1$
-            else if (d.equals("C")) //$NON-NLS-1$
-                d = "char"; //$NON-NLS-1$
-            else if (d.equals("I")) //$NON-NLS-1$
-                d = "int"; //$NON-NLS-1$
-            else if (d.equals("F")) //$NON-NLS-1$
-                d = "float"; //$NON-NLS-1$
-            else if (d.equals("J")) //$NON-NLS-1$
-                d = "long"; //$NON-NLS-1$
-            else if (d.equals("D")) //$NON-NLS-1$
-                d = "double"; //$NON-NLS-1$
-            else if (d.startsWith("L")) //$NON-NLS-1$
-                // javacore reader bug - no semicolon
-                d = d.substring(1);
-        }
-        if (dim > 0)
-        {
+        
+        // Iff this is an array type, strip off leading '['s,
+        // remove trailing ; if present and leading L if present.
+        // Rebuild class name with trailing []s for dimensions.
+        if (dim > 0) {
+            int i = dim;
+            int j = d_len;
+            // Does the class name have L and semicolon around it?
+            if (j > i && d.charAt(j - 1) == ';')
+            {
+                // If so, remove them
+                --j;
+                if (d.charAt(i) == 'L')
+                    ++i;
+                d = d.substring(i, j); // Strip classname down to base name
+            }
+            else
+            {
+                d = d.substring(i, j); // Strip classname down to base name
+                // Fix up primitive type names
+                // DTFJ J9 array names are okay (char etc.)
+                if (d.equals("Z")) //$NON-NLS-1$
+                    d = "boolean"; //$NON-NLS-1$
+                else if (d.equals("B")) //$NON-NLS-1$
+                    d = "byte"; //$NON-NLS-1$
+                else if (d.equals("S")) //$NON-NLS-1$
+                    d = "short"; //$NON-NLS-1$
+                else if (d.equals("C")) //$NON-NLS-1$
+                    d = "char"; //$NON-NLS-1$
+                else if (d.equals("I")) //$NON-NLS-1$
+                    d = "int"; //$NON-NLS-1$
+                else if (d.equals("F")) //$NON-NLS-1$
+                    d = "float"; //$NON-NLS-1$
+                else if (d.equals("J")) //$NON-NLS-1$
+                    d = "long"; //$NON-NLS-1$
+                else if (d.equals("D")) //$NON-NLS-1$
+                    d = "double"; //$NON-NLS-1$
+                else if (d.startsWith("L")) //$NON-NLS-1$
+                    // javacore reader bug - no semicolon
+                    d = d.substring(1);
+            }
             StringBuilder a = new StringBuilder(d);
             // Convert to MAT style array signature
             for (; dim > 0; --dim)
@@ -7857,7 +7865,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 a.append("[]"); //$NON-NLS-1$
             }
             d = a.toString();
-        }
+        } // if (dim > 0)
+        
         // debugPrint("d2 = "+d);
         return d;
     }
