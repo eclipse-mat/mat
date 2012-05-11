@@ -17,7 +17,7 @@
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2008, 2011 SAP AG and others.
+				Copyright (c) 2008, 2012 SAP AG and others.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License v1.0
 			    which accompanies this distribution, and is available at
@@ -84,6 +84,86 @@
 				<dt>Hide popup query help</dt>
 				<dd>Do not display the help panel underneath the query wizard, unless F1 or the help button
 				is pressed.</dd>
+			</dlentry>
+			<dlentry>
+				<dt>
+					<menucascade>
+						<uicontrol>Memory Analyzer</uicontrol>
+						<uicontrol>DTFJ Parser</uicontrol>
+						<uicontrol>Stack frames</uicontrol>
+					</menucascade>
+				</dt>
+				<dd>
+					Normally stack frames are just shown in the Thread overview and stacks query.
+					This option allows stack frames to be treated as objects which are then visible like any other Java object in a Memory Analyzer view.
+					<dl>
+					<dlentry>
+					<dt>Normal
+					</dt>
+					<dd>Stack frames are just shown in the Thread overview and stacks query.
+					</dd>
+					</dlentry>
+					<dlentry>
+					<dt>Only stack frames as pseudo-objects
+					</dt>
+					<dd>
+					Stack frames are of type <codeph>&lt;stack frame&gt;</codeph>, size 0, with method names and source file
+and line numbers via fields and a name resolver.
+					<p>This is useful when looking at paths to and from objects via local variables as the stack frames are visible in
+					the paths to GC roots queries.</p>
+					</dd>
+					</dlentry>
+					<dlentry>
+					<dt>Stack frames as pseudo-objects and running methods as pseudo-classes
+					</dt>
+					<dd>Stack frames of are of type <codeph>packageName.className.methodName(Signature)ReturnType</codeph> extending <codeph>&lt;method&gt;</codeph> representing the method being executed,
+of size the stack frame size, with source file and line number via fields and a name resolver,
+and those methods are pseudo-classes of type <codeph>&lt;method type&gt;</codeph> of size 0.
+					<p>This can be useful to find out which methods are currently running and how much stack space they take up.
+					To examine running methods then take the histogram view, filter by '\(', then sort by instances or instance size.
+					</p>
+					</dd>
+					</dlentry>
+					<dlentry>
+					<dt>Stack frames as pseudo-objects and all methods as pseudo-classes
+					</dt>
+					<dd>Stack frames of are of type <codeph>packageName.className.methodName(Signature)ReturnType</codeph> extending <codeph>&lt;method&gt;</codeph>codeph> representing the method being executed,
+of size the stack frame size, with source file and line number via fields and a name resolver,
+and all methods are pseudo-classes of type <codeph>&lt;method type&gt;</codeph> of size based on the JITted and byte code sizes. The method sizes are then not part of the class size.
+					<p>This can be useful to find out which methods have large JITted or byte code sizes. They can be viewed by going to the histogram view,
+					then selecting <codeph>&lt;method type&gt;</codeph> and listing objects.
+					</p>
+					</dd>
+					</dlentry>
+					</dl>
+					
+				</dd>
+			</dlentry>
+			<dlentry>
+				<dt>
+					<menucascade>
+						<uicontrol>Memory Analyzer</uicontrol>
+						<uicontrol>DTFJ Parser</uicontrol>
+						<uicontrol>Runtime ID</uicontrol>
+					</menucascade>
+				</dt>
+				<dd>Certain DTFJ dumps can contain snapshots from multiple Java Virtual Machines. This can happen with IBM z/OS system dumps.
+				By default Memory Analyzer chooses the snapshot from JVM that caused the dump (as reported by DTFJ), or the first snapshot found.
+				Memory Analyzer will produce a warning if additional snapshots are found. Another of these snapshots can be selected by using 
+				this option, of the form 'i.j.k' where <parmname>i</parmname> is the index of the address space required, 
+				<parmname>j</parmname> is the index of the process within that address space and <parmname>k</parmname> is the index of
+				the runtime within the process. This ID is shown in a warning message when multiple dumps are found.
+				Instead of an index, an address space identifier, process identifier or runtime identifier as shown by the warning
+				message can be used instead. An identifier can be omitted.
+				Example message
+				<msgblock>
+				Using DTFJ Java runtime 4.0.0
+				Multiple Java runtimes found without a runtime ID specified in preferences. Ignoring extra Java runtime 5.0.0 found in image at address space '0x379' process ID '14568399' runtime address '0x492c6f2468' version Java(TM) SE Runtime Environment(build pmz6460sr9fp1-20110401_03 (SR9 FP1))
+				Multiple Java runtimes found without a runtime ID specified in preferences. Ignoring extra Java runtime 6.0.0 found in image at address space '0x4bc' process ID '35467898' runtime address '0x492d592c98' version Java(TM) SE Runtime Environment(build pmz6460sr9fp1-20110401_03 (SR9 FP1))
+				</msgblock>
+				To specify another runtime, <userinput>5.0.0</userinput> or <userinput>0x379.14568399.0x492c6f2468</userinput> or even
+				<userinput>0x379..</userinput> or <userinput>..0x492c6f2468</userinput> could be used.
+				</dd>
 			</dlentry>
 			<dlentry>
 				<dt>

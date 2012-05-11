@@ -4912,6 +4912,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
         String id0 = sp[0];
         String id1 = sp.length > 1 ? sp[1] : ""; //$NON-NLS-1$
         String id2 = sp.length > 2 ? sp[2] : ""; //$NON-NLS-1$
+        ImageProcess currentProc = currentProcess(image);
+        JavaRuntime currentRuntime = currentRuntime(currentProc);
         int addrId = 0;
         for (Iterator<?> i1 = image.getAddressSpaces(); i1.hasNext(); ++addrId)
         {
@@ -4920,14 +4922,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 continue;
             ias = (ImageAddressSpace) next1;
             ++nAddr;
-            lastAddr = ias.toString();
-            // If the toString name is just the default Object.toString with a default hashcode then it isn't any good as a comparison
-            String defaultToString = ias.getClass().getName()+'@'+Integer.toHexString(System.identityHashCode(ias));
-            if (lastAddr.equals(defaultToString))
-                lastAddr = Integer.toString(addrId);
-            // Extract out any hex id
-            if (lastAddr.matches(".*0x[0-9A-Fa-f]+")) //$NON-NLS-1$
-                lastAddr = lastAddr.substring(lastAddr.lastIndexOf("0x")); //$NON-NLS-1$
+            lastAddr = addressSpaceId(ias, addrId);
             int procId = 0;
             for (Iterator<?> i2 = ias.getProcesses(); i2.hasNext(); ++procId)
             {
@@ -4936,25 +4931,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     continue;
                 proc = (ImageProcess) next2;
                 ++nProc;
-                try
-                {
-                    lastProc = proc.getID();
-                    // Avoid confusion of small process ids with nProc index
-                    if (lastProc.matches("[0123456789]")) //$NON-NLS-1$
-                        lastProc = "0x"+lastProc; //$NON-NLS-1$
-                }
-                catch (DataUnavailable e)
-                {
-                    if (listener != null)
-                        listener.sendUserMessage(Severity.INFO, Messages.DTFJIndexBuilder_ErrorReadingProcessID, e);
-                    lastProc = Integer.toString(procId);
-                }
-                catch (CorruptDataException e)
-                {
-                    if (listener != null)
-                        listener.sendUserMessage(Severity.INFO, Messages.DTFJIndexBuilder_ErrorReadingProcessID, e);
-                    lastProc = Integer.toString(procId);
-                }
+                lastProc = processId(proc, procId, listener);
                 int runtimeId = 0;
                 for (Iterator<?> i3 = proc.getRuntimes(); i3.hasNext(); ++runtimeId)
                 {
@@ -4974,6 +4951,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                             lastJavaRuntime = Integer.toString(runtimeId);
                         }
                         ++nJavaRuntimes;
+                        boolean inCurrentRuntime = runtime.equals(currentRuntime) || currentRuntime == null;
                         
                         Exception e1 = null;
                         String version = null;
@@ -4985,7 +4963,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                         {
                             e1 = e;
                         }
-                        if (run == null && (requestedId == null 
+                        if (run == null && (requestedId == null && inCurrentRuntime
                             || currentId.equals(requestedId) 
                             || (id0.length() == 0 || id0.equals(lastAddr) || id0.equals(Integer.toString(addrId)))
                             && (id1.length() == 0 || id1.equals(lastProc) || id1.equals(Integer.toString(procId)))
@@ -5054,6 +5032,192 @@ public class DTFJIndexBuilder implements IIndexBuilder
         if (requestedId == null && nJavaRuntimes <= 1)
             fullRuntimeId = null;
         return new RuntimeInfo(image, ias, proc, run, fullRuntimeId);
+    }
+
+    /**
+     * Returns an address space id from the address space
+     * @param ias
+     * @param addrId a numeric count to use if the proper ID cannot be found
+     * @return the id
+     */
+    private static String addressSpaceId(ImageAddressSpace ias, int addrId)
+    {
+        String lastAddr = null;
+        try
+        {
+            // DTFJ V1.10
+            lastAddr = ias.getID();
+        }
+        catch (DataUnavailable e2)
+        {}
+        catch (CorruptDataException e2)
+        {}
+        catch (LinkageError e2)
+        {}
+        if (lastAddr == null)
+        {
+            lastAddr = ias.toString();
+            // If the toString name is just the default Object.toString with a default hashcode then it isn't any good as a comparison
+            String defaultToString = ias.getClass().getName()+'@'+Integer.toHexString(System.identityHashCode(ias));
+            if (lastAddr.equals(defaultToString))
+                lastAddr = Integer.toString(addrId);
+            // Extract out any hex id
+            if (lastAddr.matches(".*0x[0-9A-Fa-f]+")) //$NON-NLS-1$
+                lastAddr = lastAddr.substring(lastAddr.lastIndexOf("0x")); //$NON-NLS-1$
+        }
+        return lastAddr;
+    }
+
+    /**
+     * Return a process id
+     * @param proc
+     * @param procId a numeric count to use if the proper ID cannot be found
+     * @param listener
+     * @return
+     */
+    private static String processId(ImageProcess proc, int procId, IProgressListener listener)
+    {
+        String lastProc;
+        try
+        {
+            lastProc = proc.getID();
+            // Avoid confusion of small process ids with nProc index
+            if (lastProc.matches("[0123456789]")) //$NON-NLS-1$
+                lastProc = "0x"+lastProc; //$NON-NLS-1$
+        }
+        catch (DataUnavailable e)
+        {
+            if (listener != null)
+                listener.sendUserMessage(Severity.INFO, Messages.DTFJIndexBuilder_ErrorReadingProcessID, e);
+            lastProc = Integer.toString(procId);
+        }
+        catch (CorruptDataException e)
+        {
+            if (listener != null)
+                listener.sendUserMessage(Severity.INFO, Messages.DTFJIndexBuilder_ErrorReadingProcessID, e);
+            lastProc = Integer.toString(procId);
+        }
+        return lastProc;
+    }
+
+    /**
+     * Find the current process associated with an image, or the only process.
+     * @param image
+     * @return the process or null if multiple processes found and none is a current process
+     */
+    private static ImageProcess currentProcess(Image image)
+    {
+        int spaces = 0;
+        ImageAddressSpace firstSpace = null;
+        for (Iterator<?> i1 = image.getAddressSpaces(); i1.hasNext();)
+        {
+            Object next1 = i1.next();
+            if (next1 instanceof CorruptData)
+                continue;
+            spaces++;
+            ImageAddressSpace ias = (ImageAddressSpace) next1;
+            ImageProcess currentProc = ias.getCurrentProcess();
+            if (currentProc != null)
+            {
+                return currentProc;
+            }
+            if (++spaces == 1)
+            {
+                firstSpace = ias; 
+            }
+            
+        }
+        if (spaces == 1)
+        {
+            int processes = 0;
+            ImageProcess firstProc = null;
+            for (Iterator<?> i2 = firstSpace.getProcesses(); i2.hasNext(); )
+            {
+                Object next2 = i2.next();
+                if (next2 instanceof CorruptData)
+                    continue;
+                if (++processes == 1)
+                {
+                    firstProc = (ImageProcess)next2;
+                }
+                
+            }
+            if (processes == 1)
+            {
+                // Just one process
+                return firstProc;
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * Return the current JavaRuntime associated with a current thread of a process, or the only runtime
+     * @param proc
+     * @return the runtime or null if no runtime is associated with the thread and there is more than
+     * one runtime.
+     */
+    private static JavaRuntime currentRuntime(ImageProcess proc)
+    {
+        if (proc == null)
+        {
+            return null;
+        }
+        try
+        {
+            ImageThread imgThrd = proc.getCurrentThread();
+            if (imgThrd != null)
+            {
+                for (Iterator<?> i3 = proc.getRuntimes(); i3.hasNext();)
+                {
+                    Object next3 = i3.next();
+                    if (next3 instanceof CorruptData)
+                        continue;
+                    if (next3 instanceof JavaRuntime)
+                    {
+                        JavaRuntime runtime = (JavaRuntime) next3;
+                        for (Iterator<?> i4 = runtime.getThreads(); i4.hasNext();)
+                        {
+                            Object next4 = i4.next();
+                            if (next4 instanceof CorruptData)
+                                continue;
+                            if (next4 instanceof JavaThread)
+                            {
+                                JavaThread jt = (JavaThread) next4;
+                                try
+                                {
+                                    if (imgThrd.equals(jt.getImageThread())) { return runtime; }
+                                }
+                                catch (DataUnavailable e)
+                                {}
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        catch (CorruptDataException e)
+        {}
+        int runtimes = 0;
+        JavaRuntime firstRuntime = null;
+        for (Iterator<?> i3 = proc.getRuntimes(); i3.hasNext();)
+        {
+            Object next3 = i3.next();
+            if (next3 instanceof CorruptData)
+                continue;
+            if (next3 instanceof JavaRuntime)
+            {
+                if (++runtimes == 1)
+                {
+                    firstRuntime = (JavaRuntime)next3;
+                }
+            }
+        }
+        if (runtimes == 1)
+        {
+            return firstRuntime;
+        }
+        return null;
     }
 
     /**
