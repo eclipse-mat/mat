@@ -86,6 +86,8 @@ public class ComponentReportQuery implements IQuery
         ticks.tick();
 
         Histogram histogram = snapshot.getHistogram(retained, ticks);
+        if (ticks.isCanceled())
+            throw new IProgressListener.OperationCanceledException();
         ticks.tick();
 
         long totalSize = snapshot.getHeapSize(retained);
@@ -934,6 +936,8 @@ public class ComponentReportQuery implements IQuery
         overview.add(commentSpec);
 
         Histogram histogram = snapshot.getHistogram(finalizers.toArray(), ticks);
+        if (ticks.isCanceled())
+            throw new IProgressListener.OperationCanceledException();
         histogram.setLabel(Messages.ComponentReportQuery_HistogramFinalizeMethod);
         overview.add(new QuerySpec(histogram.getLabel(), histogram));
 

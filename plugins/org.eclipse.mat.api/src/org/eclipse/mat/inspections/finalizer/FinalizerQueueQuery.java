@@ -130,6 +130,8 @@ public class FinalizerQueueQuery implements IQuery
         spec.add(objList);
 
         Histogram histogramResult = snapshot.getHistogram(result.toArray(), listener);
+        if (listener.isCanceled())
+            throw new IProgressListener.OperationCanceledException();
         QuerySpec histogram = new QuerySpec(Messages.FinalizerQueueQuery_ReadyForFinalizerThread_Histogram, //
                         histogramResult);
         histogram.set("sort_column", Messages.Column_RetainedHeap); //$NON-NLS-1$
