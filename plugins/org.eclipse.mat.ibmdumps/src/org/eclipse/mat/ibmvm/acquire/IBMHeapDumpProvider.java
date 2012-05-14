@@ -82,8 +82,8 @@ class IBMHeapDumpProvider extends IBMDumpProvider {
      * heapdump.yyyyMMdd.HHmmss.pid.seq.phd
      * javacore.yyyyMMdd.HHmmss.pid.seq.txt
      * or
-     * heapdump<pid>.<timestamp>.phd
-     * javacore<pid>.<timestamp>.txt
+     * heapdump&lt;pid&gt;.&lt;timestamp&gt;.phd
+     * javacore&lt;pid&gt;.&lt;timestamp&gt;.txt
      * 
      * Options:
      * 1.leave dumps where are
