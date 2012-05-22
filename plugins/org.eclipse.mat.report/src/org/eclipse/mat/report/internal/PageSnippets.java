@@ -42,7 +42,7 @@ import org.eclipse.mat.util.HTMLUtils;
             // Ignore
         }
         artefact.append("<meta http-equiv=\"Content-type\" content=\"text/html;charset="+encoding+"\">");
-        artefact.append("<title>").append(title).append("</title>");
+        artefact.append("<title>").append(HTMLUtils.escapeText(title)).append("</title>");
         artefact.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"").append(artefact.getPathToRoot()).append(
                         "styles.css\">");
         artefact.append("<script src=\"").append(artefact.getPathToRoot()).append(
