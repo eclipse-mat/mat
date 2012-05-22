@@ -258,7 +258,7 @@ public final class PieFactory
     private final static class SliceImpl implements IResultPie.ColoredSlice, Serializable
     {
         private static final long serialVersionUID = 1L;
-        private static final String HTML_BREAK = "<br>"; //$NON-NLS-1$
+        private static final String HTML_BREAK = "<br/>"; //$NON-NLS-1$
 
         int objectId;
 
