@@ -455,6 +455,7 @@ public class LeakHunterQuery implements IQuery
         if (bigSuspectInstances.size() > 0)
         {
             builder.append("<p>").append(Messages.LeakHunterQuery_BiggestInstances); //$NON-NLS-1$
+            builder.append("</p>"); //$NON-NLS-1$
             builder.append("<ul>"); //$NON-NLS-1$
             for (IObject inst : bigSuspectInstances)
             {
@@ -466,7 +467,6 @@ public class LeakHunterQuery implements IQuery
                                                                                 totalHeap)));
             }
             builder.append("</ul>"); //$NON-NLS-1$
-            builder.append("</p>"); //$NON-NLS-1$
         }
 
         /* get accumulation point info */

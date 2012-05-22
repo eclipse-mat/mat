@@ -73,6 +73,8 @@ public class ComponentReportQuery implements IQuery
     @Argument(isMandatory = false)
     public boolean aggressive;
 
+    private static final String HTML_BREAK = "<br>"; //$NON-NLS-1$
+
     public IResult execute(IProgressListener listener) throws Exception
     {
         SectionSpec componentReport = new SectionSpec(MessageUtil.format(Messages.ComponentReportQuery_ComponentReport,
@@ -357,7 +359,7 @@ public class ComponentReportQuery implements IQuery
             StringBuilder comment = new StringBuilder();
             comment.append(MessageUtil.format(Messages.ComponentReportQuery_Msg_FoundOccurrences, table.getRowCount(),
                             totals.getLabel(2)));
-            comment.append("<p>" + Messages.ComponentReportQuery_TopElementsInclude + "<ul>"); //$NON-NLS-1$ //$NON-NLS-2$
+            comment.append("<p>" + Messages.ComponentReportQuery_TopElementsInclude + "</p><ul>"); //$NON-NLS-1$ //$NON-NLS-2$
 
             for (int rowId = 0; rowId < table.getRowCount() && rowId < 5; rowId++)
             {
@@ -369,7 +371,7 @@ public class ComponentReportQuery implements IQuery
                 String size = table.getFormattedColumnValue(row, 3);
 
                 comment.append("<li>").append(table.getFormattedColumnValue(row, 1)); //$NON-NLS-1$
-                comment.append(" x <strong>").append(value).append("</strong> "); //$NON-NLS-1$ //$NON-NLS-2$
+                comment.append(" &times; <strong>").append(value).append("</strong> "); //$NON-NLS-1$ //$NON-NLS-2$
                 comment.append(MessageUtil.format(Messages.ComponentReportQuery_Label_Bytes, size)).append("</li>"); //$NON-NLS-1$
             }
             comment.append("</ul>"); //$NON-NLS-1$
@@ -785,7 +787,7 @@ public class ComponentReportQuery implements IQuery
 
         StringBuilder comment = new StringBuilder();
         comment.append(MessageUtil.format(messages.Msg_ReferencesFound, instanceSet.size(),
-                        referentSet.size())).append("<br/>"); //$NON-NLS-1$
+                        referentSet.size())).append(HTML_BREAK);
 
         Histogram onlySoftlyReachable = (Histogram) referents.getResultEntries().get(1).getResult();
         numObjects = 0;
@@ -797,7 +799,7 @@ public class ComponentReportQuery implements IQuery
         }
         comment.append(MessageUtil.format(messages.Msg_ReferencesRetained, //
                         numObjects, //
-                        Units.Storage.of(heapSize).format(heapSize))).append("<br/>"); //$NON-NLS-1$
+                        Units.Storage.of(heapSize).format(heapSize))).append(HTML_BREAK);
 
         Histogram stronglyReachableReferents = (Histogram) referents.getResultEntries().get(2).getResult();
         numObjects = 0;
