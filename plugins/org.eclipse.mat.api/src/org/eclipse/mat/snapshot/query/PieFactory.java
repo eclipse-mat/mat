@@ -258,6 +258,7 @@ public final class PieFactory
     private final static class SliceImpl implements IResultPie.ColoredSlice, Serializable
     {
         private static final long serialVersionUID = 1L;
+        private static final String HTML_BREAK = "<br>"; //$NON-NLS-1$
 
         int objectId;
 
@@ -279,7 +280,7 @@ public final class PieFactory
 
             if (label != null)
             {
-                buf.append("<br/><p>").append(Messages.PieFactory_Label_ShallowSize).append(" <b>"); //$NON-NLS-1$ //$NON-NLS-2$
+                buf.append(HTML_BREAK).append("<p>").append(Messages.PieFactory_Label_ShallowSize).append(" <b>"); //$NON-NLS-1$ //$NON-NLS-2$
                 buf.append(Units.Storage.of(shallowSize).format(shallowSize));
                 buf.append("</b>     ").append(Messages.PieFactory_Label_RetainedSize).append(" <b>"); //$NON-NLS-1$ //$NON-NLS-2$
                 buf.append(Units.Storage.of(retainedSize).format(retainedSize));

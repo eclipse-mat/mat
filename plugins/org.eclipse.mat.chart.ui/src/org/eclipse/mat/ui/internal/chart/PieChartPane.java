@@ -280,6 +280,7 @@ public class PieChartPane extends AbstractEditorPane implements ISelectionProvid
             sliceName = sliceName.replaceAll("<p>", ""); //$NON-NLS-1$ //$NON-NLS-2$
             sliceName = sliceName.replaceAll("</p>", ""); //$NON-NLS-1$ //$NON-NLS-2$
             sliceName = sliceName.replaceAll("</b>", ""); //$NON-NLS-1$ //$NON-NLS-2$
+            sliceName = sliceName.replaceAll("<br>", ""); //$NON-NLS-1$ //$NON-NLS-2$
             sliceName = sliceName.replaceAll("<br/>", ""); //$NON-NLS-1$ //$NON-NLS-2$
         }
 
