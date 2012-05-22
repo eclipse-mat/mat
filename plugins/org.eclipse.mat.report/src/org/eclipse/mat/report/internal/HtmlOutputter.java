@@ -574,23 +574,27 @@ public class HtmlOutputter implements IOutputter
     private void renderText(Context context, TextResult textResult, Writer writer, boolean hasDetailsLink)
                     throws IOException
     {
-        writer.append("<p>");//$NON-NLS-1$
-
         if (textResult.isHtml())
         {
+            writer.append("<div>");//$NON-NLS-1$
+            String html = textResult.getText();
+            if (!html.startsWith("<p") && !html.startsWith("<h")) //$NON-NLS-1$ //$NON-NLS-2$
+                writer.append("<p>"); //$NON-NLS-1$
             if (!hasDetailsLink)
-                writer.append(textResult.getText());
+                writer.append(html);
             else
                 resolveDetailLinks(context, textResult, writer);
+            // Hard to work out whether the <p> tag has been closed by another tag
+            writer.append("</div>");//$NON-NLS-1$
         }
         else
         {
+            writer.append("<p>");//$NON-NLS-1$
             writer.append("<pre>"); //$NON-NLS-1$
             writer.append(HTMLUtils.escapeText(textResult.getText()));
             writer.append("</pre>"); //$NON-NLS-1$
+            writer.append("</p>");//$NON-NLS-1$
         }
-
-        writer.append("</p>");//$NON-NLS-1$
     }
 
     private void resolveDetailLinks(Context context, TextResult textResult, Writer writer) throws IOException
