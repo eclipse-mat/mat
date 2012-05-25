@@ -35,7 +35,7 @@ import org.eclipse.mat.query.ResultMetaData;
  * <pre>
  * <code>
  *    int[] objectIds = myClass.getObjectIds();
- *    List<NameValuePair> pairs = new ArrayList<NameValuePair>();
+ *    List&lt;NameValuePair&gt; pairs = new ArrayList&lt;NameValuePair&gt;();
  *     
  *    // loop over all instances and take the value of the field name and the field value
  *    for (int id : objectIds)

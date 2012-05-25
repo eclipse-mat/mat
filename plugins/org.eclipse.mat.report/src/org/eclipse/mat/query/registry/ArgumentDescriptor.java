@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2011 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation - documentation
  *******************************************************************************/
 package org.eclipse.mat.query.registry;
 
@@ -16,6 +17,9 @@ import java.util.List;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.descriptors.IArgumentDescriptor;
 
+/**
+ * Provides details about an argument to be injected into a query or heap dump provider.
+ */
 public class ArgumentDescriptor implements IArgumentDescriptor
 {
 	private boolean isMandatory;
@@ -154,6 +158,10 @@ public class ArgumentDescriptor implements IArgumentDescriptor
 				type.getName()).append(")").toString();
 	}
 
+	/**
+	 * Adds usage information for the argument to the buffer.
+	 * @param buf
+	 */
 	@SuppressWarnings("nls")
 	void appendUsage(StringBuilder buf)
 	{
@@ -174,7 +182,7 @@ public class ArgumentDescriptor implements IArgumentDescriptor
 			if (isEnum())
 			{
 				boolean first = true;
-				for (Enum o : ((Class<Enum>) type).getEnumConstants())
+				for (Enum<?> o : ((Class<Enum>) type).getEnumConstants())
 				{
 					if (first)
 					{
@@ -196,6 +204,11 @@ public class ArgumentDescriptor implements IArgumentDescriptor
 		if (!isMandatory()) buf.append("]");
 	}
 
+	/**
+	 * Builds a description of how the argument can be set with the value from the command line.
+	 * @param buf
+	 * @param value
+	 */
 	@SuppressWarnings("nls")
 	void appendUsage(StringBuilder buf, Object value)
 	{
