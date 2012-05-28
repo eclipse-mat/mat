@@ -28,8 +28,8 @@ public interface ContextExtractor {
 	 * Given the TextViewer and the position, it scans the content backwards to extract 
 	 * the prefix for the content assist
 	 * @param source
-	 * @param position
-	 * @return
+	 * @param currentPosition
+	 * @return what has been typed before the current position and should be used to filter the content assistance.
 	 */
 	public String getPrefix(ITextViewer source, int currentPosition);
 }

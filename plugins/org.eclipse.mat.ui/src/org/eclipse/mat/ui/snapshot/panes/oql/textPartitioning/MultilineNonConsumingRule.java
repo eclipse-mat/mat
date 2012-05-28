@@ -45,7 +45,7 @@ public class MultilineNonConsumingRule implements IRule, IPredicateRule
      * Base constructor to specify start sequence, end sequence and token.
      * 
      * @param startSequence
-     * @param endSequence
+     * @param endSequences
      * @param token
      */
     public MultilineNonConsumingRule(String startSequence, String endSequences[], IToken token)
