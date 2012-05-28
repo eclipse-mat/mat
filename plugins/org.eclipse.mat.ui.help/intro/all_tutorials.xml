@@ -19,9 +19,9 @@
 				<text> Get familiar with the basic features for memory analysis.
 				</text>
 			</link>
-			<link label="Feature Hightlights"
+			<link label="Feature Highlights"
 				url="http://org.eclipse.ui.intro/showStandby?partId=org.eclipse.mat.cheatsheet&amp;input=org.eclipse.mat.tutorials.bestFeaturesTutorial">
-				<img src="css/tutorial.gif" alt="Feature Hightlights" />
+				<img src="css/tutorial.gif" alt="Feature Highlights" />
 				<text> Get familiar with the unique features for memory analysis.
 				</text>
 			</link>
