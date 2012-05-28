@@ -39,7 +39,7 @@ public abstract class IndexReader
      * Page 0: ArrayIntCompressed
      * Page 1: ArrayIntCompressed
      * ...
-     * Page n: ArrayIntCompressed>
+     * Page n: ArrayIntCompressed
      * page 0 start in file (8)
      * page 1 start in file (8)
      * ...
@@ -590,7 +590,7 @@ public abstract class IndexReader
      * Page 0: ArrayLongCompressed
      * Page 1: ArrayLongCompressed
      * ...
-     * Page n: ArrayLongCompressed>
+     * Page n: ArrayLongCompressed
      * page 0 start in file (8)
      * page 1 start in file (8)
      * ...
