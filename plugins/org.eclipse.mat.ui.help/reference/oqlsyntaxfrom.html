@@ -32,7 +32,7 @@
 			
 			<p class="p">
 				The FROM clause defines the classes on which to operate.
-				Specifiy the class by one of the following means:
+				Specify the class by one of the following means:
 			</p>
 
 			<strong class="ph b">by class name:</strong>
@@ -42,10 +42,16 @@
 			<pre class="pre codeblock">SELECT * FROM "java\.lang\..*"</pre>
 
 			<strong class="ph b">by the object address of the class:</strong>
-			<pre class="pre codeblock">SELECT * FROM 0xe14a100</pre>
+			<pre class="pre codeblock">SELECT * FROM 0x2b7468c8</pre>
 
-			<strong class="ph b">by the object id:</strong>
-			<pre class="pre codeblock">SELECT * FROM 3022</pre>
+			<strong class="ph b">by the object addresses of more than one class:</strong>
+			<pre class="pre codeblock">SELECT * FROM 0x2b7468c8,0x2b74aee0</pre>
+
+			<strong class="ph b">by the object id of the class:</strong>
+			<pre class="pre codeblock">SELECT * FROM 20815</pre>
+
+			<strong class="ph b">by the object ids of more than one class:</strong>
+			<pre class="pre codeblock">SELECT * FROM 20815,20975</pre>
 
 			<strong class="ph b">by a sub select:</strong>
 			<pre class="pre codeblock">SELECT * FROM ( SELECT *
@@ -104,6 +110,18 @@
 				The result is just one object, the java.lang.String
 				class object.
 			</p>
+
+			<strong class="ph b">by the object address of the particular object:</strong>
+			<pre class="pre codeblock">SELECT * FROM OBJECTS 0x2b7468c8</pre>
+
+			<strong class="ph b">by the object addresses of particular objects:</strong>
+			<pre class="pre codeblock">SELECT * FROM OBJECTS 0x2b7468c8,0x2b746868</pre>
+
+			<strong class="ph b">by the object id of the particular object:</strong>
+			<pre class="pre codeblock">SELECT * FROM OBJECTS 20815</pre>
+
+			<strong class="ph b">by the object ids of particular objects:</strong>
+			<pre class="pre codeblock">SELECT * FROM OBJECTS 20815,20814</pre>
 
 			<div class="note note"><span class="notetitle">Note:</span> 
 				Please note, that currently the FROM OBJECTS term is in
