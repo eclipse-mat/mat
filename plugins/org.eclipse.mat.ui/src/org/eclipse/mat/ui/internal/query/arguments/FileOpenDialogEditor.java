@@ -135,7 +135,9 @@ public class FileOpenDialogEditor extends ArgumentEditor
                 {
                     DirectoryDialog dialog = new DirectoryDialog(getShell());
 
-                    if (lastDirectory != null && lastDirectory.length() > 0)
+                    if (text.getText() != null && text.getText().length() > 0)
+                        dialog.setFilterPath(text.getText());
+                    else if (lastDirectory != null && lastDirectory.length() > 0)
                         dialog.setFilterPath(lastDirectory);
                     else
                         dialog.setFilterPath(System.getProperty("user.home")); //$NON-NLS-1$
@@ -153,7 +155,11 @@ public class FileOpenDialogEditor extends ArgumentEditor
                                     : SWT.OPEN);
                     dialog.setText(Messages.FileOpenDialogEditor_ChooseFile);
 
-                    if (lastDirectory != null && lastDirectory.length() > 0)
+                    String parent;
+                    if (text.getText() != null && text.getText().length() > 0 &&
+                        (parent = new File(text.getText()).getParent()) != null)
+                        dialog.setFilterPath(parent);
+                    else if (lastDirectory != null && lastDirectory.length() > 0)
                         dialog.setFilterPath(lastDirectory);
                     else
                         dialog.setFilterPath(System.getProperty("user.home")); //$NON-NLS-1$

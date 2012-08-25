@@ -10,8 +10,11 @@
  *******************************************************************************/
 package org.eclipse.mat.ibmvm.acquire;
 
+import java.io.File;
+
 import org.eclipse.mat.ibmvm.agent.DumpAgent;
 import org.eclipse.mat.query.annotations.Argument;
+import org.eclipse.mat.query.annotations.Argument.Advice;
 import org.eclipse.mat.snapshot.acquire.IHeapDumpProvider;
 import org.eclipse.mat.snapshot.acquire.VmInfo;
 
@@ -27,6 +30,9 @@ public class IBMVmInfo extends VmInfo
 
     @Argument
     public boolean compress = false;
+
+    @Argument(isMandatory = false, advice = Advice.DIRECTORY)
+    public File dumpdir;
 
     private String pid;
     

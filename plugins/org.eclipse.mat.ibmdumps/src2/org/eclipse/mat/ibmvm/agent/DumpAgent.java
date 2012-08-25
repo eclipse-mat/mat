@@ -14,6 +14,8 @@ import java.util.regex.Pattern;
 
 /**
  * Helper class which is loaded into the target VM to create a dump.
+ * This class requires an IBM VM to compile.
+ * A precompiled version of this class exists in the classes folder.
  * @author ajohnson
  *
  */

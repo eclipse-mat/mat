@@ -40,7 +40,9 @@ import com.ibm.tools.attach.VirtualMachine;
 import com.ibm.tools.attach.VirtualMachineDescriptor;
 
 /**
- * Base class for generating dumps on IBM VMs
+ * Base class for generating dumps on IBM VMs.
+ * This class requires an IBM VM to compile.
+ * A precompiled version of this class exists in the classes folder.
  * @author ajohnson
  *
  */
@@ -291,9 +293,19 @@ public class IBMDumpProvider extends BaseProvider
                 // pwd
                 // TMPDIR
                 // /tmp
-                String userdir = props.getProperty("user.dir", System.getProperty("user.dir")); //$NON-NLS-1$ //$NON-NLS-2$
+                // user.dir
+                // %LOCALAPPDATA%/VirtualStore/Program Files (x86)
+                File udir;
+                if (vminfo.dumpdir == null)
+                {
+                    String userdir = props.getProperty("user.dir", System.getProperty("user.dir")); //$NON-NLS-1$ //$NON-NLS-2$
+                    udir = new File(userdir);
+                }
+                else
+                {
+                    udir = vminfo.dumpdir;
+                }
 
-                File udir = new File(userdir);
                 File f1[] = udir.listFiles();
                 Collection<File> previous = new HashSet<File>(Arrays.asList(f1));
 
@@ -498,14 +510,19 @@ public class IBMDumpProvider extends BaseProvider
         for (VirtualMachineDescriptor vmd : list)
         {
             boolean usable = true;
+            String dir = null;
             // See if the VM is usable to get dumps
             if (false)
+            {
                 try
                 {
                     // Hope that this is not too intrusive to the target
                     VirtualMachine vm = vmd.provider().attachVirtualMachine(vmd);
                     try
-                    {}
+                    {
+                        Properties p = vm.getSystemProperties();
+                        dir = p.getProperty("user.dir");
+                    }
                     finally
                     {
                         vm.detach();
@@ -519,6 +536,7 @@ public class IBMDumpProvider extends BaseProvider
                 {
                     usable = false;
                 }
+            }
             // See if loading an agent would fail
             try
             {
@@ -537,7 +555,10 @@ public class IBMDumpProvider extends BaseProvider
             IBMVmInfo ifo = new IBMVmInfo(vmd.id(), desc, usable, null, this);
             ifo.type = defaultType;
             ifo.compress = defaultCompress;
+            if (dir != null)
+                ifo.dumpdir = new File(dir);
             jvms.add(ifo);
+            ifo.setHeapDumpEnabled(usable);
         }
         return jvms;
     }
@@ -550,11 +571,12 @@ public class IBMDumpProvider extends BaseProvider
      *        <li>[1] VM id = PID</li>
      *        <li>[2] true/false compress dump</li>
      *        <li>[3] dump name</li>
+     *        <li>[4] dump directory (optional)</li>
      *        </ul>
      * Output<ul>
      * <li>dump filename</li>
      * <li>or list of all processes (if argument list is empty)
-     * <samp>PID,proposed file name,description</samp></li>
+     * <samp>PID;proposed file name;directory;description</samp></li>
      * </ul>
      */
     public static void main(String s[]) throws Exception
@@ -566,7 +588,8 @@ public class IBMDumpProvider extends BaseProvider
         {
             IBMVmInfo vminfo = (IBMVmInfo)info;
             String vm = vminfo.getPidName();
-            String vm2 = vm + INFO_SEPARATOR + info.getProposedFileName() + INFO_SEPARATOR + info.getDescription();
+            String dir = vminfo.dumpdir != null ? vminfo.dumpdir.getAbsolutePath() : ""; 
+            String vm2 = vm + INFO_SEPARATOR + info.getProposedFileName() + INFO_SEPARATOR + dir + INFO_SEPARATOR + info.getDescription();
             if (s.length < 4)
             {
                 System.out.println(vm2);
@@ -578,8 +601,12 @@ public class IBMDumpProvider extends BaseProvider
                     DumpType tp = DumpType.valueOf(s[0]);
                     vminfo.type = tp;
                     vminfo.compress = Boolean.parseBoolean(s[2]);
+                    if (s.length > 4)
+                    {
+                        vminfo.dumpdir = new File(s[4]);
+                    }
                     File f2 = info.getHeapDumpProvider().acquireDump(info, new File(s[3]), ii);
-                    System.out.println(f2.getPath());
+                    System.out.println(f2.getAbsolutePath());
                     return;
                 }
             }

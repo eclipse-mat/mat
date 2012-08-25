@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.annotations.Argument;
@@ -28,6 +29,7 @@ import org.eclipse.mat.snapshot.acquire.VmInfo;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.IProgressListener.Severity;
 import org.eclipse.mat.util.MessageUtil;
+import org.osgi.service.prefs.BackingStoreException;
 
 /**
  * Enables the creation of dumps from IBM VMs when a non-IBM VM
@@ -72,6 +74,8 @@ public class IBMExecDumpProvider extends BaseProvider
             args.add(vm);
             args.add(Boolean.toString(info2.compress));
             args.add(preferredLocation.getAbsolutePath());
+            if (info2.dumpdir != null)
+                args.add(info2.dumpdir.getAbsolutePath());
             pb.command(args);
             p = pb.start();
             StringBuffer err = new StringBuffer();
@@ -269,8 +273,19 @@ public class IBMExecDumpProvider extends BaseProvider
 
     private static synchronized void setJavaDir(String home)
     {
-        new InstanceScope().getNode(PLUGIN_ID).put(last_directory_key, home);
-        savedJavaDir = home;
+        if (!home.equals(savedJavaDir))
+        {
+            IEclipsePreferences prefs = new InstanceScope().getNode(PLUGIN_ID);
+            prefs.put(last_directory_key, home);
+            try
+            {
+                prefs.flush();
+            }
+            catch (BackingStoreException e)
+            {
+            }
+            savedJavaDir = home;
+        }
     }
 
     private List<VmInfo> execGetVMs(File javaExec, IProgressListener listener)
@@ -332,18 +347,20 @@ public class IBMExecDumpProvider extends BaseProvider
                     String ss[] = in.toString().split("[\\n\\r]+"); //$NON-NLS-1$
                     for (String s : ss)
                     {
-                        // pid;proposed filename;description
-                        String s2[] = s.split(INFO_SEPARATOR, 3);
-                        if (s2.length >= 3)
+                        // pid;proposed filename;possible directory;description
+                        String s2[] = s.split(INFO_SEPARATOR, 4);
+                        if (s2.length >= 4)
                         {
                             // Exclude the helper process
-                            if (!s2[2].contains(getExecJar().getName()))
+                            if (!s2[3].contains(getExecJar().getName()))
                             {
-                                IBMExecVmInfo ifo = new IBMExecVmInfo(s2[0], s2[2], true, null, this);
+                                IBMExecVmInfo ifo = new IBMExecVmInfo(s2[0], s2[3], true, null, this);
                                 ifo.javaexecutable = javaExec;
                                 ifo.vmoptions = vmoptions;
                                 ifo.type = defaultType;
                                 ifo.compress = defaultCompress;
+                                if (s2[2].length() > 0)
+                                    ifo.dumpdir = new File(s2[2]);
                                 ar.add(ifo);
                             }
                         }
