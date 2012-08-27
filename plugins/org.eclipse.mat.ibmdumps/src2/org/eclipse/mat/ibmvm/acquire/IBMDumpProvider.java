@@ -331,6 +331,11 @@ public class IBMDumpProvider extends BaseProvider
                 }
 
                 listener.done();
+                if (newFiles.isEmpty())
+                {
+                    String msg = MessageFormat.format(Messages.getString("IBMDumpProvider.UnableToFindDump"), udir.getAbsoluteFile());
+                    throw new FileNotFoundException(msg);
+                }
                 return jextract(preferredLocation, vminfo.compress, newFiles, udir, javahome, listener);
             }
             catch (InterruptedException e)
