@@ -103,7 +103,7 @@ public class HtmlPieChartRenderer implements IOutputter
             gr.render(render, state);
             String imageMap = ((IImageMapEmitter) render).getImageMap();
             // fix up HTML errors
-            imageMap = imageMap.replaceFirst("/><area","><area").replaceFirst("/>$", ">"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+            imageMap = imageMap.replaceAll("/><area","><area").replaceFirst("/>$", ">"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
             String mapName = "chart" + context.getId() + "map"; //$NON-NLS-1$ //$NON-NLS-2$
             writer.append("<map name='").append(mapName).append("'>").append(imageMap).append("</map>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             writer.append("<img src=\"").append(imageFile).append("\" width=\"800\" height=\"350\" usemap='#").append(mapName).append("' alt=\"\">"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
