@@ -1335,6 +1335,7 @@ public abstract class RefinedResultViewer
         List<Object> selection = new ArrayList<Object>(items.length);
         for (int ii = 0; ii < items.length; ii++)
         {
+            items[ii].getText(); // Force virtual Item data to be populated
             Object row = items[ii].getData();
             if (row != null)
                 selection.add(row);
@@ -1343,10 +1344,13 @@ public abstract class RefinedResultViewer
                 // Expand a totals row into all remaining objects
                 final Item parent = adapter.getParentItem(items[ii]);
                 ControlItem ctrl = null;
+                // Used to confirm this is the last row (totals row)
+                int ix = adapter.indexOf(items[ii]);
+                int nx = adapter.getItemCount(parent);
                 if (parent == null)
                 {
                     // Exclude the filter row
-                    if (adapter.indexOf(items[ii]) != 0)
+                    if (ix != 0)
                     {
                         ctrl = (ControlItem) control.getData(Key.CONTROL);
                     }
@@ -1356,7 +1360,7 @@ public abstract class RefinedResultViewer
                     // Subtree, so no filter row
                     ctrl = (ControlItem) parent.getData(Key.CONTROL);
                 }
-                if (ctrl != null && ctrl.getTotals() != null)
+                if (ctrl != null && ctrl.getTotals() != null && ix + 1 == nx)
                 {
                     // Add all the undisplayed items to the list
                     for (int jj = ctrl.getTotals().getVisibleItems(); jj < ctrl.children.size(); ++jj)
