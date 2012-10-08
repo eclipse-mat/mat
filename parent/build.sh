@@ -21,9 +21,10 @@ cd prepare_build
 MVN_PREPARE_CALL="$M2_HOME/bin/mvn -Dmaven.repo.local=../../.repoPrepare $ANT_OPTS -DproxyHost=$proxyHost -DproxyPort=$proxyPort $settingsOpts clean install"
 echo $MVN_PREPARE_CALL
 eval $MVN_PREPARE_CALL
-set result=$?
+result=$?
+echo result=$result
 cd ..
-if [ "x$result" != "x" ]; then
+if [ $result != 0 ]; then
 	exit $result
 fi
 
@@ -31,14 +32,17 @@ cd parent
 MVN_CALL="$M2_HOME/bin/mvn -Dmaven.repo.local=../../.repository $proxyOpts $mvnArguments clean install $additionalPlugins"
 echo $MVN_CALL
 eval $MVN_CALL
-
-
-set result=$?
-
+result=$?
 echo result=$result
-if [ "x$result" == "x" ]; then
-	ant -file copy-build-results.xml
+cd ..
+if [ $result != 0 ]; then
+	exit $result
 fi
 
+cd parent
+ant -file copy-build-results.xml
+result=$?
+echo result=$result
 cd ..
+
 exit $result
