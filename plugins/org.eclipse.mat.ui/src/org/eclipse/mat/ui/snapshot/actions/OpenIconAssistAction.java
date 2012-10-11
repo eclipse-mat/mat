@@ -283,13 +283,14 @@ public class OpenIconAssistAction extends Action implements IWorkbenchWindowActi
         public PopupTable(Shell parent, int style)
         {
             shell = new Shell(parent, checkStyle(style));
-            TableViewer viewer = new TableViewer(shell, SWT.WRAP | SWT.V_SCROLL | SWT.H_SCROLL);
+            PlatformUI.getWorkbench().getHelpSystem().setHelp(shell, "org.eclipse.mat.ui.help.icon_assist"); //$NON-NLS-1$
+            TableViewer viewer = new TableViewer(shell, SWT.V_SCROLL | SWT.H_SCROLL);
             table = viewer.getTable();
             AccessibleCompositeAdapter.access(table);
             TableColumn tc1 = new TableColumn(table, SWT.CENTER);
             TableColumn tc2 = new TableColumn(table, SWT.LEFT);
             tc1.setWidth(25);
-            tc2.setWidth(270);
+            tc2.setWidth(370);
             table.setLinesVisible(true);
             viewer.setContentProvider(new TableContentProvider());
             viewer.setLabelProvider(new IconsLabelProvider(viewer.getTable().getFont()));

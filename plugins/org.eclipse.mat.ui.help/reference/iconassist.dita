@@ -53,6 +53,22 @@
 				</strow>
 				<strow>
 					<stentry>
+						<image href="../mimes/i-class_mixed.png">
+							<alt>Class old and new icon</alt>
+						</image>
+					</stentry>
+					<stentry>Instances grouped by class where some of the instances have already been shown</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<image href="../mimes/i-class_old.png">
+							<alt>Class old icon</alt>
+						</image>
+					</stentry>
+					<stentry>Instances grouped by class where all of the instances have already been shown</stentry>
+				</strow>
+				<strow>
+					<stentry>
 						<image href="../mimes/i-package.png">
 							<alt>Package icon</alt>
 						</image>

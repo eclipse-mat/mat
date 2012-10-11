@@ -25,4 +25,9 @@
 		<topic label="How to configure the acquire heap dump providers"
 			href="tasks/acquiringheapdump.html" />
 	</context>
+	<context id="icon_assist">
+		<description>Icon reference</description>
+		<topic label="The meaning of various icons"
+			href="reference/iconassist.html" />
+	</context>
 </contexts>
