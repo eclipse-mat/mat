@@ -3,10 +3,12 @@
 
 <target name="MAT Juno Target" sequenceNumber="1">
 <locations>
-<location includeAllPlatforms="false" includeMode="planner" includeSource="false" type="InstallableUnit">
-<unit id="org.eclipse.birt.feature.group" version="3.7.1.v20110905-BDF9E8OGTzuHfoz-Au7-CWvXDn6N"/>
-<unit id="org.eclipse.sdk.ide" version="4.2.0.I20111209-2100"/>
-<repository location="http://download.eclipse.org/releases/juno"/>
+<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.birt.feature.group" version="4.2.1.v20120820-ChBG8UGYgRQlJ7y9Lz-wS7nDcRL4"/>
+<unit id="org.eclipse.jdt.feature.group" version="3.8.1.v20120814-104540-8-8nFqpFNOfwKDRVz-tXOcL5d_83"/>
+<unit id="org.eclipse.equinox.executable.feature.group" version="3.6.0.v20120522-1813-7P7OG2BFLWUl7UmbVUO9iCm"/>
+<unit id="org.eclipse.rcp.feature.group" version="4.2.1.v20120814-120134-7IAPA8BrHQicS-rjP0GbqK780kMy"/>
+<repository location="http://download.eclipse.org/releases/juno/"/>
 </location>
 <location includeAllPlatforms="false" includeMode="planner" type="InstallableUnit">
 <unit id="com.ibm.dtfj.feature.feature.group" version="0.0.0"/>

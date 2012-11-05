@@ -16,8 +16,7 @@
 	<name>MAT Parent</name>
 
 	<properties>
-		<!-- Need Tycho 0.13.0 because of MacOS RCPs build -->
-		<tycho-version>0.13.0</tycho-version>
+		<tycho-version>0.16.0</tycho-version>
 		<signer-input-directory>/home/data/httpd/download-staging.priv/tools/mat</signer-input-directory>
 		<download-publish-path>/home/data/httpd/download.eclipse.org/mat/snapshots/update-site</download-publish-path>
 		<download-publish-rcp-path>/home/data/httpd/download.eclipse.org/mat/snapshots/rcp</download-publish-rcp-path>
@@ -34,28 +33,135 @@
 				</pluginRepository>
 			</pluginRepositories>
 		</profile>
+		<profile>
+			<!-- A profile defining the taget definition for building MAT against 
+				Juno -->
+			<id>build-juno-rcp</id>
+			<properties>
+				<mat.target>mat-build-juno</mat.target>
+			</properties>
+			<build>
+				<pluginManagement>
+					<plugins>
+						<plugin>
+							<groupId>org.eclipse.tycho</groupId>
+							<artifactId>target-platform-configuration</artifactId>
+							<version>${tycho-version}</version>
+							<configuration>
+								<environments>
+									<environment>
+										<os>win32</os>
+										<ws>win32</ws>
+										<arch>x86</arch>
+									</environment>
+									<environment>
+										<os>win32</os>
+										<ws>win32</ws>
+										<arch>x86_64</arch>
+									</environment>
+								</environments>
+							</configuration>
+						</plugin>
+					</plugins>
+				</pluginManagement>
+			</build>
+		</profile>
+		<profile>
+			<!-- A profile defining the taget definition for building MAT against 
+				Indigo -->
+			<id>build-indigo-rcp</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+				<mat.target>mat-build-indigo</mat.target>
+			</properties>
+			<build>
+				<pluginManagement>
+					<plugins>
+						<plugin>
+							<groupId>org.eclipse.tycho</groupId>
+							<artifactId>target-platform-configuration</artifactId>
+							<version>${tycho-version}</version>
+							<configuration>
+								<environments>
+									<environment>
+										<os>win32</os>
+										<ws>win32</ws>
+										<arch>x86</arch>
+									</environment>
+									<environment>
+										<os>win32</os>
+										<ws>win32</ws>
+										<arch>x86_64</arch>
+									</environment>
+									<environment>
+										<os>macosx</os>
+										<ws>carbon</ws>
+										<arch>x86</arch>
+									</environment>
+									<environment>
+										<os>macosx</os>
+										<ws>cocoa</ws>
+										<arch>x86</arch>
+									</environment>
+									<environment>
+										<os>macosx</os>
+										<ws>cocoa</ws>
+										<arch>x86_64</arch>
+									</environment>
+									<environment>
+										<os>solaris</os>
+										<ws>gtk</ws>
+										<arch>x86</arch>
+									</environment>
+									<environment>
+										<os>solaris</os>
+										<ws>gtk</ws>
+										<arch>sparc</arch>
+									</environment>
+									<environment>
+										<os>aix</os>
+										<ws>gtk</ws>
+										<arch>ppc</arch>
+									</environment>
+									<environment>
+										<os>aix</os>
+										<ws>gtk</ws>
+										<arch>ppc64</arch>
+									</environment>
+									<environment>
+										<os>hpux</os>
+										<ws>gtk</ws>
+										<arch>ia64_32</arch>
+									</environment>
+									<environment>
+										<os>linux</os>
+										<ws>gtk</ws>
+										<arch>x86</arch>
+									</environment>
+									<environment>
+										<os>linux</os>
+										<ws>gtk</ws>
+										<arch>x86_64</arch>
+									</environment>
+									<environment>
+										<os>linux</os>
+										<ws>gtk</ws>
+										<arch>ppc64</arch>
+									</environment>
+								</environments>
+							</configuration>
+						</plugin>
+					</plugins>
+				</pluginManagement>
+			</build>
+		</profile>
 	</profiles>
 
-	<repositories>
-		<repository>
-			<id>indigo</id>
-			<layout>p2</layout>
-			<url>http://download.eclipse.org/releases/indigo</url>
-		</repository>
-		<repository>
-			<id>dtfj</id>
-			<layout>p2</layout>
-			<url>file:/${basedir}/../../prepare_build/target/repository</url>
-		</repository>
-		<!-- workaround needed because the sub-projects are in different depth -->
-		<repository>
-			<id>dtfj2</id>
-			<layout>p2</layout>
-			<url>file:/${basedir}/../prepare_build/target/repository</url>
-		</repository>
-	</repositories>
-
 	<modules>
+		<!-- target definition -->
+		<module>../org.eclipse.mat.targetdef</module>
 		<!-- plugins -->
 		<module>../plugins/org.eclipse.mat.api</module>
 		<module>../plugins/org.eclipse.mat.chart</module>
@@ -75,7 +181,6 @@
 		<!-- features -->
 		<module>../features/org.eclipse.mat.all.feature</module>
 		<module>../features/org.eclipse.mat.chart.feature</module>
-		<module>../features/org.eclipse.mat.dependencies.feature</module>
 		<module>../features/org.eclipse.mat.feature</module>
 		<module>../features/org.eclipse.mat.ui.rcp.feature</module>
 		<!-- update site -->
@@ -125,7 +230,7 @@
 					<version>${tycho-version}</version>
 					<configuration>
 						<argLine>-ea -Xmx768m</argLine>
-						<testFailureIgnore>true</testFailureIgnore> <!-- currently not supported (ignored) with tycho, see https://issues.sonatype.org/browse/TYCHO-333 -->
+						<testFailureIgnore>true</testFailureIgnore>
 						<includes>
 							<include>**/AllTests.class</include>
 						</includes>
@@ -137,88 +242,49 @@
 					<version>${tycho-version}</version>
 					<configuration>
 						<resolver>p2</resolver>
-
-						<environments>
-							<environment>
-								<os>win32</os>
-								<ws>win32</ws>
-								<arch>x86</arch>
-							</environment>
-							<environment>
-								<os>win32</os>
-								<ws>win32</ws>
-								<arch>x86_64</arch>
-							</environment>
-							<environment>
-								<os>macosx</os>
-								<ws>carbon</ws>
-								<arch>x86</arch>
-							</environment>
-							<environment>
-								<os>macosx</os>
-								<ws>cocoa</ws>
-								<arch>x86</arch>
-							</environment>
-							<environment>
-								<os>macosx</os>
-								<ws>cocoa</ws>
-								<arch>x86_64</arch>
-							</environment>
-							<environment>
-								<os>solaris</os>
-								<ws>gtk</ws>
-								<arch>x86</arch>
-							</environment>
-							<environment>
-								<os>solaris</os>
-								<ws>gtk</ws>
-								<arch>sparc</arch>
-							</environment>
-							<!--
-							<environment>
-								<os>aix</os>
-								<ws>motif</ws>
-								<arch>ppc</arch>
-							</environment>
-							-->
-							<environment>
-								<os>aix</os>
-								<ws>gtk</ws>
-								<arch>ppc</arch>
-							</environment>
-							<environment>
-								<os>aix</os>
-								<ws>gtk</ws>
-								<arch>ppc64</arch>
-							</environment>
-							<environment>
-								<os>hpux</os>
-								<ws>gtk</ws>
-								<arch>ia64_32</arch>
-							</environment>
-							<environment>
-								<os>linux</os>
-								<ws>gtk</ws>
-								<arch>x86</arch>
-							</environment>
-							<environment>
-								<os>linux</os>
-								<ws>gtk</ws>
-								<arch>x86_64</arch>
-							</environment>
-							<!--
-							<environment>
-								<os>linux</os>
-								<ws>gtk</ws>
-								<arch>ppc</arch>
-							</environment>
-							-->
-							<environment>
-								<os>linux</os>
-								<ws>gtk</ws>
-								<arch>ppc64</arch>
-							</environment>
-						</environments>
+						<target>
+							<artifact>
+								<groupId>org.eclipse.mat</groupId>
+								<artifactId>org.eclipse.mat.targetdef</artifactId>
+								<version>${project.version}</version>
+								<classifier>${mat.target}</classifier>
+							</artifact>
+						</target>
+						<!-- List of bundles to be excluded from the target platform. These 
+							bundles are comming as optional dependencies for other bundles, and we have 
+							no CQs to deliver them -->
+						<filters>
+							<filter>
+								<type>eclipse-plugin</type>
+								<id>org.apache.lucene.highlighter</id>
+								<removeAll />
+							</filter>
+							<filter>
+								<type>eclipse-plugin</type>
+								<id>org.apache.lucene.memory</id>
+								<removeAll />
+							</filter>
+							<filter>
+								<type>eclipse-plugin</type>
+								<id>org.apache.lucene.misc</id>
+								<removeAll />
+							</filter>
+							<filter>
+								<type>eclipse-plugin</type>
+								<id>org.apache.lucene.queries</id>
+								<removeAll />
+							</filter>
+							<filter>
+								<type>eclipse-plugin</type>
+								<id>org.apache.lucene.snowball</id>
+								<removeAll />
+							</filter>
+							<filter>
+								<type>eclipse-plugin</type>
+								<id>org.apache.lucene.spellchecker</id>
+								<removeAll />
+							</filter>
+						</filters>
 
 						<ignoreTychoRepositories>true</ignoreTychoRepositories>
 					</configuration>

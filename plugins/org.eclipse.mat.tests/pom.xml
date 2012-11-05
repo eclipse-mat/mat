@@ -44,11 +44,6 @@
 							<artifactId>com.ibm.dtfj.feature.feature.group</artifactId>
 							<version>0.0.0</version>
 						</dependency>				
-						<dependency>
-							<type>p2-installable-unit</type>
-							<artifactId>org.eclipse.sdk.ide</artifactId>
-							<version>0.0.0</version>
-						</dependency>			
 					</dependencies>
 				</configuration>
 			</plugin>

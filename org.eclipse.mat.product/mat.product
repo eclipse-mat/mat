@@ -4,7 +4,7 @@
 <product name="Memory Analyzer Tool" uid="org.eclipse.mat.ui.rcp.MemoryAnalyzer" id="org.eclipse.mat.ui.rcp.MemoryAnalyzer" application="org.eclipse.mat.ui.rcp.application" version="1.2.1" useFeatures="true" includeLaunchers="true">
 
    <aboutInfo>
-      <image path="/parent/org.eclipse.mat.product/icons/eclipse_lg.gif"/>
+      <image path="/org.eclipse.mat.product/icons/eclipse_lg.gif"/>
       <text>
          Eclipse Memory Analyzer
 
@@ -24,7 +24,7 @@ Visit http://www.eclipse.org/mat
 -XstartOnFirstThread</vmArgsMac>
    </launcherArgs>
 
-   <windowImages i16="/parent/org.eclipse.mat.product/icons/memory_analyzer_16.gif" i32="/parent/org.eclipse.mat.product/icons/memory_analyzer_32.gif"/>
+   <windowImages i16="/org.eclipse.mat.product/icons/memory_analyzer_16.gif" i32="/org.eclipse.mat.product/icons/memory_analyzer_32.gif"/>
 
    <splash
       location="org.eclipse.mat.ui.rcp"
@@ -188,16 +188,17 @@ Contributors:
    </plugins>
 
    <features>
-      <feature id="org.eclipse.mat.dependencies.feature" version="1.2.1.qualifier"/>
       <feature id="org.eclipse.mat.ui.rcp.feature" version="1.2.1.qualifier"/>
+      <feature id="org.eclipse.rcp"/>
+      <feature id="org.eclipse.equinox.p2.user.ui"/>
+      <feature id="org.eclipse.help"/>
    </features>
 
    <configurations>
       <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
       <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.equinox.ds" autoStart="true" startLevel="2" />
-      <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="1" />
-      <property name="osgi.requiredJavaVersion" value="1.5.0"/>
+      <property name="osgi.requiredJavaVersion" value="1.5.0" />
    </configurations>
 
 </product>

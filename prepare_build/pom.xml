@@ -29,13 +29,36 @@
 							<goal>run</goal>
 						</goals>
 					</execution>
+					<execution>
+						<id>modify_target</id>
+						<phase>package</phase>
+						<configuration>
+							<target>
+								<makeurl property="workspace.baseUrl">
+									<path location="${project.basedir}" />
+								</makeurl>
+								<echo message="Replacing location in target with: ${workspace.baseUrl}" />
+								<copy file="${project.basedir}/../org.eclipse.mat.targetdef/mat-juno.target" tofile="${project.basedir}/../org.eclipse.mat.targetdef/mat-build-juno.target"/>
+								<replace
+									file="${project.basedir}/../org.eclipse.mat.targetdef/mat-build-juno.target"
+									token="jar:ftp://ftp.software.ibm.com/software/java/support/tools/dtfj/dtfj-updatesite.zip!/" value="${workspace.baseUrl}target/repository" />
+								<copy file="${project.basedir}/../org.eclipse.mat.targetdef/mat-indigo.target" tofile="${project.basedir}/../org.eclipse.mat.targetdef/mat-build-indigo.target"/>
+								<replace
+									file="${project.basedir}/../org.eclipse.mat.targetdef/mat-build-indigo.target"
+									token="jar:ftp://ftp.software.ibm.com/software/java/support/tools/dtfj/dtfj-updatesite.zip!/" value="${workspace.baseUrl}target/repository" />
+							</target>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>					
 				</executions>
 			</plugin>
 
 			<plugin>
 				<groupId>org.eclipse.tycho.extras</groupId>
 				<artifactId>tycho-p2-extras-plugin</artifactId>
-				<version>0.12.0</version>
+				<version>0.16.0</version>
 				<executions>
 					<execution>
 						<phase>prepare-package</phase>
