@@ -16,6 +16,9 @@ package org.eclipse.mat.collect;
 public class ArrayUtils
 {
 
+    private static final int USE_SELECTION = 12;
+    private static final int USE_RADIX = 1000000;
+
     /**
      * Sorts the keys in an increasing order. Elements key[i] and values[i] are
      * always swapped together in the corresponding arrays.
@@ -171,32 +174,46 @@ public class ArrayUtils
     private static int[] split(int[] keys, int[] values, int left, int right)
     {
         // just take the median of the middle key and the two border keys
-        int splittingIdx = median(keys, left, right, left + ((right - left) >> 1));
+        // sorting them in order rather than just taking the median helps performance a little
+        int middle = left + ((right - left) >> 1);
+        if (keys[left] > keys[middle])
+            swap(keys, values, left, middle);
+        if (keys[middle] > keys[right])
+            swap(keys, values, middle, right);
+        if (keys[left] > keys[middle])
+            swap(keys, values, left, middle);
+        int splittingIdx = middle;
+        int ret[] = split(keys, values, left, right, splittingIdx);
+        return ret;
+    }
+    
+    private static int[] split(int[] keys, int[] values, int left, int right, int splittingIdx)
+    {
         int splittingValue = keys[splittingIdx];
 
-        // move splitting element first
-        swap(keys, values, left, splittingIdx);
+        // move splitting element last
+        swap(keys, values, splittingIdx, right);
 
-        int i = left;
+        int i = left; // location of first item >= splittingValue
         int c = 0; // number of elements equal to splittingValue
-        for (int j = left + 1; j <= right; j++)
+        for (int j = left; j < right; j++)
         {
             if (keys[j] < splittingValue)
             {
-                i++;
                 swap(keys, values, i, j);
 
                 // if there are duplicates, keep them next to each other
                 if (c > 0)
                     swap(keys, values, i + c, j);
+                i++;
             }
             else if (keys[j] == splittingValue)
             {
-                c++;
                 swap(keys, values, i + c, j);
+                c++;
             }
         }
-        swap(keys, values, left, i);
+        swap(keys, values, i + c, right);
 
         return new int[] { i, i + c };
     }
@@ -204,42 +221,91 @@ public class ArrayUtils
     private static int[] splitDesc(long[] keys, int[] values, int left, int right)
     {
         // just take the median of the middle key and the two border keys
-        int splittingIdx = median(keys, left, right, left + ((right - left) >> 1));
+        // sorting them in order rather than just taking the median helps performance a little
+        int middle = left + ((right - left) >> 1);
+        if (keys[left] < keys[middle])
+            swap(keys, values, left, middle);
+        if (keys[middle] < keys[right])
+            swap(keys, values, middle, right);
+        if (keys[left] < keys[middle])
+            swap(keys, values, left, middle);
+        int splittingIdx = middle;
+        return splitDesc(keys, values, left, right, splittingIdx);
+    }
+
+    private static int[] splitDesc(long[] keys, int[] values, int left, int right, int splittingIdx)
+    {
         long splittingValue = keys[splittingIdx];
 
-        // move splitting element first
-        swap(keys, values, left, splittingIdx);
+        // move splitting element last
+        swap(keys, values, splittingIdx, right);
 
-        int i = left;
+        int i = left; // location of first item <= splittingValue
         int c = 0; // number of elements equal to splittingValue
-        for (int j = left + 1; j <= right; j++)
+        for (int j = left; j < right; j++)
         {
             if (keys[j] > splittingValue)
             {
-                i++;
                 swap(keys, values, i, j);
 
                 // if there are duplicates, keep them next to each other
                 if (c > 0)
                     swap(keys, values, i + c, j);
+                i++;
             }
             else if (keys[j] == splittingValue)
             {
-                c++;
                 swap(keys, values, i + c, j);
+                c++;
             }
         }
-        swap(keys, values, left, i);
+        swap(keys, values, i + c, right);
 
         return new int[] { i, i + c };
     }
 
+    /**
+     * Semi-random index for pivot.
+     * Used if median of 3 isn't working well.
+     * @param left
+     * @param right
+     * @return
+     */
+    private static int randomizedIndex(int left, int right) {
+        int ret = left + (((right - left) >> 2) ^ left ^ right) % (right - left);
+        return ret;
+    }
+
+    /**
+     * Was the choice of split point successful?
+     * @param sizeLeft
+     * @param sizeRight
+     * @return
+     */
+    private static boolean goodSplit(int sizeLeft, int sizeRight, int sizeAll)
+    {
+        boolean useMedian;
+        // Try to stop pathological cases with a very uneven split
+        useMedian = (sizeAll - Math.max(sizeLeft,  sizeRight) + 50) > sizeAll / 10;
+        return useMedian;
+    }
+
     private static void hybridsort(int[] keys, int[] values, int left, int right)
     {
+        boolean useMedian = true;
         while (right - left >= 1)
         {
-            if (right - left < 5000000)
+            if (right - left <= USE_RADIX)
             {
+                // use insert sort on the small ones
+                // to avoid the loop in radix sort
+                if (right - left < USE_SELECTION)
+                {
+                    for (int i = left; i <= right; i++)
+                        for (int j = i; j > left && keys[j - 1] > keys[j]; j--)
+                            swap(keys, values, j, j - 1);
+                    return;
+                }
                 radixsort(keys, values, left, right - left + 1);
                 break;
             }
@@ -248,11 +314,14 @@ public class ArrayUtils
                 // split the array - the elements between i[0] and i[1] are
                 // equal.
                 // the elements on the left are smaller, on the right - bigger
-                int[] i = split(keys, values, left, right);
+                int[] i = useMedian ? split(keys, values, left, right) : 
+                    split(keys, values, left, right, randomizedIndex(left, right));
 
                 int sizeLeft = i[0] - left;
                 int sizeRight = right - i[1];
-                
+
+                useMedian = goodSplit(sizeLeft, sizeRight, right - left);
+
                 // Limit recursion depth by doing the smaller side first
                 if (sizeLeft <= sizeRight)
                 {
@@ -274,9 +343,10 @@ public class ArrayUtils
 
     private static void hybridsortDesc(long[] keys, int[] values, long[] tmpKeys, int[] tmpValues, int left, int right)
     {
+        boolean useMedian = true;
         while (right - left >= 1)
         {
-            if (right - left < 5000000)
+            if (right - left <= USE_RADIX)
             {
                 // use insert sort on the small ones
                 // to avoid the loop in radix sort
@@ -295,11 +365,15 @@ public class ArrayUtils
                 // split the array - the elements between i[0] and i[1] are
                 // equal.
                 // the elements on the left are bigger, on the right - smaller
-                int[] i = splitDesc(keys, values, left, right);
+                int[] i = useMedian ? splitDesc(keys, values, left, right) : 
+                    splitDesc(keys, values, left, right, randomizedIndex(left, right));
+
 
                 int sizeLeft = i[0] - left;
                 int sizeRight = right - i[1];
-                
+
+                useMedian = goodSplit(sizeLeft, sizeRight, right - left);
+
                 // Limit recursion depth by doing the smaller side first
                 if (sizeLeft <= sizeRight)
                 {
