@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 Filippo Pacifici
+ * Copyright (c) 2012 Filippo Pacifici and IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  * Filippo Pacifici - initial API and implementation
+ * Andrew Johnson - add images and descriptions
  *******************************************************************************/
 package org.eclipse.mat.ui.snapshot.panes.oql.contentAssist;
 
@@ -124,7 +125,8 @@ public class OQLContentAssistantProcessor implements IContentAssistProcessor
             ContentAssistElement cp = it.next();
             String classname = cp.getClassName();
             ICompletionProposal completion = new CompletionProposal(classname, currentCursor - replaceLength,
-                            replaceLength, currentCursor - replaceLength + classname.length());
+                            replaceLength, currentCursor - replaceLength + classname.length(),
+                            cp.getImage(), cp.getDisplayString(), null, null);
             retProposals[c] = completion;
             c++;
         }

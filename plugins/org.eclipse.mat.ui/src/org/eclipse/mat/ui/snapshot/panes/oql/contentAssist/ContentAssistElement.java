@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 Filippo Pacifici
+ * Copyright (c) 2012 Filippo Pacifici and IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,10 +7,11 @@
  *
  * Contributors:
  * Filippo Pacifici - initial API and implementation
+ * Andrew Johnson - add images and description
  *******************************************************************************/
 package org.eclipse.mat.ui.snapshot.panes.oql.contentAssist;
 
-import java.awt.Image;
+import org.eclipse.swt.graphics.Image;
 
 /**
  * Javabean to temporarily store classnames for the content assistant in an
@@ -24,6 +25,8 @@ public class ContentAssistElement implements Comparable<ContentAssistElement>
     private String className;
 
     private Image image;
+    
+    private String displayString;
 
     /**
      * Uses String compare method.
@@ -64,6 +67,11 @@ public class ContentAssistElement implements Comparable<ContentAssistElement>
         return className;
     }
 
+    public String getDisplayString()
+    {
+        return displayString;
+    }
+
     public Image getImage()
     {
         return image;
@@ -71,11 +79,17 @@ public class ContentAssistElement implements Comparable<ContentAssistElement>
 
     public ContentAssistElement(String className, Image image)
     {
+        this(className, image, null);
+    }
+    
+    public ContentAssistElement(String className, Image image, String display)
+    {
         super();
         if (className == null)
             throw new IllegalArgumentException("Cannot be initialized without a class name");
         this.className = className;
         this.image = image;
+        this.displayString = display;
     }
 
     public String toString()

@@ -1,22 +1,20 @@
 /*******************************************************************************
- * Copyright (c) 2012 Filippo Pacifici and IBM Corporation
+ * Copyright (c) 2012 IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- * Filippo Pacifici - initial API and implementation
- * Andrew Johnson - add images
+ * Andrew Johnson - initial API and implementation
  *******************************************************************************/
 package org.eclipse.mat.ui.snapshot.panes.oql.contentAssist;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeSet;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -24,19 +22,17 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.snapshot.ISnapshot;
+import org.eclipse.mat.snapshot.model.FieldDescriptor;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.util.ErrorHelper;
-import org.eclipse.mat.util.PatternUtil;
 import org.eclipse.swt.graphics.Image;
 
 /**
  * Provides the list of classnames in the snapshot that starts with the provided
  * context String.
- * 
- * @author Filippo Pacifici
  */
-public class ClassesSuggestionProvider implements SuggestionProvider
+public class FieldsSuggestionProvider implements SuggestionProvider
 {
 
     /**
@@ -56,9 +52,15 @@ public class ClassesSuggestionProvider implements SuggestionProvider
      * 
      * @param snapshot
      */
-    public ClassesSuggestionProvider(ISnapshot snapshot) throws SnapshotException
+    public FieldsSuggestionProvider(ISnapshot snapshot)
     {
-        InitializerJob asyncJob = new InitializerJob(snapshot);
+        
+    }
+
+    public void setClassesSuggestions(ISnapshot snapshot, List<ContentAssistElement> classSuggestions) throws SnapshotException
+    {
+        ready = false;
+        InitializerJob asyncJob = new InitializerJob(snapshot, classSuggestions);
         asyncJob.schedule();
     }
 
@@ -75,7 +77,7 @@ public class ClassesSuggestionProvider implements SuggestionProvider
         LinkedList<ContentAssistElement> tempList = new LinkedList<ContentAssistElement>();
         boolean foundFirst = false;
         if (ready)
-        {
+        {   
             for (ContentAssistElement cp : orderedList)
             {
                 String cName = cp.getClassName();
@@ -92,93 +94,67 @@ public class ClassesSuggestionProvider implements SuggestionProvider
                     }
                 }
             }
-            // Regular expression matching
-            if (context.startsWith("\""))
-            {
-                String context2 = context.substring(1);
-                if (context2.endsWith("\""))
-                {
-                    // Terminated with double-quote, so expression complete
-                    context2 = context2.substring(0, context2.length() - 1);
-                }
-                else if (context2.endsWith("["))
-                {
-                    // Partial array name, so complete it now so that the regex is valid
-                    context2 = context2 + "].*";
-                }
-                else if (!context2.endsWith(".*"))
-                {
-                    // Allow anything to end
-                    context2 = context2 + ".*";
-                }
-                // Convert array name to regex safe form
-                context2 = PatternUtil.smartFix(context2, false);
-                try
-                {
-                    Pattern p = Pattern.compile(context2);
-
-                    foundFirst = false;
-                    for (ContentAssistElement cp : orderedList)
-                    {
-                        String cName = cp.getClassName();
-                        if (p.matcher(cName).matches())
-                        {
-                            if (!foundFirst)
-                            {
-                                // Add the regex to the list
-                                tempList.add(new ContentAssistElement("\"" + context2 + "\"", null));
-                                foundFirst = true;
-                            }
-                            tempList.add(cp);
-                        }
-                    }
-                }
-                catch (PatternSyntaxException e)
-                {
-                    // Ignore - the user just made a mistake
-                }
-            }
         }
         return tempList;
     }
 
     /**
-     * Scans class list from the snapshot and put it ordered into orderedList.
+     * Scans class list and adds the fields, ordered, into orderedList.
      * 
      * @param snapshot
+     * @param classSuggestions - possible classes to find fields from
      */
-    private void initList(ISnapshot snapshot) throws SnapshotException
+    private void initList(ISnapshot snapshot, List<ContentAssistElement> classSuggestions) throws SnapshotException
     {
         if (snapshot == null)
             throw new IllegalArgumentException("Cannot extract class list from a null snapshot.");
 
-        Collection<IClass> classes = snapshot.getClasses();
+        ready = false;
+        Collection<IClass>classes = new HashSet<IClass>();
+        for (ContentAssistElement el : classSuggestions)
+        {
+            Collection<IClass> cls = snapshot.getClassesByName(el.getClassName(), false);
+            if (cls != null)
+            {
+                classes.addAll(cls);
+            }
+        }
         orderedList = new TreeSet<ContentAssistElement>();
 
         Image im = MemoryAnalyserPlugin.getImage(MemoryAnalyserPlugin.ISharedImages.CLASS);
         for (IClass c : classes)
         {
-            // instantiate here in order to provide class and packages images.
-            ContentAssistElement ce = new ContentAssistElement(c.getName(), im);
-            orderedList.add(ce);
+            do
+            {
+                for (FieldDescriptor fd : c.getFieldDescriptors())
+                {
+                    // instantiate here in order to provide class and packages
+                    // images.
+                    ContentAssistElement ce = new ContentAssistElement(fd.getName(), im, fd.getVerboseSignature() + " "
+                                    + fd.getName());
+                    orderedList.add(ce);
+                }
+                c = c.getSuperClass();
+            }
+            while (c != null);
         }
         ready = true;
     }
 
     /**
      * Asynchronous job to initialize the completion
-     * 
-     * @author Filippo Pacifici
      */
     private class InitializerJob extends Job
     {
 
         ISnapshot snapshot;
+        List<ContentAssistElement> classSuggestions;
 
-        public InitializerJob(ISnapshot snapshot)
+        public InitializerJob(ISnapshot snapshot, List<ContentAssistElement> classSuggestions)
         {
             super("Init content assistant");
             this.snapshot = snapshot;
+            this.classSuggestions = classSuggestions;
         }
 
         @Override
@@ -186,7 +162,7 @@ public class ClassesSuggestionProvider implements SuggestionProvider
         {
             try
             {
-                initList(snapshot);
+                initList(snapshot, classSuggestions);
                 return Status.OK_STATUS;
             }
             catch (SnapshotException e)

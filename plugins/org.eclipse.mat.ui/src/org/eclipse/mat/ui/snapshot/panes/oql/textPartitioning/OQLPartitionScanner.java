@@ -36,7 +36,7 @@ public class OQLPartitionScanner extends RuleBasedPartitionScanner
 	 * Defines the rules for splitting query into.
 	 * 
 	 *  Each rule starts with one of the reserved word and terminates with any of the 
-	 *  others (due t onested queries).
+	 *  others (due to nested queries).
 	 *  EOF is a valid terminator for the partition
      */
     public OQLPartitionScanner()

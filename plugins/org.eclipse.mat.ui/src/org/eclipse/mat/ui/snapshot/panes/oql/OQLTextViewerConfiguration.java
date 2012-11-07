@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 Filippo Pacifici
+ * Copyright (c) 2012 Filippo Pacifici and IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,8 +7,11 @@
  *
  * Contributors:
  * Filippo Pacifici - initial API and implementation
+ * Andrew Johnson - more content assist for fields and methods
  *******************************************************************************/
 package org.eclipse.mat.ui.snapshot.panes.oql;
+
+import java.util.List;
 
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.ContentAssistant;
@@ -20,12 +23,18 @@ import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.snapshot.ISnapshot;
+import org.eclipse.mat.ui.snapshot.panes.oql.contentAssist.AttributeExtractor;
+import org.eclipse.mat.ui.snapshot.panes.oql.contentAssist.BuiltinSuggestionProvider;
 import org.eclipse.mat.ui.snapshot.panes.oql.contentAssist.ClassNameExtractor;
 import org.eclipse.mat.ui.snapshot.panes.oql.contentAssist.ClassesSuggestionProvider;
 import org.eclipse.mat.ui.snapshot.panes.oql.contentAssist.CommentScanner;
+import org.eclipse.mat.ui.snapshot.panes.oql.contentAssist.ContentAssistElement;
 import org.eclipse.mat.ui.snapshot.panes.oql.contentAssist.ContextExtractor;
+import org.eclipse.mat.ui.snapshot.panes.oql.contentAssist.FieldsSuggestionProvider;
+import org.eclipse.mat.ui.snapshot.panes.oql.contentAssist.MultiSuggestionProvider;
 import org.eclipse.mat.ui.snapshot.panes.oql.contentAssist.OQLContentAssistantProcessor;
 import org.eclipse.mat.ui.snapshot.panes.oql.contentAssist.OQLScanner;
+import org.eclipse.mat.ui.snapshot.panes.oql.contentAssist.PropertySuggestionProvider;
 import org.eclipse.mat.ui.snapshot.panes.oql.contentAssist.SuggestionProvider;
 import org.eclipse.mat.ui.snapshot.panes.oql.textPartitioning.OQLPartitionScanner;
 import org.eclipse.mat.ui.util.ErrorHelper;
@@ -90,12 +99,30 @@ public class OQLTextViewerConfiguration extends SourceViewerConfiguration
     {
         ContentAssistant cAssist = new ContentAssistant();
 
+        final FieldsSuggestionProvider fieldSuggestions = new FieldsSuggestionProvider(snapshot);
+        
         // classNames
         ContextExtractor classNameExtr = new ClassNameExtractor();
         SuggestionProvider classSuggestions = null;
         try
         {
-            classSuggestions = new ClassesSuggestionProvider(snapshot);
+            classSuggestions = new ClassesSuggestionProvider(snapshot)
+            {
+                public List<ContentAssistElement> getSuggestions(String context)
+                {
+                    List<ContentAssistElement> classSuggestions = super.getSuggestions(context);
+                    try
+                    {
+                        // New class suggestions, so update the field suggestions
+                        fieldSuggestions.setClassesSuggestions(snapshot, classSuggestions);
+                    }
+                    catch (SnapshotException e)
+                    {
+                        ErrorHelper.logThrowable(e);
+                    }
+                    return classSuggestions;
+                }
+            };
         }
         catch (SnapshotException e)
         {
@@ -106,6 +133,23 @@ public class OQLTextViewerConfiguration extends SourceViewerConfiguration
         // TODO: define a better partitioning to correctly treat FROM clauses
         // split by a comment.
         cAssist.setContentAssistProcessor(fromProcessor, IDocument.DEFAULT_CONTENT_TYPE);
+
+        final BuiltinSuggestionProvider builtinSuggestions = new BuiltinSuggestionProvider();
+        ContextExtractor attributeExtr = new AttributeExtractor();
+        final PropertySuggestionProvider attributeSuggestions = new PropertySuggestionProvider(snapshot);
+
+        SuggestionProvider allSuggestions = new MultiSuggestionProvider(fieldSuggestions, builtinSuggestions,
+                        attributeSuggestions);
+
+        OQLContentAssistantProcessor selectProcessor = new OQLContentAssistantProcessor(allSuggestions, attributeExtr)
+        {
+            public char[] getCompletionProposalAutoActivationCharacters()
+            {
+                return new char[] { '.', '@' };
+            }
+        };
+        cAssist.setContentAssistProcessor(selectProcessor, OQLPartitionScanner.SELECT_CLAUSE);
+        cAssist.setContentAssistProcessor(selectProcessor, OQLPartitionScanner.WHERE_CLAUSE);
 
         cAssist.enableAutoActivation(true);
 

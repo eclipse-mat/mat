@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 Filippo Pacifici
+ * Copyright (c) 2012 Filippo Pacifici and IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  * Filippo Pacifici - initial API and implementation
+ * Andrew Johnson - additional highlighting
  *******************************************************************************/
 package org.eclipse.mat.ui.snapshot.panes.oql.contentAssist;
 
@@ -80,7 +81,7 @@ public class OQLScanner extends RuleBasedScanner
         wr2.addWord("false", tKeyWord); //$NON-NLS-1$
         wr2.addWord("null", tKeyWord); //$NON-NLS-1$
         
-        r[1] = wr;
+        r[1] = wr2;
         
         WordRule wr3 = new WordRule(new IWordDetector()
         {
