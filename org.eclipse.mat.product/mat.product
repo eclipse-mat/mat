@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="Memory Analyzer Tool" uid="org.eclipse.mat.ui.rcp.MemoryAnalyzer" id="org.eclipse.mat.ui.rcp.MemoryAnalyzer" application="org.eclipse.mat.ui.rcp.application" version="1.2.1" useFeatures="true" includeLaunchers="true">
+<product name="Memory Analyzer Tool" uid="org.eclipse.mat.ui.rcp.MemoryAnalyzer" id="org.eclipse.mat.ui.rcp.MemoryAnalyzer" application="org.eclipse.mat.ui.rcp.application" version="1.3.0" useFeatures="true" includeLaunchers="true">
 
    <aboutInfo>
       <image path="/org.eclipse.mat.product/icons/eclipse_lg.gif"/>
       <text>
          Eclipse Memory Analyzer
 
-Version: 1.2.1
+Version: 1.3.0
 
 Copyright (c) 2008, 2012 SAP AG, IBM Corporation and others. All rights reserved.
 Visit http://www.eclipse.org/mat
@@ -188,7 +188,7 @@ Contributors:
    </plugins>
 
    <features>
-      <feature id="org.eclipse.mat.ui.rcp.feature" version="1.2.1.qualifier"/>
+      <feature id="org.eclipse.mat.ui.rcp.feature" version="1.3.0.qualifier"/>
       <feature id="org.eclipse.rcp"/>
       <feature id="org.eclipse.equinox.p2.user.ui"/>
       <feature id="org.eclipse.help"/>
