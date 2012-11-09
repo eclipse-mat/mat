@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2012 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *    IBM Corporation - test AS clause
+ *    IBM Corporation - test instanceof with object id/address
  *******************************************************************************/
 package org.eclipse.mat.tests.snapshot;
 
@@ -518,7 +519,54 @@ public class OQLTest
         int[] objectIds = (int[])execute("select * from java.lang.String s where (select * from objects ${snapshot}.isClass(s.@objectId)) = false");
         assertEquals(492, objectIds.length);
     }
+
+    @Test
+    public void testInstanceOf1() throws SnapshotException
+    {
+        // 25 Abstract Maps
+        int[] objectIds = (int[])execute("select * from instanceof java.util.AbstractMap");
+        assertEquals(25, objectIds.length);
+    }
+
+    @Test
+    public void testInstanceOf2() throws SnapshotException
+    {
+        // 25 Abstract Maps
+        int[] objectIds = (int[])execute("select * from instanceof 0x128da800");
+        assertEquals(25, objectIds.length);
+    }
+
+    @Test
+    public void testInstanceOf3() throws SnapshotException
+    {
+        // 25 Abstract Maps
+        int[] objectIds = (int[])execute("select * from instanceof 120");
+        assertEquals(25, objectIds.length);
+    }
+
+    @Test
+    public void testInstanceOf4() throws SnapshotException
+    {
+        // 10 Abstract Map classes
+        int[] objectIds = (int[])execute("select * from objects instanceof java.util.AbstractMap");
+        assertEquals(10, objectIds.length);
+    }
+
+    @Test
+    public void testInstanceOf5() throws SnapshotException
+    {
+        // 10 Abstract Map classes
+        int[] objectIds = (int[])execute("select * from objects instanceof 0x128da800");
+        assertEquals(10, objectIds.length);
+    }
     
+    @Test
+    public void testInstanceOf6() throws SnapshotException
+    {
+        // 10 Abstract Map classes
+        int[] objectIds = (int[])execute("select * from objects instanceof 120");
+        assertEquals(10, objectIds.length);
+    }
 
     // //////////////////////////////////////////////////////////////
     // internal helper
