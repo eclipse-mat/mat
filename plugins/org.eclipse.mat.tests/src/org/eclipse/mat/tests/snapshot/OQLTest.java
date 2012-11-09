@@ -559,12 +559,44 @@ public class OQLTest
         int[] objectIds = (int[])execute("select * from objects instanceof 0x128da800");
         assertEquals(10, objectIds.length);
     }
-    
+
     @Test
     public void testInstanceOf6() throws SnapshotException
     {
         // 10 Abstract Map classes
         int[] objectIds = (int[])execute("select * from objects instanceof 120");
+        assertEquals(10, objectIds.length);
+    }
+
+    @Test
+    public void testInstanceOf7() throws SnapshotException
+    {
+        // 25 Abstract Maps
+        int[] objectIds = (int[])execute("select * from instanceof (select * from objects java.util.AbstractMap)");
+        assertEquals(25, objectIds.length);
+    }
+
+    @Test
+    public void testInstanceOf8() throws SnapshotException
+    {
+        // 25 Abstract Maps
+        int[] objectIds = (int[])execute("select * from objects instanceof (select * from objects java.util.AbstractMap)");
+        assertEquals(10, objectIds.length);
+    }
+
+    @Test
+    public void testInstanceOf9() throws SnapshotException
+    {
+        // 25 Abstract Maps
+        int[] objectIds = (int[])execute("select * from instanceof ${snapshot}.getClassesByName(\"java.util.AbstractMap\", false)");
+        assertEquals(25, objectIds.length);
+    }
+
+    @Test
+    public void testInstanceOf10() throws SnapshotException
+    {
+        // 25 Abstract Maps
+        int[] objectIds = (int[])execute("select * from objects instanceof ${snapshot}.getClassesByName(\"java.util.AbstractMap\", false)");
         assertEquals(10, objectIds.length);
     }
 

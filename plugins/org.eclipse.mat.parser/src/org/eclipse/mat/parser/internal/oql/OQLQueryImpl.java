@@ -750,7 +750,12 @@ public class OQLQueryImpl implements IOQLQuery
                 for (IntIterator iter = baseSet.iterator(); iter.hasNext();)
                 {
                     int id = iter.nextInt();
-                    classes.add((IClass) ctx.getSnapshot().getObject(id));
+                    IClass subjectClass = (IClass) ctx.getSnapshot().getObject(id);
+                    classes.add(subjectClass);
+                    if (query.getFromClause().includeSubClasses())
+                    {
+                        classes.addAll(subjectClass.getAllSubclasses());
+                    }
                 }
 
                 return filterClasses(monitor, classes);
@@ -930,16 +935,33 @@ public class OQLQueryImpl implements IOQLQuery
                         }
                         else if (obj instanceof Integer)
                         {
-                            classes.add((IClass) this.ctx.getSnapshot().getObject(((Integer) obj).intValue()));
+                            IClass subjectClass = (IClass) this.ctx.getSnapshot().getObject(((Integer) obj).intValue());
+                            classes.add(subjectClass);
+                            if (query.getFromClause().includeSubClasses())
+                            {
+                                classes.addAll(subjectClass.getAllSubclasses());
+                            }
                         }
                         else if (obj instanceof int[])
                         {
                             for (int id : (int[]) obj)
-                                classes.add((IClass) this.ctx.getSnapshot().getObject(id));
+                            {
+                                IClass subjectClass = (IClass) this.ctx.getSnapshot().getObject(id);
+                                classes.add(subjectClass);
+                                if (query.getFromClause().includeSubClasses())
+                                {
+                                    classes.addAll(subjectClass.getAllSubclasses());
+                                }
+                            }
                         }
                         else
                         {
-                            classes.add((IClass) obj);
+                            IClass subjectClass = (IClass) obj;
+                            classes.add(subjectClass);
+                            if (query.getFromClause().includeSubClasses())
+                            {
+                                classes.addAll(subjectClass.getAllSubclasses());
+                            }
                         }
                     }
                 }
@@ -955,22 +977,44 @@ public class OQLQueryImpl implements IOQLQuery
                         }
                         else if (obj instanceof Integer)
                         {
-                            classes.add((IClass) this.ctx.getSnapshot().getObject(((Integer) obj).intValue()));
+                            IClass subjectClass = (IClass) this.ctx.getSnapshot().getObject(((Integer) obj).intValue());
+                            classes.add(subjectClass);
+                            if (query.getFromClause().includeSubClasses())
+                            {
+                                classes.addAll(subjectClass.getAllSubclasses());
+                            }
                         }
                         else if (obj instanceof int[])
                         {
                             for (int id : (int[]) obj)
-                                classes.add((IClass) this.ctx.getSnapshot().getObject(id));
+                            {
+                                IClass subjectClass = (IClass) this.ctx.getSnapshot().getObject(id);
+                                classes.add(subjectClass);
+                                if (query.getFromClause().includeSubClasses())
+                                {
+                                    classes.addAll(subjectClass.getAllSubclasses());
+                                }
+                            }
                         }
                         else
                         {
-                            classes.add((IClass) obj);
+                            IClass subjectClass = (IClass) obj;
+                            classes.add(subjectClass);
+                            if (query.getFromClause().includeSubClasses())
+                            {
+                                classes.addAll(subjectClass.getAllSubclasses());
+                            }
                         }
                     }
                 }
                 else
                 {
-                    classes.add((IClass) result);
+                    IClass subjectClass = (IClass) result;
+                    classes.add(subjectClass);
+                    if (query.getFromClause().includeSubClasses())
+                    {
+                        classes.addAll(subjectClass.getAllSubclasses());
+                    }
                 }
             }
             catch (ClassCastException e)
