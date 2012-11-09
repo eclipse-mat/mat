@@ -11,24 +11,24 @@
  *******************************************************************************/
 package org.eclipse.mat.ui.snapshot.panes.oql;
 
-import java.util.List;
-
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.contentassist.ContentAssistEvent;
 import org.eclipse.jface.text.contentassist.ContentAssistant;
+import org.eclipse.jface.text.contentassist.ICompletionListener;
+import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContentAssistant;
+import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.presentation.IPresentationReconciler;
 import org.eclipse.jface.text.presentation.PresentationReconciler;
 import org.eclipse.jface.text.rules.DefaultDamagerRepairer;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
-import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.ui.snapshot.panes.oql.contentAssist.AttributeExtractor;
 import org.eclipse.mat.ui.snapshot.panes.oql.contentAssist.BuiltinSuggestionProvider;
 import org.eclipse.mat.ui.snapshot.panes.oql.contentAssist.ClassNameExtractor;
 import org.eclipse.mat.ui.snapshot.panes.oql.contentAssist.ClassesSuggestionProvider;
 import org.eclipse.mat.ui.snapshot.panes.oql.contentAssist.CommentScanner;
-import org.eclipse.mat.ui.snapshot.panes.oql.contentAssist.ContentAssistElement;
 import org.eclipse.mat.ui.snapshot.panes.oql.contentAssist.ContextExtractor;
 import org.eclipse.mat.ui.snapshot.panes.oql.contentAssist.FieldsSuggestionProvider;
 import org.eclipse.mat.ui.snapshot.panes.oql.contentAssist.MultiSuggestionProvider;
@@ -37,7 +37,6 @@ import org.eclipse.mat.ui.snapshot.panes.oql.contentAssist.OQLScanner;
 import org.eclipse.mat.ui.snapshot.panes.oql.contentAssist.PropertySuggestionProvider;
 import org.eclipse.mat.ui.snapshot.panes.oql.contentAssist.SuggestionProvider;
 import org.eclipse.mat.ui.snapshot.panes.oql.textPartitioning.OQLPartitionScanner;
-import org.eclipse.mat.ui.util.ErrorHelper;
 import org.eclipse.swt.graphics.Color;
 
 /**
@@ -103,45 +102,21 @@ public class OQLTextViewerConfiguration extends SourceViewerConfiguration
         
         // classNames
         ContextExtractor classNameExtr = new ClassNameExtractor();
-        SuggestionProvider classSuggestions = null;
-        try
-        {
-            classSuggestions = new ClassesSuggestionProvider(snapshot)
-            {
-                public List<ContentAssistElement> getSuggestions(String context)
-                {
-                    List<ContentAssistElement> classSuggestions = super.getSuggestions(context);
-                    try
-                    {
-                        // New class suggestions, so update the field suggestions
-                        fieldSuggestions.setClassesSuggestions(snapshot, classSuggestions);
-                    }
-                    catch (SnapshotException e)
-                    {
-                        ErrorHelper.logThrowable(e);
-                    }
-                    return classSuggestions;
-                }
-            };
-        }
-        catch (SnapshotException e)
-        {
-            ErrorHelper.logThrowable(e);
-        }
-        OQLContentAssistantProcessor fromProcessor = new OQLContentAssistantProcessor(classSuggestions, classNameExtr);
+        SuggestionProvider classSuggestions = new ClassesSuggestionProvider(snapshot);
+        final OQLContentAssistantProcessor fromProcessor = new OQLContentAssistantProcessor(classSuggestions, classNameExtr);
         cAssist.setContentAssistProcessor(fromProcessor, OQLPartitionScanner.FROM_CLAUSE);
         // TODO: define a better partitioning to correctly treat FROM clauses
         // split by a comment.
         cAssist.setContentAssistProcessor(fromProcessor, IDocument.DEFAULT_CONTENT_TYPE);
 
-        final BuiltinSuggestionProvider builtinSuggestions = new BuiltinSuggestionProvider();
+        BuiltinSuggestionProvider builtinSuggestions = new BuiltinSuggestionProvider();
         ContextExtractor attributeExtr = new AttributeExtractor();
-        final PropertySuggestionProvider attributeSuggestions = new PropertySuggestionProvider(snapshot);
+        PropertySuggestionProvider attributeSuggestions = new PropertySuggestionProvider(snapshot);
 
         SuggestionProvider allSuggestions = new MultiSuggestionProvider(fieldSuggestions, builtinSuggestions,
                         attributeSuggestions);
 
-        OQLContentAssistantProcessor selectProcessor = new OQLContentAssistantProcessor(allSuggestions, attributeExtr)
+        final OQLContentAssistantProcessor selectProcessor = new OQLContentAssistantProcessor(allSuggestions, attributeExtr)
         {
             public char[] getCompletionProposalAutoActivationCharacters()
             {
@@ -150,6 +125,33 @@ public class OQLTextViewerConfiguration extends SourceViewerConfiguration
         };
         cAssist.setContentAssistProcessor(selectProcessor, OQLPartitionScanner.SELECT_CLAUSE);
         cAssist.setContentAssistProcessor(selectProcessor, OQLPartitionScanner.WHERE_CLAUSE);
+        /*
+         * Listen for a select completion starting. If the last class name for an information pop-up has changed,
+         * use it to provide field names.
+         */
+        cAssist.addCompletionListener(new ICompletionListener() {
+
+            public void assistSessionStarted(ContentAssistEvent event)
+            {
+                if (event.processor.equals(selectProcessor))
+                {
+                    IContextInformation lctx[] = fromProcessor.getLastContextInformation();
+                    if (lctx != null) {
+                        fieldSuggestions.setClassesSuggestions(snapshot, lctx);
+                        fromProcessor.setLastContextInformation(null);
+                    }
+                }
+            }
+
+            public void assistSessionEnded(ContentAssistEvent event)
+            {
+            }
+
+            public void selectionChanged(ICompletionProposal proposal, boolean smartToggle)
+            {
+            }
+            
+        });
 
         cAssist.enableAutoActivation(true);
 

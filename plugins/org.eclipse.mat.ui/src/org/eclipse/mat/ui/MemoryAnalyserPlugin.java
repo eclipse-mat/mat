@@ -44,7 +44,8 @@ public class MemoryAnalyserPlugin extends AbstractUIPlugin
 
     public interface ISharedImages
     {
-        String HEAP = "icons/heapobjects/heapdump16.gif"; //$NON-NLS-1$        
+        String HEAP = "icons/heapobjects/heapdump16.gif"; //$NON-NLS-1$
+        String HEAP_INFO = "icons/heapdump_details.gif"; //$NON-NLS-1$
         String OPEN_SNAPSHOT = "icons/open_snapshot.gif";//$NON-NLS-1$
         String CONSOLE = "icons/console.gif"; //$NON-NLS-1$
         String CONSOLE_PLUS = "icons/console_plus.gif"; //$NON-NLS-1$

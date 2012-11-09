@@ -20,6 +20,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.FieldDescriptor;
@@ -34,6 +35,8 @@ import org.eclipse.swt.graphics.Image;
  */
 public class FieldsSuggestionProvider implements SuggestionProvider
 {
+
+    private static final String CLASS_SEP = " - "; //$NON-NLS-1$
 
     /**
      * Keeps the status of the class list. Since classes set is filled
@@ -57,11 +60,18 @@ public class FieldsSuggestionProvider implements SuggestionProvider
         
     }
 
-    public void setClassesSuggestions(ISnapshot snapshot, List<ContentAssistElement> classSuggestions) throws SnapshotException
+    public void setClassesSuggestions(ISnapshot snapshot, IContextInformation[] classSuggestions)
     {
         ready = false;
-        InitializerJob asyncJob = new InitializerJob(snapshot, classSuggestions);
-        asyncJob.schedule();
+        // Done synchronously as called when select pop-up appears
+        try
+        {
+            initList(snapshot, classSuggestions);
+        }
+        catch (SnapshotException e)
+        {
+            ErrorHelper.logThrowable(e);
+        }
     }
 
     /**
@@ -104,16 +114,17 @@ public class FieldsSuggestionProvider implements SuggestionProvider
      * @param snapshot
      * @param classSuggestions - possible classes to find fields from
      */
-    private void initList(ISnapshot snapshot, List<ContentAssistElement> classSuggestions) throws SnapshotException
+    private void initList(ISnapshot snapshot, IContextInformation[] classSuggestions) throws SnapshotException
     {
         if (snapshot == null)
             throw new IllegalArgumentException("Cannot extract class list from a null snapshot.");
 
         ready = false;
         Collection<IClass>classes = new HashSet<IClass>();
-        for (ContentAssistElement el : classSuggestions)
+        
+        for (IContextInformation el : classSuggestions)
         {
-            Collection<IClass> cls = snapshot.getClassesByName(el.getClassName(), false);
+            Collection<IClass> cls = snapshot.getClassesByName(el.getContextDisplayString(), false);
             if (cls != null)
             {
                 classes.addAll(cls);
@@ -130,9 +141,10 @@ public class FieldsSuggestionProvider implements SuggestionProvider
                 {
                     // instantiate here in order to provide class and packages
                     // images.
-                    ContentAssistElement ce = new ContentAssistElement(fd.getName(), im, fd.getVerboseSignature() + " "
-                                    + fd.getName());
-                    orderedList.add(ce);
+                    String desc = fd.getVerboseSignature() + " " + fd.getName() + CLASS_SEP + c.getName(); //$NON-NLS-1$
+                    ContentAssistElement ce = new ContentAssistElement(fd.getName(), im, desc);
+                    if (!orderedList.contains(ce))
+                        orderedList.add(ce);
                 }
                 c = c.getSuperClass();
             }
@@ -148,13 +160,13 @@ public class FieldsSuggestionProvider implements SuggestionProvider
     {
 
         ISnapshot snapshot;
-        List<ContentAssistElement> classSuggestions;
+        IContextInformation[] classSuggestions;
 
-        public InitializerJob(ISnapshot snapshot, List<ContentAssistElement> classSuggestions)
+        public InitializerJob(ISnapshot snapshot, IContextInformation[] suggestions)
         {
             super("Init content assistant");
             this.snapshot = snapshot;
-            this.classSuggestions = classSuggestions;
+            this.classSuggestions = suggestions;
         }
 
         @Override

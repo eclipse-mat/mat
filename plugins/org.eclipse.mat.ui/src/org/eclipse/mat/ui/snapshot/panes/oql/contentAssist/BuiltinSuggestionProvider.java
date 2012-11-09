@@ -79,6 +79,7 @@ public class BuiltinSuggestionProvider implements SuggestionProvider
      */
     private void initList()
     {
+        @SuppressWarnings("nls")
         String builtin[] = { "toHex", "toString", "dominators", "dominatorof", "outbounds", "inbounds", "classof" };
         orderedList = new TreeSet<ContentAssistElement>();
 
@@ -86,11 +87,11 @@ public class BuiltinSuggestionProvider implements SuggestionProvider
         for (String func : builtin)
         {
             // instantiate here in order to provide class and packages images.
-            ContentAssistElement ce = new ContentAssistElement(func + "()", im);
+            ContentAssistElement ce = new ContentAssistElement(func + "()", im); //$NON-NLS-1$
             orderedList.add(ce);
         }
         im = MemoryAnalyserPlugin.getImage(MemoryAnalyserPlugin.ISharedImages.HEAP);
-        ContentAssistElement ce = new ContentAssistElement("${snapshot}", im);
+        ContentAssistElement ce = new ContentAssistElement("${snapshot}", im); //$NON-NLS-1$
         orderedList.add(ce);
     }
 }

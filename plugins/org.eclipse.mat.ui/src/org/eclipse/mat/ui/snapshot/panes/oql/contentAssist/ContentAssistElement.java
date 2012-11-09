@@ -26,20 +26,35 @@ public class ContentAssistElement implements Comparable<ContentAssistElement>
 
     private Image image;
     
-    private String displayString;
+    private String displayName;
 
     /**
      * Uses String compare method.
      */
     public int compareTo(ContentAssistElement o)
     {
-        return className.compareTo(o.className);
+        int ret = className.compareTo(o.className);
+        if (ret == 0) {
+            if (displayName == null)
+            {
+                if (o.displayName != null)
+                    ret = -1;
+            }
+            else
+            {
+                if (o.displayName == null)
+                    ret = 1;
+                else
+                    ret = displayName.compareTo(o.displayName);
+            }
+        }
+        return ret;
     }
 
     @Override
     public int hashCode()
     {
-        return className.hashCode();
+        return className.hashCode() + (displayName != null ? displayName.hashCode() : 0);
     }
 
     @Override
@@ -59,6 +74,13 @@ public class ContentAssistElement implements Comparable<ContentAssistElement>
         }
         else if (!className.equals(other.className))
             return false;
+        if (displayName == null)
+        {
+            if (other.displayName != null)
+                return false;
+        }
+        else if (!displayName.equals(other.displayName))
+            return false;
         return true;
     }
 
@@ -69,7 +91,7 @@ public class ContentAssistElement implements Comparable<ContentAssistElement>
 
     public String getDisplayString()
     {
-        return displayString;
+        return displayName;
     }
 
     public Image getImage()
@@ -89,12 +111,12 @@ public class ContentAssistElement implements Comparable<ContentAssistElement>
             throw new IllegalArgumentException("Cannot be initialized without a class name");
         this.className = className;
         this.image = image;
-        this.displayString = display;
+        this.displayName = display;
     }
 
     public String toString()
     {
-        return className;
+        return displayName != null ? className + " : " + displayName : className; //$NON-NLS-1$
     }
 
 }

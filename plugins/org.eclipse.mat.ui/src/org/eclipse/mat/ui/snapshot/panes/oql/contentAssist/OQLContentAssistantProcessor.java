@@ -16,6 +16,8 @@ import java.util.List;
 
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.CompletionProposal;
+import org.eclipse.jface.text.contentassist.ContextInformation;
+import org.eclipse.jface.text.contentassist.ContextInformationValidator;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.contentassist.IContextInformation;
@@ -33,6 +35,8 @@ public class OQLContentAssistantProcessor implements IContentAssistProcessor
      * provides suggestions given the context
      */
     private SuggestionProvider suggestionProvider;
+
+    private IContextInformation[] last;
 
     /**
      * Extracts the context from TextViewer
@@ -73,7 +77,39 @@ public class OQLContentAssistantProcessor implements IContentAssistProcessor
 
     public IContextInformation[] computeContextInformation(ITextViewer arg0, int arg1)
     {
-        return null;
+        String context = extractor.getPrefix(arg0, arg1);
+        // Perhaps we were activated by space
+        if (context.length() == 0)
+            context = extractor.getPrefix(arg0, arg1 - 1);
+        // For methods just match up to the parenthesis so arguments are ignored
+        int paren = context.indexOf('(');
+        if (paren >= 0)
+            context = context.substring(0, paren + 1);
+        List<ContentAssistElement> suggestions = suggestionProvider.getSuggestions(context);
+        // Check we have a full match and not just a prefix match
+        if (!context.startsWith("\"") && paren == -1) //$NON-NLS-1$
+        {
+            for (Iterator<ContentAssistElement> it = suggestions.iterator(); it.hasNext();)
+            {
+                ContentAssistElement ce = it.next();
+                if (!ce.getClassName().equals(context))
+                    it.remove();
+            }
+        }
+        IContextInformation[] ret = new IContextInformation[suggestions.size()];
+        int c = 0;
+        ContextInformation ct;
+        for (ContentAssistElement ce : suggestions)
+        {
+            ct = new ContextInformation(ce.getImage(), ce.getDisplayString(), ce.getClassName());
+            ret[c++] = ct;
+        }
+        if (c > 0)
+        {
+            setLastContextInformation(ret);
+        }
+        
+        return ret;
     }
 
     public char[] getCompletionProposalAutoActivationCharacters()
@@ -83,19 +119,17 @@ public class OQLContentAssistantProcessor implements IContentAssistProcessor
 
     public char[] getContextInformationAutoActivationCharacters()
     {
-        return null;
+        return new char[] { ' ', '(', '.' };
     }
 
     public IContextInformationValidator getContextInformationValidator()
     {
-        // TODO Auto-generated method stub
-        return null;
+        return new ContextInformationValidator(this);
     }
 
     public String getErrorMessage()
     {
-        // TODO Auto-generated method stub
-        return "ARF!!!";
+        return null;
     }
 
     /**
@@ -132,5 +166,15 @@ public class OQLContentAssistantProcessor implements IContentAssistProcessor
         }
 
         return retProposals;
+    }
+
+    public IContextInformation[] getLastContextInformation()
+    {
+        return last;
+    }
+
+    public void setLastContextInformation(IContextInformation[] last)
+    {
+        this.last = last;
     }
 }

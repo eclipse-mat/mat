@@ -7,7 +7,7 @@
  *
  * Contributors:
  * Filippo Pacifici - initial API and implementation
- * Andrew Johnson - add images
+ * Andrew Johnson - add regular expression matching and images
  *******************************************************************************/
 package org.eclipse.mat.ui.snapshot.panes.oql.contentAssist;
 
@@ -56,7 +56,7 @@ public class ClassesSuggestionProvider implements SuggestionProvider
      * 
      * @param snapshot
      */
-    public ClassesSuggestionProvider(ISnapshot snapshot) throws SnapshotException
+    public ClassesSuggestionProvider(ISnapshot snapshot)
     {
         InitializerJob asyncJob = new InitializerJob(snapshot);
         asyncJob.schedule();
@@ -93,23 +93,23 @@ public class ClassesSuggestionProvider implements SuggestionProvider
                 }
             }
             // Regular expression matching
-            if (context.startsWith("\""))
+            if (context.startsWith("\"")) //$NON-NLS-1$
             {
                 String context2 = context.substring(1);
-                if (context2.endsWith("\""))
+                if (context2.endsWith("\"")) //$NON-NLS-1$
                 {
                     // Terminated with double-quote, so expression complete
                     context2 = context2.substring(0, context2.length() - 1);
                 }
-                else if (context2.endsWith("["))
+                else if (context2.endsWith("[")) //$NON-NLS-1$
                 {
                     // Partial array name, so complete it now so that the regex is valid
-                    context2 = context2 + "].*";
+                    context2 = context2 + "].*"; //$NON-NLS-1$
                 }
-                else if (!context2.endsWith(".*"))
+                else if (!context2.endsWith(".*")) //$NON-NLS-1$
                 {
                     // Allow anything to end
-                    context2 = context2 + ".*";
+                    context2 = context2 + ".*"; //$NON-NLS-1$
                 }
                 // Convert array name to regex safe form
                 context2 = PatternUtil.smartFix(context2, false);
@@ -126,7 +126,7 @@ public class ClassesSuggestionProvider implements SuggestionProvider
                             if (!foundFirst)
                             {
                                 // Add the regex to the list
-                                tempList.add(new ContentAssistElement("\"" + context2 + "\"", null));
+                                tempList.add(new ContentAssistElement("\"" + context2 + "\"", null)); //$NON-NLS-1$ //$NON-NLS-2$
                                 foundFirst = true;
                             }
                             tempList.add(cp);
