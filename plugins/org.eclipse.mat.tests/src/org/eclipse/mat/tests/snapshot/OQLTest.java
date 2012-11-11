@@ -600,6 +600,41 @@ public class OQLTest
         assertEquals(10, objectIds.length);
     }
 
+    @Test
+    public void testOverloadedMethod1() throws SnapshotException
+    {
+        // 80 objects - baseline for other tests
+        int[] objectIds = (int[])execute("SELECT * FROM \".....i.*\"");
+        assertEquals(80, objectIds.length);
+    }
+
+    @Test
+    public void testOverloadedMethod2() throws SnapshotException
+    {
+        // 80 objects
+        // indexOf(String)
+        int[] objectIds = (int[])execute("SELECT * FROM \".*\" c WHERE (c.@clazz.@name.indexOf(\"i\") = 5)");
+        assertEquals(80, objectIds.length);
+    }
+
+    @Test
+    public void testOverloadedMethod3() throws SnapshotException
+    {
+        // 80 objects
+        // indexOf(int) with a char
+        int[] objectIds = (int[])execute("SELECT * FROM \".*\" c WHERE (c.@clazz.@name.indexOf('i') = 5)");
+        assertEquals(80, objectIds.length);
+    }
+
+    @Test
+    public void testOverloadedMethod4() throws SnapshotException
+    {
+        // 80 objects
+        // indexOf(int) with an int
+        int[] objectIds = (int[])execute("SELECT * FROM \".*\" c WHERE (c.@clazz.@name.indexOf(105) = 5)");
+        assertEquals(80, objectIds.length);
+    }
+
     // //////////////////////////////////////////////////////////////
     // internal helper
     // //////////////////////////////////////////////////////////////
