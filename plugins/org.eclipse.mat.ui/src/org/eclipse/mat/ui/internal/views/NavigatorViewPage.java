@@ -78,7 +78,8 @@ public class NavigatorViewPage extends Page implements ISelectionProvider, IDoub
         @Override
         public String getText(Object element)
         {
-            return ((PaneState) element).getIdentifier();
+            // Convert multi-line text to a single line, for example OQL statements
+            return ((PaneState) element).getIdentifier().replaceAll("(\\s*[\\r\\n]\\s*)+"," ");  //$NON-NLS-1$//$NON-NLS-2$
         }
 
         public Font getFont(Object element)
