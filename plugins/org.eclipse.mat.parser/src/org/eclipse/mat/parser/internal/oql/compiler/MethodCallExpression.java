@@ -273,39 +273,39 @@ class MethodCallExpression extends Expression
                         || parameterType == int.class || parameterType == Integer.class
                         || parameterType == long.class || parameterType == Long.class
                         || parameterType == float.class || parameterType == Float.class
-                        || parameterType == double.class || parameterType == double.class))
+                        || parameterType == double.class || parameterType == Double.class))
             return true;
         if (argumentType == Short.class && (
                         parameterType == short.class || parameterType == Short.class
                         || parameterType == int.class || parameterType == Integer.class
                         || parameterType == long.class || parameterType == Long.class
                         || parameterType == float.class || parameterType == Float.class
-                        || parameterType == double.class || parameterType == double.class))
+                        || parameterType == double.class || parameterType == Double.class))
             return true;
         if (argumentType == Character.class && (
                         parameterType == char.class || parameterType == Character.class
                         || parameterType == int.class || parameterType == Integer.class
                         || parameterType == long.class || parameterType == Long.class
                         || parameterType == float.class || parameterType == Float.class
-                        || parameterType == double.class || parameterType == double.class))
+                        || parameterType == double.class || parameterType == Double.class))
             return true;
         if (argumentType == Integer.class && (
                         parameterType == int.class || parameterType == Integer.class
                         || parameterType == long.class || parameterType == Long.class
                         || parameterType == float.class || parameterType == Float.class
-                        || parameterType == double.class || parameterType == double.class))
+                        || parameterType == double.class || parameterType == Double.class))
             return true;
         if (argumentType == Long.class && (
                         parameterType == long.class || parameterType == Long.class
                         || parameterType == float.class || parameterType == Float.class
-                        || parameterType == double.class || parameterType == double.class))
+                        || parameterType == double.class || parameterType == Double.class))
             return true;
         if (argumentType == Float.class && (
                         parameterType == float.class || parameterType == Float.class
-                        || parameterType == double.class || parameterType == double.class))
+                        || parameterType == double.class || parameterType == Double.class))
             return true;
         if (argumentType == Double.class && (
-                        parameterType == double.class || parameterType == double.class))
+                        parameterType == double.class || parameterType == Double.class))
             return true;
         return false;
     }
