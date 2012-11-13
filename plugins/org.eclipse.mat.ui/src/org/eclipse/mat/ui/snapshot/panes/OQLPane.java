@@ -490,4 +490,10 @@ public class OQLPane extends CompositeHeapEditorPane
     {
         return MemoryAnalyserPlugin.getImage(MemoryAnalyserPlugin.ISharedImages.OQL);
     }
+
+    @Override
+    public AbstractEditorPane getEmbeddedPane()
+    {
+        return super.getEmbeddedPane();
+    }
 }

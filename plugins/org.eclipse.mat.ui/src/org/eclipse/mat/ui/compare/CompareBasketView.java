@@ -52,6 +52,7 @@ import org.eclipse.mat.ui.editor.MultiPaneEditor;
 import org.eclipse.mat.ui.internal.panes.QueryResultPane;
 import org.eclipse.mat.ui.internal.panes.TableResultPane;
 import org.eclipse.mat.ui.snapshot.panes.HistogramPane;
+import org.eclipse.mat.ui.snapshot.panes.OQLPane;
 import org.eclipse.mat.ui.util.ErrorHelper;
 import org.eclipse.mat.ui.util.IPolicy;
 import org.eclipse.mat.ui.util.NavigatorState.IStateChangeListener;
@@ -156,7 +157,7 @@ public class CompareBasketView extends ViewPart
 
 	public void addResultToCompare(PaneState state, MultiPaneEditor editor)
 	{
-		AbstractEditorPane pane = editor.getEditor(state);
+        AbstractEditorPane pane = resultPane(state, editor);
 		ComparedResult entry = null;
 		if (pane instanceof HistogramPane)
 		{
@@ -194,11 +195,30 @@ public class CompareBasketView extends ViewPart
 
 	public static boolean accepts(PaneState state, MultiPaneEditor editor)
 	{
-		AbstractEditorPane pane = editor.getEditor(state);
+	    AbstractEditorPane pane = resultPane(state, editor);
 		return (pane instanceof HistogramPane) || (pane instanceof TableResultPane) ||
 		                pane instanceof QueryResultPane && 
 		                ((QueryResultPane) pane).getSrcQueryResult().getSubject() instanceof IResultTree;
 	}
+
+    private static AbstractEditorPane resultPane(PaneState state, MultiPaneEditor editor)
+    {
+        AbstractEditorPane pane;
+        if (state.isActive() && state.getType() == PaneState.PaneType.COMPOSITE_CHILD)
+        {
+            state = state.getParentPaneState();
+            pane = editor.getEditor(state);
+            if (pane instanceof OQLPane)
+                pane = ((OQLPane)pane).getEmbeddedPane();
+            else
+                pane = null;
+        }
+        else
+        {
+            pane = editor.getEditor(state);
+        }
+        return pane;
+    }
 
 	private void hookContextMenu()
 	{
