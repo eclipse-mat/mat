@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2011 SAP AG and IBM Corporation
+ * Copyright (c) 2010, 2012 SAP AG and IBM Corporation
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0 
  * which accompanies this distribution, and is available at 
@@ -87,6 +87,9 @@ public class CompareBasketView extends ViewPart
 	private Set<MultiPaneEditor> editors = new HashSet<MultiPaneEditor>();
 
 	List<ComparedResult> results = new ArrayList<ComparedResult>();
+
+	IStateChangeListener stateListener = new StateChangeListener();
+	IPartListener2 partListener = new PartListener();
 
 	@Override
 	public void createPartControl(Composite parent)
@@ -181,68 +184,10 @@ public class CompareBasketView extends ViewPart
 		if (editors.add(editor))
 		{
 			// listen if the editor gets closed
-			editor.getSite().getPage().addPartListener(new IPartListener2() {
-
-				public void partVisible(IWorkbenchPartReference partRef)
-				{}
-
-				public void partOpened(IWorkbenchPartReference partRef)
-				{}
-
-				public void partInputChanged(IWorkbenchPartReference partRef)
-				{}
-
-				public void partHidden(IWorkbenchPartReference partRef)
-				{}
-
-				public void partDeactivated(IWorkbenchPartReference partRef)
-				{}
-
-				public void partBroughtToTop(IWorkbenchPartReference partRef)
-				{}
-
-				public void partActivated(IWorkbenchPartReference partRef)
-				{}
-
-				public void partClosed(IWorkbenchPartReference partRef)
-				{
-					IWorkbenchPart part = partRef.getPart(false);
-					List<ComparedResult> toBeRemoved = new ArrayList<ComparedResult>();
-					for (ComparedResult res : results)
-					{
-						if (res.editor == part) toBeRemoved.add(res);
-					}
-					editors.remove(part);
-					results.removeAll(toBeRemoved);
-
-                    if (!table.isDisposed())
-                    {
-                        tableViewer.refresh();
-                    }
-					updateButtons();
-				}
-
-			});
+			editor.getSite().getPage().addPartListener(partListener);
 
 			// listen if some result from the editor gets closed
-			editor.getNavigatorState().addChangeStateListener(new IStateChangeListener() {
-
-				public void onStateChanged(PaneState state)
-				{
-					if (state != null && !state.isActive())
-					{
-						List<ComparedResult> toBeRemoved = new ArrayList<ComparedResult>();
-						for (ComparedResult res : results)
-						{
-							if (res.state == state) toBeRemoved.add(res);
-						}
-						results.removeAll(toBeRemoved);
-						tableViewer.refresh();
-						updateButtons();
-					}
-				}
-			});
-
+			editor.getNavigatorState().addChangeStateListener(stateListener);
 		}
 
 	}
@@ -303,7 +248,85 @@ public class CompareBasketView extends ViewPart
 		manager.add(removeAction);
 	}
 
-	class ComparedResult
+	@Override
+    public void dispose()
+	{
+	    for (MultiPaneEditor editor : editors)
+	    {
+	        if (!editor.isDisposed())
+	        {
+	            // remove listener for if the editor gets closed
+	            editor.getSite().getPage().removePartListener(partListener);
+
+	            // remove listener for if some result from the editor gets closed
+	            editor.getNavigatorState().removeChangeStateListener(stateListener);
+	        }
+	    }
+	}
+	
+	private class PartListener implements IPartListener2
+    {
+        public void partVisible(IWorkbenchPartReference partRef)
+        {}
+
+        public void partOpened(IWorkbenchPartReference partRef)
+        {}
+
+        public void partInputChanged(IWorkbenchPartReference partRef)
+        {}
+
+        public void partHidden(IWorkbenchPartReference partRef)
+        {}
+
+        public void partDeactivated(IWorkbenchPartReference partRef)
+        {}
+
+        public void partBroughtToTop(IWorkbenchPartReference partRef)
+        {}
+
+        public void partActivated(IWorkbenchPartReference partRef)
+        {}
+
+        public void partClosed(IWorkbenchPartReference partRef)
+        {
+            IWorkbenchPart part = partRef.getPart(false);
+            List<ComparedResult> toBeRemoved = new ArrayList<ComparedResult>();
+            for (ComparedResult res : results)
+            {
+                if (res.editor == part)
+                    toBeRemoved.add(res);
+            }
+            editors.remove(part);
+            results.removeAll(toBeRemoved);
+
+            if (!table.isDisposed())
+            {
+                tableViewer.refresh();
+            }
+            updateButtons();
+        }
+    }
+
+    private class StateChangeListener implements IStateChangeListener
+    {
+        public void onStateChanged(PaneState state)
+        {
+            if (state != null && !state.isActive())
+            {
+                List<ComparedResult> toBeRemoved = new ArrayList<ComparedResult>();
+                for (ComparedResult res : results)
+                {
+                    if (res.state == state)
+                        toBeRemoved.add(res);
+                }
+                results.removeAll(toBeRemoved);
+                tableViewer.refresh();
+                updateButtons();
+            }
+        }
+    }
+
+    class ComparedResult
 	{
 		PaneState state;
 		MultiPaneEditor editor;
