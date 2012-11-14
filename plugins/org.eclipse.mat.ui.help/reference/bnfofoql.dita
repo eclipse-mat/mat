@@ -41,7 +41,7 @@
             <strow>
                <stentry><codeblock>SelectItem</codeblock></stentry>
                <stentry><codeblock>::=</codeblock></stentry>
-               <stentry><codeblock>( PathExpression | EnvVarPathExpression ) ( "AS" ( &lt;STRING_LITERAL&gt; | &lt;IDENTIFIER&gt; ) )?&lt;/IDENTIFIER&gt;&lt;/STRING_LITERAL&gt;</codeblock></stentry>
+               <stentry><codeblock>( PathExpression | EnvVarPathExpression ) ( "AS" ( &lt;STRING_LITERAL&gt; | &lt;IDENTIFIER&gt; ) )?</codeblock></stentry>
             </strow>
             <strow>
                <stentry><codeblock>PathExpression</codeblock></stentry>
@@ -51,7 +51,7 @@
             <strow>
                <stentry><codeblock>EnvVarPathExpression</codeblock></stentry>
                <stentry><codeblock>::=</codeblock></stentry>
-               <stentry><codeblock>( "$" &lt;IDENTIFIER&gt; ) ( "." ObjectFacet )*</codeblock></stentry>
+               <stentry><codeblock>( "$" "{" &lt;IDENTIFIER&gt; "}" ) ( "." ObjectFacet )*</codeblock></stentry>
             </strow>
             <strow>
                <stentry><codeblock>ObjectFacet</codeblock></stentry>

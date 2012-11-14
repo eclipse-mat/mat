@@ -186,12 +186,38 @@
 					<stentry>
 						The Object Query Language (OQL) pane has syntax highlighting for OQL
 						keywords. It also offers suggestions for class names for the 
-						SELECT FROM clause, both simple class names and regular expressions.
+						<keyword>SELECT</keyword> <keyword>FROM</keyword> clause, both simple class names and regular expressions.
 						The class name list is brought up on typing a dot '.'. Control-space
 						can also be used to bring up the list.
 						<image href="../mimes/oql_completion1.png" align="left" placement="break" />
 						The regular expression list appears on typing a double-quote '"'.
 						<image href="../mimes/oql_completion2.png" align="left" placement="break" />
+						Autocompletion
+						for <keyword>SELECT</keyword> and <keyword>WHERE</keyword> clauses 
+						can also supply field names. The class
+						for the field names is selected in the <keyword>FROM</keyword> clause by typing space
+						after the class name. This brings up a context information box, and
+						selects that class as the active class for field names.
+						<image href="../mimes/oql_completion3.png" align="left" placement="break">
+						<alt><userinput>select s from java.util.ArrayList</userinput>
+						<systemoutput>java.util.ArrayList</systemoutput>
+						</alt>
+						</image>
+						Suggestions are then provided in the <keyword>SELECT</keyword> or
+						<keyword>WHERE</keyword> clauses on typing '.' or '@' or control-space.
+						<image href="../mimes/oql_completion4.png" align="left" placement="break">
+						</image>
+						Attributes begin with '@' and the autocompletion is filtered based on
+						what has been typed so far.
+						<image href="../mimes/oql_completion5.png" align="left" placement="break">
+						</image>
+						In <keyword>SELECT</keyword> and <keyword>WHERE</keyword> clauses there are also suggestions for methods on
+						key Memory Analyzer objects representing contents of the snapshot.
+						<image href="../mimes/oql_completion6.png" align="left" placement="break">
+                        </image>
+                        Pressing enter adds the selected text to the command window.
+                        <image href="../mimes/oql_completion7.png" align="left" placement="break">
+                        </image>
 					</stentry>
 				</strow>
 			</simpletable>
