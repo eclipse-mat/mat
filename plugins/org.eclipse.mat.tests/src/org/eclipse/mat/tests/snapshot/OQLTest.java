@@ -305,6 +305,18 @@ public class OQLTest
     }
 
     @Test
+    public void testImplements() throws SnapshotException
+    {
+        String oql = "SELECT * " //
+                        + "FROM java.lang.Class c " //
+                        + "WHERE c implements org.eclipse.mat.snapshot.model.IClass ";
+        IOQLQuery q1 = SnapshotFactory.createQuery(oql);
+        String oql2 = q1.toString();
+        int[] objectIds = (int[]) execute(oql2);
+        assertEquals("expected 383 instances of IClass", 383, objectIds.length);
+    }
+
+    @Test
     public void testFromInstanceOf() throws SnapshotException
     {
         int[] objectIds = (int[]) execute("SELECT * FROM INSTANCEOF java.lang.ref.Reference");
