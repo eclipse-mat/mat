@@ -75,10 +75,10 @@
 			<p>Trees can be compared as well, though they are converted to tables
 			for the purposes of the comparison. 
 			<xref href="queryingheapobjects.dita">Object Query Language (OQL)</xref> results
-			can also be compared, though only the last result from each OQL pane can be 
+			can also be compared, though only the last result from each OQL editor can be 
 			added to the Compare Basket. If another query is issued then the previous result
 			will be removed from the basket. If two OQL results need to be compared then
-			two OQL panes should be opened.</p>
+			two OQL editors should be opened.</p>
 			</info>			
 			<stepresult>
 				<image href="../mimes/nn_add_to_compare_basket.png">
