@@ -17,7 +17,7 @@
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2011 SAP AG and IBM Corporation.
+				Copyright (c) 2011, 2012 SAP AG and IBM Corporation.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License v1.0
 			    which accompanies this distribution, and is available at
@@ -71,7 +71,14 @@
 				The Navigation History is still per heap dump, therefore if one wants to compare 
 				tables from different heap dumps then they have to be added one by one.
 				Multiple tables from one heap dump can be added at a time.
-			</p> 
+			</p>
+			<p>Trees can be compared as well, though they are converted to tables
+			for the purposes of the comparison. 
+			<xref href="queryingheapobjects.dita">Object Query Language (OQL)</xref> results
+			can also be compared, though only the last result from each OQL pane can be 
+			added to the Compare Basket. If another query is issued then the previous result
+			will be removed from the basket. If two OQL results need to be compared then
+			two OQL panes should be opened.</p>
 			</info>			
 			<stepresult>
 				<image href="../mimes/nn_add_to_compare_basket.png">
