@@ -63,8 +63,11 @@
 				<span class="keyword cmdname">implements</span>
 				check is necessary, as the heap dump can contain
 				<span class="keyword cmdname">java.lang.Class</span>
-				instances caused by proxy classes. The same effect has
-				the following query, which calls a method directly on
+				instances caused by proxy classes or classes representing
+				primitive types such as
+				<span class="keyword cmdname">int.class</span> or <span class="keyword cmdname">Integer.TYPE</span>.
+				The following query has
+				the same effect, which calls a method directly on
 				the ISnapshot object:
 			</p>
 

@@ -37,12 +37,13 @@
 
 			</p>
 			<title>
-				&gt;=, &lt;=, &gt;, &lt;, [ NOT ] LIKE, [ NOT ] IN
+				&gt;=, &lt;=, &gt;, &lt;, [ NOT ] LIKE, [ NOT ] IN, IMPLEMENTS
 				(relational operations)
 			</title>
 			<codeblock>SELECT * FROM java.lang.String s WHERE s.count >= 100</codeblock>
 			<codeblock>SELECT * FROM java.lang.String s WHERE toString(s) LIKE ".*day"</codeblock>
 			<codeblock>SELECT * FROM java.lang.String s WHERE s.value NOT IN dominators(s)</codeblock>
+			<codeblock>SELECT * FROM java.lang.Class c WHERE c IMPLEMENTS org.eclipse.mat.snapshot.model.IClass</codeblock>
 		</section>
 		<section>
 			<title>=, != (equality operations)</title>
@@ -63,14 +64,15 @@
 		</section>
 		<section>
 			<title>Literal Expression</title>
-			<p>Boolean, String, Integer, Long and null literals:</p>
+			<p>Boolean, String, Integer, Long, Character and null literals:</p>
 			<codeblock>SELECT * FROM java.lang.String s
          WHERE ( s.count > 1000 ) = true
          WHERE toString(s) = "monday"
          WHERE dominators(s).size() = 0
          WHERE s.@retainedHeapSize > 1024L
+         WHERE s.value != null AND s.value.@valueArray.@length >= 1 AND s.value.@valueArray.get(0) = 'j'
          WHERE s.@GCRootInfo != null
-</codeblock>
+            </codeblock>
 		</section>
 	</refbody>
 </reference>

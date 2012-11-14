@@ -101,6 +101,7 @@ public class OQLScanner extends RuleBasedScanner
         wr3.addWord("not", tKeyWord); //$NON-NLS-1$
         wr3.addWord("like", tKeyWord); //$NON-NLS-1$
         wr3.addWord("in", tKeyWord); //$NON-NLS-1$
+        wr3.addWord("implements", tKeyWord); //$NON-NLS-1$
 
         r[2] = wr3;
         

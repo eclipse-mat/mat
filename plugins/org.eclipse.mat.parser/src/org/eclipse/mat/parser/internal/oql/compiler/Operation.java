@@ -578,7 +578,7 @@ abstract class Operation extends Expression
 
         public String getSymbol()
         {
-            return "and";//$NON-NLS-1$
+            return "AND";//$NON-NLS-1$
         }
     }
 
@@ -604,7 +604,7 @@ abstract class Operation extends Expression
 
         public String getSymbol()
         {
-            return "or";//$NON-NLS-1$
+            return "OR";//$NON-NLS-1$
         }
     }
 
@@ -709,7 +709,7 @@ abstract class Operation extends Expression
 
         public String getSymbol()
         {
-            return " INSTANCEOF ";//$NON-NLS-1$
+            return " IMPLEMENTS ";//$NON-NLS-1$
         }
 
         @Override

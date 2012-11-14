@@ -29,7 +29,7 @@
 	<div class="body refbody"><p class="shortdesc"/>
 
 		<div class="section"><h2 class="title sectiontitle">
-				&gt;=, &lt;=, &gt;, &lt;, [ NOT ] LIKE, [ NOT ] IN
+				&gt;=, &lt;=, &gt;, &lt;, [ NOT ] LIKE, [ NOT ] IN, IMPLEMENTS
 				(relational operations)
 			</h2>
 			<p class="p">
@@ -46,6 +46,8 @@
 			<pre class="pre codeblock">SELECT * FROM java.lang.String s WHERE toString(s) LIKE ".*day"</pre>
 
 			<pre class="pre codeblock">SELECT * FROM java.lang.String s WHERE s.value NOT IN dominators(s)</pre>
+
+			<pre class="pre codeblock">SELECT * FROM java.lang.Class c WHERE c IMPLEMENTS org.eclipse.mat.snapshot.model.IClass</pre>
 
 		</div>
 
@@ -75,15 +77,16 @@
 
 		<div class="section"><h2 class="title sectiontitle">Literal Expression</h2>
 			
-			<p class="p">Boolean, String, Integer, Long and null literals:</p>
+			<p class="p">Boolean, String, Integer, Long, Character and null literals:</p>
 
 			<pre class="pre codeblock">SELECT * FROM java.lang.String s
          WHERE ( s.count &gt; 1000 ) = true
          WHERE toString(s) = "monday"
          WHERE dominators(s).size() = 0
          WHERE s.@retainedHeapSize &gt; 1024L
+         WHERE s.value != null AND s.value.@valueArray.@length &gt;= 1 AND s.value.@valueArray.get(0) = 'j'
          WHERE s.@GCRootInfo != null
-</pre>
+            </pre>
 
 		</div>
 
