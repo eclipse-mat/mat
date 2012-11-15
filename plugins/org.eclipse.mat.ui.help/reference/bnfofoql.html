@@ -64,7 +64,7 @@
                <td valign="top" class="stentry"><pre class="pre codeblock">::=</pre>
 </td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">( ObjectFacet | BuildInFunction ) ( "." ObjectFacet )*</pre>
+               <td valign="top" class="stentry"><pre class="pre codeblock">( ObjectFacet | BuiltInFunction ) ( "." ObjectFacet | "[" SimpleExpression "]" )*</pre>
 </td>
 
             </tr>
@@ -75,7 +75,7 @@
                <td valign="top" class="stentry"><pre class="pre codeblock">::=</pre>
 </td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">( "$" "{" &lt;IDENTIFIER&gt; "}" ) ( "." ObjectFacet )*</pre>
+               <td valign="top" class="stentry"><pre class="pre codeblock">( "$" "{" &lt;IDENTIFIER&gt; "}" ) ( "." ObjectFacet | "[" SimpleExpression "]" )*</pre>
 </td>
 
             </tr>
@@ -97,7 +97,7 @@
                <td valign="top" class="stentry"><pre class="pre codeblock">::=</pre>
 </td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">"(" ( ( PrimaryExpression ( "," PrimaryExpression )* ) )? ")"</pre>
+               <td valign="top" class="stentry"><pre class="pre codeblock">"(" ( ( SimpleExpression ( "," SimpleExpression )* ) )? ")"</pre>
 </td>
 
             </tr>
@@ -207,7 +207,7 @@
                <td valign="top" class="stentry"><pre class="pre codeblock">::=</pre>
 </td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">( PrimaryExpression ( ( "&lt;" PrimaryExpression | "&gt;" PrimaryExpression | "&lt;=" PrimaryExpression | "&gt;=" PrimaryExpression | ( LikeClause | InClause ) | "implements" ClassName ) )? )</pre>
+               <td valign="top" class="stentry"><pre class="pre codeblock">( SimpleExpression ( ( "&lt;" SimpleExpression | "&gt;" SimpleExpression | "&lt;=" SimpleExpression | "&gt;=" SimpleExpression | ( LikeClause | InClause ) | "implements" ClassName ) )? )</pre>
 </td>
 
             </tr>
@@ -229,7 +229,29 @@
                <td valign="top" class="stentry"><pre class="pre codeblock">::=</pre>
 </td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">( "NOT" )? "IN" PrimaryExpression</pre>
+               <td valign="top" class="stentry"><pre class="pre codeblock">( "NOT" )? "IN" SimpleExpression</pre>
+</td>
+
+            </tr>
+<tr class="strow">
+               <td valign="top" class="stentry"><pre class="pre codeblock">SimpleExpression</pre>
+</td>
+
+               <td valign="top" class="stentry"><pre class="pre codeblock">::=</pre>
+</td>
+
+               <td valign="top" class="stentry"><pre class="pre codeblock">MultiplicativeExpression ( "+" MultiplicativeExpression | "-" MultiplicativeExpression )*</pre>
+</td>
+
+            </tr>
+<tr class="strow">
+               <td valign="top" class="stentry"><pre class="pre codeblock">MultiplicativeExpression</pre>
+</td>
+
+               <td valign="top" class="stentry"><pre class="pre codeblock">::=</pre>
+</td>
+
+               <td valign="top" class="stentry"><pre class="pre codeblock">PrimaryExpression ( "*" PrimaryExpression | "/" PrimaryExpression )*</pre>
 </td>
 
             </tr>

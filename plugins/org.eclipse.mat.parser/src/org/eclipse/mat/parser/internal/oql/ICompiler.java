@@ -61,4 +61,5 @@ public interface ICompiler
 
     Object divide(Object left, Object right);
 
+    Object array(Object index);
 }

@@ -11,6 +11,7 @@
 package org.eclipse.mat.parser.internal.oql.compiler;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.mat.parser.internal.oql.ICompiler;
@@ -169,6 +170,11 @@ public class CompilerImpl implements ICompiler
     public Object plus(Object left, Object right)
     {
         return new Operation.Plus((Expression) left, (Expression) right);
+    }
+
+    public Object array(Object index)
+    {
+        return new ArrayIndexExpression(Collections.singletonList((Expression)index));
     }
 
     // //////////////////////////////////////////////////////////////

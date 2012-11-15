@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-
 import org.eclipse.mat.parser.internal.Messages;
 import org.eclipse.mat.parser.internal.oql.ICompiler;
 import org.eclipse.mat.parser.internal.oql.compiler.Attribute;
@@ -111,7 +110,7 @@ public class OQLParser implements OQLParserConstants
     {
         Query q;
         q = SelectStatement();
-        jj_consume_token(39);
+        jj_consume_token(TERMINATOR);
         {
             if (true)
                 return q;
@@ -199,8 +198,8 @@ public class OQLParser implements OQLParserConstants
         }
         switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
         {
-            case 40:
-                jj_consume_token(40);
+            case STAR:
+                jj_consume_token(STAR);
                 break;
             default:
                 jj_la1[1] = jj_gen;
@@ -217,21 +216,21 @@ public class OQLParser implements OQLParserConstants
                     {
                         case DOLLAR_SIGN:
                         case IDENTIFIER:
-                        case 45:
+                        case NATIVE:
                             a = SelectItem();
                             columns.add(a);
                             label_1: while (true)
                             {
                                 switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
                                 {
-                                    case 41:
+                                    case COMMA:
 
                                         break;
                                     default:
                                         jj_la1[0] = jj_gen;
                                         break label_1;
                                 }
-                                jj_consume_token(41);
+                                jj_consume_token(COMMA);
                                 a = SelectItem();
                                 columns.add(a);
                             }
@@ -254,7 +253,7 @@ public class OQLParser implements OQLParserConstants
         switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
         {
             case IDENTIFIER:
-            case 45:
+            case NATIVE:
                 ex = PathExpression();
                 break;
             case DOLLAR_SIGN:
@@ -303,22 +302,40 @@ public class OQLParser implements OQLParserConstants
     {
         List<Object> elements = new ArrayList<Object>();
         Object ex = null;
+        Object index;
         ex = ObjectFacet(true);
         elements.add(ex);
         label_2: while (true)
         {
             switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
             {
-                case 42:
+                case DOT:
+                case ARRAYLEFT:
 
                     break;
                 default:
                     jj_la1[5] = jj_gen;
                     break label_2;
             }
-            jj_consume_token(42);
-            ex = ObjectFacet(false);
-            elements.add(ex);
+            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
+            {
+                case DOT:
+                    jj_consume_token(DOT);
+                    ex = ObjectFacet(false);
+                    elements.add(ex);
+                    break;
+                case ARRAYLEFT:
+                    jj_consume_token(ARRAYLEFT);
+                    index = SimpleExpression();
+                    jj_consume_token(ARRAYRIGHT);
+                    ex = compiler.array(index);
+                    elements.add(ex);
+                    break;
+                default:
+                    jj_la1[6] = jj_gen;
+                    jj_consume_token(-1);
+                    throw new ParseException();
+            }
         }
         {
             if (true)
@@ -332,24 +349,42 @@ public class OQLParser implements OQLParserConstants
         LinkedList<Object> elements = new LinkedList<Object>();
         Object ex = null;
         Token t_name = null;
+        Object index;
         jj_consume_token(DOLLAR_SIGN);
-        jj_consume_token(43);
+        jj_consume_token(LBRACE);
         t_name = jj_consume_token(IDENTIFIER);
-        jj_consume_token(44);
+        jj_consume_token(RBRACE);
         label_3: while (true)
         {
             switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
             {
-                case 42:
+                case DOT:
+                case ARRAYLEFT:
 
                     break;
                 default:
-                    jj_la1[6] = jj_gen;
+                    jj_la1[7] = jj_gen;
                     break label_3;
             }
-            jj_consume_token(42);
-            ex = ObjectFacet(false);
-            elements.add(ex);
+            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
+            {
+                case DOT:
+                    jj_consume_token(DOT);
+                    ex = ObjectFacet(false);
+                    elements.add(ex);
+                    break;
+                case ARRAYLEFT:
+                    jj_consume_token(ARRAYLEFT);
+                    index = SimpleExpression();
+                    jj_consume_token(ARRAYRIGHT);
+                    ex = compiler.array(index);
+                    elements.add(ex);
+                    break;
+                default:
+                    jj_la1[8] = jj_gen;
+                    jj_consume_token(-1);
+                    throw new ParseException();
+            }
         }
         elements.addFirst(new Attribute(t_name.image, false, true));
         {
@@ -366,11 +401,11 @@ public class OQLParser implements OQLParserConstants
         Object ex = null;
         switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
         {
-            case 45:
-                t_native = jj_consume_token(45);
+            case NATIVE:
+                t_native = jj_consume_token(NATIVE);
                 break;
             default:
-                jj_la1[7] = jj_gen;
+                jj_la1[9] = jj_gen;
 
         }
         t_name = jj_consume_token(IDENTIFIER);
@@ -397,7 +432,7 @@ public class OQLParser implements OQLParserConstants
     {
         List<Expression> parameters = new ArrayList<Expression>();
         Object expr = null;
-        jj_consume_token(46);
+        jj_consume_token(LPAREN);
         switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
         {
             case INTEGER_LITERAL:
@@ -410,33 +445,33 @@ public class OQLParser implements OQLParserConstants
             case NULL:
             case DOLLAR_SIGN:
             case IDENTIFIER:
-            case 45:
-            case 46:
-            case 51:
-            case 52:
+            case NATIVE:
+            case LPAREN:
+            case PLUS:
+            case MINUS:
                 expr = SimpleExpression();
                 parameters.add((Expression) expr);
                 label_4: while (true)
                 {
                     switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
                     {
-                        case 41:
+                        case COMMA:
 
                             break;
                         default:
-                            jj_la1[8] = jj_gen;
+                            jj_la1[10] = jj_gen;
                             break label_4;
                     }
-                    jj_consume_token(41);
+                    jj_consume_token(COMMA);
                     expr = SimpleExpression();
                     parameters.add((Expression) expr);
                 }
                 break;
             default:
-                jj_la1[9] = jj_gen;
+                jj_la1[11] = jj_gen;
 
         }
-        jj_consume_token(47);
+        jj_consume_token(RPAREN);
         {
             if (true)
                 return parameters;
@@ -499,13 +534,13 @@ public class OQLParser implements OQLParserConstants
             case IDENTIFIER:
                 FromItem(fromItem);
                 break;
-            case 46:
-                jj_consume_token(46);
+            case LPAREN:
+                jj_consume_token(LPAREN);
                 subSelect = SelectStatement();
-                jj_consume_token(47);
+                jj_consume_token(RPAREN);
                 break;
             default:
-                jj_la1[10] = jj_gen;
+                jj_la1[12] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -556,14 +591,14 @@ public class OQLParser implements OQLParserConstants
                 {
                     switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
                     {
-                        case 41:
+                        case COMMA:
 
                             break;
                         default:
-                            jj_la1[11] = jj_gen;
+                            jj_la1[13] = jj_gen;
                             break label_5;
                     }
-                    jj_consume_token(41);
+                    jj_consume_token(COMMA);
                     address = ObjectAddress();
                     fromClause.addObjectAddress(address);
                 }
@@ -575,20 +610,20 @@ public class OQLParser implements OQLParserConstants
                 {
                     switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
                     {
-                        case 41:
+                        case COMMA:
 
                             break;
                         default:
-                            jj_la1[12] = jj_gen;
+                            jj_la1[14] = jj_gen;
                             break label_6;
                     }
-                    jj_consume_token(41);
+                    jj_consume_token(COMMA);
                     objectId = ObjectId();
                     fromClause.addObjectId(objectId);
                 }
                 break;
             default:
-                jj_la1[13] = jj_gen;
+                jj_la1[15] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -604,14 +639,14 @@ public class OQLParser implements OQLParserConstants
         {
             switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
             {
-                case 42:
+                case DOT:
 
                     break;
                 default:
-                    jj_la1[14] = jj_gen;
+                    jj_la1[16] = jj_gen;
                     break label_7;
             }
-            jj_consume_token(42);
+            jj_consume_token(DOT);
             t = jj_consume_token(IDENTIFIER);
             b.append(".").append(t.image);
         }
@@ -619,14 +654,14 @@ public class OQLParser implements OQLParserConstants
         {
             switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
             {
-                case 48:
+                case ARRAY:
 
                     break;
                 default:
-                    jj_la1[15] = jj_gen;
+                    jj_la1[17] = jj_gen;
                     break label_8;
             }
-            jj_consume_token(48);
+            jj_consume_token(ARRAY);
             b.append("[]");
         }
         {
@@ -689,7 +724,7 @@ public class OQLParser implements OQLParserConstants
 
                     break;
                 default:
-                    jj_la1[16] = jj_gen;
+                    jj_la1[18] = jj_gen;
                     break label_9;
             }
             jj_consume_token(OR);
@@ -725,7 +760,7 @@ public class OQLParser implements OQLParserConstants
 
                     break;
                 default:
-                    jj_la1[17] = jj_gen;
+                    jj_la1[19] = jj_gen;
                     break label_10;
             }
             jj_consume_token(AND);
@@ -756,18 +791,18 @@ public class OQLParser implements OQLParserConstants
         {
             switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
             {
+                case EQ:
                 case NE:
-                case 49:
 
                     break;
                 default:
-                    jj_la1[18] = jj_gen;
+                    jj_la1[20] = jj_gen;
                     break label_11;
             }
             switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
             {
-                case 49:
-                    jj_consume_token(49);
+                case EQ:
+                    jj_consume_token(EQ);
                     r = RelationalExpression();
                     ex = compiler.equal(ex, r);
                     break;
@@ -777,7 +812,7 @@ public class OQLParser implements OQLParserConstants
                     ex = compiler.notEqual(ex, r);
                     break;
                 default:
-                    jj_la1[19] = jj_gen;
+                    jj_la1[21] = jj_gen;
                     jj_consume_token(-1);
                     throw new ParseException();
             }
@@ -802,8 +837,8 @@ public class OQLParser implements OQLParserConstants
                     r = SimpleExpression();
                     ex = compiler.lessThan(ex, r);
                     break;
-                case 50:
-                    jj_consume_token(50);
+                case GT:
+                    jj_consume_token(GT);
                     r = SimpleExpression();
                     ex = compiler.greaterThan(ex, r);
                     break;
@@ -818,7 +853,7 @@ public class OQLParser implements OQLParserConstants
                     ex = compiler.greaterThanOrEqual(ex, r);
                     break;
                 default:
-                    jj_la1[20] = jj_gen;
+                    jj_la1[22] = jj_gen;
                     if (seeUnreservedKeyword("LIKE"))
                     {
                         ex = LikeClause(ex, true);
@@ -841,7 +876,7 @@ public class OQLParser implements OQLParserConstants
                                 ex = compiler.instanceOf(ex, (String) r);
                                 break;
                             default:
-                                jj_la1[21] = jj_gen;
+                                jj_la1[23] = jj_gen;
                                 jj_consume_token(-1);
                                 throw new ParseException();
                         }
@@ -918,28 +953,28 @@ public class OQLParser implements OQLParserConstants
         {
             switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
             {
-                case 51:
-                case 52:
+                case PLUS:
+                case MINUS:
 
                     break;
                 default:
-                    jj_la1[22] = jj_gen;
+                    jj_la1[24] = jj_gen;
                     break label_12;
             }
             switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
             {
-                case 51:
-                    jj_consume_token(51);
+                case PLUS:
+                    jj_consume_token(PLUS);
                     r = MultiplicativeExpression();
                     ex = compiler.plus(ex, r);
                     break;
-                case 52:
-                    jj_consume_token(52);
+                case MINUS:
+                    jj_consume_token(MINUS);
                     r = MultiplicativeExpression();
                     ex = compiler.minus(ex, r);
                     break;
                 default:
-                    jj_la1[23] = jj_gen;
+                    jj_la1[25] = jj_gen;
                     jj_consume_token(-1);
                     throw new ParseException();
             }
@@ -959,28 +994,28 @@ public class OQLParser implements OQLParserConstants
         {
             switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
             {
-                case 40:
-                case 53:
+                case STAR:
+                case DIVIDE:
 
                     break;
                 default:
-                    jj_la1[24] = jj_gen;
+                    jj_la1[26] = jj_gen;
                     break label_13;
             }
             switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
             {
-                case 40:
-                    jj_consume_token(40);
+                case STAR:
+                    jj_consume_token(STAR);
                     r = PrimaryExpression();
                     ex = compiler.multiply(ex, r);
                     break;
-                case 53:
-                    jj_consume_token(53);
+                case DIVIDE:
+                    jj_consume_token(DIVIDE);
                     r = PrimaryExpression();
                     ex = compiler.divide(ex, r);
                     break;
                 default:
-                    jj_la1[25] = jj_gen;
+                    jj_la1[27] = jj_gen;
                     jj_consume_token(-1);
                     throw new ParseException();
             }
@@ -1005,16 +1040,16 @@ public class OQLParser implements OQLParserConstants
             case TRUE:
             case FALSE:
             case NULL:
-            case 51:
-            case 52:
+            case PLUS:
+            case MINUS:
                 ex = Literal();
                 {
                     if (true)
                         return ex;
                 }
                 break;
-            case 46:
-                jj_consume_token(46);
+            case LPAREN:
+                jj_consume_token(LPAREN);
                 if (seeUnreservedKeyword("SELECT"))
                 {
                     ex = SubQuery();
@@ -1033,26 +1068,26 @@ public class OQLParser implements OQLParserConstants
                         case NULL:
                         case DOLLAR_SIGN:
                         case IDENTIFIER:
-                        case 45:
-                        case 46:
-                        case 51:
-                        case 52:
+                        case NATIVE:
+                        case LPAREN:
+                        case PLUS:
+                        case MINUS:
                             ex = ConditionalOrExpression();
                             break;
                         default:
-                            jj_la1[26] = jj_gen;
+                            jj_la1[28] = jj_gen;
                             jj_consume_token(-1);
                             throw new ParseException();
                     }
                 }
-                jj_consume_token(47);
+                jj_consume_token(RPAREN);
                 {
                     if (true)
                         return ex;
                 }
                 break;
             case IDENTIFIER:
-            case 45:
+            case NATIVE:
                 ex = PathExpression();
                 {
                     if (true)
@@ -1067,7 +1102,7 @@ public class OQLParser implements OQLParserConstants
                 }
                 break;
             default:
-                jj_la1[27] = jj_gen;
+                jj_la1[29] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -1094,8 +1129,8 @@ public class OQLParser implements OQLParserConstants
             case INTEGER_LITERAL:
             case LONG_LITERAL:
             case FLOATING_POINT_LITERAL:
-            case 51:
-            case 52:
+            case PLUS:
+            case MINUS:
                 ex = NumberLiteral();
                 break;
             case CHARACTER_LITERAL:
@@ -1114,7 +1149,7 @@ public class OQLParser implements OQLParserConstants
                 ex = NullLiteral();
                 break;
             default:
-                jj_la1[28] = jj_gen;
+                jj_la1[30] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -1131,24 +1166,24 @@ public class OQLParser implements OQLParserConstants
         Token t, unary = null;
         switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
         {
-            case 51:
-            case 52:
+            case PLUS:
+            case MINUS:
                 switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
                 {
-                    case 51:
-                        unary = jj_consume_token(51);
+                    case PLUS:
+                        unary = jj_consume_token(PLUS);
                         break;
-                    case 52:
-                        unary = jj_consume_token(52);
+                    case MINUS:
+                        unary = jj_consume_token(MINUS);
                         break;
                     default:
-                        jj_la1[29] = jj_gen;
+                        jj_la1[31] = jj_gen;
                         jj_consume_token(-1);
                         throw new ParseException();
                 }
                 break;
             default:
-                jj_la1[30] = jj_gen;
+                jj_la1[32] = jj_gen;
 
         }
         switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
@@ -1178,7 +1213,7 @@ public class OQLParser implements OQLParserConstants
                 ex = compiler.literal(aFloat);
                 break;
             default:
-                jj_la1[31] = jj_gen;
+                jj_la1[33] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -1208,7 +1243,7 @@ public class OQLParser implements OQLParserConstants
                 }
                 break;
             default:
-                jj_la1[32] = jj_gen;
+                jj_la1[34] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
@@ -1232,9 +1267,9 @@ public class OQLParser implements OQLParserConstants
         label_14: while (true)
         {
             jj_consume_token(IDENTIFIER);
-            jj_consume_token(46);
+            jj_consume_token(LPAREN);
             unionQuery = SelectStatement();
-            jj_consume_token(47);
+            jj_consume_token(RPAREN);
             q.addUnionQuery(unionQuery);
             if (seeUnreservedKeyword("UNION"))
             {
@@ -1355,16 +1390,108 @@ public class OQLParser implements OQLParserConstants
         }
     }
 
-    private boolean jj_3_4()
+    private boolean jj_3R_28()
     {
-        if (jj_scan_token(46))
+        if (jj_scan_token(IDENTIFIER))
             return true;
         return false;
     }
 
-    private boolean jj_3R_18()
+    private boolean jj_3R_26()
+    {
+        if (jj_scan_token(IMPLEMENTS))
+            return true;
+        return false;
+    }
+
+    private boolean jj_3R_15()
+    {
+        jj_lookingAhead = true;
+        jj_semLA = seeUnreservedKeyword("WHERE");
+        jj_lookingAhead = false;
+        if (!jj_semLA || jj_3R_27())
+            return true;
+        if (jj_scan_token(IDENTIFIER))
+            return true;
+        return false;
+    }
+
+    private boolean jj_3R_25()
+    {
+        if (jj_3R_31())
+            return true;
+        return false;
+    }
+
+    private boolean jj_3R_24()
+    {
+        if (jj_3R_30())
+            return true;
+        return false;
+    }
+
+    private boolean jj_3R_23()
+    {
+        if (jj_3R_29())
+            return true;
+        return false;
+    }
+
+    private boolean jj_3R_31()
     {
         if (jj_scan_token(IDENTIFIER))
+            return true;
+        return false;
+    }
+
+    private boolean jj_3R_22()
+    {
+        if (jj_scan_token(GE))
+            return true;
+        return false;
+    }
+
+    private boolean jj_3R_16()
+    {
+        Token xsp;
+        if (jj_3R_28())
+            return true;
+        while (true)
+        {
+            xsp = jj_scanpos;
+            if (jj_3R_28())
+            {
+                jj_scanpos = xsp;
+                break;
+            }
+        }
+        return false;
+    }
+
+    private boolean jj_3R_21()
+    {
+        if (jj_scan_token(LE))
+            return true;
+        return false;
+    }
+
+    private boolean jj_3R_20()
+    {
+        if (jj_scan_token(GT))
+            return true;
+        return false;
+    }
+
+    private boolean jj_3R_19()
+    {
+        if (jj_scan_token(LT))
+            return true;
+        return false;
+    }
+
+    private boolean jj_3_4()
+    {
+        if (jj_scan_token(LPAREN))
             return true;
         return false;
     }
@@ -1376,7 +1503,35 @@ public class OQLParser implements OQLParserConstants
         return false;
     }
 
+    private boolean jj_3_2()
+    {
+        if (jj_3R_16())
+            return true;
+        return false;
+    }
+
+    private boolean jj_3_1()
+    {
+        if (jj_3R_15())
+            return true;
+        return false;
+    }
+
     private boolean jj_3R_30()
+    {
+        if (jj_scan_token(IDENTIFIER))
+            return true;
+        return false;
+    }
+
+    private boolean jj_3R_18()
+    {
+        if (jj_scan_token(IDENTIFIER))
+            return true;
+        return false;
+    }
+
+    private boolean jj_3R_29()
     {
         if (jj_scan_token(IDENTIFIER))
             return true;
@@ -1403,13 +1558,6 @@ public class OQLParser implements OQLParserConstants
     }
 
     private boolean jj_3R_17()
-    {
-        if (jj_scan_token(IDENTIFIER))
-            return true;
-        return false;
-    }
-
-    private boolean jj_3R_29()
     {
         if (jj_scan_token(IDENTIFIER))
             return true;
@@ -1467,119 +1615,6 @@ public class OQLParser implements OQLParserConstants
         return false;
     }
 
-    private boolean jj_3R_28()
-    {
-        if (jj_scan_token(IDENTIFIER))
-            return true;
-        return false;
-    }
-
-    private boolean jj_3R_26()
-    {
-        if (jj_scan_token(IMPLEMENTS))
-            return true;
-        return false;
-    }
-
-    private boolean jj_3R_25()
-    {
-        if (jj_3R_31())
-            return true;
-        return false;
-    }
-
-    private boolean jj_3R_15()
-    {
-        jj_lookingAhead = true;
-        jj_semLA = seeUnreservedKeyword("WHERE");
-        jj_lookingAhead = false;
-        if (!jj_semLA || jj_3R_27())
-            return true;
-        if (jj_scan_token(IDENTIFIER))
-            return true;
-        return false;
-    }
-
-    private boolean jj_3R_24()
-    {
-        if (jj_3R_30())
-            return true;
-        return false;
-    }
-
-    private boolean jj_3_2()
-    {
-        if (jj_3R_16())
-            return true;
-        return false;
-    }
-
-    private boolean jj_3R_23()
-    {
-        if (jj_3R_29())
-            return true;
-        return false;
-    }
-
-    private boolean jj_3R_31()
-    {
-        if (jj_scan_token(IDENTIFIER))
-            return true;
-        return false;
-    }
-
-    private boolean jj_3R_16()
-    {
-        Token xsp;
-        if (jj_3R_28())
-            return true;
-        while (true)
-        {
-            xsp = jj_scanpos;
-            if (jj_3R_28())
-            {
-                jj_scanpos = xsp;
-                break;
-            }
-        }
-        return false;
-    }
-
-    private boolean jj_3_1()
-    {
-        if (jj_3R_15())
-            return true;
-        return false;
-    }
-
-    private boolean jj_3R_22()
-    {
-        if (jj_scan_token(GE))
-            return true;
-        return false;
-    }
-
-    private boolean jj_3R_21()
-    {
-        if (jj_scan_token(LE))
-            return true;
-        return false;
-    }
-
-    private boolean jj_3R_20()
-    {
-        if (jj_scan_token(50))
-            return true;
-        return false;
-    }
-
-    private boolean jj_3R_19()
-    {
-        if (jj_scan_token(LT))
-            return true;
-        return false;
-    }
-
     /** Generated Token Manager. */
     public OQLParserTokenManager token_source;
     SimpleCharStream jj_input_stream;
@@ -1594,7 +1629,7 @@ public class OQLParser implements OQLParserConstants
     private boolean jj_lookingAhead = false;
     private boolean jj_semLA;
     private int jj_gen;
-    final private int[] jj_la1 = new int[33];
+    final private int[] jj_la1 = new int[35];
     static private int[] jj_la1_0;
     static private int[] jj_la1_1;
     static
@@ -1605,16 +1640,16 @@ public class OQLParser implements OQLParserConstants
 
     private static void jj_la1_init_0()
     {
-        jj_la1_0 = new int[] { 0x0, 0x0, 0x60000000, 0x60000000, 0x40200000, 0x0, 0x0, 0x0, 0x0, 0x69b46000,
+        jj_la1_0 = new int[] { 0x0, 0x0, 0x60000000, 0x60000000, 0x40200000, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x69b46000,
                         0x60212000, 0x0, 0x0, 0x60212000, 0x0, 0x0, 0x2000000, 0x4000000, 0x0, 0x0, 0x0, 0x10000000,
                         0x0, 0x0, 0x0, 0x0, 0x69b46000, 0x69b46000, 0x9b46000, 0x0, 0x0, 0x46000, 0x1800000, };
     }
 
     private static void jj_la1_init_1()
     {
-        jj_la1_1 = new int[] { 0x200, 0x100, 0x2000, 0x2000, 0x0, 0x400, 0x400, 0x2000, 0x200, 0x186000, 0x4000, 0x200,
-                        0x200, 0x0, 0x400, 0x10000, 0x0, 0x0, 0x20040, 0x20040, 0x40032, 0x0, 0x180000, 0x180000,
-                        0x200100, 0x200100, 0x186000, 0x186000, 0x180000, 0x180000, 0x180000, 0x0, 0x0, };
+        jj_la1_1 = new int[] { 0x200, 0x100, 0x2000, 0x2000, 0x0, 0x20400, 0x20400, 0x20400, 0x20400, 0x2000, 0x200,
+                        0x186000, 0x4000, 0x200, 0x200, 0x0, 0x400, 0x10000, 0x0, 0x0, 0x48, 0x48, 0x36, 0x0, 0x180000,
+                        0x180000, 0x200100, 0x200100, 0x186000, 0x186000, 0x180000, 0x180000, 0x180000, 0x0, 0x0, };
     }
 
     final private JJCalls[] jj_2_rtns = new JJCalls[6];
@@ -1642,7 +1677,7 @@ public class OQLParser implements OQLParserConstants
         token = new Token();
         jj_ntk = -1;
         jj_gen = 0;
-        for (int i = 0; i < 33; i++)
+        for (int i = 0; i < 35; i++)
             jj_la1[i] = -1;
         for (int i = 0; i < jj_2_rtns.length; i++)
             jj_2_rtns[i] = new JJCalls();
@@ -1669,7 +1704,7 @@ public class OQLParser implements OQLParserConstants
         token = new Token();
         jj_ntk = -1;
         jj_gen = 0;
-        for (int i = 0; i < 33; i++)
+        for (int i = 0; i < 35; i++)
             jj_la1[i] = -1;
         for (int i = 0; i < jj_2_rtns.length; i++)
             jj_2_rtns[i] = new JJCalls();
@@ -1683,7 +1718,7 @@ public class OQLParser implements OQLParserConstants
         token = new Token();
         jj_ntk = -1;
         jj_gen = 0;
-        for (int i = 0; i < 33; i++)
+        for (int i = 0; i < 35; i++)
             jj_la1[i] = -1;
         for (int i = 0; i < jj_2_rtns.length; i++)
             jj_2_rtns[i] = new JJCalls();
@@ -1697,7 +1732,7 @@ public class OQLParser implements OQLParserConstants
         token = new Token();
         jj_ntk = -1;
         jj_gen = 0;
-        for (int i = 0; i < 33; i++)
+        for (int i = 0; i < 35; i++)
             jj_la1[i] = -1;
         for (int i = 0; i < jj_2_rtns.length; i++)
             jj_2_rtns[i] = new JJCalls();
@@ -1710,7 +1745,7 @@ public class OQLParser implements OQLParserConstants
         token = new Token();
         jj_ntk = -1;
         jj_gen = 0;
-        for (int i = 0; i < 33; i++)
+        for (int i = 0; i < 35; i++)
             jj_la1[i] = -1;
         for (int i = 0; i < jj_2_rtns.length; i++)
             jj_2_rtns[i] = new JJCalls();
@@ -1723,7 +1758,7 @@ public class OQLParser implements OQLParserConstants
         token = new Token();
         jj_ntk = -1;
         jj_gen = 0;
-        for (int i = 0; i < 33; i++)
+        for (int i = 0; i < 35; i++)
             jj_la1[i] = -1;
         for (int i = 0; i < jj_2_rtns.length; i++)
             jj_2_rtns[i] = new JJCalls();
@@ -1761,7 +1796,6 @@ public class OQLParser implements OQLParserConstants
         throw generateParseException();
     }
 
-    @SuppressWarnings("serial")
     static private final class LookaheadSuccess extends java.lang.Error
     {}
 
@@ -1890,7 +1924,7 @@ public class OQLParser implements OQLParserConstants
             la1tokens[jj_kind] = true;
             jj_kind = -1;
         }
-        for (int i = 0; i < 33; i++)
+        for (int i = 0; i < 35; i++)
         {
             if (jj_la1[i] == jj_gen)
             {

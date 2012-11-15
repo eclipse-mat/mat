@@ -46,12 +46,12 @@
             <strow>
                <stentry><codeblock>PathExpression</codeblock></stentry>
                <stentry><codeblock>::=</codeblock></stentry>
-               <stentry><codeblock>( ObjectFacet | BuildInFunction ) ( "." ObjectFacet )*</codeblock></stentry>
+               <stentry><codeblock>( ObjectFacet | BuiltInFunction ) ( "." ObjectFacet | "[" SimpleExpression "]" )*</codeblock></stentry>
             </strow>
             <strow>
                <stentry><codeblock>EnvVarPathExpression</codeblock></stentry>
                <stentry><codeblock>::=</codeblock></stentry>
-               <stentry><codeblock>( "$" "{" &lt;IDENTIFIER&gt; "}" ) ( "." ObjectFacet )*</codeblock></stentry>
+               <stentry><codeblock>( "$" "{" &lt;IDENTIFIER&gt; "}" ) ( "." ObjectFacet | "[" SimpleExpression "]" )*</codeblock></stentry>
             </strow>
             <strow>
                <stentry><codeblock>ObjectFacet</codeblock></stentry>
@@ -61,7 +61,7 @@
             <strow>
                <stentry><codeblock>ParameterList</codeblock></stentry>
                <stentry><codeblock>::=</codeblock></stentry>
-               <stentry><codeblock>"(" ( ( PrimaryExpression ( "," PrimaryExpression )* ) )? ")"</codeblock></stentry>
+               <stentry><codeblock>"(" ( ( SimpleExpression ( "," SimpleExpression )* ) )? ")"</codeblock></stentry>
             </strow>
             <strow>
                <stentry><codeblock>FromClause</codeblock></stentry>
@@ -111,7 +111,7 @@
             <strow>
                <stentry><codeblock>RelationalExpression</codeblock></stentry>
                <stentry><codeblock>::=</codeblock></stentry>
-               <stentry><codeblock>( PrimaryExpression ( ( "&lt;" PrimaryExpression | "&gt;" PrimaryExpression | "&lt;=" PrimaryExpression | "&gt;=" PrimaryExpression | ( LikeClause | InClause ) | "implements" ClassName ) )? )</codeblock></stentry>
+               <stentry><codeblock>( SimpleExpression ( ( "&lt;" SimpleExpression | "&gt;" SimpleExpression | "&lt;=" SimpleExpression | "&gt;=" SimpleExpression | ( LikeClause | InClause ) | "implements" ClassName ) )? )</codeblock></stentry>
             </strow>
             <strow>
                <stentry><codeblock>LikeClause</codeblock></stentry>
@@ -121,7 +121,17 @@
             <strow>
                <stentry><codeblock>InClause</codeblock></stentry>
                <stentry><codeblock>::=</codeblock></stentry>
-               <stentry><codeblock>( "NOT" )? "IN" PrimaryExpression</codeblock></stentry>
+               <stentry><codeblock>( "NOT" )? "IN" SimpleExpression</codeblock></stentry>
+            </strow>
+            <strow>
+               <stentry><codeblock>SimpleExpression</codeblock></stentry>
+               <stentry><codeblock>::=</codeblock></stentry>
+               <stentry><codeblock>MultiplicativeExpression ( "+" MultiplicativeExpression | "-" MultiplicativeExpression )*</codeblock></stentry>
+            </strow>
+            <strow>
+               <stentry><codeblock>MultiplicativeExpression</codeblock></stentry>
+               <stentry><codeblock>::=</codeblock></stentry>
+               <stentry><codeblock>PrimaryExpression ( "*" PrimaryExpression | "/" PrimaryExpression )*</codeblock></stentry>
             </strow>
             <strow>
                <stentry><codeblock>PrimaryExpression</codeblock></stentry>

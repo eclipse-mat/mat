@@ -663,6 +663,34 @@ public class OQLTest
         assertEquals(80, objectIds.length);
     }
 
+    @Test
+    public void testPrimitiveArray() throws SnapshotException
+    {
+        IResultTable res = (IResultTable)execute("SELECT s[2] FROM int[] s");
+        assertEquals(5, res.getRowCount());
+    }
+
+    @Test
+    public void testObjectArray() throws SnapshotException
+    {
+        int[] objectIds = (int[])execute("SELECT OBJECTS s[2] FROM byte[][] s");
+        assertEquals(2, objectIds.length);
+    }
+
+    @Test
+    public void testJavaArray() throws SnapshotException
+    {
+        IResultTable res = (IResultTable)execute("SELECT s.@GCRoots[2] FROM OBJECTS ${snapshot} s");
+        assertEquals(1, res.getRowCount());
+    }
+
+    @Test
+    public void testJavaList() throws SnapshotException
+    {
+        IResultTable res = (IResultTable)execute("SELECT s.@GCRoots.subList(1,3)[1] FROM OBJECTS ${snapshot} s");
+        assertEquals(1, res.getRowCount());
+    }
+
     // //////////////////////////////////////////////////////////////
     // internal helper
     // //////////////////////////////////////////////////////////////

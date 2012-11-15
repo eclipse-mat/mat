@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 SAP AG and others.
+ * Copyright (c) 2008, 2012 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,7 @@
  *
  * Contributors:
  *     SAP AG - initial API and implementation
- *     IBM Corporation - move to JavaCC 5.0
+ *     IBM Corporation - move to JavaCC 5.0 and array access
  *******************************************************************************/
 options
 {
@@ -379,11 +379,32 @@ TOKEN :
 TOKEN :
 {
   < LT: "<" >
-| < BANG: "!" >
-| < EQ: "==" >
+| < GT: ">" >
+| < EQ: "=" >
 | < LE: "<=" >
 | < GE: ">=" >
 | < NE: "!=" >
+}
+
+/* OTHER TOKENS */
+
+TOKEN :
+{
+  < TERMINATOR: ";" >
+| < STAR: "*" >
+| < COMMA: "," >
+| < DOT: "." >
+| < LBRACE: "{" >
+| < RBRACE: "}" >
+| < NATIVE: "@" >
+| < LPAREN: "(" >
+| < RPAREN: ")" >
+| < ARRAY: "[]" >
+| < ARRAYLEFT: "[" >
+| < ARRAYRIGHT: "]" >
+| < PLUS: "+" >
+| < MINUS: "-" >
+| < DIVIDE: "/" >
 }
 
 /*******************************
@@ -487,6 +508,7 @@ Object PathExpression():
 {
 	List<Object> elements = new ArrayList<Object>();
 	Object ex = null;
+	Object index;
 }
 {
 	(
@@ -494,6 +516,12 @@ Object PathExpression():
 	)
 	(
 		"." ex = ObjectFacet(false) { elements.add(ex); }
+	|
+		"[" index = SimpleExpression() "]"
+		{
+			ex = compiler.array(index);
+			elements.add(ex);
+		}
 	)*
 	{
 		return compiler.path(elements);
@@ -505,6 +533,7 @@ Object EnvVarPathExpression():
 	LinkedList<Object> elements = new LinkedList<Object>();
 	Object ex = null;
 	Token t_name = null;
+	Object index;
 }
 {
 	(
@@ -512,6 +541,12 @@ Object EnvVarPathExpression():
 	)
 	(
 		"." ex = ObjectFacet(false) { elements.add(ex); }
+	|
+		"[" index = SimpleExpression() "]"
+		{
+			ex = compiler.array(index);
+			elements.add(ex);
+		}
 	)*
 	{
 		elements.addFirst(new Attribute(t_name.image, false, true));

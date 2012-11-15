@@ -116,8 +116,9 @@
 				Autocompletion
 			</title>
 			<p>
-				The OQL pane now has autocompletion for class names
-				and regular expresions. See <xref href="tipsandtricks.dita#oqlcompletion">OQL autocompletion</xref>.
+				The OQL pane now has autocompletion for class names, and regular expressions,
+				field names, attributes and methods. 
+				See <xref href="tipsandtricks.dita#oqlcompletion">OQL autocompletion</xref>.
 			</p>
 		</section>
 	</refbody>

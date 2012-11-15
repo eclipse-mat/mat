@@ -169,13 +169,14 @@ class PathExpression extends Expression
     {
         StringBuilder buf = new StringBuilder(256);
 
+        boolean first = true;
         for (Iterator<Object> iter = this.attributes.iterator(); iter.hasNext();)
         {
             Object element = iter.next();
-            buf.append(element);
-
-            if (iter.hasNext())
+            if (!first && !(element instanceof ArrayIndexExpression))
                 buf.append(".");//$NON-NLS-1$
+            first = false;
+            buf.append(element);
         }
 
         return buf.toString();
