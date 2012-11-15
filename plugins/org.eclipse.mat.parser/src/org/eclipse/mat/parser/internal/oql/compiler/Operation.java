@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others.
+ * Copyright (c) 2008, 2012 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson - Integer arithmetic as well as Long
  *******************************************************************************/
 package org.eclipse.mat.parser.internal.oql.compiler;
 
@@ -22,9 +23,9 @@ import org.eclipse.mat.parser.internal.Messages;
 import org.eclipse.mat.parser.internal.oql.compiler.CompilerImpl.ConstantExpression;
 import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.snapshot.model.IObject;
+import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.PatternUtil;
-import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
 
 abstract class Operation extends Expression
 {
@@ -472,7 +473,7 @@ abstract class Operation extends Expression
         @Override
         public String getSymbol()
         {
-            return " IN ";//$NON-NLS-1$
+            return "IN";//$NON-NLS-1$
         }
 
     }
@@ -551,7 +552,7 @@ abstract class Operation extends Expression
         @Override
         public String getSymbol()
         {
-            return " NOT IN ";//$NON-NLS-1$
+            return "NOT IN";//$NON-NLS-1$
         }
 
     }
@@ -578,7 +579,7 @@ abstract class Operation extends Expression
 
         public String getSymbol()
         {
-            return "AND";//$NON-NLS-1$
+            return "and";//$NON-NLS-1$
         }
     }
 
@@ -604,7 +605,7 @@ abstract class Operation extends Expression
 
         public String getSymbol()
         {
-            return "OR";//$NON-NLS-1$
+            return "or";//$NON-NLS-1$
         }
     }
 
@@ -632,14 +633,14 @@ abstract class Operation extends Expression
 
         public String getSymbol()
         {
-            return " LIKE ";//$NON-NLS-1$
+            return "LIKE";//$NON-NLS-1$
         }
 
         @Override
         public String toString()
         {
-            return new StringBuilder().append("(").append(args[0]).append(getSymbol()).append("\"").append(//$NON-NLS-1$//$NON-NLS-2$
-                            pattern.toString()).append("\"").append(")").toString();//$NON-NLS-1$//$NON-NLS-2$
+            return new StringBuilder().append('(').append(args[0]).append(' ').append(getSymbol()).append(' ').append('"').
+                            append(pattern.toString()).append('"').append(')').toString();
         }
 
     }
@@ -667,14 +668,14 @@ abstract class Operation extends Expression
 
         public String getSymbol()
         {
-            return " NOT LIKE ";//$NON-NLS-1$
+            return "NOT LIKE";//$NON-NLS-1$
         }
 
         @Override
         public String toString()
         {
-            return new StringBuilder().append("(").append(args[0]).append(getSymbol()).append("\"").append( //$NON-NLS-1$//$NON-NLS-2$
-                            pattern.toString()).append("\"").append(")").toString();//$NON-NLS-1$//$NON-NLS-2$
+            return new StringBuilder().append('(').append(args[0]).append(' ').append(getSymbol()).append(' ').append('"').
+                            append(pattern.toString()).append('"').append(')').toString();
         }
 
     }
@@ -709,13 +710,13 @@ abstract class Operation extends Expression
 
         public String getSymbol()
         {
-            return " IMPLEMENTS ";//$NON-NLS-1$
+            return "implements";//$NON-NLS-1$
         }
 
         @Override
         public String toString()
         {
-            return new StringBuilder().append("(").append(args[0]).append(getSymbol()).append(className).append(")")//$NON-NLS-1$//$NON-NLS-2$
+            return new StringBuilder().append('(').append(args[0]).append(' ').append(getSymbol()).append(' ').append(className).append(')')
                             .toString();
         }
 
@@ -777,11 +778,17 @@ abstract class Operation extends Expression
             {
                 return calculate(((Number) obj1).doubleValue(), ((Number) obj2).doubleValue());
             }
-            else
+            else if (obj1 instanceof Long || obj2 instanceof Long)
             {
                 return calculate(((Number) obj1).longValue(), ((Number) obj2).longValue());
             }
+            else
+            {
+                return calculate(((Number) obj1).intValue(), ((Number) obj2).intValue());
+            }
         }
+
+        abstract Object calculate(int left, int right);
 
         abstract Object calculate(long left, long right);
 
@@ -795,6 +802,12 @@ abstract class Operation extends Expression
         public Plus(Expression arg1, Expression arg2)
         {
             super(arg1, arg2);
+        }
+
+        @Override
+        Object calculate(int left, int right)
+        {
+            return left + right;
         }
 
         @Override
@@ -825,6 +838,12 @@ abstract class Operation extends Expression
         }
 
         @Override
+        Object calculate(int left, int right)
+        {
+            return left - right;
+        }
+
+        @Override
         Object calculate(long left, long right)
         {
             return left - right;
@@ -849,6 +868,13 @@ abstract class Operation extends Expression
         public Multiply(Expression arg1, Expression arg2)
         {
             super(arg1, arg2);
+        }
+
+
+        @Override
+        Object calculate(int left, int right)
+        {
+            return left * right;
         }
 
         @Override
@@ -876,6 +902,13 @@ abstract class Operation extends Expression
         public Divide(Expression arg1, Expression arg2)
         {
             super(arg1, arg2);
+        }
+
+
+        @Override
+        Object calculate(int left, int right)
+        {
+            return (double) left / (double) right;
         }
 
         @Override

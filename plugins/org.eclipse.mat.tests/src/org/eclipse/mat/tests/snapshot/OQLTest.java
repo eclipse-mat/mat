@@ -29,7 +29,6 @@ import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.tests.TestSnapshots;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.VoidProgressListener;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class OQLTest
@@ -348,6 +347,12 @@ public class OQLTest
         objectIds = (int[]) execute("SELECT * FROM java.lang.String s WHERE toString(s) LIKE \"java.*\"");
         assert objectIds.length == 27;
 
+        objectIds = (int[]) execute("SELECT * FROM java.lang.String s WHERE toString(s) NOT LIKE \"java.*\"");
+        assert objectIds.length == 492 - 27;
+
+        objectIds = (int[]) execute("SELECT * FROM java.lang.String s WHERE s.value IN dominators(s)");
+        assert objectIds.length == 492 - 27;
+
         objectIds = (int[]) execute("SELECT * FROM java.lang.String s WHERE s.value NOT IN dominators(s)");
         assert objectIds.length == 27;
 
@@ -375,6 +380,17 @@ public class OQLTest
 
         objectIds = (int[]) execute("SELECT * FROM java.lang.String s WHERE s.count + 20 < s.value.@length");
         assert objectIds.length == 16;
+    }
+
+    @Test
+    public void testWhereArithmeticInt() throws SnapshotException
+    {
+        // get(int) with an int, not a long
+        int[] objectIds0 = (int[])execute("SELECT * FROM int[]");
+        int[] objectIds1 = (int[])execute("SELECT * FROM int[] c WHERE (c.@valueArray.get(c.@length - 1) > 0)");
+        int[] objectIds2 = (int[])execute("SELECT * FROM int[] c WHERE (c.@valueArray.get(c.@length + -1) <= 0)");
+
+        assertEquals(objectIds0.length, objectIds1.length + objectIds2.length);
     }
 
     @Test
