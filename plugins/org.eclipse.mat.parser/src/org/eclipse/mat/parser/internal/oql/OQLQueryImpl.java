@@ -39,6 +39,7 @@ import org.eclipse.mat.parser.internal.oql.parser.ParseException;
 import org.eclipse.mat.parser.internal.oql.parser.TokenMgrError;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.IContextObject;
+import org.eclipse.mat.query.IContextObjectSet;
 import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.query.ResultMetaData;
 import org.eclipse.mat.snapshot.IOQLQuery;
@@ -152,7 +153,7 @@ public class OQLQueryImpl implements IOQLQuery
             return holder.values[columnIndex] == NULL_VALUE ? null : holder.values[columnIndex];
         }
 
-        public IContextObject getContext(Object row)
+        public IContextObjectSet getContext(Object row)
         {
             final int index = (Integer) row;
             if (!(objects[index] instanceof ValueHolder))
@@ -160,11 +161,27 @@ public class OQLQueryImpl implements IOQLQuery
 
             if (((ValueHolder) objects[index]).subject instanceof IObject)
             {
-                return new IContextObject()
+                return new IContextObjectSet()
                 {
                     public int getObjectId()
                     {
                         return ((IObject) ((ValueHolder) objects[index]).subject).getObjectId();
+                    }
+
+                    public int[] getObjectIds()
+                    {
+                        return new int[] {getObjectId()};
+                    }
+
+                    public String getOQL()
+                    {
+                        String alias = source.query.getFromClause().getAlias();
+                        String alias2;
+                        if (alias == null)
+                            alias2 = ""; //$NON-NLS-1$
+                        else
+                            alias2 = " "+alias; //$NON-NLS-1$
+                        return "SELECT "+source.query.getSelectClause().toString() +" FROM OBJECTS " + getObjectId()+alias2; //$NON-NLS-1$ //$NON-NLS-2$
                     }
                 };
             }
@@ -275,13 +292,29 @@ public class OQLQueryImpl implements IOQLQuery
             return value == NULL_VALUE ? null : value;
         }
 
-        public IContextObject getContext(final Object row)
+        public IContextObjectSet getContext(final Object row)
         {
-            return new IContextObject()
+            return new IContextObjectSet()
             {
                 public int getObjectId()
                 {
                     return objectIds[(Integer) row];
+                }
+
+                public int[] getObjectIds()
+                {
+                    return new int[] {getObjectId()};
+                }
+
+                public String getOQL()
+                {
+                    String alias = source.query.getFromClause().getAlias();
+                    String alias2;
+                    if (alias == null)
+                        alias2 = ""; //$NON-NLS-1$
+                    else
+                        alias2 = " "+alias; //$NON-NLS-1$
+                    return "SELECT "+source.query.getSelectClause().toString() +" FROM OBJECTS " + getObjectId()+alias2; //$NON-NLS-1$ //$NON-NLS-2$
                 }
             };
         }

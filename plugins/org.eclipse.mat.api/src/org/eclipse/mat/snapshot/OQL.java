@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.mat.snapshot;
 
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.mat.snapshot.model.IClass;
@@ -42,6 +43,8 @@ public final class OQL
      */
     public static String forObjectIds(int[] objectIds)
     {
+        if (objectIds.length == 0)
+            return null;
         StringBuilder buf = new StringBuilder(512);
         buf.append("SELECT * FROM OBJECTS "); //$NON-NLS-1$
 
@@ -89,11 +92,40 @@ public final class OQL
 
     /**
      * Create a OQL union statement and append it to the query.
+     * Possibly optimize a common prefix.
+     * select s.a,s.b,s.c from 1,173 s
+     * select s.a,s.b,s.c from 123 s
+     * combine to
+     * select s.a,s.b,s.c from 1,173,123 s
      */
     public static void union(StringBuilder query, String other)
     {
         if ((query.length() > 0))
+        {
+            // Match number,number identifier
+            String m = "\\s*((\\d+\\s*,\\s*)*\\d+)\\s*([A-Za-z_]+[A-Za-z_0-9]*)?\\s*$"; //$NON-NLS-1$
+            Pattern p = Pattern.compile(m);
+            Matcher m1 = p.matcher(query);
+            Matcher m2 = p.matcher(other);
+            if (m1.find() && m2.find())
+            {
+                int i1 = m1.start();
+                int i2 = m2.start();
+                // check same prefix and identifier
+                if (query.substring(0, i1).equals(other.substring(0, i2)))
+                {
+                    String id1 = m1.group(3);
+                    String id2 = m2.group(3);
+                    if (id1 == null ? id2 == null : id1.equals(id2))
+                    {
+                        query.insert(m1.end(1), ","+m2.group(1)); //$NON-NLS-1$
+                        return;
+                    }
+                }
+            }
+            // Default
             query.append(" UNION (").append(other).append(")"); //$NON-NLS-1$ //$NON-NLS-2$
+        }
         else
             query.append(other);
     }
@@ -128,7 +160,7 @@ public final class OQL
         return buf.toString();
     }
 
-    private static final String OQL_classesByClassLoaderId = "select * from java.lang.Class c where c implements " //$NON-NLS-1$
+    private static final String OQL_classesByClassLoaderId = "SELECT * FROM java.lang.Class c WHERE c implements " //$NON-NLS-1$
                     + IClass.class.getName() + " and c.@classLoaderId = {0, number, 0}"; //$NON-NLS-1$
 
     /**
@@ -154,7 +186,7 @@ public final class OQL
     public static String instancesByClassLoaderId(int classLoaderId)
     {
         StringBuilder buf = new StringBuilder(256);
-        buf.append("select * from ("); //$NON-NLS-1$
+        buf.append("SELECT * FROM ("); //$NON-NLS-1$
         buf.append(classesByClassLoaderId(classLoaderId));
         buf.append(")"); //$NON-NLS-1$
         return buf.toString();

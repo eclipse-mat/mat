@@ -53,6 +53,24 @@ public class Query
             this.name = name;
         }
 
+        public String toString()
+        {
+            StringBuilder buf = new StringBuilder(60);
+            buf.append(getExpression());
+
+            if (getName() != null)
+            {
+                buf.append(" AS ");//$NON-NLS-1$
+                String name = getName();
+                boolean quote = name.length() == 0 || name.indexOf(' ') >= 0; 
+                if (quote)
+                    buf.append('"');
+                buf.append(name);
+                if (quote)
+                    buf.append('"');
+            }
+            return buf.toString();
+        }
     }
 
     public static class SelectClause
@@ -102,6 +120,37 @@ public class Query
             this.selectList = selectList;
         }
 
+        public String toString()
+        {
+            StringBuilder buf = new StringBuilder(128);
+
+            if (isDistinct())
+                buf.append("DISTINCT ");//$NON-NLS-1$
+
+            if (isRetainedSet())
+                buf.append("AS RETAINED SET ");//$NON-NLS-1$
+            
+            if (getSelectList().isEmpty())
+            {
+                buf.append("*");//$NON-NLS-1$
+            }
+            else
+            {
+                if (isAsObjects())
+                    buf.append("OBJECTS ");//$NON-NLS-1$
+
+                for (Iterator<SelectItem> iter = getSelectList().iterator(); iter.hasNext();)
+                {
+                    SelectItem column = iter.next();
+                    buf.append(column);
+
+                    if (iter.hasNext())
+                        buf.append(", ");//$NON-NLS-1$
+                }
+            }
+
+            return buf.toString();
+        }
     }
 
     public static class FromClause
@@ -321,45 +370,7 @@ public class Query
 
         // select clause
         buf.append("SELECT ");//$NON-NLS-1$
-
-        if (selectClause.isDistinct())
-            buf.append("DISTINCT ");//$NON-NLS-1$
-
-        if (selectClause.isRetainedSet())
-            buf.append("AS RETAINED SET ");//$NON-NLS-1$
-
-        if (selectClause.getSelectList().isEmpty())
-        {
-            buf.append("* ");//$NON-NLS-1$
-        }
-        else
-        {
-            if (selectClause.asObjects)
-                buf.append("OBJECTS ");//$NON-NLS-1$
-
-            for (Iterator<SelectItem> iter = selectClause.getSelectList().iterator(); iter.hasNext();)
-            {
-                SelectItem column = iter.next();
-                buf.append(column.getExpression());
-
-                if (column.getName() != null)
-                {
-                    buf.append(" AS ");//$NON-NLS-1$
-                    String name = column.getName();
-                    boolean quote = name.length() == 0 || name.indexOf(' ') >= 0; 
-                    if (quote)
-                        buf.append('"');
-                    buf.append(name);
-                    if (quote)
-                        buf.append('"');
-                }
-
-                if (iter.hasNext())
-                    buf.append(", ");//$NON-NLS-1$
-                else
-                    buf.append(" ");//$NON-NLS-1$
-            }
-        }
+        buf.append(selectClause).append(" ");//$NON-NLS-1$;
 
         // from clause
         buf.append("FROM ");//$NON-NLS-1$
