@@ -57,6 +57,7 @@ public class Messages extends NLS
     public static String CompareTablesPane_PercentageDifferenceToPrecedingTable;
     public static String CompareTablesPane_SelectDisplayedColumnsTooltip;
 	public static String Copy_ErrorInExport;
+    public static String CopyOQL_TooBig;
     public static String DerivedDataJob_CalculatingRetainedSizes;
     public static String DominatorPane_Group;
     public static String DominatorPane_Info;

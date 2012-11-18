@@ -23,6 +23,7 @@ import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.snapshot.IOQLQuery;
 import org.eclipse.mat.snapshot.ISnapshot;
+import org.eclipse.mat.snapshot.OQL;
 import org.eclipse.mat.snapshot.OQLParseException;
 import org.eclipse.mat.snapshot.SnapshotFactory;
 import org.eclipse.mat.snapshot.model.IClass;
@@ -689,6 +690,55 @@ public class OQLTest
     {
         IResultTable res = (IResultTable)execute("SELECT s.@GCRoots.subList(1,3)[1] FROM OBJECTS ${snapshot} s");
         assertEquals(1, res.getRowCount());
+    }
+
+    @Test
+    public void testOQLunion1() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("select s from 1,2,3 s1");
+        OQL.union(sb, "select s from 17,23 s1");
+        assertEquals("select s from 1,2,3,17,23 s1", sb.toString());
+        System.out.println(sb);
+    }
+
+    @Test
+    public void testOQLunion2() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("select s from 1,2,3");
+        OQL.union(sb, "select s from 17,23");
+        assertEquals("select s from 1,2,3,17,23", sb.toString());
+        System.out.println(sb);
+    }
+
+    @Test
+    public void testOQLunion3() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("select s from 0");
+        for (int i = 1; i < 200000; ++i) {
+            sb.append(", ").append(i);
+        }
+        sb.append(" s");
+        OQL.union(sb, "select s from 17,23 s");
+        assertTrue(sb.toString(), sb.toString().endsWith("17,23 s"));
+    }
+
+    @Test
+    public void testOQLunion4() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 20000; ++i) {
+            OQL.union(sb, ("select s from "+i+" s"));
+        }
+        assertEquals(-1, sb.indexOf("UNION"));
+        assertTrue(sb.length() < 20000 * 10);
+    }
+
+    @Test
+    public void testOQLunion5() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("select s from 1,2,3 s");
+        OQL.union(sb, "select s from 17,23 t");
+        assertEquals("select s from 1,2,3 s UNION (select s from 17,23 t)", sb.toString());
+        System.out.println(sb);
     }
 
     // //////////////////////////////////////////////////////////////

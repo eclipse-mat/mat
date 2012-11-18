@@ -12,12 +12,15 @@ package org.eclipse.mat.ui.snapshot.actions;
 
 import java.util.List;
 
+import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IContextObjectSet;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.snapshot.OQL;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
@@ -31,21 +34,48 @@ import org.eclipse.swt.widgets.Display;
 public class CopyOQL implements IQuery
 {
     @Argument
-    public List<IContextObjectSet> elements;
+    public List<IContextObject> elements;
 
     @Argument
     public Display display;
 
     public IResult execute(IProgressListener listener) throws Exception
     {
-        final StringBuilder buf = new StringBuilder(128);
         String lineSeparator = System.getProperty("line.separator"); //$NON-NLS-1$
-
-        for (IContextObjectSet element : elements)
+        
+        final StringBuilder buf = new StringBuilder(128);
+        for (IContextObject element : elements)
         {
-            String buf1 = element.getOQL();
-            if (buf1 != null)
-                OQL.union(buf, buf1);
+            if (element instanceof IContextObjectSet)
+            {
+                String buf1 = ((IContextObjectSet)element).getOQL();
+                if (buf1 != null)
+                {
+                    OQL.union(buf, buf1);
+                }
+                else
+                {
+                    int ids[] = ((IContextObjectSet)element).getObjectIds();
+                    String oql = OQL.forObjectIds(ids);
+                    if (oql != null)
+                    {
+                        OQL.union(buf, oql);
+                    }
+                }
+            }
+            else
+            {
+                int id = element.getObjectId();
+                if (id >= 0)
+                {
+                    OQL.union(buf, OQL.forObjectId(id));
+                }
+            }
+            if (buf.length() > 60000)
+            {
+                // A huge OQL statement will take too long to build and execute, so give up now.
+                throw new SnapshotException(Messages.CopyOQL_TooBig);
+            }
         }
 
         buf.append(lineSeparator);

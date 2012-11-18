@@ -90,6 +90,55 @@ public final class OQL
         return "SELECT * FROM " + classId; //$NON-NLS-1$
     }
 
+    private static CharSequence lastId(CharSequence query)
+    {
+        int end = query.length();
+        int j = end - 1;
+        while (j >= 0 && Character.isJavaIdentifierPart(query.charAt(j))) --j;
+        if (j < end - 1 && Character.isJavaIdentifierStart(query.charAt(j + 1)))
+        {    
+            if (isSpace(query, j))
+                return query.subSequence(j, query.length());
+        }
+        return ""; //$NON-NLS-1$
+    }
+
+    private static CharSequence matchObjs(CharSequence s, int e) {
+        int i = e - 1;
+        while (isSpace(s, i))
+            --i;
+        if (!isDigit(s, i))
+            return ""; //$NON-NLS-1$
+        for (;;)
+        {
+            if (!isDigit(s, i))
+                return s.subSequence(i+1, e);
+            while (isDigit(s, i))
+                --i;
+            while (isSpace(s, i))
+                --i;
+            if (i < 0 || s.charAt(i) != ',')
+                return s.subSequence(i+1, e);
+            --i;
+            while (isSpace(s, i))
+                --i;
+        }
+    }
+
+    private static boolean isDigit(CharSequence s, int i)
+    {
+        char c;
+        return i >= 0 && i < s.length() && (c = s.charAt(i)) >= '0' && c <= '9';
+    }
+
+    private static boolean isSpace(CharSequence s, int i)
+    {
+        char c;
+        return i >= 0 && i < s.length() &&
+                        ((c = s.charAt(i)) == ' ' ||
+                        c == '\t' || c == '\n' || c == '\r' || c == '\f');
+    }
+
     /**
      * Create a OQL union statement and append it to the query.
      * Possibly optimize a common prefix.
@@ -102,25 +151,23 @@ public final class OQL
     {
         if ((query.length() > 0))
         {
-            // Match number,number identifier
-            String m = "\\s*((\\d+\\s*,\\s*)*\\d+)\\s*([A-Za-z_]+[A-Za-z_0-9]*)?\\s*$"; //$NON-NLS-1$
-            Pattern p = Pattern.compile(m);
-            Matcher m1 = p.matcher(query);
-            Matcher m2 = p.matcher(other);
-            if (m1.find() && m2.find())
+
+            CharSequence id1 = lastId(query.toString());
+            CharSequence id2 = lastId(other);
+            if (id1.equals(id2))
             {
-                int i1 = m1.start();
-                int i2 = m2.start();
-                // check same prefix and identifier
-                if (query.substring(0, i1).equals(other.substring(0, i2)))
+                CharSequence num1 = matchObjs(query, query.length() - id1.length());
+                CharSequence num2 = matchObjs(other, other.length() - id2.length());
+                int s1 = query.length() - id1.length() - num1.length();
+                int s2 = other.length() - id2.length() - num2.length();
+                if (num1.length() > 0 && num2.length() > 0 && 
+                                query.subSequence(0, s1).equals(
+                                other.subSequence(0, s2)))
                 {
-                    String id1 = m1.group(3);
-                    String id2 = m2.group(3);
-                    if (id1 == null ? id2 == null : id1.equals(id2))
-                    {
-                        query.insert(m1.end(1), ","+m2.group(1)); //$NON-NLS-1$
-                        return;
-                    }
+                    int j = 0;
+                    while (isSpace(num2, j)) ++j;
+                    query.insert(s1 + num1.length(), ","+num2.subSequence(j,  num2.length())); //$NON-NLS-1$
+                    return;
                 }
             }
             // Default
