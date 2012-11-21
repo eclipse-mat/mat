@@ -66,6 +66,9 @@ public class OQLQueryImpl implements IOQLQuery
     private interface CustomTableResultSet extends IOQLQuery.Result, IResultTable
     {}
 
+    /**
+     * Result from a select with select list where the from clause returned a list or array of objects.
+     */
     private static class ObjectResultSet implements CustomTableResultSet
     {
         private static final Object NULL_VALUE = new Object();
@@ -208,6 +211,9 @@ public class OQLQueryImpl implements IOQLQuery
         }
     }
 
+    /**
+     * Result from a select with select list where the from clause returned an array of object IDs.
+     */
     private static class ResultSet implements CustomTableResultSet
     {
         private static final Object NULL_VALUE = new Object();
@@ -699,10 +705,10 @@ public class OQLQueryImpl implements IOQLQuery
         UnionResultSet unionResultSet = null;
         IntResult unionIntResult = null;
 
-        if (result instanceof ResultSet)
+        if (result instanceof CustomTableResultSet)
         {
             unionResultSet = new UnionResultSet();
-            unionResultSet.addResultSet((ResultSet) result);
+            unionResultSet.addResultSet((CustomTableResultSet) result);
         }
         else if (result instanceof IntResult)
         {
@@ -734,7 +740,7 @@ public class OQLQueryImpl implements IOQLQuery
             {
                 if (unionResultSet != null)
                 {
-                    unionResultSet.addResultSet((ResultSet) unionResult);
+                    unionResultSet.addResultSet((CustomTableResultSet) unionResult);
                 }
                 else if (unionIntResult != null)
                 {
@@ -749,7 +755,7 @@ public class OQLQueryImpl implements IOQLQuery
                 else
                 {
                     unionResultSet = new UnionResultSet();
-                    unionResultSet.addResultSet((ResultSet) unionResult);
+                    unionResultSet.addResultSet((CustomTableResultSet) unionResult);
                 }
             }
         }
@@ -801,6 +807,19 @@ public class OQLQueryImpl implements IOQLQuery
         }
     }
 
+    /**
+     * Does the FROM clause of a select with classes/objects.
+     * Input from:
+     * <pre>
+     * classname
+     * classnamepattern
+     * object ids
+     * object addresses
+     * </pre>
+     * @param listener
+     * @return
+     * @throws SnapshotException
+     */
     private Object doFromItem(IProgressListener listener) throws SnapshotException
     {
         Collection<IClass> classes = null;
@@ -902,6 +921,25 @@ public class OQLQueryImpl implements IOQLQuery
         return filterClasses(listener, classes);
     }
 
+    /**
+     * Does a method call in a FROM clause of a select.
+     * <pre>
+     * OBJECTS
+     *   null
+     *   Iterable
+     *   array
+     * NONE/INSTANCEOF
+     *   null
+     *   Iterable/array
+     *      null
+     *      Integer
+     *      int[]
+     *      IClass
+     * </pre>
+     * @param listener
+     * @return
+     * @throws SnapshotException
+     */
     private Object doMethodCall(IProgressListener listener) throws SnapshotException
     {
         Expression method = query.getFromClause().getCall();

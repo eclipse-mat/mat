@@ -66,6 +66,17 @@ public class QueryExpression extends Expression
                 return true;
         }
 
+        Expression fromExpression = query.getFromClause().getCall();
+        if (fromExpression != null && fromExpression.isContextDependent(ctx))
+            return true;
+
+        for (Query union : query.getUnionQueries())
+        {
+            QueryExpression qe = new QueryExpression(union);
+            if (qe.isContextDependent(ctx))
+                return true;
+        }
+
         return false;
     }
 

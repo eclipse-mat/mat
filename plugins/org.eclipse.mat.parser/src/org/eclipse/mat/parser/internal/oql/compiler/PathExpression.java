@@ -152,16 +152,22 @@ class PathExpression extends Expression
         if (firstItem instanceof Attribute)
         {
             Attribute firstAttribute = (Attribute) firstItem;
-            return !firstAttribute.isNative() && ctx.isAlias(firstAttribute.getName());
+            if (!firstAttribute.isNative() && ctx.isAlias(firstAttribute.getName()))
+                return true;
         }
         else if (firstItem instanceof Expression)
         {
-            return ((Expression) firstItem).isContextDependent(ctx);
+            if (((Expression) firstItem).isContextDependent(ctx))
+                return true;
         }
-        else
+        for (int i = 1; i < attributes.size(); ++i)
         {
-            return false;
+            Object nextItem = attributes.get(i);
+            if (nextItem instanceof Expression)
+                if (((Expression) nextItem).isContextDependent(ctx))
+                    return true;
         }
+        return false;
     }
 
     @Override

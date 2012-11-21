@@ -79,4 +79,10 @@ public class EvaluationContext
 
         return this.parent.isAlias(value);
     }
+
+    public String toString()
+    {
+        String val = alias + "=" + getSubject() + ";"; //$NON-NLS-1$ //$NON-NLS-2$
+        return (parent != null ? val + parent.toString() : val);
+    }
 }

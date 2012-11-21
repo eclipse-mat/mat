@@ -741,6 +741,28 @@ public class OQLTest
         System.out.println(sb);
     }
 
+    /**
+     * Complex test to check that the second FROM clause is reevaluated.
+     * @throws SnapshotException
+     */
+    @Test
+    public void testComplex1() throws SnapshotException {
+        int res[] = (int[])execute("SELECT OBJECTS r from OBJECTS ${snapshot}.@GCRoots r "
+                    + " WHERE (SELECT s FROM OBJECTS ${snapshot}.getGCRootInfo(r) s WHERE s.@type = 128) != null");
+        assertEquals(23, res.length);
+    }
+
+    /**
+     * Complex test to check that the second FROM clause inside a UNION is reevaluated.
+     * @throws SnapshotException
+     */
+    @Test
+    public void testComplex2() throws SnapshotException {
+        int res[] = (int[])execute("SELECT OBJECTS r from OBJECTS ${snapshot}.@GCRoots r "
+                    + " WHERE (SELECT s FROM dummy s UNION (SELECT s FROM OBJECTS ${snapshot}.getGCRootInfo(r) s WHERE s.@type = 128)) != null");
+        assertEquals(23, res.length);
+    }
+
     // //////////////////////////////////////////////////////////////
     // internal helper
     // //////////////////////////////////////////////////////////////
