@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2009 SAP AG and others.
+ * Copyright (c) 2008, 2012 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation - add OQL
  *******************************************************************************/
 package org.eclipse.mat.inspections;
 
@@ -82,7 +83,7 @@ public class GCRootsQuery implements IQuery
         for (Iterator<Entry<HashMapIntObject<ArrayInt>>> iter = rootsByType.entries(); iter.hasNext();)
         {
             Entry<HashMapIntObject<ArrayInt>> entry = iter.next();
-            GCType type = new GCType(GCRootInfo.getTypeAsString(entry.getKey()));
+            GCType type = new GCType(GCRootInfo.getTypeAsString(entry.getKey()), entry.getKey());
             types.add(type);
 
             for (Iterator<Entry<ArrayInt>> iterObjects = entry.getValue().entries(); iterObjects.hasNext();)
@@ -111,11 +112,13 @@ public class GCRootsQuery implements IQuery
     {
         String name;
         int count;
+        int type;
         List<ClassRecord> records = new ArrayList<ClassRecord>();
 
-        public GCType(String name)
+        public GCType(String name, int type)
         {
             this.name = name;
+            this.type = type;
         }
 
         public int compareTo(GCType other)
@@ -270,7 +273,7 @@ public class GCRootsQuery implements IQuery
 
                     public String getOQL()
                     {
-                        return null;
+                        return "SELECT OBJECTS r FROM OBJECTS ${snapshot}.@GCRoots r WHERE (SELECT s FROM OBJECTS ${snapshot}.getGCRootInfo(r) s WHERE s.@type = "+((GCType) row).type+") != null";  //$NON-NLS-1$  //$NON-NLS-2$
                     }
                 };
             }

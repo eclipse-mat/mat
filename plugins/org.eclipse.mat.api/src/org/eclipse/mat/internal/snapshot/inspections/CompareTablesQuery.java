@@ -909,7 +909,7 @@ public class CompareTablesQuery implements IQuery
                                         {
                                             int id = b.getObjectId();
                                             if (id >= 0)
-                                                oql = "SELECT * FROM OBJECTS "+id; //$NON-NLS-1$
+                                                oql = OQL.forObjectId(id);
                                             else
                                                 oql = null;
                                         }

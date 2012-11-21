@@ -33,7 +33,7 @@ public class HistogramQuery implements IQuery
     public enum Grouping
     {
         BY_CLASS(Messages.HistogramQuery_GroupByClass, Icons.CLASS), //
-        BY_SUPERCLASS(Messages.HistogramQuery_GroupBySuperclass, Icons.CLASS),
+        BY_SUPERCLASS(Messages.HistogramQuery_GroupBySuperclass, Icons.SUPERCLASS),
         BY_CLASSLOADER(Messages.HistogramQuery_GroupByClassLoader, Icons.CLASSLOADER_INSTANCE), //
         BY_PACKAGE(Messages.HistogramQuery_GroupByPackage, Icons.PACKAGE);
 

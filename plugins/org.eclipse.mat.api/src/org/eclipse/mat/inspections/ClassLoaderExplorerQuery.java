@@ -324,7 +324,7 @@ public class ClassLoaderExplorerQuery implements IQuery
 
                                         public String getOQL()
                                         {
-                                            return OQL.forObjectsOfClass(clazz);
+                                            return OQL.forObjectsOfClass(getObjectId());
                                         }
                                     };
                                 }

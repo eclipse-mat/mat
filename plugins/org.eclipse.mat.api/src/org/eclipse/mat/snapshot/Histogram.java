@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2012 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
@@ -909,10 +910,12 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
 
         /* package */Map<String, PackageNode> subPackages = new HashMap<String, PackageNode>();
         /* package */List<ClassHistogramRecord> classes = new ArrayList<ClassHistogramRecord>();
+        PackageNode parent;
 
-        public PackageNode(String name)
+        public PackageNode(String name, PackageNode parent)
         {
             super(name);
+            this.parent = parent;
         }
 
     }
@@ -931,7 +934,7 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
 
         private void buildTree(Histogram histogram)
         {
-            root = new PackageNode("<ROOT>"); //$NON-NLS-1$
+            root = new PackageNode("<ROOT>", null); //$NON-NLS-1$
 
             for (ClassHistogramRecord record : histogram.getClassHistogramRecords())
             {
@@ -942,7 +945,7 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
                 {
                     PackageNode child = current.subPackages.get(path[ii]);
                     if (child == null)
-                        current.subPackages.put(path[ii], child = new PackageNode(path[ii]));
+                        current.subPackages.put(path[ii], child = new PackageNode(path[ii], current));
                     child.incNumberOfObjects(record.numberOfObjects);
                     child.incUsedHeapSize(record.getUsedHeapSize());
 
@@ -1049,7 +1052,24 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
 
                     public String getOQL()
                     {
-                        return null;
+                        if (histogram.isDefaultHistogram())
+                        {
+                            StringBuilder partialPack = new StringBuilder();
+                            PackageNode n = node;
+                            while (n.parent != null)
+                            {
+                                // Escape the dot
+                                partialPack.insert(0, "\\."); //$NON-NLS-1$
+                                partialPack.insert(0, n.label);
+                                n = n.parent;
+                            }
+                            Pattern pattern = Pattern.compile(partialPack.toString() + ".*"); //$NON-NLS-1$
+                            return OQL.instancesByPattern(pattern, false);
+                        }
+                        else
+                        {
+                            return null;
+                        }
                     }
                 };
             }
@@ -1290,7 +1310,10 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
 
                     public String getOQL()
                     {
-                        return null;
+                        if (histogram.isDefaultHistogram())
+                            return "SELECT * FROM INSTANCEOF "+getObjectId(); //$NON-NLS-1$
+                        else
+                            return null;
                     }
                 };
             }
