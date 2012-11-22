@@ -53,6 +53,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
@@ -64,6 +65,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.part.IPageSite;
 import org.eclipse.ui.part.Page;
+import org.eclipse.ui.themes.ColorUtil;
 
 public class NavigatorViewPage extends Page implements ISelectionProvider, IDoubleClickListener, IStateChangeListener
 {
@@ -291,7 +293,10 @@ public class NavigatorViewPage extends Page implements ISelectionProvider, IDoub
         FontDescriptor fontDescriptor = FontDescriptor.createFrom(defaultFont);
         fontDescriptor = fontDescriptor.setStyle(SWT.ITALIC);
         this.font = fontDescriptor.createFont(treeViewer.getTree().getDisplay());
-        this.greyColor = treeViewer.getTree().getDisplay().getSystemColor(SWT.COLOR_DARK_GRAY);
+        Color foreground = treeViewer.getTree().getForeground();
+        Color background = treeViewer.getTree().getBackground();
+        RGB grey = ColorUtil.blend(foreground.getRGB(), background.getRGB());
+        this.greyColor = new Color(treeViewer.getTree().getDisplay(), grey);
     }
 
     private void createContextMenu(Control control)
@@ -547,7 +552,8 @@ public class NavigatorViewPage extends Page implements ISelectionProvider, IDoub
         editor.getNavigatorState().removeChangeStateListener(this);
         if (font != null)
             font.dispose();
-        // greyColor is a system color so should not be disposed
+        if (greyColor != null)
+            greyColor.dispose();
         super.dispose();
     }
 }
