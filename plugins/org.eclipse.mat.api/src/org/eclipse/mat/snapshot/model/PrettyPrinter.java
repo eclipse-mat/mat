@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others.
+ * Copyright (c) 2008, 2012 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Stefan Eggerstorfer - JDK7u6 doesn't have count/offset fields
  *******************************************************************************/
 package org.eclipse.mat.snapshot.model;
 
@@ -26,24 +27,32 @@ public final class PrettyPrinter
      */
     public static String objectAsString(IObject stringObject, int limit) throws SnapshotException
     {
-        Object obj = stringObject.resolveValue("count"); //$NON-NLS-1$
-        if (!(obj instanceof Integer))
+        Object valueObj = stringObject.resolveValue("value"); //$NON-NLS-1$
+        if (!(valueObj instanceof IPrimitiveArray))
             return null;
-        Integer count = (Integer)obj; 
-        if (count.intValue() == 0)
-            return ""; //$NON-NLS-1$
+        IPrimitiveArray charArray = (IPrimitiveArray) valueObj;
 
-        obj = stringObject.resolveValue("value"); //$NON-NLS-1$
-        if (!(obj instanceof IPrimitiveArray))
-            return null;
-        IPrimitiveArray charArray = (IPrimitiveArray)obj;
+        Object countObj = stringObject.resolveValue("count"); //$NON-NLS-1$
+        // count and offset fields were removed with JDK7u6
+        if (countObj == null)
+        {
+            return arrayAsString(charArray, 0, charArray.getLength(), limit);
+        }
+        else
+        {
+            if (!(countObj instanceof Integer))
+                return null;
+            Integer count = (Integer) countObj;
+            if (count.intValue() == 0)
+                return ""; //$NON-NLS-1$
 
-        obj = stringObject.resolveValue("offset"); //$NON-NLS-1$
-        if (!(obj instanceof Integer))
-            return null;
-        Integer offset = (Integer)obj; 
+            Object offsetObj = stringObject.resolveValue("offset"); //$NON-NLS-1$
+            if (!(offsetObj instanceof Integer))
+                return null;
+            Integer offset = (Integer) offsetObj;
 
-        return arrayAsString(charArray, offset, count, limit);
+            return arrayAsString(charArray, offset, count, limit);
+        }
     }
 
     /**
