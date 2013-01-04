@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 SAP AG and others.
+ * Copyright (c) 2008, 2013 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -42,77 +42,80 @@ public class MemoryAnalyserPlugin extends AbstractUIPlugin
     public static final String PLUGIN_ID = "org.eclipse.mat.ui"; //$NON-NLS-1$
     public static final String EDITOR_ID = "org.eclipse.mat.ui.editors.HeapEditor"; //$NON-NLS-1$
 
+    private static final String PREFIX = "$nl$/icons/"; //$NON-NLS-1$
+    private static final String HEAPPREFIX = PREFIX + "heapobjects/"; //$NON-NLS-1$
+
     public interface ISharedImages
     {
-        String HEAP = "icons/heapobjects/heapdump16.gif"; //$NON-NLS-1$
-        String HEAP_INFO = "icons/heapdump_details.gif"; //$NON-NLS-1$
-        String OPEN_SNAPSHOT = "icons/open_snapshot.gif";//$NON-NLS-1$
-        String CONSOLE = "icons/console.gif"; //$NON-NLS-1$
-        String CONSOLE_PLUS = "icons/console_plus.gif"; //$NON-NLS-1$
-        String CONSOLE_REMOVE = "icons/remove_console.gif"; //$NON-NLS-1$
-        String COPY = "icons/copy.gif"; //$NON-NLS-1$
-        String PLUS = "icons/plus.gif"; //$NON-NLS-1$
-        String EXPERT_SYSTEM = "icons/expert.gif"; //$NON-NLS-1$
+        String HEAP = HEAPPREFIX + "heapdump16.gif"; //$NON-NLS-1$
+        String HEAP_INFO = PREFIX + "heapdump_details.gif"; //$NON-NLS-1$
+        String OPEN_SNAPSHOT = PREFIX + "open_snapshot.gif";//$NON-NLS-1$
+        String CONSOLE = PREFIX + "console.gif"; //$NON-NLS-1$
+        String CONSOLE_PLUS = PREFIX + "console_plus.gif"; //$NON-NLS-1$
+        String CONSOLE_REMOVE = PREFIX + "remove_console.gif"; //$NON-NLS-1$
+        String COPY = PREFIX + "copy.gif"; //$NON-NLS-1$
+        String PLUS = PREFIX + "plus.gif"; //$NON-NLS-1$
+        String EXPERT_SYSTEM = PREFIX + "expert.gif"; //$NON-NLS-1$
 
-        String REFRESH = "icons/refresh.gif"; //$NON-NLS-1$       
-        String THREAD = "icons/thread.gif"; //$NON-NLS-1$       
+        String REFRESH = PREFIX + "refresh.gif"; //$NON-NLS-1$       
+        String THREAD = PREFIX + "thread.gif"; //$NON-NLS-1$       
 
-        String RETAINED_SET = "icons/retainedSet.gif"; //$NON-NLS-1$
-        String PACKAGE = "icons/package.gif"; //$NON-NLS-1$
+        String RETAINED_SET = PREFIX + "retainedSet.gif"; //$NON-NLS-1$
+        String PACKAGE = PREFIX + "package.gif"; //$NON-NLS-1$
 
-        String SYNCED = "icons/synced.gif"; //$NON-NLS-1$
-        String SYNCED_DISABLED = "icons/synced_disabled.gif"; //$NON-NLS-1$
+        String SYNCED = PREFIX + "synced.gif"; //$NON-NLS-1$
+        String SYNCED_DISABLED = PREFIX + "synced_disabled.gif"; //$NON-NLS-1$
 
-        String ID = "icons/id.gif"; //$NON-NLS-1$
-        String SIZE = "icons/size.gif"; //$NON-NLS-1$
+        String ID = PREFIX + "id.gif"; //$NON-NLS-1$
+        String SIZE = PREFIX + "size.gif"; //$NON-NLS-1$
 
-        String CLASS = "icons/heapobjects/class.gif"; //$NON-NLS-1$
-        String CLASS_MIXED = "icons/heapobjects/class_mixed.gif"; //$NON-NLS-1$
-        String CLASS_OLD = "icons/heapobjects/class_old.gif"; //$NON-NLS-1$
-        String SUPERCLASS = "icons/heapobjects/superclass.gif"; //$NON-NLS-1$
-        String NOTEPAD = "icons/notepad.gif"; //$NON-NLS-1$
-        String ARGUMENTS_WIZARD = "icons/fill_arguments_wiz.gif"; //$NON-NLS-1$
+        String CLASS = HEAPPREFIX + "class.gif"; //$NON-NLS-1$
+        String CLASS_MIXED = HEAPPREFIX + "class_mixed.gif"; //$NON-NLS-1$
+        String CLASS_OLD = HEAPPREFIX + "class_old.gif"; //$NON-NLS-1$
+        String SUPERCLASS = HEAPPREFIX + "superclass.gif"; //$NON-NLS-1$
+        String NOTEPAD = PREFIX + "notepad.gif"; //$NON-NLS-1$
+        String ARGUMENTS_WIZARD = PREFIX + "fill_arguments_wiz.gif"; //$NON-NLS-1$
 
-        String QUERY = "icons/query_browser.gif"; //$NON-NLS-1$
-        String QUERY_DISABLED = "icons/query_disabled.gif"; //$NON-NLS-1$
-        String OQL = "icons/oql.gif"; //$NON-NLS-1$
+        String QUERY = PREFIX + "query_browser.gif"; //$NON-NLS-1$
+        String QUERY_DISABLED = PREFIX + "query_disabled.gif"; //$NON-NLS-1$
+        String OQL = PREFIX + "oql.gif"; //$NON-NLS-1$
 
-        String IMPORT_REPORT = "icons/import_report.gif"; //$NON-NLS-1$
-        String EXPORT_MENU = "icons/export.gif"; //$NON-NLS-1$
-        String EXPORT_HTML = "icons/export_html.gif"; //$NON-NLS-1$
-        String EXPORT_CSV = "icons/export_csv.gif"; //$NON-NLS-1$
-        String EXPORT_TXT = "icons/export_txt.gif"; //$NON-NLS-1$
+        String IMPORT_REPORT = PREFIX + "import_report.gif"; //$NON-NLS-1$
+        String EXPORT_MENU = PREFIX + "export.gif"; //$NON-NLS-1$
+        String EXPORT_HTML = PREFIX + "export_html.gif"; //$NON-NLS-1$
+        String EXPORT_CSV = PREFIX + "export_csv.gif"; //$NON-NLS-1$
+        String EXPORT_TXT = PREFIX + "export_txt.gif"; //$NON-NLS-1$
 
-        String REFRESHING = "icons/refreshing.gif"; //$NON-NLS-1$
+        String REFRESHING = PREFIX + "refreshing.gif"; //$NON-NLS-1$
 
-        String CALCULATOR = "icons/calculator.gif";//$NON-NLS-1$
+        String CALCULATOR = PREFIX + "calculator.gif";//$NON-NLS-1$
 
-        String FILTER = "icons/filter.gif"; //$NON-NLS-1$
+        String FILTER = PREFIX + "filter.gif"; //$NON-NLS-1$
 
-        String GROUPING = "icons/grouping.gif"; //$NON-NLS-1$
+        String GROUPING = PREFIX + "grouping.gif"; //$NON-NLS-1$
 
-        String COMPARE = "icons/compare.gif"; //$NON-NLS-1$
-        String PERCENTAGE = "icons/percentage.gif"; //$NON-NLS-1$
+        String COMPARE = PREFIX + "compare.gif"; //$NON-NLS-1$
+        String PERCENTAGE = PREFIX + "percentage.gif"; //$NON-NLS-1$
 
-        String INFO = "icons/info.gif"; //$NON-NLS-1$
-        String HELP = "icons/help.png"; //$NON-NLS-1$
+        String INFO = PREFIX + "info.gif"; //$NON-NLS-1$
+        String HELP = PREFIX + "help.png"; //$NON-NLS-1$
 
-        String FIND = "icons/find.gif"; //$NON-NLS-1$  
-        String EXECUTE_QUERY = "icons/execute_query.gif"; //$NON-NLS-1$
-        String SHOW_AS_HISTOGRAM = "icons/as_histogram.gif"; //$NON-NLS-1$  
-        String EXPLORE = "icons/explore.gif"; //$NON-NLS-1$  
+        String FIND = PREFIX + "find.gif"; //$NON-NLS-1$  
+        String EXECUTE_QUERY = PREFIX + "execute_query.gif"; //$NON-NLS-1$
+        String SHOW_AS_HISTOGRAM = PREFIX + "as_histogram.gif"; //$NON-NLS-1$  
+        String EXPLORE = PREFIX + "explore.gif"; //$NON-NLS-1$  
 
-        String SHOW_PANE = "icons/show_pane.gif"; //$NON-NLS-1$  
-        String CLOSE_PANE = "icons/close_pane.gif"; //$NON-NLS-1$  
-        String CLOSE_BRANCH = "icons/close_branch.gif"; //$NON-NLS-1$  
+        String SHOW_PANE = PREFIX + "show_pane.gif"; //$NON-NLS-1$  
+        String CLOSE_PANE = PREFIX + "close_pane.gif"; //$NON-NLS-1$  
+        String CLOSE_BRANCH = PREFIX + "close_branch.gif"; //$NON-NLS-1$  
 
-        String PINNED = "icons/pinned.gif"; //$NON-NLS-1$
+        String PINNED = PREFIX + "pinned.gif"; //$NON-NLS-1$
 
-        String MOVE_UP = "icons/move_up.gif"; //$NON-NLS-1$
-        String MOVE_DOWN = "icons/move_down.gif"; //$NON-NLS-1$
-        String REMOVE = "icons/remove.gif"; //$NON-NLS-1$
-        String REMOVE_ALL = "icons/removeall.gif"; //$NON-NLS-1$
-        String SELECT_COLUMN = "icons/select_table.gif"; //$NON-NLS-1$
+        String MOVE_UP = PREFIX + "move_up.gif"; //$NON-NLS-1$
+        String MOVE_DOWN = PREFIX + "move_down.gif"; //$NON-NLS-1$
+        String REMOVE = PREFIX + "remove.gif"; //$NON-NLS-1$
+        String REMOVE_ALL = PREFIX + "removeall.gif"; //$NON-NLS-1$
+        String SELECT_COLUMN = PREFIX + "select_table.gif"; //$NON-NLS-1$
     }
 
     private static MemoryAnalyserPlugin plugin;
@@ -305,7 +308,7 @@ public class MemoryAnalyserPlugin extends AbstractUIPlugin
         String[] iconPath = null; // Initial and default value to return.
         ArrayList<String> pathList = new ArrayList<String>(); // Accumulator
         // Strip off file suffix.
-        pathList.add(imageFile.getName().split("\\.")[0]);  //$NON-NLS-1$
+        pathList.add(imageFile.getName().split("\\.")[0]); //$NON-NLS-1$
 
         // Iterate backwards up the path, inserting the directory names at the
         // front of the ArrayList.
@@ -342,6 +345,8 @@ public class MemoryAnalyserPlugin extends AbstractUIPlugin
      */
     private static String buildIconKey(String[] iconPath)
     {
+        if (iconPath == null)
+            return IconLabels.UNKNOWN_ICON_KEY;
         // Initialize key with common prefix from IconLabels class.
         StringBuffer propertyBuf = new StringBuffer(IconLabels.ICON_KEY_PREFIX);
         // Iterate through iconPath appending each element after '-'

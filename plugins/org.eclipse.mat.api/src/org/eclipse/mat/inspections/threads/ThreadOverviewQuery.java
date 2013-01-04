@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others.
+ * Copyright (c) 2008, 2013 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -44,6 +44,7 @@ import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IStackFrame;
 import org.eclipse.mat.snapshot.model.IThreadStack;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
+import org.eclipse.mat.snapshot.query.Icons;
 import org.eclipse.mat.snapshot.query.ObjectListResult;
 import org.eclipse.mat.snapshot.query.SnapshotQuery;
 import org.eclipse.mat.util.IProgressListener;
@@ -59,8 +60,8 @@ public class ThreadOverviewQuery implements IQuery
     @Argument(isMandatory = false, flag = Argument.UNFLAGGED)
     public IHeapObjectArgument objects;
     
-    private static URL THREAD_ICON_URL = ThreadOverviewQuery.class.getResource("/META-INF/icons/threads.gif"); //$NON-NLS-1$
-    public static final String CLASS_THREAD = "java.lang.Thread";
+    private static URL THREAD_ICON_URL = Icons.getURL("threads.gif"); //$NON-NLS-1$
+    public static final String CLASS_THREAD = "java.lang.Thread"; //$NON-NLS-1$
 
     public IResult execute(IProgressListener listener) throws Exception
     {

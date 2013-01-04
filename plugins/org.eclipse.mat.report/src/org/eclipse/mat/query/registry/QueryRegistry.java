@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2013 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation - localization of icons
  *******************************************************************************/
 package org.eclipse.mat.query.registry;
 
@@ -29,8 +30,10 @@ import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.IQuery;
@@ -47,6 +50,8 @@ import org.eclipse.mat.report.internal.Messages;
 import org.eclipse.mat.report.internal.ReportPlugin;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.RegistryReader;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleReference;
 
 public class QueryRegistry extends RegistryReader<IQuery>
 {
@@ -210,8 +215,24 @@ public class QueryRegistry extends RegistryReader<IQuery>
         HelpUrl hu = queryClass.getAnnotation(HelpUrl.class);
         String helpUrl = hu != null ? hu.value() : null;
 
+        /*
+         * $nl$ and annotations.properties .icon substitution added with 1.3
+         * This allows
+         * @Icon("$nl$/MANIFEST.MF/icons/myicon.gif")
+         * also this which is safe (ignored) for < V1.3
+         * myquery.icon = $nl$/MANIFEST.MF/icons/myicon.gif
+         */
         Icon i = queryClass.getAnnotation(Icon.class);
-        URL icon = i != null ? queryClass.getResource(i.value()) : null;
+        String iconPath = translate(i18n, key + ".icon", i != null ? i.value() : null); //$NON-NLS-1$
+        URL icon;
+        if (iconPath != null)
+        {
+            icon = findIcon(queryClass, iconPath);
+        }
+        else
+        {
+            icon = null;
+        }
 
         QueryDescriptor descriptor = new QueryDescriptor(identifier, name, category, queryClass, usage, icon, help,
                         helpUrl, helpLoc);
@@ -228,6 +249,29 @@ public class QueryRegistry extends RegistryReader<IQuery>
         commandsByIdentifier.put(identifier, descriptor);
         commandsByClass.put(query.getClass().getName().toLowerCase(Locale.ENGLISH), descriptor);
         return descriptor;
+    }
+
+    private URL findIcon(Class<? extends IQuery> queryClass, String iconPath)
+    {
+        URL icon = null;
+        ClassLoader cl = queryClass.getClassLoader();
+        if (cl instanceof BundleReference)
+        {
+            // Try FileLocator to allow $arg$ substitutions
+            BundleReference br = (BundleReference) cl;
+            Bundle bb = br.getBundle();
+            icon = FileLocator.find(bb, new Path(iconPath), null);
+        }
+        if (icon == null)
+        {
+            // Use old way
+            String v = iconPath;
+            v = v.replace("$nl$", ""); //$NON-NLS-1$//$NON-NLS-2$
+            v = v.replace("$ws$", ""); //$NON-NLS-1$//$NON-NLS-2$
+            v = v.replace("$os$", ""); //$NON-NLS-1$//$NON-NLS-2$
+            icon = queryClass.getResource(v);
+        }
+        return icon;
     }
 
     private String translate(ResourceBundle i18n, String key, String defaultValue)
@@ -305,9 +349,9 @@ public class QueryRegistry extends RegistryReader<IQuery>
                 helpUrl = descriptor.getHelpUrl();
 
             URL icon = descriptor.getIcon();
-            String i = entry.icon();
+            String i = translate(i18n, key + index + ".icon", entry.icon()); //$NON-NLS-1$
             if (i.length() > 0)
-                icon = queryClass.getResource(i);
+                icon = findIcon(queryClass, i);
 
             String options = entry.options();
 

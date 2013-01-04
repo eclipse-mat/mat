@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2013 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,20 +7,25 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation - localization of icons
  *******************************************************************************/
 package org.eclipse.mat.query.refined;
 
 import java.net.URL;
+
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.mat.report.internal.Messages;
+import org.eclipse.mat.report.internal.ReportPlugin;
+import org.eclipse.mat.util.MessageUtil;
+
 import com.ibm.icu.text.DecimalFormat;
 import com.ibm.icu.text.NumberFormat;
 
-import org.eclipse.mat.report.internal.Messages;
-import org.eclipse.mat.util.MessageUtil;
-
 public class TotalsRow
 {
-    private static final URL SUM = TotalsRow.class.getResource("/META-INF/icons/misc/sum.gif"); //$NON-NLS-1$
-    private static final URL SUM_PLUS = TotalsRow.class.getResource("/META-INF/icons/misc/sum_plus.gif"); //$NON-NLS-1$
+    private static final URL SUM = FileLocator.find(ReportPlugin.getDefault().getBundle(), new Path("$nl$/META-INF/icons/misc/sum.gif"), null); //$NON-NLS-1$
+    private static final URL SUM_PLUS = FileLocator.find(ReportPlugin.getDefault().getBundle(), new Path("$nl$/META-INF/icons/misc/sum_plus.gif"), null); //$NON-NLS-1$
 
     private static final NumberFormat fmt = DecimalFormat.getInstance();
 
@@ -67,7 +72,8 @@ public class TotalsRow
 
     public URL getIcon()
     {
-        return visibleItems < numberOfItems ? SUM_PLUS : SUM;
+        URL url = visibleItems < numberOfItems ? SUM_PLUS : SUM;
+        return url;
     }
 
     /** returns true if the totals row should be shown */

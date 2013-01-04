@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2013 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation - paths for icon localization
  *******************************************************************************/
 package org.eclipse.mat.report.internal;
 
@@ -31,7 +32,10 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.report.IOutputter;
@@ -396,30 +400,31 @@ public class ResultRenderer
     // //////////////////////////////////////////////////////////////
     // private parts
     // //////////////////////////////////////////////////////////////
-
+    private static final String PREFIX = "$nl$/META-INF/html/"; //$NON-NLS-1$
+    
     @SuppressWarnings("nls")
     private void prepareTempDirectory() throws IOException
     {
         directory = FileUtils.createTempDirectory("report", null);
 
-        copyResource("/META-INF/html/styles.css", new File(directory, "styles.css"));
-        copyResource("/META-INF/html/code.js", new File(directory, "code.js"));
+        copyResource(PREFIX + "styles.css", new File(directory, "styles.css"));
+        copyResource(PREFIX + "code.js", new File(directory, "code.js"));
 
         File imgDir = new File(directory, "img");
         imgDir.mkdir();
 
-        copyResource("/META-INF/html/img/open.gif", new File(imgDir, "open.gif"));
-        copyResource("/META-INF/html/img/success.gif", new File(imgDir, "success.gif"));
-        copyResource("/META-INF/html/img/warning.gif", new File(imgDir, "warning.gif"));
-        copyResource("/META-INF/html/img/error.gif", new File(imgDir, "error.gif"));
-        copyResource("/META-INF/html/img/empty.gif", new File(imgDir, "empty.gif"));
-        copyResource("/META-INF/html/img/fork.gif", new File(imgDir, "fork.gif"));
-        copyResource("/META-INF/html/img/line.gif", new File(imgDir, "line.gif"));
-        copyResource("/META-INF/html/img/corner.gif", new File(imgDir, "corner.gif"));
+        copyResource(PREFIX + "img/open.gif", new File(imgDir, "open.gif"));
+        copyResource(PREFIX + "img/success.gif", new File(imgDir, "success.gif"));
+        copyResource(PREFIX + "img/warning.gif", new File(imgDir, "warning.gif"));
+        copyResource(PREFIX + "img/error.gif", new File(imgDir, "error.gif"));
+        copyResource(PREFIX + "img/empty.gif", new File(imgDir, "empty.gif"));
+        copyResource(PREFIX + "img/fork.gif", new File(imgDir, "fork.gif"));
+        copyResource(PREFIX + "img/line.gif", new File(imgDir, "line.gif"));
+        copyResource(PREFIX + "img/corner.gif", new File(imgDir, "corner.gif"));
 
-        copyResource("/META-INF/html/img/opened.gif", new File(imgDir, "opened.gif"));
-        copyResource("/META-INF/html/img/closed.gif", new File(imgDir, "closed.gif"));
-        copyResource("/META-INF/html/img/nochildren.gif", new File(imgDir, "nochildren.gif"));
+        copyResource(PREFIX + "img/opened.gif", new File(imgDir, "opened.gif"));
+        copyResource(PREFIX + "img/closed.gif", new File(imgDir, "closed.gif"));
+        copyResource(PREFIX + "img/nochildren.gif", new File(imgDir, "nochildren.gif"));
 
         File pagesDir = new File(directory, DIR_PAGES);
         pagesDir.mkdir();
@@ -427,7 +432,8 @@ public class ResultRenderer
 
     private void copyResource(String resource, File target) throws FileNotFoundException, IOException
     {
-        InputStream resourceStream = ResultRenderer.class.getResourceAsStream(resource);
+        IPath path = new Path(resource);
+        InputStream resourceStream = FileLocator.openStream(ReportPlugin.getDefault().getBundle(), path, true);
         if (resourceStream == null)
             throw new FileNotFoundException(resource);
         try

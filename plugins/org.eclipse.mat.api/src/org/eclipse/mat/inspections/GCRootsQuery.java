@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2013 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -47,7 +47,7 @@ import org.eclipse.mat.util.IProgressListener;
 @HelpUrl("/org.eclipse.mat.ui.help/concepts/gcroots.html")
 public class GCRootsQuery implements IQuery
 {
-    private static final URL ICON = GCRootsQuery.class.getResource("/META-INF/icons/roots.gif"); //$NON-NLS-1$
+    private static final URL ICON = Icons.getURL("roots.gif"); //$NON-NLS-1$
 
     @Argument
     public ISnapshot snapshot;

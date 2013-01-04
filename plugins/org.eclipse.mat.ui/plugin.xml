@@ -21,7 +21,7 @@
 	<extension point="org.eclipse.ui.perspectives">
 		<perspective
         class="org.eclipse.mat.ui.internal.Perspective"
-        icon="icons/memory_analyzer_perspective.gif"
+        icon="$nl$/icons/memory_analyzer_perspective.gif"
         id="org.eclipse.mat.ui.perspective"
         name="%perspective.name.Memory_Analysis">
 		</perspective>
@@ -32,7 +32,7 @@
 		        name="%editor.name.Eclipse_Memory_Analyzer"
 		        class="org.eclipse.mat.ui.snapshot.editor.HeapEditor"
 		        contributorClass="org.eclipse.mat.ui.editor.MultiPaneEditorContributor"
-		        icon="icons/heapobjects/heapdump16.gif">
+		        icon="$nl$/icons/heapobjects/heapdump16.gif">
 			<contentTypeBinding contentTypeId="org.eclipse.mat.JavaHeapDump" />
 		</editor>
 	</extension>
@@ -42,33 +42,33 @@
 			name="%category.name.Memory_Analyzer_Views" />
 		<view category="org.eclipse.mat"
 			class="org.eclipse.mat.ui.internal.views.SnapshotHistoryView"
-			icon="icons/heapdump_history.gif"
+			icon="$nl$/icons/heapdump_history.gif"
 			id="org.eclipse.mat.ui.views.SnapshotHistoryView"
 			name="%view.name.Heap_Dump_History" />
 		<view category="org.eclipse.mat"
 			class="org.eclipse.mat.ui.internal.views.SnapshotDetailsView"
-			icon="icons/heapdump_details.gif"
+			icon="$nl$/icons/heapdump_details.gif"
 			id="org.eclipse.mat.ui.views.SnapshotDetailsView"
 			name="%view.name.Heap_Dump_Details" />
 		<view allowMultiple="true" category="org.eclipse.mat"
 			class="org.eclipse.mat.ui.snapshot.views.inspector.InspectorView"
-			icon="icons/inspector_view.gif"
+			icon="$nl$/icons/inspector_view.gif"
 			id="org.eclipse.mat.ui.views.InspectorView"
 			name="%view.name.Inspector" />
 		<view allowMultiple="true" category="org.eclipse.mat"
 			class="org.eclipse.mat.ui.internal.views.NotesView"
-			icon="icons/notepad.gif"
+			icon="$nl$/icons/notepad.gif"
 			id="org.eclipse.mat.ui.views.TextEditorView" name="%view.name.Notes" />
 		<view allowMultiple="false"
         	category="org.eclipse.mat"
         	class="org.eclipse.mat.ui.internal.views.NavigatorView"
-        	icon="icons/navigator_view.gif"
+        	icon="$nl$/icons/navigator_view.gif"
        	    id="org.eclipse.mat.ui.views.NavigatorView"
             name="%view.name.Navigation_History"/>
 	    <view
 	        category="org.eclipse.mat"
 	        class="org.eclipse.mat.ui.compare.CompareBasketView"
-	        icon="icons/compare.gif"
+	        icon="$nl$/icons/compare.gif"
 	        id="org.eclipse.mat.ui.views.CompareBasketView"
 	        name="%view.name.Compare">
 	    </view>
@@ -139,7 +139,7 @@
 		</actionSet>
 		<actionSet label="%actionSet.label.Open_Heap_Dump" visible="false"
 			id="org.eclipse.mat.ui.actionSet.openExternalFile">
-			<action icon="icons/open_snapshot.gif"
+			<action icon="$nl$/icons/open_snapshot.gif"
 				label="%action.label.Open_Heap_DUMP___"
 				class="org.eclipse.mat.ui.snapshot.actions.OpenSnapshotAction"
 				tooltip="%action.tooltip.Open_Heap_Dump" menubarPath="file/new.ext" style="push"
@@ -153,7 +153,7 @@
 			<action
 				id="org.eclipse.mat.ui.openAcquireDialog"
 				class="org.eclipse.mat.ui.internal.acquire.AcquireSnapshotAction"
-				icon="icons/acquire.gif"
+				icon="$nl$/icons/acquire.gif"
 				label="%action.label.Acquire" menubarPath="file/new.ext" style="push"
 				toolbarPath="org.eclipse.ui.workbench.file/new.ext"
 				tooltip="%action.tooltip.Acquire" />
@@ -285,7 +285,7 @@
       <wizard
             class="org.eclipse.mat.ui.internal.acquire.AcquireSnapshotAction$AcquireWizard"
             finalPerspective="org.eclipse.mat.ui.perspective"
-            icon="icons/acquire.gif"
+            icon="$nl$/icons/acquire.gif"
             id="org.eclipse.mat.ui.wizard"
             name="%wizard.new.name"
             project="false">
@@ -298,7 +298,7 @@
          point="org.eclipse.ui.importWizards">
       <wizard
             class="org.eclipse.mat.ui.internal.acquire.AcquireSnapshotAction$AcquireWizard"
-            icon="icons/acquire.gif"
+            icon="$nl$/icons/acquire.gif"
             id="org.eclipse.mat.ui.wizard2"
             name="%wizard.import.name">
          <description>

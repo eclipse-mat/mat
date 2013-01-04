@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2013 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,7 @@ package org.eclipse.mat.report.internal;
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
+import java.net.URL;
 import java.util.List;
 
 import org.eclipse.mat.SnapshotException;
@@ -44,6 +45,7 @@ import org.eclipse.mat.util.VoidProgressListener;
 public class HtmlOutputter implements IOutputter
 {
     private int maxLinkObjects = 10;
+    private static final boolean useList = true;
 
     public void embedd(Context context, IResult result, Writer writer) throws IOException
     {
@@ -91,6 +93,17 @@ public class HtmlOutputter implements IOutputter
     // //////////////////////////////////////////////////////////////
     // 
     // //////////////////////////////////////////////////////////////
+    /**
+     * Extract alternate text for image URL.
+     * @param url
+     * @return the text or an empty string
+     */
+    @SuppressWarnings("nls")
+    private String altText(URL url)
+    {
+        String alt = "";
+        return HTMLUtils.escapeText(alt);
+    }
 
     @SuppressWarnings("nls")
     private void renderTable(Context context, RefinedTable table, Writer artefact, boolean hasDetailsLink)
@@ -124,9 +137,13 @@ public class HtmlOutputter implements IOutputter
             {
                 artefact.append("<td>");
 
-                String iconUrl = context.addIcon(table.getIcon(row));
+                URL url = table.getIcon(row);
+                String iconUrl = context.addIcon(url);
                 if (iconUrl != null)
-                    artefact.append("<img src=\"").append(iconUrl).append("\" alt=\"\">");
+                {
+                    String alt = altText(url);
+                    artefact.append("<img src=\"").append(iconUrl).append("\" alt=\""+alt+"\">");
+                }
                 renderColumnValue(context, artefact, table, columns, row, 0);
 
                 artefact.append("</td>");
@@ -196,7 +213,8 @@ public class HtmlOutputter implements IOutputter
         if (context.isTotalsRowVisible())
         {
             result.calculateTotals(elements, totalsRow, new VoidProgressListener());
-            String iconUrl = context.addIcon(totalsRow.getIcon());
+            URL url = totalsRow.getIcon();
+            String iconUrl = context.addIcon(url);
             artefact.append("<tr class=\"totals\">");
             for (int i = 0; i < columns.length; i++)
             {
@@ -211,8 +229,12 @@ public class HtmlOutputter implements IOutputter
 
                         renderTreeIndentation(artefact, branches);
 
-                        artefact.append("<img src=\"").append(iconUrl).append("\" alt=\"\">");
-                        artefact.append("<ul><li>").append(totalsRow.getLabel(i)).append("</li></ul>").append("</td>");
+                        String alt = altText(url);
+                        artefact.append("<img src=\"").append(iconUrl).append("\" alt=\""+alt+"\">");
+                        if (useList) artefact.append("<ul><li>");
+                        artefact.append(totalsRow.getLabel(i));
+                        if (useList) artefact.append("</li></ul>");
+                        artefact.append("</td>");
                     }
                     else
                     {
@@ -287,17 +309,21 @@ public class HtmlOutputter implements IOutputter
                 }
                 renderTreeIndentation(artefact, branches);
 
-                String iconUrl = context.addIcon(tree.getIcon(element));
+                URL url = tree.getIcon(element);
+                String iconUrl = context.addIcon(url);
                 if (iconUrl != null)
-                    artefact.append("<img src=\"").append(iconUrl).append("\" alt=\"\">");
+                {
+                    String alt = altText(url);
+                    artefact.append("<img src=\"").append(iconUrl).append("\" alt=\""+alt+"\">");
+                }
 
-                artefact.append("<ul><li>");
+                if (useList) artefact.append("<ul><li>");
                 renderColumnValue(context, artefact, tree, columns, element, 0);
 
                 if (!isExpanded && hasChildren)
                     artefact.append(" &raquo;");
 
-                artefact.append("</li></ul>");
+                if (useList) artefact.append("</li></ul>");
                 artefact.append("</td>");
             }
             renderDataColumns(context, artefact, tree, columns, element, hasDetailsLink);
@@ -389,9 +415,13 @@ public class HtmlOutputter implements IOutputter
                         if (link != null)
                         {
                             artefact.append("<a href=\"").append(link).append("\">");
-                            String iconUrl = context.addIcon(p.getIcon());
+                            URL url = p.getIcon();
+                            String iconUrl = context.addIcon(url);
                             if (iconUrl != null)
-                                artefact.append("<img src=\"").append(iconUrl).append("\" alt=\"\">");
+                            {
+                                String alt = altText(url);
+                                artefact.append("<img src=\"").append(iconUrl).append("\" alt=\""+alt+"\">");
+                            }
                             artefact.append(p.getLabel());
                             artefact.append("</a>");
                         }
@@ -479,9 +509,8 @@ public class HtmlOutputter implements IOutputter
                 }
                 artefact.append("<br>");
                 //artefact.append("<li>");
-                String iconURL = context.addIcon(prov.getIcon());
                 String contextLabel = HTMLUtils.escapeText(prov.getLabel());
-                renderContext(context, contextLabel, iconURL, ctx1, artefact);
+                renderContext(context, contextLabel, prov.getIcon(), ctx1, artefact);
                 //artefact.append("</li>");
             }
         }
@@ -492,9 +521,10 @@ public class HtmlOutputter implements IOutputter
     }
 
     @SuppressWarnings("nls")
-    private void renderContext(Context context, String label, String iconURL, IContextObject ctx, Writer artefact)
+    private void renderContext(Context context, String label, URL url, IContextObject ctx, Writer artefact)
                     throws IOException
     {
+        String iconURL = context.addIcon(url);
         int objectId = -1;
 
         if (ctx != null)
@@ -507,20 +537,29 @@ public class HtmlOutputter implements IOutputter
                 String externalIdentifier = context.getQueryContext().mapToExternalIdentifier(objectId);
                 artefact.append("<a href=\"").append(QueryObjectLink.forObject(externalIdentifier)).append("\">");
                 if (iconURL != null)
-                    artefact.append("<img src=\"").append(iconURL).append("\" alt=\"\">");
+                {
+                    String alt = altText(url);
+                    artefact.append("<img src=\"").append(iconURL).append("\" alt=\""+alt+"\">");
+                }
                 artefact.append(label).append("</a>");
             }
             catch (SnapshotException exception)
             {
                 if (iconURL != null)
-                    artefact.append("<img src=\"").append(iconURL).append("\" alt=\"\">");
+                {
+                    String alt = altText(url);
+                    artefact.append("<img src=\"").append(iconURL).append("\" alt=\""+alt+"\">");
+                }
                 artefact.append(label);
             }
         }
         else
         {
             if (iconURL != null)
-                artefact.append("<img src=\"").append(iconURL).append("\" alt=\"\">");
+            {
+                String alt = altText(url);
+                artefact.append("<img src=\"").append(iconURL).append("\" alt=\""+alt+"\">");
+            }
             artefact.append(label);
         }
         if (ctx instanceof IContextObjectSet)

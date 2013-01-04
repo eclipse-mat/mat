@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others.
+ * Copyright (c) 2008, 2013 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,11 +7,16 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation - internationalization and alternate text
  *******************************************************************************/
 package org.eclipse.mat.snapshot.query;
 
 import java.net.URL;
 
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.mat.internal.MATPlugin;
 import org.eclipse.mat.snapshot.ISnapshot;
 
 /**
@@ -20,7 +25,8 @@ import org.eclipse.mat.snapshot.ISnapshot;
 @SuppressWarnings("nls")
 public final class Icons
 {
-    private static final String PREFIX = "/META-INF/icons/heapobjects/";
+    private static final String PREFIX = "$nl$/META-INF/icons/";
+    private static final String HEAPPREFIX = PREFIX + "heapobjects/";
 
     /**
      * A Java class icon.
@@ -193,7 +199,11 @@ public final class Icons
 
     private static URL build(String name)
     {
-        return Icons.class.getResource(PREFIX + name + ".gif");
+        MATPlugin plugin = MATPlugin.getDefault();
+        IPath path = new Path(HEAPPREFIX + name + ".gif");
+        // Use FileLocator instead of getResource() to allow NLS changes
+        URL url = FileLocator.find(plugin.getBundle(), path, null);
+        return url;
     }
 
     /**
@@ -203,6 +213,10 @@ public final class Icons
      */
     public static URL getURL(String imageName)
     {
-        return Icons.class.getResource("/META-INF/icons/" + imageName);
+        MATPlugin plugin = MATPlugin.getDefault();
+        IPath path = new Path(PREFIX + imageName);
+        // Use FileLocator instead of getResource() to allow NLS changes
+        URL url = FileLocator.find(plugin.getBundle(), path, null);
+        return url;
     }
 }

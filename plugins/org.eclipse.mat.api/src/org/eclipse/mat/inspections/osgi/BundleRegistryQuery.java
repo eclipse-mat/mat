@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2009 SAP AG.
+ * Copyright (c) 2008, 2013 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation - icon load changes
  *******************************************************************************/
 package org.eclipse.mat.inspections.osgi;
 
@@ -129,22 +130,22 @@ public class BundleRegistryQuery implements IQuery
 
     interface Icons
     {
-        URL BUNDLE = BundleTreeResult.class.getResource("/META-INF/icons/osgi/bundle.gif"); //$NON-NLS-1$
-        URL LOCATION = BundleTreeResult.class.getResource("/META-INF/icons/osgi/location.gif"); //$NON-NLS-1$
-        URL DEPENDENTS = BundleTreeResult.class.getResource("/META-INF/icons/osgi/dependents.gif"); //$NON-NLS-1$
-        URL DEPENDENCIES = BundleTreeResult.class.getResource("/META-INF/icons/osgi/dependencies.gif"); //$NON-NLS-1$
-        URL USED_SERVICES = BundleTreeResult.class.getResource("/META-INF/icons/osgi/used_services.gif"); //$NON-NLS-1$
-        URL REGISTERED_SERVICES = BundleTreeResult.class.getResource("/META-INF/icons/osgi/registered_services.gif"); //$NON-NLS-1$
-        URL SERVICE = BundleTreeResult.class.getResource("/META-INF/icons/osgi/int_obj.gif"); //$NON-NLS-1$
-        URL EXTENSION_POINTS = BundleTreeResult.class.getResource("/META-INF/icons/osgi/ext_points_obj.gif"); //$NON-NLS-1$
-        URL EXTENSION_POINT = BundleTreeResult.class.getResource("/META-INF/icons/osgi/ext_point_obj.gif"); //$NON-NLS-1$
-        URL EXTENSIONS = BundleTreeResult.class.getResource("/META-INF/icons/osgi/extensions_obj.gif"); //$NON-NLS-1$
-        URL EXTENSION = BundleTreeResult.class.getResource("/META-INF/icons/osgi/extension_obj.gif"); //$NON-NLS-1$
-        URL PROPERTY_PAIR = BundleTreeResult.class.getResource("/META-INF/icons/osgi/attr_xml_obj.gif"); //$NON-NLS-1$
-        URL ATTRIBUTE = BundleTreeResult.class.getResource("/META-INF/icons/osgi/generic_xml_obj.gif"); //$NON-NLS-1$
-        URL FRAGMENTS = BundleTreeResult.class.getResource("/META-INF/icons/osgi/frgmts_obj.gif"); //$NON-NLS-1$
-        URL FRAGMENT = BundleTreeResult.class.getResource("/META-INF/icons/osgi/frgmt_obj.gif"); //$NON-NLS-1$
-        URL PROPERTY = BundleTreeResult.class.getResource("/META-INF/icons/osgi/property.gif"); //$NON-NLS-1$
+        URL BUNDLE = org.eclipse.mat.snapshot.query.Icons.getURL("osgi/bundle.gif"); //$NON-NLS-1$
+        URL LOCATION = org.eclipse.mat.snapshot.query.Icons.getURL("osgi/location.gif"); //$NON-NLS-1$
+        URL DEPENDENTS = org.eclipse.mat.snapshot.query.Icons.getURL("osgi/dependents.gif"); //$NON-NLS-1$
+        URL DEPENDENCIES = org.eclipse.mat.snapshot.query.Icons.getURL("osgi/dependencies.gif"); //$NON-NLS-1$
+        URL USED_SERVICES = org.eclipse.mat.snapshot.query.Icons.getURL("osgi/used_services.gif"); //$NON-NLS-1$
+        URL REGISTERED_SERVICES = org.eclipse.mat.snapshot.query.Icons.getURL("osgi/registered_services.gif"); //$NON-NLS-1$
+        URL SERVICE = org.eclipse.mat.snapshot.query.Icons.getURL("osgi/int_obj.gif"); //$NON-NLS-1$
+        URL EXTENSION_POINTS = org.eclipse.mat.snapshot.query.Icons.getURL("osgi/ext_points_obj.gif"); //$NON-NLS-1$
+        URL EXTENSION_POINT = org.eclipse.mat.snapshot.query.Icons.getURL("osgi/ext_point_obj.gif"); //$NON-NLS-1$
+        URL EXTENSIONS = org.eclipse.mat.snapshot.query.Icons.getURL("osgi/extensions_obj.gif"); //$NON-NLS-1$
+        URL EXTENSION = org.eclipse.mat.snapshot.query.Icons.getURL("osgi/extension_obj.gif"); //$NON-NLS-1$
+        URL PROPERTY_PAIR = org.eclipse.mat.snapshot.query.Icons.getURL("osgi/attr_xml_obj.gif"); //$NON-NLS-1$
+        URL ATTRIBUTE = org.eclipse.mat.snapshot.query.Icons.getURL("osgi/generic_xml_obj.gif"); //$NON-NLS-1$
+        URL FRAGMENTS = org.eclipse.mat.snapshot.query.Icons.getURL("osgi/frgmts_obj.gif"); //$NON-NLS-1$
+        URL FRAGMENT = org.eclipse.mat.snapshot.query.Icons.getURL("osgi/frgmt_obj.gif"); //$NON-NLS-1$
+        URL PROPERTY = org.eclipse.mat.snapshot.query.Icons.getURL("osgi/property.gif"); //$NON-NLS-1$
     }
 
     private static class Folder
