@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2013 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation - NLS specific images
  *******************************************************************************/
 package org.eclipse.mat.ui.snapshot;
 
@@ -49,9 +50,9 @@ public class ImageHelper
                     "class_obj_gc_root", "instance_obj_gc_root", "classloader_obj_gc_root", "array_obj_gc_root", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
                     "class", "package" }; //$NON-NLS-1$ //$NON-NLS-2$
 
-    private static final String PREFIX_OVERLAY = "icons/decorations/"; //$NON-NLS-1$
+    private static final String PREFIX_OVERLAY = "$nl$/icons/decorations/"; //$NON-NLS-1$
 
-    private static final String PREFIX = "icons/heapobjects/"; //$NON-NLS-1$
+    private static final String PREFIX = "$nl$/icons/heapobjects/"; //$NON-NLS-1$
 
     private static HashMapIntObject<ImageDescriptor> IMAGES_BY_TYPE = new HashMapIntObject<ImageDescriptor>();
 
