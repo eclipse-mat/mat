@@ -152,11 +152,11 @@ class MethodCallExpression extends Expression
                     }
                     catch (IllegalArgumentException e)
                     {
-                        throw new SnapshotException(e);
+                        throw new SnapshotException(Arrays.toString(arguments), e);
                     }
                     catch (IllegalAccessException e)
                     {
-                        throw new SnapshotException(e);
+                        throw new SnapshotException(methods[ii].toString(), e);
                     }
                     catch (InvocationTargetException e)
                     {
@@ -166,8 +166,15 @@ class MethodCallExpression extends Expression
             }
         }
 
+        StringBuilder argTypes = new StringBuilder();
+        for (Object arg : arguments)
+        {
+            if (argTypes.length() > 0)
+                argTypes.append(", "); //$NON-NLS-1$
+            argTypes.append(arg != null ? unboxedType(arg.getClass()).getName() : null);
+        }
         throw new SnapshotException(MessageUtil.format(Messages.MethodCallExpression_Error_MethodNotFound,
-                        new Object[] { this.name, subject }));
+                        new Object[] { this.name, argTypes, subject, subject != null ? subject.getClass().getName() : null }));
     }
 
     /**
@@ -186,50 +193,9 @@ class MethodCallExpression extends Expression
         {
             if (args != null)
                 argumentTypes1[i] = args.getClass();
-            if (argumentTypes1[i] == Boolean.class)
-            {
-                argumentTypes2[i] = boolean.class;
+            argumentTypes2[i] = unboxedType(argumentTypes1[i]);
+            if (argumentTypes2 != argumentTypes1)
                 unbox = true;
-            }
-            if (argumentTypes1[i] == Byte.class)
-            {
-                argumentTypes2[i] = byte.class;
-                unbox = true;
-            }
-            else if (argumentTypes1[i] == Short.class)
-            {
-                argumentTypes2[i] = short.class;
-                unbox = true;
-            }
-            else if (argumentTypes1[i] == Character.class)
-            {
-                argumentTypes2[i] = char.class;
-                unbox = true;
-            }
-            else if (argumentTypes1[i] == Integer.class)
-            {
-                argumentTypes2[i] = int.class;
-                unbox = true;
-            }
-            else if (argumentTypes1[i] == Long.class)
-            {
-                argumentTypes2[i] = long.class;
-                unbox = true;
-            }
-            else if (argumentTypes1[i] == Float.class)
-            {
-                argumentTypes2[i] = float.class;
-                unbox = true;
-            }
-            else if (argumentTypes1[i] == Double.class)
-            {
-                argumentTypes2[i] = double.class;
-                unbox = true;
-            }
-            else
-            {
-                argumentTypes2[i] = argumentTypes1[i];
-            }
             i++;
         }
         try
@@ -256,6 +222,43 @@ class MethodCallExpression extends Expression
         }
     }
 
+    private Class<?> unboxedType(Class<?>arg)
+    {
+        if (arg == Boolean.class)
+        {
+            arg = boolean.class;
+        }
+        if (arg == Byte.class)
+        {
+            arg = byte.class;
+        }
+        else if (arg == Short.class)
+        {
+            arg = short.class;
+        }
+        else if (arg == Character.class)
+        {
+            arg = char.class;
+        }
+        else if (arg == Integer.class)
+        {
+            arg = int.class;
+        }
+        else if (arg == Long.class)
+        {
+            arg = long.class;
+        }
+        else if (arg == Float.class)
+        {
+            arg = float.class;
+        }
+        else if (arg == Double.class)
+        {
+            arg =double.class;
+        }
+        return arg;
+    }
+    
     /**
      * Can method invocation convert the argument via unboxing/widening conversion?
      */

@@ -438,7 +438,7 @@ abstract class Operation extends Expression
                 else if (obj1 instanceof IObject)
                     leftId = ((IObject) obj1).getObjectId();
                 else
-                    throw new RuntimeException(MessageUtil.format(Messages.Operation_Error_CannotCompare,
+                    throw new UnsupportedOperationException(MessageUtil.format(Messages.Operation_Error_CannotCompare,
                                     new Object[] { obj1.getClass().getName() }));
 
                 for (int objectId : (int[]) obj2)
@@ -465,7 +465,7 @@ abstract class Operation extends Expression
             }
             else
             {
-                throw new RuntimeException(MessageUtil.format(Messages.Operation_Error_ArgumentOfUnknownClass, obj2
+                throw new UnsupportedOperationException(MessageUtil.format(Messages.Operation_Error_ArgumentOfUnknownClass, obj2
                                 .getClass().getName()));
             }
         }
@@ -517,7 +517,7 @@ abstract class Operation extends Expression
                 else if (obj1 instanceof IObject)
                     leftId = ((IObject) obj1).getObjectId();
                 else
-                    throw new RuntimeException(MessageUtil.format(Messages.Operation_Error_NotInCannotCompare, obj1
+                    throw new UnsupportedOperationException(MessageUtil.format(Messages.Operation_Error_NotInCannotCompare, obj1
                                     .getClass().getName()));
 
                 for (int objectId : (int[]) obj2)
@@ -544,7 +544,7 @@ abstract class Operation extends Expression
             }
             else
             {
-                throw new RuntimeException(MessageUtil.format(Messages.Operation_Error_NotInArgumentOfUnknownClass,
+                throw new UnsupportedOperationException(MessageUtil.format(Messages.Operation_Error_NotInArgumentOfUnknownClass,
                                 obj2.getClass().getName()));
             }
         }

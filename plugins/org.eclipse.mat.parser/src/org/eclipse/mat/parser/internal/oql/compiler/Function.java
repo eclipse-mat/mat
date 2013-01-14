@@ -19,8 +19,6 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
 
 abstract class Function extends Expression
 {
-    static final String ERR_NO_FUNCTION = Messages.Function_ErrorNoFunction;
-
     Expression argument;
 
     public Function(Expression argument)
@@ -56,7 +54,8 @@ abstract class Function extends Expression
             Object s = this.argument.compute(ctx);
 
             if (!(s instanceof Number))
-                throw new RuntimeException(Messages.Function_Error_NeedsNumberAsInput);
+                throw new SnapshotException(MessageUtil.format(Messages.Function_Error_NeedsNumberAsInput,
+                                argument, s, s != null ? s.getClass().getName() : Messages.Function_unknown, getSymbol()));
 
             return "0x" + Long.toHexString(((Number) s).longValue());//$NON-NLS-1$
         }
@@ -123,7 +122,7 @@ abstract class Function extends Expression
             }
             else
             {
-                throw new SnapshotException(MessageUtil.format(ERR_NO_FUNCTION, argument, s, s != null ? s.getClass()
+                throw new SnapshotException(MessageUtil.format(Messages.Function_ErrorNoFunction, argument, s, s != null ? s.getClass()
                                 .getName() : Messages.Function_unknown, getSymbol()));
             }
         }
@@ -159,7 +158,7 @@ abstract class Function extends Expression
             }
             else
             {
-                throw new SnapshotException(MessageUtil.format(ERR_NO_FUNCTION, argument, s, s != null ? s.getClass()
+                throw new SnapshotException(MessageUtil.format(Messages.Function_ErrorNoFunction, argument, s, s != null ? s.getClass()
                                 .getName() : Messages.Function_unknown, getSymbol()));
             }
         }
@@ -195,7 +194,7 @@ abstract class Function extends Expression
             }
             else
             {
-                throw new SnapshotException(MessageUtil.format(ERR_NO_FUNCTION, argument, s, s != null ? s.getClass()
+                throw new SnapshotException(MessageUtil.format(Messages.Function_ErrorNoFunction, argument, s, s != null ? s.getClass()
                                 .getName() : Messages.Function_unknown, getSymbol()));
             }
         }
@@ -231,7 +230,7 @@ abstract class Function extends Expression
             }
             else
             {
-                throw new SnapshotException(MessageUtil.format(ERR_NO_FUNCTION, argument, s, s != null ? s.getClass()
+                throw new SnapshotException(MessageUtil.format(Messages.Function_ErrorNoFunction, argument, s, s != null ? s.getClass()
                                 .getName() : Messages.Function_unknown, getSymbol()));
             }
         }
@@ -269,7 +268,7 @@ abstract class Function extends Expression
             }
             else
             {
-                throw new SnapshotException(MessageUtil.format(ERR_NO_FUNCTION, argument, s, s != null ? s.getClass()
+                throw new SnapshotException(MessageUtil.format(Messages.Function_ErrorNoFunction, argument, s, s != null ? s.getClass()
                                 .getName() : Messages.Function_unknown, getSymbol()));
             }
 

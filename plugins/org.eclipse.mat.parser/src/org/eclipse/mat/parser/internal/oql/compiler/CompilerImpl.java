@@ -180,10 +180,17 @@ public class CompilerImpl implements ICompiler
     // //////////////////////////////////////////////////////////////
     // helper classes
     // //////////////////////////////////////////////////////////////
+    static class LiteralNull
+    {
+        public String toString()
+        {
+            return "null"; //$NON-NLS-1$
+        }
+    }
 
     static class ConstantExpression extends Expression
     {
-        public static final Object NULL = new Object();
+        public static final Object NULL = new LiteralNull();
 
         Object literal;
 
