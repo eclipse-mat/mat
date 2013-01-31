@@ -79,15 +79,15 @@ public class ClassLoaderImpl extends InstanceImpl implements IClassLoader
         return label;
     }
 
-    @SuppressWarnings("null")
     public List<IClass> getDefinedClasses() throws SnapshotException
     {
-        // FIXME Double-checked locking?
+        // Double-checked locking, but okay as definedClasses is volatile and running with Java 1.5 or later
         List<IClass> result = definedClasses;
         if (result == null)
         {
             synchronized (this)
             {
+                result = definedClasses;
                 if (result == null)
                 {
                     definedClasses = result = doGetDefinedClasses(source, getObjectId());
