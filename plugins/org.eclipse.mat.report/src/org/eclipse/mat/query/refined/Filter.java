@@ -157,6 +157,10 @@ public abstract class Filter
                 boolean changed = this.criteria != null;
                 this.criteria = null;
                 this.test = null;
+                if (changed)
+                {
+                    listener.filterChanged(this);
+                }
                 return changed;
             }
 
@@ -212,6 +216,7 @@ public abstract class Filter
             this.criteria = criteria;
             this.test = newTest;
 
+            listener.filterChanged(this);
             return true;
         }
 
@@ -406,6 +411,10 @@ public abstract class Filter
             {
                 boolean changed = this.pattern != null;
                 this.pattern = null;
+                if (changed)
+                {
+                    listener.filterChanged(this);
+                }
                 return changed;
             }
             else
@@ -415,6 +424,10 @@ public abstract class Filter
                     Pattern p = Pattern.compile(PatternUtil.smartFix(criteria));
                     boolean changed = this.pattern == null || !this.pattern.pattern().equals(p.pattern());
                     pattern = p;
+                    if (changed)
+                    {
+                        listener.filterChanged(this);
+                    }
                     return changed;
                 }
                 catch (PatternSyntaxException e)
