@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.mat.tests.parser;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 
@@ -134,7 +133,7 @@ public class TestIndex
         }
         finally
         {
-            indexFile.delete();
+            assertTrue(indexFile.delete());
         }
     }
     
@@ -179,25 +178,31 @@ public class TestIndex
 
             };
             IOne2ManyObjectsIndex z = f.flush(new VoidProgressListener(), kw);
-            for (int j = 0; j < M; ++j)
+            try
             {
-                if (verbose)
-                    System.out.println("Reading " + j + "/" + M);
-                int p = j % (P + 1);
-                int i2[] = z.get(j);
-                for (int i : i2)
+                for (int j = 0; j < M; ++j)
                 {
-                    assertTrue(i >= 0);
-                }
-                if (!Arrays.equals(ii[p], i2)) {
-                    assertEquals(ii[p], i2);
+                    if (verbose)
+                        System.out.println("Reading " + j + "/" + M);
+                    int p = j % (P + 1);
+                    int i2[] = z.get(j);
+                    for (int i : i2)
+                    {
+                        assertTrue(i >= 0);
+                    }
+                    if (!Arrays.equals(ii[p], i2)) {
+                        Assert.assertArrayEquals(ii[p], i2);
+                    }
                 }
             }
-            z.close();
+            finally
+            {
+                z.close();
+            }
         }
         finally
         {
-            indexFile.delete();
+            assertTrue(indexFile.delete());
         }
     }
     
@@ -251,7 +256,7 @@ public class TestIndex
         }
         finally
         {
-            indexFile.delete();
+            assertTrue(indexFile.delete());
         }
     }
 
@@ -302,7 +307,7 @@ public class TestIndex
         }
         finally
         {
-            indexFile.delete();
+            assertTrue(indexFile.delete());
         }
     }
 
@@ -333,6 +338,7 @@ public class TestIndex
                 f.log(j, ii[p]);
             }
             IOne2ManyIndex i2 = f.flush();
+            i2.close();
             i2 = new IndexReader.IntIndex1NSortedReader(indexFile);
             try
             {
@@ -354,7 +360,7 @@ public class TestIndex
         }
         finally
         {
-            indexFile.delete();
+            assertTrue(indexFile.delete());
         }
     }
 }

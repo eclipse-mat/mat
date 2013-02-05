@@ -141,7 +141,7 @@ public class GeneralSnapshotTests
     final ISnapshot snapshot;
 
     @Test
-    public void Stacks1() throws SnapshotException
+    public void stacks1() throws SnapshotException
     {
         int frames = 0;
         int foundTop = 0;
@@ -202,7 +202,7 @@ public class GeneralSnapshotTests
     }
 
     @Test
-    public void TotalClasses() throws SnapshotException
+    public void totalClasses() throws SnapshotException
     {
         int nc = snapshot.getClasses().size();
         int n = snapshot.getSnapshotInfo().getNumberOfClasses();
@@ -210,7 +210,7 @@ public class GeneralSnapshotTests
     }
 
     @Test
-    public void TotalObjects() throws SnapshotException
+    public void totalObjects() throws SnapshotException
     {
         int no = 0;
         for (IClass cls : snapshot.getClasses())
@@ -222,7 +222,7 @@ public class GeneralSnapshotTests
     }
 
     @Test
-    public void TotalHeapSize() throws SnapshotException
+    public void totalHeapSize() throws SnapshotException
     {
         long total = 0;
         for (IClass cls : snapshot.getClasses())
@@ -234,7 +234,7 @@ public class GeneralSnapshotTests
     }
 
     @Test
-    public void ObjectSizes() throws SnapshotException
+    public void objectSizes() throws SnapshotException
     {
         long total = 0;
         for (IClass cls : snapshot.getClasses())
@@ -266,6 +266,7 @@ public class GeneralSnapshotTests
                     // IClass objects are variably sized, so don't track those
                     prev = n;
                 }
+                assertEquals("All instance of a class must be of that type", cls, obj.getClazz());
             }
         }
         long n = snapshot.getSnapshotInfo().getUsedHeapSize();

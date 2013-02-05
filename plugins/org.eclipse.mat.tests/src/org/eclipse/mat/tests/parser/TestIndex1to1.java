@@ -11,6 +11,7 @@
 package org.eclipse.mat.tests.parser;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 
 import java.io.File;
@@ -88,7 +89,7 @@ public class TestIndex1to1
     public void intIndex2() throws IOException
     {
         assumeTrue(N < MAXELEMENTS2);
-        File indexFile = File.createTempFile("int1", ".index");
+        File indexFile = File.createTempFile("int1_", ".index");
         long n = N;
         int n2 = (int) Math.min(n, Integer.MAX_VALUE);
         IndexWriter.IntIndexCollector ic = new IndexWriter.IntIndexCollector(n2, 31);
@@ -100,19 +101,25 @@ public class TestIndex1to1
         try
         {
             IIndexReader.IOne2OneIndex i2 = ic.writeTo(indexFile);
-            for (int i = 0; i < n2; ++i)
+            try
             {
-                int jj = i2.get(i);
-                if (i != jj)
-                    assertEquals(i, jj);
+                for (int i = 0; i < n2; ++i)
+                {
+                    int jj = i2.get(i);
+                    if (i != jj)
+                        assertEquals(i, jj);
+                }
+                if (n < Integer.MAX_VALUE)
+                    assertEquals(n, i2.size());
             }
-            if (n < Integer.MAX_VALUE)
-                assertEquals(n, i2.size());
-            i2.close();
+            finally
+            {
+                i2.close();
+            }
         }
         finally
         {
-            indexFile.delete();
+            assertTrue(indexFile.delete());
         }
     }
 
@@ -120,7 +127,7 @@ public class TestIndex1to1
     public void intIndex3() throws IOException
     {
         assumeTrue(N < MAXELEMENTS);
-        File indexFile = File.createTempFile("int1", ".index");
+        File indexFile = File.createTempFile("int1_", ".index");
         final long n = N;
         final int n2 = (int) Math.min(n, Integer.MAX_VALUE);
         IndexWriter.IntIndexStreamer ic = new IndexWriter.IntIndexStreamer();
@@ -140,28 +147,43 @@ public class TestIndex1to1
                 }
 
             });
-            for (int i = 0; i < n2; ++i)
+            try
             {
-                int in = i2.get(i);
-                if (i != in)
-                    assertEquals(i, in);
+                for (int i = 0; i < n2; ++i)
+                {
+                    int in = i2.get(i);
+                    if (i != in)
+                        assertEquals(i, in);
+                }
+                if (n < Integer.MAX_VALUE)
+                    assertEquals(n, i2.size());
+            }
+            finally
+            {
+                i2.close();
             }
             IndexReader.IntIndexReader ir = new IndexReader.IntIndexReader(indexFile);
-            long i = 0;
+            try
+            {
+                long i = 0;
 
-            for (IteratorInt it = ir.iterator(); it.hasNext(); ++i) {
-                int in = it.next();
-                if (i != in)
-                    assertEquals(i, in);
+                for (IteratorInt it = ir.iterator(); it.hasNext(); ++i) {
+                    int in = it.next();
+                    if (i != in)
+                        assertEquals(i, in);
+                }
+                assertEquals(n, i);
+                if (n < Integer.MAX_VALUE)
+                    assertEquals(n, i2.size());
             }
-            assertEquals(n, i);
-            if (n < Integer.MAX_VALUE)
-                assertEquals(n, i2.size());
-            ir.close();
+            finally
+            {
+                ir.close();
+            }
         }
         finally
         {
-            indexFile.delete();
+            assertTrue(indexFile.delete());
         }
     }
 
@@ -190,7 +212,7 @@ public class TestIndex1to1
     public void intIndex5() throws IOException
     {
         assumeTrue(N < MAXELEMENTS2);
-        File indexFile = File.createTempFile("int1", ".index");
+        File indexFile = File.createTempFile("int1_", ".index");
         long n = N;
         int n2 = (int) Math.min(n, Integer.MAX_VALUE);
         IndexWriter.SizeIndexCollectorUncompressed ic = new IndexWriter.SizeIndexCollectorUncompressed(n2);
@@ -202,19 +224,25 @@ public class TestIndex1to1
         try
         {
             IIndexReader.IOne2SizeIndex i2 = ic.writeTo(indexFile);
-            for (int i = 0; i < n2; ++i)
+            try
             {
-                int jj = i2.get(i);
-                if (i != jj)
-                    assertEquals(i, jj);
+                for (int i = 0; i < n2; ++i)
+                {
+                    int jj = i2.get(i);
+                    if (i != jj)
+                        assertEquals(i, jj);
+                }
+                if (n < Integer.MAX_VALUE)
+                    assertEquals(n, i2.size());
             }
-            if (n < Integer.MAX_VALUE)
-                assertEquals(n, i2.size());
-            i2.close();
+            finally
+            {
+                i2.close();
+            }
         }
         finally
         {
-            indexFile.delete();
+            assertTrue(indexFile.delete());
         }
     }
 
@@ -222,7 +250,7 @@ public class TestIndex1to1
     public void intIndex6() throws IOException
     {
         assumeTrue(N < MAXELEMENTS2);
-        File indexFile = File.createTempFile("int1", ".index");
+        File indexFile = File.createTempFile("int1_", ".index");
         long n = N;
         int n2 = (int) Math.min(n, Integer.MAX_VALUE);
         IndexWriter.SizeIndexCollectorUncompressed ic = new IndexWriter.SizeIndexCollectorUncompressed(n2);
@@ -233,21 +261,28 @@ public class TestIndex1to1
 
         try
         {
-            ic.writeTo(indexFile);
-            IIndexReader.IOne2SizeIndex i2 = new IndexReader.SizeIndexReader(indexFile);
-            for (int i = 0; i < n2; ++i)
-            {
-                int jj = i2.get(i);
-                if (i != jj)
-                    assertEquals(i, jj);
-            }
-            if (n < Integer.MAX_VALUE)
-                assertEquals(n, i2.size());
+            IIndexReader.IOne2SizeIndex i2 = ic.writeTo(indexFile);
             i2.close();
+            i2 = new IndexReader.SizeIndexReader(indexFile);
+            try
+            {
+                for (int i = 0; i < n2; ++i)
+                {
+                    int jj = i2.get(i);
+                    if (i != jj)
+                        assertEquals(i, jj);
+                }
+                if (n < Integer.MAX_VALUE)
+                    assertEquals(n, i2.size());
+            }
+            finally
+            {
+                i2.close();
+            }
         }
         finally
         {
-            indexFile.delete();
+            assertTrue(indexFile.delete());
         }
     }
 }
