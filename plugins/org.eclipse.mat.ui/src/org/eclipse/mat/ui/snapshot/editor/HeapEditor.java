@@ -88,7 +88,7 @@ public class HeapEditor extends MultiPaneEditor implements ISelectionProvider
         }
     }
 
-    class SnapshotEditorInput implements ISnapshotEditorInput
+    static class SnapshotEditorInput implements ISnapshotEditorInput
     {
         private IPath path;
         private ISnapshot snapshot;

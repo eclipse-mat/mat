@@ -104,7 +104,7 @@ public class NavigatorViewPage extends Page implements ISelectionProvider, IDoub
         }
     }
 
-    private class NavigatorContentProvider implements ITreeContentProvider
+    private static class NavigatorContentProvider implements ITreeContentProvider
     {
         private List<PaneState> elements;
 

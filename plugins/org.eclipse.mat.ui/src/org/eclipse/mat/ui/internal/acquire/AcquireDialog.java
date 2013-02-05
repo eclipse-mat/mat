@@ -418,7 +418,7 @@ public class AcquireDialog extends WizardPage
         getContainer().updateButtons();
     }
 
-    private class GetVMListRunnable implements IRunnableWithProgress
+    private static class GetVMListRunnable implements IRunnableWithProgress
 	{
 		private IStatus status;
 		private IRunnableContext context;

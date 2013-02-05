@@ -346,7 +346,7 @@ public class CompareBasketView extends ViewPart
         }
     }
 
-    class ComparedResult
+    static class ComparedResult
 	{
 		PaneState state;
 		MultiPaneEditor editor;
@@ -361,7 +361,7 @@ public class CompareBasketView extends ViewPart
 		}
 	}
 
-	class CompareLabelProvider extends LabelProvider implements ITableLabelProvider
+	static class CompareLabelProvider extends LabelProvider implements ITableLabelProvider
 	{
 
 		public Image getColumnImage(Object element, int columnIndex)
@@ -385,7 +385,7 @@ public class CompareBasketView extends ViewPart
 		}
 	}
 
-	class CompareContentProvider implements IStructuredContentProvider
+	static class CompareContentProvider implements IStructuredContentProvider
 	{
 
 		public Object[] getElements(Object inputElement)

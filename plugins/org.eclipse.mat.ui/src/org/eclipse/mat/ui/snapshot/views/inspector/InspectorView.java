@@ -263,7 +263,7 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
 
     }
 
-    private class HierarchyTreeContentProvider implements ITreeContentProvider
+    private static class HierarchyTreeContentProvider implements ITreeContentProvider
     {
         LinkedList<IClass> supers;
 

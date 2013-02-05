@@ -143,7 +143,7 @@ public abstract class ParseHeapDumpJob extends Job
     // internal classes
     // //////////////////////////////////////////////////////////////
 
-    class ParseRule implements ISchedulingRule
+    static class ParseRule implements ISchedulingRule
     {
         IPath path;
 

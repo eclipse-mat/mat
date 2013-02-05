@@ -19,7 +19,7 @@ import org.eclipse.ui.model.IWorkbenchAdapter;
 
 public class PathEditorInput implements IPathEditorInput
 {
-    private class WorkbenchAdapter implements IWorkbenchAdapter
+    private static class WorkbenchAdapter implements IWorkbenchAdapter
     {
         /*
          * @see
