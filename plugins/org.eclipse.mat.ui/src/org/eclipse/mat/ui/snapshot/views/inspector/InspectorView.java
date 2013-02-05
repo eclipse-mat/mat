@@ -637,14 +637,14 @@ public class InspectorView extends ViewPart implements IPartListener, ISelection
         if (editor != null)
         {
             InspectorContextProvider contextProvider = new InspectorContextProvider(snapshot);
-            final Object firstElement = contextProvider.getContext(selection.getFirstElement());
+            final IContextObject firstElement = contextProvider.getContext(selection.getFirstElement());
 
             IStructuredSelection editorSelection = (IStructuredSelection) editor.getSelection();
             final Object editorElement = editorSelection.getFirstElement();
 
-            boolean isObject = firstElement instanceof IContextObject
+            boolean isObject = firstElement != null
                             && editorElement instanceof IContextObject
-                            && ((IContextObject) firstElement).getObjectId() != ((IContextObject) editorElement)
+                            && firstElement.getObjectId() != ((IContextObject) editorElement)
                                             .getObjectId();
 
             if (isObject)

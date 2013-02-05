@@ -265,7 +265,7 @@ public final class PopupMenu
     // listener implementations
     // //////////////////////////////////////////////////////////////
 
-    private final class SelectionListener implements Listener
+    private static final class SelectionListener implements Listener
     {
         public void handleEvent(Event event)
         {

@@ -105,7 +105,7 @@ public abstract class SnapshotOutlinePage extends Page implements IContentOutlin
         }
     }
 
-    class Label
+    static class Label
     {
         String text;
         Object snapshotValue, baselineValue;
@@ -133,7 +133,7 @@ public abstract class SnapshotOutlinePage extends Page implements IContentOutlin
         }
     }
 
-    class Category
+    static class Category
     {
         String categoryId;
         protected List<Label> children = new ArrayList<Label>();
@@ -154,7 +154,7 @@ public abstract class SnapshotOutlinePage extends Page implements IContentOutlin
         }
     }
 
-    class OutlineContentProvider implements ITreeContentProvider
+    static class OutlineContentProvider implements ITreeContentProvider
     {
         List<Object> elements;
 
@@ -188,7 +188,7 @@ public abstract class SnapshotOutlinePage extends Page implements IContentOutlin
         {}
     }
 
-    class OutlineLabelProvider extends LabelProvider implements ITableLabelProvider
+    static class OutlineLabelProvider extends LabelProvider implements ITableLabelProvider
     {
 
         public Image getColumnImage(Object element, int columnIndex)

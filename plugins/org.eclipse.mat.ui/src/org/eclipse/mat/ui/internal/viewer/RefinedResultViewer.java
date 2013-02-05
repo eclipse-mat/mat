@@ -1175,8 +1175,8 @@ public abstract class RefinedResultViewer
                                 }
                                 break;
                             case SWT.TRAVERSE_RETURN:
-                                // $JL-SWITCH$ fall through
                                 updateCriteria(filter, columnIndex, text.getText());
+                                //$FALL-THROUGH$
                             case SWT.TRAVERSE_ESCAPE:
                                 // Updating the criteria can dispose the TreeItem!
                                 if (!item.isDisposed())
@@ -1186,6 +1186,8 @@ public abstract class RefinedResultViewer
                                 }
                                 e.doit = false;
                                 break;
+                            default:
+                                break;
                         }
                         if (newIndex >= 0)
                         {
@@ -1193,6 +1195,7 @@ public abstract class RefinedResultViewer
                             // Need a new version of the item
                             activateEditor(adapter.getItem(null, 0), f[newIndex], newIndex);
                         }
+                        break;
                 }
             }
 

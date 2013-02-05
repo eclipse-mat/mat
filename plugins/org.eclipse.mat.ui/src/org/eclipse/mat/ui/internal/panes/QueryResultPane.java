@@ -264,6 +264,7 @@ public class QueryResultPane extends AbstractEditorPane implements ISelectionPro
                     arrowKeyDown = ((e.keyCode == SWT.ARROW_UP) || (e.keyCode == SWT.ARROW_DOWN)
                                     || (e.keyCode == SWT.ARROW_LEFT) || e.keyCode == SWT.ARROW_RIGHT)
                                     && e.stateMask == 0;
+                    //$FALL-THROUGH$
                 case SWT.Selection:
                     count[0]++;
                     final int id = count[0];
@@ -290,7 +291,9 @@ public class QueryResultPane extends AbstractEditorPane implements ISelectionPro
                             }
                         }
                     });
-
+                    break;
+                default:
+                    break;
             }
         }
     };

@@ -126,7 +126,7 @@ public class HeapEditor extends MultiPaneEditor implements ISelectionProvider
             return snapshot != null;
         }
 
-        public ISnapshot getBaseline()
+        public synchronized ISnapshot getBaseline()
         {
             return baseline;
         }
