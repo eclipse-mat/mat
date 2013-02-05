@@ -478,7 +478,8 @@ public class MemoryAnalyserPlugin extends AbstractUIPlugin
             // Now write out iconlabels.properties
             File iconLabelsFile = new File(propsFilename);
             PrintStream iconLabelsStream = null;
-            iconLabelsStream = new PrintStream(new FileOutputStream(iconLabelsFile));
+            // Properties files are always encoded in ISO-8859-1
+            iconLabelsStream = new PrintStream(new FileOutputStream(iconLabelsFile), false, "ISO-8859-1");
             // Print NLS headers required for translation
             // Use printPropertyLine() to insert \r\n separator.
             printPropertyLine(iconLabelsStream, nlsHeaders);
