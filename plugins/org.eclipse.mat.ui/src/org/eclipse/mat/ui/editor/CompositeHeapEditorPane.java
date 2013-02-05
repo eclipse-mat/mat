@@ -38,7 +38,7 @@ public abstract class CompositeHeapEditorPane extends AbstractEditorPane impleme
     private PageBook container;
     private AbstractEditorPane embeddedPane;
 
-    List<ISelectionChangedListener> listeners = Collections
+    List<ISelectionChangedListener> selectionListeners = Collections
                     .synchronizedList(new ArrayList<ISelectionChangedListener>());
 
     protected void createContainer(Composite parent)
@@ -122,7 +122,7 @@ public abstract class CompositeHeapEditorPane extends AbstractEditorPane impleme
 
     public void addSelectionChangedListener(ISelectionChangedListener listener)
     {
-        listeners.add(listener);
+        selectionListeners.add(listener);
     }
 
     public ISelection getSelection()
@@ -139,7 +139,7 @@ public abstract class CompositeHeapEditorPane extends AbstractEditorPane impleme
 
     public void removeSelectionChangedListener(ISelectionChangedListener listener)
     {
-        listeners.remove(listener);
+        selectionListeners.remove(listener);
     }
 
     public void setSelection(ISelection selection)
@@ -152,7 +152,7 @@ public abstract class CompositeHeapEditorPane extends AbstractEditorPane impleme
 
     public void selectionChanged(SelectionChangedEvent event)
     {
-        List<ISelectionChangedListener> l = new ArrayList<ISelectionChangedListener>(listeners);
+        List<ISelectionChangedListener> l = new ArrayList<ISelectionChangedListener>(selectionListeners);
         for (ISelectionChangedListener listener : l)
         {
             listener.selectionChanged(event);
