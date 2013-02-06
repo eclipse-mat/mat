@@ -96,7 +96,6 @@ public class OQLPane extends CompositeHeapEditorPane
         queryViewer = new SourceViewer(sash, null, SWT.MULTI | SWT.WRAP);
         queryString = queryViewer.getTextWidget();
         queryString.setFont(JFaceResources.getFont(JFaceResources.TEXT_FONT));
-        queryString.selectAll();
         IThemeManager themeManager = PlatformUI.getWorkbench().getThemeManager();
         ITheme current = themeManager.getCurrentTheme();
         ColorRegistry colorRegistry = current.getColorRegistry();
@@ -106,6 +105,7 @@ public class OQLPane extends CompositeHeapEditorPane
         d.set(Messages.OQLPane_F1ForHelp);
         queryViewer.setDocument(d);
         queryViewer.configure(new OQLTextViewerConfiguration(getSnapshot(), commentCol, keywordCol));
+        queryString.selectAll();
 
         PlatformUI.getWorkbench().getHelpSystem().setHelp(queryString, "org.eclipse.mat.ui.help.oql"); //$NON-NLS-1$
         queryString.addKeyListener(new KeyAdapter()
@@ -121,6 +121,11 @@ public class OQLPane extends CompositeHeapEditorPane
                 {
                     //ctrl space combination for content assist
                     contentAssistAction.run();
+                }
+                else if (e.keyCode == SWT.F5)
+                {
+                    executeAction.run();
+                    e.doit = false;
                 }
             }
 

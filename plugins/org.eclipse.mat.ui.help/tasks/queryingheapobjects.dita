@@ -41,7 +41,7 @@ FROM [ INSTANCEOF ] &lt;class name="name"&gt;
 <ul><li>Text area to type in the query (upper area)</li>
 <li>Result area to display the result of the query execution</li></ul>
 <image href="../mimes/m2fd32fba.png" alt="screen shot of query result"/>
-<p>Use Ctrl-Enter or toolbar button <image href="../mimes/4fd3f07a.png">
+<p>Use F5 or Ctrl-Enter or toolbar button <image href="../mimes/4fd3f07a.png">
 <alt>Execute Query button</alt>
 </image> to execute the query.</p>
 <p>Basic OQL syntax is as follows:</p>
@@ -50,6 +50,11 @@ SELECT *
 FROM [ INSTANCEOF ] &lt;class name&gt;
 [ WHERE &lt;filter-expression&gt; ]
 </codeblock>
+<p>
+    The text area has autocompletion for class names, class name regular expressions,
+    field names, attributes and methods. 
+    See <xref href="../reference/tipsandtricks.dita#oqlcompletion">OQL autocompletion</xref>.
+</p>
 </context>
 </taskbody>
 	<related-links>

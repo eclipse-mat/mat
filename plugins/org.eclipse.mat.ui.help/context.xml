@@ -13,6 +13,7 @@
 <contexts>
 	<context id="oql">
 		<description>Object Query Language (OQL) Syntax</description>
+		<topic label="OQL Editor" href="tasks/queryingheapobjects.html" />
 		<topic label="OQL Syntax" href="reference/oqlsyntax.html" />
 	</context>
 	<context id="query_arguments">
