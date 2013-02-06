@@ -188,6 +188,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
     private static final boolean useSystemClassRoots = true;
     /** Whether to skip heap roots marked marked as weak/soft reference etc. */
     private static final boolean skipWeakRoots = true;
+    /** Whether to fix bad DTFJ superclass */
+    private static final boolean fixBadSuperclass = false;
     private final String methodsAsClassesPref = Platform.getPreferencesService().getString(PLUGIN_ID,
                     PreferenceConstants.P_METHODS, "", null); //$NON-NLS-1$
     /** Whether to represent all methods as pseudo-classes */
@@ -1632,7 +1634,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         if (indexToAddress0.size() >= indexCountForTempFile)
         {
             // Write the index to disk and then use the compressed disk version
-            indexToAddress = (new LongIndexStreamer()).writeTo(Index.IDENTIFIER.getFile(pfx + "temp."), indexToAddress0.iterator());
+            indexToAddress = (new LongIndexStreamer()).writeTo(Index.IDENTIFIER.getFile(pfx + "temp."), indexToAddress0.iterator()); //$NON-NLS-1$
         }
         else
         {
@@ -1678,12 +1680,9 @@ public class DTFJIndexBuilder implements IIndexBuilder
         ClassImpl jlc = genClass(clsJavaLangClass, idToClass, bootLoaderAddress, 0, listener);
         genClass2(clsJavaLangClass, jlc, jlc, pointerSize, listener);
 
-        // Now do java.lang.ClassLoader
-        ClassImpl jlcl = clsJavaLangClassLoader != null ? genClass(clsJavaLangClassLoader, idToClass, bootLoaderAddress, 0, listener) : null;
-        if (jlcl != null)
-        {
-            genClass2(clsJavaLangClassLoader, jlcl, jlc, pointerSize, listener);
-        }
+        // Now do java.lang.ClassLoader - clsJavaLangClassLoader is non null
+        ClassImpl jlcl = genClass(clsJavaLangClassLoader, idToClass, bootLoaderAddress, 0, listener);
+        genClass2(clsJavaLangClassLoader, jlcl, jlc, pointerSize, listener);
 
         boolean foundFields = false;
         for (JavaClass j2 : allClasses)
@@ -1698,7 +1697,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             // Fix for PHD etc without superclasses
             // so make class loader types extend java.lang.ClassLoader
             long newSuper = 0;
-            if (jlcl != null && loaderTypes.contains(j2))
+            if (loaderTypes.contains(j2))
             {
                 JavaClass sup = getSuperclass(j2, listener);
                 if (sup == null || getSuperclass(sup, listener) == null)
@@ -1725,11 +1724,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
         if (bootLoaderObject == null)
         {
             // If there is no boot loader type,
-            bootLoaderType = jlcl;
-            // The bootLoaderType should always have been found by now, so
             // invent something now to avoid NullPointerExceptions.
-            if (bootLoaderType == null)
-                bootLoaderType = idToClass.values().next();
+            bootLoaderType = jlcl;
         }
 
         // If none of the classes have any fields then we have to try using
@@ -1945,19 +1941,25 @@ public class DTFJIndexBuilder implements IIndexBuilder
             // see what conservative GC would give.
             HashMapIntObject<List<XGCRootInfo>> gcRoot2 = gcRoot;
             HashMapIntObject<HashMapIntObject<List<XGCRootInfo>>> threadRoots2 = threadRoots;
-            File threadsFile = new File(pfx + "threads");
-            File threadsFileSave = new File(pfx + ".save.threads");
-            threadsFile.renameTo(threadsFileSave);
-            workCountSoFar = processConservativeRoots(pointerSize, fixedBootLoaderAddress, scanUp, workCountSoFar,
-                            listener);
-            missedRoots = addMissedRoots(missedRoots);
-            newRoots = rootSet();
-            // Restore DTFJ Roots
-            gcRoot = gcRoot2;
-            threadRoots = threadRoots2;
-            // Restore the threads file
-            threadsFile.delete();
-            threadsFileSave.renameTo(threadsFile);
+            File threadsFile = new File(pfx + "threads"); //$NON-NLS-1$
+            File threadsFileSave = new File(pfx + ".save.threads"); //$NON-NLS-1$
+            if (threadsFile.renameTo(threadsFileSave))
+            {
+                workCountSoFar = processConservativeRoots(pointerSize, fixedBootLoaderAddress, scanUp, workCountSoFar,
+                                listener);
+                missedRoots = addMissedRoots(missedRoots);
+                newRoots = rootSet();
+                // Restore DTFJ Roots
+                gcRoot = gcRoot2;
+                threadRoots = threadRoots2;
+                // Restore the threads file
+                threadsFile.delete();
+                threadsFileSave.renameTo(threadsFile);
+            }
+            else
+            {
+                newRoots = prevRoots;
+            }
         }
         else
         {
@@ -2293,7 +2295,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
 
         if (objectToClass.size() >= indexCountForTempFile)
         {
-            objectToClass1 = objectToClass.writeTo(Index.O2CLASS.getFile(pfx + "temp."));
+            objectToClass1 = objectToClass.writeTo(Index.O2CLASS.getFile(pfx + "temp.")); //$NON-NLS-1$
         }
         else
         {
@@ -2612,7 +2614,14 @@ public class DTFJIndexBuilder implements IIndexBuilder
             JavaThread th = (JavaThread) next;
             listener.worked(1);
             workCountSoFar += 1;
-            if (listener.isCanceled()) { throw new IProgressListener.OperationCanceledException(); }
+            if (listener.isCanceled())
+            {
+                if (pw != null)
+                {
+                    pw.close();
+                }
+                throw new IProgressListener.OperationCanceledException();
+            }
             try
             {
                 long threadAddress = getThreadAddress(th, null);
@@ -7776,13 +7785,13 @@ public class DTFJIndexBuilder implements IIndexBuilder
         {
             sup = j2.getSuperclass();
 
-            // superclass for array can return java.lang.Object from
+            // old DTFJ bug - superclass for array can return java.lang.Object from
             // another dump!
-            if (sup != null)
+            if (fixBadSuperclass && sup != null)
             {
                 ImagePointer supAddr = sup.getID();
-                ImagePointer clsAddr = sup.getID();
-                supAddr = clsAddr;
+                ImagePointer clsAddr = j2.getID();
+                // supAddr = clsAddr;
                 // Synthetic classes can have a null ID
                 if (supAddr != null && clsAddr != null)
                 {

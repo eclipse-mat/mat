@@ -15,6 +15,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.internal.Messages;
@@ -262,6 +263,8 @@ public abstract class HeapObjectArgumentFactory implements ArgumentFactory
 
                         public int[] next()
                         {
+                            if (done)
+                                throw new NoSuchElementException();
                             done = true;
                             return objectIds;
                         }
