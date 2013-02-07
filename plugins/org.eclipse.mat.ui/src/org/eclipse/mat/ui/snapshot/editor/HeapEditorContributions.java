@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2013 SAP AG, IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation - add thread overview button
  *******************************************************************************/
 package org.eclipse.mat.ui.snapshot.editor;
 
@@ -31,6 +32,7 @@ public class HeapEditorContributions implements IMultiPaneEditorContributor
     Action openHistogram;
     Action openDominatorTree;
     Action openOQLPane;
+    Action openThreadOverview;
 
     Action runExpertTest;
     Action openQueries;
@@ -43,6 +45,7 @@ public class HeapEditorContributions implements IMultiPaneEditorContributor
         manager.add(openHistogram);
         manager.add(openDominatorTree);
         manager.add(openOQLPane);
+        manager.add(openThreadOverview);
 
         manager.add(new Separator());
 
@@ -66,6 +69,7 @@ public class HeapEditorContributions implements IMultiPaneEditorContributor
         openHistogram = new ExecuteQueryAction(editor, "histogram");//$NON-NLS-1$
         openDominatorTree = new ExecuteQueryAction(editor, "dominator_tree");//$NON-NLS-1$
         openOQLPane = new OpenOQLStudioAction();
+        openThreadOverview = new ExecuteQueryAction(editor, "thread_overview");//$NON-NLS-1$
 
         runExpertTest = new RunReportsDropDownAction(editor);
         openQueries = new QueryDropDownMenuAction(editor);
