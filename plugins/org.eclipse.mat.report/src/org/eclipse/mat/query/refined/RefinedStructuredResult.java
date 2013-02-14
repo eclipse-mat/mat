@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2013 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson (IBM Corporation) NaturalComparator for mixed types
  *******************************************************************************/
 package org.eclipse.mat.query.refined;
 
@@ -116,12 +117,52 @@ public abstract class RefinedStructuredResult implements IStructuredResult, //
             Object d1 = refinedResult.getColumnValue(o1, sortColumn);
             Object d2 = refinedResult.getColumnValue(o2, sortColumn);
 
+            // Compare nulls - sort first
             if (d1 == null)
                 return d2 == null ? 0 : -1;
             else if (d2 == null)
                 return 1;
+            else if (d1 instanceof Comparable && d2 instanceof Comparable)
+            {
+                // Compare using Comparable
+                try
+                {
+                    return ((Comparable<Object>) d1).compareTo(d2);
+                }
+                catch (ClassCastException e)
+                {
+                    // See if different types of number
+                    if (d1 instanceof Number && d2 instanceof Number)
+                    {
+                        int ret = Double.compare(((Number)d1).doubleValue(), ((Number)d2).doubleValue());
+                        if (ret == 0)
+                        {
+                            long l1 = ((Number)d1).longValue();
+                            long l2 = ((Number)d2).longValue();
+                            if (l1 < l2)
+                                return -1;
+                            else if (l1 > l2)
+                                return 1;
+                            else
+                                return 0;
+                        }
+                        else
+                        {
+                            return ret;
+                        }
+                    }
+                    else if (d1 instanceof Number)
+                        return -1;
+                    else if (d2 instanceof Number)
+                        return 1;
+                    else
+                        return d1.getClass().getName().compareTo(d2.getClass().getName());
+                }
+            }
             else if (d1 instanceof Comparable)
-                return ((Comparable) d1).compareTo(d2);
+                return -1;
+            else if (d2 instanceof Comparable)
+                return 1;
             else
                 return d1.toString().compareTo(d2.toString());
         }
@@ -548,7 +589,17 @@ public abstract class RefinedStructuredResult implements IStructuredResult, //
             return ""; //$NON-NLS-1$
 
         Format f = columns.get(columnIndex).getFormatter();
-        return f != null ? f.format(value) : String.valueOf(value);
+        if (f != null)
+        {
+            try
+            {
+                return f.format(value);
+            }
+            catch (IllegalArgumentException e)
+            {
+            }
+        }
+        return String.valueOf(value);
     }
 
     // //////////////////////////////////////////////////////////////

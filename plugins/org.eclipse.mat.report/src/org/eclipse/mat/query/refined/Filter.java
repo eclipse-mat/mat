@@ -130,7 +130,7 @@ public abstract class Filter
             if (value == null)
                 return false;
 
-            double doubleValue = ((Number) value).doubleValue();
+            double doubleValue = value instanceof Number ? ((Number) value).doubleValue() : Double.NaN;
             if (converter != null)
                 doubleValue = converter.convert(doubleValue);
 
