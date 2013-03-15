@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.eclipse.mat</groupId>
+		<artifactId>parent</artifactId>
+		<relativePath>../../parent</relativePath>
+		<version>1.3.0-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>org.eclipse.mat.ui.rcp.tests</artifactId>
+	<packaging>eclipse-test-plugin</packaging>
+
+	<properties>
+		<uitest.vmparams>-Dorg.eclipse.swtbot.search.timeout=30000 -Xmx512m
+			-XX:MaxPermSize=256m</uitest.vmparams>
+	</properties>
+
+	<profiles>
+		<profile>
+			<id>skip-ui-tests</id>
+			<activation>
+				<property>
+					<name>skip-ui-tests</name>
+				</property>
+			</activation>
+			<properties>
+				<maven.test.skip>true</maven.test.skip>
+			</properties>
+		</profile>
+		<profile>
+			<id>macosx</id>
+			<activation>
+				<os>
+					<name>mac os x</name>
+					<family>mac</family>
+				</os>
+			</activation>
+			<properties>
+				<ui.test.vmargs>${uitest.vmparams} -XstartOnFirstThread</ui.test.vmargs>
+			</properties>
+		</profile>
+		<profile>
+			<id>other-os</id>
+			<activation>
+				<os>
+					<name>not-mac</name>
+					<family>!mac</family>
+				</os>
+			</activation>
+			<properties>
+				<ui.test.vmargs>${uitest.vmparams}</ui.test.vmargs>
+			</properties>
+		</profile>
+	</profiles>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-surefire-plugin</artifactId>
+				<configuration>
+					<includes>
+						<include>**/AllTests.java</include>
+					</includes>
+					<useUIHarness>true</useUIHarness>
+					<useUIThread>false</useUIThread>
+					<product>org.eclipse.mat.ui.rcp.MemoryAnalyzer</product>
+					<application>org.eclipse.mat.ui.rcp.application</application>
+					<argLine>${ui.test.vmargs}</argLine>
+
+					<dependencies>
+						<dependency>
+							<type>eclipse-plugin</type>
+							<artifactId>org.hamcrest</artifactId>
+							<version>0.0.0</version>
+						</dependency>
+						<dependency>
+							<type>p2-installable-unit</type>
+							<groupId>org.eclipse.mat</groupId>
+							<artifactId>org.eclipse.mat.ui.rcp.MemoryAnalyzer</artifactId>
+						</dependency>
+						<dependency>
+							<type>p2-installable-unit</type>
+							<artifactId>com.ibm.dtfj.feature.feature.group</artifactId>
+							<version>0.0.0</version>
+						</dependency>
+					</dependencies>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
