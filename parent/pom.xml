@@ -187,6 +187,8 @@
 		<module>../org.eclipse.mat.updatesite</module>
 		<!-- standalone RCP application -->
 		<module>../org.eclipse.mat.product</module>
+		<!-- UI tests on the build product -->
+		<module>../plugins/org.eclipse.mat.ui.rcp.tests</module>
 	</modules>
 
 	<build>
@@ -230,7 +232,7 @@
 					<version>${tycho-version}</version>
 					<configuration>
 						<argLine>-ea -Xmx768m</argLine>
-						<testFailureIgnore>true</testFailureIgnore>
+						<!-- <testFailureIgnore>true</testFailureIgnore> -->
 						<includes>
 							<include>**/AllTests.class</include>
 						</includes>
