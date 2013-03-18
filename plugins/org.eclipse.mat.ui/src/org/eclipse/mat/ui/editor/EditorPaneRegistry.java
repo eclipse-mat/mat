@@ -68,7 +68,15 @@ public class EditorPaneRegistry extends RegistryReader<PaneConfiguration>
         return editor != null ? editor.build() : null;
     }
 
-    public AbstractEditorPane createNewPane(IResult subject, Class<? extends AbstractEditorPane> ignore)
+    /**
+     * Find the appropriate editor pane for the result,
+     * ignoring ones associated with the ignore class.
+     * Searches all subclasses and interfaces.
+     * @param subject
+     * @param ignore
+     * @return
+     */
+    public AbstractEditorPane createNewPane(IResult subject, Class<?> ignore)
     {
         try
         {

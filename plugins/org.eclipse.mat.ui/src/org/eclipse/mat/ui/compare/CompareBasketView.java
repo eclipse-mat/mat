@@ -24,10 +24,10 @@ import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
-import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
@@ -528,7 +528,7 @@ public class CompareBasketView extends ViewPart
 		public void run()
 		{
 			int idx = tableViewer.getTable().getSelectionIndex();
-			ComparedResult selectedResult = (ComparedResult) ((StructuredSelection) tableViewer.getSelection()).getFirstElement();
+			ComparedResult selectedResult = (ComparedResult) ((IStructuredSelection) tableViewer.getSelection()).getFirstElement();
 			if (direction == SWT.UP)
 			{
 				results.set(idx, results.get(idx - 1));
@@ -548,7 +548,7 @@ public class CompareBasketView extends ViewPart
 
 		public void selectionChanged(SelectionChangedEvent event)
 		{
-			if (event.getSelection() instanceof StructuredSelection)
+			if (event.getSelection() instanceof IStructuredSelection)
 			{
 				updateState();
 			}
@@ -560,7 +560,7 @@ public class CompareBasketView extends ViewPart
 
 		void updateState()
 		{
-			StructuredSelection selection = (StructuredSelection) tableViewer.getSelection();
+			IStructuredSelection selection = (IStructuredSelection) tableViewer.getSelection();
 			if (selection.size() != 1)
 			{
 				setEnabled(false);

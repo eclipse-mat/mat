@@ -65,7 +65,7 @@ public class QueryHistory
     }
 
     @SuppressWarnings("unchecked")
-    private static void loadHistory()
+    private synchronized static void loadHistory()
     {
         File file = new File(FILE_NAME);
         if (file.exists())
