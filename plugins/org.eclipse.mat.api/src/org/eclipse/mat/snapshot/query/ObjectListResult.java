@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others.
+ * Copyright (c) 2008, 2013 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation - fix FindBugs warnings
  *******************************************************************************/
 package org.eclipse.mat.snapshot.query;
 
@@ -17,6 +18,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.NoSuchElementException;
 import java.util.RandomAccess;
 
 import org.eclipse.mat.SnapshotException;
@@ -431,6 +433,8 @@ public final class ObjectListResult
 
                 public Node next()
                 {
+                    if (index >= objectIds.length)
+                        throw new NoSuchElementException();
                     return get(index++);
                 }
 
@@ -475,6 +479,8 @@ public final class ObjectListResult
 
                 public Node next()
                 {
+                    if (pos >= elements.length)
+                        throw new NoSuchElementException();
                     Node n = get(pos);
                     last = pos++;
                     return n;
