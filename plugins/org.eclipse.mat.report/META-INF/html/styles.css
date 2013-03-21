@@ -104,6 +104,12 @@ img {
 	color: #ffffff;
 }
 
+.result tbody tr.selected td a:focus {
+    outline-style: dotted;
+    outline-width: 1px;
+    outline-color: #ffffff
+}
+
 .result tbody tr.totals td {
 	font-weight: bold;
 	background-color: #D3D3D3;
