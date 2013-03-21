@@ -13,6 +13,8 @@ package org.eclipse.mat.query.registry;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.net.URL;
@@ -251,15 +253,58 @@ public class QueryRegistry extends RegistryReader<IQuery>
         return descriptor;
     }
 
+    private Bundle findBundle(Class<?> cls)
+    {
+        /*
+         * Requires Eclipse 3.6
+         * 
+        return FrameworkUtil.getBundle(cls);
+         */
+
+        ClassLoader cl = cls.getClassLoader();
+
+        /*
+         * Requires Eclipse 3.5 to compile and run
+         * 
+        if (cl instanceof BundleReference)
+        {
+            BundleReference br = (BundleReference) cl;
+            Bundle bb = br.getBundle();
+            return bb;
+        }
+         */
+
+        /*
+         * Requires Eclipse 3.5 to run, but compiles with 3.4 and earlier
+         */
+        try
+        {
+            // find BundleReference.getBundle();
+            Method m = cl.getClass().getMethod("getBundle"); //$NON-NLS-1$
+            Object o = m.invoke(cl);
+            if (o instanceof Bundle)
+                return (Bundle) o;
+        }
+        catch (SecurityException e)
+        {}
+        catch (NoSuchMethodException e)
+        {}
+        catch (IllegalArgumentException e)
+        {}
+        catch (IllegalAccessException e)
+        {}
+        catch (InvocationTargetException e)
+        {}
+        return null;
+    }
+
     private URL findIcon(Class<? extends IQuery> queryClass, String iconPath)
     {
         URL icon = null;
-        ClassLoader cl = queryClass.getClassLoader();
-        if (cl instanceof BundleReference)
+        Bundle bb = findBundle(queryClass);
+        if (bb != null)
         {
             // Try FileLocator to allow $arg$ substitutions
-            BundleReference br = (BundleReference) cl;
-            Bundle bb = br.getBundle();
             icon = FileLocator.find(bb, new Path(iconPath), null);
         }
         if (icon == null)
