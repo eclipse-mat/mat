@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2013 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson - remove deprecated call
  *******************************************************************************/
 package org.eclipse.mat.ui.snapshot.actions;
 
@@ -20,6 +21,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
@@ -68,6 +70,8 @@ public class OpenSnapshotAction extends Action implements IWorkbenchWindowAction
                     IWorkbenchPage page = fWindow.getActivePage();
                     page.openEditor(input, MemoryAnalyserPlugin.EDITOR_ID);
                 }
+                catch (OperationCanceledException e)
+                {}
                 catch (PartInitException e)
                 {
                     MemoryAnalyserPlugin.log(e.getStatus());
@@ -152,7 +156,7 @@ public class OpenSnapshotAction extends Action implements IWorkbenchWindowAction
     private IFile getWorkspaceFile(IFileStore fileStore)
     {
         IWorkspace workspace = ResourcesPlugin.getWorkspace();
-        IFile[] files = workspace.getRoot().findFilesForLocation(new Path(fileStore.toURI().getPath()));
+        IFile[] files = workspace.getRoot().findFilesForLocationURI(fileStore.toURI());
         files = filterNonExistentFiles(files);
         if (files == null || files.length == 0)
             return null;
@@ -184,7 +188,8 @@ public class OpenSnapshotAction extends Action implements IWorkbenchWindowAction
         dialog.setMessage(Messages.OpenSnapshotAction_Message);
         if (dialog.open() == Window.OK)
             return (IFile) dialog.getFirstResult();
-        return null;
+        else
+            throw new OperationCanceledException();
     }
 
 }

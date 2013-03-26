@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2013 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson - remove FindBugs warnings
  *******************************************************************************/
 package org.eclipse.mat.ui.snapshot.actions;
 
@@ -19,7 +20,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
@@ -191,44 +195,44 @@ public class OpenSampleHeapDumpAction extends Action implements ICheatSheetActio
 
         targetDir.mkdirs();
 
-        InputStream in = null;
-        OutputStream out = null;
+        Bundle bundle = Platform.getBundle(pluginId);
+        URL url = bundle.getResource(path);
         try
         {
-            Bundle bundle = Platform.getBundle(pluginId);
-            URL url = bundle.getResource(path);
             if (url == null) throw new FileNotFoundException(path);
-            in = url.openStream();
-            out = new BufferedOutputStream(new FileOutputStream(extractedFile));
-            byte[] buffer = new byte[2048];
-            for (;;)
+            InputStream in = url.openStream();
+            try
             {
-                int nBytes = in.read(buffer);
-                if (nBytes <= 0)
-                    break;
-                out.write(buffer, 0, nBytes);
+                OutputStream out = new BufferedOutputStream(new FileOutputStream(extractedFile));
+                try
+                {
+                    byte[] buffer = new byte[2048];
+                    for (;;)
+                    {
+                        int nBytes = in.read(buffer);
+                        if (nBytes <= 0)
+                            break;
+                        out.write(buffer, 0, nBytes);
+                    }
+                    out.flush();
+                }
+                catch (IOException e)
+                {
+                    ErrorHelper.logThrowableAndShowMessage(e);
+                }
+                finally
+                {
+                    out.close();
+                }
             }
-            out.flush();
-            out.close();
-            in.close();
+            finally
+            {
+                in.close();
+            }
         }
         catch (IOException e)
         {
             ErrorHelper.logThrowableAndShowMessage(e);
-        }
-        finally
-        {
-            try
-            {
-                if (in != null)
-                    in.close();
-                if (out != null)
-                    out.close();
-            }
-            catch (IOException ex)
-            {
-                // $JL-EXC$
-            }
         }
 
         return extractedFile.getAbsolutePath();
@@ -242,7 +246,9 @@ public class OpenSampleHeapDumpAction extends Action implements ICheatSheetActio
     private static IEditorPart doOpenEditor(IWorkbenchWindow window, String absolutePath) throws PartInitException
     {
         final IPath path = new Path(absolutePath);
-        IFile[] heapFile = ResourcesPlugin.getWorkspace().getRoot().findFilesForLocation(path);
+        IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+        IFileStore fileStore = EFS.getLocalFileSystem().getStore(path);
+        IFile[] heapFile= root.findFilesForLocationURI(fileStore.toURI());
 
         if (heapFile != null && heapFile.length > 0)
         {
