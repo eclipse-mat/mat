@@ -12,6 +12,9 @@ package org.eclipse.mat.collect;
 
 import java.util.Arrays;
 
+import org.eclipse.mat.report.internal.Messages;
+import org.eclipse.mat.util.MessageUtil;
+
 /**
  * Utility class to hold a list of longs
  * Similar to a list, but efficient for longs
@@ -220,13 +223,31 @@ public final class ArrayLong
         int oldCapacity = elements.length;
         if (minCapacity > oldCapacity)
         {
-            long oldData[] = elements;
-            int newCapacity = (oldCapacity * 3) / 2 + 1;
+            int newCapacity = newCapacity(oldCapacity, minCapacity);
             if (newCapacity < minCapacity)
-                newCapacity = minCapacity;
+            {
+                // Avoid strange exceptions later
+                throw new OutOfMemoryError(MessageUtil.format(Messages.ArrayLong_Error_LengthExceeded, minCapacity, newCapacity));
+            }
+            long oldData[] = elements;
             elements = new long[newCapacity];
             System.arraycopy(oldData, 0, elements, 0, size);
         }
     }
 
+    private int newCapacity(int oldCapacity, int minCapacity)
+    {
+        // Scale by 1.5 without overflow
+        int newCapacity = (oldCapacity * 3 >>> 1);
+        if (newCapacity < minCapacity)
+        {
+            newCapacity = (minCapacity * 3 >>> 1);
+            if (newCapacity < minCapacity)
+            {
+                // Avoid VM limits for final size
+                newCapacity = Integer.MAX_VALUE - 8;
+            }
+        }
+        return newCapacity;
+    }
 }

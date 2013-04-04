@@ -12,6 +12,7 @@
 package org.eclipse.mat.collect;
 
 import org.eclipse.mat.report.internal.Messages;
+import org.eclipse.mat.util.MessageUtil;
 
 /**
  * A simple queue of ints
@@ -77,7 +78,14 @@ public class QueueInt
         if (size == capacity)
         {
             // resize
-            capacity <<= 1;
+            int minCapacity = size + 1;
+            int newCapacity = newCapacity(capacity, minCapacity);
+            if (newCapacity < minCapacity)
+            {
+                // Avoid strange exceptions later
+                throw new OutOfMemoryError(MessageUtil.format(Messages.QueueInt_Error_LengthExceeded, minCapacity, newCapacity));
+            }
+            capacity = newCapacity;
             int[] tmp = new int[capacity];
             int headToEnd = data.length - headIdx;
             System.arraycopy(data, headIdx, tmp, 0, headToEnd);
@@ -93,6 +101,21 @@ public class QueueInt
         data[tailIdx] = x;
         size++;
         tailIdx++;
+    }
+
+    private int newCapacity(int oldCapacity, int minCapacity)
+    {
+        // Scale by 1.5 without overflow
+        int newCapacity = (oldCapacity * 3 >>> 1);
+        if (newCapacity < minCapacity)
+        {
+            newCapacity = (minCapacity * 3 >>> 1);
+            if (newCapacity < minCapacity)
+            {
+                newCapacity = Integer.MAX_VALUE - 8; // Avoid VM limits for final size
+            }
+        }
+        return newCapacity;
     }
 
 }

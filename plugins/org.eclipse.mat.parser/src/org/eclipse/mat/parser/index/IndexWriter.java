@@ -37,9 +37,11 @@ import org.eclipse.mat.collect.SetInt;
 import org.eclipse.mat.parser.index.IIndexReader.IOne2LongIndex;
 import org.eclipse.mat.parser.index.IIndexReader.IOne2OneIndex;
 import org.eclipse.mat.parser.index.IndexReader.SizeIndexReader;
+import org.eclipse.mat.parser.internal.Messages;
 import org.eclipse.mat.parser.io.BitInputStream;
 import org.eclipse.mat.parser.io.BitOutputStream;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.MessageUtil;
 
 public abstract class IndexWriter
 {
@@ -80,9 +82,13 @@ public abstract class IndexWriter
 
             if (size + 1 > identifiers.length)
             {
-                int newCapacity = (identifiers.length * 3) / 2 + 1;
-                if (newCapacity < size + 1)
-                    newCapacity = size + 1;
+                int minCapacity = size + 1;
+                int newCapacity = newCapacity(identifiers.length, minCapacity);
+                if (newCapacity < minCapacity)
+                {
+                    // Avoid strange exceptions later
+                    throw new OutOfMemoryError(MessageUtil.format(Messages.IndexWriter_Error_ArrayLength, minCapacity, newCapacity)); 
+                }
                 identifiers = copyOf(identifiers, newCapacity);
             }
 
@@ -102,7 +108,7 @@ public abstract class IndexWriter
         public long get(int index)
         {
             if (index < 0 || index >= size)
-                throw new IndexOutOfBoundsException();
+                throw new IndexOutOfBoundsException("Index: "+index+", Size: "+size); //$NON-NLS-1$//$NON-NLS-2$
 
             return identifiers[index];
         }
@@ -290,10 +296,12 @@ public abstract class IndexWriter
             int oldCapacity = elements.length;
             if (minCapacity > oldCapacity)
             {
-                int newCapacity = (oldCapacity * 3) / 2 + 1;
+                int newCapacity = newCapacity(oldCapacity, minCapacity);
                 if (newCapacity < minCapacity)
-                    newCapacity = minCapacity;
-
+                {
+                    // Avoid strange exceptions later
+                    throw new OutOfMemoryError(MessageUtil.format(Messages.IndexWriter_Error_ObjectArrayLength, minCapacity, newCapacity));
+                }
                 Object[] copy = new Object[newCapacity];
                 System.arraycopy(elements, 0, copy, 0, Math.min(elements.length, newCapacity));
                 elements = copy;
@@ -1125,7 +1133,7 @@ public abstract class IndexWriter
                 {
                     for (int ss = 0; ss < subsegs; ++ss)
                     {
-                        File subsegmentFile = new File(this.indexFile.getAbsolutePath() + segment +"." + ss + ".log");//$NON-NLS-1$
+                        File subsegmentFile = new File(this.indexFile.getAbsolutePath() + segment +"." + ss + ".log");//$NON-NLS-1$ //$NON-NLS-2$
                         subsegments[ss] = new BitOutputStream(new FileOutputStream(subsegmentFile));
                     }
 
@@ -1175,7 +1183,7 @@ public abstract class IndexWriter
                 // Process the subsegments
                 for (int ss = 0; ss < subsegs; ++ss)
                 {
-                    File subsegmentFile = new File(this.indexFile.getAbsolutePath() + segment +"." + ss + ".log");//$NON-NLS-1$
+                    File subsegmentFile = new File(this.indexFile.getAbsolutePath() + segment +"." + ss + ".log");//$NON-NLS-1$ //$NON-NLS-2$
                     processSegmentFile(monitor, keyWriter, body, subsegmentFile, subsegmentSizes[ss], segment);
                 }
             }
@@ -1185,7 +1193,7 @@ public abstract class IndexWriter
                 // Normal operation will have deleted these files
                 for (int ss = 0; ss < subsegs; ++ss)
                 {
-                    File subsegmentFile = new File(this.indexFile.getAbsolutePath() + segment +"." + ss + ".log");//$NON-NLS-1$
+                    File subsegmentFile = new File(this.indexFile.getAbsolutePath() + segment +"." + ss + ".log");//$NON-NLS-1$ //$NON-NLS-2$
                     if (subsegmentFile.exists())
                         subsegmentFile.delete();
                 }
@@ -2004,6 +2012,22 @@ public abstract class IndexWriter
         long[] copy = new long[newLength];
         System.arraycopy(original, 0, copy, 0, Math.min(original.length, newLength));
         return copy;
+    }
+
+    private static int newCapacity(int oldCapacity, int minCapacity)
+    {
+        // Scale by 1.5 without overflow
+        int newCapacity = (oldCapacity * 3 >>> 1);
+        if (newCapacity < minCapacity)
+        {
+            newCapacity = (minCapacity * 3 >>> 1);
+            if (newCapacity < minCapacity)
+            {
+                // Avoid VM limits for final size
+                newCapacity = Integer.MAX_VALUE - 8;
+            }
+        }
+        return newCapacity;
     }
 
     public static int mostSignificantBit(int x)

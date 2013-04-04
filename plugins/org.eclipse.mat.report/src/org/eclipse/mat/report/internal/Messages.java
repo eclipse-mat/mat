@@ -23,6 +23,8 @@ public final class Messages extends NLS
     public static String ArgumentSet_Error_NoSuchArgument;
     public static String ArgumentSet_Error_SetField;
     public static String ArgumentSet_Msg_NullValue;
+    public static String ArrayInt_Error_LengthExceeded;
+    public static String ArrayLong_Error_LengthExceeded;
     public static String CategoryDescriptor_Label_NoCategory;
     public static String CommandLine_Error_AssignmentFailed;
     public static String CommandLine_Error_InvalidCommand;
@@ -81,6 +83,8 @@ public final class Messages extends NLS
 
     public static String QueryRegistry_Msg_QueryRegistered;
     public static String QuerySpec_Error_IncompatibleTypes;
+
+    public static String QueueInt_Error_LengthExceeded;
 
     public static String QueueInt_ZeroSizeQueue;
     public static String RefinedResultBuilder_Error_ColumnsSorting;
