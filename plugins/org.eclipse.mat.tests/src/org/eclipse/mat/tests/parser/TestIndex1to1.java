@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 IBM Corporation.
+ * Copyright (c) 2012, 2013 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,11 +18,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Random;
 
 import org.eclipse.mat.collect.IteratorInt;
+import org.eclipse.mat.collect.IteratorLong;
 import org.eclipse.mat.parser.index.IIndexReader;
 import org.eclipse.mat.parser.index.IndexReader;
 import org.eclipse.mat.parser.index.IndexWriter;
+import org.eclipse.mat.parser.index.IndexWriter.Identifier;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -56,6 +59,8 @@ public class TestIndex1to1
                         { 1000 },
                         // <2G refs
                         {3000 * 600000},
+                        // 2G refs
+                        {Integer.MAX_VALUE},
         });
     }
 
@@ -283,6 +288,84 @@ public class TestIndex1to1
         finally
         {
             assertTrue(indexFile.delete());
+        }
+    }
+
+    @Test
+    public void intIdentifier1()
+    {
+        assumeTrue(N < MAXELEMENTS2);
+        Identifier id = new Identifier();
+        for (int i = 0; 0 <= i && i < N; ++i)
+        {
+            id.add(i + 0l);
+        }
+        for (int i = 0; 0 <= i && i < N; ++i)
+        {
+            assertEquals(i + 0l, id.get(i));
+        }
+    }
+
+    @Test
+    public void intIdentifier2()
+    {
+        assumeTrue(N < MAXELEMENTS2);
+        Identifier id = new Identifier();
+        Random r = new Random(N);
+        for (int i = 0; 0 <= i && i < N; ++i)
+        {
+            id.add(r.nextLong());
+        }
+        r = new Random(N);
+        for (int i = 0; 0 <= i && i < N; ++i)
+        {
+            long l1 = r.nextLong();
+            assertEquals(l1, id.get(i));
+            assertEquals(l1, id.getNext(i, 1)[0]);
+        }
+    }
+
+    @Test
+    public void intIdentifier3()
+    {
+        assumeTrue(N < MAXELEMENTS2);
+        Identifier id = new Identifier();
+        Random r = new Random(N);
+        for (int i = 0; 0 <= i && i < N; ++i)
+        {
+            id.add(r.nextLong());
+        }
+        r = new Random(N);
+        for (IteratorLong l = id.iterator(); l.hasNext(); )
+        {
+            assertEquals(r.nextLong(), l.next());
+        }
+    }
+
+    @Test
+    public void intIdentifier4()
+    {
+        assumeTrue(N < MAXELEMENTS2);
+        assumeTrue(N > 0);
+        Identifier id = new Identifier();
+        Random r = new Random(N);
+        for (int i = 0; 0 <= i && i < N; ++i)
+        {
+            long l1 = r.nextLong();
+            id.add(l1);
+            
+        }
+        id.sort();
+        r = new Random(N);
+        for (IteratorLong l = id.iterator(); l.hasNext(); l.next())
+        {
+            long l1 = r.nextLong();
+            int i = id.reverse(l1);
+            assertEquals(l1, id.get(i));
+            if (i > 0)
+                assertTrue(id.get(i - 1) <= l1);
+            if (i < id.size() - 1)
+                assertTrue(l1 <= id.get(i + 1));
         }
     }
 }
