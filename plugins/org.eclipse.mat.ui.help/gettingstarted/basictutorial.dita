@@ -53,7 +53,7 @@
 					<alt></alt>
 				</image>
 				<xref format="html"
-					href='javascript:liveAction("org.eclipse.mat.ui","org.eclipse.mat.ui.snapshot.actions.OpenSampleHeapDumpAction","org.eclipse.mat.ui.help/heapdump/HeapDumpSample.hprof")'>
+					href='javascript:liveAction(%22org.eclipse.mat.ui%22,%22org.eclipse.mat.ui.snapshot.actions.OpenSampleHeapDumpAction%22,%22org.eclipse.mat.ui.help/heapdump/HeapDumpSample.hprof%22)'>
 					a sample heap dump</xref>
 				if you view this page inside the Eclipse help center.
 			</p>

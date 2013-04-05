@@ -157,7 +157,7 @@
 					<stentry />
 					<stentry />
 					<stentry>
-						<codeblock><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/ISnapshot.html#getClassesByName(java.util.regex.Pattern, boolean)" format="html">getClassesByName(String name, boolean includeSubClasses)</xref></codeblock>
+						<codeblock><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/ISnapshot.html#getClassesByName(java.util.regex.Pattern,%20boolean)" format="html">getClassesByName(String name, boolean includeSubClasses)</xref></codeblock>
 					</stentry>
 					<stentry>a collection of classes</stentry>
 				</strow>
