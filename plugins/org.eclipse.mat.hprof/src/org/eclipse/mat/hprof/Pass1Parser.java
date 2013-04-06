@@ -27,6 +27,7 @@ import java.util.regex.Pattern;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.HashMapLongObject;
+import org.eclipse.mat.hprof.ui.HprofPreferences;
 import org.eclipse.mat.parser.io.PositionInputStream;
 import org.eclipse.mat.parser.model.ClassImpl;
 import org.eclipse.mat.snapshot.model.Field;
@@ -55,18 +56,20 @@ public class Pass1Parser extends AbstractParser
     private long previousArrayStart;
     private long previousArrayUncompressedEnd;
     private boolean foundCompressed;
-    private final boolean verbose = Platform.inDebugMode()
-                    && HprofPlugin.getDefault().isDebugging()
+    private final boolean verbose = Platform.inDebugMode() && HprofPlugin.getDefault().isDebugging()
                     && Boolean.parseBoolean(Platform.getDebugOption("org.eclipse.mat.hprof/debug/parser")); //$NON-NLS-1$
 
-    public Pass1Parser(IHprofParserHandler handler, SimpleMonitor.Listener monitor)
+    public Pass1Parser(IHprofParserHandler handler, SimpleMonitor.Listener monitor,
+                    HprofPreferences.HprofStrictness strictnessPreference)
     {
+        super(strictnessPreference);
         this.handler = handler;
         this.monitor = monitor;
     }
 
     public void read(File file) throws SnapshotException, IOException
     {
+        // See http://java.net/downloads/heap-snapshot/hprof-binary-format.html
         in = new PositionInputStream(new BufferedInputStream(new FileInputStream(file)));
 
         final int dumpNrToRead = determineDumpNumber();
@@ -103,32 +106,51 @@ public class Pass1Parser extends AbstractParser
 
                 long length = readUnsignedInt();
                 if (verbose)
-                    System.out.println("Read record type "+record+", length "+length+" at position 0x"+Long.toHexString(curPos)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    System.out.println("Read record type " + record + ", length " + length + " at position 0x" + Long.toHexString(curPos)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
+                length = updateLengthIfNecessary(fileSize, curPos, record, length, monitor);
+
                 if (length < 0)
-                    throw new SnapshotException(MessageUtil.format(Messages.Pass1Parser_Error_IllegalRecordLength, length,
-                                    in.position(), record));
+                    throw new SnapshotException(MessageUtil.format(Messages.Pass1Parser_Error_IllegalRecordLength,
+                                    length, in.position(), record));
 
                 if (curPos + length - 9 > fileSize)
-                    monitor.sendUserMessage(Severity.WARNING, MessageUtil.format(
-                                    Messages.Pass1Parser_Error_invalidHPROFFile, length, fileSize - curPos - 9), null);
+                {
+                    switch (strictnessPreference)
+                    {
+                        case STRICTNESS_STOP:
+                            throw new SnapshotException(Messages.HPROFStrictness_Stopped, new SnapshotException(
+                                            MessageUtil.format(Messages.Pass1Parser_Error_invalidHPROFFile, length,
+                                                            fileSize - curPos - 9)));
+                        case STRICTNESS_WARNING:
+                        case STRICTNESS_PERMISSIVE:
+                            monitor.sendUserMessage(Severity.WARNING,
+                                            MessageUtil.format(Messages.Pass1Parser_Error_invalidHPROFFile, length,
+                                                            fileSize - curPos - 9), null);
+                            break;
+                        default:
+                            throw new SnapshotException(Messages.HPROFStrictness_Unhandled_Preference);
+                    }
+                }
 
                 switch (record)
                 {
                     case Constants.Record.STRING_IN_UTF8:
-                        if (((int)(length - idSize) < 0))
-                            throw new SnapshotException(MessageUtil.format(Messages.Pass1Parser_Error_IllegalRecordLength, length,
-                                            in.position(), record));
+                        if (((int) (length - idSize) < 0))
+                            throw new SnapshotException(MessageUtil.format(
+                                            Messages.Pass1Parser_Error_IllegalRecordLength, length, in.position(),
+                                            record));
                         readString(length);
                         break;
                     case Constants.Record.LOAD_CLASS:
                         readLoadClass();
                         break;
                     case Constants.Record.STACK_FRAME:
-                    	readStackFrame(length);
-                    	break;
+                        readStackFrame(length);
+                        break;
                     case Constants.Record.STACK_TRACE:
-                    	readStackTrace(length);
-                    	break;
+                        readStackTrace(length);
+                        break;
                     case Constants.Record.HEAP_DUMP:
                     case Constants.Record.HEAP_DUMP_SEGMENT:
                         if (dumpNrToRead == currentDumpNr)
@@ -143,8 +165,23 @@ public class Pass1Parser extends AbstractParser
                     case Constants.Record.HEAP_DUMP_END:
                         currentDumpNr++;
                     default:
-                        in.skipBytes(length);
-                        break;
+                        switch (strictnessPreference)
+                        {
+                            case STRICTNESS_STOP:
+                                throw new SnapshotException(Messages.HPROFStrictness_Stopped, new SnapshotException(
+                                                MessageUtil.format(Messages.Pass1Parser_UnexpectedRecord,
+                                                                Integer.toHexString(record), length)));
+                            case STRICTNESS_WARNING:
+                            case STRICTNESS_PERMISSIVE:
+                                monitor.sendUserMessage(
+                                                Severity.WARNING,
+                                                MessageUtil.format(Messages.Pass1Parser_UnexpectedRecord,
+                                                                Integer.toHexString(record), length), null);
+                                in.skipBytes(length);
+                                break;
+                            default:
+                                throw new SnapshotException(Messages.HPROFStrictness_Unhandled_Preference);
+                        }
                 }
 
                 curPos = in.position();
@@ -161,17 +198,16 @@ public class Pass1Parser extends AbstractParser
         }
 
         if (currentDumpNr <= dumpNrToRead)
-            throw new SnapshotException(MessageUtil.format(
-                            Messages.Pass1Parser_Error_NoHeapDumpIndexFound,
+            throw new SnapshotException(MessageUtil.format(Messages.Pass1Parser_Error_NoHeapDumpIndexFound,
                             currentDumpNr, file.getName(), dumpNrToRead));
 
         if (currentDumpNr > 1)
             monitor.sendUserMessage(IProgressListener.Severity.INFO, MessageUtil.format(
-                            Messages.Pass1Parser_Info_UsingDumpIndex, currentDumpNr,
-                            file.getName(), dumpNrToRead), null);
-        
+                            Messages.Pass1Parser_Info_UsingDumpIndex, currentDumpNr, file.getName(), dumpNrToRead),
+                            null);
+
         if (serNum2stackTrace.size() > 0)
-        	dumpThreads();
+            dumpThreads();
 
     }
 
@@ -185,7 +221,7 @@ public class Pass1Parser extends AbstractParser
 
     private void readLoadClass() throws IOException
     {
-    	long classSerNum = readUnsignedInt(); // used in stacks frames
+        long classSerNum = readUnsignedInt(); // used in stacks frames
         long classID = readID();
         in.skipBytes(4);
         long nameID = readID();
@@ -194,7 +230,7 @@ public class Pass1Parser extends AbstractParser
         class2name.put(classID, className);
         classSerNum2id.put(classSerNum, classID);
     }
-    
+
     private void readStackFrame(long length) throws IOException
     {
         long frameId = readID();
@@ -207,19 +243,19 @@ public class Pass1Parser extends AbstractParser
                         getStringConstant(srcFile), classSerNum);
         id2frame.put(frameId, frame);
     }
-    
+
     private void readStackTrace(long length) throws IOException
     {
-    	long stackTraceNr = readUnsignedInt();
-    	long threadNr = readUnsignedInt();
-    	long frameCount = readUnsignedInt();
-    	long[] frameIds = new long[(int)frameCount];
-    	for (int i = 0; i < frameCount; i++)
-    	{
-    		frameIds[i] = readID();
-    	}
-    	StackTrace stackTrace = new StackTrace(stackTraceNr, threadNr, frameIds);
-    	serNum2stackTrace.put(stackTraceNr, stackTrace);
+        long stackTraceNr = readUnsignedInt();
+        long threadNr = readUnsignedInt();
+        long frameCount = readUnsignedInt();
+        long[] frameIds = new long[(int) frameCount];
+        for (int i = 0; i < frameCount; i++)
+        {
+            frameIds[i] = readID();
+        }
+        StackTrace stackTrace = new StackTrace(stackTraceNr, threadNr, frameIds);
+        serNum2stackTrace.put(stackTraceNr, stackTrace);
     }
 
     private void readDumpSegments(long length) throws IOException, SnapshotException
@@ -239,7 +275,7 @@ public class Pass1Parser extends AbstractParser
 
             int segmentType = in.readUnsignedByte();
             if (verbose)
-                System.out.println("    Read heap sub-record type "+segmentType+" at position 0x"+Long.toHexString(segmentStartPos)); //$NON-NLS-1$ //$NON-NLS-2$
+                System.out.println("    Read heap sub-record type " + segmentType + " at position 0x" + Long.toHexString(segmentStartPos)); //$NON-NLS-1$ //$NON-NLS-2$
             switch (segmentType)
             {
                 case Constants.DumpSegment.ROOT_UNKNOWN:
@@ -291,7 +327,27 @@ public class Pass1Parser extends AbstractParser
         if (verbose)
             System.out.println("    Finished heap sub-records."); //$NON-NLS-1$
         if (segmentStartPos != segmentsEndPos)
-            monitor.sendUserMessage(Severity.WARNING, MessageUtil.format(Messages.Pass1Parser_UnexpectedEndPosition, Long.toHexString(segmentsEndPos - length), length, Long.toHexString(segmentStartPos), Long.toHexString(segmentsEndPos)), null);
+        {
+            switch (strictnessPreference)
+            {
+                case STRICTNESS_STOP:
+                    throw new SnapshotException(Messages.HPROFStrictness_Stopped,
+                                    new SnapshotException(
+                                                    MessageUtil.format(Messages.Pass1Parser_UnexpectedEndPosition,
+                                                                    Long.toHexString(segmentsEndPos - length), length,
+                                                                    Long.toHexString(segmentStartPos),
+                                                                    Long.toHexString(segmentsEndPos))));
+                case STRICTNESS_WARNING:
+                case STRICTNESS_PERMISSIVE:
+                    monitor.sendUserMessage(Severity.WARNING, MessageUtil.format(
+                                    Messages.Pass1Parser_UnexpectedEndPosition,
+                                    Long.toHexString(segmentsEndPos - length), length,
+                                    Long.toHexString(segmentStartPos), Long.toHexString(segmentsEndPos)), null);
+                    break;
+                default:
+                    throw new SnapshotException(Messages.HPROFStrictness_Unhandled_Preference);
+            }
+        }
     }
 
     private void readGCThreadObject(int gcType) throws IOException
@@ -320,26 +376,26 @@ public class Pass1Parser extends AbstractParser
         Long tid = thread2id.get(threadSerialNo);
         if (tid != null)
         {
-        	handler.addGCRoot(id, tid, gcType);
+            handler.addGCRoot(id, tid, gcType);
         }
         else
         {
-        	handler.addGCRoot(id, 0, gcType);
+            handler.addGCRoot(id, 0, gcType);
         }
 
         if (hasLineInfo)
         {
-        	int lineNumber = in.readInt();
-        	List<JavaLocal> locals = thread2locals.get(threadSerialNo);
-        	if (locals == null)
-        	{
-        		locals = new ArrayList<JavaLocal>();
-        		thread2locals.put(threadSerialNo, locals);
-        	}
-        	locals.add(new JavaLocal(id, lineNumber, gcType));
+            int lineNumber = in.readInt();
+            List<JavaLocal> locals = thread2locals.get(threadSerialNo);
+            if (locals == null)
+            {
+                locals = new ArrayList<JavaLocal>();
+                thread2locals.put(threadSerialNo, locals);
+            }
+            locals.add(new JavaLocal(id, lineNumber, gcType));
         }
     }
-    
+
     private void readClassDump(long segmentStartPos) throws IOException
     {
         long address = readID();
@@ -443,7 +499,10 @@ public class Pass1Parser extends AbstractParser
         long address = readID();
         if (!foundCompressed && idSize == 8 && address > previousArrayStart && address < previousArrayUncompressedEnd)
         {
-            monitor.sendUserMessage(Severity.INFO, MessageUtil.format(Messages.Pass1Parser_DetectedCompressedReferences,Long.toHexString(address), Long.toHexString(previousArrayStart)), null);
+            monitor.sendUserMessage(
+                            Severity.INFO,
+                            MessageUtil.format(Messages.Pass1Parser_DetectedCompressedReferences,
+                                            Long.toHexString(address), Long.toHexString(previousArrayStart)), null);
             handler.addProperty(IHprofParserHandler.REFERENCE_SIZE, "4"); //$NON-NLS-1$
             foundCompressed = true;
         }
@@ -459,7 +518,7 @@ public class Pass1Parser extends AbstractParser
         if (arrayType == null)
             handler.reportRequiredObjectArray(arrayClassObjectID);
 
-        in.skipBytes((long)size * idSize);
+        in.skipBytes((long) size * idSize);
         previousArrayStart = address;
         previousArrayUncompressedEnd = address + 16 + size * 8;
     }
@@ -483,7 +542,7 @@ public class Pass1Parser extends AbstractParser
             handler.reportRequiredPrimitiveArray(elementType);
 
         int elementSize = IPrimitiveArray.ELEMENT_SIZE[elementType];
-        in.skipBytes((long)elementSize * size);
+        in.skipBytes((long) elementSize * size);
     }
 
     private String getStringConstant(long address)
@@ -494,7 +553,7 @@ public class Pass1Parser extends AbstractParser
         String result = handler.getConstantPool().get(address);
         return result == null ? Messages.Pass1Parser_Error_UnresolvedName + Long.toHexString(address) : result;
     }
-    
+
     private void dumpThreads()
     {
         // noticed that one stack trace with empty stack is always reported,
@@ -524,21 +583,20 @@ public class Pass1Parser extends AbstractParser
                 {
                     for (JavaLocal javaLocal : locals)
                     {
-                        out
-                                        .println("    objectId=0x" + Long.toHexString(javaLocal.objectId) + ", line=" + javaLocal.lineNumber); //$NON-NLS-1$ //$NON-NLS-2$
+                        out.println("    objectId=0x" + Long.toHexString(javaLocal.objectId) + ", line=" + javaLocal.lineNumber); //$NON-NLS-1$ //$NON-NLS-2$
 
                     }
                 }
                 out.println();
             }
             out.flush();
-            this.monitor.sendUserMessage(Severity.INFO, MessageUtil.format(Messages.Pass1Parser_Info_WroteThreadsTo,
-                            outputName), null);
+            this.monitor.sendUserMessage(Severity.INFO,
+                            MessageUtil.format(Messages.Pass1Parser_Info_WroteThreadsTo, outputName), null);
         }
         catch (IOException e)
         {
-            this.monitor.sendUserMessage(Severity.WARNING, MessageUtil
-                            .format(Messages.Pass1Parser_Error_WritingThreadsInformation), e);
+            this.monitor.sendUserMessage(Severity.WARNING,
+                            MessageUtil.format(Messages.Pass1Parser_Error_WritingThreadsInformation), e);
         }
         finally
         {

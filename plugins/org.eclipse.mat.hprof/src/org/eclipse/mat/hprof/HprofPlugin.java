@@ -11,6 +11,9 @@
 package org.eclipse.mat.hprof;
 
 import org.eclipse.core.runtime.Plugin;
+import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
@@ -33,5 +36,25 @@ public class HprofPlugin extends Plugin implements BundleActivator
     public static HprofPlugin getDefault()
     {
         return plugin;
+    }
+
+    /**
+     * Storage for preferences.
+     */
+    private IPreferenceStore preferenceStore;
+
+    /**
+     * Lazily load and return the preference store.
+     * @return Current preference store.
+     */
+    public IPreferenceStore getPreferenceStore()
+    {
+        // Avoid hard dependency on org.eclipse.ui
+        // Create the preference store lazily.
+        if (preferenceStore == null)
+        {
+            preferenceStore = new ScopedPreferenceStore(new InstanceScope(), getBundle().getSymbolicName());
+        }
+        return preferenceStore;
     }
 }

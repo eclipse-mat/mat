@@ -18,6 +18,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.hprof.ui.HprofPreferences;
 import org.eclipse.mat.parser.io.BufferedRandomAccessInputStream;
 import org.eclipse.mat.parser.io.PositionInputStream;
 import org.eclipse.mat.parser.model.ClassImpl;
@@ -38,8 +39,10 @@ public class HprofRandomAccessParser extends AbstractParser
 {
     public static final int LAZY_LOADING_LIMIT = 256;
 
-    public HprofRandomAccessParser(File file, Version version, int identifierSize) throws IOException
+    public HprofRandomAccessParser(File file, Version version, int identifierSize,
+                    HprofPreferences.HprofStrictness strictnessPreference) throws IOException
     {
+        super(strictnessPreference);
         this.in = new PositionInputStream(new BufferedRandomAccessInputStream(new RandomAccessFile(file, "r"), 512)); //$NON-NLS-1$
         this.version = version;
         this.idSize = identifierSize;

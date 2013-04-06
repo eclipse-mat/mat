@@ -13,12 +13,15 @@ package org.eclipse.mat.hprof;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.eclipse.mat.hprof.ui.HprofPreferences;
 import org.eclipse.mat.parser.io.PositionInputStream;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IPrimitiveArray;
 import org.eclipse.mat.snapshot.model.ObjectReference;
+import org.eclipse.mat.util.IProgressListener.Severity;
 import org.eclipse.mat.util.MessageUtil;
+import org.eclipse.mat.util.SimpleMonitor.Listener;
 
 // Hprof binary format as defined here:
 // https://heap-snapshot.dev.java.net/files/documents/4282/31543/hprof-binary-format.html
@@ -96,9 +99,12 @@ import org.eclipse.mat.util.MessageUtil;
     protected Version version;
     // The size of identifiers in the dump file
     protected int idSize;
+    protected final HprofPreferences.HprofStrictness strictnessPreference;
 
-    /* package */AbstractParser()
-    {}
+    /* package */AbstractParser(HprofPreferences.HprofStrictness strictnessPreference)
+    {
+        this.strictnessPreference = strictnessPreference;
+    }
 
     /* protected */static Version readVersion(InputStream in) throws IOException
     {
@@ -208,6 +214,62 @@ import org.eclipse.mat.util.MessageUtil;
     {
         String dumpNr = System.getProperty("MAT_HPROF_DUMP_NR"); //$NON-NLS-1$
         return dumpNr == null ? 0 : Integer.parseInt(dumpNr);
+    }
+
+    /**
+     * It seems the HPROF file writes the length field as an unsigned int.
+     */
+    private final static long MAX_UNSIGNED_4BYTE_INT = 4294967296L;
+
+    /**
+     * It seems the HPROF spec only allows 4 bytes for record length, so a
+     * record length greater than 4GB will be overflowed and will be useless and
+     * throw off the rest of the processing. There's no good way to tell the
+     * overflow has occurred but if the strictness preference has been set to
+     * permissive, we can check the most common case of a heap dump record that
+     * should run to the end of the file.
+     * 
+     * @param fileSize
+     *            The total file size.
+     * @param curPos
+     *            The current position of the input stream.
+     * @param record
+     *            The record identifier.
+     * @param length
+     *            The length read from the record.
+     * @param monitor
+     *            The listener to send any warnings.
+     * @return The updated length or the original length if no update is made.
+     */
+    protected long updateLengthIfNecessary(long fileSize, long curPos, int record, long length, Listener monitor)
+    {
+        // See https://bugs.eclipse.org/bugs/show_bug.cgi?id=404679
+        //
+        // We do this check no matter the strictness preference. Since we're
+        // checking based on an exact overflow calculation and we're only
+        // inferring the heap dump record if it goes all the way to the end of
+        // the file, it seems this can be "safely" done all the time.
+        if (
+        // strictnessPreference == HprofStrictness.STRICTNESS_PERMISSIVE &&
+        record == Constants.Record.HEAP_DUMP)
+        {
+            long bytesLeft = fileSize - curPos - 9;
+            if (bytesLeft >= MAX_UNSIGNED_4BYTE_INT)
+            {
+                // We can be more confident in this guess by assuming that this
+                // record goes to the end of the file, so we can actually
+                // emulate the overflow and see if that matches up.
+                //
+                if ((bytesLeft - length) % MAX_UNSIGNED_4BYTE_INT == 0)
+                {
+                    monitor.sendUserMessage(Severity.WARNING, MessageUtil.format(
+                                    Messages.Pass1Parser_GuessingLengthOverflow, Integer.toHexString(record),
+                                    Long.toHexString(curPos), length, bytesLeft), null);
+                    length = bytesLeft;
+                }
+            }
+        }
+        return length;
     }
 
 }

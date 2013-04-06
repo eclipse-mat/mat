@@ -1,131 +1,136 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html
-  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xml:lang="en-us" lang="en-us">
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en-us" xml:lang="en-us">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-<meta name="DC.Type" content="task"/>
-<meta name="DC.Title" content="Memory Analyzer Configuration"/>
-<meta name="copyright" content="Copyright (c) 2008, 2012 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary"/>
-<meta name="DC.Rights.Owner" content="Copyright (c) 2008, 2012 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary"/>
-<meta name="DC.Format" content="XHTML"/>
-<meta name="DC.Identifier" content="task_configure_mat"/>
-<meta name="DC.Language" content="en-us"/>
-<link rel="stylesheet" type="text/css" href="../styles/commonltr.css"/>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<meta content="task" name="DC.Type" />
+<meta name="DC.Title" content="Memory Analyzer Configuration" />
+<meta name="copyright" content="Copyright (c) 2008, 2012 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary" />
+<meta name="DC.Rights.Owner" content="Copyright (c) 2008, 2012 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary" />
+<meta content="XHTML" name="DC.Format" />
+<meta content="task_configure_mat" name="DC.Identifier" />
+<meta content="en-us" name="DC.Language" />
+<link href="../styles/commonltr.css" type="text/css" rel="stylesheet" />
 <title>Memory Analyzer Configuration</title>
 </head>
-<body id="task_configure_mat">
+<body id="task_configure_mat"><a name="task_configure_mat"><!-- --></a>
 
 
-	<h1 class="title topictitle1">Memory Analyzer Configuration</h1>
+	<h1 class="topictitle1">Memory Analyzer Configuration</h1>
 
 	
 
-	<div class="body taskbody">
-		<div class="section context">
-			<p class="p">
+	<div>
+		<div class="section">
+			<p>
 				Well, analyzing big heap dumps can also require more heap space.
 				Give it
 				some more memory (possible by running on a 64-bit machine):
 			</p>
 
 
-			<samp class="ph codeph">MemoryAnalyzer.exe -vmargs -Xmx4g</samp>
+			<samp class="codeph">MemoryAnalyzer.exe -vmargs -Xmx4g</samp>
 
-			<p class="p">Alternatively, edit the MemoryAnalyzer.ini to
+			<p>Alternatively, edit the MemoryAnalyzer.ini to
 				contain:</p>
 
 
 			<div class="p">
-				<pre class="pre codeblock">-vmargs
+				<pre class="codeblock">-vmargs
 -Xmx2g</pre>
 
 			</div>
 
 
-			<p class="p">
+			<p>
 				For more details, check out the section
-				<a class="xref" href="http://help.eclipse.org/ganymede/topic/org.eclipse.platform.doc.user/tasks/running_eclipse.htm">Running Eclipse</a>
+				<a href="http://help.eclipse.org/ganymede/topic/org.eclipse.platform.doc.user/tasks/running_eclipse.htm">Running Eclipse</a>
 				in the Help Center. It also contains more details if you are running
 				on Mac OS X.
 			</p>
 
 
-			<p class="p">If you are running the Memory Analyzer inside your Eclipse SDK,
+			<p>If you are running the Memory Analyzer inside your Eclipse SDK,
 				you need to edit the eclipse.ini file.</p>
 
 
-			<p class="p">The memory intensive parts is the parsing. Try parsing the heap
+			<p>The memory intensive parts is the parsing. Try parsing the heap
 				dump from the command line. Once it has been parsed, it usually can
 				be opened with less memory in the GUI.</p>
 
 				
-			<p class="p">The preference page is opened via a menu option.
-				<span class="ph menucascade"><span class="ph uicontrol">Window</span> &gt; <span class="ph uicontrol">Preferences</span></span>
+			<p>The preference page is opened via a menu option.
+				<span class="menucascade">
+					<span class="uicontrol">Window</span>
+					 &gt; <span class="uicontrol">Preferences</span>
+				</span>
 			</p>
 
 			<div class="p">The preferences page allows various aspects of Memory Analyzer to be controlled.
-			<img class="image" src="../mimes/preferences.png" alt="preferences page showing general options with DTFJ subpage"/>
-			<dl class="dl">
+			<img src="../mimes/preferences.png" alt="preferences page showing general options with DTFJ subpage" />
+			<dl>
 			
-				<dt class="dt dlterm">Keep unreachable objects</dt>
+				<dt class="dlterm">Keep unreachable objects</dt>
 
-				<dd class="dd">Objects that appear unreachable from GC roots are not discarded in an early stage of 
+				<dd>Objects that appear unreachable from GC roots are not discarded in an early stage of 
 				Memory Analyzer processing, but are retained for further analysis.</dd>
 
 			
 			
-				<dt class="dt dlterm">Hide the getting started wizard</dt>
+				<dt class="dlterm">Hide the getting started wizard</dt>
 
-				<dd class="dd">Controls whether to display a wizard for leak suspects, top components after opening
+				<dd>Controls whether to display a wizard for leak suspects, top components after opening
 				a snapshot.</dd>
 
 			
 			
-				<dt class="dt dlterm">Hide popup query help</dt>
+				<dt class="dlterm">Hide popup query help</dt>
 
-				<dd class="dd">Do not display the help panel underneath the query wizard, unless F1 or the help button
+				<dd>Do not display the help panel underneath the query wizard, unless F1 or the help button
 				is pressed.</dd>
 
 			
 			
-				<dt class="dt dlterm">
-					<span class="ph menucascade"><span class="ph uicontrol">Memory Analyzer</span> &gt; <span class="ph uicontrol">DTFJ Parser</span> &gt; <span class="ph uicontrol">Stack frames</span></span>
+				<dt class="dlterm">
+					<span class="menucascade">
+						<span class="uicontrol">Memory Analyzer</span>
+						 &gt; <span class="uicontrol">DTFJ Parser</span>
+						 &gt; <span class="uicontrol">Stack frames</span>
+					</span>
 				</dt>
 
-				<dd class="dd">
+				<dd>
 					Normally stack frames are just shown in the Thread overview and stacks query.
 					This option allows stack frames to be treated as objects which are then visible like any other Java object in a Memory Analyzer view.
-					<dl class="dl">
+					<dl>
 					
-					<dt class="dt dlterm">Normal
+					<dt class="dlterm">Normal
 					</dt>
 
-					<dd class="dd">Stack frames are just shown in the Thread overview and stacks query.
+					<dd>Stack frames are just shown in the Thread overview and stacks query.
 					</dd>
 
 					
 					
-					<dt class="dt dlterm">Only stack frames as pseudo-objects
+					<dt class="dlterm">Only stack frames as pseudo-objects
 					</dt>
 
-					<dd class="dd">
-					Stack frames are of type <samp class="ph codeph">&lt;stack frame&gt;</samp>, size 0, with method names and source file
+					<dd>
+					Stack frames are of type <samp class="codeph">&lt;stack frame&gt;</samp>, size 0, with method names and source file
 and line numbers via fields and a name resolver.
-					<p class="p">This is useful when looking at paths to and from objects via local variables as the stack frames are visible in
+					<p>This is useful when looking at paths to and from objects via local variables as the stack frames are visible in
 					the paths to GC roots queries.</p>
 
 					</dd>
 
 					
 					
-					<dt class="dt dlterm">Stack frames as pseudo-objects and running methods as pseudo-classes
+					<dt class="dlterm">Stack frames as pseudo-objects and running methods as pseudo-classes
 					</dt>
 
-					<dd class="dd">Stack frames of are of type <samp class="ph codeph">packageName.className.methodName(Signature)ReturnType</samp> extending <samp class="ph codeph">&lt;method&gt;</samp> representing the method being executed,
+					<dd>Stack frames of are of type <samp class="codeph">packageName.className.methodName(Signature)ReturnType</samp> extending <samp class="codeph">&lt;method&gt;</samp> representing the method being executed,
 of size the stack frame size, with source file and line number via fields and a name resolver,
-and those methods are pseudo-classes of type <samp class="ph codeph">&lt;method type&gt;</samp> of size 0.
-					<p class="p">This can be useful to find out which methods are currently running and how much stack space they take up.
+and those methods are pseudo-classes of type <samp class="codeph">&lt;method type&gt;</samp> of size 0.
+					<p>This can be useful to find out which methods are currently running and how much stack space they take up.
 					To examine running methods then take the histogram view, filter by '\(', then sort by instances or instance size.
 					</p>
 
@@ -133,14 +138,14 @@ and those methods are pseudo-classes of type <samp class="ph codeph">&lt;method 
 
 					
 					
-					<dt class="dt dlterm">Stack frames as pseudo-objects and all methods as pseudo-classes
+					<dt class="dlterm">Stack frames as pseudo-objects and all methods as pseudo-classes
 					</dt>
 
-					<dd class="dd">Stack frames of are of type <samp class="ph codeph">packageName.className.methodName(Signature)ReturnType</samp> extending <samp class="ph codeph">&lt;method&gt;</samp>codeph&gt; representing the method being executed,
+					<dd>Stack frames of are of type <samp class="codeph">packageName.className.methodName(Signature)ReturnType</samp> extending <samp class="codeph">&lt;method&gt;</samp>codeph&gt; representing the method being executed,
 of size the stack frame size, with source file and line number via fields and a name resolver,
-and all methods are pseudo-classes of type <samp class="ph codeph">&lt;method type&gt;</samp> of size based on the JITted and byte code sizes. The method sizes are then not part of the class size.
-					<p class="p">This can be useful to find out which methods have large JITted or byte code sizes. They can be viewed by going to the histogram view,
-					then selecting <samp class="ph codeph">&lt;method type&gt;</samp> and listing objects.
+and all methods are pseudo-classes of type <samp class="codeph">&lt;method type&gt;</samp> of size based on the JITted and byte code sizes. The method sizes are then not part of the class size.
+					<p>This can be useful to find out which methods have large JITted or byte code sizes. They can be viewed by going to the histogram view,
+					then selecting <samp class="codeph">&lt;method type&gt;</samp> and listing objects.
 					</p>
 
 					</dd>
@@ -153,44 +158,128 @@ and all methods are pseudo-classes of type <samp class="ph codeph">&lt;method ty
 
 			
 			
-				<dt class="dt dlterm">
-					<span class="ph menucascade"><span class="ph uicontrol">Memory Analyzer</span> &gt; <span class="ph uicontrol">DTFJ Parser</span> &gt; <span class="ph uicontrol">Runtime ID</span></span>
+				<dt class="dlterm">
+					<span class="menucascade">
+						<span class="uicontrol">Memory Analyzer</span>
+						 &gt; <span class="uicontrol">DTFJ Parser</span>
+						 &gt; <span class="uicontrol">Runtime ID</span>
+					</span>
 				</dt>
 
-				<dd class="dd">Certain DTFJ dumps can contain snapshots from multiple Java Virtual Machines. This can happen with IBM z/OS system dumps.
+				<dd>Certain DTFJ dumps can contain snapshots from multiple Java Virtual Machines. This can happen with IBM z/OS system dumps.
 				By default Memory Analyzer chooses the snapshot from JVM that caused the dump (as reported by DTFJ), or the first snapshot found.
 				Memory Analyzer will produce a warning if additional snapshots are found. Another of these snapshots can be selected by using 
-				this option, of the form 'i.j.k' where <span class="keyword parmname">i</span> is the index of the address space required, 
-				<span class="keyword parmname">j</span> is the index of the process within that address space and <span class="keyword parmname">k</span> is the index of
+				this option, of the form 'i.j.k' where <span class="parmname">i</span> is the index of the address space required, 
+				<span class="parmname">j</span> is the index of the process within that address space and <span class="parmname">k</span> is the index of
 				the runtime within the process. This ID is shown in a warning message when multiple dumps are found.
 				Instead of an index, an address space identifier, process identifier or runtime identifier as shown by the warning
 				message can be used instead. An identifier can be omitted.
 				Example message
-				<pre class="pre msgblock">
+				<pre class="msgblock">
 				Using DTFJ Java runtime 4.0.0
 				Multiple Java runtimes found without a runtime ID specified in preferences. Ignoring extra Java runtime 5.0.0 found in image at address space '0x379' process ID '14568399' runtime address '0x492c6f2468' version Java(TM) SE Runtime Environment(build pmz6460sr9fp1-20110401_03 (SR9 FP1))
 				Multiple Java runtimes found without a runtime ID specified in preferences. Ignoring extra Java runtime 6.0.0 found in image at address space '0x4bc' process ID '35467898' runtime address '0x492d592c98' version Java(TM) SE Runtime Environment(build pmz6460sr9fp1-20110401_03 (SR9 FP1))
 				</pre>
 
-				To specify another runtime, <kbd class="ph userinput">5.0.0</kbd> or <kbd class="ph userinput">0x379.14568399.0x492c6f2468</kbd> or even
-				<kbd class="ph userinput">0x379..</kbd> or <kbd class="ph userinput">..0x492c6f2468</kbd> could be used.
+				To specify another runtime, <kbd class="userinput">5.0.0</kbd> or <kbd class="userinput">0x379.14568399.0x492c6f2468</kbd> or even
+				<kbd class="userinput">0x379..</kbd> or <kbd class="userinput">..0x492c6f2468</kbd> could be used.
 				</dd>
 
 			
+					
+						<dt class="dlterm">
+							<span class="menucascade">
+								<span class="uicontrol">Memory Analyzer</span>
+								 &gt; <span class="uicontrol">HPROF Parser</span>
+								 &gt; <span class="uicontrol">Parser Strictness</span>
+							</span>
+						</dt>
+
+						<dd>
+							By default, the HPROF parser runs in strict mode. This means that
+							any deviation in the file from the
+							<a href="http://java.net/downloads/heap-snapshot/hprof-binary-format.html">HPROF specification</a>
+							is treated as a severe error, an exception is thrown, and dump
+							processing stops. There is one exception to this rule which is
+							that we can reliably workaround the observed issue in
+							<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=404679">bug #404679</a>
+							.
+
+							<p>This
+								is a change in behavior from previous
+								releases when a
+								warning
+								was
+								shown in the error log and processing
+								continued. This
+								default
+								change was made to alert the user to a
+								potential problem
+								either
+								with the file itself or a bug in the JVM
+								or in MAT. You may
+								choose
+								to change the strictness of the parser:</p>
+
+							<dl>
+								
+									<dt class="dlterm">Strict
+									</dt>
+
+									<dd>Default. Any deviation from the HPROF specification causes
+										an exception to be thrown and processing to stop (with the
+										exception of bug #404679). This option may be specified on the
+										command line with -DhprofStrictnessStop=true
+									</dd>
+
+								
+								
+									<dt class="dlterm">Warning
+									</dt>
+
+									<dd>
+										Choose this option to revert to the old behavior where a
+										warning is printed to the error log and processing continues.
+										This option is not recommended because the warning is probably
+										a sign of a problem. Please open a bug report instead. This
+										option may be specified on the
+										command line with
+										-DhprofStrictnessWarning=true
+									</dd>
+
+								
+							</dl>
+
+
+						</dd>
+
+					
 			
-				<dt class="dt dlterm">
-					<span class="ph menucascade"><span class="ph uicontrol">General</span> &gt; <span class="ph uicontrol">Appearance</span> &gt; <span class="ph uicontrol">Colors and Fonts</span> &gt; <span class="ph uicontrol">Memory Analyzer</span> &gt; <span class="ph uicontrol">OQL comment color</span></span>
+				<dt class="dlterm">
+					<span class="menucascade">
+						<span class="uicontrol">General</span>
+						 &gt; <span class="uicontrol">Appearance</span>
+						 &gt; <span class="uicontrol">Colors and Fonts</span>
+						 &gt; <span class="uicontrol">Memory Analyzer</span>
+						 &gt; <span class="uicontrol">OQL comment color</span>
+					</span>
 				</dt>
 
-				<dd class="dd">Modify the color of comments in the Object Query Language (OQL) studio.</dd>
+				<dd>Modify the color of comments in the Object Query Language (OQL) studio.</dd>
 
 			
 			
-				<dt class="dt dlterm">
-					<span class="ph menucascade"><span class="ph uicontrol">General</span> &gt; <span class="ph uicontrol">Appearance</span> &gt; <span class="ph uicontrol">Colors and Fonts</span> &gt; <span class="ph uicontrol">Memory Analyzer</span> &gt; <span class="ph uicontrol">OQL keyword color</span></span>
+				<dt class="dlterm">
+					<span class="menucascade">
+						<span class="uicontrol">General</span>
+						 &gt; <span class="uicontrol">Appearance</span>
+						 &gt; <span class="uicontrol">Colors and Fonts</span>
+						 &gt; <span class="uicontrol">Memory Analyzer</span>
+						 &gt; <span class="uicontrol">OQL keyword color</span>
+					</span>
 				</dt>
 
-				<dd class="dd">Modify the color of keywords in the Object Query Language (OQL) studio.</dd>
+				<dd>Modify the color of keywords in the Object Query Language (OQL) studio.</dd>
 
 			
 			</dl>
@@ -201,6 +290,7 @@ and all methods are pseudo-classes of type <samp class="ph codeph">&lt;method ty
 
 	</div>
 
+<div />
 
 </body>
 </html>

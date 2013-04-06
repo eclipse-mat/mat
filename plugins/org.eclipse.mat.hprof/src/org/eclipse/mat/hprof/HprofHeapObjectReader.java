@@ -18,6 +18,7 @@ import java.util.List;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.hprof.extension.IRuntimeEnhancer;
+import org.eclipse.mat.hprof.ui.HprofPreferences;
 import org.eclipse.mat.parser.IObjectReader;
 import org.eclipse.mat.parser.index.IIndexReader;
 import org.eclipse.mat.parser.index.IndexReader;
@@ -44,9 +45,11 @@ public class HprofHeapObjectReader implements IObjectReader
         AbstractParser.Version version = AbstractParser.Version.valueOf((String) snapshot.getSnapshotInfo()
                         .getProperty(VERSION_PROPERTY));
 
+        HprofPreferences.HprofStrictness strictnessPreference = HprofPreferences.getCurrentStrictness();
+
         this.hprofDump = new HprofRandomAccessParser(new File(snapshot.getSnapshotInfo().getPath()), //
                         version, //
-                        snapshot.getSnapshotInfo().getIdentifierSize());
+                        snapshot.getSnapshotInfo().getIdentifierSize(), strictnessPreference);
         this.o2hprof = new IndexReader.LongIndexReader(new File(snapshot.getSnapshotInfo().getPrefix()
                         + "o2hprof.index")); //$NON-NLS-1$
 
@@ -194,12 +197,15 @@ public class HprofHeapObjectReader implements IObjectReader
     }
 
     /**
-     * Returns extra data to be provided by {@link ISnapshot#getSnapshotAddons(Class addon)}.
-     * Also can be returned via {@link org.eclipse.mat.query.annotations.Argument}.
+     * Returns extra data to be provided by
+     * {@link ISnapshot#getSnapshotAddons(Class addon)}. Also can be returned
+     * via {@link org.eclipse.mat.query.annotations.Argument}.
+     * 
      * @see org.eclipse.mat.parser.IObjectReader#getAddon(Class)
-     * @param addon the type of the extra data required from the dump.
-     * HprofHeapObjectReader can be extended using an {@link IRuntimeEnhancer} extension
-     * to return extra data.
+     * @param addon
+     *            the type of the extra data required from the dump.
+     *            HprofHeapObjectReader can be extended using an
+     *            {@link IRuntimeEnhancer} extension to return extra data.
      * @return the extra data
      */
     public <A> A getAddon(Class<A> addon) throws SnapshotException

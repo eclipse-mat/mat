@@ -165,6 +165,68 @@ and all methods are pseudo-classes of type <codeph>&lt;method type&gt;</codeph> 
 				<userinput>0x379..</userinput> or <userinput>..0x492c6f2468</userinput> could be used.
 				</dd>
 			</dlentry>
+					<dlentry>
+						<dt>
+							<menucascade>
+								<uicontrol>Memory Analyzer</uicontrol>
+								<uicontrol>HPROF Parser</uicontrol>
+								<uicontrol>Parser Strictness</uicontrol>
+							</menucascade>
+						</dt>
+						<dd>
+							By default, the HPROF parser runs in strict mode. This means that
+							any deviation in the file from the
+							<xref format="html"
+								href="http://java.net/downloads/heap-snapshot/hprof-binary-format.html">HPROF specification</xref>
+							is treated as a severe error, an exception is thrown, and dump
+							processing stops. There is one exception to this rule which is
+							that we can reliably workaround the observed issue in
+							<xref format="html"
+								href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=404679">bug #404679</xref>
+							.
+
+							<p>This
+								is a change in behavior from previous
+								releases when a
+								warning
+								was
+								shown in the error log and processing
+								continued. This
+								default
+								change was made to alert the user to a
+								potential problem
+								either
+								with the file itself or a bug in the JVM
+								or in MAT. You may
+								choose
+								to change the strictness of the parser:</p>
+							<dl>
+								<dlentry>
+									<dt>Strict
+									</dt>
+									<dd>Default. Any deviation from the HPROF specification causes
+										an exception to be thrown and processing to stop (with the
+										exception of bug #404679). This option may be specified on the
+										command line with -DhprofStrictnessStop=true
+									</dd>
+								</dlentry>
+								<dlentry>
+									<dt>Warning
+									</dt>
+									<dd>
+										Choose this option to revert to the old behavior where a
+										warning is printed to the error log and processing continues.
+										This option is not recommended because the warning is probably
+										a sign of a problem. Please open a bug report instead. This
+										option may be specified on the
+										command line with
+										-DhprofStrictnessWarning=true
+									</dd>
+								</dlentry>
+							</dl>
+
+						</dd>
+					</dlentry>
 			<dlentry>
 				<dt>
 					<menucascade>

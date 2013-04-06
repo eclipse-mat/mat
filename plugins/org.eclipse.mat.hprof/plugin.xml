@@ -41,5 +41,16 @@
           impl="org.eclipse.mat.hprof.acquire.JMapHeapDumpProvider">
     </provider>
  </extension>
+   <extension point="org.eclipse.ui.preferencePages">
+      <page
+            category="org.eclipse.mat.ui.Preferences"
+            class="org.eclipse.mat.hprof.ui.HPROFPreferencePage"
+            id="org.eclipse.mat.hprof.ui.HPROFPreferences"
+            name="%hprofPreferencesTitle">
+      </page>
+   </extension>
+   <extension point="org.eclipse.core.runtime.preferences">
+      <initializer class="org.eclipse.mat.hprof.ui.PreferenceInitializer" />
+   </extension>
 
 </plugin>

@@ -18,6 +18,7 @@ import java.util.List;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.hprof.IHprofParserHandler.HeapObject;
+import org.eclipse.mat.hprof.ui.HprofPreferences;
 import org.eclipse.mat.parser.io.PositionInputStream;
 import org.eclipse.mat.parser.model.ClassImpl;
 import org.eclipse.mat.snapshot.model.FieldDescriptor;
@@ -37,8 +38,10 @@ public class Pass2Parser extends AbstractParser
     private IHprofParserHandler handler;
     private SimpleMonitor.Listener monitor;
 
-    public Pass2Parser(IHprofParserHandler handler, SimpleMonitor.Listener monitor)
+    public Pass2Parser(IHprofParserHandler handler, SimpleMonitor.Listener monitor,
+                    HprofPreferences.HprofStrictness strictnessPreference)
     {
+        super(strictnessPreference);
         this.handler = handler;
         this.monitor = monitor;
     }
@@ -73,8 +76,10 @@ public class Pass2Parser extends AbstractParser
 
                 long length = readUnsignedInt();
                 if (length < 0)
-                    throw new SnapshotException(MessageUtil.format(Messages.Pass1Parser_Error_IllegalRecordLength, length,
-                                    in.position(), record));
+                    throw new SnapshotException(MessageUtil.format(Messages.Pass1Parser_Error_IllegalRecordLength,
+                                    length, in.position(), record));
+
+                length = updateLengthIfNecessary(fileSize, curPos, record, length, monitor);
 
                 switch (record)
                 {
@@ -198,8 +203,8 @@ public class Pass2Parser extends AbstractParser
         List<IClass> hierarchy = handler.resolveClassHierarchy(classID);
 
         ClassImpl thisClazz = (ClassImpl) hierarchy.get(0);
-        HeapObject heapObject = new HeapObject(handler.mapAddressToId(id), id, thisClazz, thisClazz
-                        .getHeapSizePerInstance());
+        HeapObject heapObject = new HeapObject(handler.mapAddressToId(id), id, thisClazz,
+                        thisClazz.getHeapSizePerInstance());
 
         heapObject.references.add(thisClazz.getObjectAddress());
 
@@ -239,8 +244,8 @@ public class Pass2Parser extends AbstractParser
         ClassImpl arrayType = (ClassImpl) handler.lookupClass(arrayClassObjectID);
         if (arrayType == null)
             throw new RuntimeException(MessageUtil.format(
-                            Messages.Pass2Parser_Error_HandlerMustCreateFakeClassForAddress, Long
-                                            .toHexString(arrayClassObjectID)));
+                            Messages.Pass2Parser_Error_HandlerMustCreateFakeClassForAddress,
+                            Long.toHexString(arrayClassObjectID)));
 
         long usedHeapSize = handler.getObjectArrayHeapSize(arrayType, size);
         HeapObject heapObject = new HeapObject(handler.mapAddressToId(id), id, arrayType, usedHeapSize);
@@ -282,7 +287,7 @@ public class Pass2Parser extends AbstractParser
         handler.addObject(heapObject, segmentStartPost);
 
         int elementSize = IPrimitiveArray.ELEMENT_SIZE[elementType];
-        in.skipBytes((long)elementSize * size);
+        in.skipBytes((long) elementSize * size);
     }
 
 }

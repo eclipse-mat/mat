@@ -54,6 +54,16 @@ public class Messages extends NLS
     public static String Pass1Parser_Info_WroteThreadsTo;
     public static String Pass1Parser_Error_WritingThreadsInformation;
     public static String Pass1Parser_UnexpectedEndPosition;
+    public static String Pass1Parser_UnexpectedRecord;
+    public static String Pass1Parser_GuessingLengthOverflow;
+    public static String HPROFPreferences_Description;
+    public static String HPROFPreferences_Strictness;
+    public static String HPROFPreferences_Strictness_Stop;
+    public static String HPROFPreferences_Strictness_Warning;
+    public static String HPROFPreferences_Strictness_Permissive;
+    public static String HPROFStrictness_Unhandled_Preference;
+    public static String HPROFStrictness_Stopped;
+
     static
     {
         // initialize resource bundle
