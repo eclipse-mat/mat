@@ -8883,6 +8883,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         {
             // We couldn't close a DTFJ image, so GC and finalize to
             // attempt to clean up any temporary files
+            System.currentTimeMillis(); // Avoid FindBugs warning for gc()
             System.gc();
             System.runFinalization();
         }
