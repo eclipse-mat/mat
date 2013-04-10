@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 SAP AG and others.
+ * Copyright (c) 2008, 2013 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -603,7 +603,9 @@ public final class SnapshotImpl implements ISnapshot
          * references, and mark all unmarked objects. The retained set will
          * contain the unmarked objects
          */
-        ObjectMarker marker = new ObjectMarker(roots.getAllKeys(), reachable, indexManager.outbound(), progressMonitor);
+        ObjectMarker marker = new ObjectMarker(roots.getAllKeys(), reachable, indexManager.outbound(),
+                        IndexManager.Index.OUTBOUND.getFile(getSnapshotInfo().getPrefix()).length(),
+                        progressMonitor);
         int numReached;
         try
         {
@@ -676,7 +678,9 @@ public final class SnapshotImpl implements ISnapshot
          * them
          */
         int[] gcRoots = roots.getAllKeys();
-        ObjectMarker marker = new ObjectMarker(gcRoots, reachable, indexManager.outbound(), progressMonitor);
+        ObjectMarker marker = new ObjectMarker(gcRoots, reachable, indexManager.outbound(),
+                        IndexManager.Index.OUTBOUND.getFile(getSnapshotInfo().getPrefix()).length(),
+                        progressMonitor);
         try
         {
             marker.markMultiThreaded(availableProcessors);
@@ -775,6 +779,7 @@ public final class SnapshotImpl implements ISnapshot
             firstPass[objId] = true;
         }
         ObjectMarker marker = new ObjectMarker(getGCRoots(), firstPass, getIndexManager().outbound,
+                        IndexManager.Index.OUTBOUND.getFile(getSnapshotInfo().getPrefix()).length(),
                         new VoidProgressListener());
         marker.markSingleThreaded(excludedReferences, this);
 
@@ -961,6 +966,8 @@ public final class SnapshotImpl implements ISnapshot
 
     public int[] getTopAncestorsInDominatorTree(int[] objectIds, IProgressListener listener) throws SnapshotException
     {
+        if (!isDominatorTreeCalculated() && listener != null)
+            calculateDominatorTree(listener);
         if (!isDominatorTreeCalculated())
             throw new SnapshotException(Messages.SnapshotImpl_Error_DomTreeNotAvailable);
 
