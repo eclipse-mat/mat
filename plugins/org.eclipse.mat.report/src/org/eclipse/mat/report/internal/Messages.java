@@ -89,6 +89,8 @@ public final class Messages extends NLS
     public static String QueueInt_ZeroSizeQueue;
     public static String RefinedResultBuilder_Error_ColumnsSorting;
     public static String RefinedResultBuilder_Error_UnsupportedType;
+
+    public static String RefinedStructuredResult_Calculating;
     public static String RegistryReader_Error_Registry;
     public static String RendererRegistry_Error_MissingAnnotation;
     public static String ReportPlugin_InternalError;

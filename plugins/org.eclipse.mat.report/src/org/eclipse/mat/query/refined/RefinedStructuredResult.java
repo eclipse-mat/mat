@@ -21,7 +21,11 @@ import java.util.List;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.query.Column;
+import org.eclipse.mat.query.Column.SortDirection;
 import org.eclipse.mat.query.ContextDerivedData;
+import org.eclipse.mat.query.ContextDerivedData.DerivedCalculator;
+import org.eclipse.mat.query.ContextDerivedData.DerivedColumn;
+import org.eclipse.mat.query.ContextDerivedData.DerivedOperation;
 import org.eclipse.mat.query.ContextProvider;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IDecorator;
@@ -30,11 +34,10 @@ import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.ISelectionProvider;
 import org.eclipse.mat.query.IStructuredResult;
 import org.eclipse.mat.query.ResultMetaData;
-import org.eclipse.mat.query.Column.SortDirection;
-import org.eclipse.mat.query.ContextDerivedData.DerivedCalculator;
-import org.eclipse.mat.query.ContextDerivedData.DerivedColumn;
-import org.eclipse.mat.query.ContextDerivedData.DerivedOperation;
+import org.eclipse.mat.report.internal.Messages;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.SilentProgressListener;
+import org.eclipse.mat.util.SimpleMonitor;
 import org.eclipse.mat.util.VoidProgressListener;
 
 /**
@@ -425,19 +428,56 @@ public abstract class RefinedStructuredResult implements IStructuredResult, //
             accessor = getAccessorFor(provider, derivedColumn);
         }
 
+        int work = elements.size();
+        SimpleMonitor sm;
+        IProgressListener l1, l2;
+        if (work == 1)
+        {
+            // Just one item, so use the listener directly
+            l1 = null;
+            l2 = listener;
+            sm = null;
+        }
+        if (work > 1 && work <= 10)
+        {
+            // Just a few items, so use a SimpleMonitor to track
+            // the progress of each item in one bar
+            l1 = null;
+            l2 = null;
+            int wk[] = new int[work];
+            for (int i = 0; i < work; ++i)
+            {
+                wk[i] = 100;
+            }
+            sm = new SimpleMonitor(Messages.RefinedStructuredResult_Calculating, listener, wk);
+        }
+        else
+        {
+            // Many items, so just track progress by item
+            l1 = listener;
+            l1.beginTask(Messages.RefinedStructuredResult_Calculating, work);
+            l2 = new SilentProgressListener(listener);
+            sm = null;
+        }
         int index = 0;
         for (Object row : elements)
         {
-            accessor.calculator.calculate(operation, row, listener);
+            if (sm != null)
+                l2 = sm.nextMonitor();
+            accessor.calculator.calculate(operation, row, l2);
 
             if (progress != null)
                 progress.done(index, row);
+            if (l1 != null)
+                l1.worked(1);
 
             index++;
 
             if (listener.isCanceled())
                 return;
         }
+        if (l1 != null)
+            l1.done();
     }
 
     // //////////////////////////////////////////////////////////////
