@@ -383,8 +383,12 @@ public class ObjectMarker
         int n = bits.length;
         Runtime runtime = Runtime.getRuntime();
         // This free memory calculation is very approximate - we do a GC to get a better estimate
-        runtime.gc();
         long maxFree = runtime.maxMemory() - runtime.totalMemory() + runtime.freeMemory();
+        if (maxFree < outboundMem)
+        {
+            runtime.gc();
+            maxFree = runtime.maxMemory() - runtime.totalMemory() + runtime.freeMemory();
+        }
         /*
          *  Guess as to how many objects with outbound refs we can support @ 30 bytes per ref.
          *  A better estimate would use the size of the outbound refs file.
