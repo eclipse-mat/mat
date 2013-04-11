@@ -41,13 +41,13 @@
 
 			<p>
 				<codeblock>-vmargs
--Xmx2g</codeblock>
+-Xmx4g</codeblock>
 			</p>
 
 			<p>
 				For more details, check out the section
 				<xref format="html"
-					href="http://help.eclipse.org/ganymede/topic/org.eclipse.platform.doc.user/tasks/running_eclipse.htm">Running Eclipse</xref>
+					href="http://help.eclipse.org/indigo/topic/org.eclipse.platform.doc.user/tasks/running_eclipse.htm">Running Eclipse</xref>
 				in the Help Center. It also contains more details if you are running
 				on Mac OS X.
 			</p>
@@ -55,9 +55,27 @@
 			<p>If you are running the Memory Analyzer inside your Eclipse SDK,
 				you need to edit the eclipse.ini file.</p>
 
-			<p>The memory intensive parts is the parsing. Try parsing the heap
-				dump from the command line. Once it has been parsed, it usually can
-				be opened with less memory in the GUI.</p>
+			<p>The memory intensive parts are the parsing of the dump and building
+				of the dominator tree. Try parsing the heap
+				dump from the command line, perhaps on a bigger machine. The dumps
+				and index files can then be copied to a more convenient machine. 
+				Once the dump has been parsed, it usually can
+				be opened with less memory in the GUI.
+				As a rough estimate if the number of objects is N and the number of 
+				classes C, it might take at least T bytes to parse and build the dominator tree
+				where:
+				<lines>T &#8776; N * 28.25 + C * 1000 + P</lines>
+				P is the space used by the DTFJ or HPROF parsers. For a PHD file, the space could be:
+				<lines>P &#8776; C * 1000</lines>
+				Memory Analyzer uses additional memory for caching index files, so
+				performance will be better if there is more memory available than the minimum
+				required to parse a dump.
+				</p>
+				<p>Memory Analyzer has an architectural limit of 2<sup>31</sup> - 3 objects,
+				a current limit of 2<sup>31</sup> - 8 = 2,147,483,640 objects, but has not been
+				tested with that many objects. The current record is a heap dump file of 48Gbytes
+				containing 948,000,000 objects, which was opened with Memory Analyzer running
+				with a 58Gbyte heap.</p>
 				
 			<p>The preference page is opened via a menu option.
 				<menucascade>

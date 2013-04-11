@@ -88,16 +88,20 @@ public class DominatorTree
             n = snapshot.getSnapshotInfo().getNumberOfObjects() + 1;
             r = 1;
 
-            dom = new int[n + 1];
             parent = new int[n + 1];
             anchestor = new int[n + 1];
             vertex = new int[n + 1];
             label = new int[n + 1];
             semi = new int[n + 1];
+
+            /*
+             * Allocate these up front, to check for early OOM, but then free
+             * so that dfs() can use the space for outbound index caching.  
+             */
+            dom = new int[n + 1];
             bucket = new int[n + 1];
-
-            Arrays.fill(bucket, -1);
-
+            dom = null;
+            bucket = null;
         }
 
         public void compute() throws IOException, SnapshotException, IProgressListener.OperationCanceledException
@@ -108,10 +112,18 @@ public class DominatorTree
             n = 0;
             dfs(r);
 
-            snapshot.getIndexManager().outbound().unload();
+            outboundIndex.unload();
 
             IProgressListener progressListener = this.monitor.nextMonitor();
             progressListener.beginTask(Messages.DominatorTree_ComputingDominators, n / 1000);
+
+            /*
+             * Reallocate just before use. 
+             */
+            dom = new int[n + 1];
+            bucket = new int[n + 1];
+
+            Arrays.fill(bucket, -1);
 
             for (int i = n; i >= 2; i--)
             {
@@ -171,7 +183,7 @@ public class DominatorTree
             progressListener.done();
 
             parent = anchestor = vertex = label = semi = bucket = null;
-            snapshot.getIndexManager().inbound().unload();
+            inboundIndex.unload();
 
             if (progressListener0.isCanceled())
                 throw new IProgressListener.OperationCanceledException();
