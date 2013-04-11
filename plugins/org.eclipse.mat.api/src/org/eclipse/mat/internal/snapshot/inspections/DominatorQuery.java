@@ -91,6 +91,8 @@ public class DominatorQuery implements IQuery
 
     public Tree execute(IProgressListener listener) throws Exception
     {
+        // Force a missing dominator tree to be built
+        snapshot.getTopAncestorsInDominatorTree(new int[0], listener);
         return create(new int[] { -1 }, listener);
     }
 

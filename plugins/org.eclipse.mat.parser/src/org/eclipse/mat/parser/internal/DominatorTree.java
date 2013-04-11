@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2013 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation - allow larger resize of arrays 
  *******************************************************************************/
 package org.eclipse.mat.parser.internal;
 
@@ -228,7 +229,7 @@ public class DominatorTree
             // currentElementStack - for v, successorsStack - for the successors
             // array,
             // currentSuccessorStack - for the index in the array
-            int capacity = 2048; // capacity for the arrays
+            int capacity = 2047; // capacity for the arrays - allows resize up to 2047<<20
             int size = 0; // one size for all arrays
             int[] currentElementStack = new int[capacity];
             int[] currentSuccessorStack = new int[capacity];
@@ -526,7 +527,7 @@ public class DominatorTree
                                 .getNumberOfObjects(), IndexWriter.mostSignificantBit(dump.getSnapshotInfo()
                                 .getUsedHeapSize()));
 
-                int capacity = 2048;
+                int capacity = 2047; // capacity for the arrays - allows resize up to 2047<<20
                 int size = 0;
                 int[] stack = new int[capacity];
                 SuccessorsEnum[] succStack = new SuccessorsEnum[capacity];

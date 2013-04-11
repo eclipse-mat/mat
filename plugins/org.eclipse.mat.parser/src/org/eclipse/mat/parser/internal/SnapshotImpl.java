@@ -966,7 +966,8 @@ public final class SnapshotImpl implements ISnapshot
 
     public int[] getTopAncestorsInDominatorTree(int[] objectIds, IProgressListener listener) throws SnapshotException
     {
-        if (!isDominatorTreeCalculated() && listener != null)
+        // Used by the dominator_tree query to allow a missing dominator tree to be built
+        if (!isDominatorTreeCalculated() && listener != null && objectIds.length == 0)
             calculateDominatorTree(listener);
         if (!isDominatorTreeCalculated())
             throw new SnapshotException(Messages.SnapshotImpl_Error_DomTreeNotAvailable);
