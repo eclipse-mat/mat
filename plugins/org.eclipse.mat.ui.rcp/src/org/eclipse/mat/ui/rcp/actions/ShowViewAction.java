@@ -45,7 +45,7 @@ public class ShowViewAction extends Action implements IPluginContribution
             {
                 if ("org.eclipse.mat.ui.views.InspectorView".equals(desc.getId())) //$NON-NLS-1$
                 {
-                    page.showView(desc.getId(), desc.getId() + counter++, IWorkbenchPage.VIEW_ACTIVATE);
+                    page.showView(desc.getId(), secondaryId(desc.getId()), IWorkbenchPage.VIEW_ACTIVATE);
                 }
                 else
                 {
@@ -57,6 +57,11 @@ public class ShowViewAction extends Action implements IPluginContribution
                 ErrorHelper.logThrowableAndShowMessage(e);
             }
         }
+    }
+
+    private static synchronized String secondaryId(String primary)
+    {
+        return primary + counter++;
     }
 
     public String getLocalId()
