@@ -54,7 +54,7 @@ public class ObjectMarker
         this.roots = roots;
         this.bits = bits;
         this.outbound = outbound;
-        this.outboundMem = outboundLength > 0 ? outboundLength : outbound.size() * 30;
+        this.outboundMem = outboundLength > 0 ? outboundLength : outbound.size() * 30L;
         this.progressListener = progressListener;
     }
 
