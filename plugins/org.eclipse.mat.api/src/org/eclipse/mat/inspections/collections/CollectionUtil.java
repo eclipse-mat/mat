@@ -546,7 +546,7 @@ public final class CollectionUtil
                     new Info("java.util.PriorityQueue", Version.IBM16, "size", "elements"), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
                     new Info(
-                                    "java.lang.ThreadLocal$ThreadLocalMap", Version.IBM14 | Version.IBM15 | Version.IBM16 | Version.SUN, // //$NON-NLS-1$
+                                    "java.lang.ThreadLocal$ThreadLocalMap", Version.IBM14 | Version.IBM15 | Version.IBM16 | Version.IBM17 | Version.SUN, // //$NON-NLS-1$
                                     "size", "table", "referent", "value", HASH_MAP_EXTRACTOR), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
                     new Info("java.util.concurrent.ConcurrentHashMap$Segment", "count", "table", "key", "value").setCollectionExtractor(HASH_MAP_EXTRACTOR), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$

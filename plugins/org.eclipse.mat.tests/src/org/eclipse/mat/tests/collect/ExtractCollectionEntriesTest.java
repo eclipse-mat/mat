@@ -45,10 +45,24 @@ public class ExtractCollectionEntriesTest
 	}
 
     @Test
+    public void testHashMapEntries_IBM_JDK7() throws SnapshotException
+    {
+        ISnapshot snapshot = TestSnapshots.getSnapshot(TestSnapshots.IBM_JDK7_64BIT_SYSTEM, false);
+        checkCollection(0x2c671a8, 54, snapshot);
+    }
+
+    @Test
     public void testHashMapSize_IBM_JDK6_PHD() throws SnapshotException
     {
         ISnapshot snapshot = TestSnapshots.getSnapshot(TestSnapshots.IBM_JDK6_32BIT_HEAP_AND_JAVA, false);
         checkCollectionSize(0xcb1d88, 454, snapshot);
+    }
+
+    @Test
+    public void testHashMapSize_IBM_JDK7_PHD() throws SnapshotException
+    {
+        ISnapshot snapshot = TestSnapshots.getSnapshot(TestSnapshots.IBM_JDK7_64BIT_HEAP_AND_JAVA, false);
+        checkCollectionSize(0x16b7470, 54, snapshot);
     }
 
 	@Test
@@ -71,6 +85,12 @@ public class ExtractCollectionEntriesTest
 		ISnapshot snapshot = TestSnapshots.getSnapshot(TestSnapshots.IBM_JDK6_32BIT_SYSTEM, false);
 		checkCollection(0xd048c8, 454, snapshot);
 	}
+
+    public void testIdentityHashMapEntries_IBM_JDK7() throws SnapshotException
+    {
+        ISnapshot snapshot = TestSnapshots.getSnapshot(TestSnapshots.IBM_JDK7_64BIT_SYSTEM, false);
+        checkCollection(0x2c66b30, 2, snapshot);
+    }
 
 	@Test
 	public void testHashSetEntries_Sun_JDK6() throws SnapshotException
@@ -105,10 +125,24 @@ public class ExtractCollectionEntriesTest
 	}
 
     @Test
+    public void testHashtableEntries_IBM_JDK7() throws SnapshotException
+    {
+        ISnapshot snapshot = TestSnapshots.getSnapshot(TestSnapshots.IBM_JDK7_64BIT_SYSTEM, false);
+        checkCollection(0x2c69320, 36, snapshot);
+    }
+
+    @Test
     public void testHashtableSize_IBM_JDK6_PHD() throws SnapshotException
     {
         ISnapshot snapshot = TestSnapshots.getSnapshot(TestSnapshots.IBM_JDK6_32BIT_HEAP_AND_JAVA, false);
         checkCollectionSize(0xcf7808, 26, snapshot);
+    }
+
+    @Test
+    public void testHashtableSize_IBM_JDK7_PHD() throws SnapshotException
+    {
+        ISnapshot snapshot = TestSnapshots.getSnapshot(TestSnapshots.IBM_JDK7_64BIT_HEAP_AND_JAVA, false);
+        checkCollectionSize(0x16b96e8, 36, snapshot);
     }
 
 	@Test
@@ -133,10 +167,24 @@ public class ExtractCollectionEntriesTest
 	}
 
     @Test
+    public void testPropertiesEntries_IBM_JDK7() throws SnapshotException
+    {
+        ISnapshot snapshot = TestSnapshots.getSnapshot(TestSnapshots.IBM_JDK7_64BIT_SYSTEM, false);
+        checkCollection(0x2c66400, 72, snapshot);
+    }
+
+    @Test
     public void testPropertiesSize_IBM_JDK6_PHD() throws SnapshotException
     {
         ISnapshot snapshot = TestSnapshots.getSnapshot(TestSnapshots.IBM_JDK6_32BIT_HEAP_AND_JAVA, false);
         checkCollectionSize(0xcb1808, 71, snapshot);
+    }
+
+    @Test
+    public void testPropertiesSize_IBM_JDK7_PHD() throws SnapshotException
+    {
+        ISnapshot snapshot = TestSnapshots.getSnapshot(TestSnapshots.IBM_JDK7_64BIT_HEAP_AND_JAVA, false);
+        checkCollectionSize(0x16b6468, 72, snapshot);
     }
 
 	@Test
@@ -170,10 +218,24 @@ public class ExtractCollectionEntriesTest
 	}
 
     @Test
+    public void testThreadLocalMapEntries_IBM_JDK7() throws SnapshotException
+    {
+        ISnapshot snapshot = TestSnapshots.getSnapshot(TestSnapshots.IBM_JDK7_64BIT_SYSTEM, false);
+        checkCollection(0x2c85540, 2, snapshot);
+    }
+
+    @Test
     public void testThreadLocalMapSize_IBM_JDK6_PHD() throws SnapshotException
     {
         ISnapshot snapshot = TestSnapshots.getSnapshot(TestSnapshots.IBM_JDK6_32BIT_HEAP_AND_JAVA, false);
         checkCollectionSize(0xcb1c10, 2, snapshot);
+    }
+
+    @Test
+    public void testThreadLocalMapSize_IBM_JDK7_PHD() throws SnapshotException
+    {
+        ISnapshot snapshot = TestSnapshots.getSnapshot(TestSnapshots.IBM_JDK7_64BIT_HEAP_AND_JAVA, false);
+        checkCollectionSize(0x16d5f88, 2, snapshot);
     }
 
 	@Test
@@ -198,11 +260,25 @@ public class ExtractCollectionEntriesTest
 	}
 
     @Test
+    public void testConcurrentHashMapSegmentEntries_IBM_JDK7() throws SnapshotException
+    {
+        ISnapshot snapshot = TestSnapshots.getSnapshot(TestSnapshots.IBM_JDK7_64BIT_SYSTEM, false);
+        checkCollection(0x2c83398, 3, snapshot);
+    }
+
+    @Test
     public void testConcurrentHashMapSegmentSize_IBM_JDK6_PHD() throws SnapshotException
     {
         ISnapshot snapshot = TestSnapshots.getSnapshot(TestSnapshots.IBM_JDK6_32BIT_HEAP_AND_JAVA, false);
         checkCollectionSize(0xcb4958, 5, snapshot);
     }	
+
+    @Test
+    public void testConcurrentHashMapSegmentSize_IBM_JDK7_PHD() throws SnapshotException
+    {
+        ISnapshot snapshot = TestSnapshots.getSnapshot(TestSnapshots.IBM_JDK7_64BIT_HEAP_AND_JAVA, false);
+        checkCollectionSize(0x16d39e0, 3, snapshot);
+    }   
 
 	@Test
 	public void testConcurrentHashMapEntries_Sun_JDK6() throws SnapshotException
@@ -219,10 +295,24 @@ public class ExtractCollectionEntriesTest
 	}
 
     @Test
+    public void testConcurrentHashMapEntries_IBM_JDK7() throws SnapshotException
+    {
+        ISnapshot snapshot = TestSnapshots.getSnapshot(TestSnapshots.IBM_JDK7_64BIT_SYSTEM, false);
+        checkCollection(0x2c6efd8, 19, snapshot);
+    }
+
+    @Test
     public void testConcurrentHashMapSize_IBM_JDK6_PHD() throws SnapshotException
     {
         ISnapshot snapshot = TestSnapshots.getSnapshot(TestSnapshots.IBM_JDK6_32BIT_HEAP_AND_JAVA, false);
         checkCollectionSize(0xcb4578, 19, snapshot);
+    }
+
+    @Test
+    public void testConcurrentHashMapSize_IBM_JDK7_PHD() throws SnapshotException
+    {
+        ISnapshot snapshot = TestSnapshots.getSnapshot(TestSnapshots.IBM_JDK7_64BIT_HEAP_AND_JAVA, false);
+        checkCollectionSize(0x16bf3a0, 19, snapshot);
     }
 
 	@Test

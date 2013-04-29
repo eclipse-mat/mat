@@ -53,8 +53,15 @@ public class TestSnapshots
     public static final String IBM_JDK6_32BIT_SYSTEM = "dumps/core.20100112.141124.11580.0001.dmp.zip";
     public static final String IBM_JDK6_32BIT_HEAP = "dumps/heapdump.20100112.141124.11580.0002.phd";
     public static final String IBM_JDK6_32BIT_JAVA = "dumps/javacore.20100112.141124.11580.0003.txt";
-    /** javacore provides extra thread and class loader information to a heap dump */
+    public static final String IBM_JDK7_64BIT_SYSTEM = "dumps/core.20130429.083124.14315.0001.dmp.zip";
+    public static final String IBM_JDK7_64BIT_HEAP = "dumps/heapdump.20130429.083110.14261.0001.phd";
+    public static final String IBM_JDK7_64BIT_JAVA = "dumps/javacore.20130429.083110.14261.0002.txt";
+    /**
+     * javacore provides extra thread and class loader information to a heap
+     * dump
+     */
     public static final String IBM_JDK6_32BIT_HEAP_AND_JAVA = IBM_JDK6_32BIT_HEAP + ";" + IBM_JDK6_32BIT_JAVA;
+    public static final String IBM_JDK7_64BIT_HEAP_AND_JAVA = IBM_JDK7_64BIT_HEAP + ";" + IBM_JDK7_64BIT_JAVA;
     public static final String IBM_JDK142_32BIT_SYSTEM = "dumps/core.20100209.165717.4484.txt.sdff";
     public static final String IBM_JDK142_32BIT_HEAP = "dumps/heapdump.20100209.165721.4484.phd";
     public static final String IBM_JDK142_32BIT_JAVA = "dumps/javacore.20100209.165721.4484.txt";
@@ -77,9 +84,12 @@ public class TestSnapshots
 
     /**
      * Get a snapshot from a dump
-     * @param name Name or names of dump, separated by semicolon
+     * 
+     * @param name
+     *            Name or names of dump, separated by semicolon
      * @param options
-     * @param pristine If true, return a brand new snapshot, not a cached version
+     * @param pristine
+     *            If true, return a brand new snapshot, not a cached version
      * @return
      */
     public static ISnapshot getSnapshot(String dumpname, Map<String, String> options, boolean pristine)
@@ -232,7 +242,7 @@ public class TestSnapshots
         {
             if (!file.delete())
             {
-                System.out.println("Unable to delete "+file);
+                System.out.println("Unable to delete " + file);
             }
             throw e;
         }
@@ -275,30 +285,50 @@ public class TestSnapshots
 
     private static void copyFile(File in, File out) throws IOException
     {
-        FileChannel sourceChannel = new FileInputStream(in).getChannel();
+        FileInputStream fis = null;
         try
         {
-            FileChannel destinationChannel = new FileOutputStream(out).getChannel();
+            fis = new FileInputStream(in);
+            FileChannel sourceChannel = fis.getChannel();
             try
             {
-                sourceChannel.transferTo(0, sourceChannel.size(), destinationChannel);
+                FileOutputStream fos = null;
+                try
+                {
+                    fos = new FileOutputStream(out);
+                    FileChannel destinationChannel = fos.getChannel();
+                    try
+                    {
+                        sourceChannel.transferTo(0, sourceChannel.size(), destinationChannel);
+                    }
+                    finally
+                    {
+                        destinationChannel.close();
+                    }
+                }
+                finally
+                {
+                    if (fos != null)
+                        fos.close();
+                }
+            }
+            catch (IOException e)
+            {
+                if (!out.delete())
+                {
+                    System.err.println("Unable to delete " + out);
+                }
+                throw e;
             }
             finally
             {
-                destinationChannel.close();
+                sourceChannel.close();
             }
-        }
-        catch (IOException e)
-        {
-            if (!out.delete())
-            {
-                System.err.println("Unable to delete " + out);
-            }
-            throw e;
         }
         finally
         {
-            sourceChannel.close();
+            if (fis != null)
+                fis.close();
         }
     }
 
@@ -343,7 +373,7 @@ public class TestSnapshots
                     {
                         if (!fileArray[i].delete())
                         {
-                            System.err.println("Unable to delete "+fileArray[i]);
+                            System.err.println("Unable to delete " + fileArray[i]);
                         }
                     }
                 }
@@ -351,7 +381,7 @@ public class TestSnapshots
 
             if (!dir.delete())
             {
-                System.err.println("Unable to delete "+dir);
+                System.err.println("Unable to delete " + dir);
             }
         }
     }
