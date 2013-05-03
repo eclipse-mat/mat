@@ -120,8 +120,8 @@ public class DominatorTree
             /*
              * Reallocate just before use. 
              */
-            dom = new int[n + 1];
-            bucket = new int[n + 1];
+            dom = new int[snapshot.getSnapshotInfo().getNumberOfObjects() + 2];
+            bucket = new int[snapshot.getSnapshotInfo().getNumberOfObjects() + 2];
 
             Arrays.fill(bucket, -1);
 
