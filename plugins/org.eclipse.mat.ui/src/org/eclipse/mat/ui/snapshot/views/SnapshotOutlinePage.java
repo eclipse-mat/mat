@@ -315,8 +315,8 @@ public abstract class SnapshotOutlinePage extends Page implements IContentOutlin
                 Boolean buseCompressedOops = (Boolean) bInfo.getProperty("$useCompressedOops"); //$NON-NLS-1$
                 if (useCompressedOops != null || buseCompressedOops != null)
                 {
-                    category.addChild(new Label(Messages.use_compressed_oops, useCompressedOops != null ? useCompressedOops.toString() : "", 
-                                    buseCompressedOops != null ? buseCompressedOops.toString() : ""));
+                    category.addChild(new Label(Messages.use_compressed_oops, useCompressedOops != null ? useCompressedOops.toString() : "",  //$NON-NLS-1$
+                                    buseCompressedOops != null ? buseCompressedOops.toString() : "")); //$NON-NLS-1$
                 }
             }
             category.addChild(new Label(Messages.file_path, info.getPath(), bInfo.getPath()));
@@ -324,6 +324,11 @@ public abstract class SnapshotOutlinePage extends Page implements IContentOutlin
             Double bFileLength = bInfo.getPath() != null ? new Double((double) new File(bInfo.getPath()).length()
                             / (1024 * 1024)) : null;
             category.addChild(new Label(Messages.file_length, fileLength, bFileLength));
+            if (info.getProperty("$runtimeId") != null || bInfo.getProperty("$runtimeId") != null)  //$NON-NLS-1$//$NON-NLS-2$
+            {
+                category.addChild(new Label(Messages.identifier, info.getProperty("$runtimeId"), bInfo //$NON-NLS-1$
+                                .getProperty("$runtimeId"))); //$NON-NLS-1$
+            }
 
             category = new Category(Messages.statistic_info);
             elements.add(category);

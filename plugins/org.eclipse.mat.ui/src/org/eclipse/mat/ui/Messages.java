@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010,2012 SAP AG and others.
+ * Copyright (c) 2010,2013 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     SAP AG - initial API and implementation
+ *     IBM Corporation - multiple snapshots in a file
  *******************************************************************************/
 package org.eclipse.mat.ui;
 
@@ -283,6 +284,12 @@ public class Messages extends NLS
     public static String RunExternalReportAction_ReportDefinitions;
     public static String RunExternalReportAction_RunReport;
     public static String RunReportsDropDownAction_RunExpertSystemTest;
+    public static String RuntimeSelector_Java_Options;
+    public static String RuntimeSelector_Java_Version;
+    public static String RuntimeSelector_Runtime_Description;
+    public static String RuntimeSelector_SelectSnapshot;
+    public static String RuntimeSelector_SelectSnapshotTitle;
+    public static String RuntimeSelector_Snapshot_Identifier;
     public static String SaveValueAsQuery_FileExists;
     public static String SaveValueAsQuery_Overwrite;
     public static String SaveValueAsQuery_UnrecognizedPrimitiveArrayType;

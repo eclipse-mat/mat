@@ -16,6 +16,7 @@ import org.eclipse.ui.views.contentoutline.ContentOutline;
 
 public class SnapshotDetailsView extends ContentOutline
 {
+    @Override
     protected boolean isImportant(IWorkbenchPart part)
     {
         return (part instanceof MultiPaneEditor) || (part instanceof SnapshotHistoryView);

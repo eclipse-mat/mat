@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2013 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,11 +7,13 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation - multiple heap dumps
  *******************************************************************************/
 package org.eclipse.mat.hprof;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,7 +67,17 @@ public class HprofIndexBuilder implements IIndexBuilder
         mon.beginTask(MessageUtil.format(Messages.HprofIndexBuilder_Scanning, new Object[] { file.getAbsolutePath() }),
                         (int) (file.length() / 1000));
         Pass1Parser pass1 = new Pass1Parser(handler, mon, strictnessPreference);
-        pass1.read(file);
+        Serializable id = preliminary.getSnapshotInfo().getProperty("$runtimeId");
+        String dumpNrToRead;
+        if (id instanceof String)
+        {
+            dumpNrToRead = (String)id;
+        }
+        else
+        {
+            dumpNrToRead = pass1.determineDumpNumber();
+        }
+        pass1.read(file, dumpNrToRead);
 
         if (listener.isCanceled())
             throw new IProgressListener.OperationCanceledException();
@@ -79,7 +91,7 @@ public class HprofIndexBuilder implements IIndexBuilder
                         new Object[] { file.getAbsolutePath() }), (int) (file.length() / 1000));
 
         Pass2Parser pass2 = new Pass2Parser(handler, mon, strictnessPreference);
-        pass2.read(file);
+        pass2.read(file, dumpNrToRead);
 
         if (listener.isCanceled())
             throw new IProgressListener.OperationCanceledException();

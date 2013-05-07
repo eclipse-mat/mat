@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2013 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,12 +7,14 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation - opening history with multiple snapshots from a file
  *******************************************************************************/
 package org.eclipse.mat.ui.internal.views;
 
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -27,9 +29,9 @@ import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.mat.snapshot.SnapshotInfo;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
+import org.eclipse.mat.ui.MemoryAnalyserPlugin.ISharedImages;
 import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.SnapshotHistoryService;
-import org.eclipse.mat.ui.MemoryAnalyserPlugin.ISharedImages;
 import org.eclipse.mat.ui.SnapshotHistoryService.Entry;
 import org.eclipse.mat.ui.accessibility.AccessibleCompositeAdapter;
 import org.eclipse.mat.ui.editor.PathEditorInput;
@@ -444,8 +446,30 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
 
                 for (TableItem item : table.getSelection())
                 {
-                    File snapshot = new File(((SnapshotHistoryService.Entry) item.getData()).getFilePath());
-                    deleteIndexes(snapshot, problems);
+                    SnapshotHistoryService.Entry entry = (SnapshotHistoryService.Entry) item.getData();
+                    File snapshot = new File(entry.getFilePath());
+                    File delete = snapshot;
+                    if (entry.getInfo() instanceof SnapshotInfo)
+                    {
+                        // Find the prefix path directly
+                        SnapshotInfo ifo = (SnapshotInfo)entry.getInfo();
+                        String prefix = ifo.getPrefix();
+                        if (prefix != null)
+                        {
+                            delete = new File(prefix + "index"); //$NON-NLS-1$
+                        }
+                    }
+                    deleteIndexes(delete, problems);
+                    if (!snapshot.exists())
+                    {
+                        // The history was for an index file, not the original dump, so remove the index
+                        SnapshotHistoryService.getInstance().removePath(new Path(snapshot.getAbsolutePath()));
+                    }
+                    if (!delete.exists())
+                    {
+                        // Perhaps the index file was also listed in the history
+                        SnapshotHistoryService.getInstance().removePath(new Path(delete.getAbsolutePath()));
+                    }
                 }
 
                 if (!problems.isEmpty())
@@ -545,6 +569,18 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
         {
             SnapshotHistoryService.Entry entry = (SnapshotHistoryService.Entry) selection[0].getData();
             Path path = new Path(entry.getFilePath());
+            Serializable ss = entry.getInfo();
+            if (ss instanceof SnapshotInfo) {
+                SnapshotInfo info = (SnapshotInfo)ss;
+                if (info.getProperty("$runtimeId") != null) //$NON-NLS-1$
+                {
+                    String prefix = info.getPrefix();
+                    String index = prefix + "index"; //$NON-NLS-1$
+                    Path path2 = new Path(index);
+                    if (path2.toFile().exists())
+                        path = path2;
+                }
+            }
 
             if (path.toFile().exists())
             {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2009 SAP AG.
+ * Copyright (c) 2008, 2013 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation - multiple snapshots
  *******************************************************************************/
 package org.eclipse.mat.internal.apps;
 
@@ -15,6 +16,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -30,6 +32,8 @@ import org.eclipse.mat.report.Spec;
 import org.eclipse.mat.report.SpecFactory;
 import org.eclipse.mat.report.TestSuite;
 import org.eclipse.mat.snapshot.ISnapshot;
+import org.eclipse.mat.snapshot.MultipleSnapshotsException;
+import org.eclipse.mat.snapshot.MultipleSnapshotsException.Context;
 import org.eclipse.mat.snapshot.SnapshotFactory;
 import org.eclipse.mat.util.ConsoleProgressListener;
 import org.eclipse.mat.util.MessageUtil;
@@ -67,7 +71,7 @@ public class ParseSnapshotApp implements IApplication
             {
                 file = new File(args[ii]);
                 if (!file.exists())
-                    throw new FileNotFoundException(MessageUtil.format(Messages.ParseSnapshotApp_ErrorMsg_FileNotFond,
+                    throw new FileNotFoundException(MessageUtil.format(Messages.ParseSnapshotApp_ErrorMsg_FileNotFound,
                                     file.getAbsolutePath()));
             }
             else
@@ -97,7 +101,23 @@ public class ParseSnapshotApp implements IApplication
 
         }
 
-        parse(file, options, reports);
+        try
+        {
+            parse(file, options, reports);
+        }
+        catch (MultipleSnapshotsException mre)
+        {
+            System.err.println(Messages.ParseSnapshotApp_MultipleSnapshotsDetected);
+            List<MultipleSnapshotsException.Context> runtimes = mre.getRuntimes();
+
+            Iterator<MultipleSnapshotsException.Context> it = runtimes.listIterator();
+            while (it.hasNext())
+            {
+                Context runtime = it.next();
+                System.err.println(MessageUtil.format(Messages.ParseSnapshotApp_MultipleSnapshotsDetail,
+                                runtime.getRuntimeId(), runtime.getVersion()));
+            }
+        }
 
         return IApplication.EXIT_OK;
     }
@@ -112,7 +132,13 @@ public class ParseSnapshotApp implements IApplication
         try
         {
             snapshot = SnapshotFactory.openSnapshot(file, arguments, listener);
-        } catch (SnapshotException e) {
+        }
+        catch (MultipleSnapshotsException mre)
+        {
+            throw mre;
+        }
+        catch (SnapshotException e)
+        {
             // CoreExceptions can have subcauses which get lost by printStackTrace
             for (Throwable t = e.getCause(); t != null; t = t.getCause())
             {
@@ -125,7 +151,9 @@ public class ParseSnapshotApp implements IApplication
                 }
             }
             throw e;
-        } finally {
+        }
+        finally
+        {
             listener.done();
         }
 

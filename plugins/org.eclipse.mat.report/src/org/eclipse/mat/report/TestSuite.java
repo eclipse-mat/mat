@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2013 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation - use prefix for output files
  *******************************************************************************/
 package org.eclipse.mat.report;
 
@@ -80,20 +81,17 @@ public class TestSuite
             template.set(Params.TIMESTAMP, String.valueOf(System.currentTimeMillis()));
 
             if (output == null)
-                output = queryContext.getPrimaryFile().getParentFile();
-
-            if (output.isDirectory())
             {
-                String prefix = queryContext.getPrimaryFile().getName();
+                String prefix = queryContext.getPrefix();
                 int p = prefix.lastIndexOf('.');
-                if (p >= 0)
+                if (p == prefix.length() - 1)
                     prefix = prefix.substring(0, p);
 
                 String suffix = template.getParams().get(Params.FILENAME_SUFFIX);
                 if (suffix == null)
                     suffix = template.getName();
 
-                output = new File(output, prefix + "_" + FileUtils.toFilename(suffix, "zip")); //$NON-NLS-1$ //$NON-NLS-2$
+                output = new File(prefix + "_" + FileUtils.toFilename(suffix, "zip")); //$NON-NLS-1$ //$NON-NLS-2$
             }
 
             TestSuite testSuite = new TestSuite(template, queryContext);

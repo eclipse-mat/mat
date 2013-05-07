@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 SAP AG and others.
+ * Copyright (c) 2008, 2013 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -706,13 +706,13 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
         {
             IFile file = ((IFileEditorInput) input).getFile();
             this.resource = file.getLocation().toFile();
-            this.setPartName(file.getName());
+            this.setPartName(((IFileEditorInput) input).getName());
         }
         else if (input instanceof IPathEditorInput)
         {
             IPath path = ((IPathEditorInput) input).getPath();
             this.resource = path.toFile();
-            this.setPartName(path.lastSegment());
+            this.setPartName(((IPathEditorInput)input).getName());
         }
         else if (input instanceof IURIEditorInput)
         {

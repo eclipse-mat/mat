@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2013 SAP AG and IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation - multiple heap dumps
  *******************************************************************************/
 package org.eclipse.mat.hprof;
 
@@ -46,11 +47,10 @@ public class Pass2Parser extends AbstractParser
         this.monitor = monitor;
     }
 
-    public void read(File file) throws SnapshotException, IOException
+    public void read(File file, String dumpNrToRead) throws SnapshotException, IOException
     {
         in = new PositionInputStream(new BufferedInputStream(new FileInputStream(file)));
 
-        final int dumpNrToRead = determineDumpNumber();
         int currentDumpNr = 0;
 
         try
@@ -85,7 +85,7 @@ public class Pass2Parser extends AbstractParser
                 {
                     case Constants.Record.HEAP_DUMP:
                     case Constants.Record.HEAP_DUMP_SEGMENT:
-                        if (dumpNrToRead == currentDumpNr)
+                        if (dumpMatches(currentDumpNr, dumpNrToRead))
                             readDumpSegments(length);
                         else
                             in.skipBytes(length);
@@ -96,6 +96,8 @@ public class Pass2Parser extends AbstractParser
                         break;
                     case Constants.Record.HEAP_DUMP_END:
                         currentDumpNr++;
+                        in.skipBytes(length);
+                        break;
                     default:
                         in.skipBytes(length);
                         break;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2013 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation - multiple heap dumps
  *******************************************************************************/
 package org.eclipse.mat.hprof;
 
@@ -209,13 +210,37 @@ import org.eclipse.mat.util.SimpleMonitor.Listener;
      * user provides a dump number via environment variable. Once the dump has
      * been parsed, the same dump is reopened regardless of the environment
      * variable.
+     * MAT_HPROF_DUMP_NR is a 0 offset number, or direct id
+     * The returned value is an 0 offset number or 1 offset id, e.g. #1
      */
-    protected int determineDumpNumber()
+    protected String determineDumpNumber()
     {
         String dumpNr = System.getProperty("MAT_HPROF_DUMP_NR"); //$NON-NLS-1$
-        return dumpNr == null ? 0 : Integer.parseInt(dumpNr);
+        return dumpNr; 
     }
 
+    protected String dumpIdentifier(int n)
+    {
+        return "#" + (n+1); //$NON-NLS-1$
+    }
+
+    protected boolean dumpMatches(int n, String match)
+    {
+        if (match == null && n == 0)
+            return true;
+        if (dumpIdentifier(n).equals(match))
+            return true;
+        try
+        {
+            int nm = Integer.parseInt(match);
+            return nm == n;
+        }
+        catch (NumberFormatException e)
+        {
+        }
+        return false;
+    }
+ 
     /**
      * It seems the HPROF file writes the length field as an unsigned int.
      */

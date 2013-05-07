@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009,2012 IBM Corporation.
+ * Copyright (c) 2009,2013 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -71,6 +71,7 @@ import org.eclipse.mat.parser.index.IndexWriter.SizeIndexCollectorUncompressed;
 import org.eclipse.mat.parser.model.ClassImpl;
 import org.eclipse.mat.parser.model.XGCRootInfo;
 import org.eclipse.mat.parser.model.XSnapshotInfo;
+import org.eclipse.mat.snapshot.MultipleSnapshotsException;
 import org.eclipse.mat.snapshot.model.Field;
 import org.eclipse.mat.snapshot.model.FieldDescriptor;
 import org.eclipse.mat.snapshot.model.GCRootInfo;
@@ -78,6 +79,7 @@ import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.ObjectReference;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.IProgressListener.Severity;
+import org.eclipse.mat.util.MessageUtil;
 
 import com.ibm.dtfj.image.CorruptData;
 import com.ibm.dtfj.image.CorruptDataException;
@@ -104,6 +106,7 @@ import com.ibm.dtfj.java.JavaReference;
 import com.ibm.dtfj.java.JavaRuntime;
 import com.ibm.dtfj.java.JavaStackFrame;
 import com.ibm.dtfj.java.JavaThread;
+import com.ibm.dtfj.java.JavaVMOption;
 import com.ibm.dtfj.runtime.ManagedRuntime;
 
 /**
@@ -230,8 +233,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
      * The requested runtime id, or null. In the rare case of more than one Java
      * runtime in a dump then this can be used to select another JVM.
      */
-    private String runtimeId = Platform.getPreferencesService().getString(PLUGIN_ID, PreferenceConstants.P_RUNTIMEID,
-                    "", null); //$NON-NLS-1$
+    private String runtimeId;
     /** All the key DTFJ data */
     private RuntimeInfo dtfjInfo;
     /** Used to cache DTFJ images */
@@ -891,11 +893,16 @@ public class DTFJIndexBuilder implements IIndexBuilder
         listener.worked(1);
         workCountSoFar += 1;
         listener.subTask(Messages.DTFJIndexBuilder_FindingJVM);
+        Serializable rtId = ifo.getProperty(RUNTIME_ID_KEY);
+        if (rtId instanceof String && ! rtId.equals("")) { //$NON-NLS-1$
+            runtimeId = (String) rtId;
+        }
+        
         dtfjInfo = getRuntime(dtfjInfo.getImage(), runtimeId, listener);
         final String actualRuntimeId = dtfjInfo.getRuntimeId();
         if (actualRuntimeId != null)
         {
-            index.getSnapshotInfo().setProperty(RUNTIME_ID_KEY, actualRuntimeId);
+            ifo.setProperty(RUNTIME_ID_KEY, actualRuntimeId);
             listener.sendUserMessage(Severity.INFO,
                             MessageFormat.format(Messages.DTFJIndexBuilder_DTFJJavaRuntime, actualRuntimeId), null);
         }
@@ -4900,8 +4907,9 @@ public class DTFJIndexBuilder implements IIndexBuilder
      * @param requestedId the runtime id such as 0.0.0 or 1.2.3, or null for the only/first one.
      * @param listener
      * @return A filled in RuntimeInfo object.
+     * @throws MultipleSnapshotsException 
      */
-    static RuntimeInfo getRuntime(Image image, Serializable requestedId, IProgressListener listener) throws IOException
+    static RuntimeInfo getRuntime(Image image, Serializable requestedId, IProgressListener listener) throws IOException, MultipleSnapshotsException
     {
         ImageAddressSpace ias = null;
         ImageProcess proc = null;
@@ -4910,6 +4918,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         int nAddr = 0;
         int nProc = 0;
         int nJavaRuntimes = 0;
+        List<MultipleSnapshotsException.Context> runtimes = new ArrayList<MultipleSnapshotsException.Context>();
         String lastAddr = ""; //$NON-NLS-1$
         String lastProc = ""; //$NON-NLS-1$
         String lastJavaRuntime = ""; //$NON-NLS-1$
@@ -4947,7 +4956,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     Object next3 = i3.next();
                     if (isCorruptData(next3, listener, Messages.DTFJIndexBuilder_CorruptDataReadingRuntimes))
                         continue;
-                    String currentId = addrId+"."+procId+"."+runtimeId;  //$NON-NLS-1$//$NON-NLS-2$
+                    String currentId = lastAddr+"."+lastProc+"."+runtimeId;  //$NON-NLS-1$//$NON-NLS-2$
                     if (next3 instanceof JavaRuntime)
                     {
                         JavaRuntime runtime = (JavaRuntime)next3;
@@ -4959,6 +4968,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                         {
                             lastJavaRuntime = Integer.toString(runtimeId);
                         }
+                        currentId = lastAddr+"."+lastProc+"."+lastJavaRuntime;  //$NON-NLS-1$//$NON-NLS-2$
                         ++nJavaRuntimes;
                         boolean inCurrentRuntime = runtime.equals(currentRuntime) || currentRuntime == null;
                         
@@ -4972,6 +4982,9 @@ public class DTFJIndexBuilder implements IIndexBuilder
                         {
                             e1 = e;
                         }
+ 
+                        runtimes.add(getRuntimeDetails(lastAddr, lastProc, lastJavaRuntime,runtime));
+
                         if (run == null && (requestedId == null && inCurrentRuntime
                             || currentId.equals(requestedId) 
                             || (id0.length() == 0 || id0.equals(lastAddr) || id0.equals(Integer.toString(addrId)))
@@ -4985,22 +4998,6 @@ public class DTFJIndexBuilder implements IIndexBuilder
                             {
                                 listener.sendUserMessage(Severity.INFO, MessageFormat.format(
                                                 Messages.DTFJIndexBuilder_FoundJavaRuntime, currentId, lastAddr, lastProc, lastJavaRuntime, version), e1);
-                            }
-                        }
-                        else
-                        {
-                            if (listener != null)
-                            {
-                                if (requestedId == null)
-                                {
-                                    listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
-                                                    Messages.DTFJIndexBuilder_IgnoringExtraJavaRuntimeWithoutRuntimeId, currentId, lastAddr, lastProc, lastJavaRuntime, version), e1);
-                                }
-                                else
-                                {
-                                    listener.sendUserMessage(Severity.INFO, MessageFormat.format(
-                                                Messages.DTFJIndexBuilder_IgnoringExtraJavaRuntime, currentId, lastAddr, lastProc, lastJavaRuntime, version), e1);
-                                }
                             }
                         }
                     }
@@ -5037,10 +5034,60 @@ public class DTFJIndexBuilder implements IIndexBuilder
                                 lastAddr, nProc, lastProc, nJavaRuntimes, lastJavaRuntime));
             }
         }
-        // Don't force a runtimeId if there is only one
-        if (requestedId == null && nJavaRuntimes <= 1)
-            fullRuntimeId = null;
+        
+        if (requestedId == null) {
+            if (nJavaRuntimes > 1) {
+                // Prompt for selection
+                // Thrown an exception back to the UI to allow selection
+                MultipleSnapshotsException multipleRuntimeException = new MultipleSnapshotsException(MessageUtil.format(Messages.DTFJIndexBuilder_JavaRuntimesFound, nJavaRuntimes));
+                for (MultipleSnapshotsException.Context runtime : runtimes)
+                {
+                    multipleRuntimeException.addContext(runtime);
+                }
+                throw multipleRuntimeException;
+            } else {
+                // Don't force a runtimeId if there is only one
+                fullRuntimeId = null;
+            }
+        }
         return new RuntimeInfo(image, ias, proc, run, fullRuntimeId);
+    }
+
+    private static MultipleSnapshotsException.Context getRuntimeDetails(String addressSpace, String process, String runtimeId, JavaRuntime runtime)
+    {
+        final String uniqueContext = addressSpace + "." + process + "." + runtimeId;  //$NON-NLS-1$  //$NON-NLS-2$
+        MultipleSnapshotsException.Context context = new MultipleSnapshotsException.Context(uniqueContext);
+        final String description = MessageFormat.format(Messages.DTFJIndexBuilder_Runtime_Description, addressSpace, process, runtimeId);
+        context.setDescription(description);
+        
+        String version = ""; //$NON-NLS-1$
+        try
+        {
+            version = runtime.getVersion();
+        }
+        catch (CorruptDataException e)
+        {}
+        context.setVersion(version);
+        
+        try
+        {
+            for (Iterator<?> optsIter = runtime.getJavaVMInitArgs().getOptions(); optsIter.hasNext();) {
+                Object o = optsIter.next();
+                if (o instanceof JavaVMOption)
+                {
+                    JavaVMOption jvmOpt = (JavaVMOption) o;
+                    context.addOption(jvmOpt.getOptionString());   
+                }             
+            }
+        }
+        catch (DataUnavailable e)
+        {
+        }
+        catch (CorruptDataException e)
+        {
+        }
+        
+        return context;
     }
 
     /**
@@ -5206,6 +5253,9 @@ public class DTFJIndexBuilder implements IIndexBuilder
             }
         }
         catch (CorruptDataException e)
+        {}
+        // work around DTFJ throwing UnsupportedOperationException
+        catch (UnsupportedOperationException e)
         {}
         int runtimes = 0;
         JavaRuntime firstRuntime = null;

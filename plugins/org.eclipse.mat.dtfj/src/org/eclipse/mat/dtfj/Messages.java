@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009,2011 IBM Corporation.
+ * Copyright (c) 2009,2013 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -115,6 +115,7 @@ public class Messages extends NLS
     public static String DTFJIndexBuilder_InvalidField;
     public static String DTFJIndexBuilder_InvalidObjectFieldReference;
     public static String DTFJIndexBuilder_InvalidStaticField;
+    public static String DTFJIndexBuilder_JavaRuntimesFound;
     public static String DTFJIndexBuilder_JVMFullVersion;
     public static String DTFJIndexBuilder_JVMVersion;
     public static String DTFJIndexBuilder_MATRootTypeUnknown;
@@ -183,6 +184,7 @@ public class Messages extends NLS
     public static String DTFJIndexBuilder_PurgedIdentifiers;
     public static String DTFJIndexBuilder_PurgingDeadObjectsFromImage;
     public static String DTFJIndexBuilder_RepeatedMessagesSuppressed;
+    public static String DTFJIndexBuilder_Runtime_Description;
     public static String DTFJIndexBuilder_SkippingObject;
     public static String DTFJIndexBuilder_SuperclassInWrongAddressSpace;
     public static String DTFJIndexBuilder_SuperclassNotFound;
@@ -227,7 +229,6 @@ public class Messages extends NLS
     public static String DTFJPreferencePage_NoMethods;
     public static String DTFJPreferencePage_OnlyStackFrames;
     public static String DTFJPreferencePage_RunningMethods;
-    public static String DTFJPreferencePage_RuntimeID;
     public static String StackFrameResolver_file;
     public static String StackFrameResolver_file_line;
     public static String StackFrameResolver_method;

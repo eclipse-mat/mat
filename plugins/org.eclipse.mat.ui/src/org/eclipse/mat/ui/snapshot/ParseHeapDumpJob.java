@@ -11,7 +11,6 @@
 package org.eclipse.mat.ui.snapshot;
 
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,6 +23,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.snapshot.ISnapshot;
+import org.eclipse.mat.snapshot.MultipleSnapshotsException;
 import org.eclipse.mat.snapshot.SnapshotFactory;
 import org.eclipse.mat.snapshot.SnapshotInfo;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
@@ -34,6 +34,7 @@ import org.eclipse.mat.ui.util.ErrorHelper;
 import org.eclipse.mat.ui.util.ProgressMonitorWrapper;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.progress.IProgressConstants;
 
@@ -44,18 +45,14 @@ public abstract class ParseHeapDumpJob extends Job
     
     private static Map<String, String> defaultArguments()
     {
+        Map<String, String> args = new HashMap<String, String>();
         IPreferenceStore prefs = MemoryAnalyserPlugin.getDefault().getPreferenceStore();
         if (prefs.getBoolean(PreferenceConstants.P_KEEP_UNREACHABLE_OBJECTS))
         {
-            Map<String, String> args = new HashMap<String, String>();
             args.put("keep_unreachable_objects", Boolean.TRUE.toString()); //$NON-NLS-1$
+        }
             return args;
         }
-        else
-        {
-            return Collections.<String, String> emptyMap();
-        }
-    }
 
     public ParseHeapDumpJob(IPath path)
     {
@@ -80,14 +77,31 @@ public abstract class ParseHeapDumpJob extends Job
         {
             SnapshotHistoryService.getInstance().addVisitedPath(MemoryAnalyserPlugin.EDITOR_ID, path.toOSString());
 
-            final ISnapshot snapshot = SnapshotFactory.openSnapshot(path.toFile(), arguments, new ProgressMonitorWrapper(monitor));
+            ISnapshot snap = null;
+            try 
+            {
+                snap = SnapshotFactory.openSnapshot(path.toFile(), arguments, new ProgressMonitorWrapper(monitor));
+            }
+            catch (final MultipleSnapshotsException mre) 
+            {
+                // Prompt user to select a runtimeId and retry
+                Display display = PlatformUI.getWorkbench().getDisplay();
+                RuntimeSelector runtimeSelector = new RuntimeSelector(mre, display);
+                String selectedId = runtimeSelector.getSelectedRuntimeId();
+                if (selectedId != null)
+                {
+                    arguments.put("runtime_identifier", selectedId); //$NON-NLS-1$
+                    snap = SnapshotFactory.openSnapshot(path.toFile(), arguments, new ProgressMonitorWrapper(monitor));
+                }
+            }
 
-            if (snapshot == null)
+            if (snap == null)
             {
                 return Status.CANCEL_STATUS;
             }
             else
             {
+                final ISnapshot snapshot = snap;
                 // copy snapshot info -> needed for serialization of file
                 // history
                 SnapshotInfo source = snapshot.getSnapshotInfo();
@@ -98,6 +112,7 @@ public abstract class ParseHeapDumpJob extends Job
                 // This properties are needed for the outline view , but don't copy all properties e.g. UnreachableObjectsHistogram
                 copyPropertyIfSet(source, destination, "$heapFormat"); //$NON-NLS-1$
                 copyPropertyIfSet(source, destination, "$useCompressedOops"); //$NON-NLS-1$
+                copyPropertyIfSet(source, destination, "$runtimeId"); //$NON-NLS-1$
                 SnapshotHistoryService.getInstance().addVisitedPath(MemoryAnalyserPlugin.EDITOR_ID, path.toOSString(),
                                 destination);
 

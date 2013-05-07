@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2013 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation - multiple snapshots in a file
  *******************************************************************************/
 package org.eclipse.mat.ui.snapshot.editor;
 
@@ -222,13 +223,13 @@ public class HeapEditor extends MultiPaneEditor implements ISelectionProvider
         {
             IFile file = ((IFileEditorInput) input).getFile();
             this.snapshotInput = new SnapshotEditorInput(file.getLocation());
-            this.setPartName(file.getName());
+            // part name set in superclass
         }
         else if (input instanceof IPathEditorInput)
         {
             IPath path = ((IPathEditorInput) input).getPath();
             this.snapshotInput = new SnapshotEditorInput(path);
-            this.setPartName(path.lastSegment());
+            // part name set in superclass
         }
         else if (input instanceof IURIEditorInput)
         {
@@ -238,7 +239,7 @@ public class HeapEditor extends MultiPaneEditor implements ISelectionProvider
             {
                 IPath path = new Path(uri.getPath());
                 this.snapshotInput = new SnapshotEditorInput(path);
-                this.setPartName(path.lastSegment());
+                // part name set in superclass
             }
             else
             {

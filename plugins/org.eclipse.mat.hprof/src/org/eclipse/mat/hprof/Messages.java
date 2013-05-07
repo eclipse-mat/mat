@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 SAP AG and others.
+ * Copyright (c) 2010, 2013 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     SAP AG - initial API and implementation
+ *     IBM Corporation - multiple heap dumps
  *******************************************************************************/
 package org.eclipse.mat.hprof;
 
@@ -39,7 +40,7 @@ public class Messages extends NLS
 	public static String JMapHeapDumpProvider_WaitForHeapDump;
 	public static String LocalJavaProcessesUtils_ErrorGettingProcesses;
 	public static String LocalJavaProcessesUtils_ErrorGettingProcessListJPS;
-	public static String Pass1Parser_DetectedCompressedReferences;
+    public static String Pass1Parser_DetectedCompressedReferences;
     public static String Pass1Parser_Error_IllegalRecordLength;
     public static String Pass1Parser_Error_IllegalType;
     public static String Pass1Parser_Error_InvalidHeapDumpFile;
@@ -56,6 +57,8 @@ public class Messages extends NLS
     public static String Pass1Parser_UnexpectedEndPosition;
     public static String Pass1Parser_UnexpectedRecord;
     public static String Pass1Parser_GuessingLengthOverflow;
+    public static String Pass1Parser_HeapDumpCreated;
+    public static String Pass1Parser_HeapDumpsFound;
     public static String HPROFPreferences_Description;
     public static String HPROFPreferences_Strictness;
     public static String HPROFPreferences_Strictness_Stop;

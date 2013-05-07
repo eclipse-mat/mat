@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 SAP AG and others.
+ * Copyright (c) 2008, 2013 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -30,6 +31,7 @@ import org.eclipse.mat.collect.HashMapLongObject;
 import org.eclipse.mat.hprof.ui.HprofPreferences;
 import org.eclipse.mat.parser.io.PositionInputStream;
 import org.eclipse.mat.parser.model.ClassImpl;
+import org.eclipse.mat.snapshot.MultipleSnapshotsException;
 import org.eclipse.mat.snapshot.model.Field;
 import org.eclipse.mat.snapshot.model.FieldDescriptor;
 import org.eclipse.mat.snapshot.model.GCRootInfo;
@@ -67,13 +69,14 @@ public class Pass1Parser extends AbstractParser
         this.monitor = monitor;
     }
 
-    public void read(File file) throws SnapshotException, IOException
+    public void read(File file, String dumpNrToRead) throws SnapshotException, IOException
     {
         // See http://java.net/downloads/heap-snapshot/hprof-binary-format.html
         in = new PositionInputStream(new BufferedInputStream(new FileInputStream(file)));
 
-        final int dumpNrToRead = determineDumpNumber();
         int currentDumpNr = 0;
+        List<MultipleSnapshotsException.Context> ctxs = new ArrayList<MultipleSnapshotsException.Context>();
+        boolean foundDump = false;
 
         try
         {
@@ -89,7 +92,9 @@ public class Pass1Parser extends AbstractParser
 
             // creation date
             long date = in.readLong();
-            handler.addProperty(IHprofParserHandler.CREATION_DATE, String.valueOf(date));
+
+            long prevTimeOffset = 0;
+            long timeWrap = 0;
 
             long fileSize = file.length();
             long curPos = in.position();
@@ -102,7 +107,13 @@ public class Pass1Parser extends AbstractParser
 
                 int record = in.readUnsignedByte();
 
-                in.skipBytes(4); // time stamp
+                long timeOffset = readUnsignedInt(); // time stamp in microseconds
+                if (timeOffset < prevTimeOffset)
+                {
+                    // Wrap after 4294 seconds
+                    timeWrap += 1L << 32;
+                }
+                prevTimeOffset = timeOffset;
 
                 long length = readUnsignedInt();
                 if (verbose)
@@ -153,10 +164,24 @@ public class Pass1Parser extends AbstractParser
                         break;
                     case Constants.Record.HEAP_DUMP:
                     case Constants.Record.HEAP_DUMP_SEGMENT:
-                        if (dumpNrToRead == currentDumpNr)
+                        long dumpTime = date + (timeWrap + timeOffset) / 1000;
+                        if (dumpMatches(currentDumpNr, dumpNrToRead))
+                        {
+                            if (!foundDump)
+                            {
+                                handler.addProperty(IHprofParserHandler.CREATION_DATE, String.valueOf(dumpTime));
+                                foundDump = true;
+                            }
                             readDumpSegments(length);
+                        }
                         else
                             in.skipBytes(length);
+                        if (ctxs.size() < currentDumpNr + 1)
+                        {
+                            MultipleSnapshotsException.Context ctx = new MultipleSnapshotsException.Context(dumpIdentifier(currentDumpNr));
+                            ctx.setDescription(MessageUtil.format(Messages.Pass1Parser_HeapDumpCreated, new Date(dumpTime)));
+                            ctxs.add(ctx);
+                        }
 
                         if (record == Constants.Record.HEAP_DUMP)
                             currentDumpNr++;
@@ -164,6 +189,17 @@ public class Pass1Parser extends AbstractParser
                         break;
                     case Constants.Record.HEAP_DUMP_END:
                         currentDumpNr++;
+                        in.skipBytes(length);
+                        break;
+                    case Constants.Record.UNLOAD_CLASS:
+                    case Constants.Record.ALLOC_SITES:
+                    case Constants.Record.HEAP_SUMMARY:
+                    case Constants.Record.START_THREAD:
+                    case Constants.Record.END_THREAD:
+                    case Constants.Record.CPU_SAMPLES:
+                    case Constants.Record.CONTROL_SETTINGS:
+                        in.skipBytes(length);
+                        break;
                     default:
                         switch (strictnessPreference)
                         {
@@ -182,6 +218,7 @@ public class Pass1Parser extends AbstractParser
                             default:
                                 throw new SnapshotException(Messages.HPROFStrictness_Unhandled_Preference);
                         }
+                        break;
                 }
 
                 curPos = in.position();
@@ -197,14 +234,25 @@ public class Pass1Parser extends AbstractParser
             {}
         }
 
-        if (currentDumpNr <= dumpNrToRead)
+        if (!foundDump)
             throw new SnapshotException(MessageUtil.format(Messages.Pass1Parser_Error_NoHeapDumpIndexFound,
                             currentDumpNr, file.getName(), dumpNrToRead));
 
         if (currentDumpNr > 1)
+        {
+            if (dumpNrToRead == null)
+            {
+                MultipleSnapshotsException mse = new MultipleSnapshotsException(MessageUtil.format(Messages.Pass1Parser_HeapDumpsFound, currentDumpNr));
+                for (MultipleSnapshotsException.Context runtime : ctxs)
+                {
+                    mse.addContext(runtime);
+                }
+                throw mse;
+            }
             monitor.sendUserMessage(IProgressListener.Severity.INFO, MessageUtil.format(
                             Messages.Pass1Parser_Info_UsingDumpIndex, currentDumpNr, file.getName(), dumpNrToRead),
                             null);
+        }
 
         if (serNum2stackTrace.size() > 0)
             dumpThreads();

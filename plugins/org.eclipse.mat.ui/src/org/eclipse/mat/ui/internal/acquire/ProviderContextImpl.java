@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 SAP AG.
+ * Copyright (c) 2010, 2013 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation - multiple snapshots in a file
  *******************************************************************************/
 package org.eclipse.mat.ui.internal.acquire;
 
@@ -21,34 +22,39 @@ import org.eclipse.mat.query.registry.QueryContextImpl;
 public class ProviderContextImpl extends QueryContextImpl
 {
 
-	public ContextDerivedData getContextDerivedData()
-	{
-		return null;
-	}
+    public ContextDerivedData getContextDerivedData()
+    {
+        return null;
+    }
 
-	public File getPrimaryFile()
-	{
-		return null;
-	}
+    public File getPrimaryFile()
+    {
+        return null;
+    }
+    
+    public String getPrefix()
+    {
+        return null;
+    }
 
-	public String mapToExternalIdentifier(int objectId) throws SnapshotException
-	{
-		return String.valueOf(objectId);
-	}
+    public String mapToExternalIdentifier(int objectId) throws SnapshotException
+    {
+        return String.valueOf(objectId);
+    }
 
-	public int mapToObjectId(String externalIdentifier) throws SnapshotException
-	{
-		return Integer.valueOf(externalIdentifier);
-	}
+    public int mapToObjectId(String externalIdentifier) throws SnapshotException
+    {
+        return Integer.valueOf(externalIdentifier);
+    }
 
-	public Object parse(Class<?> type, Advice advice, String[] args, ParsePosition pos) throws SnapshotException
-	{
-		return null;
-	}
+    public Object parse(Class<?> type, Advice advice, String[] args, ParsePosition pos) throws SnapshotException
+    {
+        return null;
+    }
 
-	public boolean parses(Class<?> type, Advice advice)
-	{
-		return false;
-	}
+    public boolean parses(Class<?> type, Advice advice)
+    {
+        return false;
+    }
 
 }

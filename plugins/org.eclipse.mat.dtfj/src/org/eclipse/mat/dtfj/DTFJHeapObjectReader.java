@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009,2011 IBM Corporation.
+ * Copyright (c) 2009,2013 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -142,7 +142,7 @@ public class DTFJHeapObjectReader implements IObjectReader
      * org.eclipse.mat.parser.IObjectReader#open(org.eclipse.mat.snapshot.ISnapshot
      * )
      */
-    public void open(ISnapshot snapshot) throws IOException
+    public void open(ISnapshot snapshot) throws IOException, SnapshotException
     {
         file = new File(snapshot.getSnapshotInfo().getPath());
         SnapshotInfo snapinfo = snapshot.getSnapshotInfo();

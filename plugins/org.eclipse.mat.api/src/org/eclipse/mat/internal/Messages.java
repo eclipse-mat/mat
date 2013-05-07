@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2013 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     SAP AG - initial API and implementation
+ *     IBM Corporation - updates including multiple snapshots
  *******************************************************************************/
 package org.eclipse.mat.internal;
 
@@ -188,7 +189,7 @@ public class Messages extends NLS
 
     public static String EquinoxBundleReader_CannotFindContributorID;
 
-	public static String EquinoxBundleReader_ErrorMsg_BundleNotFound;
+    public static String EquinoxBundleReader_ErrorMsg_BundleNotFound;
 
     public static String EquinoxBundleReader_ErrorMsg_DuplicateConfigurationElement;
     public static String EquinoxBundleReader_ErrorMsg_DuplicateExtension;
@@ -207,7 +208,7 @@ public class Messages extends NLS
     public static String EquinoxBundleReader_ExpectedFieldPropertiesAndValues;
     public static String EquinoxBundleReader_NotApplicable;
 
-	public static String EquinoxBundleReader_ProcessListenerBundles;
+    public static String EquinoxBundleReader_ProcessListenerBundles;
     public static String EquinoxBundleReader_ReadingBundles;
     public static String EquinoxBundleReader_ReadingExtensions;
     public static String EquinoxBundleReader_ReadingServices;
@@ -321,13 +322,13 @@ public class Messages extends NLS
 
     public static String HeapDumpProviderRegistry_ErrorGettingArgumentErrorMsg;
 
-	public static String HeapDumpProviderRegistry_NameAlreadyBouneErrorMsg;
+    public static String HeapDumpProviderRegistry_NameAlreadyBouneErrorMsg;
 
-	public static String HeapDumpProviderRegistry_UnableToAccessArgumentErrorMsg;
+    public static String HeapDumpProviderRegistry_UnableToAccessArgumentErrorMsg;
 
-	public static String HeapDumpProviderRegistry_WrongTypeErrorMsg;
+    public static String HeapDumpProviderRegistry_WrongTypeErrorMsg;
 
-	public static String HeapObjectArgumentFactory_ErrorMsg_MultipleObjects;
+    public static String HeapObjectArgumentFactory_ErrorMsg_MultipleObjects;
     public static String HeapObjectArgumentFactory_ErrorMsg_SettingField;
     public static String HeapObjectArgumentFactory_ErrorMsg_TypeNotSupported;
     public static String HeapObjectArgumentFactory_Label_Objects;
@@ -448,9 +449,13 @@ public class Messages extends NLS
     public static String OQLQuery_NoResult;
     public static String OQLQuery_ProblemReported;
 
-    public static String ParseSnapshotApp_ErrorMsg_FileNotFond;
+    public static String ParseSnapshotApp_ErrorMsg_FileNotFound;
+
     public static String ParseSnapshotApp_ErrorMsg_ReportNotFound;
     public static String ParseSnapshotApp_Usage;
+    public static String ParseSnapshotApp_MultipleSnapshotsDetail;
+
+    public static String ParseSnapshotApp_MultipleSnapshotsDetected;
 
     public static String PhantomReferenceStatQuery_Label_Referenced;
     public static String PhantomReferenceStatQuery_Label_Retained;
@@ -557,11 +562,11 @@ public class Messages extends NLS
 
     public static String VmInfoDescriptor_ErrorGettingArgumentErrorMsg;
 
-	public static String VmInfoDescriptor_UnableToAccessArgumentErrorMsg;
+    public static String VmInfoDescriptor_UnableToAccessArgumentErrorMsg;
 
-	public static String VmInfoDescriptor_WrongTypeErrorMsg;
+    public static String VmInfoDescriptor_WrongTypeErrorMsg;
 
-	public static String WasteInCharArraysQuery_CheckingCharArrays;
+    public static String WasteInCharArraysQuery_CheckingCharArrays;
 
     public static String WeakReferenceStatQuery_Label_Referenced;
     public static String WeakReferenceStatQuery_Label_Retained;

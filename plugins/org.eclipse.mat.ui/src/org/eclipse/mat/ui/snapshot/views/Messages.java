@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others.
+ * Copyright (c) 2008, 2013 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation - multiple snapshots in a file
  *******************************************************************************/
 package org.eclipse.mat.ui.snapshot.views;
 
@@ -28,6 +29,7 @@ public class Messages extends NLS
     public static String identifier_format;
     public static String file_path;
     public static String file_length;
+    public static String identifier;
 
     public static String heap;
     public static String number_of_objects;

@@ -135,7 +135,9 @@ public final class SnapshotImpl implements ISnapshot
             listener.worked(3);
 
             snapshotInfo.setPrefix(prefix);
-            snapshotInfo.setPath(file.getAbsolutePath());
+            // Allow a dump to be opened via the index file
+            if (!file.getName().equals(indexFile.getName()))
+                snapshotInfo.setPath(file.getAbsolutePath());
             IndexManager indexManager = new IndexManager();
             indexManager.init(prefix);
 

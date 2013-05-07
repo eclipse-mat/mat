@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2013 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,12 +7,14 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation - tidying 
  *******************************************************************************/
 package org.eclipse.mat.ui.editor;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.ui.IPathEditorInput;
 import org.eclipse.ui.IPersistableElement;
 import org.eclipse.ui.model.IWorkbenchAdapter;
@@ -75,12 +77,12 @@ public class PathEditorInput implements IPathEditorInput
 
     public boolean exists()
     {
-        return false;
+        return path.toFile().exists();
     }
 
     public ImageDescriptor getImageDescriptor()
     {
-        return null;
+        return MemoryAnalyserPlugin.getImageDescriptor(MemoryAnalyserPlugin.ISharedImages.HEAP);
     }
 
     public String getName()

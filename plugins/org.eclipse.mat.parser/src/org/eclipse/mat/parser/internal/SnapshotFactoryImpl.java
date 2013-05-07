@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2013 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -84,6 +84,11 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
 
         int p = name.lastIndexOf('.');
         String prefix = p >= 0 ? name.substring(0, p + 1) : name + ".";//$NON-NLS-1$
+        String runtime_identifier = args.get("runtime_identifier"); //$NON-NLS-1$
+        if (runtime_identifier != null)
+        {
+            prefix += runtime_identifier + "."; //$NON-NLS-1$
+        }
 
         try
         {
@@ -204,6 +209,13 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
                 {
                     snapshotInfo.setProperty("keep_unreachable_objects", GCRootInfo.Type.UNREACHABLE);//$NON-NLS-1$
                 }
+
+                String runtime_identifier = args.get("runtime_identifier"); //$NON-NLS-1$
+                if (runtime_identifier != null)
+                {
+                    snapshotInfo.setProperty("$runtimeId", runtime_identifier);//$NON-NLS-1$
+                }
+
                 PreliminaryIndexImpl idx = new PreliminaryIndexImpl(snapshotInfo);
 
                 indexBuilder.fill(idx, listener);
@@ -549,7 +561,7 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
         
         final String fragment = prefixFile.getName();
 
-        final Pattern indexPattern = Pattern.compile("([^.]+\\.)?index$"); //$NON-NLS-1$
+        final Pattern indexPattern = Pattern.compile("([A-Za-z0-9]+\\.)?index$"); //$NON-NLS-1$
         final Pattern threadPattern = Pattern.compile("threads$"); //$NON-NLS-1$
         final Pattern logPattern = Pattern.compile("inbound\\.index.*\\.log$"); //$NON-NLS-1$
 
