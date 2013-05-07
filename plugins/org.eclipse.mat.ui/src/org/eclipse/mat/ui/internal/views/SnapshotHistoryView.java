@@ -305,10 +305,10 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
                     return;
 
                 // as table items are disposed, copy the path before
-                List<File> toDelete = new ArrayList<File>(selection.length);
+                List<SnapshotHistoryService.Entry> toDelete = new ArrayList<SnapshotHistoryService.Entry>(selection.length);
 
                 for (TableItem item : selection)
-                    toDelete.add(new File(((SnapshotHistoryService.Entry) item.getData()).getFilePath()));
+                    toDelete.add((SnapshotHistoryService.Entry) item.getData());
 
                 String dialogTitle;
                 if (toDelete.size() > 1)
@@ -316,7 +316,7 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
                                     .format(Messages.SnapshotHistoryView_AreYouSure4ManyFiles, toDelete.size());
                 else
                     dialogTitle = MessageUtil.format(Messages.SnapshotHistoryView_AreYouSure4OneFile, //
-                                    toDelete.get(0).getAbsolutePath());
+                                    new File(toDelete.get(0).getFilePath()).getAbsolutePath());
 
                 DeleteSnapshotDialog deleteSnapshotDialog = new DeleteSnapshotDialog(table.getShell(), dialogTitle);
 
@@ -324,20 +324,52 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
                 if (response != IDialogConstants.OK_ID)
                     return;
 
-                for (File path : toDelete)
+                for (SnapshotHistoryService.Entry entry : toDelete)
+                {
+                    File path = new File(entry.getFilePath());
                     SnapshotHistoryService.getInstance().removePath(new Path(path.getAbsolutePath()));
+                }
 
                 if (deleteSnapshotDialog.getDeleteInFileSystem())
                 {
-                    for (File path : toDelete)
+                    List<File> problems = new ArrayList<File>();
+                    for (SnapshotHistoryService.Entry entry : toDelete)
                     {
+                        File path = new File(entry.getFilePath());
                         IEditorPart editor = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
                                         .findEditor(new PathEditorInput(new Path(path.getAbsolutePath())));
                         if (editor != null)
                             getSite().getPage().closeEditor(editor, true);
 
-                        path.delete();
-                        deleteIndexes(path, null);
+                        File index = path;
+                        if (entry.getInfo() instanceof SnapshotInfo)
+                        {
+                            // Find the prefix path directly
+                            SnapshotInfo ifo = (SnapshotInfo)entry.getInfo();
+                            String prefix = ifo.getPrefix();
+                            if (prefix != null)
+                            {
+                                index = new File(prefix + "index"); //$NON-NLS-1$
+                                editor = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
+                                                .findEditor(new PathEditorInput(new Path(index.getAbsolutePath())));
+                                if (editor != null)
+                                    getSite().getPage().closeEditor(editor, true);
+                            }
+                        }
+                        if (!path.delete())
+                        {
+                            problems.add(path);
+                        }
+                        deleteIndexes(index, problems);
+                        if (!index.exists())
+                        {
+                            // Perhaps the history was for an index file, or the index file also listed in the history
+                            SnapshotHistoryService.getInstance().removePath(new Path(index.getAbsolutePath()));
+                        }
+                    }
+                    if (!problems.isEmpty())
+                    {
+                        showProblems(problems);
                     }
                 }
             }
@@ -448,7 +480,7 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
                 {
                     SnapshotHistoryService.Entry entry = (SnapshotHistoryService.Entry) item.getData();
                     File snapshot = new File(entry.getFilePath());
-                    File delete = snapshot;
+                    File index = snapshot;
                     if (entry.getInfo() instanceof SnapshotInfo)
                     {
                         // Find the prefix path directly
@@ -456,32 +488,24 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
                         String prefix = ifo.getPrefix();
                         if (prefix != null)
                         {
-                            delete = new File(prefix + "index"); //$NON-NLS-1$
+                            index = new File(prefix + "index"); //$NON-NLS-1$
+                            IEditorPart editor = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
+                                            .findEditor(new PathEditorInput(new Path(index.getAbsolutePath())));
+                            if (editor != null)
+                                getSite().getPage().closeEditor(editor, true);
                         }
                     }
-                    deleteIndexes(delete, problems);
-                    if (!snapshot.exists())
+                    deleteIndexes(index, problems);
+                    if (!index.exists())
                     {
-                        // The history was for an index file, not the original dump, so remove the index
-                        SnapshotHistoryService.getInstance().removePath(new Path(snapshot.getAbsolutePath()));
-                    }
-                    if (!delete.exists())
-                    {
-                        // Perhaps the index file was also listed in the history
-                        SnapshotHistoryService.getInstance().removePath(new Path(delete.getAbsolutePath()));
+                        // Perhaps the history was for an index file, or the index file also listed in the history
+                        SnapshotHistoryService.getInstance().removePath(new Path(index.getAbsolutePath()));
                     }
                 }
 
                 if (!problems.isEmpty())
                 {
-                    StringBuilder msg = new StringBuilder();
-                    msg.append(Messages.SnapshotHistoryView_ErrorDeletingFiles);
-                    for (File f : problems)
-                        msg.append("\n\t").append(f.getAbsolutePath());//$NON-NLS-1$
-
-                    MessageBox box = new MessageBox(table.getShell(), SWT.OK | SWT.ICON_ERROR);
-                    box.setMessage(msg.toString());
-                    box.open();
+                    showProblems(problems);
                 }
             }
         };
@@ -613,7 +637,7 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
         int lastDot = name.lastIndexOf('.');
         final String prefix = lastDot >= 0 ? name.substring(0, lastDot) : name;
         // Delete threads file as well as indexes
-        final Pattern pattern = Pattern.compile("\\.(([^.]*\\.)?index|threads)$");//$NON-NLS-1$
+        final Pattern pattern = Pattern.compile("\\.(([A-Za-z0-9]*\\.)?index|threads)$");//$NON-NLS-1$
 
         String[] indexFiles = directory.list(new FilenameFilter()
         {
@@ -630,5 +654,17 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
                 if (!f.delete() && problems != null)
                     problems.add(f);
         }
+    }
+
+    private void showProblems(List<File> problems)
+    {
+        StringBuilder msg = new StringBuilder();
+        msg.append(Messages.SnapshotHistoryView_ErrorDeletingFiles);
+        for (File f : problems)
+            msg.append("\n\t").append(f.getAbsolutePath());//$NON-NLS-1$
+
+        MessageBox box = new MessageBox(table.getShell(), SWT.OK | SWT.ICON_ERROR);
+        box.setMessage(msg.toString());
+        box.open();
     }
 }

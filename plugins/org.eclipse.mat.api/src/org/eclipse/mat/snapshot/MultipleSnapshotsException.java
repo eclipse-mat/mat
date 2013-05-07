@@ -19,6 +19,7 @@ import org.eclipse.mat.SnapshotException;
 /**
  * Multiple snapshots found in a dump when no particular dump has been requested.
  * Experimental - the form and name of this class is subject to change
+ * Not an API.
  * @since 1.3
  */
 public class MultipleSnapshotsException extends SnapshotException
