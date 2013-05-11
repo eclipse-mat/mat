@@ -286,6 +286,21 @@ public class QueryDescriptor extends AnnotatedObjectDescriptor
         {
             return true;
         }
+
+        @Override
+        public String getUsage(IQueryContext context)
+        {
+            if (options.length() > 0)
+            {
+                // Insert the options before the argument descriptions
+                String cmd = super.getUsage(context);
+                return identifier + " " + options + cmd.substring(identifier.length()); //$NON-NLS-1$
+            }
+            else
+            {
+                return super.getUsage(context);
+            }
+        }
     }
 
 }

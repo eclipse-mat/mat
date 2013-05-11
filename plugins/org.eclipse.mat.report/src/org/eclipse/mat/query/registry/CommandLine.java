@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2013 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -115,7 +115,9 @@ public class CommandLine
         {
             if (argDescriptor.getType() == Boolean.class || argDescriptor.getType() == boolean.class)
             {
-                arguments.setArgumentValue(argDescriptor, Boolean.FALSE);
+                // Only set the ones which would not default to false
+                if (!Boolean.FALSE.equals(argDescriptor.getDefaultValue()))
+                    arguments.setArgumentValue(argDescriptor, Boolean.FALSE);
             }
         }
 

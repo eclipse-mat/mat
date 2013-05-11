@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2013 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -91,8 +91,14 @@ public class QueryExecution
     {
         boolean hasUserArguments = false;
 
+        /*
+         * Find unset arguments, or boolean arguments set to false
+         * because CommandLine.parse might have added values for unset flag arguments
+         */
         for (ArgumentDescriptor arg : arguments.getQueryDescriptor().getArguments())
-            hasUserArguments = hasUserArguments || arguments.getArgumentValue(arg) == null;
+            hasUserArguments = hasUserArguments || arguments.getArgumentValue(arg) == null
+                            || (arg.getType() == Boolean.class || arg.getType() == boolean.class) 
+                            && Boolean.FALSE.equals(arguments.getArgumentValue(arg));
 
         if (hasUserArguments)
         {

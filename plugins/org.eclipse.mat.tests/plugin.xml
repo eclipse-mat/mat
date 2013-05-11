@@ -52,13 +52,40 @@
             impl="org.eclipse.mat.tests.queries.Context$ContextObjectQuery">
       </query>
       <query
-            impl="org.eclipse.mat.tests.queries.Context$ContextObjectQueries">
+            impl="org.eclipse.mat.tests.queries.Context$ContextObjectsQuery">
       </query>
       <query
             impl="org.eclipse.mat.tests.queries.Context$ContextObjectSetQuery">
       </query>
       <query
-            impl="org.eclipse.mat.tests.queries.Context$ContextObjectSetQueries">
+            impl="org.eclipse.mat.tests.queries.Context$ContextObjectSetsQuery">
+      </query>
+      <query
+            impl="org.eclipse.mat.tests.queries.Context$ResultTableQuery">
+      </query>
+      <query
+            impl="org.eclipse.mat.tests.queries.Context$ResultTreeQuery">
+      </query>
+      <query
+            impl="org.eclipse.mat.tests.queries.Context$StructuredResultQuery">
+      </query>
+      <query
+            impl="org.eclipse.mat.tests.queries.Context$StructuredResultsQuery">
+      </query>
+      <query
+            impl="org.eclipse.mat.tests.queries.Context$StructuredResults2Query">
+      </query>
+      <query
+            impl="org.eclipse.mat.tests.queries.Context$SupplementTest">
+      </query>
+      <query
+            impl="org.eclipse.mat.tests.queries.Context$SecondarySnapshotQuery">
+      </query>
+      <query
+            impl="org.eclipse.mat.tests.queries.Context$OptionalObjectQuery">
+      </query>
+      <query
+            impl="org.eclipse.mat.tests.queries.Context$OptionalContextObjectQuery">
       </query>
       <query
             impl="org.eclipse.mat.tests.queries.CompositeResultTest">

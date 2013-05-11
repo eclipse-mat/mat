@@ -156,12 +156,12 @@ public class QueryBrowserPopup extends PopupDialog
             {
                 if (e.keyCode == 0x0D)
                 {
-                    if (e.stateMask != 0)
+                    if ((e.stateMask & SWT.MOD1) != 0)
                         handleSelection(true);
                     else if (filterText.getText().length() == 0)
                         handleSelection(false);
                     else
-                        executeFilterText();
+                        executeFilterText((e.stateMask & SWT.MOD2) == 0);
 
                     return;
                 }
@@ -458,7 +458,7 @@ public class QueryBrowserPopup extends PopupDialog
         super.fillDialogMenu(dialogMenu);
     }
 
-    private void executeFilterText()
+    private void executeFilterText(boolean prompt)
     {
         try
         {
@@ -469,7 +469,9 @@ public class QueryBrowserPopup extends PopupDialog
             IQueryContext context = editor.getQueryContext();
             ArgumentSet argumentSet = CommandLine.parse(context, cmdLine);
             boolean reproducable = true;
-            if (!argumentSet.isExecutable() && context.available(ISnapshot.class, null))
+            // Used to use argumentSet.isExecutable() but it it nice to fill in optional arguments from the context
+            // For example find_strings from the query browser
+            if (argumentSet.getUnsetArguments().size() > 0 && context.available(ISnapshot.class, null))
             {
                 // Fill in some missing arguments from the policy
                 ISnapshot snapshot = (ISnapshot) context.get(ISnapshot.class, null);
@@ -480,7 +482,7 @@ public class QueryBrowserPopup extends PopupDialog
                 // See if the arguments have changed
                 reproducable = before.equals(after);
             }
-            QueryExecution.execute(editor, null, null, argumentSet, false, reproducable);
+            QueryExecution.execute(editor, null, null, argumentSet, prompt, reproducable);
         }
         catch (SnapshotException e)
         {

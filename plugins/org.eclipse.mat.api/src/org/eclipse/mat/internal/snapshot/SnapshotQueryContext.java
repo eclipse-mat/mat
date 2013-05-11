@@ -22,6 +22,7 @@ import org.eclipse.mat.query.annotations.Argument.Advice;
 import org.eclipse.mat.query.registry.QueryContextImpl;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.SnapshotInfo;
+import org.eclipse.mat.snapshot.UnreachableObjectsHistogram;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.snapshot.query.RetainedSizeDerivedData;
@@ -59,6 +60,9 @@ public class SnapshotQueryContext extends QueryContextImpl
 
     // //////////////////////////////////////////////////////////////
     // context available
+    // provided by the context - e.g. the snapshot, any selected rows
+    // in a table etc. Not provided via the command line or the
+    // arguments editor
     // //////////////////////////////////////////////////////////////
 
     @Override
@@ -74,9 +78,11 @@ public class SnapshotQueryContext extends QueryContextImpl
             {
                 return true;
             }
-            else if (IStructuredResult.class.isAssignableFrom(type))
+            else if (IStructuredResult.class.isAssignableFrom(type) && !UnreachableObjectsHistogram.class.isAssignableFrom(type))
             {
                 // For compare queries
+                // Exclude UnreachableObjectsHistogram which is a kind of table,
+                // as this should only be provided as an SnapshotAddon
                 return true;
             }
             else if (snapshot.getSnapshotAddons(type) != null)
@@ -122,6 +128,8 @@ public class SnapshotQueryContext extends QueryContextImpl
 
     // //////////////////////////////////////////////////////////////
     // available via conversion
+    // This means it can be provided via command line arguments or
+    // the argument editor
     // //////////////////////////////////////////////////////////////
 
     @Override

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2013 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,6 +26,9 @@ import org.eclipse.mat.report.internal.Messages;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 
+/**
+ * Holds a query, all the arguments for a query, and the query context, ready for execution.
+ */
 public class ArgumentSet
 {
     private IQueryContext context;
