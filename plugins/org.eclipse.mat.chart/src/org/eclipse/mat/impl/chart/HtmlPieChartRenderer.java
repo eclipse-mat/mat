@@ -39,7 +39,7 @@ import org.eclipse.birt.chart.model.data.Action;
 import org.eclipse.birt.chart.model.data.Trigger;
 import org.eclipse.birt.chart.model.data.impl.ActionImpl;
 import org.eclipse.birt.chart.model.data.impl.TriggerImpl;
-import org.eclipse.birt.chart.render.IActionRenderer;
+import org.eclipse.birt.chart.render.ActionRendererAdapter;
 import org.eclipse.birt.chart.script.IScriptClassLoader;
 import org.eclipse.birt.chart.util.PluginSettings;
 import org.eclipse.mat.query.IResult;
@@ -51,7 +51,6 @@ import org.eclipse.mat.report.Renderer;
 public class HtmlPieChartRenderer implements IOutputter
 {
 
-    @SuppressWarnings("unchecked")
 	public void embedd(Context context, IResult result, Writer writer) throws IOException
     {
         try
@@ -86,19 +85,29 @@ public class HtmlPieChartRenderer implements IOutputter
 
             Generator gr = Generator.instance();
             GeneratedChartState state = gr.build(render.getDisplayServer(), chart, bo, null, rtc, null);
-            state.getRunTimeContext().setActionRenderer(new IActionRenderer() {
-			
-				public void processAction(Action action, StructureSource source) {
-					if (ActionType.SHOW_TOOLTIP_LITERAL.equals(action.getType())) {
-						TooltipValue tooltip = (TooltipValue) action.getValue();
-						if (StructureType.LEGEND_ENTRY.equals(source.getType())) {
-							LegendItemHints item = (LegendItemHints) source.getSource();
-							tooltip.setText(item.getItemText());
-						}
-					}
-			
-				}
-			});
+            state.getRunTimeContext().setActionRenderer(new ActionRendererAdapter()
+            {
+
+                public void processAction(Action action, StructureSource source)
+                {
+                    if (ActionType.SHOW_TOOLTIP_LITERAL.equals(action.getType()))
+                    {
+                        TooltipValue tooltip = (TooltipValue) action.getValue();
+                        if (StructureType.LEGEND_ENTRY.equals(source.getType()))
+                        {
+                            LegendItemHints item = (LegendItemHints) source.getSource();
+                            tooltip.setText(item.getItemText());
+                        }
+                    }
+                }
+                /*
+                 * BIRT in Kepler M7 calls this method instead
+                 */
+                public void processAction(Action action, StructureSource source, RunTimeContext ctx)
+                {
+                    processAction(action, source);
+                }
+            });
             render.setProperty(IDeviceRenderer.UPDATE_NOTIFIER, new EmptyUpdateNotifier(chart, state.getChartModel()));
             gr.render(render, state);
             String imageMap = ((IImageMapEmitter) render).getImageMap();
