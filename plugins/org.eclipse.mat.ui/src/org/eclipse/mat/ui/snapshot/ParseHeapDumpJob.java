@@ -90,7 +90,7 @@ public abstract class ParseHeapDumpJob extends Job
                 String selectedId = runtimeSelector.getSelectedRuntimeId();
                 if (selectedId != null)
                 {
-                    arguments.put("runtime_identifier", selectedId); //$NON-NLS-1$
+                    arguments.put("snapshot_identifier", selectedId); //$NON-NLS-1$
                     snap = SnapshotFactory.openSnapshot(path.toFile(), arguments, new ProgressMonitorWrapper(monitor));
                 }
             }

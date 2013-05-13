@@ -56,9 +56,9 @@ public class MultipleSnapshots
     public void testDump1()
     {
         Map<String, String> options = new HashMap<String, String>();
-        options.put("runtime_identifier", "#1");
+        options.put("snapshot_identifier", "#1");
         ISnapshot snapshot1 = TestSnapshots.getSnapshot(TestSnapshots.ORACLE_JDK7_21_64BIT_HPROFAGENT, options, true);
-        options.put("runtime_identifier", "#2");
+        options.put("snapshot_identifier", "#2");
         ISnapshot snapshot2 = TestSnapshots.getSnapshot(TestSnapshots.ORACLE_JDK7_21_64BIT_HPROFAGENT, options, true);
         assertTrue(snapshot1.getSnapshotInfo().getNumberOfObjects() != snapshot2.getSnapshotInfo().getNumberOfObjects());
 

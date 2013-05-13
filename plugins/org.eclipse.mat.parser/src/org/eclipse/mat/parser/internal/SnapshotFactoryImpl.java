@@ -84,10 +84,10 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
 
         int p = name.lastIndexOf('.');
         String prefix = p >= 0 ? name.substring(0, p + 1) : name + ".";//$NON-NLS-1$
-        String runtime_identifier = args.get("runtime_identifier"); //$NON-NLS-1$
-        if (runtime_identifier != null)
+        String snapshot_identifier = args.get("snapshot_identifier"); //$NON-NLS-1$
+        if (snapshot_identifier != null)
         {
-            prefix += runtime_identifier + "."; //$NON-NLS-1$
+            prefix += snapshot_identifier + "."; //$NON-NLS-1$
         }
 
         try
@@ -210,10 +210,10 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
                     snapshotInfo.setProperty("keep_unreachable_objects", GCRootInfo.Type.UNREACHABLE);//$NON-NLS-1$
                 }
 
-                String runtime_identifier = args.get("runtime_identifier"); //$NON-NLS-1$
-                if (runtime_identifier != null)
+                String snapshot_identifier = args.get("snapshot_identifier"); //$NON-NLS-1$
+                if (snapshot_identifier != null)
                 {
-                    snapshotInfo.setProperty("$runtimeId", runtime_identifier);//$NON-NLS-1$
+                    snapshotInfo.setProperty("$runtimeId", snapshot_identifier);//$NON-NLS-1$
                 }
 
                 PreliminaryIndexImpl idx = new PreliminaryIndexImpl(snapshotInfo);

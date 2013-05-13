@@ -15,6 +15,7 @@ import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.beans.SimpleBeanInfo;
 import java.io.File;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -141,6 +142,11 @@ public class HeapDumpInfoQuery implements IQuery
         }
         entries.add(new TextEntry(Messages.HeapDumpInfoQuery_Column_FilePath, info.getPath()));
         entries.add(new TextEntry(Messages.HeapDumpInfoQuery_Column_FileLength, MessageUtil.format(Messages.HeapDumpInfoQuery_FileLengthFormat, (new File(info.getPath())).length())));
+        Serializable identifier = info.getProperty("$runtimeId"); //$NON-NLS-1$
+        if (identifier instanceof String)
+        {
+            entries.add(new TextEntry(Messages.HeapDumpInfoQuery_MultipleSnapshotIdentifier, identifier.toString()));
+        }
 
         return new ListResult(TextEntry.class, entries, "propertyName", "propertyValue"); //$NON-NLS-1$ //$NON-NLS-2$
     }

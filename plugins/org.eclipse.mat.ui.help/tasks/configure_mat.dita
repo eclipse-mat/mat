@@ -157,32 +157,6 @@ and all methods are pseudo-classes of type <codeph>&lt;method type&gt;</codeph> 
 					
 				</dd>
 			</dlentry>
-			<dlentry>
-				<dt>
-					<menucascade>
-						<uicontrol>Memory Analyzer</uicontrol>
-						<uicontrol>DTFJ Parser</uicontrol>
-						<uicontrol>Runtime ID</uicontrol>
-					</menucascade>
-				</dt>
-				<dd>Certain DTFJ dumps can contain snapshots from multiple Java Virtual Machines. This can happen with IBM z/OS system dumps.
-				By default Memory Analyzer chooses the snapshot from JVM that caused the dump (as reported by DTFJ), or the first snapshot found.
-				Memory Analyzer will produce a warning if additional snapshots are found. Another of these snapshots can be selected by using 
-				this option, of the form 'i.j.k' where <parmname>i</parmname> is the index of the address space required, 
-				<parmname>j</parmname> is the index of the process within that address space and <parmname>k</parmname> is the index of
-				the runtime within the process. This ID is shown in a warning message when multiple dumps are found.
-				Instead of an index, an address space identifier, process identifier or runtime identifier as shown by the warning
-				message can be used instead. An identifier can be omitted.
-				Example message
-				<msgblock>
-				Using DTFJ Java runtime 4.0.0
-				Multiple Java runtimes found without a runtime ID specified in preferences. Ignoring extra Java runtime 5.0.0 found in image at address space '0x379' process ID '14568399' runtime address '0x492c6f2468' version Java(TM) SE Runtime Environment(build pmz6460sr9fp1-20110401_03 (SR9 FP1))
-				Multiple Java runtimes found without a runtime ID specified in preferences. Ignoring extra Java runtime 6.0.0 found in image at address space '0x4bc' process ID '35467898' runtime address '0x492d592c98' version Java(TM) SE Runtime Environment(build pmz6460sr9fp1-20110401_03 (SR9 FP1))
-				</msgblock>
-				To specify another runtime, <userinput>5.0.0</userinput> or <userinput>0x379.14568399.0x492c6f2468</userinput> or even
-				<userinput>0x379..</userinput> or <userinput>..0x492c6f2468</userinput> could be used.
-				</dd>
-			</dlentry>
 					<dlentry>
 						<dt>
 							<menucascade>

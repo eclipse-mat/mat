@@ -189,6 +189,38 @@
 			You can see then what are the required settings and specify them.
 			</p>
 			
+			<p><i>Multiple snapshots in one heap dump</i></p>
+			<p>
+			Occasionally heap dumps files can be generated which contain multiple heap dumps snapshots.
+			If an HPROF dump is generated using 
+			<codeblock>-agentlib:hprof=heap=dump,format=b</codeblock>
+			then if a heap dump is triggered multiple times all the heap dumps will be written to one file.
+			An IBM z/OS system dump can contain data from multiple address spaces and processes.
+			It is therefore possible that the dump file contains heap dump snapshots from multiple Java runtimes.
+			</p>
+			<p>
+			Memory Analyzer 1.2 and earlier handled this situation by choosing the first heap dump snapshot found unless another
+			was selected via an environment variable or MAT DTFJ configuration option.
+			</p>
+			<p>
+			Memory Analyzer 1.3 handles this situation by detecting the multiple dumps, then presenting a dialog
+			for the user to select the required snapshot.
+			</p>
+			<image href="../mimes/multiple_snapshots.png">
+			<alt>Choose a snapshot to be analyzed</alt>
+			</image>
+			<p>
+			The index files generated have a component in the file name from the snapshot identifier, so the index
+			files from each snapshot can be distinguished.
+			This means that multiple snapshots from one heap dump file can be examined in Memory Analzyer
+			simultaneously. 
+			The heap dump history for the file remembers the last snapshot selected for that file, though when
+			the snapshot is reopened via the history the index file is also shown in the history.
+			To open another snapshot in the dump, close the first snapshot, then reopen the heap dump file using the File menu and
+			another snapshot can be chosen to be parsed.
+			The first snapshot can then be reopened using the index file in the history, and both snapshots can
+			be viewed at once.
+			</p>
 		</context>
 	</taskbody>
 </task>
