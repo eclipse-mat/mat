@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2010 SAP AG.
+    Copyright (c) 2008, 2013 SAP AG and IBM Corporation.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
    
     Contributors:
         SAP AG - initial API and implementation
+        IBM Corporation - copy and paste OQL
  -->
 <!DOCTYPE task PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd" >
 <task id="task_queryingheapobjects" xml:lang="en-us">
@@ -54,6 +55,18 @@ FROM [ INSTANCEOF ] &lt;class name&gt;
     The text area has autocompletion for class names, class name regular expressions,
     field names, attributes and methods. 
     See <xref href="../reference/tipsandtricks.dita#oqlcompletion">OQL autocompletion</xref>.
+</p>
+<p>
+    The navigation history shows previous OQL queries. Clicking on a previous query 
+    executes it again. On many result panes, selecting some objects, then
+    <menucascade>
+        <uicontrol>Copy</uicontrol>
+        <uicontrol>OQL Query</uicontrol>
+    </menucascade>
+    copies an OQL representation of the objects. This OQL can then be pasted
+    into the OQL editor text area.  
+    This works from the OQL result area itself, and also copies the column details as well as the objects.
+    <image href="../mimes/oqlsaveresult.png" alt="screen shot of OQL navigation and copy OQL query"/>
 </p>
 </context>
 </taskbody>
