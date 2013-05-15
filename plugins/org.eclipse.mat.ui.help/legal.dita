@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2012 SAP AG.
+    Copyright (c) 2008, 2013 SAP AG.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -16,7 +16,7 @@
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2008, 2012 SAP AG and others.
+				Copyright (c) 2008, 2013 SAP AG and others.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License v1.0
 			    which accompanies this distribution, and is available at
@@ -30,7 +30,7 @@
 		<section>
 			<title>Notices</title>
 			<p>
-				The material in this guide is Copyright (c) SAP AG and IBM Corporation 2008, 2012
+				The material in this guide is Copyright (c) SAP AG and IBM Corporation 2008, 2013
 			</p>
 			<p>
 				<xref format="html" href="about.html">Terms and conditions regarding the use of this guide.</xref> 
