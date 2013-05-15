@@ -85,7 +85,7 @@ public class FindStringsQuery implements IQuery
                             continue;
 
                         String value = instance.getClassSpecificName();
-                        if (pattern.matcher(value).matches())
+                        if (value != null && pattern.matcher(value).matches())
                         {
                             result.add(id);
                         }
