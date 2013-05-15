@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2013 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -459,9 +459,14 @@ public class OQLTest
     @Test
     public void testAsSpaces() throws SnapshotException
     {
-        IOQLQuery q1 = SnapshotFactory.createQuery("SELECT s.@objectId AS \"A B\" FROM java.lang.Object s");
+        String label = "A B";
+        IOQLQuery q1 = SnapshotFactory.createQuery("SELECT s.@objectId AS \"" + label + "\" FROM java.lang.Object s");
         String s = q1.toString();
+        IResultTable r = (IResultTable)execute(s);
+        assertEquals(label, r.getColumns()[0].getLabel());
         IOQLQuery q2 = SnapshotFactory.createQuery(s);
+        String s2 = q2.toString();
+        assertEquals(s, s2);
     }
 
     /**
@@ -471,9 +476,31 @@ public class OQLTest
     @Test
     public void testAsEmpty() throws SnapshotException
     {
-        IOQLQuery q1 = SnapshotFactory.createQuery("SELECT s.@objectId AS \"\" FROM java.lang.Object s");
+        String label = "";
+        IOQLQuery q1 = SnapshotFactory.createQuery("SELECT s.@objectId AS \"" + label + "\" FROM java.lang.Object s");
         String s = q1.toString();
+        IResultTable r = (IResultTable)execute(s);
+        assertEquals(label, r.getColumns()[0].getLabel());
         IOQLQuery q2 = SnapshotFactory.createQuery(s);
+        String s2 = q2.toString();
+        assertEquals(s, s2);
+    }
+
+    /**
+     * Test punctuation in as clause
+     * @throws SnapshotException
+     */
+    @Test
+    public void testAsPunctution() throws SnapshotException
+    {
+        String label = "A,B";
+        IOQLQuery q1 = SnapshotFactory.createQuery("SELECT s.@objectId AS \"" + label + "\" FROM java.lang.Object s");
+        String s = q1.toString();
+        IResultTable r = (IResultTable)execute(s);
+        assertEquals(label, r.getColumns()[0].getLabel());
+        IOQLQuery q2 = SnapshotFactory.createQuery(s);
+        String s2 = q2.toString();
+        assertEquals(s, s2);
     }
 
     /**

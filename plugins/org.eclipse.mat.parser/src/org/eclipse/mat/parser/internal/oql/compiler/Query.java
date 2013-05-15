@@ -62,7 +62,8 @@ public class Query
             {
                 buf.append(" AS ");//$NON-NLS-1$
                 String name = getName();
-                boolean quote = name.length() == 0 || name.indexOf(' ') >= 0; 
+                // AS clause can have other letters without quotes, but this is simple and safe
+                boolean quote = !name.matches("[A-Za-z$_][A-Za-z0-9$_]*"); //$NON-NLS-1$
                 if (quote)
                     buf.append('"');
                 buf.append(name);
