@@ -1,64 +1,165 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html
-  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xml:lang="en-us" lang="en-us">
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en-us" xml:lang="en-us">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-<meta name="DC.Type" content="reference"/>
-<meta name="DC.Title" content="New and Noteworthy"/>
-<meta name="abstract" content="Here are descriptions of some of the more interesting or significant changes made to the Memory Analyzer for the 1.2 release."/>
-<meta name="description" content="Here are descriptions of some of the more interesting or significant changes made to the Memory Analyzer for the 1.2 release."/>
-<meta name="copyright" content="Copyright (c) 2008, 2012 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary"/>
-<meta name="DC.Rights.Owner" content="Copyright (c) 2008, 2012 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary"/>
-<meta name="DC.Format" content="XHTML"/>
-<meta name="DC.Identifier" content="ref_noteworthy"/>
-<meta name="DC.Language" content="en-us"/>
-<link rel="stylesheet" type="text/css" href="styles/commonltr.css"/>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<meta content="reference" name="DC.Type" />
+<meta name="DC.Title" content="New and Noteworthy" />
+<meta name="abstract" content="Here are descriptions of some of the more interesting or significant changes made to the Memory Analyzer for the 1.3 release." />
+<meta name="description" content="Here are descriptions of some of the more interesting or significant changes made to the Memory Analyzer for the 1.3 release." />
+<meta name="copyright" content="Copyright (c) 2008, 2013 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary" />
+<meta name="DC.Rights.Owner" content="Copyright (c) 2008, 2013 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary" />
+<meta content="XHTML" name="DC.Format" />
+<meta content="ref_noteworthy" name="DC.Identifier" />
+<meta content="en-us" name="DC.Language" />
+<link href="styles/commonltr.css" type="text/css" rel="stylesheet" />
 <title>New and Noteworthy</title>
 </head>
-<body id="ref_noteworthy">
+<body id="ref_noteworthy"><a name="ref_noteworthy"><!-- --></a>
 
 
-	<h1 class="title topictitle1">New and Noteworthy</h1>
+	<h1 class="topictitle1">New and Noteworthy</h1>
 
 	
 	
-	<div class="body refbody"><p class="shortdesc">Here are descriptions of some of the more interesting or
-		significant changes made to the Memory Analyzer for the 1.2 release.
+	<div><p>Here are descriptions of some of the more interesting or
+		significant changes made to the Memory Analyzer for the 1.3 release.
 	</p>
 
-		<div class="section"><h2 class="title sectiontitle">Support for Compressed Object Pointers</h2>
+		<div class="section"><h2 class="sectiontitle">Support for Multiple Snapshots in One Heap Dump File</h2>
 			
-			<p class="p">Memory Analyzer can now display correct object sizes for HPROF heapdumps from Java processes 
-			running on x64 with the option -XX:+UseCompressedOops. The option -XX:+UseCompressedOops
-			specifies that the object pointers used by the VM are compressed in order to reduce memory consumption.
-			The HPROF heap dump file does not provide the information if the option was used or not, and 
-			until now Memory Analyzer always displayed the uncompressed size.
-			The new version does some additional analysis of the object addresses to recognize if 
-			the object pointers are compressed, and show the correct object sizes also for such heap dumps.
+			<div class="p">
+			Occasionally heap dumps files can be generated which contain multiple heap dumps snapshots.
+			If an HPROF dump is generated using 
+			<pre class="codeblock">-agentlib:hprof=heap=dump,format=b</pre>
+
+			then if a heap dump is triggered multiple times all the heap dumps will be written to one file.
+			An IBM z/OS system dump can contain data from multiple address spaces and processes.
+			It is therefore possible that the dump file contains heap dump snapshots from multiple Java runtimes.
+			</div>
+
+			<p>
+			Memory Analyzer 1.2 and earlier handled this situation by choosing the first heap dump snapshot found unless another
+			was selected via an environment variable or MAT DTFJ configuration option.
 			</p>
 
-			<p class="p">
-			One can check if the tool assumes compressed pointers or not in the "Heap Dump Details" view.
+			<p>
+			Memory Analyzer 1.3 handles this situation by detecting the multiple dumps, then presenting a dialog
+			for the user to select the required snapshot.
 			</p>
 
-			<img class="image" src="mimes/compressed_oops.png" alt="Property indicating if compressed pointers are used or not"/>
+			<img src="mimes/multiple_snapshots.png" alt="Choose a snapshot to be analyzed" />
+			<p>
+			Further details can be found in the documentation under "Acquiring Heap Dumps"
+			</p>
+
 		</div>
 
 		
-		<div class="section"><h2 class="title sectiontitle">OQL Syntax Highlighting and Autocompletion</h2>
+		<div class="section"><h2 class="sectiontitle">Improved Autocompletion in the OQL Editor</h2>
 			
-			<p class="p">The OQL Editor has been enhanced with autocompletion and syntax highlighting capabilities 
+			<p>The autocompletion capabilities have been extended.
 			</p>
 
-			<img class="image" src="mimes/oql_completion1.png" alt="Use code completion in OQL"/>
+			<p>
+			Autocompletion
+			for <span class="keyword">SELECT</span> and <span class="keyword">WHERE</span> clauses 
+			can also supply field names. The class
+			for the field names is selected in the <span class="keyword">FROM</span> clause by typing space
+			after the class name. This brings up a context information box, and
+			selects that class as the active class for field names.
+			<br /><div class="imageleft"><img src="mimes/oql_completion3.png" /></div><br />
+			Suggestions are then provided in the <span class="keyword">SELECT</span> or
+			<span class="keyword">WHERE</span> clauses on typing '.' or '@' or control-space.
+			<br /><div class="imageleft"><img src="mimes/oql_completion4.png" /></div><br />
+			Attributes begin with '@' and the autocompletion is filtered based on
+			what has been typed so far.
+			<br /><div class="imageleft"><img src="mimes/oql_completion5.png" /></div><br />
+			In <span class="keyword">SELECT</span> and <span class="keyword">WHERE</span> clauses there are also suggestions for methods on
+			key Memory Analyzer objects representing contents of the snapshot.
+			<br /><div class="imageleft"><img src="mimes/oql_completion6.png" /></div><br />
+            Pressing enter adds the selected text to the command window.
+            <br /><div class="imageleft"><img src="mimes/oql_completion7.png" /></div><br />
+            </p>
+
 		</div>
 
-		<div class="section"><h2 class="title sectiontitle">New and Noteworthy for Memory Analyzer 1.1</h2>
+		<div class="section"><h2 class="sectiontitle">OQL - Accessing Objects by Index in Arrays and Lists</h2>
 			
-			<p class="p">
-				The New and Noteworthy document for version 1.1 is available 
-				<a class="xref" href="http://www.eclipse.org/mat/1.1/noteworthy.html">here</a>.
+			<p>
+				The OQL syntax was extended to support accessing objects inside arrays and Lists by using an index.  
+				Here some examples:
+			</p>
+
+			<div class="p">
+			Reading values from primitive arrays:
+			<pre class="codeblock">SELECT s[2] FROM int[] s WHERE (s.@length &gt; 2)</pre>
+
+			</div>
+
+			<div class="p">
+			Reading values from object arrays:
+			<pre class="codeblock">SELECT s[2] FROM java.lang.Object[] s WHERE (s.@length &gt; 2)</pre>
+
+			</div>
+
+			<div class="p">
+			Reading values from lists:
+			<pre class="codeblock">SELECT s.@GCRoots.subList(1,3)[1] FROM OBJECTS ${snapshot} s</pre>
+
+			</div>
+
+			<p>For further details see "Reference / OQL Syntax / Property Accessors" in the Memory Analyzer documentation
+			</p>
+
+
+		</div>
+
+		<div class="section"><h2 class="sectiontitle">Reusing OQL Results</h2>
+			
+			<p>
+				It is now easier to reuse the results of executed OQL queries 
+			</p>
+
+			<p>
+				The navigation history shows previous OQL queries. Clicking on a previous query 
+				executes it again. On many result panes, selecting some objects, then
+				<span class="menucascade">
+				<span class="uicontrol">Copy</span>
+				 &gt; <span class="uicontrol">OQL Query</span>
+				</span>
+				copies an OQL representation of the objects. This OQL can then be pasted
+				into the OQL editor text area.  
+				This works from the OQL result area itself, and also copies the column details as well as the objects.
+			</p>
+
+			<p>
+				<img src="mimes/oqlsaveresult.png" alt="screen shot of OQL navigation and copy OQL query" />
+			</p>
+
+		</div>
+
+		<div class="section"><h2 class="sectiontitle">Support for Huge Heap Dumps</h2>
+			
+			<p>
+				Older versions of MAT had a limitations on the number of objects in the heap (caused by some internal structures used).
+				This is reworked, and there were reports for successfully processing a 60 GB / 900.000.000+ objects heap dump.
+			</p>
+
+		</div>
+
+		<div class="section"><h2 class="sectiontitle">Performance Improvements</h2>
+			
+			<p>An issue causing that the dominator tree calculation sometimes took ages is now fixed.</p>
+
+			<p>There is a performance optimization in the retained set calculation</p>
+
+		</div>
+
+		<div class="section"><h2 class="sectiontitle">New and Noteworthy for Memory Analyzer 1.2</h2>
+			
+			<p>
+				The New and Noteworthy document for version 1.2 is available 
+				<a href="http://www.eclipse.org/mat/1.2.0/noteworthy.html">here</a>.
 			</p>
 
 		</div>
