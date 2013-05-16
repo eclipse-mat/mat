@@ -398,6 +398,11 @@ public class DTFJIndexBuilder implements IIndexBuilder
         {
             throw new DataUnavailable();
         }
+
+        public boolean isPacked() throws DataUnavailable, CorruptDataException
+        {
+            throw new DataUnavailable();
+        }
     }
 
     /**
