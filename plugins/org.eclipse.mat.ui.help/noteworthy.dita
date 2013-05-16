@@ -129,13 +129,14 @@
 		<section>
 			<title>Support for Huge Heap Dumps</title>
 			<p>
-				Older versions of MAT had a limitations on the number of objects in the heap (caused by some internal structures used).
-				This is reworked, and there were reports for successfully processing a 60 GB / 900.000.000+ objects heap dump.
+				Older versions of MAT had limitations on the number of objects in the heap (caused by some internal structures used).
+				This is reworked, and there were reports of successfully processing a 48 GB / 900 million+ objects heap dump.
 			</p>
 		</section>
 		<section>
 			<title>Performance Improvements</title>
-			<p>An issue causing that the dominator tree calculation sometimes took ages is now fixed.</p>
+			<p>An issue where parsing a dump with more than 850 million objects took ages is now fixed.</p>
+			<p>An issue where the dominator tree calculation sometimes took ages is now fixed.</p>
 			<p>There is a performance optimization in the retained set calculation</p>
 		</section>
 		<section>
