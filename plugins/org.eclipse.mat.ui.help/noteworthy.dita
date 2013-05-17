@@ -127,6 +127,21 @@
 			</p>
 		</section>
 		<section>
+			<title>Threads Overview Button</title>
+			<p>
+				Inspecting the threads and their stack-traces proved to be a very useful feature. 
+				To simplify the access to this information, a button was added directly to the toolbar, and the two old queries "thread stacks" 
+				and "thread overview" were merged into one. 
+				This way, just a single click is enough to get the overview of all threads and start inspecting
+				their stacks. For more details see "Tasks / Analyzing Threads" in the Memory Analyzer documentation.
+			</p>
+			<p>
+				<image href="mimes/threads_overview.png">
+				<alt>Threads overview and stacks</alt>
+			</image>
+			</p>
+		</section>		
+		<section>
 			<title>Support for Huge Heap Dumps</title>
 			<p>
 				Older versions of MAT had limitations on the number of objects in the heap (caused by some internal structures used).

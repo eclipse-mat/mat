@@ -1,78 +1,56 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html
-  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xml:lang="en-us" lang="en-us">
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en-us" xml:lang="en-us">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-<meta name="DC.Type" content="task"/>
-<meta name="DC.Title" content="Analyzing Threads"/>
-<meta name="copyright" content="Copyright (c) 2008, 2010 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary"/>
-<meta name="DC.Rights.Owner" content="Copyright (c) 2008, 2010 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary"/>
-<meta name="DC.Format" content="XHTML"/>
-<meta name="DC.Identifier" content="task_analyzingthreads"/>
-<meta name="DC.Language" content="en-us"/>
-<link rel="stylesheet" type="text/css" href="../styles/commonltr.css"/>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<meta content="task" name="DC.Type" />
+<meta name="DC.Title" content="Analyzing Threads" />
+<meta name="copyright" content="Copyright (c) 2008, 2010 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary" />
+<meta name="DC.Rights.Owner" content="Copyright (c) 2008, 2010 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary" />
+<meta content="XHTML" name="DC.Format" />
+<meta content="task_analyzingthreads" name="DC.Identifier" />
+<meta content="en-us" name="DC.Language" />
+<link href="..\styles/commonltr.css" type="text/css" rel="stylesheet" />
 <title>Analyzing Threads</title>
 </head>
-<body id="task_analyzingthreads">
+<body id="task_analyzingthreads"><a name="task_analyzingthreads"><!-- --></a>
 
 
-	<h1 class="title topictitle1">Analyzing Threads</h1>
+	<h1 class="topictitle1">Analyzing Threads</h1>
 
 	
 
-	<div class="body taskbody">
-		<div class="section context">
-			<p class="p">
+	<div>
+		<div class="section">
+			<p>
 				Memory Analyzer provides several queries to inspect the threads at the 
 				moment the snapshot was taken.
 			</p>
 
-			<p class="p"><strong class="ph b">Threads Overview</strong></p>
+			<p><strong>Threads Overview</strong></p>
 
-			<p class="p">
-				To get an overview of all the threads in the heap dump use the
-				<span class="ph menucascade"><span class="ph uicontrol">Query Browser</span> &gt; <span class="ph uicontrol">Thread Overview</span></span>
+			<p>
+				To get an overview of all the threads in the heap dump use the "Thread Overview" button
+				in the toolbar, as shown on the image below. Alternatively one could use the 
+				<span class="menucascade">
+					<span class="uicontrol">Query Browser</span>
+					 &gt; <span class="uicontrol">Thread Overview and Stacks</span>
+				</span>
 				query:
 			</p>
 
-			<img class="image" src="../mimes/threads_overview.png" alt="screen shot of thread overview"/>
-			<p class="p">
+			<img src="../mimes/threads_overview.png" alt="screen shot of thread overview" />
+			<p>
 				The query provide some properties like Name, Object, Context Classloader, etc...
 				for each of the threads.
 			</p>
 
-			<p class="p"><strong class="ph b">Threads Details</strong></p>
-			
-			<p class="p">
-				You can proceed with the analysis of a single thread by using
-				<span class="ph menucascade"><span class="ph uicontrol">Java Basics</span> &gt; <span class="ph uicontrol">Thread Details</span></span>
-				context menu. Memory Analyzer provides an extension point, such that extensions can
-				provide semantic information about the threads activity. The result of the Thread Details 
-				query will contain such information (if available), some overview information, and 
-				possibly the stacktrace of the thread.
-			</p>
-
-			<p class="p">
-				For DTFJ based dumps (IBM system dumps and IBM PHD files with associated java dump) the thread
-				details view gives more information, including the thread state, priority and native stack trace.
-				<img class="image" src="../mimes/thread_details.png" alt="Thread details from a DTFJ dump showing DTFJ Name, JNIEnv, Priority, State and Native id."/>
-			</p>
-
-			
-			<p class="p"><strong class="ph b">Threads Stacks</strong></p>
-			
-			<p class="p">
+			<p>
 				Some heap dump formats (e.g. HPROF dumps from recent Java 6 VMs and IBM system dumps)
 				contain information about the call stacks of threads, and the Java local objects per 
-				stack frame. To access this information for all threads use the query
-				<span class="ph menucascade"><span class="ph uicontrol">Java Basics</span> &gt; <span class="ph uicontrol">Thread Stacks</span></span>
-				with no objects as parameter. To view the call stacks of particular selection of threads use
-				the same query from the context menu. 
+				stack frame. 
 			</p>
 
-			<img class="image" src="../mimes/thread_stack.png" alt="screen shot of thread stack"/>
-			<p class="p">
+			<p>
 				Exploring the call-stacks and the local Java objects is a powerful feature, giving a
 				debugger like capabilities over a snapshot. It allows analyzing in details the reason
 				for a memory intensive operations. And it also enables that heap dumps and Memory Analyzer
@@ -80,28 +58,55 @@
 				e.g. unresponsive applications.
 			</p>
 
+			
+			<p><strong>Threads Details</strong></p>
+			
+			<p>
+				You can proceed with the analysis of a single thread by using
+				<span class="menucascade">
+					<span class="uicontrol">Java Basics</span>
+					 &gt; <span class="uicontrol">Thread Details</span>
+				</span>
+				context menu. Memory Analyzer provides an extension point, such that extensions can
+				provide semantic information about the threads activity. The result of the Thread Details 
+				query will contain such information (if available), some overview information, and 
+				possibly the stacktrace of the thread.
+			</p>
+
+			<p>
+				For DTFJ based dumps (IBM system dumps and IBM PHD files with associated java dump) the thread
+				details view gives more information, including the thread state, priority and native stack trace.
+			</p>
+
+			<p>
+				<img src="../mimes/thread_details.png" alt="Thread details from a DTFJ dump showing DTFJ Name, JNIEnv, Priority, State and Native id." />
+			</p>
+
+
+			<p><strong>Threads Stacks in Dumps from IBM VMs</strong></p>
+	
 			<div class="p">The DTFJ parser allows more control over viewing thread stacks. This is configured using the 
 			DTFJ Parser preferences page. The options are as follows.
-			<dl class="dl">
+			<dl>
 			
-				<dt class="dt dlterm">Normal</dt>
+				<dt class="dlterm">Normal</dt>
 
-				<dd class="dd">Stack frames are only shown in the thread stacks view.</dd>
+				<dd>Stack frames are only shown in the thread stacks view.</dd>
 
 			
 			
-				<dt class="dt dlterm">Only stack frames as pseudo-objects</dt>
+				<dt class="dlterm">Only stack frames as pseudo-objects</dt>
 
-				<dd class="dd">Stack frames are shown in all views such as paths to GC roots, outbound references from threads, as pseudo-objects.
+				<dd>Stack frames are shown in all views such as paths to GC roots, outbound references from threads, as pseudo-objects.
 				Local variables references in the stack frames are shown as outbound references from the frame.
 				This makes it easy to find which stack frames keep objects alive. The size of the stack frame is the
 				size on the Java stack, not the heap.</dd>
 
 			
 			
-				<dt class="dt dlterm">Stack frames as pseudo-objects and running methods as pseudo-classes</dt>
+				<dt class="dlterm">Stack frames as pseudo-objects and running methods as pseudo-classes</dt>
 
-				<dd class="dd">Stack frames are shown in all views such as paths to GC roots, outbound references from threads, as pseudo-objects.
+				<dd>Stack frames are shown in all views such as paths to GC roots, outbound references from threads, as pseudo-objects.
 				Local variables references in the stack frames are shown as outbound references from the frame.
 				This makes it easy to find which stack frames keep objects alive. 
 				The stack frames are given a pseudo-type depending based on the method which is running in the frame.
@@ -110,9 +115,9 @@
 
 			
 			
-				<dt class="dt dlterm">Stack frames as pseudo-objects and all methods as pseudo-classes</dt>
+				<dt class="dlterm">Stack frames as pseudo-objects and all methods as pseudo-classes</dt>
 
-				<dd class="dd">Stack frames are shown in all views such as paths to GC roots, outbound references from threads, as pseudo-objects.
+				<dd>Stack frames are shown in all views such as paths to GC roots, outbound references from threads, as pseudo-objects.
 				Local variables references in the stack frames are shown as outbound references from the frame.
 				This makes it easy to find which stack frames keep objects alive. 
 				The stack frames are given a pseudo-type depending based on the method which is running in the frame.
@@ -128,32 +133,32 @@
 
 			</div>
 
-			<p class="p"><strong class="ph b">Normal operation with stack frames not considered as objects.</strong></p>
+			<p><strong>Normal operation with stack frames not considered as objects.</strong></p>
 
-			<p class="p">
-			<img class="image" src="../mimes/thread_frames0.png" alt="outbound references from thread without stack frames as objects"/>
+			<p>
+			<img src="../mimes/thread_frames0.png" alt="outbound references from thread without stack frames as objects" />
 			</p>
 
-			<p class="p"><strong class="ph b">Stack frames as pseudo-objects.</strong></p>
+			<p><strong>Stack frames as pseudo-objects.</strong></p>
 
-			<p class="p"> Note that the type of the stack frame is <samp class="ph codeph">&lt;stack frame&gt;</samp>.
-			<img class="image" src="../mimes/thread_frames1.png" alt="outbound references from thread with stack frames as objects"/>
+			<p> Note that the type of the stack frame is <samp class="codeph">&lt;stack frame&gt;</samp>.
+			<img src="../mimes/thread_frames1.png" alt="outbound references from thread with stack frames as objects" />
 			</p>
 
-			<p class="p"><strong class="ph b">Stack frames as pseudo-objects and running methods as pseudo-classes.</strong></p>
+			<p><strong>Stack frames as pseudo-objects and running methods as pseudo-classes.</strong></p>
 
-			<p class="p">Note the different types for the stack frame such as <samp class="ph codeph">java.io.FileStream.getBytes([BIII)I;</samp>.
-			<img class="image" src="../mimes/thread_frames2.png" alt="outbound references from thread with stack frames as objects and methods as classes"/>
+			<p>Note the different types for the stack frame such as <samp class="codeph">java.io.FileStream.getBytes([BIII)I;</samp>.
+			<img src="../mimes/thread_frames2.png" alt="outbound references from thread with stack frames as objects and methods as classes" />
 			The class histogram shows that only running methods are pseudo-classes, and the size of the class object is 0.
-			<img class="image" src="../mimes/thread_classes2.png" alt="class histogram showing running methods as pseudo-classes"/>
+			<img src="../mimes/thread_classes2.png" alt="class histogram showing running methods as pseudo-classes" />
 			</p>
 
-			<p class="p"><strong class="ph b">Stack frames as pseudo-objects and all methods as pseudo-classes.</strong></p>
+			<p><strong>Stack frames as pseudo-objects and all methods as pseudo-classes.</strong></p>
 
-			<p class="p">The outbound references tree looks the same,
+			<p>The outbound references tree looks the same,
 			but the class histogram has a lot more pseudo-classes with 0 instances (i.e. with no running methods), and the 
 			pseudo-class objects have a non-zero size.
-			<img class="image" src="../mimes/thread_classes3.png" alt="class histogram showing all methods as pseudo-classes"/>
+			<img src="../mimes/thread_classes3.png" alt="class histogram showing all methods as pseudo-classes" />
 			</p>
 
 		</div>
