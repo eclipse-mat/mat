@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" ?><!--
+    Copyright (c) 2013 IBM Corporation.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+   
+    Contributors:
+        IBM Corporation - initial API and implementation
+ -->
+
+<introContent>
+    <extensionContent id="org.eclipse.mat.whatsnew" style="css/whatsnew.css"
+        name="Memory Analyzer What's New" path="whatsnew/@">
+        <group style-id="content-group" id="org.eclipse.mat.mat-whatsnew-group">
+            <link label="Memory Analyzer" id="mat-whatsnew" style-id="content-link"
+                url="http://org.eclipse.ui.intro/showHelpTopic?id=/org.eclipse.mat.ui.help/noteworthy.html">
+                <text>Some of the more interesting or significant changes made to the Memory Analyzer.</text>
+            </link>
+        </group>
+    </extensionContent>
+</introContent>
