@@ -23,11 +23,12 @@
 
 	<extension point="org.eclipse.ui.intro.configExtension">
 		<!-- config extensions to the RCP welcome page -->		
-		<configExtension configId="org.eclipse.mat.ui.rcp.introConfig" content="intro/all_tutorials.xml" />
+		<configExtension configId="org.eclipse.mat.ui.rcp.introConfig" content="$nl$/intro/all_tutorials.xml" />
 		
 		<!-- config extensions to the universal (IDE) Welcome Page -->
-		<configExtension configId="org.eclipse.ui.intro.universalConfig" content="intro/overview_ide.xml" />
-		<configExtension configId="org.eclipse.ui.intro.universalConfig" content="intro/tutorials_ide.xml" />
+		<configExtension configId="org.eclipse.ui.intro.universalConfig" content="$nl$/intro/overview_ide.xml" />
+		<configExtension configId="org.eclipse.ui.intro.universalConfig" content="$nl$/intro/tutorials_ide.xml" />
+		<configExtension configId="org.eclipse.ui.intro.universalConfig" content="$nl$/intro/whatsnew_ide.xml" />
 	</extension>
 
 	<extension point="org.eclipse.ui.cheatsheets.cheatSheetContent">
