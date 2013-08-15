@@ -13,9 +13,11 @@
 package org.eclipse.mat.tests.snapshot;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -324,7 +326,9 @@ public class OQLTest
 
         ISnapshot snapshot = TestSnapshots.getSnapshot(TestSnapshots.SUN_JDK5_64BIT, false);
 
-        Set<IClass> classes = new HashSet<IClass>(snapshot.getClassesByName("java.lang.ref.Reference", true));
+        Collection<IClass>rClasses = snapshot.getClassesByName("java.lang.ref.Reference", true);
+        assertNotNull(rClasses);
+        Set<IClass> classes = new HashSet<IClass>(rClasses);
         for (int id : objectIds)
             assert classes.contains(snapshot.getClassOf(id)) : MessageUtil.format(
                             "Object {0} not an instance of java.lang.ref.Reference ", id);

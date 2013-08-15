@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.mat.tests.snapshot;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -39,6 +40,8 @@ public class QueryLookupTest
         ISnapshot snapshot = TestSnapshots.getSnapshot(TestSnapshots.SUN_JDK6_18_32BIT, false);
 
         Collection<IClass> classes = snapshot.getClassesByName("java.lang.String", false);
+        assertNotNull(classes);
+        assertFalse(classes.isEmpty());
         int[] objectIDs = classes.iterator().next().getObjectIds();
 
         SnapshotQuery query = SnapshotQuery.lookup(queryId, snapshot);

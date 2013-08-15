@@ -147,7 +147,8 @@ public class GeneralSnapshotTests
         int foundTop = 0;
         int foundNotTop = 0;
         SetInt objs = new SetInt();
-        for (IClass thrdcls : snapshot.getClassesByName("java.lang.Thread", true))
+        Collection<IClass>tClasses = snapshot.getClassesByName("java.lang.Thread", true);
+        if (tClasses != null) for (IClass thrdcls : tClasses)
         {
             for (int o : thrdcls.getObjectIds())
             {

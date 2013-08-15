@@ -11,6 +11,8 @@
 package org.eclipse.mat.tests.snapshot;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -55,6 +57,8 @@ public class DominatorTreeTest
     {
         Collection<IClass> rClasses = snapshot.getClassesByName(
                         "org.eclipse.mat.tests.CreateSampleDump$DominatorTestData$R", false);
+        assertNotNull(rClasses);
+        assertFalse(rClasses.isEmpty());
         IClass rClass = rClasses.iterator().next();
         int rId = rClass.getObjectIds()[0];
 

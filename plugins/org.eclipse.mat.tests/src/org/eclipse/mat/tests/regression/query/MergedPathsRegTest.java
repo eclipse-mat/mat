@@ -39,6 +39,8 @@ public class MergedPathsRegTest implements IQuery
     public IResult execute(IProgressListener listener) throws Exception
     {
         Collection<IClass> classes = snapshot.getClassesByName("java.util.HashMap", false); //$NON-NLS-1$
+        if (classes == null || classes.isEmpty())
+            throw new RuntimeException("Missing java.util.HashMap class or objects");
         IClass hashMapClass = classes.iterator().next();
         int[] objects = hashMapClass.getObjectIds();
 
