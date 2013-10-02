@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="%product.appName" uid="org.eclipse.mat.ui.rcp.MemoryAnalyzer" id="org.eclipse.mat.ui.rcp.MemoryAnalyzer" application="org.eclipse.mat.ui.rcp.application" version="1.3.0" useFeatures="true" includeLaunchers="true">
+<product name="%product.appName" uid="org.eclipse.mat.ui.rcp.MemoryAnalyzer" id="org.eclipse.mat.ui.rcp.MemoryAnalyzer" application="org.eclipse.mat.ui.rcp.application" version="1.3.1" useFeatures="true" includeLaunchers="true">
 
    <aboutInfo>
       <image path="/org.eclipse.mat.ui.rcp/icons/eclipse_lg.gif"/>
@@ -51,10 +51,10 @@
    </plugins>
 
    <features>
-      <feature id="org.eclipse.mat.dependencies.feature" version="1.3.0.qualifier"/>
-      <feature id="org.eclipse.mat.feature" version="1.3.0.qualifier"/>
-      <feature id="org.eclipse.mat.chart.feature" version="1.3.0.qualifier"/>
-      <feature id="org.eclipse.mat.ui.rcp.feature" version="1.3.0.qualifier"/>
+      <feature id="org.eclipse.mat.dependencies.feature" version="1.3.1.qualifier"/>
+      <feature id="org.eclipse.mat.feature" version="1.3.1.qualifier"/>
+      <feature id="org.eclipse.mat.chart.feature" version="1.3.1.qualifier"/>
+      <feature id="org.eclipse.mat.ui.rcp.feature" version="1.3.1.qualifier"/>
    </features>
 
    <configurations>
