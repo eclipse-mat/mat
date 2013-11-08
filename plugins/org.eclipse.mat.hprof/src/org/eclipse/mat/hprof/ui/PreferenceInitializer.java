@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 IBM Corporation.
+ * Copyright (c) 2011,2013 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,8 +22,15 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer
 
     public void initializeDefaultPreferences()
     {
-        IPreferenceStore store = HprofPlugin.getDefault().getPreferenceStore();
-        store.setDefault(HprofPreferences.STRICTNESS_PREF, HprofPreferences.DEFAULT_STRICTNESS.toString());
+        try
+        {
+            IPreferenceStore store = (IPreferenceStore)HprofPlugin.getDefault().getPreferenceStore();
+            store.setDefault(HprofPreferences.STRICTNESS_PREF, HprofPreferences.DEFAULT_STRICTNESS.toString());
+        }
+        catch (LinkageError e)
+        {
+            // Running in batch mode with no jface
+        }
     }
 
 }

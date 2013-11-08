@@ -11,6 +11,7 @@
 package org.eclipse.mat.dtfj;
 
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.RadioGroupFieldEditor;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
@@ -32,7 +33,7 @@ public class DTFJPreferencePage extends FieldEditorPreferencePage implements IWo
     public DTFJPreferencePage()
     {
         super(GRID);
-        setPreferenceStore(InitDTFJ.getDefault().getPreferenceStore());
+        setPreferenceStore((IPreferenceStore)InitDTFJ.getDefault().getPreferenceStore());
         setDescription(Messages.DTFJPreferencePage_Description);
     }
 

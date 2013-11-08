@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 IBM Corporation.
+ * Copyright (c) 2011,2013 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@
 package org.eclipse.mat.hprof.ui;
 
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.RadioGroupFieldEditor;
 import org.eclipse.mat.hprof.HprofPlugin;
 import org.eclipse.mat.hprof.Messages;
@@ -36,7 +37,7 @@ public class HPROFPreferencePage extends FieldEditorPreferencePage implements IW
     public HPROFPreferencePage()
     {
         super(GRID);
-        setPreferenceStore(HprofPlugin.getDefault().getPreferenceStore());
+        setPreferenceStore((IPreferenceStore)HprofPlugin.getDefault().getPreferenceStore());
         setDescription(Messages.HPROFPreferences_Description);
     }
 

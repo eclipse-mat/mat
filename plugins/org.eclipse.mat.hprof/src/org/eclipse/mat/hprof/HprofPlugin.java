@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 IBM Corporation
+ * Copyright (c) 2012,2013 IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,7 +12,7 @@ package org.eclipse.mat.hprof;
 
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.preferences.InstanceScope;
-import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.preference.PreferenceStore;
 import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -40,20 +40,29 @@ public class HprofPlugin extends Plugin implements BundleActivator
 
     /**
      * Storage for preferences.
+     * Use Object instead of IPreferenceStore to avoid a hard dependency on org.eclipse.jface
      */
-    private IPreferenceStore preferenceStore;
+    private Object preferenceStore;
 
     /**
      * Lazily load and return the preference store.
      * @return Current preference store.
      */
-    public IPreferenceStore getPreferenceStore()
+
+    public Object getPreferenceStore()
     {
         // Avoid hard dependency on org.eclipse.ui
         // Create the preference store lazily.
         if (preferenceStore == null)
         {
-            preferenceStore = new ScopedPreferenceStore(new InstanceScope(), getBundle().getSymbolicName());
+            try
+            {
+                preferenceStore = new ScopedPreferenceStore(InstanceScope.INSTANCE, getBundle().getSymbolicName());
+            }
+            catch (LinkageError e)
+            {
+                preferenceStore = new PreferenceStore();
+            }
         }
         return preferenceStore;
     }
