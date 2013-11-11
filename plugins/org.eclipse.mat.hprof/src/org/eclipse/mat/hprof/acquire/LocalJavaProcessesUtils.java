@@ -39,10 +39,11 @@ public class LocalJavaProcessesUtils
 		Process p = null;
 		try
 		{
-			p = Runtime.getRuntime().exec(new String[]{jps});
-			error = new StreamCollector(p.getErrorStream());
+		    String encoding = System.getProperty("file.encoding", "UTF-8"); //$NON-NLS-1$//$NON-NLS-2$
+			p = Runtime.getRuntime().exec(new String[]{jps, "-ml", "-J-Dfile.encoding="+encoding}); //$NON-NLS-1$//$NON-NLS-2$
+			error = new StreamCollector(p.getErrorStream(), encoding);
 			error.start();
-			output = new StreamCollector(p.getInputStream());
+			output = new StreamCollector(p.getInputStream(), encoding);
 			output.start();
 
 			int exitVal = p.waitFor();
@@ -90,19 +91,26 @@ public class LocalJavaProcessesUtils
 	{
 		InputStream is;
 		StringBuilder buf;
+		String encoding;
 
 		StreamCollector(InputStream is)
 		{
-			this.is = is;
-			this.buf = new StringBuilder();
+			this(is, System.getProperty("file.encoding", "UTF-8"));  //$NON-NLS-1$//$NON-NLS-2$
 		}
+		
+	      StreamCollector(InputStream is, String encoding)
+	        {
+	            this.is = is;
+	            this.buf = new StringBuilder();
+	            this.encoding = encoding;
+	        }
 
 		public void run()
 		{
 			InputStreamReader isr = null;
 			try
 			{
-				isr = new InputStreamReader(is);
+				isr = new InputStreamReader(is, encoding);
 				BufferedReader br = new BufferedReader(isr);
 				String line = null;
 				while ((line = br.readLine()) != null)

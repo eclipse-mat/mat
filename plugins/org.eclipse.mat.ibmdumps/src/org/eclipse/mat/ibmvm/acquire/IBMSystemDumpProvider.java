@@ -79,6 +79,8 @@ class IBMSystemDumpProvider extends IBMDumpProvider
     {
         File dump = dumps.get(0);
         File result;
+        String encoding = System.getProperty("file.encoding", "UTF-8"); //$NON-NLS-1$//$NON-NLS-2$
+        String encodingOpt = "-J-Dfile.encoding="+encoding; //$NON-NLS-1$
         preferredDump = mergeFileNames(preferredDump, dump);
         
         if (compress && !preferredDump.getName().endsWith(".zip")) //$NON-NLS-1$
@@ -105,7 +107,7 @@ class IBMSystemDumpProvider extends IBMDumpProvider
         }
         if (zip)
         {
-            pb.command(jextract.getAbsolutePath(), dump.getAbsolutePath(), preferredDump.getAbsolutePath());
+            pb.command(jextract.getAbsolutePath(), encodingOpt, dump.getAbsolutePath(), preferredDump.getAbsolutePath());
             result = preferredDump;
         }
         else
@@ -125,7 +127,7 @@ class IBMSystemDumpProvider extends IBMDumpProvider
                 result = dump;
             else
                 result = new File(metafileName);
-            pb.command(jextract.getAbsolutePath(), dump.getAbsolutePath(), "-nozip", metafileName); //$NON-NLS-1$
+            pb.command(jextract.getAbsolutePath(), encodingOpt, dump.getAbsolutePath(), "-nozip", metafileName); //$NON-NLS-1$
             
         }
         pb.redirectErrorStream(true);
@@ -134,7 +136,7 @@ class IBMSystemDumpProvider extends IBMDumpProvider
         ;
         int exitCode = 0;
         Process p = pb.start();
-        BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
+        BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream(), encoding));
         try
         {
             for (;;)

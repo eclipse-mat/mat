@@ -568,7 +568,7 @@ public class Pass1Parser extends AbstractParser
 
         in.skipBytes((long) size * idSize);
         previousArrayStart = address;
-        previousArrayUncompressedEnd = address + 16 + size * 8;
+        previousArrayUncompressedEnd = address + 16 + (long)size * 8;
     }
 
     private void readPrimitiveArrayDump(long segmentStartPos) throws SnapshotException, IOException

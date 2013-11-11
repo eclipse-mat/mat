@@ -54,6 +54,8 @@ public class IBMExecDumpProvider extends BaseProvider
     public File acquireDump(VmInfo info, File preferredLocation, IProgressListener listener) throws SnapshotException
     {
         listener.beginTask(Messages.getString("IBMExecDumpProvider.GeneratingDump"), TOTAL_WORK); //$NON-NLS-1$
+        String encoding = System.getProperty("file.encoding", "UTF-8"); //$NON-NLS-1$//$NON-NLS-2$
+        String encodingOpt = "-J-Dfile.encoding="+encoding; //$NON-NLS-1$
         ProcessBuilder pb = new ProcessBuilder();
         Process p = null;
         final IBMExecVmInfo info2 = (IBMExecVmInfo) info;
@@ -62,8 +64,9 @@ public class IBMExecDumpProvider extends BaseProvider
         {
             String jar = getExecJar().getAbsolutePath();
             final String execPath = info2.javaexecutable.getPath();
-            List<String> args = new ArrayList<String>(8);
+            List<String> args = new ArrayList<String>(9);
             args.add(execPath);
+            args.add(encodingOpt);
             if (info2.vmoptions != null)
             {
                 args.addAll(Arrays.asList(info2.vmoptions));
@@ -80,10 +83,10 @@ public class IBMExecDumpProvider extends BaseProvider
             p = pb.start();
             StringBuffer err = new StringBuffer();
             StringBuffer in = new StringBuffer();
-            InputStreamReader os = new InputStreamReader(p.getInputStream());
+            InputStreamReader os = new InputStreamReader(p.getInputStream(), encoding);
             try
             {
-                InputStreamReader es = new InputStreamReader(p.getErrorStream());
+                InputStreamReader es = new InputStreamReader(p.getErrorStream(), encoding);
                 try
                 {
                     int rc = 0;
@@ -291,6 +294,8 @@ public class IBMExecDumpProvider extends BaseProvider
     private List<VmInfo> execGetVMs(File javaExec, IProgressListener listener)
     {
         ArrayList<VmInfo> ar = new ArrayList<VmInfo>();
+        String encoding = System.getProperty("file.encoding", "UTF-8"); //$NON-NLS-1$//$NON-NLS-2$
+        String encodingOpt = "-J-Dfile.encoding="+encoding; //$NON-NLS-1$
         ProcessBuilder pb = new ProcessBuilder();
         Process p = null;
         final String execPath = javaExec.getPath();
@@ -299,6 +304,7 @@ public class IBMExecDumpProvider extends BaseProvider
             String jar = getExecJar().getAbsolutePath();
             List<String> args = new ArrayList<String>(4);
             args.add(execPath);
+            args.add(encodingOpt);
             if (vmoptions != null)
             {
                 args.addAll(Arrays.asList(vmoptions));
@@ -309,10 +315,10 @@ public class IBMExecDumpProvider extends BaseProvider
             p = pb.start();
             StringBuffer err = new StringBuffer();
             StringBuffer in = new StringBuffer();
-            InputStreamReader os = new InputStreamReader(p.getInputStream());
+            InputStreamReader os = new InputStreamReader(p.getInputStream(), encoding);
             try
             {
-                InputStreamReader es = new InputStreamReader(p.getErrorStream());
+                InputStreamReader es = new InputStreamReader(p.getErrorStream(), encoding);
                 try
                 {
                     int rc = 0;
