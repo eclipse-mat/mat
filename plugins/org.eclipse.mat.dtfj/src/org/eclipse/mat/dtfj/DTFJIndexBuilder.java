@@ -193,6 +193,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
     private static final boolean skipWeakRoots = true;
     /** Whether to fix bad DTFJ superclass */
     private static final boolean fixBadSuperclass = false;
+    /** Whether DTFJ has a bad Method equals */
+    private static final boolean faultyMethodEquals = false;
     private final String methodsAsClassesPref = Platform.getPreferencesService().getString(PLUGIN_ID,
                     PreferenceConstants.P_METHODS, "", null); //$NON-NLS-1$
     /** Whether to represent all methods as pseudo-classes */
@@ -1965,8 +1967,10 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 gcRoot = gcRoot2;
                 threadRoots = threadRoots2;
                 // Restore the threads file
-                threadsFile.delete();
-                threadsFileSave.renameTo(threadsFile);
+                boolean del = threadsFile.delete();
+                if (!del) debugPrint("Unable to delete "+threadsFile); //$NON-NLS-1$
+                boolean ren = threadsFileSave.renameTo(threadsFile);
+                if (!ren) debugPrint("Unable to rename "+threadsFileSave+" to "+threadsFile); //$NON-NLS-1$ //$NON-NLS-2$
             }
             else
             {
@@ -3372,11 +3376,15 @@ public class DTFJIndexBuilder implements IIndexBuilder
                             // Probably compressed pointers where on a 64-bit
                             // system references are stored as a 32-bit
                             // quantity.
-                            if (false) debugPrint("Array size with "+headerPointer+" pointers calculated "+bigSize+" actual "+size+" arrayLen "+arrayLen); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                            boolean showSize = false;
+                            if (showSize) debugPrint("Array size with "+headerPointer+" pointers calculated "+bigSize+" actual "+size+" arrayLen "+arrayLen); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
                             headerPointer = 4;
                             compressedRefs = true;
-                            bigSize = calculateArraySize(cls, arrayLen, headerPointer);
-                            if (false) debugPrint("Array size with "+headerPointer+" pointers calculated "+bigSize+" actual "+size+" arrayLen "+arrayLen); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                            if (showSize)
+                            {
+                                bigSize = calculateArraySize(cls, arrayLen, headerPointer);
+                                debugPrint("Array size with "+headerPointer+" pointers calculated "+bigSize+" actual "+size+" arrayLen "+arrayLen); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                            }
                         }
                     }
                     cls.setHeapSizePerInstance(headerPointer);
@@ -6422,11 +6430,13 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 ref.add(getMethodAddress(jm, listener));
             }
         }
-        for (IteratorLong il = ref.iterator(); il.hasNext();)
+        if (false)
         {
-            long ad = il.next();
-            if (false)
+            for (IteratorLong il = ref.iterator(); il.hasNext();)
+            {
+                long ad = il.next();
                 debugPrint("ref to " + m2.reverse(ad) + " " + format(ad) + " for " + objId); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            }
         }
         return ref;
     }
@@ -7288,7 +7298,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
             }
         }
         // e.g. native methods
-        Long addr = m.equals(m) ? dummyMethodAddress.get(m) : dummyMethodAddress2.get(m);
+        boolean faultyEquals = faultyMethodEquals && !m.equals(m);  
+        Long addr = !faultyEquals ? dummyMethodAddress.get(m) : dummyMethodAddress2.get(m);
         if (addr != null)
         {
             // Return the address we have already used
@@ -7308,14 +7319,14 @@ public class DTFJIndexBuilder implements IIndexBuilder
             }
             // Build a unique dummy address
             long clsAddr = nextClassAddress;
-            if (m.equals(m))
+            if (!faultyEquals)
             {    
                 dummyMethodAddress.put(m, clsAddr);
             }
             else
             {
                 // If an object doesn't equal itself we can't use a normal HashMap
-                dummyMethodAddress2.put(m, clsAddr);                
+                dummyMethodAddress2.put(m, clsAddr);
             }
             nextClassAddress += 8;
             if (ret != 0)

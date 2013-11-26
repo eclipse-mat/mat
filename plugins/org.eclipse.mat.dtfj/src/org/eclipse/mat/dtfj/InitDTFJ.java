@@ -110,6 +110,8 @@ public class InitDTFJ extends Plugin implements IRegistryChangeListener
                     case IExtensionDelta.REMOVED:
                         removeParserExtension(reg, cont, dtfjExtension);
                         break;
+                    default:
+                        break;
                 }
             }
         }
