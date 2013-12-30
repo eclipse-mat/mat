@@ -335,6 +335,13 @@
             %color.oql_keyword.description
          </description>
       </colorDefinition>
+      <fontDefinition
+            categoryId="org.eclipse.mat.ui.themeElementCategory"
+            defaultsTo="org.eclipse.jface.textfont"
+            id="org.eclipse.mat.ui.notesfont"
+            isEditable="true"
+            label="%font.notes_label">
+      </fontDefinition>
    </extension>
 
 </plugin>

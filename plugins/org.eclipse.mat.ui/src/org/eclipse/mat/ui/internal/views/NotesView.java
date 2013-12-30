@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2013 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,7 +28,9 @@ import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.regex.Pattern;
+import java.util.zip.CRC32;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -63,16 +66,15 @@ import org.eclipse.mat.ui.util.QueryContextMenu;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IPartListener;
+import org.eclipse.ui.ISaveablePart;
+import org.eclipse.ui.ISaveablePart2;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -81,14 +83,13 @@ import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.actions.ActionFactory.IWorkbenchAction;
 import org.eclipse.ui.part.ViewPart;
 
-public class NotesView extends ViewPart implements IPartListener, Observer
+public class NotesView extends ViewPart implements IPartListener, Observer, ISaveablePart, ISaveablePart2
 {
     private static final String NOTES_ENCODING = "UTF8"; //$NON-NLS-1$
 
     private static final int UNDO_LEVEL = 10;
 
     private File resource;
-    private DisposeListener disposeListener;
 
     private Action undo;
     private Action redo;
@@ -102,28 +103,20 @@ public class NotesView extends ViewPart implements IPartListener, Observer
     private TextViewer textViewer;
     private TextViewerUndoManager undoManager;
     private Map<String, NotesViewAction> actions = new HashMap<String, NotesViewAction>();
+    long hash;
+    boolean modified;
 
     @Override
     public void createPartControl(Composite parent)
     {
         parent.setLayout(new FillLayout());
-        disposeListener = new DisposeListener()
-        {
-
-            public void widgetDisposed(DisposeEvent e)
-            {
-                if (undoManager.undoable())
-                    saveNotes();
-            }
-        };
-        parent.addDisposeListener(disposeListener);
+        // No need for a dispose listener - the SaveablePart will save it
 
         textViewer = new TextViewer(parent, SWT.MULTI | SWT.V_SCROLL | SWT.LEFT | SWT.H_SCROLL);
         textViewer.setDocument(new Document());
         textViewer.getControl().setEnabled(false);
         textViewer.getTextWidget().setWordWrap(false);
-        FontData fd = JFaceResources.getDefaultFont().getFontData()[0];
-        font = new Font(parent.getDisplay(), fd.getName(), fd.getHeight() - 1, SWT.NORMAL);
+        font = JFaceResources.getFont("org.eclipse.mat.ui.notesfont"); //$NON-NLS-1$
         textViewer.getControl().setFont(font);
 
         hyperlinkColor = JFaceResources.getColorRegistry().get(JFacePreferences.HYPERLINK_COLOR);
@@ -146,7 +139,9 @@ public class NotesView extends ViewPart implements IPartListener, Observer
         {
             public void textChanged(TextEvent event)
             {
+                modified = true;
                 searchForHyperlinks(textViewer.getDocument().get(), 0);
+                firePropertyChange(PROP_DIRTY); 
             }
         });
 
@@ -251,7 +246,7 @@ public class NotesView extends ViewPart implements IPartListener, Observer
 
     public void partBroughtToTop(IWorkbenchPart part)
     {
-        if (resource != null && undoManager.undoable())
+        if (resource != null && isDirty())
             saveNotes();
         partActivated(part);
     }
@@ -265,8 +260,7 @@ public class NotesView extends ViewPart implements IPartListener, Observer
 
         if (resource.equals(this.resource))
         {
-            if (undoManager.undoable())
-                saveNotes();
+            // Saving now done as SaveablePart
             this.resource = null;
             this.editor = null;
             this.updateTextViewer();
@@ -298,6 +292,21 @@ public class NotesView extends ViewPart implements IPartListener, Observer
         redo = addAction(ActionFactory.REDO, ITextOperationTarget.REDO, "org.eclipse.ui.edit.redo");//$NON-NLS-1$
     }
 
+    private long hash() {
+        // Used to detect if document has changed.
+        CRC32 crc = new CRC32();
+        try
+        {
+            crc.update(textViewer.getDocument().get().getBytes(NOTES_ENCODING));
+        }
+        catch (UnsupportedEncodingException e)
+        {
+            // Won't happen
+            return textViewer.getDocument().get().hashCode();
+        }
+        return crc.getValue();
+    }
+    
     public void update(Observable o, Object arg)
     {
         String path = (String) arg;
@@ -321,13 +330,18 @@ public class NotesView extends ViewPart implements IPartListener, Observer
                 revealEndOfDocument();
             }
             else
+            {
                 textViewer.setDocument(new Document(""));//$NON-NLS-1$
+            }
         }
         else
         {
             textViewer.setDocument(new Document(""));//$NON-NLS-1$
             textViewer.getControl().setEnabled(false);
         }
+        hash = hash();
+        modified = false;
+        firePropertyChange(PROP_DIRTY);
     }
 
     private void searchForHyperlinks(String allText, int offset)
@@ -374,6 +388,8 @@ public class NotesView extends ViewPart implements IPartListener, Observer
             if (text != null)
                 saveNotes(resource, text);
             resetUndoManager();
+            hash = hash();
+            modified = false;
         }
     }
 
@@ -383,8 +399,6 @@ public class NotesView extends ViewPart implements IPartListener, Observer
         undoManager.disconnect();
         getSite().getPage().removePartListener(this);
         // The parent composite has been disposed, so there is no need to remove the disposeListener.
-        if (font != null)
-            font.dispose();
         if (menu != null)
             menu.dispose();
         super.dispose();
@@ -684,6 +698,36 @@ public class NotesView extends ViewPart implements IPartListener, Observer
         String filename = resource.getAbsolutePath();
         int p = filename.lastIndexOf('.');
         return new File(filename.substring(0, p + 1) + "notes.txt");//$NON-NLS-1$
+    }
+
+    public void doSave(IProgressMonitor monitor)
+    {
+        saveNotes();
+        firePropertyChange(PROP_DIRTY); 
+    }
+
+    public void doSaveAs()
+    {
+    }
+
+    public boolean isDirty()
+    {
+        return undoManager.undoable() || modified && hash != hash();
+    }
+
+    public boolean isSaveAsAllowed()
+    {
+        return false;
+    }
+
+    public boolean isSaveOnCloseNeeded()
+    {
+        return true;
+    }
+
+    public int promptToSaveOnClose()
+    {
+        return ISaveablePart2.YES;
     }
 
 }

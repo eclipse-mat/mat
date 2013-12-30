@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 SAP AG. and others
+ * Copyright (c) 2008, 2013 SAP AG., IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,26 +8,37 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *    Filippo Pacifici - content assistant and syntax highlighting
+ *    Andrew Johnson - undo/redo
  *******************************************************************************/
 package org.eclipse.mat.ui.snapshot.panes;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IMenuListener;
+import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.preference.JFacePreferences;
 import org.eclipse.jface.resource.ColorRegistry;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentPartitioner;
+import org.eclipse.jface.text.ITextOperationTarget;
+import org.eclipse.jface.text.TextViewerUndoManager;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.SourceViewer;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.registry.ArgumentSet;
@@ -64,6 +75,7 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
@@ -84,6 +96,13 @@ public class OQLPane extends CompositeHeapEditorPane
     private Action executeAction;
     private Action copyQueryStringAction;
     private Action contentAssistAction;
+    
+    private static final int UNDO_LEVEL = 10;
+    private TextViewerUndoManager undoManager;
+    private Action undo;
+    private Action redo;
+    
+    private Map<String, QueryViewAction> actions = new HashMap<String, QueryViewAction>();
 
     // //////////////////////////////////////////////////////////////
     // initialization methods
@@ -103,6 +122,18 @@ public class OQLPane extends CompositeHeapEditorPane
         keywordCol = colorRegistry.get(ColorProvider.KEYWORD_COLOR_PREF);
         IDocument d = createDocument();
         d.set(Messages.OQLPane_F1ForHelp);
+
+        undoManager = new TextViewerUndoManager(UNDO_LEVEL);
+        undoManager.connect(queryViewer);
+        queryViewer.setUndoManager(undoManager);
+        queryViewer.addSelectionChangedListener(new ISelectionChangedListener()
+        {
+            public void selectionChanged(SelectionChangedEvent event)
+            {
+                updateActions();
+            }
+        });
+
         queryViewer.setDocument(d);
         queryViewer.configure(new OQLTextViewerConfiguration(getSnapshot(), commentCol, keywordCol));
         queryString.selectAll();
@@ -215,6 +246,14 @@ public class OQLPane extends CompositeHeapEditorPane
                 queryViewer.doOperation(ISourceViewer.CONTENTASSIST_PROPOSALS);
             }
         };
+        // Install the standard text actions.
+        addAction(ActionFactory.CUT, ITextOperationTarget.CUT, "org.eclipse.ui.edit.cut");//$NON-NLS-1$
+        addAction(ActionFactory.COPY, ITextOperationTarget.COPY, "org.eclipse.ui.edit.copy");//$NON-NLS-1$
+        addAction(ActionFactory.PASTE, ITextOperationTarget.PASTE, "org.eclipse.ui.edit.paste");//$NON-NLS-1$
+        addAction(ActionFactory.DELETE, ITextOperationTarget.DELETE, "org.eclipse.ui.edit.delete");//$NON-NLS-1$
+        addAction(ActionFactory.SELECT_ALL, ITextOperationTarget.SELECT_ALL, "org.eclipse.ui.edit.selectAll");//$NON-NLS-1$
+        undo = addAction(ActionFactory.UNDO, ITextOperationTarget.UNDO, "org.eclipse.ui.edit.undo");//$NON-NLS-1$
+        redo = addAction(ActionFactory.REDO, ITextOperationTarget.REDO, "org.eclipse.ui.edit.redo");//$NON-NLS-1$
     }
 
     protected int findInText(String query, int line, int column)
@@ -249,8 +288,96 @@ public class OQLPane extends CompositeHeapEditorPane
         return charAt;
     }
 
+    private void updateActions()
+    {
+        for (QueryViewAction a : actions.values())
+            a.setEnabled(queryViewer.canDoOperation(a.actionId));
+    }
+
     private void hookContextMenu()
-    {}
+    {
+        MenuManager menuMgr = new MenuManager("#PopupMenu"); //$NON-NLS-1$
+        menuMgr.setRemoveAllWhenShown(true);
+        menuMgr.addMenuListener(new IMenuListener()
+        {
+            public void menuAboutToShow(IMenuManager manager)
+            {
+                textEditorContextMenuAboutToShow(manager);
+            }
+        });
+        Menu menu = menuMgr.createContextMenu(queryViewer.getControl());
+        queryString.setMenu(menu);
+    }
+
+    private void textEditorContextMenuAboutToShow(IMenuManager manager)
+    {
+        if (queryString != null)
+        {
+            undo.setEnabled(undoManager.undoable());
+            redo.setEnabled(undoManager.redoable());
+            manager.add(undo);
+            manager.add(redo);
+            manager.add(new Separator());
+
+            manager.add(getAction(ActionFactory.CUT.getId()));
+            manager.add(getAction(ActionFactory.COPY.getId()));
+            manager.add(getAction(ActionFactory.PASTE.getId()));
+            manager.add(new Separator());
+            manager.add(getAction(ActionFactory.DELETE.getId()));
+            manager.add(getAction(ActionFactory.SELECT_ALL.getId()));
+        }
+    }
+
+    private Action getAction(String actionID)
+    {
+        return actions.get(actionID);
+    }
+
+    private class QueryViewAction extends Action
+    {
+        private int actionId;
+
+        QueryViewAction(int actionId, String actionDefinitionId)
+        {
+            this.actionId = actionId;
+            this.setActionDefinitionId(actionDefinitionId);
+        }
+
+        @Override
+        public boolean isEnabled()
+        {
+            return queryViewer.canDoOperation(actionId);
+        }
+
+        public void run()
+        {
+            queryViewer.doOperation(actionId);
+        }
+
+    }
+    
+    private Action addAction(ActionFactory actionFactory, int textOperation, String actionDefinitionId)
+    {
+        IWorkbenchWindow window = getEditorSite().getWorkbenchWindow();
+        IWorkbenchAction globalAction = actionFactory.create(window);
+
+        // Create our text action.
+        QueryViewAction action = new QueryViewAction(textOperation, actionDefinitionId);
+        actions.put(actionFactory.getId(), action);
+        // Copy its properties from the global action.
+        action.setText(globalAction.getText());
+        action.setToolTipText(globalAction.getToolTipText());
+        action.setDescription(globalAction.getDescription());
+        action.setImageDescriptor(globalAction.getImageDescriptor());
+
+        action.setDisabledImageDescriptor(globalAction.getDisabledImageDescriptor());
+        action.setAccelerator(globalAction.getAccelerator());
+
+        // Register our text action with the global action handler.
+        IActionBars actionBars = getEditorSite().getActionBars();
+        actionBars.setGlobalActionHandler(actionFactory.getId(), action);
+        return action;
+    }
 
     @Override
     public void contributeToToolBar(IToolBarManager manager)
