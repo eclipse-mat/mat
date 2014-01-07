@@ -34,7 +34,6 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.ITextOperationTarget;
-import org.eclipse.jface.text.TextViewerUndoManager;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -97,8 +96,6 @@ public class OQLPane extends CompositeHeapEditorPane
     private Action copyQueryStringAction;
     private Action contentAssistAction;
     
-    private static final int UNDO_LEVEL = 10;
-    private TextViewerUndoManager undoManager;
     private Action undo;
     private Action redo;
     
@@ -115,6 +112,7 @@ public class OQLPane extends CompositeHeapEditorPane
         queryViewer = new SourceViewer(sash, null, SWT.MULTI | SWT.WRAP);
         queryString = queryViewer.getTextWidget();
         queryString.setFont(JFaceResources.getFont(JFaceResources.TEXT_FONT));
+        Color background = queryString.getBackground();
         IThemeManager themeManager = PlatformUI.getWorkbench().getThemeManager();
         ITheme current = themeManager.getCurrentTheme();
         ColorRegistry colorRegistry = current.getColorRegistry();
@@ -123,9 +121,6 @@ public class OQLPane extends CompositeHeapEditorPane
         IDocument d = createDocument();
         d.set(Messages.OQLPane_F1ForHelp);
 
-        undoManager = new TextViewerUndoManager(UNDO_LEVEL);
-        undoManager.connect(queryViewer);
-        queryViewer.setUndoManager(undoManager);
         queryViewer.addSelectionChangedListener(new ISelectionChangedListener()
         {
             public void selectionChanged(SelectionChangedEvent event)
@@ -136,6 +131,8 @@ public class OQLPane extends CompositeHeapEditorPane
 
         queryViewer.setDocument(d);
         queryViewer.configure(new OQLTextViewerConfiguration(getSnapshot(), commentCol, keywordCol));
+        // Eclipse 4 seems to need this otherwise in high contrast mode the background is white
+        queryString.setBackground(background);
         queryString.selectAll();
 
         PlatformUI.getWorkbench().getHelpSystem().setHelp(queryString, "org.eclipse.mat.ui.help.oql"); //$NON-NLS-1$
@@ -305,7 +302,7 @@ public class OQLPane extends CompositeHeapEditorPane
                 textEditorContextMenuAboutToShow(manager);
             }
         });
-        Menu menu = menuMgr.createContextMenu(queryViewer.getControl());
+        Menu menu = menuMgr.createContextMenu(queryString);
         queryString.setMenu(menu);
     }
 
@@ -313,8 +310,8 @@ public class OQLPane extends CompositeHeapEditorPane
     {
         if (queryString != null)
         {
-            undo.setEnabled(undoManager.undoable());
-            redo.setEnabled(undoManager.redoable());
+            undo.setEnabled(queryViewer.getUndoManager().undoable());
+            redo.setEnabled(queryViewer.getUndoManager().redoable());
             manager.add(undo);
             manager.add(redo);
             manager.add(new Separator());
@@ -454,7 +451,7 @@ public class OQLPane extends CompositeHeapEditorPane
 
         public OQLJob(AbstractEditorPane pane, String queryString, PaneState state)
         {
-            super(queryString.toString(), pane);
+            super(queryString, pane);
             this.queryString = queryString;
             this.state = state;
             this.setUser(true);
