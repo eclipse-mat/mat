@@ -137,7 +137,7 @@ public class HprofRandomAccessParser extends AbstractParser
             throw new RuntimeException(Messages.HprofRandomAccessParser_Error_MissingFakeClass);
 
         Object content = null;
-        if (size * idSize < LAZY_LOADING_LIMIT)
+        if ((long)size * idSize < LAZY_LOADING_LIMIT)
         {
             long[] data = new long[size];
             for (int ii = 0; ii < data.length; ii++)
@@ -166,12 +166,12 @@ public class HprofRandomAccessParser extends AbstractParser
             throw new IOException(Messages.Pass1Parser_Error_IllegalType);
 
         int elementSize = IPrimitiveArray.ELEMENT_SIZE[(int) elementType];
-        int len = elementSize * arraySize;
+        long len = elementSize * (long)arraySize;
 
         Object content = null;
         if (len < LAZY_LOADING_LIMIT)
         {
-            byte[] data = new byte[len];
+            byte[] data = new byte[(int)len];
             in.readFully(data);
             content = elementType == IObject.Type.BYTE ? data : new ArrayDescription.Raw(data);
         }
@@ -202,7 +202,7 @@ public class HprofRandomAccessParser extends AbstractParser
     {
         int elementSize = this.idSize;
 
-        in.seek(descriptor.getPosition() + (offset * elementSize));
+        in.seek(descriptor.getPosition() + ((long)offset * elementSize));
         long[] data = new long[length];
         for (int ii = 0; ii < data.length; ii++)
             data[ii] = readID();
@@ -214,7 +214,7 @@ public class HprofRandomAccessParser extends AbstractParser
     {
         int elementSize = descriptor.getElementSize();
 
-        in.seek(descriptor.getPosition() + (offset * elementSize));
+        in.seek(descriptor.getPosition() + ((long)offset * elementSize));
 
         byte[] data = new byte[length * elementSize];
         in.readFully(data);
