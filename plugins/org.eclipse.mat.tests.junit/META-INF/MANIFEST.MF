@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Junit Fragment
 Bundle-SymbolicName: org.eclipse.mat.tests.junit
-Bundle-Version: 1.3.1.qualifier
+Bundle-Version: 1.4.0.qualifier
 Fragment-Host: org.apache.ant;bundle-version="[1.7.0,2.0.0)"
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Require-Bundle: org.junit4;bundle-version="4.3.1"
