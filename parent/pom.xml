@@ -38,7 +38,7 @@
 				Juno -->
 			<id>build-juno-rcp</id>
 			<properties>
-				<mat.target>mat-build-juno</mat.target>
+				<mat.target>mat-juno</mat.target>
 			</properties>
 			<build>
 				<pluginManagement>
@@ -74,7 +74,7 @@
 				<activeByDefault>true</activeByDefault>
 			</activation>
 			<properties>
-				<mat.target>mat-build-indigo</mat.target>
+				<mat.target>mat-indigo</mat.target>
 			</properties>
 			<build>
 				<pluginManagement>

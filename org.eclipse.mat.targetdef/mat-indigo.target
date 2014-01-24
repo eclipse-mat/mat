@@ -12,7 +12,7 @@
 </location>
 <location includeAllPlatforms="false" includeMode="planner" type="InstallableUnit">
 <unit id="com.ibm.dtfj.feature.feature.group" version="0.0.0"/>
-<repository location="jar:ftp://ftp.software.ibm.com/software/java/support/tools/dtfj/dtfj-updatesite.zip!/"/>
+<repository location="http://public.dhe.ibm.com/software/websphere/runtimes/tools/dtfj/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 <repository location="http://download.eclipse.org/technology/swtbot/helios/dev-build/update-site"/>

@@ -405,6 +405,11 @@ public class DTFJIndexBuilder implements IIndexBuilder
         {
             throw new DataUnavailable();
         }
+        
+        public long getPackedDataSize() throws DataUnavailable, CorruptDataException
+        {
+            throw new DataUnavailable();
+        }
     }
 
     /**
