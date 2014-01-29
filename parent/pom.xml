@@ -179,7 +179,6 @@
 		<module>../plugins/org.eclipse.mat.ibmdumps</module>
 		<module>../plugins/org.eclipse.mat.jruby.resolver</module>
 		<!-- features -->
-		<module>../features/org.eclipse.mat.all.feature</module>
 		<module>../features/org.eclipse.mat.chart.feature</module>
 		<module>../features/org.eclipse.mat.feature</module>
 		<module>../features/org.eclipse.mat.ui.rcp.feature</module>
