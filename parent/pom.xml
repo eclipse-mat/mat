@@ -36,9 +36,9 @@
 		<profile>
 			<!-- A profile defining the taget definition for building MAT against 
 				Juno -->
-			<id>build-juno-rcp</id>
+			<id>build-kepler-rcp</id>
 			<properties>
-				<mat.target>mat-juno</mat.target>
+				<mat.target>mat-kepler</mat.target>
 			</properties>
 			<build>
 				<pluginManagement>
@@ -58,6 +58,71 @@
 										<os>win32</os>
 										<ws>win32</ws>
 										<arch>x86_64</arch>
+									</environment>
+									<environment>
+										<os>macosx</os>
+										<ws>cocoa</ws>
+										<arch>x86</arch>
+									</environment>
+									<environment>
+										<os>macosx</os>
+										<ws>cocoa</ws>
+										<arch>x86_64</arch>
+									</environment>
+									<environment>
+										<os>solaris</os>
+										<ws>gtk</ws>
+										<arch>x86</arch>
+									</environment>
+									<environment>
+										<os>solaris</os>
+										<ws>gtk</ws>
+										<arch>sparc</arch>
+									</environment>
+									<environment>
+										<os>aix</os>
+										<ws>gtk</ws>
+										<arch>ppc</arch>
+									</environment>
+									<environment>
+										<os>aix</os>
+										<ws>gtk</ws>
+										<arch>ppc64</arch>
+									</environment>
+									<environment>
+										<os>hpux</os>
+										<ws>gtk</ws>
+										<arch>ia64</arch>
+									</environment>
+									<environment>
+										<os>linux</os>
+										<ws>gtk</ws>
+										<arch>x86</arch>
+									</environment>
+									<environment>
+										<os>linux</os>
+										<ws>gtk</ws>
+										<arch>x86_64</arch>
+									</environment>
+									<environment>
+										<os>linux</os>
+										<ws>gtk</ws>
+										<arch>ppc</arch>
+									</environment>
+									<environment>
+										<os>linux</os>
+										<ws>gtk</ws>
+										<arch>ppc64</arch>
+									</environment>
+									<environment>
+										<os>linux</os>
+										<ws>gtk</ws>
+										<arch>s390x</arch>
+									</environment>
+									<environment>
+										<os>linux</os>
+										<ws>gtk</ws>
+										<arch>s390</arch>
 									</environment>
 								</environments>
 							</configuration>
