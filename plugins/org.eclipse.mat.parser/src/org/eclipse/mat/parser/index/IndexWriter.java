@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others.
+ * Copyright (c) 2008, 2014 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson - enhancements for huge dumps
  *******************************************************************************/
 package org.eclipse.mat.parser.index;
 
@@ -802,7 +803,7 @@ public abstract class IndexWriter
 
         private long getHeader(int index)
         {
-            return ((header2[index] & 0xffL) << 32) | (header[index] & 0xffffffffL);
+            return (header2 != null ? (header2[index] & 0xffL) << 32 : 0) | (header[index] & 0xffffffffL);
         }
 
         protected void set(int index, int[] values, int offset, int length) throws IOException
@@ -972,7 +973,7 @@ public abstract class IndexWriter
 
         private long getHeader(int index)
         {
-            return ((header2[index] & 0xffL) << 32) | (header[index] & 0xffffffffL);
+            return (header2 != null ? (header2[index] & 0xffL) << 32 : 0) | (header[index] & 0xffffffffL);
         }
 
         public IIndexReader.IOne2ManyObjectsIndex flush(IProgressListener monitor, KeyWriter keyWriter)
@@ -1343,8 +1344,8 @@ public abstract class IndexWriter
 
             if (endPseudo > fromIndex)
             { 
-                long h;
-                if (header2 != null && (h = getHeader(objectId)) > INBOUND_MAX_KEY1)
+                long h = getHeader(objectId);
+                if (h > INBOUND_MAX_KEY1)
                 {
                     keyWriter.storeKey(objectId, new long[] { h - 1, endPseudo - fromIndex });
                 }
