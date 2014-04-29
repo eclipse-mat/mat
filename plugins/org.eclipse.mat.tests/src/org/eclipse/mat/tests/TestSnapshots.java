@@ -44,6 +44,8 @@ public class TestSnapshots
     public static final String SUN_JDK6_31_64BIT_HPROFAGENT_COMPRESSED_OOPS = "dumps/sun_jdk6_31_hprofagent_compressedOops.hprof";
     public static final String SUN_JDK5_13_32BIT = "dumps/sun_jdk5_13_x32.hprof";
     public static final String ORACLE_JDK7_21_64BIT_HPROFAGENT = "dumps/oracle_jdk7_21_hprofagent.hprof";
+    public static final String ORACLE_JDK7_21_64BIT = "dumps/oracle_jdk7_21_x64.hprof";
+    public static final String ORACLE_JDK8_05_64BIT = "dumps/oracle_jdk8_05_x64.hprof";
     public static final String HISTOGRAM_SUN_JDK6_18_32BIT = "dumps/histogram_sun_jdk6_18_x32.txt";
     public static final String HISTOGRAM_SUN_JDK5_13_32BIT = "dumps/histogram_sun_jdk5_13_x32.txt";
     public static final String HISTOGRAM_SUN_JDK6_18_64BIT = "dumps/histogram_sun_jdk6_18_x64.txt";
@@ -57,6 +59,7 @@ public class TestSnapshots
     public static final String IBM_JDK7_64BIT_SYSTEM = "dumps/core.20130429.083124.14315.0001.dmp.zip";
     public static final String IBM_JDK7_64BIT_HEAP = "dumps/heapdump.20130429.083110.14261.0001.phd";
     public static final String IBM_JDK7_64BIT_JAVA = "dumps/javacore.20130429.083110.14261.0002.txt";
+    public static final String IBM_JDK8_64BIT_SYSTEM = "core.20140428.143134.2056.0001.dmp.zip";
     /**
      * javacore provides extra thread and class loader information to a heap
      * dump

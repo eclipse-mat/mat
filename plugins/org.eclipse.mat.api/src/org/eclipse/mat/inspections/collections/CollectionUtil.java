@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2014 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
- *    IBM Corporation - detect IBM 1.4/1.5/1.6 VM
+ *    IBM Corporation - detect IBM 1.4/1.5/1.6 VM, more collections
  *******************************************************************************/
 package org.eclipse.mat.inspections.collections;
 
@@ -110,8 +110,18 @@ public final class CollectionUtil
          */
         public int getSize(IObject collection) throws SnapshotException
         {
-            Integer value = (Integer) collection.resolveValue(sizeField);
-            if (value == null)
+            Object value = collection.resolveValue(sizeField);
+            int ret = 0;
+            // Allow for int or long
+            if (value instanceof Integer)
+            {
+                ret = (Integer)value;
+            }
+            else if (value instanceof Long)
+            {
+                ret = ((Long)value).intValue();
+            }
+            else
             {
                 if (hasBackingArray())
                 {
@@ -122,12 +132,12 @@ public final class CollectionUtil
                         {
                             // E.g. ArrayList
                             int count = CollectionUtil.getNumberOfNoNullArrayElements(array);
-                            value = count;
+                            ret = count;
                         }
                         else
                         {
                             int count = getMapSize(collection, array);
-                            value = count;
+                            ret = count;
                         }
                     }
                 }
@@ -138,11 +148,11 @@ public final class CollectionUtil
                     if (header != null)
                     {
                         int count = getMapSize(collection, header);
-                        value = count;
+                        ret = count;
                     }
                 }
             }
-            return value == null ? 0 : value;
+            return ret;
         }
 
         private int getMapSize(IObject collection, IObject array) throws SnapshotException
@@ -157,10 +167,14 @@ public final class CollectionUtil
             ArrayInt extra = new ArrayInt();
             // Eliminate the LinkedHashMap header node
             seen.set(array.getObjectId());
+            // Walk over whole array, or all outbounds of header
             for (int i : snapshot.getOutboundReferentIds(array.getObjectId()))
             {
-                if (!snapshot.isClass(i) && !seen.get(i))
+                // Ignore classes, outbounds we have seen, and plain Objects (which can't be buckets e.g. ConcurrentSkipListMap) 
+                if (!snapshot.isClass(i) && !seen.get(i) && !snapshot.getClassOf(i).getName().equals("java.lang.Object")) //$NON-NLS-1$
                 {
+                    // Found a new outbound
+                    // Look at the reachable nodes from this one, remember this
                     extra.clear();
                     extra.add(i);
                     seen.set(i);
@@ -300,6 +314,15 @@ public final class CollectionUtil
 
         IObject resolveNextFields(IObject collection) throws SnapshotException
         {
+            int j = arrayField.lastIndexOf('.');
+            if (j >= 0)
+            {
+                Object ret = collection.resolveValue(arrayField.substring(0, j));
+                if (ret instanceof IObject)
+                {
+                    return (IObject) ret;
+                }
+            }
             // Find out how many fields to chain through to find the array
             IObject next = collection;
             // Don't do the last as that is the array field
@@ -317,7 +340,7 @@ public final class CollectionUtil
 
         public boolean isMap()
         {
-            return keyField != null;
+            return keyField != null || collectionExtractor != null;
         }
 
         public String getEntryKeyField()
@@ -360,6 +383,31 @@ public final class CollectionUtil
 
             if (table == null) { return 0; }
             return table.getLength();
+        }
+        
+        public String toString() {
+            return this.className+" "+this.sizeField+" "+this.arrayField;  //$NON-NLS-1$//$NON-NLS-2$
+        }
+    }
+
+    /**
+     * Info for IdentityHashMaps
+     * These are stored as key/value pairs in an array
+     */
+    public static class IdentityInfo extends Info
+    {
+
+        IdentityInfo(String className, int version, String sizeField, String arrayField)
+        {
+            super(className, version, sizeField, arrayField, null, null, IDENTITY_HASH_MAP_EXTRACTOR);
+        }
+        
+        /**
+         * Gets the capacity of the map.
+         * Needs two array elements for each entry.
+         */
+        public int getCapacity(IObject collection) throws SnapshotException {
+            return super.getCapacity(collection) / 2;
         }
     }
 
@@ -461,11 +509,14 @@ public final class CollectionUtil
         int IBM15 = 1 << 2;
         int IBM16 = 1 << 3;
         int IBM17 = 1 << 4;
+        int IBM18 = 1 << 5;
+        int JAVA18 = 1 << 6;
     }
 
     /* package */static ICollectionExtractor HASH_MAP_EXTRACTOR = new HashMapEntryExtractor();
     /* package */static ICollectionExtractor CONCURRENT_HASH_MAP_EXTRACTOR = new ConcurrentHashMapEntryExtractor();
     /* package */static ICollectionExtractor TREE_MAP_EXTRACTOR = new TreeMapEntryExtractor();
+    /* package */static ICollectionExtractor IDENTITY_HASH_MAP_EXTRACTOR = new IdentityHashMapEntryExtractor();
 
     @SuppressWarnings("nls")
     private static Info[] knownCollections = new Info[] {
@@ -477,6 +528,7 @@ public final class CollectionUtil
                     new Info("java.util.ArrayList", ~Version.IBM16, "size", "elementData"), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                     new IBM6ArrayListInfo("java.util.ArrayList", Version.IBM16, "firstIndex", "lastIndex", "array"), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
+                    new IBM6ArrayListInfo("java.util.ArrayDeque", ~Version.IBM16, "head", "tail", "elements"), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
                     new IBM6ArrayListInfo("java.util.ArrayDeque", Version.IBM16, "front", "rear", "elements"), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
                     new Info("java.util.LinkedList", ~Version.IBM16, "size", "header."), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -491,13 +543,17 @@ public final class CollectionUtil
                     // This is the same as HashMap
                     new Info(
                                     "java.util.LinkedHashMap", Version.IBM15, "size", "table", "key", "value", HASH_MAP_EXTRACTOR), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+                                    
+                    new Info("java.beans.beancontext.BeanContextSupport", ~Version.IBM16, "children.size", "children.table", "key", "value", HASH_MAP_EXTRACTOR), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+                    new Info("java.beans.beancontext.BeanContextSupport", Version.IBM16, "children.elementCount", "children.elementData", "key", "value", HASH_MAP_EXTRACTOR), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 
                     new Info(
                                     "com.ibm.jvm.util.HashMapRT", Version.IBM15 | Version.IBM16, "size", "table", "key", "value", HASH_MAP_EXTRACTOR), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 
-                    // TODO Find how to extract from Identity map
-                    new Info("java.util.IdentityHashMap", Version.IBM14 | Version.IBM15, "size", "table"), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                    new Info("java.util.IdentityHashMap", Version.IBM16, "size", "elementData"), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    // TODO Find how to find collisions Identity map
+                    new IdentityInfo("java.util.IdentityHashMap", ~(Version.IBM14 | Version.IBM15 | Version.IBM16), "size", "table"), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    new IdentityInfo("java.util.IdentityHashMap", Version.IBM14 | Version.IBM15, "size", "table"), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    new IdentityInfo("java.util.IdentityHashMap", Version.IBM16, "size", "elementData"), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
                     // use "" to make the size 0
                     new Info("java.util.Collections$EmptySet", "", null), //$NON-NLS-1$ //$NON-NLS-2$
@@ -510,16 +566,30 @@ public final class CollectionUtil
                                     "java.util.HashSet", Version.IBM16, // //$NON-NLS-1$
                                     "backingMap.elementCount", "backingMap.elementData", "key", "value", HASH_MAP_EXTRACTOR), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
+                    new Info(
+                                    "javax.script.SimpleBindings", ~Version.IBM16, "map.size", "map.table", "key", "value", HASH_MAP_EXTRACTOR), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+                    new Info(
+                                    "javax.script.SimpleBindings", Version.IBM16, // //$NON-NLS-1$
+                                    "map.elementCount", "map.elementData", "key", "value", HASH_MAP_EXTRACTOR), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+
+                    new Info(
+                                   "java.util.jar.Attributes", ~Version.IBM16, "map.size", "map.table", "key", "value", HASH_MAP_EXTRACTOR), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+                    new Info(
+                                   "java.util.jar.Attributes", Version.IBM16, // //$NON-NLS-1$
+                                   "map.elementCount", "map.elementData", "key", "value", HASH_MAP_EXTRACTOR), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+
+
                     // Some Java 5 PHD files don't have superclass info so add
                     // LinkedHashSet to list
                     // This is the same as HashSet
                     new Info(
                                     "java.util.LinkedHashSet", Version.IBM15, "map.size", "map.table", "key", "value", HASH_MAP_EXTRACTOR), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 
-                    new Info("java.util.TreeMap", "size", null, "key", "value").setCollectionExtractor(TREE_MAP_EXTRACTOR), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                    new Info("java.util.TreeMap", ~Version.IBM16, "size", null, "key", "value").setCollectionExtractor(TREE_MAP_EXTRACTOR), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                    new Info("java.util.TreeMap", Version.IBM16, "size", null, "keys", "values").setCollectionExtractor(TREE_MAP_EXTRACTOR), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
-                    new Info("java.util.TreeSet", ~Version.IBM16, "m.size", null), // //$NON-NLS-1$ //$NON-NLS-2$
-                    new Info("java.util.TreeSet", Version.IBM16, "backingMap.size", null), //$NON-NLS-1$ //$NON-NLS-2$
+                    new Info("java.util.TreeSet", ~Version.IBM16, "m.size", null, "key", "value").setCollectionExtractor(TREE_MAP_EXTRACTOR), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                    new Info("java.util.TreeSet", Version.IBM16, "backingMap.size", null, "key", "value").setCollectionExtractor(TREE_MAP_EXTRACTOR), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
                     new Info(
                                     "java.util.Hashtable", ~(Version.IBM15 | Version.IBM16), "count", "table", "key", "value", HASH_MAP_EXTRACTOR), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
@@ -529,9 +599,9 @@ public final class CollectionUtil
                     // Some Java 5 PHD files don't have superclass info so add
                     // Properties to list
                     // This is the same as Hashtable
-                    new Info("java.util.Properties", Version.IBM15, // //$NON-NLS-1$
+                    new Info("java.util.Properties", Version.IBM15|Version.IBM16, // //$NON-NLS-1$
                                     "elementCount", "elementData", "key", "value", HASH_MAP_EXTRACTOR), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-                    new Info("java.util.Properties", Version.IBM17, // //$NON-NLS-1$
+                    new Info("java.util.Properties", Version.IBM17|Version.IBM18, // //$NON-NLS-1$
                                     "count", "table", "key", "value", HASH_MAP_EXTRACTOR), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
                     new Info("java.util.Vector", "elementCount", "elementData"), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -546,19 +616,39 @@ public final class CollectionUtil
                     new Info("java.util.PriorityQueue", Version.IBM16, "size", "elements"), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
                     new Info(
-                                    "java.lang.ThreadLocal$ThreadLocalMap", Version.IBM14 | Version.IBM15 | Version.IBM16 | Version.IBM17 | Version.SUN, // //$NON-NLS-1$
+                                    "java.lang.ThreadLocal$ThreadLocalMap", Version.IBM14 | Version.IBM15 | Version.IBM16 | Version.IBM17 | Version.IBM18  | Version.SUN | Version.JAVA18, // //$NON-NLS-1$
                                     "size", "table", "referent", "value", HASH_MAP_EXTRACTOR), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
                     new Info("java.util.concurrent.ConcurrentHashMap$Segment", "count", "table", "key", "value").setCollectionExtractor(HASH_MAP_EXTRACTOR), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 
                     new ConcurrentHashMapInfo(), // special sub-class of Info
                                                  // for ConcurrentHashMap
+                    
+                    // FIXME This is only approximate and just works for some small maps.
+                    new Info("java.util.concurrent.ConcurrentHashMap", Version.JAVA18 | Version.IBM18, "baseCount", "table", "key", "value").setCollectionExtractor(HASH_MAP_EXTRACTOR), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 
                     new Info("com.sap.engine.lib.util.AbstractDataStructure", null, null), // //$NON-NLS-1$
 
                     new Info("java.util.concurrent.CopyOnWriteArrayList", "", "array"), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                     new Info("java.util.concurrent.CopyOnWriteArraySet", "", "al.array"), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-
+                    new Info("java.util.PriorityQueue", ~(Version.IBM15|Version.IBM16), "size", "queue"), // //$NON-NLS-1$ //$NON-NLS-2$
+                    new Info("java.util.PriorityQueue", Version.IBM15 | Version.IBM16, "size", "elements"), // //$NON-NLS-1$ //$NON-NLS-2$
+                    new Info("java.util.concurrent.DelayQueue", ~(Version.IBM15|Version.IBM16), "q.size", "q.queue"), // //$NON-NLS-1$ //$NON-NLS-2$
+                    new Info("java.util.concurrent.DelayQueue", Version.IBM15 | Version.IBM16, "q.size", "q.elements"), // //$NON-NLS-1$ //$NON-NLS-2$
+                    // use "" to make the size 0
+                    new Info("java.util.concurrent.SynchronousQueue", "", null),
+                    new Info("java.util.concurrent.ConcurrentLinkedBlockingDeque", "count", null),
+                    new Info("java.util.concurrent.ConcurrentLinkedBlockingQueue", "count.value", null),
+                    new Info("java.util.concurrent.LinkedBlockingDeque", "count", null),
+                    new Info("java.util.concurrent.LinkedBlockingQueue", "count.value", null),
+                    
+                    // Calculations not yet quite correct for these
+                    //new Info("java.util.concurrent.ConcurrentLinkedDeque", "", "head."),
+                    //new Info("java.util.concurrent.ConcurrentLinkedQueue", "", "head."),
+                    //new Info("java.util.concurrent.LinkedTransferQueue", "", "head."),
+                    
+                    new Info("java.util.concurrent.ConcurrentSkipListSet", ~0, "", "m.head.node.", "key", "value", HASH_MAP_EXTRACTOR),
+                    new Info("java.util.concurrent.ConcurrentSkipListMap", ~0, "", "head.node.", "key", "value", HASH_MAP_EXTRACTOR),
     };
 
     @SuppressWarnings("nls")
@@ -598,7 +688,9 @@ public final class CollectionUtil
                     if (jreVersion.length() >= 3)
                     {
                         jreVersion = jreVersion.substring(0, 3);
-                        if (jreVersion.equals("1.7"))
+                        if (jreVersion.equals("1.8"))
+                            return Version.IBM18;
+                        else if (jreVersion.equals("1.7"))
                             return Version.IBM17;
                         else if (jreVersion.equals("1.6"))
                             return Version.IBM16;
@@ -615,6 +707,14 @@ public final class CollectionUtil
         else if ((classes = snapshot.getClassesByName("com.ibm.oti.vm.BootstrapClassLoader", false)) != null && !classes.isEmpty())return Version.IBM16; //$NON-NLS-1$
         else if ((classes = snapshot.getClassesByName("com.ibm.jvm.Trace", false)) != null && !classes.isEmpty())return Version.IBM14; //$NON-NLS-1$
 
+        classes = snapshot.getClassesByName("sun.misc.Version", false);
+        if (classes.size() > 0)
+        {
+            Object ver = classes.iterator().next().resolveValue("java_version");
+            if (ver instanceof IObject && ((IObject)ver).getClassSpecificName().startsWith("1.8.")) {
+                return Version.JAVA18;
+            }
+        }
         return Version.SUN;
     }
 
@@ -654,6 +754,11 @@ public final class CollectionUtil
             // read table w/o loading the big table object!
             String arrayField = info.getBackingArrayField();
             int p = arrayField.lastIndexOf('.');
+            if (p == arrayField.length() - 1 && p > 0) {
+                // trailing dot indicates field is not actually an array
+                arrayField = arrayField.substring(0, p);
+                p = arrayField.lastIndexOf('.');
+            }
             IInstance map = p < 0 ? (IInstance) collection : (IInstance) collection.resolveValue(arrayField.substring(
                             0, p));
             Field tableField = map.getField(p < 0 ? arrayField : arrayField.substring(p + 1));
@@ -683,6 +788,9 @@ public final class CollectionUtil
                 // skip if it is the pseudo outgoing reference (all other
                 // elements are of type Map$Entry)
                 if (snapshot.isClass(entryId))
+                    return;
+                // For ConcurrentSkipListMap skip Object refs
+                if (snapshot.getClassOf(entryId).getName().equals("java.lang.Object")) //$NON-NLS-1$
                     return;
 
                 IInstance entry = (IInstance) snapshot.getObject(entryId);
@@ -721,7 +829,7 @@ public final class CollectionUtil
     {
         /* package */ConcurrentHashMapInfo()
         {
-            super("java.util.concurrent.ConcurrentHashMap", null, "segments", "key", "value"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+            super("java.util.concurrent.ConcurrentHashMap", ~(Version.JAVA18 | Version.IBM18), null, "segments", "key", "value"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
             setCollectionExtractor(CONCURRENT_HASH_MAP_EXTRACTOR);
         }
 
@@ -841,7 +949,14 @@ public final class CollectionUtil
         {
             ArrayInt result = new ArrayInt();
             IObject treeMap = snapshot.getObject(objectId);
-            IObject root = (IObject) treeMap.resolveValue("root"); //$NON-NLS-1$
+            String rootf = "root"; //$NON-NLS-1$
+            // For TreeSet
+            int dot = info.sizeField.lastIndexOf("."); //$NON-NLS-1$
+            if (dot > 0) 
+            {
+                rootf = info.sizeField.substring(0, dot + 1) + rootf;
+            }
+            IObject root = (IObject) treeMap.resolveValue(rootf);
             if (root == null)
                 return new int[0];
 
@@ -878,6 +993,53 @@ public final class CollectionUtil
                 }
             }
 
+            return result.toArray();
+        }
+    }
+    
+    /**
+     * Extract the entries from an IdentityHashMap.
+     * Entries stored as key,value.
+     */
+    private static class IdentityHashMapEntryExtractor implements ICollectionExtractor
+    {
+        public int[] extractEntries(int objectId, Info info, ISnapshot snapshot, IProgressListener listener)
+                        throws SnapshotException
+        {
+            ArrayInt result = new ArrayInt();
+            IObject idMap = snapshot.getObject(objectId);
+            IObjectArray array = (IObjectArray)info.getBackingArray(idMap);
+            if (array == null)
+                return new int[0];
+            for (int i = 0; i < array.getLength(); i += 2)
+            {
+                
+                long l[] = array.getReferenceArray(i, 2);
+                // Skip over empty entries
+                boolean empty = true;
+                for (int j = 0; j < l.length; ++j)
+                {
+                    if (l[j] != 0)
+                    {
+                        empty = false;
+                        break;
+                    }
+                }
+                if (empty) continue;
+                for (int j = 0; j < l.length; ++j)
+                {
+                    int objId;
+                    if (l[j] != 0)
+                    {
+                        objId = snapshot.mapAddressToId(l[j]);
+                    }
+                    else
+                    {
+                        objId = -1;
+                    }
+                    result.add(objId);
+                }
+            }
             return result.toArray();
         }
     }

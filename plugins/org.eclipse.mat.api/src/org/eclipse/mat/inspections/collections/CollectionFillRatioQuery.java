@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2014 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,7 +26,6 @@ import org.eclipse.mat.query.quantize.Quantize;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
-import org.eclipse.mat.snapshot.model.IObjectArray;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.snapshot.query.RetainedSizeDerivedData;
 import org.eclipse.mat.util.IProgressListener;
@@ -96,10 +95,10 @@ public class CollectionFillRatioQuery implements IQuery
 
         // create frequency distribution
         // The load factor should be <= 1, but for old PHD files with inaccurate array sizes can appear > 1.
-        // Therefore we have a larger upper bound just in case
-        // Use slightly > 5.0 so final 1.000 division is >= 1
+        // Therefore we have a larger upper bound of 5, not 1 just in case
+        // Using 5.0 and Quantize counting back from 5.0 using the reciprocal always seems to give 1.000 or 1.000+ 
         Quantize.Builder builder = Quantize.linearFrequencyDistribution(
-                        Messages.CollectionFillRatioQuery_Column_FillRatio, 0, 5.0000000001, (double) 1 / (double) segments);
+                        Messages.CollectionFillRatioQuery_Column_FillRatio, 0, 5.0000000000, (double) 1 / (double) segments);
         builder.column(Messages.CollectionFillRatioQuery_ColumnNumObjects, Quantize.COUNT);
         builder.column(Messages.Column_ShallowHeap, Quantize.SUM_LONG);
         builder.addDerivedData(RetainedSizeDerivedData.APPROXIMATE);

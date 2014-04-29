@@ -85,6 +85,8 @@ public class GeneralSnapshotTests
             {TestSnapshots.IBM_JDK142_32BIT_JAVA, Stacks.FRAMES},
             {TestSnapshots.IBM_JDK142_32BIT_HEAP_AND_JAVA, DTFJreadJavacore142 ? Stacks.FRAMES : Stacks.NONE},
             {TestSnapshots.IBM_JDK142_32BIT_SYSTEM, Stacks.FRAMES},
+            {TestSnapshots.ORACLE_JDK7_21_64BIT, Stacks.FRAMES_AND_OBJECTS},
+            {TestSnapshots.ORACLE_JDK8_05_64BIT, Stacks.FRAMES_AND_OBJECTS},
         });
     }
 
@@ -365,6 +367,25 @@ public class GeneralSnapshotTests
         assertNotNull(t);
     }
 
+    @Test
+    public void listEntries() throws SnapshotException
+    {
+        Collection<IClass>tClasses = snapshot.getClassesByName("java.util.AbstractMap", true);
+        if (tClasses != null) for (IClass thrdcls : tClasses)
+        {
+            for (int o : thrdcls.getObjectIds())
+            {
+                SnapshotQuery query = SnapshotQuery.parse("extract_list_values 0x"+Long.toHexString(snapshot.mapIdToAddress(o)), snapshot);
+                try {
+                    IResult t = query.execute(new VoidProgressListener());
+                    assertNotNull(t);
+                } catch (IllegalArgumentException e) {
+                    
+                }
+            }
+        }
+    }
+    
     /**
      * Test caching of snapshots
      * @throws SnapshotException

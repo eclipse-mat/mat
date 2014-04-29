@@ -74,14 +74,43 @@ public class HashSetValuesQuery implements IQuery
 
         // read table w/o loading the big table object!
         String arrayField = info.getBackingArrayField();
+        if (arrayField == null)
+        {
+            // No array, but perhaps an extractor
+            ICollectionExtractor ex = info.getCollectionExtractor();
+            if (ex != null)
+            {
+                int entries[] = ex.extractEntries(hashSet.getObjectId(), info, snapshot, listener);
+                String valueField = info.getEntryKeyField();
+                if (valueField != null) {
+                    ArrayInt ret = new ArrayInt();
+                    for (int entryId : entries)
+                    {
+                        IInstance entry = (IInstance) snapshot.getObject(entryId);
+                        Object f = entry.resolveValue(valueField);
+                        if (f instanceof IInstance)
+                        {
+                            ret.add(((IInstance)f).getObjectId());
+                        }
+                    }
+                    entries = ret.toArray();
+                }
+                return new ObjectListResult.Outbound(snapshot, entries);
+            }
+            return null;
+        }
         int p = arrayField.lastIndexOf('.');
         IInstance map = p < 0 ? (IInstance) hashSet : (IInstance) hashSet.resolveValue(arrayField.substring(0, p));
         int tableObjectId;
         if (map != null)
         {
             Field table = map.getField(p < 0 ? arrayField : arrayField.substring(p + 1));
-
-            tableObjectId = ((ObjectReference) table.getValue()).getObjectId();
+            if (table == null)
+                return null;
+            Object tableValue = table.getValue();
+            if (tableValue == null)
+                return null;
+            tableObjectId = ((ObjectReference) tableValue).getObjectId();
         }
         else
         {
