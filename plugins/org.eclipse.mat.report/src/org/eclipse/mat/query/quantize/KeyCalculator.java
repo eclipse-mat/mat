@@ -60,10 +60,13 @@ package org.eclipse.mat.query.quantize;
 
             double b = upperBound;
 
-            while (v <= b)
-                b -= step;
-
-            return b + step;
+            // Use multiplication rather than repeated subtraction for accuracy
+            double ret = b;
+            for (int i = 0; v <= b; ++i) {
+                ret = b;
+                b = upperBound - i * step;
+            }
+            return ret;
         }
 
     }
