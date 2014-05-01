@@ -93,9 +93,14 @@ public class WasteInCharArraysQuery implements IQuery
                 return false;
 
             IObject string = snapshot.getObject(inbound);
+            Integer offset = (Integer) string.resolveValue("offset"); //$NON-NLS-1$
+            // E.g. JDK7u6
+            if (offset == null)
+                offset = 0;
             Integer count = (Integer) string.resolveValue("count"); //$NON-NLS-1$
+            // E.g. JDK7u6
             if (count == null)
-                continue;
+                count = length - offset;
             // string length already uses enough of the char[]
             if (length - count < minimumWaste)
                 return false;
@@ -103,10 +108,6 @@ public class WasteInCharArraysQuery implements IQuery
             // if there is only one string (and enough waste), include it
             if (inbounds.length == 1)
                 return true;
-
-            Integer offset = (Integer) string.resolveValue("offset"); //$NON-NLS-1$
-            if (offset == null)
-                continue;
 
             if (fragments == null)
             {
