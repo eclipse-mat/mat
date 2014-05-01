@@ -19,6 +19,7 @@ import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.CommandName;
+import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.Field;
 import org.eclipse.mat.snapshot.model.IInstance;
@@ -30,6 +31,7 @@ import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 
 @CommandName("hash_set_values")
+@HelpUrl("/org.eclipse.mat.ui.help/tasks/analyzingjavacollectionusage.html")
 public class HashSetValuesQuery implements IQuery
 {
     @Argument

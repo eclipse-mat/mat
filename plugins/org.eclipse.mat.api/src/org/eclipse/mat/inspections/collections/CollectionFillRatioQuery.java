@@ -22,6 +22,7 @@ import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.CommandName;
+import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.quantize.Quantize;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IClass;
@@ -32,6 +33,7 @@ import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 
 @CommandName("collection_fill_ratio")
+@HelpUrl("/org.eclipse.mat.ui.help/tasks/analyzingjavacollectionusage.html")
 public class CollectionFillRatioQuery implements IQuery
 {
 

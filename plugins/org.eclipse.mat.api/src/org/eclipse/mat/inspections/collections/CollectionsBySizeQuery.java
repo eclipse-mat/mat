@@ -23,6 +23,7 @@ import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.Column.SortDirection;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.CommandName;
+import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.quantize.Quantize;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IClass;
@@ -33,6 +34,7 @@ import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 
 @CommandName("collections_grouped_by_size")
+@HelpUrl("/org.eclipse.mat.ui.help/tasks/analyzingjavacollectionusage.html")
 public class CollectionsBySizeQuery implements IQuery
 {
 

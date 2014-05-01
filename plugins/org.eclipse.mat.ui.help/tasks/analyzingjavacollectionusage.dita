@@ -81,6 +81,48 @@
 									<li>
 										<codeblock>java.util.concurrent.ConcurrentHashMap$Segment</codeblock>
 									</li>
+									<li>
+										<codeblock>java.beans.beancontext.BeanContextSupport</codeblock>
+									</li>
+									<li>
+										<codeblock>java.lang.ThreadLocal$ThreadLocalMap</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.ArrayDeque</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.HashSet</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.IdentityHashMap</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.PriorityQueue</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.Vector</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.WeakHashMap</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.concurrent.ConcurrentHashMap</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.concurrent.CopyOnWriteArrayList</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.concurrent.CopyOnWriteArraySet</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.concurrent.DelayQueue</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.jar.Attributes</codeblock>
+									</li>
+									<li>
+										<codeblock>javax.script.SimpleBindings</codeblock>
+									</li>
 								</ul>
 								<p>One additional custom collection (e.g. non-JDK) collection
 									can be specified by the 'collection', 'size_attribute' and
@@ -118,7 +160,67 @@
 										<codeblock>java.util.WeakHashMap</codeblock>
 									</li>
 									<li>
+										<codeblock>java.util.concurrent.ConcurrentHashMap</codeblock>
+									</li>
+									<li>
 										<codeblock>java.util.concurrent.ConcurrentHashMap$Segment</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.ArrayDeque</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.HashSet</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.IdentityHashMap</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.LinkedList</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.PriorityQueue</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.TreeSet</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.concurrent.ConcurrentSkipListMap</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.concurrent.ConcurrentSkipListSet</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.concurrent.CopyOnWriteArrayList</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.concurrent.CopyOnWriteArraySet</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.concurrent.DelayQueue</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.concurrent.LinkedBlockingDeque</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.concurrent.LinkedBlockingQueue</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.concurrent.SynchronousQueue</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.jar.Attributes</codeblock>
+									</li>
+									<li>
+										<codeblock>java.beans.beancontext.BeanContextSupport</codeblock>
+									</li>
+									<li>
+										<codeblock>java.lang.ThreadLocal$ThreadLocalMap</codeblock>
+									</li>
+									<li>
+										<codeblock>javax.script.SimpleBindings</codeblock>
+									</li>
+									<li>
+										<codeblock>javax.swing.UIDefaults</codeblock>
 									</li>
 								</ul>
 								<p>One additional custom collection (e.g. non-JDK) collection
@@ -131,8 +233,10 @@
 								<b>Extract List Values Query</b>
 							</entry>
 							<entry>
-								<p>Lists elements of a LinkedList, ArrayList or Vector
+								<p>Lists elements of a single LinkedList, ArrayList, Vector, 
+								CopyOnWriteArrayList, PriorityQueue, ArrayDeque
 									object.</p>
+								
 							</entry>
 						</row>
 						<row>
@@ -149,7 +253,7 @@
 								<b>Extract Hash Set Value Query</b>
 							</entry>
 							<entry>
-								<p>Lists elements of a HashSet.</p>
+								<p>Lists elements of a single HashSet.</p>
 							</entry>
 						</row>
 						<row>
@@ -175,6 +279,42 @@
 									</li>
 									<li>
 										<codeblock>java.util.concurrent.ConcurrentHashMap$Segment</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.HashMap</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.HashSet</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.Hashtable</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.IdentityHashMap</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.concurrent.ConcurrentHashMap</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.concurrent.ConcurrentSkipListMap</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.concurrent.ConcurrentSkipListSet</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.jar.Attributes</codeblock>
+									</li>
+									<li>
+										<codeblock>java.beans.beancontext.BeanContextSupport</codeblock>
+									</li>
+									<li>
+										<codeblock>java.lang.ThreadLocal$ThreadLocalMap</codeblock>
+									</li>
+									<li>
+										<codeblock>javax.script.SimpleBindings</codeblock>
+									</li>
+									<li>
+										<codeblock>javax.swing.UIDefaults</codeblock>
 									</li>
 								</ul>
 								<p> One additional custom map-like (e.g. non-JDK) collection can

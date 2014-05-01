@@ -18,6 +18,7 @@ import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.Help;
+import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IObjectArray;
@@ -27,6 +28,7 @@ import org.eclipse.mat.snapshot.query.ObjectListResult;
 import org.eclipse.mat.util.IProgressListener;
 
 @CommandName("primitive_arrays_with_a_constant_value")
+@HelpUrl("/org.eclipse.mat.ui.help/tasks/analyzingjavacollectionusage.html")
 public class PrimitiveArraysWithAConstantValueQuery implements IQuery
 {
     @Argument

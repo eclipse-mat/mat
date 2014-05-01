@@ -29,6 +29,7 @@ import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.query.ResultMetaData;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.CommandName;
+import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.Field;
 import org.eclipse.mat.snapshot.model.IClass;
@@ -40,6 +41,7 @@ import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 
 @CommandName("hash_entries")
+@HelpUrl("/org.eclipse.mat.ui.help/tasks/analyzingjavacollectionusage.html")
 public class HashEntriesQuery implements IQuery
 {
     private static final String NULL = "<null>"; //$NON-NLS-1$
