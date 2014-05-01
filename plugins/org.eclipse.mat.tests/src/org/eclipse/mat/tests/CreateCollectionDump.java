@@ -305,7 +305,7 @@ public class CreateCollectionDump
 
         public String toString()
         {
-            return maps.toString();
+            return Arrays.toString(maps);
         }
     }
     
