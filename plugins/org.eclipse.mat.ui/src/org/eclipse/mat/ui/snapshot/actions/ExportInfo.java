@@ -58,6 +58,16 @@ import org.eclipse.mat.snapshot.model.IPrimitiveArray;
             offset = (Integer) object.resolveValue("offset");//$NON-NLS-1$
             count = (Integer) object.resolveValue("count");//$NON-NLS-1$
             charArray = (IPrimitiveArray) object.resolveValue("value");//$NON-NLS-1$
+            if (offset == null)
+            {
+                // Java 7
+                offset = 0;
+            }
+            if (count == null && charArray != null)
+            {
+                // Java 7
+                count = charArray.getLength() - offset;
+            }
         }
         else if ("char[]".equals(object.getClazz().getName()))//$NON-NLS-1$
         {
