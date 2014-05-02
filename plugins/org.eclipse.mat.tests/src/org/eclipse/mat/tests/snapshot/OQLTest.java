@@ -34,6 +34,7 @@ import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.VoidProgressListener;
 import org.junit.Test;
 
+@SuppressWarnings("nls")
 public class OQLTest
 {
     @Test
@@ -568,7 +569,7 @@ public class OQLTest
     public void testGetClasses3() throws SnapshotException
     {
         // 21 byte arrays
-        Class s = (Class)execute("SELECT * FROM OBJECTS ${snapshot}.getClasses().@class");
+        Class<?> s = (Class<?>)execute("SELECT * FROM OBJECTS ${snapshot}.getClasses().@class");
         assertEquals("class java.util.Arrays$ArrayList", s.toString());
     }
 
@@ -724,12 +725,83 @@ public class OQLTest
     }
 
     @Test
+    public void testPrimitiveArrayRange() throws SnapshotException
+    {
+        IResultTable res = (IResultTable)execute("SELECT s[1:3][1] FROM int[] s");
+        assertEquals(5, res.getRowCount());
+    }
+
+    @Test
+    public void testObjectArrayRange() throws SnapshotException
+    {
+        int[] objectIds = (int[])execute("SELECT OBJECTS s[1:3][1] FROM byte[][] s");
+        assertEquals(2, objectIds.length);
+    }
+
+    @Test
+    public void testJavaArrayRange() throws SnapshotException
+    {
+        IResultTable res = (IResultTable)execute("SELECT s.@GCRoots[1:3][1] FROM OBJECTS ${snapshot} s");
+        assertEquals(1, res.getRowCount());
+    }
+
+    @Test
+    public void testJavaArrayRange2() throws SnapshotException
+    {
+        int res[] = (int[])execute("SELECT OBJECTS s.@GCRoots[1:3] FROM OBJECTS ${snapshot} s");
+        assertEquals(3, res.length);
+    }
+    
+    @Test
+    public void testJavaArrayRange3() throws SnapshotException
+    {
+        int res[] = (int[])execute("SELECT OBJECTS s.@GCRoots[-2:-1] FROM OBJECTS ${snapshot} s");
+        assertEquals(2, res.length);
+    }
+
+    @Test
+    public void testJavaListRange() throws SnapshotException
+    {
+        IResultTable res = (IResultTable)execute("SELECT s.@GCRoots.subList(0,3)[1:3][1] FROM OBJECTS ${snapshot} s");
+        assertEquals(1, res.getRowCount());
+    }
+
+    @Test
+    public void testPrimitiveArrayRange2() throws SnapshotException
+    {
+        IResultTable res = (IResultTable)execute("SELECT s[1:3][1] FROM int[] s");
+        assertEquals(5, res.getRowCount());
+        IResultTable res2 = (IResultTable)execute("SELECT s[(1 - s.@length):(3 - s.@length)][1] FROM int[] s");
+        assertEquals(5, res.getRowCount());
+        assertEquals(res.getColumnValue(res.getRow(2), 0), res2.getColumnValue(res2.getRow(2), 0));
+    }
+
+    @Test
+    public void testConcatentation() throws SnapshotException
+    {
+        IResultTable res = (IResultTable)execute("SELECT \"ABC\"+s FROM OBJECTS (123) s");
+        assertEquals(1, res.getRowCount());
+        Object r = res.getRow(0);
+        Object val = res.getColumnValue(r, 0);
+        assertEquals("ABC123", val);
+    }
+
+    @Test
+    public void testEval() throws SnapshotException
+    {
+        IResultTable res = (IResultTable)execute("SELECT eval(\"ABC\"+s) FROM OBJECTS (123) s");
+        assertEquals(1, res.getRowCount());
+        Object r = res.getRow(0);
+        Object val = res.getColumnValue(r, 0);
+        assertEquals("ABC123", val);
+    }
+    
+    @Test
     public void testOQLunion1() {
         StringBuilder sb = new StringBuilder();
         sb.append("select s from 1,2,3 s1");
         OQL.union(sb, "select s from 17,23 s1");
         assertEquals("select s from 1,2,3,17,23 s1", sb.toString());
-        System.out.println(sb);
     }
 
     @Test
@@ -738,7 +810,6 @@ public class OQLTest
         sb.append("select s from 1,2,3");
         OQL.union(sb, "select s from 17,23");
         assertEquals("select s from 1,2,3,17,23", sb.toString());
-        System.out.println(sb);
     }
 
     @Test
@@ -769,7 +840,6 @@ public class OQLTest
         sb.append("select s from 1,2,3 s");
         OQL.union(sb, "select s from 17,23 t");
         assertEquals("select s from 1,2,3 s UNION (select s from 17,23 t)", sb.toString());
-        System.out.println(sb);
     }
 
     /**

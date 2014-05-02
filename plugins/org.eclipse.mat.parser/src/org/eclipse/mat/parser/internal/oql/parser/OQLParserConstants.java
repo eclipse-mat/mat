@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 SAP AG and others.
+ * Copyright (c) 2008, 2014 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -114,6 +114,8 @@ public interface OQLParserConstants
     int MINUS = 52;
     /** RegularExpression Id. */
     int DIVIDE = 53;
+    /** RegularExpression Id. */
+    int COLON = 54;
 
     /** Lexical state. */
     int DEFAULT = 0;
@@ -132,6 +134,6 @@ public interface OQLParserConstants
                     "<STRING_LITERAL>", "\"INSTANCEOF\"", "\"true\"", "\"false\"", "\"or\"", "\"and\"", "\"null\"",
                     "\"implements\"", "\"$\"", "<IDENTIFIER>", "<LETTER>", "<PART_LETTER>", "\"<\"", "\">\"", "\"=\"",
                     "\"<=\"", "\">=\"", "\"!=\"", "\";\"", "\"*\"", "\",\"", "\".\"", "\"{\"", "\"}\"", "\"@\"",
-                    "\"(\"", "\")\"", "\"[]\"", "\"[\"", "\"]\"", "\"+\"", "\"-\"", "\"/\"", };
+                    "\"(\"", "\")\"", "\"[]\"", "\"[\"", "\"]\"", "\"+\"", "\"-\"", "\"/\"", "\":\"", };
 
 }

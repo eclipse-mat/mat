@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2014 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -762,17 +762,8 @@ abstract class Operation extends Expression
             Object obj1 = this.args[0].compute(ctx);
             Object obj2 = this.args[1].compute(ctx);
 
-            if (obj1 == null || !(obj1 instanceof Number))
-                throw new UnsupportedOperationException(MessageUtil.format(ERR_NOT_A_NUMBER,
-                                new Object[] { args[0], obj1,
-                                                obj1 != null ? obj1.getClass().getName() : Messages.Function_unknown,
-                                                getSymbol() }));
-
-            if (obj2 == null || !(obj2 instanceof Number))
-                throw new UnsupportedOperationException(MessageUtil.format(ERR_NOT_A_NUMBER,
-                                new Object[] { args[1], obj2,
-                                                obj2 != null ? obj2.getClass().getName() : Messages.Function_unknown,
-                                                getSymbol() }));
+            if (!(obj1 instanceof Number) || !(obj2 instanceof Number))
+                return calculate(obj1, obj2);
 
             if (obj1 instanceof Double || obj1 instanceof Float || obj2 instanceof Double || obj2 instanceof Float)
             {
@@ -793,6 +784,20 @@ abstract class Operation extends Expression
         abstract Object calculate(long left, long right);
 
         abstract Object calculate(double left, double right);
+        
+        Object calculate(Object obj1, Object obj2)
+        {
+            if (!(obj1 instanceof Number))
+                throw new UnsupportedOperationException(MessageUtil.format(ERR_NOT_A_NUMBER,
+                                new Object[] { args[0], obj1,
+                                obj1 != null ? obj1.getClass().getName() : Messages.Function_unknown,
+                                                getSymbol() }));
+
+            throw new UnsupportedOperationException(MessageUtil.format(ERR_NOT_A_NUMBER,
+                            new Object[] { args[1], obj2,
+                            obj2 != null ? obj2.getClass().getName() : Messages.Function_unknown,
+                                            getSymbol() }));
+        }
 
     }
 
@@ -820,6 +825,16 @@ abstract class Operation extends Expression
         Object calculate(double left, double right)
         {
             return left + right;
+        }
+
+        @Override
+        Object calculate(Object left, Object right)
+        {
+            // Allow String concatenation
+            if (left instanceof String)
+                return (String)left + right;
+            else
+                return super.calculate(left, right);
         }
 
         @Override

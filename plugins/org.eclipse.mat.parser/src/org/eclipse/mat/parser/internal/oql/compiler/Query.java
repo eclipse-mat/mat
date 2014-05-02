@@ -279,7 +279,24 @@ public class Query
             }
             else if (call != null)
             {
+                /*
+                 * Ensure that a non-env var or constant has parentheses
+                 * so it isn't confused with a FROM classname
+                 * No parentheses
+                 * select * from objects ${snapshot}
+                 * Add parentheses for this:
+                 * select * from objects (1)
+                 * Add parentheses for this:
+                 * select * from objects (var)
+                 * No need to add parentheses as plus will add some:
+                 * select * from objects (1+2)
+                 */
+                String cl = String.valueOf(call);
+                boolean eval = call instanceof PathExpression && !cl.startsWith("$")//$NON-NLS-1$
+                                || call instanceof CompilerImpl.ConstantExpression; 
+                if (eval) buf.append("( ");//$NON-NLS-1$
                 buf.append(call);
+                if (eval) buf.append(" )");//$NON-NLS-1$
             }
             else if (className != null)
             {

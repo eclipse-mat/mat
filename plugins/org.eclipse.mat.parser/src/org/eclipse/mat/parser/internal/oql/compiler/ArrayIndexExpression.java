@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 IBM Corporation.
+ * Copyright (c) 2012,2014 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@
 package org.eclipse.mat.parser.internal.oql.compiler;
 
 import java.lang.reflect.Array;
+import java.util.AbstractList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -22,6 +23,100 @@ import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
 
 class ArrayIndexExpression extends Expression
 {
+    private static class PrimitiveArraySubList extends AbstractList<Object>
+    {
+        private final IPrimitiveArray array;
+        private final int i1;
+        private final int i2;
+
+        private PrimitiveArraySubList(IPrimitiveArray array, int i1, int i2)
+        {
+            this.array = array;
+            this.i1 = i1;
+            this.i2 = i2;
+        }
+
+        @Override
+        public Object get(int index)
+        {
+            if (index < 0 || index >= size()) throw new IndexOutOfBoundsException(Integer.toString(index));
+            return array.getValueAt(i1 + index);
+        }
+
+        @Override
+        public int size()
+        {
+            return i2 - i1;
+        }
+    }
+
+    private static class ArraySubList extends AbstractList<Object>
+    {
+        private final Object subject;
+        private final int i1;
+        private final int i2;
+
+        private ArraySubList(Object subject, int i1, int i2)
+        {
+            this.subject = subject;
+            this.i1 = i1;
+            this.i2 = i2;
+        }
+
+        @Override
+        public Object get(int index)
+        {
+            if (index < 0 || index >= size()) throw new IndexOutOfBoundsException(Integer.toString(index));
+            return Array.get(subject, i1 + index);
+        }
+
+        @Override
+        public int size()
+        {
+            return i2 - i1;
+        }
+    }
+
+    private static class ObjectArraySubList extends AbstractList<Object>
+    {
+        private final IObjectArray array;
+        private final int i1;
+        private final int i2;
+
+        public ObjectArraySubList(IObjectArray array, int i1, int i2)
+        {
+            this.array = array;
+            this.i1 = i1;
+            this.i2 = i2;
+        }
+        
+        @Override
+        public Object get(int index)
+        {
+            if (index < 0 || index >= size()) throw new IndexOutOfBoundsException(Integer.toString(index));
+            long addr = array.getReferenceArray(i1 + index, 1)[0];
+            if (addr == 0)
+                return null;
+            ISnapshot snapshot = array.getSnapshot();
+            try
+            {
+                int objectId = snapshot.mapAddressToId(addr);
+                return snapshot.getObject(objectId);
+            }
+            catch (SnapshotException e)
+            {
+                throw new IllegalStateException(e);
+            }
+        }
+
+        @Override
+        public int size()
+        {
+            return i2 - i1;
+        }
+        
+    }
+    
     List<Expression> parameters;
 
     public ArrayIndexExpression(List<Expression> parameters)
@@ -32,7 +127,7 @@ class ArrayIndexExpression extends Expression
     @Override
     public Object compute(EvaluationContext ctx) throws SnapshotException, OperationCanceledException
     {
-        Object subject = ctx.getSubject();
+        final Object subject = ctx.getSubject();
         if (subject == null)
             return null;
 
@@ -42,20 +137,20 @@ class ArrayIndexExpression extends Expression
             arguments[ii] = parameters.get(ii).compute(ctx);
 
         Object indexObj = arguments[0];
-        int index;
-        if (indexObj instanceof Integer || indexObj instanceof Short || indexObj instanceof Byte)
-        {
-            index = ((Number) arguments[0]).intValue();
-        }
-        else
-        {
-            // Don't show the array to show that just the index is wrong
-            throw new IllegalArgumentException(toString()+": "+(indexObj != null ? indexObj.getClass() : null)); //$NON-NLS-1$
-        }
+        int index = evalIndex(indexObj);
+        boolean range = arguments.length > 1;
+        int index2 = index;
+        if (range)
+            index2 = evalIndex(arguments[1]);
 
         if (subject.getClass().isArray())
         {
             int len = Array.getLength(subject);
+            if (range)
+            {
+                final int i1 = normalize(index, len, 0), i2 = normalize(index2, len, 1);
+                return new ArraySubList(subject, i1, i2);
+            }
             if (index >= len)
                 return null;
             if (index < 0)
@@ -66,6 +161,11 @@ class ArrayIndexExpression extends Expression
         {
             List<?> l = (List<?>) subject;
             int len = l.size();
+            if (range)
+            {
+                final int i1 = normalize(index, len, 0), i2 = normalize(index2, len, 1);
+                return ((List<?>) subject).subList(i1, i2);
+            }
             if (index >= len)
                 return null;
             if (index < 0)
@@ -74,25 +174,29 @@ class ArrayIndexExpression extends Expression
         }
         else if (subject instanceof IPrimitiveArray)
         {
-            IPrimitiveArray array = (IPrimitiveArray) subject;
+            final IPrimitiveArray array = (IPrimitiveArray) subject;
             int len = array.getLength();
+            if (range) {
+                final int i1 = normalize(index, len, 0), i2 = normalize(index2, len, 1);
+                return new PrimitiveArraySubList(array, i1, i2);
+            }
             if (index >= len)
                 return null;
             if (index < 0)
-                return null;
-            if (index >= array.getLength())
                 return null;
             return array.getValueAt(index);
         }
         else if (subject instanceof IObjectArray)
         {
-            IObjectArray array = (IObjectArray) subject;
+            final IObjectArray array = (IObjectArray) subject;
             int len = array.getLength();
+            if (range) {
+                final int i1 = normalize(index, len, 0), i2 = normalize(index2, len, 1);
+                return new ObjectArraySubList(array, i1, i2);
+            }
             if (index >= len)
                 return null;
             if (index < 0)
-                return null;
-            if (index >= array.getLength())
                 return null;
             long addr = array.getReferenceArray(index, 1)[0];
             if (addr == 0)
@@ -107,6 +211,40 @@ class ArrayIndexExpression extends Expression
             throw new IllegalArgumentException(subject + toString()+": "+subject.getClass()); //$NON-NLS-1$
         }
 
+    }
+
+    private int evalIndex(Object indexObj)
+    {
+        int index;
+        if (indexObj instanceof Integer || indexObj instanceof Short || indexObj instanceof Byte)
+        {
+            index = ((Number) indexObj).intValue();
+        }
+        else
+        {
+            // Don't show the array to show that just the index is wrong
+            throw new IllegalArgumentException(toString()+": "+(indexObj != null ? indexObj.getClass() : null)); //$NON-NLS-1$
+        }
+        return index;
+    }
+
+    /**
+     * Allow indexing from end of array
+     * @param i
+     * @param s
+     * @param a
+     * @return
+     * [0][1:-1] -> [0,0)
+     * [1][1:-1] -> [0,1)
+     * [2][1:-1] -> [1,2)
+     */
+    private int normalize(int i, int s, int a) {
+        if (i < 0)
+            i += s;
+        i += a;
+        if (i > s) i = s;
+        if (i < 0) i = 0; 
+        return i;
     }
 
     @Override
@@ -136,7 +274,7 @@ class ArrayIndexExpression extends Expression
             buf.append(element);
 
             if (iter.hasNext())
-                buf.append(",");//$NON-NLS-1$
+                buf.append(":");//$NON-NLS-1$
         }
 
         buf.append("]");//$NON-NLS-1$

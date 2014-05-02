@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2014 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson - array indexing and wrapping
  *******************************************************************************/
 package org.eclipse.mat.parser.internal.oql.compiler;
 
@@ -14,6 +15,7 @@ import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Array;
+import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -25,6 +27,29 @@ import org.eclipse.mat.util.MessageUtil;
 
 class PathExpression extends Expression
 {
+    private static class ArrayWrapper extends AbstractList<Object> {
+        private final Object element;
+        public ArrayWrapper(Object element) {
+            this.element = element;
+        }
+        @Override
+        public Object get(int i)
+        {
+            return Array.get(element, i);
+        }
+
+        @Override
+        public int size()
+        {
+            return Array.getLength(element);
+        }
+        
+        /*
+         * Could override toString as but it can be useful to see the contents
+         * element.getClass().getComponentType().getSimpleName()+'['+size()+']';
+         */
+    };
+    
     private List<Object> attributes;
 
     public PathExpression(List<Object> attributes)
@@ -134,13 +159,24 @@ class PathExpression extends Expression
         }
     }
 
-    protected static List<?> asList(Object element)
+    protected static List<?> asList(final Object element)
     {
         int size = Array.getLength(element);
+        final boolean wrap = true;
+        List<Object> answer;
 
-        List<Object> answer = new ArrayList<Object>(size);
-        for (int ii = 0; ii < size; ii++)
-            answer.add(Array.get(element, ii));
+        if (wrap)
+        {
+            // Wrap the original array
+            answer = new ArrayWrapper(element);
+        }
+        else
+        {
+            // Make a copy of the array
+            answer = new ArrayList<Object>(size);
+            for (int ii = 0; ii < size; ii++)
+                answer.add(Array.get(element, ii));
+        }
 
         return answer;
     }

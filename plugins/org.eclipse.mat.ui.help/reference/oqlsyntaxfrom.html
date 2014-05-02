@@ -128,6 +128,9 @@
 			<strong class="ph b">by the object ids of particular objects:</strong>
 			<pre class="pre codeblock">SELECT * FROM OBJECTS 20815,20814</pre>
 
+			<strong class="ph b">by a sub expression (Memory Analyzer 1.4 only):</strong>
+			<pre class="pre codeblock">SELECT * FROM OBJECTS (1 + ${snapshot}.GCRoots.length)</pre>
+
 			<div class="note note"><span class="notetitle">Note:</span> 
 				Please note, that currently the FROM OBJECTS term is in
 				the test phase!

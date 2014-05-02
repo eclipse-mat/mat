@@ -46,12 +46,12 @@
             <strow>
                <stentry><codeblock>PathExpression</codeblock></stentry>
                <stentry><codeblock>::=</codeblock></stentry>
-               <stentry><codeblock>( ObjectFacet | BuiltInFunction ) ( "." ObjectFacet | "[" SimpleExpression "]" )*</codeblock></stentry>
+               <stentry><codeblock>( ObjectFacet | BuiltInFunction ) ( "." ObjectFacet | "[" SimpleExpression ( ":" SimpleExpression)? "]" )*</codeblock></stentry>
             </strow>
             <strow>
                <stentry><codeblock>EnvVarPathExpression</codeblock></stentry>
                <stentry><codeblock>::=</codeblock></stentry>
-               <stentry><codeblock>( "$" "{" &lt;IDENTIFIER&gt; "}" ) ( "." ObjectFacet | "[" SimpleExpression "]" )*</codeblock></stentry>
+               <stentry><codeblock>( "$" "{" &lt;IDENTIFIER&gt; "}" ) ( "." ObjectFacet | "[" SimpleExpression ( ":" SimpleExpression)? "]" )*</codeblock></stentry>
             </strow>
             <strow>
                <stentry><codeblock>ObjectFacet</codeblock></stentry>

@@ -20,6 +20,7 @@ import org.eclipse.mat.query.IResultTree;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.Category;
 import org.eclipse.mat.query.annotations.CommandName;
+import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.query.annotations.Usage;
 import org.eclipse.mat.query.results.TextResult;
@@ -33,6 +34,7 @@ import org.eclipse.mat.util.IProgressListener;
 @Category(Category.HIDDEN)
 @Icon("/META-INF/icons/oql.gif")
 @Usage("oql \"select * from ...\"")
+@HelpUrl("/org.eclipse.mat.ui.help/tasks/queryingheapobjects.html")
 public class OQLQuery implements IQuery
 {
     @Argument

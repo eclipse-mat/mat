@@ -140,6 +140,19 @@
 				rows with the same class as there are Strings.
 			</p>
 
+			<p class="p"><strong class="ph b">Expressions (experimental, Memory Analyzer 1.4)</strong></p>
+
+			<p class="p">
+				Use the expressions for the select item, including string concatenation:
+			</p>
+
+			<pre class="pre codeblock">SELECT s.@objectId, s.@objectId * 2, "The object ID is "+@objectId FROM OBJECTS 0,1,1,2 s</pre>
+
+			<p class="p">
+				With Memory Analyzer 1.4 expressions and sub-selects are allowed for select items. More complex
+				expressions may need to be parenthesized. This is currently in the test phase.
+			</p>
+
 		</div>
 
 	</div>

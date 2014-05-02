@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2014 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson - array indexing
  *******************************************************************************/
 package org.eclipse.mat.parser.internal.oql.compiler;
 
@@ -141,6 +142,10 @@ public class CompilerImpl implements ICompiler
         {
             return new Function.DominatorOf((Expression) subject);
         }
+        else if ("eval".equals(name))//$NON-NLS-1$
+        {
+            return new Function.Eval((Expression) subject);
+        }
         else
         {
             return null;
@@ -175,6 +180,11 @@ public class CompilerImpl implements ICompiler
     public Object array(Object index)
     {
         return new ArrayIndexExpression(Collections.singletonList((Expression)index));
+    }
+
+    public Object array(Object index, Object index2)
+    {
+        return new ArrayIndexExpression(Arrays.asList((Expression)index, (Expression)index2));
     }
 
     // //////////////////////////////////////////////////////////////

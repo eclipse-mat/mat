@@ -214,8 +214,13 @@
 			<p>Memory Analyzer 1.3 or later allows direct array style access of 
 			primitive arrays and objects arrays from the snapshot, and Java arrays and Java Lists
 			obtained from reflective method calls. The notation is <codeph>[index]</codeph>.
-			The index is an integer. If the array is null or the index is out of range then the
-			result is null.
+			The index is a zero-based integer. If the array is null or the index is out of range
+			then the result is null.
+			</p>
+			<p>Memory Analyzer 1.4 allows array range access as well using the notation
+			<codeph>[index1:index2]</codeph> where index1 and index2 are inclusive. If the values
+			are negative then they are treated as indexing from the end of the array, so -1
+			means the last entry.
 			</p>
 		</section>
 		<section>
@@ -318,6 +323,16 @@
 					</stentry>
 					<stentry>
 						the immediate dominator, -1 if none
+					</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<codeblock>eval( expression )</codeblock>
+					</stentry>
+					<stentry>
+						(Experimental in Memory Analyzer 1.4) evaluates the argument and returns it.
+						Could be useful to allow array/method access to the result of a sub-select or
+						expression.
 					</stentry>
 				</strow>
 			</simpletable>

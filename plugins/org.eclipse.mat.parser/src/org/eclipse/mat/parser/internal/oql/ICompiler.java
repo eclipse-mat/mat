@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2014 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson - array access
  *******************************************************************************/
 package org.eclipse.mat.parser.internal.oql;
 
@@ -62,4 +63,6 @@ public interface ICompiler
     Object divide(Object left, Object right);
 
     Object array(Object index);
+
+    Object array(Object index, Object index2);
 }

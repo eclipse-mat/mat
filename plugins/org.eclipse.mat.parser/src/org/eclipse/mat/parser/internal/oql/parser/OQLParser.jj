@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 SAP AG and others.
+ * Copyright (c) 2008, 2014 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,6 +16,7 @@ options
 //	DEBUG_LOOKAHEAD=true;
 //	ERROR_REPORTING=true;
   	JAVA_UNICODE_ESCAPE=false;
+	UNICODE_INPUT=true;
 }
 
 PARSER_BEGIN(OQLParser)
@@ -405,6 +406,7 @@ TOKEN :
 | < PLUS: "+" >
 | < MINUS: "-" >
 | < DIVIDE: "/" >
+| < COLON: ":" >
 }
 
 /*******************************
@@ -488,7 +490,8 @@ Query.SelectItem SelectItem():
 	Token t1 = null, t2 = null;
 }
 {
-	( ex = PathExpression() | ex = EnvVarPathExpression() )
+//	Changed to allow more select items: ( ex = PathExpression() | ex = EnvVarPathExpression() )
+	( ex = SimpleExpression() )
 	[
     	LOOKAHEAD({seeUnreservedKeyword("AS")}) <IDENTIFIER>
 		( t1 = <STRING_LITERAL> | t2 = <IDENTIFIER> )
@@ -508,7 +511,7 @@ Object PathExpression():
 {
 	List<Object> elements = new ArrayList<Object>();
 	Object ex = null;
-	Object index;
+	Object index, index2 = null;
 }
 {
 	(
@@ -517,9 +520,12 @@ Object PathExpression():
 	(
 		"." ex = ObjectFacet(false) { elements.add(ex); }
 	|
-		"[" index = SimpleExpression() "]"
+		"[" index = SimpleExpression() (
+			":" index2 = SimpleExpression() 
+		)? "]"
 		{
-			ex = compiler.array(index);
+			ex = index2 != null ? compiler.array(index, index2) : compiler.array(index);
+			index2 = null;
 			elements.add(ex);
 		}
 	)*
@@ -533,7 +539,7 @@ Object EnvVarPathExpression():
 	LinkedList<Object> elements = new LinkedList<Object>();
 	Object ex = null;
 	Token t_name = null;
-	Object index;
+	Object index, index2 = null;
 }
 {
 	(
@@ -542,9 +548,12 @@ Object EnvVarPathExpression():
 	(
 		"." ex = ObjectFacet(false) { elements.add(ex); }
 	|
-		"[" index = SimpleExpression() "]"
+		"[" index = SimpleExpression() (
+			":" index2 = SimpleExpression() 
+		)? "]"
 		{
-			ex = compiler.array(index);
+			ex = index2 != null ? compiler.array(index, index2) : compiler.array(index);
+			index2 = null;
 			elements.add(ex);
 		}
 	)*
@@ -608,7 +617,7 @@ void FromClause(Query q):
 	Query subSelect = null;
 	
 	boolean isObjects = false;
-	
+	Object ex = null;
 	Token t1 = null, t2 = null;
 }
 {
@@ -616,11 +625,11 @@ void FromClause(Query q):
 	catch (ParseException e) { throw generateCustomParseException("FROM"); }
 	[ LOOKAHEAD({seeUnreservedKeyword("OBJECTS")}) <IDENTIFIER> { isObjects = true; } ]
 	[ LOOKAHEAD( <INSTANCEOF> ) t1 = <INSTANCEOF> ]
-    ( FromItem(fromItem) | "(" subSelect = SelectStatement() ")" )
+    ( FromItem(fromItem) | "(" ( subSelect = SelectStatement() | ex = ConditionalOrExpression() ) ")" )
 	[ LOOKAHEAD({seeExclude("WHERE", "UNION")}) t2 = <IDENTIFIER> ]
     {
     	fromItem.setSubSelect(subSelect);
-    	
+    	if (ex != null) fromItem.setCall((Expression)ex);
     	fromItem.setIncludeObjects( isObjects );
  		fromItem.setIncludeSubClasses( t1 != null );
  		

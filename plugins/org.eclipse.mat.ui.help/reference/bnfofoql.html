@@ -64,7 +64,7 @@
                <td valign="top" class="stentry"><pre class="pre codeblock">::=</pre>
 </td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">( ObjectFacet | BuiltInFunction ) ( "." ObjectFacet | "[" SimpleExpression "]" )*</pre>
+               <td valign="top" class="stentry"><pre class="pre codeblock">( ObjectFacet | BuiltInFunction ) ( "." ObjectFacet | "[" SimpleExpression ( ":" SimpleExpression)? "]" )*</pre>
 </td>
 
             </tr>
@@ -75,7 +75,7 @@
                <td valign="top" class="stentry"><pre class="pre codeblock">::=</pre>
 </td>
 
-               <td valign="top" class="stentry"><pre class="pre codeblock">( "$" "{" &lt;IDENTIFIER&gt; "}" ) ( "." ObjectFacet | "[" SimpleExpression "]" )*</pre>
+               <td valign="top" class="stentry"><pre class="pre codeblock">( "$" "{" &lt;IDENTIFIER&gt; "}" ) ( "." ObjectFacet | "[" SimpleExpression ( ":" SimpleExpression)? "]" )*</pre>
 </td>
 
             </tr>

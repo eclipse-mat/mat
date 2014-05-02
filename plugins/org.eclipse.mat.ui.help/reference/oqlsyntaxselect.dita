@@ -117,6 +117,15 @@
 				keywords, the query would result in a list with as many
 				rows with the same class as there are Strings.
 			</p>
+			<p><b>Expressions (experimental, Memory Analyzer 1.4)</b></p>
+			<p>
+				Use the expressions for the select item, including string concatenation:
+			</p>
+			<codeblock>SELECT s.@objectId, s.@objectId * 2, "The object ID is "+@objectId FROM OBJECTS 0,1,1,2 s</codeblock>
+			<p>
+				With Memory Analyzer 1.4 expressions and sub-selects are allowed for select items. More complex
+				expressions may need to be parenthesized. This is currently in the test phase.
+			</p>
 		</section>
 	</refbody>
 </reference>
