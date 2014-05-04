@@ -441,11 +441,18 @@ public class ProviderArgumentsTable implements IEditorListener/*, ProcessSelecti
         {
             if (message == null)
             {
-                if (errors.remove(editor) != null)
-                {
-                    if (errors.isEmpty()) fireErrorMessageEvent(null);
-                    else fireErrorMessageEvent(errors.values().iterator().next());
+                errors.remove(editor);
+                // There can be stale argument editors and errors, so remove them.
+                // Perhaps better done on leaving a wizard page, but this works.
+                for (Iterator<Map.Entry<ArgumentEditor,String>>i = errors.entrySet().iterator(); i.hasNext(); ) {
+                    Map.Entry<ArgumentEditor,String>e = i.next();
+                    if (e.getKey().isDisposed())
+                    {
+                        i.remove();
+                    }
                 }
+                if (errors.isEmpty()) fireErrorMessageEvent(null);
+                else fireErrorMessageEvent(errors.values().iterator().next());
             }
             else
             {

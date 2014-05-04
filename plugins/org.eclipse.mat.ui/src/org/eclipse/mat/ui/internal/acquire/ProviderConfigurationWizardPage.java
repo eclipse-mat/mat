@@ -20,6 +20,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.WizardPage;
@@ -95,6 +96,7 @@ public class ProviderConfigurationWizardPage extends WizardPage implements ITabl
                 {
                     AnnotatedObjectArgumentsSet argumentsSet = (AnnotatedObjectArgumentsSet) ((TableItem) e.item).getData();
                     table.providerSelected(argumentsSet);
+                    onFocus(null);
                     relocateHelp(true);
                 }
             }
@@ -122,10 +124,12 @@ public class ProviderConfigurationWizardPage extends WizardPage implements ITabl
             if (changed)
             {
                 applyChanges();
+                onError(null);
             }
         }
         catch (SnapshotException e)
         {
+            onError(e.getLocalizedMessage());
             return null;
         }
         return super.getNextPage();
@@ -368,9 +372,31 @@ public class ProviderConfigurationWizardPage extends WizardPage implements ITabl
 
     public void onError(String message)
     {
+        setErrorMessage(message);
+        // a work around: calling onFocus ensures a correct update of the error
+        // message. Without this call it doesn't update the message correct.
+        onFocus(null);
     }
 
     public void onFocus(String message)
     {
+        if (getErrorMessage() != null) setMessage(getErrorMessage(), IMessageProvider.ERROR);
+        else if (message != null) setMessage(message, IMessageProvider.INFORMATION);
+        else setMessage(table.getProviderDescriptor().getName());
+        // Causes recursion from getNextPage();
+        //getContainer().updateButtons();
+    }
+    
+    @Override
+    public boolean isPageComplete()
+    {
+        boolean exec = false;
+        // So long as one provider is executable then we might get a dump
+        for (TableItem item : availableProvidersTable.getItems())
+        {
+            AnnotatedObjectArgumentsSet argumentSet = (AnnotatedObjectArgumentsSet) item.getData();
+            exec |= argumentSet.isExecutable();
+        }
+        return exec;
     }
 }

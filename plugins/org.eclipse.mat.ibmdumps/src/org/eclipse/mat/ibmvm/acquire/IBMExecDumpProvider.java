@@ -55,7 +55,7 @@ public class IBMExecDumpProvider extends BaseProvider
     {
         listener.beginTask(Messages.getString("IBMExecDumpProvider.GeneratingDump"), TOTAL_WORK); //$NON-NLS-1$
         String encoding = System.getProperty("file.encoding", "UTF-8"); //$NON-NLS-1$//$NON-NLS-2$
-        String encodingOpt = "-J-Dfile.encoding="+encoding; //$NON-NLS-1$
+        String encodingOpt = "-Dfile.encoding="+encoding; //$NON-NLS-1$
         ProcessBuilder pb = new ProcessBuilder();
         Process p = null;
         final IBMExecVmInfo info2 = (IBMExecVmInfo) info;
@@ -295,7 +295,7 @@ public class IBMExecDumpProvider extends BaseProvider
     {
         ArrayList<VmInfo> ar = new ArrayList<VmInfo>();
         String encoding = System.getProperty("file.encoding", "UTF-8"); //$NON-NLS-1$//$NON-NLS-2$
-        String encodingOpt = "-J-Dfile.encoding="+encoding; //$NON-NLS-1$
+        String encodingOpt = "-Dfile.encoding="+encoding; //$NON-NLS-1$
         ProcessBuilder pb = new ProcessBuilder();
         Process p = null;
         final String execPath = javaExec.getPath();
