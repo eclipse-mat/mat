@@ -45,10 +45,9 @@ Visit http://www.eclipse.org/mat
    </vm>
 
    <license>
-        <url>notice.html</url>
         <text>
 Eclipse Foundation Software User Agreement
-February 1, 2011
+April 9, 2014
 
 Usage Of Content
 
@@ -77,17 +76,17 @@ documentation and other files maintained in the Eclipse Foundation source code
 repository ("Repository") in software modules ("Modules") and made available
 as downloadable archives ("Downloads").
 
-       - Content may be structured and packaged into modules to facilitate delivering,
-         extending, and upgrading the Content. Typical modules may include plug-ins ("Plug-ins"),
-         plug-in fragments ("Fragments"), and features ("Features").
-       - Each Plug-in or Fragment may be packaged as a sub-directory or JAR (Java(TM) ARchive)
-         in a directory named "plugins".
-       - A Feature is a bundle of one or more Plug-ins and/or Fragments and associated material.
-         Each Feature may be packaged as a sub-directory in a directory named "features".
-         Within a Feature, files named "feature.xml" may contain a list of the names and version
-         numbers of the Plug-ins and/or Fragments associated with that Feature.
-       - Features may also include other Features ("Included Features"). Within a Feature, files
-         named "feature.xml" may contain a list of the names and version numbers of Included Features.
+	- Content may be structured and packaged into modules to facilitate delivering,
+	  extending, and upgrading the Content. Typical modules may include plug-ins ("Plug-ins"),
+	  plug-in fragments ("Fragments"), and features ("Features").
+	- Each Plug-in or Fragment may be packaged as a sub-directory or JAR (Java(TM) ARchive)
+	  in a directory named "plugins".
+	- A Feature is a bundle of one or more Plug-ins and/or Fragments and associated material.
+	  Each Feature may be packaged as a sub-directory in a directory named "features".
+	  Within a Feature, files named "feature.xml" may contain a list of the names and version
+	  numbers of the Plug-ins and/or Fragments associated with that Feature.
+	- Features may also include other Features ("Included Features"). Within a Feature, files
+	  named "feature.xml" may contain a list of the names and version numbers of Included Features.
 
 The terms and conditions governing Plug-ins and Fragments should be
 contained in files named "about.html" ("Abouts"). The terms and
@@ -96,11 +95,11 @@ in files named "license.html" ("Feature Licenses"). Abouts and Feature
 Licenses may be located in any directory of a Download or Module
 including, but not limited to the following locations:
 
-       - The top-level (root) directory
-       - Plug-in and Fragment directories
-       - Inside Plug-ins and Fragments packaged as JARs
-       - Sub-directories of the directory named "src" of certain Plug-ins
-       - Feature directories
+	- The top-level (root) directory
+	- Plug-in and Fragment directories
+	- Inside Plug-ins and Fragments packaged as JARs
+	- Sub-directories of the directory named "src" of certain Plug-ins
+	- Feature directories
 
 Note: if a Feature made available by the Eclipse Foundation is installed using the
 Provisioning Technology (as defined below), you must agree to a license ("Feature 
@@ -117,17 +116,17 @@ THE ABOUTS, FEATURE LICENSES, AND FEATURE UPDATE LICENSES MAY REFER
 TO THE EPL OR OTHER LICENSE AGREEMENTS, NOTICES OR TERMS AND CONDITIONS.
 SOME OF THESE OTHER LICENSE AGREEMENTS MAY INCLUDE (BUT ARE NOT LIMITED TO):
 
-       - Eclipse Distribution License Version 1.0 (available at http://www.eclipse.org/licenses/edl-v1.0.html)
-       - Common Public License Version 1.0 (available at http://www.eclipse.org/legal/cpl-v10.html)
-       - Apache Software License 1.1 (available at http://www.apache.org/licenses/LICENSE)
-       - Apache Software License 2.0 (available at http://www.apache.org/licenses/LICENSE-2.0)
-       - Metro Link Public License 1.00 (available at http://www.opengroup.org/openmotif/supporters/metrolink/license.html)
-       - Mozilla Public License Version 1.1 (available at http://www.mozilla.org/MPL/MPL-1.1.html)
+	- Eclipse Distribution License Version 1.0 (available at http://www.eclipse.org/licenses/edl-v1.0.html)
+	- Common Public License Version 1.0 (available at http://www.eclipse.org/legal/cpl-v10.html)
+	- Apache Software License 1.1 (available at http://www.apache.org/licenses/LICENSE)
+	- Apache Software License 2.0 (available at http://www.apache.org/licenses/LICENSE-2.0)
+	- Mozilla Public License Version 1.1 (available at http://www.mozilla.org/MPL/MPL-1.1.html)
 
 IT IS YOUR OBLIGATION TO READ AND ACCEPT ALL SUCH TERMS AND CONDITIONS PRIOR
 TO USE OF THE CONTENT. If no About, Feature License, or Feature Update License
 is provided, please contact the Eclipse Foundation to determine what terms and conditions
 govern that particular Content.
+
 
 Use of Provisioning Technology
 
@@ -146,19 +145,19 @@ in accordance with the Specification. By using Provisioning Technology in such a
 making it available in accordance with the Specification, you further acknowledge your
 agreement to, and the acquisition of all necessary rights to permit the following:
 
-       1. A series of actions may occur ("Provisioning Process") in which a user may execute
-          the Provisioning Technology on a machine ("Target Machine") with the intent of installing,
-          extending or updating the functionality of an Eclipse-based product.
-       2. During the Provisioning Process, the Provisioning Technology may cause third party
-          Installable Software or a portion thereof to be accessed and copied to the Target Machine.
-       3. Pursuant to the Specification, you will provide to the user the terms and conditions that
-          govern the use of the Installable Software ("Installable Software Agreement") and such
-          Installable Software Agreement shall be accessed from the Target Machine in accordance
-          with the Specification. Such Installable Software Agreement must inform the user of the
-          terms and conditions that govern the Installable Software and must solicit acceptance by
-          the end user in the manner prescribed in such Installable Software Agreement. Upon such
-          indication of agreement by the user, the provisioning Technology will complete installation
-          of the Installable Software.
+	1. A series of actions may occur ("Provisioning Process") in which a user may execute
+	   the Provisioning Technology on a machine ("Target Machine") with the intent of installing,
+	   extending or updating the functionality of an Eclipse-based product.
+	2. During the Provisioning Process, the Provisioning Technology may cause third party
+	   Installable Software or a portion thereof to be accessed and copied to the Target Machine.
+	3. Pursuant to the Specification, you will provide to the user the terms and conditions that
+	   govern the use of the Installable Software ("Installable Software Agreement") and such
+	   Installable Software Agreement shall be accessed from the Target Machine in accordance
+	   with the Specification. Such Installable Software Agreement must inform the user of the
+	   terms and conditions that govern the Installable Software and must solicit acceptance by
+	   the end user in the manner prescribed in such Installable Software Agreement. Upon such
+	   indication of agreement by the user, the provisioning Technology will complete installation
+	   of the Installable Software.
 
 Cryptography
 
@@ -169,6 +168,7 @@ using any encryption software, please check the country's laws,
 regulations and policies concerning the import, possession, or use, and
 re-export of encryption software, to see if this is permitted.
 
+Java and all Java-based trademarks are trademarks of Oracle Corporation in the United States, other countries, or both.
          </text>
    </license>
 
