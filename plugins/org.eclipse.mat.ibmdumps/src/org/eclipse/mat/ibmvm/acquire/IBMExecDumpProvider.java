@@ -49,7 +49,7 @@ public class IBMExecDumpProvider extends BaseProvider
     public File javaexecutable;
     
     @Argument(isMandatory = false)
-    public String vmoptions[] = {"-version:1.6"}; //$NON-NLS-1$
+    public String vmoptions[] = {"-version:1.6+"}; //$NON-NLS-1$
 
     public File acquireDump(VmInfo info, File preferredLocation, IProgressListener listener) throws SnapshotException
     {

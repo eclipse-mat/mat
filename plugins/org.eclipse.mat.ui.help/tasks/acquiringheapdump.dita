@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2010 SAP AG and IBM Corporation.
+    Copyright (c) 2008, 2014 SAP AG and IBM Corporation.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -17,7 +17,7 @@
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2008, 2010 SAP AG and IBM Corporation.
+				Copyright (c) 2008, 2014 SAP AG and IBM Corporation.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License v1.0
 			    which accompanies this distribution, and is available at
@@ -49,6 +49,12 @@
 			<p>
 				<codeblock>-XX:+HeapDumpOnCtrlBreak</codeblock>
 			</p>
+			<p><i>HPROF agent</i></p>
+			<p>To use the HPROF agent to generate a dump on the end of execution, or on SIGQUIT signal use the following
+			JVM parameter:</p>
+			<p>
+				<codeblock>-agentlib:hprof=heap=dump,format=b</codeblock>
+			</p>
 			<p> Alternatively, other tools can be used to acquire a heap dump:
 			</p>
 			<ul>
@@ -58,9 +64,6 @@
 				<li>JConsole (see sample usage in <xref href="../gettingstarted/basictutorial.dita">Basic Tutorial</xref>)</li>
 				<li>Memory Analyzer (see bottom of page)</li>
 			</ul>
-			<p>The following table shows the availability of VM options and tools on the various platforms:</p>
-			<image href="../mimes/dump_tools_matrix.png"
-				alt="table of vm vendors and vm parameters to be used" />
 				
 			<!-- ***************************************************************
 			* IBM dumps
@@ -189,7 +192,7 @@
 			You can see then what are the required settings and specify them.
 			</p>
 			
-			<p><i>Multiple snapshots in one heap dump</i></p>
+			<p><b>Multiple snapshots in one heap dump</b></p>
 			<p>
 			Occasionally heap dumps files can be generated which contain multiple heap dumps snapshots.
 			If an HPROF dump is generated using 
@@ -212,7 +215,7 @@
 			<p>
 			The index files generated have a component in the file name from the snapshot identifier, so the index
 			files from each snapshot can be distinguished.
-			This means that multiple snapshots from one heap dump file can be examined in Memory Analzyer
+			This means that multiple snapshots from one heap dump file can be examined in Memory Analyzer
 			simultaneously. 
 			The heap dump history for the file remembers the last snapshot selected for that file, though when
 			the snapshot is reopened via the history the index file is also shown in the history.
@@ -221,6 +224,168 @@
 			The first snapshot can then be reopened using the index file in the history, and both snapshots can
 			be viewed at once.
 			</p>
+			
+			<p><b>Summary</b></p>
+			<p>The following table shows the availability of VM options and tools on the various platforms:</p>
+			<table>
+				<tgroup cols="7">
+					<colspec colname="COLSPEC1" colwidth="2*"/>
+					<colspec colname="COLSPEC2" colwidth="4*"/>
+					<colspec colname="COLSPEC3" colwidth="4*"/>
+					<colspec colname="COLSPEC4" colwidth="4*"/>
+					<colspec colname="COLSPEC5" colwidth="2*"/>
+					<colspec colname="COLSPEC6" colwidth="4*"/>
+					<colspec colname="COLSPEC7" colwidth="2*"/>
+					<colspec colname="COLSPEC8" colwidth="2*"/>
+					<colspec colname="COLSPEC9" colwidth="4*"/>
+					<thead>
+						<row>
+							<entry colname="COLSPEC1" valign="top">Vendor</entry>
+							<entry colname="COLSPEC2" valign="top">Release</entry>
+							<entry namest="COLSPEC3" nameend="COLSPEC5" valign="top">VM Parameter</entry>
+							<entry namest="COLSPEC6" nameend="COLSPEC7" valign="top">Sun Tools</entry>
+							<entry colname="COLSPEC8" valign="top">SAP Tool</entry>
+							<entry colname="COLSPEC9" valign="top">MAT</entry>
+						</row>
+					</thead>
+					<tbody>
+						<row>
+							<entry/>
+							<entry/>
+							<entry colname="COLSPEC3">On out of memory</entry>
+							<entry colname="COLSPEC4">On Ctrl+Break</entry>
+							<entry>Agent</entry>
+							<entry>JMap</entry>
+							<entry>JConsole</entry>
+							<entry>JVMMon</entry>
+							<entry>acquire heap dump</entry>
+						</row>
+						<row>
+							<entry morerows="4">Sun, HP</entry>
+							<entry>1.4.2_12</entry>
+							<entry>Yes</entry>
+							<entry>Yes</entry>
+							<entry>Yes</entry>
+							<entry/>
+							<entry/>
+							<entry/>
+							<entry>No</entry>
+						</row>
+						<row>
+							<entry>1.5.0_07</entry>
+							<entry>Yes</entry>
+							<entry>Yes (Since 1.5.0_15)</entry>
+							<entry>Yes</entry>
+							<entry>Yes (Only Solaris and Linux)</entry>
+							<entry/>
+							<entry/>
+							<entry>Yes (Only Solaris and Linux)</entry>
+						</row>
+						<row>
+							<entry>1.6.0_00</entry>
+							<entry>Yes</entry>
+							<entry>No</entry>
+							<entry>Yes</entry>
+							<entry>Yes</entry>
+							<entry>Yes</entry>
+							<entry>Yes</entry>
+							<entry>Yes</entry>
+						</row>
+						<row>
+							<entry>1.7.0</entry>
+							<entry>Yes</entry>
+							<entry>No</entry>
+							<entry>Yes</entry>
+							<entry>Yes</entry>
+							<entry>Yes</entry>
+							<entry></entry>
+							<entry>Yes</entry>
+						</row>
+						<row>
+							<entry>1.8.0</entry>
+							<entry>Yes</entry>
+							<entry>No</entry>
+							<entry>Yes</entry>
+							<entry>Yes</entry>
+							<entry>Yes</entry>
+							<entry></entry>
+							<entry>Yes</entry>
+						</row>
+						<row>
+							<entry>SAP</entry>
+							<entry>Any 1.5.0</entry>
+							<entry>Yes</entry>
+							<entry>Yes</entry>
+							<entry>Yes</entry>
+							<entry>Yes (Only Solaris and Linux)</entry>
+							<entry/>
+							<entry>Yes</entry>
+							<entry/>
+						</row>
+						<row>
+							<entry morerows="5">IBM</entry>
+							<entry>1.4.2 SR12</entry>
+							<entry>Yes</entry>
+							<entry>Yes</entry>
+							<entry>No</entry>
+							<entry>No</entry>
+							<entry>No</entry>
+							<entry>No</entry>
+							<entry>No</entry>
+						</row>
+						<row>
+							<entry>1.5.0 SR8a</entry>
+							<entry>Yes</entry>
+							<entry>Yes</entry>
+							<entry>No</entry>
+							<entry>No</entry>
+							<entry>No</entry>
+							<entry>No</entry>
+							<entry>No</entry>
+						</row>
+						<row>
+							<entry>1.6.0 SR2</entry>
+							<entry>Yes</entry>
+							<entry>Yes</entry>
+							<entry>No</entry>
+							<entry>No</entry>
+							<entry>No</entry>
+							<entry>No</entry>
+							<entry>No</entry>
+						</row>
+						<row>
+							<entry>1.6.0 SR6</entry>
+							<entry>Yes</entry>
+							<entry>Yes</entry>
+							<entry>No</entry>
+							<entry>No</entry>
+							<entry>No</entry>
+							<entry>No</entry>
+							<entry>Yes</entry>
+						</row>
+						<row>
+							<entry>1.7.0</entry>
+							<entry>Yes</entry>
+							<entry>Yes</entry>
+							<entry>No</entry>
+							<entry>No</entry>
+							<entry>No</entry>
+							<entry>No</entry>
+							<entry>Yes</entry>
+						</row>
+						<row>
+							<entry>1.8.0 Beta</entry>
+							<entry>Yes</entry>
+							<entry>Yes</entry>
+							<entry>No</entry>
+							<entry>No</entry>
+							<entry>No</entry>
+							<entry>No</entry>
+							<entry>Yes</entry>
+						</row>
+					</tbody>
+				</tgroup>
+			</table>
 		</context>
 	</taskbody>
 </task>
