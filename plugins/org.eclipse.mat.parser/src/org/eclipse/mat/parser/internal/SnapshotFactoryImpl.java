@@ -80,10 +80,11 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
             }
         }
 
-        String name = file.getAbsolutePath();
+        String name = file.getName();
 
         int p = name.lastIndexOf('.');
-        String prefix = p >= 0 ? name.substring(0, p + 1) : name + ".";//$NON-NLS-1$
+        name = p >= 0 ? name.substring(0, p + 1) : name + ".";//$NON-NLS-1$
+        String prefix = new File(file.getParentFile(), name).getAbsolutePath();
         String snapshot_identifier = args.get("snapshot_identifier"); //$NON-NLS-1$
         if (snapshot_identifier != null)
         {

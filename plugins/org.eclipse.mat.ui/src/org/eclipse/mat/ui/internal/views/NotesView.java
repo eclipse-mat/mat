@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2013 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2014 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson - improved undo
  *******************************************************************************/
 package org.eclipse.mat.ui.internal.views;
 
@@ -87,7 +88,7 @@ public class NotesView extends ViewPart implements IPartListener, Observer, ISav
 {
     private static final String NOTES_ENCODING = "UTF8"; //$NON-NLS-1$
 
-    private static final int UNDO_LEVEL = 10;
+    private static final int UNDO_LEVEL = 25;
 
     private File resource;
 
@@ -239,6 +240,8 @@ public class NotesView extends ViewPart implements IPartListener, Observer, ISav
 
         if (path != null && !path.equals(resource))
         {
+            if (isDirty())
+                saveNotes();
             resource = path;
             updateTextViewer();
         }
@@ -246,8 +249,6 @@ public class NotesView extends ViewPart implements IPartListener, Observer, ISav
 
     public void partBroughtToTop(IWorkbenchPart part)
     {
-        if (resource != null && isDirty())
-            saveNotes();
         partActivated(part);
     }
 
@@ -260,7 +261,9 @@ public class NotesView extends ViewPart implements IPartListener, Observer, ISav
 
         if (resource.equals(this.resource))
         {
-            // Saving now done as SaveablePart
+            // Saving usually done as SaveablePart except when snapshot is closed
+            if (isDirty())
+                saveNotes();
             this.resource = null;
             this.editor = null;
             this.updateTextViewer();
@@ -408,7 +411,6 @@ public class NotesView extends ViewPart implements IPartListener, Observer, ISav
     {
         if (part instanceof MultiPaneEditor)
         {
-            textViewer.getControl().setEnabled(true);
             return true;
         }
         return false;
@@ -695,9 +697,11 @@ public class NotesView extends ViewPart implements IPartListener, Observer, ISav
 
     private static File getDefaultNotesFile(File resource)
     {
-        String filename = resource.getAbsolutePath();
+        String filename = resource.getName();
         int p = filename.lastIndexOf('.');
-        return new File(filename.substring(0, p + 1) + "notes.txt");//$NON-NLS-1$
+        if (p >= 0)
+            filename = filename.substring(0, p);
+        return new File(resource.getParentFile(), filename + ".notes.txt");//$NON-NLS-1$
     }
 
     public void doSave(IProgressMonitor monitor)
