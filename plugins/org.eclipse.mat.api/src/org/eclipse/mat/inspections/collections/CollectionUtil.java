@@ -507,8 +507,8 @@ public final class CollectionUtil
         int SUN = 1 << 0;
         int IBM14 = 1 << 1;
         int IBM15 = 1 << 2;
-        int IBM16 = 1 << 3;
-        int IBM17 = 1 << 4;
+        int IBM16 = 1 << 3; // Harmony based collections
+        int IBM17 = 1 << 4; // Oracle based collections
         int IBM18 = 1 << 5;
         int JAVA18 = 1 << 6;
     }
@@ -601,8 +601,6 @@ public final class CollectionUtil
                     // This is the same as Hashtable
                     new Info("java.util.Properties", Version.IBM15|Version.IBM16, // //$NON-NLS-1$
                                     "elementCount", "elementData", "key", "value", HASH_MAP_EXTRACTOR), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-                    new Info("java.util.Properties", Version.IBM17|Version.IBM18, // //$NON-NLS-1$
-                                    "count", "table", "key", "value", HASH_MAP_EXTRACTOR), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
                     new Info("java.util.Vector", "elementCount", "elementData"), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
@@ -610,10 +608,6 @@ public final class CollectionUtil
                                     "java.util.WeakHashMap", ~Version.IBM16, "size", "table", "referent", "value", HASH_MAP_EXTRACTOR), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
                     new Info(
                                     "java.util.WeakHashMap", Version.IBM16, "elementCount", "elementData", "referent", "value", HASH_MAP_EXTRACTOR), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
-
-                    // IBM14? or sun too?
-                    new Info("java.util.PriorityQueue", Version.IBM15, "size", "queue"), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                    new Info("java.util.PriorityQueue", Version.IBM16, "size", "elements"), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
                     new Info(
                                     "java.lang.ThreadLocal$ThreadLocalMap", Version.IBM14 | Version.IBM15 | Version.IBM16 | Version.IBM17 | Version.IBM18  | Version.SUN | Version.JAVA18, // //$NON-NLS-1$
@@ -691,7 +685,16 @@ public final class CollectionUtil
                         if (jreVersion.equals("1.8"))
                             return Version.IBM18;
                         else if (jreVersion.equals("1.7"))
+                        {
+                            if (jvmInfo.matches(".*\\(SR[1-3][^0-9].*") ||
+                                jvmInfo.matches(".*\\(GA"))
+                            {
+                                // Harmony based collections
+                                return Version.IBM16;
+                            }
+                            // SR4 and later switches to Oracle
                             return Version.IBM17;
+                        }
                         else if (jreVersion.equals("1.6"))
                             return Version.IBM16;
                         else if (jreVersion.equals("1.5"))
@@ -761,18 +764,21 @@ public final class CollectionUtil
             }
             IInstance map = p < 0 ? (IInstance) collection : (IInstance) collection.resolveValue(arrayField.substring(
                             0, p));
-            Field tableField = map.getField(p < 0 ? arrayField : arrayField.substring(p + 1));
-            if (tableField != null)
+            if (map != null)
             {
-                final ObjectReference tableFieldValue = (ObjectReference) tableField.getValue();
-                if (tableFieldValue != null)
+                Field tableField = map.getField(p < 0 ? arrayField : arrayField.substring(p + 1));
+                if (tableField != null)
                 {
-                    int tableObjectId = tableFieldValue.getObjectId();
+                    final ObjectReference tableFieldValue = (ObjectReference) tableField.getValue();
+                    if (tableFieldValue != null)
+                    {
+                        int tableObjectId = tableFieldValue.getObjectId();
 
-                    int[] outbounds = snapshot.getOutboundReferentIds(tableObjectId);
-                    for (int ii = 0; ii < outbounds.length; ii++)
-                        collectEntry(entries, info, collection.getObjectId(), collectionName, outbounds[ii], snapshot,
-                                        listener);
+                        int[] outbounds = snapshot.getOutboundReferentIds(tableObjectId);
+                        for (int ii = 0; ii < outbounds.length; ii++)
+                            collectEntry(entries, info, collection.getObjectId(), collectionName, outbounds[ii], snapshot,
+                                            listener);
+                    }
                 }
             }
 
