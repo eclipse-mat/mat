@@ -86,13 +86,44 @@ public class HashSetValuesQuery implements IQuery
                 String valueField = info.getEntryKeyField();
                 if (valueField != null) {
                     ArrayInt ret = new ArrayInt();
-                    for (int entryId : entries)
+                    if (valueField.endsWith("[]")) //$NON-NLS-1$
                     {
-                        IInstance entry = (IInstance) snapshot.getObject(entryId);
-                        Object f = entry.resolveValue(valueField);
-                        if (f instanceof IInstance)
+                        valueField = valueField.replaceFirst("\\[\\]$", ""); //$NON-NLS-1$//$NON-NLS-2$
+                        for (int entryId : entries)
                         {
-                            ret.add(((IInstance)f).getObjectId());
+                            IInstance entry = (IInstance) snapshot.getObject(entryId);
+                            Object f = entry.resolveValue(valueField);
+                            if (f instanceof IObjectArray)
+                            {
+                                IObjectArray valarr = (IObjectArray) f;
+                                int n = valarr.getLength();
+                                int s = 10;
+                                for (int i = 0; i < n; i += s)
+                                {
+                                    s = Math.min(s, n - i);
+                                    long b[] = valarr.getReferenceArray(i, s);
+                                    for (int j = 0; j < s; ++j)
+                                    {
+                                        if (b[j] != 0)
+                                        {
+                                            int valueId = snapshot.mapAddressToId(b[j]);
+                                            ret.add(valueId);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        for (int entryId : entries)
+                        {
+                            IInstance entry = (IInstance) snapshot.getObject(entryId);
+                            Object f = entry.resolveValue(valueField);
+                            if (f instanceof IInstance)
+                            {
+                                ret.add(((IInstance)f).getObjectId());
+                            }
                         }
                     }
                     entries = ret.toArray();

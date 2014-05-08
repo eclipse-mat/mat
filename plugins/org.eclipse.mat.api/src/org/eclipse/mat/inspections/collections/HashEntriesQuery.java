@@ -35,6 +35,7 @@ import org.eclipse.mat.snapshot.model.Field;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IInstance;
 import org.eclipse.mat.snapshot.model.IObject;
+import org.eclipse.mat.snapshot.model.IObjectArray;
 import org.eclipse.mat.snapshot.model.ObjectReference;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.util.IProgressListener;
@@ -318,6 +319,13 @@ public class HashEntriesQuery implements IQuery
                             hashEntries.add(e);
                         }
                     }
+                    else if (info.getEntryKeyField().endsWith("[]")) //$NON-NLS-1$
+                    {
+                        for (int entryId : entryIds)
+                        {
+                            collectArrayEntry(hashEntries, info, id, snapshot.getObject(id).getDisplayName(), entryId, listener);
+                        }
+                    }
                     else
                     {
                         for (int entryId : entryIds)
@@ -355,6 +363,51 @@ public class HashEntriesQuery implements IQuery
         }
         hashEntries.add(new Entry(collectionId, collectionName, keyId, valueId));
 
-                    }
+    }
 
+    private void collectArrayEntry(List<Entry> hashEntries, CollectionUtil.Info info, int collectionId, String collectionName, int entryId,
+                    IProgressListener listener) throws SnapshotException
+                    {
+        IInstance entry = (IInstance) snapshot.getObject(entryId);
+        int keyId, valueId;
+        keyId = valueId = -1;
+        String keyName = info.getEntryKeyField().replaceFirst("\\[\\]$", "");  //$NON-NLS-1$//$NON-NLS-2$
+        String valueName = info.getEntryValueField().replaceFirst("\\[\\]$", ""); //$NON-NLS-1$//$NON-NLS-2$
+
+        for (Field field : entry.getFields())
+        {
+            if (field.getValue() == null) continue;
+
+            if (field.getType() != IObject.Type.OBJECT) continue;
+
+            if (keyName.equals(field.getName())) keyId = ((ObjectReference) field.getValue()).getObjectId();
+
+            if (valueName.equals(field.getName())) valueId = ((ObjectReference) field.getValue()).getObjectId();
+        }
+        if (keyId != -1 && valueId != -1)
+        {
+            IObjectArray keyarr = (IObjectArray) snapshot.getObject(keyId);
+            IObjectArray valarr = (IObjectArray) snapshot.getObject(valueId);
+            int n = Math.min(keyarr.getLength(), valarr.getLength());
+            int s = 10;
+            for (int i = 0; i < n; i += s)
+            {
+                s = Math.min(s, n - i);
+                long a[] = keyarr.getReferenceArray(i, s);
+                long b[] = valarr.getReferenceArray(i, s);
+                for (int j = 0; j < s; ++j)
+                {
+                    if (a[j] != 0)
+                    {
+                        keyId = snapshot.mapAddressToId(a[j]);
+                        if (b[j] == 0)
+                            valueId = -1;
+                        else
+                            valueId = snapshot.mapAddressToId(b[j]);
+                        hashEntries.add(new Entry(collectionId, collectionName, keyId, valueId));
+                    }
+                }
+            }
+        }
+    }
 }

@@ -586,10 +586,10 @@ public final class CollectionUtil
                                     "java.util.LinkedHashSet", Version.IBM15, "map.size", "map.table", "key", "value", HASH_MAP_EXTRACTOR), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 
                     new Info("java.util.TreeMap", ~Version.IBM16, "size", null, "key", "value").setCollectionExtractor(TREE_MAP_EXTRACTOR), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-                    new Info("java.util.TreeMap", Version.IBM16, "size", null, "keys", "values").setCollectionExtractor(TREE_MAP_EXTRACTOR), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                    new Info("java.util.TreeMap", Version.IBM16, "size", null, "keys[]", "values[]").setCollectionExtractor(TREE_MAP_EXTRACTOR), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
                     new Info("java.util.TreeSet", ~Version.IBM16, "m.size", null, "key", "value").setCollectionExtractor(TREE_MAP_EXTRACTOR), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-                    new Info("java.util.TreeSet", Version.IBM16, "backingMap.size", null, "key", "value").setCollectionExtractor(TREE_MAP_EXTRACTOR), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                    new Info("java.util.TreeSet", Version.IBM16, "backingMap.size", null, "keys[]", "values[]").setCollectionExtractor(TREE_MAP_EXTRACTOR), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
                     new Info(
                                     "java.util.Hashtable", ~(Version.IBM15 | Version.IBM16), "count", "table", "key", "value", HASH_MAP_EXTRACTOR), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
