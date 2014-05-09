@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2012 SAP AG and IBM Corporation.
+    Copyright (c) 2008, 2014 SAP AG and IBM Corporation.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -18,7 +18,7 @@
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2008, 2010 SAP AG and others.
+				Copyright (c) 2008, 2014 SAP AG and others.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License v1.0
 			    which accompanies this distribution, and is available at
@@ -106,14 +106,23 @@
 					<stentry>
 						Notes View recognizes and highlights object addresses. Activating
 						the hyperlink brings up a context menu which contains actions for
-						this particular object.
+						this particular object. Activate the hyperlink using the control key 
+						and a mouse click (or command + click).
 						<image href="../mimes/m4d2fff8d.png" align="left" placement="break" />
+					</stentry>
+				</strow>
+				<strow>
+					<stentry>Undo/redo in Notes View, OQL Pane</stentry>
+					<stentry>
+						There is undo/redo using Ctrl-Z / Ctrl-Y in the Notes View and
+						the OQL Pane. The navigator pane can also be used to retrieve
+						previous OQL statements.
 					</stentry>
 				</strow>
 				<strow>
 					<stentry>Copy To Clipboard</stentry>
 					<stentry>
-						Use Ctrl C to copy the selection to the clipboard. The data will
+						Use Ctrl-C to copy the selection to the clipboard. The data will
 						keep its structure:
 						<image href="../mimes/1af34c1.png" align="left" placement="break" />
 					</stentry>
@@ -187,7 +196,7 @@
 						The Object Query Language (OQL) pane has syntax highlighting for OQL
 						keywords. It also offers suggestions for class names for the 
 						<keyword>SELECT</keyword> <keyword>FROM</keyword> clause, both simple class names and regular expressions.
-						The class name list is brought up on typing a dot '.'. Control-space
+						The class name list is brought up on typing a dot '.'. Ctrl-space
 						can also be used to bring up the list.
 						<image href="../mimes/oql_completion1.png" align="left" placement="break" />
 						The regular expression list appears on typing a double-quote '"'.
@@ -204,7 +213,7 @@
 						</alt>
 						</image>
 						Suggestions are then provided in the <keyword>SELECT</keyword> or
-						<keyword>WHERE</keyword> clauses on typing '.' or '@' or control-space.
+						<keyword>WHERE</keyword> clauses on typing '.' or '@' or Ctrl-space.
 						<image href="../mimes/oql_completion4.png" align="left" placement="break">
 						</image>
 						Attributes begin with '@' and the autocompletion is filtered based on
