@@ -711,7 +711,7 @@ public final class CollectionUtil
         else if ((classes = snapshot.getClassesByName("com.ibm.jvm.Trace", false)) != null && !classes.isEmpty())return Version.IBM14; //$NON-NLS-1$
 
         classes = snapshot.getClassesByName("sun.misc.Version", false);
-        if (classes.size() > 0)
+        if (classes != null && classes.size() > 0)
         {
             Object ver = classes.iterator().next().resolveValue("java_version");
             if (ver instanceof IObject && ((IObject)ver).getClassSpecificName().startsWith("1.8.")) {
