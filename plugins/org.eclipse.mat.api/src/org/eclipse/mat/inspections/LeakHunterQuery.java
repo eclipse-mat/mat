@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 2010 SAP AG and others.
+ * Copyright (c) 2008, 2014 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson - improve progress monitor checking
  *******************************************************************************/
 package org.eclipse.mat.inspections;
 
@@ -101,7 +102,6 @@ public class LeakHunterQuery implements IQuery
 
     private long totalHeap;
 
-    private final IProgressListener voidListener = new VoidProgressListener();
     private IProgressListener listener;
 
     public IResult execute(IProgressListener listener) throws Exception
@@ -111,7 +111,7 @@ public class LeakHunterQuery implements IQuery
 
         /* call find_leaks */
         listener.subTask(Messages.LeakHunterQuery_FindingProblemSuspects);
-        FindLeaksQuery.SuspectsResultTable findLeaksResult = callFindLeaks(voidListener);
+        FindLeaksQuery.SuspectsResultTable findLeaksResult = callFindLeaks(listener);
         SuspectRecord[] leakSuspects = findLeaksResult.getData();
 
         SectionSpec result = new SectionSpec(Messages.LeakHunterQuery_LeakHunter);
@@ -209,7 +209,7 @@ public class LeakHunterQuery implements IQuery
     {
         if (suspect instanceof SuspectRecordGroupOfObjects)
         {
-            return getLeakDescriptionGroupOfObjects((SuspectRecordGroupOfObjects) suspect);
+            return getLeakDescriptionGroupOfObjects((SuspectRecordGroupOfObjects) suspect, listener);
         }
         else
         {
@@ -422,7 +422,7 @@ public class LeakHunterQuery implements IQuery
         return composite;
     }
 
-    private CompositeResult getLeakDescriptionGroupOfObjects(SuspectRecordGroupOfObjects suspect)
+    private CompositeResult getLeakDescriptionGroupOfObjects(SuspectRecordGroupOfObjects suspect, IProgressListener listener)
                     throws SnapshotException
     {
         StringBuilder builder = new StringBuilder(256);
@@ -557,7 +557,7 @@ public class LeakHunterQuery implements IQuery
 			String key = null;
         	if (suspect instanceof IClassLoader)
 			{
-				ticket = resolver.resolveByClassLoader((IClassLoader) suspect, new VoidProgressListener());
+				ticket = resolver.resolveByClassLoader((IClassLoader) suspect, listener);
 				if (ticket != null && !"".equals(ticket.trim())) //$NON-NLS-1$
 				{
 					key = suspect.getClassSpecificName();
@@ -641,12 +641,14 @@ public class LeakHunterQuery implements IQuery
     private IResult getHistogramOfDominated(int objectId) throws SnapshotException
     {
         int[] dominatedByAccPoint = snapshot.getImmediateDominatedIds(objectId);
-        Histogram h = snapshot.getHistogram(dominatedByAccPoint, voidListener);
+        Histogram h = snapshot.getHistogram(dominatedByAccPoint, listener);
+        if (h == null)
+            return null;
         ClassHistogramRecord[] records = h.getClassHistogramRecords().toArray(new ClassHistogramRecord[0]);
 
         for (ClassHistogramRecord record : records)
         {
-            record.setRetainedHeapSize(snapshot.getMinRetainedSize(record.getObjectIds(), voidListener));
+            record.setRetainedHeapSize(snapshot.getMinRetainedSize(record.getObjectIds(), listener));
         }
 
         Arrays.sort(records, Histogram.reverseComparator(Histogram.COMPARATOR_FOR_RETAINEDHEAPSIZE));
@@ -793,7 +795,7 @@ public class LeakHunterQuery implements IQuery
     {
         MultiplePathsFromGCRootsClassRecord dummy = new MultiplePathsFromGCRootsClassRecord(null, -1, true, snapshot);
 
-        Object[] allPaths = suspect.getPathsComputer().getAllPaths(voidListener);
+        Object[] allPaths = suspect.getPathsComputer().getAllPaths(listener);
         for (Object path : allPaths)
             dummy.addPath((int[]) path);
 
@@ -859,7 +861,7 @@ public class LeakHunterQuery implements IQuery
 
         IMultiplePathsFromGCRootsComputer comp = snapshot.getMultiplePathsFromGCRoots(objectIds, excludeMap);
 
-        MultiplePathsFromGCRootsRecord[] records = comp.getPathsByGCRoot(voidListener);
+        MultiplePathsFromGCRootsRecord[] records = comp.getPathsByGCRoot(listener);
         Arrays.sort(records, MultiplePathsFromGCRootsRecord.getComparatorByNumberOfReferencedObjects());
 
         for (MultiplePathsFromGCRootsRecord rec : records)
@@ -915,7 +917,7 @@ public class LeakHunterQuery implements IQuery
 
             // provide the common path as details
             composite.addResult(Messages.LeakHunterQuery_CommonPath, //
-                            MultiplePath2GCRootsQuery.create(snapshot, comp, commonPath.toArray()));
+                            MultiplePath2GCRootsQuery.create(snapshot, comp, commonPath.toArray(), listener));
 
             result.add(composite);
         }

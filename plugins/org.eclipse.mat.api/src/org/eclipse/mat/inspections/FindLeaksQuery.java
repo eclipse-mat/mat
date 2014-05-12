@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2009 SAP AG.
+ * Copyright (c) 2008, 2014 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -47,7 +47,6 @@ import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
-import org.eclipse.mat.util.VoidProgressListener;
 
 import com.ibm.icu.text.NumberFormat;
 
@@ -239,7 +238,7 @@ public class FindLeaksQuery implements IQuery
         if (listener.isCanceled())
             throw new IProgressListener.OperationCanceledException();
 
-        int numPaths = comp.getAllPaths(new VoidProgressListener()).length;
+        int numPaths = comp.getAllPaths(listener).length;
         int diff = objectIds.length - numPaths;
         if (diff > 0)
         {

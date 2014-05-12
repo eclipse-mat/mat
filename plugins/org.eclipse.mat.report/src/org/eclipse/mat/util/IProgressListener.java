@@ -123,7 +123,7 @@ public interface IProgressListener
     public void worked(int work);
 
     /**
-     * Defines the severites possible for a user message.
+     * Defines the severities possible for a user message.
      * <ul>
      * <li><code>ERROR</code> - a serious error (most severe)</li> <li><code>
      * WARNING</code> - a warning (less severe)</li> <li><code>INFO</code> - an

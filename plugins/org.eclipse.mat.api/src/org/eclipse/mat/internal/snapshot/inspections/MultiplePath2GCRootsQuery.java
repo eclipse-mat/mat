@@ -127,7 +127,13 @@ public class MultiplePath2GCRootsQuery implements IQuery
     public static Tree create(ISnapshot snapshot, IMultiplePathsFromGCRootsComputer computer, int[] selection)
                     throws SnapshotException
     {
-        Object[] paths = computer.getAllPaths(new VoidProgressListener());
+        return create(snapshot, computer, selection, new VoidProgressListener());
+    }
+
+    public static Tree create(ISnapshot snapshot, IMultiplePathsFromGCRootsComputer computer, int[] selection, IProgressListener listener)
+                        throws SnapshotException
+        {
+        Object[] paths = computer.getAllPaths(listener);
 
         List<int[]> result = new ArrayList<int[]>(paths.length);
         for (int ii = 0; ii < paths.length; ii++)
