@@ -29,6 +29,7 @@ import org.eclipse.mat.query.ISelectionProvider;
 import org.eclipse.mat.query.ResultMetaData;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.CommandName;
+import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.report.ITestResult;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.OQL;
@@ -41,6 +42,7 @@ import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 
 @CommandName("duplicate_classes")
+@HelpUrl("/org.eclipse.mat.ui.help/reference/findingmemoryleak.html")
 public class DuplicatedClassesQuery implements IQuery, IResultTree, IIconProvider, ITestResult, IDecorator,
                 ISelectionProvider
 {
