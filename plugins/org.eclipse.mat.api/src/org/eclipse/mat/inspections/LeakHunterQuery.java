@@ -642,8 +642,8 @@ public class LeakHunterQuery implements IQuery
     {
         int[] dominatedByAccPoint = snapshot.getImmediateDominatedIds(objectId);
         Histogram h = snapshot.getHistogram(dominatedByAccPoint, listener);
-        if (h == null)
-            return null;
+        if (listener.isCanceled())
+            throw new IProgressListener.OperationCanceledException();
         ClassHistogramRecord[] records = h.getClassHistogramRecords().toArray(new ClassHistogramRecord[0]);
 
         for (ClassHistogramRecord record : records)
