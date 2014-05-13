@@ -157,6 +157,8 @@ public class FindLeaksQuery implements IQuery
         {
             record.setRetainedHeapSize(sumRetainedSize(record.getObjectIds(), snapshot));
             arr[i++] = record;
+            if (i % 10 == 0 && listener.isCanceled())
+                throw new IProgressListener.OperationCanceledException();
         }
 
         Collection<ClassLoaderHistogramRecord> loaderRecords = histogram.getClassLoaderHistogramRecords();

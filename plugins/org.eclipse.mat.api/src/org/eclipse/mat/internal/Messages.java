@@ -386,6 +386,7 @@ public class Messages extends NLS
 
     public static String LeakHunterQuery_AccumulatedObjects;
     public static String LeakHunterQuery_AccumulatedObjectsByClass;
+    public static String LeakHunterQuery_AllAccumulatedObjectsByClass;
     public static String LeakHunterQuery_BiggestInstances;
     public static String LeakHunterQuery_CommonPath;
     public static String LeakHunterQuery_Description;
