@@ -959,8 +959,10 @@ public class LeakHunterQuery implements IQuery
             // provide the common path as details
             QuerySpec qs = new QuerySpec(Messages.LeakHunterQuery_CommonPath, //
                                 MultiplePath2GCRootsQuery.create(snapshot, comp, commonPath.toArray(), listener));
-            StringBuilder sb = new StringBuilder("merge_shortest_paths -excludes java.lang.ref.WeakReference:"); //$NON-NLS-1$
-            sb.append(REFERENCE_FIELD_SET);
+            StringBuilder sb = new StringBuilder("merge_shortest_paths"); //$NON-NLS-1$
+            //Currently a bug in parsing multiple command line arguments
+            //sb.append(" -excludes java.lang.ref.WeakReference:"); //$NON-NLS-1$
+            //sb.append("referent"); //$NON-NLS-1$
             for (int objId : objectIds)
             {
                 long addr = snapshot.mapIdToAddress(objId);
