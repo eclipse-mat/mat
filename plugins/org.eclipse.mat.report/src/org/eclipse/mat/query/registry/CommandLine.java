@@ -271,9 +271,18 @@ public class CommandLine
             String arg = args[pos.getIndex()];
 
             if (arg != null && arg.length() == 1 && arg.charAt(0) == ';')
+            {
+                pos.setIndex(pos.getIndex() + 1);
                 break;
-            if (arg != null && arg.length() > 1 && (arg.charAt(0) == '-' || arg.charAt(arg.length() - 1) == ';'))
+            }
+            if (arg != null && arg.length() > 1 && arg.charAt(0) == '-')
                 break;
+            if (arg != null && arg.length() > 1 && arg.charAt(arg.length() - 1) == ';')
+            {
+                pos.setIndex(pos.getIndex() + 1);
+                arguments.add(arg.substring(0, arg.length() - 1));
+                break;
+            }
 
             pos.setIndex(pos.getIndex() + 1);
             if (arg != null)

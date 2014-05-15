@@ -568,8 +568,10 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
                     // This is a bit strange - the value gets resolved as an objectid
                     ISnapshot snapshot = (ISnapshot) context.get(ISnapshot.class, null);
                     long addr = new BigInteger(value.substring(2), 16).longValue();
+                    // Check address is valid
                     Integer ival = Integer.valueOf(snapshot.mapAddressToId(addr));
-                    aec.setValue(ival);
+                    // but set the hex value
+                    aec.setValue(value);
                 }
                 else 
                 {

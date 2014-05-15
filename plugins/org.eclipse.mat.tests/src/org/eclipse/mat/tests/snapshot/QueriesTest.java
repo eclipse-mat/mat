@@ -22,6 +22,7 @@ import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IResultTree;
 import org.eclipse.mat.query.refined.RefinedResultBuilder;
 import org.eclipse.mat.query.refined.RefinedTable;
+import org.eclipse.mat.snapshot.Histogram;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IClassLoader;
@@ -201,5 +202,18 @@ public class QueriesTest
             }
             prev = val;
         }
+    }
+    
+    /**
+     * Test parsing of multiple arguments
+     * @throws SnapshotException
+     */
+    @Test
+    public void testCustomRetainedSet() throws SnapshotException
+    {
+        SnapshotQuery query = SnapshotQuery.parse("customized_retained_set -x java.lang.ref.WeakReference:referent java.lang.ref.SoftReference:referent; 0x2ca48ee8", snapshot);
+        Histogram t = (Histogram)query.execute(new VoidProgressListener());
+        assertTrue(t != null);
+        assertEquals(17, t.getRowCount());
     }
 }
