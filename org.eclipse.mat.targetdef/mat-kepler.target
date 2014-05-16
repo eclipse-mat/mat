@@ -4,10 +4,10 @@
 <target name="MAT Juno Target" sequenceNumber="1">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.birt.feature.group" version="4.3.1.v201308301349-DTDN8fGjtEqcbZz0BQWLW07D_cfT"/>
-<unit id="org.eclipse.jdt.feature.group" version="3.9.1.v20130911-1000"/>
-<unit id="org.eclipse.equinox.executable.feature.group" version="3.6.0.v20130807-1835"/>
-<unit id="org.eclipse.rcp.feature.group" version="4.3.1.v20130911-1000"/>
+<unit id="org.eclipse.birt.feature.group" version="4.3.2.v20140211-1400-DPDKA5GixAoaudOsMil4K3C7KNz0"/>
+<unit id="org.eclipse.jdt.feature.group" version="3.9.2.v20140221-1700"/>
+<unit id="org.eclipse.equinox.executable.feature.group" version="3.6.0.v20140117-1004"/>
+<unit id="org.eclipse.rcp.feature.group" version="4.3.2.v20140221-1700"/>
 <unit id="org.junit" version="0.0.0"/>
 <repository location="http://download.eclipse.org/releases/kepler/"/>
 </location>
