@@ -38,7 +38,11 @@
 				placement="break"></image>
 			<p>This report will be stored together with the heap dump and is
 				displayed when you open the heap dump again.</p>
-
+			<p>Some of the sections in the leak suspects report have links to rerun the individual
+			queries which make up the report. This can be useful for further analysis.
+			</p>
+			<image href="../mimes/leaksuspects1.png" alt="screen shot of leak suspect details showing links" 
+				placement="break"></image>
 			<p>
 				Learn more in this blog posting:
 				<xref format="html"
