@@ -20,7 +20,7 @@
    </license>
 
    <url>
-      <update label="%updateSiteName" url="http://download.eclipse.org/mat/1.3/update-site/"/>
+      <update label="%updateSiteName" url="http://download.eclipse.org/mat/1.4/update-site/"/>
    </url>
 
    <requires>
