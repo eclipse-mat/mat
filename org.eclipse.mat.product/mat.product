@@ -198,7 +198,8 @@ Contributors:
       <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
       <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.equinox.ds" autoStart="true" startLevel="2" />
-      <property name="osgi.requiredJavaVersion" value="1.5.0" />
+      <property name="osgi.requiredJavaVersion" value="1.6" />
+      <property name="cssTheme" value="org.eclipse.e4.ui.css.theme.e4_default" />
    </configurations>
 
 </product>

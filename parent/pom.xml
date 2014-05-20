@@ -37,6 +37,9 @@
 			<!-- A profile defining the taget definition for building MAT against 
 				Juno -->
 			<id>build-kepler-rcp</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
 			<properties>
 				<mat.target>mat-kepler</mat.target>
 			</properties>
@@ -135,9 +138,6 @@
 			<!-- A profile defining the taget definition for building MAT against 
 				Indigo -->
 			<id>build-indigo-rcp</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
 			<properties>
 				<mat.target>mat-indigo</mat.target>
 			</properties>
