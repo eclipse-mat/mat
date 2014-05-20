@@ -23,6 +23,7 @@
    </url>
 
    <requires>
+      <import plugin="org.eclipse.platform" version="0.0.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.ui.intro" version="3.2.100" match="greaterOrEqual"/>
       <import plugin="org.eclipse.core.runtime" version="3.3.100" match="greaterOrEqual"/>
       <import plugin="org.eclipse.ui" version="3.3.0" match="greaterOrEqual"/>
