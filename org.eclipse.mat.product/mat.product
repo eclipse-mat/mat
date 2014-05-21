@@ -200,6 +200,7 @@ Contributors:
       <plugin id="org.eclipse.equinox.ds" autoStart="true" startLevel="2" />
       <property name="osgi.requiredJavaVersion" value="1.6" />
       <property name="cssTheme" value="org.eclipse.e4.ui.css.theme.e4_default" />
+      <property name="applicationCSSResources" value="platform:/plugin/org.eclipse.platform/images/" />
    </configurations>
 
 </product>
