@@ -403,7 +403,6 @@ public class ProviderArgumentsTable implements IEditorListener/*, ProcessSelecti
         }
 
         // inform about value changes
-        fireInputChangedEvent();
         fireValueChangedEvent();
     }
 

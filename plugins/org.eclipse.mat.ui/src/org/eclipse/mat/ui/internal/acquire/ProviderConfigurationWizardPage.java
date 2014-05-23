@@ -137,102 +137,122 @@ public class ProviderConfigurationWizardPage extends WizardPage implements ITabl
     
     private void applyChanges() throws SnapshotException
     {
+        AnnotatedObjectArgumentsSet currentSet = table.getArgumentSet();
+        if (currentSet != null)
+        {
+            // Throw exception if current selection fails
+            applyProviderChanges(currentSet);
+        }
         for (TableItem item : availableProvidersTable.getItems())
         {
             AnnotatedObjectArgumentsSet argumentSet = (AnnotatedObjectArgumentsSet) item.getData();
-            
-            try
+            if (argumentSet != currentSet)
             {
-                HeapDumpProviderDescriptor providerDescriptor = (HeapDumpProviderDescriptor) argumentSet.getDescriptor();
-                IHeapDumpProvider impl = providerDescriptor.getHeapDumpProvider();
-
-                for (ArgumentDescriptor parameter : providerDescriptor.getArguments())
+                try
                 {
-                    Object value = argumentSet.getArgumentValue(parameter);
+                    applyProviderChanges(argumentSet);
+                }
+                catch (SnapshotException e)
+                {
+                    // Ignore errors from non-selected providers
+                }
+            }
+        }
+    }
 
-                    if (value == null && parameter.isMandatory())
-                    {
-                        value = parameter.getDefaultValue();
-                        if (value == null)
-                            throw new SnapshotException(MessageUtil.format(
-                                    Messages.ProviderConfigurationDialog_MissingParameterErrorMessage, parameter.getName()));
-                    }
+    private void applyProviderChanges(AnnotatedObjectArgumentsSet argumentSet) throws SnapshotException
+    {
+        try
+        {
+            HeapDumpProviderDescriptor providerDescriptor = (HeapDumpProviderDescriptor) argumentSet.getDescriptor();
+            IHeapDumpProvider impl = providerDescriptor.getHeapDumpProvider();
 
+            for (ArgumentDescriptor parameter : providerDescriptor.getArguments())
+            {
+                Object value = argumentSet.getArgumentValue(parameter);
+
+                if (value == null && parameter.isMandatory())
+                {
+                    value = parameter.getDefaultValue();
                     if (value == null)
-                    {
-                        if (argumentSet.getValues().containsKey(parameter))
-                        {
-                            Logger.getLogger(getClass().getName()).log(Level.INFO,
-                                            MessageUtil.format("Setting null value for: {0}", parameter.getName())); //$NON-NLS-1$
-                            parameter.getField().set(impl, null);
-                        }
-                        continue;
-                    }
-
-                    try
-                    {
-                        if (value instanceof ArgumentFactory)
-                        {
-                            parameter.getField().set(impl, ((ArgumentFactory) value).build(parameter));
-                        }
-                        else if (parameter.isArray())
-                        {
-                            List<?> list = (List<?>) value;
-                            Object array = Array.newInstance(parameter.getType(), list.size());
-
-                            int ii = 0;
-                            for (Object v : list)
-                                Array.set(array, ii++, v);
-
-                            parameter.getField().set(impl, array);
-                        }
-                        else if (parameter.isList())
-                        {
-                            // handle ArgumentFactory inside list
-                            List<?> source = (List<?>) value;
-                            List<Object> target = new ArrayList<Object>(source.size());
-                            for (int ii = 0; ii < source.size(); ii++)
-                            {
-                                Object v = source.get(ii);
-                                if (v instanceof ArgumentFactory)
-                                    v = ((ArgumentFactory) v).build(parameter);
-                                target.add(v);
-                            }
-
-                            parameter.getField().set(impl, target);
-                        }
-                        else
-                        {
-                            parameter.getField().set(impl, value);
-                        }
-                    }
-                    catch (IllegalArgumentException e)
-                    {
-                        throw new SnapshotException(MessageUtil.format(Messages.ProviderConfigurationDialog_IllegalArgumentErrorMessage, value,
-                                        value.getClass().getName(), parameter.getName(), parameter.getType().getName()), e);
-                    }
-                    catch (IllegalAccessException e)
-                    {
-                        // should not happen as we check accessibility when
-                        // registering queries
-                        throw new SnapshotException(MessageUtil.format("Unable to access field {0} of type {1}", parameter //$NON-NLS-1$
-                                        .getName(), parameter.getType().getName()), e);
-                    }
+                        throw new SnapshotException(MessageUtil.format(
+                                Messages.ProviderConfigurationDialog_MissingParameterErrorMessage, parameter.getName()));
                 }
 
+                if (value == null)
+                {
+                    if (argumentSet.getValues().containsKey(parameter))
+                    {
+                        Logger.getLogger(getClass().getName()).log(Level.INFO,
+                                        MessageUtil.format("Setting null value for: {0}", parameter.getName())); //$NON-NLS-1$
+                        parameter.getField().set(impl, null);
+                    }
+                    continue;
+                }
+
+                try
+                {
+                    if (value instanceof ArgumentFactory)
+                    {
+                        parameter.getField().set(impl, ((ArgumentFactory) value).build(parameter));
+                    }
+                    else if (parameter.isArray())
+                    {
+                        List<?> list = (List<?>) value;
+                        Object array = Array.newInstance(parameter.getType(), list.size());
+
+                        int ii = 0;
+                        for (Object v : list)
+                            Array.set(array, ii++, v);
+
+                        parameter.getField().set(impl, array);
+                    }
+                    else if (parameter.isList())
+                    {
+                        // handle ArgumentFactory inside list
+                        List<?> source = (List<?>) value;
+                        List<Object> target = new ArrayList<Object>(source.size());
+                        for (int ii = 0; ii < source.size(); ii++)
+                        {
+                            Object v = source.get(ii);
+                            if (v instanceof ArgumentFactory)
+                                v = ((ArgumentFactory) v).build(parameter);
+                            target.add(v);
+                        }
+
+                        parameter.getField().set(impl, target);
+                    }
+                    else
+                    {
+                        parameter.getField().set(impl, value);
+                    }
+                }
+                catch (IllegalArgumentException e)
+                {
+                    throw new SnapshotException(MessageUtil.format(Messages.ProviderConfigurationDialog_IllegalArgumentErrorMessage, value,
+                                    value.getClass().getName(), parameter.getName(), parameter.getType().getName()), e);
+                }
+                catch (IllegalAccessException e)
+                {
+                    // should not happen as we check accessibility when
+                    // registering queries
+                    throw new SnapshotException(MessageUtil.format("Unable to access field {0} of type {1}", parameter //$NON-NLS-1$
+                                    .getName(), parameter.getType().getName()), e);
+                }
             }
-            catch (IProgressListener.OperationCanceledException e)
-            {
-                throw e; // no nesting!
-            }
-            catch (SnapshotException e)
-            {
-                throw e; // no nesting!
-            }
-            catch (Exception e)
-            {
-                throw SnapshotException.rethrow(e);
-            }
+
+        }
+        catch (IProgressListener.OperationCanceledException e)
+        {
+            throw e; // no nesting!
+        }
+        catch (SnapshotException e)
+        {
+            throw e; // no nesting!
+        }
+        catch (Exception e)
+        {
+            throw SnapshotException.rethrow(e);
         }
     }
     
@@ -353,7 +373,10 @@ public class ProviderConfigurationWizardPage extends WizardPage implements ITabl
 
     public void onInputChanged()
     {
-        // We don't care if the user selects a different dump provider
+        // A new dump provider configuration has been selected.
+        // Update next button e.g. if new provider isn't executable.
+        onError(null);
+        getContainer().updateButtons();
     }
 
     public void onValueChanged()
@@ -368,6 +391,7 @@ public class ProviderConfigurationWizardPage extends WizardPage implements ITabl
             // force an applychanges immediately
             changed = true;
         }
+        getContainer().updateButtons();
     }
 
     public void onError(String message)
@@ -391,12 +415,22 @@ public class ProviderConfigurationWizardPage extends WizardPage implements ITabl
     public boolean isPageComplete()
     {
         boolean exec = false;
-        // So long as one provider is executable then we might get a dump
-        for (TableItem item : availableProvidersTable.getItems())
+        AnnotatedObjectArgumentsSet argumentSet = table.getArgumentSet();
+        if (argumentSet != null)
         {
-            AnnotatedObjectArgumentsSet argumentSet = (AnnotatedObjectArgumentsSet) item.getData();
+            // If a provider is selected it should be executable
             exec |= argumentSet.isExecutable();
         }
-        return exec;
+        else
+        {
+            // So long as one provider is executable then we can attempt to get a dump
+            for (TableItem item : availableProvidersTable.getItems())
+            {
+                argumentSet = (AnnotatedObjectArgumentsSet) item.getData();
+                exec |= argumentSet.isExecutable();
+            }
+        }
+        // If an error message is displayed then don't allow next
+        return exec && getErrorMessage() == null;
     }
 }
