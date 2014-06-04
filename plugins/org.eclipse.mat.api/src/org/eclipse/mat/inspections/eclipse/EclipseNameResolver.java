@@ -45,6 +45,18 @@ public class EclipseNameResolver
 
     }
 
+    @Subject("org.eclipse.osgi.internal.loader.EquinoxClassLoader")
+    public static class EquinoxClassLoaderResolver implements IClassSpecificNameResolver
+    {
+
+        public String resolve(IObject obj) throws SnapshotException
+        {
+            IObject s = (IObject) obj.resolveValue("generation.revision.symbolicName"); //$NON-NLS-1$
+            return s != null ? s.getClassSpecificName() : null;
+        }
+
+    }
+
     @Subject("org.eclipse.equinox.launcher.Main$StartupClassLoader")
     public static class StartupClassLoaderResolver implements IClassSpecificNameResolver
     {

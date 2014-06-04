@@ -112,6 +112,7 @@
 		<!-- eclipse -->
 		<resolver impl="org.eclipse.mat.inspections.eclipse.EclipseNameResolver$EclipseClassLoaderResolver" />
 		<resolver impl="org.eclipse.mat.inspections.eclipse.EclipseNameResolver$EclipseDefaultClassLoaderResolver" />
+		<resolver impl="org.eclipse.mat.inspections.eclipse.EclipseNameResolver$EquinoxClassLoaderResolver" />
 		<resolver impl="org.eclipse.mat.inspections.eclipse.EclipseNameResolver$StartupClassLoaderResolver" />
 		<resolver impl="org.eclipse.mat.inspections.eclipse.EclipseNameResolver$RGBResolver" />
 		<resolver impl="org.eclipse.mat.inspections.eclipse.EclipseNameResolver$PointResolver" />
