@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.6"?>
+
+<target name="MAT Dummy Target" sequenceNumber="1">
+<locations>
+<!-- A dummy target definition - Tycho insisted on having a file named artifactId.target. Added an empty target to avoid
+     confusing it with the Indigo and Juno ones -->
+</locations>
+</target>

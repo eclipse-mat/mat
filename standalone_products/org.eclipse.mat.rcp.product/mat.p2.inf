@@ -1,0 +1,12 @@
+requires.1.namespace = org.eclipse.equinox.p2.iu
+requires.1.name = org.eclipse.mat.ui.rcp.feature.feature.group
+requires.1.range = [1.1.0, 2.0.0)
+requires.2.namespace = org.eclipse.equinox.p2.iu
+requires.2.name = org.eclipse.ui.themes
+requires.2.range = [1.0.0, 2.0.0)
+instructions.configure=\
+    org.eclipse.equinox.p2.touchpoint.natives.remove(path:${installFolder}/readme);\
+    addRepository(type:0,name:Eclipse Kepler,location:http${#58}//download.eclipse.org/releases/kepler/);\
+    addRepository(type:1,name:Eclipse Kepler,location:http${#58}//download.eclipse.org/releases/kepler/);\
+    addRepository(type:0,name:MAT,location:http${#58}//download.eclipse.org/releases/kepler/);\
+    addRepository(type:1,name:MAT,location:http${#58}//download.eclipse.org/releases/kepler/);
