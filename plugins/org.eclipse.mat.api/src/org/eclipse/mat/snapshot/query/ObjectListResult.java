@@ -23,6 +23,7 @@ import java.util.RandomAccess;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.internal.Messages;
+import org.eclipse.mat.query.Bytes;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IDecorator;
@@ -148,8 +149,8 @@ public final class ObjectListResult
         public final Column[] getColumns()
         {
             return new Column[] { new Column(Messages.Column_ClassName).decorator(this), //
-                            new Column(Messages.Column_ShallowHeap, long.class).noTotals(), //
-                            new Column(Messages.Column_RetainedHeap, long.class).noTotals() };
+                            new Column(Messages.Column_ShallowHeap, Bytes.class).noTotals(), //
+                            new Column(Messages.Column_RetainedHeap, Bytes.class).noTotals() };
         }
 
         /**
@@ -202,16 +203,16 @@ public final class ObjectListResult
                         {
                             IObject obj = snapshot.getObject(node.objectId);
                             node.label = obj.getDisplayName();
-                            node.shallowHeap = obj.getUsedHeapSize();
+                            node.shallowHeap = new Bytes(obj.getUsedHeapSize());
                         }
                         return node.label;
                     case 1:
-                        if (node.shallowHeap == -1)
-                            node.shallowHeap = snapshot.getHeapSize(node.objectId);
+                        if (node.shallowHeap.getValue() == -1)
+                            node.shallowHeap = new Bytes(snapshot.getHeapSize(node.objectId));
                         return node.shallowHeap;
                     case 2:
-                        if (node.retainedHeap == -1)
-                            node.retainedHeap = snapshot.getRetainedHeapSize(node.objectId);
+                        if (node.retainedHeap.getValue() == -1)
+                            node.retainedHeap = new Bytes(snapshot.getRetainedHeapSize(node.objectId));
                         return node.retainedHeap;
                 }
             }
@@ -310,14 +311,14 @@ public final class ObjectListResult
         int objectId;
         String label;
         String gcRoots;
-        long shallowHeap;
-        long retainedHeap;
+        Bytes shallowHeap;
+        Bytes retainedHeap;
 
         private Node(int objectId)
         {
             this.objectId = objectId;
-            this.shallowHeap = -1;
-            this.retainedHeap = -1;
+            this.shallowHeap = new Bytes(-1);
+            this.retainedHeap = new Bytes(-1);
         }
     }
 

@@ -10,9 +10,12 @@
  *******************************************************************************/
 package org.eclipse.mat.query.refined;
 
+import java.text.Format;
 import java.util.List;
 
 import org.eclipse.mat.collect.ArrayInt;
+import org.eclipse.mat.query.Bytes;
+import org.eclipse.mat.query.BytesFormat;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.IStructuredResult;
 import org.eclipse.mat.util.IProgressListener;
@@ -34,23 +37,25 @@ import org.eclipse.mat.util.IProgressListener;
             }
         }
 
-        return new TotalsCalculator(refined.columns.size(), needToCalculate, numericColumns);
+        return new TotalsCalculator(refined.columns, refined.columns.size(), needToCalculate, numericColumns);
     }
 
+    private final List<Column> columns;
     private final int noOfColumns;
     private final boolean needToCalculate;
     private final ArrayInt numericColumns;
 
-    private TotalsCalculator(int noOfColumns, boolean needToCalculate, ArrayInt numericColumns)
+    private TotalsCalculator(List<Column> columns, int noOfColumns, boolean needToCalculate, ArrayInt numericColumns)
     {
+        this.columns = columns;
         this.noOfColumns = noOfColumns;
         this.needToCalculate = needToCalculate;
         this.numericColumns = numericColumns;
     }
-
-    public Double[] calculate(IStructuredResult result, List<?> elements, IProgressListener listener)
+    
+    public TotalsResult[] calculate(IStructuredResult result, List<?> elements, IProgressListener listener)
     {
-        Double[] answer = new Double[noOfColumns];
+        TotalsResult[] answer = new TotalsResult[noOfColumns];
 
         if (!needToCalculate)
             return answer;
@@ -121,7 +126,17 @@ import org.eclipse.mat.util.IProgressListener;
             int columnIndex = thisNumericColumns.get(index);
             if (columnIndex < 0)
                 continue;
-            answer[columnIndex] = sums[index];
+            Column col = columns.get(columnIndex);
+            Format formatter = col.getFormatter();
+            Object val;
+            if (formatter instanceof BytesFormat) {
+                // We can assume that if a column's formatter is BytesFormat,
+                // then the value must have been a long, number of bytes.
+                val = new Bytes((long)sums[index]);
+            } else {
+                val = sums[index];
+            }
+            answer[columnIndex] = new TotalsResult(val, formatter);
         }
 
         return answer;

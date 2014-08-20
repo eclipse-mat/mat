@@ -21,12 +21,13 @@ import java.util.List;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.Column;
+import org.eclipse.mat.query.Column.SortDirection;
+import org.eclipse.mat.query.Bytes;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IContextObjectSet;
 import org.eclipse.mat.query.IIconProvider;
 import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.query.ResultMetaData;
-import org.eclipse.mat.query.Column.SortDirection;
 import org.eclipse.mat.snapshot.query.Icons;
 
 /**
@@ -141,7 +142,7 @@ public class UnreachableObjectsHistogram implements IResultTable, IIconProvider,
     {
         return new Column[] { new Column(Messages.Column_ClassName), //
                         new Column(Messages.Column_Objects, long.class), //
-                        new Column(Messages.Column_ShallowHeap, long.class).sorting(SortDirection.DESC) };
+                        new Column(Messages.Column_ShallowHeap, Bytes.class).sorting(SortDirection.DESC) };
     }
 
     public int getRowCount()
@@ -164,7 +165,7 @@ public class UnreachableObjectsHistogram implements IResultTable, IIconProvider,
             case 1:
                 return r.getObjectCount();
             case 2:
-                return r.getShallowHeapSize();
+                return new Bytes(r.getShallowHeapSize());
         }
 
         return null;

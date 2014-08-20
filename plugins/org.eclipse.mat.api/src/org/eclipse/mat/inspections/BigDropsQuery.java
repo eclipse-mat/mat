@@ -17,6 +17,7 @@ import java.util.regex.Pattern;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.internal.Messages;
+import org.eclipse.mat.query.Bytes;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.ContextProvider;
 import org.eclipse.mat.query.IContextObject;
@@ -103,7 +104,7 @@ public class BigDropsQuery implements IQuery, IResultTree
                             {
                                 newBigDrop = new BigDropEntry(obj.getObjectId(), obj.getDisplayName(), obj
                                                 .getRetainedHeapSize(), entry.children.length, ROOT_ID, ROOT_LABEL,
-                                                rootEntry.objectRetainedSize);
+                                                rootEntry.objectRetainedSize.getValue());
                             }
                             else
                             {
@@ -139,7 +140,7 @@ public class BigDropsQuery implements IQuery, IResultTree
                             {
                                 newBigDrop = new BigDropEntry(obj.getObjectId(), obj.getDisplayName(), obj
                                                 .getRetainedHeapSize(), entry.children.length, ROOT_ID, ROOT_LABEL,
-                                                rootEntry.objectRetainedSize);
+                                                rootEntry.objectRetainedSize.getValue());
                             }
                             else
                             {
@@ -251,10 +252,10 @@ public class BigDropsQuery implements IQuery, IResultTree
     public Column[] getColumns()
     {
         return new Column[] { new Column(Messages.BigDropsQuery_Column_AccumulationPoint), //
-                        new Column(Messages.BigDropsQuery_Column_AccPtSize, Long.class), //
+                        new Column(Messages.BigDropsQuery_Column_AccPtSize, Bytes.class), //
                         new Column(Messages.BigDropsQuery_Column_NumChildren, Long.class), //
                         new Column(Messages.BigDropsQuery_Column_Dominator), //
-                        new Column(Messages.BigDropsQuery_Column_DomRetainedSize, Long.class) };
+                        new Column(Messages.BigDropsQuery_Column_DomRetainedSize, Bytes.class) };
     }
 
     public List<?> getChildren(Object parent)
@@ -356,11 +357,11 @@ public class BigDropsQuery implements IQuery, IResultTree
     {
         int objectId;
         String objectLabel;
-        long objectRetainedSize;
+        Bytes objectRetainedSize;
         int numberOfChildren;
         int dominatorId;
         String dominatorLabel;
-        long dominatorRetainedSize;
+        Bytes dominatorRetainedSize;
 
         List<BigDropEntry> children = new ArrayList<BigDropEntry>(1);
 
@@ -369,11 +370,11 @@ public class BigDropsQuery implements IQuery, IResultTree
         {
             this.objectId = objectId;
             this.objectLabel = objectLabel;
-            this.objectRetainedSize = objectRetainedSize;
+            this.objectRetainedSize = new Bytes(objectRetainedSize);
             this.numberOfChildren = numberOfChildren;
             this.dominatorId = dominatorId;
             this.dominatorLabel = dominatorLabel;
-            this.dominatorRetainedSize = dominatorRetainedSize;
+            this.dominatorRetainedSize = new Bytes(dominatorRetainedSize);
         }
 
     }

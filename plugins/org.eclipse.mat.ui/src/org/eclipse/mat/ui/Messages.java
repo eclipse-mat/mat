@@ -372,6 +372,12 @@ public class Messages extends NLS
     public static String UIPreferencePage_KeepUnreachableObjects;
     public static String UIPreferencePage_PreferencesSubtitle;
     public static String UIPreferencePage_HideQueryHelp;
+    public static String UIPreferencePage_BytesDisplay;
+    public static String UIPreferencePage_BytesDisplay_Bytes;
+    public static String UIPreferencePage_BytesDisplay_Kilobytes;
+    public static String UIPreferencePage_BytesDisplay_Megabytes;
+    public static String UIPreferencePage_BytesDisplay_Gigabytes;
+    public static String UIPreferencePage_BytesDisplay_Smart;
 
 
 

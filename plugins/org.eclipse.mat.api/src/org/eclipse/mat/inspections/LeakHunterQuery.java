@@ -37,6 +37,7 @@ import org.eclipse.mat.inspections.threads.ThreadInfoQuery;
 import org.eclipse.mat.inspections.util.ObjectTreeFactory;
 import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.internal.snapshot.inspections.MultiplePath2GCRootsQuery;
+import org.eclipse.mat.query.BytesFormat;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IContextObjectSet;
 import org.eclipse.mat.query.IQuery;
@@ -86,6 +87,7 @@ public class LeakHunterQuery implements IQuery
 
     static NumberFormat percentFormatter = new DecimalFormat("0.00%"); //$NON-NLS-1$
     static NumberFormat numberFormatter = NumberFormat.getNumberInstance();
+    static BytesFormat bytesFormatter = BytesFormat.getInstance();
 
     @Argument
     public ISnapshot snapshot;
@@ -123,7 +125,7 @@ public class LeakHunterQuery implements IQuery
             {
                 SuspectRecord rec = leakSuspects[num];
                 pie.addSlice(rec.suspect.getObjectId(), MessageUtil.format(Messages.LeakHunterQuery_ProblemSuspect, (num + 1)), rec.suspect.getUsedHeapSize(),
-                                rec.suspectRetained);
+                                rec.getSuspectRetained());
             }
             result.add(new QuerySpec(Messages.LeakHunterQuery_Overview, pie.build()));
 
@@ -584,7 +586,7 @@ public class LeakHunterQuery implements IQuery
 
     private String formatRetainedHeap(long retained, long totalHeap)
     {
-        return numberFormatter.format(retained) + " (" //$NON-NLS-1$
+        return bytesFormatter.format(retained) + " (" //$NON-NLS-1$
                         + percentFormatter.format((double) retained / (double) totalHeap) + ")"; //$NON-NLS-1$
     }
 

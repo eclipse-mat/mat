@@ -22,6 +22,8 @@ import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.collect.HashMapIntObject.Entry;
 import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.Column;
+import org.eclipse.mat.query.Column.SortDirection;
+import org.eclipse.mat.query.Bytes;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IContextObjectSet;
 import org.eclipse.mat.query.IDecorator;
@@ -30,7 +32,6 @@ import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.IResultTree;
 import org.eclipse.mat.query.ResultMetaData;
-import org.eclipse.mat.query.Column.SortDirection;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.HelpUrl;
@@ -175,8 +176,8 @@ public class GCRootsQuery implements IQuery
         {
             return new Column[] { new Column(Messages.Column_ClassName).decorator(this), //
                             new Column(Messages.Column_Objects, int.class), //
-                            new Column(Messages.Column_ShallowHeap, long.class).noTotals(), //
-                            new Column(Messages.Column_RetainedHeap, long.class).noTotals() };
+                            new Column(Messages.Column_ShallowHeap, Bytes.class).noTotals(), //
+                            new Column(Messages.Column_RetainedHeap, Bytes.class).noTotals() };
         }
 
         public List<?> getElements()

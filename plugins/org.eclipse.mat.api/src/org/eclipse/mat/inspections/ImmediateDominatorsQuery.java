@@ -15,6 +15,8 @@ import java.util.regex.Pattern;
 
 import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.Column;
+import org.eclipse.mat.query.Column.SortDirection;
+import org.eclipse.mat.query.Bytes;
 import org.eclipse.mat.query.ContextProvider;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IContextObjectSet;
@@ -23,15 +25,14 @@ import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.query.ResultMetaData;
-import org.eclipse.mat.query.Column.SortDirection;
 import org.eclipse.mat.query.annotations.Argument;
+import org.eclipse.mat.query.annotations.Argument.Advice;
 import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Icon;
-import org.eclipse.mat.query.annotations.Argument.Advice;
 import org.eclipse.mat.snapshot.DominatorsSummary;
-import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.DominatorsSummary.ClassDominatorRecord;
+import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.snapshot.query.Icons;
 import org.eclipse.mat.util.IProgressListener;
@@ -98,8 +99,8 @@ public class ImmediateDominatorsQuery implements IQuery
                             new Column(Messages.Column_ClassName), //
                             new Column(Messages.Column_Objects, Long.class), //
                             new Column(Messages.ImmediateDominatorsQuery_ColumnDominatedObjects, Long.class), //
-                            new Column(Messages.Column_ShallowHeap, Long.class), //
-                            new Column(Messages.ImmediateDominatorsQuery_Column_DominatedShallowHeap, Long.class)
+                            new Column(Messages.Column_ShallowHeap, Bytes.class), //
+                            new Column(Messages.ImmediateDominatorsQuery_Column_DominatedShallowHeap, Bytes.class)
                                             .sorting(SortDirection.DESC) };
         }
 
@@ -130,9 +131,9 @@ public class ImmediateDominatorsQuery implements IQuery
                 case 2:
                     return record.getDominatedCount();
                 case 3:
-                    return record.getDominatorNetSize();
+                    return new Bytes(record.getDominatorNetSize());
                 case 4:
-                    return record.getDominatedNetSize();
+                    return new Bytes(record.getDominatedNetSize());
             }
 
             return null;

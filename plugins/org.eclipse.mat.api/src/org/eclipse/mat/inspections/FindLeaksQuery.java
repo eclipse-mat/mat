@@ -26,6 +26,7 @@ import org.eclipse.mat.collect.ArrayIntBig;
 import org.eclipse.mat.collect.BitField;
 import org.eclipse.mat.internal.MATPlugin;
 import org.eclipse.mat.internal.Messages;
+import org.eclipse.mat.query.Bytes;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.ContextProvider;
 import org.eclipse.mat.query.IContextObject;
@@ -442,13 +443,13 @@ public class FindLeaksQuery implements IQuery
     {
         IObject suspect;
 
-        long suspectRetained;
+        Bytes suspectRetained;
         AccumulationPoint accumulationPoint;
 
         SuspectRecord(IObject suspect, long suspectRetained, AccumulationPoint accumulationPoint)
         {
             this.suspect = suspect;
-            this.suspectRetained = suspectRetained;
+            this.suspectRetained = new Bytes(suspectRetained);
             this.accumulationPoint = accumulationPoint;
         }
 
@@ -459,7 +460,7 @@ public class FindLeaksQuery implements IQuery
 
         public long getSuspectRetained()
         {
-            return suspectRetained;
+            return suspectRetained.getValue();
         }
 
         public AccumulationPoint getAccumulationPoint()
@@ -508,10 +509,10 @@ public class FindLeaksQuery implements IQuery
         {
             return new Column[] { new Column(Messages.FindLeaksQuery_ColumnLeakSuspect), //
                             new Column(Messages.FindLeaksQuery_Column_NumObjects, Long.class), //
-                            new Column(Messages.FindLeaksQuery_Column_SuspectRetainedHeap, Long.class), //
+                            new Column(Messages.FindLeaksQuery_Column_SuspectRetainedHeap, Bytes.class), //
                             new Column(Messages.FindLeaksQuery_Column_SuspectPercent, Double.class).formatting(NumberFormat.getPercentInstance()), //
                             new Column(Messages.FindLeaksQuery_Column_AccumulationPoint), //
-                            new Column(Messages.FindLeaksQuery_Column_AccPointRetainedHeap, Long.class), //
+                            new Column(Messages.FindLeaksQuery_Column_AccPointRetainedHeap, Bytes.class), //
                             new Column(Messages.FindLeaksQuery_Column_AccPointPercent, Double.class).formatting(NumberFormat.getPercentInstance()) };
         }
 
@@ -538,13 +539,13 @@ public class FindLeaksQuery implements IQuery
                 case 2:
                     return suspect.suspectRetained;
                 case 3:
-                    return Double.valueOf((double) suspect.suspectRetained / (double) totalHeap);
+                    return Double.valueOf((double) suspect.getSuspectRetained() / (double) totalHeap);
                 case 4:
                     return suspect.accumulationPoint == null ? Messages.FindLeaksQuery_NotFound : suspect.accumulationPoint.getObject()
                                     .getTechnicalName();
                 case 5:
-                    return suspect.accumulationPoint == null ? 0 : suspect.accumulationPoint.getObject()
-                                    .getRetainedHeapSize();
+                    return new Bytes(suspect.accumulationPoint == null ? 0 : suspect.accumulationPoint.getObject()
+                                    .getRetainedHeapSize());
                 case 6:
                     return suspect.accumulationPoint == null ? 0 : Double.valueOf((double) suspect.accumulationPoint
                                     .getObject().getRetainedHeapSize()

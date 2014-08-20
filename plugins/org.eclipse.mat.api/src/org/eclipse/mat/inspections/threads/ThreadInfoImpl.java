@@ -21,6 +21,7 @@ import java.util.Map;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.internal.Messages;
+import org.eclipse.mat.query.Bytes;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.results.CompositeResult;
@@ -45,8 +46,8 @@ import org.eclipse.mat.util.IProgressListener;
     private static final Column COL_CLASSNAME = new Column(Messages.Column_ClassName);
     private static final Column COL_NAME = new Column(Messages.ThreadInfoImpl_Column_Name);
     private static final Column COL_INSTANCE = new Column(Messages.ThreadStackQuery_Column_ObjectStackFrame);
-    private static final Column COL_SHALLOW = new Column(Messages.Column_ShallowHeap, int.class);
-    private static final Column COL_RETAINED = new Column(Messages.Column_RetainedHeap, long.class);
+    private static final Column COL_SHALLOW = new Column(Messages.Column_ShallowHeap, Bytes.class);
+    private static final Column COL_RETAINED = new Column(Messages.Column_RetainedHeap, Bytes.class);
     private static final Column COL_CONTEXTCL = new Column(Messages.ThreadInfoImpl_Column_ContextClassLoader);
     private static final Column COL_ISDAEMON = new Column(Messages.ThreadInfoImpl_Column_IsDaemon, Boolean.class);
 
@@ -121,8 +122,8 @@ import org.eclipse.mat.util.IProgressListener;
         info.className = info.subject.getDisplayName();
         info.name = info.subject.getClassSpecificName();
         info.instance = info.subject.getTechnicalName();
-        info.shallowHeap = info.subject.getUsedHeapSize();
-        info.retainedHeap = info.subject.getRetainedHeapSize();
+        info.shallowHeap = new Bytes(info.subject.getUsedHeapSize());
+        info.retainedHeap = new Bytes(info.subject.getRetainedHeapSize());
         info.isDaemon = resolveIsDaemon(info.subject);
 
         IObject contextClassLoader = (IObject) info.subject.resolveValue("contextClassLoader"); //$NON-NLS-1$
@@ -218,8 +219,8 @@ import org.eclipse.mat.util.IProgressListener;
     private String name;
     private String className;
     private String instance;
-    private long shallowHeap;
-    private long retainedHeap;
+    private Bytes shallowHeap = new Bytes(0);
+    private Bytes retainedHeap = new Bytes(0);
     private String contextClassLoader;
     private int contextClassLoaderId;
     private Boolean isDaemon;
@@ -258,12 +259,12 @@ import org.eclipse.mat.util.IProgressListener;
         return instance;
     }
 
-    public long getShallowHeap()
+    public Bytes getShallowHeap()
     {
         return shallowHeap;
     }
 
-    public long getRetainedHeap()
+    public Bytes getRetainedHeap()
     {
         return retainedHeap;
     }

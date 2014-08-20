@@ -22,6 +22,7 @@ import java.util.StringTokenizer;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.internal.Messages;
+import org.eclipse.mat.query.BytesFormat;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
@@ -46,6 +47,7 @@ public class TopConsumersQuery implements IQuery
 {
     static NumberFormat percentFormatter = NumberFormat.getIntegerInstance();
     static NumberFormat numberFormatter = NumberFormat.getNumberInstance();
+    static BytesFormat bytesFormatter = BytesFormat.getInstance();
     static
     {
         percentFormatter.setMaximumFractionDigits(2);
@@ -172,7 +174,7 @@ public class TopConsumersQuery implements IQuery
             long retained = snapshot.getRetainedHeapSize(obj.getObjectId());
             out.print(percentFormatter.format((double) (retained * 100) / (double) totalHeap));
             out.print("%  "); //$NON-NLS-1$
-            out.print(numberFormatter.format(retained));
+            out.print(bytesFormatter.format(retained));
             out.print("  "); //$NON-NLS-1$
             out.print(obj.getTechnicalName());
             String details = obj.getClassSpecificName();
@@ -192,7 +194,7 @@ public class TopConsumersQuery implements IQuery
             long retained = rec.getRetainedHeapSize();
             out.print(percentFormatter.format((double) (retained * 100) / (double) totalHeap));
             out.print("%  "); //$NON-NLS-1$
-            out.print(numberFormatter.format(retained));
+            out.print(bytesFormatter.format(retained));
             out.print("  "); //$NON-NLS-1$
             out.print(numberFormatter.format(rec.getNumberOfObjects()));
             out.print("  "); //$NON-NLS-1$
@@ -208,7 +210,7 @@ public class TopConsumersQuery implements IQuery
             long retained = rec.getRetainedHeapSize();
             out.print(percentFormatter.format((double) (retained * 100) / (double) totalHeap));
             out.print("%  "); //$NON-NLS-1$
-            out.print(numberFormatter.format(retained));
+            out.print(bytesFormatter.format(retained));
             out.print("  "); //$NON-NLS-1$
             out.print(numberFormatter.format(rec.getNumberOfObjects()));
             out.print("  "); //$NON-NLS-1$
@@ -369,7 +371,7 @@ public class TopConsumersQuery implements IQuery
         double percent = (double) (node.retainedSize * 100) / (double) totalHeap;
         output.append(percentFormatter.format(percent));
         output.append("%)  "); //$NON-NLS-1$
-        output.append(numberFormatter.format(node.retainedSize));
+        output.append(bytesFormatter.format(node.retainedSize));
         output.append("  "); //$NON-NLS-1$
         output.append(numberFormatter.format(node.dominators.size()));
 

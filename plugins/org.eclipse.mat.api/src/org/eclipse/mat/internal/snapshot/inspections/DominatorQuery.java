@@ -27,6 +27,7 @@ import org.eclipse.mat.collect.IteratorInt;
 import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.Column.SortDirection;
+import org.eclipse.mat.query.Bytes;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IContextObjectSet;
 import org.eclipse.mat.query.IDecorator;
@@ -181,14 +182,14 @@ public class DominatorQuery implements IQuery
         int objectId;
 
         String label;
-        long shallowHeap;
-        long retainedHeap;
+        Bytes shallowHeap;
+        Bytes retainedHeap;
 
         public Node(int objectId)
         {
             this.objectId = objectId;
-            this.shallowHeap = -1;
-            this.retainedHeap = -1;
+            this.shallowHeap = new Bytes(-1);
+            this.retainedHeap = new Bytes(-1);
         }
     }
 
@@ -207,8 +208,8 @@ public class DominatorQuery implements IQuery
         private ClassNode(int objectId)
         {
             super(objectId);
-            shallowHeap = 0;
-            retainedHeap = 0;
+            shallowHeap = new Bytes(0);
+            retainedHeap = new Bytes(0);
         }
     }
 
@@ -220,8 +221,8 @@ public class DominatorQuery implements IQuery
         {
             super(-1);
             this.label = label;
-            shallowHeap = 0;
-            retainedHeap = 0;
+            shallowHeap = new Bytes(0);
+            retainedHeap = new Bytes(0);
         }
     }
 
@@ -269,7 +270,7 @@ public class DominatorQuery implements IQuery
             for (int ii = 0; ii < roots.length; ii++)
             {
                 Node node = new Node(roots[ii]);
-                node.retainedHeap = snapshot.getRetainedHeapSize(roots[ii]);
+                node.retainedHeap = new Bytes(snapshot.getRetainedHeapSize(roots[ii]));
                 nodes.add(node);
                 if (listener.isCanceled())
                     throw new IProgressListener.OperationCanceledException();
@@ -280,7 +281,7 @@ public class DominatorQuery implements IQuery
             {
                 public int compare(Node o1, Node o2)
                 {
-                    return o1.retainedHeap < o2.retainedHeap ? 1 : o1.retainedHeap == o2.retainedHeap ? 0 : -1;
+                    return o1.retainedHeap.getValue() < o2.retainedHeap.getValue() ? 1 : o1.retainedHeap == o2.retainedHeap ? 0 : -1;
                 }
             });
 
@@ -330,8 +331,8 @@ public class DominatorQuery implements IQuery
         {
             return new Column[] {
                             new Column(Messages.Column_ClassName, String.class).decorator(this), //
-                            new Column(Messages.Column_ShallowHeap, int.class).noTotals(), //
-                            new Column(Messages.Column_RetainedHeap, long.class).noTotals(), //
+                            new Column(Messages.Column_ShallowHeap, Bytes.class).noTotals(), //
+                            new Column(Messages.Column_RetainedHeap, Bytes.class).noTotals(), //
                             new Column(Messages.Column_Percentage, double.class)
                                             .formatting(new DecimalFormat("0.00%")).noTotals() }; //$NON-NLS-1$
         }
@@ -368,17 +369,17 @@ public class DominatorQuery implements IQuery
                         }
                         return node.label;
                     case 1:
-                        if (node.shallowHeap == -1)
-                            node.shallowHeap = snapshot.getHeapSize(node.objectId);
+                        if (node.shallowHeap.getValue() == -1)
+                            node.shallowHeap = new Bytes(snapshot.getHeapSize(node.objectId));
                         return node.shallowHeap;
                     case 2:
-                        if (node.retainedHeap == -1)
-                            node.retainedHeap = snapshot.getRetainedHeapSize(node.objectId);
+                        if (node.retainedHeap.getValue() == -1)
+                            node.retainedHeap = new Bytes(snapshot.getRetainedHeapSize(node.objectId));
                         return node.retainedHeap;
                     case 3:
-                        if (node.retainedHeap == -1)
-                            node.retainedHeap = snapshot.getRetainedHeapSize(node.objectId);
-                        return node.retainedHeap / totalHeap;
+                        if (node.retainedHeap.getValue() == -1)
+                            node.retainedHeap = new Bytes(snapshot.getRetainedHeapSize(node.objectId));
+                        return node.retainedHeap.getValue() / totalHeap;
                 }
 
                 return null;
@@ -451,8 +452,8 @@ public class DominatorQuery implements IQuery
                         }
 
                         node.objects.add(objectId);
-                        node.shallowHeap += snapshot.getHeapSize(objectId);
-                        node.retainedHeap += snapshot.getRetainedHeapSize(objectId);
+                        node.shallowHeap = node.shallowHeap.add(snapshot.getHeapSize(objectId));
+                        node.retainedHeap = node.retainedHeap.add(snapshot.getRetainedHeapSize(objectId));
 
                         if (listener.isCanceled())
                             throw new IProgressListener.OperationCanceledException();
@@ -487,8 +488,8 @@ public class DominatorQuery implements IQuery
                     }
 
                     node.objects.add(objectId);
-                    node.shallowHeap += snapshot.getHeapSize(objectId);
-                    node.retainedHeap += snapshot.getRetainedHeapSize(objectId);
+                    node.shallowHeap = node.shallowHeap.add(snapshot.getHeapSize(objectId));
+                    node.retainedHeap = node.retainedHeap.add(snapshot.getRetainedHeapSize(objectId));
 
                     if (listener.isCanceled())
                         throw new IProgressListener.OperationCanceledException();
@@ -514,8 +515,8 @@ public class DominatorQuery implements IQuery
         {
             return new Column[] { new Column(Messages.Column_ClassName, String.class), //
                             new Column(Messages.Column_Objects, int.class), //
-                            new Column(Messages.Column_ShallowHeap, int.class), //
-                            new Column(Messages.Column_RetainedHeap, long.class).sorting(SortDirection.DESC), //
+                            new Column(Messages.Column_ShallowHeap, Bytes.class), //
+                            new Column(Messages.Column_RetainedHeap, Bytes.class).sorting(SortDirection.DESC), //
                             new Column(Messages.Column_Percentage, double.class).formatting(new DecimalFormat("0.00%")) }; //$NON-NLS-1$
         }
 
@@ -550,7 +551,7 @@ public class DominatorQuery implements IQuery
                 case 3:
                     return node.retainedHeap;
                 case 4:
-                    return node.retainedHeap / totalHeap;
+                    return node.retainedHeap.getValue() / totalHeap;
             }
 
             return null;
@@ -623,8 +624,8 @@ public class DominatorQuery implements IQuery
                 }
 
                 node.objects.add(dominatedId);
-                node.shallowHeap += snapshot.getHeapSize(dominatedId);
-                node.retainedHeap += snapshot.getRetainedHeapSize(dominatedId);
+                node.shallowHeap = node.shallowHeap.add(snapshot.getHeapSize(dominatedId));
+                node.retainedHeap = node.retainedHeap.add(snapshot.getRetainedHeapSize(dominatedId));
 
                 if (ii % 100 == 0 && listener.isCanceled())
                     throw new IProgressListener.OperationCanceledException();
@@ -650,8 +651,8 @@ public class DominatorQuery implements IQuery
         {
             return new Column[] { new Column(Messages.Column_ClassLoaderName, String.class), //
                             new Column(Messages.Column_Objects, int.class), //
-                            new Column(Messages.Column_ShallowHeap, int.class), //
-                            new Column(Messages.Column_RetainedHeap, long.class).sorting(SortDirection.DESC), //
+                            new Column(Messages.Column_ShallowHeap, Bytes.class), //
+                            new Column(Messages.Column_RetainedHeap, Bytes.class).sorting(SortDirection.DESC), //
                             new Column(Messages.Column_Percentage, double.class).formatting(new DecimalFormat("0.00%")) }; //$NON-NLS-1$
         }
 
@@ -712,8 +713,8 @@ public class DominatorQuery implements IQuery
                     }
 
                     node.objects.add(objectId);
-                    node.shallowHeap += snapshot.getHeapSize(objectId);
-                    node.retainedHeap += snapshot.getRetainedHeapSize(objectId);
+                    node.shallowHeap = node.shallowHeap.add(snapshot.getHeapSize(objectId));
+                    node.retainedHeap = node.retainedHeap.add(snapshot.getRetainedHeapSize(objectId));
                 }
 
                 return Arrays.asList(class2node.getAllValues());
@@ -744,17 +745,17 @@ public class DominatorQuery implements IQuery
                     case 1:
                         return node instanceof GroupedNode ? ((GroupedNode) node).objects.size() : null;
                     case 2:
-                        if (node.shallowHeap == -1)
-                            node.shallowHeap = snapshot.getHeapSize(node.objectId);
+                        if (node.shallowHeap.getValue() == -1)
+                            node.shallowHeap = new Bytes(snapshot.getHeapSize(node.objectId));
                         return node.shallowHeap;
                     case 3:
-                        if (node.retainedHeap == -1)
-                            node.retainedHeap = snapshot.getRetainedHeapSize(node.objectId);
+                        if (node.retainedHeap.getValue() == -1)
+                            node.retainedHeap = new Bytes(snapshot.getRetainedHeapSize(node.objectId));
                         return node.retainedHeap;
                     case 4:
-                        if (node.retainedHeap == -1)
-                            node.retainedHeap = snapshot.getRetainedHeapSize(node.objectId);
-                        return node.retainedHeap / totalHeap;
+                        if (node.retainedHeap.getValue() == -1)
+                            node.retainedHeap = new Bytes(snapshot.getRetainedHeapSize(node.objectId));
+                        return node.retainedHeap.getValue() / totalHeap;
                 }
 
                 return null;
@@ -855,8 +856,8 @@ public class DominatorQuery implements IQuery
                     }
 
                     childNode.objects.add(dominatorId);
-                    childNode.retainedHeap += retainedHeap;
-                    childNode.shallowHeap += shallowHeap;
+                    childNode.retainedHeap = childNode.retainedHeap.add(retainedHeap);
+                    childNode.shallowHeap = childNode.shallowHeap.add(shallowHeap);
 
                     current = childNode;
                 }
@@ -881,8 +882,8 @@ public class DominatorQuery implements IQuery
         {
             return new Column[] { new Column(Messages.Column_ClassName, String.class), //
                             new Column(Messages.Column_Objects, int.class), //
-                            new Column(Messages.Column_ShallowHeap, int.class), //
-                            new Column(Messages.Column_RetainedHeap, long.class).sorting(SortDirection.DESC), //
+                            new Column(Messages.Column_ShallowHeap, Bytes.class), //
+                            new Column(Messages.Column_RetainedHeap, Bytes.class).sorting(SortDirection.DESC), //
                             new Column(Messages.Column_Percentage, double.class).formatting(new DecimalFormat("0.00%")) }; //$NON-NLS-1$
         }
 
@@ -916,7 +917,7 @@ public class DominatorQuery implements IQuery
                 case 3:
                     return node.retainedHeap;
                 case 4:
-                    return node.retainedHeap / totalHeap;
+                    return node.retainedHeap.getValue() / totalHeap;
             }
 
             return null;

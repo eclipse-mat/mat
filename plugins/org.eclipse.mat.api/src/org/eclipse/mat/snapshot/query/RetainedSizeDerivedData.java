@@ -11,7 +11,6 @@
 package org.eclipse.mat.snapshot.query;
 
 import java.text.FieldPosition;
-import java.text.Format;
 import java.text.ParsePosition;
 import java.util.Comparator;
 import java.util.LinkedList;
@@ -22,6 +21,8 @@ import java.util.logging.Logger;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.HashMapObjectLong;
 import org.eclipse.mat.internal.Messages;
+import org.eclipse.mat.query.Bytes;
+import org.eclipse.mat.query.BytesFormat;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.ContextDerivedData;
 import org.eclipse.mat.query.ContextProvider;
@@ -36,8 +37,6 @@ import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.VoidProgressListener;
-
-import com.ibm.icu.text.DecimalFormat;
 
 /**
  * Extract retained size information.
@@ -108,7 +107,7 @@ public class RetainedSizeDerivedData extends ContextDerivedData
         else
             calculator = new DerivedCalculatorImpl(snapshot, provider);
 
-        Column column = new Column(label, long.class) //  
+        Column column = new Column(label, Bytes.class) //  
                         .comparing(new RetainedSizeComparator(calculator))//
                         .formatting(new RetainedSizeFormat()) //
                         .noTotals();
@@ -336,10 +335,9 @@ public class RetainedSizeDerivedData extends ContextDerivedData
         }
     }
 
-    private static final class RetainedSizeFormat extends Format
+    private static final class RetainedSizeFormat extends BytesFormat
     {
         private static final long serialVersionUID = 1L;
-        private static final Format formatter = new DecimalFormat("#,##0"); //$NON-NLS-1$
 
         @Override
         public StringBuffer format(Object obj, StringBuffer toAppendTo, FieldPosition pos)
@@ -349,14 +347,12 @@ public class RetainedSizeDerivedData extends ContextDerivedData
             if (v.longValue() < 0)
             {
                 toAppendTo.append(">= "); //$NON-NLS-1$
-                formatter.format(-v.longValue(), toAppendTo, pos);
+                return super.format(new Bytes(-v.longValue()), toAppendTo, pos);
             }
             else
             {
-                formatter.format(v, toAppendTo, pos);
+                return super.format(new Bytes(v), toAppendTo, pos);
             }
-
-            return toAppendTo;
         }
 
         @Override

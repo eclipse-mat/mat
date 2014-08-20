@@ -12,6 +12,7 @@ package org.eclipse.mat.ui.internal;
 
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.mat.query.BytesDisplay;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.internal.query.arguments.ArgumentsWizardPage;
 
@@ -30,6 +31,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		store.setDefault(GettingStartedWizard.HIDE_WIZARD_KEY, false);
 	    store.setDefault(PreferenceConstants.P_KEEP_UNREACHABLE_OBJECTS, false);
 	    store.setDefault(ArgumentsWizardPage.HIDE_QUERY_HELP, false);
+	    store.setDefault(BytesDisplay.PROPERTY_NAME, BytesDisplay.DEFAULT.toString());
 	}
 
 }

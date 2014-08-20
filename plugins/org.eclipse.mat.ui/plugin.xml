@@ -13,6 +13,10 @@
 
 <plugin>
 
+    <extension point="org.eclipse.ui.startup">
+      <startup class="org.eclipse.mat.ui.MemoryAnalyserPreferences"/>
+    </extension>
+
 	<extension-point id="editorPanes" name="%extension-point.editorPanes.name"
 		schema="schema/editorPanes.exsd" />
 	<extension-point id="editorContributions"

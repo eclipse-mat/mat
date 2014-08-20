@@ -11,6 +11,7 @@
 package org.eclipse.mat.query;
 
 import com.ibm.icu.text.DecimalFormat;
+
 import java.text.Format;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -259,7 +260,7 @@ public final class Column
     public boolean isNumeric()
     {
         return (type.isPrimitive() && !(type.equals(char.class) || type.equals(boolean.class)))
-                        || Number.class.isAssignableFrom(type);
+                        || Number.class.isAssignableFrom(type) || type.equals(Bytes.class);
     }
 
     public Object setData(Object key, Object value)
@@ -323,6 +324,9 @@ public final class Column
 
         CLASS2FORMAT.put(float.class, DecimalFormat.getInstance());
         CLASS2ALIGNMENT.put(float.class, Alignment.RIGHT);
+
+        CLASS2FORMAT.put(Bytes.class, BytesFormat.getInstance());
+        CLASS2ALIGNMENT.put(Bytes.class, Alignment.RIGHT);
     }
 
     private static final Format format(Class<?> type)

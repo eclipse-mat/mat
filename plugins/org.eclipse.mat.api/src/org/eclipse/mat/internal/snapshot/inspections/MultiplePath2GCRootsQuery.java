@@ -21,6 +21,7 @@ import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.collect.SetInt;
 import org.eclipse.mat.internal.Messages;
+import org.eclipse.mat.query.Bytes;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IContextObjectSet;
@@ -213,18 +214,18 @@ public class MultiplePath2GCRootsQuery implements IQuery
         String attribute;
         String label;
         String gcRoots;
-        long shallowHeap;
-        long refShallowHeap;
-        long retainedHeap;
+        Bytes shallowHeap;
+        Bytes refShallowHeap;
+        Bytes retainedHeap;
 
         protected Node(int objectId, int level)
         {
             this.objectId = objectId;
             this.level = level;
 
-            this.shallowHeap = -1;
-            this.refShallowHeap = -1;
-            this.retainedHeap = -1;
+            this.shallowHeap = new Bytes(-1);
+            this.refShallowHeap = new Bytes(-1);
+            this.retainedHeap = new Bytes(-1);
         }
 
         int[] getReferencedObjects()
@@ -278,10 +279,10 @@ public class MultiplePath2GCRootsQuery implements IQuery
             return new Column[] {
                             new Column(Messages.Column_ClassName).decorator(this), //
                             new Column(Messages.MultiplePath2GCRootsQuery_Column_RefObjects, int.class), //
-                            new Column(Messages.Column_ShallowHeap, long.class), //
-                            new Column(Messages.MultiplePath2GCRootsQuery_Column_RefShallowHeap, long.class)
+                            new Column(Messages.Column_ShallowHeap, Bytes.class), //
+                            new Column(Messages.MultiplePath2GCRootsQuery_Column_RefShallowHeap, Bytes.class)
                                             .sorting(Column.SortDirection.DESC), //
-                            new Column(Messages.Column_RetainedHeap, long.class).noTotals() };
+                            new Column(Messages.Column_RetainedHeap, Bytes.class).noTotals() };
         }
 
         protected List<Node> prepare(int level, List<int[]> paths)
@@ -318,22 +319,22 @@ public class MultiplePath2GCRootsQuery implements IQuery
                         {
                             IObject obj = snapshot.getObject(node.objectId);
                             node.label = obj.getDisplayName();
-                            node.shallowHeap = obj.getUsedHeapSize();
+                            node.shallowHeap = new Bytes(obj.getUsedHeapSize());
                         }
                         return node.label;
                     case 1:
                         return node.paths.size();
                     case 2:
-                        if (node.shallowHeap == -1)
-                            node.shallowHeap = snapshot.getHeapSize(node.objectId);
+                        if (node.shallowHeap.getValue() == -1)
+                            node.shallowHeap = new Bytes(snapshot.getHeapSize(node.objectId));
                         return node.shallowHeap;
                     case 3:
-                        if (node.refShallowHeap == -1)
-                            node.refShallowHeap = snapshot.getHeapSize(node.getReferencedObjects());
+                        if (node.refShallowHeap.getValue() == -1)
+                            node.refShallowHeap = new Bytes(snapshot.getHeapSize(node.getReferencedObjects()));
                         return node.refShallowHeap;
                     case 4:
-                        if (node.retainedHeap == -1)
-                            node.retainedHeap = snapshot.getRetainedHeapSize(node.objectId);
+                        if (node.retainedHeap.getValue() == -1)
+                            node.retainedHeap = new Bytes(snapshot.getRetainedHeapSize(node.objectId));
                         return node.retainedHeap;
                 }
             }
@@ -483,7 +484,7 @@ public class MultiplePath2GCRootsQuery implements IQuery
                             new Column(Messages.Column_ClassName), //
                             new Column(Messages.Column_Objects, int.class).noTotals(), //
                             new Column(Messages.MultiplePath2GCRootsQuery_Column_RefObjects, int.class), //
-                            new Column(Messages.MultiplePath2GCRootsQuery_Column_RefShallowHeap, long.class)
+                            new Column(Messages.MultiplePath2GCRootsQuery_Column_RefShallowHeap, Bytes.class)
                                             .sorting(Column.SortDirection.DESC) };
         }
 
@@ -531,8 +532,8 @@ public class MultiplePath2GCRootsQuery implements IQuery
                     case 2:
                         return node.paths.size();
                     case 3:
-                        if (node.refShallowHeap == -1)
-                            node.refShallowHeap = snapshot.getHeapSize(node.getReferencedObjects());
+                        if (node.refShallowHeap.getValue() == -1)
+                            node.refShallowHeap = new Bytes(snapshot.getHeapSize(node.getReferencedObjects()));
                         return node.refShallowHeap;
                 }
             }

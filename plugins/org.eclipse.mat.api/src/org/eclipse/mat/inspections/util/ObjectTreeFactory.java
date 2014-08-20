@@ -11,12 +11,13 @@
 package org.eclipse.mat.inspections.util;
 
 import java.net.URL;
-import com.ibm.icu.text.DecimalFormat;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.internal.Messages;
+import org.eclipse.mat.query.Bytes;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IDecorator;
@@ -157,8 +158,8 @@ public final class ObjectTreeFactory
 
     private static class NodeResult implements IResultTree, IIconProvider, ISelectionProvider
     {
-        private static final Column COL_HEAP = new Column(Messages.Column_ShallowHeap, long.class);
-        private static final Column COL_RETAINED = new Column(Messages.Column_RetainedHeap, long.class);
+        private static final Column COL_HEAP = new Column(Messages.Column_ShallowHeap, Bytes.class);
+        private static final Column COL_RETAINED = new Column(Messages.Column_RetainedHeap, Bytes.class);
         private static final Column COL_PERCENT = new Column(Messages.ObjectTreeFactory_Column_Percentage, double.class) //
                         .formatting(new DecimalFormat("0.00%")); //$NON-NLS-1$
 
@@ -231,9 +232,9 @@ public final class ObjectTreeFactory
                     case 0:
                         return snapshot.getObject(node.ownId).getDisplayName();
                     case 1:
-                        return snapshot.getHeapSize(node.ownId);
+                        return new Bytes(snapshot.getHeapSize(node.ownId));
                     case 2:
-                        return snapshot.getRetainedHeapSize(node.ownId);
+                        return new Bytes(snapshot.getRetainedHeapSize(node.ownId));
                     case 3:
                         long size = snapshot.getRetainedHeapSize(node.ownId);
                         return ((double) size / (double) base);

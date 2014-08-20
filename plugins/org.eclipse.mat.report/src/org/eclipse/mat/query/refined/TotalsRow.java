@@ -12,6 +12,7 @@
 package org.eclipse.mat.query.refined;
 
 import java.net.URL;
+import java.text.Format;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
@@ -26,10 +27,9 @@ public class TotalsRow
 {
     private static final URL SUM = FileLocator.find(ReportPlugin.getDefault().getBundle(), new Path("$nl$/META-INF/icons/misc/sum.gif"), null); //$NON-NLS-1$
     private static final URL SUM_PLUS = FileLocator.find(ReportPlugin.getDefault().getBundle(), new Path("$nl$/META-INF/icons/misc/sum_plus.gif"), null); //$NON-NLS-1$
-
     private static final NumberFormat fmt = DecimalFormat.getInstance();
 
-    private Double[] totals;
+    private TotalsResult[] totals;
 
     private int filteredItems;
     private int numberOfItems;
@@ -65,7 +65,7 @@ public class TotalsRow
         this.numberOfItems = numberOfItems;
     }
 
-    /* package */void setTotals(Double[] totals)
+    /* package */void setTotals(TotalsResult[] totals)
     {
         this.totals = totals;
     }
@@ -104,7 +104,15 @@ public class TotalsRow
             if (totals[columnIndex] == null)
                 return ""; //$NON-NLS-1$
 
-            return fmt.format(totals[columnIndex].doubleValue());
+            TotalsResult result = totals[columnIndex];
+            Object val = result.getValue();
+            
+            Format f = result.getFormat();
+            if (f == null) {
+                f = fmt;
+            }
+            
+            return f.format(val);
         }
     }
 
@@ -122,7 +130,7 @@ public class TotalsRow
             msg = MessageUtil.format(Messages.TotalsRow_Label_Total, numberOfItems);
 
         if (hasTotals)
-            msg += " / " + fmt.format(totals[0].doubleValue()); //$NON-NLS-1$
+            msg += " / " + fmt.format(totals[0].getValue()); //$NON-NLS-1$
 
         if (hasFiltered)
             msg += MessageUtil.format(" " + Messages.TotalsRow_Label_Filtered, filteredItems); //$NON-NLS-1$

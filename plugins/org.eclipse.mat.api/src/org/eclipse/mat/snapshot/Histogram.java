@@ -26,6 +26,8 @@ import java.util.regex.Pattern;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.internal.Messages;
+import org.eclipse.mat.query.Bytes;
+import org.eclipse.mat.query.BytesFormat;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IContextObjectSet;
@@ -393,14 +395,15 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
     private static void appendRecords(StringBuilder summary, List<? extends HistogramRecord> records)
     {
         NumberFormat formatter = NumberFormat.getNumberInstance();
+        BytesFormat bytesFormatter = BytesFormat.getInstance();
         for (HistogramRecord record : records)
         {
             summary.append(alignRight(formatter.format(record.getNumberOfObjects()), 17));
-            summary.append(alignRight(formatter.format(record.getUsedHeapSize()), 17));
+            summary.append(alignRight(bytesFormatter.format(record.getUsedHeapSize()), 17));
             if (record.getRetainedHeapSize() < 0)
-                summary.append(alignRight(">=" + formatter.format(-record.getRetainedHeapSize()), 17)); //$NON-NLS-1$
+                summary.append(alignRight(">=" + bytesFormatter.format(-record.getRetainedHeapSize()), 17)); //$NON-NLS-1$
             else
-                summary.append(alignRight(formatter.format(record.getRetainedHeapSize()), 17));
+                summary.append(alignRight(bytesFormatter.format(record.getRetainedHeapSize()), 17));
             summary.append("  "); //$NON-NLS-1$
             summary.append(alignLeft(record.getLabel(), 0));
             summary.append("\n"); //$NON-NLS-1$
@@ -571,6 +574,8 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
         report.append(SEPARATOR_CHAR + "\r\n"); //$NON-NLS-1$
 
         Collections.sort(records, comparator);
+        
+        BytesFormat bytesFormatter = BytesFormat.getInstance();
 
         for (ClassLoaderHistogramRecord classloaderRecord : records)
         {
@@ -589,7 +594,7 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
                 report.append(record.getUsedHeapSize());
                 report.append(SEPARATOR_CHAR);
                 if (record.getRetainedHeapSize() < 0)
-                    report.append(">=" + (-record.getRetainedHeapSize())); //$NON-NLS-1$
+                    report.append(">=" + bytesFormatter.format(-record.getRetainedHeapSize())); //$NON-NLS-1$
                 else
                     report.append(record.getRetainedHeapSize());
                 report.append(SEPARATOR_CHAR + "\r\n"); //$NON-NLS-1$
@@ -611,6 +616,7 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
         report.append(SEPARATOR_CHAR);
         report.append(headers[3]);
         report.append(SEPARATOR_CHAR + "\r\n"); //$NON-NLS-1$
+        BytesFormat bytesFormatter = BytesFormat.getInstance();
         for (HistogramRecord record : records)
         {
             report.append(record.getLabel());
@@ -620,9 +626,9 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
             report.append(record.getUsedHeapSize());
             report.append(SEPARATOR_CHAR);
             if (record.getRetainedHeapSize() < 0)
-                report.append(">=" + (-record.getRetainedHeapSize())); //$NON-NLS-1$
+                report.append(">=" + bytesFormatter.format(-record.getRetainedHeapSize())); //$NON-NLS-1$
             else
-                report.append(record.getRetainedHeapSize());
+                report.append(bytesFormatter.format(record.getRetainedHeapSize()));
             report.append(SEPARATOR_CHAR + "\r\n"); //$NON-NLS-1$
         }
         return report.toString();
@@ -680,15 +686,17 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
         Column[] columns = new Column[] {
                         new Column(Messages.Column_ClassName, String.class).comparing(HistogramRecord.COMPARATOR_FOR_LABEL), //
                         new Column(Messages.Column_Objects, long.class).comparing(HistogramRecord.COMPARATOR_FOR_NUMBEROFOBJECTS), //
-                        new Column(Messages.Column_ShallowHeap, long.class) //
+                        new Column(Messages.Column_ShallowHeap, Bytes.class) //
                                         .sorting(Column.SortDirection.DESC) //
                                         .comparing(HistogramRecord.COMPARATOR_FOR_USEDHEAPSIZE) };
 
         if (showPlusMinus)
         {
             Format formatter = new DecimalFormat("+#,##0;-#,##0"); //$NON-NLS-1$
+            Format detailedFormatter = new DecimalFormat("+" + BytesFormat.DETAILED_DECIMAL_FORMAT + ";-"
+                            + BytesFormat.DETAILED_DECIMAL_FORMAT + ""); //$NON-NLS-1$
             columns[1].formatting(formatter);
-            columns[2].formatting(formatter);
+            columns[2].formatting(new BytesFormat(formatter, detailedFormatter));
         }
 
         return columns;
@@ -714,7 +722,7 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
             case 1:
                 return record.getNumberOfObjects();
             case 2:
-                return record.getUsedHeapSize();
+                return new Bytes(record.getUsedHeapSize());
         }
         return null;
     }
@@ -784,7 +792,7 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
                                             .comparing(HistogramRecord.COMPARATOR_FOR_LABEL), //
                             new Column(Messages.Column_Objects, long.class) //
                                             .comparing(HistogramRecord.COMPARATOR_FOR_NUMBEROFOBJECTS), //
-                            new Column(Messages.Column_ShallowHeap, long.class) //
+                            new Column(Messages.Column_ShallowHeap, Bytes.class) //
                                             .sorting(Column.SortDirection.DESC)//
                                             .comparing(HistogramRecord.COMPARATOR_FOR_USEDHEAPSIZE) };
         }
@@ -814,7 +822,7 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
                 case 1:
                     return record.getNumberOfObjects();
                 case 2:
-                    return record.getUsedHeapSize();
+                    return new Bytes(record.getUsedHeapSize());
             }
             return null;
         }
@@ -972,7 +980,7 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
                             new Column(Messages.Histogram_Column_PackagePerClass, String.class).comparing(HistogramRecord.COMPARATOR_FOR_LABEL), //
                             new Column(Messages.Column_Objects, long.class) //
                                             .comparing(HistogramRecord.COMPARATOR_FOR_NUMBEROFOBJECTS), //
-                            new Column(Messages.Column_ShallowHeap, long.class) //
+                            new Column(Messages.Column_ShallowHeap, Bytes.class) //
                                             .sorting(Column.SortDirection.DESC)//
                                             .comparing(HistogramRecord.COMPARATOR_FOR_USEDHEAPSIZE) };
         }
@@ -1013,7 +1021,7 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
                 case 1:
                     return record.getNumberOfObjects();
                 case 2:
-                    return record.getUsedHeapSize();
+                    return new Bytes(record.getUsedHeapSize());
             }
             return null;
         }
@@ -1232,7 +1240,7 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
                             new Column(Messages.Histogram_Column_SuperclassPerClass, String.class).comparing(HistogramRecord.COMPARATOR_FOR_LABEL), //
                             new Column(Messages.Column_Objects, long.class) //
                                             .comparing(HistogramRecord.COMPARATOR_FOR_NUMBEROFOBJECTS), //
-                            new Column(Messages.Column_ShallowHeap, long.class) //
+                            new Column(Messages.Column_ShallowHeap, Bytes.class) //
                                             .sorting(Column.SortDirection.DESC)//
                                             .comparing(HistogramRecord.COMPARATOR_FOR_USEDHEAPSIZE) };
         }
@@ -1271,7 +1279,7 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
                 case 1:
                     return record.getNumberOfObjects();
                 case 2:
-                    return record.getUsedHeapSize();
+                    return new Bytes(record.getUsedHeapSize());
             }
             return null;
         }

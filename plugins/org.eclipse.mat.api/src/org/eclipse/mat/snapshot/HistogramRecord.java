@@ -60,9 +60,9 @@ public class HistogramRecord implements Serializable
         {
             long retained_o1 = o1.getRetainedHeapSize();
             long retained_o2 = o2.getRetainedHeapSize();
-            if (o1.getRetainedHeapSize() < 0)
+            if (retained_o1 < 0)
                 retained_o1 = -retained_o1;
-            if (o2.getRetainedHeapSize() < 0)
+            if (retained_o2 < 0)
                 retained_o2 = -retained_o2;
             long diff = retained_o1 - retained_o2;
             return ((diff == 0) ? 0 : ((diff > 0) ? +1 : -1));

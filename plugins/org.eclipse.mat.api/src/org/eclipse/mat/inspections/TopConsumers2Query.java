@@ -24,6 +24,7 @@ import org.eclipse.mat.collect.ArrayLong;
 import org.eclipse.mat.collect.ArrayUtils;
 import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.internal.Messages;
+import org.eclipse.mat.query.Bytes;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IIconProvider;
@@ -344,7 +345,7 @@ public class TopConsumers2Query implements IQuery
     private void addPackageTree(SectionSpec spec, IProgressListener listener) throws SnapshotException
     {
         PackageTreeNode root = groupByPackage(listener);
-        root.retainedSize = totalHeap;
+        root.retainedSize = new Bytes(totalHeap);
         root.dominatorsCount = topDominators.length;
 
         pruneTree(root);
@@ -436,7 +437,7 @@ public class TopConsumers2Query implements IQuery
         private String packageName;
         private Map<String, PackageTreeNode> subpackages = new HashMap<String, PackageTreeNode>();
         private int dominatorsCount;
-        private long retainedSize;
+        private Bytes retainedSize = new Bytes(0);
 
         public PackageTreeNode(String packageName)
         {
@@ -445,9 +446,9 @@ public class TopConsumers2Query implements IQuery
 
         public int compareTo(PackageTreeNode o)
         {
-            if (retainedSize < o.retainedSize)
+            if (retainedSize.getValue() < o.retainedSize.getValue())
                 return 1;
-            if (retainedSize > o.retainedSize)
+            if (retainedSize.getValue() > o.retainedSize.getValue())
                 return -1;
             return 0;
         }
@@ -484,7 +485,7 @@ public class TopConsumers2Query implements IQuery
                     childNode = new PackageTreeNode(subpack);
                     current.subpackages.put(subpack, childNode);
                 }
-                childNode.retainedSize += retainedSize;
+                childNode.retainedSize = childNode.retainedSize.add(retainedSize);
                 childNode.dominatorsCount++;
 
                 current = childNode;
@@ -509,7 +510,7 @@ public class TopConsumers2Query implements IQuery
         {
             PackageTreeNode current = iter.next();
 
-            if (current.retainedSize < threshold)
+            if (current.retainedSize.getValue() < threshold)
                 iter.remove();
             else
                 pruneTree(current);
@@ -551,7 +552,7 @@ public class TopConsumers2Query implements IQuery
         public Column[] getColumns()
         {
             return new Column[] { new Column(Messages.TopConsumers2Query_Column_Package), //
-                            new Column(Messages.Column_RetainedHeap, long.class).sorting(Column.SortDirection.DESC), //
+                            new Column(Messages.Column_RetainedHeap, Bytes.class).sorting(Column.SortDirection.DESC), //
                             COL_RETAINED_HEAP, //
                             new Column(Messages.TopConsumers2Query_Column_TopDominators, int.class) };
         }
@@ -583,7 +584,7 @@ public class TopConsumers2Query implements IQuery
                 case 1:
                     return node.retainedSize;
                 case 2:
-                    return node.retainedSize / base;
+                    return node.retainedSize.getValue() / base;
                 case 3:
                     return node.dominatorsCount;
             }

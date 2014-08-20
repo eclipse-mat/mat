@@ -20,6 +20,8 @@ import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.collect.SetInt;
 import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.Column;
+import org.eclipse.mat.query.Column.SortDirection;
+import org.eclipse.mat.query.Bytes;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IContextObjectSet;
 import org.eclipse.mat.query.IIconProvider;
@@ -27,7 +29,6 @@ import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.IResultTree;
 import org.eclipse.mat.query.ResultMetaData;
-import org.eclipse.mat.query.Column.SortDirection;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.Category;
 import org.eclipse.mat.query.annotations.CommandName;
@@ -141,7 +142,7 @@ public class ClassReferrersQuery implements IQuery
         {
             return new Column[] { new Column(Messages.Column_ClassName), //
                             new Column(Messages.Column_Objects, int.class), //
-                            new Column(Messages.Column_ShallowHeap, long.class).sorting(SortDirection.DESC) }; //                           
+                            new Column(Messages.Column_ShallowHeap, Bytes.class).sorting(SortDirection.DESC) }; //                           
         }
 
         public final List<?> getElements()
@@ -168,7 +169,7 @@ public class ClassReferrersQuery implements IQuery
                         class2node.put(node.classId, node);
                     }
                     node.objects.add(objectId);
-                    node.shallowHeap += snapshot.getHeapSize(objectId);
+                    node.shallowHeap = node.shallowHeap.add(snapshot.getHeapSize(objectId));
                 }
 
                 return Arrays.asList(class2node.getAllValues(new ClassNode[0]));
@@ -277,7 +278,7 @@ public class ClassReferrersQuery implements IQuery
         int type = Type.NEW;
 
         String label;
-        long shallowHeap;
+        Bytes shallowHeap = new Bytes(0);
         ClassNode parent;
 
         private ClassNode(int classId, ClassNode parent)

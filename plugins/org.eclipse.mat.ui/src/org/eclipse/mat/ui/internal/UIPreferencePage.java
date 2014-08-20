@@ -12,6 +12,9 @@ package org.eclipse.mat.ui.internal;
 
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
+import org.eclipse.jface.preference.RadioGroupFieldEditor;
+import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.mat.query.BytesDisplay;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.internal.query.arguments.ArgumentsWizardPage;
@@ -31,6 +34,7 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 
 public class UIPreferencePage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage
 {
+    private String lastBytesDisplay;
 
     public UIPreferencePage()
     {
@@ -52,6 +56,14 @@ public class UIPreferencePage extends FieldEditorPreferencePage implements IWork
                         getFieldEditorParent()));
         addField(new BooleanFieldEditor(ArgumentsWizardPage.HIDE_QUERY_HELP, Messages.UIPreferencePage_HideQueryHelp,
                         getFieldEditorParent()));
+        addField(new RadioGroupFieldEditor(BytesDisplay.PROPERTY_NAME, Messages.UIPreferencePage_BytesDisplay, 1,
+                    new String[][] {
+                      { Messages.UIPreferencePage_BytesDisplay_Bytes, BytesDisplay.Bytes.toString() },
+                      { Messages.UIPreferencePage_BytesDisplay_Kilobytes, BytesDisplay.Kilobytes.toString() },
+                      { Messages.UIPreferencePage_BytesDisplay_Megabytes, BytesDisplay.Megabytes.toString() },
+                      { Messages.UIPreferencePage_BytesDisplay_Gigabytes, BytesDisplay.Gigabytes.toString() },
+                      { Messages.UIPreferencePage_BytesDisplay_Smart, BytesDisplay.Smart.toString() },
+                    }, getFieldEditorParent(), true));
     }
 
     /*
@@ -62,4 +74,30 @@ public class UIPreferencePage extends FieldEditorPreferencePage implements IWork
     public void init(IWorkbench workbench)
     {}
 
+    @Override
+    public boolean performOk()
+    {
+        // Asking the preference store here will still give the old value, so 
+        // we track value changes and use the latest value.
+        if (lastBytesDisplay != null)
+        {
+            BytesDisplay.setCurrentValue(BytesDisplay.parse(lastBytesDisplay));
+        }
+        return super.performOk();
+    }
+    
+    @Override
+    public void propertyChange(PropertyChangeEvent event)
+    {
+        super.propertyChange(event);
+        Object source = event.getSource();
+        if (source instanceof RadioGroupFieldEditor)
+        {
+            RadioGroupFieldEditor rgfe = (RadioGroupFieldEditor) source;
+            if (rgfe.getPreferenceName().equals(BytesDisplay.PROPERTY_NAME))
+            {
+                lastBytesDisplay = event.getNewValue().toString();
+            }
+        }
+    }
 }

@@ -100,8 +100,8 @@ public class ThreadOverviewQuery implements IQuery
         {
             public int compare(ThreadOverviewNode o1, ThreadOverviewNode o2)
             {
-                return o1.threadInfo.getRetainedHeap() > o2.threadInfo.getRetainedHeap() ? -1
-                                : o1.threadInfo.getRetainedHeap() == o2.threadInfo.getRetainedHeap() ? 0 : 1;
+                return o1.threadInfo.getRetainedHeap().getValue() > o2.threadInfo.getRetainedHeap().getValue() ? -1
+                                : o1.threadInfo.getRetainedHeap().getValue() == o2.threadInfo.getRetainedHeap().getValue() ? 0 : 1;
             }
         });
 
