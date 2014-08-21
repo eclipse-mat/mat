@@ -24,6 +24,7 @@ import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Item;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
@@ -551,10 +552,14 @@ public abstract class Copy
 		protected void done()
 		{
 			// done -> just copy the buffer to the clipboard
-			Clipboard clipboard = new Clipboard(control.getDisplay());
-			clipboard.setContents(new Object[] { buffer.toString() }, new Transfer[] { TextTransfer.getInstance() });
-			clipboard.dispose();
+			copyToClipboard(buffer.toString(), control.getDisplay());
 		}
 	}
-    
+
+    public static void copyToClipboard(String text, Display display)
+    {
+        Clipboard clipboard = new Clipboard(display);
+        clipboard.setContents(new Object[] { text.toString() }, new Transfer[] { TextTransfer.getInstance() });
+        clipboard.dispose();
+    }
 }

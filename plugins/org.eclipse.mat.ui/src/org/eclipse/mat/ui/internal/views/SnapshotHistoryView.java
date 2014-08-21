@@ -36,6 +36,7 @@ import org.eclipse.mat.ui.SnapshotHistoryService.Entry;
 import org.eclipse.mat.ui.accessibility.AccessibleCompositeAdapter;
 import org.eclipse.mat.ui.editor.PathEditorInput;
 import org.eclipse.mat.ui.snapshot.views.SnapshotOutlinePage;
+import org.eclipse.mat.ui.util.Copy;
 import org.eclipse.mat.ui.util.ErrorHelper;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.swt.SWT;
@@ -226,6 +227,27 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
                 if (e.character == 0x007F)
                 {
                     actionRemoveFromList.run();
+                }
+                else if (e.stateMask == SWT.CTRL && e.keyCode == 'c')
+                {
+                    StringBuilder selectedItems = new StringBuilder();
+                    for (TableItem selected : table.getSelection())
+                    {
+                        if (selectedItems.length() > 0)
+                        {
+                            selectedItems.append(' ');
+                        }
+                        String path = selected.getText();
+                        if (path.indexOf(' ') != -1)
+                        {
+                            path = '\"' + path + '\"';
+                        }
+                        selectedItems.append(path);
+                    }
+                    if (selectedItems.length() > 0)
+                    {
+                        Copy.copyToClipboard(selectedItems.toString(), table.getDisplay());
+                    }
                 }
             }
         });
