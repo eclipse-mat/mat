@@ -56,6 +56,8 @@ public class UIPreferencePage extends FieldEditorPreferencePage implements IWork
                         getFieldEditorParent()));
         addField(new BooleanFieldEditor(ArgumentsWizardPage.HIDE_QUERY_HELP, Messages.UIPreferencePage_HideQueryHelp,
                         getFieldEditorParent()));
+        addField(new BooleanFieldEditor(PreferenceConstants.P_HIDE_WELCOME_SCREEN, Messages.UIPreferencePage_HideWelcomeScreen,
+                        getFieldEditorParent()));
         addField(new RadioGroupFieldEditor(BytesDisplay.PROPERTY_NAME, Messages.UIPreferencePage_BytesDisplay, 1,
                     new String[][] {
                       { Messages.UIPreferencePage_BytesDisplay_Bytes, BytesDisplay.Bytes.toString() },

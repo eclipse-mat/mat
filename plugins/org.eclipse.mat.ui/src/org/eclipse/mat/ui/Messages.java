@@ -378,6 +378,7 @@ public class Messages extends NLS
     public static String UIPreferencePage_BytesDisplay_Megabytes;
     public static String UIPreferencePage_BytesDisplay_Gigabytes;
     public static String UIPreferencePage_BytesDisplay_Smart;
+    public static String UIPreferencePage_HideWelcomeScreen;
 
 
 

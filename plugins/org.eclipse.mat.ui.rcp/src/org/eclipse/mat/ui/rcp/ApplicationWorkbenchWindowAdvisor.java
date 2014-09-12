@@ -12,7 +12,10 @@ package org.eclipse.mat.ui.rcp;
 
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.editor.PathEditorInput;
+import org.eclipse.mat.ui.internal.PreferenceConstants;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.IEditorDescriptor;
 import org.eclipse.ui.IEditorRegistry;
@@ -76,8 +79,12 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor
     @Override
     public void openIntro()
     {
-        boolean isStandby = PlatformUI.getWorkbench().getIntroManager().isIntroStandby(
-                        PlatformUI.getWorkbench().getIntroManager().getIntro());
-        PlatformUI.getWorkbench().getIntroManager().showIntro(getWindowConfigurer().getWindow(), isStandby);
+        IPreferenceStore prefs = MemoryAnalyserPlugin.getDefault().getPreferenceStore();
+        if (!prefs.getBoolean(PreferenceConstants.P_HIDE_WELCOME_SCREEN))
+        {
+            boolean isStandby = PlatformUI.getWorkbench().getIntroManager().isIntroStandby(
+                            PlatformUI.getWorkbench().getIntroManager().getIntro());
+            PlatformUI.getWorkbench().getIntroManager().showIntro(getWindowConfigurer().getWindow(), isStandby);
+        }
     }
 }

@@ -15,4 +15,5 @@ package org.eclipse.mat.ui.internal;
  */
 public class PreferenceConstants {
     public static final String P_KEEP_UNREACHABLE_OBJECTS = "keep_unreachable_objects"; //$NON-NLS-1$
+    public static final String P_HIDE_WELCOME_SCREEN = "hide_welcome_screen"; //$NON-NLS-1$
 }

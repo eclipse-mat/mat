@@ -31,6 +31,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		store.setDefault(GettingStartedWizard.HIDE_WIZARD_KEY, false);
 	    store.setDefault(PreferenceConstants.P_KEEP_UNREACHABLE_OBJECTS, false);
 	    store.setDefault(ArgumentsWizardPage.HIDE_QUERY_HELP, false);
+	    store.setDefault(PreferenceConstants.P_HIDE_WELCOME_SCREEN, false);
 	    store.setDefault(BytesDisplay.PROPERTY_NAME, BytesDisplay.DEFAULT.toString());
 	}
 
