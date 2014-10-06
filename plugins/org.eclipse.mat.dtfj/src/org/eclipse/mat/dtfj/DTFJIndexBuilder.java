@@ -836,17 +836,17 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     if (verbose)
                     {
                         int type = objectToClass2.get(i);
-                        debugPrint("Purging " + i + " size " + objSize + " type " + type + " " + idToClass2.get(type)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                        if (debugInfo) debugPrint("Purging " + i + " size " + objSize + " type " + type + " " + idToClass2.get(type)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
                     }
                 }
                 if (missedRoots != null && missedRoots.containsKey(i))
                 {
-                    debugPrint("Alternative roots would have found root " + i + " " + missedRoots.get(i)); //$NON-NLS-1$ //$NON-NLS-2$
+                    if (debugInfo) debugPrint("Alternative roots would have found root " + i + " " + missedRoots.get(i)); //$NON-NLS-1$ //$NON-NLS-2$
                 }
             }
             else
             {
-                // debugPrint("Remap "+i+"->"+purgedMapping[i]);
+                // if (debugInfo) debugPrint("Remap "+i+"->"+purgedMapping[i]);
             }
         }
         if (debugInfo)
@@ -1003,14 +1003,14 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 if (loaderObject == null)
                 {
                     // Potential boot loader
-                    debugPrint("Found class loader with null Java object " + jcl); //$NON-NLS-1$
+                    if (debugInfo) debugPrint("Found class loader with null Java object " + jcl); //$NON-NLS-1$
                     if (!foundBootLoader)
                     {
                         bootLoader = jcl;
                         bootLoaderObject = loaderObject;
                         bootLoaderAddress = 0;
                         fixedBootLoaderAddress = fixBootLoaderAddress(bootLoaderAddress, bootLoaderAddress);
-                        debugPrint("adding boot loader object at " + format(bootLoaderAddress)); //$NON-NLS-1$
+                        if (debugInfo) debugPrint("adding boot loader object at " + format(bootLoaderAddress)); //$NON-NLS-1$
                         foundBootLoader = true;
                     }
                 }
@@ -1026,7 +1026,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                         bootLoaderObject = loaderObject;
                         bootLoaderAddress = loaderAddress;
                         fixedBootLoaderAddress = fixBootLoaderAddress(bootLoaderAddress, bootLoaderAddress);
-                        debugPrint("adding potential boot loader object at " + format(bootLoaderAddress)); //$NON-NLS-1$
+                        if (debugInfo) debugPrint("adding potential boot loader object at " + format(bootLoaderAddress)); //$NON-NLS-1$
                     }
                     JavaClass loaderObjectClass = loaderObject.getJavaClass();
                     loaderTypes.add(loaderObjectClass);
@@ -1034,7 +1034,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     if (loaderClassName.equals("*System*")) //$NON-NLS-1$
                     {
                         // Potential boot loader - Javacore
-                        debugPrint("Found class loader of type *System* " + jcl); //$NON-NLS-1$
+                        if (debugInfo) debugPrint("Found class loader of type *System* " + jcl); //$NON-NLS-1$
                         if (!foundBootLoader)
                         {
                             bootLoader = jcl;
@@ -1042,18 +1042,18 @@ public class DTFJIndexBuilder implements IIndexBuilder
                             bootLoaderAddress = loaderAddress;
                             fixedBootLoaderAddress = fixBootLoaderAddress(bootLoaderAddress, bootLoaderAddress);
                             // No need for dummy Java object
-                            debugPrint("adding boot loader object at " + format(bootLoaderAddress)); //$NON-NLS-1$
+                            if (debugInfo) debugPrint("adding boot loader object at " + format(bootLoaderAddress)); //$NON-NLS-1$
                             foundBootLoader = true;
                         }
                     }
                     else
                     {
-                        debugPrint("Found class loader " + loaderClassName + " at " + format(loaderAddress)); //$NON-NLS-1$ //$NON-NLS-2$
+                        if (debugInfo) debugPrint("Found class loader " + loaderClassName + " at " + format(loaderAddress)); //$NON-NLS-1$ //$NON-NLS-2$
 
                         JavaClassLoader jcl2 = getClassLoader(loaderObjectClass, listener);
                         if (jcl.equals(jcl2))
                         {
-                            debugPrint("Found class loader which loaded itself " + loaderClassName + " at " + format(loaderAddress)); //$NON-NLS-1$ //$NON-NLS-2$
+                            if (debugInfo) debugPrint("Found class loader which loaded itself " + loaderClassName + " at " + format(loaderAddress)); //$NON-NLS-1$ //$NON-NLS-2$
                             if (!foundBootLoader)
                             {
                                 bootLoader = jcl;
@@ -1061,13 +1061,13 @@ public class DTFJIndexBuilder implements IIndexBuilder
                                 bootLoaderAddress = loaderAddress;
                                 fixedBootLoaderAddress = fixBootLoaderAddress(bootLoaderAddress, bootLoaderAddress);
                                 // No need for dummy Java object
-                                debugPrint("adding boot loader object at " + format(bootLoaderAddress)); //$NON-NLS-1$
+                                if (debugInfo) debugPrint("adding boot loader object at " + format(bootLoaderAddress)); //$NON-NLS-1$
                                 foundBootLoader = true;
                             }
                         }
                         else
                         {
-                            debugPrint("Found other class loader " + loaderClassName + " at " + format(loaderAddress)); //$NON-NLS-1$ //$NON-NLS-2$
+                            if (debugInfo) debugPrint("Found other class loader " + loaderClassName + " at " + format(loaderAddress)); //$NON-NLS-1$ //$NON-NLS-2$
                         }
                     }
                 }
@@ -1088,7 +1088,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             // Boot loader with 0 address needs a dummy entry as no Java object
             // for it will be found
             indexToAddress0.add(fixedBootLoaderAddress);
-            debugPrint("No boot class loader found so adding dummy boot class loader object at " //$NON-NLS-1$
+            if (debugInfo) debugPrint("No boot class loader found so adding dummy boot class loader object at " //$NON-NLS-1$
                             + format(fixedBootLoaderAddress));
         }
         else if (bootLoaderObject == null)
@@ -1156,7 +1156,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             }
         }
         final int nobj = indexToAddress0.size() - s2;
-        debugPrint("Objects on heap " + nobj); //$NON-NLS-1$
+        if (debugInfo) debugPrint("Objects on heap " + nobj); //$NON-NLS-1$
 
         // Find any more classes (via the class loaders), and remember them
         // This might not be needed - all the classes cached should be found in
@@ -1509,7 +1509,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             {
                 indexToAddress0.add(frame);
             }
-            debugPrint("added methods " + allMethods.size() + " frames " + allFrames.size()); //$NON-NLS-1$ //$NON-NLS-2$
+            if (debugInfo) debugPrint("added methods " + allMethods.size() + " frames " + allFrames.size()); //$NON-NLS-1$ //$NON-NLS-2$
         }
 
         // Make the ID to address array ready for reverse lookups
@@ -1588,11 +1588,11 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 // JavaClass == JavaObject, so add the class (which isn't on
                 // the heap) to the list
                 indexToAddressCls.add(clsaddr);
-                debugPrint("adding class " + clsName + " at " + format(clsaddr) + " to the identifier list"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                if (debugInfo) debugPrint("adding class " + clsName + " at " + format(clsaddr) + " to the identifier list"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             }
             else
             {
-                debugPrint("skipping class " + clsName + " at " + format(clsaddr) //$NON-NLS-1$ //$NON-NLS-2$
+                if (debugInfo) debugPrint("skipping class " + clsName + " at " + format(clsaddr) //$NON-NLS-1$ //$NON-NLS-2$
                                 + " as the associated object is already on the identifier list"); //$NON-NLS-1$
             }
         }
@@ -1675,7 +1675,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                             Messages.DTFJIndexBuilder_FoundIdentifiersObjectsClasses, indexToAddress.size(),
                             indexToAddress.size() - nClasses, nClasses), null);
         }
-        debugPrint("Total identifiers " + indexToAddress.size()); //$NON-NLS-1$
+        if (debugInfo) debugPrint("Total identifiers " + indexToAddress.size()); //$NON-NLS-1$
 
         if (listener.isCanceled()) { throw new IProgressListener.OperationCanceledException(); }
 
@@ -1683,7 +1683,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         listener.worked(1);
         workCountSoFar += 1;
         listener.subTask(Messages.DTFJIndexBuilder_Pass2);
-        debugPrint("Classes " + nClasses); //$NON-NLS-1$
+        if (debugInfo) debugPrint("Classes " + nClasses); //$NON-NLS-1$
         idToClass = new HashMapIntObject<ClassImpl>(nClasses);
 
         if (debugInfo)
@@ -1973,9 +1973,9 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 threadRoots = threadRoots2;
                 // Restore the threads file
                 boolean del = threadsFile.delete();
-                if (!del) debugPrint("Unable to delete "+threadsFile); //$NON-NLS-1$
+                if (!del && debugInfo) debugPrint("Unable to delete "+threadsFile); //$NON-NLS-1$
                 boolean ren = threadsFileSave.renameTo(threadsFile);
-                if (!ren) debugPrint("Unable to rename "+threadsFileSave+" to "+threadsFile); //$NON-NLS-1$ //$NON-NLS-2$
+                if (!ren && debugInfo) debugPrint("Unable to rename "+threadsFileSave+" to "+threadsFile); //$NON-NLS-1$ //$NON-NLS-2$
             }
             else
             {
@@ -1993,7 +1993,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             int i = it.next();
             if (!prevRoots.contains(i))
             {
-                debugPrint("DTFJ Roots missed object id " + i + " " + format(indexToAddress.get(i)) + " " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                if (debugInfo) debugPrint("DTFJ Roots missed object id " + i + " " + format(indexToAddress.get(i)) + " " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                             + missedRoots.get(i));
             }
         }
@@ -2004,7 +2004,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             int i = it.next();
             if (!newRoots.contains(i))
             {
-                debugPrint("DTFJ Roots has extra object id " + i + " " + format(indexToAddress.get(i)) + " " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                if (debugInfo) debugPrint("DTFJ Roots has extra object id " + i + " " + format(indexToAddress.get(i)) + " " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                                 + missedRoots.get(i));
             }
         }
@@ -2043,7 +2043,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     // Progress monitoring
                     int workDone = workObjectsStep * (workCount - workCountSoFar)
                                     / (workObjectsStep + nobj - objProgress2);
-                    debugPrint("workCount=" + workCountSoFar + "/" + workCount + " objects=" + objProgress2 + "/" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                    if (debugInfo) debugPrint("workCount=" + workCountSoFar + "/" + workCount + " objects=" + objProgress2 + "/" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
                                     + nobj + " " + workDone); //$NON-NLS-1$
                     listener.worked(workDone);
                     workCountSoFar += workDone;
@@ -2200,7 +2200,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                                 listener.sendUserMessage(Severity.INFO, MessageFormat.format(
                                                 Messages.DTFJIndexBuilder_ObjectIsFinalizable, clsInfo, format(addr)),
                                                 null);
-                            debugPrint("extra finalizable root " + i + " " + format(addr)); //$NON-NLS-1$ //$NON-NLS-2$
+                            if (debugInfo) debugPrint("extra finalizable root " + i + " " + format(addr)); //$NON-NLS-1$ //$NON-NLS-2$
                         }
                     }
                     else
@@ -2245,7 +2245,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                         ++extras;
                         addRoot(gcRoot, addr, addr, GCRootInfo.Type.UNKNOWN);
                         refd.set(i);
-                        debugPrint("extra root " + i + " " + format(addr)); //$NON-NLS-1$ //$NON-NLS-2$
+                        if (debugInfo) debugPrint("extra root " + i + " " + format(addr)); //$NON-NLS-1$ //$NON-NLS-2$
                     }
                 }
             }
@@ -2265,7 +2265,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                             ++extras;
                             addRoot(gcRoot, addr, addr, GCRootInfo.Type.UNKNOWN);
                             refd.set(i);
-                            debugPrint("extra root " + i + " " + format(addr)); //$NON-NLS-1$ //$NON-NLS-2$
+                            if (debugInfo) debugPrint("extra root " + i + " " + format(addr)); //$NON-NLS-1$ //$NON-NLS-2$
                         }
                     }
                 }
@@ -2304,14 +2304,14 @@ public class DTFJIndexBuilder implements IIndexBuilder
         {
             String msg = MessageFormat.format(Messages.DTFJIndexBuilder_UsingDTFJRoots, gcRoot.size());
             listener.sendUserMessage(Severity.INFO, msg, null);
-            debugPrint(msg);
+            if (debugInfo) debugPrint(msg);
         }
         else
         {
             String msg = MessageFormat.format(Messages.DTFJIndexBuilder_UsingConservativeGarbageCollectionRoots, gcRoot
                             .size());
             listener.sendUserMessage(Severity.WARNING, msg, null);
-            debugPrint(msg);
+            if (debugInfo) debugPrint(msg);
         }
 
         if (objectToClass.size() >= indexCountForTempFile)
@@ -2654,7 +2654,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     try
                     {
                         int threadState = th.getState();
-                        // debugPrint("Considering thread
+                        // if (debugInfo) debugPrint("Considering thread
                         // "+format(threadAddress)+"
                         // "+Integer.toBinaryString(threadState)+"
                         // "+th.getName());
@@ -2668,7 +2668,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     {
                         listener.sendUserMessage(Severity_INFO, MessageFormat.format(
                                         Messages.DTFJIndexBuilder_ThreadStateNotFound, format(threadAddress)), e);
-                        // debugPrint("Considering thread
+                        // if (debugInfo) debugPrint("Considering thread
                         // "+format(threadAddress)+" as state unavailable");
                     }
                     catch (IllegalArgumentException e)
@@ -2677,7 +2677,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                         // Thread.getName()
                         listener.sendUserMessage(Severity_INFO, MessageFormat.format(
                                         Messages.DTFJIndexBuilder_ThreadNameNotFound, format(threadAddress)), e);
-                        // debugPrint("Considering thread
+                        // if (debugInfo) debugPrint("Considering thread
                         // "+format(threadAddress)+" as state unavailable");
                     }
 
@@ -2781,7 +2781,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         if (haveDTFJRoots)
         {
             listener.subTask(Messages.DTFJIndexBuilder_FindingRootsFromDTFJ);
-            debugPrint("DTFJ roots"); //$NON-NLS-1$
+            if (debugInfo) debugPrint("DTFJ roots"); //$NON-NLS-1$
 
             HashMapIntObject<List<XGCRootInfo>> gcRoot2;
             gcRoot2 = new HashMapIntObject<List<XGCRootInfo>>();
@@ -2817,7 +2817,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             if (goodDTFJRoots)
             {
                 listener.subTask(Messages.DTFJIndexBuilder_GeneratingGlobalRoots);
-                debugPrint("Processing global roots"); //$NON-NLS-1$
+                if (debugInfo) debugPrint("Processing global roots"); //$NON-NLS-1$
                 for (; it.hasNext();)
                 {
                     Object next = it.next();
@@ -2827,7 +2827,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     processRoot(r, null, gcRoot2, threadRoots2, pointerSize, listener);
                 }
                 listener.subTask(Messages.DTFJIndexBuilder_GeneratingThreadRoots);
-                debugPrint("Processing thread roots"); //$NON-NLS-1$
+                if (debugInfo) debugPrint("Processing thread roots"); //$NON-NLS-1$
                 PrintWriter pw = null;
                 if (gcRoot2.size() > 0)
                 {
@@ -3170,7 +3170,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         // Always add object; the type can be guessed later and the object might
         // be something important like a thread or class loader
         indexToAddress0.add(objAddress);
-        // debugPrint("adding object at "+format(objAddress));
+        // if (debugInfo) debugPrint("adding object at "+format(objAddress));
 
         try
         {
@@ -3258,7 +3258,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         if (idToClass.get(objId) != null)
         {
             // Class objects are dealt with elsewhere
-            // debugPrint("Skipping class "+idToClass.get(objId).getName());
+            // if (debugInfo) debugPrint("Skipping class "+idToClass.get(objId).getName());
             return;
         }
 
@@ -3335,7 +3335,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             // elements
         }
 
-        // debugPrint("set objectID "+objId+" at address "+format(objAddr)+"
+        // if (debugInfo) debugPrint("set objectID "+objId+" at address "+format(objAddr)+"
         // classID "+clsId+" "+format(clsAddr));
         objectToClass.set(objId, clsId);
 
@@ -3347,7 +3347,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             {
                 if (cls == jlc)
                 {
-                    debugPrint("Found class as object at " + format(objAddr)); //$NON-NLS-1$
+                    if (debugInfo) debugPrint("Found class as object at " + format(objAddr)); //$NON-NLS-1$
                 }
                 long size;
                 if (jo != null)
@@ -3371,7 +3371,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                         // For calculating purge sizes
                         objectToSize2.set(objId, size);
                     }
-                    // debugPrint("array size "+size+" arrayLen "+arrayLen);
+                    // if (debugInfo) debugPrint("array size "+size+" arrayLen "+arrayLen);
                     int headerPointer = getPointerBytes(pointerSize);
                     if (headerPointer == 8)
                     {
@@ -3382,13 +3382,13 @@ public class DTFJIndexBuilder implements IIndexBuilder
                             // system references are stored as a 32-bit
                             // quantity.
                             boolean showSize = false;
-                            if (showSize) debugPrint("Array size with "+headerPointer+" pointers calculated "+bigSize+" actual "+size+" arrayLen "+arrayLen); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                            if (showSize && debugInfo) debugPrint("Array size with "+headerPointer+" pointers calculated "+bigSize+" actual "+size+" arrayLen "+arrayLen); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
                             headerPointer = 4;
                             compressedRefs = true;
                             if (showSize)
                             {
                                 bigSize = calculateArraySize(cls, arrayLen, headerPointer);
-                                debugPrint("Array size with "+headerPointer+" pointers calculated "+bigSize+" actual "+size+" arrayLen "+arrayLen); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                                if (debugInfo) debugPrint("Array size with "+headerPointer+" pointers calculated "+bigSize+" actual "+size+" arrayLen "+arrayLen); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
                             }
                         }
                     }
@@ -3471,7 +3471,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         }
         else
         {
-            debugPrint("Null type"); //$NON-NLS-1$
+            if (debugInfo) debugPrint("Null type"); //$NON-NLS-1$
         }
         try
         {
@@ -3836,7 +3836,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             long size = is.getSize();
             try
             {
-                debugPrint("Java stack section"); //$NON-NLS-1$
+                if (debugInfo) debugPrint("Java stack section"); //$NON-NLS-1$
                 if (size <= JAVA_STACK_SECTION_MAX_SIZE)
                 {
                     searchFrame(pointerSize, threadAddress, thr, ip, size, GCRootInfo.Type.JAVA_LOCAL, gcRoot, null,
@@ -3951,7 +3951,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 }
                 try
                 {
-                    debugPrint("native stack frame"); //$NON-NLS-1$
+                    if (debugInfo) debugPrint("native stack frame"); //$NON-NLS-1$
                     searchFrame(pointerSize, threadAddress, thr, ip, searchSize, GCRootInfo.Type.NATIVE_STACK, gcRoot,
                                     null, null);
                 }
@@ -3987,7 +3987,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             long size = is.getSize();
             try
             {
-                debugPrint("native stack section"); //$NON-NLS-1$
+                if (debugInfo) debugPrint("native stack section"); //$NON-NLS-1$
                 if (size <= NATIVE_STACK_SECTION_MAX_SIZE)
                 {
                     searchFrame(pointerSize, threadAddress, thr, ip, size, GCRootInfo.Type.NATIVE_STACK, gcRoot, null,
@@ -4054,7 +4054,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     HashMapIntObject<HashMapIntObject<List<XGCRootInfo>>> threadRoots2, int pointerSize,
                     IProgressListener listener)
     {
-        debugPrint("Process root " + r); //$NON-NLS-1$
+        if (debugInfo) debugPrint("Process root " + r); //$NON-NLS-1$
         int type = 0;
         boolean threadRoot = false;
         int rootType = JavaReference.HEAP_ROOT_UNKNOWN;
@@ -4094,11 +4094,11 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     type = GCRootInfo.Type.THREAD_OBJ;
                     break;
                 case JavaReference.HEAP_ROOT_OTHER:
-                    debugPrint("Root type HEAP_ROOT_OTHER"); //$NON-NLS-1$
+                    if (debugInfo) debugPrint("Root type HEAP_ROOT_OTHER"); //$NON-NLS-1$
                     type = GCRootInfo.Type.UNKNOWN;
                     break;
                 case JavaReference.HEAP_ROOT_UNKNOWN:
-                    debugPrint("Root type HEAP_ROOT_UNKNOWN"); //$NON-NLS-1$
+                    if (debugInfo) debugPrint("Root type HEAP_ROOT_UNKNOWN"); //$NON-NLS-1$
                     type = GCRootInfo.Type.UNKNOWN;
                     break;
                 case JavaReference.HEAP_ROOT_FINALIZABLE_OBJ:
@@ -4127,7 +4127,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     type = GCRootInfo.Type.UNKNOWN;
                     break;
                 default:
-                    debugPrint("Unknown root type " + rootType); //$NON-NLS-1$
+                    if (debugInfo) debugPrint("Unknown root type " + rootType); //$NON-NLS-1$
                     type = GCRootInfo.Type.UNKNOWN;
                     break;
             }
@@ -4190,12 +4190,12 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 {
                     listener.sendUserMessage(Severity.INFO, MessageFormat.format(
                                     Messages.DTFJIndexBuilder_UnableToFindTargetOfRoot, o, o.getClass()), null);
-                    debugPrint("Unexpected root type " + o.getClass()); //$NON-NLS-1$
+                    if (debugInfo) debugPrint("Unexpected root type " + o.getClass()); //$NON-NLS-1$
                 }
                 else
                 {
                     listener.sendUserMessage(Severity.INFO, Messages.DTFJIndexBuilder_NullTargetOfRoot, null);
-                    debugPrint("Unexpected null root target"); //$NON-NLS-1$
+                    if (debugInfo) debugPrint("Unexpected null root target"); //$NON-NLS-1$
                 }
                 return;
             }
@@ -4249,7 +4249,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 else if (so instanceof JavaRuntime)
                 {
                     // Not expected, but J9 DTFJ returns this
-                    debugPrint("Unexpected source " + so); //$NON-NLS-1$
+                    if (debugInfo) debugPrint("Unexpected source " + so); //$NON-NLS-1$
                 }
                 else if (so == null)
                 {
@@ -4257,7 +4257,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 }
                 else
                 {
-                    debugPrint("Unexpected source " + so); //$NON-NLS-1$
+                    if (debugInfo) debugPrint("Unexpected source " + so); //$NON-NLS-1$
                 }
             }
             catch (CorruptDataException e)
@@ -4467,7 +4467,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             {
                 // Skip method classes - they are also found via the declaring
                 // class
-                debugPrint("Adding ref to class " + ci.getObjectId() + " at address " //$NON-NLS-1$ //$NON-NLS-2$
+                if (debugInfo) debugPrint("Adding ref to class " + ci.getObjectId() + " at address " //$NON-NLS-1$ //$NON-NLS-2$
                                 + format(ci.getObjectAddress()) + " for loader " + load); //$NON-NLS-1$
                 classes.add(ci.getObjectAddress());
             }
@@ -4481,7 +4481,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
      */
     private void addLoaderClasses(int objId, ArrayLong aa)
     {
-        debugPrint("Found loader " + objId + " at address " + format(indexToAddress.get(objId)) + " size=" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        if (debugInfo) debugPrint("Found loader " + objId + " at address " + format(indexToAddress.get(objId)) + " size=" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                         + idToClass.size());
         // Add all the classes loaded by it as references
         ArrayLong classes = loaderClassCache.get(objId);
@@ -5436,7 +5436,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         }
         else
         {
-            debugPrint("Null thread, so no thread specific root"); //$NON-NLS-1$
+            if (debugInfo) debugPrint("Null thread, so no thread specific root"); //$NON-NLS-1$
         }
         addRoot(gcRoot, objAddress, objAddress, GCRootInfo.Type.BUSY_MONITOR);
     }
@@ -5651,9 +5651,9 @@ public class DTFJIndexBuilder implements IIndexBuilder
         {
             // Test getReferences versus old way of getting references
 
-            // debugPrint("Obj "+type+" "+aaset.size()+" "+objset.size());
+            // if (debugInfo) debugPrint("Obj "+type+" "+aaset.size()+" "+objset.size());
             // for (IteratorLong il = aa.iterator(); il.hasNext(); ) {
-            // debugPrint("A "+format(il.next()));
+            // if (debugInfo) debugPrint("A "+format(il.next()));
             // }
 
             // Test for missing references from getReferences()
@@ -5679,11 +5679,11 @@ public class DTFJIndexBuilder implements IIndexBuilder
             }
             if (false && missingRefs)
             {
-                debugPrint("All DTFJ references from " + desc + " " + name); //$NON-NLS-1$ //$NON-NLS-2$
+                if (debugInfo) debugPrint("All DTFJ references from " + desc + " " + name); //$NON-NLS-1$ //$NON-NLS-2$
                 for (Iterator<HashMapLongObject.Entry<String>> it = objset.entries(); it.hasNext(); )
                 {
                     HashMapLongObject.Entry<String> ee = it.next();
-                    debugPrint(format(ee.getKey()) + " " + ee.getValue()); //$NON-NLS-1$
+                    if (debugInfo) debugPrint(format(ee.getKey()) + " " + ee.getValue()); //$NON-NLS-1$
                 }
             }
 
@@ -5707,10 +5707,10 @@ public class DTFJIndexBuilder implements IIndexBuilder
 
         if (false && aa.size() > 200)
         {
-            debugPrint("aa1 " + aa.size()); //$NON-NLS-1$
+            if (debugInfo) debugPrint("aa1 " + aa.size()); //$NON-NLS-1$
             for (IteratorLong il = aa.iterator(); il.hasNext();)
             {
-                debugPrint("A " + format(il.next())); //$NON-NLS-1$
+                if (debugInfo) debugPrint("A " + format(il.next())); //$NON-NLS-1$
             }
         }
         if (useDTFJRefs)
@@ -5735,10 +5735,10 @@ public class DTFJIndexBuilder implements IIndexBuilder
         }
         if (false && aa.size() > 200)
         {
-            debugPrint("aa1 " + aa.size()); //$NON-NLS-1$
+            if (debugInfo) debugPrint("aa1 " + aa.size()); //$NON-NLS-1$
             for (IteratorLong il = aa.iterator(); il.hasNext();)
             {
-                debugPrint("A " + format(il.next())); //$NON-NLS-1$
+                if (debugInfo) debugPrint("A " + format(il.next())); //$NON-NLS-1$
             }
         }
     }
@@ -5927,7 +5927,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         {
             long ad = il.next();
             int id = indexToAddress.reverse(ad);
-            // debugPrint("object id "+objId+" ref to "+id+" 0x"+format(ad));
+            // if (debugInfo) debugPrint("object id "+objId+" ref to "+id+" 0x"+format(ad));
             if (id >= 0 && objId != id)
             {
                 refd.set(id);
@@ -6046,7 +6046,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     int rootType, HashMapIntObject<List<XGCRootInfo>> gc, Set<ImagePointer> searchedAddresses,
                     Set<ImagePointer> excludedAddresses) throws CorruptDataException, MemoryAccessException
     {
-        debugPrint("searching thread " + format(threadAddress) + " " + format(ip.getAddress()) + " " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        if (debugInfo) debugPrint("searching thread " + format(threadAddress) + " " + format(ip.getAddress()) + " " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                         + format(searchSize) + " " + rootType); //$NON-NLS-1$
         long frameAddress;
         HashMapIntObject<List<XGCRootInfo>> thr = thrs.get(indexToAddress.reverse(threadAddress));
@@ -6201,7 +6201,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             objectToSize2.set(ci.getObjectId(), size);
         }
         jlc.addInstance(size);
-        debugPrint("build class " + ci.getName() + " at " + ci.getObjectId() + " address " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        if (debugInfo) debugPrint("build class " + ci.getName() + " at " + ci.getObjectId() + " address " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                         + format(ci.getObjectAddress()) + " loader " + ci.getClassLoaderId() + " super " //$NON-NLS-1$ //$NON-NLS-2$
                         + ci.getSuperClassId() + " size " + ci.getUsedHeapSize()); //$NON-NLS-1$
     }
@@ -6247,7 +6247,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             long sizeSeg = checkSegmentSize(jc, jm, is, bigSegment,
                             Messages.DTFJIndexBuilder_UnexpectedBytecodeSectionSize, listener);
             size += sizeSeg;
-            // debugPrint("Adding bytecode code section at
+            // if (debugInfo) debugPrint("Adding bytecode code section at
             // "+format(is.getBaseAddress().getAddress())+" size "+size);
         }
         for (Iterator<?> j = jm.getCompiledSections(); j.hasNext();)
@@ -6396,7 +6396,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         }
         int clsId = ci.getClassId();
         clsName = ci.getName();
-        debugPrint("found class object " + objId + " type " + clsName + " at " + format(ci.getObjectAddress()) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        if (debugInfo) debugPrint("found class object " + objId + " type " + clsName + " at " + format(ci.getObjectAddress()) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                         + " clsId " + clsId); //$NON-NLS-1$
         ArrayLong ref = ci.getReferences();
         // Constant pool references have already been set up as pseudo
@@ -6440,7 +6440,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             for (IteratorLong il = ref.iterator(); il.hasNext();)
             {
                 long ad = il.next();
-                debugPrint("ref to " + m2.reverse(ad) + " " + format(ad) + " for " + objId); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                if (debugInfo) debugPrint("ref to " + m2.reverse(ad) + " " + format(ad) + " for " + objId); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             }
         }
         return ref;
@@ -6482,7 +6482,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     // JavaObject.arraycopy
                     try
                     {
-                        debugPrint("Array copy " + arrayOffset + " " + arrayLen + " " + arrayStep); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                        if (debugInfo) debugPrint("Array copy " + arrayOffset + " " + arrayLen + " " + arrayStep); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                         jo.arraycopy(arrayOffset, refs, 0, arrayStep);
                     }
                     catch (IllegalArgumentException e)
@@ -6771,7 +6771,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                                         // aa.iterator();
                                         // il.hasNext(); ) {
                                         // if (il.next() == fieldObjAddress)
-                                        // debugPrint("duplicate field value
+                                        // if (debugInfo) debugPrint("duplicate field value
                                         // "+format(fieldObjAddress)+" from
                                         // "+format(jo.getID().getAddress())+"
                                         // "+m2.reverse(jo.getID().getAddress())+"
@@ -6781,12 +6781,12 @@ public class DTFJIndexBuilder implements IIndexBuilder
                                         {
                                             if (hm.get(fieldRef) != null)
                                             {
-                                                debugPrint("Found class ref field " + fieldRef + " from " //$NON-NLS-1$ //$NON-NLS-2$
+                                                if (debugInfo) debugPrint("Found class ref field " + fieldRef + " from " //$NON-NLS-1$ //$NON-NLS-2$
                                                                 + m2.reverse(jo.getID().getAddress()));
                                             }
                                             else
                                             {
-                                                debugPrint("Found obj ref field " + fieldRef + " from " //$NON-NLS-1$ //$NON-NLS-2$
+                                                if (debugInfo) debugPrint("Found obj ref field " + fieldRef + " from " //$NON-NLS-1$ //$NON-NLS-2$
                                                                 + m2.reverse(jo.getID().getAddress()));
                                             }
                                         }
@@ -6840,17 +6840,17 @@ public class DTFJIndexBuilder implements IIndexBuilder
             gc.put(objectId, rootsForID);
         }
         rootsForID.add(rri);
-        // debugPrint("Root "+format(obj));
+        // if (debugInfo) debugPrint("Root "+format(obj));
         int clsId = objectToClass.get(objectId);
         ClassImpl cls = idToClass.get(clsId);
-        // debugPrint("objid "+objectId+" clsId "+clsId+" "+cls);
+        // if (debugInfo) debugPrint("objid "+objectId+" clsId "+clsId+" "+cls);
         String clsName = cls != null ? cls.getName() : ""; //$NON-NLS-1$
         String desc = "" + format(obj) + " " + objectId + " ctx " + format(ctx) + " " + rri.getContextId() + " type:" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
                         + clsName;
         // 32 busy monitor
         // 64 java local
         // 256 thread obj
-        debugPrint("Root " + type + " " + desc); //$NON-NLS-1$ //$NON-NLS-2$
+        if (debugInfo) debugPrint("Root " + type + " " + desc); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     /**
@@ -6992,7 +6992,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                                         format(claddr)), e);
                     }
                     Field f = new Field(fieldName, signatureToType(fieldSignature, val), val);
-                    debugPrint("Adding static field " + fieldName + " " + f.getType() + " " + val + " " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                    if (debugInfo) debugPrint("Adding static field " + fieldName + " " + f.getType() + " " + val + " " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
                                     + f.getValue());
                     al2.add(f);
                 }
@@ -7181,7 +7181,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         // Fix the indexes
         final long claddr2 = ci.getObjectAddress();
         final int clsId = indexToAddress.reverse(claddr2);
-        // debugPrint("Setting class "+format(claddr)+" "+clsId+"
+        // if (debugInfo) debugPrint("Setting class "+format(claddr)+" "+clsId+"
         // "+format(claddr2));
         if (clsId >= 0)
         {
@@ -7194,7 +7194,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         }
         if (sup != 0)
         {
-            // debugPrint("Super "+sup+" "+superId);
+            // if (debugInfo) debugPrint("Super "+sup+" "+superId);
             // superId is valid
             ci.setSuperClassIndex(superId);
         }
@@ -7211,7 +7211,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                             format(claddr), clsId, name), null);
         }
 
-        // debugPrint("Build "+ci.getName()+" at "+format(claddr2));
+        // if (debugInfo) debugPrint("Build "+ci.getName()+" at "+format(claddr2));
         hm.put(indexToAddress.reverse(claddr), ci);
         return ci;
     }
@@ -7423,11 +7423,11 @@ public class DTFJIndexBuilder implements IIndexBuilder
         }
         
         ClassImpl ci = new ClassImpl(claddr, name, sup, loader, statics, new FieldDescriptor[0]);
-        debugPrint("building method class " + name + " " + format(claddr)); //$NON-NLS-1$ //$NON-NLS-2$
+        if (debugInfo) debugPrint("building method class " + name + " " + format(claddr)); //$NON-NLS-1$ //$NON-NLS-2$
         // Fix the indexes
         final long claddr2 = ci.getObjectAddress();
         final int clsId = indexToAddress.reverse(claddr2);
-        // debugPrint("Setting class "+format(claddr)+" "+clsId+"
+        // if (debugInfo) debugPrint("Setting class "+format(claddr)+" "+clsId+"
         // "+format(claddr2));
         if (clsId >= 0)
         {
@@ -7441,7 +7441,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
 
         if (sup != 0)
         {
-            // debugPrint("Super "+sup+" "+superId);
+            // if (debugInfo) debugPrint("Super "+sup+" "+superId);
             // superId is valid
             ci.setSuperClassIndex(superId);
         }
@@ -7894,7 +7894,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
 
             if (sup == null)
             {
-                // debugPrint("No superclass for "+j2.getName());
+                // if (debugInfo) debugPrint("No superclass for "+j2.getName());
                 if (j2.isArray() && j2.getObject() != null && j2.getObject().getJavaClass().getSuperclass() != null)
                 {
                     // Fix DTFJ bug - find java.lang.Object to use as the
@@ -8054,7 +8054,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
     {
         // MAT expects the name with $, but with [][] for the dimensions
         String d = getClassName(j2, listener).replace('/', '.');
-        // debugPrint("d = "+d);
+        // if (debugInfo) debugPrint("d = "+d);
         // Count leading '['s :
         int dim = 0;
         int d_len = d.length();
@@ -8111,7 +8111,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             d = a.toString();
         } // if (dim > 0)
         
-        // debugPrint("d2 = "+d);
+        // if (debugInfo) debugPrint("d2 = "+d);
         return d;
     }
 
@@ -8569,7 +8569,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                                                                         + metaExt : metaExt;
                                                         String ext1 = metaExt.equals("") && !ext.equals("") ? "." + ext //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                                                         : ext;
-                                                        debugPrint("ext " + ext + " " + ext1 + " " + metaExt + " " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                                                        if (debugInfo) debugPrint("ext " + ext + " " + ext1 + " " + metaExt + " " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
                                                                         + metaExt1);
                                                         if (endsWithIgnoreCase(name, ext1))
                                                         {
@@ -8596,7 +8596,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                                                                         + metaExt : metaExt;
                                                         String ext1 = metaExt.equals("") && !ext.equals("") ? "." + ext //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                                                         : ext;
-                                                        debugPrint("meta " + ext + " " + ext1 + " " + metaExt + " " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                                                        if (debugInfo) debugPrint("meta " + ext + " " + ext1 + " " + metaExt + " " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
                                                                         + metaExt1);
                                                         if (endsWithIgnoreCase(name, metaExt1))
                                                         {
@@ -8760,14 +8760,14 @@ public class DTFJIndexBuilder implements IIndexBuilder
     {
         LinkedHashSet<String> exts = new LinkedHashSet<String>();
 
-        debugPrint("Match " + cext); //$NON-NLS-1$
+        if (debugInfo) debugPrint("Match " + cext); //$NON-NLS-1$
 
         // Add best guess extensions first
         if (ctdump != null)
         {
             if (ctdump.isKindOf(cext))
             {
-                debugPrint("Found default type " + ctdump); //$NON-NLS-1$
+                if (debugInfo) debugPrint("Found default type " + ctdump); //$NON-NLS-1$
                 exts.addAll(Arrays.asList(ctdump.getFileSpecs(IContentType.FILE_EXTENSION_SPEC)));
             }
         }
@@ -8779,7 +8779,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             {
                 if (ct.isKindOf(cext))
                 {
-                    debugPrint("Found possible type with file name " + ct); //$NON-NLS-1$
+                    if (debugInfo) debugPrint("Found possible type with file name " + ct); //$NON-NLS-1$
                     exts.addAll(Arrays.asList(ct.getFileSpecs(IContentType.FILE_EXTENSION_SPEC)));
                 }
             }
@@ -8789,14 +8789,14 @@ public class DTFJIndexBuilder implements IIndexBuilder
         {
             // No matching types including the file name
             // Try without file names
-            debugPrint("No types"); //$NON-NLS-1$
+            if (debugInfo) debugPrint("No types"); //$NON-NLS-1$
 
             boolean foundType = false;
             for (IContentType ct : cts2)
             {
                 if (ct.isKindOf(cext))
                 {
-                    debugPrint("Found possible type without file name " + ct); //$NON-NLS-1$
+                    if (debugInfo) debugPrint("Found possible type without file name " + ct); //$NON-NLS-1$
                     foundType = true;
                     exts.addAll(Arrays.asList(ct.getFileSpecs(IContentType.FILE_EXTENSION_SPEC)));
                 }
@@ -8828,7 +8828,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             found[0] = true;
         }
 
-        debugPrint("All exts " + exts); //$NON-NLS-1$
+        if (debugInfo) debugPrint("All exts " + exts); //$NON-NLS-1$
         return exts.toArray(new String[exts.size()]);
     }
 
@@ -8900,8 +8900,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
      */
     private static void debugPrint(String msg)
     {
-        if (debugInfo)
-            System.out.println(msg);
+        System.out.println(msg);
     }
 
 
