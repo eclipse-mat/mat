@@ -15,7 +15,8 @@ Source
 
 The Memory Analyzer code is stored in a git repository. The URLs to access it are:
 
-ssh://<username>@git.eclipse.org/gitroot/www.eclipse.org/mat.git
+ssh://<username>@git.eclipse.org:29418/mat/org.eclipse.mat
+https://<username>@git.eclipse.org/r/mat/org.eclipse.mat
 
 A web browsable repository is available at
 
