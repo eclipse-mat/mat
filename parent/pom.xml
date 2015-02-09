@@ -29,7 +29,7 @@
 				<!-- Repository for the signing/publishing plugins -->
 				<pluginRepository>
 					<id>maven.eclipse.org</id>
-					<url>http://maven.eclipse.org/nexus/content/groups/public/</url>
+					<url>https://repo.eclipse.org/content/repositories/cbi-releases/</url>
 				</pluginRepository>
 			</pluginRepositories>
 		</profile>
