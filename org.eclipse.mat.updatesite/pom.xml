@@ -44,6 +44,7 @@
 					<plugin>
 						<groupId>org.eclipse.cbi.maven.plugins</groupId>
 						<artifactId>eclipse-jarsigner-plugin</artifactId>
+                                                <version>1.0.5</version>
 						<executions>
 							<execution>
 								<id>pack</id>
