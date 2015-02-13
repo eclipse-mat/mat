@@ -22,6 +22,7 @@ import java.util.List;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.collect.HashMapIntObject;
+import org.eclipse.mat.collect.SetInt;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IThreadStack;
 
@@ -48,9 +49,10 @@ import org.eclipse.mat.snapshot.model.IThreadStack;
                 line = line.trim();
                 if (line.startsWith("Thread")) //$NON-NLS-1$
                 {
-                    long threadAddress = readThreadAddres(line);
+                    long threadAddress = readThreadAddress(line);
                     List<String> lines = new ArrayList<String>();
                     HashMapIntObject<ArrayInt> line2locals = new HashMapIntObject<ArrayInt>();
+                    SetInt blockedOn = new SetInt();
 
                     line = in.readLine();
                     while (line != null && !line.equals("")) //$NON-NLS-1$
@@ -76,6 +78,10 @@ import org.eclipse.mat.snapshot.model.IThreadStack;
                                     line2locals.put(lineNr, arr);
                                 }
                                 arr.add(objectId);
+                                if (isBlockedOn(line))
+                                {
+                                    blockedOn.add(objectId);
+                                }
                             }
                             line = in.readLine();
                         }
@@ -84,7 +90,7 @@ import org.eclipse.mat.snapshot.model.IThreadStack;
                     if (threadAddress != -1)
                     {
                         int threadId = snapshot.mapAddressToId(threadAddress);
-                        IThreadStack stack = new ThreadStackImpl(threadId, buildFrames(lines, line2locals));
+                        IThreadStack stack = new ThreadStackImpl(threadId, buildFrames(lines, line2locals, blockedOn));
                         threadId2stack.put(threadId, stack);
                     }
                 }
@@ -118,7 +124,7 @@ import org.eclipse.mat.snapshot.model.IThreadStack;
 
     }
 
-    private static long readThreadAddres(String line)
+    private static long readThreadAddress(String line)
     {
         int start = line.indexOf("0x"); //$NON-NLS-1$
         if (start < 0)
@@ -139,8 +145,13 @@ import org.eclipse.mat.snapshot.model.IThreadStack;
         int start = line.indexOf("line="); //$NON-NLS-1$
         return Integer.valueOf(line.substring(start + 5));
     }
+    
+    private static boolean isBlockedOn(String line)
+    {
+        return line.contains("blockedOn=true");
+    }
 
-    private static StackFrameImpl[] buildFrames(List<String> lines, HashMapIntObject<ArrayInt> line2locals)
+    private static StackFrameImpl[] buildFrames(List<String> lines, HashMapIntObject<ArrayInt> line2locals, SetInt blockedOn)
     {
         int sz = lines.size();
 
@@ -153,7 +164,7 @@ import org.eclipse.mat.snapshot.model.IThreadStack;
             {
                 localsIds = locals.toArray();
             }
-            frames[i] = new StackFrameImpl(lines.get(i), localsIds);
+            frames[i] = new StackFrameImpl(lines.get(i), localsIds, blockedOn.toArray());
         }
 
         return frames;

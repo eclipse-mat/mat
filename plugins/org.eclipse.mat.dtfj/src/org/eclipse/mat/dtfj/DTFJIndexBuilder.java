@@ -2586,11 +2586,17 @@ public class DTFJIndexBuilder implements IIndexBuilder
      * @param target the address of the object
      * @param frameNum the Java stack frame, starting from 0 at top of stack
      */
-    private void printLocal(PrintWriter pw, long target, int frameNum)
+    private void printLocal(PrintWriter pw, long target, int frameNum, Long blockedOn)
     {
         if (indexToAddress.reverse(target) >= 0)
-            pw.println("  objectId=0x" + Long.toHexString(target) + ", line=" //$NON-NLS-1$ //$NON-NLS-2$
-                            + frameNum);
+        {
+            pw.print("  objectId=0x" + Long.toHexString(target)); //$NON-NLS-1$
+            if (frameNum == 0 && blockedOn != null && blockedOn.longValue() == target)
+            {
+                pw.print(", blockedOn=true");
+            }
+            pw.println(", line=" + frameNum); //$NON-NLS-1$
+        }
     }
     
     private int processConservativeRoots(int pointerSize, long fixedBootLoaderAddress, boolean scanUp,
@@ -2845,6 +2851,9 @@ public class DTFJIndexBuilder implements IIndexBuilder
                         // For thread stack information
                         printThreadStack(pw, th);
                     }
+                    
+                    Long blockedOn = getBlockedOn(th);
+                    
                     // The base pointer appears to be the last address of the frame, not the
                     // first
                     long prevAddr = 0;
@@ -2854,6 +2863,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     Object nextFrame = null;
                     for (Iterator<?> ii = th.getStackFrames(); nextFrame != null || ii.hasNext(); ++frameNum)
                     {
+                        boolean hasPrintedBlockedOn = false;
                         // Use the lookahead frame if available
                         Object next2;
                         if (nextFrame != null)
@@ -2891,17 +2901,22 @@ public class DTFJIndexBuilder implements IIndexBuilder
                                 try
                                 {
                                     Object o = r.getTarget();
+                                    Long target = null;
                                     if (o instanceof JavaObject)
                                     {
                                         JavaObject jo = (JavaObject) o;
-                                        long target = jo.getID().getAddress();
-                                        printLocal(pw, target, frameNum);
+                                        target = jo.getID().getAddress();
+                                        printLocal(pw, target, frameNum, blockedOn);
                                     }
                                     else if (o instanceof JavaClass)
                                     {
                                         JavaClass jc = (JavaClass) o;
-                                        long target = getClassAddress(jc, listener);
-                                        printLocal(pw, target, frameNum);
+                                        target = getClassAddress(jc, listener);
+                                        printLocal(pw, target, frameNum, blockedOn);
+                                    }
+                                    if (frameNum == 0 && blockedOn != null && target != null && target.longValue() == blockedOn.longValue())
+                                    {
+                                        hasPrintedBlockedOn = true;
                                     }
                                 }
                                 catch (CorruptDataException e)
@@ -2909,6 +2924,10 @@ public class DTFJIndexBuilder implements IIndexBuilder
                                 catch (DataUnavailable e)
                                 {}
                             }
+                        }
+                        if (frameNum == 0 && blockedOn != null && !hasPrintedBlockedOn)
+                        {
+                            printLocal(pw, blockedOn.longValue(), frameNum, blockedOn);
                         }
                         if (getExtraInfo)
                         {
@@ -3566,6 +3585,25 @@ public class DTFJIndexBuilder implements IIndexBuilder
         }
         return null;
     }
+    
+    private Long getBlockedOn(JavaThread th)
+    {
+        try
+        {
+            JavaObject blockingObject = th.getBlockingObject();
+            if (blockingObject != null)
+            {
+                return blockingObject.getID().getAddress();
+            }
+        }
+        catch (CorruptDataException e)
+        {
+        }
+        catch (DataUnavailable e)
+        {
+        }
+        return null;
+    }
 
     private void scanJavaThread(JavaThread th, long threadAddress, int pointerSize,
                     HashMapIntObject<HashMapIntObject<List<XGCRootInfo>>> thr, IProgressListener listener,
@@ -3575,6 +3613,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         {
             printThreadStack(pw, th);
         }
+        Long blockedOn = getBlockedOn(th);
         int frameId = 0;
         Set<ImagePointer> searched = new HashSet<ImagePointer>();
         // Find the first address
@@ -3755,7 +3794,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 }
             }
             // Add all the searched locations in this frame to the master list
-            searched.addAll(searchedInFrame);            
+            searched.addAll(searchedInFrame);
+            boolean hasPrintedBlockedOn = false;
             if (pw != null)
             {
             	// Indicate the local variables associated with this frame
@@ -3765,13 +3805,22 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     {
                         // Construct new pointer based on frame address
                         long target = getPointerAddressAt(addr, 0, pointerSize);
-                        printLocal(pw, target, frameId);
-                     }
+                        printLocal(pw, target, frameId, blockedOn);
+                        if (frameId == 0 && blockedOn != null && target == blockedOn.longValue())
+                        {
+                            hasPrintedBlockedOn = true;
+                        }
+                    }
                     catch (MemoryAccessException e)
                     {}
                     catch (CorruptDataException e)
                     {}
                 }
+            }
+
+            if (frameId == 0 && blockedOn != null && !hasPrintedBlockedOn)
+            {
+                printLocal(pw, blockedOn.longValue(), frameId, blockedOn);
             }
 
             if (getExtraInfo)

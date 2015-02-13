@@ -22,6 +22,7 @@ import java.util.List;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.collect.HashMapIntObject;
+import org.eclipse.mat.collect.IteratorInt;
 import org.eclipse.mat.collect.SetInt;
 import org.eclipse.mat.inspections.InspectionAssert;
 import org.eclipse.mat.internal.Messages;
@@ -42,6 +43,7 @@ import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IStackFrame;
+import org.eclipse.mat.snapshot.model.IStackFrame2;
 import org.eclipse.mat.snapshot.model.IThreadStack;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.snapshot.query.Icons;
@@ -149,14 +151,24 @@ public class ThreadOverviewQuery implements IQuery
             if (frames != null)
             {
                 SetInt roots = new SetInt();
-                for (IStackFrame IStackFrame : frames)
+                result.blockedOn = new SetInt();
+                for (IStackFrame frame : frames)
                 {
-                    int[] objects = IStackFrame.getLocalObjectsIds();
+                    int[] objects = frame.getLocalObjectsIds();
                     if (objects != null)
                     {
                         for (int i : objects)
                         {
                             roots.add(i);
+                        }
+                    }
+                    
+                    if (frame instanceof IStackFrame2)
+                    {
+                        IStackFrame2 frame2 = (IStackFrame2) frame;
+                        for (int blockedOn : frame2.getBlockedOnIds())
+                        {
+                            result.blockedOn.add(blockedOn);
                         }
                     }
                 }
@@ -171,6 +183,7 @@ public class ThreadOverviewQuery implements IQuery
         private ThreadInfoImpl threadInfo;
         private IThreadStack stack;
         private int[] stackRoots;
+        private SetInt blockedOn;
     }
 
     private static class ThreadInfoList implements IResultTree, IIconProvider, IDecorator
@@ -181,6 +194,7 @@ public class ThreadOverviewQuery implements IQuery
         HashMapIntObject<Object> root2element;
         ObjectListResult.Outbound objectList;
         int colMap[];
+        SetInt allBlockedOn = new SetInt();
 
         public ThreadInfoList(ISnapshot snapshot, List<ThreadOverviewNode> infos)
         {
@@ -194,6 +208,14 @@ public class ThreadOverviewQuery implements IQuery
                 threadInfos.add(node.threadInfo);
                 if (node.stackRoots != null) {
                     roots.addAll(node.stackRoots);
+                }
+                if (node.blockedOn != null)
+                {
+                    IteratorInt it = node.blockedOn.iterator();
+                    while (it.hasNext())
+                    {
+                        allBlockedOn.add(it.next());
+                    }
                 }
             }
             
@@ -340,7 +362,19 @@ public class ThreadOverviewQuery implements IQuery
             else
             {
                 String prefix = objectList.prefix(row);
-                return prefix == null ? Messages.ThreadStackQuery_Label_Local : prefix;
+                if (prefix == null)
+                {
+                    int objectId = objectList.getContext(row).getObjectId();
+                    if (allBlockedOn.contains(objectId))
+                    {
+                        return Messages.ThreadStackQuery_Label_Local_Blocked_On;
+                    }
+                    return Messages.ThreadStackQuery_Label_Local;
+                }
+                else
+                {
+                    return prefix;
+                }
             }
         }
 

@@ -10,24 +10,27 @@
  *******************************************************************************/
 package org.eclipse.mat.parser.internal;
 
-import org.eclipse.mat.snapshot.model.IStackFrame;
+import org.eclipse.mat.snapshot.model.IStackFrame2;
 
 /**
  * 
  * @noextend This class is not intended to be subclassed by clients. May still
- *           be subject of change
+ *           be subject to change
  * 
  */
-class StackFrameImpl implements IStackFrame
+class StackFrameImpl implements IStackFrame2
 {
 	private String text;
 
 	private int[] localObjectIds;
+	
+	private int[] blockedOnIds;
 
-	public StackFrameImpl(String text, int[] localObjectIds)
+	public StackFrameImpl(String text, int[] localObjectIds, int[] blockedOnIds)
 	{
 		this.text = text;
 		this.localObjectIds = localObjectIds;
+		this.blockedOnIds = blockedOnIds;
 	}
 
 	public int[] getLocalObjectsIds()
@@ -39,5 +42,10 @@ class StackFrameImpl implements IStackFrame
 	{
 		return text;
 	}
+
+    public int[] getBlockedOnIds()
+    {
+        return blockedOnIds == null ? new int[0] : blockedOnIds;
+    }
 
 }
