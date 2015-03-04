@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2014 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2015 SAP AG, IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,19 +8,22 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *    IBM Corporation - enhancements and fixes
+ *    James Livingston - expose collection utils as API
  *******************************************************************************/
 package org.eclipse.mat.inspections.collections;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.mat.SnapshotException;
-import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.inspections.InspectionAssert;
+import org.eclipse.mat.inspections.collectionextract.CollectionExtractionUtils;
+import org.eclipse.mat.inspections.collectionextract.ExtractedMap;
+import org.eclipse.mat.inspections.collectionextract.IMapExtractor;
 import org.eclipse.mat.internal.Messages;
+import org.eclipse.mat.internal.collectionextract.HashMapCollectionExtractor;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.ContextProvider;
 import org.eclipse.mat.query.IContextObject;
@@ -31,15 +34,9 @@ import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.snapshot.ISnapshot;
-import org.eclipse.mat.snapshot.model.Field;
-import org.eclipse.mat.snapshot.model.IClass;
-import org.eclipse.mat.snapshot.model.IInstance;
 import org.eclipse.mat.snapshot.model.IObject;
-import org.eclipse.mat.snapshot.model.IObjectArray;
-import org.eclipse.mat.snapshot.model.ObjectReference;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.util.IProgressListener;
-import org.eclipse.mat.util.MessageUtil;
 
 @CommandName("hash_entries")
 @HelpUrl("/org.eclipse.mat.ui.help/tasks/analyzingjavacollectionusage.html")
@@ -100,26 +97,29 @@ public class HashEntriesQuery implements IQuery
         {
             return new ResultMetaData.Builder() //
 
-            .addContext(new ContextProvider(Messages.HashEntriesQuery_Column_Key) {
-                public IContextObject getContext(Object row)
-                {
-                    return getKey(row);
-                }
-            }) //
+                            .addContext(new ContextProvider(Messages.HashEntriesQuery_Column_Key)
+                            {
+                                public IContextObject getContext(Object row)
+                                {
+                                    return getKey(row);
+                                }
+                            }) //
 
-            .addContext(new ContextProvider(Messages.HashEntriesQuery_Column_Value) {
-                public IContextObject getContext(Object row)
-                {
-                    return getValue(row);
-                }
-            }) //
+                            .addContext(new ContextProvider(Messages.HashEntriesQuery_Column_Value)
+                            {
+                                public IContextObject getContext(Object row)
+                                {
+                                    return getValue(row);
+                                }
+                            }) //
 
-            .build();
+                            .build();
         }
 
         public Column[] getColumns()
         {
-            return new Column[] { new Column(Messages.HashEntriesQuery_Column_Collection).sorting(Column.SortDirection.ASC), //
+            return new Column[] {
+                            new Column(Messages.HashEntriesQuery_Column_Collection).sorting(Column.SortDirection.ASC), //
                             new Column(Messages.HashEntriesQuery_Column_Key), //
                             new Column(Messages.HashEntriesQuery_Column_Value) };
         }
@@ -133,10 +133,12 @@ public class HashEntriesQuery implements IQuery
                 case 0:
                     return entry.collectionName;
                 case 1:
-                    if (entry.keyValue == null) entry.keyValue = resolve(entry.keyId);
+                    if (entry.keyValue == null)
+                        entry.keyValue = resolve(entry.keyId);
                     return entry.keyValue;
                 case 2:
-                    if (entry.valueValue == null) entry.valueValue = resolve(entry.valueId);
+                    if (entry.valueValue == null)
+                        entry.valueValue = resolve(entry.valueId);
                     return entry.valueValue;
             }
 
@@ -147,12 +149,14 @@ public class HashEntriesQuery implements IQuery
         {
             try
             {
-                if (objectId < 0) return NULL;
+                if (objectId < 0)
+                    return NULL;
 
                 IObject object = snapshot.getObject(objectId);
                 String name = object.getClassSpecificName();
 
-                if (name == null) name = object.getTechnicalName();
+                if (name == null)
+                    name = object.getTechnicalName();
 
                 return name;
             }
@@ -174,7 +178,8 @@ public class HashEntriesQuery implements IQuery
 
         public IContextObject getContext(final Object row)
         {
-            return new IContextObject() {
+            return new IContextObject()
+            {
                 public int getObjectId()
                 {
                     return ((Entry) row).collectionId;
@@ -187,7 +192,8 @@ public class HashEntriesQuery implements IQuery
             final int keyId = ((Entry) row).keyId;
             if (keyId >= 0)
             {
-                return new IContextObject() {
+                return new IContextObject()
+                {
                     public int getObjectId()
                     {
                         return keyId;
@@ -205,7 +211,8 @@ public class HashEntriesQuery implements IQuery
             final int valueId = ((Entry) row).valueId;
             if (valueId >= 0)
             {
-                return new IContextObject() {
+                return new IContextObject()
+                {
                     public int getObjectId()
                     {
                         return valueId;
@@ -228,9 +235,11 @@ public class HashEntriesQuery implements IQuery
 
             Entry entry = key2entry.get(key);
 
-            if (entry == null) return null;
+            if (entry == null)
+                return null;
 
-            if (entry.valueValue == null) entry.valueValue = resolve(entry.valueId);
+            if (entry.valueValue == null)
+                entry.valueValue = resolve(entry.valueId);
 
             return entry.valueValue == NULL ? null : entry.valueValue;
         }
@@ -241,23 +250,27 @@ public class HashEntriesQuery implements IQuery
 
             Entry entry = key2entry.get(key);
 
-            if (entry == null) return -1;
+            if (entry == null)
+                return -1;
 
             return entry.keyId;
         }
 
         private synchronized void prepare(IProgressListener listener)
         {
-            if (key2entry != null) return;
+            if (key2entry != null)
+                return;
 
             key2entry = new HashMap<String, Entry>();
 
             for (Entry entry : entries)
             {
-                if (entry.keyValue == null) entry.keyValue = resolve(entry.keyId);
+                if (entry.keyValue == null)
+                    entry.keyValue = resolve(entry.keyId);
                 key2entry.put(entry.keyValue, entry);
 
-                if (listener.isCanceled()) break;
+                if (listener.isCanceled())
+                    break;
             }
         }
     }
@@ -267,31 +280,14 @@ public class HashEntriesQuery implements IQuery
         InspectionAssert.heapFormatIsNot(snapshot, "DTFJ-PHD"); //$NON-NLS-1$
         listener.subTask(Messages.HashEntriesQuery_Msg_Extracting);
 
-        // prepare meta-data of known collections
-        HashMapIntObject<CollectionUtil.Info> hashes = CollectionUtil.getKnownMaps(snapshot);
-
+        IMapExtractor specificExtractor;
         if (collection != null)
         {
-            if (array_attribute == null || key_attribute == null || value_attribute == null)
-            {
-                String msg = Messages.HashEntriesQuery_ErrorMsg_MissingArguments;
-                throw new SnapshotException(msg);
-            }
-
-            CollectionUtil.Info info = new CollectionUtil.Info(collection, null, array_attribute, key_attribute, value_attribute)
-            .setCollectionExtractor(CollectionUtil.HASH_MAP_EXTRACTOR);
-            Collection<IClass> classes = snapshot.getClassesByName(collection, true);
-
-            if (classes == null || classes.isEmpty())
-            {
-                listener.sendUserMessage(IProgressListener.Severity.WARNING, MessageUtil.format(Messages.HashEntriesQuery_ErrorMsg_ClassNotFound, collection),
-                                null);
-            }
-            else
-            {
-                for (IClass clasz : classes)
-                    hashes.put(clasz.getObjectId(), info);
-            }
+            specificExtractor = new HashMapCollectionExtractor(null, array_attribute, key_attribute, value_attribute);
+        }
+        else
+        {
+            specificExtractor = null;
         }
 
         List<Entry> hashEntries = new ArrayList<Entry>();
@@ -300,114 +296,35 @@ public class HashEntriesQuery implements IQuery
         {
             for (int id : ids)
             {
-                IClass clazz = snapshot.getClassOf(id);
-                CollectionUtil.Info info = hashes.get(clazz.getObjectId());
-                if (info == null) continue;
+                IObject obj = snapshot.getObject(id);
+                ExtractedMap map = CollectionExtractionUtils.extractMap(obj, collection, specificExtractor);
 
-                ICollectionExtractor extractor = info.getCollectionExtractor();
-                if (extractor != null)
+                if (map != null)
                 {
-                    int[] entryIds = extractor.extractEntries(id, info, snapshot, listener);
-                    if (info.getEntryKeyField() == null && info.getEntryValueField() == null)
+                    for (Map.Entry<IObject, IObject> me : map)
                     {
-                        // IdentityHashMap
-                        for (int j = 0; j < entryIds.length; j += 2)
+                        Entry e;
+                        if (me instanceof IObject)
                         {
-                            int key = entryIds[j];
-                            int value = entryIds[j + 1];
-                            Entry e = new Entry(id, snapshot.getObject(id).getDisplayName(), key, value);
-                            hashEntries.add(e);
+                            IObject meObject = (IObject) me;
+                            int keyId = (me.getKey() != null) ? me.getKey().getObjectId() : 0;
+                            int valueId = (me.getValue() != null) ? me.getValue().getObjectId() : 0;
+                            e = new Entry(meObject.getObjectId(), meObject.getDisplayName(), keyId, valueId);
                         }
-                    }
-                    else if (info.getEntryKeyField().endsWith("[]")) //$NON-NLS-1$
-                    {
-                        for (int entryId : entryIds)
+                        else
                         {
-                            collectArrayEntry(hashEntries, info, id, snapshot.getObject(id).getDisplayName(), entryId, listener);
+                            e = new Entry(0, null, me.getKey().getObjectId(), me.getValue().getObjectId());
                         }
-                    }
-                    else
-                    {
-                        for (int entryId : entryIds)
-                        {
-                            collectEntry(hashEntries, info, id, snapshot.getObject(id).getDisplayName(), entryId, listener);
-                        }
+                        hashEntries.add(e);
                     }
                 }
 
-                if (listener.isCanceled()) throw new IProgressListener.OperationCanceledException();
+                if (listener.isCanceled())
+                    throw new IProgressListener.OperationCanceledException();
             }
         }
 
         listener.done();
-
         return new Result(snapshot, hashEntries);
-    }
-
-    private void collectEntry(List<Entry> hashEntries, CollectionUtil.Info info, int collectionId, String collectionName, int entryId,
-                    IProgressListener listener) throws SnapshotException
-                    {
-        IInstance entry = (IInstance) snapshot.getObject(entryId);
-        int keyId, valueId;
-        keyId = valueId = -1;
-
-        for (Field field : entry.getFields())
-        {
-            if (field.getValue() == null) continue;
-
-            if (field.getType() != IObject.Type.OBJECT) continue;
-
-            if (info.getEntryKeyField().equals(field.getName())) keyId = ((ObjectReference) field.getValue()).getObjectId();
-
-            if (info.getEntryValueField().equals(field.getName())) valueId = ((ObjectReference) field.getValue()).getObjectId();
-        }
-        hashEntries.add(new Entry(collectionId, collectionName, keyId, valueId));
-
-    }
-
-    private void collectArrayEntry(List<Entry> hashEntries, CollectionUtil.Info info, int collectionId, String collectionName, int entryId,
-                    IProgressListener listener) throws SnapshotException
-                    {
-        IInstance entry = (IInstance) snapshot.getObject(entryId);
-        int keyId, valueId;
-        keyId = valueId = -1;
-        String keyName = info.getEntryKeyField().replaceFirst("\\[\\]$", "");  //$NON-NLS-1$//$NON-NLS-2$
-        String valueName = info.getEntryValueField().replaceFirst("\\[\\]$", ""); //$NON-NLS-1$//$NON-NLS-2$
-
-        for (Field field : entry.getFields())
-        {
-            if (field.getValue() == null) continue;
-
-            if (field.getType() != IObject.Type.OBJECT) continue;
-
-            if (keyName.equals(field.getName())) keyId = ((ObjectReference) field.getValue()).getObjectId();
-
-            if (valueName.equals(field.getName())) valueId = ((ObjectReference) field.getValue()).getObjectId();
-        }
-        if (keyId != -1 && valueId != -1)
-        {
-            IObjectArray keyarr = (IObjectArray) snapshot.getObject(keyId);
-            IObjectArray valarr = (IObjectArray) snapshot.getObject(valueId);
-            int n = Math.min(keyarr.getLength(), valarr.getLength());
-            int s = 10;
-            for (int i = 0; i < n; i += s)
-            {
-                s = Math.min(s, n - i);
-                long a[] = keyarr.getReferenceArray(i, s);
-                long b[] = valarr.getReferenceArray(i, s);
-                for (int j = 0; j < s; ++j)
-                {
-                    if (a[j] != 0)
-                    {
-                        keyId = snapshot.mapAddressToId(a[j]);
-                        if (b[j] == 0)
-                            valueId = -1;
-                        else
-                            valueId = snapshot.mapAddressToId(b[j]);
-                        hashEntries.add(new Entry(collectionId, collectionName, keyId, valueId));
-                    }
-                }
-            }
-        }
     }
 }
