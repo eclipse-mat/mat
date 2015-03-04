@@ -9,6 +9,7 @@ Export-Package: org.eclipse.mat.inspections.osgi;x-friends:="org.eclipse.mat.ui"
  org.eclipse.mat.internal.acquire;x-friends:="org.eclipse.mat.ui",
  org.eclipse.mat.internal.snapshot;x-friends:="org.eclipse.mat.ui",
  org.eclipse.mat.internal.snapshot.inspections;x-friends:="org.eclipse.mat.ui",
+ org.eclipse.mat.inspections.collectionextract,
  org.eclipse.mat.snapshot,
  org.eclipse.mat.snapshot.acquire,
  org.eclipse.mat.snapshot.extension,

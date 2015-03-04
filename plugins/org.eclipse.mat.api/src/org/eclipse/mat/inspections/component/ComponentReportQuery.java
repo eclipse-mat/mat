@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2015 SAP AG, IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *    IBM Corporation - enhancements and fixes
+ *    James Livingston - expose collection utils as API
  *******************************************************************************/
 package org.eclipse.mat.inspections.component;
 
@@ -21,11 +22,12 @@ import java.util.Set;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
-import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.collect.SetInt;
 import org.eclipse.mat.inspections.InspectionAssert;
 import org.eclipse.mat.inspections.ReferenceQuery;
-import org.eclipse.mat.inspections.collections.CollectionUtil;
+import org.eclipse.mat.inspections.collectionextract.CollectionExtractionUtils;
+import org.eclipse.mat.inspections.collectionextract.ICollectionExtractor;
+import org.eclipse.mat.inspections.collectionextract.IMapExtractor;
 import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.internal.snapshot.inspections.MultiplePath2GCRootsQuery;
 import org.eclipse.mat.query.IQuery;
@@ -413,25 +415,12 @@ public class ComponentReportQuery implements IQuery
         SectionSpec collectionbySizeSpec = new SectionSpec(Messages.ComponentReportQuery_Details);
         collectionbySizeSpec.set(Params.Html.COLLAPSED, Boolean.TRUE.toString());
 
-        // prepare meta-data of known collections
-        HashMapIntObject<CollectionUtil.Info> metadata = new HashMapIntObject<CollectionUtil.Info>();
-        for (CollectionUtil.Info info : CollectionUtil.getKnownCollections(snapshot))
-        {
-            if (!info.hasSize())
-                continue;
-
-            Collection<IClass> classes = snapshot.getClassesByName(info.getClassName(), true);
-            if (classes != null)
-                for (IClass clasz : classes)
-                    metadata.put(clasz.getObjectId(), info);
-        }
-
         for (ClassHistogramRecord record : histogram.getClassHistogramRecords())
         {
-            if (metadata.containsKey(record.getClassId()))
+            IClass clazz = (IClass) snapshot.getObject(record.getClassId());
+            ICollectionExtractor extractor = CollectionExtractionUtils.findCollectionExtractor(clazz.getName());
+            if (extractor != null && extractor.hasSize())
             {
-                IClass clazz = (IClass) snapshot.getObject(record.getClassId());
-
                 // run the query: collections by size
                 RefinedResultBuilder builder = SnapshotQuery.lookup("collections_grouped_by_size", snapshot) //$NON-NLS-1$
                                 .setArgument("objects", record.getObjectIds()) //$NON-NLS-1$
@@ -511,25 +500,12 @@ public class ComponentReportQuery implements IQuery
         SectionSpec detailsSpec = new SectionSpec(Messages.ComponentReportQuery_Details);
         detailsSpec.set(Params.Html.COLLAPSED, Boolean.TRUE.toString());
 
-        // prepare meta-data of known collections
-        HashMapIntObject<CollectionUtil.Info> metadata = new HashMapIntObject<CollectionUtil.Info>();
-        for (CollectionUtil.Info info : CollectionUtil.getKnownCollections(snapshot))
-        {
-            if (!info.hasSize() || !info.hasBackingArray())
-                continue;
-
-            Collection<IClass> classes = snapshot.getClassesByName(info.getClassName(), true);
-            if (classes != null)
-                for (IClass clasz : classes)
-                    metadata.put(clasz.getObjectId(), info);
-        }
-
         for (ClassHistogramRecord record : histogram.getClassHistogramRecords())
         {
-            if (metadata.containsKey(record.getClassId()))
+            IClass clazz = (IClass) snapshot.getObject(record.getClassId());
+            ICollectionExtractor extractor = CollectionExtractionUtils.findCollectionExtractor(clazz.getName());
+            if (extractor != null && extractor.hasSize() && extractor.hasExtractableContents())
             {
-                IClass clazz = (IClass) snapshot.getObject(record.getClassId());
-
                 // run the query: collections by size
                 RefinedResultBuilder builder = SnapshotQuery.lookup("collection_fill_ratio", snapshot) //$NON-NLS-1$
                                 .setArgument("objects", record.getObjectIds()) //$NON-NLS-1$
@@ -595,8 +571,8 @@ public class ComponentReportQuery implements IQuery
     // hash map collision ratios
     // //////////////////////////////////////////////////////////////
 
-    private void addHashMapsCollisionRatios(SectionSpec componentReport, long totalSize, Histogram histogram, Ticks listener)
-                    throws Exception
+    private void addHashMapsCollisionRatios(SectionSpec componentReport, long totalSize, Histogram histogram,
+                    Ticks listener) throws Exception
     {
         // Works, but very slow for some dump types, so disable for them.
         if (!aggressive)
@@ -607,15 +583,12 @@ public class ComponentReportQuery implements IQuery
         SectionSpec detailsSpec = new SectionSpec(Messages.ComponentReportQuery_Details);
         detailsSpec.set(Params.Html.COLLAPSED, Boolean.TRUE.toString());
 
-        // prepare meta-data of known collections
-        HashMapIntObject<CollectionUtil.Info> metadata = CollectionUtil.getKnownMaps(snapshot);
-
         for (ClassHistogramRecord record : histogram.getClassHistogramRecords())
         {
-            if (metadata.containsKey(record.getClassId()))
+            IClass clazz = (IClass) snapshot.getObject(record.getClassId());
+            ICollectionExtractor extractor = CollectionExtractionUtils.findCollectionExtractor(clazz.getName());
+            if (extractor != null && extractor instanceof IMapExtractor)
             {
-                IClass clazz = (IClass) snapshot.getObject(record.getClassId());
-
                 // run the query: collections by size
                 int[] objectIds = record.getObjectIds();
                 if (objectIds.length > 20000)
@@ -729,14 +702,13 @@ public class ComponentReportQuery implements IQuery
         }
     }
 
-    private void addReferenceStatistic(SectionSpec componentReport, Histogram histogram, Ticks ticks, String className, ReferenceMessages messages)
-                    throws SnapshotException
+    private void addReferenceStatistic(SectionSpec componentReport, Histogram histogram, Ticks ticks, String className,
+                    ReferenceMessages messages) throws SnapshotException
     {
         Collection<IClass> classes = snapshot.getClassesByName(className, true);
         if (classes == null || classes.isEmpty())
         {
-            addEmptyResult(componentReport, messages.ReferenceStatistics,
-                            messages.Msg_NoReferencesFound);
+            addEmptyResult(componentReport, messages.ReferenceStatistics, messages.Msg_NoReferencesFound);
             return;
         }
 
@@ -772,22 +744,20 @@ public class ComponentReportQuery implements IQuery
 
         if (instanceSet.isEmpty())
         {
-            addEmptyResult(componentReport, messages.ReferenceStatistics,
-                            messages.NoAliveReferences);
+            addEmptyResult(componentReport, messages.ReferenceStatistics, messages.NoAliveReferences);
             return;
         }
 
-        Histogram softRefHistogram = new Histogram(messages.HistogramOfReferences, softRefs,
-                        null, numObjects, heapSize, 0);
+        Histogram softRefHistogram = new Histogram(messages.HistogramOfReferences, softRefs, null, numObjects,
+                        heapSize, 0);
 
         CompositeResult referents = ReferenceQuery.execute(instanceSet, referentSet, snapshot,
-                        messages.ReferenceStatQuery_Label_Referenced,
-                        messages.ReferenceStatQuery_Label_Retained,
+                        messages.ReferenceStatQuery_Label_Referenced, messages.ReferenceStatQuery_Label_Retained,
                         messages.ReferenceStatQuery_Label_StronglyRetainedReferents, "referent", ticks); //$NON-NLS-1$
 
         StringBuilder comment = new StringBuilder();
-        comment.append(MessageUtil.format(messages.Msg_ReferencesFound, instanceSet.size(),
-                        referentSet.size())).append(HTML_BREAK);
+        comment.append(MessageUtil.format(messages.Msg_ReferencesFound, instanceSet.size(), referentSet.size()))
+                        .append(HTML_BREAK);
 
         Histogram onlySoftlyReachable = (Histogram) referents.getResultEntries().get(1).getResult();
         numObjects = 0;
@@ -813,8 +783,7 @@ public class ComponentReportQuery implements IQuery
         {
             comment.append("<strong>").append(MessageUtil.format(Messages.ComponentReportQuery_PossibleMemoryLeak)).append("</strong> "); //$NON-NLS-1$ //$NON-NLS-2$
         }
-        comment.append(MessageUtil.format(messages.Msg_ReferencesStronglyRetained,
-                        numObjects, //
+        comment.append(MessageUtil.format(messages.Msg_ReferencesStronglyRetained, numObjects, //
                         Units.Storage.of(heapSize).format(heapSize)));
 
         SectionSpec overview = new SectionSpec(messages.ReferenceStatistics);
@@ -832,7 +801,7 @@ public class ComponentReportQuery implements IQuery
             child = new QuerySpec(entry.getName(), entry.getResult());
             overview.add(child);
         }
-        
+
         if (numObjects >= 1)
         {
             // convert excludes into the required format
@@ -849,8 +818,7 @@ public class ComponentReportQuery implements IQuery
             }
 
             // calculate the shortest path for each object
-            IMultiplePathsFromGCRootsComputer computer = snapshot.getMultiplePathsFromGCRoots(ai.toArray(),
-                            excludeMap);
+            IMultiplePathsFromGCRootsComputer computer = snapshot.getMultiplePathsFromGCRoots(ai.toArray(), excludeMap);
 
             // Display the paths
             IResultTree r = MultiplePath2GCRootsQuery.create(snapshot, computer, null);
@@ -909,7 +877,7 @@ public class ComponentReportQuery implements IQuery
             for (GCRootInfo rootInfo : ifo)
             {
                 if (rootInfo.getType() == GCRootInfo.Type.UNFINALIZED
-                    || rootInfo.getType() == GCRootInfo.Type.FINALIZABLE)
+                                || rootInfo.getType() == GCRootInfo.Type.FINALIZABLE)
                 {
                     int referentId = rootInfo.getObjectId();
                     if (retainedSet.contains(referentId))

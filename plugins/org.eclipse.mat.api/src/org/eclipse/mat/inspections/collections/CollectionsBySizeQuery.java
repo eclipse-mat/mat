@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2015 SAP AG, IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,15 +8,16 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *    IBM Corporation - enhancements and fixes
+ *    James Livingston - expose collection utils as API
  *******************************************************************************/
 package org.eclipse.mat.inspections.collections;
 
-import java.util.Collection;
-import java.util.Collections;
-
 import org.eclipse.mat.SnapshotException;
-import org.eclipse.mat.collect.HashMapIntObject;
+import org.eclipse.mat.inspections.collectionextract.CollectionExtractionUtils;
+import org.eclipse.mat.inspections.collectionextract.ICollectionExtractor;
+import org.eclipse.mat.inspections.collectionextract.AbstractExtractedCollection;
 import org.eclipse.mat.internal.Messages;
+import org.eclipse.mat.internal.collectionextract.FieldSizeArrayCollectionExtractor;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
@@ -26,7 +27,6 @@ import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.quantize.Quantize;
 import org.eclipse.mat.snapshot.ISnapshot;
-import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.snapshot.query.RetainedSizeDerivedData;
@@ -54,40 +54,18 @@ public class CollectionsBySizeQuery implements IQuery
     {
         listener.subTask(Messages.CollectionsBySizeQuery_CollectingSizes);
 
-        HashMapIntObject<CollectionUtil.Info> metadata = new HashMapIntObject<CollectionUtil.Info>();
-
-        // prepare meta-data of known collections
-        for (CollectionUtil.Info info : CollectionUtil.getKnownCollections(snapshot))
+        ICollectionExtractor specificExtractor;
+        if (size_attribute != null && collection != null)
         {
-            if (!info.hasSize())
-                continue;
-
-            Collection<IClass> classes = snapshot.getClassesByName(info.getClassName(), true);
-            if (classes != null)
-                for (IClass clasz : classes)
-                    metadata.put(clasz.getObjectId(), info);
+            specificExtractor = new FieldSizeArrayCollectionExtractor(size_attribute, collection);
         }
-
-        // prepare meta-data from user provided the collection argument
-        if (collection != null)
+        else if (size_attribute == null && collection == null)
         {
-            if (size_attribute == null)
-            {
-                String msg = Messages.CollectionsBySizeQuery_ErrorMsg_ArgumentMissing;
-                throw new SnapshotException(msg);
-            }
-
-            CollectionUtil.Info info = new CollectionUtil.Info(collection, size_attribute, null);
-            Collection<IClass> classes = snapshot.getClassesByName(collection, true);
-            if (classes == null)
-                classes = Collections.emptySet();
-
-            if (classes.isEmpty())
-                listener.sendUserMessage(IProgressListener.Severity.WARNING, MessageUtil.format(
-                                Messages.CollectionsBySizeQuery_ClassNotFound, collection), null);
-
-            for (IClass clasz : classes)
-                metadata.put(clasz.getObjectId(), info);
+            specificExtractor = null;
+        }
+        else
+        {
+            throw new IllegalArgumentException("need both or none of size and array attributes");
         }
 
         // group by length attribute
@@ -98,32 +76,40 @@ public class CollectionsBySizeQuery implements IQuery
         builder.addDerivedData(RetainedSizeDerivedData.APPROXIMATE);
         Quantize quantize = builder.build();
 
-        ObjectLoop: for (int[] objectIds : objects)
-        {
-            for (int objectId : objectIds)
-            {
-                CollectionUtil.Info info = metadata.get(snapshot.getClassOf(objectId).getObjectId());
-                if (info != null)
-                {
-                    IObject obj = snapshot.getObject(objectId);
-                    try
-                    {
-                        int size = info.getSize(obj);
-                        quantize.addValue(objectId, size, null, obj.getUsedHeapSize());
-                    }
-                    catch (SnapshotException e)
-                    {
-                        listener.sendUserMessage(IProgressListener.Severity.INFO,
-                                        MessageUtil.format(Messages.CollectionsBySizeQuery_IgnoringCollection, obj.getTechnicalName()), e);
-                    }
-                }
-
-                if (listener.isCanceled())
-                    break ObjectLoop;
-            }
-        }
-
+        runQuantizer(listener, quantize, specificExtractor, collection);
         return quantize.getResult();
     }
 
+    private void runQuantizer(IProgressListener listener, Quantize quantize, ICollectionExtractor specificExtractor,
+                    String specificClass) throws SnapshotException
+    {
+        for (int[] objectIds : objects)
+        {
+            for (int objectId : objectIds)
+            {
+                IObject obj = snapshot.getObject(objectId);
+                try
+                {
+                    AbstractExtractedCollection coll = CollectionExtractionUtils.extractCollection(obj, specificClass,
+                                    specificExtractor);
+                    if (coll != null && coll.hasSize())
+                    {
+                        Integer size = coll.size();
+                        if (size != null)
+                            quantize.addValue(objectId, size, null, coll.getUsedHeapSize());
+                    }
+                }
+                catch (RuntimeException e)
+                {
+                    listener.sendUserMessage(
+                                    IProgressListener.Severity.INFO,
+                                    MessageUtil.format(Messages.CollectionsBySizeQuery_IgnoringCollection,
+                                                    obj.getTechnicalName()), e);
+                }
+
+                if (listener.isCanceled())
+                    return;
+            }
+        }
+    }
 }
