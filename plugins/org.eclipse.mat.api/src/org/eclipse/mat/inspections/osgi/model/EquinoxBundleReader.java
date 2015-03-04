@@ -13,6 +13,7 @@ package org.eclipse.mat.inspections.osgi.model;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -20,7 +21,8 @@ import java.util.Map.Entry;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.inspections.ReferenceQuery;
-import org.eclipse.mat.inspections.collections.CollectionUtil;
+import org.eclipse.mat.inspections.collectionextract.CollectionExtractionUtils;
+import org.eclipse.mat.inspections.collectionextract.ExtractedCollection;
 import org.eclipse.mat.inspections.osgi.model.BundleDescriptor.Type;
 import org.eclipse.mat.inspections.osgi.model.eclipse.ConfigurationElement;
 import org.eclipse.mat.inspections.osgi.model.eclipse.Extension;
@@ -118,47 +120,25 @@ public class EquinoxBundleReader implements IBundleReader
             for (int i = 0; i < objs.length; i++)
             {
                 IInstance obj = (IInstance) snapshot.getObject(objs[i]);
-                IObjectArray bundlesArray = getBackingArray((IObject) obj.resolveValue("bundlesByInstallOrder"));//$NON-NLS-1$
-                if (bundlesArray == null)
-                    continue;
-                long[] bundleAddreses = bundlesArray.getReferenceArray();
-                if (bundleAddreses != null)
+                IObject bundles = (IObject) obj.resolveValue("bundlesByInstallOrder");//$NON-NLS-1$
+                for (IObject bundleObject: CollectionExtractionUtils.extractList(bundles))
                 {
-                    for (long address : bundleAddreses)
+                    if (listener.isCanceled())
+                        throw new IProgressListener.OperationCanceledException();
+
+                    BundleDescriptor.Type type = BundleDescriptor.Type.BUNDLE;
+                    if (bundleObject.getClazz().getName().equals(
+                                    "org.eclipse.osgi.framework.internal.core.BundleFragment"))//$NON-NLS-1$
                     {
-                        if (address == 0)
-                            continue;
-
-                        if (listener.isCanceled())
-                            throw new IProgressListener.OperationCanceledException();
-
-                        int objectId = snapshot.mapAddressToId(address);
-                        IObject bundleObject = snapshot.getObject(objectId);
-                        BundleDescriptor.Type type = BundleDescriptor.Type.BUNDLE;
-                        if (bundleObject.getClazz().getName().equals(
-                                        "org.eclipse.osgi.framework.internal.core.BundleFragment"))//$NON-NLS-1$
-                        {
-                            type = BundleDescriptor.Type.FRAGMENT;
-                        }
-                        BundleDescriptor descriptor = getBundleDescriptor(bundleObject, type);
-                        bundleDescriptors.add(descriptor);
+                        type = BundleDescriptor.Type.FRAGMENT;
                     }
+                    BundleDescriptor descriptor = getBundleDescriptor(bundleObject, type);
+                    bundleDescriptors.add(descriptor);
                 }
                 listener.worked(STEPS / nobjs);
             }
         }
         return bundleDescriptors;
-    }
-
-    private IObjectArray getBackingArray(IObject list) throws SnapshotException
-    {
-        if (list == null)
-            return null;
-        // Allow for different collection class implementations
-        CollectionUtil.Info info = CollectionUtil.getInfo(list);
-        if (info == null)
-            return null;
-        return info.getBackingArray(list);
     }
 
     private List<BundleDescriptor> getBundleFragments(IObject bundleHostObject) throws SnapshotException
@@ -167,19 +147,15 @@ public class EquinoxBundleReader implements IBundleReader
         if (fragmentObject == null)
             return null;
 
+        // FIXME: change to coll != null?
         if (fragmentObject.getClazz().isArrayType())
         {
-            long[] addresses = ((IObjectArray) fragmentObject).getReferenceArray();
-            List<BundleDescriptor> fragments = new ArrayList<BundleDescriptor>(addresses.length);
-            for (int i = 0; i < addresses.length; i++)
+            ExtractedCollection coll = CollectionExtractionUtils.extractList(fragmentObject);
+            List<BundleDescriptor> fragments = new ArrayList<BundleDescriptor>(coll.size());
+            for (IObject obj: coll)
             {
-                if (addresses[i] == 0)
-                    continue;
-                int id = snapshot.mapAddressToId(addresses[i]);
-                IObject obj = snapshot.getObject(id);
                 BundleDescriptor descriptor = getBundleDescriptor(obj, Type.FRAGMENT);
                 fragments.add(descriptor);
-
             }
             return fragments;
         }
@@ -216,71 +192,32 @@ public class EquinoxBundleReader implements IBundleReader
 
             for (int i = 0; i < objs.length; i++)
             {
-                IInstance obj = (IInstance) snapshot.getObject(objs[i]);
-
-                IObjectArray servicesArray = getBackingArray((IObject) obj.resolveValue("allPublishedServices"));//$NON-NLS-1$;
-                if (servicesArray == null)
-                    continue; // Try with other registries
-                long[] serviceAddreses = servicesArray.getReferenceArray();
-                if (serviceAddreses == null)
-                    continue;
-                for (long address : serviceAddreses)
+                IObject obj = snapshot.getObject(objs[i]);
+                IObject publishedServices = (IObject) obj.resolveValue("allPublishedServices");
+                for (IObject serviceInstance:  CollectionExtractionUtils.extractList(publishedServices))
                 {
-                    if (address == 0)
-                        continue;
                     if (listener.isCanceled())
                         throw new IProgressListener.OperationCanceledException();
-                    int serviceInstanceId = snapshot.mapAddressToId(address);
-                    IInstance serviceInstance = (IInstance) snapshot.getObject(serviceInstanceId);
                     IObject bundleObj = (IObject) serviceInstance.resolveValue("bundle"); //$NON-NLS-1$
                     BundleDescriptor bundleDescriptor = getBundleDescriptor(bundleObj, Type.BUNDLE);
 
                     List<BundleDescriptor> bundlesUsing = null;
                     IObject bundlesList = (IObject) serviceInstance.resolveValue("contextsUsing");//$NON-NLS-1$
-                    IObjectArray bundlesArray = getBackingArray(bundlesList);
-                    if (bundlesArray != null)
+                    ExtractedCollection bunds = CollectionExtractionUtils.extractList(bundlesList);
+                    bundlesUsing = new ArrayList<BundleDescriptor>(bunds.size());
+                    for (IObject bundleInstance: bunds)
                     {
-                        long[] bundleAddresses = bundlesArray.getReferenceArray();
-                        if (bundleAddresses != null)
-                        {
-                            bundlesUsing = new ArrayList<BundleDescriptor>(bundleAddresses.length);
-                            for (long bundleAddress : bundleAddresses)
-                            {
-                                if (bundleAddress == 0)
-                                    continue;
-                                int bundleId = snapshot.mapAddressToId(bundleAddress);
-                                IInstance bundleInstance = (IInstance) snapshot.getObject(bundleId);
-                                IObject bundleObject = (IObject) bundleInstance.resolveValue("bundle");//$NON-NLS-1$
-                                if (bundleObject == null)
-                                    continue;
+                        IObject bundleObject = (IObject) bundleInstance.resolveValue("bundle");//$NON-NLS-1$
+                        if (bundleObject == null)
+                            continue;
 
-                                BundleDescriptor usingBundleDescriptor = getBundleDescriptor(bundleObject, Type.BUNDLE);
-                                bundlesUsing.add(usingBundleDescriptor);
-                            }
-                        }
+                        BundleDescriptor usingBundleDescriptor = getBundleDescriptor(bundleObject, Type.BUNDLE);
+                        bundlesUsing.add(usingBundleDescriptor);
                     }
                     // get service name
                     IObjectArray clazzes = (IObjectArray) serviceInstance.resolveValue("clazzes");//$NON-NLS-1$
-                    String serviceName = null;
-                    if (clazzes != null)
-                    {
-                        long[] serviceNameArray = clazzes.getReferenceArray();
-                        for (long l : serviceNameArray)
-                        {
-                            try
-                            {
-                                int id = snapshot.mapAddressToId(l);
-                                IInstance instance = (IInstance) snapshot.getObject(id);
-                                serviceName = instance.getClassSpecificName();
-                                break; // only one element
-                            }
-                            catch (SnapshotException e)
-                            {
-                                MATPlugin.log(e, MessageUtil.format(Messages.EquinoxBundleReader_ErrorMsg_ServiceName,
-                                                Long.toHexString(l)));
-                            }
-                        }
-                    }
+                    Iterator<IObject> it = CollectionExtractionUtils.extractList(clazzes).iterator();
+                    String serviceName = it.next().getClassSpecificName();
                     // get properties
                     IObject propertiesObject = (IObject) serviceInstance.resolveValue("properties");//$NON-NLS-1$
                     String[] keys = null;
@@ -307,7 +244,7 @@ public class EquinoxBundleReader implements IBundleReader
                         }
                     }
 
-                    services.add(new Service(serviceName, serviceInstanceId, bundleDescriptor, bundlesUsing, keys,
+                    services.add(new Service(serviceName, serviceInstance.getObjectId(), bundleDescriptor, bundlesUsing, keys,
                                     values));
                 }
                 listener.worked(STEPS / nobjs);
@@ -469,12 +406,10 @@ public class EquinoxBundleReader implements IBundleReader
         IObject bundleDescriptionObject = (IObject) obj.resolveValue("bundledata.bundle.proxy.description");//$NON-NLS-1$
         if (bundleDescriptionObject != null)
         {
-            IObjectArray resolvedValue = getBackingArray((IObject) bundleDescriptionObject
-                            .resolveValue("dependencies"));//$NON-NLS-1$
+            IObject resolvedValue = (IObject) bundleDescriptionObject.resolveValue("dependencies");//$NON-NLS-1$
             dependencies = getDependencies(snapshot, resolvedValue);
 
-            IObjectArray resolvedDependentsValue = getBackingArray((IObject) bundleDescriptionObject
-                            .resolveValue("dependents"));//$NON-NLS-1$
+            IObject resolvedDependentsValue = (IObject) bundleDescriptionObject.resolveValue("dependents");//$NON-NLS-1$
             dependents = getDependencies(snapshot, resolvedDependentsValue);
         }
 
@@ -560,34 +495,27 @@ public class EquinoxBundleReader implements IBundleReader
         return Messages.EquinoxBundleReader_NotApplicable;
     }
 
-    private List<BundleDescriptor> getDependencies(ISnapshot snapshot, IObjectArray resolvedValue)
+    private List<BundleDescriptor> getDependencies(ISnapshot snapshot, IObject resolvedValue)
                     throws SnapshotException
     {
         List<BundleDescriptor> dependencyDescriptors = null;
-        if (resolvedValue != null)
+        ExtractedCollection coll = CollectionExtractionUtils.extractList(resolvedValue);
+        if (coll != null)
         {
-            long[] dependencyAddreses = resolvedValue.getReferenceArray();
-            if (dependencyAddreses != null)
+            dependencyDescriptors = new ArrayList<BundleDescriptor>(coll.size());
+            for (IObject bundleDescriptionObject : coll)
             {
-                dependencyDescriptors = new ArrayList<BundleDescriptor>(dependencyAddreses.length);
-                for (long address : dependencyAddreses)
-                {
-                    if (address == 0)
-                        continue;
-                    int objectId = snapshot.mapAddressToId(address);
-                    IObject bundleDescriptionObject = snapshot.getObject(objectId);
-                    IObject bundleHostObject = (IObject) bundleDescriptionObject.resolveValue("userObject.bundle");//$NON-NLS-1$
-                    if (bundleHostObject == null)
-                        continue;
+                IObject bundleHostObject = (IObject) bundleDescriptionObject.resolveValue("userObject.bundle");//$NON-NLS-1$
+                if (bundleHostObject == null)
+                    continue;
 
-                    BundleDescriptor.Type type = BundleDescriptor.Type.BUNDLE;
-                    if (bundleHostObject.getClazz().getName().equals(
-                                    "org.eclipse.osgi.framework.internal.core.BundleFragment"))//$NON-NLS-1$
-                        type = BundleDescriptor.Type.FRAGMENT;
+                BundleDescriptor.Type type = BundleDescriptor.Type.BUNDLE;
+                if (bundleHostObject.getClazz().getName().equals(
+                                "org.eclipse.osgi.framework.internal.core.BundleFragment"))//$NON-NLS-1$
+                    type = BundleDescriptor.Type.FRAGMENT;
 
-                    BundleDescriptor descriptor = getBundleDescriptor(bundleHostObject, type);
-                    dependencyDescriptors.add(descriptor);
-                }
+                BundleDescriptor descriptor = getBundleDescriptor(bundleHostObject, type);
+                dependencyDescriptors.add(descriptor);
             }
         }
         return dependencyDescriptors;
@@ -618,25 +546,14 @@ public class EquinoxBundleReader implements IBundleReader
                 IInstance obj = (IInstance) snapshot.getObject(objs[i]);
 
                 IObjectArray heldObjectsArray = (IObjectArray) obj.resolveValue("registryObjects.heldObjects.elements");//$NON-NLS-1$
-                if (heldObjectsArray != null)
+                ExtractedCollection heldObjects = CollectionExtractionUtils.extractList(heldObjectsArray);
+                if (heldObjects != null)
                 {
-                    long[] heldObjectAddresses = heldObjectsArray.getReferenceArray();
-                    if (heldObjectAddresses != null)
+                    for (IObject instance : heldObjects)
                     {
-                        for (long address : heldObjectAddresses)
-                        {
-                            if (address == 0)
-                                continue;
-
-                            if (listener.isCanceled())
-                                throw new IProgressListener.OperationCanceledException();
-
-                            int objectId = snapshot.mapAddressToId(address);
-                            IObject instance = snapshot.getObject(objectId);
-
-                            extractElements(instance, extensionPoints, extensions, configElements, listener);
-
-                        }
+                        if (listener.isCanceled())
+                            throw new IProgressListener.OperationCanceledException();
+                        extractElements(instance, extensionPoints, extensions, configElements, listener);
                     }
                 }
 
@@ -645,30 +562,17 @@ public class EquinoxBundleReader implements IBundleReader
                 boolean useCachedObjects = true;
                 if (useCachedObjects && cachedObjectsArray != null)
                 {
-                    long[] cachedObjectAddresses = cachedObjectsArray.getReferenceArray();
-                    if (cachedObjectAddresses != null)
+                    for (IObject instance: CollectionExtractionUtils.extractList(cachedObjectsArray))
                     {
-                        for (long address : cachedObjectAddresses)
+                        if (listener.isCanceled())
+                            throw new IProgressListener.OperationCanceledException();
+
+                        ObjectReference ref = ReferenceQuery.getReferent((IInstance) instance);
+                        if (ref != null)
                         {
-                            if (address == 0)
-                                continue;
-
-                            if (listener.isCanceled())
-                                throw new IProgressListener.OperationCanceledException();
-
-                            int objectId = snapshot.mapAddressToId(address);
-                            IObject instance = snapshot.getObject(objectId);
-                            
-                            if (instance instanceof IInstance)
-                            {
-                                ObjectReference ref = ReferenceQuery.getReferent((IInstance) instance);
-                                if (ref != null)
-                                {
-                                    instance = ref.getObject();
-                                }
-                            }
-                            extractElements(instance, extensionPoints, extensions, configElements, listener);
+                            instance = ref.getObject();
                         }
+                        extractElements(instance, extensionPoints, extensions, configElements, listener);
                     }
                 }
                 listener.worked(STEPS / nobjs);

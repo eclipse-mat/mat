@@ -21,11 +21,12 @@ import java.util.Set;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
-import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.collect.SetInt;
 import org.eclipse.mat.inspections.InspectionAssert;
 import org.eclipse.mat.inspections.ReferenceQuery;
-import org.eclipse.mat.inspections.collections.CollectionUtil;
+import org.eclipse.mat.inspections.collectionextract.CollectionExtractionUtils;
+import org.eclipse.mat.inspections.collectionextract.CollectionExtractor;
+import org.eclipse.mat.inspections.collectionextract.MapExtractor;
 import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.internal.snapshot.inspections.MultiplePath2GCRootsQuery;
 import org.eclipse.mat.query.IQuery;
@@ -413,25 +414,12 @@ public class ComponentReportQuery implements IQuery
         SectionSpec collectionbySizeSpec = new SectionSpec(Messages.ComponentReportQuery_Details);
         collectionbySizeSpec.set(Params.Html.COLLAPSED, Boolean.TRUE.toString());
 
-        // prepare meta-data of known collections
-        HashMapIntObject<CollectionUtil.Info> metadata = new HashMapIntObject<CollectionUtil.Info>();
-        for (CollectionUtil.Info info : CollectionUtil.getKnownCollections(snapshot))
-        {
-            if (!info.hasSize())
-                continue;
-
-            Collection<IClass> classes = snapshot.getClassesByName(info.getClassName(), true);
-            if (classes != null)
-                for (IClass clasz : classes)
-                    metadata.put(clasz.getObjectId(), info);
-        }
-
         for (ClassHistogramRecord record : histogram.getClassHistogramRecords())
         {
-            if (metadata.containsKey(record.getClassId()))
+            IClass clazz = (IClass) snapshot.getObject(record.getClassId());
+            CollectionExtractor extractor = CollectionExtractionUtils.findCollectionExtractor(clazz.getName());
+            if (extractor != null && extractor.hasSize())
             {
-                IClass clazz = (IClass) snapshot.getObject(record.getClassId());
-
                 // run the query: collections by size
                 RefinedResultBuilder builder = SnapshotQuery.lookup("collections_grouped_by_size", snapshot) //$NON-NLS-1$
                                 .setArgument("objects", record.getObjectIds()) //$NON-NLS-1$
@@ -511,25 +499,12 @@ public class ComponentReportQuery implements IQuery
         SectionSpec detailsSpec = new SectionSpec(Messages.ComponentReportQuery_Details);
         detailsSpec.set(Params.Html.COLLAPSED, Boolean.TRUE.toString());
 
-        // prepare meta-data of known collections
-        HashMapIntObject<CollectionUtil.Info> metadata = new HashMapIntObject<CollectionUtil.Info>();
-        for (CollectionUtil.Info info : CollectionUtil.getKnownCollections(snapshot))
-        {
-            if (!info.hasSize() || !info.hasBackingArray())
-                continue;
-
-            Collection<IClass> classes = snapshot.getClassesByName(info.getClassName(), true);
-            if (classes != null)
-                for (IClass clasz : classes)
-                    metadata.put(clasz.getObjectId(), info);
-        }
-
         for (ClassHistogramRecord record : histogram.getClassHistogramRecords())
         {
-            if (metadata.containsKey(record.getClassId()))
+            IClass clazz = (IClass) snapshot.getObject(record.getClassId());
+            CollectionExtractor extractor = CollectionExtractionUtils.findCollectionExtractor(clazz.getName());
+            if (extractor != null && extractor.hasSize() && extractor.hasExtractableContents())
             {
-                IClass clazz = (IClass) snapshot.getObject(record.getClassId());
-
                 // run the query: collections by size
                 RefinedResultBuilder builder = SnapshotQuery.lookup("collection_fill_ratio", snapshot) //$NON-NLS-1$
                                 .setArgument("objects", record.getObjectIds()) //$NON-NLS-1$
@@ -607,15 +582,12 @@ public class ComponentReportQuery implements IQuery
         SectionSpec detailsSpec = new SectionSpec(Messages.ComponentReportQuery_Details);
         detailsSpec.set(Params.Html.COLLAPSED, Boolean.TRUE.toString());
 
-        // prepare meta-data of known collections
-        HashMapIntObject<CollectionUtil.Info> metadata = CollectionUtil.getKnownMaps(snapshot);
-
         for (ClassHistogramRecord record : histogram.getClassHistogramRecords())
         {
-            if (metadata.containsKey(record.getClassId()))
+            IClass clazz = (IClass) snapshot.getObject(record.getClassId());
+            CollectionExtractor extractor = CollectionExtractionUtils.findCollectionExtractor(clazz.getName());
+            if (extractor != null && extractor instanceof MapExtractor)
             {
-                IClass clazz = (IClass) snapshot.getObject(record.getClassId());
-
                 // run the query: collections by size
                 int[] objectIds = record.getObjectIds();
                 if (objectIds.length > 20000)

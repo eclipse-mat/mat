@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.mat.inspections.collections;
 
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.inspections.InspectionAssert;
 import org.eclipse.mat.internal.Messages;
@@ -44,13 +45,17 @@ public class PrimitiveArraysWithAConstantValueQuery implements IQuery
         listener.subTask(Messages.PrimitiveArraysWithAConstantValueQuery_SearchingArrayValues);
 
         ArrayInt result = new ArrayInt();
+        extract(result, listener);
+        return new ObjectListResult.Inbound(snapshot, result.toArray());
+    }
 
-        ObjectLoop: for (int[] objectIds : objects)
+    private void extract(ArrayInt result, IProgressListener listener) throws SnapshotException {
+	for (int[] objectIds : objects)
         {
             for (int objectId : objectIds)
             {
                 if (listener.isCanceled())
-                    break ObjectLoop;
+                    return;
 
                 if (!snapshot.isArray(objectId))
                     continue;
@@ -82,8 +87,5 @@ public class PrimitiveArraysWithAConstantValueQuery implements IQuery
                 }
             }
         }
-
-        return new ObjectListResult.Inbound(snapshot, result.toArray());
     }
-
 }

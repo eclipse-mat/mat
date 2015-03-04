@@ -11,13 +11,10 @@
  *******************************************************************************/
 package org.eclipse.mat.inspections.collections;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.inspections.collectionextract.CollectionExtractor;
 import org.eclipse.mat.internal.Messages;
+import org.eclipse.mat.internal.collectionextract.FieldSizeArrayCollectionExtractor;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
@@ -25,16 +22,13 @@ import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.quantize.Quantize;
 import org.eclipse.mat.snapshot.ISnapshot;
-import org.eclipse.mat.snapshot.model.IClass;
-import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.snapshot.query.RetainedSizeDerivedData;
 import org.eclipse.mat.util.IProgressListener;
-import org.eclipse.mat.util.MessageUtil;
 
 @CommandName("collection_fill_ratio")
 @HelpUrl("/org.eclipse.mat.ui.help/tasks/analyzingjavacollectionusage.html")
-public class CollectionFillRatioQuery implements IQuery
+public class CollectionFillRatioQuery extends AbstractFillRatioQuery implements IQuery
 {
 
     @Argument
@@ -59,42 +53,6 @@ public class CollectionFillRatioQuery implements IQuery
     {
         listener.subTask(Messages.CollectionFillRatioQuery_ExtractingFillRatios);
 
-        Map<Integer, CollectionUtil.Info> metadata = new HashMap<Integer, CollectionUtil.Info>();
-
-        // prepare meta-data of known collections
-        for (CollectionUtil.Info info : CollectionUtil.getKnownCollections(snapshot))
-        {
-            if (!info.hasSize() || !info.hasBackingArray())
-                continue;
-
-            Collection<IClass> classes = snapshot.getClassesByName(info.getClassName(), true);
-            if (classes != null)
-                for (IClass clasz : classes)
-                    metadata.put(clasz.getObjectId(), info);
-        }
-
-        // prepare meta-data from user provided the collection argument
-        if (collection != null)
-        {
-            if (size_attribute == null || array_attribute == null)
-            {
-                String msg = Messages.CollectionFillRatioQuery_ErrorMsg_AllArgumentsMustBeSet;
-                throw new SnapshotException(msg);
-            }
-
-            CollectionUtil.Info info = new CollectionUtil.Info(collection, size_attribute, array_attribute);
-            Collection<IClass> classes = snapshot.getClassesByName(collection, true);
-            if (classes == null)
-                classes = Collections.emptySet();
-
-            if (classes.isEmpty())
-                listener.sendUserMessage(IProgressListener.Severity.WARNING, MessageUtil.format(
-                                Messages.CollectionFillRatioQuery_ClassNotFound, collection), null);
-
-            for (IClass clasz : classes)
-                metadata.put(clasz.getObjectId(), info);
-        }
-
         // create frequency distribution
         // The load factor should be <= 1, but for old PHD files with inaccurate array sizes can appear > 1.
         // Therefore we have a larger upper bound of 5, not 1 just in case
@@ -106,43 +64,17 @@ public class CollectionFillRatioQuery implements IQuery
         builder.addDerivedData(RetainedSizeDerivedData.APPROXIMATE);
         Quantize quantize = builder.build();
 
-        ObjectLoop: for (int[] objectIds : objects)
-        {
-            for (int objectId : objectIds)
-            {
-                if (listener.isCanceled())
-                    break ObjectLoop;
 
-                CollectionUtil.Info info = metadata.get(snapshot.getClassOf(objectId).getObjectId());
-                if (info != null)
-                {
-                    IObject obj = snapshot.getObject(objectId);
-                    try
-                    {
-                        double fillRatio = getFillRatio(info, obj);
-                        quantize.addValue(obj.getObjectId(), fillRatio, 1, obj.getUsedHeapSize());
-                    }
-                    catch (SnapshotException e)
-                    {
-                        listener.sendUserMessage(IProgressListener.Severity.INFO,
-                                        MessageUtil.format(Messages.CollectionFillRatioQuery_IgnoringCollection, obj.getTechnicalName()), e);
-                    }
-                }
-            }
+        CollectionExtractor specificExtractor;
+        if (size_attribute != null && array_attribute != null) {
+            specificExtractor = new FieldSizeArrayCollectionExtractor(size_attribute, array_attribute);
+        } else if (size_attribute == null && array_attribute == null) {
+            specificExtractor = null;
+        } else {
+            throw new IllegalArgumentException("need both or none of size and array attributes");
         }
 
+        runQuantizer(listener, quantize, specificExtractor, collection, snapshot, objects);
         return quantize.getResult();
     }
-
-    private static double getFillRatio(CollectionUtil.Info info, IObject hashtableObject) throws SnapshotException
-    {
-        int size = info.getSize(hashtableObject);
-        int capacity = info.getCapacity(hashtableObject);
-
-        if (capacity == 0)
-            return 1; // 100% if the array has length 0 --> the good ones
-
-        return (double) size / (double) capacity;
-    }
-
 }

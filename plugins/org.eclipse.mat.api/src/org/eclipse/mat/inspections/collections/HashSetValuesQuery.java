@@ -12,23 +12,19 @@
 package org.eclipse.mat.inspections.collections;
 
 import org.eclipse.mat.SnapshotException;
-import org.eclipse.mat.collect.ArrayInt;
-import org.eclipse.mat.collect.BitField;
+import org.eclipse.mat.inspections.collectionextract.CollectionExtractionUtils;
+import org.eclipse.mat.inspections.collectionextract.ExtractedMap;
 import org.eclipse.mat.internal.Messages;
+import org.eclipse.mat.internal.collectionextract.HashSetCollectionExtractor;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.snapshot.ISnapshot;
-import org.eclipse.mat.snapshot.model.Field;
-import org.eclipse.mat.snapshot.model.IInstance;
 import org.eclipse.mat.snapshot.model.IObject;
-import org.eclipse.mat.snapshot.model.IObjectArray;
-import org.eclipse.mat.snapshot.model.ObjectReference;
 import org.eclipse.mat.snapshot.query.ObjectListResult;
 import org.eclipse.mat.util.IProgressListener;
-import org.eclipse.mat.util.MessageUtil;
 
 @CommandName("hash_set_values")
 @HelpUrl("/org.eclipse.mat.ui.help/tasks/analyzingjavacollectionusage.html")
@@ -51,8 +47,7 @@ public class HashSetValuesQuery implements IQuery
 
     public IResult execute(IProgressListener listener) throws Exception
     {
-        CollectionUtil.Info info = null;
-
+        ExtractedMap extractor;
         if (collection != null && hashSet.getClazz().doesExtend(collection))
         {
             if (array_attribute == null || key_attribute == null)
@@ -60,181 +55,28 @@ public class HashSetValuesQuery implements IQuery
                 String msg = Messages.HashSetValuesQuery_ErrorMsg_MissingArgument;
                 throw new SnapshotException(msg);
             }
-            info = new CollectionUtil.Info(collection, null, array_attribute, key_attribute, null);
-        }
-        else if ((info = CollectionUtil.getInfo(hashSet)) != null && info.isMap() && info.getClassName().contains("Set")) //$NON-NLS-1$
-        {
-            // Got a HashSet
+            extractor = new ExtractedMap(hashSet, new HashSetCollectionExtractor(array_attribute, key_attribute));
         }
         else
         {
-            throw new IllegalArgumentException(MessageUtil.format(Messages.HashSetValuesQuery_ErrorMsg_NotAHashSet,
-                            hashSet.getDisplayName()));
+            extractor = CollectionExtractionUtils.extractMap(hashSet);
         }
 
-        ArrayInt hashEntries = new ArrayInt();
-
-        // read table w/o loading the big table object!
-        String arrayField = info.getBackingArrayField();
-        if (arrayField == null)
+        //TODO: refactor out code with ExtractListValuesQuery
+        int[] result;
+        if (!extractor.hasSize())
         {
-            // No array, but perhaps an extractor
-            ICollectionExtractor ex = info.getCollectionExtractor();
-            if (ex != null)
-            {
-                int entries[] = ex.extractEntries(hashSet.getObjectId(), info, snapshot, listener);
-                String valueField = info.getEntryKeyField();
-                if (valueField != null) {
-                    ArrayInt ret = new ArrayInt();
-                    if (valueField.endsWith("[]")) //$NON-NLS-1$
-                    {
-                        valueField = valueField.replaceFirst("\\[\\]$", ""); //$NON-NLS-1$//$NON-NLS-2$
-                        for (int entryId : entries)
-                        {
-                            IInstance entry = (IInstance) snapshot.getObject(entryId);
-                            Object f = entry.resolveValue(valueField);
-                            if (f instanceof IObjectArray)
-                            {
-                                IObjectArray valarr = (IObjectArray) f;
-                                int n = valarr.getLength();
-                                int s = 10;
-                                for (int i = 0; i < n; i += s)
-                                {
-                                    s = Math.min(s, n - i);
-                                    long b[] = valarr.getReferenceArray(i, s);
-                                    for (int j = 0; j < s; ++j)
-                                    {
-                                        if (b[j] != 0)
-                                        {
-                                            int valueId = snapshot.mapAddressToId(b[j]);
-                                            ret.add(valueId);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        for (int entryId : entries)
-                        {
-                            IInstance entry = (IInstance) snapshot.getObject(entryId);
-                            Object f = entry.resolveValue(valueField);
-                            if (f instanceof IInstance)
-                            {
-                                ret.add(((IInstance)f).getObjectId());
-                            }
-                        }
-                    }
-                    entries = ret.toArray();
-                }
-                return new ObjectListResult.Outbound(snapshot, entries);
-            }
-            return null;
+            result = new int[0];
         }
-        int p = arrayField.lastIndexOf('.');
-        IInstance map = p < 0 ? (IInstance) hashSet : (IInstance) hashSet.resolveValue(arrayField.substring(0, p));
-        int tableObjectId;
-        if (map != null)
+        else if (extractor.hasExtractableContents())
         {
-            Field table = map.getField(p < 0 ? arrayField : arrayField.substring(p + 1));
-            if (table == null)
-                return null;
-            Object tableValue = table.getValue();
-            if (tableValue == null)
-                return null;
-            tableObjectId = ((ObjectReference) tableValue).getObjectId();
+            result = extractor.extractEntryIds();
         }
         else
         {
-            IObjectArray back = info.getBackingArray(hashSet);
-            if (back == null)
-                return null;
-            tableObjectId = back.getObjectId();
+            throw new IllegalArgumentException();
         }
 
-        // Avoid visiting nodes twice
-        BitField seen = new BitField(snapshot.getSnapshotInfo().getNumberOfObjects());
-        ArrayInt extra = new ArrayInt();
-        int[] outbounds = snapshot.getOutboundReferentIds(tableObjectId);
-        for (int ii = 0; ii < outbounds.length && !listener.isCanceled(); ii++)
-            collectEntry(hashEntries, outbounds[ii], seen, extra, info, listener);
-
-        return new ObjectListResult.Outbound(snapshot, hashEntries.toArray());
+        return new ObjectListResult.Outbound(snapshot, result);
     }
-
-    /**
-     * Find the hash entries
-     * @param hashEntries
-     * @param entryId
-     * @param seen - whether the node has been visited or value has been seen
-     * @param extra - holds extra nodes to visit
-     * @param info
-     * @param listener
-     * @throws SnapshotException
-     */
-    private void collectEntry(ArrayInt hashEntries, int entryId, BitField seen, ArrayInt extra, CollectionUtil.Info info, IProgressListener listener)
-                    throws SnapshotException
-    {
-        if (seen.get(entryId))
-            return;
-        extra.clear();
-        extra.add(entryId);
-        seen.set(entryId);
-        ObjectLoop: for (int k = 0; k < extra.size(); ++k)
-        {
-            entryId = extra.get(k);
-            while (entryId >= 0)
-            {
-                // skip if it is the pseudo outgoing reference (all other elements
-                // are of type Map$Entry)
-                if (snapshot.isClass(entryId))
-                    break;
-
-                IInstance entry = (IInstance) snapshot.getObject(entryId);
-
-                entryId = -1;
-
-                Field next = entry.getField("next"); //$NON-NLS-1$
-                if (next != null)
-                {
-                    if (next.getValue() != null)
-                    {
-                        entryId = ((ObjectReference) next.getValue()).getObjectId();
-                        seen.set(entryId);
-                    }
-                }
-                else
-                {
-                    // Try to find without using fields
-                    entryId = info.resolveNextSameField(snapshot, entry.getObjectId(), seen, extra);
-                }
-
-                Field key = entry.getField(info.getEntryKeyField());
-                if (key != null)
-                {
-                    hashEntries.add(((ObjectReference) key.getValue()).getObjectId());
-                }
-                else
-                {
-                    // Find an object which is not the type of the entry, nor the HashSet, not next
-                    for (int i : snapshot.getOutboundReferentIds(entry.getObjectId()))
-                    {
-                        if (i != entryId
-                            && i != entry.getClazz().getObjectId()
-                            && i != hashSet.getObjectId()
-                            && !seen.get(i))
-                        {
-                            hashEntries.add(i);
-                            seen.set(i);
-                        }
-                    }
-                }
-
-                if (listener.isCanceled())
-                    break ObjectLoop;
-            }
-        }
-    }
-
 }
