@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2015 SAP AG, IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *    IBM Corporation - enhancements and fixes
+ *    James Livingston - expose collection utils as API
  *******************************************************************************/
 package org.eclipse.mat.inspections.collections;
 
@@ -19,15 +20,13 @@ import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.quantize.Quantize;
 import org.eclipse.mat.snapshot.ISnapshot;
-import org.eclipse.mat.snapshot.model.IObject;
-import org.eclipse.mat.snapshot.model.IObjectArray;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.snapshot.query.RetainedSizeDerivedData;
 import org.eclipse.mat.util.IProgressListener;
 
 @CommandName("array_fill_ratio")
 @HelpUrl("/org.eclipse.mat.ui.help/tasks/analyzingjavacollectionusage.html")
-public class ArrayFillRatioQuery implements IQuery
+public class ArrayFillRatioQuery extends AbstractFillRatioQuery implements IQuery
 {
 
     @Argument
@@ -51,34 +50,7 @@ public class ArrayFillRatioQuery implements IQuery
         builder.addDerivedData(RetainedSizeDerivedData.APPROXIMATE);
         Quantize quantize = builder.build();
 
-        ObjectLoop: for (int[] objectIds : objects)
-        {
-            for (int objectId : objectIds)
-            {
-                if (listener.isCanceled())
-                    break ObjectLoop;
-
-                if (!snapshot.isArray(objectId))
-                    continue;
-
-                IObject object = snapshot.getObject(objectId);
-                if (!(object instanceof IObjectArray))
-                    continue;
-
-                IObjectArray array = (IObjectArray) object;
-
-                // 100% if the array has length 0 --> the good ones
-                double fillRatio = 0;
-                if (array.getLength() > 0)
-                {
-                    fillRatio = (double) (CollectionUtil.getNumberOfNoNullArrayElements(array))
-                                    / (double) array.getLength();
-                }
-                quantize.addValue(objectId, fillRatio, 1, array.getUsedHeapSize());
-            }
-        }
-
+        runQuantizer(listener, quantize, null, null, snapshot, objects);
         return quantize.getResult();
-
     }
 }
