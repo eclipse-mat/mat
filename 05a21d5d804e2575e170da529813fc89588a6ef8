@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "87f6139c_1b0422ce",
+        "filename": "plugins/org.eclipse.mat.api/src/org/eclipse/mat/inspections/collectionextract/CollectionExtractionUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 16759
+      },
+      "writtenOn": "2015-05-07T11:19:59Z",
+      "side": 1,
+      "message": "I propose we change the signature to \n\npublic static ExtractedCollectionBase\u003c?, ?\u003e extractCollection(IObject coll,\n    \t\tString specificClass, CollectionExtractor preferredExtractor) throws SnapshotException {\n\ni.e. offer another version of extractCollection, which offers the possibility to pass a preferredExtractor. We should document in which cases it won\u0027t be used",
+      "range": {
+        "startLine": 56,
+        "startChar": 4,
+        "endLine": 57,
+        "endChar": 93
+      },
+      "revId": "05a21d5d804e2575e170da529813fc89588a6ef8",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "87f6139c_7b28c636",
+        "filename": "plugins/org.eclipse.mat.api/src/org/eclipse/mat/inspections/collectionextract/CollectionExtractionUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 16759
+      },
+      "writtenOn": "2015-05-07T11:19:59Z",
+      "side": 1,
+      "message": "Same as for extractCollectionUnlessSpecific above.",
+      "range": {
+        "startLine": 65,
+        "startChar": 28,
+        "endLine": 65,
+        "endChar": 52
+      },
+      "revId": "05a21d5d804e2575e170da529813fc89588a6ef8",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "87f6139c_9b5bf201",
+        "filename": "plugins/org.eclipse.mat.api/src/org/eclipse/mat/inspections/collectionextract/CollectionExtractor.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 16759
+      },
+      "writtenOn": "2015-05-07T11:19:59Z",
+      "side": 1,
+      "message": "What about renaming to ICollectionExtractor - just to stay consistent with the rest of MAT API, where all interfaces start with I",
+      "range": {
+        "startLine": 10,
+        "startChar": 37,
+        "endLine": 10,
+        "endChar": 38
+      },
+      "revId": "05a21d5d804e2575e170da529813fc89588a6ef8",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "87f6139c_dbd0dac4",
+        "filename": "plugins/org.eclipse.mat.api/src/org/eclipse/mat/inspections/collectionextract/ExtractedCollectionBase.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 16759
+      },
+      "writtenOn": "2015-05-07T11:19:59Z",
+      "side": 1,
+      "message": "What about renaming to AbstractExtractedCollection - just to stay consistent with the rest of MAT API",
+      "range": {
+        "startLine": 17,
+        "startChar": 45,
+        "endLine": 17,
+        "endChar": 46
+      },
+      "revId": "05a21d5d804e2575e170da529813fc89588a6ef8",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "87f6139c_1b470225",
+        "filename": "plugins/org.eclipse.mat.api/src/org/eclipse/mat/inspections/collectionextract/MapExtractor.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 16759
+      },
+      "writtenOn": "2015-05-07T11:19:59Z",
+      "side": 1,
+      "message": "What about renaming to IMapExtractor - just to stay consistent with the rest of MAT API, where all interfaces start with I",
+      "range": {
+        "startLine": 17,
+        "startChar": 58,
+        "endLine": 17,
+        "endChar": 59
+      },
+      "revId": "05a21d5d804e2575e170da529813fc89588a6ef8",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
