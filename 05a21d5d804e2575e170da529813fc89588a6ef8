@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "87f6139c_42e6bbd5",
+        "filename": "plugins/org.eclipse.mat.api/src/org/eclipse/mat/inspections/collectionextract/CollectionExtractionUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 23040
+      },
+      "writtenOn": "2015-05-08T05:37:28Z",
+      "side": 1,
+      "message": "I\u0027m fine with this either way on the naming of this and the map version.\n\nThese methods are only used in two places each, by the existing queries that lets you specify a class name as a parameter, to force the queries to operation on a collection they otherwise wouldn\u0027t. I don\u0027t know if many people use that functionality, but I didn\u0027t want to break anything.",
+      "parentUuid": "87f6139c_1b0422ce",
+      "range": {
+        "startLine": 56,
+        "startChar": 4,
+        "endLine": 57,
+        "endChar": 93
+      },
+      "revId": "05a21d5d804e2575e170da529813fc89588a6ef8",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "87f6139c_7b28c636",
         "filename": "plugins/org.eclipse.mat.api/src/org/eclipse/mat/inspections/collectionextract/CollectionExtractionUtils.java",
         "patchSetId": 1
@@ -111,6 +135,23 @@
         "endLine": 17,
         "endChar": 59
       },
+      "revId": "05a21d5d804e2575e170da529813fc89588a6ef8",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "87f6139c_c2f2ab91",
+        "filename": "plugins/org.eclipse.mat.api/src/org/eclipse/mat/internal/collectionextract/KnownCollectionInfo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 23040
+      },
+      "writtenOn": "2015-05-08T05:37:28Z",
+      "side": 1,
+      "message": "I just remembered that a few months ago I re-wrote to use an extension point rather than hard-coding the list, so that other plugins (like my EE one) could add new supported collections.\n\nI can\u0027t seem to fix that code, hopefully I didn\u0027t lose it when getting my new laptop.\n\nI don\u0027t know if we need the extension point in the initial iteration of the API, but it would probably be useful.",
       "revId": "05a21d5d804e2575e170da529813fc89588a6ef8",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
