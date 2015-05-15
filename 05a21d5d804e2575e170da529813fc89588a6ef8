@@ -141,6 +141,52 @@
     },
     {
       "key": {
+        "uuid": "87f6139c_b72b4806",
+        "filename": "plugins/org.eclipse.mat.api/src/org/eclipse/mat/inspections/collections/ExtractListValuesQuery.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 16759
+      },
+      "writtenOn": "2015-05-15T09:17:33Z",
+      "side": 1,
+      "message": "There is a check in the original coding. Have to check what the effect of skipping it can be.",
+      "range": {
+        "startLine": 43,
+        "startChar": 71,
+        "endLine": 43,
+        "endChar": 112
+      },
+      "revId": "05a21d5d804e2575e170da529813fc89588a6ef8",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "87f6139c_97e9ec2f",
+        "filename": "plugins/org.eclipse.mat.api/src/org/eclipse/mat/inspections/collections/MapCollisionRatioQuery.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 16759
+      },
+      "writtenOn": "2015-05-15T09:17:33Z",
+      "side": 1,
+      "message": "I think this is fine",
+      "range": {
+        "startLine": 84,
+        "startChar": 24,
+        "endLine": 84,
+        "endChar": 61
+      },
+      "revId": "05a21d5d804e2575e170da529813fc89588a6ef8",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "87f6139c_c2f2ab91",
         "filename": "plugins/org.eclipse.mat.api/src/org/eclipse/mat/internal/collectionextract/KnownCollectionInfo.java",
         "patchSetId": 1
