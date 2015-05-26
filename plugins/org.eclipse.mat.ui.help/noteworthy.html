@@ -1,98 +1,66 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html
-  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xml:lang="en-us" lang="en-us">
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en-us" xml:lang="en-us">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-<meta name="DC.Type" content="reference"/>
-<meta name="DC.Title" content="New and Noteworthy"/>
-<meta name="abstract" content="Here are descriptions of some of the more interesting or significant changes made to the Memory Analyzer for the 1.4 release."/>
-<meta name="description" content="Here are descriptions of some of the more interesting or significant changes made to the Memory Analyzer for the 1.4 release."/>
-<meta name="copyright" content="Copyright (c) 2008, 2014 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary"/>
-<meta name="DC.Rights.Owner" content="Copyright (c) 2008, 2014 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary"/>
-<meta name="DC.Format" content="XHTML"/>
-<meta name="DC.Identifier" content="ref_noteworthy"/>
-<meta name="DC.Language" content="en-us"/>
-<link rel="stylesheet" type="text/css" href="styles/commonltr.css"/>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<meta content="reference" name="DC.Type" />
+<meta name="DC.Title" content="New and Noteworthy" />
+<meta name="abstract" content="Here are descriptions of some of the more interesting or significant changes made to the Memory Analyzer for the 1.5 release." />
+<meta name="description" content="Here are descriptions of some of the more interesting or significant changes made to the Memory Analyzer for the 1.5 release." />
+<meta name="copyright" content="Copyright (c) 2008, 2015 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary" />
+<meta name="DC.Rights.Owner" content="Copyright (c) 2008, 2015 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary" />
+<meta content="XHTML" name="DC.Format" />
+<meta content="ref_noteworthy" name="DC.Identifier" />
+<meta content="en-us" name="DC.Language" />
+<link href="styles/commonltr.css" type="text/css" rel="stylesheet" />
 <title>New and Noteworthy</title>
 </head>
-<body id="ref_noteworthy">
+<body id="ref_noteworthy"><a name="ref_noteworthy"><!-- --></a>
 
 
-	<h1 class="title topictitle1">New and Noteworthy</h1>
+	<h1 class="topictitle1">New and Noteworthy</h1>
 
 	
 	
-	<div class="body refbody"><p class="shortdesc">Here are descriptions of some of the more interesting or
-		significant changes made to the Memory Analyzer for the 1.4 release.
+	<div><p>Here are descriptions of some of the more interesting or
+		significant changes made to the Memory Analyzer for the 1.5 release.
 	</p>
 
-		<div class="section"><h2 class="title sectiontitle">Links from Leak Hunter report</h2>
+		<div class="section"><h2 class="sectiontitle">Possibility to Select Size Units</h2>
 			
-			<p class="p">
-			The Leak Hunter report now has links to the queries used to create the report.
-			Clicking on the link reruns the single query allowing more detailed analysis to be 
-			performed manually.
-			<br/><div class="imageleft"><img class="image imageleft" src="mimes/leaksuspects1.png" alt="screen shot of leak suspect details showing links"/></div><br/>
+			<p>
+            There is a new option to display bytes in B, KB, MB, GB, or Smart formats.
+            The default is to always display in Bytes format to match the previous MAT behavior and not cause any confusion.
+            The option can be changed in the Eclipse preference dialog or using -Dbytes_display=(bytes|kilobytes|megabytes|gigabytes|smart).
+            
+			<br /><div class="imageleft"><img src="mimes/size_units_cfg.png" alt="Preferences dialog to configure size units" /></div><br />
+			</p>
+
+			<p>			
+			In Smart mode, if the value is a gigabyte or more, display in gigabytes; similarly for megabytes and kilobytes; otherwise, display in bytes.
+			<br /><div class="imageleft"><img src="mimes/size_units_sample.png" alt="A Histogram showing entries with different size units" /></div><br />
 			</p>
 
 		</div>
 
-		<div class="section"><h2 class="title sectiontitle">OQL improvements</h2>
+		<div class="section"><h2 class="sectiontitle">New API for Extracting Collection Details</h2>
 			
-			<div class="p">
-			OQL now allows range access to arrays and lists using the following syntax:
-			<pre class="pre codeblock">SELECT s.value.@valueArray[s.offset:s.offset + s.count - 1] FROM java.lang.String s</pre>
+			<p>
+			The code which was used internally in Memory Analyzer to extract certain details about collections, for example size, fill ratio,
+		    lists and maps entries, etc... is now exposed as an API.
+		    This should make it easier to write extensions which need to inspect the contents or certain properties of collections.
+			</p>
 
-			OQL also allows a greater range of expressions in select items and from items.
-			These changes are experimental; feedback is welcome.
-			</div>
-
-		</div>
-
-		<div class="section"><h2 class="title sectiontitle">Improved undo for Notes View and OQL Pane</h2>
-			
-			<p class="p">
-			The OQL pane now has undo/redo with Ctrl-Z/Ctrl-Y. The notes view has an improved undo
-			and indicates a dirty pane with an asterisk in the title.
+			<p>		    
+		    Check the <strong>org.eclipse.mat.inspections.collectionextract</strong> package in the API Reference for more details.
 			</p>
 
 		</div>
 
-		<div class="section"><h2 class="title sectiontitle">Queries recognize more JDK class versions</h2>
+		<div class="section"><h2 class="sectiontitle">New and Noteworthy for Memory Analyzer 1.4</h2>
 			
-			<ul class="ul">
-			<li class="li">Collection class queries
-			<p class="p">
-			The collection class queries recognize more of the standard JDK Collection classes, across more JDK versions (1.5,1.6,1.7,1.8).
-			This includes LinkedList classes from JDK 7 (bug 426369).
-			</p>
-
-			</li>
-
-			<li class="li">SaveValueAsQuery
-			<p class="p">This now recognizes JDK 7 Strings without offset and count fields.
-			</p>
-
-			</li>
-
-			</ul>
-
-		</div>
-
-		<div class="section"><h2 class="title sectiontitle">Huge dumps</h2>
-			
-			<p class="p">A problem with huge dumps with 2<sup class="ph sup">31</sup> to 2<sup class="ph sup">32</sup> inbound references has been fixed and they can now be parsed and opened.
-			Still larger dumps should also be opened. Another problem opening HPROF dumps with very large arrays has been fixed.
-			</p>
-
-		</div>
-
-		<div class="section"><h2 class="title sectiontitle">New and Noteworthy for Memory Analyzer 1.3</h2>
-			
-			<p class="p">
-				The New and Noteworthy document for version 1.3 is available 
-				<a class="xref" href="http://www.eclipse.org/mat/1.3.0/noteworthy.html">here</a>.
+			<p>
+				The New and Noteworthy document for version 1.4 is available 
+				<a href="http://www.eclipse.org/mat/1.4.0/noteworthy.html">here</a>.
 			</p>
 
 		</div>
