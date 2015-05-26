@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2014 SAP AG and others.
+    Copyright (c) 2008, 2015 SAP AG and others.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -14,13 +14,13 @@
 <reference id="ref_noteworthy" xml:lang="en-us">
 	<title>New and Noteworthy</title>
 	<shortdesc>Here are descriptions of some of the more interesting or
-		significant changes made to the Memory Analyzer for the 1.4 release.
+		significant changes made to the Memory Analyzer for the 1.5 release.
 	</shortdesc>
 	<prolog>
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2008, 2014 SAP AG and others.
+				Copyright (c) 2008, 2015 SAP AG and others.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License v1.0
 			    which accompanies this distribution, and is available at
@@ -30,57 +30,37 @@
 	</prolog>
 	<refbody>
 		<section>
-			<title>Links from Leak Hunter report</title>
+			<title>Possibility to Select Size Units</title>
 			<p>
-			The Leak Hunter report now has links to the queries used to create the report.
-			Clicking on the link reruns the single query allowing more detailed analysis to be 
-			performed manually.
-			<image href="mimes/leaksuspects1.png" align="left" placement="break" alt="screen shot of leak suspect details showing links">
+            There is a new option to display bytes in B, KB, MB, GB, or Smart formats.
+            The default is to always display in Bytes format to match the previous MAT behavior and not cause any confusion.
+            The option can be changed in the Eclipse preference dialog or using -Dbytes_display=(bytes|kilobytes|megabytes|gigabytes|smart).
+            
+			<image href="mimes/size_units_cfg.png" align="left" placement="break" alt="Preferences dialog to configure size units">
+			</image>
+			</p>
+			<p>			
+			In Smart mode, if the value is a gigabyte or more, display in gigabytes; similarly for megabytes and kilobytes; otherwise, display in bytes.
+			<image href="mimes/size_units_sample.png" align="left" placement="break" alt="A Histogram showing entries with different size units">
 			</image>
 			</p>
 		</section>
 		<section>
-			<title>OQL improvements</title>
+			<title>New API for Extracting Collection Details</title>
 			<p>
-			OQL now allows range access to arrays and lists using the following syntax:
-			<codeblock>SELECT s.value.@valueArray[s.offset:s.offset + s.count - 1] FROM java.lang.String s</codeblock>
-			OQL also allows a greater range of expressions in select items and from items.
-			These changes are experimental; feedback is welcome.
+			The code which was used internally in Memory Analyzer to extract certain details about collections, for example size, fill ratio,
+		    lists and maps entries, etc... is now exposed as an API.
+		    This should make it easier to write extensions which need to inspect the contents or certain properties of collections.
+			</p>
+			<p>		    
+		    Check the <b>org.eclipse.mat.inspections.collectionextract</b> package in the API Reference for more details.
 			</p>
 		</section>
 		<section>
-			<title>Improved undo for Notes View and OQL Pane</title>
+			<title>New and Noteworthy for Memory Analyzer 1.4</title>
 			<p>
-			The OQL pane now has undo/redo with Ctrl-Z/Ctrl-Y. The notes view has an improved undo
-			and indicates a dirty pane with an asterisk in the title.
-			</p>
-		</section>
-		<section>
-			<title>Queries recognize more JDK class versions</title>
-			<ul>
-			<li>Collection class queries
-			<p>
-			The collection class queries recognize more of the standard JDK Collection classes, across more JDK versions (1.5,1.6,1.7,1.8).
-			This includes LinkedList classes from JDK 7 (bug 426369).
-			</p>
-			</li>
-			<li>SaveValueAsQuery
-			<p>This now recognizes JDK 7 Strings without offset and count fields.
-			</p>
-			</li>
-			</ul>
-		</section>
-		<section>
-			<title>Huge dumps</title>
-			<p>A problem with huge dumps with 2<sup>31</sup> to 2<sup>32</sup> inbound references has been fixed and they can now be parsed and opened.
-			Still larger dumps should also be opened. Another problem opening HPROF dumps with very large arrays has been fixed.
-			</p>
-		</section>
-		<section>
-			<title>New and Noteworthy for Memory Analyzer 1.3</title>
-			<p>
-				The New and Noteworthy document for version 1.3 is available 
-				<xref format="html" href="http://www.eclipse.org/mat/1.3.0/noteworthy.html">here</xref>.
+				The New and Noteworthy document for version 1.4 is available 
+				<xref format="html" href="http://www.eclipse.org/mat/1.4.0/noteworthy.html">here</xref>.
 			</p>
 		</section>
 
