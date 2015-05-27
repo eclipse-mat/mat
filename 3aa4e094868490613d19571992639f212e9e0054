@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "87f6139c_df888201",
+        "filename": "plugins/org.eclipse.mat.api/src/org/eclipse/mat/internal/collectionextract/WrapperCollectionExtractor.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 16759
+      },
+      "writtenOn": "2015-05-27T13:25:44Z",
+      "side": 1,
+      "message": "I saw some NullPointerExceptions here, coming for certain instances of SynchronizedCollection. I haven\u0027t analyzed in details why null the extractedCollection was null, just added some code to handle this. Currently the error is just ignored.",
+      "range": {
+        "startLine": 52,
+        "startChar": 100,
+        "endLine": 52,
+        "endChar": 101
+      },
+      "revId": "3aa4e094868490613d19571992639f212e9e0054",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
