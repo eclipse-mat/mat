@@ -7,7 +7,7 @@ requires.2.range = [1.0.0, 2.0.0)
 instructions.configure=\
     org.eclipse.equinox.p2.touchpoint.natives.remove(path:${installFolder}/readme);\
     org.eclipse.equinox.p2.touchpoint.natives.remove(path:${installFolder}/artifacts.xml);\
-    addRepository(type:0,name:Memory Analyzer,location:http${#58}//download.eclipse.org/mat/1.4/update-site/);\
-    addRepository(type:1,name:Memory Analyzer,location:http${#58}//download.eclipse.org/mat/1.4/update-site/);\
-    addRepository(type:0,name:Luna,location:http${#58}//download.eclipse.org/releases/luna/);\
-    addRepository(type:1,name:Luna,location:http${#58}//download.eclipse.org/releases/luna/);
+    addRepository(type:0,name:Memory Analyzer,location:http${#58}//download.eclipse.org/mat/1.5/update-site/);\
+    addRepository(type:1,name:Memory Analyzer,location:http${#58}//download.eclipse.org/mat/1.5/update-site/);\
+    addRepository(type:0,name:Eclipse Mars,location:http${#58}//download.eclipse.org/releases/mars/);\
+    addRepository(type:1,name:Eclipse Mars,location:http${#58}//download.eclipse.org/releases/mars/);
