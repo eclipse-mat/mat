@@ -281,7 +281,7 @@ public class DominatorQuery implements IQuery
             {
                 public int compare(Node o1, Node o2)
                 {
-                    return o1.retainedHeap.getValue() < o2.retainedHeap.getValue() ? 1 : o1.retainedHeap == o2.retainedHeap ? 0 : -1;
+                    return o1.retainedHeap.getValue() < o2.retainedHeap.getValue() ? 1 : o1.retainedHeap.getValue() == o2.retainedHeap.getValue() ? 0 : -1;
                 }
             });
 
