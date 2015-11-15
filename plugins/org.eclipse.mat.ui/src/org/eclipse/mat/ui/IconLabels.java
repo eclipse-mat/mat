@@ -13,6 +13,8 @@ package org.eclipse.mat.ui;
 
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class IconLabels
 {
@@ -34,7 +36,7 @@ public class IconLabels
         }
         catch (MissingResourceException e)
         {
-        	Thread.dumpStack();
+        	Logger.getLogger(MemoryAnalyserPlugin.PLUGIN_ID).log(Level.WARNING, "Missing key: "+key, e); //$NON-NLS-1$
             return RESOURCE_BUNDLE.getString(UNKNOWN_ICON_KEY); // Should exist.
         }
     }

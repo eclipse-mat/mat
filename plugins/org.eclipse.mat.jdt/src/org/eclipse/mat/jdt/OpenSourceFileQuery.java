@@ -25,7 +25,7 @@ import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.swt.widgets.Display;
 
 @CommandName("open_source_file")
-@Icon("/icons/jcu_obj.gif") // Icon from org.eclipse.jdt.ui/icons/full/obj16/jcu_obj.gif
+@Icon("/icons/open_source_file.gif") // Icon from org.eclipse.jdt.ui/icons/full/obj16/jcu_obj.gif
 public class OpenSourceFileQuery implements IQuery
 {
     @Argument

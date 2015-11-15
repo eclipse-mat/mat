@@ -454,7 +454,7 @@ public class MemoryAnalyserPlugin extends AbstractUIPlugin
         final String[] iconDirs = { // UI draws icons from several locations
         // Assume the following two top-level icons directories relative to
         // current directory.
-                        "..\\org.eclipse.mat.api\\META-INF\\icons", "..\\org.eclipse.mat.ui\\icons" };
+                        "../org.eclipse.mat.api/META-INF/icons", "../org.eclipse.mat.ui/icons", "../org.eclipse.mat.jdt/icons" };
         try
         // Trap any Exceptions at the outermost level.
         {
@@ -462,7 +462,7 @@ public class MemoryAnalyserPlugin extends AbstractUIPlugin
             // reproducible.
             Map<String, String> iconMap = new TreeMap<String, String>();
             for (String iconDir : iconDirs) // For each /icons directory
-                                            // (currently 2).
+                                            // (currently 3).
             {
                 File iconDirFile = new File(iconDir);
                 if (iconDirFile.isDirectory()) // Check input is valid directory
