@@ -343,7 +343,7 @@ public class FindLeaksQuery implements IQuery
 
     private int[] getRandomIds(int[] objectIds)
     {
-        if (objectIds.length < max_paths)
+        if (objectIds.length <= max_paths)
             return objectIds;
 
         MATPlugin.log(new Status(Status.INFO, MATPlugin.PLUGIN_ID, MessageUtil.format(
@@ -351,7 +351,7 @@ public class FindLeaksQuery implements IQuery
                         objectIds.length, max_paths)));
 
         Random random = new Random();
-        int length = objectIds.length - 1;
+        int length = objectIds.length;
         BitField visited = new BitField(length);
 
         int[] result = new int[max_paths];
