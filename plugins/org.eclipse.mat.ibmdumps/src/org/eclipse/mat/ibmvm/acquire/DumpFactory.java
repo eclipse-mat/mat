@@ -12,6 +12,7 @@ package org.eclipse.mat.ibmvm.acquire;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IExecutableExtensionFactory;
+import org.eclipse.mat.util.VoidProgressListener;
 
 /**
  * Create a dump provider for IBM VMs
@@ -30,7 +31,13 @@ public class DumpFactory implements IExecutableExtensionFactory
     public Object create() throws CoreException
     {
         IBMDumpProvider ret = new IBMDumpProvider();
-        if (ret.getAvailableVMs(null) != null) return ret;
+        // Faster for the initial test
+        ret.listAttach = false;
+        if (ret.getAvailableVMs(new VoidProgressListener()) != null)
+        {
+            // Allow default listAttach
+            return new IBMDumpProvider();
+        }
         return new IBMExecDumpProvider();
     }
 

@@ -40,6 +40,9 @@ public abstract class BaseProvider implements IHeapDumpProvider
     public boolean defaultCompress = false;
 
     @Argument
+    public boolean listAttach = true;
+    
+    @Argument
     public String systemDumpTemplate = "core.{0,date,yyyyMMdd.HHmmss}.{1,number,0}.{2,number,0000}.dmp"; //$NON-NLS-1$;
 
     @Argument
@@ -54,7 +57,7 @@ public abstract class BaseProvider implements IHeapDumpProvider
     @Argument
     public String javaDumpTemplate = "javacore.{0,date,yyyyMMdd.HHmmss}.{1,number,0}.{2,number,0000}.txt"; //$NON-NLS-1$;
 
-    static final int SLEEP_TIMEOUT = 1000; // milliseconds
+    static final int SLEEP_TIMEOUT = 500; // milliseconds
     static final int GROW_COUNT = 5 * 60 * 1000 / SLEEP_TIMEOUT;
     static final int FINISHED_COUNT = 5 * 1000 / SLEEP_TIMEOUT;
     static final int CREATE_COUNT = 30 * 1000 / SLEEP_TIMEOUT;

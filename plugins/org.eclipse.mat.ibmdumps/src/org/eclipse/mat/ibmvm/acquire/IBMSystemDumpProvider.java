@@ -88,27 +88,105 @@ class IBMSystemDumpProvider extends IBMDumpProvider
             preferredDump = new File(preferredDump.getPath()+".zip"); //$NON-NLS-1$;
         }
 
+        int work = 1000;
         listener.beginTask(MessageFormat.format(Messages.getString("IBMSystemDumpProvider.FormattingDump"), //$NON-NLS-1$
-                           dump, preferredDump), IProgressListener.UNKNOWN_TOTAL_WORK); 
+                           dump, preferredDump), work); 
 
 
         final boolean zip = preferredDump.getName().endsWith(".zip"); //$NON-NLS-1$
 
-        ProcessBuilder pb = new ProcessBuilder();
-        File jextract;
-        if (home != null)
-        {
-            File homebin = new File(home, "bin"); //$NON-NLS-1$
-            jextract = new File(homebin, "jextract"); //$NON-NLS-1$
-        }
-        else
-        {
-            jextract = new File("jextract"); //$NON-NLS-1$
-        }
+        // Only need to run jextract to zip a dump - DTFJ can now read dumps directly
         if (zip)
         {
+            long dumpLen = dump.length();
+            ProcessBuilder pb = new ProcessBuilder();
+            File jextract;
+            if (home != null)
+            {
+                File homebin = new File(home, "bin"); //$NON-NLS-1$
+                jextract = new File(homebin, "jextract"); //$NON-NLS-1$
+            }
+            else
+            {
+                jextract = new File("jextract"); //$NON-NLS-1$
+            }
             pb.command(jextract.getAbsolutePath(), encodingOpt, dump.getAbsolutePath(), preferredDump.getAbsolutePath());
             result = preferredDump;
+
+            pb.redirectErrorStream(true);
+            pb.directory(udir);
+            StringBuilder errorBuf = new StringBuilder();
+
+            int exitCode = 0;
+            Process p = pb.start();
+            BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream(), encoding));
+            long outlen = 0;
+            // space for DLLs plus dump compression
+            long estimatedZipLen = 64*1024*1024 + dumpLen / 5;
+            long maxEstimatedZipLen = estimatedZipLen * 2;
+            // Fraction of estimate length to then switch to maxEstimatedLength
+            int f1 = 3;
+            int f2 = 4;
+            try
+            {
+                for (;;)
+                {
+
+                    while (br.ready())
+                    {
+                        int t = br.read();
+                        if (t < 0)
+                            break;
+                        errorBuf.append((char) t);
+                    }
+                    listener.subTask("\n" + errorBuf.toString()); //$NON-NLS-1$
+                    long newlen = result.length();
+                    long step;
+                    if (newlen < f1 * estimatedZipLen / f2)
+                    {
+                        step = estimatedZipLen / work;
+                    }
+                    else
+                    {
+                        // Slow progress down when the zip file keeps growing
+                        // past 3/4 of expected length.
+                        step = (maxEstimatedZipLen - f1*estimatedZipLen/f2) * f2 / (f2 - f1) / work;
+                    }
+                    if (newlen - outlen > step)
+                    {
+                        listener.worked((int) ((newlen - outlen) / step));
+                        outlen += (newlen - outlen) / step * step;
+                    }
+
+                    if (listener.isCanceled())
+                    {
+                        p.destroy();
+                        return null;
+                    }
+                    try
+                    {
+                        p.exitValue();
+                        break;
+                    }
+                    catch (IllegalThreadStateException e)
+                    {
+                        Thread.sleep(SLEEP_TIMEOUT);
+                    }
+                }
+            }
+            finally
+            {
+                br.close();
+            }
+
+            exitCode = p.waitFor();
+            if (exitCode != 0) { throw new SnapshotException(MessageFormat.format(Messages
+                            .getString("IBMSystemDumpProvider.ReturnCode"), jextract.getAbsolutePath(), exitCode, errorBuf.toString())); //$NON-NLS-1$
+            }
+
+            if (!result.canRead()) { throw new FileNotFoundException(MessageFormat.format(Messages
+                            .getString("IBMSystemDumpProvider.ReturnCode"), result.getPath(), errorBuf.toString())); //$NON-NLS-1$
+            }
         }
         else
         {
@@ -122,65 +200,7 @@ class IBMSystemDumpProvider extends IBMDumpProvider
             {
                 // Failed, use original dump
             }
-            final String metafileName = dump.getAbsolutePath()+".xml"; //$NON-NLS-1$
-            if (dump.getName().endsWith(".dmp")) //$NON-NLS-1$
-                result = dump;
-            else
-                result = new File(metafileName);
-            pb.command(jextract.getAbsolutePath(), encodingOpt, dump.getAbsolutePath(), "-nozip", metafileName); //$NON-NLS-1$
-            
-        }
-        pb.redirectErrorStream(true);
-        pb.directory(udir);
-        StringBuilder errorBuf = new StringBuilder();
-        ;
-        int exitCode = 0;
-        Process p = pb.start();
-        BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream(), encoding));
-        try
-        {
-            for (;;)
-            {
-
-                while (br.ready())
-                {
-                    int t = br.read();
-                    if (t < 0)
-                        break;
-                    if (t == '.')
-                        listener.worked(1);
-                    errorBuf.append((char) t);
-                }
-                listener.subTask("\n" + errorBuf.toString()); //$NON-NLS-1$
-
-                if (listener.isCanceled())
-                {
-                    p.destroy();
-                    return null;
-                }
-                try
-                {
-                    p.exitValue();
-                    break;
-                }
-                catch (IllegalThreadStateException e)
-                {
-                    Thread.sleep(SLEEP_TIMEOUT);
-                }
-            }
-        }
-        finally
-        {
-            br.close();
-        }
-
-        exitCode = p.waitFor();
-        if (exitCode != 0) { throw new SnapshotException(MessageFormat.format(Messages
-                        .getString("IBMSystemDumpProvider.ReturnCode"), jextract.getAbsolutePath(), exitCode, errorBuf.toString())); //$NON-NLS-1$
-        }
-
-        if (!result.canRead()) { throw new FileNotFoundException(MessageFormat.format(Messages
-                        .getString("IBMSystemDumpProvider.ReturnCode"), result.getPath(), errorBuf.toString())); //$NON-NLS-1$
+            result = dump;
         }
 
         // Tidy up

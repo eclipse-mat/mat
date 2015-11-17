@@ -113,15 +113,13 @@ public class AcquireDialog extends WizardPage
 
         TableColumn column = new TableColumn(localVMsTable, SWT.RIGHT);
         column.setText(Messages.AcquireDialog_ColumnDescription);
-        column.setWidth(150);
+        column.setWidth(250);
         column = new TableColumn(localVMsTable, SWT.RIGHT);
         column.setText(Messages.AcquireDialog_ColumnPID);
-        column.setWidth(70);
+        column.setWidth(50);
         column = new TableColumn(localVMsTable, SWT.LEFT);
         column.setText(Messages.AcquireDialog_HeapDumpProviderColumnHeader);
         column.setWidth(200);
-
-        refreshTable();
 
         Composite buttons = new Composite(top, SWT.NONE);
         buttons.setLayout(new GridLayout(1, false));
@@ -134,9 +132,7 @@ public class AcquireDialog extends WizardPage
 			
 			public void widgetSelected(SelectionEvent e)
 			{
-		        localVMsTable.deselectAll();
-		        selectionChanged();
-				refreshTable();
+				refresh();
 			}
 		});
         
@@ -237,6 +233,15 @@ public class AcquireDialog extends WizardPage
 
         localVMsTable.setFocus();
         setControl(top);
+        
+        // Delay retrieving the VM information until the wizard is displayed
+        getControl().getDisplay().asyncExec(new Runnable()
+        {
+            public void run()
+            {
+                refresh();
+            }
+        });
     }
     
     private void refreshTable()

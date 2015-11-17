@@ -35,7 +35,6 @@ import org.eclipse.mat.util.IProgressListener.Severity;
 
 import com.ibm.tools.attach.AgentInitializationException;
 import com.ibm.tools.attach.AgentLoadException;
-import com.ibm.tools.attach.AttachNotSupportedException;
 import com.ibm.tools.attach.VirtualMachine;
 import com.ibm.tools.attach.VirtualMachineDescriptor;
 
@@ -500,7 +499,7 @@ public class IBMDumpProvider extends BaseProvider
     {
         try
         {
-            return getAvailableVMs1();
+            return getAvailableVMs1(listener);
         }
         catch (LinkageError e)
         {
@@ -508,17 +507,20 @@ public class IBMDumpProvider extends BaseProvider
         }
     }
     
-    private List<IBMVmInfo> getAvailableVMs1()
+    private List<IBMVmInfo> getAvailableVMs1(IProgressListener listener)
     {
         List<VirtualMachineDescriptor> list = VirtualMachine.list();
+        listener.beginTask(Messages.getString("IBMDumpProvider.ListingIBMVMs"), list.size());
         List<IBMVmInfo> jvms = new ArrayList<IBMVmInfo>();
         for (VirtualMachineDescriptor vmd : list)
         {
             boolean usable = true;
             String dir = null;
             // See if the VM is usable to get dumps
-            if (false)
+            String displayName = vmd.displayName();
+            if (vmd.id().equals(displayName) && listAttach)
             {
+                // Insufficient details of running VM, so attach for more information
                 try
                 {
                     // Hope that this is not too intrusive to the target
@@ -527,17 +529,25 @@ public class IBMDumpProvider extends BaseProvider
                     {
                         Properties p = vm.getSystemProperties();
                         dir = p.getProperty("user.dir");
+                        // Get something which might identify the running VM to
+                        // the user
+                        displayName = p.getProperty("java.class.path");
+                        if (displayName == null || displayName.equals(""))
+                        {
+                            displayName = dir;
+                        }
                     }
                     finally
                     {
                         vm.detach();
                     }
                 }
-                catch (AttachNotSupportedException e)
+                catch (IOException e)
                 {
                     usable = false;
                 }
-                catch (IOException e)
+                // Catching AttachNotSupportedException stops the whole class loading if attach API is not present
+                catch (/*AttachNotSupported*/Exception e)
                 {
                     usable = false;
                 }
@@ -556,7 +566,7 @@ public class IBMDumpProvider extends BaseProvider
 
             // Create VMinfo to generate heap dumps
             
-            String desc = MessageFormat.format(Messages.getString("IBMDumpProvider.VMDescription"), vmd.provider().name(), vmd.provider().type(), vmd.displayName()); //$NON-NLS-1$
+            String desc = MessageFormat.format(Messages.getString("IBMDumpProvider.VMDescription"), vmd.provider().name(), vmd.provider().type(), displayName); //$NON-NLS-1$
             IBMVmInfo ifo = new IBMVmInfo(vmd.id(), desc, usable, null, this);
             ifo.type = defaultType;
             ifo.compress = defaultCompress;
@@ -564,7 +574,16 @@ public class IBMDumpProvider extends BaseProvider
                 ifo.dumpdir = new File(dir);
             jvms.add(ifo);
             ifo.setHeapDumpEnabled(usable);
+
+            listener.worked(1);
+            if (listener.isCanceled())
+            {
+                // If the user cancelled then perhaps the attach is hanging
+                listAttach = false;
+                break;
+            }
         }
+        listener.done();
         return jvms;
     }
 
@@ -578,6 +597,10 @@ public class IBMDumpProvider extends BaseProvider
      *        <li>[3] dump name</li>
      *        <li>[4] dump directory (optional)</li>
      *        </ul>
+     *        List VMs
+     *        <ul>
+     *        <li>true - attach to VM to get more details</li>
+     *        </ul>
      * Output<ul>
      * <li>dump filename</li>
      * <li>or list of all processes (if argument list is empty)
@@ -587,8 +610,12 @@ public class IBMDumpProvider extends BaseProvider
     public static void main(String s[]) throws Exception
     {
         IBMDumpProvider prov = new IBMDumpProvider();
-        List<IBMVmInfo> vms = prov.getAvailableVMs1();
+        if (s.length < 4 && s.length > 0)
+        {
+            prov.listAttach = Boolean.parseBoolean(s[0]);
+        }
         IProgressListener ii = new StderrProgressListener();
+        List<IBMVmInfo> vms = prov.getAvailableVMs1(ii);
         for (VmInfo info : vms)
         {
             IBMVmInfo vminfo = (IBMVmInfo)info;
