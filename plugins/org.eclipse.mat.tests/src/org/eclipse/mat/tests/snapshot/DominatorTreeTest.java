@@ -21,8 +21,11 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.query.IResultTable;
+import org.eclipse.mat.query.IResultTree;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IClass;
+import org.eclipse.mat.snapshot.query.SnapshotQuery;
 import org.eclipse.mat.tests.TestSnapshots;
 import org.eclipse.mat.util.VoidProgressListener;
 import org.junit.Test;
@@ -132,6 +135,24 @@ public class DominatorTreeTest
         }
     }
 
+    @Test
+    public void testImmDomQuerySunJdk6_32() throws SnapshotException
+    {
+        ISnapshot snapshot = TestSnapshots.getSnapshot(TestSnapshots.SUN_JDK6_32BIT, false);
+        SnapshotQuery query = SnapshotQuery.parse("immediate_dominators char[]", snapshot);
+        IResultTable t = (IResultTable) query.execute(new VoidProgressListener());
+        assert t.getRowCount() == 18 : "Expected 18 immediate dominators";
+    }
+    
+    @Test
+    public void testShowDomTreeQuerySunJdk6_32() throws SnapshotException
+    {
+        ISnapshot snapshot = TestSnapshots.getSnapshot(TestSnapshots.SUN_JDK6_32BIT, false);
+        SnapshotQuery query = SnapshotQuery.parse("show_dominator_tree char[]", snapshot);
+        IResultTree t = (IResultTree) query.execute(new VoidProgressListener());
+        assert t.getElements().size() == 1341 : "Expected 1341 immediate dominators";
+    }
+    
     private String name(int id, ISnapshot snapshot) throws UnsupportedOperationException, SnapshotException
     {
         String nodeClass = snapshot.getClassOf(id).getName();
