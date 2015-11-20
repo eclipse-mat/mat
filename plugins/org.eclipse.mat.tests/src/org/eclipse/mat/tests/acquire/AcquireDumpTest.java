@@ -69,6 +69,7 @@ public class AcquireDumpTest
             collector.checkThat("Should be an ID", hd.getIdentifier().length(), greaterThan(3));
             IHeapDumpProvider hdp = hd.getHeapDumpProvider();
             collector.checkThat("Heap Dump Provider", hdp, notNullValue());
+            collector.checkThat("Heap Dump Provider toString", hdp.toString(), notNullValue());
         }
     }
 
@@ -99,6 +100,7 @@ public class AcquireDumpTest
             {
                 continue;
             }
+            collector.checkThat("Heap dump provider "+hdp, ls, notNullValue());
             for (VmInfo vm : ls)
             {
                 ++count;
