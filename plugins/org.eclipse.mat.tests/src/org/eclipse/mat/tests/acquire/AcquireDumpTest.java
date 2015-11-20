@@ -27,6 +27,7 @@ import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.SnapshotFactory;
 import org.eclipse.mat.snapshot.acquire.IHeapDumpProvider;
 import org.eclipse.mat.snapshot.acquire.VmInfo;
+import org.eclipse.mat.tests.TestSnapshots;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.VoidProgressListener;
 import org.junit.Rule;
@@ -82,6 +83,7 @@ public class AcquireDumpTest
         Collection<HeapDumpProviderDescriptor> descs = HeapDumpProviderRegistry.instance().getHeapDumpProviders();
         int count = 0;
         int found = 0;
+        File tmpdir = TestSnapshots.createGeneratedName("acquire", null);
         for (HeapDumpProviderDescriptor hd : descs)
         {
             IHeapDumpProvider hdp = hd.getHeapDumpProvider();
@@ -105,8 +107,13 @@ public class AcquireDumpTest
                 {
                     System.out.println("Desc " + desc);
                     File f = new File(vm.getProposedFileName());
-                    File tmp = new File(System.getProperty("java.io.tmpdir"), f.getName());
-                    File dmp = hdp.acquireDump(vm, tmp, l);
+                    System.out.println("Proposed name "+f);
+                    String fname = f.getName();
+                    int ldot = fname.lastIndexOf('.');
+                    String fname2 = "acquire_dump" + fname.substring(ldot);
+                    File tmpdump = new File(tmpdir, fname2);
+                    System.out.println("Dump " + tmpdump);
+                    File dmp = hdp.acquireDump(vm, tmpdump, l);
                     collector.checkThat("Dump file", dmp, notNullValue());
                     try
                     {
