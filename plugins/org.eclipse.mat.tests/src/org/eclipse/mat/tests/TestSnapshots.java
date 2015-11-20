@@ -276,7 +276,7 @@ public class TestSnapshots
         return file;
     }
 
-    private static File createGeneratedName(String prefix, File directory) throws IOException
+    public static File createGeneratedName(String prefix, File directory) throws IOException
     {
         File tempFile = File.createTempFile(prefix, "", directory);
         if (!tempFile.delete())
