@@ -110,8 +110,7 @@ public class AcquireDumpTest
                     collector.checkThat("Dump file", dmp, notNullValue());
                     try
                     {
-                        ISnapshot answer = SnapshotFactory.openSnapshot(dmp, Collections.<String, String> emptyMap(),
-                                        l);
+                        ISnapshot answer = SnapshotFactory.openSnapshot(dmp, Collections.<String, String> emptyMap(), l);
                         try
                         {
                             collector.checkThat("Snapshot", answer, notNullValue());
