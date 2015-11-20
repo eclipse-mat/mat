@@ -309,13 +309,13 @@
 		<module>../plugins/org.eclipse.mat.jdt</module>
 		<module>../plugins/org.eclipse.mat.parser</module>
 		<module>../plugins/org.eclipse.mat.report</module>
+		<module>../plugins/org.eclipse.mat.ibmdumps</module>
+		<module>../plugins/org.eclipse.mat.jruby.resolver</module>
 		<module>../plugins/org.eclipse.mat.tests</module>
 		<module>../plugins/org.eclipse.mat.tests.junit</module>
 		<module>../plugins/org.eclipse.mat.ui</module>
 		<module>../plugins/org.eclipse.mat.ui.help</module>
 		<module>../plugins/org.eclipse.mat.ui.rcp</module>
-		<module>../plugins/org.eclipse.mat.ibmdumps</module>
-		<module>../plugins/org.eclipse.mat.jruby.resolver</module>
 		<!-- features -->
 		<module>../features/org.eclipse.mat.chart.feature</module>
 		<module>../features/org.eclipse.mat.feature</module>
