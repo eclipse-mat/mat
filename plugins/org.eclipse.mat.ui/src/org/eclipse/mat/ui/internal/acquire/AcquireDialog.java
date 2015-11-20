@@ -13,7 +13,9 @@ package org.eclipse.mat.ui.internal.acquire;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -217,7 +219,8 @@ public class AcquireDialog extends WizardPage
                         int i = name.lastIndexOf('.');
                         if (i >= 0)
                         {
-                            dialog.getFilterExtensions();
+                            String s[] = dialog.getFilterExtensions();
+                            System.out.println(Arrays.toString(s));
                             dialog.setFilterExtensions(new String[] { "*" + name.substring(i), "*.*" }); //$NON-NLS-1$ //$NON-NLS-2$
                         }
                     }
@@ -262,6 +265,11 @@ public class AcquireDialog extends WizardPage
 					item.setText(1, Integer.toString(process.getPid()));
 					item.setText(2, getProviderDescriptor(process).getName());
 					item.setData(new AnnotatedObjectArgumentsSet(descriptor));
+					URL icon = getProviderDescriptor(process).getIcon();
+					System.out.println("Icon "+icon+" "+process.getHeapDumpProvider());
+					if (icon != null) {
+					    item.setImage(MemoryAnalyserPlugin.getDefault().getImage(MemoryAnalyserPlugin.getDefault().getImageDescriptor(icon)));
+					}
 				}
 				catch (SnapshotException e)
 				{
