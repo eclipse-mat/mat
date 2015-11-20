@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.core.runtime.Platform;
@@ -189,7 +190,7 @@ public class IBMExecDumpProvider extends BaseProvider
     {
         List<VmInfo> ret;
         if (abort)
-            return null;
+            return Collections.<VmInfo>emptyList();
         /*
          * 1.Try previous/no directory 2.Query directory - based on
          * previous/Java.home
@@ -292,6 +293,12 @@ public class IBMExecDumpProvider extends BaseProvider
         }
     }
 
+    /**
+     * Get list of VMs
+     * @param javaExec
+     * @param listener
+     * @return List of VMs - might be empty if there is an error
+     */
     private List<VmInfo> execGetVMs(File javaExec, IProgressListener listener)
     {
         ArrayList<VmInfo> ar = new ArrayList<VmInfo>();
@@ -335,9 +342,13 @@ public class IBMExecDumpProvider extends BaseProvider
                         }
                         while (es.ready())
                         {
-                            err.append((char) es.read());
-                            // IBMDumpProvider prints a dot for each thing worked
-                            listener.worked(1);
+                            char read = (char) es.read();
+                            err.append(read);
+                            if (read == '.')
+                            {
+                                // IBMDumpProvider prints a dot for each thing worked
+                                listener.worked(1);
+                            }
                             ++count;
                         }
                         try
@@ -354,7 +365,7 @@ public class IBMExecDumpProvider extends BaseProvider
                             p.destroy();
                             // User cancelled, so perhaps attaching for details was a bad idea
                             listAttach = false;
-                            return null;
+                            break;
                         }
                     }
                     while (true);
@@ -362,7 +373,6 @@ public class IBMExecDumpProvider extends BaseProvider
                     {
                         listener.sendUserMessage(Severity.WARNING,
                                         MessageUtil.format(Messages.getString("IBMExecDumpProvider.ProblemListingVMsRC"), execPath, rc, err.toString()), null); //$NON-NLS-1$
-                        ar = null;
                         return ar;
                     }
                     String ss[] = in.toString().split("[\\n\\r]+"); //$NON-NLS-1$
@@ -400,16 +410,17 @@ public class IBMExecDumpProvider extends BaseProvider
         catch (IOException e)
         {
             listener.sendUserMessage(Severity.WARNING, MessageUtil.format(Messages.getString("IBMExecDumpProvider.ProblemListingVMs"), execPath), e); //$NON-NLS-1$
-            ar = null;
         }
         catch (InterruptedException e)
         {
             listener.sendUserMessage(Severity.WARNING, MessageUtil.format(Messages.getString("IBMExecDumpProvider.ProblemListingVMs"), execPath), e); //$NON-NLS-1$
-            ar = null;
         }
         listener.done();
         // Remember the count of progress as an estimate for next time
-        lastCount = count;
+        if (count > 0)
+        {
+            lastCount = count;
+        }
         return ar;
     }
 

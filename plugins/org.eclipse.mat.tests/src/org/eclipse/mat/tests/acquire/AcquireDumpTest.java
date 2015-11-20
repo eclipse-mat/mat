@@ -49,8 +49,7 @@ public class AcquireDumpTest
     public void test()
     {
         Collection<HeapDumpProviderDescriptor> descs = HeapDumpProviderRegistry.instance().getHeapDumpProviders();
-        // ibmdumps plugin isn't currently available when testing
-        collector.checkThat("Should be HPROF and IBM Dumps descriptors", descs.size(), greaterThanOrEqualTo(1));
+        collector.checkThat("Should be HPROF and IBM Dumps descriptors", descs.size(), greaterThanOrEqualTo(2));
     }
 
     /**
@@ -101,6 +100,8 @@ public class AcquireDumpTest
                 continue;
             }
             collector.checkThat("Heap dump provider "+hdp, ls, notNullValue());
+            if (ls == null)
+                continue;
             for (VmInfo vm : ls)
             {
                 ++count;
