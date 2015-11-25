@@ -533,6 +533,7 @@ public class Messages extends NLS
 
     public static String ThreadStackQuery_Column_ObjectStackFrame;
     public static String ThreadStackQuery_Label_Local;
+    public static String ThreadStackQuery_Label_Local_Blocked_On;
 
     public static String TopComponentsReportQuery_TopComponentReports;
 
