@@ -506,11 +506,11 @@ public interface ISnapshot
     public IObject getObject(int objectId) throws SnapshotException;
 
     /**
-     * Get the GC root info for an object. If the provided object is no GC root
-     * null will be returned otherwise a GCRootInfo[]. An object can be a GC
-     * root for more than one reason and the returned array will contain one
-     * instance of GCRootInfo for each of the reasons (e.g. one GCRootInfo for
-     * every thread where an object is a java local variable)
+     * Get the GC root info for an object. If the provided object is not a GC
+     * root, then null will be returned; otherwise, a GCRootInfo[]. An object
+     * can be a GC root for more than one reason and the returned array will
+     * contain one instance of GCRootInfo for each of the reasons (e.g. one
+     * GCRootInfo for every thread where an object is a java local variable)
      * <p>
      * Performance: Fast - in memory.
      * 

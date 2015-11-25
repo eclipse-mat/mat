@@ -13,7 +13,6 @@ package org.eclipse.mat.inspections.threads;
 
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -39,6 +38,7 @@ import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.snapshot.ISnapshot;
+import org.eclipse.mat.snapshot.model.GCRootInfo;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IStackFrame;
@@ -172,6 +172,19 @@ public class ThreadOverviewQuery implements IQuery
         private IThreadStack stack;
         private int[] stackRoots;
     }
+    
+    private static class ThreadStackFrameNode
+    {
+        private ThreadOverviewNode threadOverviewNode;
+        private IStackFrame stackFrame;
+        private int depth;
+    }
+    
+    private static class ThreadStackFrameLocalNode
+    {
+        private ThreadStackFrameNode threadStackFrameNode;
+        private int objectId;
+    }
 
     private static class ThreadInfoList implements IResultTree, IIconProvider, IDecorator
     {
@@ -281,12 +294,12 @@ public class ThreadOverviewQuery implements IQuery
                 ThreadOverviewNode info = (ThreadOverviewNode) row;
                 return info.threadInfo.getValue(columns[columnIndex]);
             } else {
-                if (row instanceof IStackFrame)
+                if (row instanceof ThreadStackFrameNode)
                 {
                     switch (columnIndex)
                     {
                         case 0:
-                            IStackFrame frame = (IStackFrame) row;
+                            IStackFrame frame = ((ThreadStackFrameNode) row).stackFrame;
                             return frame.getText();
                         default:
                             break;
@@ -296,7 +309,13 @@ public class ThreadOverviewQuery implements IQuery
                 {
                     int newColumnIndex = colMap[columnIndex];
                     if (newColumnIndex >= 0)
+                    {
+                        if (row instanceof ThreadStackFrameLocalNode)
+                        {
+                            row = root2element.get(((ThreadStackFrameLocalNode)row).objectId);
+                        }
                         return objectList.getColumnValue(row, newColumnIndex);
+                    }
                 }
                 return null;
             }
@@ -304,17 +323,26 @@ public class ThreadOverviewQuery implements IQuery
 
         public IContextObject getContext(final Object row)
         {
-            if (row instanceof ThreadOverviewNode) { return new IContextObject()
-            {
-                public int getObjectId()
+            if (row instanceof ThreadOverviewNode) {
+                return new IContextObject()
                 {
-                    return ((ThreadOverviewNode) row).threadInfo.getThreadId();
-                }
-            }; }
-            if (row instanceof IStackFrame)
+                    public int getObjectId()
+                    {
+                        return ((ThreadOverviewNode) row).threadInfo.getThreadId();
+                    }
+                };
+            }
+            if (row instanceof ThreadStackFrameNode)
                 return null;
 
-            return objectList.getContext(row);
+            if (row instanceof ThreadStackFrameLocalNode)
+            {
+                return objectList.getContext(root2element.get(((ThreadStackFrameLocalNode)row).objectId));
+            }
+            else
+            {
+                return objectList.getContext(row);
+            }
         }
 
         public URL getIcon(Object row)
@@ -323,24 +351,67 @@ public class ThreadOverviewQuery implements IQuery
             {
                 return THREAD_ICON_URL;
             }
-            else if (row instanceof IStackFrame)
+            else if (row instanceof ThreadStackFrameNode)
             {
                 return null;
             }
             else
+            {
+                if (row instanceof ThreadStackFrameLocalNode)
+                {
+                    row = root2element.get(((ThreadStackFrameLocalNode)row).objectId);
+                }
                 return objectList.getIcon(row);
+            }
         }
 
         public String prefix(Object row)
         {
             if (row instanceof ThreadOverviewNode)
                 return null;
-            else if (row instanceof IStackFrame)
+            else if (row instanceof ThreadStackFrameNode)
                 return null;
             else
             {
+                ThreadStackFrameLocalNode tsfmln = null;
+                if (row instanceof ThreadStackFrameLocalNode)
+                {
+                    tsfmln = (ThreadStackFrameLocalNode) row;
+                    row = root2element.get(tsfmln.objectId);
+                }
                 String prefix = objectList.prefix(row);
-                return prefix == null ? Messages.ThreadStackQuery_Label_Local : prefix;
+                if (prefix == null)
+                {
+                    // If this is the top stack frame and this object is a GC
+                    // Root, then check if it's of the type BUSY_MONITOR with
+                    // the context ID of this thread, and if so, note that this
+                    // is the object thethread is blocked on
+                    if (tsfmln != null && tsfmln.threadStackFrameNode != null && tsfmln.threadStackFrameNode.depth == 0)
+                    {
+                        int objectId = objectList.getContext(row).getObjectId();
+                        try
+                        {
+                            GCRootInfo[] gcRootInfos = snapshot.getGCRootInfo(objectId);
+                            for (GCRootInfo gcRootInfo : gcRootInfos)
+                            {
+                                if ((gcRootInfo.getType() & GCRootInfo.Type.BUSY_MONITOR) != 0
+                                                && gcRootInfo.getContextId() == tsfmln.threadStackFrameNode.threadOverviewNode.threadInfo
+                                                                .getThreadObject()
+                                                                .getObjectId()) { return Messages.ThreadStackQuery_Label_Local_Blocked_On; }
+                            }
+                        }
+                        catch (SnapshotException e)
+                        {
+                            // Something is wrong with the GC root information,
+                            // so just skip this
+                        }
+                    }
+                    return Messages.ThreadStackQuery_Label_Local;
+                }
+                else
+                {
+                    return prefix;
+                }
             }
         }
 
@@ -348,10 +419,16 @@ public class ThreadOverviewQuery implements IQuery
         {
             if (row instanceof ThreadOverviewNode)
                 return null;
-            else if (row instanceof IStackFrame)
+            else if (row instanceof ThreadStackFrameNode)
                 return null;
             else
+            {
+                if (row instanceof ThreadStackFrameLocalNode)
+                {
+                    row = root2element.get(((ThreadStackFrameLocalNode)row).objectId);
+                }
                 return objectList.suffix(row);
+            }
         }
 
         public List<?> getElements()
@@ -368,37 +445,71 @@ public class ThreadOverviewQuery implements IQuery
                 IStackFrame[] frames = stack.getStackFrames();
                 return frames != null && frames.length > 0;
             }
-            else if (element instanceof IStackFrame)
+            else if (element instanceof ThreadStackFrameNode)
             {
-                IStackFrame frame = (IStackFrame) element;
+                IStackFrame frame = ((ThreadStackFrameNode) element).stackFrame;
                 int[] objectIds = frame.getLocalObjectsIds();
                 return objectIds != null && objectIds.length > 0;
             }
-            return objectList.hasChildren(element);
+            else
+            {
+                if (element instanceof ThreadStackFrameLocalNode)
+                {
+                    element = root2element.get(((ThreadStackFrameLocalNode)element).objectId);
+                }
+                return objectList.hasChildren(element);
+            }
         }
 
         public List<?> getChildren(Object parent)
         {
             if (parent instanceof ThreadOverviewNode)
             {
-                IStackFrame[] frames = ((ThreadOverviewNode) parent).stack.getStackFrames();
-                return Arrays.asList(frames);
+                ThreadOverviewNode ton = (ThreadOverviewNode) parent;
+                IStackFrame[] frames = ton.stack.getStackFrames();
+                final int numFrames = frames.length;
+                List<ThreadStackFrameNode> stackFrameNodes = new ArrayList<ThreadStackFrameNode>(numFrames);
+                for (int i = 0; i < numFrames; i++)
+                {
+                    IStackFrame frame = frames[i];
+                    ThreadStackFrameNode tsfn = new ThreadStackFrameNode();
+                    tsfn.stackFrame = frame;
+                    tsfn.depth = i;
+                    tsfn.threadOverviewNode = ton;
+                    stackFrameNodes.add(tsfn);
+                }
+                return stackFrameNodes;
             }
-            else if (parent instanceof IStackFrame)
+            else if (parent instanceof ThreadStackFrameNode)
             {
-                IStackFrame frame = (IStackFrame) parent;
+                ThreadStackFrameNode tsfn = (ThreadStackFrameNode) parent;
+                IStackFrame frame = tsfn.stackFrame;
                 int[] localIds = frame.getLocalObjectsIds();
-                if (localIds != null) { return asList(localIds); }
+                if (localIds != null)
+                {
+                    List<ThreadStackFrameLocalNode> stackFrameLocals = new ArrayList<ThreadStackFrameLocalNode>(localIds.length);
+                    for (int localId : localIds)
+                    {
+                        ThreadStackFrameLocalNode tsfln = new ThreadStackFrameLocalNode();
+                        tsfln.objectId = localId;
+                        tsfln.threadStackFrameNode = tsfn;
+                        stackFrameLocals.add(tsfln);
+                    }
+                    return stackFrameLocals;
+                }
+                else
+                {
+                    return null;
+                }
             }
-            return objectList.getChildren(parent);
-        }
-        
-        private List<?> asList(int[] objectIds)
-        {
-            List<Object> answer = new ArrayList<Object>(objectIds.length);
-            for (int id : objectIds)
-                answer.add(root2element.get(id));
-            return answer;
+            else
+            {
+                if (parent instanceof ThreadStackFrameLocalNode)
+                {
+                    parent = root2element.get(((ThreadStackFrameLocalNode)parent).objectId);
+                }
+                return objectList.getChildren(parent);
+            }
         }
         
         class NoCompareComparator implements Comparator<Object>
