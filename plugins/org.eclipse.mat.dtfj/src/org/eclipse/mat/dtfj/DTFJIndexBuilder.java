@@ -2218,6 +2218,15 @@ public class DTFJIndexBuilder implements IIndexBuilder
             listener.sendUserMessage(Severity.INFO, MessageFormat.format(
                             Messages.DTFJIndexBuilder_FinalizableObjectsMarkedAsRoots, finalizables), null);
         }
+        
+        for (Iterator<?> i = dtfjInfo.getJavaRuntime().getThreads(); i.hasNext();)
+        {
+            Object next = i.next();
+            if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingThreads, dtfjInfo.getJavaRuntime()))
+                continue;
+            JavaThread th = (JavaThread) next;
+            checkThreadBlockingObject(th, listener);
+        }
 
         // Remaining roots
         if (gcRoot.isEmpty() || threadRoots.isEmpty() || threadRootObjects() == 0 || presumeRoots)
@@ -3873,6 +3882,29 @@ public class DTFJIndexBuilder implements IIndexBuilder
         }
     }
 
+    private void checkThreadBlockingObject(JavaThread th, IProgressListener listener)
+    {
+        // If the thread has a blocking object, add that GC root as well
+        try
+        {
+            JavaObject blockingObject = th.getBlockingObject();
+            if (blockingObject != null)
+            {
+                long objAddress = blockingObject.getID().getAddress();
+                long thrd2 = getThreadAddress(th, null);
+                if (thrd2 != 0)
+                {
+                    addRoot(gcRoot, objAddress, thrd2, GCRootInfo.Type.BUSY_MONITOR);
+                }
+            }
+        }
+        catch (DTFJException e)
+        {
+            listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
+                            Messages.DTFJIndexBuilder_ProblemReadingJavaThreadInformationFor, th), e);
+        }
+    }
+
     /**
      * Find the lowest address of the stack section which contains the given
      * address
@@ -4090,7 +4122,6 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     }
                     break;
                 case JavaReference.HEAP_ROOT_THREAD:
-                    type = GCRootInfo.Type.THREAD_BLOCK;
                     type = GCRootInfo.Type.THREAD_OBJ;
                     break;
                 case JavaReference.HEAP_ROOT_OTHER:
@@ -6840,17 +6871,21 @@ public class DTFJIndexBuilder implements IIndexBuilder
             gc.put(objectId, rootsForID);
         }
         rootsForID.add(rri);
-        // if (debugInfo) debugPrint("Root "+format(obj));
-        int clsId = objectToClass.get(objectId);
-        ClassImpl cls = idToClass.get(clsId);
-        // if (debugInfo) debugPrint("objid "+objectId+" clsId "+clsId+" "+cls);
-        String clsName = cls != null ? cls.getName() : ""; //$NON-NLS-1$
-        String desc = "" + format(obj) + " " + objectId + " ctx " + format(ctx) + " " + rri.getContextId() + " type:" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
-                        + clsName;
-        // 32 busy monitor
-        // 64 java local
-        // 256 thread obj
-        if (debugInfo) debugPrint("Root " + type + " " + desc); //$NON-NLS-1$ //$NON-NLS-2$
+        
+        if (debugInfo)
+        {
+            // if (debugInfo) debugPrint("Root "+format(obj));
+            int clsId = objectToClass.get(objectId);
+            ClassImpl cls = idToClass.get(clsId);
+            // if (debugInfo) debugPrint("objid "+objectId+" clsId "+clsId+" "+cls);
+            String clsName = cls != null ? cls.getName() : ""; //$NON-NLS-1$
+            String desc = "" + format(obj) + " " + objectId + " ctx " + format(ctx) + " " + rri.getContextId() + " type:" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+                            + clsName;
+            // 32 busy monitor
+            // 64 java local
+            // 256 thread obj
+            debugPrint("Root " + type + " " + desc); //$NON-NLS-1$ //$NON-NLS-2$
+        }
     }
 
     /**
