@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012,2014 IBM Corporation.
+ * Copyright (c) 2012,2015 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,13 +10,17 @@
  *******************************************************************************/
 package org.eclipse.mat.parser.internal.oql.compiler;
 
+import java.lang.ref.SoftReference;
 import java.lang.reflect.Array;
 import java.util.AbstractList;
 import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.inspections.collectionextract.CollectionExtractionUtils;
+import org.eclipse.mat.inspections.collectionextract.ExtractedCollection;
 import org.eclipse.mat.snapshot.ISnapshot;
+import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IObjectArray;
 import org.eclipse.mat.snapshot.model.IPrimitiveArray;
 import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
@@ -77,7 +81,7 @@ class ArrayIndexExpression extends Expression
         }
     }
 
-    private static class ObjectArraySubList extends AbstractList<Object>
+    private static class ObjectArraySubList extends AbstractList<IObject>
     {
         private final IObjectArray array;
         private final int i1;
@@ -91,7 +95,7 @@ class ArrayIndexExpression extends Expression
         }
         
         @Override
-        public Object get(int index)
+        public IObject get(int index)
         {
             if (index < 0 || index >= size()) throw new IndexOutOfBoundsException(Integer.toString(index));
             long addr = array.getReferenceArray(i1 + index, 1)[0];
@@ -102,6 +106,56 @@ class ArrayIndexExpression extends Expression
             {
                 int objectId = snapshot.mapAddressToId(addr);
                 return snapshot.getObject(objectId);
+            }
+            catch (SnapshotException e)
+            {
+                throw new IllegalStateException(e);
+            }
+        }
+
+        @Override
+        public int size()
+        {
+            return i2 - i1;
+        }
+        
+    }
+    
+    private static class CollectionObjectSubList extends AbstractList<IObject>
+    {
+        private final ExtractedCollection coll;
+        private final int i1;
+        private final int i2;
+        /** Cache extraction of the objects in the collection */
+        SoftReference<int[]> sr = null;
+
+        public CollectionObjectSubList(ExtractedCollection coll, int i1, int i2)
+        {
+            this.coll = coll;
+            this.i1 = i1;
+            this.i2 = i2;
+            
+        }
+        
+        @Override
+        public IObject get(int index)
+        {
+            if (index < 0 || index >= size())
+                throw new IndexOutOfBoundsException(Integer.toString(index));
+            int objs[];
+            if (!(sr != null && (objs = sr.get()) != null))
+            {
+                objs = coll.extractEntryIds();
+                sr = new SoftReference<int[]>(objs);
+            }
+            if (i1 + index >= objs.length) 
+            { 
+                throw new IllegalArgumentException((i1 + index) + " >= " + objs.length +" " + coll.getTechnicalName()); 
+            }
+            int objectId = objs[i1 + index];
+            try
+            {
+                return coll.getSnapshot().getObject(objectId);
             }
             catch (SnapshotException e)
             {
@@ -205,12 +259,34 @@ class ArrayIndexExpression extends Expression
             int objectId = snapshot.mapAddressToId(addr);
             return snapshot.getObject(objectId);
         }
-        else
+        else if (subject instanceof IObject)
         {
-            // Show the array, which is wrong, and the index for context
-            throw new IllegalArgumentException(subject + toString()+": "+subject.getClass()); //$NON-NLS-1$
+            IObject obj = (IObject) subject;
+            ExtractedCollection coll = CollectionExtractionUtils.extractList(obj);
+            if (coll != null && coll.hasExtractableContents())
+            {
+                Object objlen = coll.size();
+                if (objlen != null)
+                {
+                    int len = (Integer)objlen;
+                    if (range)
+                    {
+                        final int i1 = normalize(index, len, 0), i2 = normalize(index2, len, 1);
+                        return new CollectionObjectSubList(coll, i1, i2);
+                    }
+                    if (index >= len)
+                        return null;
+                    if (index < 0)
+                        return null;
+                    ISnapshot snapshot = coll.getSnapshot();
+                    int objectId = coll.extractEntryIds()[index];
+                    coll.getSnapshot().getObject(objectId);
+                    return snapshot.getObject(objectId);
+                }
+            }
         }
-
+        // Show the array, which is wrong, and the index for context
+        throw new IllegalArgumentException(subject + toString() + ": " + subject.getClass()); //$NON-NLS-1$
     }
 
     private int evalIndex(Object indexObj)

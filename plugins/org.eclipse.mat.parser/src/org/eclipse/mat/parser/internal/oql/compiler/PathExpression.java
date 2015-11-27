@@ -22,6 +22,9 @@ import java.util.List;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.parser.internal.Messages;
+import org.eclipse.mat.snapshot.model.Field;
+import org.eclipse.mat.snapshot.model.FieldDescriptor;
+import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.util.MessageUtil;
 
@@ -131,7 +134,33 @@ class PathExpression extends Expression
                     else
                     {
                         IObject c = (IObject) current;
-                        current = c.resolveValue(attribute.getName());
+                        // Performance optimization
+                        boolean found = false;
+                        for (FieldDescriptor fd : c.getClazz().getFieldDescriptors())
+                        {
+                            if (fd.getName().equals(attribute.getName()))
+                            {
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (found)
+                        {
+                            current = c.resolveValue(attribute.getName());
+                        }
+                        else
+                        {
+                            if (current instanceof IClass)
+                            {
+                                IClass cls = (IClass)current;
+                                for (Field f : cls.getStaticFields()) {
+                                    if (f.getName().equals(attribute.getName())) {
+                                        return f.getValue();
+                                    }
+                                }
+                            }
+                            current = null;
+                        }
                     }
 
                 }

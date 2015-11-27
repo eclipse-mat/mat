@@ -12,8 +12,12 @@
  *******************************************************************************/
 package org.eclipse.mat.tests.snapshot;
 
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
@@ -76,9 +80,9 @@ public class OQLTest
     {
         Object result = execute("select * from java.lang.String");
 
-        assert result instanceof int[] : "'SELECT *' must return a result of type int[]";
+        assertThat("'SELECT *' must return a result of type int[]", result, instanceOf(int[].class));
         int[] objectIds = (int[]) result;
-        assert objectIds.length == 492 : "492 objects of type java.lang.String expected";
+        assertThat("492 objects of type java.lang.String expected", objectIds.length, equalTo(492));
     }
 
     @Test
@@ -864,6 +868,32 @@ public class OQLTest
         assertEquals(23, res.length);
     }
 
+    /**
+     * Test reading static fields of a class
+     * @throws SnapshotException
+     */
+    @Test
+    public void testStatic() throws SnapshotException
+    {
+        Object result = execute("select MAX_VALUE from OBJECTS java.lang.Integer");
+        IResultTable table = (IResultTable) result;
+        assertThat("1 row expected", table.getRowCount(), equalTo(1));
+        Object row = table.getRow(0);
+        int val = (Integer) table.getColumnValue(row, 0);
+        assertThat("Integer.MAX_VALUE", val, equalTo(Integer.MAX_VALUE));
+    }
+    
+    /**
+     * Test extracting objects from a collection
+     * @throws SnapshotException
+     */
+    @Test
+    public void testArrayList() throws SnapshotException
+    {
+        int objs[] = (int[])execute("select objects s[0:-1] from java.util.ArrayList s");
+        assertThat("Multiple objects expected", objs.length, greaterThanOrEqualTo(2));
+    }
+    
     // //////////////////////////////////////////////////////////////
     // internal helper
     // //////////////////////////////////////////////////////////////

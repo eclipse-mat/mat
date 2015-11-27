@@ -144,9 +144,9 @@ public class HashSetCollectionExtractor implements IMapExtractor
             {
                 IInstance entry = (IInstance) snapshot.getObject(entryId);
                 Object f = entry.resolveValue(key_attribute);
-                if (f instanceof IInstance)
+                if (f instanceof IObject)
                 {
-                    ret.add(((IInstance) f).getObjectId());
+                    ret.add(((IObject) f).getObjectId());
                 }
             }
         }
