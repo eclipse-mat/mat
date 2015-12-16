@@ -289,4 +289,9 @@ public abstract class AbstractExtractedCollection<E, X extends ICollectionExtrac
     {
         return collection.getSnapshot();
     }
+
+    // for debugging
+    public String toString() {
+        return getClass().getName() + ": " + getCollection().getDisplayName();
+    }
 }
