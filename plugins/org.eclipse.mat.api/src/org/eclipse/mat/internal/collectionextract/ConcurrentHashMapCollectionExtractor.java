@@ -24,21 +24,14 @@ public class ConcurrentHashMapCollectionExtractor extends HashedMapCollectionExt
 {
     public ConcurrentHashMapCollectionExtractor(String arrayField, String keyField, String valueField)
     {
-        // FIXME: should avoid passing null
-        super(null, arrayField, keyField, valueField);
+        super(arrayField, keyField, valueField);
     }
 
-    @Override
     public boolean hasSize()
     {
         return true;
     }
 
-    /*
-     * overwrite the getSize method to return correct result for a concurrent
-     * map
-     */
-    @Override
     public Integer getSize(IObject collection) throws SnapshotException
     {
         IObjectArray segmentsArray = extractBackingArray(collection);
@@ -93,7 +86,7 @@ public class ConcurrentHashMapCollectionExtractor extends HashedMapCollectionExt
 
     public boolean hasExtractableContents()
     {
-        return !arrayField.endsWith(".");
+        return true;
     }
 
     public boolean hasExtractableArray()

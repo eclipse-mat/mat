@@ -16,7 +16,6 @@ import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.snapshot.ISnapshot;
-import org.eclipse.mat.snapshot.model.IInstance;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
@@ -59,12 +58,8 @@ public class LinkedListCollectionExtractor extends FieldSizedCollectionExtractor
             header = (IObject) list.resolveValue("first"); //LinkedList$Node Java 7 //$NON-NLS-1$
         if (header == null)
         {
-            
-        }
-        if (header == null)
-        {
             // Look for the only object field
-            header = resolveNextFields(list);
+            header = ExtractionUtils.followOnlyOutgoingReferencesExceptLast(leadField, list);
         }
         if (header == null)
             return null;
@@ -166,55 +161,6 @@ public class LinkedListCollectionExtractor extends FieldSizedCollectionExtractor
         return result.toArray();
     }
 
-    protected IObject resolveNextFields(IObject collection) throws SnapshotException
-    {
-        int j = leadField.lastIndexOf('.');
-        if (j >= 0)
-        {
-            Object ret = collection.resolveValue(leadField.substring(0, j));
-            if (ret instanceof IObject) { return (IObject) ret; }
-        }
-        // Find out how many fields to chain through to find the array
-        IObject next = collection;
-        // Don't do the last as that is the array field
-        for (int i = leadField.indexOf('.'); i >= 0 && next != null; i = leadField.indexOf('.', i + 1))
-        {
-            next = resolveNextField(next);
-        }
-        return next;
-    }
-
-    /**
-     * Get the only object field from the object Used for finding the HashMap
-     * from the HashSet
-     *
-     * @param source
-     * @return null if non or duplicates found
-     * @throws SnapshotException
-     */
-    private IInstance resolveNextField(IObject source) throws SnapshotException
-    {
-        final ISnapshot snapshot = source.getSnapshot();
-        IInstance ret = null;
-        for (int i : snapshot.getOutboundReferentIds(source.getObjectId()))
-        {
-            if (!snapshot.isArray(i) && !snapshot.isClass(i))
-            {
-                IObject o = snapshot.getObject(i);
-                if (o instanceof IInstance)
-                {
-                    if (ret != null)
-                    {
-                        ret = null;
-                        break;
-                    }
-                    ret = (IInstance) o;
-                }
-            }
-        }
-        return ret;
-    }
-    
     public boolean hasSize()
     {
         return true;

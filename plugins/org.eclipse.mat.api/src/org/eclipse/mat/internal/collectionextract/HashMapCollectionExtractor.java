@@ -16,18 +16,18 @@ import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.snapshot.ISnapshot;
-import org.eclipse.mat.snapshot.model.Field;
-import org.eclipse.mat.snapshot.model.IInstance;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IObjectArray;
-import org.eclipse.mat.snapshot.model.ObjectReference;
 import org.eclipse.mat.util.MessageUtil;
 
 public class HashMapCollectionExtractor extends HashedMapCollectionExtractorBase
 {
+    protected final String sizeField;
+
     public HashMapCollectionExtractor(String sizeField, String arrayField, String keyField, String valueField)
     {
-        super(sizeField, arrayField, keyField, valueField);
+        super(arrayField, keyField, valueField);
+        this.sizeField = sizeField;
     }
 
     public boolean hasExtractableContents()
@@ -49,15 +49,20 @@ public class HashMapCollectionExtractor extends HashedMapCollectionExtractorBase
     public int[] extractEntryIds(IObject coll) throws SnapshotException
     {
         ISnapshot snapshot = coll.getSnapshot();
-        String collectionName = coll.getDisplayName();
         ArrayInt entries = new ArrayInt();
 
-        final IObject table = getTable(coll);
+        final IObjectArray table = getBackingArray(coll);
         if (table != null)
         {
-            int[] outbounds = snapshot.getOutboundReferentIds(table.getObjectId());
-            for (int ii = 0; ii < outbounds.length; ii++)
-                collectEntry(entries, coll.getObjectId(), collectionName, outbounds[ii], snapshot);
+            long[] addresses = table.getReferenceArray();
+            for (int i = 0; i < addresses.length; i++)
+            {
+                if (addresses[i] != 0)
+                {
+                    int id = snapshot.mapAddressToId(addresses[i]);
+                    collectEntriesFromTable(entries, coll.getObjectId(), id, snapshot);
+                }
+            }
         }
 
         return entries.toArray();
@@ -66,10 +71,10 @@ public class HashMapCollectionExtractor extends HashedMapCollectionExtractorBase
     @Override
     public Integer getCapacity(IObject coll) throws SnapshotException
     {
-        IObject table = getTable(coll);
-        if (table != null && table instanceof IObjectArray)
+        IObjectArray table = getBackingArray(coll);
+        if (table != null)
         {
-            return ((IObjectArray) table).getLength();
+            return table.getLength();
         }
         else
         {
@@ -77,95 +82,35 @@ public class HashMapCollectionExtractor extends HashedMapCollectionExtractorBase
         }
     }
 
-    private IObject getTable(IObject coll) throws SnapshotException
+    public boolean hasSize()
     {
-        IObjectArray ba = getBackingArray(coll);
-        if (ba != null)
-            return ba;
+        return true;
+    }
 
-        // this is used for classes like ConcurrentSkipListSet
-        String arrayField = this.arrayField;
-        // read table w/o loading the big table object!
-        int p = arrayField.lastIndexOf('.');
-        if (p == arrayField.length() - 1 && p > 0)
+    public Integer getSize(IObject coll) throws SnapshotException
+    {
+        // fast path
+        Object value = ExtractionUtils.toInteger(coll.resolveValue(sizeField));
+        if (value != null)
+            return ((Number) value).intValue();
+
+        if (hasExtractableContents())
         {
-            // trailing dot indicates field is not actually an array
-            arrayField = arrayField.substring(0, p);
-            p = arrayField.lastIndexOf('.');
+            return getMapSize(coll, extractEntryIds(coll));
         }
         else
         {
-            p = arrayField.length();
-        }
-
-        IObject arr = (IObject) coll.resolveValue(arrayField.substring(0, p));
-        if (arr instanceof IObjectArray) { return arr; }
-
-        IInstance map = p < 0 ? (IInstance) coll : (IInstance) arr;
-        if (map != null)
-        {
-            Field tableField = map.getField(p < 0 ? arrayField : arrayField.substring(p + 1));
-            if (tableField != null)
+            // LinkedList
+            IObject header = ExtractionUtils.followOnlyOutgoingReferencesExceptLast(arrayField, coll);
+            if (header != null)
             {
-                final ObjectReference tableFieldValue = (ObjectReference) tableField.getValue();
-                return (tableFieldValue != null) ? tableFieldValue.getObject() : null;
+                ISnapshot snapshot = coll.getSnapshot();
+                return getMapSize(coll, snapshot.getOutboundReferentIds(header.getObjectId()));
             }
-        }
-        return null;
-    }
-
-    private void collectEntry(ArrayInt entries, int collectionId, String collectionName, int entryId, ISnapshot snapshot)
-                    throws SnapshotException
-    {
-        // no recursion -> use entryId to collect overflow entries
-        while (entryId >= 0)
-        {
-            // skip if it is the pseudo outgoing reference (all other
-            // elements are of type Map$Entry)
-            if (snapshot.isClass(entryId))
-                return;
-            // For ConcurrentSkipListMap skip Object refs
-            if (snapshot.getClassOf(entryId).getName().equals("java.lang.Object")) //$NON-NLS-1$
-                return;
-
-            IInstance entry = (IInstance) snapshot.getObject(entryId);
-
-            // The java.util.WeakHashMap$Entry class extends WeakReference
-            // which in turns extends ObjectReference. Both, the Entry as
-            // well as the ObjectReference class, define a member variable
-            // "next". Only the first next must be processed (fields are
-            // ordered ascending the inheritance chain, i.e. from class to
-            // super class)
-            boolean nextFieldProcessed = false;
-            int nextEntryId = -1;
-
-            for (Field field : entry.getFields())
+            else
             {
-                if (!nextFieldProcessed && "next".equals(field.getName())) //$NON-NLS-1$
-                {
-                    nextFieldProcessed = true;
-
-                    if (field.getValue() != null)
-                        nextEntryId = ((ObjectReference) field.getValue()).getObjectId();
-                }
+                return null;
             }
-            
-            if (nextEntryId == -1)
-            {
-                if (snapshot.getClassOf(entryId).getName().equals("java.util.concurrent.ConcurrentHashMap$TreeBin"))
-                {
-                    Object o = entry.resolveValue("first");
-                    if (o instanceof IInstance)
-                    {
-                        entry = (IInstance) o;
-                        entryId = entry.getObjectId();
-                        continue;
-                    }
-                }
-            }
-
-            entries.add(entryId);
-            entryId = nextEntryId;
         }
     }
 
@@ -200,7 +145,7 @@ public class HashMapCollectionExtractor extends HashedMapCollectionExtractorBase
                             coll.getTechnicalName(), obj.toString());
             throw new SnapshotException(msg);
         }
-        IObject next = resolveNextFields(coll);
+        IObject next = ExtractionUtils.followOnlyOutgoingReferencesExceptLast(arrayField, coll);
         if (next == null)
             return null;
         // Look for the only object array field
