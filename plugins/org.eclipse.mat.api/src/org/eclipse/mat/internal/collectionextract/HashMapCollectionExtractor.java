@@ -52,12 +52,18 @@ public class HashMapCollectionExtractor extends HashedMapCollectionExtractorBase
         String collectionName = coll.getDisplayName();
         ArrayInt entries = new ArrayInt();
 
-        final IObject table = getTable(coll);
+        final IObjectArray table = getTable(coll);
         if (table != null)
         {
-            int[] outbounds = snapshot.getOutboundReferentIds(table.getObjectId());
-            for (int ii = 0; ii < outbounds.length; ii++)
-                collectEntry(entries, coll.getObjectId(), collectionName, outbounds[ii], snapshot);
+            long[] addresses = table.getReferenceArray();
+            for (int i = 0; i < addresses.length; i++) {
+                if (addresses[i] != 0) {
+                    int id = snapshot.mapAddressToId(addresses[i]);
+                    collectEntry(entries, coll.getObjectId(), collectionName, id, snapshot);
+                } /*FIXME? else {
+                    entries.add(0);
+                }*/
+            }
         }
 
         return entries.toArray();
@@ -77,7 +83,7 @@ public class HashMapCollectionExtractor extends HashedMapCollectionExtractorBase
         }
     }
 
-    private IObject getTable(IObject coll) throws SnapshotException
+    private IObjectArray getTable(IObject coll) throws SnapshotException
     {
         IObjectArray ba = getBackingArray(coll);
         if (ba != null)
@@ -99,7 +105,10 @@ public class HashMapCollectionExtractor extends HashedMapCollectionExtractorBase
         }
 
         IObject arr = (IObject) coll.resolveValue(arrayField.substring(0, p));
-        if (arr instanceof IObjectArray) { return arr; }
+        if (arr instanceof IObjectArray)
+        {
+            return (IObjectArray) arr;
+        }
 
         IInstance map = p < 0 ? (IInstance) coll : (IInstance) arr;
         if (map != null)
@@ -108,7 +117,7 @@ public class HashMapCollectionExtractor extends HashedMapCollectionExtractorBase
             if (tableField != null)
             {
                 final ObjectReference tableFieldValue = (ObjectReference) tableField.getValue();
-                return (tableFieldValue != null) ? tableFieldValue.getObject() : null;
+                return (IObjectArray) ((tableFieldValue != null) ? tableFieldValue.getObject() : null);
             }
         }
         return null;
