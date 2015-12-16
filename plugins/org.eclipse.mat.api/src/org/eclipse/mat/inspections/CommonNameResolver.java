@@ -23,6 +23,7 @@ import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IObjectArray;
 import org.eclipse.mat.snapshot.model.IPrimitiveArray;
 import org.eclipse.mat.snapshot.model.PrettyPrinter;
+import org.eclipse.mat.snapshot.registry.ClassSpecificNameResolverRegistry;
 
 public class CommonNameResolver
 {
@@ -84,13 +85,46 @@ public class CommonNameResolver
                     "java.lang.Long", //
                     "java.lang.Float", //
                     "java.lang.Double", //
-                    "java.lang.Boolean" })
+                    "java.lang.Boolean", //
+                    "java.util.concurrent.atomic.AtomicInteger", //
+                    "java.util.concurrent.atomic.AtomicLong", //
+               })
     public static class ValueResolver implements IClassSpecificNameResolver
     {
         public String resolve(IObject heapObject) throws SnapshotException
         {
             Object value = heapObject.resolveValue("value"); //$NON-NLS-1$
             return value != null ? String.valueOf(value) : null; 
+        }
+    }
+
+    @Subjects("java.util.concurrent.atomic.AtomicBoolean")
+    public static class AtomicBooleanResolver implements IClassSpecificNameResolver
+    {
+        public String resolve(IObject heapObject) throws SnapshotException
+        {
+            Integer value = (Integer) heapObject.resolveValue("value"); //$NON-NLS-1$
+            return value != null ? Boolean.toString(value != 0) : null; 
+        }
+    }
+
+    @Subjects("java.util.concurrent.atomic.AtomicReference")
+    public static class AtomicReferenceValueResolver implements IClassSpecificNameResolver
+    {
+        public String resolve(IObject heapObject) throws SnapshotException
+        {
+            IObject value = (IObject) heapObject.resolveValue("value"); //$NON-NLS-1$
+            return value != null ? ClassSpecificNameResolverRegistry.resolve(value) : null; 
+        }
+    }
+
+    @Subjects("java.util.concurrent.atomic.AtomicStampedReference")
+    public static class AtomicStampedReferenceValueResolver implements IClassSpecificNameResolver
+    {
+        public String resolve(IObject heapObject) throws SnapshotException
+        {
+            IObject value = (IObject) heapObject.resolveValue("pair.reference"); //$NON-NLS-1$
+            return value != null ? ClassSpecificNameResolverRegistry.resolve(value) : null; 
         }
     }
 
