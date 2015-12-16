@@ -13,13 +13,45 @@
 package org.eclipse.mat.internal.collectionextract;
 
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.collect.ArrayInt;
+import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IObject;
+import org.eclipse.mat.snapshot.model.IObjectArray;
 
-public class ConcurrentSkipListCollectionExtractor extends HashMapCollectionExtractor
+public class ConcurrentSkipListCollectionExtractor extends HashedMapCollectionExtractorBase
 {
     public ConcurrentSkipListCollectionExtractor(String arrayField, String keyField, String valueField)
     {
-        super(null, arrayField, keyField, valueField);
+        super(arrayField, keyField, valueField);
+    }
+
+    public boolean hasExtractableContents()
+    {
+        return true;
+    }
+
+    public boolean hasExtractableArray()
+    {
+        return false;
+    }
+
+    public IObjectArray extractEntries(IObject coll) throws SnapshotException
+    {
+        return null;
+    }
+
+    public int[] extractEntryIds(IObject coll) throws SnapshotException
+    {
+        ArrayInt entries = new ArrayInt();
+        ISnapshot snapshot = coll.getSnapshot();
+        for (int outbound: snapshot.getOutboundReferentIds(getTableId(coll)))
+            collectEntriesFromTable(entries, coll.getObjectId(), outbound, snapshot);
+        return entries.toArray();
+    }
+
+    public Integer getNumberOfNotNullElements(IObject coll) throws SnapshotException
+    {
+        return extractEntryIds(coll).length;
     }
 
     @Override
@@ -32,6 +64,16 @@ public class ConcurrentSkipListCollectionExtractor extends HashMapCollectionExtr
     public Integer getCapacity(IObject coll) throws SnapshotException
     {
         return null;
+    }
+
+    public boolean hasSize()
+    {
+        return true;
+    }
+
+    public Integer getSize(IObject coll) throws SnapshotException
+    {
+        return getMapSize(coll, extractEntryIds(coll));
     }
 
     @Override
@@ -49,5 +91,12 @@ public class ConcurrentSkipListCollectionExtractor extends HashMapCollectionExtr
     public Double getCollisionRatio(IObject coll) throws SnapshotException
     {
         return 0.0;
+    }
+
+    private int getTableId(IObject coll) throws SnapshotException
+    {
+        // strip the trailing period back off
+        IObject arr = (IObject) coll.resolveValue(arrayField);
+        return arr.getObjectId();
     }
 }

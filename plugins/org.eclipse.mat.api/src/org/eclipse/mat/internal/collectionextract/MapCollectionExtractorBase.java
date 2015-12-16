@@ -23,36 +23,13 @@ import org.eclipse.mat.snapshot.model.IObjectArray;
 
 public abstract class MapCollectionExtractorBase implements IMapExtractor
 {
-    protected final String sizeField;
     protected final String keyField;
     protected final String valueField;
 
-    public MapCollectionExtractorBase(String sizeField, String keyField, String valueField)
+    public MapCollectionExtractorBase(String keyField, String valueField)
     {
-        this.sizeField = sizeField;
         this.keyField = keyField;
         this.valueField = valueField;
-    }
-
-    public Integer getSize(IObject coll) throws SnapshotException
-    {
-        if (sizeField == null)
-            return null;
-
-        Object value = coll.resolveValue(sizeField);
-        // Allow for int or long
-        if (value instanceof Integer)
-        {
-            return (Integer) value;
-        }
-        else if (value instanceof Long)
-        {
-            return ((Long) value).intValue();
-        }
-        else
-        {
-            return null;
-        }
     }
 
     public boolean hasCapacity()
