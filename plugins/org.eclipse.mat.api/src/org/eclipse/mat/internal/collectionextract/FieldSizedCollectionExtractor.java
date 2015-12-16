@@ -35,20 +35,7 @@ public class FieldSizedCollectionExtractor implements ICollectionExtractor
 
     public Integer getSize(IObject coll) throws SnapshotException
     {
-        Object value = coll.resolveValue(sizeField);
-        // Allow for int or long
-        if (value instanceof Integer)
-        {
-            return (Integer) value;
-        }
-        else if (value instanceof Long)
-        {
-            return ((Long) value).intValue();
-        }
-        else
-        {
-            return null;
-        }
+        return ExtractionUtils.toInteger(coll.resolveValue(sizeField));
     }
 
     public boolean hasCapacity()

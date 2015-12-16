@@ -17,52 +17,22 @@ import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.collect.BitField;
 import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.snapshot.ISnapshot;
+import org.eclipse.mat.snapshot.model.Field;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IInstance;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IObjectArray;
+import org.eclipse.mat.snapshot.model.ObjectReference;
 import org.eclipse.mat.util.MessageUtil;
 
 public abstract class HashedMapCollectionExtractorBase extends MapCollectionExtractorBase
 {
     protected final String arrayField;
 
-    public HashedMapCollectionExtractorBase(String sizeField, String arrayField, String keyField, String valueField)
+    public HashedMapCollectionExtractorBase(String arrayField, String keyField, String valueField)
     {
-        super(sizeField, keyField, valueField);
+        super(keyField, valueField);
         this.arrayField = arrayField;
-    }
-
-    public boolean hasSize()
-    {
-        return true;
-    }
-
-    public Integer getSize(IObject coll) throws SnapshotException
-    {
-        // fast path
-        Integer ret = super.getSize(coll);
-        if (ret != null)
-            return ret;
-
-        if (hasExtractableContents())
-        {
-            return getMapSize(coll, extractEntryIds(coll));
-        }
-        else
-        {
-            // LinkedList
-            IObject header = resolveNextFields(coll);
-            if (header != null)
-            {
-                ISnapshot snapshot = coll.getSnapshot();
-                return getMapSize(coll, snapshot.getOutboundReferentIds(header.getObjectId()));
-            }
-            else
-            {
-                return null;
-            }
-        }
     }
 
     public boolean hasFillRatio()
@@ -82,7 +52,7 @@ public abstract class HashedMapCollectionExtractorBase extends MapCollectionExtr
 
     public boolean hasCollisionRatio()
     {
-        return true;
+        return hasSize();
     }
 
     public Double getCollisionRatio(IObject coll) throws SnapshotException
@@ -101,47 +71,26 @@ public abstract class HashedMapCollectionExtractorBase extends MapCollectionExtr
     protected IObjectArray extractBackingArray(IObject coll) throws SnapshotException
     {
         final Object obj = coll.resolveValue(arrayField);
-        IObjectArray ret = null;
         if (obj instanceof IObjectArray)
         {
             return (IObjectArray) obj;
         }
-        else if (obj instanceof IObject)
-        {
-            String msg = MessageUtil.format(Messages.CollectionUtil_BadBackingArray, arrayField,
-                            coll.getTechnicalName(), ((IObject) obj).getTechnicalName());
-            throw new SnapshotException(msg);
-        }
         else if (obj != null)
         {
+            String desc = (obj instanceof IObject) ? ((IObject) obj).getTechnicalName() : obj.toString();
             String msg = MessageUtil.format(Messages.CollectionUtil_BadBackingArray, arrayField,
-                            coll.getTechnicalName(), obj.toString());
+                            coll.getTechnicalName(), desc);
             throw new SnapshotException(msg);
         }
-        IObject next = resolveNextFields(coll);
+
+        // the array wasn't found, because the field information is missing
+        IObject next = ExtractionUtils.followOnlyOutgoingReferencesExceptLast(arrayField, coll);
         if (next == null)
             return null;
-        // Look for the only object array field
-        final ISnapshot snapshot = next.getSnapshot();
-        for (int i : snapshot.getOutboundReferentIds(next.getObjectId()))
-        {
-            if (snapshot.isArray(i))
-            {
-                IObject o = snapshot.getObject(i);
-                if (o instanceof IObjectArray)
-                {
-                    // Have we already found a possible return type?
-                    // If so, things are uncertain and so give up.
-                    if (ret != null)
-                        return null;
-                    ret = (IObjectArray) o;
-                }
-            }
-        }
-        return ret;
+        return ExtractionUtils.getOnlyArrayField(next);
     }
 
-    private int getMapSize(IObject collection, int[] objects) throws SnapshotException
+    protected int getMapSize(IObject collection, int[] objects) throws SnapshotException
     {
         // Maps have chained buckets in case of clashes
         // LinkedMaps have additional chains to maintain ordering
@@ -216,53 +165,45 @@ public abstract class HashedMapCollectionExtractorBase extends MapCollectionExtr
         return ret;
     }
 
-    protected IObject resolveNextFields(IObject collection) throws SnapshotException
-    {
-        int j = arrayField.lastIndexOf('.');
-        if (j >= 0)
-        {
-            Object ret = collection.resolveValue(arrayField.substring(0, j));
-            if (ret instanceof IObject) { return (IObject) ret; }
-        }
-        // Find out how many fields to chain through to find the array
-        IObject next = collection;
-        // Don't do the last as that is the array field
-        for (int i = arrayField.indexOf('.'); i >= 0 && next != null; i = arrayField.indexOf('.', i + 1))
-        {
-            next = resolveNextField(next);
-        }
-        return next;
-    }
 
-    /**
-     * Get the only object field from the object Used for finding the HashMap
-     * from the HashSet
-     *
-     * @param source
-     * @return null if non or duplicates found
-     * @throws SnapshotException
-     */
-    private IInstance resolveNextField(IObject source) throws SnapshotException
+    protected void collectEntriesFromTable(ArrayInt entries, int collectionId, int entryId, ISnapshot snapshot)
+                    throws SnapshotException
     {
-        final ISnapshot snapshot = source.getSnapshot();
-        IInstance ret = null;
-        for (int i : snapshot.getOutboundReferentIds(source.getObjectId()))
+        // no recursion -> use entryId to collect overflow entries
+        while (entryId >= 0)
         {
-            if (!snapshot.isArray(i) && !snapshot.isClass(i))
+            // skip if it is the pseudo outgoing reference (all other
+            // elements are of type Map$Entry)
+            if (snapshot.isClass(entryId))
+                return;
+            // For ConcurrentSkipListMap skip Object refs
+            if (snapshot.getClassOf(entryId).getName().equals("java.lang.Object")) //$NON-NLS-1$
+                return;
+
+            IInstance entry = (IInstance) snapshot.getObject(entryId);
+
+            // The java.util.WeakHashMap$Entry class extends WeakReference
+            // which in turns extends ObjectReference. Both, the Entry as
+            // well as the ObjectReference class, define a member variable
+            // "next". Only the first next must be processed (fields are
+            // ordered ascending the inheritance chain, i.e. from class to
+            // super class)
+            boolean nextFieldProcessed = false;
+            int nextEntryId = -1;
+
+            for (Field field : entry.getFields())
             {
-                IObject o = snapshot.getObject(i);
-                if (o instanceof IInstance)
+                if (!nextFieldProcessed && "next".equals(field.getName())) //$NON-NLS-1$
                 {
-                    if (ret != null)
-                    {
-                        ret = null;
-                        break;
-                    }
-                    ret = (IInstance) o;
+                    nextFieldProcessed = true;
+
+                    if (field.getValue() != null)
+                        nextEntryId = ((ObjectReference) field.getValue()).getObjectId();
                 }
             }
-        }
-        return ret;
-    }
 
+            entries.add(entryId);
+            entryId = nextEntryId;
+        }
+    }
 }

@@ -261,11 +261,10 @@ public class KnownCollectionInfo
                     new Info(
                                     "java.util.concurrent.ConcurrentHashMap", Version.JAVA18 | Version.IBM18, new HashMapCollectionExtractor("baseCount", "table", "key", "value")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 
-                    // FIXME: null size field should be done properly
                     new Info("java.util.concurrent.ConcurrentSkipListSet", Version.ALL,
-                                    new ConcurrentSkipListCollectionExtractor("m.head.node.", "key", "value")),
+                                    new ConcurrentSkipListCollectionExtractor("m.head.node", "key", "value")),
                     new Info("java.util.concurrent.ConcurrentSkipListMap", Version.ALL,
-                                    new ConcurrentSkipListCollectionExtractor("head.node.", "key", "value")),
+                                    new ConcurrentSkipListCollectionExtractor("head.node", "key", "value")),
 
                     // tree maps
                     new Info(

@@ -111,7 +111,7 @@ public class HashSetCollectionExtractor implements IMapExtractor
 
         if (key_attribute.endsWith("[]")) //$NON-NLS-1$
         {
-            // FIXME: what if ther are two []s ?
+            // FIXME: what if there are two []s ?
             String attr = key_attribute.replaceFirst("\\[\\]$", ""); //$NON-NLS-1$//$NON-NLS-2$
             for (int entryId : entries)
             {

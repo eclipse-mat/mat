@@ -15,8 +15,6 @@ package org.eclipse.mat.internal.collectionextract;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.inspections.collectionextract.ICollectionExtractor;
 import org.eclipse.mat.internal.Messages;
-import org.eclipse.mat.snapshot.ISnapshot;
-import org.eclipse.mat.snapshot.model.IInstance;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IObjectArray;
 import org.eclipse.mat.util.MessageUtil;
@@ -79,7 +77,7 @@ public class FieldArrayCollectionExtractor implements ICollectionExtractor
 
     public boolean hasExtractableArray()
     {
-        return !arrayField.endsWith("."); //$NON-NLS-1$
+        return true;
     }
 
     public int[] extractEntryIds(IObject coll) throws SnapshotException
@@ -94,90 +92,19 @@ public class FieldArrayCollectionExtractor implements ICollectionExtractor
         {
             return (IObjectArray) obj;
         }
-        else if (obj instanceof IObject)
-        {
-            String msg = MessageUtil.format(Messages.CollectionUtil_BadBackingArray, arrayField,
-                            coll.getTechnicalName(), ((IObject) obj).getTechnicalName());
-            throw new SnapshotException(msg);
-        }
         else if (obj != null)
         {
+            String desc = (obj instanceof IObject) ? ((IObject) obj).getTechnicalName() : obj.toString();
             String msg = MessageUtil.format(Messages.CollectionUtil_BadBackingArray, arrayField,
-                            coll.getTechnicalName(), obj.toString());
+                            coll.getTechnicalName(), desc);
             throw new SnapshotException(msg);
         }
 
-        IObject next = resolveNextFields(coll);
+        // the array wasn't found, because the field information is missing
+        IObject next = ExtractionUtils.followOnlyOutgoingReferencesExceptLast(arrayField, coll);
         if (next == null)
             return null;
-        IObjectArray ret = null;
-        // Look for the only object array field
-        final ISnapshot snapshot = next.getSnapshot();
-        for (int i : snapshot.getOutboundReferentIds(next.getObjectId()))
-        {
-            if (snapshot.isArray(i))
-            {
-                IObject o = snapshot.getObject(i);
-                if (o instanceof IObjectArray)
-                {
-                    // Have we already found a possible return type?
-                    // If so, things are uncertain and so give up.
-                    if (ret != null)
-                        return null;
-                    ret = (IObjectArray) o;
-                }
-            }
-        }
-        return ret;
-    }
-
-    protected IObject resolveNextFields(IObject collection) throws SnapshotException
-    {
-        int j = arrayField.lastIndexOf('.');
-        if (j >= 0)
-        {
-            Object ret = collection.resolveValue(arrayField.substring(0, j));
-            if (ret instanceof IObject) { return (IObject) ret; }
-        }
-        // Find out how many fields to chain through to find the array
-        IObject next = collection;
-        // Don't do the last as that is the array field
-        for (int i = arrayField.indexOf('.'); i >= 0 && next != null; i = arrayField.indexOf('.', i + 1))
-        {
-            next = resolveNextField(next);
-        }
-        return next;
-    }
-
-    /**
-     * Get the only object field from the object Used for finding the HashMap
-     * from the HashSet
-     *
-     * @param source
-     * @return null if non or duplicates found
-     * @throws SnapshotException
-     */
-    private IInstance resolveNextField(IObject source) throws SnapshotException
-    {
-        final ISnapshot snapshot = source.getSnapshot();
-        IInstance ret = null;
-        for (int i : snapshot.getOutboundReferentIds(source.getObjectId()))
-        {
-            if (!snapshot.isArray(i) && !snapshot.isClass(i))
-            {
-                IObject o = snapshot.getObject(i);
-                if (o instanceof IInstance)
-                {
-                    if (ret != null)
-                    {
-                        ret = null;
-                        break;
-                    }
-                    ret = (IInstance) o;
-                }
-            }
-        }
-        return ret;
+        return ExtractionUtils.getOnlyArrayField(next);
     }
 
     public Integer getNumberOfNotNullElements(IObject coll) throws SnapshotException

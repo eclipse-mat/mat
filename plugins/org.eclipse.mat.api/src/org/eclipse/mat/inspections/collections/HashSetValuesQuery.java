@@ -61,6 +61,10 @@ public class HashSetValuesQuery implements IQuery
         else
         {
             extractor = CollectionExtractionUtils.extractMap(hashSet);
+            if (extractor == null)
+            {
+                throw new IllegalArgumentException("Unsupported collection type " + hashSet.getClazz().getName());
+            }
         }
 
         // TODO: refactor out code with ExtractListValuesQuery

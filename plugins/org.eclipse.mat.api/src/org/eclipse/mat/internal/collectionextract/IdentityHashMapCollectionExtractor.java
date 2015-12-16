@@ -43,16 +43,34 @@ public class IdentityHashMapCollectionExtractor extends FieldSizeArrayCollection
         return (capacity != null) ? capacity / 2 : null;
     }
 
+    @Override
+    public boolean hasExtractableArray()
+    {
+        // there is an array, but it's not one entry per item
+        return false;
+    }
+
+    @Override
     public boolean hasExtractableContents()
     {
         return true;
     }
 
-    /*
-     * @Override public boolean hasExtractableArray() { return false; } public
-     * IObjectArray extractEntries(IObject coll) throws SnapshotException {
-     * throw new IllegalArgumentException(); }
-     */
+
+    @Override
+    public Integer getSize(IObject coll) throws SnapshotException
+    {
+        // fast path, check the size field
+        Integer value = ExtractionUtils.toInteger(coll.resolveValue(sizeField));
+        if (value != null)
+        {
+            return value;
+        }
+        else
+        {
+            return ExtractionUtils.getNumberOfNotNullArrayElements(extractEntryIds(coll));
+        }
+    }
 
     public int[] extractEntryIds(IObject idMap) throws SnapshotException
     {
