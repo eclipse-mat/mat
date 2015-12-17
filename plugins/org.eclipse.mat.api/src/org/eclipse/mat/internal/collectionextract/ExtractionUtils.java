@@ -12,10 +12,22 @@
  *******************************************************************************/
 package org.eclipse.mat.internal.collectionextract;
 
+import static org.eclipse.mat.snapshot.extension.JdkVersion.IBM14;
+import static org.eclipse.mat.snapshot.extension.JdkVersion.IBM15;
+import static org.eclipse.mat.snapshot.extension.JdkVersion.IBM16;
+import static org.eclipse.mat.snapshot.extension.JdkVersion.IBM17;
+import static org.eclipse.mat.snapshot.extension.JdkVersion.IBM18;
+import static org.eclipse.mat.snapshot.extension.JdkVersion.JAVA18;
+import static org.eclipse.mat.snapshot.extension.JdkVersion.SUN;
+
+import java.util.Collection;
+
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.snapshot.ISnapshot;
+import org.eclipse.mat.snapshot.extension.JdkVersion;
 import org.eclipse.mat.snapshot.model.IInstance;
+import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IObjectArray;
 
@@ -167,5 +179,79 @@ public class ExtractionUtils
             }
         }
         return ret;
+    }
+
+    @SuppressWarnings("nls")
+    public static JdkVersion resolveVersion(ISnapshot snapshot) throws SnapshotException
+    {
+        Collection<IClass> classes;
+
+        // Previously this code only checked the existence of certain IBM
+        // classes for the IBM JVM version, but this is dangerous because we
+        // will often backport stuff into older versions. Instead we will check
+        // the JVM info, but I'm not sure if we can really depend on that being
+        // there, so we'll leave the old checks as fallback.
+
+        String jvmInfo = snapshot.getSnapshotInfo().getJvmInfo();
+        if (jvmInfo != null)
+        {
+            // Example from IBM Java 6:
+            // Java(TM) SE Runtime Environment(build pxi3260sr9ifx-20110208_02
+            // (SR9))
+            // IBM J9 VM(JRE 1.6.0 IBM J9 2.4 Linux x86-32
+            // jvmxi3260sr9-20101209_70480 (JIT enabled, AOT enabled)
+            // J9VM - 20101209_070480
+            // JIT - r9_20101028_17488ifx3
+            // GC - 20101027_AA)
+
+            // Example from IBM Java 7 (for some reason doesn't include "IBM"
+            // anymore):
+            // JRE 1.7.0 Linux amd64-64 build 20130205_137358
+            // (pxa6470sr4ifix-20130305_01(SR4+IV37419) )
+            // JRE 1.7.0 Windows 7 amd64-64 build (pwa6470_27sr3fp10-20150708_01(SR3 FP10) )
+
+            if (jvmInfo.contains("IBM") || jvmInfo.contains(" build "))
+            {
+                int jreIndex = jvmInfo.indexOf("JRE ");
+                if (jreIndex != -1)
+                {
+                    String jreVersion = jvmInfo.substring(jreIndex + 4);
+                    if (jreVersion.length() >= 3)
+                    {
+                        jreVersion = jreVersion.substring(0, 3);
+                        if (jreVersion.equals("1.8"))
+                            return IBM18;
+                        else if (jreVersion.equals("1.7"))
+                        {
+                            if (jvmInfo.matches(".*70sr.*\\(SR[1-3][^0-9].*") || jvmInfo.matches(".*\\(GA") && !jvmInfo.matches(".*70_27.*"))
+                            {
+                                // Harmony based collections
+                                return IBM16;
+                            }
+                            // SR4 and later switches to Oracle
+                            return IBM17;
+                        }
+                        else if (jreVersion.equals("1.6"))
+                            return IBM16;
+                        else if (jreVersion.equals("1.5"))
+                            return IBM15;
+                        else if (jreVersion.equals("1.4"))
+                            return IBM14;
+                    }
+                }
+            }
+        }
+
+        if ((classes = snapshot.getClassesByName("com.ibm.misc.JavaRuntimeVersion", false)) != null && !classes.isEmpty())return IBM15; //$NON-NLS-1$
+        else if ((classes = snapshot.getClassesByName("com.ibm.oti.vm.BootstrapClassLoader", false)) != null && !classes.isEmpty())return IBM16; //$NON-NLS-1$
+        else if ((classes = snapshot.getClassesByName("com.ibm.jvm.Trace", false)) != null && !classes.isEmpty())return IBM14; //$NON-NLS-1$
+
+        classes = snapshot.getClassesByName("sun.misc.Version", false);
+        if (classes != null && classes.size() > 0)
+        {
+            Object ver = classes.iterator().next().resolveValue("java_version");
+            if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("1.8.")) { return JAVA18; }
+        }
+        return SUN;
     }
 }

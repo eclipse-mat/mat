@@ -14,11 +14,13 @@ package org.eclipse.mat.inspections.collectionextract;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.internal.collectionextract.ArrayCollectionExtractor;
-import org.eclipse.mat.internal.collectionextract.KnownCollectionInfo;
-import org.eclipse.mat.internal.collectionextract.KnownCollectionInfo.Info;
+import org.eclipse.mat.internal.collectionextract.ExtractionUtils;
+import org.eclipse.mat.snapshot.extension.CollectionExtractionInfo;
+import org.eclipse.mat.snapshot.extension.JdkVersion;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IObjectArray;
+import org.eclipse.mat.snapshot.registry.CollectionExtractorProviderRegistry;
 
 /**
  * Utility class providing helpers simplifying the extraction of data from
@@ -46,12 +48,12 @@ public class CollectionExtractionUtils
         if (collection instanceof IObjectArray)
             return ArrayCollectionExtractor.INSTANCE;
 
-        int version = KnownCollectionInfo.resolveVersion(collection.getSnapshot());
+        JdkVersion version = ExtractionUtils.resolveVersion(collection.getSnapshot());
         IClass collectionClass = collection.getClazz();
 
-        for (Info info : KnownCollectionInfo.knownCollections)
+        for (CollectionExtractionInfo info : CollectionExtractorProviderRegistry.instance().getCollectionExtractionInfo())
         {
-            if ((info.version & version) == version)
+            if (info.version.contains(version))
             {
                 if (collectionClass.doesExtend(info.className)) { return info.extractor; }
             }
@@ -70,7 +72,8 @@ public class CollectionExtractionUtils
      */
     public static ICollectionExtractor findCollectionExtractor(String className) throws SnapshotException
     {
-        for (Info info : KnownCollectionInfo.knownCollections)
+        // FIXME? this does not account for JDK versions
+        for (CollectionExtractionInfo info : CollectionExtractorProviderRegistry.instance().getCollectionExtractionInfo())
         {
             if (info.className.equals(className))
                 return info.extractor;

@@ -18,6 +18,7 @@
 	<extension-point id="requestResolver" name="%extension-point.requestResolver.name" schema="schema/requestResolver.exsd"/>
 	<extension-point id="ticketResolver" name="%extension-point.ticketResolver.name" schema="schema/ticketResolver.exsd"/>
 	<extension-point id="heapDumpProvider" name="%extension-point.heapDumpProvider.name" schema="schema/heapDumpProvider.exsd"/>
+	<extension-point id="collectionExtractorProvider" name="%extension-point.collectionExtractorProvider.name" schema="schema/collectionExtractorProvider.exsd"/>
 	
 	<extension point="org.eclipse.mat.report.query">
 		<!-- internal queries exposed to the UI -->
@@ -139,6 +140,11 @@
 				description="%report.top_components.help"
 				file="META-INF/reports/top_components.xml" />
 	</extension>
+
+    <extension point="org.eclipse.mat.api.collectionExtractorProvider">
+        <provider impl="org.eclipse.mat.internal.collectionextract.KnownCollectionInfo">
+        </provider>
+    </extension>
 
 	<extension point="org.eclipse.core.contenttype.contentTypes">
 	    <content-type
