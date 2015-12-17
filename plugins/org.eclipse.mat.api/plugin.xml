@@ -122,6 +122,9 @@
 		<!-- jetty -->
 		<resolver impl="org.eclipse.mat.inspections.jetty.JettyNameResolvers$WebAppClassLoaderResolver"/>
 		<resolver impl="org.eclipse.mat.inspections.jetty.JettyNameResolvers$JasperLoaderResolver"/>
+
+        <!-- Sun/Oracle JDK -->
+        <resolver impl="org.eclipse.mat.inspections.SunClassSpecificNameResolvers$UnixPathNameResolver" />
 	</extension>
 
 	<extension point="org.eclipse.mat.api.requestResolver">

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+      <!-- to port 
+   <extension point="org.eclipse.mat.api.nameResolver">
+      <resolver impl="org.eclipse.mat.inspections.jboss.msc.JBossMscServiceRegistrationNameResolver"/>
+      <resolver impl="org.eclipse.mat.inspections.jboss.msc.JBossMscServiceControllerNameResolver"/>
+   </extension>
+      -->
+   <extension point="org.eclipse.mat.report.query">
+      <query impl="org.eclipse.mat.javaee.servlet.query.HttpSessionQuery"/>
+      <query impl="org.eclipse.mat.javaee.servlet.query.HttpSessionAttributesQuery"/>
+      <query impl="org.eclipse.mat.javaee.servlet.query.HttpRequestQuery"/>
+      <query impl="org.eclipse.mat.javaee.servlet.query.ServletQuery"/>
+      <query impl="org.eclipse.mat.javaee.ejb.query.StatefulEjbQuery" />
+      <query impl="org.eclipse.mat.javaee.ejb.query.StatelessEjbQuery" />
+      <query impl="org.eclipse.mat.javaee.deployment.query.JavaEEDeploymentQuery" />
+
+      <!-- JBoss specific -->
+      <query impl="org.eclipse.mat.javaee.jboss.query.MscServicesQuery" />
+   </extension>
+   
+   <extension point="org.eclipse.mat.api.nameResolver">
+      <resolver impl="org.eclipse.mat.javaee.JBossClassSpecificNameResolvers$PathAddressNameResolver" />
+      <resolver impl="org.eclipse.mat.javaee.JBossClassSpecificNameResolvers$PathElementNameResolver" />
+      <resolver impl="org.eclipse.mat.javaee.JBossClassSpecificNameResolvers$PathEntryNameResolver" />
+      <resolver impl="org.eclipse.mat.javaee.JBossClassSpecificNameResolvers$StringModelValueNameResolver" />
+      <resolver impl="org.eclipse.mat.javaee.JBossClassSpecificNameResolvers$ListModelValueNameResolver" />
+      <resolver impl="org.eclipse.mat.javaee.JBossClassSpecificNameResolvers$NumberModelValueNameResolver" />
+      <resolver impl="org.eclipse.mat.javaee.JBossClassSpecificNameResolvers$TypeModelValueNameResolver" />
+      <resolver impl="org.eclipse.mat.javaee.JBossClassSpecificNameResolvers$ValueFieldChainedNameResolver" />
+      <resolver impl="org.eclipse.mat.javaee.JBossClassSpecificNameResolvers$ObjectModelValueNameResolver" />
+      <resolver impl="org.eclipse.mat.javaee.JBossClassSpecificNameResolvers$PropertyModelValueNameResolver" />
+      <resolver impl="org.eclipse.mat.javaee.JBossClassSpecificNameResolvers$PropertyNameResolver" />
+      <resolver impl="org.eclipse.mat.javaee.JBossClassSpecificNameResolvers$ModuleClassLoaderNameResolver" />
+      <resolver impl="org.eclipse.mat.javaee.JBossClassSpecificNameResolvers$ModuleNameResolver" />
+      <resolver impl="org.eclipse.mat.javaee.JBossClassSpecificNameResolvers$ModuleIdentifierNameResolver" />
+      <resolver impl="org.eclipse.mat.javaee.JBossClassSpecificNameResolvers$LoggerNodeNameResolver" />
+      <resolver impl="org.eclipse.mat.javaee.JBossClassSpecificNameResolvers$MscServiceNameNameResolver" />
+      <resolver impl="org.eclipse.mat.javaee.JBossClassSpecificNameResolvers$EnumNameResolver" />
+   </extension>
+   <extension point="org.eclipse.mat.api.requestResolver">
+      <resolver impl="org.eclipse.mat.javaee.servlet.query.ServletRequestResolver"/>
+   </extension>
+   <extension point="org.eclipse.mat.report.report">
+      <report file="META-INF/reports/javaee-overview.xml"
+            id="enterprise-java-overview"
+            name="Enterprise Java Overview"/>
+   </extension>
+</plugin>
