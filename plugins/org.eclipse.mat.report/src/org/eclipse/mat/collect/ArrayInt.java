@@ -216,6 +216,18 @@ public final class ArrayInt
         Arrays.sort(elements, 0, size);
     }
 
+    /**
+     * Truncate the array
+     * @param newCapacity the new size
+     * @since 1.6
+     */
+    public void truncate(int newCapacity) {
+        int oldData[] = elements;
+        elements = new int[newCapacity];
+        System.arraycopy(oldData, 0, elements, 0, newCapacity);
+        size = newCapacity;
+    }
+
     // //////////////////////////////////////////////////////////////
     // implementation stuff
     // //////////////////////////////////////////////////////////////

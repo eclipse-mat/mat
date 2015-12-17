@@ -19,6 +19,22 @@ public class ArrayUtils
     private static final int USE_SELECTION = 12;
     private static final int USE_RADIX = 1000000;
 
+
+	/**
+	 * @since 1.6
+	 */
+	public static int max(int[] values) {
+		int ret = Integer.MIN_VALUE;
+
+	    for (int value : values) {
+	        if (value > ret) {
+	        	ret = value;
+	        }
+	    }
+
+	    return ret;
+	}
+
     /**
      * Sorts the keys in an increasing order. Elements key[i] and values[i] are
      * always swapped together in the corresponding arrays.
