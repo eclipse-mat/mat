@@ -306,6 +306,7 @@
 		<module>../plugins/org.eclipse.mat.chart.ui</module>
 		<module>../plugins/org.eclipse.mat.dtfj</module>
 		<module>../plugins/org.eclipse.mat.hprof</module>
+		<module>../plugins/org.eclipse.mat.javaee</module>
 		<module>../plugins/org.eclipse.mat.jdt</module>
 		<module>../plugins/org.eclipse.mat.parser</module>
 		<module>../plugins/org.eclipse.mat.report</module>
