@@ -109,6 +109,12 @@ public class IdentityHashMapCollectionExtractor extends FieldSizeArrayCollection
         return super.getFillRatio(coll);
     }
 
+    public Integer getNumberOfNotNullElements(IObject coll) throws SnapshotException
+    {
+        // Both key and value are stored in the array, only want to count 1
+        return super.getNumberOfNotNullElements(coll) / 2;
+    }
+    
     public Iterator<Map.Entry<IObject, IObject>> extractMapEntries(IObject coll) throws SnapshotException
     {
         try

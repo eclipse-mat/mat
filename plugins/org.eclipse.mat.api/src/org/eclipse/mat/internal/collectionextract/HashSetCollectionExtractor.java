@@ -158,7 +158,7 @@ public class HashSetCollectionExtractor implements IMapExtractor
         return createHashMapExtractor().getNumberOfNotNullElements(coll);
     }
 
-    private IMapExtractor createHashMapExtractor()
+    IMapExtractor createHashMapExtractor()
     {
         return new HashMapCollectionExtractor(size_attribute, array_attribute, key_attribute, value_attribute);
     }

@@ -121,15 +121,16 @@ public class TestSnapshots
             assert sourceHeapDump != null : "Unable to find snapshot resource: " + name;
             assert sourceHeapDump.exists();
 
-            int p = name.lastIndexOf('/');
+            // Extract the file name, should work with slash and backslash separators
+            String nm = new File(name).getName();
 
             File directory = TestSnapshots.createGeneratedName("junit", null);
-            File snapshot = new File(directory, name.substring(p + 1));
+            File snapshot = new File(directory, nm);
             copyFile(sourceHeapDump, snapshot);
 
             if (sourceAddon != null && sourceAddon.exists())
             {
-                File addon = new File(directory, addonsName.substring(p + 1));
+                File addon = new File(directory, sourceAddon.getName());
                 copyFile(sourceAddon, addon);
             }
 
@@ -142,8 +143,8 @@ public class TestSnapshots
                 File extraDump = getResourceFile(names[i]);
                 assert extraDump != null : "Unable to find snapshot resource: " + names[i];
                 assert extraDump.exists();
-                p = name.lastIndexOf('/');
-                File extraSnapshot = new File(directory, names[i].substring(p + 1));
+                nm = new File(names[i]).getName();
+                File extraSnapshot = new File(directory, nm);
                 copyFile(extraDump, extraSnapshot);
             }
 

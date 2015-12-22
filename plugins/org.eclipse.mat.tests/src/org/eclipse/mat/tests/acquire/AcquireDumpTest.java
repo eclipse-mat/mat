@@ -107,7 +107,7 @@ public class AcquireDumpTest
                 ++count;
                 String desc = vm.getDescription();
                 collector.checkThat("VM description", desc, notNullValue());
-                if (desc.contains("org.eclipse.mat"))
+                if (desc.contains("org.eclipse.mat.tests"))
                 {
                     System.out.println("Desc " + desc);
                     File f = new File(vm.getProposedFileName());

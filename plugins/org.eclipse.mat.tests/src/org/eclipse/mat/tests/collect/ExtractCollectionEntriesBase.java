@@ -13,12 +13,19 @@ package org.eclipse.mat.tests.collect;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.core.StringContains.containsString;
+import static org.hamcrest.number.OrderingComparison.greaterThan;
+import static org.hamcrest.number.OrderingComparison.greaterThanOrEqualTo;
+import static org.hamcrest.number.OrderingComparison.lessThan;
+import static org.hamcrest.number.OrderingComparison.lessThanOrEqualTo;
 
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.query.IResultTree;
 import org.eclipse.mat.snapshot.ISnapshot;
+import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.query.SnapshotQuery;
 import org.eclipse.mat.util.MessageUtil;
@@ -36,16 +43,25 @@ public class ExtractCollectionEntriesBase
     {
         IObject obj = snapshot.getObject(snapshot.mapAddressToId(objAddress));
         SnapshotQuery query = SnapshotQuery.parse("extract_list_values 0x" + Long.toHexString(objAddress), snapshot); //$NON-NLS-1$
-    
+
         try
         {
             IResult result = query.execute(new VoidProgressListener());
             IResultTree table = (IResultTree) result;
-            if (table != null) {
+            if (table != null)
+            {
                 int rowCount = table.getElements().size();
-    
-                collector.checkThat(MessageUtil.format("Expected to extract {0} entries from list {1} [{2}], but got {3} entries in the result", //$NON-NLS-1$
-                                numEntries, obj, snapshot.getSnapshotInfo().getPath(), rowCount), rowCount, equalTo(numEntries));
+
+                collector.checkThat(MessageUtil.format(
+                                "Expected to extract {0} entries from list {1} [{2}], but got {3} entries in the result", //$NON-NLS-1$
+                                numEntries, obj, snapshot.getSnapshotInfo().getPath(), rowCount), rowCount,
+                                equalTo(numEntries));
+                for (Object o : table.getElements())
+                {
+                    IContextObject co = table.getContext(o);
+                    IClass cls = snapshot.getClassOf(co.getObjectId());
+                    collector.checkThat("List should contain Strings", cls.getName(), equalTo("java.lang.String"));
+                }
             }
         }
         catch (IllegalArgumentException e)
@@ -57,17 +73,32 @@ public class ExtractCollectionEntriesBase
     protected void checkHashSetObjects(long objAddress, int numEntries, ISnapshot snapshot) throws SnapshotException
     {
         IObject obj = snapshot.getObject(snapshot.mapAddressToId(objAddress));
+        String prefix = obj.getTechnicalName()+": ";
         SnapshotQuery query = SnapshotQuery.parse("hash_set_values 0x" + Long.toHexString(objAddress), snapshot); //$NON-NLS-1$
     
         try
         {
             IResult result = query.execute(new VoidProgressListener());
             IResultTree table = (IResultTree) result;
-            if (table != null) {
+            if (table != null)
+            {
                 int rowCount = table.getElements().size();
-    
-                collector.checkThat(MessageUtil.format("Expected to extract {0} entries from hash set {1} [{2}], but got {3} entries in the result", //$NON-NLS-1$
-                                numEntries, obj, snapshot.getSnapshotInfo().getPath(), rowCount), rowCount, equalTo(numEntries));
+
+                collector.checkThat(MessageUtil.format(
+                                "Expected to extract {0} entries from hash set {1} [{2}], but got {3} entries in the result", //$NON-NLS-1$
+                                numEntries, obj, snapshot.getSnapshotInfo().getPath(), rowCount), rowCount,
+                                equalTo(numEntries));
+                for (Object o : table.getElements())
+                {
+                    IContextObject co = table.getContext(o);
+                    IClass cls = snapshot.getClassOf(co.getObjectId());
+                    collector.checkThat(prefix + "hash set should contain Strings", cls.getName(),
+                                    equalTo("java.lang.String"));
+                    IObject cobj = snapshot.getObject(co.getObjectId());
+                    String cv = cobj.getClassSpecificName();
+                    collector.checkThat(prefix + "Should end with number or aAbB: " + cv,
+                                    cv.matches(".*:([0-9]+|[aAbB]+)$"), is(true));
+                }
             }
         }
         catch (IllegalArgumentException e)
@@ -85,13 +116,14 @@ public class ExtractCollectionEntriesBase
     protected void checkHashEntries(long objAddress, int numEntries, ISnapshot snapshot, boolean checkKeyString) throws SnapshotException
     {
         IObject obj = snapshot.getObject(snapshot.mapAddressToId(objAddress));
+        String prefix = obj.getTechnicalName()+": ";
         SnapshotQuery query = SnapshotQuery.parse("hash_entries 0x" + Long.toHexString(objAddress), snapshot); //$NON-NLS-1$
     
         IResult result = query.execute(new VoidProgressListener());
         IResultTable table = (IResultTable) result;
         int rowCount = table.getRowCount();
     
-        collector.checkThat(MessageUtil.format("Expected to extract {0} entries from collection {1} [{2}], but got {3} entries in the result", //$NON-NLS-1$
+        collector.checkThat(MessageUtil.format(prefix+"Expected to extract {0} entries from collection {1} [{2}], but got {3} entries in the result", //$NON-NLS-1$
                         numEntries, obj, snapshot.getSnapshotInfo().getPath(), rowCount), rowCount, equalTo(numEntries));
         // Check that at least one key and value value differs
         boolean diff = rowCount == 0;
@@ -108,24 +140,28 @@ public class ExtractCollectionEntriesBase
             if (k1 != null)
             {
                 allnull = false;
-                collector.checkThat("Key should be an String", k1 instanceof String, is(true));
+                collector.checkThat(prefix+"Key should be an String", k1 instanceof String, is(true));
                 if (checkKeyString && k1 instanceof String)
                 {
-                    try
-                    {
-                        int t = Integer.parseInt((String)k1);
-                    }
-                    catch (NumberFormatException e)
-                    {
-                        collector.addError(e);
-                    }
+                    collector.checkThat(prefix+"Should be a number or aAbB", ((String)k1).matches("[0-9]+|[aAbB]+"), is(true));
                 }
             }
             if (v1 != null)
             {
-                collector.checkThat("Value should be an String", v1 instanceof String, is(true));
+                collector.checkThat(prefix+"Value should be an String", v1 instanceof String, is(true));
                 allnull = false;
             }
+            if (checkKeyString && k1 instanceof String &&  v1 instanceof String)
+            {
+                collector.checkThat(prefix+"Value contains key", (String)v1, containsString((String)k1));
+            }
+            if (checkKeyString && v1 instanceof String)
+            {
+                collector.checkThat(prefix+"Value contains name of collection class", (String)v1, containsString(obj.getClazz().getName()));
+            }
+            
+            IContextObject ctx = table.getContext(row);
+            collector.checkThat(prefix+"Row object should be the map", ctx.getObjectId(), equalTo(obj.getObjectId()));
         }
         collector.checkThat(MessageUtil.format(
                         "Expected some differing keys and values {0} from collection {1} [{2}]", obj, snapshot
@@ -198,7 +234,8 @@ public class ExtractCollectionEntriesBase
                 double v = (Double)table2.getColumnValue(row, 0);
                 if (numEntries > 0)
                 {
-                    collector.checkThat("Fill ratio value > 0.0 "+v+" "+obj, v > 0.0, is(true));
+                    collector.checkThat("Fill ratio value > 0.0 "+v+" "+obj, v, greaterThan(0.0));
+                    collector.checkThat("Fill ratio value <= 1.0 "+v+" "+obj, v, lessThanOrEqualTo(1.0));
                 }
                 else
                 {
@@ -228,9 +265,9 @@ public class ExtractCollectionEntriesBase
         {
             Object row = table2.getRow(0);
             double v = (Double)table2.getColumnValue(row, 0);
-            collector.checkThat("Map collision value >= 0.0 "+v+" "+obj, v >= 0.0, is(true));
+            collector.checkThat("Map collision value >= 0.0 "+v+" "+obj, v, greaterThanOrEqualTo(0.0));
             // 100% collisions shouldn't be possible
-            collector.checkThat("Map collision value < 1.0 "+v+" "+obj, v < 1.0, is(true));
+            collector.checkThat("Map collision value < 1.0 "+v+" "+obj, v, lessThan(1.0));
             // No collisions possible if no entries
             if (numEntries == 0)
                 collector.checkThat("Map collision ratio if no entries "+obj, v, equalTo(0.0));

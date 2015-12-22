@@ -313,7 +313,7 @@ public class HashEntriesQuery implements IQuery
                         }
                         else
                         {
-                            e = new Entry(0, null, me.getKey().getObjectId(), me.getValue().getObjectId());
+                            e = new Entry(id, obj.getDisplayName(), me.getKey().getObjectId(), me.getValue().getObjectId());
                         }
                         hashEntries.add(e);
                     }

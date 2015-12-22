@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 IBM Corporation
+ * Copyright (c) 2014,2015 IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,15 +21,16 @@ import java.util.Map;
  */
 public class CreateCollectionDump
 {
-
+    ListCollectionTestData listCollectionTestData = new ListCollectionTestData();
+    NonListCollectionTestData nonListCollectionTestData = new NonListCollectionTestData();
+    MapTestData mapTestData = new MapTestData();
+    EmptyListCollectionTestData emptyListCollectionTestData = new EmptyListCollectionTestData();
+    EmptyNonListCollectionTestData emptyNonListCollectionTestData = new EmptyNonListCollectionTestData();
+    EmptyMapTestData emptyMapTestData = new EmptyMapTestData();
+    
     public static void main(String[] args) throws Exception
     {
-        ListCollectionTestData listCollectionTestData = new ListCollectionTestData();
-        NonListCollectionTestData nonListCollectionTestData = new NonListCollectionTestData();
-        MapTestData mapTestData = new MapTestData();
-        EmptyListCollectionTestData emptyListCollectionTestData = new EmptyListCollectionTestData();
-        EmptyNonListCollectionTestData emptyNonListCollectionTestData = new EmptyNonListCollectionTestData();
-        EmptyMapTestData emptyMapTestData = new EmptyMapTestData();
+        CreateCollectionDump cd = new CreateCollectionDump();
 
         System.out.println("Acquire Heap Dump NOW (then press any key to terminate program)");
         int c = System.in.read();
@@ -39,6 +40,11 @@ public class CreateCollectionDump
         if (c == -1)
             c = System.in.read();
 
+        cd.print();
+    }
+    
+    public void print()
+    {
         System.out.println(listCollectionTestData);
         System.out.println(nonListCollectionTestData);
         System.out.println(mapTestData);
@@ -53,11 +59,43 @@ public class CreateCollectionDump
 
     public static abstract class CollectionTestData
     {
-        public static final int COUNT = 17;
+        private static final int SAMEHASH = 256;
+        public static final int COUNT = SAMEHASH * 4 / 3;
         String values[];
         Collection collections[];
-        public boolean useEmpty() {
+
+        public boolean useEmpty()
+        {
             return false;
+        }
+
+        static String samehash[] = new String[SAMEHASH];
+
+        static
+        {
+            for (int i = SAMEHASH - 1; i >= 0; --i)
+            {
+                String s = Integer.toBinaryString(i);
+                s = s.replaceAll("0", "aa").replaceAll("1", "bB");
+                samehash[i] = s;
+            }
+        }
+        
+        public void fillValues(String prefix)
+        {
+            values = new String[COUNT + 1];
+            for (int i = 1; i <= COUNT; ++i)
+            {
+                values[i] = prefix + ":" + i;
+            }
+            for (int i = 0; i < samehash.length; ++i)
+            {
+                values[COUNT - samehash.length + i] = prefix + ":" + samehash[i];
+            }
+            for (int i = 1; i <= COUNT; ++i)
+            {
+                System.out.println(values[i] + " " + values[i].hashCode());
+            }
         }
 
         public abstract boolean accept(Class<? extends Collection> c);
@@ -122,15 +160,16 @@ public class CreateCollectionDump
                     Collection cl = c.newInstance();
                     try
                     {
+                        fillValues(cn);
                         for (int i = 1; i <= COUNT; ++i)
                         {
-                            cl.add(cn + ":" + i);
+                            cl.add(values[i]);
                         }
                         int from = 0;
                         int to = COUNT * 2 / 3;
                         for (int i = to; i <= COUNT; i += 1)
                         {
-                            cl.remove(cn + ":" + i);
+                            cl.remove(values[i]);
                         }
                         if (cl instanceof List)
                         {
@@ -142,12 +181,12 @@ public class CreateCollectionDump
                             }
                             for (i += 3; i < to; i += 3)
                             {
-                                l.add(i - 1, cn + ":" + i);
+                                l.add(i - 1, values[i]);
                             }
                         }
                         for (int i = to; i <= COUNT; i += 1)
                         {
-                            cl.add(cn + ":" + i);
+                            cl.add(values[i]);
                         }
                     }
                     catch (ClassCastException e)
@@ -187,10 +226,12 @@ public class CreateCollectionDump
     }
     
     /**
-     * Collections which are not lists which are empty 
+     * Collections which are not lists which are empty
      */
-    public static class EmptyNonListCollectionTestData extends NonListCollectionTestData {
-        public boolean useEmpty() {
+    public static class EmptyNonListCollectionTestData extends NonListCollectionTestData
+    {
+        public boolean useEmpty()
+        {
             return true;
         }
     }
@@ -208,10 +249,12 @@ public class CreateCollectionDump
     }
     
     /**
-     * Lists which are empty 
+     * Lists which are empty
      */
-    public static class EmptyListCollectionTestData extends ListCollectionTestData {
-        public boolean useEmpty() {
+    public static class EmptyListCollectionTestData extends ListCollectionTestData
+    {
+        public boolean useEmpty()
+        {
             return true;
         }
     }
@@ -221,11 +264,49 @@ public class CreateCollectionDump
      */
     public static class MapTestData
     {
-        public static final int COUNT = 17;
+        private static final int SAMEHASH = 256;
+        public static final int COUNT = SAMEHASH * 4 / 3;
         Map maps[];
         String keys[];
-        public boolean useEmpty() {
+        String values[];
+
+        public boolean useEmpty()
+        {
             return false;
+        }
+
+        static String samehash[] = new String[SAMEHASH];
+
+        static
+        {
+            for (int i = SAMEHASH - 1; i >= 0; --i)
+            {
+                String s = Integer.toBinaryString(i);
+                s = s.replaceAll("0", "aa").replaceAll("1", "bB");
+                samehash[i] = s;
+            }
+        }
+
+        public void fillValues(String prefix)
+        {
+            values = new String[COUNT + 1];
+            keys = new String[COUNT + 1];
+            for (int i = 1; i <= COUNT; ++i)
+            {
+                values[i] = prefix + ":" + i;
+                keys[i] = String.valueOf(i);
+            }
+            for (int i = 0; i < samehash.length; ++i)
+            {
+                values[COUNT - samehash.length + i] = prefix + ":" + samehash[i];
+                // Make a fresh String so key is just used here
+                keys[COUNT - samehash.length + i] = "" + samehash[i];
+            }
+            for (int i = 1; i <= COUNT; ++i)
+            {
+                System.out.println(keys[i] + " " + keys[i].hashCode());
+                System.out.println(values[i] + " " + values[i].hashCode());
+            }
         }
 
         public MapTestData()
@@ -271,20 +352,19 @@ public class CreateCollectionDump
                     Map cl = c.newInstance();
                     try
                     {
+                        fillValues(cn);
                         for (int i = 1; i <= COUNT; ++i)
                         {
-                            if (keys[i - 1] == null)
-                                keys[i - 1] = String.valueOf(i);
-                            cl.put(keys[i - 1], cn + ":" + i);
+                            cl.put(keys[i], values[i]);
                         }
                         // Try shuffling around a little
                         for (int i = 1; i <= COUNT; i += 3)
                         {
-                            cl.remove(keys[i - 1]);
+                            cl.remove(keys[i]);
                         }
                         for (int i = 1; i <= COUNT; i += 3)
                         {
-                            cl.put(keys[i - 1], cn + ":" + i);
+                            cl.put(keys[i], values[i]);
                         }
                     }
                     catch (ClassCastException e)
@@ -312,8 +392,10 @@ public class CreateCollectionDump
     /**
      * Maps which are empty
      */
-    public static class EmptyMapTestData extends MapTestData {
-        public boolean useEmpty() {
+    public static class EmptyMapTestData extends MapTestData
+    {
+        public boolean useEmpty()
+        {
             return true;
         }
     }

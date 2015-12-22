@@ -149,6 +149,20 @@ public class HashMapCollectionExtractor extends HashedMapCollectionExtractorBase
                         nextEntryId = ((ObjectReference) field.getValue()).getObjectId();
                 }
             }
+            
+            if (nextEntryId == -1)
+            {
+                if (snapshot.getClassOf(entryId).getName().equals("java.util.concurrent.ConcurrentHashMap$TreeBin"))
+                {
+                    Object o = entry.resolveValue("first");
+                    if (o instanceof IInstance)
+                    {
+                        entry = (IInstance) o;
+                        entryId = entry.getObjectId();
+                        continue;
+                    }
+                }
+            }
 
             entries.add(entryId);
             entryId = nextEntryId;

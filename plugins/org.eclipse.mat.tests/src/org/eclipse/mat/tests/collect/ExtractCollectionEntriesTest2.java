@@ -29,61 +29,61 @@ import org.junit.runners.Parameterized.Parameters;
 public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
 {
     private String snapfile;
-    
-    public ExtractCollectionEntriesTest2(String file) {
-       this.snapfile = file;
+
+    public ExtractCollectionEntriesTest2(String file)
+    {
+        this.snapfile = file;
     }
 
     @Parameters
-    public static Collection<Object[]> data() {
-      Object[][] data = new Object[][] { { TestSnapshots.ORACLE_JDK7_21_64BIT }, 
-                                         { TestSnapshots.ORACLE_JDK8_05_64BIT }
-                                       };
-      return Arrays.asList(data);
+    public static Collection<Object[]> data()
+    {
+        Object[][] data = new Object[][] { { TestSnapshots.ORACLE_JDK7_21_64BIT },
+                        { TestSnapshots.ORACLE_JDK8_05_64BIT } };
+        return Arrays.asList(data);
     }
     
     @Test
     public void testCollections1() throws SnapshotException
     {
-        testCollections1(snapfile);
+        testCollections1(TestSnapshots.getSnapshot(snapfile, false));
     }
     
     @Test
     public void testCollections2() throws SnapshotException
     {
-        testCollections2(snapfile);
+        testCollections2(TestSnapshots.getSnapshot(snapfile,false));
     }
     
     @Test
     public void testCollections3() throws SnapshotException
     {
-        testCollections3(snapfile);
+        testCollections3(TestSnapshots.getSnapshot(snapfile,false));
     }
     
     @Test
     public void testCollections4() throws SnapshotException
     {
-        testCollections4(snapfile);
+        testCollections4(TestSnapshots.getSnapshot(snapfile,false));
     }
     
     @Test
     public void testCollections5() throws SnapshotException
     {
-        testCollections5(snapfile);
+        testCollections5(TestSnapshots.getSnapshot(snapfile,false));
     }
     
     @Test
     public void testCollections6() throws SnapshotException
     {
-        testCollections6(snapfile);
+        testCollections6(TestSnapshots.getSnapshot(snapfile,false));
     }
 
     /**
      * Test Lists
      */
-    public void testCollections1(String snapshotFile) throws SnapshotException
+    public void testCollections1(ISnapshot snapshot) throws SnapshotException
     {
-        ISnapshot snapshot = TestSnapshots.getSnapshot(snapshotFile, false);
         for (IClass cls : snapshot.getClassesByName(org.eclipse.mat.tests.CreateCollectionDump.ListCollectionTestData.class.getName(), false)) {
             for (int o : cls.getObjectIds()) {
                 IObject oo = snapshot.getObject(o);
@@ -91,7 +91,7 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
                 for (NamedReference nr : a.getOutboundReferences()) {
                     if (nr.getName().startsWith("<")) continue;
                     long objAddress = nr.getObjectAddress();
-                    int numEntries = org.eclipse.mat.tests.CreateCollectionDump.ListCollectionTestData.COUNT;
+                    int numEntries = (Integer)cls.getSuperClass().resolveValue("COUNT");
                     checkList(objAddress, numEntries, snapshot);
                 }
             }
@@ -101,17 +101,17 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
     /**
      * Test non-Lists
      */
-    public void testCollections2(String snapshotFile) throws SnapshotException
+    public void testCollections2(ISnapshot snapshot) throws SnapshotException
     {
-        ISnapshot snapshot = TestSnapshots.getSnapshot(snapshotFile, false);
-        for (IClass cls : snapshot.getClassesByName(org.eclipse.mat.tests.CreateCollectionDump.NonListCollectionTestData.class.getName(), false)) {
+        for (IClass cls : snapshot.getClassesByName(org.eclipse.mat.tests.CreateCollectionDump.NonListCollectionTestData.class.getName(), false))
+        {
             for (int o : cls.getObjectIds()) {
                 IObject oo = snapshot.getObject(o);
                 IArray a = (IArray)oo.resolveValue("collections");
                 for (NamedReference nr : a.getOutboundReferences()) {
                     if (nr.getName().startsWith("<")) continue;
                     long objAddress = nr.getObjectAddress();
-                    int numEntries = org.eclipse.mat.tests.CreateCollectionDump.NonListCollectionTestData.COUNT;
+                    int numEntries = (Integer)cls.getSuperClass().resolveValue("COUNT");
                     checkCollectionSize(objAddress, numEntries, snapshot);
                     IObject o2 = snapshot.getObject(snapshot.mapAddressToId(objAddress));
                     String name = o2.getClazz().getName();
@@ -134,14 +134,16 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
     /**
      * Test empty Lists
      */
-    public void testCollections3(String snapshotFile) throws SnapshotException
+    public void testCollections3(ISnapshot snapshot) throws SnapshotException
     {
-        ISnapshot snapshot = TestSnapshots.getSnapshot(snapshotFile, false);
-        for (IClass cls : snapshot.getClassesByName(org.eclipse.mat.tests.CreateCollectionDump.EmptyListCollectionTestData.class.getName(), false)) {
-            for (int o : cls.getObjectIds()) {
+        for (IClass cls : snapshot.getClassesByName(org.eclipse.mat.tests.CreateCollectionDump.EmptyListCollectionTestData.class.getName(), false))
+        {
+            for (int o : cls.getObjectIds())
+            {
                 IObject oo = snapshot.getObject(o);
                 IArray a = (IArray)oo.resolveValue("collections");
-                for (NamedReference nr : a.getOutboundReferences()) {
+                for (NamedReference nr : a.getOutboundReferences())
+                {
                     if (nr.getName().startsWith("<")) continue;
                     long objAddress = nr.getObjectAddress();
                     int numEntries = 0;
@@ -154,14 +156,17 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
     /**
      * Test empty non-Lists
      */
-    public void testCollections4(String snapshotFile) throws SnapshotException
+    public void testCollections4(ISnapshot snapshot) throws SnapshotException
     {
-        ISnapshot snapshot = TestSnapshots.getSnapshot(snapshotFile, false);
-        for (IClass cls : snapshot.getClassesByName(org.eclipse.mat.tests.CreateCollectionDump.EmptyNonListCollectionTestData.class.getName(), false)) {
-            for (int o : cls.getObjectIds()) {
+
+        for (IClass cls : snapshot.getClassesByName(org.eclipse.mat.tests.CreateCollectionDump.EmptyNonListCollectionTestData.class.getName(), false))
+        {
+            for (int o : cls.getObjectIds())
+            {
                 IObject oo = snapshot.getObject(o);
                 IArray a = (IArray)oo.resolveValue("collections");
-                for (NamedReference nr : a.getOutboundReferences()) {
+                for (NamedReference nr : a.getOutboundReferences())
+                {
                     if (nr.getName().startsWith("<")) continue;
                     long objAddress = nr.getObjectAddress();
                     int numEntries = 0;
@@ -181,17 +186,19 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
     /**
      * Test Maps
      */
-    public void testCollections5(String snapshotFile) throws SnapshotException
+    public void testCollections5(ISnapshot snapshot) throws SnapshotException
     {
-        ISnapshot snapshot = TestSnapshots.getSnapshot(snapshotFile, false);
-        for (IClass cls : snapshot.getClassesByName(org.eclipse.mat.tests.CreateCollectionDump.MapTestData.class.getName(), false)) {
-            for (int o : cls.getObjectIds()) {
+        for (IClass cls : snapshot.getClassesByName(org.eclipse.mat.tests.CreateCollectionDump.MapTestData.class.getName(), false))
+        {
+            for (int o : cls.getObjectIds())
+            {
                 IObject oo = snapshot.getObject(o);
                 IArray a = (IArray)oo.resolveValue("maps");
-                for (NamedReference nr : a.getOutboundReferences()) {
+                for (NamedReference nr : a.getOutboundReferences())
+                {
                     if (nr.getName().startsWith("<")) continue;
                     long objAddress = nr.getObjectAddress();
-                    int numEntries = org.eclipse.mat.tests.CreateCollectionDump.MapTestData.COUNT;
+                    int numEntries = (Integer)cls.resolveValue("COUNT");
                     checkHashEntries(objAddress, numEntries, snapshot, true);
                     checkMap(objAddress, numEntries, snapshot);
                 }
@@ -202,14 +209,15 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
     /**
      * Test Empty Maps
      */
-    public void testCollections6(String snapshotFile) throws SnapshotException
+    public void testCollections6(ISnapshot snapshot) throws SnapshotException
     {
-        ISnapshot snapshot = TestSnapshots.getSnapshot(snapshotFile, false);
-        for (IClass cls : snapshot.getClassesByName(org.eclipse.mat.tests.CreateCollectionDump.EmptyMapTestData.class.getName(), false)) {
+        for (IClass cls : snapshot.getClassesByName(org.eclipse.mat.tests.CreateCollectionDump.EmptyMapTestData.class.getName(), false))
+        {
             for (int o : cls.getObjectIds()) {
                 IObject oo = snapshot.getObject(o);
                 IArray a = (IArray)oo.resolveValue("maps");
-                for (NamedReference nr : a.getOutboundReferences()) {
+                for (NamedReference nr : a.getOutboundReferences())
+                {
                     if (nr.getName().startsWith("<")) continue;
                     long objAddress = nr.getObjectAddress();
                     int numEntries = 0;
