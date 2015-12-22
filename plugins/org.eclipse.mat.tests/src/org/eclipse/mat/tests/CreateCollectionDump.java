@@ -94,7 +94,7 @@ public class CreateCollectionDump
             }
             for (int i = 1; i <= COUNT; ++i)
             {
-                System.out.println(values[i] + " " + values[i].hashCode());
+                //System.out.println(values[i] + " " + values[i].hashCode());
             }
         }
 
@@ -304,8 +304,8 @@ public class CreateCollectionDump
             }
             for (int i = 1; i <= COUNT; ++i)
             {
-                System.out.println(keys[i] + " " + keys[i].hashCode());
-                System.out.println(values[i] + " " + values[i].hashCode());
+                //System.out.println(keys[i] + " " + keys[i].hashCode());
+                //System.out.println(values[i] + " " + values[i].hashCode());
             }
         }
 

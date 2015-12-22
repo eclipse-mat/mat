@@ -67,7 +67,18 @@ public class FieldArrayCollectionExtractor implements ICollectionExtractor
         Integer size = getNumberOfNotNullElements(coll);
         Integer cap = getCapacity(coll);
         if (size != null && cap != null)
-            return size.doubleValue() / cap.doubleValue();
+        {
+            double sz = size.doubleValue();
+            double cp = cap.doubleValue();
+            if (sz == 0.0 && cp == 0.0)
+            {
+                return 1.0;
+            }
+            else
+            {
+                return sz / cp;
+            }
+        }
         else
             return null;
     }

@@ -75,9 +75,21 @@ public abstract class HashedMapCollectionExtractorBase extends MapCollectionExtr
         Integer size = getSize(coll);
         Integer cap = getCapacity(coll);
         if (size != null && cap != null)
-            return size.doubleValue() / cap.doubleValue();
+        {
+            double sz = size.doubleValue();
+            double cp = cap.doubleValue();
+            // If the size and capacity are zero mark as full
+            // to avoid generating wasted space reports
+            if (sz == 0.0 && cp == 0.0)
+                return 1.0;
+            else
+                return sz / cp;
+        }
         else
-            return 1.0; // FIXME: default to this? old code did
+        {
+            // Sometimes an empty map doesn't have a capacity yet
+            return 1.0;
+        }
     }
 
     public boolean hasCollisionRatio()

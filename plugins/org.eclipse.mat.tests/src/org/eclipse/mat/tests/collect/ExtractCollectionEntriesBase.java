@@ -12,7 +12,8 @@
 package org.eclipse.mat.tests.collect;
 
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.isOneOf;
+import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
 import static org.hamcrest.number.OrderingComparison.greaterThanOrEqualTo;
@@ -97,7 +98,7 @@ public class ExtractCollectionEntriesBase
                     IObject cobj = snapshot.getObject(co.getObjectId());
                     String cv = cobj.getClassSpecificName();
                     collector.checkThat(prefix + "Should end with number or aAbB: " + cv,
-                                    cv.matches(".*:([0-9]+|[aAbB]+)$"), is(true));
+                                    cv.matches(".*:([0-9]+|[aAbB]+)$"), equalTo(true));
                 }
             }
         }
@@ -127,7 +128,6 @@ public class ExtractCollectionEntriesBase
                         numEntries, obj, snapshot.getSnapshotInfo().getPath(), rowCount), rowCount, equalTo(numEntries));
         // Check that at least one key and value value differs
         boolean diff = rowCount == 0;
-        boolean allnull = true;
         for (int i = 0; i < rowCount; ++i)
         {
             Object row = table.getRow(i);
@@ -139,17 +139,15 @@ public class ExtractCollectionEntriesBase
             }
             if (k1 != null)
             {
-                allnull = false;
-                collector.checkThat(prefix+"Key should be an String", k1 instanceof String, is(true));
+                collector.checkThat(prefix+"Key should be an String", k1, instanceOf(String.class));
                 if (checkKeyString && k1 instanceof String)
                 {
-                    collector.checkThat(prefix+"Should be a number or aAbB", ((String)k1).matches("[0-9]+|[aAbB]+"), is(true));
+                    collector.checkThat(prefix+"Should be a number or aAbB", ((String)k1).matches("[0-9]+|[aAbB]+"), equalTo(true));
                 }
             }
             if (v1 != null)
             {
-                collector.checkThat(prefix+"Value should be an String", v1 instanceof String, is(true));
-                allnull = false;
+                collector.checkThat(prefix+"Value should be an String", v1, instanceOf(String.class));
             }
             if (checkKeyString && k1 instanceof String &&  v1 instanceof String)
             {
@@ -165,7 +163,7 @@ public class ExtractCollectionEntriesBase
         }
         collector.checkThat(MessageUtil.format(
                         "Expected some differing keys and values {0} from collection {1} [{2}]", obj, snapshot
-                        .getSnapshotInfo().getPath()), diff, is(true));
+                        .getSnapshotInfo().getPath()), diff, equalTo(true));
     }
 
     /**
@@ -235,12 +233,13 @@ public class ExtractCollectionEntriesBase
                 if (numEntries > 0)
                 {
                     collector.checkThat("Fill ratio value > 0.0 "+v+" "+obj, v, greaterThan(0.0));
-                    collector.checkThat("Fill ratio value <= 1.0 "+v+" "+obj, v, lessThanOrEqualTo(1.0));
+                    // If there are a lot of collisions the ratio could be greater than one
+                    collector.checkThat("Fill ratio value <= 1.2 "+v+" "+obj, v, lessThanOrEqualTo(1.2));
                 }
                 else
                 {
                     // 1.0 if the size == 0, capacity == 0, 0.0 if the size == 0, capacity > 0 
-                    collector.checkThat("Fill ratio value == 0.0 or 1.0 "+v+" "+obj, v == 0.0 || v == 1.0, is(true));
+                    collector.checkThat("Fill ratio value == 0.0 or 1.0 "+v+" "+obj, v, isOneOf(0.0, 1.0));
                 }
             }
         }

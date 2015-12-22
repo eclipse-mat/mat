@@ -49,6 +49,7 @@ public class KnownCollectionInfo
             // anymore):
             // JRE 1.7.0 Linux amd64-64 build 20130205_137358
             // (pxa6470sr4ifix-20130305_01(SR4+IV37419) )
+            // JRE 1.7.0 Windows 7 amd64-64 build (pwa6470_27sr3fp10-20150708_01(SR3 FP10) )
 
             if (jvmInfo.contains("IBM") || jvmInfo.contains(" build "))
             {
@@ -63,7 +64,7 @@ public class KnownCollectionInfo
                             return Version.IBM18;
                         else if (jreVersion.equals("1.7"))
                         {
-                            if (jvmInfo.matches(".*\\(SR[1-3][^0-9].*") || jvmInfo.matches(".*\\(GA"))
+                            if (jvmInfo.matches(".*70sr.*\\(SR[1-3][^0-9].*") || jvmInfo.matches(".*\\(GA") && !jvmInfo.matches(".*70_27.*"))
                             {
                                 // Harmony based collections
                                 return Version.IBM16;
