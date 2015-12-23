@@ -13,6 +13,7 @@ package org.eclipse.mat.tests.collect;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.isOneOf;
+import static org.hamcrest.core.IsNull.notNullValue;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
@@ -97,8 +98,12 @@ public class ExtractCollectionEntriesBase
                                     equalTo("java.lang.String"));
                     IObject cobj = snapshot.getObject(co.getObjectId());
                     String cv = cobj.getClassSpecificName();
-                    collector.checkThat(prefix + "Should end with number or aAbB: " + cv,
+                    collector.checkThat(prefix+" hash set contents", cv, notNullValue());
+                    if (cv != null)
+                    {
+                        collector.checkThat(prefix + "Should end with number or aAbB: " + cv,
                                     cv.matches(".*:([0-9]+|[aAbB]+)$"), equalTo(true));
+                    }
                 }
             }
         }

@@ -23,14 +23,12 @@ public class FieldSizedCollectionExtractor implements ICollectionExtractor
 
     public FieldSizedCollectionExtractor(String sizeField)
     {
-        if (sizeField == null)
-            throw new IllegalArgumentException();
         this.sizeField = sizeField;
     }
 
     public boolean hasSize()
     {
-        return true;
+        return sizeField != null;
     }
 
     public Integer getSize(IObject coll) throws SnapshotException

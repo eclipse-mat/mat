@@ -142,9 +142,9 @@ public class KnownCollectionInfo
 
                     // these have a field indicating the size
                     new Info(
-                                    "java.util.concurrent.ConcurrentLinkedBlockingDeque", new FieldSizedCollectionExtractor("count")), //$NON-NLS-1$  //$NON-NLS-2$
+                                    "java.util.concurrent.ConcurrentLinkedBlockingDeque", new LinkedListCollectionExtractor("count", "first.next")), //$NON-NLS-1$  //$NON-NLS-2$
                     new Info(
-                                    "java.util.concurrent.ConcurrentLinkedBlockingQueue", new FieldSizedCollectionExtractor("count.value")), //$NON-NLS-1$  //$NON-NLS-2$
+                                    "java.util.concurrent.ConcurrentLinkedBlockingQueue", new LinkedListCollectionExtractor("count.value", "head.next")), //$NON-NLS-1$  //$NON-NLS-2$
                     new Info("java.util.concurrent.LinkedBlockingDeque", new FieldSizedCollectionExtractor("count")), //$NON-NLS-1$  //$NON-NLS-2$
                     new Info(
                                     "java.util.concurrent.LinkedBlockingQueue", new FieldSizedCollectionExtractor("count.value")), //$NON-NLS-1$  //$NON-NLS-2$
@@ -152,10 +152,9 @@ public class KnownCollectionInfo
                     // these store the data in an array
                     new Info("java.util.concurrent.CopyOnWriteArrayList", new FieldArrayCollectionExtractor("array")), // //$NON-NLS-1$ //$NON-NLS-2$
                     new Info("java.util.concurrent.CopyOnWriteArraySet", new FieldArrayCollectionExtractor("al.array")), // //$NON-NLS-1$ //$NON-NLS-2$
-                    // Calculations not yet quite correct for these
-                    //new Info("java.util.concurrent.ConcurrentLinkedDeque", new LinkedListCollectionExtractor("head")), // //$NON-NLS-1$ //$NON-NLS-2$
-                    //new Info("java.util.concurrent.ConcurrentLinkedQueue", new LinkedListCollectionExtractor("head")), // //$NON-NLS-1$ //$NON-NLS-2$
-                    //new Info("java.util.concurrent.LinkedTransferQueue", new LinkedListCollectionExtractor("head")), // //$NON-NLS-1$ //$NON-NLS-2$
+                    new Info("java.util.concurrent.ConcurrentLinkedDeque", new LinkedListCollectionExtractor(null, "head.next")), // //$NON-NLS-1$ //$NON-NLS-2$
+                    new Info("java.util.concurrent.ConcurrentLinkedQueue", new LinkedListCollectionExtractor(null, "head.next")), // //$NON-NLS-1$ //$NON-NLS-2$
+                    new Info("java.util.concurrent.LinkedTransferQueue", new LinkedListCollectionExtractor(null, "head.next")), // //$NON-NLS-1$ //$NON-NLS-2$
 
                     // both size and array field
                     new Info(
@@ -203,9 +202,9 @@ public class KnownCollectionInfo
                                     "java.util.LinkedHashMap", Version.IBM15, new HashMapCollectionExtractor("size", "table", "key", "value")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 
                     new Info(
-                                    "java.beans.beancontext.BeanContextSupport", ~Version.IBM16, new HashMapCollectionExtractor("children.size", "children.table", "key", "value")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+                                    "java.beans.beancontext.BeanContextSupport", ~Version.IBM16, new HashSetCollectionExtractor("children.size", "children.table", "key", "value")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
                     new Info(
-                                    "java.beans.beancontext.BeanContextSupport", Version.IBM16, new HashMapCollectionExtractor("children.elementCount", "children.elementData", "key", "value")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+                                    "java.beans.beancontext.BeanContextSupport", Version.IBM16, new HashSetCollectionExtractor("children.elementCount", "children.elementData", "key", "value")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 
                     new Info(
                                     "com.ibm.jvm.util.HashMapRT", Version.IBM15 | Version.IBM16, new HashMapCollectionExtractor("size", "table", "key", "value")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$

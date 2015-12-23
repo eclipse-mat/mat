@@ -15,6 +15,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.jar.Attributes;
+
+import javax.print.attribute.standard.PrinterStateReason;
+import javax.print.attribute.standard.Severity;
 
 /**
  * Create a dump to show different Collection classes.
@@ -115,9 +119,8 @@ public class CreateCollectionDump
                             "javax.management.AttributeList",
                             "java.beans.beancontext.BeanContextServicesSupport",
                             "java.beans.beancontext.BeanContextSupport",
-                            // Don't currently quite support these
-                            //"java.util.concurrent.ConcurrentLinkedDeque",
-                            //"java.util.concurrent.ConcurrentLinkedQueue",
+                            "java.util.concurrent.ConcurrentLinkedDeque",
+                            "java.util.concurrent.ConcurrentLinkedQueue",
                             "java.util.concurrent.ConcurrentSkipListSet",
                             "java.util.concurrent.CopyOnWriteArrayList",
                             "java.util.concurrent.CopyOnWriteArraySet",
@@ -129,8 +132,7 @@ public class CreateCollectionDump
                             "java.util.concurrent.LinkedBlockingQueue",
                             "java.util.LinkedHashSet",
                             "java.util.LinkedList",
-                            // Don't currently quite support this
-                            //"java.util.concurrent.LinkedTransferQueue",
+                            "java.util.concurrent.LinkedTransferQueue",
                             "java.util.PriorityQueue",
                             "javax.management.relation.RoleList",
                             "javax.management.relation.RoleUnresolvedList",
@@ -158,47 +160,52 @@ public class CreateCollectionDump
                 try
                 {
                     Collection cl = c.newInstance();
-                    try
+                    if (!useEmpty())
                     {
-                        fillValues(cn);
-                        for (int i = 1; i <= COUNT; ++i)
+                        try
                         {
-                            cl.add(values[i]);
-                        }
-                        int from = 0;
-                        int to = COUNT * 2 / 3;
-                        for (int i = to; i <= COUNT; i += 1)
-                        {
-                            cl.remove(values[i]);
-                        }
-                        if (cl instanceof List)
-                        {
-                            List l = (List)cl;
-                            int i;
-                            for (i = to - 1; i > 0; i -= 3)
+                            fillValues(cn);
+                            for (int i = 1; i <= COUNT; ++i)
                             {
-                                l.remove(i - 1);
+                                cl.add(values[i]);
                             }
-                            for (i += 3; i < to; i += 3)
+                            int from = 0;
+                            int to = COUNT * 2 / 3;
+                            for (int i = to; i <= COUNT; i += 1)
                             {
-                                l.add(i - 1, values[i]);
+                                cl.remove(values[i]);
+                            }
+                            if (cl instanceof List)
+                            {
+                                List l = (List) cl;
+                                int i;
+                                for (i = to - 1; i > 0; i -= 3)
+                                {
+                                    l.remove(i - 1);
+                                }
+                                for (i += 3; i < to; i += 3)
+                                {
+                                    l.add(i - 1, values[i]);
+                                }
+                            }
+                            for (int i = to; i <= COUNT; i += 1)
+                            {
+                                cl.add(values[i]);
                             }
                         }
-                        for (int i = to; i <= COUNT; i += 1)
+                        catch (ClassCastException e)
                         {
-                            cl.add(values[i]);
+                            // E.g. Delayed
+                            e.printStackTrace();
                         }
+                        catch (IllegalStateException e)
+                        {
+                            // Synchronous queue
+                            e.printStackTrace();
+                        }
+                        if (cl.isEmpty() == useEmpty())
+                            cols.add(cl);
                     }
-                    catch (ClassCastException e)
-                    {
-                        // E.g. Delayed
-                    }
-                    catch (IllegalStateException e)
-                    {
-                        // Synchronous queue
-                    }
-                    if (cl.isEmpty() == useEmpty())
-                        cols.add(cl);
                 }
                 catch (InstantiationException e)
                 {}
@@ -350,27 +357,52 @@ public class CreateCollectionDump
                 try
                 {
                     Map cl = c.newInstance();
-                    try
+                    if (!useEmpty())
                     {
-                        fillValues(cn);
-                        for (int i = 1; i <= COUNT; ++i)
+                        try
                         {
-                            cl.put(keys[i], values[i]);
+                            fillValues(cn);
+                            for (int i = 1; i <= COUNT; ++i)
+                            {
+                                cl.put(keys[i], values[i]);
+                            }
+                            // Try shuffling around a little
+                            for (int i = 1; i <= COUNT; i += 3)
+                            {
+                                cl.remove(keys[i]);
+                            }
+                            for (int i = 1; i <= COUNT; i += 3)
+                            {
+                                cl.put(keys[i], values[i]);
+                            }
                         }
-                        // Try shuffling around a little
-                        for (int i = 1; i <= COUNT; i += 3)
+                        catch (ClassCastException e)
                         {
-                            cl.remove(keys[i]);
+                            // E.g. PrinterStateReasons
+                            e.printStackTrace();
                         }
-                        for (int i = 1; i <= COUNT; i += 3)
+                        if (cl.isEmpty())
                         {
-                            cl.put(keys[i], values[i]);
+                            // Special case if String not accepted
+                            try
+                            {
+                                // javax.print.attribute.standard.PrinterStateReasons
+                                cl.put(PrinterStateReason.CONNECTING_TO_DEVICE, Severity.REPORT);
+                            }
+                            catch (ClassCastException e)
+                            {}
                         }
-                    }
-                    catch (ClassCastException e)
-                    {
-                        // E.g. PrinterStateReasons
-                        e.printStackTrace();
+                        if (cl.isEmpty())
+                        {
+                            // Special case if String not accepted
+                            try
+                            {
+                                // java.util.jar.Attributes
+                                cl.put(Attributes.Name.CLASS_PATH, values[1]);
+                            }
+                            catch (ClassCastException e)
+                            {}
+                        }
                     }
                     if (cl.isEmpty() == useEmpty())
                         ms.add(cl);

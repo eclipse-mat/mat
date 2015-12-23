@@ -61,6 +61,10 @@ public class HashSetValuesQuery implements IQuery
         else
         {
             extractor = CollectionExtractionUtils.extractMap(hashSet);
+            if (extractor == null)
+            {
+                throw new IllegalArgumentException(hashSet.getTechnicalName());
+            }
         }
 
         // TODO: refactor out code with ExtractListValuesQuery
@@ -75,7 +79,7 @@ public class HashSetValuesQuery implements IQuery
         }
         else
         {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException(hashSet.getTechnicalName());
         }
 
         return new ObjectListResult.Outbound(snapshot, result);

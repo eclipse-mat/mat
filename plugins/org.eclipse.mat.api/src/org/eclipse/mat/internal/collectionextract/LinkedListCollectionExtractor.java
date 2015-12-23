@@ -42,7 +42,8 @@ public class LinkedListCollectionExtractor extends FieldSizedCollectionExtractor
     public int[] extractEntryIds(IObject list) throws SnapshotException
     {
         IProgressListener listener = new VoidProgressListener();
-        int size = getSize(list);
+        // If there isn't a size, then use an upper limit in case there is a loop
+        int size = super.hasSize() ? getSize(list) : 10000000;
 
         String taskMsg = MessageUtil.format(Messages.ExtractListValuesQuery_CollectingElements, size,
                         list.getTechnicalName());
@@ -58,6 +59,10 @@ public class LinkedListCollectionExtractor extends FieldSizedCollectionExtractor
             header = (IObject) list.resolveValue("first"); //LinkedList$Node Java 7 //$NON-NLS-1$
         if (header == null)
         {
+            
+        }
+        if (header == null)
+        {
             // Look for the only object field
             header = resolveNextFields(list);
         }
@@ -67,7 +72,7 @@ public class LinkedListCollectionExtractor extends FieldSizedCollectionExtractor
         IObject previous = header;
         IObject current = header;
 
-        if (!current.getClazz().getName().equals("java.util.LinkedList$Node")) //$NON-NLS-1$
+        if (current.getClazz().getName().equals("java.util.LinkedList$Entry")) //$NON-NLS-1$
         {
             // Skip over header link for pre Java 7 implementations
             current = (IObject) header.resolveValue("next"); //$NON-NLS-1$;
@@ -106,6 +111,11 @@ public class LinkedListCollectionExtractor extends FieldSizedCollectionExtractor
                 ref = (IObject) current.resolveValue("data"); // IBM VM //$NON-NLS-1$
             if (ref == null)
                 ref = (IObject) current.resolveValue("item"); // Java 7 //$NON-NLS-1$
+            if (current.equals(ref))
+            {
+                // java.util.concurrent.LinkedTransferQueue has a spurious link
+                ref = null;
+            }
 
             // Find the next link
             IObject next = (IObject) current.resolveValue("next"); //$NON-NLS-1$
@@ -203,5 +213,23 @@ public class LinkedListCollectionExtractor extends FieldSizedCollectionExtractor
             }
         }
         return ret;
+    }
+    
+    public boolean hasSize()
+    {
+        return true;
+    }
+
+    public Integer getSize(IObject coll) throws SnapshotException
+    {
+        if (super.hasSize())
+        {
+            return super.getSize(coll);
+        }
+        int entries[] =  extractEntryIds(coll);
+        if (entries == null)
+            return 0;
+        else 
+            return entries.length;
     }
 }
