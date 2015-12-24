@@ -72,7 +72,9 @@ public class LinkedListCollectionExtractor extends FieldSizedCollectionExtractor
         IObject previous = header;
         IObject current = header;
 
-        if (current.getClazz().getName().equals("java.util.LinkedList$Entry")) //$NON-NLS-1$
+        if (current.getClazz().getName().equals("java.util.LinkedList$Entry") || //$NON-NLS-1$
+            current.getClazz().getName().equals("java.util.LinkedList$Link") || //$NON-NLS-1$
+            current.getClazz().getName().equals("java.util.concurrent.LinkedBlockingQueue$Node")) //$NON-NLS-1$
         {
             // Skip over header link for pre Java 7 implementations
             current = (IObject) header.resolveValue("next"); //$NON-NLS-1$;

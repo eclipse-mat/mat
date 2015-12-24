@@ -145,9 +145,9 @@ public class KnownCollectionInfo
                                     "java.util.concurrent.ConcurrentLinkedBlockingDeque", new LinkedListCollectionExtractor("count", "first.next")), //$NON-NLS-1$  //$NON-NLS-2$
                     new Info(
                                     "java.util.concurrent.ConcurrentLinkedBlockingQueue", new LinkedListCollectionExtractor("count.value", "head.next")), //$NON-NLS-1$  //$NON-NLS-2$
-                    new Info("java.util.concurrent.LinkedBlockingDeque", new FieldSizedCollectionExtractor("count")), //$NON-NLS-1$  //$NON-NLS-2$
+                    new Info("java.util.concurrent.LinkedBlockingDeque", new LinkedListCollectionExtractor("count", "first.next")), //$NON-NLS-1$  //$NON-NLS-2$
                     new Info(
-                                    "java.util.concurrent.LinkedBlockingQueue", new FieldSizedCollectionExtractor("count.value")), //$NON-NLS-1$  //$NON-NLS-2$
+                                    "java.util.concurrent.LinkedBlockingQueue", new LinkedListCollectionExtractor("count.value", "head.next")), //$NON-NLS-1$  //$NON-NLS-2$
 
                     // these store the data in an array
                     new Info("java.util.concurrent.CopyOnWriteArrayList", new FieldArrayCollectionExtractor("array")), // //$NON-NLS-1$ //$NON-NLS-2$
@@ -271,11 +271,11 @@ public class KnownCollectionInfo
                     new Info(
                                     "java.util.TreeMap", ~Version.IBM16, new TreeMapCollectionExtractor("size", "key", "value")), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
                     new Info(
-                                    "java.util.TreeMap", Version.IBM16, new TreeMapCollectionExtractor("size", "keys[]", "values[]")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                                    "java.util.TreeMap", Version.IBM16, new TreeMapArrayCollectionExtractor("size", "keys", "values")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
                     new Info(
                                     "java.util.TreeSet", ~Version.IBM16, new TreeSetCollectionExtractor("m.size", "key", "value")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
                     new Info(
-                                    "java.util.TreeSet", Version.IBM16, new TreeSetCollectionExtractor("backingMap.size", "keys[]", "values[]")), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                                    "java.util.TreeSet", Version.IBM16, new TreeSetArrayCollectionExtractor("backingMap.size", "keys", "values")), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
                     // concurrent hash map
                     new Info(

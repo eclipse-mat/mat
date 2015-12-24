@@ -16,6 +16,7 @@ import static org.hamcrest.Matchers.isOneOf;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.hamcrest.core.StringContains.containsString;
+import static org.hamcrest.core.StringStartsWith.startsWith;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
 import static org.hamcrest.number.OrderingComparison.greaterThanOrEqualTo;
 import static org.hamcrest.number.OrderingComparison.lessThan;
@@ -44,8 +45,9 @@ public class ExtractCollectionEntriesBase
     void checkListObjects(long objAddress, int numEntries, ISnapshot snapshot) throws SnapshotException
     {
         IObject obj = snapshot.getObject(snapshot.mapAddressToId(objAddress));
+        String prefix = obj.getTechnicalName()+": ";
         SnapshotQuery query = SnapshotQuery.parse("extract_list_values 0x" + Long.toHexString(objAddress), snapshot); //$NON-NLS-1$
-
+        String name = obj.getClazz().getName();
         try
         {
             IResult result = query.execute(new VoidProgressListener());
@@ -63,6 +65,16 @@ public class ExtractCollectionEntriesBase
                     IContextObject co = table.getContext(o);
                     IClass cls = snapshot.getClassOf(co.getObjectId());
                     collector.checkThat("List should contain Strings", cls.getName(), equalTo("java.lang.String"));
+                    IObject lobj = snapshot.getObject(co.getObjectId());
+                    
+                    String cv = lobj.getClassSpecificName();
+                    collector.checkThat(prefix+"list contents", cv, notNullValue());
+                    if (cv != null)
+                    {
+                        collector.checkThat(prefix + "List entry should start with the type", cv, startsWith(name));
+                        collector.checkThat(prefix + "Should end with number or aAbB: " + cv,
+                                    cv.matches(".*:([0-9]+|[aAbB]+)$"), equalTo(true));
+                    }
                 }
             }
         }
@@ -77,6 +89,7 @@ public class ExtractCollectionEntriesBase
         IObject obj = snapshot.getObject(snapshot.mapAddressToId(objAddress));
         String prefix = obj.getTechnicalName()+": ";
         SnapshotQuery query = SnapshotQuery.parse("hash_set_values 0x" + Long.toHexString(objAddress), snapshot); //$NON-NLS-1$
+        String name = obj.getClazz().getName();
     
         try
         {
@@ -101,6 +114,7 @@ public class ExtractCollectionEntriesBase
                     collector.checkThat(prefix+" hash set contents", cv, notNullValue());
                     if (cv != null)
                     {
+                        collector.checkThat(prefix + "Hash set entry should start with the type", cv, startsWith(name));
                         collector.checkThat(prefix + "Should end with number or aAbB: " + cv,
                                     cv.matches(".*:([0-9]+|[aAbB]+)$"), equalTo(true));
                     }
@@ -119,7 +133,7 @@ public class ExtractCollectionEntriesBase
         checkMap(objAddress, numEntries, snapshot);
     }
 
-    protected void checkHashEntries(long objAddress, int numEntries, ISnapshot snapshot, boolean checkKeyString) throws SnapshotException
+    protected void checkHashEntries(long objAddress, int numEntries, ISnapshot snapshot, boolean checkValueString) throws SnapshotException
     {
         IObject obj = snapshot.getObject(snapshot.mapAddressToId(objAddress));
         String prefix = obj.getTechnicalName()+": ";
@@ -145,20 +159,24 @@ public class ExtractCollectionEntriesBase
             if (k1 != null)
             {
                 collector.checkThat(prefix+"Key should be an String", k1, instanceOf(String.class));
-                if (checkKeyString && k1 instanceof String)
+                if (checkValueString && k1 instanceof String)
                 {
                     collector.checkThat(prefix+"Should be a number or aAbB", ((String)k1).matches("[0-9]+|[aAbB]+"), equalTo(true));
+                }
+                if (checkValueString && k1 instanceof String)
+                {
+                    collector.checkThat(prefix+"Should end with a number or aAbB", ((String)k1).matches(".*([0-9]+|[aAbB]+)$"), equalTo(true));
                 }
             }
             if (v1 != null)
             {
                 collector.checkThat(prefix+"Value should be an String", v1, instanceOf(String.class));
             }
-            if (checkKeyString && k1 instanceof String &&  v1 instanceof String)
+            if (checkValueString && k1 instanceof String &&  v1 instanceof String)
             {
                 collector.checkThat(prefix+"Value contains key", (String)v1, containsString((String)k1));
             }
-            if (checkKeyString && v1 instanceof String)
+            if (checkValueString && v1 instanceof String)
             {
                 collector.checkThat(prefix+"Value contains name of collection class", (String)v1, containsString(obj.getClazz().getName()));
             }
@@ -166,9 +184,12 @@ public class ExtractCollectionEntriesBase
             IContextObject ctx = table.getContext(row);
             collector.checkThat(prefix+"Row object should be the map", ctx.getObjectId(), equalTo(obj.getObjectId()));
         }
-        collector.checkThat(MessageUtil.format(
-                        "Expected some differing keys and values {0} from collection {1} [{2}]", obj, snapshot
-                        .getSnapshotInfo().getPath()), diff, equalTo(true));
+        if (checkValueString)
+        {
+            collector.checkThat(MessageUtil.format(
+                            "Expected some differing keys and values {0} from collection {1} [{2}]", obj, snapshot
+                            .getSnapshotInfo().getPath()), diff, equalTo(true));
+        }
     }
 
     /**

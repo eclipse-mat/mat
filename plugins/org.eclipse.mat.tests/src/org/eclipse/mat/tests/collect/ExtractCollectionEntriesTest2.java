@@ -127,6 +127,11 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
                         checkMapCollisionRatio(objAddress, numEntries, snapshot);
                         checkHashSetObjects(objAddress, numEntries, snapshot);
                     }
+                    else
+                    {
+                        // Other queries also work with list_entries
+                        checkList(objAddress, numEntries, snapshot);
+                    }
                 }
             }
         }
