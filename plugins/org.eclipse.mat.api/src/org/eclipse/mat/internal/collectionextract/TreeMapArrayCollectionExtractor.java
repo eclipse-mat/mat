@@ -68,7 +68,7 @@ public class TreeMapArrayCollectionExtractor extends TreeMapCollectionExtractor
             return ret;
         }
 
-        public EntryObject getNext(boolean test)
+        private EntryObject getNext(boolean test)
         {
             EntryObject ret = null;
             while (true)
@@ -100,6 +100,11 @@ public class TreeMapArrayCollectionExtractor extends TreeMapCollectionExtractor
                 len = keys.getLength();
                 i = 0;
             }
+        }
+
+        public void remove()
+        {
+            throw new UnsupportedOperationException();
         }
     }
 }
