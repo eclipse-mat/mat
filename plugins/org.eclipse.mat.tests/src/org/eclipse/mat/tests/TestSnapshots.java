@@ -45,6 +45,7 @@ public class TestSnapshots
     public static final String SUN_JDK5_13_32BIT = "dumps/sun_jdk5_13_x32.hprof";
     public static final String ORACLE_JDK7_21_64BIT_HPROFAGENT = "dumps/oracle_jdk7_21_hprofagent.hprof";
     public static final String ORACLE_JDK7_21_64BIT = "dumps/oracle_jdk7_21_x64.hprof";
+    public static final String ORACLE_JDK7_75_64BIT_DIRECT_MEMORY = "dumps/oracle_jdk7_75_x64_directmemory.hprof";
     public static final String ORACLE_JDK8_05_64BIT = "dumps/oracle_jdk8_05_x64.hprof";
     public static final String HISTOGRAM_SUN_JDK6_18_32BIT = "dumps/histogram_sun_jdk6_18_x32.txt";
     public static final String HISTOGRAM_SUN_JDK5_13_32BIT = "dumps/histogram_sun_jdk5_13_x32.txt";

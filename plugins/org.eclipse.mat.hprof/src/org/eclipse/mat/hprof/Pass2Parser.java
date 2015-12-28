@@ -36,7 +36,8 @@ import org.eclipse.mat.util.SimpleMonitor;
 
 public class Pass2Parser extends AbstractParser
 {
-    private IHprofParserHandler handler;
+    private static final String DIRECT_BYTE_BUFFER_CLASS_NAME = "java.nio.DirectByteBuffer";
+	private IHprofParserHandler handler;
     private SimpleMonitor.Listener monitor;
 
     public Pass2Parser(IHprofParserHandler handler, SimpleMonitor.Listener monitor,
@@ -209,24 +210,61 @@ public class Pass2Parser extends AbstractParser
                         thisClazz.getHeapSizePerInstance());
 
         heapObject.references.add(thisClazz.getObjectAddress());
+        
 
-        // extract outgoing references
-        for (IClass clazz : hierarchy)
-        {
-            for (FieldDescriptor field : clazz.getFieldDescriptors())
+        if (hasAllocatedDirectMemory(thisClazz)) {
+            int capacity = -1;
+            
+            // extract outgoing references
+            for (IClass clazz : hierarchy)
             {
-                int type = field.getType();
-                if (type == IObject.Type.OBJECT)
+                for (FieldDescriptor field : clazz.getFieldDescriptors())
                 {
-                    long refId = readID();
-                    if (refId != 0)
-                        heapObject.references.add(refId);
-                }
-                else
-                {
-                    skipValue(type);
+                    int type = field.getType();
+                    if (type == IObject.Type.OBJECT)
+                    {
+                        long refId = readID();
+                        if (refId != 0)
+                            heapObject.references.add(refId);
+                    }
+                    else
+                    {
+                    	// The DirectMemory allocated cap	acity is hold in the Buffer parent class
+                    	if (clazz.getName().equals("java.nio.Buffer") && field.getName().equals("capacity") && type == IObject.Type.INT) {
+                    		capacity = in.readInt();
+                    	} else {
+                            skipValue(type);
+                    	}
+                    }
                 }
             }
+            
+			if (capacity > 0) {
+				// Add the DirectMemory footprint to the usedHeapSize
+				heapObject.usedHeapSize += IPrimitiveArray.ELEMENT_SIZE[IObject.Type.BYTE] * capacity;
+				
+				// Set isArray=true as each DirectByteBuffer has its own directMemorySize
+				heapObject.isArray = true;
+			}
+        } else {
+	        // extract outgoing references
+	        for (IClass clazz : hierarchy)
+	        {
+	            for (FieldDescriptor field : clazz.getFieldDescriptors())
+	            {
+	                int type = field.getType();
+	                if (type == IObject.Type.OBJECT)
+	                {
+	                    long refId = readID();
+	                    if (refId != 0)
+	                        heapObject.references.add(refId);
+	                }
+	                else
+	                {
+	                    skipValue(type);
+	                }
+	            }
+	        }
         }
 
         if (endPos != in.position())
@@ -235,7 +273,45 @@ public class Pass2Parser extends AbstractParser
         handler.addObject(heapObject, segmentStartPos);
     }
 
-    private void readObjectArrayDump(long segmentStartPos) throws IOException
+    private boolean hasAllocatedDirectMemory(ClassImpl thisClazz) {
+		try {
+			// If thisClazz.getName equals java.nio.DirectByteBuffer, then this returns true 
+			if (thisClazz.getSnapshot() != null) {
+				return thisClazz.doesExtend(DIRECT_BYTE_BUFFER_CLASS_NAME);
+			} else {
+				ClassImpl currentClazz = thisClazz.getClazz();
+
+				while (currentClazz != null) {
+					if (currentClazz.getName().equals(DIRECT_BYTE_BUFFER_CLASS_NAME)) {
+						return true;
+					} else {
+						// getSuperClass needs thisClazz.getSnapshot() != null
+						if (true) {
+							return false;
+						} else {
+							if (currentClazz == currentClazz.getSuperClass()) {
+								// Prevent infinite loop if parentClass ==
+								// currentClass
+								return false;
+							} else {
+								currentClazz = currentClazz.getSuperClass();
+							}
+						}
+					}
+				}
+				
+				return false;
+			}
+		} catch (SnapshotException e) {
+			// Keep loading the heap-dump
+			return false;
+		} catch (RuntimeException e) {
+			// Keep loading the heap-dump
+			return false;
+		}
+	}
+
+	private void readObjectArrayDump(long segmentStartPos) throws IOException
     {
         long id = readID();
 

@@ -87,6 +87,7 @@ public class GeneralSnapshotTests
             {TestSnapshots.IBM_JDK142_32BIT_SYSTEM, Stacks.FRAMES},
             {TestSnapshots.ORACLE_JDK7_21_64BIT, Stacks.FRAMES_AND_OBJECTS},
             {TestSnapshots.ORACLE_JDK8_05_64BIT, Stacks.FRAMES_AND_OBJECTS},
+            {TestSnapshots.ORACLE_JDK7_75_64BIT_DIRECT_MEMORY, Stacks.FRAMES_AND_OBJECTS},
         });
     }
 
@@ -255,7 +256,7 @@ public class GeneralSnapshotTests
                 total += n;
                 if (prev >= 0)
                 {
-                    if (prev != n && !cls.isArrayType() && !(obj instanceof IClass))
+                    if (prev != n && !cls.isArrayType() && !(obj instanceof IClass) && !(obj.getClazz().doesExtend("java.nio.DirectByteBuffer")))
                     {
                         // This might not be a problem as variable sized plain objects
                         // are now permitted using the array index to record the alternative sizes.
