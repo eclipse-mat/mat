@@ -43,8 +43,8 @@ public class KnownCollectionInfo implements ICollectionExtractorProvider
                     // these have a field indicating the size
                     new CollectionExtractionInfo("java.util.concurrent.ConcurrentLinkedBlockingDeque", new FieldSizedCollectionExtractor("count")), //$NON-NLS-1$  //$NON-NLS-2$
                     new CollectionExtractionInfo("java.util.concurrent.ConcurrentLinkedBlockingQueue", new FieldSizedCollectionExtractor("count.value")), //$NON-NLS-1$  //$NON-NLS-2$
-                    new CollectionExtractionInfo("java.util.concurrent.LinkedBlockingDeque", new FieldSizedCollectionExtractor("count")), //$NON-NLS-1$  //$NON-NLS-2$
-                    new CollectionExtractionInfo("java.util.concurrent.LinkedBlockingQueue", new FieldSizedCollectionExtractor("count.value")), //$NON-NLS-1$  //$NON-NLS-2$
+                    new CollectionExtractionInfo("java.util.concurrent.LinkedBlockingDeque", new LinkedBoundedCollectionExtractor("count", "capacity", "head", "next", "item")), //$NON-NLS-1$  //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
+                    new CollectionExtractionInfo("java.util.concurrent.LinkedBlockingQueue", new LinkedBoundedCollectionExtractor("count.value", "capacity", "head", "next", "item")), //$NON-NLS-1$  //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
 
                     // these store the data in an array
                     new CollectionExtractionInfo("java.util.concurrent.CopyOnWriteArrayList", new FieldArrayCollectionExtractor("array")), // //$NON-NLS-1$ //$NON-NLS-2$
