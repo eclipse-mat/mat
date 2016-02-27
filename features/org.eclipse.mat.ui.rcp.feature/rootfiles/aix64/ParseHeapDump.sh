@@ -8,4 +8,4 @@
 # The top component report has the id org.eclipse.mat.api:top_components
 #
 
-./MemoryAnalyzer -consolelog -application org.eclipse.mat.api.parse "$@"
+"$(dirname -- "$0")"/MemoryAnalyzer -consolelog -application org.eclipse.mat.api.parse "$@"
