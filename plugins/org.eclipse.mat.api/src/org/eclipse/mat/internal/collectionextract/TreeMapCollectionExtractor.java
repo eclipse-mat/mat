@@ -22,9 +22,14 @@ import org.eclipse.mat.snapshot.model.IObjectArray;
 
 public class TreeMapCollectionExtractor extends MapCollectionExtractorBase
 {
+    protected final String sizeField;
+
     public TreeMapCollectionExtractor(String sizeField, String keyField, String valueField)
     {
-        super(sizeField, keyField, valueField);
+        super(keyField, valueField);
+        if (sizeField == null)
+            throw new IllegalArgumentException();
+        this.sizeField = sizeField;
     }
 
     public boolean hasExtractableArray()
@@ -94,7 +99,12 @@ public class TreeMapCollectionExtractor extends MapCollectionExtractorBase
 
     public boolean hasSize()
     {
-        return (sizeField != null);
+        return true;
+    }
+
+    public Integer getSize(IObject coll) throws SnapshotException
+    {
+        return ExtractionUtils.toInteger(coll.resolveValue(sizeField));
     }
 
     public Integer getNumberOfNotNullElements(IObject coll) throws SnapshotException

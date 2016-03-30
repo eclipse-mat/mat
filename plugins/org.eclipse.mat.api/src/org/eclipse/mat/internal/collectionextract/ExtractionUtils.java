@@ -15,13 +15,15 @@ package org.eclipse.mat.internal.collectionextract;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.snapshot.ISnapshot;
+import org.eclipse.mat.snapshot.model.IInstance;
+import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IObjectArray;
 
 public class ExtractionUtils
 {
     public static Integer toInteger(Object i)
     {
-        if (i instanceof Number)
+        if (i != null && i instanceof Number)
             return ((Number) i).intValue();
         else
             return null;
@@ -76,5 +78,94 @@ public class ExtractionUtils
         }
         return arr.toArray();
 
+    }
+
+
+    /**
+     * Get the only non-array object field from the object.
+     * For example used for finding the HashMap from the HashSet
+     *
+     * @param obj
+     * @return null if no non-array, or duplicates found
+     * @throws SnapshotException
+     */
+    public static IInstance followOnlyNonArrayOutgoingReference(IObject obj) throws SnapshotException
+    {
+        final ISnapshot snapshot = obj.getSnapshot();
+        IInstance ret = null;
+        for (int i : snapshot.getOutboundReferentIds(obj.getObjectId()))
+        {
+            if (!snapshot.isArray(i) && !snapshot.isClass(i))
+            {
+                IObject o = snapshot.getObject(i);
+                if (o instanceof IInstance)
+                {
+                    if (ret != null)
+                    {
+                        ret = null;
+                        break;
+                    }
+                    ret = (IInstance) o;
+                }
+            }
+        }
+        return ret;
+    }
+
+
+    /**
+     * Walks the only non-array object field from the object,
+     *  stopping at the second-last.
+     *
+     * @param obj
+     * @return null if no non-array, or duplicates found
+     * @throws SnapshotException
+     */
+    public static IObject followOnlyOutgoingReferencesExceptLast(String field, IObject obj) throws SnapshotException
+    {
+        int j = field.lastIndexOf('.');
+        if (j >= 0)
+        {
+            Object ret = obj.resolveValue(field.substring(0, j));
+            if (ret instanceof IObject) { return (IObject) ret; }
+        }
+        // Find out how many fields to chain through to find the array
+        IObject next = obj;
+        // Don't do the last as that is the array field
+        for (int i = field.indexOf('.'); i >= 0 && next != null; i = field.indexOf('.', i + 1))
+        {
+            next = followOnlyNonArrayOutgoingReference(next);
+        }
+        return next;
+    }
+
+    /**
+     * Get the only array field from the object.
+     *
+     * @param obj
+     * @return null if no non-array, or duplicates found
+     * @throws SnapshotException
+     */
+    public static IObjectArray getOnlyArrayField(IObject obj) throws SnapshotException
+    {
+        IObjectArray ret = null;
+        // Look for the only object array field
+        final ISnapshot snapshot = obj.getSnapshot();
+        for (int i : snapshot.getOutboundReferentIds(obj.getObjectId()))
+        {
+            if (snapshot.isArray(i))
+            {
+                IObject o = snapshot.getObject(i);
+                if (o instanceof IObjectArray)
+                {
+                    // Have we already found a possible return type?
+                    // If so, things are uncertain and so give up.
+                    if (ret != null)
+                        return null;
+                    ret = (IObjectArray) o;
+                }
+            }
+        }
+        return ret;
     }
 }

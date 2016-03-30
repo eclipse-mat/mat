@@ -13,9 +13,13 @@
 package org.eclipse.mat.inspections.collectionextract;
 
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.collect.IteratorInt;
+import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IObject;
+import org.eclipse.mat.snapshot.model.IObjectArray;
 
 /**
  * An class representing a collection extracted from the heap. It provides
@@ -34,14 +38,38 @@ public class ExtractedCollection extends AbstractExtractedCollection<IObject, IC
         super(coll, extractor);
     }
 
-    /**
-     * not implemented yet
-     */
     public Iterator<IObject> iterator()
     {
-        // use ArrayList and LinkedList processing code from
-        // ExtractListValuesQuery
-        throw new IllegalStateException("not implemented yet");
+        try
+        {
+            final int[] array = getExtractor().extractEntryIds(getCollection());
+            return new Iterator<IObject>()
+            {
+                final ISnapshot snapshot = getCollection().getSnapshot();
+                int index = 0;
+
+                public boolean hasNext()
+                {
+                    return index < array.length;
+                }
+
+                public IObject next()
+                {
+                    try
+                    {
+                        return snapshot.getObject(array[index++]);
+                    }
+                    catch (SnapshotException e)
+                    {
+                        throw new RuntimeException(e);
+                    }
+                }
+            };
+        }
+        catch (SnapshotException e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 
     /**

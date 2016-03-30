@@ -18,7 +18,7 @@ import org.eclipse.mat.snapshot.model.IObjectArray;
 
 public class FieldSizeArrayCollectionExtractor extends FieldArrayCollectionExtractor
 {
-    private final String sizeField;
+    protected final String sizeField;
 
     public FieldSizeArrayCollectionExtractor(String sizeField, String arrayField)
     {
@@ -37,51 +37,19 @@ public class FieldSizeArrayCollectionExtractor extends FieldArrayCollectionExtra
     @Override
     public Integer getSize(IObject coll) throws SnapshotException
     {
-        Object value = coll.resolveValue(sizeField);
-        // Allow for int or long
-        if (value instanceof Integer)
+        // fast path, check the size field
+        Integer value = ExtractionUtils.toInteger(coll.resolveValue(sizeField));
+        if (value != null)
         {
-            return (Integer) value;
+            return value;
         }
-        else if (value instanceof Long)
-        {
-            return ((Long) value).intValue();
-        }
-        else if (hasExtractableArray())
+        else
         {
             IObjectArray array = extractEntries(coll);
             if (array != null)
             {
                 // E.g. ArrayList
                 return ExtractionUtils.getNumberOfNotNullArrayElements(array);
-            }
-            else
-            {
-                return null;
-            }
-        }
-        else if (hasExtractableContents())
-        {
-            int[] array = extractEntryIds(coll);
-            if (array != null)
-            {
-                // E.g. ArrayList
-                return ExtractionUtils.getNumberOfNotNullArrayElements(array);
-            }
-            else
-            {
-                return null;
-            }
-        }
-        else
-        {
-            // LinkedList
-            IObject header = resolveNextFields(coll);
-            if (header != null)
-            {
-                // there should be a separate impl for linked lists
-                throw new IllegalStateException("not implemented yet");
-                // return getMapSize(coll, header);
             }
             else
             {
