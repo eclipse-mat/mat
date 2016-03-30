@@ -64,6 +64,11 @@ public class ExtractedCollection extends AbstractExtractedCollection<IObject, IC
                         throw new RuntimeException(e);
                     }
                 }
+
+                public void remove()
+                {
+                    throw new UnsupportedOperationException();
+                }
             };
         }
         catch (SnapshotException e)
