@@ -13,14 +13,16 @@ package org.eclipse.mat.tests.collect;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.isOneOf;
-import static org.hamcrest.core.IsNull.notNullValue;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
+import static org.hamcrest.core.IsNull.notNullValue;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.hamcrest.core.StringStartsWith.startsWith;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
 import static org.hamcrest.number.OrderingComparison.greaterThanOrEqualTo;
 import static org.hamcrest.number.OrderingComparison.lessThan;
 import static org.hamcrest.number.OrderingComparison.lessThanOrEqualTo;
+
+import java.io.Serializable;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.IContextObject;
@@ -64,16 +66,19 @@ public class ExtractCollectionEntriesBase
                 {
                     IContextObject co = table.getContext(o);
                     IClass cls = snapshot.getClassOf(co.getObjectId());
-                    collector.checkThat("List should contain Strings", cls.getName(), equalTo("java.lang.String"));
+                    collector.checkThat(prefix + "List should contain Strings", cls.getName(), equalTo("java.lang.String"));
                     IObject lobj = snapshot.getObject(co.getObjectId());
                     
                     String cv = lobj.getClassSpecificName();
-                    collector.checkThat(prefix+"list contents", cv, notNullValue());
                     if (cv != null)
                     {
                         collector.checkThat(prefix + "List entry should start with the type", cv, startsWith(name));
                         collector.checkThat(prefix + "Should end with number or aAbB: " + cv,
                                     cv.matches(".*:([0-9]+|[aAbB]+)$"), equalTo(true));
+                    }
+                    else
+                    {
+                        collector.checkThat(prefix + "snapshot type is DTFJ-PHD when list item contents is null", snapshot.getSnapshotInfo().getProperty("$heapFormat"), equalTo((Serializable)"DTFJ-PHD"));
                     }
                 }
             }
@@ -111,12 +116,15 @@ public class ExtractCollectionEntriesBase
                                     equalTo("java.lang.String"));
                     IObject cobj = snapshot.getObject(co.getObjectId());
                     String cv = cobj.getClassSpecificName();
-                    collector.checkThat(prefix+" hash set contents", cv, notNullValue());
                     if (cv != null)
                     {
                         collector.checkThat(prefix + "Hash set entry should start with the type", cv, startsWith(name));
                         collector.checkThat(prefix + "Should end with number or aAbB: " + cv,
                                     cv.matches(".*:([0-9]+|[aAbB]+)$"), equalTo(true));
+                    }
+                    else
+                    {
+                        collector.checkThat(prefix+"snapshot type is DTFJ-PHD when hash set item contents is null", snapshot.getSnapshotInfo().getProperty("$heapFormat"), equalTo((Serializable)"DTFJ-PHD"));
                     }
                 }
             }
@@ -129,8 +137,8 @@ public class ExtractCollectionEntriesBase
 
     protected void checkCollection(long objAddress, int numEntries, ISnapshot snapshot) throws SnapshotException
     {
-        checkHashEntries(objAddress, numEntries, snapshot, false);
         checkMap(objAddress, numEntries, snapshot);
+        checkHashEntries(objAddress, numEntries, snapshot, false);
     }
 
     protected void checkHashEntries(long objAddress, int numEntries, ISnapshot snapshot, boolean checkValueString) throws SnapshotException
@@ -139,7 +147,16 @@ public class ExtractCollectionEntriesBase
         String prefix = obj.getTechnicalName()+": ";
         SnapshotQuery query = SnapshotQuery.parse("hash_entries 0x" + Long.toHexString(objAddress), snapshot); //$NON-NLS-1$
     
-        IResult result = query.execute(new VoidProgressListener());
+        IResult result;
+        try 
+        {
+            result = query.execute(new VoidProgressListener());
+        }
+        catch (UnsupportedOperationException e)
+        {
+            collector.checkThat(prefix + "snapshot type is DTFJ-PHD when unsupported operation for hash entries", snapshot.getSnapshotInfo().getProperty("$heapFormat"), equalTo((Serializable)"DTFJ-PHD"));
+            return;
+        }
         IResultTable table = (IResultTable) result;
         int rowCount = table.getRowCount();
     
@@ -202,16 +219,17 @@ public class ExtractCollectionEntriesBase
     protected void checkCollectionSize(long objAddress, int numEntries, ISnapshot snapshot) throws SnapshotException
     {
         IObject obj = snapshot.getObject(snapshot.mapAddressToId(objAddress));
+        String prefix = obj.getTechnicalName()+": ";
         SnapshotQuery query2 = SnapshotQuery.parse("collections_grouped_by_size 0x" + Long.toHexString(objAddress), snapshot); //$NON-NLS-1$
         IResult result2 = query2.execute(new VoidProgressListener());
         IResultTable table2 = (IResultTable) result2;
         int rowCount2 = table2.getRowCount();
-        collector.checkThat("Size rows "+obj, rowCount2, equalTo(1));
+        collector.checkThat("Rows for size "+obj, rowCount2, equalTo(1));
         if (rowCount2 == 1)
         {
             Object row = table2.getRow(0);
             int sizeBucket = (Integer)table2.getColumnValue(row, 0);
-            collector.checkThat("Size "+obj, sizeBucket, equalTo(numEntries));
+            collector.checkThat(prefix+"size "+obj, sizeBucket, equalTo(numEntries));
         }
     }
 
@@ -238,6 +256,7 @@ public class ExtractCollectionEntriesBase
     protected void checkCollectionFillRatio(long objAddress, int numEntries, ISnapshot snapshot) throws SnapshotException
     {
         IObject obj = snapshot.getObject(snapshot.mapAddressToId(objAddress));
+        String prefix = obj.getTechnicalName()+": ";
         SnapshotQuery query2 = SnapshotQuery.parse("collection_fill_ratio 0x" + Long.toHexString(objAddress), snapshot); //$NON-NLS-1$
         IResult result2 = query2.execute(new VoidProgressListener());
         IResultTable table2 = (IResultTable) result2;
@@ -248,24 +267,25 @@ public class ExtractCollectionEntriesBase
         {
             // TreeMaps and ConcurrentSkipListMap don't appear in the fill ratio report as they
             // don't have a backing array
-            collector.checkThat("Fill ratio rows "+obj, rowCount2, equalTo(0));
+            collector.checkThat(prefix+"Fill ratio rows", rowCount2, equalTo(0));
         }
         else
         {
-            collector.checkThat("Fill ratio rows "+obj, rowCount2, equalTo(1));
-            if (rowCount2 == 1) {
+            collector.checkThat(prefix+"Fill ratio rows", rowCount2, equalTo(1));
+            if (rowCount2 == 1)
+            {
                 Object row = table2.getRow(0);
                 double v = (Double)table2.getColumnValue(row, 0);
                 if (numEntries > 0)
                 {
-                    collector.checkThat("Fill ratio value > 0.0 "+v+" "+obj, v, greaterThan(0.0));
+                    collector.checkThat(prefix+"Fill ratio value > 0.0", v, greaterThan(0.0));
                     // If there are a lot of collisions the ratio could be greater than one
-                    collector.checkThat("Fill ratio value <= 1.2 "+v+" "+obj, v, lessThanOrEqualTo(1.2));
+                    collector.checkThat(prefix+"Fill ratio value <= 1.2", v, lessThanOrEqualTo(1.2));
                 }
                 else
                 {
                     // 1.0 if the size == 0, capacity == 0, 0.0 if the size == 0, capacity > 0 
-                    collector.checkThat("Fill ratio value == 0.0 or 1.0 "+v+" "+obj, v, isOneOf(0.0, 1.0));
+                    collector.checkThat(prefix+"Fill ratio value == 0.0 or 1.0 ", v, isOneOf(0.0, 1.0));
                 }
             }
         }
@@ -281,21 +301,22 @@ public class ExtractCollectionEntriesBase
     protected void checkMapCollisionRatio(long objAddress, int numEntries, ISnapshot snapshot) throws SnapshotException
     {
         IObject obj = snapshot.getObject(snapshot.mapAddressToId(objAddress));
+        String prefix = obj.getTechnicalName()+": ";
         SnapshotQuery query2 = SnapshotQuery.parse("map_collision_ratio 0x" + Long.toHexString(objAddress), snapshot); //$NON-NLS-1$
         IResult result2 = query2.execute(new VoidProgressListener());
         IResultTable table2 = (IResultTable) result2;
         int rowCount2 = table2.getRowCount();
-        collector.checkThat("Map collision rows "+obj, rowCount2, equalTo(1));
+        collector.checkThat(prefix+"Rows for Map collision ratio ", rowCount2, equalTo(1));
         if (rowCount2 == 1)
         {
             Object row = table2.getRow(0);
             double v = (Double)table2.getColumnValue(row, 0);
-            collector.checkThat("Map collision value >= 0.0 "+v+" "+obj, v, greaterThanOrEqualTo(0.0));
+            collector.checkThat(prefix+"Map collision value >= 0.0", v, greaterThanOrEqualTo(0.0));
             // 100% collisions shouldn't be possible
-            collector.checkThat("Map collision value < 1.0 "+v+" "+obj, v, lessThan(1.0));
+            collector.checkThat(prefix+"Map collision value < 1.0", v, lessThan(1.0));
             // No collisions possible if no entries
             if (numEntries == 0)
-                collector.checkThat("Map collision ratio if no entries "+obj, v, equalTo(0.0));
+                collector.checkThat(prefix+"Map collision ratio if no entries", v, equalTo(0.0));
         }
     }
 

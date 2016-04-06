@@ -39,6 +39,8 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
     public static Collection<Object[]> data()
     {
         Object[][] data = new Object[][] { { TestSnapshots.ORACLE_JDK7_21_64BIT },
+                        { TestSnapshots.IBM_JDK8_64BIT_SYSTEM },
+                        // { TestSnapshots.IBM_JDK8_64BIT_HEAP_AND_JAVA }, currently problems with PHD collections
                         { TestSnapshots.ORACLE_JDK8_05_64BIT } };
         return Arrays.asList(data);
     }
@@ -87,15 +89,50 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
         for (IClass cls : snapshot.getClassesByName(org.eclipse.mat.tests.CreateCollectionDump.ListCollectionTestData.class.getName(), false)) {
             for (int o : cls.getObjectIds()) {
                 IObject oo = snapshot.getObject(o);
-                IArray a = (IArray)oo.resolveValue("collections");
+                IArray a = collectionArray(oo);
                 for (NamedReference nr : a.getOutboundReferences()) {
                     if (nr.getName().startsWith("<")) continue;
                     long objAddress = nr.getObjectAddress();
-                    int numEntries = (Integer)cls.getSuperClass().resolveValue("COUNT");
+                    Integer numEntriesI = (Integer)cls.getSuperClass().resolveValue("COUNT");
+                    int numEntries;
+                    if (numEntriesI == null) {
+                        numEntries = org.eclipse.mat.tests.CreateCollectionDump.ListCollectionTestData.COUNT;
+                    } else {
+                        numEntries = numEntriesI;
+                    }
                     checkList(objAddress, numEntries, snapshot);
                 }
             }
         }
+    }
+
+    private IArray collectionArray(IObject obj) throws SnapshotException
+    {
+        return readArrayField(obj, "collections", "java.util.Collection[]");
+    }
+        
+    private IArray readArrayField(IObject obj, String fieldName, String valueType) throws SnapshotException
+        {
+        IArray a = (IArray)obj.resolveValue(fieldName);
+        ISnapshot snapshot = obj.getSnapshot();
+        if (a == null) {
+            for (int i : snapshot.getOutboundReferentIds(obj.getObjectId()))
+            {
+                if (snapshot.isArray(i))
+                {
+                    IObject o = snapshot.getObject(i);
+                    if (o instanceof IArray)
+                    {
+                        IArray a1 = (IArray)o;
+                        if (a1.getClazz().getName().equals(valueType)) {
+                            a = a1;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return a;
     }
 
     /**
@@ -107,11 +144,17 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
         {
             for (int o : cls.getObjectIds()) {
                 IObject oo = snapshot.getObject(o);
-                IArray a = (IArray)oo.resolveValue("collections");
+                IArray a = collectionArray(oo);
                 for (NamedReference nr : a.getOutboundReferences()) {
                     if (nr.getName().startsWith("<")) continue;
                     long objAddress = nr.getObjectAddress();
-                    int numEntries = (Integer)cls.getSuperClass().resolveValue("COUNT");
+                    Integer numEntriesI = (Integer)cls.getSuperClass().resolveValue("COUNT");
+                    int numEntries;
+                    if (numEntriesI == null) {
+                        numEntries = org.eclipse.mat.tests.CreateCollectionDump.NonListCollectionTestData.COUNT;
+                    } else {
+                        numEntries = numEntriesI;
+                    }
                     checkCollectionSize(objAddress, numEntries, snapshot);
                     IObject o2 = snapshot.getObject(snapshot.mapAddressToId(objAddress));
                     String name = o2.getClazz().getName();
@@ -147,7 +190,7 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
             for (int o : cls.getObjectIds())
             {
                 IObject oo = snapshot.getObject(o);
-                IArray a = (IArray)oo.resolveValue("collections");
+                IArray a = collectionArray(oo);
                 for (NamedReference nr : a.getOutboundReferences())
                 {
                     if (nr.getName().startsWith("<")) continue;
@@ -170,7 +213,7 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
             for (int o : cls.getObjectIds())
             {
                 IObject oo = snapshot.getObject(o);
-                IArray a = (IArray)oo.resolveValue("collections");
+                IArray a = collectionArray(oo);
                 for (NamedReference nr : a.getOutboundReferences())
                 {
                     if (nr.getName().startsWith("<")) continue;
@@ -201,13 +244,19 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
             for (int o : cls.getObjectIds())
             {
                 IObject oo = snapshot.getObject(o);
-                IArray a = (IArray)oo.resolveValue("maps");
+                IArray a = readArrayField(oo, "maps", "java.util.Map[]");
                 for (NamedReference nr : a.getOutboundReferences())
                 {
                     if (nr.getName().startsWith("<"))
                         continue;
                     long objAddress = nr.getObjectAddress();
-                    int numEntries = (Integer) cls.resolveValue("COUNT");
+                    Integer numEntriesI = (Integer)cls.resolveValue("COUNT");
+                    int numEntries;
+                    if (numEntriesI == null) {
+                        numEntries = org.eclipse.mat.tests.CreateCollectionDump.MapTestData.COUNT;
+                    } else {
+                        numEntries = numEntriesI;
+                    }
                     String nm = nr.getObject().getClazz().getName();
                     if (nm.equals("javax.print.attribute.standard.PrinterStateReasons")
                                     || nm.equals("java.util.jar.Attributes"))
@@ -234,7 +283,7 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
         {
             for (int o : cls.getObjectIds()) {
                 IObject oo = snapshot.getObject(o);
-                IArray a = (IArray)oo.resolveValue("maps");
+                IArray a = readArrayField(oo, "maps", "java.util.Map[]");
                 for (NamedReference nr : a.getOutboundReferences())
                 {
                     if (nr.getName().startsWith("<")) continue;

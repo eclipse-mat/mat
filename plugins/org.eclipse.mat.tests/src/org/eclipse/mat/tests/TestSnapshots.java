@@ -59,13 +59,16 @@ public class TestSnapshots
     public static final String IBM_JDK7_64BIT_SYSTEM = "dumps/core.20130429.083124.14315.0001.dmp.zip";
     public static final String IBM_JDK7_64BIT_HEAP = "dumps/heapdump.20130429.083110.14261.0001.phd";
     public static final String IBM_JDK7_64BIT_JAVA = "dumps/javacore.20130429.083110.14261.0002.txt";
-    public static final String IBM_JDK8_64BIT_SYSTEM = "core.20140428.143134.2056.0001.dmp.zip";
+    public static final String IBM_JDK8_64BIT_SYSTEM = "dumps/core.20160404.083441.9480.0001.dmp.zip";
+    public static final String IBM_JDK8_64BIT_HEAP = "dumps/heapdump.20160404.083909.9480.0002.phd";
+    public static final String IBM_JDK8_64BIT_JAVA = "dumps/javacore.20160404.083909.9480.0003.txt";
     /**
      * javacore provides extra thread and class loader information to a heap
      * dump
      */
     public static final String IBM_JDK6_32BIT_HEAP_AND_JAVA = IBM_JDK6_32BIT_HEAP + ";" + IBM_JDK6_32BIT_JAVA;
     public static final String IBM_JDK7_64BIT_HEAP_AND_JAVA = IBM_JDK7_64BIT_HEAP + ";" + IBM_JDK7_64BIT_JAVA;
+    public static final String IBM_JDK8_64BIT_HEAP_AND_JAVA = IBM_JDK8_64BIT_HEAP + ";" + IBM_JDK8_64BIT_JAVA;
     public static final String IBM_JDK142_32BIT_SYSTEM = "dumps/core.20100209.165717.4484.txt.sdff";
     public static final String IBM_JDK142_32BIT_HEAP = "dumps/heapdump.20100209.165721.4484.phd";
     public static final String IBM_JDK142_32BIT_JAVA = "dumps/javacore.20100209.165721.4484.txt";
