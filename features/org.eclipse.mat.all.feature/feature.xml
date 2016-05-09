@@ -2,7 +2,7 @@
 <feature
       id="org.eclipse.mat.all.feature"
       label="%featureName"
-      version="1.5.0.qualifier"
+      version="1.6.0.qualifier"
       provider-name="%providerName">
 
    <description>
