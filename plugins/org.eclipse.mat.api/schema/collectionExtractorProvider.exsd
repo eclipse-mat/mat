@@ -6,7 +6,9 @@
          <meta.schema plugin="org.eclipse.mat.api" id="collectionExtractorProvider" name="Collection Extractor provider"/>
       </appInfo>
       <documentation>
-         &lt;p&gt;FIXME&lt;/p&gt;
+         Memory Analyzer offers a set of queries, which extract information from heap objects representing collections. The extraction is specific for each collection type, as it depends on the internal implementation. There are built-in extractors for the most common collection types in Memory Analyzer.
+
+Use this extension point to add customExtrU collection extractors for collections which are not recognized by the built-in extractors.
       </documentation>
    </annotation>
 
