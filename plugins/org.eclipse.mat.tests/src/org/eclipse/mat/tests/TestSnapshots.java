@@ -307,7 +307,11 @@ public class TestSnapshots
                     FileChannel destinationChannel = fos.getChannel();
                     try
                     {
-                        sourceChannel.transferTo(0, sourceChannel.size(), destinationChannel);
+                        final long needTransferred = sourceChannel.size();
+                        long totalTransferred = 0;
+                        while (totalTransferred < needTransferred) {
+                            totalTransferred += sourceChannel.transferTo(totalTransferred, needTransferred, destinationChannel);
+                        }
                     }
                     finally
                     {
