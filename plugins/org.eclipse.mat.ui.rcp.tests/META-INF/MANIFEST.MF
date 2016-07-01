@@ -5,14 +5,17 @@ Bundle-SymbolicName: org.eclipse.mat.ui.rcp.tests;singleton:=true
 Bundle-Version: 1.6.0.qualifier
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ActivationPolicy: lazy
+Require-Bundle: org.hamcrest.core
 Import-Package: com.ibm.icu.text;version="3.6.1",
  junit.framework;version="4.3.1",
  org.eclipse.swt,
+ org.eclipse.swt.widgets,
  org.eclipse.swtbot.eclipse.finder,
  org.eclipse.swtbot.eclipse.finder.widgets,
  org.eclipse.swtbot.swt.finder,
  org.eclipse.swtbot.swt.finder.junit,
  org.eclipse.swtbot.swt.finder.widgets,
+ org.eclipse.ui,
  org.junit;version="4.3.1",
  org.junit.runner;version="4.3.1",
  org.junit.runners;version="4.3.1"

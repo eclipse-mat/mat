@@ -12,10 +12,14 @@ package org.eclipse.mat.ui.rcp.tests;
 
 import static org.junit.Assert.assertTrue;
 
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
+import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotMenu;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -31,7 +35,14 @@ public class MemoryAnalyzerProductTest
     public static void beforeClass() throws Exception
     {
         bot = new SWTWorkbenchBot();
-        bot.viewByTitle("Welcome").close();
+        for (SWTBotView view : bot.views())
+        {
+            if ("Welcome".equals(view.getTitle()))
+            {
+                view.close();
+                break;
+            }
+        }
     }
 
     @AfterClass
@@ -43,7 +54,28 @@ public class MemoryAnalyzerProductTest
     @Test
     public void testIfProxySettingsPreferenceIsAvailable()
     {
-        bot.menu("Window").click().menu("Preferences...").click();
+        bot.menu("Window").click().menu(new Matcher<MenuItem>()
+        {
+            public boolean matches(Object item)
+            {
+                if (item instanceof MenuItem)
+                {
+                    MenuItem mitem = (MenuItem) item;
+                    String mitemText = mitem.getText().replaceAll("&", "");
+                    if ("Preferences...".equals(mitemText) || "Preferences".equals(mitemText)) { return true; }
+                }
+                return false;
+            }
+
+            public void describeTo(Description description)
+            {}
+
+            public void describeMismatch(Object item, Description mismatchDescription)
+            {}
+
+            public void _dont_implement_Matcher___instead_extend_BaseMatcher_()
+            {}
+        }, false, 0).click();
 
         SWTBotShell shell = bot.shell("Preferences");
         shell.activate();
@@ -63,7 +95,7 @@ public class MemoryAnalyzerProductTest
     @Test
     public void testIfErrorLogViewIsAvailable()
     {
-        SWTBotMenu errorLogMenu = bot.menu("Window").click().menu("Error Log");
+        SWTBotMenu errorLogMenu = bot.menu("Window").click().menu("Error Log", true, 0);
         assertTrue("Could not find \"Error Log\" menu", errorLogMenu != null);
     }
 
