@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?pde version="3.6"?>
 
-<target name="MAT Juno Target" sequenceNumber="1">
+<target name="MAT Kepler Target" sequenceNumber="1">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.birt.feature.group" version="4.3.2.v20140211-1400-DPDKA5GixAoaudOsMil4K3C7KNz0"/>
