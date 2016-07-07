@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Ruby
+Bundle-SymbolicName: org.eclipse.mat.ruby;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: org.eclipse.mat.parser;bundle-version="1.0.0",
+ com.google.gson;bundle-version="2.1.0"

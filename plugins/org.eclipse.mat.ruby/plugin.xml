@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         id="id1"
+         name="name"
+         point="org.eclipse.mat.parser.parser">
+      <parser
+            fileExtension="json"
+            indexBuilder="org.eclipse.mat.ruby.parser.RubyIndexBuilder"
+            name="Ruby Heapdumps Parser"
+            objectReader="org.eclipse.mat.ruby.parser.RubyObjectReader">
+      </parser>
+   </extension>
+   
+    <extension
+          point="org.eclipse.mat.api.nameResolver">
+       <resolver
+             impl="org.eclipse.mat.ruby.nameresolver.StringResolver">
+       </resolver>
+       <resolver
+             impl="org.eclipse.mat.ruby.nameresolver.RubyProcResolver$ProcResolver">
+       </resolver>
+       <resolver
+             impl="org.eclipse.mat.ruby.nameresolver.RubyProcResolver$RubyVM_InstructionSequenceResolver">
+       </resolver>
+       <resolver
+             impl="org.eclipse.mat.ruby.nameresolver.cf.DeaInstance">
+       </resolver>
+    </extension>
+
+</plugin>

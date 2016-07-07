@@ -24,6 +24,7 @@
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 <repository location="http://download.eclipse.org/tools/orbit/downloads/drops/R20130118183705/repository/"/>
 <unit id="org.hamcrest" version="1.1.0.v20090501071000"/>
+<unit id="com.google.gson" version="0.0.0"/>
 </location>
 </locations>
 </target>
