@@ -375,6 +375,28 @@ public class OQLTest
         objectIds = (int[]) execute("SELECT * FROM java.lang.String s WHERE s.count > 1000 OR s.value.@length > 1000");
         assert objectIds.length == 3;
     }
+    
+    /**
+     * Check reads of attributes declared in subclasses
+     * @throws SnapshotException
+     */
+    @Test
+    public void testWhereRelationalOperatorsOnAttributes() throws SnapshotException
+    {
+        int[] objectIds = (int[]) execute("select * from instanceof java.util.Vector s where s.elementCount < 10");
+        assertEquals("Expected to read ", 11, objectIds.length);
+    }
+    
+    /**
+     * Check reads of statics declared in classes
+     * @throws SnapshotException
+     */
+    @Test
+    public void testWhereRelationalOperatorsOnStaticAttributes() throws SnapshotException
+    {
+        int[] objectIds = (int[]) execute("select * from java.lang.Class s where s.serialVersionUID.toString().contains(\"-\")");
+        assertEquals("Expected to read ", 52, objectIds.length);
+    }
 
     @Test
     public void testWhereArithmetic() throws SnapshotException

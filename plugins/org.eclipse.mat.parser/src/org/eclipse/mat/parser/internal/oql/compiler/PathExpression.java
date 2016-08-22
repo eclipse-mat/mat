@@ -134,14 +134,17 @@ class PathExpression extends Expression
                     else
                     {
                         IObject c = (IObject) current;
-                        // Performance optimization
+                        // Performance optimization - check that the field exists first
                         boolean found = false;
-                        for (FieldDescriptor fd : c.getClazz().getFieldDescriptors())
+                        field: for (IClass cls = c.getClazz(); cls != null; cls = cls.getSuperClass())
                         {
-                            if (fd.getName().equals(attribute.getName()))
+                            for (FieldDescriptor fd : cls.getFieldDescriptors())
                             {
-                                found = true;
-                                break;
+                                if (fd.getName().equals(attribute.getName()))
+                                {
+                                    found = true;
+                                    break field;
+                                }
                             }
                         }
                         if (found)
@@ -152,17 +155,23 @@ class PathExpression extends Expression
                         {
                             if (current instanceof IClass)
                             {
-                                IClass cls = (IClass)current;
-                                for (Field f : cls.getStaticFields()) {
-                                    if (f.getName().equals(attribute.getName())) {
-                                        return f.getValue();
+                                field: for (IClass cls = (IClass)current; cls != null; cls = cls.getSuperClass())
+                                {
+                                    for (Field f : cls.getStaticFields()) {
+                                        if (f.getName().equals(attribute.getName())) {
+                                            current = f.getValue();
+                                            found = true;
+                                            break field;
+                                        }
                                     }
                                 }
                             }
-                            current = null;
+                            if (!found)
+                            {
+                                current = null;
+                            }
                         }
                     }
-
                 }
                 else if (element instanceof Expression)
                 {
