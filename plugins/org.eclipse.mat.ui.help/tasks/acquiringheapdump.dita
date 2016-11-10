@@ -72,9 +72,9 @@
 			<p>
 			Memory Analyzer can also read memory-related information from IBM system
 			dumps and from Portable Heap Dump (PHD) files. For this purpose one just 
-			has to install the IBM DTFJ feature into Memory Analyzer version 0.8 or 
-			later. Follow the <xref format="html" href="http://www.ibm.com/developerworks/java/jdk/tools/dtfj.html">IBM DTFJ feature installation instructions</xref>. If the DTFJ
-			feature is successfully installed then
+			has to install the IBM DTFJ feature into Memory Analyzer. 
+			Follow the <xref format="html" href="http://www.ibm.com/developerworks/java/jdk/tools/dtfj.html">IBM DTFJ feature installation instructions</xref>. Once the DTFJ
+			feature is successfully installed, then
 				<menucascade>
 					<uicontrol>File</uicontrol>
 					<uicontrol>Open Heap Dump</uicontrol>
@@ -82,66 +82,59 @@
 			menu should also offer the following options for the file types: 
 
 			<ul>
-				<li>IBM DTFJ for 1.4.2 VMs</li>
-				<li>IBM DTFJ for Portable Heap Dumps</li>
-				<li>IBM SDK for Java (J9) Javadump</li>
-				<li>IBM SDK for Java (J9) System dumps</li>
+				<li>All known formats</li>
+				<li>HPROF binary heap dumps</li>
+				<li>IBM 1.4.2 SDFF</li>
+				<li>IBM Javadumps</li>
+				<li>IBM SDK for Java (J9) system dumps</li>
+				<li>IBM SDK for Java Portable Heap Dumps</li>
 			</ul>
 			</p>
 			
 			<p>
-			Minimum-required versions of IBM Virtual Machines to generate the dump are 
-			<b>IBM JDK 1.4.2 SR12, 5.0 SR8a and 6.0 SR2</b> 
-			though previous versions may generate dumps usable with Memory Analyzer but with inaccurate root information
+			For a comparison of dump types, see <xref format="html" href="http://www.ibm.com/developerworks/library/j-memoryanalyzer/#table1">Debugging from dumps</xref>. 
+			System dumps are simply operating system core dumps; therefore, they are a superset of portable heap dumps.
+			System dumps are far superior than PHDs, particularly for more accurate GC roots, thread-based analysis, and unlike PHDs, 
+			system dumps contain memory contents like HPROFs.
 			</p>
 			
 			<p>
-			<i>IBM Java 5.0 and Java 6 Virtual Machine dump options</i>
+			Older versions of IBM Java (e.g. &lt; 5.0SR12, &lt; 6.0SR9) require running jextract on the operating system core dump
+			which produced a zip file that contained the core dump, XML or SDFF file, and shared libraries. The IBM DTFJ feature
+			still supports reading these jextracted zips; however, newer versions of IBM Java do not require jextract for use in
+			MAT since DTFJ is able to directly read each supported operating system's core dump format. 
+			Simply ensure that the operating system core dump file ends with the <b>.dmp</b> suffix for visibility in the MAT Open Heap Dump selection.
+			It is also common to zip core dumps because they are so large and compress very well. If a core dump is compressed with <b>.zip</b>,
+			the IBM DTFJ feature in MAT is able to decompress the ZIP file and read the core from inside (just like a jextracted zip).
+			The only significant downsides to system dumps over PHDs is that they are much larger, they usually take longer to produce,
+			they may be useless if they are manually taken in the middle of an exclusive event that manipulates the underlying Java heap
+			such as a garbage collection, and they sometimes require operating system configuration (
+			<xref format="html" href="http://www.ibm.com/support/knowledgecenter/SSYKE2_7.1.0/com.ibm.java.lnx.71.doc/diag/problem_determination/linux_setup.html">Linux</xref>,
+			<xref format="html" href="http://www.ibm.com/support/knowledgecenter/SSYKE2_7.1.0/com.ibm.java.aix.71.doc/diag/problem_determination/aix_setup_full_core.html">AIX</xref>) 
+			to ensure non-truncation.
 			</p>
 			
 			<p>
-			A quick reference for <xref format="html" href="http://publib.boulder.ibm.com/infocenter/javasdk/v5r0/index.jsp">IBM Java 5.0</xref>
-			and <xref format="html" href="http://publib.boulder.ibm.com/infocenter/javasdk/v6r0/index.jsp">IBM Java 6</xref> Virtual Machine command line options: 
-			
-			<codeblock>-Xdump:system+heap+java:events=systhrow+user,filter=java/lang/OutOfMemoryError,request=exclusive+prepwalk+compact</codeblock>
-			</p> 
-			<p>Dump types:</p> 
-			
-			<ul>
-				<li>system - a system process dump. Process system dump files with jextract before loading them into Memory Analyzer. Do not give them a .sdff extension as that is only used for Java 1.4.2 system dumps</li> 
-				<li>heap - a Portable Heap Dump (PHD) file. Contains all objects and classes, but no thread details </li>
-				<li>javacore - a readable file which contains information about class loaders and which can be used by Memory Analyzer when reading PHD files</li>
-			</ul>
-			 
-			<p>Events:</p> 
-			
-			<ul>
-				<li>systhrow - when a system generated exception is thrown </li>
-				<li>user - the user has typed control-break </li>
-			</ul>
-			
-			<p>Filter:</p> 
-			<ul>
-				<li>java/lang/OutOfMemoryError - the type of the systhrow exception</li>
-			</ul> 
-			
-			<p>Request:</p> 
-			
-			<ul>
-				<li>exclusive Stop anything modifying the heap while generating the dump </li>
-				<li>prepwalk Make sure the heap is safe to dump </li>
-				<li>compact minimise the size of the heap </li>
-			</ul>
-			
-			<p><i>IBM Java 1.4.2 Virtual Machine dump options</i></p>
-			<p>A quick reference for <xref format="html" href="http://publib.boulder.ibm.com/infocenter/javasdk/v1r4m2/index.jsp">IBM Java 1.4.2</xref> Virtual Machine dump options</p> 
-			
-			<ul>
-				<li><codeblock>export JAVA_DUMP_OPTS=ONOUTOFMEMORY(SYSDUMP,HEAPDUMP,JAVADUMP)</codeblock></li> 
-				<li><codeblock>set JAVA_DUMP_OPTS=ONOUTOFMEMORY(SYSDUMP,HEAPDUMP,JAVADUMP)</codeblock></li>
-			</ul> 
-			
-			<p>On non-z/OS systems process any system dump files with JExtract to give a .sdff file. On z/OS systems copy the SVC dump file in binary mode to your Eclipse Memory Analyzer system, giving it a .dmp file extension. 
+			In recent versions of IBM Java (&gt; 6.0.1), by default, when an OutOfMemoryError is thrown, IBM Java produces a system dump, PHD,
+			javacore, and Snap file on the first occurrence for that process (although often the core dump is suppressed by the default 0
+			core ulimit on operating systems such as Linux). For the next three occurrences, it produces only a PHD, javacore, and Snap.
+			If you only plan to use system dumps, and you've configured your operating system correctly as per the links above (particularly 
+			core and file ulimits), then you may disable PHD generation with -Xdump:heap:none. For versions of IBM Java older than 6.0.1, 
+			you may switch from PHDs to system dumps using
+			<codeblock>-Xdump:system:events=systhrow,filter=java/lang/OutOfMemoryError,request=exclusive+prepwalk -Xdump:heap:none</codeblock>
+			</p>
+
+			<p>
+			In addition to an OutOfMemoryError, system dumps may be produced using operating system tools (e.g. gcore in gdb for Linux, 
+			gencore for AIX, Task Manager for Windows, SVCDUMP for z/OS, etc.), using the 
+			<xref format="html" href="http://www.ibm.com/support/knowledgecenter/SSYKE2_8.0.0/com.ibm.java.lnx.80.doc/diag/tools/diagnostics_summary.html">IBM Java APIs</xref>, 
+			using the various options of <xref format="html" href="http://www.ibm.com/support/knowledgecenter/SSYKE2_8.0.0/com.ibm.java.lnx.80.doc/diag/tools/dump_agents.html">-Xdump</xref>, 
+			using <xref format="html" href="https://www.ibm.com/developerworks/community/groups/service/html/communityview?communityUuid=7d3dc078-131f-404c-8b4d-68b3b9ddd07a">Java Surgery</xref>,
+			and more.
+			</p>
+
+			<p>
+			Versions of IBM Java older than IBM JDK 1.4.2 SR12, 5.0 SR8a and 6.0 SR2 are known to produce inaccurate GC root information. 
 			</p>
 			
 			
