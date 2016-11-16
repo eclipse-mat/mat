@@ -18,6 +18,7 @@ import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.refined.RefinedTable;
 import org.eclipse.mat.query.refined.TotalsRow;
 import org.eclipse.mat.query.registry.QueryResult;
+import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.accessibility.AccessibleCompositeAdapter;
 import org.eclipse.mat.ui.editor.AbstractEditorPane;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
@@ -66,6 +67,12 @@ public class RefinedTableViewer extends RefinedResultViewer
         TableItem item = (TableItem) event.item;
 
         int index = table.indexOf(item);
+        if (index <= -1)
+        {
+            // Bug 501453
+            MemoryAnalyserPlugin.log(new IndexOutOfBoundsException("index: "+index+" item: "+item));
+            return;
+        }
         if (index == 0) // filter row
         {
             applyFilterData(item);
