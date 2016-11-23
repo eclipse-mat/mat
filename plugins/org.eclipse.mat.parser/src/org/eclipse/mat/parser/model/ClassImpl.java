@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others.
+ * Copyright (c) 2008, 2016 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson - documentation update
  *******************************************************************************/
 package org.eclipse.mat.parser.model;
 
@@ -64,19 +65,19 @@ public class ClassImpl extends AbstractObjectImpl implements IClass, Comparable<
      * Construct a class object based on name, address and fields.
      * @param address the address of the class object
      * @param name the class name, using '.' as package separator
-     * @param superId the id of the superclass, or -1 if none.
-     * @param loaderId the id of the class loader
+     * @param superAddress the address of the superclass, or 0 if none.
+     * @param loaderAddress the address of the class loader
      * @param staticFields all the static fields, with values
      * @param fields all the instance fields as descriptors
      */
-    public ClassImpl(long address, String name, long superId, long loaderId, Field[] staticFields,
+    public ClassImpl(long address, String name, long superAddress, long loaderAddress, Field[] staticFields,
                     FieldDescriptor[] fields)
     {
         super(-1, address, null);
 
         this.name = name;
-        this.superClassAddress = superId;
-        this.classLoaderAddress = loaderId;
+        this.superClassAddress = superAddress;
+        this.classLoaderAddress = loaderAddress;
         this.staticFields = staticFields;
         this.fields = fields;
         this.instanceSize = -1;

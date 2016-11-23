@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others.
+ * Copyright (c) 2008, 2016 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson - bug fix for missing classes
  *******************************************************************************/
 package org.eclipse.mat.hprof;
 
@@ -79,6 +80,8 @@ public interface IHprofParserHandler
     void reportRequiredObjectArray(long arrayClassID);
 
     void reportRequiredPrimitiveArray(int arrayType);
+    
+    void reportRequiredClass(long classID, int size);
 
     // //////////////////////////////////////////////////////////////
     // lookup heap infos

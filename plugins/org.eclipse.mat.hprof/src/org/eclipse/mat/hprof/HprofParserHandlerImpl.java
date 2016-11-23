@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others..
+ * Copyright (c) 2008, 2016 SAP AG, IBM Corporation and others..
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson - bug fix for missing classes
  *******************************************************************************/
 package org.eclipse.mat.hprof;
 
@@ -37,6 +38,7 @@ import org.eclipse.mat.snapshot.model.Field;
 import org.eclipse.mat.snapshot.model.FieldDescriptor;
 import org.eclipse.mat.snapshot.model.GCRootInfo;
 import org.eclipse.mat.snapshot.model.IClass;
+import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IPrimitiveArray;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
@@ -63,6 +65,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
 
     private Set<Long> requiredArrayClassIDs = new HashSet<Long>();
     private Set<Integer> requiredPrimitiveArrays = new HashSet<Integer>();
+    private HashMapLongObject<Integer> requiredClassIDs = new HashMapLongObject<Integer>();
 
     private HashMapLongObject<HashMapLongObject<List<XGCRootInfo>>> threadAddressToLocals = new HashMapLongObject<HashMapLongObject<List<XGCRootInfo>>>();
 
@@ -101,7 +104,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
         }
 
         // if necessary, create required classes not contained in the heap
-        if (!requiredArrayClassIDs.isEmpty() || !requiredPrimitiveArrays.isEmpty())
+        if (!requiredArrayClassIDs.isEmpty() || !requiredPrimitiveArrays.isEmpty() || !requiredClassIDs.isEmpty())
         {
             createRequiredFakeClasses();
         }
@@ -231,7 +234,12 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
     {
         // we know: system class loader has object address 0
         long nextObjectAddress = 0;
-
+        // For generating the fake class names
+        int clsid = 0;
+        // java.lang.Object for the superclass
+        List<ClassImpl>jlos = classesByName.get("java.lang.Object"); //$NON-NLS-1$
+        long jlo = jlos.isEmpty() ? 0 : jlos.get(0).getObjectAddress();
+        
         // create required (fake) classes for arrays
         if (!requiredArrayClassIDs.isEmpty())
         {
@@ -248,8 +256,9 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
                         throw new SnapshotException(msg);
                     }
 
-                    arrayType = new ClassImpl(arrayClassID, "unknown-class[]", 0, 0, new Field[0], //$NON-NLS-1$
+                    arrayType = new ClassImpl(arrayClassID, "unknown-class-"+clsid+"[]", jlo, 0, new Field[0], //$NON-NLS-1$
                                     new FieldDescriptor[0]);
+                    ++clsid;
                     addClass((ClassImpl) arrayType, -1);
                 }
             }
@@ -267,13 +276,60 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
                     while (identifiers.reverse(++nextObjectAddress) >= 0)
                     {}
 
-                    clazz = new ClassImpl(nextObjectAddress, name, 0, 0, new Field[0], new FieldDescriptor[0]);
+                    clazz = new ClassImpl(nextObjectAddress, name, jlo, 0, new Field[0], new FieldDescriptor[0]);
                     addClass((ClassImpl) clazz, -1);
                 }
 
             }
         }
 
+        // create required (fake) classes for objects
+        if (!requiredClassIDs.isEmpty())
+        {
+            for (Iterator<HashMapLongObject.Entry<Integer>> it = requiredClassIDs.entries(); it.hasNext(); )
+            {
+                HashMapLongObject.Entry<Integer> e = it.next();
+                long classID = e.getKey();
+                IClass type = lookupClass(classID);
+                if (type == null)
+                {
+                    int objectId = identifiers.reverse(classID);
+                    if (objectId >= 0)
+                    {
+                        String msg = MessageUtil.format(Messages.HprofParserHandlerImpl_Error_ExpectedClassSegment,
+                                        Long.toHexString(classID));
+                        throw new SnapshotException(msg);
+                    }
+                    // Create some dummy fields
+                    int size = e.getValue();
+                    // Special value for missing superclass
+                    if (size >= Integer.MAX_VALUE) 
+                        size = 0;
+                    int nfields = size / 4 + Integer.bitCount(size % 4);
+                    FieldDescriptor fds[] = new FieldDescriptor[nfields];
+                    int i;
+                    for (i = 0; i < size / 4; ++i)
+                    {
+                        fds[i] = new FieldDescriptor("unknown-field-"+i, IObject.Type.INT);
+                    }
+                    if ((size & 2) != 0)
+                    {
+                        fds[i] = new FieldDescriptor("unknown-field-"+i, IObject.Type.SHORT);
+                        ++i;
+                    }
+                    if ((size & 1) != 0)
+                    {
+                        fds[i] = new FieldDescriptor("unknown-field-"+i, IObject.Type.BYTE);
+                        ++i;
+                    }
+                    type = new ClassImpl(classID, "unknown-class-"+clsid, jlo, 0, new Field[0], fds); //$NON-NLS-1$
+                    ++clsid;
+                    addClass((ClassImpl) type, -1);
+                }
+            }
+        }
+        requiredClassIDs = null;
+        
         identifiers.sort();
     }
 
@@ -542,6 +598,22 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
         requiredPrimitiveArrays.add(arrayType);
     }
 
+    public void reportRequiredClass(long classID, int size)
+    {
+        if (requiredClassIDs.containsKey(classID))
+        {
+            if (requiredClassIDs.get(classID) > size)
+            {
+                // Make the size the minimum
+                requiredClassIDs.put(classID, size);
+            }
+        }
+        else
+        {
+            requiredClassIDs.put(classID, size);
+        }
+    }
+    
     // //////////////////////////////////////////////////////////////
     // lookup heap infos
     // //////////////////////////////////////////////////////////////

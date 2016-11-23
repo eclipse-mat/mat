@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2013 SAP AG and others.
+ * Copyright (c) 2008, 2016 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -531,14 +531,27 @@ public class Pass1Parser extends AbstractParser
 
         ClassImpl clazz = new ClassImpl(address, className, superClassObjectId, classLoaderObjectId, statics, fields);
         handler.addClass(clazz, segmentStartPos);
+        
+        // Just in case the superclass is missing
+        if (superClassObjectId != 0 && handler.lookupClass(superClassObjectId) == null)
+        {
+            // A real size of an instance will override this
+            handler.reportRequiredClass(superClassObjectId, Integer.MAX_VALUE);
+        }
     }
 
     private void readInstanceDump(long segmentStartPos) throws IOException
     {
         long address = readID();
         handler.reportInstance(address, segmentStartPos);
-        in.skipBytes(idSize + 4);
+        in.skipBytes(4);
+        long classID = readID();
         int payload = in.readInt();
+        // check if class needs to be created
+        IClass instanceType = handler.lookupClass(classID);
+        if (instanceType == null)
+            handler.reportRequiredClass(classID, payload);
+
         in.skipBytes(payload);
     }
 

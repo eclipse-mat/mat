@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2013 SAP AG and IBM Corporation
+ * Copyright (c) 2008, 2016 SAP AG and IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,6 +20,7 @@ import java.util.List;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.hprof.IHprofParserHandler.HeapObject;
 import org.eclipse.mat.hprof.ui.HprofPreferences;
+import org.eclipse.mat.hprof.ui.HprofPreferences.HprofStrictness;
 import org.eclipse.mat.parser.io.PositionInputStream;
 import org.eclipse.mat.parser.model.ClassImpl;
 import org.eclipse.mat.snapshot.model.FieldDescriptor;
@@ -29,6 +30,7 @@ import org.eclipse.mat.snapshot.model.IPrimitiveArray;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.SimpleMonitor;
+import org.eclipse.mat.util.IProgressListener.Severity;
 
 /**
  * Parser used to read the hprof formatted heap dump
@@ -228,9 +230,28 @@ public class Pass2Parser extends AbstractParser
                 }
             }
         }
-
+        
         if (endPos != in.position())
-            throw new IOException(MessageUtil.format(Messages.Pass2Parser_Error_InsufficientBytesRead, segmentStartPos));
+        {
+            boolean unknown = false;
+            for (IClass clazz : hierarchy)
+            {
+                if (clazz.getName().startsWith("unknown-class"))
+                {
+                    unknown = true;
+                }
+            }
+            
+            if (endPos >= in.position() && unknown && (strictnessPreference == HprofStrictness.STRICTNESS_WARNING || strictnessPreference == HprofStrictness.STRICTNESS_PERMISSIVE))
+            {
+                monitor.sendUserMessage(Severity.WARNING, MessageUtil.format(Messages.Pass2Parser_Error_InsufficientBytesRead, segmentStartPos, endPos, in.position()), null);
+                in.skipBytes(endPos - in.position());
+            }
+            else
+            {
+                throw new IOException(MessageUtil.format(Messages.Pass2Parser_Error_InsufficientBytesRead, segmentStartPos, endPos, in.position()));
+            }
+        }
 
         handler.addObject(heapObject, segmentStartPos);
     }
