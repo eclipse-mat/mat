@@ -1,70 +1,72 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html lang="en-us" xml:lang="en-us">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en-us" lang="en-us">
 <head>
-<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
-<meta content="reference" name="DC.Type" />
-<meta name="DC.Title" content="New and Noteworthy" />
-<meta name="abstract" content="Here are descriptions of some of the more interesting or significant changes made to the Memory Analyzer for the 1.6 release." />
-<meta name="description" content="Here are descriptions of some of the more interesting or significant changes made to the Memory Analyzer for the 1.6 release." />
-<meta name="copyright" content="Copyright (c) 2008, 2016 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary" />
-<meta name="DC.Rights.Owner" content="Copyright (c) 2008, 2016 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary" />
-<meta content="XHTML" name="DC.Format" />
-<meta content="ref_noteworthy" name="DC.Identifier" />
-<meta content="en-us" name="DC.Language" />
-<link href="styles/commonltr.css" type="text/css" rel="stylesheet" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="New and Noteworthy"/>
+<meta name="abstract" content="Here are descriptions of some of the more interesting or significant changes made to the Memory Analyzer for the 1.6 release."/>
+<meta name="description" content="Here are descriptions of some of the more interesting or significant changes made to the Memory Analyzer for the 1.6 release."/>
+<meta name="copyright" content="Copyright (c) 2008, 2016 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary"/>
+<meta name="DC.Rights.Owner" content="Copyright (c) 2008, 2016 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="ref_noteworthy"/>
+<meta name="DC.Language" content="en-us"/>
+<link rel="stylesheet" type="text/css" href="styles/commonltr.css"/>
 <title>New and Noteworthy</title>
 </head>
-<body id="ref_noteworthy"><a name="ref_noteworthy"><!-- --></a>
+<body id="ref_noteworthy">
 
 
-	<h1 class="topictitle1">New and Noteworthy</h1>
+	<h1 class="title topictitle1">New and Noteworthy</h1>
 
 	
 	
-	<div><p>Here are descriptions of some of the more interesting or
+	<div class="body refbody"><p class="shortdesc">Here are descriptions of some of the more interesting or
 		significant changes made to the Memory Analyzer for the 1.6 release.
 	</p>
 
-		<div class="section"><h2 class="sectiontitle">New Extension Point Extracting Collection Details</h2>
+		<div class="section"><h2 class="title sectiontitle">New Extension Point Extracting Collection Details</h2>
 			
-			<p>
+			<p class="p">
 			Memory Analyzer offers a set of queries, which extract information from heap objects representing collections. 
 			The extraction is specific for each collection type, as it depends on the internal implementation. There are built-in extractors for the most common collection types in Memory Analyzer.
 			</p>
 
-			<p>
-			Using the new extension point <strong>collectionExtractorProvider</strong> one can plug in collection extractors for collections which are not recognized by the extractors built-in in Memory Analyzer.
+			<p class="p">
+			Using the new extension point <strong class="ph b">collectionExtractorProvider</strong> one can plug in collection extractors for collections which are not recognized by the extractors built-in in Memory Analyzer.
 			</p>
 
 		</div>
 
-		<div class="section"><h2 class="sectiontitle">Bugfixes</h2>
+		<div class="section"><h2 class="title sectiontitle">Bugfixes</h2>
 			
-			<p>The 1.6.0 release of Memory Analyzer contains a number of fixes for issues spotted with the 1.5 release. Here is a list with the corresponding bug IDs
+			<p class="p">The 1.6.0 release of Memory Analyzer contains a number of fixes for issues spotted with the 1.5 release. Here is a list with the corresponding bug IDs
 			</p>
 
-			<p>287268 OQL support to extract particular element from a collection</p>
+			<p class="p">287268 OQL support to extract particular element from a collection</p>
 
-			<p>482180 Hang building histogram in buildSuspectRecordGroupOfObjects while finding memory leaks</p>
+			<p class="p">482180 Hang building histogram in buildSuspectRecordGroupOfObjects while finding memory leaks</p>
 
-			<p>482203 Comparison method violates its general contract! in Open in Dominator Tree</p>
+			<p class="p">482203 Comparison method violates its general contract! in Open in Dominator Tree</p>
 
-			<p>482346 Problem formatting IBM dump: Unrecognized option: -nozip</p>
+			<p class="p">482346 Problem formatting IBM dump: Unrecognized option: -nozip</p>
 
-			<p>482856 Execute ParseHeapDump.sh from outside MAT directory</p>
+			<p class="p">482856 Execute ParseHeapDump.sh from outside MAT directory</p>
 
-			<p>482963 JDK 8 ConcurrentHashMap has wrong field name</p>
+			<p class="p">482963 JDK 8 ConcurrentHashMap has wrong field name</p>
 
-			<p>482227 java.lang.Thread.dumpStack when running MAT from inside Eclipse</p>
+			<p class="p">482227 java.lang.Thread.dumpStack when running MAT from inside Eclipse</p>
 
 		</div>
 
 
-		<div class="section"><h2 class="sectiontitle">New and Noteworthy for Memory Analyzer 1.5</h2>
+		<div class="section"><h2 class="title sectiontitle">New and Noteworthy for Memory Analyzer 1.5</h2>
 			
-			<p>
+			<p class="p">
 				The New and Noteworthy document for version 1.5 is available 
-				<a href="http://www.eclipse.org/mat/1.5.0/noteworthy.html">here</a>.
+				<a class="xref" href="http://www.eclipse.org/mat/1.5.0/noteworthy.html">here</a>.
 			</p>
 
 		</div>
