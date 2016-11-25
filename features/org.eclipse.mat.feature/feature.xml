@@ -2,7 +2,7 @@
 <feature
       id="org.eclipse.mat.feature"
       label="%featureName"
-      version="1.6.0.qualifier"
+      version="1.6.1.qualifier"
       provider-name="%providerName"
       plugin="org.eclipse.mat.api">
    <install-handler/>

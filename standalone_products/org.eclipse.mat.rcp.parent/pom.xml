@@ -10,7 +10,7 @@
 
 	<groupId>org.eclipse.mat</groupId>
 	<artifactId>rcp.parent</artifactId>
-	<version>1.6.0-SNAPSHOT</version>
+	<version>1.6.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>MAT RCP Parent</name>
