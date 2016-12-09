@@ -312,7 +312,6 @@
 		<module>../plugins/org.eclipse.mat.ibmdumps</module>
 		<module>../plugins/org.eclipse.mat.jruby.resolver</module>
 		<module>../plugins/org.eclipse.mat.tests</module>
-		<module>../plugins/org.eclipse.mat.tests.junit</module>
 		<module>../plugins/org.eclipse.mat.ui</module>
 		<module>../plugins/org.eclipse.mat.ui.help</module>
 		<module>../plugins/org.eclipse.mat.ui.rcp</module>
