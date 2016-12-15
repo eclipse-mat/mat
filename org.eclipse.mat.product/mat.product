@@ -188,7 +188,7 @@ Contributors:
    </plugins>
 
    <features>
-      <feature id="org.eclipse.mat.ui.rcp.feature" version="1.7.0.qualifier"/>
+      <feature id="org.eclipse.mat.ui.rcp.feature"/>
       <feature id="org.eclipse.rcp"/>
       <feature id="org.eclipse.equinox.p2.user.ui"/>
       <feature id="org.eclipse.help"/>

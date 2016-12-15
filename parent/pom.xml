@@ -20,9 +20,76 @@
 		<signer-input-directory>/home/data/httpd/download-staging.priv/tools/mat</signer-input-directory>
 		<download-publish-path>/home/data/httpd/download.eclipse.org/mat/snapshots/update-site</download-publish-path>
 		<download-publish-rcp-path>/home/data/httpd/download.eclipse.org/mat/snapshots/rcp</download-publish-rcp-path>
+		<!-- mat-target specifies which .target definition file will be used -->
+		<mat-target>mat-mars</mat-target>
+		<!-- mat-release-repo-url specifies from which p2 repo the MAT bundles 
+			come, when the build-release profile is used -->
+		<mat-release-repo-url>http://download.eclipse.org/mat/1.6.1/update-site/</mat-release-repo-url>
 	</properties>
 
 	<profiles>
+		<!-- build-snapshot is the default profile - it will build all modules: 
+			plugins, features, an update site and standalone RCP products -->
+		<profile>
+			<id>build-snapshot</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<modules>
+				<!-- target definition -->
+				<module>../org.eclipse.mat.targetdef</module>
+				<!-- plugins -->
+				<module>../plugins/org.eclipse.mat.api</module>
+				<module>../plugins/org.eclipse.mat.chart</module>
+				<module>../plugins/org.eclipse.mat.chart.ui</module>
+				<module>../plugins/org.eclipse.mat.dtfj</module>
+				<module>../plugins/org.eclipse.mat.hprof</module>
+				<module>../plugins/org.eclipse.mat.jdt</module>
+				<module>../plugins/org.eclipse.mat.parser</module>
+				<module>../plugins/org.eclipse.mat.report</module>
+				<module>../plugins/org.eclipse.mat.ibmdumps</module>
+				<module>../plugins/org.eclipse.mat.jruby.resolver</module>
+				<module>../plugins/org.eclipse.mat.tests</module>
+				<module>../plugins/org.eclipse.mat.ui</module>
+				<module>../plugins/org.eclipse.mat.ui.help</module>
+				<module>../plugins/org.eclipse.mat.ui.rcp</module>
+				<!-- features -->
+				<module>../features/org.eclipse.mat.chart.feature</module>
+				<module>../features/org.eclipse.mat.feature</module>
+				<module>../features/org.eclipse.mat.ui.rcp.feature</module>
+				<!-- update site -->
+				<module>../org.eclipse.mat.updatesite</module>
+				<!-- standalone RCP application -->
+				<module>../org.eclipse.mat.product</module>
+				<!-- UI tests on the build product -->
+				<module>../plugins/org.eclipse.mat.ui.rcp.tests</module>
+			</modules>
+		</profile>
+
+		<!-- the build-release-rcp profile will build only the standalone RCP products 
+			of MAT, taking the MAT plugins and features from an already existing MAT 
+			p2 repository specified by the mat-release-repo-url property -->
+		<profile>
+			<id>build-release-rcp</id>
+			<repositories>
+				<repository>
+					<id>mat-released</id>
+					<url>${mat-release-repo-url}</url>
+					<layout>p2</layout>
+				</repository>
+			</repositories>
+			<modules>
+				<!-- target definition -->
+				<module>../org.eclipse.mat.targetdef</module>
+				<!-- standalone RCP application -->
+				<module>../org.eclipse.mat.product</module>
+				<!-- UI tests on the build product -->
+				<module>../plugins/org.eclipse.mat.ui.rcp.tests</module>
+			</modules>
+		</profile>
+
+		<!-- the build-server profile activates certain action (e.g. signing the 
+			bundles), which only work if the build is running on the Eclipse Hudson infrastructure. -->
 		<profile>
 			<id>build-server</id>
 			<pluginRepositories>
@@ -105,227 +172,7 @@
 				</plugins>
 			</build>
 		</profile>
-
-		<profile>
-			<!-- A profile defining the taget definition for building MAT against 
-				Juno -->
-			<id>build-kepler-rcp</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
-			<properties>
-				<mat.target>mat-kepler</mat.target>
-			</properties>
-			<build>
-				<pluginManagement>
-					<plugins>
-						<plugin>
-							<groupId>org.eclipse.tycho</groupId>
-							<artifactId>target-platform-configuration</artifactId>
-							<version>${tycho-version}</version>
-							<configuration>
-								<environments>
-									<environment>
-										<os>win32</os>
-										<ws>win32</ws>
-										<arch>x86</arch>
-									</environment>
-									<environment>
-										<os>win32</os>
-										<ws>win32</ws>
-										<arch>x86_64</arch>
-									</environment>
-									<environment>
-										<os>macosx</os>
-										<ws>cocoa</ws>
-										<arch>x86</arch>
-									</environment>
-									<environment>
-										<os>macosx</os>
-										<ws>cocoa</ws>
-										<arch>x86_64</arch>
-									</environment>
-									<environment>
-										<os>solaris</os>
-										<ws>gtk</ws>
-										<arch>x86</arch>
-									</environment>
-									<environment>
-										<os>solaris</os>
-										<ws>gtk</ws>
-										<arch>sparc</arch>
-									</environment>
-									<environment>
-										<os>aix</os>
-										<ws>gtk</ws>
-										<arch>ppc</arch>
-									</environment>
-									<environment>
-										<os>aix</os>
-										<ws>gtk</ws>
-										<arch>ppc64</arch>
-									</environment>
-									<environment>
-										<os>hpux</os>
-										<ws>gtk</ws>
-										<arch>ia64</arch>
-									</environment>
-									<environment>
-										<os>linux</os>
-										<ws>gtk</ws>
-										<arch>x86</arch>
-									</environment>
-									<environment>
-										<os>linux</os>
-										<ws>gtk</ws>
-										<arch>x86_64</arch>
-									</environment>
-									<environment>
-										<os>linux</os>
-										<ws>gtk</ws>
-										<arch>ppc</arch>
-									</environment>
-									<environment>
-										<os>linux</os>
-										<ws>gtk</ws>
-										<arch>ppc64</arch>
-									</environment>
-									<environment>
-										<os>linux</os>
-										<ws>gtk</ws>
-										<arch>s390x</arch>
-									</environment>
-									<environment>
-										<os>linux</os>
-										<ws>gtk</ws>
-										<arch>s390</arch>
-									</environment>
-								</environments>
-							</configuration>
-						</plugin>
-					</plugins>
-				</pluginManagement>
-			</build>
-		</profile>
-		<profile>
-			<!-- A profile defining the taget definition for building MAT against 
-				Indigo -->
-			<id>build-indigo-rcp</id>
-			<properties>
-				<mat.target>mat-indigo</mat.target>
-			</properties>
-			<build>
-				<pluginManagement>
-					<plugins>
-						<plugin>
-							<groupId>org.eclipse.tycho</groupId>
-							<artifactId>target-platform-configuration</artifactId>
-							<version>${tycho-version}</version>
-							<configuration>
-								<environments>
-									<environment>
-										<os>win32</os>
-										<ws>win32</ws>
-										<arch>x86</arch>
-									</environment>
-									<environment>
-										<os>win32</os>
-										<ws>win32</ws>
-										<arch>x86_64</arch>
-									</environment>
-									<environment>
-										<os>macosx</os>
-										<ws>carbon</ws>
-										<arch>x86</arch>
-									</environment>
-									<environment>
-										<os>macosx</os>
-										<ws>cocoa</ws>
-										<arch>x86</arch>
-									</environment>
-									<environment>
-										<os>macosx</os>
-										<ws>cocoa</ws>
-										<arch>x86_64</arch>
-									</environment>
-									<environment>
-										<os>solaris</os>
-										<ws>gtk</ws>
-										<arch>x86</arch>
-									</environment>
-									<environment>
-										<os>solaris</os>
-										<ws>gtk</ws>
-										<arch>sparc</arch>
-									</environment>
-									<environment>
-										<os>aix</os>
-										<ws>gtk</ws>
-										<arch>ppc</arch>
-									</environment>
-									<environment>
-										<os>aix</os>
-										<ws>gtk</ws>
-										<arch>ppc64</arch>
-									</environment>
-									<environment>
-										<os>hpux</os>
-										<ws>gtk</ws>
-										<arch>ia64_32</arch>
-									</environment>
-									<environment>
-										<os>linux</os>
-										<ws>gtk</ws>
-										<arch>x86</arch>
-									</environment>
-									<environment>
-										<os>linux</os>
-										<ws>gtk</ws>
-										<arch>x86_64</arch>
-									</environment>
-									<environment>
-										<os>linux</os>
-										<ws>gtk</ws>
-										<arch>ppc64</arch>
-									</environment>
-								</environments>
-							</configuration>
-						</plugin>
-					</plugins>
-				</pluginManagement>
-			</build>
-		</profile>
 	</profiles>
-
-	<modules>
-		<!-- target definition -->
-		<module>../org.eclipse.mat.targetdef</module>
-		<!-- plugins -->
-		<module>../plugins/org.eclipse.mat.api</module>
-		<module>../plugins/org.eclipse.mat.chart</module>
-		<module>../plugins/org.eclipse.mat.chart.ui</module>
-		<module>../plugins/org.eclipse.mat.dtfj</module>
-		<module>../plugins/org.eclipse.mat.hprof</module>
-		<module>../plugins/org.eclipse.mat.jdt</module>
-		<module>../plugins/org.eclipse.mat.parser</module>
-		<module>../plugins/org.eclipse.mat.report</module>
-		<module>../plugins/org.eclipse.mat.ibmdumps</module>
-		<module>../plugins/org.eclipse.mat.jruby.resolver</module>
-		<module>../plugins/org.eclipse.mat.tests</module>
-		<module>../plugins/org.eclipse.mat.ui</module>
-		<module>../plugins/org.eclipse.mat.ui.help</module>
-		<module>../plugins/org.eclipse.mat.ui.rcp</module>
-		<!-- features -->
-		<module>../features/org.eclipse.mat.chart.feature</module>
-		<module>../features/org.eclipse.mat.feature</module>
-		<module>../features/org.eclipse.mat.ui.rcp.feature</module>
-		<!-- update site -->
-		<module>../org.eclipse.mat.updatesite</module>
-		<!-- standalone RCP application -->
-		<module>../org.eclipse.mat.product</module>
-		<!-- UI tests on the build product -->
-		<module>../plugins/org.eclipse.mat.ui.rcp.tests</module>
-	</modules>
 
 	<build>
 		<plugins>
@@ -341,6 +188,78 @@
 				<version>${tycho-version}</version>
 				<configuration>
 					<resolver>p2</resolver>
+					<environments>
+						<environment>
+							<os>win32</os>
+							<ws>win32</ws>
+							<arch>x86</arch>
+						</environment>
+						<environment>
+							<os>win32</os>
+							<ws>win32</ws>
+							<arch>x86_64</arch>
+						</environment>
+						<environment>
+							<os>macosx</os>
+							<ws>cocoa</ws>
+							<arch>x86_64</arch>
+						</environment>
+						<environment>
+							<os>solaris</os>
+							<ws>gtk</ws>
+							<arch>x86</arch>
+						</environment>
+						<environment>
+							<os>solaris</os>
+							<ws>gtk</ws>
+							<arch>sparc</arch>
+						</environment>
+						<environment>
+							<os>aix</os>
+							<ws>gtk</ws>
+							<arch>ppc</arch>
+						</environment>
+						<environment>
+							<os>aix</os>
+							<ws>gtk</ws>
+							<arch>ppc64</arch>
+						</environment>
+						<environment>
+							<os>hpux</os>
+							<ws>gtk</ws>
+							<arch>ia64</arch>
+						</environment>
+						<environment>
+							<os>linux</os>
+							<ws>gtk</ws>
+							<arch>x86</arch>
+						</environment>
+						<environment>
+							<os>linux</os>
+							<ws>gtk</ws>
+							<arch>x86_64</arch>
+						</environment>
+						<environment>
+							<os>linux</os>
+							<ws>gtk</ws>
+							<arch>ppc</arch>
+						</environment>
+						<environment>
+							<os>linux</os>
+							<ws>gtk</ws>
+							<arch>ppc64</arch>
+						</environment>
+						<environment>
+							<os>linux</os>
+							<ws>gtk</ws>
+							<arch>s390x</arch>
+						</environment>
+						<environment>
+							<os>linux</os>
+							<ws>gtk</ws>
+							<arch>s390</arch>
+						</environment>
+					</environments>
 				</configuration>
 			</plugin>
 		</plugins>
@@ -385,7 +304,7 @@
 								<groupId>org.eclipse.mat</groupId>
 								<artifactId>org.eclipse.mat.targetdef</artifactId>
 								<version>${project.version}</version>
-								<classifier>${mat.target}</classifier>
+								<classifier>${mat-target}</classifier>
 							</artifact>
 						</target>
 						<!-- List of bundles to be excluded from the target platform. These 
