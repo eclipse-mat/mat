@@ -187,7 +187,7 @@ Contributors:
    </plugins>
 
    <features>
-      <feature id="org.eclipse.mat.ui.rcp.feature"/>
+      <feature id="org.eclipse.mat.ui.rcp.feature" installMode="root"/>
       <feature id="org.eclipse.rcp"/>
       <feature id="org.eclipse.equinox.p2.user.ui"/>
       <feature id="org.eclipse.help"/>
@@ -197,6 +197,11 @@ Contributors:
       <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
       <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.equinox.ds" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.equinox.p2.reconciler.dropins" autoStart="true" startLevel="4" />
+
+      <property name="org.eclipse.update.reconcile" value="false" />
+      <plugin id="org.eclipse.update.configurator" autoStart="true" startLevel="4"/>
+
       <property name="osgi.requiredJavaVersion" value="1.6" />
       <property name="cssTheme" value="org.eclipse.e4.ui.css.theme.e4_default" />
       <property name="applicationCSSResources" value="platform:/plugin/org.eclipse.platform/images/" />
