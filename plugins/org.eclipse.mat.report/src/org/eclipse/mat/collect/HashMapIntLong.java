@@ -42,6 +42,9 @@ public final class HashMapIntLong implements Serializable
                     "This is static exception, there is no stack trace available. It is thrown by get() method."); //$NON-NLS-1$
 
     private static final long serialVersionUID = 1L;
+    
+    /** Large prime less than JVM limit for array sizes */
+    private static final int BIG_CAPACITY = 0x7fffffed;
 
     private int capacity;
     private int step;
@@ -77,7 +80,10 @@ public final class HashMapIntLong implements Serializable
     public boolean put(int key, long value)
     {
         if (size == limit)
-            resize(capacity << 1);
+        {
+            // Double in size but avoid overflow or JVM limits
+            resize(capacity <= BIG_CAPACITY >> 1 ? capacity << 1 : capacity < BIG_CAPACITY ? BIG_CAPACITY : capacity + 1);
+        }
 
         int hash = (key & Integer.MAX_VALUE) % capacity;
         while (used[hash])

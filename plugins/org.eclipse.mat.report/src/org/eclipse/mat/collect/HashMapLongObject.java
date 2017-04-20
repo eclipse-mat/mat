@@ -40,7 +40,10 @@ public final class HashMapLongObject<E> implements Serializable
     }
 
     private static final long serialVersionUID = 1L;
-
+    
+    /** Large prime less than JVM limit for array sizes */
+    private static final int BIG_CAPACITY = 0x7fffffed;
+    
     private int capacity;
     private int step;
     private int limit;
@@ -75,7 +78,10 @@ public final class HashMapLongObject<E> implements Serializable
     public E put(long key, E value)
     {
         if (size == limit)
-            resize(capacity << 1);
+        {
+            // Double in size but avoid overflow or JVM limits
+            resize(capacity <= BIG_CAPACITY >> 1 ? capacity << 1 : capacity < BIG_CAPACITY ? BIG_CAPACITY : capacity + 1);
+        }
 
         int hash = hash(key) % capacity;
         while (used[hash])
