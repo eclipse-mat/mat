@@ -43,8 +43,14 @@ public final class HashMapIntLong implements Serializable
 
     private static final long serialVersionUID = 1L;
     
-    /** Large prime less than JVM limit for array sizes */
-    private static final int BIG_CAPACITY = 0x7fffffed;
+    /**
+     * Largest requested size that can be allocated on many VMs.
+     * Size will be rounded up to the next prime, so choose prime - 1.
+     * Biggest primes less than 2^31 are 0x7fffffff and 0x7fffffed,
+     * but JVM limit can be less than Integer.MAX_VALUE.
+     * E.g. ArrayList has a limit of Integer.MAX_VALUE - 8
+     */
+    private static final int BIG_CAPACITY = PrimeFinder.findPrevPrime(Integer.MAX_VALUE - 8 + 1) - 1;
 
     private int capacity;
     private int step;

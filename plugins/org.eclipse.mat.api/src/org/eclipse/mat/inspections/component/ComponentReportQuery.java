@@ -845,7 +845,8 @@ public class ComponentReportQuery implements IQuery
             return;
         }
 
-        SetInt retainedSet = new SetInt((retained.length / 100) * 110);
+        // SetInt will resize when it is 75% full, so allocate it big enough now
+        SetInt retainedSet = new SetInt(Math.max(((retained.length + 2) / 3) * 4, retained.length));
         for (int ii = 0; ii < retained.length; ii++)
             retainedSet.add(retained[ii]);
 
