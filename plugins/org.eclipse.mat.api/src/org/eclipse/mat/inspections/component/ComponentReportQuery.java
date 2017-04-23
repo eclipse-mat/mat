@@ -22,6 +22,7 @@ import java.util.Set;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
+import org.eclipse.mat.collect.BitField;
 import org.eclipse.mat.collect.SetInt;
 import org.eclipse.mat.inspections.InspectionAssert;
 import org.eclipse.mat.inspections.ReferenceQuery;
@@ -845,10 +846,26 @@ public class ComponentReportQuery implements IQuery
             return;
         }
 
-        // SetInt will resize when it is 75% full, so allocate it big enough now
-        SetInt retainedSet = new SetInt(Math.max(((retained.length + 2) / 3) * 4, retained.length));
+        // Currently SetInt uses a lot of memory - 32+8 bits @ 75% capacity = 53 bits per item
+        boolean useBits = retained.length > Math.max(100000, snapshot.getSnapshotInfo().getNumberOfObjects() / 53);
+        SetInt retainedSet = null;
+        BitField retainedIds = null;
+        if (useBits)
+        {
+            retainedIds = new BitField(snapshot.getSnapshotInfo().getNumberOfObjects());
+        }
+        else
+        {
+            // SetInt will resize when it is 75% full, so allocate it big enough now
+            retainedSet = new SetInt(Math.max(((retained.length + 2) / 3) * 4, retained.length));
+        }
         for (int ii = 0; ii < retained.length; ii++)
-            retainedSet.add(retained[ii]);
+        {
+            if (useBits)
+                retainedIds.set(retained[ii]);
+            else
+                retainedSet.add(retained[ii]);
+        }
 
         // Avoid duplicates from the two approaches by using a set
         SetInt finalizers = new SetInt();
@@ -863,7 +880,7 @@ public class ComponentReportQuery implements IQuery
                 if (ref != null)
                 {
                     int referentId = ref.getObjectId();
-                    if (retainedSet.contains(referentId))
+                    if (useBits ? retainedIds.get(referentId) : retainedSet.contains(referentId))
                     {
                         finalizers.add(referentId);
                     }
@@ -881,7 +898,7 @@ public class ComponentReportQuery implements IQuery
                                 || rootInfo.getType() == GCRootInfo.Type.FINALIZABLE)
                 {
                     int referentId = rootInfo.getObjectId();
-                    if (retainedSet.contains(referentId))
+                    if (useBits ? retainedIds.get(referentId) : retainedSet.contains(referentId))
                     {
                         finalizers.add(referentId);
                     }
