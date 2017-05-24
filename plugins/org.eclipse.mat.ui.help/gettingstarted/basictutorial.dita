@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE task PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd" >
 <!--
-    Copyright (c) 2008, 2010 SAP AG and others.
+    Copyright (c) 2008, 2017 SAP AG and others.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
    
     Contributors:
         SAP AG - initial API and implementation
+        IBM Corporation - minor updates
  -->
 <task id="task_basictutorial" xml:lang="en-us">
 	<title>Basic Tutorial</title>
@@ -16,7 +17,7 @@
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2008, 2010 SAP AG and others.
+				Copyright (c) 2008, 2017 SAP AG and others.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License v1.0
 			    which accompanies this distribution, and is available at
@@ -30,6 +31,18 @@
 			<p>
 				This tutorial provides a "jumping-off place" to get familiar with
 				Memory Analyzer.
+			</p>
+			
+			<p>
+				If you are using Memory Analyzer installed into Eclipse rather than a stand-alone Memory Analyzer, 
+				first open the 'Memory Analysis' perspective using:
+				<menucascade>
+ 					<uicontrol>Window</uicontrol>
+ 					<uicontrol>Perspective</uicontrol>
+ 					<uicontrol>Open Perspective</uicontrol>
+ 					<uicontrol>Other ...</uicontrol>
+ 					<uicontrol>Memory Analysis</uicontrol>
+				</menucascade>
 			</p>
 
 			<p>
