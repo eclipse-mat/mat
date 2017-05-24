@@ -4,7 +4,11 @@ requires.2.range = [1.0.0, 2.0.0)
 instructions.configure=\
     org.eclipse.equinox.p2.touchpoint.natives.remove(path:${installFolder}/readme);\
     org.eclipse.equinox.p2.touchpoint.natives.remove(path:${installFolder}/artifacts.xml);\
-    addRepository(type:0,name:Memory Analyzer,location:http${#58}//download.eclipse.org/mat/1.6/update-site/);\
-    addRepository(type:1,name:Memory Analyzer,location:http${#58}//download.eclipse.org/mat/1.6/update-site/);\
-    addRepository(type:0,name:Eclipse Mars,location:http${#58}//download.eclipse.org/releases/neon/);\
-    addRepository(type:1,name:Eclipse Mars,location:http${#58}//download.eclipse.org/releases/neon/);
+    addRepository(type:0,name:Memory Analyzer,location:http${#58}//download.eclipse.org/mat/1.7/update-site/);\
+    addRepository(type:1,name:Memory Analyzer,location:http${#58}//download.eclipse.org/mat/1.7/update-site/);\
+    addRepository(type:1,name:Memory Analyzer latest development build,location:http${#58}//download.eclipse.org/mat/snapshots/update-site/,enabled:false);\
+    addRepository(type:1,name:Memory Analyzer latest development build,location:http${#58}//download.eclipse.org/mat/snapshots/update-site/,enabled:false);\
+    addRepository(type:0,name:Eclipse Oxygen,location:http${#58}//download.eclipse.org/releases/oxygen/);\
+    addRepository(type:1,name:Eclipse Oxygen,location:http${#58}//download.eclipse.org/releases/oxygen/);\
+    addRepository(type:0,name:IBM Diagnostic Tool Framework for Java,location:http${#58}//public.dhe.ibm.com/ibmdl/export/pub/software/websphere/runtimes/tools/dtfj/);\
+    addRepository(type:1,name:IBM Diagnostic Tool Framework for Java,location:http${#58}//public.dhe.ibm.com/ibmdl/export/pub/software/websphere/runtimes/tools/dtfj/)
