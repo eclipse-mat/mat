@@ -74,15 +74,20 @@ class PathExpression extends Expression
             {
                 Attribute firstAttribute = (Attribute) firstItem;
                 current = !firstAttribute.isNative() ? ctx.getAlias(firstAttribute.getName()) : null;
+                if (current != null || !firstAttribute.isNative() && ctx.isAlias(firstAttribute.getName()))
+                {
+                    // We retrieved an alias (or snapshot) from the attribute, even if it was null, so advance
+                    index++;
+                }
             }
 
-            if (current == null)
+            if (index == 0)
                 current = ctx.getSubject();
-            else
-                index++;
 
             for (; index < this.attributes.size(); index++)
             {
+                if (current == null)
+                    break;
                 Object element = this.attributes.get(index);
 
                 if (element != null && element.getClass().isArray())

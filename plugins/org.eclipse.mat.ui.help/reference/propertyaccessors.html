@@ -307,15 +307,16 @@
 			then the result is null.
 			</p>
 
-			<p class="p">Memory Analyzer 1.4 allows array range access as well using the notation
+			<p class="p">Memory Analyzer 1.4 or later allows array range access as well using the notation
 			<samp class="ph codeph">[index1:index2]</samp> where index1 and index2 are inclusive. If the values
 			are negative then they are treated as indexing from the end of the array, so -1
-			means the last entry.
+			means the last entry. This means the whole array can be accessed as a list as
+			<samp class="ph codeph">[0:-1]</samp>.
 			</p>
 
 		</div>
 
-		<div class="section"><h2 class="title sectiontitle">Reading values from primitive arrays</h2>
+		<div class="section"><h2 class="title sectiontitle">Reading values from primitive arrays (from the heap dump)</h2>
 			
 			<pre class="pre codeblock">SELECT s[2] FROM int[] s WHERE (s.@length &gt; 2)</pre>
 
@@ -329,7 +330,7 @@
 
 		</div>
 
-		<div class="section"><h2 class="title sectiontitle">Reading objects from object arrays</h2>
+		<div class="section"><h2 class="title sectiontitle">Reading objects from object arrays (from the heap dump)</h2>
 			
 			<pre class="pre codeblock">SELECT s[2] FROM java.lang.Object[] s WHERE (s.@length &gt; 2)</pre>
 
@@ -359,7 +360,7 @@
 
 		</div>
 
-		<div class="section"><h2 class="title sectiontitle">Reading from Java arrays</h2>
+		<div class="section"><h2 class="title sectiontitle">Reading from Java arrays (Memory Analyzer internal objects)</h2>
 			
 			<pre class="pre codeblock">SELECT s.@GCRoots[2] FROM OBJECTS ${snapshot} s</pre>
 
@@ -371,7 +372,7 @@
 
 		</div>
 
-		<div class="section"><h2 class="title sectiontitle">Reading from Java Lists</h2>
+		<div class="section"><h2 class="title sectiontitle">Reading from Java Lists (Memory Analyzer internal objects)</h2>
 			
 			<pre class="pre codeblock">SELECT s.@GCRoots.subList(1,3)[1] FROM OBJECTS ${snapshot} s</pre>
 
@@ -380,6 +381,26 @@
 			<pre class="pre codeblock">SELECT s.@GCRoots.subList(1,3).get(1) FROM OBJECTS ${snapshot} s</pre>
 
 			<p class="p">This method is for all versions of Memory Analyzer.</p>
+
+		</div>
+
+		<div class="section"><h2 class="title sectiontitle">Reading subarrays</h2>
+			
+			<pre class="pre codeblock">SELECT s, s.count, s.offset, s.value[s.offset], 
+			s.value[s.offset:((s.offset + s.count) - 1)], 
+			s.value[s.offset:((s.offset + 0) - 1)], 
+			s.value[0:-1].subList(s.offset,(s.offset + 0)),
+			s.value[s.offset:-1].subList(0,s.count)
+			FROM java.lang.String s</pre>
+
+			<p class="p">This method is for Memory Analyzer 1.4 or later.</p>
+
+			<p class="p">This shows how the whole array can be converted to a list using <samp class="ph codeph">[0:-1]</samp> and
+			that how using array range <samp class="ph codeph">[offset:offset+count-1]</samp> gives perhaps unexpected results
+			when <samp class="ph codeph">offset=0</samp> and <samp class="ph codeph">count=0</samp> as instead of an empty list it gives the whole array.
+			Using <samp class="ph codeph">subList(offset,offet+count)</samp> once the whole array has been converted to a list
+			gives the expected result.
+			</p>
 
 		</div>
 
@@ -471,7 +492,7 @@
 					</td>
 
 					<td valign="top" class="stentry">
-						(Experimental in Memory Analyzer 1.4) evaluates the argument and returns it.
+						(Experimental in Memory Analyzer 1.4 or later) evaluates the argument and returns it.
 						Could be useful to allow array/method access to the result of a sub-select or
 						expression.
 					</td>

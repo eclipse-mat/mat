@@ -891,6 +891,16 @@ public class OQLTest
     }
 
     /**
+     * Test that null objects from a from clause don't cause problems
+     */
+    @Test
+    public void testFromClauseWithNullObjects() throws SnapshotException {
+        int res[] = (int[])execute("SELECT * FROM java.lang.ThreadGroup s"
+                    + " WHERE ((SELECT t FROM OBJECTS ( s.threads[0:-1] ) t WHERE t.name.toString().startsWith(\"R\")) != null)");
+        assertEquals(1, res.length);
+    }
+    
+    /**
      * Test reading static fields of a class
      * @throws SnapshotException
      */

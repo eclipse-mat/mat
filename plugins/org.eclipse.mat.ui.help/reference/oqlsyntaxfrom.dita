@@ -106,7 +106,7 @@
 			<codeblock>SELECT * FROM OBJECTS 20815</codeblock>
 			<b>by the object ids of particular objects:</b>
 			<codeblock>SELECT * FROM OBJECTS 20815,20814</codeblock>
-			<b>by a sub expression (Memory Analyzer 1.4 only):</b>
+			<b>by a sub expression (Memory Analyzer 1.4 or later):</b>
 			<codeblock>SELECT * FROM OBJECTS (1 + ${snapshot}.GCRoots.length)</codeblock>
 			<note>
 				Please note, that currently the FROM OBJECTS term is in

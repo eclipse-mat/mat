@@ -128,7 +128,7 @@
 			<strong class="ph b">by the object ids of particular objects:</strong>
 			<pre class="pre codeblock">SELECT * FROM OBJECTS 20815,20814</pre>
 
-			<strong class="ph b">by a sub expression (Memory Analyzer 1.4 only):</strong>
+			<strong class="ph b">by a sub expression (Memory Analyzer 1.4 or later):</strong>
 			<pre class="pre codeblock">SELECT * FROM OBJECTS (1 + ${snapshot}.GCRoots.length)</pre>
 
 			<div class="note note"><span class="notetitle">Note:</span> 
