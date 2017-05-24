@@ -24,7 +24,7 @@
 		<mat-target>mat-mars</mat-target>
 		<!-- mat-release-repo-url specifies from which p2 repo the MAT bundles 
 			come, when the build-release profile is used -->
-		<mat-release-repo-url>http://download.eclipse.org/mat/1.6.1/update-site/</mat-release-repo-url>
+		<mat-release-repo-url>http://download.eclipse.org/mat/1.7/update-site/</mat-release-repo-url>
 	</properties>
 
 	<profiles>
@@ -248,6 +248,11 @@
 							<os>linux</os>
 							<ws>gtk</ws>
 							<arch>ppc64</arch>
+						</environment>
+						<environment>
+							<os>linux</os>
+							<ws>gtk</ws>
+							<arch>ppc64le</arch>
 						</environment>
 						<environment>
 							<os>linux</os>
