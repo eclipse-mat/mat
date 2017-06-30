@@ -159,6 +159,8 @@ public class KnownCollectionInfo implements ICollectionExtractorProvider
                     // also works for CheckedSortedMap
                     new CollectionExtractionInfo("java.util.Collections$CheckedMap", new WrapperCollectionExtractor("m")), //$NON-NLS-1$ //$NON-NLS-2$
                     new CollectionExtractionInfo("java.util.Collections$CheckedMap$CheckedEntrySet", new WrapperCollectionExtractor("s")), //$NON-NLS-1$ //$NON-NLS-2$
+                    new CollectionExtractionInfo("org.eclipse.osgi.framework.util.CaseInsensitiveDictionaryMap", new WrapperMapExtractor("map")), //$NON-NLS-1$ //$NON-NLS-2$
+
 
                     // singletons
                     new CollectionExtractionInfo("java.util.Collections$SingletonSet", new SingletonCollectionExtractor("element")), //$NON-NLS-1$ //$NON-NLS-2$

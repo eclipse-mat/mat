@@ -216,6 +216,7 @@ public class Messages extends NLS
     public static String EquinoxBundleReader_State_Installed;
     public static String EquinoxBundleReader_State_Resolved;
     public static String EquinoxBundleReader_State_Starting;
+    public static String EquinoxBundleReader_State_LazyStarting;
     public static String EquinoxBundleReader_State_Stopping;
     public static String EquinoxBundleReader_State_Uninstalled;
 

@@ -39,15 +39,17 @@ import org.eclipse.mat.query.IResultTree;
 import org.eclipse.mat.query.ResultMetaData;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.CommandName;
+import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.snapshot.ISnapshot;
-import org.eclipse.mat.snapshot.extension.Subject;
+import org.eclipse.mat.snapshot.extension.Subjects;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 
 @CommandName("bundle_registry")
 @Icon("/META-INF/icons/osgi/registry.gif")
-@Subject("org.eclipse.osgi.framework.internal.core.BundleRepository")
+@Subjects({"org.eclipse.osgi.framework.internal.core.BundleRepository","org.eclipse.osgi.internal.framework.EquinoxBundle"})
+@HelpUrl("/org.eclipse.mat.ui.help/tasks/bundleregistry.html")
 public class BundleRegistryQuery implements IQuery
 {
     @Argument
@@ -398,6 +400,10 @@ public class BundleRegistryQuery implements IQuery
                         return ((BundleDescriptor) row).getState();
                     if (row instanceof Folder && ((Folder) row).type.equals(Type.HOST))
                         return ((BundleFragment) ((Folder) row).bundle).getHost().getState();
+                    if (row instanceof DescriptorFolder)
+                        return ((DescriptorFolder) row).descriptor.getState();
+                    if (row instanceof ExtensionFolder && ((ExtensionFolder)row).type == Type.CONTRIBUTED_BY)
+                        return ((ExtensionFolder)row).extension.getContributedBy().getState();
             }
             return null;
         }
