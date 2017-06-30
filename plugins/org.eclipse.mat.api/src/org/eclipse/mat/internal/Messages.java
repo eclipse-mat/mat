@@ -212,6 +212,7 @@ public class Messages extends NLS
     public static String EquinoxBundleReader_ReadingBundles;
     public static String EquinoxBundleReader_ReadingExtensions;
     public static String EquinoxBundleReader_ReadingServices;
+    public static String EquinoxBundleReader_ReadingDependencies;
     public static String EquinoxBundleReader_State_Active;
     public static String EquinoxBundleReader_State_Installed;
     public static String EquinoxBundleReader_State_Resolved;
