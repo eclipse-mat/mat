@@ -70,7 +70,7 @@ public class BundlesPane extends QueryResultPane
                             break;
                     }
 
-                    final QueryResult queryResult = new QueryResult(null, "bundle_registry -groupBy " + target.name(),//$NON-NLS-1$
+                    final QueryResult queryResult = new QueryResult(((BundlesPane)getPane()).srcQueryResult.getQuery(), "bundle_registry -groupBy " + target.name(),//$NON-NLS-1$
                                     tree);
 
                     top.getDisplay().asyncExec(new Runnable()

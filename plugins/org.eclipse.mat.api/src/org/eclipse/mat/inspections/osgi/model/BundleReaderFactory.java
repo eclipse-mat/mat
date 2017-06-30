@@ -34,6 +34,11 @@ public class BundleReaderFactory
         if (classes != null && !classes.isEmpty())
             // Equinox OSGi framework
             return new EquinoxBundleReader(snapshot);
+        classes = snapshot.getClassesByName(
+                        "org.eclipse.osgi.container.ModuleLoader", false); //$NON-NLS-1$
+        if (classes != null && !classes.isEmpty())
+            // Equinox OSGi framework
+            return new EquinoxBundleReader2(snapshot);
         else
             throw new SnapshotException(Messages.BundleReaderFactory_ErrorMsg_EquinoxNotFound);
 

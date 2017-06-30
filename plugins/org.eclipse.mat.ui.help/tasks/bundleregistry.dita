@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2017 IBM Corporation.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+   
+    Contributors:
+        IBM Corporation  - initial documentation
+ -->
+<!DOCTYPE task PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd" >
+<task id="task_bundleregistry" xml:lang="en-us">
+	<title>Eclipse Equinox Bundle Registry</title>
+	<prolog>
+		<copyright>
+			<copyryear year=""></copyryear>
+			<copyrholder>
+				Copyright (c) 2017 IBM Corporation.
+			    All rights reserved. This program and the accompanying materials
+			    are made available under the terms of the Eclipse Public License v1.0
+			    which accompanies this distribution, and is available at
+			    http://www.eclipse.org/legal/epl-v10.html
+			</copyrholder>
+		</copyright>
+	</prolog>
+
+	<taskbody>
+		<context>
+		    <p><b>Introduction</b></p>
+			<p>
+			Eclipse uses an OSGi framework implementation called Equinox.
+			An OSGi application is built out of multiple bundles.
+			This query allows the bundles in a Eclipse program to be explored using a heap dump from that program. 
+			</p>
+
+			<p>
+				Bundles (or plugins) allow different parts of a system to be isolated. Each has its own class loader
+				and interactions between bundles occurs using defined interfaces.
+				See <xref format="html" href="https://help.eclipse.org/neon/index.jsp?topic=%2Forg.eclipse.platform.doc.isv%2Fguide%2Fruntime_model_bundles.htm">Plug-ins and bundles</xref>
+				and <xref format="html" href="https://www.eclipse.org/equinox/bundles/">Equinox Bundles</xref>.
+			</p>
+			<p>
+				Definitions
+				<dl>
+					<dlentry>
+						<dt>Bundle</dt>
+						<dd>The OSGi module.</dd>
+					</dlentry>
+					<dlentry>
+						<dt>Bundle fragment</dt>
+						<dd>A modification to the bundle supplied for purposes such as internationalization, providing
+						updates for particular languages or countries, or for particular platforms.</dd>
+					</dlentry>
+					<dlentry>
+						<dt>hosted by</dt>
+						<dd>The bundle which is modified by this fragment.</dd>
+					</dlentry>
+					<dlentry>
+						<dt>Dependent</dt>
+						<dd>A bundle which relies on this bundle.</dd>
+					</dlentry>
+					<dlentry>
+						<dt>Dependency</dt>
+						<dd>A bundle which is required by this bundle.</dd>
+					</dlentry>
+					<dlentry>
+						<dt>Extension Point</dt>
+						<dd>A way of extending the function of a bundle; other bundles may register an extension matching
+						an extension point and then bundles searching for implementations of the extension point
+						would find those extensions and could call them as appropriate.
+						See <xref format="html" href="https://wiki.eclipse.org/FAQ_What_are_extensions_and_extension_points%3F">FAQ What are extensions and extension points?</xref></dd>
+					</dlentry>
+					<dlentry>
+						<dt>Extension</dt>
+						<dd>An implementation of an extension point offered by a bundle.</dd>
+					</dlentry>
+					<dlentry>
+						<dt>contributed by</dt>
+						<dd>Which bundles provide an extension to satisfy an extension point definition.</dd>
+					</dlentry>
+					<dlentry>
+						<dt>registered by</dt>
+						<dd>Which bundle provided an extension point definition, or which bundle provided a service
+						definition.</dd>
+					</dlentry>
+					<dlentry>
+						<dt>Service</dt>
+						<dd>Similar to extensions and extension points, but an OSGi standard.</dd>
+					</dlentry>
+					<dlentry>
+						<dt>Registered Service</dt>
+						<dd>A service offered by this bundle which is available for other bundles to use.</dd>
+					</dlentry>
+					<dlentry>
+						<dt>Used Service</dt>
+						<dd>A service provided by other bundles which is needed by this bundle.</dd>
+					</dlentry>
+					<dlentry>
+						<dt>Bundles Using</dt>
+						<dd>Which bundles use this implementation of a service.</dd>
+					</dlentry>
+				</dl>
+			</p>
+			<p>
+				Bundle states
+				<dl>
+
+					<dlentry>
+						<dt>Installed</dt>
+						<dd>The bundle is installed, but is not yet resolved, perhaps due to missing dependencies.</dd>
+					</dlentry>
+					<dlentry>
+						<dt>Resolved</dt>
+						<dd>Links between the bundle and dependents and dependencies have been established and the bundle is ready to be started.</dd>
+					</dlentry>
+					<dlentry>
+						<dt>Lazy starting</dt>
+						<dd>The bundle is ready to start, for example when one of its classes is referenced by another bundle.</dd>
+					</dlentry>
+					<dlentry>
+						<dt>Starting</dt>
+						<dd>The bundle is starting.</dd>
+					</dlentry>
+					<dlentry>
+						<dt>Active</dt>
+						<dd>The bundle is running.</dd>
+					</dlentry>
+					<dlentry>
+						<dt>Stopping</dt>
+						<dd>The bundle is stopping.</dd>
+					</dlentry>
+					<dlentry>
+						<dt>Uninstalled</dt>
+						<dd>The bundle is no longer available for use.</dd>
+					</dlentry>
+				</dl>
+			</p>
+		</context>
+	</taskbody>
+</task>

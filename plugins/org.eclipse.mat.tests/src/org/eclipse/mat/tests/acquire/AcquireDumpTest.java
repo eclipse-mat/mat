@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBM Corporation.
+ * Copyright (c) 2015,2017 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,9 @@ package org.eclipse.mat.tests.acquire;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
 import static org.hamcrest.number.OrderingComparison.greaterThanOrEqualTo;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,10 +26,14 @@ import java.util.List;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.internal.acquire.HeapDumpProviderDescriptor;
 import org.eclipse.mat.internal.acquire.HeapDumpProviderRegistry;
+import org.eclipse.mat.query.IContextObject;
+import org.eclipse.mat.query.IResult;
+import org.eclipse.mat.query.IResultTree;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.SnapshotFactory;
 import org.eclipse.mat.snapshot.acquire.IHeapDumpProvider;
 import org.eclipse.mat.snapshot.acquire.VmInfo;
+import org.eclipse.mat.snapshot.query.SnapshotQuery;
 import org.eclipse.mat.tests.TestSnapshots;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.VoidProgressListener;
@@ -126,6 +133,7 @@ public class AcquireDumpTest
                         {
                             collector.checkThat("Snapshot", answer, notNullValue());
                             found++;
+                            checkEclipseBundleQuery(answer);
                         }
                         finally
                         {
@@ -142,5 +150,83 @@ public class AcquireDumpTest
         }
         collector.checkThat("Available VMs", count, greaterThan(0));
         collector.checkThat("Available dumps from VMs", found, greaterThan(0));
+    }
+
+    /**
+     * This query requires an heap dump from a running Eclipse system to 
+     * test the Eclipse bundle query. Other test dumps from non-Eclipse programs won't work.
+     * @param snapshot
+     * @throws SnapshotException
+     */
+    private void checkEclipseBundleQuery(ISnapshot snapshot) throws SnapshotException
+    {
+        SnapshotQuery query = SnapshotQuery.parse("bundle_registry -groupby NONE", snapshot);
+        assertNotNull(query);
+        IResult result = query.execute(new VoidProgressListener());
+        assertNotNull(result);
+        IResultTree tree = (IResultTree) result;
+        int found = 0;
+        int f2 = 0;
+        for (Object o : tree.getElements())
+        {
+            IContextObject ctx = tree.getContext(o);
+            Object o2 = tree.getColumnValue(o, 0);
+            if (o2.toString().startsWith("org.eclipse.mat.tests "))
+            {
+                found++;
+            }
+            if (o2.toString().startsWith("org.eclipse.mat.api "))
+            {
+                List<?> l3 = tree.getChildren(o);
+                for (Object o3 : l3)
+                {
+                    Object o4 = tree.getColumnValue(o3, 0);
+                    if (o4.toString().startsWith("Dependencies"))
+                    {
+                        f2 |= 1;
+                        checkSubtree(tree, o3, 2, "org.eclipse.mat.report ", "Expected dependencies of org.eclipse.mat.api to include");
+                    }
+                    if (o4.toString().startsWith("Dependents"))
+                    {
+                        f2 |= 2;
+                        checkSubtree(tree, o3, 2, "org.eclipse.mat.parser ", "Expected dependendents of org.eclipse.mat.api to include");
+                    }
+                    if (o4.toString().startsWith("Extension Points"))
+                    {
+                        f2 |= 4;
+                        checkSubtree(tree, o3, 2, "org.eclipse.mat.api.factory", "Expected extension points of org.eclipse.mat.api to include");
+                    }
+                    if (o4.toString().startsWith("Extensions"))
+                    {
+                        f2 |= 8;
+                        checkSubtree(tree, o3, 2, "org.eclipse.mat.api.nameResolver", "Expected extensions of org.eclipse.mat.api to include");
+                    }
+                    if (o4.toString().startsWith("Used Services"))
+                    {
+                        f2 |= 16;
+                        checkSubtree(tree, o3, 1, "org.eclipse.osgi.service.debug.DebugOptions", "Expected used services of org.eclipse.mat.api to include");
+                    }
+                }
+            }
+        }
+        assertEquals("Expected to find a org.eclipse.mat.tests plugin", found, 1);
+        assertEquals("Expected Dependencies,Dependents, Extension Points, Extensions, Used Services from org.eclipse.mat.api", f2, 31);
+    }
+
+    private void checkSubtree(IResultTree tree, Object o3, int minElements, String toFind, String errMsg)
+    {
+        List<?> l5 = tree.getChildren(o3);
+        assertTrue(l5.size() >= minElements);
+        boolean foundItem = false;
+        for (Object o6 : l5)
+        {
+            Object o7 = tree.getColumnValue(o6, 0);
+            if (o7.toString().startsWith(toFind))
+            {
+                foundItem = true;
+            }
+            //System.out.println("Found "+o7+" "+errMsg);
+        }
+        assertTrue(errMsg+" "+toFind, foundItem);
     }
 }

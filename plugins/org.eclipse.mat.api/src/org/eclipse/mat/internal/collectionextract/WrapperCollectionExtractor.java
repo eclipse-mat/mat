@@ -115,7 +115,7 @@ public class WrapperCollectionExtractor implements ICollectionExtractor
         if (ec instanceof ExtractedMap)
             return (ExtractedMap) ec;
         else
-            throw new UnsupportedOperationException("not a map: " + coll.getDisplayName() + "; " + ec.getDisplayName());
+            throw new UnsupportedOperationException("not a map: " + coll.getDisplayName() + ec != null ? ("; " + ec.getDisplayName()) : "");
     }
 
     protected AbstractExtractedCollection extractCollection(IObject coll)
