@@ -139,7 +139,7 @@ public class OpenSnapshot
 
             // Extensions length is the number of types
             // plus 1 for "All Known Formats"
-            // plus 1 for the *.* wildcard
+            // plus 1 for the * wildcard (on Linux *.* doesn't find files without extensions)
             String[] filterExtensions = new String[types.size() + 2];
             String[] filterNames = new String[types.size() + 2];
 
@@ -170,7 +170,7 @@ public class OpenSnapshot
             }
 
             // Add in the wildcard
-            filterExtensions[types.size() + 1] = "*.*"; //$NON-NLS-1$
+            filterExtensions[types.size() + 1] = "*"; //$NON-NLS-1$
             filterNames[types.size() + 1] = Messages.OpenSnapshot_AllFiles;
 
             dialog.setFilterExtensions(filterExtensions);

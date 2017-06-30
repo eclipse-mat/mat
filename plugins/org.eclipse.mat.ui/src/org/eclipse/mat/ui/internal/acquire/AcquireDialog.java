@@ -218,7 +218,7 @@ public class AcquireDialog extends WizardPage
                         if (i >= 0)
                         {
                             dialog.getFilterExtensions();
-                            dialog.setFilterExtensions(new String[] { "*" + name.substring(i), "*.*" }); //$NON-NLS-1$ //$NON-NLS-2$
+                            dialog.setFilterExtensions(new String[] { "*" + name.substring(i), "*" }); //$NON-NLS-1$ //$NON-NLS-2$
                         }
                     }
                     dialog.setText(Messages.AcquireDialog_ChooseDestinationDirectoryAndFile);
