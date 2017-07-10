@@ -30,6 +30,7 @@ import org.eclipse.birt.chart.factory.RunTimeContext;
 import org.eclipse.birt.chart.model.Chart;
 import org.eclipse.birt.chart.model.attribute.ActionType;
 import org.eclipse.birt.chart.model.attribute.Bounds;
+import org.eclipse.birt.chart.model.attribute.Insets;
 import org.eclipse.birt.chart.model.attribute.TooltipValue;
 import org.eclipse.birt.chart.model.attribute.TriggerCondition;
 import org.eclipse.birt.chart.model.attribute.impl.BoundsImpl;
@@ -39,6 +40,7 @@ import org.eclipse.birt.chart.model.data.Action;
 import org.eclipse.birt.chart.model.data.Trigger;
 import org.eclipse.birt.chart.model.data.impl.ActionImpl;
 import org.eclipse.birt.chart.model.data.impl.TriggerImpl;
+import org.eclipse.birt.chart.model.layout.Legend;
 import org.eclipse.birt.chart.render.ActionRendererAdapter;
 import org.eclipse.birt.chart.script.IScriptClassLoader;
 import org.eclipse.birt.chart.util.PluginSettings;
@@ -70,9 +72,17 @@ public class HtmlPieChartRenderer implements IOutputter
             IDeviceRenderer render = ps.getDevice("dv.PNG"); //$NON-NLS-1$
             render.setProperty(IDeviceRenderer.FILE_IDENTIFIER, new File(context.getOutputDirectory(), imageFile));
 
-            Bounds bo = BoundsImpl.create(0, 0, 800, 350);
+            // Set size for chart
+            int width = 850, height = 350;
+            Bounds bo = BoundsImpl.create(0, 0, width, height);
             int resolution = render.getDisplayServer().getDpiResolution();
             bo.scale(72d / resolution);
+            
+            // Make a bit more room for long class names in the legend
+            Legend lg = chart.getLegend();
+            Insets is = lg.getInsets();
+            is.setLeft(is.getLeft() - 10);
+            lg.setMaxPercent(0.40);
 
             RunTimeContext rtc = new RunTimeContext();
             rtc.setScriptClassLoader(new IScriptClassLoader()
@@ -115,7 +125,7 @@ public class HtmlPieChartRenderer implements IOutputter
             imageMap = imageMap.replaceAll("/><area","><area").replaceFirst("/>$", ">"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
             String mapName = "chart" + context.getId() + "map"; //$NON-NLS-1$ //$NON-NLS-2$
             writer.append("<map name='").append(mapName).append("'>").append(imageMap).append("</map>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-            writer.append("<img src=\"").append(imageFile).append("\" width=\"800\" height=\"350\" usemap='#").append(mapName).append("' alt=\"\">"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            writer.append("<img src=\"").append(imageFile).append("\" width=\"" + width + "\" height=\"" + height + "\" usemap='#").append(mapName).append("' alt=\"\">"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
         }
         catch (LinkageError e)
         {
