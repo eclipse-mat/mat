@@ -29,7 +29,7 @@ public class NoContentCollectionExtractor implements ICollectionExtractor
 
     public Integer getSize(IObject coll) throws SnapshotException
     {
-        throw new IllegalArgumentException();
+        throw new IllegalArgumentException(coll.getTechnicalName());
     }
 
     public boolean hasCapacity()
@@ -39,7 +39,7 @@ public class NoContentCollectionExtractor implements ICollectionExtractor
 
     public Integer getCapacity(IObject coll) throws SnapshotException
     {
-        throw new IllegalArgumentException();
+        throw new IllegalArgumentException(coll.getTechnicalName());
     }
 
     public boolean hasExtractableContents()
@@ -59,7 +59,7 @@ public class NoContentCollectionExtractor implements ICollectionExtractor
 
     public IObjectArray extractEntries(IObject coll) throws SnapshotException
     {
-        throw new IllegalArgumentException();
+        throw new IllegalArgumentException(coll.getTechnicalName());
     }
 
     public Integer getNumberOfNotNullElements(IObject collection) throws SnapshotException

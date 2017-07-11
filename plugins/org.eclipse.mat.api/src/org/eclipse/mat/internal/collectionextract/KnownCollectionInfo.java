@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2016 SAP AG, IBM Corporation and others
+ * Copyright (c) 2008, 2017 SAP AG, IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,7 +25,6 @@ import java.util.List;
 import org.eclipse.mat.snapshot.extension.CollectionExtractionInfo;
 import org.eclipse.mat.snapshot.extension.ICollectionExtractorProvider;
 import org.eclipse.mat.snapshot.extension.JdkVersion;
-import org.eclipse.mat.snapshot.registry.CollectionExtractorProviderRegistry;
 
 public class KnownCollectionInfo implements ICollectionExtractorProvider
 {
@@ -42,10 +41,10 @@ public class KnownCollectionInfo implements ICollectionExtractorProvider
                     new CollectionExtractionInfo("java.util.concurrent.SynchronousQueue", new EmptyCollectionExtractor()), //$NON-NLS-1$
 
                     // these have a field indicating the size
-                    new CollectionExtractionInfo("java.util.concurrent.ConcurrentLinkedBlockingDeque", new LinkedListCollectionExtractor("count", "first.next")), //$NON-NLS-1$  //$NON-NLS-2$
-                    new CollectionExtractionInfo("java.util.concurrent.ConcurrentLinkedBlockingQueue", new LinkedListCollectionExtractor("count.value", "head.next")), //$NON-NLS-1$  //$NON-NLS-2$
-                    new CollectionExtractionInfo("java.util.concurrent.LinkedBlockingDeque", new LinkedListCollectionExtractor("count", "first.next")), //$NON-NLS-1$  //$NON-NLS-2$
-                    new CollectionExtractionInfo("java.util.concurrent.LinkedBlockingQueue", new LinkedListCollectionExtractor("count.value", "head.next")), //$NON-NLS-1$  //$NON-NLS-2$
+                    new CollectionExtractionInfo("java.util.concurrent.ConcurrentLinkedBlockingDeque", new LinkedListCollectionExtractor("count", "first.next")), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    new CollectionExtractionInfo("java.util.concurrent.ConcurrentLinkedBlockingQueue", new LinkedListCollectionExtractor("count.value", "head.next")), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    new CollectionExtractionInfo("java.util.concurrent.LinkedBlockingDeque", new LinkedListCollectionExtractor("count", "first.next")), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    new CollectionExtractionInfo("java.util.concurrent.LinkedBlockingQueue", new LinkedListCollectionExtractor("count.value", "head.next")), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
                     // these store the data in an array
                     new CollectionExtractionInfo("java.util.concurrent.CopyOnWriteArrayList", new FieldArrayCollectionExtractor("array")), // //$NON-NLS-1$ //$NON-NLS-2$
@@ -128,12 +127,12 @@ public class KnownCollectionInfo implements ICollectionExtractorProvider
                     // FIXME This is only approximate and just works for some
                     // small maps.
                     new CollectionExtractionInfo("java.util.concurrent.ConcurrentHashMap", JdkVersion.of(JAVA18, IBM18), new HashMapCollectionExtractor("baseCount", "table", "key", "val")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
-                    new CollectionExtractionInfo("java.util.concurrent.ConcurrentHashMap", JdkVersion.except(JAVA18, IBM18), new ConcurrentHashMapCollectionExtractor("segments", "key", "value")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    new CollectionExtractionInfo("java.util.concurrent.ConcurrentHashMap", JdkVersion.except(JAVA18, IBM18), new ConcurrentHashMapCollectionExtractor("segments", "key", "value")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
-                    new CollectionExtractionInfo("java.util.concurrent.ConcurrentSkipListSet",
-                                    new ConcurrentSkipListSetCollectionExtractor("m.head.node", "key", "value")),
-                    new CollectionExtractionInfo("java.util.concurrent.ConcurrentSkipListMap",
-                                    new ConcurrentSkipListCollectionExtractor("head.node", "key", "value")),
+                    new CollectionExtractionInfo("java.util.concurrent.ConcurrentSkipListSet", //$NON-NLS-1$
+                                    new ConcurrentSkipListSetCollectionExtractor("m.head.node", "key", "value")), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    new CollectionExtractionInfo("java.util.concurrent.ConcurrentSkipListMap", //$NON-NLS-1$
+                                    new ConcurrentSkipListCollectionExtractor("head.node", "key", "value")), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
                     // tree maps
                     new CollectionExtractionInfo("java.util.TreeMap", JdkVersion.except(IBM16), new TreeMapCollectionExtractor("size", "key", "value")), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
