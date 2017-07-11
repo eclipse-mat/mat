@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2015 IBM Corporation.
+ * Copyright (c) 2012, 2017 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -148,9 +148,17 @@ class ArrayIndexExpression extends Expression
                 objs = coll.extractEntryIds();
                 sr = new SoftReference<int[]>(objs);
             }
-            if (i1 + index >= objs.length) 
+            if (i1 + index >= i2)
             { 
-                throw new IllegalArgumentException((i1 + index) + " >= " + objs.length +" " + coll.getTechnicalName()); 
+                throw new IllegalArgumentException(index + " >= " + (i2 - i1) +" " + coll.getTechnicalName()); //$NON-NLS-1$ //$NON-NLS-2$
+            }
+            if (i1 + index >= objs.length)
+            { 
+                /*
+                 * Currently the CollectionsExtractor only returns non-null entries, so the number of entries
+                 * can be less than the size, so pad at the end with nulls.
+                 */
+                return null;
             }
             int objectId = objs[i1 + index];
             try

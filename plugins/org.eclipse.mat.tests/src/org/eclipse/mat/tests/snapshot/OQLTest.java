@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2017 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -923,6 +923,18 @@ public class OQLTest
     public void testArrayList() throws SnapshotException
     {
         int objs[] = (int[])execute("select objects s[0:-1] from java.util.ArrayList s");
+        assertThat("Multiple objects expected", objs.length, greaterThanOrEqualTo(2));
+    }
+    
+    /**
+     * Test extracting objects from a collection.
+     * Check we can read the last element from a collection.
+     * @throws SnapshotException
+     */
+    @Test
+    public void testArrayListGet() throws SnapshotException
+    {
+        int objs[] = (int[])execute("select objects s[0:-1][-1:-1][0] from java.util.ArrayList s");
         assertThat("Multiple objects expected", objs.length, greaterThanOrEqualTo(2));
     }
     

@@ -27,12 +27,7 @@
 	</target>
 	<target name="javacc" depends="pre" description="Generates java files using javacc. Requires javacc.jar (from javacc-4.1.jar or javacc-5.0.jar) to be added to project root.">
 		<mkdir dir="${temp.dir}" />
-		<javacc target="src/org/eclipse/mat/parser/internal/oql/parser/OQLParser.jj" javacchome="." />
-		<copy toDir="${temp.dir}">
-			<fileset dir="src/org/eclipse/mat/parser/internal/oql/parser">
-				<include name="*.java" />
-			</fileset>
-		</copy>
+		<javacc target="src/org/eclipse/mat/parser/internal/oql/parser/OQLParser.jj" javacchome="." outputdirectory="${temp.dir}" />
 		<copy toDir="src/org/eclipse/mat/parser/internal/oql/parser">
 			<fileset dir="${temp.dir}">
 				<include name="*.java" />
