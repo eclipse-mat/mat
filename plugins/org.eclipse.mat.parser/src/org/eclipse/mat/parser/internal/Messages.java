@@ -123,6 +123,8 @@ public class Messages extends NLS
 	public static String OQLParser_Encountered_X_at_line_X_column_X_Was_expecting_one_of_X;
 	public static String OQLParser_Missing_return_statement_in_function;
 	
+	public static String ThreadStackHelper_InvalidThread;
+	
     static
     {
         // initialize resource bundle

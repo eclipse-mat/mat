@@ -18,15 +18,18 @@ import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IThreadStack;
+import org.eclipse.mat.util.MessageUtil;
 
 /* package */class ThreadStackHelper
 {
+    private static final Logger logger = Logger.getLogger(ThreadStackHelper.class.getCanonicalName());
 
     /* package */static HashMapIntObject<IThreadStack> loadThreadsData(ISnapshot snapshot) throws SnapshotException
     {
@@ -83,9 +86,19 @@ import org.eclipse.mat.snapshot.model.IThreadStack;
 
                     if (threadAddress != -1)
                     {
-                        int threadId = snapshot.mapAddressToId(threadAddress);
-                        IThreadStack stack = new ThreadStackImpl(threadId, buildFrames(lines, line2locals));
-                        threadId2stack.put(threadId, stack);
+                        try
+                        {
+                            int threadId = snapshot.mapAddressToId(threadAddress);
+                            IThreadStack stack = new ThreadStackImpl(threadId, buildFrames(lines, line2locals));
+                            threadId2stack.put(threadId, stack);
+                        }
+                        catch (SnapshotException se)
+                        {
+                            // See
+                            // https://bugs.eclipse.org/bugs/show_bug.cgi?id=520908
+                            logger.severe(MessageUtil.format(Messages.ThreadStackHelper_InvalidThread,
+                                            "0x" + Long.toHexString(threadAddress), se.getLocalizedMessage())); //$NON-NLS-1$
+                        }
                     }
                 }
 
