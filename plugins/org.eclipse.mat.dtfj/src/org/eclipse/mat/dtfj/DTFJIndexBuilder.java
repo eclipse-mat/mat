@@ -6918,6 +6918,19 @@ public class DTFJIndexBuilder implements IIndexBuilder
                                 Messages.DTFJIndexBuilder_UnableToFindClassLoader, name, format(claddr)), null);
             }
             loader = getLoaderAddress(load, bootLoaderAddress);
+            
+            int loaderId = indexToAddress.reverse(loader);
+            
+            if (loaderId < 0)
+            {
+                // If we can't find the loader ID, then we'll run into issues later
+                // in GarbageCleaner (see bug 464199), so we'll just raise an error
+                // and set the classloader to the bootloader.
+                listener.sendUserMessage(Severity.ERROR, MessageFormat.format(
+                                Messages.DTFJIndexBuilder_ClassLoaderAtAddressNotFound, format(loader), loaderId,
+                                format(claddr), indexToAddress.reverse(claddr), name), null);
+                loader = fixBootLoaderAddress(bootLoaderAddress, bootLoaderAddress);
+            }
         }
         catch (CorruptDataException e)
         {
