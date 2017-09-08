@@ -46,10 +46,12 @@ public final class PrettyPrinter
             if (count.intValue() == 0)
                 return ""; //$NON-NLS-1$
 
+            // IBM java.lang.String implementation may have count but not offset
+            Integer offset = 0;
             Object offsetObj = stringObject.resolveValue("offset"); //$NON-NLS-1$
-            if (!(offsetObj instanceof Integer))
-                return null;
-            Integer offset = (Integer) offsetObj;
+            if ((offsetObj instanceof Integer)) {
+                offset = (Integer) offsetObj;
+            }
 
             return arrayAsString(charArray, offset, count, limit);
         }
