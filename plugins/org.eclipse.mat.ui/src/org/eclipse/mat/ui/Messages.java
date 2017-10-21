@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010,2013 SAP AG and others.
+ * Copyright (c) 2010,2017 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -58,6 +58,8 @@ public class Messages extends NLS
     public static String CompareTablesPane_PercentageDifferenceToPrecedingTable;
     public static String CompareTablesPane_SelectDisplayedColumnsTooltip;
 	public static String Copy_ErrorInExport;
+    public static String CopyActions_CopyingToClipboard;
+    public static String CopyOQL_Copying;
     public static String CopyOQL_TooBig;
     public static String DerivedDataJob_CalculatingRetainedSizes;
     public static String DominatorPane_Group;
@@ -292,6 +294,8 @@ public class Messages extends NLS
     public static String RuntimeSelector_Snapshot_Identifier;
     public static String SaveValueAsQuery_FileExists;
     public static String SaveValueAsQuery_Overwrite;
+    public static String SaveValueAsQuery_Saving;
+    public static String SaveValueAsQuery_SavingBinaryValue;
     public static String SaveValueAsQuery_UnrecognizedPrimitiveArrayType;
     public static String SearchOnTyping_Exception;
     public static String SearchOnTyping_searching;

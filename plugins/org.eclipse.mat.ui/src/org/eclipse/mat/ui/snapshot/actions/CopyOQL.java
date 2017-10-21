@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 IBM Corporation.
+ * Copyright (c) 2011,2017 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Andrew Johnson - initial API and implementation
+ *    Andrew Johnson - progress indicators
  *******************************************************************************/
 package org.eclipse.mat.ui.snapshot.actions;
 
@@ -43,6 +44,7 @@ public class CopyOQL implements IQuery
     {
         String lineSeparator = System.getProperty("line.separator"); //$NON-NLS-1$
         
+        listener.beginTask(Messages.CopyOQL_Copying, elements.size());
         final StringBuilder buf = new StringBuilder(128);
         for (IContextObject element : elements)
         {
@@ -71,12 +73,16 @@ public class CopyOQL implements IQuery
                     OQL.union(buf, OQL.forObjectId(id));
                 }
             }
+            listener.worked(1);
             if (buf.length() > 60000)
             {
                 // A huge OQL statement will take too long to build and execute, so give up now.
                 throw new SnapshotException(Messages.CopyOQL_TooBig);
             }
+            if (listener.isCanceled())
+                break;
         }
+        listener.done();
 
         buf.append(lineSeparator);
 

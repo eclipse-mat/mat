@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others.
+ * Copyright (c) 2008, 2017 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson - progress indicators
  *******************************************************************************/
 package org.eclipse.mat.ui.snapshot.actions;
 
@@ -56,9 +57,9 @@ public class SaveValueAsQuery implements IQuery
         checkIfFileExists();
 
         if (objects.size() > 1)
-            writeStringData();
+            writeStringData(listener);
         else if (objects.size() == 1)
-            writeRawData();
+            writeRawData(listener);
 
         // let the UI ignore this query
         throw new IProgressListener.OperationCanceledException();
@@ -97,12 +98,13 @@ public class SaveValueAsQuery implements IQuery
         }
     }
 
-    private void writeStringData() throws Exception
+    private void writeStringData(IProgressListener listener) throws Exception
     {
         FileOutputStream out = new FileOutputStream(file);
 
         try
         {
+            listener.beginTask(Messages.SaveValueAsQuery_Saving, objects.size());
             PrintWriter writer = new PrintWriter(new BufferedWriter(new OutputStreamWriter(out, System
                             .getProperty("file.encoding")))); //$NON-NLS-1$
             try
@@ -127,16 +129,15 @@ public class SaveValueAsQuery implements IQuery
                     }
                     else
                     {
-                        IPrimitiveArray charArray = info.getCharArray();
-                        final int length = charArray.getLength();
-                        final int end = info.getOffset() + info.getCount();
+                        final int length = info.getLength();
+                        final int end = Math.min(info.getOffset() + info.getCount(), length);
 
                         int offset = info.getOffset();
 
                         while (offset < end)
                         {
-                            int read = Math.min(4092, length - offset);
-                            char[] array = (char[]) charArray.getValueArray(offset, read);
+                            int read = Math.min(4092, end - offset);
+                            char[] array = info.getChars(offset, read);
 
                             writer.append(new String(array));
 
@@ -145,6 +146,9 @@ public class SaveValueAsQuery implements IQuery
                     }
 
                     isFirst = false;
+                    listener.worked(1);
+                    if (listener.isCanceled())
+                        break;
                 }
 
                 writer.flush();
@@ -156,11 +160,12 @@ public class SaveValueAsQuery implements IQuery
         }
         finally
         {
+            listener.done();
             out.close();
         }
     }
 
-    private void writeRawData() throws Exception
+    private void writeRawData(IProgressListener listener) throws Exception
     {
         IContextObject obj = objects.get(0);
         if (obj.getObjectId() < 0)
@@ -169,7 +174,7 @@ public class SaveValueAsQuery implements IQuery
         IObject object = snapshot.getObject(obj.getObjectId());
         if (!(object instanceof IPrimitiveArray))
         {
-            writeStringData();
+            writeStringData(listener);
             return;
         }
 
@@ -183,7 +188,7 @@ public class SaveValueAsQuery implements IQuery
             try 
             {
                 int size = array.getLength();
-
+                listener.beginTask(Messages.SaveValueAsQuery_SavingBinaryValue, size);
                 int offset = 0;
 
                 while (offset < size)
@@ -254,12 +259,16 @@ public class SaveValueAsQuery implements IQuery
                     }
 
                     offset += read;
+                    listener.worked(1);
+                    if (listener.isCanceled())
+                        break;
                 }
 
                 writer.flush();
             }
             finally
             {
+                listener.done();
                 writer.close();
             }
         }

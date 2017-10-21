@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010,2011 IBM Corporation.
+ * Copyright (c) 2010,2017 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,17 +7,26 @@
  *
  * Contributors:
  *    IBM Corporation - initial API and implementation
+ *    Andrew Johnson - test class specific name for Strings etc.
  *******************************************************************************/
 package org.eclipse.mat.tests.snapshot;
 
+import static org.hamcrest.CoreMatchers.either;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeThat;
 import static org.junit.Assume.assumeTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -87,6 +96,7 @@ public class GeneralSnapshotTests
             {TestSnapshots.IBM_JDK142_32BIT_SYSTEM, Stacks.FRAMES},
             {TestSnapshots.ORACLE_JDK7_21_64BIT, Stacks.FRAMES_AND_OBJECTS},
             {TestSnapshots.ORACLE_JDK8_05_64BIT, Stacks.FRAMES_AND_OBJECTS},
+            {TestSnapshots.ORACLE_JDK9_01_64BIT, Stacks.FRAMES_AND_OBJECTS},
         });
     }
 
@@ -384,6 +394,87 @@ public class GeneralSnapshotTests
                 }
             }
         }
+    }
+    
+    /**
+     * Test value of Strings
+     */
+    @Test
+    public void stringToString() throws SnapshotException
+    {
+        int objects = 0;
+        int printables = 0;
+        int escaped = 0;
+        assumeThat(snapshot.getSnapshotInfo().getProperty("$heapFormat"), not(equalTo((Serializable)"DTFJ-PHD")));
+        Collection<IClass>tClasses = snapshot.getClassesByName("java.lang.String", true);
+        for (IClass cls : tClasses)
+        {
+            for (int id : cls.getObjectIds()) {
+                IObject o = snapshot.getObject(id);
+                ++objects;
+                String cn = o.getClassSpecificName();
+                if (cn != null && cn.length() > 0)
+                {
+                    ++printables;
+                    if (cn.matches(".*\\\\u[0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f].*"))
+                    {
+                        escaped++;
+                    }
+                }
+            }
+        }
+        // Check most ofthe strings are printable
+        assertThat(printables, greaterThanOrEqualTo(objects * 2/ 3));
+        // Check for at least one escape character if there are any Strings
+        assertThat(escaped, either(greaterThan(0)).or(equalTo(objects)));
+    }
+    
+    /**
+     * Test value of Strings
+     */
+    @Test
+    public void stringBuilderToString() throws SnapshotException
+    {
+        int objects = 0;
+        int printables = 0;
+        assumeThat(snapshot.getSnapshotInfo().getProperty("$heapFormat"), not(equalTo((Serializable)"DTFJ-PHD")));
+        Collection<IClass>tClasses = snapshot.getClassesByName("java.lang.StringBuilder", true);
+        if (tClasses != null) for (IClass cls : tClasses)
+        {
+            for (int id : cls.getObjectIds()) {
+                IObject o = snapshot.getObject(id);
+                String cn = o.getClassSpecificName();
+                if (cn != null && cn.length() > 0)
+                {
+                    ++printables;
+                }
+            }
+        }
+        assertThat(printables, greaterThanOrEqualTo(objects * 2 / 3));
+    }
+    
+    /**
+     * Test value of StringBuffers
+     */
+    @Test
+    public void stringBufferToString() throws SnapshotException
+    {
+        int objects = 0;
+        int printables = 0;
+        assumeThat(snapshot.getSnapshotInfo().getProperty("$heapFormat"), not(equalTo((Serializable)"DTFJ-PHD")));
+        Collection<IClass>tClasses = snapshot.getClassesByName("java.lang.StringBuffer", true);
+        for (IClass cls : tClasses)
+        {
+            for (int id : cls.getObjectIds()) {
+                IObject o = snapshot.getObject(id);
+                String cn = o.getClassSpecificName();
+                if (cn != null && cn.length() > 0)
+                {
+                    ++printables;
+                }
+            }
+        }
+        assertThat(printables, greaterThanOrEqualTo(objects * 2 / 3));
     }
     
     /**

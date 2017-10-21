@@ -31,6 +31,12 @@ public class CreateCollectionDump
     EmptyListCollectionTestData emptyListCollectionTestData = new EmptyListCollectionTestData();
     EmptyNonListCollectionTestData emptyNonListCollectionTestData = new EmptyNonListCollectionTestData();
     EmptyMapTestData emptyMapTestData = new EmptyMapTestData();
+    String s1 = "My String";
+    StringBuilder sl1 = new StringBuilder(s1);
+    StringBuffer sf1 = new StringBuffer(s1);
+    String s2 = "My String with e-acute \u00E9 and Greek Delta \u0394";
+    StringBuilder sl2 = new StringBuilder(s2);
+    StringBuffer sf2 = new StringBuffer(s2);
     
     public static void main(String[] args) throws Exception
     {
