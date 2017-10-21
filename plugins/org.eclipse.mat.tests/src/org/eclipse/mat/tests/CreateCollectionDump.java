@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 IBM Corporation
+ * Copyright (c) 2014, 2017 IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Andrew Johnson - initial API and implementation
+ *    Andrew Johnson - add Strings for decoding tests
  *******************************************************************************/
 package org.eclipse.mat.tests;
 
@@ -31,6 +32,13 @@ public class CreateCollectionDump
     EmptyListCollectionTestData emptyListCollectionTestData = new EmptyListCollectionTestData();
     EmptyNonListCollectionTestData emptyNonListCollectionTestData = new EmptyNonListCollectionTestData();
     EmptyMapTestData emptyMapTestData = new EmptyMapTestData();
+    // Add Strings for testing class specific name printing
+    String s1 = "My String";
+    StringBuilder sl1 = new StringBuilder(s1);
+    StringBuffer sf1 = new StringBuffer(s1);
+    String s2 = "My String with e-acute \u00E9 and Greek Delta \u0394";
+    StringBuilder sl2 = new StringBuilder(s2);
+    StringBuffer sf2 = new StringBuffer(s2);
     
     public static void main(String[] args) throws Exception
     {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2016 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2017 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *    IBM Corporation - clean up snapshots better
+ *    Andrew Johnson - JDK 9 snapshot
  *******************************************************************************/
 package org.eclipse.mat.tests;
 
@@ -46,6 +47,7 @@ public class TestSnapshots
     public static final String ORACLE_JDK7_21_64BIT_HPROFAGENT = "dumps/oracle_jdk7_21_hprofagent.hprof";
     public static final String ORACLE_JDK7_21_64BIT = "dumps/oracle_jdk7_21_x64.hprof";
     public static final String ORACLE_JDK8_05_64BIT = "dumps/oracle_jdk8_05_x64.hprof";
+    public static final String ORACLE_JDK9_01_64BIT = "dumps/oracle_jdk9_01_x64.hprof";
     public static final String HISTOGRAM_SUN_JDK6_18_32BIT = "dumps/histogram_sun_jdk6_18_x32.txt";
     public static final String HISTOGRAM_SUN_JDK5_13_32BIT = "dumps/histogram_sun_jdk5_13_x32.txt";
     public static final String HISTOGRAM_SUN_JDK6_18_64BIT = "dumps/histogram_sun_jdk6_18_x64.txt";

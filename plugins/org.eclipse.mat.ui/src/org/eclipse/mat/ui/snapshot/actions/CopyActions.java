@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2017 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson - updates for Java 9 and progress indicators
  *******************************************************************************/
 package org.eclipse.mat.ui.snapshot.actions;
 
@@ -21,7 +22,7 @@ import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
-import org.eclipse.mat.snapshot.model.IPrimitiveArray;
+import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
@@ -46,6 +47,7 @@ public abstract class CopyActions implements IQuery
             final StringBuilder buf = new StringBuilder(128);
             String lineSeparator = System.getProperty("line.separator"); //$NON-NLS-1$
 
+            listener.beginTask(Messages.CopyActions_CopyingToClipboard, elements.size());
             for (IContextObject argument : elements)
             {
                 int objectId = argument.getObjectId();
@@ -59,7 +61,11 @@ public abstract class CopyActions implements IQuery
 
                     appendValue(buf, object);
                 }
+                listener.worked(1);
+                if (listener.isCanceled())
+                    break;
             }
+            listener.done();
 
             if (buf.length() > 0)
             {
@@ -120,17 +126,15 @@ public abstract class CopyActions implements IQuery
 
             if (info != null)
             {
-                IPrimitiveArray charArray = info.getCharArray();
-                final int length = charArray.getLength();
-                final int end = info.getOffset() + info.getCount();
+                final int length = info.getLength();
+                final int end = Math.min(info.getOffset() + info.getCount(), length);
 
                 int offset = info.getOffset();
 
                 while (offset < end)
                 {
-                    int read = Math.min(4092, length - offset);
-                    char[] array = (char[]) charArray.getValueArray(offset, read);
-
+                    int read = Math.min(4092, end - offset);
+                    char[] array = info.getChars(offset, read);
                     buf.append(new String(array));
 
                     offset += read;
