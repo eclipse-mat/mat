@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d12b7196_e114d016",
+        "filename": "plugins/org.eclipse.mat.ibmdumps/src/org/eclipse/mat/ibmvm/acquire/IBMDumpProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2018-04-22T19:59:25Z",
+      "side": 1,
+      "message": "Remove some extra spaces at the ends of lines.",
+      "revId": "129750d63dc5c958dd476d3dbb09a8bed45d14ea",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "37792aa1_01602b51",
+        "filename": "plugins/org.eclipse.mat.ibmdumps/src/org/eclipse/mat/ibmvm/agent/DumpAgent.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2018-04-22T19:59:25Z",
+      "side": 1,
+      "message": "Remove extra spaces at ends of lines.",
+      "revId": "129750d63dc5c958dd476d3dbb09a8bed45d14ea",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
