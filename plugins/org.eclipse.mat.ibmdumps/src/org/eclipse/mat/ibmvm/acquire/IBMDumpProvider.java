@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2015 IBM Corporation
+ * Copyright (c) 2010, 2018 IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    IBM Corporation - initial implementation
+ *    IBM Corporation/Andrew Johnson - Updates to use reflection for non-standard classes 
  *******************************************************************************/
 package org.eclipse.mat.ibmvm.acquire;
 
@@ -15,6 +16,9 @@ import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,10 +37,11 @@ import org.eclipse.mat.snapshot.acquire.VmInfo;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.IProgressListener.Severity;
 
-import com.ibm.tools.attach.AgentInitializationException;
-import com.ibm.tools.attach.AgentLoadException;
-import com.ibm.tools.attach.VirtualMachine;
-import com.ibm.tools.attach.VirtualMachineDescriptor;
+//import com.ibm.tools.attach.AgentInitializationException;
+//import com.ibm.tools.attach.AgentLoadException;
+//import com.ibm.tools.attach.VirtualMachine;
+//import com.ibm.tools.attach.VirtualMachineDescriptor;
+//import com.ibm.tools.attach.spi.AttachProvider;
 
 /**
  * Base class for generating dumps on IBM VMs.
@@ -49,6 +54,367 @@ import com.ibm.tools.attach.VirtualMachineDescriptor;
 @Help("help for IBM Dump (using attach API)")
 public class IBMDumpProvider extends BaseProvider
 {
+    /**
+     * Wrapper class for com.ibm.tools.attach/com.sun.tools.attach version. 
+     */
+    static class AgentLoadException extends Exception
+    {
+        private static final long serialVersionUID = 1L;
+
+        /**
+         * Construct the exception from the 
+         * com.ibm.tools.attach.AgentLoadException or
+         * com.sun.tools.attach.AgentLoadException object.
+         * @param e
+         */
+        AgentLoadException(Throwable e)
+        {
+            super(e.getMessage());
+            initCause(e);
+        }
+    }
+    
+    /**
+     * Wrapper class for com.ibm.tools.attach/com.sun.tools.attach version. 
+     */
+    static class AgentInitializationException extends Exception
+    {
+        private static final long serialVersionUID = 1L;
+
+        /*
+         * Construct the exception from the 
+         * com.ibm.tools.attach.AgentInitializationException or
+         * com.sun.tools.attach.AgentInitializationException object.
+         */
+        AgentInitializationException(Throwable e)
+        {
+            super(e.getMessage());
+            initCause(e);
+        }
+        
+        int returnValue()
+        {
+            return (int)VirtualMachine.call(getCause(), "returnValue");
+        }
+    }
+    
+    /**
+     * Wrapper class for com.ibm.tools.attach/com.sun.tools.attach version. 
+     */
+    static class VirtualMachineDescriptor
+    {
+        String name;
+        String id;
+        String displayName;
+        /** A wrapper version of the provider */
+        AttachProvider pr;
+        /** The wrapped object */
+        Object vmd;
+        
+        /**
+         * Construct the exception from the 
+         * com.ibm.tools.attach.VirtualMachineDescriptor or
+         * com.sun.tools.attach.VirtualMachineDescriptor object.
+         * @param vmd The object to wrap.
+         */
+        VirtualMachineDescriptor(Object vmd)
+        {
+            this.vmd = vmd;
+            this.pr = new AttachProvider(VirtualMachine.call(vmd, "provider"));
+            this.id = (String)VirtualMachine.call(vmd, "id");
+            this.displayName = (String)(String)VirtualMachine.call(vmd, "displayName");
+        }
+
+        String displayName()
+        {
+            return displayName;
+        }
+        
+        String id()
+        {
+            return id;
+        }
+        
+        AttachProvider provider()
+        {
+            return pr;
+        }
+    }
+    
+    /**
+     * Wrapper class for com.ibm.tools.attach/com.sun.tools.attach version. 
+     */
+    static class AttachProvider
+    {
+        /** The wrapper object */
+        Object ap;
+        
+        /**
+         * Construct a wrapper instance from
+         * from the com.ibm or com.sun version:
+         * com.ibm.tools.attach.AttachProvider or 
+         * com.sun.tools.attach.AttachProvider 
+         * @param o the object to wrap
+         */
+        AttachProvider(Object o) {
+            ap = o;
+        }
+        
+        /**
+         * Attach to the virtual machine
+         * @param vmd A wrapped version of the descriptor
+         * @return a wrapped version of the VirtualMachine
+         * @throws IOException
+         */
+        VirtualMachine attachVirtualMachine(VirtualMachineDescriptor vmd) throws IOException /*,AttachNotSupportedException */
+        {
+            Object o = VirtualMachine.call(ap, "attachVirtualMachine", vmd.vmd);
+            return new VirtualMachine(o);
+        }
+        
+        String name()
+        {
+            return (String)VirtualMachine.call(ap, "name");
+        }
+        
+        String type()
+        {
+            return (String)VirtualMachine.call(ap, "type");
+        }
+    }
+    
+    /**
+     * Wrapper class for com.ibm.tools.attach/com.sun.tools.attach version. 
+     */
+    static class VirtualMachine
+    {
+        /**
+         * Helper for converting exceptions.
+         * @param e The exception
+         * @param classname Detect if e or a superclass class has this name.
+         * @return
+         */
+        static boolean isSubclassOf(Throwable e, String classname)
+        {
+            for (Class<?> o = e.getClass(); o != null; o = o.getSuperclass())
+            {
+                if (o.getSimpleName().equals(classname))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        
+        /**
+         * Helper to call a method via reflection.
+         * @param o The object or null for static methods.
+         * @param method The method name
+         * @param args The arguments
+         * @return
+         */
+        static Object call(Object o, String method, Object ...args)
+        {
+            // Find the argument types.
+            Class<?> types[] = new Class[args.length];
+            for (int i = 0; i < args.length; ++i)
+            {
+                types[i] = args[i].getClass();
+            }
+            Method m = null;
+            Method ms[];
+            Class<? extends Object>cls;
+            // Presume a class object is for a static method
+            if (o instanceof Class)
+            {
+                cls = ((Class<?>)o);
+            }
+            else
+            {
+                cls = o.getClass();
+            }
+            // Find a public class we can call methods from
+            while (!Modifier.isPublic(cls.getModifiers()))
+            {
+                cls = cls.getSuperclass();
+            }
+            ms = cls.getMethods();
+            // Don't worry about interfaces for the moment
+            l: for (Method m1 : ms)
+            {
+                int mods = m1.getModifiers();
+                if (m1.getName().equals(method) && m1.getParameterTypes().length == types.length && Modifier.isPublic(mods) && Modifier.isPublic(m1.getDeclaringClass().getModifiers()))
+                {
+                    // Match the parameters
+                    for (int i = 0; i < types.length; ++i)
+                    {
+                        Class<?> t = m1.getParameterTypes()[i];
+                        if (!t.isAssignableFrom(types[i]))
+                        {
+                            continue l;
+                        }
+                    }
+                    if (m == null)
+                    {
+                        m = m1;
+                    }
+                    else
+                    {
+                        // duplicate, so uncertain
+                        m = null;
+                        break;
+                    }
+                }
+            }
+            // Not found or duplicate, so do direct search and generate error if
+            // needed
+            if (m == null)
+            {
+                try
+                {
+                    if (o instanceof Class)
+                    {
+                        m = ((Class<?>) o).getMethod(method, types);
+                    }
+                    else
+                    {
+                        // This might not work if the argument is a superclass, or the parameter is an interface
+                        m = o.getClass().getMethod(method, types);
+                    }
+                }
+                catch (NoSuchMethodException e)
+                {
+                    // Fix up the error
+                    LinkageError l = new LinkageError();
+                    l.initCause(e);
+                    throw l;
+                }
+            }
+            Object ret;
+            try
+            {
+                ret = m.invoke(o, args);
+            }
+            catch (IllegalAccessException e)
+            {
+                throw new RuntimeException("Object:"+o+" method:"+m+" exception:"+e);
+            }
+            catch (InvocationTargetException e)
+            {
+                throw new RuntimeException(e);
+            }
+            return ret;
+        }
+        
+        /** The object which has been wrapped */
+        Object vm;
+        
+        /**
+         * Wrap a com.ibm.tools.attach.VirtualMachine or
+         * com.sun.tools.attach.VirtualMachine object
+         * @param o
+         */
+        VirtualMachine(Object o)
+        {
+            vm = o;
+        }
+        
+        /**
+         * List all the VMs
+         * @return a list of wrapped versions of the VMs
+         */
+        static List<VirtualMachineDescriptor> list()
+        {
+            Class<?> c1 = getStaticClass();
+            List<?>l = (List<?>)call(c1, "list");
+            List<VirtualMachineDescriptor>ret = new ArrayList<VirtualMachineDescriptor>();
+            for (Object o : l)
+            {
+                VirtualMachineDescriptor vmd1 = new VirtualMachineDescriptor(o);
+                ret.add(vmd1);
+            }
+            return ret;
+        }
+        
+        /**
+         * Load an agent into the VM
+         * @param jar
+         * @param command
+         * @throws IOException
+         * @throws AgentLoadException1
+         * @throws AgentInitializationException1
+         */
+        public void loadAgent(String jar, String command) throws IOException, AgentLoadException, AgentInitializationException
+        {
+            try
+            {
+                call(vm, "loadAgent", jar, command);
+            } 
+            catch (RuntimeException e)
+            {
+                if (e.getCause() instanceof InvocationTargetException)
+                {
+                    Throwable t = e.getCause().getCause();
+                    // Change the type
+                    if (isSubclassOf(t, "AgentLoadException"))
+                    {
+                        throw new AgentLoadException(e.getCause().getCause());
+                    }
+                    if (isSubclassOf(t, "AgentInitializationException"))
+                    {
+                        throw new AgentInitializationException(e.getCause().getCause());
+                    }
+                }
+                // Rethrow
+                throw e;
+            }
+        }
+        static VirtualMachine attach(String nm) throws IOException
+        {
+            Class<?> c1 = getStaticClass();
+            Object o = call(c1, "attach", nm);
+            return new VirtualMachine(o);
+        }
+        
+        /**
+         * Find out which version of the real class we are using.
+         * @return
+         * @throws LinkageError
+         */
+        private static Class<?> getStaticClass() throws LinkageError
+        {
+            Class<?> c1;
+            try
+            {
+                c1 = Class.forName("com.ibm.tools.attach.VirtualMachine");
+            }
+            catch (ClassNotFoundException e)
+            {
+                try
+                {
+                    c1 = Class.forName("com.sun.tools.attach.VirtualMachine");
+                }
+                catch (ClassNotFoundException e2)
+                {
+                    LinkageError l = new LinkageError();
+                    l.initCause(e2);
+                    throw l;
+                }
+            }
+            return c1;
+        }
+        
+        Properties getSystemProperties()
+        {
+            return (Properties)call(vm, "getSystemProperties");
+        }
+        
+        void detach()
+        {
+            call(vm, "detach");
+        }
+    }
+
     /**
      * Helper class to load an agent (blocking call)
      * allowing the main thread to monitor its progress

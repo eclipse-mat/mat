@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 IBM Corporation
+ * Copyright (c) 2010, 2018 IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,9 +7,12 @@
  *
  * Contributors:
  *    IBM Corporation - initial implementation
+ *    IBM Corporation/Andrew Johnson - Updates to use reflection for non-standard classes 
  *******************************************************************************/
 package org.eclipse.mat.ibmvm.agent;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.regex.Pattern;
 
 /**
@@ -31,27 +34,34 @@ public class DumpAgent {
      * @param arg
      *            E.g. "system", "heap+java"
      */
-    public static void agentmain(String arg)
+    public static void agentmain(String arg) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException
     {
         String args[] = arg.split(Pattern.quote(SEPARATOR));
+        Class<? extends Object>dumpcls = Class.forName("com.ibm.jvm.Dump");
         for (String a : args)
         {
             if (JAVA.equals(a))
             {
-                com.ibm.jvm.Dump.JavaDump();
+                //com.ibm.jvm.Dump.JavaDump();
+                Method m = dumpcls.getMethod("JavaDump");
+                m.invoke(null);
             }
             else if (HEAP.equals(a))
             {
-                com.ibm.jvm.Dump.HeapDump();
+                //com.ibm.jvm.Dump.HeapDump();
+                Method m = dumpcls.getMethod("HeapDump");
+                m.invoke(null);
             }
             else if (SYSTEM.equals(a))
             {
-                com.ibm.jvm.Dump.SystemDump();
+                //com.ibm.jvm.Dump.SystemDump();
+                Method m = dumpcls.getMethod("SystemDump");
+                m.invoke(null);
             }
         }
     }
 
-    public static void main(String args[])
+    public static void main(String args[]) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException
     {
         System.out.println("Test generating dumps"); //$NON-NLS-1$
         agentmain(args.length > 0 ? args[0] : ""); //$NON-NLS-1$
