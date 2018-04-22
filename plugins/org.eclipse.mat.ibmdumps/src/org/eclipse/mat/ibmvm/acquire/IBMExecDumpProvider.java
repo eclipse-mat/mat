@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2015 IBM Corporation
+ * Copyright (c) 2010, 2018 IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    IBM Corporation - initial implementation
+ *    IBM Corporation/Andrew Johnson - updates for calling com.ibm/com.sun classes via reflection
  *******************************************************************************/
 package org.eclipse.mat.ibmvm.acquire;
 
@@ -432,6 +433,11 @@ public class IBMExecDumpProvider extends BaseProvider
         {
             String jarname = "org.eclipse.mat.ibmexecdumps"; //$NON-NLS-1$
             String classesNames[] = {"org.eclipse.mat.ibmvm.acquire.IBMDumpProvider", //$NON-NLS-1$
+                            "org.eclipse.mat.ibmvm.acquire.IBMDumpProvider$AgentInitializationException", //$NON-NLS-1$
+                            "org.eclipse.mat.ibmvm.acquire.IBMDumpProvider$AgentLoadException", //$NON-NLS-1$
+                            "org.eclipse.mat.ibmvm.acquire.IBMDumpProvider$AttachProvider", //$NON-NLS-1$
+                            "org.eclipse.mat.ibmvm.acquire.IBMDumpProvider$VirtualMachine", //$NON-NLS-1$
+                            "org.eclipse.mat.ibmvm.acquire.IBMDumpProvider$VirtualMachineDescriptor", //$NON-NLS-1$
                             "org.eclipse.mat.ibmvm.acquire.IBMDumpProvider$AgentLoader", //$NON-NLS-1$
                             "org.eclipse.mat.ibmvm.acquire.IBMDumpProvider$FileComparator", //$NON-NLS-1$
                             "org.eclipse.mat.ibmvm.acquire.IBMDumpProvider$NewFileFilter", //$NON-NLS-1$

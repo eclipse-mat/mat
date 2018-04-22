@@ -4,17 +4,13 @@ Bundle-SymbolicName: org.eclipse.mat.ibmdumps;singleton:=true
 Bundle-Name: %Bundle-Name
 Bundle-Vendor: %Bundle-Vendor
 Bundle-Version: 1.7.0.qualifier
-Class-Path: bin/
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.3.100",
  org.eclipse.mat.api;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Eclipse-LazyStart: true
 Bundle-ActivationPolicy: lazy
-Bundle-ClassPath: bin/,
- classes/,
- .
 Bundle-Localization: plugin
-Bundle-Copyright: Copyright (c) 2010, 2012 IBM Corporation. 
+Bundle-Copyright: Copyright (c) 2010, 2018 IBM Corporation. 
  All rights reserved. This program and the accompanying materials 
  are made available under the terms of the Eclipse Public License v1.0 
  which accompanies this distribution, and is available at 
