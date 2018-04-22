@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "98795743_1ae3a1b3",
+        "filename": "plugins/org.eclipse.mat.ibmdumps/src/org/eclipse/mat/ibmvm/acquire/IBMDumpProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2018-04-22T19:59:25Z",
+      "side": 1,
+      "message": "Still some spaces at the end of lines",
+      "revId": "52a28d2c2293c99aaa528257c4b69ed4372f8519",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
