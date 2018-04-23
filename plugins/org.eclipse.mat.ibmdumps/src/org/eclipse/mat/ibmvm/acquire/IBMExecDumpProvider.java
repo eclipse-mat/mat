@@ -435,6 +435,7 @@ public class IBMExecDumpProvider extends BaseProvider
             String classesNames[] = {"org.eclipse.mat.ibmvm.acquire.IBMDumpProvider", //$NON-NLS-1$
                             "org.eclipse.mat.ibmvm.acquire.IBMDumpProvider$AgentInitializationException", //$NON-NLS-1$
                             "org.eclipse.mat.ibmvm.acquire.IBMDumpProvider$AgentLoadException", //$NON-NLS-1$
+                            "org.eclipse.mat.ibmvm.acquire.IBMDumpProvider$AttachNotSupportedException", //$NON-NLS-1$
                             "org.eclipse.mat.ibmvm.acquire.IBMDumpProvider$AttachProvider", //$NON-NLS-1$
                             "org.eclipse.mat.ibmvm.acquire.IBMDumpProvider$VirtualMachine", //$NON-NLS-1$
                             "org.eclipse.mat.ibmvm.acquire.IBMDumpProvider$VirtualMachineDescriptor", //$NON-NLS-1$
