@@ -89,13 +89,34 @@ public class IBMDumpProvider extends BaseProvider
          */
         AgentInitializationException(Throwable e)
         {
-            super(e.getMessage());
+            super(e.getMessage()+" returnValue="+VirtualMachine.call(e, "returnValue"));
             initCause(e);
         }
 
         int returnValue()
         {
-            return (int) VirtualMachine.call(getCause(), "returnValue");
+            return (Integer)VirtualMachine.call(getCause(), "returnValue");
+        }
+    }
+
+    /**
+     * Wrapper class for com.ibm.tools.attach/com.sun.tools.attach version.
+     */
+    static class AttachNotSupportedException extends Exception
+    {
+        private static final long serialVersionUID = 1L;
+
+        /**
+         * Construct the exception from the
+         * com.ibm.tools.attach.AttachNotSupportedException or
+         * com.sun.tools.attach.AttachNotSupportedException object.
+         *
+         * @param e
+         */
+        AttachNotSupportedException(Throwable e)
+        {
+            super(e.getMessage());
+            initCause(e);
         }
     }
 
@@ -174,9 +195,26 @@ public class IBMDumpProvider extends BaseProvider
          * @throws IOException
          */
         VirtualMachine attachVirtualMachine(VirtualMachineDescriptor vmd)
-                        throws IOException /* ,AttachNotSupportedException */
+                        throws IOException, AttachNotSupportedException
         {
-            Object o = VirtualMachine.call(ap, "attachVirtualMachine", vmd.vmd);
+            Object o;
+            try
+            {
+                o = VirtualMachine.call(ap, "attachVirtualMachine", vmd.vmd);
+            }
+            catch (RuntimeException e)
+            {
+                if (e.getCause() instanceof InvocationTargetException)
+                {
+                    Throwable t = e.getCause().getCause();
+                    // Change the type
+                    if (VirtualMachine.isSubclassOf(t, "AttachNotSupportedException"))
+                    {
+                        throw new AttachNotSupportedException(t);
+                    }
+                }
+                throw e;
+            }
             return new VirtualMachine(o);
         }
 
@@ -374,10 +412,8 @@ public class IBMDumpProvider extends BaseProvider
                 {
                     Throwable t = e.getCause().getCause();
                     // Change the type
-                    if (isSubclassOf(t,
-                                    "AgentLoadException")) { throw new AgentLoadException(e.getCause().getCause()); }
-                    if (isSubclassOf(t, "AgentInitializationException")) { throw new AgentInitializationException(
-                                    e.getCause().getCause()); }
+                    if (isSubclassOf(t, "AgentLoadException")) { throw new AgentLoadException(t); }
+                    if (isSubclassOf(t, "AgentInitializationException")) { throw new AgentInitializationException(t); }
                 }
                 // Rethrow
                 throw e;
@@ -574,7 +610,7 @@ public class IBMDumpProvider extends BaseProvider
     private static final class FileComparator implements Comparator<File>, Serializable
     {
         /**
-         * 
+         *
          */
         private static final long serialVersionUID = -3725792252276130382L;
 
@@ -928,8 +964,7 @@ public class IBMDumpProvider extends BaseProvider
                 {
                     usable = false;
                 }
-                // Catching AttachNotSupportedException stops the whole class loading if attach API is not present
-                catch (/*AttachNotSupported*/Exception e)
+                catch (AttachNotSupportedException e)
                 {
                     usable = false;
                 }
@@ -973,7 +1008,7 @@ public class IBMDumpProvider extends BaseProvider
      * Lists VMs or acquires a dump.
      * Used when attach API not usable from the MAT process.
      * 
-     * @param s <ul><li>[0] dump type (Heap=heap+java,System=system)</li>
+     * @param s <ul><li>[0] dump type (HEAP=heap+java,SYSTEM=system,JAVA=java)</li>
      *        <li>[1] VM id = PID</li>
      *        <li>[2] true/false compress dump</li>
      *        <li>[3] dump name</li>

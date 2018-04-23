@@ -171,10 +171,10 @@ public class ProviderConfigurationWizardPage extends WizardPage implements ITabl
             {
                 Object value = argumentSet.getArgumentValue(parameter);
 
-                if (value == null && parameter.isMandatory())
+                if (value == null)
                 {
                     value = parameter.getDefaultValue();
-                    if (value == null)
+                    if (value == null && parameter.isMandatory())
                         throw new SnapshotException(MessageUtil.format(
                                 Messages.ProviderConfigurationDialog_MissingParameterErrorMessage, parameter.getName()));
                 }
