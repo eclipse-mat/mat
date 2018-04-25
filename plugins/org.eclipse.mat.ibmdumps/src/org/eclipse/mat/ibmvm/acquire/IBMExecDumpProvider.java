@@ -8,6 +8,7 @@
  * Contributors:
  *    IBM Corporation - initial implementation
  *    IBM Corporation/Andrew Johnson - updates for calling com.ibm/com.sun classes via reflection
+ *    IBM Corporation/Andrew Johnson - hprof and allow option for GC before dump
  *******************************************************************************/
 package org.eclipse.mat.ibmvm.acquire;
 
@@ -78,6 +79,7 @@ public class IBMExecDumpProvider extends BaseProvider
             args.add(jar);
             args.add(info2.type.toString());
             args.add(vm);
+            args.add(Boolean.toString(info2.live));
             args.add(Boolean.toString(info2.compress));
             args.add(preferredLocation.getAbsolutePath());
             if (info2.dumpdir != null)
@@ -390,6 +392,7 @@ public class IBMExecDumpProvider extends BaseProvider
                                 ifo.javaexecutable = javaExec;
                                 ifo.vmoptions = vmoptions;
                                 ifo.type = defaultType;
+                                ifo.live = defaultLive;
                                 ifo.compress = defaultCompress;
                                 if (s2[2].length() > 0)
                                     ifo.dumpdir = new File(s2[2]);
@@ -432,10 +435,12 @@ public class IBMExecDumpProvider extends BaseProvider
         if (execJar == null || !execJar.canRead())
         {
             String jarname = "org.eclipse.mat.ibmexecdumps"; //$NON-NLS-1$
+            // Must add all classes in IBMDumpProvider.java
             String classesNames[] = {"org.eclipse.mat.ibmvm.acquire.IBMDumpProvider", //$NON-NLS-1$
                             "org.eclipse.mat.ibmvm.acquire.IBMDumpProvider$AgentInitializationException", //$NON-NLS-1$
                             "org.eclipse.mat.ibmvm.acquire.IBMDumpProvider$AgentLoadException", //$NON-NLS-1$
                             "org.eclipse.mat.ibmvm.acquire.IBMDumpProvider$AttachNotSupportedException", //$NON-NLS-1$
+                            "org.eclipse.mat.ibmvm.acquire.IBMDumpProvider$AttachOperationFailedException", //$NON-NLS-1$
                             "org.eclipse.mat.ibmvm.acquire.IBMDumpProvider$AttachProvider", //$NON-NLS-1$
                             "org.eclipse.mat.ibmvm.acquire.IBMDumpProvider$VirtualMachine", //$NON-NLS-1$
                             "org.eclipse.mat.ibmvm.acquire.IBMDumpProvider$VirtualMachineDescriptor", //$NON-NLS-1$
@@ -444,6 +449,7 @@ public class IBMExecDumpProvider extends BaseProvider
                             "org.eclipse.mat.ibmvm.acquire.IBMDumpProvider$NewFileFilter", //$NON-NLS-1$
                             "org.eclipse.mat.ibmvm.acquire.IBMDumpProvider$StderrProgressListener", //$NON-NLS-1$
                             "org.eclipse.mat.ibmvm.acquire.BaseProvider", //$NON-NLS-1$
+                            "org.eclipse.mat.ibmvm.acquire.HprofDumpProvider", //$NON-NLS-1$
                             "org.eclipse.mat.ibmvm.acquire.IBMHeapDumpProvider", //$NON-NLS-1$
                             "org.eclipse.mat.ibmvm.acquire.IBMSystemDumpProvider", //$NON-NLS-1$
                             "org.eclipse.mat.ibmvm.acquire.IBMJavaDumpProvider", //$NON-NLS-1$

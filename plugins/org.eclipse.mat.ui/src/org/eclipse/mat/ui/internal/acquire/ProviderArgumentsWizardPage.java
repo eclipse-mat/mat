@@ -106,6 +106,7 @@ public class ProviderArgumentsWizardPage extends WizardPage implements ITableLis
 
     public void onValueChanged()
     {
+        acquireDialog.updateFileName();
     }
 
     public void onError(String message)
