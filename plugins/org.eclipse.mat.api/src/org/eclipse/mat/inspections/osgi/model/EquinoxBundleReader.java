@@ -152,7 +152,8 @@ public class EquinoxBundleReader implements IBundleReader
         if (fragmentObject.getClazz().isArrayType())
         {
             ExtractedCollection coll = CollectionExtractionUtils.extractList(fragmentObject);
-            List<BundleDescriptor> fragments = new ArrayList<BundleDescriptor>(coll.size());
+            Integer size = coll.size();
+            List<BundleDescriptor> fragments = new ArrayList<BundleDescriptor>(size != null ? (int)size : 0);
             for (IObject obj : coll)
             {
                 BundleDescriptor descriptor = getBundleDescriptor(obj, Type.FRAGMENT);
@@ -205,7 +206,8 @@ public class EquinoxBundleReader implements IBundleReader
                     List<BundleDescriptor> bundlesUsing = null;
                     IObject bundlesList = (IObject) serviceInstance.resolveValue("contextsUsing");//$NON-NLS-1$
                     ExtractedCollection bunds = CollectionExtractionUtils.extractList(bundlesList);
-                    bundlesUsing = new ArrayList<BundleDescriptor>(bunds.size());
+                    Integer size = bunds.size();
+                    bundlesUsing = new ArrayList<BundleDescriptor>(size != null ? (int)size : 0);
                     for (IObject bundleInstance : bunds)
                     {
                         IObject bundleObject = (IObject) bundleInstance.resolveValue("bundle");//$NON-NLS-1$
@@ -503,7 +505,8 @@ public class EquinoxBundleReader implements IBundleReader
         ExtractedCollection coll = CollectionExtractionUtils.extractList(resolvedValue);
         if (coll != null)
         {
-            dependencyDescriptors = new ArrayList<BundleDescriptor>(coll.size());
+            Integer size = coll.size();
+            dependencyDescriptors = new ArrayList<BundleDescriptor>(size != null ? (int)size : 0);
             for (IObject bundleDescriptionObject : coll)
             {
                 IObject bundleHostObject = (IObject) bundleDescriptionObject.resolveValue("userObject.bundle");//$NON-NLS-1$

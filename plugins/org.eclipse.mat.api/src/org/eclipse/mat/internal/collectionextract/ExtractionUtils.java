@@ -210,8 +210,9 @@ public class ExtractionUtils
             // JRE 1.7.0 Linux amd64-64 build 20130205_137358
             // (pxa6470sr4ifix-20130305_01(SR4+IV37419) )
             // JRE 1.7.0 Windows 7 amd64-64 build (pwa6470_27sr3fp10-20150708_01(SR3 FP10) )
+            // JRE 1.8.0 Windows 7 amd64-64 (build 8.0.5.10 - pwa6480sr5fp10-20180214_01(SR5 FP10))
 
-            if (jvmInfo.contains("IBM") || jvmInfo.contains(" build "))
+            if (jvmInfo.contains("IBM") || jvmInfo.contains("build "))
             {
                 int jreIndex = jvmInfo.indexOf("JRE ");
                 if (jreIndex != -1)
@@ -219,10 +220,12 @@ public class ExtractionUtils
                     String jreVersion = jvmInfo.substring(jreIndex + 4);
                     if (jreVersion.length() >= 3)
                     {
-                        jreVersion = jreVersion.substring(0, 3);
-                        if (jreVersion.equals("1.8"))
+                        jreVersion = jreVersion.split(" ", 2)[0];
+                        if (jreVersion.equals("9") || jreVersion.startsWith("9."))
                             return IBM18;
-                        else if (jreVersion.equals("1.7"))
+                        else if (jreVersion.startsWith("1.8"))
+                            return IBM18;
+                        else if (jreVersion.startsWith("1.7"))
                         {
                             if (jvmInfo.matches(".*70sr.*\\(SR[1-3][^0-9].*") || jvmInfo.matches(".*\\(GA") && !jvmInfo.matches(".*70_27.*"))
                             {
@@ -232,11 +235,11 @@ public class ExtractionUtils
                             // SR4 and later switches to Oracle
                             return IBM17;
                         }
-                        else if (jreVersion.equals("1.6"))
+                        else if (jreVersion.startsWith("1.6"))
                             return IBM16;
-                        else if (jreVersion.equals("1.5"))
+                        else if (jreVersion.startsWith("1.5"))
                             return IBM15;
-                        else if (jreVersion.equals("1.4"))
+                        else if (jreVersion.startsWith("1.4"))
                             return IBM14;
                     }
                 }
@@ -252,6 +255,7 @@ public class ExtractionUtils
         {
             Object ver = classes.iterator().next().resolveValue("java_version");
             if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("1.8.")) { return JAVA18; }
+            if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("9.")) { return JAVA18; }
         }
         return SUN;
     }

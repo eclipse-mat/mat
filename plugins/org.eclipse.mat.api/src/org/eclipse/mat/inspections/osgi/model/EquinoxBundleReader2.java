@@ -144,7 +144,7 @@ public class EquinoxBundleReader2 implements IBundleReader
         }
         return bundleDescriptors;
     }
-    
+
     private boolean isFragment(IObject bundleHostObject) throws SnapshotException
     {
         IObject revs = (IObject) bundleHostObject.resolveValue("module.revisions.revisions");//$NON-NLS-1$
@@ -220,7 +220,9 @@ public class EquinoxBundleReader2 implements IBundleReader
                     List<BundleDescriptor> bundlesUsing = null;
                     IObject bundlesList = (IObject) serviceInstance.resolveValue("contextsUsing");//$NON-NLS-1$
                     ExtractedCollection bunds = CollectionExtractionUtils.extractList(bundlesList);
-                    bundlesUsing = new ArrayList<BundleDescriptor>(bunds.size());
+                    // If reading the ArrayList goes wrong, could return null
+                    Integer size = bunds.size();
+                    bundlesUsing = new ArrayList<BundleDescriptor>(size != null ? (int)size : 0);
                     for (IObject bundleInstance : bunds)
                     {
                         IObject bundleObject = (IObject) bundleInstance.resolveValue("bundle");//$NON-NLS-1$
@@ -521,7 +523,8 @@ public class EquinoxBundleReader2 implements IBundleReader
         ExtractedCollection coll = CollectionExtractionUtils.extractList(resolvedValue);
         if (coll != null)
         {
-            dependencyDescriptors = new ArrayList<BundleDescriptor>(coll.size());
+            Integer size = coll.size();
+            dependencyDescriptors = new ArrayList<BundleDescriptor>(size != null ? (int)size : 0);
             for (IObject bundleDescriptionObject : coll)
             {
                 IObject bundleHostObject = (IObject) bundleDescriptionObject.resolveValue("userObject.bundle");//$NON-NLS-1$
@@ -549,7 +552,7 @@ public class EquinoxBundleReader2 implements IBundleReader
             int nobjs = 0;
             for (IClass clazz : classes)
                 nobjs += clazz.getNumberOfObjects();
-            
+
             for (IClass clazz : classes)
             {
                 int[] objs = clazz.getObjectIds();
@@ -557,7 +560,7 @@ public class EquinoxBundleReader2 implements IBundleReader
                 for (int i = 0; i < objs.length; i++)
                 {
                     IInstance obj = (IInstance) snapshot.getObject(objs[i]);
-                    
+
                     IObject providerBundleHostObject = (IObject) obj.resolveValue("hostingProvider.revisions.module.this$0");//$NON-NLS-1$
                     if (providerBundleHostObject == null)
                         continue;
@@ -567,7 +570,7 @@ public class EquinoxBundleReader2 implements IBundleReader
                         providerType = BundleDescriptor.Type.FRAGMENT;
 
                     BundleDescriptor providerDescriptor = getBundleDescriptor(providerBundleHostObject, providerType);
-                    
+
                     IObject requirerBundleHostObject = (IObject) obj.resolveValue("hostingRequirer.revisions.module.this$0");//$NON-NLS-1$
                     if (requirerBundleHostObject == null)
                         continue;
@@ -577,7 +580,7 @@ public class EquinoxBundleReader2 implements IBundleReader
                         requirerType = BundleDescriptor.Type.FRAGMENT;
 
                     BundleDescriptor requirerDescriptor = getBundleDescriptor(requirerBundleHostObject, requirerType);
-                    
+
                     List<BundleDescriptor> dependents = bundleDependents.get(providerDescriptor);
                     if (dependents == null)
                     {
@@ -592,7 +595,7 @@ public class EquinoxBundleReader2 implements IBundleReader
                             dependents.add(requirerDescriptor);
                         }
                     }
-                    
+
                     List<BundleDescriptor> dependencies = bundleDependencies.get(requirerDescriptor);
                     if (dependencies == null)
                     {
@@ -607,7 +610,7 @@ public class EquinoxBundleReader2 implements IBundleReader
                             dependencies.add(providerDescriptor);
                         }
                     }
-                    
+
                     listener.worked(STEPS / nobjs);
                 }
             }
@@ -649,7 +652,14 @@ public class EquinoxBundleReader2 implements IBundleReader
                         if (listener.isCanceled())
                             throw new IProgressListener.OperationCanceledException();
                         extractElements(instance, extensionPoints, extensions, configElements, listener);
-                        listener.worked(work / size1 / 2);
+                        if (size1 != null)
+                        {
+                            listener.worked(work / size1 / 2);
+                        }
+                    }
+                    if (size1 == null)
+                    {
+                        listener.worked(work / 2);
                     }
                 }
 
@@ -660,7 +670,7 @@ public class EquinoxBundleReader2 implements IBundleReader
                 if (useCachedObjects && cachedObjectsArray != null)
                 {
                     ExtractedCollection refList = CollectionExtractionUtils.extractList(cachedObjectsArray);
-                    int size2 = refList.size() / 2;
+                    Integer size2 = refList.size();
                     for (IObject instance : refList)
                     {
                         if (listener.isCanceled())
@@ -672,7 +682,14 @@ public class EquinoxBundleReader2 implements IBundleReader
                             instance = ref.getObject();
                         }
                         extractElements(instance, extensionPoints, extensions, configElements, listener);
-                        listener.worked(work / size2);
+                        if (size2 != null)
+                        {
+                            listener.worked(work / size2 / 2);
+                        }
+                    }
+                    if (size2 == null)
+                    {
+                        listener.worked(work / 2);
                     }
                 }
             }
