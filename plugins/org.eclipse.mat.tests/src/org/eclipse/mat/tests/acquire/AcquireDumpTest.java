@@ -121,7 +121,7 @@ public class AcquireDumpTest
                     System.out.println("Proposed name "+f);
                     String fname = f.getName();
                     int ldot = fname.lastIndexOf('.');
-                    String fname2 = "acquire_dump" + fname.substring(ldot);
+                    String fname2 = "acquire_dump_" + (found+1) + fname.substring(ldot);
                     File tmpdump = new File(tmpdir, fname2);
                     System.out.println("Dump " + tmpdump);
                     File dmp = hdp.acquireDump(vm, tmpdump, l);
@@ -142,7 +142,10 @@ public class AcquireDumpTest
                     }
                     finally
                     {
-                        dmp.delete();
+                        boolean del = dmp.delete();
+                        if (!del) {
+                            System.out.println("Unable to delete "+dmp);
+                        }
                     }
                 }
             }
