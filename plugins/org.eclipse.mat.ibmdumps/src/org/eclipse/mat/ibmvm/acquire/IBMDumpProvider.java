@@ -672,6 +672,16 @@ public class IBMDumpProvider extends BaseProvider
 
     IBMDumpProvider()
     {
+        // See if an IBM VM or an Oracle VM
+        try
+        {
+            Class.forName("com.ibm.jvm.Dump");
+        }
+        catch (ClassNotFoundException e)
+        {
+            // Looks like no System dump is available
+            defaultType = DumpType.HPROF;
+        }
     }
 
     /**
