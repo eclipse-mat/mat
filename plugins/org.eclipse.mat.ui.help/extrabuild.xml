@@ -1,10 +1,10 @@
 <!--
-    Copyright (c) 2010,2011 IBM Corporation and SAP AG.
+    Copyright (c) 2010,2018 IBM Corporation and SAP AG.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
     http://www.eclipse.org/legal/epl-v10.html
-   
+
     Contributors:
         IBM Corporation - initial API and implementation
  -->
@@ -16,7 +16,7 @@
 <target name="post.build.jars"
         description="Build the javadoc for all of Memory Analyzer">
         <javadoc access="public" author="false"
-            destdir="doc" doctitle="Memory Analyzer API" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" 
+            destdir="doc" doctitle="Memory Analyzer API" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false"
             notree="false"
             source="1.5"
             splitindex="true" use="true" version="true" overview="../org.eclipse.mat.api/src/overview.html">
@@ -26,10 +26,12 @@
             <tag name="noinstantiate" scope="types" description="No Instantiate:" />
             <tag name="nooverride" scope="methods" description="No Override:" />
             <tag name="category" scope="methods,constructors,fields" description="Category:" />
-        	<arg value="-J-Dhttp.proxyHost=${http.proxyHost}"/>
-        	<arg value="-J-Dhttp.proxyPort=${http.proxyPort}"/>
-            <link href="http://java.sun.com/j2se/1.5/docs/api" /> 
-            <link href="http://help.eclipse.org/indigo/topic/org.eclipse.platform.doc.isv/reference/api" />
+            <arg value="-J-Dhttp.proxyHost=${http.proxyHost}"/>
+            <arg value="-J-Dhttp.proxyPort=${http.proxyPort}"/>
+            <link href="http://java.sun.com/j2se/1.5/docs/api" />
+            <link href="http://help.eclipse.org/mars/topic/org.eclipse.platform.doc.isv/reference/api" />
+            <link href="http://icu-project.org/apiref/icu4j" />
+            <link href="https://www.ibm.com/support/knowledgecenter/SSYKE2_8.0.0/com.ibm.java.api.80.doc/com.ibm.dtfj/overview-summary.html?view=embed" />
             <packageset dir="../org.eclipse.mat.report/src" defaultexcludes="yes">
               <include name="**"/>
             </packageset>
@@ -46,9 +48,6 @@
               <include name="**"/>
             </packageset>
             <packageset dir="../org.eclipse.mat.ibmdumps/src" defaultexcludes="yes">
-              <include name="**"/>
-            </packageset>
-            <packageset dir="../org.eclipse.mat.ibmdumps/src2" defaultexcludes="yes">
               <include name="**"/>
             </packageset>
             <packageset dir="../org.eclipse.mat.jdt/src" defaultexcludes="yes">
