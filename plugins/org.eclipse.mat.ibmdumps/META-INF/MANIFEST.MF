@@ -15,3 +15,6 @@ Bundle-Copyright: Copyright (c) 2010, 2018 IBM Corporation.
  are made available under the terms of the Eclipse Public License v1.0 
  which accompanies this distribution, and is available at 
  http://www.eclipse.org/legal/epl-v10.html
+Bundle-ClassPath: .,
+ external:$java.home$/lib/ext/healthcenter.jar,
+ external:$java.home$/../lib/tools.jar

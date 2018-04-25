@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 IBM Corporation
+ * Copyright (c) 2010, 2018 IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    IBM Corporation - initial implementation
+ *    IBM Corporation/Andrew Johnson - hprof
  *******************************************************************************/
 package org.eclipse.mat.ibmvm.acquire;
 
@@ -27,6 +28,9 @@ public class IBMVmInfo extends VmInfo
 {
     @Argument
     public DumpType type = DumpType.SYSTEM;
+
+    @Argument(isMandatory = false)
+    public boolean live = false;
 
     @Argument
     public boolean compress = false;
@@ -64,15 +68,27 @@ public class IBMVmInfo extends VmInfo
     /**
      * Command to pass to the agent to generate dumps of this type
      * @return the command to be executed e.g. by {@link IBMDumpProvider.AgentLoader#IBMDumpProvider.AgentLoader()}
+     *  dump-type live filename
      */
-    String agentCommand()
+    String agentCommand(File f)
     {
+        String fn;
+        if (f == null)
+        {
+            fn = getProposedFileName();
+        }
+        else
+        {
+            fn = f.getAbsolutePath();
+        }
         if (type == DumpType.SYSTEM)
-            return DumpAgent.SYSTEM;
+            return DumpAgent.SYSTEM+DumpAgent.INFO_SEPARATOR+Boolean.toString(live)+DumpAgent.INFO_SEPARATOR+fn;
         else if (type == DumpType.HEAP)
-            return DumpAgent.HEAP+DumpAgent.SEPARATOR+DumpAgent.JAVA;
+            return DumpAgent.HEAP+DumpAgent.SEPARATOR+DumpAgent.JAVA+DumpAgent.INFO_SEPARATOR+Boolean.toString(live)+DumpAgent.INFO_SEPARATOR+fn;
         else if (type == DumpType.JAVA)
-            return DumpAgent.JAVA;
+            return DumpAgent.JAVA+DumpAgent.INFO_SEPARATOR+Boolean.toString(live)+DumpAgent.INFO_SEPARATOR+fn;
+        else if (type == DumpType.HPROF)
+            return DumpAgent.HPROF+DumpAgent.INFO_SEPARATOR+Boolean.toString(live)+DumpAgent.INFO_SEPARATOR+fn;
         return null;
     }
     
@@ -95,6 +111,8 @@ public class IBMVmInfo extends VmInfo
                     ret = provider.heapDumpTemplate;
             else if (type == DumpType.JAVA)
                 ret = provider.javaDumpTemplate;
+            else if (type == DumpType.HPROF)
+                ret = provider.hprofDumpTemplate;
         }
         return ret;
     }
