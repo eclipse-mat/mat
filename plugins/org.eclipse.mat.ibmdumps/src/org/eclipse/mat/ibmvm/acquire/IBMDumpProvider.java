@@ -816,6 +816,10 @@ public class IBMDumpProvider extends BaseProvider
                 }
 
                 File f1[] = udir.listFiles();
+                if (f1 == null)
+                {
+                    throw new FileNotFoundException(udir.getPath());
+                }
                 Collection<File> previous = new HashSet<File>(Arrays.asList(f1));
 
                 long avg = averageFileSize(previous);
@@ -881,9 +885,10 @@ public class IBMDumpProvider extends BaseProvider
      * @param previous
      * @param nfiles
      * @param loader Thread which has loaded the agent jar
+     * @throws FileNotFoundException
      */
     private List<File> progress(File udir, Collection<File> previous, int nfiles, long avg, AgentLoader2 loader, IProgressListener listener)
-                    throws InterruptedException
+                    throws InterruptedException, FileNotFoundException
     {
         listener.subTask(Messages.getString("IBMDumpProvider.WaitingForDumpFiles")); //$NON-NLS-1$
         List<File> newFiles = new ArrayList<File>();
@@ -968,10 +973,15 @@ public class IBMDumpProvider extends BaseProvider
      * @param newFiles
      *            newly discovered files, in discovery/modification order
      * @return a list of new files in the directory
+     * @throws FileNotFoundException
      */
-    List<File> files(File udir, final Collection<File> previousFiles, List<File> newFiles)
+    List<File> files(File udir, final Collection<File> previousFiles, List<File> newFiles) throws FileNotFoundException
     {
         File f2[] = udir.listFiles(new NewFileFilter(previousFiles));
+        if (f2 == null)
+        {
+            throw new FileNotFoundException(udir.getPath());
+        }
         List<File> new2 = Arrays.asList(f2);
         // Sort the new files in order of modification
         Collections.sort(new2, new FileComparator());
@@ -980,7 +990,7 @@ public class IBMDumpProvider extends BaseProvider
         return newFiles;
     }
 
-    long fileLengths(File udir, Collection<File> previous, List<File> newFiles, int maxFiles)
+    long fileLengths(File udir, Collection<File> previous, List<File> newFiles, int maxFiles) throws FileNotFoundException
     {
         Collection<File> nw = files(udir, previous, newFiles);
         long l = 0;
@@ -1134,10 +1144,15 @@ public class IBMDumpProvider extends BaseProvider
         {
             File tracefile = (new File(tracefilename));
             File tdir = tracefile.getParentFile();
-            File tdira = tdir.getAbsoluteFile();
-            if (tdir != null && tdir.equals(tdira))
+            if (tdir != null)
             {
-                dir = tdir.getPath();
+                File tdira = tdir.getAbsoluteFile();
+                if (tdir.equals(tdira))
+                {
+                    // Must be an absolute path, because otherwise could be different
+                    // when examined from this process
+                    dir = tdir.getPath();
+                }
             }
         }
         return dir;

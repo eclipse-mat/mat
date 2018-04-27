@@ -295,7 +295,7 @@ public class IBMExecDumpProvider extends BaseProvider
 
     private static synchronized void setJavaDir(String home)
     {
-        if (!home.equals(savedJavaDir))
+        if (home != null && !home.equals(savedJavaDir))
         {
             IEclipsePreferences prefs = new InstanceScope().getNode(PLUGIN_ID);
             prefs.put(last_directory_key, home);
