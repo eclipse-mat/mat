@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "99ad2f13_9cf36b76",
+        "filename": "plugins/org.eclipse.mat.ibmdumps/src/org/eclipse/mat/ibmvm/acquire/annotations.properties",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2018-04-27T12:25:34Z",
+      "side": 1,
+      "message": "Space at end of line",
+      "revId": "95509fc9a3e7c8eb27b5273aec742f446489592a",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
