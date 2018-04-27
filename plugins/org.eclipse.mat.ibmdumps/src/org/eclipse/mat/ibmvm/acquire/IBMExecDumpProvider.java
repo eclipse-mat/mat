@@ -55,6 +55,20 @@ public class IBMExecDumpProvider extends BaseProvider
     @Argument(isMandatory = false)
     public String vmoptions[] = {"-version:1.6+"}; //$NON-NLS-1$
 
+    public IBMExecDumpProvider()
+    {
+        // See if an IBM VM or an Oracle VM
+        try
+        {
+            Class.forName("com.ibm.jvm.Dump");
+        }
+        catch (ClassNotFoundException e)
+        {
+            // Looks like no System dump is available
+            defaultType = DumpType.HPROF;
+        }
+    }
+    
     public File acquireDump(VmInfo info, File preferredLocation, IProgressListener listener) throws SnapshotException
     {
         listener.beginTask(Messages.getString("IBMExecDumpProvider.GeneratingDump"), TOTAL_WORK); //$NON-NLS-1$
@@ -381,14 +395,15 @@ public class IBMExecDumpProvider extends BaseProvider
                     String ss[] = in.toString().split("[\\n\\r]+"); //$NON-NLS-1$
                     for (String s : ss)
                     {
-                        // pid;proposed filename;possible directory;description
-                        String s2[] = s.split(INFO_SEPARATOR, 4);
+                        // pid;proposed filename;possible directory;dump enabled;description
+                        String s2[] = s.split(INFO_SEPARATOR, 5);
                         if (s2.length >= 4)
                         {
                             // Exclude the helper process
-                            if (!s2[3].contains(getExecJar().getName()))
+                            if (!s2[4].contains(getExecJar().getName()))
                             {
-                                IBMExecVmInfo ifo = new IBMExecVmInfo(s2[0], s2[3], true, null, this);
+                                boolean enableDump = Boolean.parseBoolean(s2[3]);
+                                IBMExecVmInfo ifo = new IBMExecVmInfo(s2[0], s2[4], enableDump, s2[1], this);
                                 ifo.javaexecutable = javaExec;
                                 ifo.vmoptions = vmoptions;
                                 ifo.type = defaultType;

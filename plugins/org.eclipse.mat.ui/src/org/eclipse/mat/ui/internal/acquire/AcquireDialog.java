@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2015 SAP AG and IBM Corporation.
+ * Copyright (c) 2009, 2018 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *    IBM Corporation - refactor for new/import wizard
+ *    IBM Corporation - disabled dumps
  *******************************************************************************/
 package org.eclipse.mat.ui.internal.acquire;
 
@@ -28,6 +29,9 @@ import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.operation.IRunnableContext;
 import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.jface.resource.FontDescriptor;
+import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.resource.LocalResourceManager;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.internal.acquire.HeapDumpProviderDescriptor;
@@ -47,6 +51,7 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -61,6 +66,9 @@ import org.eclipse.swt.widgets.Text;
 public class AcquireDialog extends WizardPage
 {
     private static final String LAST_DIRECTORY_KEY = AcquireDialog.class.getName() + ".lastDir"; //$NON-NLS-1$
+    
+    private LocalResourceManager resourceManager = new LocalResourceManager(JFaceResources.getResources());
+    private Font italicFont;
 
     private Table localVMsTable;
     private Label saveLocationLabel;
@@ -120,6 +128,8 @@ public class AcquireDialog extends WizardPage
         column = new TableColumn(localVMsTable, SWT.LEFT);
         column.setText(Messages.AcquireDialog_HeapDumpProviderColumnHeader);
         column.setWidth(200);
+
+        italicFont = resourceManager.createFont(FontDescriptor.createFrom(column.getParent().getFont()).setStyle(SWT.ITALIC));
 
         Composite buttons = new Composite(top, SWT.NONE);
         buttons.setLayout(new GridLayout(1, false));
@@ -258,6 +268,11 @@ public class AcquireDialog extends WizardPage
 				{
 					VmInfoDescriptor descriptor = VmInfoDescriptor.createDescriptor(process);
 					TableItem item = new TableItem(localVMsTable, SWT.NONE);
+					item.setGrayed(!process.isHeapDumpEnabled());
+					if (!process.isHeapDumpEnabled())
+					{
+					    item.setFont(italicFont);
+					}
 					item.setText(0, process.getDescription());
 					item.setText(1, Integer.toString(process.getPid()));
 					item.setText(2, getProviderDescriptor(process).getName());
@@ -294,7 +309,11 @@ public class AcquireDialog extends WizardPage
     public boolean isPageComplete()
     {
         // There needs to be a valid process and a valid dump name
-        return localVMsTable.getSelectionIndex() != -1 && folderText.getText().length() > 0 && !(new File(getSelectedPath()).isDirectory());
+	    // Also if the heap dump is disabled (indicated by italic font), also disable (getGrayed() doesn't work).
+	    // rather than
+	    // ((VmInfoDescriptor)((AnnotatedObjectArgumentsSet)localVMsTable.getItem(localVMsTable.getSelectionIndex()).getData()).getDescriptor()).getVmInfo().isHeapDumpEnabled();
+        return localVMsTable.getSelectionIndex() != -1 && !localVMsTable.getItem(localVMsTable.getSelectionIndex()).getFont().equals(italicFont) &&
+                        folderText.getText().length() > 0 && !(new File(getSelectedPath()).isDirectory());
     }
 
 	public AnnotatedObjectArgumentsSet getProcessArgumentsSet()

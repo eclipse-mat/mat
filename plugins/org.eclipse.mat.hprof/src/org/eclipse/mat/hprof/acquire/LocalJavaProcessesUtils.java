@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 SAP AG.
+ * Copyright (c) 2009, 2018 SAP AG and IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation/Andrew Johnson - enable/disabled dumps
  *******************************************************************************/
 package org.eclipse.mat.hprof.acquire;
 
@@ -84,7 +85,7 @@ public class LocalJavaProcessesUtils
 		if (firstSpaceIdx == -1) return null;
 		int pid = Integer.parseInt(line.substring(0, firstSpaceIdx));
 		String description = line.substring(firstSpaceIdx);
-		return new JmapVmInfo(pid, description, false, null, null);
+		return new JmapVmInfo(pid, description, true, null, null);
 	}
 
 	static class StreamCollector extends Thread
