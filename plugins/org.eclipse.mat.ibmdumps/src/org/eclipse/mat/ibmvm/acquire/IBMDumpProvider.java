@@ -239,6 +239,7 @@ public class IBMDumpProvider extends BaseProvider
                 {
                     throw new AttachOperationFailedException(t);
                 }
+                if (t instanceof IOException) throw (IOException)t;
                 throw e;
             }
             return new VirtualMachine(o);
@@ -295,7 +296,7 @@ public class IBMDumpProvider extends BaseProvider
             Class<?> types[] = new Class[args.length];
             for (int i = 0; i < args.length; ++i)
             {
-                types[i] = args[i].getClass();
+                types[i] = args[i] != null ? args[i].getClass() : null;
             }
             Method m = null;
             Method ms[];
@@ -311,7 +312,7 @@ public class IBMDumpProvider extends BaseProvider
             }
             // Find a public class we can call methods from.
             // The ibm. is to exclude IBM Java 9 classes which are public but not accessible
-            while (!Modifier.isPublic(cls.getModifiers()) || cls.getPackage().getName().startsWith("ibm."))
+            while (!Modifier.isPublic(cls.getModifiers()) || cls.getPackage().getName().startsWith("ibm.") || cls.getPackage().getName().startsWith("sun."))
             {
                 cls = cls.getSuperclass();
             }
@@ -327,7 +328,7 @@ public class IBMDumpProvider extends BaseProvider
                     for (int i = 0; i < types.length; ++i)
                     {
                         Class<?> t = m1.getParameterTypes()[i];
-                        if (!t.isAssignableFrom(types[i]))
+                        if (types[i] != null && !t.isAssignableFrom(types[i]))
                         {
                             continue l;
                         }
@@ -452,6 +453,7 @@ public class IBMDumpProvider extends BaseProvider
                 // Change the type
                 if (isSubclassOf(t, "AgentLoadException")) { throw new AgentLoadException(t); }
                 if (isSubclassOf(t, "AgentInitializationException")) { throw new AgentInitializationException(t); }
+                if (t instanceof IOException) { throw (IOException)t; }
                 // Rethrow
                 throw e;
             }
@@ -472,6 +474,7 @@ public class IBMDumpProvider extends BaseProvider
                 {
                     throw new AttachNotSupportedException(t);
                 }
+                if (t instanceof IOException) throw (IOException)t;
                 throw e;
             }
             return new VirtualMachine(o);
@@ -506,14 +509,32 @@ public class IBMDumpProvider extends BaseProvider
             return c1;
         }
 
-        Properties getSystemProperties()
+        Properties getSystemProperties() throws IOException
         {
-            return (Properties) call(vm, "getSystemProperties");
+            try
+            {
+                return (Properties) call(vm, "getSystemProperties");
+            }
+            catch (UndeclaredThrowableException e)
+            {
+                Throwable t = e.getCause();
+                if (t instanceof IOException) throw (IOException)t;
+                throw e;
+            }
         }
 
-        void detach()
+        void detach() throws IOException
         {
-            call(vm, "detach");
+            try
+            {
+                call(vm, "detach");
+            }
+            catch (UndeclaredThrowableException e)
+            {
+                Throwable t = e.getCause();
+                if (t instanceof IOException) throw (IOException)t;
+                throw e;
+            }
         }
     }
 
@@ -670,7 +691,7 @@ public class IBMDumpProvider extends BaseProvider
         }
     }
 
-    IBMDumpProvider()
+    public IBMDumpProvider()
     {
         // See if an IBM VM or an Oracle VM
         try
@@ -1002,6 +1023,7 @@ public class IBMDumpProvider extends BaseProvider
         for (VirtualMachineDescriptor vmd : list)
         {
             boolean usable = true;
+            String unusableCause = "";
             String dir = null;
             // See if the VM is usable to get dumps
             String displayName = vmd.displayName();
@@ -1036,31 +1058,52 @@ public class IBMDumpProvider extends BaseProvider
                             // Ignore from IBM Java 9
                         }
                     }
+                    // See if loading an agent would fail
+                    // Java 5 SR10 and SR11 don't have a loadAgent method, so find
+                    // out now
+                    try
+                    {
+                        vm.loadAgent((String)null, (String)null);
+                    }
+                    catch (AgentLoadException e)
+                    {
+                    }
+                    catch (AgentInitializationException e)
+                    {
+                    }
+                    catch (LinkageError e)
+                    {
+                        usable = false;
+                        unusableCause = e.getLocalizedMessage();
+                    }
+                    catch (NullPointerException e)
+                    {
+                        // Ignore
+                    }
+                    catch (IOException e)
+                    {
+                        // Ignore, expect an IOException if the method exists as the VM is detached
+                    }
                 }
                 catch (IOException e)
                 {
                     usable = false;
+                    unusableCause = e.getLocalizedMessage();
                 }
                 catch (AttachNotSupportedException e)
                 {
                     usable = false;
+                    unusableCause = e.getLocalizedMessage();
                 }
-            }
-            // See if loading an agent would fail
-            try
-            {
-                // Java 5 SR10 and SR11 don't have a loadAgent method, so find
-                // out now
-                VirtualMachine.class.getMethod("loadAgent", String.class, String.class); //$NON-NLS-1$
-            }
-            catch (NoSuchMethodException e)
-            {
-                return null;
             }
 
             // Create VMinfo to generate heap dumps
 
             String desc = MessageFormat.format(Messages.getString("IBMDumpProvider.VMDescription"), vmd.provider().name(), vmd.provider().type(), displayName); //$NON-NLS-1$
+            if (!usable)
+            {
+                desc = unusableCause + " : " + desc;
+            }
             IBMVmInfo ifo = new IBMVmInfo(vmd.id(), desc, usable, null, this);
             ifo.type = defaultType;
             ifo.live = defaultLive;
@@ -1135,7 +1178,7 @@ public class IBMDumpProvider extends BaseProvider
             IBMVmInfo vminfo = (IBMVmInfo)info;
             String vm = vminfo.getPidName();
             String dir = vminfo.dumpdir != null ? vminfo.dumpdir.getAbsolutePath() : "";
-            String vm2 = vm + INFO_SEPARATOR + info.getProposedFileName() + INFO_SEPARATOR + dir + INFO_SEPARATOR + info.getDescription();
+            String vm2 = vm + INFO_SEPARATOR + info.getProposedFileName() + INFO_SEPARATOR + dir + INFO_SEPARATOR  + info.isHeapDumpEnabled() + INFO_SEPARATOR + info.getDescription();
             if (s.length < 5)
             {
                 System.out.println(vm2);
