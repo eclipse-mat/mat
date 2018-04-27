@@ -32,4 +32,9 @@
 <unit id="org.hamcrest" version="1.1.0.v20090501071000"/>
 </location>
 </locations>
+<implicitDependencies>
+<plugin id="org.eclipse.ui.views.log"/>
+<plugin id="org.eclipse.equinox.event"/>
+<plugin id="org.eclipse.equinox.ds"/>
+</implicitDependencies>
 </target>

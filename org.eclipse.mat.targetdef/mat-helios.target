@@ -13,4 +13,7 @@
 <repository location="http://public.dhe.ibm.com/software/websphere/runtimes/tools/dtfj/"/>
 </location>
 </locations>
+<implicitDependencies>
+<plugin id="org.eclipse.pde.runtime"/>
+</implicitDependencies>
 </target>
