@@ -16,6 +16,8 @@ import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
@@ -56,8 +58,10 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DirectoryDialog;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
@@ -77,6 +81,10 @@ public class AcquireDialog extends WizardPage
     private Button refreshButton;
     private Collection<HeapDumpProviderDescriptor> providerDescriptors;
     private List<ProcessSelectionListener> listeners = new ArrayList<ProcessSelectionListener>();
+
+    private int sortpid = 1;
+    private int sortproc = 2;
+    private List<? extends VmInfo> vms;
 
     interface ProcessSelectionListener
     {
@@ -125,9 +133,49 @@ public class AcquireDialog extends WizardPage
         column = new TableColumn(localVMsTable, SWT.RIGHT);
         column.setText(Messages.AcquireDialog_ColumnPID);
         column.setWidth(50);
+        column.addListener(SWT.Selection, new Listener() {
+            public void handleEvent(Event arg0)
+            {
+                if (sortpid == 0)
+                {
+                    sortpid = 2;
+                }
+                else if (sortpid > 0)
+                {
+                    sortpid = -2;
+                }
+                else
+                {
+                    sortpid = 0;
+                }
+                if (Math.abs(sortproc) >= 2)
+                    sortproc /= 2;
+                resort();
+            }
+        });
         column = new TableColumn(localVMsTable, SWT.LEFT);
         column.setText(Messages.AcquireDialog_HeapDumpProviderColumnHeader);
         column.setWidth(200);
+        column.addListener(SWT.Selection, new Listener() {
+            public void handleEvent(Event arg0)
+            {
+                if (sortproc == 0)
+                {
+                    sortproc = 2;
+                }
+                else if (sortproc > 0)
+                {
+                    sortproc = -2;
+                }
+                else
+                {
+                    sortproc = 0;
+                }
+                if (Math.abs(sortpid) >= 2)
+                    sortpid /= 2;
+                resort();
+            }
+        });
 
         italicFont = resourceManager.createFont(FontDescriptor.createFrom(column.getParent().getFont()).setStyle(SWT.ITALIC));
 
@@ -256,34 +304,68 @@ public class AcquireDialog extends WizardPage
     
     private void refreshTable()
     {
-    	localVMsTable.removeAll();
-        List<? extends VmInfo> vms = getAvailableVms();
+        localVMsTable.removeAll();
+        vms = getAvailableVms();
+        fillTable();
+    }
 
+    private void fillTable()
+    {
+        localVMsTable.removeAll();
         if (vms != null)
         {
-        	for (VmInfo process : vms)
-        	{
-        		
-        		try
-				{
-					VmInfoDescriptor descriptor = VmInfoDescriptor.createDescriptor(process);
-					TableItem item = new TableItem(localVMsTable, SWT.NONE);
-					item.setGrayed(!process.isHeapDumpEnabled());
-					if (!process.isHeapDumpEnabled())
-					{
-					    item.setFont(italicFont);
-					}
-					item.setText(0, process.getDescription());
-					item.setText(1, Integer.toString(process.getPid()));
-					item.setText(2, getProviderDescriptor(process).getName());
-					item.setData(new AnnotatedObjectArgumentsSet(descriptor));
-				}
-				catch (SnapshotException e)
-				{
-					Logger.getLogger(MemoryAnalyserPlugin.PLUGIN_ID).log(Level.SEVERE, "Problems refreshing process list", e); //$NON-NLS-1$
-				}
-        	}
+            for (VmInfo process : sort(vms))
+            {
+
+                try
+                {
+                    VmInfoDescriptor descriptor = VmInfoDescriptor.createDescriptor(process);
+                    TableItem item = new TableItem(localVMsTable, SWT.NONE);
+                    item.setGrayed(!process.isHeapDumpEnabled());
+                    if (!process.isHeapDumpEnabled())
+                    {
+                        item.setFont(italicFont);
+                    }
+                    item.setText(0, process.getDescription());
+                    item.setText(1, Integer.toString(process.getPid()));
+                    item.setText(2, getProviderDescriptor(process).getName());
+                    item.setData(new AnnotatedObjectArgumentsSet(descriptor));
+                }
+                catch (SnapshotException e)
+                {
+                    Logger.getLogger(MemoryAnalyserPlugin.PLUGIN_ID).log(Level.SEVERE, "Problems refreshing process list", e); //$NON-NLS-1$
+                }
+            }
         }
+    }
+
+    private List<? extends VmInfo> sort(List<? extends VmInfo> vms)
+    {
+        if (sortpid == 0 && sortproc == 0)
+            return vms;
+        List<? extends VmInfo>vms2 = new ArrayList<VmInfo>(vms);
+        Collections.sort(vms2, new Comparator<VmInfo>() {
+            private int sort(int a, int b) {
+                if (a < b)
+                    return -1;
+                else if (a > b)
+                    return +1;
+                else
+                    return 0;
+            }
+            private int signum(int x)
+            {
+                return sort(x, 0);
+            }
+            public int compare(VmInfo o1, VmInfo o2)
+            {
+                // First sort by indicator +/- 2, then by the indicator +/- 1
+                return sortpid * sort(o1.getPid(), o2.getPid()) + sortproc *
+                               signum(AcquireDialog.this.getProviderDescriptor(o1).getName().compareTo(
+                                    AcquireDialog.this.getProviderDescriptor(o2).getName()));
+            } 
+        });
+        return vms2;
     }
 
     private List<VmInfo> getAvailableVms()
@@ -379,6 +461,12 @@ public class AcquireDialog extends WizardPage
         localVMsTable.deselectAll();
         selectionChanged();
         refreshTable();
+    }
+
+    void resort() {
+        localVMsTable.deselectAll();
+        selectionChanged();
+        fillTable();
     }
 	
     void updateFileName()
