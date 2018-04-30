@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e5d2ab98_c01b88a4",
+        "filename": "plugins/org.eclipse.mat.tests/META-INF/MANIFEST.MF",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2018-04-30T12:15:29Z",
+      "side": 1,
+      "message": "Did you mean to update the version of ant as well?",
+      "revId": "a2b354665484e5c7d0347b8bf78bc154ee9434c6",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
