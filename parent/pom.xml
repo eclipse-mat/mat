@@ -21,7 +21,7 @@
 		<download-publish-path>/home/data/httpd/download.eclipse.org/mat/snapshots/update-site</download-publish-path>
 		<download-publish-rcp-path>/home/data/httpd/download.eclipse.org/mat/snapshots/rcp</download-publish-rcp-path>
 		<!-- mat-target specifies which .target definition file will be used -->
-		<mat-target>mat-mars</mat-target>
+		<mat-target>mat-photon</mat-target>
 		<!-- mat-release-repo-url specifies from which p2 repo the MAT bundles 
 			come, when the build-release profile is used -->
 		<mat-release-repo-url>http://download.eclipse.org/mat/1.7/update-site/</mat-release-repo-url>
@@ -205,31 +205,6 @@
 							<arch>x86_64</arch>
 						</environment>
 						<environment>
-							<os>solaris</os>
-							<ws>gtk</ws>
-							<arch>x86</arch>
-						</environment>
-						<environment>
-							<os>solaris</os>
-							<ws>gtk</ws>
-							<arch>sparc</arch>
-						</environment>
-						<environment>
-							<os>aix</os>
-							<ws>gtk</ws>
-							<arch>ppc</arch>
-						</environment>
-						<environment>
-							<os>aix</os>
-							<ws>gtk</ws>
-							<arch>ppc64</arch>
-						</environment>
-						<environment>
-							<os>hpux</os>
-							<ws>gtk</ws>
-							<arch>ia64</arch>
-						</environment>
-						<environment>
 							<os>linux</os>
 							<ws>gtk</ws>
 							<arch>x86</arch>
@@ -242,27 +217,12 @@
 						<environment>
 							<os>linux</os>
 							<ws>gtk</ws>
-							<arch>ppc</arch>
-						</environment>
-						<environment>
-							<os>linux</os>
-							<ws>gtk</ws>
 							<arch>ppc64</arch>
 						</environment>
 						<environment>
 							<os>linux</os>
 							<ws>gtk</ws>
 							<arch>ppc64le</arch>
-						</environment>
-						<environment>
-							<os>linux</os>
-							<ws>gtk</ws>
-							<arch>s390x</arch>
-						</environment>
-						<environment>
-							<os>linux</os>
-							<ws>gtk</ws>
-							<arch>s390</arch>
 						</environment>
 					</environments>
 				</configuration>
