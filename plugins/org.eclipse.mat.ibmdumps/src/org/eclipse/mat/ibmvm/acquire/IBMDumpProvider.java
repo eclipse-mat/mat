@@ -34,6 +34,7 @@ import java.util.Properties;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.annotations.Help;
+import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.snapshot.acquire.VmInfo;
 import org.eclipse.mat.util.IProgressListener;
@@ -56,6 +57,7 @@ import org.eclipse.mat.util.IProgressListener.Severity;
  */
 @Name("IBM Dump (using attach API)")
 @Help("help for IBM Dump (using attach API)")
+@HelpUrl("/org.eclipse.mat.ui.help/tasks/acquiringheapdump.html#2")
 public class IBMDumpProvider extends BaseProvider
 {
     /**

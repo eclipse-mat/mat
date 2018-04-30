@@ -26,6 +26,7 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.annotations.Argument;
+import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.snapshot.acquire.IHeapDumpProvider;
 import org.eclipse.mat.snapshot.acquire.VmInfo;
@@ -42,6 +43,7 @@ import org.osgi.service.prefs.BackingStoreException;
  *
  */
 @Name("IBM Dump (using helper VM)")
+@HelpUrl("/org.eclipse.mat.ui.help/tasks/acquiringheapdump.html#3")
 public class IBMExecDumpProvider extends BaseProvider
 {
     private static final String PLUGIN_ID = "org.eclipse.mat.ibmdump"; //$NON-NLS-1$

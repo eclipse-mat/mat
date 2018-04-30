@@ -52,6 +52,10 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.ui.PlatformUI;
 
+/**
+ * Handles configuring arguments for a particular dump provider.
+ *
+ */
 public class ProviderConfigurationWizardPage extends WizardPage implements ITableListener
 {
 
@@ -80,7 +84,7 @@ public class ProviderConfigurationWizardPage extends WizardPage implements ITabl
         GridDataFactory.swtDefaults().span(1, 1).applyTo(providersLabel);
         
         createProvidersTable(composite);
-        GridDataFactory.fillDefaults().grab(true, true).span(1, 1).applyTo(availableProvidersTable);
+        GridDataFactory.fillDefaults().grab(true, false).span(1, 1).applyTo(availableProvidersTable);
         
         Label argumentsLabel = new Label(composite, SWT.NONE);
         argumentsLabel.setText(Messages.ProviderConfigurationDialog_ConfigurableParameteresLabel);
@@ -432,5 +436,17 @@ public class ProviderConfigurationWizardPage extends WizardPage implements ITabl
         }
         // If an error message is displayed then don't allow next
         return exec && getErrorMessage() == null;
+    }
+    
+    //@Override
+    public void performHelp()
+    {
+        String helpUrl = table.getArgumentSet().getDescriptor().getHelpUrl();
+        if (helpUrl != null)
+        {
+             PlatformUI.getWorkbench().getHelpSystem().displayHelpResource(helpUrl);
+        }
+        relocateHelp(true);
+        PlatformUI.getWorkbench().getHelpSystem().displayHelp("org.eclipse.mat.ui.help.acquire_arguments"); //$NON-NLS-1$
     }
 }

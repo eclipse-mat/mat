@@ -13,6 +13,7 @@ package org.eclipse.mat.ibmvm.acquire;
 import java.io.File;
 
 import org.eclipse.mat.query.annotations.Argument;
+import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.snapshot.acquire.IHeapDumpProvider;
 
 /**
@@ -20,6 +21,7 @@ import org.eclipse.mat.snapshot.acquire.IHeapDumpProvider;
  * @author ajohnson
  *
  */
+@HelpUrl("/org.eclipse.mat.ui.help/tasks/acquiringheapdump.html#3")
 public class IBMExecVmInfo extends IBMVmInfo
 {
     @Argument

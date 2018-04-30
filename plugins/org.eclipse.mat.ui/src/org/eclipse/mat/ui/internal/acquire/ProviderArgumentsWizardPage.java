@@ -29,6 +29,10 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.PlatformUI;
 
+/**
+ * Handles configuring arguments to generate a dump from a single VM.
+ *
+ */
 public class ProviderArgumentsWizardPage extends WizardPage implements ITableListener, ProcessSelectionListener
 {
     private ProviderArgumentsTable table;
@@ -190,5 +194,17 @@ public class ProviderArgumentsWizardPage extends WizardPage implements ITableLis
             relocateHelp(true);
         }
         super.setVisible(f);
+    }
+    
+    @Override
+    public void performHelp()
+    {
+        String helpUrl = table.getArgumentSet().getDescriptor().getHelpUrl();
+        if (helpUrl != null)
+        {
+             PlatformUI.getWorkbench().getHelpSystem().displayHelpResource(helpUrl);
+        }
+        relocateHelp(true);
+        PlatformUI.getWorkbench().getHelpSystem().displayHelp("org.eclipse.mat.ui.help.acquire_arguments"); //$NON-NLS-1$
     }
 }

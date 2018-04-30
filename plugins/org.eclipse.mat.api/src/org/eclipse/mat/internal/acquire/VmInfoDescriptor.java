@@ -27,6 +27,7 @@ import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.Help;
+import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Name;
 import org.eclipse.mat.query.registry.AnnotatedObjectDescriptor;
 import org.eclipse.mat.query.registry.ArgumentDescriptor;
@@ -69,7 +70,10 @@ public class VmInfoDescriptor extends AnnotatedObjectDescriptor
         String help = translate(i18n, vmInfoClass.getSimpleName() + ".help", //$NON-NLS-1$
                         h != null ? h.value() : null);
 
-        VmInfoDescriptor descriptor = new VmInfoDescriptor(vmInfoClass.getSimpleName(), name, null, help, null,
+        HelpUrl hu = vmInfoClass.getAnnotation(HelpUrl.class);
+        String helpUrl = hu != null ? hu.value() : null;
+
+        VmInfoDescriptor descriptor = new VmInfoDescriptor(vmInfoClass.getSimpleName(), name, null, help, helpUrl,
                         helpLoc, vmInfo);
 
         Class<?> clazz = vmInfo.getClass();
