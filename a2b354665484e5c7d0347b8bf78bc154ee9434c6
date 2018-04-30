@@ -16,6 +16,24 @@
       "revId": "a2b354665484e5c7d0347b8bf78bc154ee9434c6",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bfcc8cf8_004b4425",
+        "filename": "plugins/org.eclipse.mat.tests/META-INF/MANIFEST.MF",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 16759
+      },
+      "writtenOn": "2018-04-30T12:18:00Z",
+      "side": 1,
+      "message": "no!\nThank you :) I\u0027ll upload a new patch",
+      "parentUuid": "e5d2ab98_c01b88a4",
+      "revId": "a2b354665484e5c7d0347b8bf78bc154ee9434c6",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
