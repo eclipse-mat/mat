@@ -49,14 +49,19 @@ import org.eclipse.mat.ui.util.ProgressMonitorWrapper;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ControlEvent;
+import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
@@ -66,7 +71,12 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.PlatformUI;
 
+/**
+ * Handles the list of all VMs.
+ *
+ */
 public class AcquireDialog extends WizardPage
 {
     private static final String LAST_DIRECTORY_KEY = AcquireDialog.class.getName() + ".lastDir"; //$NON-NLS-1$
@@ -108,7 +118,7 @@ public class AcquireDialog extends WizardPage
         Label l1 = new Label(top, SWT.NONE);
         l1.setText(Messages.AcquireDialog_ChooseProcess);
         GridDataFactory.swtDefaults().span(2, 1).applyTo(l1);
-        
+
         localVMsTable = new Table(top, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL | SWT.FULL_SELECTION);
         localVMsTable.setHeaderVisible(true);
         localVMsTable.setLinesVisible(true);
@@ -127,14 +137,17 @@ public class AcquireDialog extends WizardPage
             }
         });
 
+        final int descWidth = 250;
+        final int pidWidth = 50;
+        final int provWidth = 200;
         TableColumn column = new TableColumn(localVMsTable, SWT.RIGHT);
         column.setText(Messages.AcquireDialog_ColumnDescription);
-        column.setWidth(250);
+        column.setWidth(descWidth);
         column = new TableColumn(localVMsTable, SWT.RIGHT);
         column.setText(Messages.AcquireDialog_ColumnPID);
-        column.setWidth(50);
-        column.addListener(SWT.Selection, new Listener() {
-            public void handleEvent(Event arg0)
+        column.setWidth(pidWidth);
+        column.addSelectionListener(new SelectionListener() {
+            public void widgetSelected(SelectionEvent arg0)
             {
                 if (sortpid == 0)
                 {
@@ -152,12 +165,16 @@ public class AcquireDialog extends WizardPage
                     sortproc /= 2;
                 resort();
             }
+
+            public void widgetDefaultSelected(SelectionEvent arg0)
+            {
+            }
         });
         column = new TableColumn(localVMsTable, SWT.LEFT);
         column.setText(Messages.AcquireDialog_HeapDumpProviderColumnHeader);
-        column.setWidth(200);
-        column.addListener(SWT.Selection, new Listener() {
-            public void handleEvent(Event arg0)
+        column.setWidth(provWidth);
+        column.addSelectionListener(new SelectionListener() {
+            public void widgetSelected(SelectionEvent arg0)
             {
                 if (sortproc == 0)
                 {
@@ -175,6 +192,30 @@ public class AcquireDialog extends WizardPage
                     sortpid /= 2;
                 resort();
             }
+
+            public void widgetDefaultSelected(SelectionEvent arg0)
+            {
+            }
+        });
+
+        Control control = localVMsTable.getParent();
+        PlatformUI.getWorkbench().getHelpSystem().setHelp(control, "org.eclipse.mat.ui.help.acquire_arguments"); //$NON-NLS-1$
+
+        localVMsTable.addControlListener(new ControlListener() {
+            public void controlMoved(ControlEvent arg0)
+            {
+            }
+
+            public void controlResized(ControlEvent arg0)
+            {
+                Rectangle rect = localVMsTable.getClientArea();
+                if(rect.width > 0) {
+                    // Give extra width to description
+                    TableColumn cols[] = localVMsTable.getColumns();
+                    int w = Math.max(rect.width - cols[1].getWidth() - cols[2].getWidth(), descWidth);
+                    cols[0].setWidth(w);
+                }
+            }
         });
 
         italicFont = resourceManager.createFont(FontDescriptor.createFrom(column.getParent().getFont()).setStyle(SWT.ITALIC));
@@ -182,18 +223,18 @@ public class AcquireDialog extends WizardPage
         Composite buttons = new Composite(top, SWT.NONE);
         buttons.setLayout(new GridLayout(1, false));
         GridDataFactory.fillDefaults().span(1, 1).applyTo(buttons);
-        
+
         refreshButton = new Button(buttons, SWT.NONE);
         refreshButton.setText(Messages.AcquireDialog_RefreshButtonLabel);
         GridDataFactory.fillDefaults().grab(true, false).span(1, 1).applyTo(refreshButton);
         refreshButton.addSelectionListener(new SelectionAdapter() {
-			
-			public void widgetSelected(SelectionEvent e)
-			{
-				refresh();
-			}
-		});
-        
+
+            public void widgetSelected(SelectionEvent e)
+            {
+                refresh();
+            }
+        });
+
         configureButton = new Button(buttons, SWT.NONE);
         configureButton.setText(Messages.AcquireDialog_ConfigureButtonLabel);
         GridDataFactory.fillDefaults().grab(true, false).span(1, 1).applyTo(configureButton);

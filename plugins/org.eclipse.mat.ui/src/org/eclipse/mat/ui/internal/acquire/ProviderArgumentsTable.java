@@ -51,6 +51,10 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 
+/**
+ * Handles a table of arguments - either for a particular dump or for a particular dump provider type.
+ *
+ */
 public class ProviderArgumentsTable implements IEditorListener/*, ProcessSelectionListener*/
 {
 

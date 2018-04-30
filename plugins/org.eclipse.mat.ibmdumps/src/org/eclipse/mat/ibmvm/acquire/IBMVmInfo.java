@@ -15,6 +15,7 @@ import java.io.File;
 
 import org.eclipse.mat.ibmvm.agent.DumpAgent;
 import org.eclipse.mat.query.annotations.Argument;
+import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Argument.Advice;
 import org.eclipse.mat.snapshot.acquire.IHeapDumpProvider;
 import org.eclipse.mat.snapshot.acquire.VmInfo;
@@ -24,6 +25,7 @@ import org.eclipse.mat.snapshot.acquire.VmInfo;
  * @author ajohnson
  *
  */
+@HelpUrl("/org.eclipse.mat.ui.help/tasks/acquiringheapdump.html#2")
 public class IBMVmInfo extends VmInfo
 {
     @Argument
@@ -39,13 +41,13 @@ public class IBMVmInfo extends VmInfo
     public File dumpdir;
 
     private String pid;
-    
+
     IBMVmInfo(String pid, String description, boolean heapDumpEnabled, String proposedFileName, IHeapDumpProvider heapDumpProvider)
     {
         super(0, description, heapDumpEnabled, proposedFileName, heapDumpProvider);
         setPid(pid);
     }
-    
+
     void setPid(String s)
     {
         pid = s;
@@ -59,12 +61,12 @@ public class IBMVmInfo extends VmInfo
             setPid(-1);
         }
     }
-    
+
     String getPidName()
     {
         return pid;
     }
-    
+
     /**
      * Command to pass to the agent to generate dumps of this type
      * @return the command to be executed e.g. by {@link IBMDumpProvider.AgentLoader#IBMDumpProvider.AgentLoader()}
@@ -91,7 +93,7 @@ public class IBMVmInfo extends VmInfo
             return DumpAgent.HPROF+DumpAgent.INFO_SEPARATOR+Boolean.toString(live)+DumpAgent.INFO_SEPARATOR+fn;
         return null;
     }
-    
+
     @Override
     public String getProposedFileName()
     {
