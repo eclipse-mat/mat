@@ -2,7 +2,7 @@
 <feature
       id="org.eclipse.mat.chart.feature"
       label="%featureName"
-      version="1.7.0.qualifier"
+      version="1.8.0.qualifier"
       provider-name="%providerName"
       plugin="org.eclipse.mat.chart">
 
@@ -30,8 +30,8 @@
       <import plugin="org.eclipse.birt.chart.device.swt" version="2.3.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.birt.chart.engine.extension" version="2.3.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.birt.core" version="2.3.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.mat.ui" version="1.7.0" match="greaterOrEqual"/>
-      <import feature="org.eclipse.mat.feature" version="1.7.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.mat.ui" version="1.8.0" match="greaterOrEqual"/>
+      <import feature="org.eclipse.mat.feature" version="1.8.0" match="greaterOrEqual"/>
    </requires>
 
    <plugin
