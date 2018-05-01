@@ -34,7 +34,6 @@ public class BuiltinSuggestionProvider implements SuggestionProvider
     /**
      * Builds this object
      * 
-     * @param snapshot
      */
     public BuiltinSuggestionProvider()
     {

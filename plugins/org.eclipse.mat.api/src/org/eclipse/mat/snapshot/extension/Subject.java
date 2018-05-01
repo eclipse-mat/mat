@@ -19,11 +19,7 @@ import java.lang.annotation.Target;
 /**
  * Used to tag resolvers with the name of the class that they handle.
  * Can be used as follows:
- * <code>
- * <pre>
- * @Subject("com.example.class1")
- * </pre>
- * </code>
+ * {@code @Subject("com.example.class1") }
  * See {@link Subjects} for multiple class names.
  * <p>Experimental: can also be used to tag queries which only make sense when the class
  * is present in the snapshot.

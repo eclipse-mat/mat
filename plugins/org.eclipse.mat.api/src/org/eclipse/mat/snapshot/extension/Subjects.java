@@ -19,17 +19,9 @@ import java.lang.annotation.Target;
 /**
  * Used to tag resolvers with the names of classes that they handle.
  * Can be used as follows:
- * <code>
- * <pre>
- * @Subjects({"com.example.class1", "com.example.Class2"})
- * </pre>
- * </code>
+ * {@code @Subjects({"com.example.class1", "com.example.Class2"}) }
  * or
- * <code>
- * <pre>
- * @Subjects("com.example.class1")
- * </pre>
- * </code>
+ * {@code @Subjects("com.example.class1") }
  * See {@link Subject} for a single class name, though this annotation can also be used for a single class name.
  * <p>Experimental: can also be used to tag queries which only make sense when at least one the classes
  * is present in the snapshot.

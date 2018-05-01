@@ -17,9 +17,9 @@ import org.eclipse.ui.IStartup;
 
 /**
  * We use this instead of a PreferenceInitializer because that only gets called
- * when the preference pane is opened. See
- * http://help.eclipse.org/helios/index.jsp?topic=/org.eclipse.platform.doc.
- * isv/reference/extension-points/org_eclipse_ui_startup.html
+ * when the preference pane is opened. 
+ * 
+ * @see <a href="http://help.eclipse.org/index.jsp?topic=/org.eclipse.platform.doc.isv/reference/extension-points/org_eclipse_ui_startup.html">http://help.eclipse.org/index.jsp?topic=/org.eclipse.platform.doc.isv/reference/extension-points/org_eclipse_ui_startup.html</a>
  */
 public class MemoryAnalyserPreferences implements IStartup
 {

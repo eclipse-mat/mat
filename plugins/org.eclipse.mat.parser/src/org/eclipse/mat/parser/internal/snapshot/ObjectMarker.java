@@ -501,7 +501,7 @@ public class ObjectMarker
      * Depth first search thread - with locality.
      * Have a local stack for objects close to the current object.
      * Have a local queue for remaining objects.
-     * Use the global stack for excess objects or when local stack & queue are empty.
+     * Use the global stack for excess objects or when local stack and queue are empty.
      */
     public class LocalDfsThread extends DfsThread
     {

@@ -12,7 +12,7 @@ package org.eclipse.mat.util;
 
 /**
  * This interface is closely modeled after
- * {@link org.eclipse.core.runtime.IProgressMonitor}. The latter has not been
+ * { link org.eclipse.core.runtime.IProgressMonitor}. The latter has not been
  * used to avoid a dependency. It is implemented by objects that monitor the
  * progress of an activity; the methods in this interface are invoked by code
  * that performs the activity.

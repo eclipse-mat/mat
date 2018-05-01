@@ -168,7 +168,7 @@ public final class HashMapIntLong implements Serializable
      * Retrieve the value corresponding to the key
      * @param key the key
      * @return the value
-     * @throws NosuchElementException if the key is not found
+     * @throws NoSuchElementException if the key is not found
      */
     public long get(int key)
     {

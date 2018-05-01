@@ -730,7 +730,8 @@ public class IBMDumpProvider extends BaseProvider
     /**
      * Post process a generated dump
      * @param preferredDump
-     * @param dump
+     * @param compress
+     * @param dumps
      * @param udir
      * @param javahome
      * @param listener
@@ -1178,7 +1179,7 @@ public class IBMDumpProvider extends BaseProvider
      * Output<ul>
      * <li>dump filename</li>
      * <li>or list of all processes (if argument list is empty)
-     * <samp>PID;proposed file name;directory;description</samp></li>
+     * <pre>PID;proposed file name;directory;enable dump;description</pre></li>
      * </ul>
      */
     public static void main(String s[]) throws Exception

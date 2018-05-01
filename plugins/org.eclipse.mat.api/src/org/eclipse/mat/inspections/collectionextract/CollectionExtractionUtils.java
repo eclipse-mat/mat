@@ -65,7 +65,7 @@ public class CollectionExtractionUtils
     /**
      * Finds a proper ICollectionExtractor for the object passed as parameter
      * 
-     * @param collection
+     * @param className
      *            the name of a collection class
      * @return ICollectionExtractor an extractor object for the collection
      * @throws SnapshotException

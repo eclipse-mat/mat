@@ -20,7 +20,7 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 
 /**
  * This class represents a preference page that is contributed to the
- * Preferences dialog. By subclassing FieldEditorPreferencePage, we can use the
+ * Preferences dialog. By subclassing { link org.eclipse.jface.preference.FieldEditorPreferencePage}, we can use the
  * field support built into JFace that allows us to create a page that is small
  * and knows how to save, restore and apply itself.
  * <p>

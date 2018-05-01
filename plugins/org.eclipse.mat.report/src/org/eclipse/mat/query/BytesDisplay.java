@@ -100,8 +100,7 @@ public enum BytesDisplay
     /**
      * Uses system properties to set the current value.
      * 
-     * @param newStrictness
-     *            The new value.
+     * @param val The new value.
      */
     public static void setCurrentValue(BytesDisplay val)
     {
