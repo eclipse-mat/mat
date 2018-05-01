@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others.
+ * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation/Andrew Johnson - Javadoc updates
  *******************************************************************************/
 package org.eclipse.mat.collect;
 
@@ -72,7 +73,7 @@ public final class HashMapObjectLong<E> implements Serializable
 
     /**
      * Create a map of given size
-     * @param initialCapacity
+     * @param initialCapacity the initial capacity of the HashMap
      */
     public HashMapObjectLong(int initialCapacity)
     {
@@ -205,6 +206,9 @@ public final class HashMapObjectLong<E> implements Serializable
 
     /**
      * Get all the used keys.
+     * @param a an array of the right type for the output, which will be used
+     * if it is big enough, otherwise another array of this type will be allocated.
+     * @param <T> the type of the keys
      * @return an array of the used keys
      */
     @SuppressWarnings("unchecked")

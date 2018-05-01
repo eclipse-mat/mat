@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation/Andrew Johnson - Javadoc updates
  *******************************************************************************/
 package org.eclipse.mat.collect;
 
@@ -33,8 +34,8 @@ public final class ArrayLong
     }
 
     /**
-     * Create a list of given size
-     * @param initialCapacity
+     * Create an empty list of given capacity for more entries.
+     * @param initialCapacity in number of entries
      */
     public ArrayLong(int initialCapacity)
     {
@@ -75,8 +76,8 @@ public final class ArrayLong
     }
 
     /**
-     * append a group of entries
-     * @param elements
+     * Append a group of entries
+     * @param elements an array of long, to be added to end of this ArrayLong.
      */
     public void addAll(long[] elements)
     {
@@ -86,8 +87,8 @@ public final class ArrayLong
     }
 
     /**
-     * append all of another 
-     * @param template
+     * Append all of another  ArrayLong to the end of this one.
+     * @param template the other ArrayLong
      */
     public void addAll(ArrayLong template)
     {
@@ -98,8 +99,8 @@ public final class ArrayLong
 
     /**
      * modify one particular entry
-     * @param index
-     * @param element
+     * @param index into this ArrayLong
+     * @param element the new value to be put here
      * @return the previous value
      */
     public long set(int index, long element)
@@ -113,8 +114,8 @@ public final class ArrayLong
     }
 
     /**
-     * retrieve one entry
-     * @param index
+     * Retrieve one entry
+     * @param index into the ArrayLong
      * @return the entry
      */
     public long get(int index)

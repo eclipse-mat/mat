@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation/Andrew Johnson - Javadoc updates
  *******************************************************************************/
 package org.eclipse.mat.query;
 
@@ -119,7 +120,7 @@ public abstract class ContextDerivedData
          * @param operation the operation to do on the row to get the derived data
          * @param row the row
          * @param listener to indicate progress and exceptions
-         * @throws SnapshotException
+         * @throws SnapshotException if there was a problem with the calculation
          */
         void calculate(DerivedOperation operation, Object row, IProgressListener listener) throws SnapshotException;
     }
@@ -133,15 +134,15 @@ public abstract class ContextDerivedData
 
     /**
      * Get the label for the extra column
-     * @param derivedColumn
-     * @param provider
+     * @param derivedColumn the extra column
+     * @param provider how the column was generated
      * @return the label
      */
     public abstract String labelFor(DerivedColumn derivedColumn, ContextProvider provider);
 
     /**
      * Get a column ready to use, based on the derived column
-     * @param derivedColumn
+     * @param derivedColumn the extra column
      * @param result the original result to be enhanced
      * @param provider the provider of all the data
      * @return the column
@@ -150,7 +151,7 @@ public abstract class ContextDerivedData
 
     /**
      * Find the appropriate column for the requested operation
-     * @param operation
+     * @param operation the operation to generate the column values
      * @return the column
      */
     public final DerivedColumn lookup(DerivedOperation operation)

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation/Andrew Johnson - Javadoc updates
  *******************************************************************************/
 package org.eclipse.mat.query;
 
@@ -53,17 +54,17 @@ public abstract class DetailResultProvider
 
     /**
      * Whether there is any data for this row
-     * @param row
+     * @param row the opaque data representing the row
      * @return true if getResult is to be called
      */
     public abstract boolean hasResult(Object row);
 
     /**
      * Get more data about the row.
-     * @param row
+     * @param row the opaque object for finding the row
      * @param listener to indicate progress or errors
      * @return the extra generated results
-     * @throws SnapshotException
+     * @throws SnapshotException if there was a problem getting the result
      */
     public abstract IResult getResult(Object row, IProgressListener listener) throws SnapshotException;
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation/Andrew Johnson - Javadoc updates
  *******************************************************************************/
 package org.eclipse.mat.util;
 
@@ -129,7 +130,6 @@ public interface IProgressListener
      * WARNING</code> - a warning (less severe)</li> <li><code>INFO</code> - an
      * informational ("fyi") message (least severe)</li>
      * </ul>
-     * <p>
      */
     public enum Severity
     {

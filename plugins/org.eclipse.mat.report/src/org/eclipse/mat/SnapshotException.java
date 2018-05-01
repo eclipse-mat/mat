@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation/Andrew Johnson - Javadoc updates
  *******************************************************************************/
 package org.eclipse.mat;
 
@@ -27,9 +28,9 @@ public class SnapshotException extends Exception
 
     /**
      * Create snapshot exception with message and root cause.
-     * 
-     * @param message
-     * @param cause
+     *
+     * @param message the message for the exception
+     * @param cause the original exception
      */
     public SnapshotException(String message, Throwable cause)
     {
@@ -38,8 +39,8 @@ public class SnapshotException extends Exception
 
     /**
      * Create snapshot exception with message only.
-     * 
-     * @param message
+     *
+     * @param message the message for the exception
      */
     public SnapshotException(String message)
     {
@@ -48,8 +49,8 @@ public class SnapshotException extends Exception
 
     /**
      * Create snapshot exception with root cause only.
-     * 
-     * @param cause
+     *
+     * @param cause the original exception
      */
     public SnapshotException(Throwable cause)
     {
@@ -58,6 +59,8 @@ public class SnapshotException extends Exception
 
     /**
      * Wrap, if necessary, and return a SnapshotException.
+     * @param e the original exception
+     * @return a new exception to throw
      */
     public static final SnapshotException rethrow(Throwable e)
     {

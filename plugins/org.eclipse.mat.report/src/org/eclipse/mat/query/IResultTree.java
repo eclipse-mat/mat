@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation/Andrew Johnson - Javadoc updates
  *******************************************************************************/
 package org.eclipse.mat.query;
 
@@ -23,11 +24,14 @@ public interface IResultTree extends IStructuredResult
      * {@link IResultTree#getChildren(Object)} or 
      * {@link IStructuredResult#getContext(Object)} or
      * {@link IStructuredResult#getColumnValue(Object, int)}.
+     * @return a list of all the root elements of the tree
      */
     List<?> getElements();
 
     /**
      * Returns whether the given element has children.
+     * @param element the opaque object used to indicate which branch
+     * @return true if this element has children
      */
     boolean hasChildren(Object element);
 
@@ -37,6 +41,7 @@ public interface IResultTree extends IStructuredResult
      *            The row object as returned by the
      *            {@link IResultTree#getElements()} or
      *            {@link IResultTree#getChildren(Object)} methods.
+     * @return a list of children of this branch of the tree
      */
     List<?> getChildren(Object parent);
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2013 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *    IBM Corporation - localization of icons
+ *    IBM Corporation/Andrew Johnson - Javadoc updates
  *******************************************************************************/
 package org.eclipse.mat.query.refined;
 
@@ -76,7 +77,9 @@ public class TotalsRow
         return url;
     }
 
-    /** returns true if the totals row should be shown */
+    /**
+     * @return true if the totals row should be shown
+     */
     public boolean isVisible()
     {
         return (numberOfItems > 1) //
@@ -84,6 +87,11 @@ public class TotalsRow
                         || visibleItems < numberOfItems;
     }
 
+    /**
+     * The label for a totals tow.
+     * @param columnIndex the particular column
+     * @return what to display for this column for the totals row
+     */
     public String getLabel(int columnIndex)
     {
         if (columnIndex == 0)
@@ -106,12 +114,12 @@ public class TotalsRow
 
             TotalsResult result = totals[columnIndex];
             Object val = result.getValue();
-            
+
             Format f = result.getFormat();
             if (f == null) {
                 f = fmt;
             }
-            
+
             return f.format(val);
         }
     }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG, IBM Corporation.
+ * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
- *    IBM Corporation - improved javadoc
+ *    IBM Corporation/Andrew Johnson - Javadoc updates
  *******************************************************************************/
 package org.eclipse.mat.query;
 
@@ -69,6 +69,7 @@ public interface IQuery
      * @param listener
      *            Monitor to report progress and check for cancellation.
      * @return The result of the query.
+     * @throws Exception if something went wrong running the query
      */
     IResult execute(IProgressListener listener) throws Exception;
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation/Andrew Johnson - Javadoc updates
  *******************************************************************************/
 package org.eclipse.mat.query;
 
@@ -54,6 +55,7 @@ public abstract class ContextProvider
 
     /**
      * Constructor using copying values from the give template context provider.
+     * @param template a similar ContextProvider
      */
     public ContextProvider(ContextProvider template)
     {
@@ -82,7 +84,7 @@ public abstract class ContextProvider
 
     /**
      * Used to see if two context providers are the same.
-     * @param other
+     * @param other the other context provider to compare
      * @return true if they are the same
      */
     public final boolean hasSameTarget(ContextProvider other)

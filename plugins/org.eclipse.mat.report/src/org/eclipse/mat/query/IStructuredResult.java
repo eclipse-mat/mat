@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation/Andrew Johnson - Javadoc updates
  *******************************************************************************/
 package org.eclipse.mat.query;
 
@@ -20,6 +21,7 @@ public interface IStructuredResult extends IResult
 {
     /**
      * The columns of the tree or table.
+     * @return an array of all the columns
      */
     Column[] getColumns();
 
@@ -33,6 +35,7 @@ public interface IStructuredResult extends IResult
      *            {@link IResultTree#getChildren(Object)} methods
      * @param columnIndex
      *            The index of the column.
+     * @return the cell value
      */
     Object getColumnValue(Object row, int columnIndex);
 
@@ -46,6 +49,7 @@ public interface IStructuredResult extends IResult
      *            {@link IResultTable#getRow(int)} or
      *            {@link IResultTree#getElements()} or
      *            {@link IResultTree#getChildren(Object)} methods.
+     * @return a context object holding details about that row
      */
     IContextObject getContext(Object row);
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation/Andrew Johnson - Javadoc updates
  *******************************************************************************/
 package org.eclipse.mat.util;
 
@@ -26,8 +27,8 @@ public class PatternUtil
     /**
      * Fix up a pattern to be a true regular expression pattern.
      * Add dots and starts at the beginning and end if not already there. 
-     * @param pattern
-     * @return the fixed-up pattern
+     * @param pattern the pattern used for matching class names
+     * @return the fixed-up pattern a true Regex pattern
      */
     public static String smartFix(String pattern)
     {
@@ -36,7 +37,7 @@ public class PatternUtil
 
     /**
      * Fix up a pattern to be a true regular expression pattern.
-     * @param pattern
+     * @param pattern the almost RegEx pattern
      * @param addDotStars if true then if the pattern does not contain one of the expressions .* !^
         (at the beginning) $ (at the end), then a .* is added at the
         beginning and at the end of the pattern.

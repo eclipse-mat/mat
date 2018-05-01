@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation/Andrew Johnson - Javadoc updates
  *******************************************************************************/
 package org.eclipse.mat.query.registry;
 
@@ -100,8 +101,9 @@ public class QueryDescriptor extends AnnotatedObjectDescriptor
 
     /**
      * Create ArgumentSet.
-     * 
-     * @throws SnapshotException
+     * @param context The context holding data which could be supplied into the argument set for a query.
+     * @return The ArgumentSet for a query holding the data from the context required for the query.
+     * @throws SnapshotException if there is a problem creating an argument set from the context.
      */
     public ArgumentSet createNewArgumentSet(IQueryContext context) throws SnapshotException
     {
@@ -161,7 +163,7 @@ public class QueryDescriptor extends AnnotatedObjectDescriptor
 
     /**
      * Can the query be satisfied by the current context, possibly with other user supplied arguments?
-     * @param context
+     * @param context The data that could be supplied, for example the selected objects.
      * @return true if the query is suitable for use with the current context
      */
     public boolean accept(IQueryContext context)
@@ -183,7 +185,7 @@ public class QueryDescriptor extends AnnotatedObjectDescriptor
 
     /**
      * Explain any parameters which cannot be filled in from the provided context.
-     * @param context
+     * @param context The data that could be supplied, for example the selected objects.
      * @return a description of the problem arguments
      */
     public String explain(IQueryContext context)

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation/Andrew Johnson - Javadoc updates
  *******************************************************************************/
 package org.eclipse.mat.query.registry;
 
@@ -85,8 +86,9 @@ public final class QueryObjectLink
     private final static Pattern URL_PATTERN = Pattern.compile(PROTOCOL + "([^/]*)/(.*)"); //$NON-NLS-1$
 
     /**
+     * @param url The String representation of a Memory Analyzer URL, starting mat://
      * @return null if the URL does not present a proper Memory Analyzer Object
-     *         Link URL
+     *  otherwise an internal MAT representation of the URL.
      */
     public static QueryObjectLink parse(String url)
     {

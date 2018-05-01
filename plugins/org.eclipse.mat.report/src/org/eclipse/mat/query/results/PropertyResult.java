@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation/Andrew Johnson - Javadoc updates
  *******************************************************************************/
 package org.eclipse.mat.query.results;
 
@@ -65,7 +66,7 @@ public class PropertyResult implements IResultTable, IIconProvider
 
     /**
      * Generate a result from a single object
-     * @param <L>
+     * @param <L> The type of PropertyResult
      * @param subject the object
      * @param properties the field names or Java Bean properties to extract, or null or none to extract them all.
      */

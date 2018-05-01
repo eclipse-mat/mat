@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation/Andrew Johnson - Javadoc updates
  *******************************************************************************/
 package org.eclipse.mat.report;
 
@@ -40,7 +41,7 @@ public interface IOutputter
 
         /**
          * Get string to represent an icon
-         * @param icon
+         * @param icon where the icon can be found
          * @return a string which can be used for the icon
          */
         String addIcon(URL icon);
@@ -65,7 +66,7 @@ public interface IOutputter
      * @param context the context, which controls how the output should be done 
      * @param result the result to be formatted
      * @param writer where the formatted output should go
-     * @throws IOException
+     * @throws IOException if something went wrong writing this result
      */
     void embedd(Context context, IResult result, Writer writer) throws IOException;
 
@@ -74,7 +75,7 @@ public interface IOutputter
      * @param context the context, which controls how the output should be done 
      * @param result the result to be formatted
      * @param writer where the formatted output should go
-     * @throws IOException
+     * @throws IOException if something went wrong writing this result
      */
     void process(Context context, IResult result, Writer writer) throws IOException;
 
