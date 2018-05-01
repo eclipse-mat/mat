@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation/Andrew Johnson - Javadoc updates
  *******************************************************************************/
 package org.eclipse.mat.util;
 
@@ -25,8 +26,8 @@ public final class SimpleStringTokenizer implements Iterable<String>
 
     /**
      * Gets the different part of a string which are separated by the delimiter.
-     * @param subject
-     * @param delim
+     * @param subject the string
+     * @param delim the character to split at
      */
     public SimpleStringTokenizer(String subject, char delim)
     {
@@ -79,9 +80,9 @@ public final class SimpleStringTokenizer implements Iterable<String>
 
     /**
      * Splits the string at the delimiter character.
-     * @param subject
-     * @param delim
-     * @return the string split at the delimiter
+     * @param subject the string to split
+     * @param delim the character to split at
+     * @return the string split multiple times at the delimiter, trimmed of spaces
      */
     public static String[] split(String subject, char delim)
     {

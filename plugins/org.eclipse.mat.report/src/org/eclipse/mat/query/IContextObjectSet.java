@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation/Andrew Johnson - Javadoc updates
  *******************************************************************************/
 package org.eclipse.mat.query;
 
@@ -19,12 +20,14 @@ package org.eclipse.mat.query;
 public interface IContextObjectSet extends IContextObject
 {
     /**
-     * The set of objects.
+     * Context for a row representing several objects.
+     * @return the set of objects.
      */
     int[] getObjectIds();
 
     /**
      * (Optionally) return the OQL representing this set of objects.
+     * @return an OQL query representing this set of objects
      */
     String getOQL();
 }

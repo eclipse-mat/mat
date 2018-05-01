@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation/Andrew Johnson - Javadoc updates
  *******************************************************************************/
 package org.eclipse.mat.query.quantize;
 
@@ -68,23 +69,29 @@ public final class Quantize
         {
             /**
              * Builds a new function.
+             * @return the new function.
+             * @throws Exception if there is a problem constructing the new Function.
              */
             Function build() throws Exception;
 
             /**
              * Creates a new column to display the values of a function.
+             * @param label the readable valued used to  label the column
+             * @return the new Column
              */
             Column column(String label);
         }
 
         /**
          * Called when an object is added to the bucket.
+         * @param value to be added to the bucket
          */
         void add(Object value);
 
         /**
          * Called to retrieve the function value. If it is expensive to
          * calculate, this value must be cached.
+         * @return the statistic
          */
         Object getValue();
     }
@@ -136,6 +143,8 @@ public final class Quantize
      * Creates a quantize {@link Builder} for a value distribution, i.e. rows
      * are grouped by identical values. Rows can be grouped by one ore more
      * values.
+     * @param label multiple labels used to construct columns
+     * @return a Builder so that multiple construction options can be chained before calling {@link Builder#build()}
      */
     public static Builder valueDistribution(String... label)
     {
@@ -151,6 +160,8 @@ public final class Quantize
      * are grouped by identical values. Rows can be grouped by one ore more
      * values. This constructor uses the given columns and their formatting and
      * alignment to display the results.
+     * @param column multiple columns, already with labels
+     * @return a Builder so that multiple construction options can be chained before calling {@link Builder#build()}
      */
     public static Builder valueDistribution(Column... column)
     {
@@ -176,6 +187,7 @@ public final class Quantize
      *            The upper bound of the distribution
      * @param step
      *            The size of the buckets in the distribution
+     * @return a Builder so more options can be added before calling {@link Builder#build()}
      */
     public static Builder linearFrequencyDistribution(String label, double lowerBound, double upperBound, double step)
     {
@@ -188,6 +200,11 @@ public final class Quantize
      * Creates a quantize {@link Builder} for a linear frequency distribution on
      * long values.
      * {@link Quantize#linearFrequencyDistribution(String, double, double, double)}
+     * @param label How to label this quantization
+     * @param lowerBound the lowest long value
+     * @param upperBound the highest long value
+     * @param step the interval for each bucket between lowerBound and upperBound
+     * @return a Builder so that multiple construction options can be chained before calling {@link Builder#build()}
      */
     public static Builder linearFrequencyDistribution(String label, long lowerBound, long upperBound, long step)
     {
@@ -224,6 +241,9 @@ public final class Quantize
 
         /**
          * Add a column identified by label and function.
+         * @param label a label for the column
+         * @param function a function for the column
+         * @return the original {@link Builder} so more operations can be chained.
          */
         public Builder column(String label, Function.Factory function)
         {
@@ -233,6 +253,10 @@ public final class Quantize
         /**
          * Add a column identified by label and function and sort the result in
          * the given sort direction.
+         * @param label the label for the column
+         * @param function a function for the column
+         * @param sortDirection the direction to sort
+         * @return the original {@link Builder} so more operations can be chained.
          */
         public Builder column(String label, Factory function, SortDirection sortDirection)
         {
@@ -252,7 +276,8 @@ public final class Quantize
         }
 
         /**
-         * Creates the Quanitze object.
+         * Creates the Quantize object.
+         * @return the{@link Quantize} object created and modified by the {@link Builder}, ready for use.
          */
         public Quantize build()
         {
@@ -297,6 +322,7 @@ public final class Quantize
      *            the heap object represented by this value
      * @param columnValues
      *            the column values
+     * @throws SnapshotException if there is a problem, perhaps such as an invalid objectId
      */
     public void addValue(int objectId, Object... columnValues) throws SnapshotException
     {
@@ -312,6 +338,7 @@ public final class Quantize
      *            the heap objects represented by this value
      * @param columnValues
      *            the column values
+     * @throws SnapshotException if there is a problem, perhaps such as an invalid objectId
      */
     public void addValue(int[] objectIds, Object... columnValues) throws SnapshotException
     {
@@ -361,6 +388,7 @@ public final class Quantize
 
     /**
      * Returns the {@link IResult} build by the Quantize object.
+     * @return a {link QuantizedResult}
      */
     public IResult getResult()
     {

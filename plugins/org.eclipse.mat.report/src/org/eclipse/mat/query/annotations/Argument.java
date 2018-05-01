@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation/Andrew Johnson - Javadoc updates
  *******************************************************************************/
 package org.eclipse.mat.query.annotations;
 
@@ -79,6 +80,7 @@ public @interface Argument
      * The name of the flag, used for query arguments table and for specifying command line arguments.
      * The default, "", means use the name of the argument field. {@link #UNFLAGGED} or {@value #UNFLAGGED} means for the command line 
      * query no flag should be specified before the argument.
+     * @return the name of the flag
      */
     String flag() default "";
 
@@ -91,11 +93,13 @@ public @interface Argument
 
     /**
      * Indicates whether the argument is mandatory (default)
+     * @return true of the argument is mandatory
      */
     boolean isMandatory() default true;
 
     /**
      * If needed, the type of the argument.
+     * @return the type
      */
     Advice advice() default Argument.Advice.NONE;
 

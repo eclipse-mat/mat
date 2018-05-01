@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation/Andrew Johnson - Javadoc updates
  *******************************************************************************/
 package org.eclipse.mat.collect;
 
@@ -33,8 +34,8 @@ public final class ArrayInt
     }
 
     /**
-     * Create a list of given size
-     * @param initialCapacity
+     * Create an empty list of given capacity for more entries.
+     * @param initialCapacity in number of entries
      */
     public ArrayInt(int initialCapacity)
     {
@@ -75,8 +76,8 @@ public final class ArrayInt
     }
 
     /**
-     * append a group of entries
-     * @param elements
+     * Append a group of entries
+     * @param elements an array of int, to be added to end of this ArrayInt.
      */
     public void addAll(int[] elements)
     {
@@ -86,8 +87,8 @@ public final class ArrayInt
     }
 
     /**
-     * append all of another 
-     * @param template
+     * Append all of another ArrayInt to the end of this one. 
+     * @param template the other ArrayInt
      */
     public void addAll(ArrayInt template)
     {
@@ -98,8 +99,8 @@ public final class ArrayInt
 
     /**
      * modify one particular entry
-     * @param index
-     * @param element
+     * @param index into this ArrayInt
+     * @param element the new value to be put here
      * @return the previous value
      */
     public int set(int index, int element)
@@ -113,8 +114,8 @@ public final class ArrayInt
     }
 
     /**
-     * retrieve one entry
-     * @param index
+     * Retrieve one entry
+     * @param index into the ArrayInt
      * @return the entry
      */
     public int get(int index)

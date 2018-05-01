@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation/Andrew Johnson - Javadoc updates
  *******************************************************************************/
 package org.eclipse.mat.collect;
 
@@ -221,7 +222,8 @@ public final class HashMapIntObject<E> implements Serializable
      * Get all the values corresponding to the used keys.
      * Duplicate values are possible if they correspond to different keys.
      * @param a an array of the right type for the output, which will be used
-       if it is big enough, otherwise another array of this type will be allocated.
+     * if it is big enough, otherwise another array of this type will be allocated.
+     * @param <T> the type of object this HashMap can store.
      * @return an array of the used values
      */
     @SuppressWarnings("unchecked")

@@ -1,12 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2014 IBM
+ * Copyright (c) 2014, 2018 IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    IBM
+ *    IBM Corporation - initial API and implementation
+ *    IBM Corporation/Andrew Johnson - Javadoc updates
  *******************************************************************************/
 package org.eclipse.mat.query;
 
@@ -81,6 +82,8 @@ public class BytesFormat extends Format
      * {@link org.eclipse.mat.query.BytesDisplay#Bytes}, always use
      * {@code encapsulatedNumberFormat}; otherwise, use
      * {@code encapsulatedDecimalFormat} if the value is more than 1KB.
+     * @param encapsulatedNumberFormat the format for small sizes
+     * @param encapsulatedDecimalFormat the format for larger sizes
      */
     public BytesFormat(Format encapsulatedNumberFormat, Format encapsulatedDecimalFormat)
     {
@@ -198,6 +201,7 @@ public class BytesFormat extends Format
 
     /**
      * Return a new instance of a BytesFormat with default options.
+     * @return a default BytesFormat
      */
     public static BytesFormat getInstance()
     {

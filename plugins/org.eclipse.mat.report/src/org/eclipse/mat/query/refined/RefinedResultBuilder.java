@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation/Andrew Johnson - Javadoc updates
  *******************************************************************************/
 
 package org.eclipse.mat.query.refined;
@@ -64,7 +65,7 @@ public final class RefinedResultBuilder
 
     /**
      * Build a suitable refined result given an input of IResultTable or IResultTree.
-     * @param context
+     * @param context the context holding details about what was selected etc.
      * @param subject the structured result
      */
     public RefinedResultBuilder(IQueryContext context, IStructuredResult subject)
@@ -170,7 +171,7 @@ public final class RefinedResultBuilder
 
     /**
      * Retrieve a column by name.
-     * @param columnName
+     * @param columnName the name of the column
      * @return the column of data
      */
     public int getColumnIndexByName(String columnName)
@@ -186,8 +187,8 @@ public final class RefinedResultBuilder
 
     /**
      * Arrange to sort the table by a particular column.
-     * @param columnIndex
-     * @param direction
+     * @param columnIndex the index of the column to sort by
+     * @param direction the direction to sort
      */
     public void setSortOrder(int columnIndex, SortDirection direction)
     {
@@ -203,8 +204,8 @@ public final class RefinedResultBuilder
 
     /**
      * Arrange to sort the table by multiple columns.
-     * @param indices
-     * @param directions
+     * @param indices the indices to sort by
+     * @param directions the direction to sort each index by
      */
     public void setSortOrder(int[] indices, SortDirection[] directions)
     {
@@ -233,7 +234,7 @@ public final class RefinedResultBuilder
 
     /**
      * Add a derived column such as for retained size.
-     * @param operation
+     * @param operation the extra operation for the new column
      */
     public void addDefaultContextDerivedColumn(DerivedOperation operation)
     {
@@ -249,9 +250,9 @@ public final class RefinedResultBuilder
 
     /**
      * Filter a particular column to only have partial data.
-     * @param columnIndex
-     * @param criteria
-     * @throws IllegalArgumentException
+     * @param columnIndex the column of interest
+     * @param criteria how to filter that column
+     * @throws IllegalArgumentException for a bad criterion
      */
     public void setFilter(int columnIndex, String criteria) throws IllegalArgumentException
     {

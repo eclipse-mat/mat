@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation/Andrew Johnson - Javadoc updates
  *******************************************************************************/
 package org.eclipse.mat.util;
 
@@ -34,10 +35,11 @@ public final class FileUtils
     {}
 
     /**
-     * Basic stream copy
+     * Basic stream copy, the streams are already open and stay open
+     * afterward.
      * @param in input stream
      * @param out output stream
-     * @throws IOException
+     * @throws IOException if there was a problem with the copy
      */
     public final static void copy(InputStream in, OutputStream out) throws IOException
     {
@@ -56,10 +58,10 @@ public final class FileUtils
 
     /**
      * Create a temporary directory which should be deleted on application close.
-     * @param prefix
-     * @param parent
+     * @param prefix a prefix for the new directory name
+     * @param parent a directory to put the new directory into
      * @return the temporary directory, to be deleted on shutdown
-     * @throws IOException
+     * @throws IOException if something goes wrong
      */
     public static File createTempDirectory(String prefix, File parent) throws IOException
     {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation/Andrew Johnson - Javadoc updates
  *******************************************************************************/
 package org.eclipse.mat.query.results;
 
@@ -70,7 +71,7 @@ public final class CompositeResult implements IResult
 
     /**
      * Build a result out of several others
-     * @param results
+     * @param results a list of results
      */
     public CompositeResult(IResult... results)
     {
@@ -91,6 +92,7 @@ public final class CompositeResult implements IResult
 
     /**
      * @deprecated Use {@link #getResultEntries()} instead
+     * @return the multiple results from a {@link CompositeResult}
      */
     @Deprecated
     public List<IResult> getResults()
@@ -149,7 +151,7 @@ public final class CompositeResult implements IResult
 
     /**
      * Set the combined status
-     * @param status
+     * @param status the new status
      */
     public void setStatus(ITestResult.Status status)
     {
@@ -176,7 +178,7 @@ public final class CompositeResult implements IResult
 
     /**
      * Get the name of this whole report.
-     * @return the name
+     * @return the name of the report
      */
     public String getName()
     {
@@ -185,7 +187,7 @@ public final class CompositeResult implements IResult
 
     /**
      * Set the name of this whole report.
-     * @param name
+     * @param name the name of the report
      */
     public void setName(String name)
     {

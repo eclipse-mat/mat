@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation/Andrew Johnson - Javadoc updates
  *******************************************************************************/
 package org.eclipse.mat.query;
 
@@ -38,6 +39,7 @@ public final class Column
 
         /**
          * The SWT code of the alignment for convenience purposes.
+         * @return the alignment code, CENTER, LEFT, RIGHT
          */
         public int getSwtCode()
         {
@@ -69,6 +71,7 @@ public final class Column
 
         /**
          * The SWT code of the alignment for convenience purposes.
+         * @return a code for use with Eclipse SWT
          */
         public int getSwtCode()
         {
@@ -96,7 +99,7 @@ public final class Column
         /**
          * Get the default ordering for a column.
          * Currently descending for numeric, ascending for the rest.
-         * @param column
+         * @param column the column to inspect
          * @return the direction
          */
         public static SortDirection defaultFor(Column column)
@@ -157,6 +160,8 @@ public final class Column
 
     /**
      * Formatter to format the column values.
+     * @param formatter the formatter
+     * @return the original column to allow chaining
      */
     public Column formatting(Format formatter)
     {
@@ -166,6 +171,8 @@ public final class Column
 
     /**
      * Alignment of the column.
+     * @param align the alignment
+     * @return the original column to allow chaining
      */
     public Column aligning(Alignment align)
     {
@@ -176,6 +183,8 @@ public final class Column
     /**
      * Comparator to sort the column. The row object will be passed to the
      * comparator!
+     * @param comparator the comparator for sorting
+     * @return the original column to allow chaining
      */
     public Column comparing(Comparator<?> comparator)
     {
@@ -185,6 +194,8 @@ public final class Column
 
     /**
      * Initial sort direction of the column.
+     * @param direction the initial direction
+     * @return the original column to allow chaining
      */
     public Column sorting(SortDirection direction)
     {
@@ -195,6 +206,7 @@ public final class Column
     /**
      * Indicates that no totals are to be calculated for the column even if the
      * column contains numbers.
+     * @return the original column to allow chaining
      */
     public Column noTotals()
     {
@@ -202,6 +214,11 @@ public final class Column
         return this;
     }
 
+    /**
+     * Add a decorator to a column
+     * @param decorator the decorator to allow a prefix or suffix
+     * @return the original column to allow chaining
+     */
     public Column decorator(IDecorator decorator)
     {
         this.decorator = decorator;

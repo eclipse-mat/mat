@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation/Andrew Johnson - Javadoc updates
  *******************************************************************************/
 package org.eclipse.mat.query;
 
@@ -17,6 +18,7 @@ public interface IResultTable extends IStructuredResult
 {
     /**
      * Returns the number of rows in the result table.
+     * @return the number of rows
      */
     int getRowCount();
 
@@ -28,6 +30,7 @@ public interface IResultTable extends IStructuredResult
      * @return The row object, which can be passed to 
      * {@link IStructuredResult#getContext(Object)} or
      * {@link IStructuredResult#getColumnValue(Object, int)}. 
+     * @return an opaque object representing this row
      */
     Object getRow(int rowId);
 

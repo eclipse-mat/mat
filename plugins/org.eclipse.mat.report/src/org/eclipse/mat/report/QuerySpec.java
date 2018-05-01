@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    IBM Corporation/Andrew Johnson - Javadoc updates
  *******************************************************************************/
 package org.eclipse.mat.report;
 
@@ -31,7 +32,7 @@ public class QuerySpec extends Spec
 
     /**
      * Create a QuerySpec with a title.
-     * @param name
+     * @param name the title
      */
     public QuerySpec(String name)
     {
@@ -40,8 +41,8 @@ public class QuerySpec extends Spec
 
     /**
      * Create a QuerySpec with a title and a result of executing a query.
-     * @param name
-     * @param result
+     * @param name the title
+     * @param result the result of executing a query
      */
     public QuerySpec(String name, IResult result)
     {
@@ -61,7 +62,7 @@ public class QuerySpec extends Spec
 
     /**
      * Sets a Memory Analyzer command to be executed when the user clicks on an icon in the report.
-     * @param query
+     * @param query the command to be executed
      */
     public void setCommand(String query)
     {
@@ -79,7 +80,7 @@ public class QuerySpec extends Spec
 
     /**
      * Sets the body of this section to the result of a query.
-     * @param result
+     * @param result the result to be added to the report
      */
     public void setResult(IResult result)
     {
