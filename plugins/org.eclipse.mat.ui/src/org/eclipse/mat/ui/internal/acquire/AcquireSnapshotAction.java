@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2012 SAP AG and others.
+ * Copyright (c) 2009, 2018 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *    IBM Corporation - refactor for new/import wizard
+ *    IBM Corporation/Andrew Johnson - report changed dumpdir to user
  *******************************************************************************/
 package org.eclipse.mat.ui.internal.acquire;
 
@@ -127,7 +128,14 @@ public class AcquireSnapshotAction extends Action implements IWorkbenchWindowAct
 
                 // request the heap dump and check if result is OK
                 AcquireDumpOperation dumpOperation = new AcquireDumpOperation(selectedProcess, preferredLocation, argumentsPage.getArgumentSet(), getContainer());
-                if (!dumpOperation.run().isOK()) return false;
+                if (!dumpOperation.run().isOK())
+                {
+                    // Update the arguments with any modified VmInfo to allow a retry
+                    AnnotatedObjectArgumentsSet args = argumentsPage.getArgumentSet();
+                    argumentsPage.processSelected(null);
+                    argumentsPage.processSelected(args);
+                    return false;
+                }
 
                 File destFile = dumpOperation.getResult();
 
@@ -314,10 +322,10 @@ public class AcquireSnapshotAction extends Action implements IWorkbenchWindowAct
                 {
                     Object value = argumentSet.getArgumentValue(parameter);
 
-                    if (value == null)
+                    if (value == null && parameter.isMandatory())
                     {
                         value = parameter.getDefaultValue();
-                        if (value == null && parameter.isMandatory())
+                        if (value == null)
                             throw new SnapshotException(MessageUtil.format(
                                             Messages.AcquireSnapshotAction_MissingParameterErrorMessage, parameter.getName()));
                     }

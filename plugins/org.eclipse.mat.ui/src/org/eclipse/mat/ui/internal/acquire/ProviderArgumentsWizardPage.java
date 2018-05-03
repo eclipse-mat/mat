@@ -70,7 +70,6 @@ public class ProviderArgumentsWizardPage extends WizardPage implements ITableLis
         setControl(composite);
 
         acquireDialog.addProcessSelectionListener(this);
-        table.addListener(this);
 
         Listener listener = new Listener()
         {

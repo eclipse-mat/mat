@@ -29,11 +29,13 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.operation.IRunnableContext;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.resource.LocalResourceManager;
+import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.internal.acquire.HeapDumpProviderDescriptor;
@@ -63,10 +65,8 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DirectoryDialog;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
@@ -119,7 +119,13 @@ public class AcquireDialog extends WizardPage
         l1.setText(Messages.AcquireDialog_ChooseProcess);
         GridDataFactory.swtDefaults().span(2, 1).applyTo(l1);
 
-        localVMsTable = new Table(top, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL | SWT.FULL_SELECTION);
+        Composite tableComposite = new Composite(top, SWT.NONE);
+        GridDataFactory.fillDefaults().grab(true, true).indent(0, 0).applyTo(tableComposite);
+
+        TableColumnLayout tableColumnLayout = new TableColumnLayout();
+        tableComposite.setLayout(tableColumnLayout);
+        
+        localVMsTable = new Table(tableComposite, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL | SWT.FULL_SELECTION);
         localVMsTable.setHeaderVisible(true);
         localVMsTable.setLinesVisible(true);
         GridDataFactory.fillDefaults().grab(true, true).span(1, 1).minSize(0, 100).applyTo(localVMsTable);
@@ -142,10 +148,10 @@ public class AcquireDialog extends WizardPage
         final int provWidth = 200;
         TableColumn column = new TableColumn(localVMsTable, SWT.RIGHT);
         column.setText(Messages.AcquireDialog_ColumnDescription);
-        column.setWidth(descWidth);
+        tableColumnLayout.setColumnData(column, new ColumnWeightData(100, descWidth));
         column = new TableColumn(localVMsTable, SWT.RIGHT);
         column.setText(Messages.AcquireDialog_ColumnPID);
-        column.setWidth(pidWidth);
+        tableColumnLayout.setColumnData(column, new ColumnWeightData(0, pidWidth));
         column.addSelectionListener(new SelectionListener() {
             public void widgetSelected(SelectionEvent arg0)
             {
@@ -172,7 +178,7 @@ public class AcquireDialog extends WizardPage
         });
         column = new TableColumn(localVMsTable, SWT.LEFT);
         column.setText(Messages.AcquireDialog_HeapDumpProviderColumnHeader);
-        column.setWidth(provWidth);
+        tableColumnLayout.setColumnData(column, new ColumnWeightData(0, provWidth));
         column.addSelectionListener(new SelectionListener() {
             public void widgetSelected(SelectionEvent arg0)
             {
@@ -198,25 +204,11 @@ public class AcquireDialog extends WizardPage
             }
         });
 
+        tableComposite.layout();
+        tableComposite.pack();
+
         Control control = localVMsTable.getParent();
         PlatformUI.getWorkbench().getHelpSystem().setHelp(control, "org.eclipse.mat.ui.help.acquire_arguments"); //$NON-NLS-1$
-
-        localVMsTable.addControlListener(new ControlListener() {
-            public void controlMoved(ControlEvent arg0)
-            {
-            }
-
-            public void controlResized(ControlEvent arg0)
-            {
-                Rectangle rect = localVMsTable.getClientArea();
-                if(rect.width > 0) {
-                    // Give extra width to description
-                    TableColumn cols[] = localVMsTable.getColumns();
-                    int w = Math.max(rect.width - cols[1].getWidth() - cols[2].getWidth(), descWidth);
-                    cols[0].setWidth(w);
-                }
-            }
-        });
 
         italicFont = resourceManager.createFont(FontDescriptor.createFrom(column.getParent().getFont()).setStyle(SWT.ITALIC));
 
