@@ -21,6 +21,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.UndeclaredThrowableException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -256,6 +259,47 @@ public class IBMDumpProvider extends BaseProvider
         {
             return (String) VirtualMachine.call(ap, "type");
         }
+
+        private static Class<?>attCls;
+        private static Class<?> getStaticClass() throws LinkageError
+        {
+            if (attCls == null)
+            {
+                attCls = VirtualMachine.getClass("com.ibm.tools.attach.spi.AttachProvider", "com.sun.tools.attach.spi.AttachProvider");
+            }
+            return attCls;
+        }
+
+        static List<AttachProvider>providers()
+        {
+            Class<?>apc = getStaticClass();
+            List<?> l = (List<?>)VirtualMachine.call(apc, "providers");
+            List<AttachProvider>ret = new ArrayList<AttachProvider>(l.size());
+            for (Object o : l)
+            {
+                AttachProvider ap = new AttachProvider(o);
+                ret.add(ap);
+            }
+            return ret;
+        }
+
+        List<VirtualMachine>listVirtualMachines()
+        {
+            List<?> l = (List<?>)VirtualMachine.call(ap, "listVirtualMachines");
+            List<VirtualMachine>ret = new ArrayList<VirtualMachine>(l.size());
+            for (Object o : l)
+            {
+                VirtualMachine vm = new VirtualMachine(o);
+                ret.add(vm);
+            }
+            return ret;
+        }
+
+        public String toString()
+        {
+            return name()+ " " + type();
+        }
+
     }
 
     /**
@@ -461,6 +505,34 @@ public class IBMDumpProvider extends BaseProvider
             }
         }
 
+        /**
+         * Load an agent into the VM
+         *
+         * @param lib executable library
+         * @param command to pass to the library
+         * @throws IOException if there is a problem with communication
+         * @throws AgentLoadException1 if the library cannot be loaded
+         * @throws AgentInitializationException1 if the command does not run properly
+         */
+        public void loadAgentLibrary(String lib, String command)
+                        throws IOException, AgentLoadException, AgentInitializationException
+        {
+            try
+            {
+                call(vm, "loadAgentLibrary", lib, command);
+            }
+            catch (UndeclaredThrowableException e)
+            {
+                Throwable t = e.getCause();
+                // Change the type
+                if (isSubclassOf(t, "AgentLoadException")) { throw new AgentLoadException(t); }
+                if (isSubclassOf(t, "AgentInitializationException")) { throw new AgentInitializationException(t); }
+                if (t instanceof IOException) { throw (IOException)t; }
+                // Rethrow
+                throw e;
+            }
+        }
+
         static VirtualMachine attach(String nm) throws IOException, AttachNotSupportedException
         {
             Class<?> c1 = getStaticClass();
@@ -482,6 +554,7 @@ public class IBMDumpProvider extends BaseProvider
             return new VirtualMachine(o);
         }
 
+        private static Class<?>clsVM;
         /**
          * Find out which version of the real class we are using.
          *
@@ -490,25 +563,81 @@ public class IBMDumpProvider extends BaseProvider
          */
         private static Class<?> getStaticClass() throws LinkageError
         {
+            if (clsVM == null)
+            {
+                clsVM = getClass("com.ibm.tools.attach.VirtualMachine", "com.sun.tools.attach.VirtualMachine");
+            }
+            return clsVM;
+        }
+
+        static URLClassLoader urlcl;
+        static Class<?> getClass(String cn1, String cn2) throws LinkageError
+            {
             Class<?> c1;
             try
             {
-                c1 = Class.forName("com.ibm.tools.attach.VirtualMachine");
+                c1 = Class.forName(cn1);
             }
             catch (ClassNotFoundException e)
             {
                 try
                 {
-                    c1 = Class.forName("com.sun.tools.attach.VirtualMachine");
+                    c1 = Class.forName(cn2);
                 }
                 catch (ClassNotFoundException e2)
                 {
+                    /**
+                     * Oracle-based VMs don't have com.sun.tools.attach classes on the
+                     * standard class path, even for JDKs.
+                     * We try looking for the classes here.
+                     */
+                    File f = new File(System.getProperty("java.home"));
+                    f = f.getParentFile();
+                    if (f != null)
+                    {
+                        f = new File(f, "lib");
+                        f = new File(f, "tools.jar");
+                        if (f.canRead())
+                        {
+                            try
+                            {
+                                if (urlcl == null)
+                                {
+                                    urlcl = new URLClassLoader(new URL[] {f.toURI().toURL()});
+                                }
+                                try
+                                {
+                                    return urlcl.loadClass(cn2);
+                                }
+                                catch (ClassNotFoundException e1)
+                                {
+                                }
+                            }
+                            catch (MalformedURLException e1)
+                            {
+                            }
+                        }
+                    }
                     LinkageError l = new LinkageError();
                     l.initCause(e2);
                     throw l;
                 }
             }
             return c1;
+        }
+
+        Properties getAgentProperties() throws IOException
+        {
+            try
+            {
+                return (Properties) call(vm, "getAgentProperties");
+            }
+            catch (UndeclaredThrowableException e)
+            {
+                Throwable t = e.getCause();
+                if (t instanceof IOException) throw (IOException)t;
+                throw e;
+            }
         }
 
         Properties getSystemProperties() throws IOException
@@ -812,6 +941,8 @@ public class IBMDumpProvider extends BaseProvider
                 {
                     String userdir = guessDumpLocation(props);
                     udir = new File(userdir);
+                    // Set the directory, so even it is fails the user could adjust it
+                    vminfo.dumpdir = udir;
                 }
                 else
                 {
@@ -1030,103 +1161,17 @@ public class IBMDumpProvider extends BaseProvider
 
     private List<IBMVmInfo> getAvailableVMs1(IProgressListener listener)
     {
+        listener.beginTask(Messages.getString("IBMDumpProvider.ListingIBMVMs"), 1300); //$NON-NLS-1$
+        listener.subTask(Messages.getString("IBMDumpProvider.ListingFirst")); //$NON-NLS-1$
+        listener.worked(300);
         List<VirtualMachineDescriptor> list = VirtualMachine.list();
-        listener.beginTask(Messages.getString("IBMDumpProvider.ListingIBMVMs"), list.size());
+        listener.subTask(Messages.getString("IBMDumpProvider.ListingDetails")); //$NON-NLS-1$
         List<IBMVmInfo> jvms = new ArrayList<IBMVmInfo>();
         for (VirtualMachineDescriptor vmd : list)
         {
-            boolean usable = true;
-            String unusableCause = "";
-            String dir = null;
-            // See if the VM is usable to get dumps
-            String displayName = vmd.displayName();
-            if (vmd.id().equals(displayName) && listAttach)
-            {
-                // Insufficient details of running VM, so attach for more information
-                try
-                {
-                    // Hope that this is not too intrusive to the target
-                    VirtualMachine vm = vmd.provider().attachVirtualMachine(vmd);
-                    try
-                    {
-                        Properties p = vm.getSystemProperties();
-                        dir = p.getProperty("user.dir");
-                        // Get something which might identify the running VM to
-                        // the user
-                        displayName = p.getProperty("java.class.path");
-                        if (displayName == null || displayName.equals(""))
-                        {
-                            displayName = dir;
-                        }
-                        dir = guessDumpLocation(p);
-                    }
-                    finally
-                    {
-                        try
-                        {
-                            vm.detach();
-                        }
-                        catch (NullPointerException e)
-                        {
-                            // Ignore from IBM Java 9
-                        }
-                    }
-                    // See if loading an agent would fail
-                    // Java 5 SR10 and SR11 don't have a loadAgent method, so find
-                    // out now
-                    try
-                    {
-                        vm.loadAgent((String)null, (String)null);
-                    }
-                    catch (AgentLoadException e)
-                    {
-                    }
-                    catch (AgentInitializationException e)
-                    {
-                    }
-                    catch (LinkageError e)
-                    {
-                        usable = false;
-                        unusableCause = e.getLocalizedMessage();
-                    }
-                    catch (NullPointerException e)
-                    {
-                        // Ignore
-                    }
-                    catch (IOException e)
-                    {
-                        // Ignore, expect an IOException if the method exists as the VM is detached
-                    }
-                }
-                catch (IOException e)
-                {
-                    usable = false;
-                    unusableCause = e.getLocalizedMessage();
-                }
-                catch (AttachNotSupportedException e)
-                {
-                    usable = false;
-                    unusableCause = e.getLocalizedMessage();
-                }
-            }
-
-            // Create VMinfo to generate heap dumps
-
-            String desc = MessageFormat.format(Messages.getString("IBMDumpProvider.VMDescription"), vmd.provider().name(), vmd.provider().type(), displayName); //$NON-NLS-1$
-            if (!usable)
-            {
-                desc = unusableCause + " : " + desc;
-            }
-            IBMVmInfo ifo = new IBMVmInfo(vmd.id(), desc, usable, null, this);
-            ifo.type = defaultType;
-            ifo.live = defaultLive;
-            ifo.compress = defaultCompress;
-            if (dir != null)
-                ifo.dumpdir = new File(dir);
+            IBMVmInfo ifo = getVmInfo(vmd);
             jvms.add(ifo);
-            ifo.setHeapDumpEnabled(usable);
-
-            listener.worked(1);
+            listener.worked(1000 / list.size());
             if (listener.isCanceled())
             {
                 // If the user cancelled then perhaps the attach is hanging
@@ -1138,11 +1183,112 @@ public class IBMDumpProvider extends BaseProvider
         return jvms;
     }
 
+    private IBMVmInfo getVmInfo(VirtualMachineDescriptor vmd)
+    {
+        boolean usable = true;
+        String unusableCause = "";
+        String dir = null;
+        // See if the VM is usable to get dumps
+        String displayName = vmd.displayName();
+        if (vmd.id().equals(displayName) && listAttach)
+        {
+            // Insufficient details of running VM, so attach for more information
+            try
+            {
+                // Hope that this is not too intrusive to the target
+                VirtualMachine vm = vmd.provider().attachVirtualMachine(vmd);
+                try
+                {
+                    Properties p = vm.getSystemProperties();
+                    dir = p.getProperty("user.dir");
+                    // Get something which might identify the running VM to
+                    // the user
+                    displayName = p.getProperty("java.class.path");
+                    if (displayName == null || displayName.equals(""))
+                    {
+                        displayName = dir;
+                    }
+                    dir = guessDumpLocation(p);
+                }
+                finally
+                {
+                    try
+                    {
+                        vm.detach();
+                    }
+                    catch (NullPointerException e)
+                    {
+                        // Ignore from IBM Java 9
+                    }
+                }
+                // See if loading an agent would fail
+                // Java 5 SR10 and SR11 don't have a loadAgent method, so find
+                // out now
+                try
+                {
+                    vm.loadAgent((String)null, (String)null);
+                }
+                catch (AgentLoadException e)
+                {
+                }
+                catch (AgentInitializationException e)
+                {
+                }
+                catch (LinkageError e)
+                {
+                    usable = false;
+                    unusableCause = e.getLocalizedMessage();
+                }
+                catch (NullPointerException e)
+                {
+                    // Ignore
+                }
+                catch (IOException e)
+                {
+                    // Ignore, expect an IOException if the method exists as the VM is detached
+                }
+            }
+            catch (IOException e)
+            {
+                usable = false;
+                unusableCause = e.getLocalizedMessage();
+            }
+            catch (AttachNotSupportedException e)
+            {
+                usable = false;
+                unusableCause = e.getLocalizedMessage();
+            }
+        }
+
+        // Create VMinfo to generate heap dumps
+
+        String desc = MessageFormat.format(Messages.getString("IBMDumpProvider.VMDescription"), vmd.provider().name(), vmd.provider().type(), displayName); //$NON-NLS-1$
+        if (!usable)
+        {
+            desc = unusableCause + " : " + desc;
+        }
+        IBMVmInfo ifo = new IBMVmInfo(vmd.id(), desc, usable, null, this);
+        if (vmd.provider().name().equals("sun"))
+        {
+            ifo.type = DumpType.HPROF;
+        }
+        else
+        {
+            ifo.type = defaultType;
+        }
+        ifo.live = defaultLive;
+        ifo.compress = defaultCompress;
+        if (dir != null)
+            ifo.dumpdir = new File(dir);
+        ifo.setHeapDumpEnabled(usable);
+        return ifo;
+    }
+
     private String guessDumpLocation(Properties props)
     {
-        String dir = props.getProperty("user.dir", System.getProperty("user.dir"));
+        String dir = props.getProperty("user.dir", System.getProperty("user.dir")); //$NON-NLS-1$ //$NON-NLS-2$
         // If there is a system trace file perhaps the dumps also do there
-        String tracefilename = props.getProperty("system.trace.file");
+        String tracefilename = props.getProperty("system.trace.file"); //$NON-NLS-1$
         if (tracefilename != null)
         {
             File tracefile = (new File(tracefilename));
@@ -1196,7 +1342,10 @@ public class IBMDumpProvider extends BaseProvider
             IBMVmInfo vminfo = (IBMVmInfo)info;
             String vm = vminfo.getPidName();
             String dir = vminfo.dumpdir != null ? vminfo.dumpdir.getAbsolutePath() : "";
-            String vm2 = vm + INFO_SEPARATOR + info.getProposedFileName() + INFO_SEPARATOR + dir + INFO_SEPARATOR  + info.isHeapDumpEnabled() + INFO_SEPARATOR + info.getDescription();
+            String proposedFile = info.getProposedFileName();
+            // Let the file be determined later
+            proposedFile = "";
+            String vm2 = vm + INFO_SEPARATOR + info.isHeapDumpEnabled() + INFO_SEPARATOR + vminfo.type + INFO_SEPARATOR + proposedFile + INFO_SEPARATOR + dir + INFO_SEPARATOR  + info.getDescription();
             if (s.length < 5)
             {
                 System.out.println(vm2);
@@ -1213,7 +1362,7 @@ public class IBMDumpProvider extends BaseProvider
                     {
                         vminfo.dumpdir = new File(s[5]);
                     }
-                    File f2 = info.getHeapDumpProvider().acquireDump(info, new File(s[4]), ii);
+                    File f2 = vminfo.getHeapDumpProvider().acquireDump(info, new File(s[4]), ii);
                     System.out.println(f2.getAbsolutePath());
                     return;
                 }

@@ -129,6 +129,7 @@ public class JMapHeapDumpProvider implements IHeapDumpProvider
 
 	public List<JmapVmInfo> getAvailableVMs(IProgressListener listener) throws SnapshotException
 	{
+	    listener.beginTask(Messages.JMapHeapDumpProvider_ListProcesses, IProgressListener.UNKNOWN_TOTAL_WORK); //$NON-NLS-1$
 		// was something injected from outside?
 		if (jdkHome != null && jdkHome.exists())
 		{
@@ -151,6 +152,7 @@ public class JMapHeapDumpProvider implements IHeapDumpProvider
 				result.add(vmInfo);
 			}
 		}
+		listener.done();
 		return result;
 	}
 

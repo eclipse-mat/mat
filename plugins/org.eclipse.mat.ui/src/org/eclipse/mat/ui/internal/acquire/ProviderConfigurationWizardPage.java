@@ -22,17 +22,22 @@ import java.util.logging.Logger;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.TableColumnLayout;
+import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.internal.acquire.HeapDumpProviderDescriptor;
 import org.eclipse.mat.internal.acquire.HeapDumpProviderRegistry;
+import org.eclipse.mat.internal.acquire.VmInfoDescriptor;
+import org.eclipse.mat.query.annotations.descriptors.IAnnotatedObjectDescriptor;
 import org.eclipse.mat.query.registry.AnnotatedObjectArgumentsSet;
 import org.eclipse.mat.query.registry.ArgumentDescriptor;
 import org.eclipse.mat.query.registry.ArgumentFactory;
 import org.eclipse.mat.snapshot.acquire.IHeapDumpProvider;
 import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.accessibility.AccessibleCompositeAdapter;
+import org.eclipse.mat.ui.internal.acquire.AcquireDialog.ProcessSelectionListener;
 import org.eclipse.mat.ui.internal.acquire.ProviderArgumentsTable.ITableListener;
 import org.eclipse.mat.ui.internal.browser.QueryContextHelp;
 import org.eclipse.mat.util.IProgressListener;
@@ -56,21 +61,24 @@ import org.eclipse.ui.PlatformUI;
  * Handles configuring arguments for a particular dump provider.
  *
  */
-public class ProviderConfigurationWizardPage extends WizardPage implements ITableListener
+public class ProviderConfigurationWizardPage extends WizardPage implements ITableListener, ProcessSelectionListener
 {
 
     private ProviderArgumentsTable table;
     private Table availableProvidersTable;
     private AcquireDialog acquireDialog;
     private QueryContextHelp helpPopup;
+    // Has a provider been changed in the UI
     private boolean changed;
-    
+    // Has that change been applied to the provider
+    private boolean applied;
+
     public ProviderConfigurationWizardPage(AcquireDialog acquireDialog)
     {
         super(Messages.ProviderConfigurationDialog_ConfigureProvidersDialogTitle, Messages.ProviderConfigurationDialog_ConfigureProvidersDialogTitle, null);
         this.acquireDialog = acquireDialog;
     }
-    
+
     //@Override
     public void createControl(Composite parent)
     {
@@ -78,22 +86,21 @@ public class ProviderConfigurationWizardPage extends WizardPage implements ITabl
         Composite composite = new Composite(parent, SWT.RESIZE);
         composite.setLayout(new GridLayout(1, false));
         GridDataFactory.fillDefaults().grab(true, true).span(1, 1).applyTo(composite);
-        
+
         Label providersLabel = new Label(composite, SWT.NONE);
         providersLabel.setText(Messages.ProviderConfigurationDialog_AvailableProvidersLabel);
         GridDataFactory.swtDefaults().span(1, 1).applyTo(providersLabel);
-        
+
         createProvidersTable(composite);
-        GridDataFactory.fillDefaults().grab(true, false).span(1, 1).applyTo(availableProvidersTable);
-        
+
         Label argumentsLabel = new Label(composite, SWT.NONE);
         argumentsLabel.setText(Messages.ProviderConfigurationDialog_ConfigurableParameteresLabel);
         GridDataFactory.swtDefaults().span(1, 1).applyTo(argumentsLabel);
-        
+
         createArgumentsTable(composite);
-        
+
         availableProvidersTable.addSelectionListener(new SelectionAdapter() {
-            
+
             public void widgetSelected(SelectionEvent e)
             {
                 if (e.item instanceof TableItem)
@@ -105,7 +112,10 @@ public class ProviderConfigurationWizardPage extends WizardPage implements ITabl
                 }
             }
         });
-        
+
+        // If a process is selected, make the configuration provider match the process
+        acquireDialog.addProcessSelectionListener(this);
+
         PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, "org.eclipse.mat.ui.help.query_arguments"); //$NON-NLS-1$
 
         Listener listener = new Listener()
@@ -127,6 +137,7 @@ public class ProviderConfigurationWizardPage extends WizardPage implements ITabl
         {
             if (changed)
             {
+                applied = true;
                 applyChanges();
                 onError(null);
             }
@@ -138,7 +149,12 @@ public class ProviderConfigurationWizardPage extends WizardPage implements ITabl
         }
         return super.getNextPage();
     }
-    
+
+    /*
+     * getPreviousPage() gets called whenever updateButtons is called
+     * so it isn't useful for things just before we go back
+     */
+
     private void applyChanges() throws SnapshotException
     {
         AnnotatedObjectArgumentsSet currentSet = table.getArgumentSet();
@@ -175,10 +191,10 @@ public class ProviderConfigurationWizardPage extends WizardPage implements ITabl
             {
                 Object value = argumentSet.getArgumentValue(parameter);
 
-                if (value == null)
+                if (value == null && parameter.isMandatory())
                 {
                     value = parameter.getDefaultValue();
-                    if (value == null && parameter.isMandatory())
+                    if (value == null)
                         throw new SnapshotException(MessageUtil.format(
                                 Messages.ProviderConfigurationDialog_MissingParameterErrorMessage, parameter.getName()));
                 }
@@ -262,19 +278,26 @@ public class ProviderConfigurationWizardPage extends WizardPage implements ITabl
     
     private void createProvidersTable(Composite parent)
     {
-        availableProvidersTable = new Table(parent, SWT.V_SCROLL | SWT.H_SCROLL | SWT.BORDER | SWT.SINGLE | SWT.FULL_SELECTION);
+        Composite tableComposite = new Composite(parent, SWT.NONE);
+        GridDataFactory.fillDefaults().grab(true, false).indent(0, 0).applyTo(tableComposite);
+
+        TableColumnLayout tableColumnLayout = new TableColumnLayout();
+        tableComposite.setLayout(tableColumnLayout);
+
+        availableProvidersTable = new Table(tableComposite, SWT.V_SCROLL | SWT.H_SCROLL | SWT.BORDER | SWT.SINGLE | SWT.FULL_SELECTION);
+
         TableColumn column1 = new TableColumn(availableProvidersTable, SWT.NONE);
         column1.setText(Messages.ProviderConfigurationDialog_NameColumnHeader);
-        column1.setWidth(200);
-        
+        tableColumnLayout.setColumnData(column1, new ColumnWeightData(0, 200));
+
         TableColumn column2 = new TableColumn(availableProvidersTable, SWT.NONE);
         column2.setText(Messages.ProviderConfigurationDialog_DescriptionColumnHeader);
-        column2.setWidth(300);
-        
+        tableColumnLayout.setColumnData(column2, new ColumnWeightData(100, 250));
+
         availableProvidersTable.setHeaderVisible(true);
         availableProvidersTable.setLinesVisible(true);
         AccessibleCompositeAdapter.access(availableProvidersTable);
-        
+
         Collection<HeapDumpProviderDescriptor> providers = HeapDumpProviderRegistry.instance().getHeapDumpProviders();
         for (HeapDumpProviderDescriptor heapDumpProviderDescriptor : providers)
         {
@@ -284,9 +307,9 @@ public class ProviderConfigurationWizardPage extends WizardPage implements ITabl
             if (heapDumpProviderDescriptor.getHelp() != null)
                 item.setText(1, heapDumpProviderDescriptor.getHelp());
         }
-        
-        availableProvidersTable.layout();
-        availableProvidersTable.pack();
+
+        tableComposite.layout();
+        tableComposite.pack();
     }
     
     private void createArgumentsTable(Composite parent)
@@ -359,10 +382,17 @@ public class ProviderConfigurationWizardPage extends WizardPage implements ITabl
     {
         if (!f)
         {
-            if (changed)
+            if (applied)
             {
-                changed = false;
-                acquireDialog.refresh();
+                applied = false;
+                // Delay retrieving the VM information until the wizard is displayed
+                getControl().getDisplay().asyncExec(new Runnable()
+                {
+                    public void run()
+                    {
+                        acquireDialog.refresh();
+                    }
+                });
             }
             if (helpPopup != null)
                 helpPopup.close();
@@ -415,8 +445,12 @@ public class ProviderConfigurationWizardPage extends WizardPage implements ITabl
         //getContainer().updateButtons();
     }
     
+    /**
+     * Use canFlipToNextPage() instead of {@link #isPageComplete()}
+     * so that getNextPage() is not called all the time, only when moving.
+     */
     @Override
-    public boolean isPageComplete()
+    public boolean canFlipToNextPage()
     {
         boolean exec = false;
         AnnotatedObjectArgumentsSet argumentSet = table.getArgumentSet();
@@ -448,5 +482,37 @@ public class ProviderConfigurationWizardPage extends WizardPage implements ITabl
         }
         relocateHelp(true);
         PlatformUI.getWorkbench().getHelpSystem().displayHelp("org.eclipse.mat.ui.help.acquire_arguments"); //$NON-NLS-1$
+    }
+
+    /**
+     * Called from AcquireDialog with a process argument set, use to find the provider
+     */
+    public void processSelected(AnnotatedObjectArgumentsSet argumentSet)
+    {
+        if (argumentSet == null)
+            return;
+        IAnnotatedObjectDescriptor newProviderDescriptor = argumentSet.getDescriptor();
+        if (newProviderDescriptor instanceof VmInfoDescriptor)
+        {
+            IHeapDumpProvider prov = ((VmInfoDescriptor)newProviderDescriptor).getVmInfo().getHeapDumpProvider();
+            // Walk through table
+            int index = 0;
+            for (TableItem item : availableProvidersTable.getItems())
+            {
+                AnnotatedObjectArgumentsSet argumentSet2 = (AnnotatedObjectArgumentsSet) item.getData();
+                IAnnotatedObjectDescriptor desc2 = argumentSet2.getDescriptor();
+                if (desc2 instanceof HeapDumpProviderDescriptor)
+                {
+                    if (prov.equals(((HeapDumpProviderDescriptor)desc2).getHeapDumpProvider()))
+                    {
+                        // Set the provider to match the selected process
+                        availableProvidersTable.setSelection(index);
+                        table.providerSelected(argumentSet2);
+                        break;
+                    }
+                }
+                ++index;
+            }
+        }
     }
 }

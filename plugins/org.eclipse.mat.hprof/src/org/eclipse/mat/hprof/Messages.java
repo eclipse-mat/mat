@@ -36,10 +36,11 @@ public class Messages extends NLS
     public static String HprofRandomAccessParser_Error_MissingClass;
     public static String HprofRandomAccessParser_Error_MissingFakeClass;
     public static String JMapHeapDumpProvider_ErrorCreatingDump;
-	public static String JMapHeapDumpProvider_HeapDumpNotCreated;
-	public static String JMapHeapDumpProvider_WaitForHeapDump;
-	public static String LocalJavaProcessesUtils_ErrorGettingProcesses;
-	public static String LocalJavaProcessesUtils_ErrorGettingProcessListJPS;
+    public static String JMapHeapDumpProvider_HeapDumpNotCreated;
+    public static String JMapHeapDumpProvider_WaitForHeapDump;
+    public static String JMapHeapDumpProvider_ListProcesses;
+    public static String LocalJavaProcessesUtils_ErrorGettingProcesses;
+    public static String LocalJavaProcessesUtils_ErrorGettingProcessListJPS;
     public static String Pass1Parser_DetectedCompressedReferences;
     public static String Pass1Parser_Error_IllegalRecordLength;
     public static String Pass1Parser_Error_IllegalType;

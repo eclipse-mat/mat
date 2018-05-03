@@ -51,11 +51,11 @@ public class IBMExecDumpProvider extends BaseProvider
     private static boolean abort = false;
     private int lastCount = 20;
 
-    @Argument
+    @Argument(isMandatory = false)
     public File javaexecutable;
 
     @Argument(isMandatory = false)
-    public String vmoptions[] = {"-version:1.6+"}; //$NON-NLS-1$
+    public String vmoptions[] = {}; //$NON-NLS-1$
 
     public IBMExecDumpProvider()
     {
@@ -224,7 +224,7 @@ public class IBMExecDumpProvider extends BaseProvider
         }
         else
         {
-            javaDir = getJavaDir();
+            javaDir = lastJavaDir();
 
             if (javaDir == null)
                 javaDir = defaultJavaDir();
@@ -248,6 +248,7 @@ public class IBMExecDumpProvider extends BaseProvider
      */
     private String defaultJavaDir()
     {
+        String ibmmodules[] = {"dgcollector.dll", "dgcollector.so", "jdmpview.exe", "jdmpview"}; //$NON-NLS-1$ $NON-NLS-2$ $NON-NLS-3$ $NON-NLS-4$
         String path = System.getenv("PATH"); //$NON-NLS-1$
         if (path != null)
         {
@@ -256,29 +257,25 @@ public class IBMExecDumpProvider extends BaseProvider
                 File dir = new File(p);
                 File parentDir = dir.getParentFile();
                 // Recent IBM VMs have diagnostics collector and late attach
-                File dll = new File(dir, "dgcollector.dll"); //$NON-NLS-1$
-                if (dll.exists())
+                for (String mod : ibmmodules)
                 {
-                    return dir.getPath();
-                }
-                dll = new File(p, "dgcollector.so"); //$NON-NLS-1$
-                if (dll.exists())
-                {
-                    return dir.getPath();
+                    File dll = new File(dir, mod);
+                    if (dll.canRead())
+                    {
+                        return dir.getPath();
+                    }
                 }
                 // Perhaps we were given the sdk/bin directory, so look for the
                 // sdk/jre/bin
                 dir = new File(parentDir, "jre"); //$NON-NLS-1$
                 dir = new File(dir, "bin"); //$NON-NLS-1$
-                dll = new File(dir, "dgcollector.dll"); //$NON-NLS-1$
-                if (dll.exists())
+                for (String mod : ibmmodules)
                 {
-                    return dir.getPath();
-                }
-                dll = new File(p, "dgcollector.so"); //$NON-NLS-1$
-                if (dll.exists())
-                {
-                    return dir.getPath();
+                    File dll = new File(dir, mod);
+                    if (dll.canRead())
+                    {
+                        return dir.getPath();
+                    }
                 }
             }
         }
@@ -289,7 +286,7 @@ public class IBMExecDumpProvider extends BaseProvider
     private static final String last_directory_key = IBMExecDumpProvider.class.getName() + ".lastDir"; //$NON-NLS-1$
     private static String savedJavaDir;
 
-    private static synchronized String getJavaDir()
+    private static synchronized String lastJavaDir()
     {
         String home = Platform.getPreferencesService().getString(PLUGIN_ID, last_directory_key, savedJavaDir, null);
         return home;
@@ -321,7 +318,7 @@ public class IBMExecDumpProvider extends BaseProvider
     private List<VmInfo> execGetVMs(File javaExec, IProgressListener listener)
     {
         ArrayList<VmInfo> ar = new ArrayList<VmInfo>();
-        listener.beginTask(Messages.getString("IBMDumpProvider.ListingIBMVMs"), lastCount);
+        listener.beginTask(Messages.getString("IBMExecDumpProvider.ListingIBMVMs"), lastCount);
         int count = 0;
         String encoding = System.getProperty("file.encoding", "UTF-8"); //$NON-NLS-1$//$NON-NLS-2$
         String encodingOpt = "-Dfile.encoding="+encoding; //$NON-NLS-1$
@@ -397,22 +394,36 @@ public class IBMExecDumpProvider extends BaseProvider
                     String ss[] = in.toString().split("[\\n\\r]+"); //$NON-NLS-1$
                     for (String s : ss)
                     {
-                        // pid;proposed filename;possible directory;dump enabled;description
-                        String s2[] = s.split(INFO_SEPARATOR, 5);
-                        if (s2.length >= 4)
+                        // pid;dump enabled;dump type;proposed filename;possible directory;description
+                        String s2[] = s.split(INFO_SEPARATOR, 6);
+                        if (s2.length >= 5)
                         {
                             // Exclude the helper process
-                            if (!s2[4].contains(getExecJar().getName()))
+                            if (!s2[5].contains(getExecJar().getName()))
                             {
-                                boolean enableDump = Boolean.parseBoolean(s2[3]);
-                                IBMExecVmInfo ifo = new IBMExecVmInfo(s2[0], s2[4], enableDump, s2[1], this);
+                                boolean enableDump = Boolean.parseBoolean(s2[1]);
+                                IBMExecVmInfo ifo = new IBMExecVmInfo(s2[0], s2[5], enableDump, null, this);
                                 ifo.javaexecutable = javaExec;
                                 ifo.vmoptions = vmoptions;
-                                ifo.type = defaultType;
+                                /*
+                                 * Get the suggested dump type from the exec program.
+                                 * If it was an IBM VM, and this is one too, retain our suggested type,
+                                 * otherwise use the type suggested by the exec program.
+                                 */
+                                DumpType t = DumpType.valueOf(s2[2]);
+                                if (isIBMDumpType(t) && isIBMDumpType(defaultType))
+                                    ifo.type = defaultType;
+                                else
+                                    ifo.type = t;
                                 ifo.live = defaultLive;
                                 ifo.compress = defaultCompress;
-                                if (s2[2].length() > 0)
-                                    ifo.dumpdir = new File(s2[2]);
+                                if (s2[4].length() > 0)
+                                    ifo.dumpdir = new File(s2[4]);
+                                if (s2[3].length() > 0 && !s2[3].equals(ifo.getProposedFileName()))
+                                {
+                                    // Only set the name if the automatic naming is not applied
+                                    ifo.setProposedFileName(s2[3]);
+                                }
                                 ar.add(ifo);
                             }
                         }
@@ -443,6 +454,11 @@ public class IBMExecDumpProvider extends BaseProvider
             lastCount = count;
         }
         return ar;
+    }
+
+    private boolean isIBMDumpType(DumpType t)
+    {
+        return t == DumpType.SYSTEM || t == DumpType.HEAP || t == DumpType.JAVA;
     }
 
     private static File execJar;
