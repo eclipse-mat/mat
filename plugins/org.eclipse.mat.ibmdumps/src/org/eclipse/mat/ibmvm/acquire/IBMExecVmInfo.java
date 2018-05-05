@@ -21,7 +21,7 @@ import org.eclipse.mat.snapshot.acquire.IHeapDumpProvider;
  * @author ajohnson
  *
  */
-@HelpUrl("/org.eclipse.mat.ui.help/tasks/acquiringheapdump.html#3")
+@HelpUrl("/org.eclipse.mat.ui.help/tasks/acquiringheapdump.html#task_acquiringheapdump__3")
 public class IBMExecVmInfo extends IBMVmInfo
 {
     @Argument

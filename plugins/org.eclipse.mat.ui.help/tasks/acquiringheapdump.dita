@@ -154,37 +154,322 @@
 			with jmap) and for IBM VMs (needs an IBM JDK). Also extension points 
 			are provided for adopters to plug-in their own heap dump providers.
 			</p>
-			
-			<p>
-			To trigger a heap dump from Memory Analyzer open the 
-				<menucascade>
-					<uicontrol>File</uicontrol>
-					<uicontrol>Acquire Heap Dump...</uicontrol>
-				</menucascade>
-			menu item.
-			</p>
-			
-			<p>Depending on the concrete execution environment the pre-installed heap dump
-			providers may work with their default settings and in this case a list of
-			running Java processes should appear: 
-			</p>
-			<image href="../mimes/acquire.png">
-				<alt>Select a process to be dumped</alt>
-			</image>
-			<p>
-			One can now from which process a heap dump should be acquired, provide a preferred
-			location for the heap dump and press <uicontrol>Finish</uicontrol> to acquire the dump. Some of the heap
-			dump providers may allow (or require) additional parameters (e.g. type of 
-			the heap dump) to be set. This can be done by going to the <menucascade><uicontrol>Next</uicontrol></menucascade> page of the 
-			wizard.  
-			</p>
-			<p><i>Configuring the Heap Dump Providers</i></p>
-			<p>
-			If the process list is empty try to configure the available heap dump providers. To do this
-			press <uicontrol>Configure...</uicontrol>, select a matching provider from the list and click on it. 
-			You can see then what are the required settings and specify them.
-			</p>
-			
+
+	<p>
+		To trigger a heap dump from Memory Analyzer open the
+		<menucascade>
+			<uicontrol>File</uicontrol>
+			<uicontrol>Acquire Heap Dump...</uicontrol>
+		</menucascade>
+		menu item.
+	</p>
+
+	<p>Depending on the concrete execution environment the pre-installed
+		heap dump
+		providers may work with their default settings and in this case a list of
+		running Java processes should appear:
+	</p>
+	<image href="../mimes/acquire.png">
+		<alt>Select a process to be dumped</alt>
+	</image>
+	<p>
+		One can now from which process a heap dump should be acquired, provide
+		a preferred
+		location for the heap dump and press
+		<uicontrol>Finish</uicontrol>
+		to acquire the dump. Some of the heap
+		dump providers may allow (or require) additional parameters (e.g. type of
+		the heap dump) to be set. This can be done by using
+		<menucascade>
+			<uicontrol>Next</uicontrol>
+		</menucascade>
+		button to get to the
+		<wintitle>Configuring Heap Dump Provider Arguments</wintitle>
+		page of the wizard.
+	</p>
+	<p>
+		<i>Configuring the Heap Dump Providers</i>
+	</p>
+	<p>
+		If the process list is empty try to configure the available heap dump
+		providers. To do this
+		press
+		<uicontrol>Configure...</uicontrol>
+		, select a matching provider from the list and click on it.
+		You can see
+		then what are the required settings and specify them.
+		<menucascade>
+			<uicontrol>Next</uicontrol>
+		</menucascade>
+		will then apply any changed settings, and
+		refresh the JVM list if any
+		settings have been changed.
+		<menucascade>
+			<uicontrol>Prev</uicontrol>
+		</menucascade>
+		will return to the
+		current JVM list without applying any changed
+		settings. To then apply the
+		changed settings
+		reenter and exit the
+		<wintitle>Configure Heap Dump Providers...</wintitle>
+		page as follows:
+		<menucascade>
+			<uicontrol>Configure...</uicontrol>
+			<uicontrol>Next</uicontrol>
+		</menucascade>
+	</p>
+	<p>
+		If a process is selected before pressing
+		<uicontrol>Configure...</uicontrol>
+		then the corresponding
+		dump provider will be selected on entering the
+		<wintitle>Configure Heap Dump Providers...</wintitle>
+		page.
+	</p>
+	<p>
+		<dl>
+			<dlentry>
+				<dt id="1">HPROF jmp dump provider</dt>
+				<dd>
+					This provider uses the
+					<cmdname>jps</cmdname>
+					command supplied with an Oracle or OpenJDK based JDK to list the
+					running JVMs on the system. The provider then uses the
+					<cmdname>jmap</cmdname>
+					command to get the chosen
+					JVM to generate an HPROF dump. This
+					provider requires a JDK (Java
+					development kit), not a JRE
+					(Java
+					runtime environment) for those two commands. IBM JDKs do not
+					have
+					the
+					<cmdname>jps</cmdname>
+					or
+					<cmdname>jmap</cmdname>
+					commands. The commands on an OpenJ9 JDK may not work well enough
+					for
+					this provider to work with those JVMs.
+				</dd>
+			</dlentry>
+			<dlentry id="2">
+				<dt>Attach API</dt>
+				<dd>
+					This uses the
+					<xref
+						href="https://docs.oracle.com/javase/8/docs/jdk/api/attach/spec/com/sun/tools/attach/package-summary.html"
+						format="html">
+						<apiname>com.sun.tools.attach</apiname>
+					</xref>
+					or
+					<xref
+						href="https://www.ibm.com/support/knowledgecenter/en/SSYKE2_8.0.0/com.ibm.java.lnx.80.doc/user/attachapi.html"
+						format="html">
+						<apiname>com.ibm.tools.attach</apiname>
+					</xref>
+					APIs to list the JVMs and then to attach to the chosen JVM to
+					generate a
+					dump.
+					The Attach API is supplied as part of IBM JDKs and
+					JREs, but is only
+					supplied as part of Oracle or OpenJDK JDKs
+					in
+					<codeph>tools.jar</codeph>
+					and not as part of JREs. Therefore if Memory Analyzer is run with
+					an Oracle JRE
+					then this dump provider will not be available.
+					The
+					<apiname>com.sun.tools.attach</apiname>
+					API is available on Oracle and OpenJDK JDKs, on OpenJ9 JDKs and
+					JREs
+					and IBM JDKs and JREs version Java 8 SR5 or later.
+					The
+					<apiname>com.sun.tools.attach</apiname>
+					API is available on earlier IBM JDKs and JREs.
+					The Attach API dump
+					provider automatically uses whichever Attach API
+					is available,
+					and
+					loads
+					<codeph>tools.jar</codeph>
+					if required.
+				</dd>
+			</dlentry>
+			<dlentry id="3">
+				<dt>Attach API with helper JVM</dt>
+				<dd>
+					If Memory Analyzer is run with an Oracle JRE then this dump
+					provider can be used with an Oracle JDK by providing a path
+					to a
+					<cmdname>java</cmdname>
+					executable. The dump provider will load the
+					<codeph>tools.jar</codeph>
+					if required.
+					so that the
+					<apiname>com.sun.tools.attach</apiname>
+					API
+					is acessible. This provider can also be used to list JVMs
+					of a
+					different type from the JVM used to run Memory Analyzer.
+					For example
+					dumps from IBM JVMs can be generated by specifying a
+					path to
+					an IBM
+					JVM
+					<cmdname>java</cmdname>
+					command even when Memory Analyzer is run with an Oracle JVM.
+				</dd>
+			</dlentry>
+		</dl>
+	</p>
+	<p>
+		<i>Options</i>
+	</p>
+	<p>
+		<dl>
+			<dlhead>
+				<dthd>Dump Type</dthd>
+			</dlhead>
+			<dlentry>
+				<dt>System</dt>
+				<dd>
+					These process core dumps are generated using the
+					<apiname>com.ibm.jvm.Dump.SystemDump()</apiname>
+					method
+					called by an agent library generated and loaded into the
+					target JVM by
+					Memory Analyzer.
+					These dumps can be generated by IBM
+					and
+					OpenJ9 JVMs.
+				</dd>
+			</dlentry>
+			<dlentry>
+				<dt>Heap</dt>
+				<dd>
+					These Portable Heap Dumps are generated using the
+					<apiname>com.ibm.jvm.Dump.HeapDump()</apiname>
+					method
+					called by an agent library generated and loaded into the
+					target JVM by
+					Memory Analyzer.
+					These dumps can be generated by IBM
+					and
+					OpenJ9 JVMs.
+				</dd>
+			</dlentry>
+			<dlentry>
+				<dt>Java</dt>
+				<dd>
+					These Javacore dumps are generated using the
+					<apiname>com.ibm.jvm.Dump.JavaDump()</apiname>
+					method
+					called by an agent library generated and loaded into the
+					target JVM by
+					Memory Analyzer.
+					These dumps can be generated by IBM
+					and OpenJ9
+					JVMs.
+				</dd>
+			</dlentry>
+			<dlentry>
+				<dt>HPROF</dt>
+				<dd>
+					These HPROF dumps are generated using the
+					<apiname>com.sun.management:type=HotSpotDiagnostic</apiname>
+					MXBean called in an agent library generated and loaded into the
+					target JVM by Memory Analyzer.
+					These dumps can be generated by
+					Oracle and
+					OpenJDK JVMs.
+				</dd>
+			</dlentry>
+		</dl>
+		<dl>
+			<dlhead>
+				<dthd>Other options</dthd>
+			</dlhead>
+			<dlentry>
+				<dt>compress</dt>
+				<dd>
+					System dumps can be processed using
+					<xref
+						href="https://www.ibm.com/support/knowledgecenter/en/SSYKE2_8.0.0/com.ibm.java.lnx.80.doc/diag/tools/dump_viewer_dtfjview/jextract.html"
+						format="html">
+						<cmdname>jextract</cmdname>
+					</xref>
+					which compressed the dump and
+					also adds extra system information so
+					that the dump could be moved to
+					another machine.
+					Portable Heap Dump
+					(PHD) files generated with the HEAP option can be compressed using the gzip compressor
+					to reduce
+					the file size.
+				</dd>
+			</dlentry>
+			<dlentry>
+				<dt>live</dt>
+				<dd>On IBM JVMs this forces a garbage collection before a dump is
+					taken. This could affect
+					the performance of the program running on
+					the target JVM,
+					but may reduce the size of HEAP dumps.
+					On Oracle and
+					OpenJDK JVMs this
+					dumps only live objects into the HPROF file and
+					should reduce its
+					size.
+					By default,
+					Memory Analyzer removes the
+					non-live objects from
+					the dump as it indexes
+					the dump and builds the
+					snapshot, and puts
+					information about those objects
+					in the unreachable
+					objects histogram.
+					If this histogram is used or the 'keep
+					unreachable objects'
+					option is
+					set then the live option should not be
+					set as it will remove
+					required information.</dd>
+			</dlentry>
+			<dlentry>
+				<dt>listattach</dt>
+				<dd>This is used when listing JVMs using the Attach API. The dump
+					provider then attaches to each
+					running JVM in the list and extracts
+					more information to give a better
+					description.</dd>
+			</dlentry>
+			<dlentry>
+				<dt>dumptemplate</dt>
+				<dd>
+					This gives an example file name to be used for the dump. The time
+					and date is inserted into the name using
+					substitution variable 0,
+					for example
+					<codeph>{0,date,yyyyMMdd.HHmmss}</codeph>
+					.
+					The process identifier is inserted using subsitution variable 1,
+					for
+					example
+					<codeph>{1,number,0}</codeph>
+					.
+					The instance number, used to make the dump file unique, is
+					inserted
+					using subsitution variable 2, for example
+					<codeph>{2,number,0000}</codeph>
+					. The extra 0000 is a standard MessageFormat modifier giving the
+					minimum
+					number of digits to use.
+				</dd>
+			</dlentry>
+		</dl>
+	</p>
 			<p><b>Multiple snapshots in one heap dump</b></p>
 			<p>
 			Occasionally heap dumps files can be generated which contain multiple heap dumps snapshots.
@@ -254,7 +539,7 @@
 							<entry>acquire heap dump</entry>
 						</row>
 						<row>
-							<entry morerows="4">Sun, HP</entry>
+							<entry morerows="2">Sun, HP</entry>
 							<entry>1.4.2_12</entry>
 							<entry>Yes</entry>
 							<entry>Yes</entry>
@@ -285,6 +570,7 @@
 							<entry>Yes</entry>
 						</row>
 						<row>
+                            <entry morerows="1">Oracle, OpenJDK, HP</entry>
 							<entry>1.7.0</entry>
 							<entry>Yes</entry>
 							<entry>No</entry>
@@ -367,7 +653,7 @@
 							<entry>Yes</entry>
 						</row>
 						<row>
-							<entry>1.8.0 Beta</entry>
+							<entry>1.8.0</entry>
 							<entry>Yes</entry>
 							<entry>Yes</entry>
 							<entry>No</entry>
@@ -376,6 +662,17 @@
 							<entry>No</entry>
 							<entry>Yes</entry>
 						</row>
+						<row>
+                            <entry>OpenJ9</entry>
+                            <entry>1.8.0</entry>
+                            <entry>Yes</entry>
+                            <entry>Yes</entry>
+                            <entry>No</entry>
+                            <entry>No</entry>
+                            <entry>Yes (PHD only)</entry>
+                            <entry>No</entry>
+                            <entry>Yes</entry>
+                        </row>
 					</tbody>
 				</tgroup>
 			</table>

@@ -43,7 +43,7 @@ import org.osgi.service.prefs.BackingStoreException;
  *
  */
 @Name("IBM Dump (using helper VM)")
-@HelpUrl("/org.eclipse.mat.ui.help/tasks/acquiringheapdump.html#3")
+@HelpUrl("/org.eclipse.mat.ui.help/tasks/acquiringheapdump.html#task_acquiringheapdump__3")
 public class IBMExecDumpProvider extends BaseProvider
 {
     private static final String PLUGIN_ID = "org.eclipse.mat.ibmdump"; //$NON-NLS-1$
@@ -364,8 +364,8 @@ public class IBMExecDumpProvider extends BaseProvider
                             {
                                 // IBMDumpProvider prints a dot for each thing worked
                                 listener.worked(1);
+                                ++count;
                             }
-                            ++count;
                         }
                         try
                         {

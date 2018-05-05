@@ -24,12 +24,14 @@ import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.hprof.Messages;
 import org.eclipse.mat.hprof.acquire.LocalJavaProcessesUtils.StreamCollector;
 import org.eclipse.mat.query.annotations.Argument;
+import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Argument.Advice;
 import org.eclipse.mat.snapshot.acquire.IHeapDumpProvider;
 import org.eclipse.mat.snapshot.acquire.VmInfo;
 import org.eclipse.mat.util.IProgressListener;
 import org.osgi.service.prefs.BackingStoreException;
 
+@HelpUrl("/org.eclipse.mat.ui.help/tasks/acquiringheapdump.html#task_acquiringheapdump__1")
 public class JMapHeapDumpProvider implements IHeapDumpProvider
 {
 

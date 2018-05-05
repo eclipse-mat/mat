@@ -60,7 +60,7 @@ import org.eclipse.mat.util.IProgressListener.Severity;
  */
 @Name("IBM Dump (using attach API)")
 @Help("help for IBM Dump (using attach API)")
-@HelpUrl("/org.eclipse.mat.ui.help/tasks/acquiringheapdump.html#2")
+@HelpUrl("/org.eclipse.mat.ui.help/tasks/acquiringheapdump.html#task_acquiringheapdump__2")
 public class IBMDumpProvider extends BaseProvider
 {
     /**
@@ -283,14 +283,14 @@ public class IBMDumpProvider extends BaseProvider
             return ret;
         }
 
-        List<VirtualMachine>listVirtualMachines()
+        List<VirtualMachineDescriptor>listVirtualMachines()
         {
             List<?> l = (List<?>)VirtualMachine.call(ap, "listVirtualMachines");
-            List<VirtualMachine>ret = new ArrayList<VirtualMachine>(l.size());
+            List<VirtualMachineDescriptor>ret = new ArrayList<VirtualMachineDescriptor>(l.size());
             for (Object o : l)
             {
-                VirtualMachine vm = new VirtualMachine(o);
-                ret.add(vm);
+                VirtualMachineDescriptor vmd = new VirtualMachineDescriptor(o);
+                ret.add(vmd);
             }
             return ret;
         }
@@ -858,12 +858,12 @@ public class IBMDumpProvider extends BaseProvider
 
     /**
      * Post process a generated dump
-     * @param preferredDump
-     * @param compress
-     * @param dumps
-     * @param udir
-     * @param javahome
-     * @param listener
+     * @param preferredDump where the final dump should be put
+     * @param compress Whether to compress/zip the dump
+     * @param dumps The dump files
+     * @param udir The directory where the dump files were generated
+     * @param javahome The Java home directory of the process which produced the dump
+     * @param listener to show progress
      * @return the result of post-processing the dump
      * @throws IOException
      * @throws InterruptedException
@@ -1161,22 +1161,29 @@ public class IBMDumpProvider extends BaseProvider
 
     private List<IBMVmInfo> getAvailableVMs1(IProgressListener listener)
     {
-        listener.beginTask(Messages.getString("IBMDumpProvider.ListingIBMVMs"), 1300); //$NON-NLS-1$
-        listener.subTask(Messages.getString("IBMDumpProvider.ListingFirst")); //$NON-NLS-1$
-        listener.worked(300);
-        List<VirtualMachineDescriptor> list = VirtualMachine.list();
-        listener.subTask(Messages.getString("IBMDumpProvider.ListingDetails")); //$NON-NLS-1$
+        listener.beginTask(Messages.getString("IBMDumpProvider.ListingIBMVMs"), 1200); //$NON-NLS-1$
+        int vmcount = VirtualMachine.list().size();
         List<IBMVmInfo> jvms = new ArrayList<IBMVmInfo>();
-        for (VirtualMachineDescriptor vmd : list)
+        List<AttachProvider> provs = AttachProvider.providers();
+        for (AttachProvider prov : provs)
         {
-            IBMVmInfo ifo = getVmInfo(vmd);
-            jvms.add(ifo);
-            listener.worked(1000 / list.size());
-            if (listener.isCanceled())
+            listener.subTask(MessageFormat.format(Messages.getString("IBMDumpProvider.ListingFirst"), prov.name())); //$NON-NLS-1$
+            List<VirtualMachineDescriptor> list = prov.listVirtualMachines();
+            listener.worked(200 / provs.size());
+            listener.subTask(MessageFormat.format(Messages.getString("IBMDumpProvider.ListingDetails"), prov.name())); //$NON-NLS-1$
+
+            for (VirtualMachineDescriptor vmd : list)
             {
-                // If the user cancelled then perhaps the attach is hanging
-                listAttach = false;
-                break;
+                com.sun.tools.attach.VirtualMachine.list();
+                IBMVmInfo ifo = getVmInfo(vmd);
+                jvms.add(ifo);
+                listener.worked(1000 / vmcount);
+                if (listener.isCanceled())
+                {
+                    // If the user cancelled then perhaps the attach is hanging
+                    listAttach = false;
+                    break;
+                }
             }
         }
         listener.done();
