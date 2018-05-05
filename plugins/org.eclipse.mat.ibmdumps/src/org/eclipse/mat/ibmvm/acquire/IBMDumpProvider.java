@@ -1171,10 +1171,8 @@ public class IBMDumpProvider extends BaseProvider
             List<VirtualMachineDescriptor> list = prov.listVirtualMachines();
             listener.worked(200 / provs.size());
             listener.subTask(MessageFormat.format(Messages.getString("IBMDumpProvider.ListingDetails"), prov.name())); //$NON-NLS-1$
-
             for (VirtualMachineDescriptor vmd : list)
             {
-                com.sun.tools.attach.VirtualMachine.list();
                 IBMVmInfo ifo = getVmInfo(vmd);
                 jvms.add(ifo);
                 listener.worked(1000 / vmcount);
