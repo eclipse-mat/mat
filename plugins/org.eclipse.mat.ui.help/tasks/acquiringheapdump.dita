@@ -35,7 +35,9 @@
 		    <p><b>HPROF Binary Heap Dumps</b></p>
 		    <p><i>Get Heap Dump on an OutOfMemoryError</i></p>
 			<p> One can get a HPROF binary heap dump on an OutOfMemoryError for Sun JVM
-				(1.4.2_12 or higher and 1.5.0_07 or higher), HP-UX JVM (1.4.2_11 or
+				(1.4.2_12 or higher and 1.5.0_07 or higher), Oracle JVMs,
+				OpenJDK JVMs,
+				HP-UX JVM (1.4.2_11 or
 				higher) and SAP JVM (since 1.5.0) by setting the following JVM
 				parameter:</p>
 			<p>
@@ -146,12 +148,14 @@
 			If the Java process from which the heap dump is to be acquired is on the 
 			same machine as the Memory Analyzer, it is possible to acquire a heap dump
 			directly from the Memory Analyzer. Dumps acquired this way are directly
-			parsed and opened in tool.
+			parsed and opened in the tool.
 			</p>
 			
-			<p>Acquiring the heap dump is a VM specific. Memory Analyzer comes with 
-			several so called heap dump providers - for Sun based VMs (needs a Sun JDK
-			with jmap) and for IBM VMs (needs an IBM JDK). Also extension points 
+			<p>Acquiring the heap dump is VM specific. Memory Analyzer comes with 
+			several so called heap dump providers - for Oracle and Sun based VMs 
+			(needs a Oracle or Sun JDK
+			with jmap) and for IBM VMs (needs an IBM JDK or JRE). 
+			Also extension points 
 			are provided for adopters to plug-in their own heap dump providers.
 			</p>
 
@@ -168,12 +172,15 @@
 		heap dump
 		providers may work with their default settings and in this case a list of
 		running Java processes should appear:
+		To make selection easier, 
+        the order of the Java processes can be altered by clicking on the column titles
+        for <uicontrol>pid</uicontrol> or <uicontrol>Heap Dump Provider</uicontrol>.
 	</p>
 	<image href="../mimes/acquire.png">
 		<alt>Select a process to be dumped</alt>
 	</image>
 	<p>
-		One can now from which process a heap dump should be acquired, provide
+		One can now select from which process a heap dump should be acquired, provide
 		a preferred
 		location for the heap dump and press
 		<uicontrol>Finish</uicontrol>
@@ -404,7 +411,8 @@
 					that the dump could be moved to
 					another machine.
 					Portable Heap Dump
-					(PHD) files generated with the HEAP option can be compressed using the gzip compressor
+					(PHD) files generated with the Heap option can be compressed using
+					the gzip compressor
 					to reduce
 					the file size.
 				</dd>
@@ -415,7 +423,7 @@
 					taken. This could affect
 					the performance of the program running on
 					the target JVM,
-					but may reduce the size of HEAP dumps.
+					but may reduce the size of PHD Heap dumps.
 					On Oracle and
 					OpenJDK JVMs this
 					dumps only live objects into the HPROF file and
@@ -443,7 +451,32 @@
 					provider then attaches to each
 					running JVM in the list and extracts
 					more information to give a better
-					description.</dd>
+					description. This can take a
+					little longer, so if the list operation
+					is cancelled then this
+					option is disabled so the next listing
+					will be faster. The option
+					can be reenabled if required.</dd>
+			</dlentry>
+			<dlentry>
+				<dt>dumpdir</dt>
+				<dd>
+					IBM JVMs produce dumps in a directory specified by the target JVM,
+					not by Memory Analyzer.
+					Memory Analyzer needs to find the dump it
+					caused to be generated, and
+					looks in the
+					target JVM
+					<codeph>user.dir</codeph>
+					for the dump files. If this is not the right place then Memory
+					Analyzer will not find the
+					gnerated dump, so the user would have to
+					find it manually afterwards. If the
+					user knows
+					where the target JVM
+					will produce dumps then it can be entered using
+					this option.
+				</dd>
 			</dlentry>
 			<dlentry>
 				<dt>dumptemplate</dt>
@@ -502,40 +535,49 @@
 			The first snapshot can then be reopened using the index file in the history, and both snapshots can
 			be viewed at once.
 			</p>
-			
-			<p><b>Summary</b></p>
-			<p>The following table shows the availability of VM options and tools on the various platforms:</p>
+
+
+			<p>
+				<b>Summary</b>
+			</p>
+			<p>The following table shows the availability of VM options and tools
+				on the various platforms:</p>
 			<table>
 				<tgroup cols="7">
-					<colspec colname="COLSPEC1" colwidth="2*"/>
-					<colspec colname="COLSPEC2" colwidth="4*"/>
-					<colspec colname="COLSPEC3" colwidth="4*"/>
-					<colspec colname="COLSPEC4" colwidth="4*"/>
-					<colspec colname="COLSPEC5" colwidth="2*"/>
-					<colspec colname="COLSPEC6" colwidth="4*"/>
-					<colspec colname="COLSPEC7" colwidth="2*"/>
-					<colspec colname="COLSPEC8" colwidth="2*"/>
-					<colspec colname="COLSPEC9" colwidth="4*"/>
+					<colspec colname="COLSPEC1" colwidth="2*" />
+					<colspec colname="COLSPEC2" colwidth="4*" />
+					<colspec colname="COLSPEC3" colwidth="4*" />
+					<colspec colname="COLSPEC4" colwidth="4*" />
+					<colspec colname="COLSPEC5" colwidth="2*" />
+					<colspec colname="COLSPEC6" colwidth="4*" />
+					<colspec colname="COLSPEC7" colwidth="2*" />
+					<colspec colname="COLSPEC8" colwidth="2*" />
+					<colspec colname="COLSPEC9" colwidth="4*" />
+					<colspec colname="COLSPEC10" colwidth="4*" />
 					<thead>
 						<row>
 							<entry colname="COLSPEC1" valign="top">Vendor</entry>
 							<entry colname="COLSPEC2" valign="top">Release</entry>
-							<entry namest="COLSPEC3" nameend="COLSPEC5" valign="top">VM Parameter</entry>
-							<entry namest="COLSPEC6" nameend="COLSPEC7" valign="top">Sun Tools</entry>
+							<entry namest="COLSPEC3" nameend="COLSPEC5" valign="top">VM
+								Parameter</entry>
+							<entry namest="COLSPEC6" nameend="COLSPEC7" valign="top">Sun
+								Tools</entry>
 							<entry colname="COLSPEC8" valign="top">SAP Tool</entry>
-							<entry colname="COLSPEC9" valign="top">MAT</entry>
+							<entry colname="COLSPEC9" valign="top">Attach</entry>
+							<entry colname="COLSPEC10" valign="top">MAT</entry>
 						</row>
 					</thead>
 					<tbody>
 						<row>
-							<entry/>
-							<entry/>
+							<entry />
+							<entry />
 							<entry colname="COLSPEC3">On out of memory</entry>
 							<entry colname="COLSPEC4">On Ctrl+Break</entry>
 							<entry>Agent</entry>
 							<entry>JMap</entry>
 							<entry>JConsole</entry>
 							<entry>JVMMon</entry>
+							<entry>API</entry>
 							<entry>acquire heap dump</entry>
 						</row>
 						<row>
@@ -544,9 +586,10 @@
 							<entry>Yes</entry>
 							<entry>Yes</entry>
 							<entry>Yes</entry>
-							<entry/>
-							<entry/>
-							<entry/>
+							<entry />
+							<entry />
+							<entry />
+							<entry />
 							<entry>No</entry>
 						</row>
 						<row>
@@ -555,8 +598,9 @@
 							<entry>Yes (Since 1.5.0_15)</entry>
 							<entry>Yes</entry>
 							<entry>Yes (Only Solaris and Linux)</entry>
-							<entry/>
-							<entry/>
+							<entry />
+							<entry />
+							<entry>com.sun.tools.attach</entry>
 							<entry>Yes (Only Solaris and Linux)</entry>
 						</row>
 						<row>
@@ -567,10 +611,11 @@
 							<entry>Yes</entry>
 							<entry>Yes</entry>
 							<entry></entry>
+							<entry>com.sun.tools.attach</entry>
 							<entry>Yes</entry>
 						</row>
 						<row>
-                            <entry morerows="1">Oracle, OpenJDK, HP</entry>
+							<entry morerows="1">Oracle, OpenJDK, HP</entry>
 							<entry>1.7.0</entry>
 							<entry>Yes</entry>
 							<entry>No</entry>
@@ -578,6 +623,7 @@
 							<entry>Yes</entry>
 							<entry>Yes</entry>
 							<entry></entry>
+							<entry>com.sun.tools.attach</entry>
 							<entry>Yes</entry>
 						</row>
 						<row>
@@ -588,6 +634,7 @@
 							<entry>Yes</entry>
 							<entry>Yes</entry>
 							<entry></entry>
+							<entry>com.sun.tools.attach</entry>
 							<entry>Yes</entry>
 						</row>
 						<row>
@@ -597,12 +644,13 @@
 							<entry>Yes</entry>
 							<entry>Yes</entry>
 							<entry>Yes (Only Solaris and Linux)</entry>
-							<entry/>
+							<entry />
 							<entry>Yes</entry>
-							<entry/>
+							<entry></entry>
+							<entry />
 						</row>
 						<row>
-							<entry morerows="5">IBM</entry>
+							<entry morerows="6">IBM</entry>
 							<entry>1.4.2 SR12</entry>
 							<entry>Yes</entry>
 							<entry>Yes</entry>
@@ -610,6 +658,7 @@
 							<entry>No</entry>
 							<entry>No</entry>
 							<entry>No</entry>
+							<entry></entry>
 							<entry>No</entry>
 						</row>
 						<row>
@@ -620,6 +669,7 @@
 							<entry>No</entry>
 							<entry>No</entry>
 							<entry>No</entry>
+							<entry>com.ibm.tools.attach</entry>
 							<entry>No</entry>
 						</row>
 						<row>
@@ -630,6 +680,7 @@
 							<entry>No</entry>
 							<entry>No</entry>
 							<entry>No</entry>
+							<entry>com.ibm.tools.attach</entry>
 							<entry>No</entry>
 						</row>
 						<row>
@@ -640,6 +691,7 @@
 							<entry>No</entry>
 							<entry>No</entry>
 							<entry>No</entry>
+							<entry>com.ibm.tools.attach</entry>
 							<entry>Yes</entry>
 						</row>
 						<row>
@@ -650,6 +702,7 @@
 							<entry>No</entry>
 							<entry>No</entry>
 							<entry>No</entry>
+							<entry>com.ibm.tools.attach</entry>
 							<entry>Yes</entry>
 						</row>
 						<row>
@@ -660,19 +713,32 @@
 							<entry>No</entry>
 							<entry>No</entry>
 							<entry>No</entry>
+							<entry>com.ibm.tools.attach</entry>
 							<entry>Yes</entry>
 						</row>
 						<row>
-                            <entry>OpenJ9</entry>
-                            <entry>1.8.0</entry>
-                            <entry>Yes</entry>
-                            <entry>Yes</entry>
-                            <entry>No</entry>
-                            <entry>No</entry>
-                            <entry>Yes (PHD only)</entry>
-                            <entry>No</entry>
-                            <entry>Yes</entry>
-                        </row>
+							<entry>1.8.0 SR5</entry>
+							<entry>Yes</entry>
+							<entry>Yes</entry>
+							<entry>No</entry>
+							<entry>No</entry>
+							<entry>No</entry>
+							<entry>No</entry>
+							<entry>com.sun.tools.attach</entry>
+							<entry>Yes</entry>
+						</row>
+						<row>
+							<entry>OpenJ9</entry>
+							<entry>1.8.0</entry>
+							<entry>Yes</entry>
+							<entry>Yes</entry>
+							<entry>No</entry>
+							<entry>No</entry>
+							<entry>Yes (PHD only)</entry>
+							<entry>No</entry>
+							<entry>com.sun.tools.attach</entry>
+							<entry>Yes</entry>
+						</row>
 					</tbody>
 				</tgroup>
 			</table>
