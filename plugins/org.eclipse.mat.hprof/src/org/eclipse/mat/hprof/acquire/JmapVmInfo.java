@@ -13,10 +13,12 @@ package org.eclipse.mat.hprof.acquire;
 import java.io.File;
 
 import org.eclipse.mat.query.annotations.Argument;
+import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Argument.Advice;
 import org.eclipse.mat.snapshot.acquire.IHeapDumpProvider;
 import org.eclipse.mat.snapshot.acquire.VmInfo;
 
+@HelpUrl("/org.eclipse.mat.ui.help/tasks/acquiringheapdump.html#task_acquiringheapdump__1")
 public class JmapVmInfo extends VmInfo
 {
 	@Argument(isMandatory = false, advice = Advice.DIRECTORY)
