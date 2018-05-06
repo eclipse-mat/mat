@@ -51,15 +51,12 @@ import org.eclipse.mat.ui.util.ProgressMonitorWrapper;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ControlEvent;
-import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -425,9 +422,20 @@ public class AcquireDialog extends WizardPage
     {
         // There needs to be a valid process and a valid dump name
 	    // Also if the heap dump is disabled (indicated by italic font), also disable (getGrayed() doesn't work).
-	    // rather than
-	    // ((VmInfoDescriptor)((AnnotatedObjectArgumentsSet)localVMsTable.getItem(localVMsTable.getSelectionIndex()).getData()).getDescriptor()).getVmInfo().isHeapDumpEnabled();
-        return localVMsTable.getSelectionIndex() != -1 && !localVMsTable.getItem(localVMsTable.getSelectionIndex()).getFont().equals(italicFont) &&
+	    if (localVMsTable.getSelectionIndex() == -1)
+	    {
+	        return false;
+	    }
+	    // See if the enabled status has changed (for example getting a dump has failed).
+        boolean isEnabled = !localVMsTable.getItem(localVMsTable.getSelectionIndex()).getFont().equals(italicFont);
+        boolean isEnabled2 = ((VmInfoDescriptor)((AnnotatedObjectArgumentsSet)localVMsTable.getItem(localVMsTable.getSelectionIndex()).getData()).getDescriptor()).getVmInfo().isHeapDumpEnabled();
+        if (isEnabled && !isEnabled2)
+        {
+            // newly disabled
+            localVMsTable.getItem(localVMsTable.getSelectionIndex()).setFont(italicFont);
+            isEnabled = false;
+        }
+        return localVMsTable.getSelectionIndex() != -1 && isEnabled &&
                         folderText.getText().length() > 0 && !(new File(getSelectedPath()).isDirectory());
     }
 

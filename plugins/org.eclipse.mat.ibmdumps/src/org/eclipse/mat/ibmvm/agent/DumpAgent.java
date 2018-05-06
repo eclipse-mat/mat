@@ -75,7 +75,10 @@ public class DumpAgent {
             }
             catch (ClassNotFoundException e2)
             {
-                throw e;
+                //throw e;
+                // We don't need this any more for a HPROF dump
+                dumpcls = null;
+                args = new String[] {HPROF};
             }
         }
         for (String a : args)

@@ -148,6 +148,18 @@ public class IBMExecDumpProvider extends BaseProvider
                     while (true);
                     if (rc != 0)
                     {
+                        // Remove the dots as they don't add much to the exception
+                        int dot = 0;
+                        while (err.charAt(dot) == '.')
+                        {
+                            ++dot;
+                        }
+                        err.delete(0, dot);
+                        if (err.indexOf(IBMDumpProvider.AttachNotSupportedException.class.getName()) >= 0)
+                        {
+                            // Trying again won't work
+                            info.setHeapDumpEnabled(false);
+                        }
                         throw new IOException(MessageUtil.format(Messages
                                     .getString("IBMExecDumpProvider.ReturnCode"), execPath, rc, err.toString())); //$NON-NLS-1$
                     }
