@@ -124,6 +124,7 @@ public class Messages extends NLS
 	public static String OQLParser_Missing_return_statement_in_function;
 	
 	public static String ThreadStackHelper_InvalidThread;
+	public static String ThreadStackHelper_InvalidThreadLocal;
 	
     static
     {
