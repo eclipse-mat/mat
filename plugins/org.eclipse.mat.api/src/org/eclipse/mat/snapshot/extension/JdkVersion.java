@@ -25,7 +25,9 @@ public enum JdkVersion {
     IBM16, // Harmony based collections
     IBM17, // Oracle based collections
     IBM18,
-    JAVA18;
+    IBM19,
+    JAVA18,
+    JAVA19;
 
     // helpers
     public static EnumSet<JdkVersion> ALL = EnumSet.allOf(JdkVersion.class);

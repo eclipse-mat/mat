@@ -18,7 +18,9 @@ import static org.eclipse.mat.snapshot.extension.JdkVersion.IBM15;
 import static org.eclipse.mat.snapshot.extension.JdkVersion.IBM16;
 import static org.eclipse.mat.snapshot.extension.JdkVersion.IBM17;
 import static org.eclipse.mat.snapshot.extension.JdkVersion.IBM18;
+import static org.eclipse.mat.snapshot.extension.JdkVersion.IBM19;
 import static org.eclipse.mat.snapshot.extension.JdkVersion.JAVA18;
+import static org.eclipse.mat.snapshot.extension.JdkVersion.JAVA19;
 import static org.eclipse.mat.snapshot.extension.JdkVersion.SUN;
 
 import java.util.Collection;
@@ -222,7 +224,13 @@ public class ExtractionUtils
                     {
                         jreVersion = jreVersion.split(" ", 2)[0];
                         if (jreVersion.equals("9") || jreVersion.startsWith("9."))
-                            return IBM18;
+                            return IBM19;
+                        else if (jreVersion.equals("10") || jreVersion.startsWith("10."))
+                            return IBM19;
+                        else if (jreVersion.equals("11") || jreVersion.startsWith("11."))
+                            return IBM19;
+                        else if (jreVersion.equals("12") || jreVersion.startsWith("12."))
+                            return IBM19;
                         else if (jreVersion.startsWith("1.8"))
                             return IBM18;
                         else if (jreVersion.startsWith("1.7"))
@@ -247,7 +255,16 @@ public class ExtractionUtils
         }
 
         if ((classes = snapshot.getClassesByName("com.ibm.misc.JavaRuntimeVersion", false)) != null && !classes.isEmpty())return IBM15; //$NON-NLS-1$
-        else if ((classes = snapshot.getClassesByName("com.ibm.oti.vm.BootstrapClassLoader", false)) != null && !classes.isEmpty())return IBM16; //$NON-NLS-1$
+        else if ((classes = snapshot.getClassesByName("com.ibm.oti.vm.BootstrapClassLoader", false)) != null && !classes.isEmpty())
+        {
+            // com.ibm.oti.util.Msg
+            if ((classes = snapshot.getClassesByName("com.ibm.oti.util.Msg", false)) != null && !classes.isEmpty()) return IBM19;
+            // java.lang.Integer$IntegerCache java 8, com/ibm/oti/util/WeakReferenceNode
+            if ((classes = snapshot.getClassesByName("com/ibm/oti/util/WeakReferenceNode", false)) != null && !classes.isEmpty()) return IBM18;
+            // com.ibm.oti.vm.VMLangAccess java 7
+            if ((classes = snapshot.getClassesByName("com.ibm.oti.vm.VMLangAccess", false)) != null && !classes.isEmpty()) return IBM17;
+            return IBM16; //$NON-NLS-1$
+        }
         else if ((classes = snapshot.getClassesByName("com.ibm.jvm.Trace", false)) != null && !classes.isEmpty())return IBM14; //$NON-NLS-1$
 
         classes = snapshot.getClassesByName("sun.misc.Version", false);
@@ -256,6 +273,21 @@ public class ExtractionUtils
             Object ver = classes.iterator().next().resolveValue("java_version");
             if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("1.8.")) { return JAVA18; }
             if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("9.")) { return JAVA18; }
+        }
+        classes = snapshot.getClassesByName("java.lang.VersionProps", false);
+        if (classes != null && classes.size() > 0)
+        {
+            Object ver = classes.iterator().next().resolveValue("java_version");
+            if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("9.")) { return JAVA19; }
+            if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("9-")) { return JAVA19; }
+            if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("10.")) { return JAVA19; }
+            if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("10-")) { return JAVA19; }
+            if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("11.")) { return JAVA19; }
+            if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("11-")) { return JAVA19; }
+            if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("12.")) { return JAVA19; }
+            if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("12-")) { return JAVA19; }
+            // Lots of new Java versions planned
+            return JAVA19;
         }
         return SUN;
     }

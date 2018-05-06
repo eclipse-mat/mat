@@ -17,7 +17,9 @@ import static org.eclipse.mat.snapshot.extension.JdkVersion.IBM14;
 import static org.eclipse.mat.snapshot.extension.JdkVersion.IBM15;
 import static org.eclipse.mat.snapshot.extension.JdkVersion.IBM16;
 import static org.eclipse.mat.snapshot.extension.JdkVersion.IBM18;
+import static org.eclipse.mat.snapshot.extension.JdkVersion.IBM19;
 import static org.eclipse.mat.snapshot.extension.JdkVersion.JAVA18;
+import static org.eclipse.mat.snapshot.extension.JdkVersion.JAVA19;
 
 import java.util.Arrays;
 import java.util.List;
@@ -102,6 +104,10 @@ public class KnownCollectionInfo implements ICollectionExtractorProvider
                                     new HashMapCollectionExtractor(
                                                     "map.elementCount", "map.elementData", "key", "value")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
+                    // Actually a ConcurrentHashMap, even though subclass of Hashtable
+                    new CollectionExtractionInfo("java.util.Properties", JdkVersion.of(JAVA19, IBM19), // //$NON-NLS-1$
+                                    new HashMapCollectionExtractor("map.baseCount", "map.table", "key", "val")),  //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+
                     // Some Java 5 PHD files don't have superclass info so add
                     // LinkedHashSet to list
                     // This is the same as HashSet
@@ -126,8 +132,8 @@ public class KnownCollectionInfo implements ICollectionExtractorProvider
 
                     // FIXME This is only approximate and just works for some
                     // small maps.
-                    new CollectionExtractionInfo("java.util.concurrent.ConcurrentHashMap", JdkVersion.of(JAVA18, IBM18), new HashMapCollectionExtractor("baseCount", "table", "key", "val")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
-                    new CollectionExtractionInfo("java.util.concurrent.ConcurrentHashMap", JdkVersion.except(JAVA18, IBM18), new ConcurrentHashMapCollectionExtractor("segments", "key", "value")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                    new CollectionExtractionInfo("java.util.concurrent.ConcurrentHashMap", JdkVersion.of(JAVA18, IBM18, JAVA19, IBM19), new HashMapCollectionExtractor("baseCount", "table", "key", "val")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+                    new CollectionExtractionInfo("java.util.concurrent.ConcurrentHashMap", JdkVersion.except(JAVA18, IBM18, JAVA19, IBM19), new ConcurrentHashMapCollectionExtractor("segments", "key", "value")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
                     new CollectionExtractionInfo("java.util.concurrent.ConcurrentSkipListSet", //$NON-NLS-1$
                                     new ConcurrentSkipListSetCollectionExtractor("m.head.node", "key", "value")), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
