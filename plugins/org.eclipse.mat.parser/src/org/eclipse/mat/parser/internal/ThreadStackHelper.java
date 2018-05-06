@@ -18,6 +18,7 @@ import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.eclipse.mat.SnapshotException;
@@ -29,7 +30,7 @@ import org.eclipse.mat.util.MessageUtil;
 
 /* package */class ThreadStackHelper
 {
-    private static final Logger logger = Logger.getLogger(ThreadStackHelper.class.getCanonicalName());
+    private static final Logger logger = Logger.getLogger(ThreadStackHelper.class.getName());
 
     /* package */static HashMapIntObject<IThreadStack> loadThreadsData(ISnapshot snapshot) throws SnapshotException
     {
@@ -65,13 +66,22 @@ import org.eclipse.mat.util.MessageUtil;
                     line = in.readLine();
                     if (line != null && line.trim().startsWith("locals")) //$NON-NLS-1$
                     {
-                        line = in.readLine();
-                        while (line != null && !line.equals("")) //$NON-NLS-1$
+                        while ((line = in.readLine()) != null && !line.equals("")) //$NON-NLS-1$
                         {
                             int lineNr = readLineNumber(line);
                             if (lineNr >= 0)
                             {
-                                int objectId = readLocalId(line, snapshot);
+                                int objectId;
+                                try
+                                {
+                                    objectId = readLocalId(line, snapshot);
+                                }
+                                catch (SnapshotException e)
+                                {
+                                    logger.log(Level.WARNING, MessageUtil.format(Messages.ThreadStackHelper_InvalidThreadLocal, line.trim(),
+                                                    "0x" + Long.toHexString(threadAddress), e.getLocalizedMessage())); //$NON-NLS-1$
+                                    continue;
+                                }
                                 ArrayInt arr = line2locals.get(lineNr);
                                 if (arr == null)
                                 {
@@ -80,7 +90,6 @@ import org.eclipse.mat.util.MessageUtil;
                                 }
                                 arr.add(objectId);
                             }
-                            line = in.readLine();
                         }
                     }
 
@@ -96,7 +105,7 @@ import org.eclipse.mat.util.MessageUtil;
                         {
                             // See
                             // https://bugs.eclipse.org/bugs/show_bug.cgi?id=520908
-                            logger.severe(MessageUtil.format(Messages.ThreadStackHelper_InvalidThread,
+                            logger.log(Level.WARNING, MessageUtil.format(Messages.ThreadStackHelper_InvalidThread,
                                             "0x" + Long.toHexString(threadAddress), se.getLocalizedMessage())); //$NON-NLS-1$
                         }
                     }
