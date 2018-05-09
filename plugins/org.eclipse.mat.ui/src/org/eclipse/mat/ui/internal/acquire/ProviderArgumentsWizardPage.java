@@ -104,7 +104,11 @@ public class ProviderArgumentsWizardPage extends WizardPage implements ITableLis
     {
         updateDescription();
 //		getContainer().updateButtons();
-        acquireDialog.updateFileName();
+        /*
+         * Don't update the file name when a provider is selected,
+         * the acquire dialog should have done this, and if we do
+         * it here we overwrite any change the user made.
+         */
     }
 
     public void onValueChanged()

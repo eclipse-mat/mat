@@ -244,7 +244,15 @@ public class IBMDumpProvider extends BaseProvider
                 {
                     throw new AttachOperationFailedException(t);
                 }
-                if (t instanceof IOException) throw (IOException)t;
+                if (t instanceof IOException)
+                {
+                    if (t.getMessage().contains("not attach to current VM"))
+                    {
+                        // Java 9/10 throws IOException instead of more useful AttachNotSupportedException
+                        throw new AttachNotSupportedException(t);
+                    }
+                    throw (IOException)t;
+                }
                 throw e;
             }
             return new VirtualMachine(o);
@@ -483,8 +491,8 @@ public class IBMDumpProvider extends BaseProvider
          * @param jar
          * @param command
          * @throws IOException
-         * @throws AgentLoadException1
-         * @throws AgentInitializationException1
+         * @throws AgentLoadException
+         * @throws AgentInitializationException
          */
         public void loadAgent(String jar, String command)
                         throws IOException, AgentLoadException, AgentInitializationException
@@ -548,7 +556,15 @@ public class IBMDumpProvider extends BaseProvider
                 {
                     throw new AttachNotSupportedException(t);
                 }
-                if (t instanceof IOException) throw (IOException)t;
+                if (t instanceof IOException)
+                {
+                    if (t.getMessage().contains("not attach to current VM"))
+                    {
+                        // Java 9/10 throws IOException instead of more useful AttachNotSupportedException
+                        throw new AttachNotSupportedException(t);
+                    }
+                    throw (IOException)t;
+                }
                 throw e;
             }
             return new VirtualMachine(o);
@@ -939,10 +955,20 @@ public class IBMDumpProvider extends BaseProvider
                 File udir;
                 if (vminfo.dumpdir == null)
                 {
-                    String userdir = guessDumpLocation(props);
-                    udir = new File(userdir);
+                    udir = null;
+                    if (vminfo.type == DumpType.HPROF)
+                    {
+                        // If we do an HPROF dump we can put it directly where it is needed
+                        udir = preferredLocation.getParentFile();
+                    }
+                    if (udir == null)
+                    {
+                        String userdir = guessDumpLocation(props);
+                        udir = new File(userdir);
+                    }
                     // Set the directory, so even it is fails the user could adjust it
                     vminfo.dumpdir = udir;
+                    //System.err.println("Setting dumpdir "+udir);
                 }
                 else
                 {
@@ -1007,8 +1033,9 @@ public class IBMDumpProvider extends BaseProvider
         catch (AttachNotSupportedException e)
         {
             info.setHeapDumpEnabled(false);
-            listener.sendUserMessage(Severity.WARNING, Messages.getString("IBMDumpProvider.UnsuitableVM"), e); //$NON-NLS-1$
-            throw new SnapshotException(Messages.getString("IBMDumpProvider.UnsuitableVM"), e); //$NON-NLS-1$
+            String msg = MessageFormat.format(Messages.getString("IBMDumpProvider.UnsuitableVM"), info.toString());
+            listener.sendUserMessage(Severity.WARNING, msg, e); //$NON-NLS-1$
+            throw new SnapshotException(msg, e); //$NON-NLS-1$
         }
 
     }
@@ -1276,6 +1303,8 @@ public class IBMDumpProvider extends BaseProvider
         if (vmd.provider().name().equals("sun"))
         {
             ifo.type = DumpType.HPROF;
+            // No need for a dump directory - HPROF can dump directly to the required location
+            dir = null;
         }
         else
         {
