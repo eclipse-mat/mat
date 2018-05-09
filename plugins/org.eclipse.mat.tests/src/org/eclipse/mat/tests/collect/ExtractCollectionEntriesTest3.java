@@ -50,6 +50,7 @@ public class ExtractCollectionEntriesTest3 extends ExtractCollectionEntriesTest2
         for (HeapDumpProviderDescriptor hd : descs)
         {
             IHeapDumpProvider hdp = hd.getHeapDumpProvider();
+            System.out.println("Heap dump provider "+hdp);
             assertThat("Heap Dump Provider", hdp, notNullValue());
             IProgressListener l = new VoidProgressListener();
             List<? extends VmInfo> ls;
@@ -72,17 +73,20 @@ public class ExtractCollectionEntriesTest3 extends ExtractCollectionEntriesTest2
                 assertThat("VM description", desc, notNullValue());
                 if (desc.contains("org.eclipse.mat.tests"))
                 {
+                    ++found;
                     System.out.println("Desc " + desc);
                     File f = new File(vm.getProposedFileName());
                     System.out.println("Proposed name " + f);
                     String fname = f.getName();
                     int ldot = fname.lastIndexOf('.');
-                    String fname2 = "acquire_dump" + fname.substring(ldot);
+                    // Give the dumps different names so they are not overwritten or fail with the same name
+                    String fname2 = "acquire_dump_" + found + fname.substring(ldot);
                     File tmpdump = new File(tmpdir, fname2);
                     System.out.println("Dump " + tmpdump);
                     CreateCollectionDump cdp = new CreateCollectionDump();
                     File dmp = hdp.acquireDump(vm, tmpdump, l);
                     parms.add(new Object[] { dmp.getAbsolutePath() });
+                    // To ensure it isn't garbage collected early
                     System.out.println(cdp);
                 }
             }
