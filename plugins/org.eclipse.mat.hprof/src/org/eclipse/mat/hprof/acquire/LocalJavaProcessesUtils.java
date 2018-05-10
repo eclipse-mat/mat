@@ -84,7 +84,7 @@ public class LocalJavaProcessesUtils
 		int firstSpaceIdx = line.indexOf(' ');
 		if (firstSpaceIdx == -1) return null;
 		int pid = Integer.parseInt(line.substring(0, firstSpaceIdx));
-		String description = line.substring(firstSpaceIdx);
+		String description = line.substring(firstSpaceIdx + 1);
 		return new JmapVmInfo(pid, description, true, null, null);
 	}
 
