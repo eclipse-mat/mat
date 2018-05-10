@@ -475,10 +475,14 @@ public class ProviderConfigurationWizardPage extends WizardPage implements ITabl
     @Override
     public void performHelp()
     {
-        String helpUrl = table.getArgumentSet().getDescriptor().getHelpUrl();
-        if (helpUrl != null)
+        AnnotatedObjectArgumentsSet currentSet = table.getArgumentSet();
+        if (currentSet != null)
         {
-             PlatformUI.getWorkbench().getHelpSystem().displayHelpResource(helpUrl);
+            String helpUrl = currentSet.getDescriptor().getHelpUrl();
+            if (helpUrl != null)
+            {
+                PlatformUI.getWorkbench().getHelpSystem().displayHelpResource(helpUrl);
+            }
         }
         relocateHelp(true);
         PlatformUI.getWorkbench().getHelpSystem().displayHelp("org.eclipse.mat.ui.help.acquire_arguments"); //$NON-NLS-1$

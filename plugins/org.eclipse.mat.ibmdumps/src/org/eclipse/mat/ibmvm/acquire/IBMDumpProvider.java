@@ -1186,23 +1186,44 @@ public class IBMDumpProvider extends BaseProvider
         }
     }
 
+    /**
+     * List available VMs.
+     * work done calculated as below:
+     * T = 10
+     * N = 100
+     * X->1..100
+     * 
+     * Step p = x*T/N - (x-1)*T/N
+     * 
+     * @param listener
+     * @return a list of VMs
+     */
     private List<IBMVmInfo> getAvailableVMs1(IProgressListener listener)
     {
-        listener.beginTask(Messages.getString("IBMDumpProvider.ListingIBMVMs"), 1200); //$NON-NLS-1$
+        int totalwork = 24;
+        int provwork = 4;
+        listener.beginTask(Messages.getString("IBMDumpProvider.ListingIBMVMs"), totalwork); //$NON-NLS-1$
+        int y = 0;
         int vmcount = VirtualMachine.list().size();
+        int x = 0;
         List<IBMVmInfo> jvms = new ArrayList<IBMVmInfo>();
         List<AttachProvider> provs = AttachProvider.providers();
+        int provcount = provs.size();
         for (AttachProvider prov : provs)
         {
             listener.subTask(MessageFormat.format(Messages.getString("IBMDumpProvider.ListingFirst"), prov.name())); //$NON-NLS-1$
             List<VirtualMachineDescriptor> list = prov.listVirtualMachines();
-            listener.worked(200 / provs.size());
+            y++;
+            int workp = y * provwork / provcount - (y - 1) * provwork / provcount;
+            listener.worked(workp);
             listener.subTask(MessageFormat.format(Messages.getString("IBMDumpProvider.ListingDetails"), prov.name())); //$NON-NLS-1$
             for (VirtualMachineDescriptor vmd : list)
             {
                 IBMVmInfo ifo = getVmInfo(vmd);
                 jvms.add(ifo);
-                listener.worked(1000 / vmcount);
+                ++x;
+                int workv = x * (totalwork - provwork) / vmcount - (x - 1) * (totalwork - provwork) / vmcount;
+                listener.worked(workv);
                 if (listener.isCanceled())
                 {
                     // If the user cancelled then perhaps the attach is hanging
