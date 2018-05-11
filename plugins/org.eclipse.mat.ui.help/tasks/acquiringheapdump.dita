@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2014 SAP AG and IBM Corporation.
+    Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -17,7 +17,7 @@
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2008, 2014 SAP AG and IBM Corporation.
+				Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License v1.0
 			    which accompanies this distribution, and is available at
@@ -292,7 +292,7 @@
 					JREs
 					and IBM JDKs and JREs version Java 8 SR5 or later.
 					The
-					<apiname>com.sun.tools.attach</apiname>
+					<apiname>com.ibm.tools.attach</apiname>
 					API is available on earlier IBM JDKs and JREs.
 					The Attach API dump
 					provider automatically uses whichever Attach API
@@ -301,6 +301,9 @@
 					loads
 					<codeph>tools.jar</codeph>
 					if required.
+					The Attach API with Java 9 or later does not permit a Java process
+					to connect to itself, so MemoryAnalyzer cannot generate a dump of 
+					itself using the Attach API dump provider. Use another dump provider instead.
 				</dd>
 			</dlentry>
 			<dlentry id="3">
