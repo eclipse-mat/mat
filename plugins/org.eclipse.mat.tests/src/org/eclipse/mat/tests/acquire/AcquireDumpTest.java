@@ -124,7 +124,25 @@ public class AcquireDumpTest
                     String fname2 = "acquire_dump_" + (found+1) + fname.substring(ldot);
                     File tmpdump = new File(tmpdir, fname2);
                     System.out.println("Dump " + tmpdump);
-                    File dmp = hdp.acquireDump(vm, tmpdump, l);
+                    File dmp;
+                    try
+                    {
+                        dmp = hdp.acquireDump(vm, tmpdump, l);
+                    }
+                    catch (SnapshotException e)
+                    {
+                        if (e.getMessage().contains("Unsuitable target"))
+                        {
+                            // Java 9 cannot attach to itself
+                            System.out.println("Ignoring dump as: "+e.getMessage());
+                            continue;
+                        }
+                        else
+                        {
+                            throw e;
+                        }
+                    }
+                    
                     collector.checkThat("Dump file", dmp, notNullValue());
                     try
                     {

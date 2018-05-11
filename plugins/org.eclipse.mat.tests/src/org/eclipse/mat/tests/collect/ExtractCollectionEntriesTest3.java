@@ -12,6 +12,7 @@ package org.eclipse.mat.tests.collect;
 
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.number.OrderingComparison.greaterThan;
 
 import java.io.File;
 import java.io.IOException;
@@ -84,13 +85,32 @@ public class ExtractCollectionEntriesTest3 extends ExtractCollectionEntriesTest2
                     File tmpdump = new File(tmpdir, fname2);
                     System.out.println("Dump " + tmpdump);
                     CreateCollectionDump cdp = new CreateCollectionDump();
-                    File dmp = hdp.acquireDump(vm, tmpdump, l);
+                    File dmp;
+                    try
+                    {
+                        dmp = hdp.acquireDump(vm, tmpdump, l);
+                    }
+                    catch (SnapshotException e)
+                    {
+                        if (e.getMessage().contains("Unsuitable target"))
+                        {
+                            // Java 9 cannot attach to itself
+                            System.out.println("Ignoring dump as: "+e.getMessage());
+                            continue;
+                        }
+                        else
+                        {
+                            throw e;
+                        }
+                    }
                     parms.add(new Object[] { dmp.getAbsolutePath() });
                     // To ensure it isn't garbage collected early
                     System.out.println(cdp);
                 }
             }
         }
+        assertThat("Available VMs", count, greaterThan(0));
+        assertThat("Available dumps from VMs", parms.size(), greaterThan(0));
         return parms;
     }
 
