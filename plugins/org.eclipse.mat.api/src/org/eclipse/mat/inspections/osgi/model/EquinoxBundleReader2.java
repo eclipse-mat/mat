@@ -175,7 +175,7 @@ public class EquinoxBundleReader2 implements IBundleReader
             if (bd.getType().equals(Type.FRAGMENT))
             {
                 BundleDescriptor bd2 = getFragmentHost(snapshot.getObject(bd.getObjectId()));
-                if (bd2.getObjectId() == bundleHostObject.getObjectId())
+                if (bd2 != null && bd2.getObjectId() == bundleHostObject.getObjectId())
                 {
                     fragments.add(bd);
                 }
