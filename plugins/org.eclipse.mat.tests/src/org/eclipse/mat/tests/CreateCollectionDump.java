@@ -580,9 +580,8 @@ public class CreateCollectionDump
                             "javax.script.SimpleBindings",
                             "javax.management.openmbean.TabularDataSupport",
                             "java.util.TreeMap",
-                            "java.util.WeakHashMap",
                             "javax.swing.UIDefaults",
-                            "java.util.WeakHashMap"
+                            "java.util.WeakHashMap" // Make WeakHashMap last so that keys are retained
             };
 
             keys = new String[COUNT];
