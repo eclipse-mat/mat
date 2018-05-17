@@ -17,10 +17,10 @@
 			<copyryear year=""></copyryear>
 			<copyrholder>
 				Copyright (c) 2008, 2010 SAP AG and others.
-			    All rights reserved. This program and the accompanying materials
-			    are made available under the terms of the Eclipse Public License v1.0
-			    which accompanies this distribution, and is available at
-			    http://www.eclipse.org/legal/epl-v10.html
+				All rights reserved. This program and the accompanying materials
+				are made available under the terms of the Eclipse Public License v1.0
+				which accompanies this distribution, and is available at
+				http://www.eclipse.org/legal/epl-v10.html
 			</copyrholder>
 		</copyright>
 	</prolog>
@@ -61,25 +61,7 @@
 									query:</p>
 								<ul>
 									<li>
-										<codeblock>java.util.ArrayList</codeblock>
-									</li>
-									<li>
-										<codeblock>java.util.HashMap</codeblock>
-									</li>
-									<li>
-										<codeblock>java.util.Hashtable</codeblock>
-									</li>
-									<li>
-										<codeblock>java.util.Properties</codeblock>
-									</li>
-									<li>
-										<codeblock>java.util.Vector</codeblock>
-									</li>
-									<li>
-										<codeblock>java.util.WeakHashMap</codeblock>
-									</li>
-									<li>
-										<codeblock>java.util.concurrent.ConcurrentHashMap$Segment</codeblock>
+										<codeblock>java.awt.RenderingHints</codeblock>
 									</li>
 									<li>
 										<codeblock>java.beans.beancontext.BeanContextSupport</codeblock>
@@ -91,31 +73,112 @@
 										<codeblock>java.util.ArrayDeque</codeblock>
 									</li>
 									<li>
-										<codeblock>java.util.HashSet</codeblock>
+										<codeblock>java.util.ArrayList</codeblock>
 									</li>
 									<li>
-										<codeblock>java.util.IdentityHashMap</codeblock>
+										<codeblock>java.util.Arrays$ArrayList</codeblock>
 									</li>
 									<li>
-										<codeblock>java.util.PriorityQueue</codeblock>
+										<codeblock>java.util.Collections$CheckedCollection</codeblock>
 									</li>
 									<li>
-										<codeblock>java.util.Vector</codeblock>
+										<codeblock>java.util.Collections$CheckedMap</codeblock>
 									</li>
 									<li>
-										<codeblock>java.util.WeakHashMap</codeblock>
+										<codeblock>java.util.Collections$CheckedSet</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.Collections$EmptyList</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.Collections$EmptyMap</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.Collections$EmptySet</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.Collections$SingletonList</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.Collections$SingletonSet</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.Collections$SynchronizedCollection</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.Collections$SynchronizedSet</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.Collections$UnmodifiableCollection</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.Collections$UnmodifiableSet</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.concurrent.ArrayBlockingQueue</codeblock>
 									</li>
 									<li>
 										<codeblock>java.util.concurrent.ConcurrentHashMap</codeblock>
 									</li>
 									<li>
+										<codeblock>java.util.concurrent.ConcurrentLinkedDeque</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.concurrent.ConcurrentLinkedQueue</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.concurrent.ConcurrentSkipListMap</codeblock>
+									</li>
+									<li>
 										<codeblock>java.util.concurrent.CopyOnWriteArrayList</codeblock>
 									</li>
 									<li>
-										<codeblock>java.util.concurrent.CopyOnWriteArraySet</codeblock>
+										<codeblock>java.util.concurrent.DelayQueue</codeblock>
 									</li>
 									<li>
-										<codeblock>java.util.concurrent.DelayQueue</codeblock>
+										<codeblock>java.util.concurrent.LinkedBlockingDeque</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.concurrent.LinkedBlockingQueue</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.concurrent.LinkedTransferQueue</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.concurrent.SynchronousQueue</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.HashMap</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.HashSet</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.Hashtable</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.ImmutableCollections$List0</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.ImmutableCollections$Set1</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.LinkedHashSet</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.LinkedList</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.PriorityQueue</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.Properties</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.TreeSet</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.WeakHashMap</codeblock>
 									</li>
 									<li>
 										<codeblock>java.util.jar.Attributes</codeblock>
@@ -139,49 +202,79 @@
 									query. Known collections:</p>
 								<ul>
 									<li>
-										<codeblock>java.util.ArrayList</codeblock>
+										<codeblock>java.awt.RenderingHints</codeblock>
 									</li>
 									<li>
-										<codeblock>java.util.TreeMap</codeblock>
+										<codeblock>java.beans.beancontext.BeanContextSupport</codeblock>
 									</li>
 									<li>
-										<codeblock>java.util.HashMap</codeblock>
-									</li>
-									<li>
-										<codeblock>java.util.Hashtable</codeblock>
-									</li>
-									<li>
-										<codeblock>java.util.Properties</codeblock>
-									</li>
-									<li>
-										<codeblock>java.util.Vector</codeblock>
-									</li>
-									<li>
-										<codeblock>java.util.WeakHashMap</codeblock>
-									</li>
-									<li>
-										<codeblock>java.util.concurrent.ConcurrentHashMap</codeblock>
-									</li>
-									<li>
-										<codeblock>java.util.concurrent.ConcurrentHashMap$Segment</codeblock>
+										<codeblock>java.lang.ThreadLocal$ThreadLocalMap</codeblock>
 									</li>
 									<li>
 										<codeblock>java.util.ArrayDeque</codeblock>
 									</li>
 									<li>
-										<codeblock>java.util.HashSet</codeblock>
+										<codeblock>java.util.ArrayList</codeblock>
 									</li>
 									<li>
-										<codeblock>java.util.IdentityHashMap</codeblock>
+										<codeblock>java.util.Arrays$ArrayList</codeblock>
 									</li>
 									<li>
-										<codeblock>java.util.LinkedList</codeblock>
+										<codeblock>java.util.Collections$CheckedCollection</codeblock>
 									</li>
 									<li>
-										<codeblock>java.util.PriorityQueue</codeblock>
+										<codeblock>java.util.Collections$CheckedMap</codeblock>
 									</li>
 									<li>
-										<codeblock>java.util.TreeSet</codeblock>
+										<codeblock>java.util.Collections$CheckedSet</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.Collections$EmptyList</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.Collections$EmptyMap</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.Collections$EmptySet</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.Collections$SingletonList</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.Collections$SingletonMap</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.Collections$SingletonSet</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.Collections$SynchronizedCollection</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.Collections$SynchronizedMap</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.Collections$SynchronizedSet</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.Collections$UnmodifiableCollection</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.Collections$UnmodifiableMap</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.Collections$UnmodifiableSet</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.concurrent.ArrayBlockingQueue</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.concurrent.ConcurrentHashMap</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.concurrent.ConcurrentLinkedDeque</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.concurrent.ConcurrentLinkedQueue</codeblock>
 									</li>
 									<li>
 										<codeblock>java.util.concurrent.ConcurrentSkipListMap</codeblock>
@@ -205,16 +298,79 @@
 										<codeblock>java.util.concurrent.LinkedBlockingQueue</codeblock>
 									</li>
 									<li>
+										<codeblock>java.util.concurrent.LinkedTransferQueue</codeblock>
+									</li>
+									<li>
 										<codeblock>java.util.concurrent.SynchronousQueue</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.HashMap</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.HashSet</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.Hashtable</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.IdentityHashMap</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.ImmutableCollections$List0</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.ImmutableCollections$List1</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.ImmutableCollections$List2</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.ImmutableCollections$ListN</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.ImmutableCollections$MapN</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.ImmutableCollections$Set0</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.ImmutableCollections$Set1</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.ImmutableCollections$Set2</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.ImmutableCollections$SetN</codeblock>
 									</li>
 									<li>
 										<codeblock>java.util.jar.Attributes</codeblock>
 									</li>
 									<li>
-										<codeblock>java.beans.beancontext.BeanContextSupport</codeblock>
+										<codeblock>java.util.LinkedHashMap</codeblock>
 									</li>
 									<li>
-										<codeblock>java.lang.ThreadLocal$ThreadLocalMap</codeblock>
+										<codeblock>java.util.LinkedHashSet</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.LinkedList</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.PriorityQueue</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.Properties</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.TreeMap</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.TreeSet</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.Vector</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.WeakHashMap</codeblock>
 									</li>
 									<li>
 										<codeblock>javax.script.SimpleBindings</codeblock>
@@ -290,9 +446,6 @@
 										<codeblock>java.util.Hashtable</codeblock>
 									</li>
 									<li>
-										<codeblock>java.util.IdentityHashMap</codeblock>
-									</li>
-									<li>
 										<codeblock>java.util.concurrent.ConcurrentHashMap</codeblock>
 									</li>
 									<li>
@@ -302,7 +455,40 @@
 										<codeblock>java.util.concurrent.ConcurrentSkipListSet</codeblock>
 									</li>
 									<li>
+										<codeblock>java.util.Collections$CheckedSet</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.Collections$CheckedMap</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.Collections$UnmodifiableMap</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.Collections$SynchronizedMap</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.Collections$SynchronizedSet</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.Collections$UnmodifiableMap</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.Collections$UnmodifiableSet</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.LinkedHashMap</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.LinkedHashSet</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.ImmutableCollections$MapN</codeblock>
+									</li>
+									<li>
 										<codeblock>java.util.jar.Attributes</codeblock>
+									</li>
+									<li>
+										<codeblock>java.awt.RenderingHints</codeblock>
 									</li>
 									<li>
 										<codeblock>java.beans.beancontext.BeanContextSupport</codeblock>

@@ -42,8 +42,8 @@ public class KnownCollectionInfo implements ICollectionExtractorProvider
                     new CollectionExtractionInfo("com.sap.engine.lib.util.AbstractDataStructure", new EmptyCollectionExtractor()), //$NON-NLS-1$
                     new CollectionExtractionInfo("java.util.concurrent.SynchronousQueue", new EmptyCollectionExtractor()), //$NON-NLS-1$
 
-                    new CollectionExtractionInfo("java.util.ImmutableCollections$Set0", new EmptyCollectionExtractor()), //$NON-NLS-1$
-                    new CollectionExtractionInfo("java.util.ImmutableCollections$List0", new EmptyMapExtractor()), //$NON-NLS-1$
+                    new CollectionExtractionInfo("java.util.ImmutableCollections$Set0", new EmptyMapExtractor()), //$NON-NLS-1$
+                    new CollectionExtractionInfo("java.util.ImmutableCollections$List0", new EmptyCollectionExtractor()), //$NON-NLS-1$
 
                     // these have a field indicating the size
                     new CollectionExtractionInfo("java.util.concurrent.ConcurrentLinkedBlockingDeque", new LinkedListCollectionExtractor("count", "first.next")), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$

@@ -112,14 +112,18 @@ public class IdentityHashMapCollectionExtractor extends FieldSizeArrayCollection
         return result.toArray();
     }
 
+    /**
+     * Can't calculate the collision ratio as we don't have the identityHashCode for the keys,
+     * even if we did know the hash algorithm.
+     */
     public boolean hasCollisionRatio()
     {
-        return true;
+        return false;
     }
 
     public Double getCollisionRatio(IObject coll) throws SnapshotException
     {
-        return 0.0;
+        return null;
     }
 
     public Double getFillRatio(IObject coll) throws SnapshotException
