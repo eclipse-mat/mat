@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 SAP AG, IBM Corporation and others
+ * Copyright (c) 2008, 2018 SAP AG, IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *    SAP AG - initial API and implementation
  *    IBM Corporation - enhancements and fixes
  *    James Livingston - expose collection utils as API
+ *    IBM Corporation/Andrew Johnson - fix for missing table
  *******************************************************************************/
 package org.eclipse.mat.internal.collectionextract;
 
@@ -44,8 +45,12 @@ public class ConcurrentSkipListCollectionExtractor extends HashedMapCollectionEx
     {
         ArrayInt entries = new ArrayInt();
         ISnapshot snapshot = coll.getSnapshot();
-        for (int outbound: snapshot.getOutboundReferentIds(getTableId(coll)))
-            collectEntriesFromTable(entries, coll.getObjectId(), outbound, snapshot);
+        int tableId = getTableId(coll);
+        if (tableId != -1)
+        {
+            for (int outbound: snapshot.getOutboundReferentIds(tableId))
+                collectEntriesFromTable(entries, coll.getObjectId(), outbound, snapshot);
+        }
         return entries.toArray();
     }
 
@@ -97,6 +102,10 @@ public class ConcurrentSkipListCollectionExtractor extends HashedMapCollectionEx
     {
         // strip the trailing period back off
         IObject arr = (IObject) coll.resolveValue(arrayField);
+        if (arr == null)
+        {
+            return -1;
+        }
         return arr.getObjectId();
     }
 }

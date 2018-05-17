@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2016 SAP AG and IBM Corporation
+ * Copyright (c) 2010, 2018 SAP AG and IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,12 +14,10 @@ package org.eclipse.mat.tests.collect;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.isOneOf;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
-import static org.hamcrest.core.IsNull.notNullValue;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.hamcrest.core.StringStartsWith.startsWith;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
 import static org.hamcrest.number.OrderingComparison.greaterThanOrEqualTo;
-import static org.hamcrest.number.OrderingComparison.lessThan;
 import static org.hamcrest.number.OrderingComparison.lessThanOrEqualTo;
 
 import java.io.Serializable;
@@ -68,7 +66,7 @@ public class ExtractCollectionEntriesBase
                     IClass cls = snapshot.getClassOf(co.getObjectId());
                     collector.checkThat(prefix + "List should contain Strings", cls.getName(), equalTo("java.lang.String"));
                     IObject lobj = snapshot.getObject(co.getObjectId());
-                    
+
                     String cv = lobj.getClassSpecificName();
                     if (cv != null)
                     {
@@ -89,13 +87,20 @@ public class ExtractCollectionEntriesBase
         }
     }
 
+    /**
+     * Checks all the entries are the special values from CreateCollectionDump
+     * @param objAddress
+     * @param numEntries
+     * @param snapshot
+     * @throws SnapshotException
+     */
     protected void checkHashSetObjects(long objAddress, int numEntries, ISnapshot snapshot) throws SnapshotException
     {
         IObject obj = snapshot.getObject(snapshot.mapAddressToId(objAddress));
         String prefix = obj.getTechnicalName()+": ";
         SnapshotQuery query = SnapshotQuery.parse("hash_set_values 0x" + Long.toHexString(objAddress), snapshot); //$NON-NLS-1$
         String name = obj.getClazz().getName();
-    
+
         try
         {
             IResult result = query.execute(new VoidProgressListener());
@@ -141,14 +146,23 @@ public class ExtractCollectionEntriesBase
         checkHashEntries(objAddress, numEntries, snapshot, false);
     }
 
+    /**
+     * HashMap entries.
+     * Check keys
+     * @param objAddress
+     * @param numEntries
+     * @param snapshot
+     * @param checkValueString
+     * @throws SnapshotException
+     */
     protected void checkHashEntries(long objAddress, int numEntries, ISnapshot snapshot, boolean checkValueString) throws SnapshotException
     {
         IObject obj = snapshot.getObject(snapshot.mapAddressToId(objAddress));
         String prefix = obj.getTechnicalName()+": ";
         SnapshotQuery query = SnapshotQuery.parse("hash_entries 0x" + Long.toHexString(objAddress), snapshot); //$NON-NLS-1$
-    
+
         IResult result;
-        try 
+        try
         {
             result = query.execute(new VoidProgressListener());
         }
@@ -159,7 +173,7 @@ public class ExtractCollectionEntriesBase
         }
         IResultTable table = (IResultTable) result;
         int rowCount = table.getRowCount();
-    
+
         collector.checkThat(MessageUtil.format(prefix+"Expected to extract {0} entries from collection {1} [{2}], but got {3} entries in the result", //$NON-NLS-1$
                         numEntries, obj, snapshot.getSnapshotInfo().getPath(), rowCount), rowCount, equalTo(numEntries));
         // Check that at least one key and value value differs
@@ -197,7 +211,7 @@ public class ExtractCollectionEntriesBase
             {
                 collector.checkThat(prefix+"Value contains name of collection class", (String)v1, containsString(obj.getClazz().getName()));
             }
-            
+
             IContextObject ctx = table.getContext(row);
             collector.checkThat(prefix+"Row object should be the map", ctx.getObjectId(), equalTo(obj.getObjectId()));
         }
@@ -271,7 +285,10 @@ public class ExtractCollectionEntriesBase
         }
         else
         {
-            collector.checkThat(prefix+"Fill ratio rows", rowCount2, equalTo(1));
+            if (!className.startsWith("java.util.Collections") && !className.equals("javax.script.SimpleBindings"))
+            {
+                collector.checkThat(prefix+"Fill ratio rows", rowCount2, equalTo(1));
+            }
             if (rowCount2 == 1)
             {
                 Object row = table2.getRow(0);
@@ -284,7 +301,7 @@ public class ExtractCollectionEntriesBase
                 }
                 else
                 {
-                    // 1.0 if the size == 0, capacity == 0, 0.0 if the size == 0, capacity > 0 
+                    // 1.0 if the size == 0, capacity == 0, 0.0 if the size == 0, capacity > 0
                     collector.checkThat(prefix+"Fill ratio value == 0.0 or 1.0 ", v, isOneOf(0.0, 1.0));
                 }
             }
@@ -312,11 +329,13 @@ public class ExtractCollectionEntriesBase
             Object row = table2.getRow(0);
             double v = (Double)table2.getColumnValue(row, 0);
             collector.checkThat(prefix+"Map collision value >= 0.0", v, greaterThanOrEqualTo(0.0));
-            // 100% collisions shouldn't be possible
-            collector.checkThat(prefix+"Map collision value < 1.0", v, lessThan(1.0));
+            // 100% collisions shouldn't be possible, but might be if every entry in the first table maps to 2 keys
+            collector.checkThat(prefix+"Map collision value <= 1.0", v, lessThanOrEqualTo(1.0));
             // No collisions possible if no entries
             if (numEntries == 0)
                 collector.checkThat(prefix+"Map collision ratio if no entries", v, equalTo(0.0));
+            if (numEntries == 1)
+                collector.checkThat(prefix+"Map collision ratio if one entry", v, equalTo(0.0));
         }
     }
 

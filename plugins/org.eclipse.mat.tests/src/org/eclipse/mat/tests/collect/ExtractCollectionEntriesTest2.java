@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 IBM Corporation
+ * Copyright (c) 2016, 2018 IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,81 +10,40 @@
  *******************************************************************************/
 package org.eclipse.mat.tests.collect;
 
-import java.util.Arrays;
-import java.util.Collection;
-
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IArray;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.NamedReference;
-import org.eclipse.mat.tests.TestSnapshots;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
 
-@RunWith(value = Parameterized.class)
 public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
 {
-    private String snapfile;
+    String snapfile;
 
     public ExtractCollectionEntriesTest2(String file)
     {
         this.snapfile = file;
     }
 
-    @Parameters
-    public static Collection<Object[]> data()
+    boolean skipTest(NamedReference nr, String onlyClass) throws SnapshotException
     {
-        Object[][] data = new Object[][] { { TestSnapshots.ORACLE_JDK7_21_64BIT },
-                        { TestSnapshots.IBM_JDK8_64BIT_SYSTEM },
-                        // { TestSnapshots.IBM_JDK8_64BIT_HEAP_AND_JAVA }, currently problems with PHD collections
-                        { TestSnapshots.ORACLE_JDK8_05_64BIT } };
-        return Arrays.asList(data);
-    }
-    
-    @Test
-    public void testCollections1() throws SnapshotException
-    {
-        testCollections1(TestSnapshots.getSnapshot(snapfile, false));
-    }
-    
-    @Test
-    public void testCollections2() throws SnapshotException
-    {
-        testCollections2(TestSnapshots.getSnapshot(snapfile,false));
-    }
-    
-    @Test
-    public void testCollections3() throws SnapshotException
-    {
-        testCollections3(TestSnapshots.getSnapshot(snapfile,false));
-    }
-    
-    @Test
-    public void testCollections4() throws SnapshotException
-    {
-        testCollections4(TestSnapshots.getSnapshot(snapfile,false));
-    }
-    
-    @Test
-    public void testCollections5() throws SnapshotException
-    {
-        testCollections5(TestSnapshots.getSnapshot(snapfile,false));
-    }
-    
-    @Test
-    public void testCollections6() throws SnapshotException
-    {
-        testCollections6(TestSnapshots.getSnapshot(snapfile,false));
+        if (onlyClass != null)
+        {
+            IClass cls2 = nr.getObject().getClazz();
+            if (!cls2.getName().equals(onlyClass))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
      * Test Lists
+     * @param onlyClass only test this class
      */
-    public void testCollections1(ISnapshot snapshot) throws SnapshotException
+    public void testCollections1(ISnapshot snapshot, String onlyClass) throws SnapshotException
     {
         for (IClass cls : snapshot.getClassesByName(org.eclipse.mat.tests.CreateCollectionDump.ListCollectionTestData.class.getName(), false)) {
             for (int o : cls.getObjectIds()) {
@@ -92,6 +51,7 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
                 IArray a = collectionArray(oo);
                 for (NamedReference nr : a.getOutboundReferences()) {
                     if (nr.getName().startsWith("<")) continue;
+                    if (skipTest(nr, onlyClass)) continue;
                     long objAddress = nr.getObjectAddress();
                     Integer numEntriesI = (Integer)cls.getSuperClass().resolveValue("COUNT");
                     int numEntries;
@@ -100,6 +60,9 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
                     } else {
                         numEntries = numEntriesI;
                     }
+                    String name = nr.getObject().getClazz().getName();
+                    if (name.contains("Singleton"))
+                        numEntries = 1;
                     checkList(objAddress, numEntries, snapshot);
                 }
             }
@@ -110,7 +73,7 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
     {
         return readArrayField(obj, "collections", "java.util.Collection[]");
     }
-        
+
     private IArray readArrayField(IObject obj, String fieldName, String valueType) throws SnapshotException
         {
         IArray a = (IArray)obj.resolveValue(fieldName);
@@ -137,8 +100,9 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
 
     /**
      * Test non-Lists
+     * @param onlyClass only test this class
      */
-    public void testCollections2(ISnapshot snapshot) throws SnapshotException
+    public void testCollections2(ISnapshot snapshot, String onlyClass) throws SnapshotException
     {
         for (IClass cls : snapshot.getClassesByName(org.eclipse.mat.tests.CreateCollectionDump.NonListCollectionTestData.class.getName(), false))
         {
@@ -147,6 +111,7 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
                 IArray a = collectionArray(oo);
                 for (NamedReference nr : a.getOutboundReferences()) {
                     if (nr.getName().startsWith("<")) continue;
+                    if (skipTest(nr, onlyClass)) continue;
                     long objAddress = nr.getObjectAddress();
                     Integer numEntriesI = (Integer)cls.getSuperClass().resolveValue("COUNT");
                     int numEntries;
@@ -155,25 +120,35 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
                     } else {
                         numEntries = numEntriesI;
                     }
-                    checkCollectionSize(objAddress, numEntries, snapshot);
-                    IObject o2 = snapshot.getObject(snapshot.mapAddressToId(objAddress));
-                    String name = o2.getClazz().getName();
-                    if (!name.startsWith("java.util.concurrent.LinkedBlocking") &&
-                        !name.startsWith("java.util.concurrent.LinkedTransfer") &&
-                        !name.startsWith("java.util.concurrent.ConcurrentLinked"))
+                    String name = nr.getObject().getClazz().getName();
+                    if (name.contains("Singleton"))
+                        numEntries = 1;
+                    if (name.equals("javax.print.attribute.standard.JobStateReasons"))
                     {
-                        checkCollectionFillRatio(objAddress, numEntries, snapshot);
-                    }
-                    if (!name.contains("Array") && !name.contains("Queue") && !name.contains("Deque"))
-                    {
-                        checkHashEntries(objAddress, numEntries, snapshot, false);
-                        checkMapCollisionRatio(objAddress, numEntries, snapshot);
-                        checkHashSetObjects(objAddress, numEntries, snapshot);
+                        numEntries = 1;
+                        checkCollectionSize(objAddress, numEntries, snapshot);
                     }
                     else
                     {
-                        // Other queries also work with list_entries
-                        checkList(objAddress, numEntries, snapshot);
+                        checkCollectionSize(objAddress, numEntries, snapshot);
+                        if (!name.startsWith("java.util.concurrent.LinkedBlocking") &&
+                                        !name.startsWith("java.util.concurrent.LinkedTransfer") &&
+                                        !name.startsWith("java.util.concurrent.ConcurrentLinked"))
+                        {
+                            checkCollectionFillRatio(objAddress, numEntries, snapshot);
+                        }
+                        if (!name.contains("Array") && !name.contains("Queue") && !name.contains("Deque")
+                            && !(name.startsWith("java.util.Collections") && (name.endsWith("Collection") || name.endsWith("SingletonSet"))))
+                        {
+                            checkHashEntries(objAddress, numEntries, snapshot, false);
+                            checkMapCollisionRatio(objAddress, numEntries, snapshot);
+                            checkHashSetObjects(objAddress, numEntries, snapshot);
+                        }
+                        else
+                        {
+                            // Other queries also work with list_entries
+                            checkList(objAddress, numEntries, snapshot);
+                        }
                     }
                 }
             }
@@ -182,8 +157,9 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
 
     /**
      * Test empty Lists
+     * @param onlyClass only test this class
      */
-    public void testCollections3(ISnapshot snapshot) throws SnapshotException
+    public void testCollections3(ISnapshot snapshot, String onlyClass) throws SnapshotException
     {
         for (IClass cls : snapshot.getClassesByName(org.eclipse.mat.tests.CreateCollectionDump.EmptyListCollectionTestData.class.getName(), false))
         {
@@ -194,6 +170,7 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
                 for (NamedReference nr : a.getOutboundReferences())
                 {
                     if (nr.getName().startsWith("<")) continue;
+                    if (skipTest(nr, onlyClass)) continue;
                     long objAddress = nr.getObjectAddress();
                     int numEntries = 0;
                     checkList(objAddress, numEntries, snapshot);
@@ -204,8 +181,9 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
 
     /**
      * Test empty non-Lists
+     * @param onlyClass only test this class
      */
-    public void testCollections4(ISnapshot snapshot) throws SnapshotException
+    public void testCollections4(ISnapshot snapshot, String onlyClass) throws SnapshotException
     {
 
         for (IClass cls : snapshot.getClassesByName(org.eclipse.mat.tests.CreateCollectionDump.EmptyNonListCollectionTestData.class.getName(), false))
@@ -217,12 +195,12 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
                 for (NamedReference nr : a.getOutboundReferences())
                 {
                     if (nr.getName().startsWith("<")) continue;
+                    if (skipTest(nr, onlyClass)) continue;
                     long objAddress = nr.getObjectAddress();
                     int numEntries = 0;
-                    IObject o2 = snapshot.getObject(snapshot.mapAddressToId(objAddress));
                     checkCollectionSize(objAddress, numEntries, snapshot);
                     checkHashEntries(objAddress, numEntries, snapshot, true);
-                    String name = o2.getClazz().getName();
+                    String name = nr.getObject().getClazz().getName();
                     if (!name.contains("Array") && !name.contains("Queue") && !name.contains("Deque"))
                     {
                         checkCollectionFillRatio(objAddress, numEntries, snapshot);
@@ -236,8 +214,9 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
 
     /**
      * Test Maps
+     * @param onlyClass only test this class
      */
-    public void testCollections5(ISnapshot snapshot) throws SnapshotException
+    public void testCollections5(ISnapshot snapshot, String onlyClass) throws SnapshotException
     {
         for (IClass cls : snapshot.getClassesByName(org.eclipse.mat.tests.CreateCollectionDump.MapTestData.class.getName(), false))
         {
@@ -249,6 +228,7 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
                 {
                     if (nr.getName().startsWith("<"))
                         continue;
+                    if (skipTest(nr, onlyClass)) continue;
                     long objAddress = nr.getObjectAddress();
                     Integer numEntriesI = (Integer)cls.resolveValue("COUNT");
                     int numEntries;
@@ -258,6 +238,8 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
                         numEntries = numEntriesI;
                     }
                     String nm = nr.getObject().getClazz().getName();
+                    if (nm.contains("Singleton"))
+                        numEntries = 1;
                     if (nm.equals("javax.print.attribute.standard.PrinterStateReasons")
                                     || nm.equals("java.util.jar.Attributes"))
                     {
@@ -276,8 +258,9 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
 
     /**
      * Test Empty Maps
+     * @param onlyClass only test this class
      */
-    public void testCollections6(ISnapshot snapshot) throws SnapshotException
+    public void testCollections6(ISnapshot snapshot, String onlyClass) throws SnapshotException
     {
         for (IClass cls : snapshot.getClassesByName(org.eclipse.mat.tests.CreateCollectionDump.EmptyMapTestData.class.getName(), false))
         {
@@ -287,6 +270,7 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
                 for (NamedReference nr : a.getOutboundReferences())
                 {
                     if (nr.getName().startsWith("<")) continue;
+                    if (skipTest(nr, onlyClass)) continue;
                     long objAddress = nr.getObjectAddress();
                     int numEntries = 0;
                     checkHashEntries(objAddress, numEntries, snapshot, true);

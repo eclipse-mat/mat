@@ -1,14 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 SAP AG, IBM Corporation and others
+ * Copyright (c) 2018 IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    SAP AG - initial API and implementation
- *    IBM Corporation - enhancements and fixes
- *    James Livingston - expose collection utils as API
+ *    IBM Corporation/Andrew Johnson - initial API and implementation
  *******************************************************************************/
 package org.eclipse.mat.internal.collectionextract;
 
@@ -17,12 +15,16 @@ import org.eclipse.mat.inspections.collectionextract.ICollectionExtractor;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IObjectArray;
 
-public class ArrayCollectionExtractor implements ICollectionExtractor
+public class PairCollectionExtractor implements ICollectionExtractor
 {
-    public static final ICollectionExtractor INSTANCE = new ArrayCollectionExtractor();
+    private final String field1;
+    private final String field2;
 
-    private ArrayCollectionExtractor()
-    {}
+    public PairCollectionExtractor(String field1, String field2)
+    {
+        this.field1 = field1;
+        this.field2 = field2;
+    }
 
     public boolean hasSize()
     {
@@ -31,7 +33,7 @@ public class ArrayCollectionExtractor implements ICollectionExtractor
 
     public Integer getSize(IObject coll) throws SnapshotException
     {
-        return ExtractionUtils.getNumberOfNotNullArrayElements((IObjectArray) coll);
+        return 2;
     }
 
     public boolean hasCapacity()
@@ -41,7 +43,7 @@ public class ArrayCollectionExtractor implements ICollectionExtractor
 
     public Integer getCapacity(IObject coll) throws SnapshotException
     {
-        return ((IObjectArray) coll).getLength();
+        return 2;
     }
 
     public boolean hasExtractableContents()
@@ -51,22 +53,25 @@ public class ArrayCollectionExtractor implements ICollectionExtractor
 
     public int[] extractEntryIds(IObject coll) throws SnapshotException
     {
-        return ExtractionUtils.referenceArrayToIds(coll.getSnapshot(), extractEntries(coll).getReferenceArray());
+        int id1 = ((IObject) coll.resolveValue(field1)).getObjectId();
+        int id2= ((IObject) coll.resolveValue(field2)).getObjectId();
+        return new int[] { id1, id2 };
     }
 
     public boolean hasExtractableArray()
     {
-        return true;
+        return false;
     }
 
     public IObjectArray extractEntries(IObject coll) throws SnapshotException
     {
-        return (IObjectArray) coll;
+        throw new IllegalArgumentException();
     }
 
     public Integer getNumberOfNotNullElements(IObject coll) throws SnapshotException
     {
-        return ExtractionUtils.getNumberOfNotNullArrayElements(extractEntries(coll));
+        return ((coll.resolveValue(field1) != null) ? 1 : 0) +
+               ((coll.resolveValue(field2) != null) ? 1 : 0);
     }
 
     public boolean hasFillRatio()
@@ -76,13 +81,6 @@ public class ArrayCollectionExtractor implements ICollectionExtractor
 
     public Double getFillRatio(IObject coll) throws SnapshotException
     {
-        double numberOfNotNullElements = (double) getNumberOfNotNullElements(coll);
-        double capacity = (double) getCapacity(coll);
-        if (numberOfNotNullElements == 0 && capacity == 0)
-        {
-            // Arbitrary - zero length array isn't wasting space
-            return 1.0;
-        }
-        return numberOfNotNullElements / capacity;
+        return getNumberOfNotNullElements(coll).doubleValue() / 2.0;
     }
 }

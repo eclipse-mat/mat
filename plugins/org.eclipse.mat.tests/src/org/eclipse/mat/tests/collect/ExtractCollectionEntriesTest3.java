@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBM Corporation
+ * Copyright (c) 2015, 2018 IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,15 +10,19 @@
  *******************************************************************************/
 package org.eclipse.mat.tests.collect;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
+import static org.junit.Assume.assumeThat;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.internal.acquire.HeapDumpProviderDescriptor;
@@ -29,21 +33,27 @@ import org.eclipse.mat.tests.CreateCollectionDump;
 import org.eclipse.mat.tests.TestSnapshots;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.VoidProgressListener;
-import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+@RunWith(value = Parameterized.class)
 public class ExtractCollectionEntriesTest3 extends ExtractCollectionEntriesTest2
 {
-    public ExtractCollectionEntriesTest3(String file) {
+    int type;
+    String classname;
+    public ExtractCollectionEntriesTest3(String file, String dumpname, int type, String classname ) {
          super(file);
+         this.type = type;
+         this.classname = classname;
     }
-    
-    @Parameters
+
+    @Parameters(name = "{1} {2} {3}")
     public static Collection<Object[]> data3() throws SnapshotException, IOException
     {
         List<Object[]> parms = new ArrayList<Object[]>();
-        
+
         Collection<HeapDumpProviderDescriptor> descs = HeapDumpProviderRegistry.instance().getHeapDumpProviders();
         int count = 0;
         int found = 0;
@@ -103,7 +113,98 @@ public class ExtractCollectionEntriesTest3 extends ExtractCollectionEntriesTest2
                             throw e;
                         }
                     }
-                    parms.add(new Object[] { dmp.getAbsolutePath() });
+                    // List collections
+                    String dmppath = dmp.getAbsolutePath();
+                    String dmpname = hdp.getClass().getSimpleName()+" "+dmp.getName();
+                    for (Collection c : cdp.getListCollectionTestData())
+                    {
+                        Object[] objects = new Object[] { dmppath, dmpname, 1, c.getClass().getName() };
+                        for (Object o[] : parms)
+                        {
+                            if (Arrays.equals(objects,  o))
+                            {
+                                objects = null;
+                                break;
+                            }
+                        }
+                        if (objects != null)
+                            parms.add(objects);
+                    }
+                    // Non-List collections
+                    for (Collection c : cdp.getNonListCollectionTestData())
+                    {
+                        Object[] objects = new Object[] { dmppath, dmpname, 2, c.getClass().getName() };
+                        for (Object o[] : parms)
+                        {
+                            if (Arrays.equals(objects,  o))
+                            {
+                                objects = null;
+                                break;
+                            }
+                        }
+                        if (objects != null)
+                            parms.add(objects);
+                    }
+                    // Empty List collections
+                    for (Collection c : cdp.getEmptyListCollectionTestData())
+                    {
+                        Object[] objects = new Object[] { dmppath, dmpname, 3, c.getClass().getName() };
+                        for (Object o[] : parms)
+                        {
+                            if (Arrays.equals(objects,  o))
+                            {
+                                objects = null;
+                                break;
+                            }
+                        }
+                        if (objects != null)
+                            parms.add(objects);
+                    }
+                    // Empty Non-List collections
+                    for (Collection c : cdp.getEmptyNonListCollectionTestData())
+                    {
+                        Object[] objects = new Object[] { dmppath, dmpname, 4, c.getClass().getName() };
+                        for (Object o[] : parms)
+                        {
+                            if (Arrays.equals(objects,  o))
+                            {
+                                objects = null;
+                                break;
+                            }
+                        }
+                        if (objects != null)
+                            parms.add(objects);
+                    }
+                    // Maps
+                    for (Map m : cdp.getMapTestData())
+                    {
+                        Object[] objects = new Object[] { dmppath, dmpname, 5, m.getClass().getName() };
+                        for (Object o[] : parms)
+                        {
+                            if (Arrays.equals(objects,  o))
+                            {
+                                objects = null;
+                                break;
+                            }
+                        }
+                        if (objects != null)
+                            parms.add(objects);
+                    }
+                    // Empty Maps
+                    for (Map m : cdp.getEmptyMapTestData())
+                    {
+                        Object[] objects = new Object[] { dmppath, dmpname, 6, m.getClass().getName() };
+                        for (Object o[] : parms)
+                        {
+                            if (Arrays.equals(objects,  o))
+                            {
+                                objects = null;
+                                break;
+                            }
+                        }
+                        if (objects != null)
+                            parms.add(objects);
+                    }
                     // To ensure it isn't garbage collected early
                     System.out.println(cdp);
                 }
@@ -112,6 +213,38 @@ public class ExtractCollectionEntriesTest3 extends ExtractCollectionEntriesTest2
         assertThat("Available VMs", count, greaterThan(0));
         assertThat("Available dumps from VMs", parms.size(), greaterThan(0));
         return parms;
+    }
+
+    @Test
+    public void testCollections() throws SnapshotException
+    {
+        switch (type)
+        {
+            case 1:
+                assumeThat(type, equalTo(1));
+                testCollections1(TestSnapshots.getSnapshot(snapfile, false), classname);
+                break;
+            case 2:
+                assumeThat(type, equalTo(2));
+                testCollections2(TestSnapshots.getSnapshot(snapfile,false), classname);
+                break;
+            case 3:
+                assumeThat(type, equalTo(3));
+                testCollections3(TestSnapshots.getSnapshot(snapfile,false), classname);
+                break;
+            case 4:
+                assumeThat(type, equalTo(4));
+                testCollections3(TestSnapshots.getSnapshot(snapfile,false), classname);
+                break;
+            case 5:
+                assumeThat(type, equalTo(5));
+                testCollections5(TestSnapshots.getSnapshot(snapfile,false), classname);
+                break;
+            case 6:
+                assumeThat(type, equalTo(6));
+                testCollections6(TestSnapshots.getSnapshot(snapfile,false), classname);
+                break;
+        }
     }
 
 }

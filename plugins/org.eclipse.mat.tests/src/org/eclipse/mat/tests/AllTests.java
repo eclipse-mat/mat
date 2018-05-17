@@ -38,6 +38,7 @@ import org.junit.runners.Suite.SuiteClasses;
                 org.eclipse.mat.tests.snapshot.MultipleSnapshots.class, //
                 org.eclipse.mat.tests.acquire.AcquireDumpTest.class,
                 org.eclipse.mat.tests.collect.ExtractCollectionEntriesTest3.class, //
+                org.eclipse.mat.tests.collect.ExtractCollectionEntriesTest4.class, //
                 org.eclipse.mat.tests.ui.snapshot.panes.textPartitioning.TestClassNameExtractor.class,
                 org.eclipse.mat.tests.ui.snapshot.panes.textPartitioning.TestOQLPartitionScanner.class })
 public class AllTests

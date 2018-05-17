@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2017 SAP AG, IBM Corporation and others
+ * Copyright (c) 2008, 2018 SAP AG, IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -42,11 +42,15 @@ public class KnownCollectionInfo implements ICollectionExtractorProvider
                     new CollectionExtractionInfo("com.sap.engine.lib.util.AbstractDataStructure", new EmptyCollectionExtractor()), //$NON-NLS-1$
                     new CollectionExtractionInfo("java.util.concurrent.SynchronousQueue", new EmptyCollectionExtractor()), //$NON-NLS-1$
 
+                    new CollectionExtractionInfo("java.util.ImmutableCollections$Set0", new EmptyCollectionExtractor()), //$NON-NLS-1$
+                    new CollectionExtractionInfo("java.util.ImmutableCollections$List0", new EmptyMapExtractor()), //$NON-NLS-1$
+
                     // these have a field indicating the size
                     new CollectionExtractionInfo("java.util.concurrent.ConcurrentLinkedBlockingDeque", new LinkedListCollectionExtractor("count", "first.next")), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                     new CollectionExtractionInfo("java.util.concurrent.ConcurrentLinkedBlockingQueue", new LinkedListCollectionExtractor("count.value", "head.next")), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                     new CollectionExtractionInfo("java.util.concurrent.LinkedBlockingDeque", new LinkedListCollectionExtractor("count", "first.next")), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                     new CollectionExtractionInfo("java.util.concurrent.LinkedBlockingQueue", new LinkedListCollectionExtractor("count.value", "head.next")), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    new CollectionExtractionInfo("java.util.concurrent.ArrayBlockingQueue", new IBM6ArrayListCollectionExtractor("takeIndex", "putIndex", "items", "count")), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NONO-NLS-4$
 
                     // these store the data in an array
                     new CollectionExtractionInfo("java.util.concurrent.CopyOnWriteArrayList", new FieldArrayCollectionExtractor("array")), // //$NON-NLS-1$ //$NON-NLS-2$
@@ -64,6 +68,9 @@ public class KnownCollectionInfo implements ICollectionExtractorProvider
                     new CollectionExtractionInfo("java.util.PriorityQueue", JdkVersion.of(IBM15, IBM16), new FieldSizeArrayCollectionExtractor("size", "elements")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                     new CollectionExtractionInfo("java.util.concurrent.DelayQueue", JdkVersion.except(IBM15, IBM16), new FieldSizeArrayCollectionExtractor("q.size", "q.queue")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                     new CollectionExtractionInfo("java.util.concurrent.DelayQueue", JdkVersion.of(IBM15, IBM16), new FieldSizeArrayCollectionExtractor("q.size", "q.elements")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
+                    // The length of the array is the size
+                    new CollectionExtractionInfo("java.util.Arrays$ArrayList", new FieldSizeArrayCollectionExtractor("a.@length", "a")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
                     // IBM 6 specific collections
                     new CollectionExtractionInfo("java.util.ArrayList", IBM16, new IBM6ArrayListCollectionExtractor("firstIndex", "lastIndex", "array")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -94,7 +101,8 @@ public class KnownCollectionInfo implements ICollectionExtractorProvider
                              new HashSetCollectionExtractor(
                                                     "backingMap.elementCount", "backingMap.elementData", "key", "value")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
-                    new CollectionExtractionInfo("javax.script.SimpleBindings", JdkVersion.except(IBM16), new HashMapCollectionExtractor("map.size", "map.table", "key", "value")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+                    // Can wrap any collection, not just creat a HashMap
+                    new CollectionExtractionInfo("javax.script.SimpleBindings", JdkVersion.except(IBM16), new WrapperMapExtractor("map")), //$NON-NLS-1$ //$NON-NLS-2$
                     new CollectionExtractionInfo("javax.script.SimpleBindings", IBM16, // //$NON-NLS-1$
                                     new HashMapCollectionExtractor(
                                                     "map.elementCount", "map.elementData", "key", "value")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -104,7 +112,7 @@ public class KnownCollectionInfo implements ICollectionExtractorProvider
                                     new HashMapCollectionExtractor(
                                                     "map.elementCount", "map.elementData", "key", "value")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
-                    // Actually a ConcurrentHashMap, even though subclass of Hashtable
+                    // Actually a ConcurrentHashMap for Java 9, even though subclass of Hashtable
                     new CollectionExtractionInfo("java.util.Properties", JdkVersion.of(JAVA19, IBM19), // //$NON-NLS-1$
                                     new HashMapCollectionExtractor("map.baseCount", "map.table", "key", "val")),  //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
@@ -148,8 +156,10 @@ public class KnownCollectionInfo implements ICollectionExtractorProvider
 
                     // wrappers
                     // also works for SynchronizedSet, SynchronizedSortedSet,
+                    new CollectionExtractionInfo("java.util.Collections$SynchronizedSet", new WrapperMapExtractor("c")), //$NON-NLS-1$ //$NON-NLS-2$
                     // SynchronizedList, SynchronizedRandomAccessList
                     new CollectionExtractionInfo("java.util.Collections$SynchronizedCollection", new WrapperCollectionExtractor("c")), //$NON-NLS-1$ //$NON-NLS-2$
+                    new CollectionExtractionInfo("java.util.Collections$UnmodifiableSet", new WrapperMapExtractor("c")), //$NON-NLS-1$ //$NON-NLS-2$  ??
                     // also works for: UnmodifiableSet, UnmodifiableSortedSet,
                     // UnmodifiableList, UnmodifiableRandomAccessList
                     // UnmodifiableEntrySet
@@ -159,19 +169,32 @@ public class KnownCollectionInfo implements ICollectionExtractorProvider
                     // also works for SynchronizedSortedMap
                     new CollectionExtractionInfo("java.util.Collections$SynchronizedMap", new WrapperMapExtractor("m")), //$NON-NLS-1$ //$NON-NLS-2$
                     // also works for CheckedSet, CheckedSortedSet, CheckedList,
+                    new CollectionExtractionInfo("java.util.Collections$CheckedSet", new WrapperMapExtractor("c")), //$NON-NLS-1$ //$NON-NLS-2$
                     // CheckedRandomAccessList
                     new CollectionExtractionInfo("java.util.Collections$CheckedCollection", new WrapperCollectionExtractor("c")), //$NON-NLS-1$ //$NON-NLS-2$
                     // also works for CheckedSortedMap
-                    new CollectionExtractionInfo("java.util.Collections$CheckedMap", new WrapperCollectionExtractor("m")), //$NON-NLS-1$ //$NON-NLS-2$
+                    new CollectionExtractionInfo("java.util.Collections$CheckedMap", new WrapperMapExtractor("m")), //$NON-NLS-1$ //$NON-NLS-2$
                     new CollectionExtractionInfo("java.util.Collections$CheckedMap$CheckedEntrySet", new WrapperCollectionExtractor("s")), //$NON-NLS-1$ //$NON-NLS-2$
                     new CollectionExtractionInfo("org.eclipse.osgi.framework.util.CaseInsensitiveDictionaryMap", new WrapperMapExtractor("map")), //$NON-NLS-1$ //$NON-NLS-2$
-
+                    new CollectionExtractionInfo("java.awt.RenderingHints", new WrapperMapExtractor("hintmap")), //$NON-NLS-1$ //$NON-NLS-2$
 
                     // singletons
                     new CollectionExtractionInfo("java.util.Collections$SingletonSet", new SingletonCollectionExtractor("element")), //$NON-NLS-1$ //$NON-NLS-2$
                     new CollectionExtractionInfo("java.util.Collections$SingletonList", new SingletonCollectionExtractor("element")), //$NON-NLS-1$ //$NON-NLS-2$
                     new CollectionExtractionInfo("java.util.Collections$SingletonMap", new SingletonMapExtractor("k", "v")),//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                     new CollectionExtractionInfo("java.util.Collections$CopiesList", new ReplicatedValueCollectionExtractor("n", "element")),//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
+                    // New Java 9 collections
+                    new CollectionExtractionInfo("java.util.ImmutableCollections$Set1", new SingletonCollectionExtractor("e0")), //$NON-NLS-1$ //$NON-NLS-2$
+                    new CollectionExtractionInfo("java.util.ImmutableCollections$List1", new SingletonCollectionExtractor("e0")), //$NON-NLS-1$ //$NON-NLS-2$
+
+                    new CollectionExtractionInfo("java.util.ImmutableCollections$Set2", new PairCollectionExtractor("e0", "e1")), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    new CollectionExtractionInfo("java.util.ImmutableCollections$List2", new PairCollectionExtractor("e0", "e1")), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
+                    new CollectionExtractionInfo("java.util.ImmutableCollections$SetN", new FieldSizeArrayCollectionExtractor("elements.@length", "elements")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    new CollectionExtractionInfo("java.util.ImmutableCollections$ListN", new FieldSizeArrayCollectionExtractor("elements.@length", "elements")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
+                    new CollectionExtractionInfo("java.util.ImmutableCollections$MapN", new IdentityHashMapCollectionExtractor("size", "table")),  //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
                     // These are known un-implemented ones
                     new CollectionExtractionInfo("sun.util.PreHashedMap", new NoContentCollectionExtractor()), //$NON-NLS-1$

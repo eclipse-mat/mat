@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 SAP AG, IBM Corporation and others
+ * Copyright (c) 2008, 2018 SAP AG, IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.inspections.collectionextract.ExtractedMap;
 import org.eclipse.mat.inspections.collectionextract.IMapExtractor;
 import org.eclipse.mat.snapshot.model.IObject;
 
@@ -36,8 +37,24 @@ public class WrapperMapExtractor extends WrapperCollectionExtractor implements I
         return extractMap(coll).getCollisionRatio();
     }
 
-    public Iterator<Entry<IObject, IObject>> extractMapEntries(IObject coll)
+    public Iterator<Entry<IObject, IObject>> extractMapEntries(final IObject coll)
     {
-        return extractMap(coll).iterator();
+        // Wrap the returned object so the wrapper collection is the entry object
+        ExtractedMap em = extractMap(coll);
+        final Iterator<Entry<IObject, IObject>> it = em.iterator();
+        return new Iterator<Entry<IObject, IObject>>() {
+
+            public boolean hasNext()
+            {
+                return it.hasNext();
+            }
+
+            public Entry<IObject, IObject> next()
+            {
+                Entry<IObject, IObject> e = it.next();
+                return new EntryObject(coll, e.getKey(), e.getValue());
+            }
+
+        };
     }
 }

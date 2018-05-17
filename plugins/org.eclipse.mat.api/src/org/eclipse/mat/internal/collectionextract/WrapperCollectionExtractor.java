@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 SAP AG, IBM Corporation and others
+ * Copyright (c) 2008, 2018 SAP AG, IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -101,24 +101,23 @@ public class WrapperCollectionExtractor implements ICollectionExtractor
 
     protected ExtractedCollection extractList(IObject coll)
     {
-        AbstractExtractedCollection ec = extractCollection(coll);
+        AbstractExtractedCollection<?, ?> ec = extractCollection(coll);
         if (ec instanceof ExtractedCollection)
             return (ExtractedCollection) ec;
         else
-            throw new UnsupportedOperationException("not a list-ish collection: " + coll.getDisplayName() + "; "
-                            + ec.getDisplayName());
+            throw new UnsupportedOperationException("not a list-ish collection: " + coll.getDisplayName() + (ec != null ? ("; " + ec.getDisplayName()) : ""));
     }
 
     protected ExtractedMap extractMap(IObject coll)
     {
-        AbstractExtractedCollection ec = extractCollection(coll);
+        AbstractExtractedCollection<?, ?> ec = extractCollection(coll);
         if (ec instanceof ExtractedMap)
             return (ExtractedMap) ec;
         else
-            throw new UnsupportedOperationException("not a map: " + coll.getDisplayName() + ec != null ? ("; " + ec.getDisplayName()) : "");
+            throw new UnsupportedOperationException("not a map: " + coll.getDisplayName() + (ec != null ? ("; " + ec.getDisplayName()) : ""));
     }
 
-    protected AbstractExtractedCollection extractCollection(IObject coll)
+    protected AbstractExtractedCollection<?, ?> extractCollection(IObject coll)
     {
         try
         {
@@ -148,15 +147,15 @@ public class WrapperCollectionExtractor implements ICollectionExtractor
         }
     }
 
-    private AbstractExtractedCollection guessWrappedFromOutbounds(IObject coll) throws SnapshotException
+    private AbstractExtractedCollection<?, ?> guessWrappedFromOutbounds(IObject coll) throws SnapshotException
     {
         ISnapshot snapshot = coll.getSnapshot();
-        AbstractExtractedCollection extracted = null;
+        AbstractExtractedCollection<?, ?> extracted = null;
 
         int[] outbounds = snapshot.getOutboundReferentIds(coll.getObjectId());
         for (int outId : outbounds)
         {
-            AbstractExtractedCollection ex = CollectionExtractionUtils.extractCollection(snapshot.getObject(outId));
+            AbstractExtractedCollection<?, ?> ex = CollectionExtractionUtils.extractCollection(snapshot.getObject(outId));
             if (ex != null)
             {
                 if (extracted == null)
