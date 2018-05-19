@@ -291,6 +291,11 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
                     if (nm.equals("javax.print.attribute.standard.PrinterStateReasons")
                                     || nm.equals("java.util.jar.Attributes"))
                     {
+                        if (onlyClass == null)
+                        {
+                            // For the pre-existing dumps only had one of this sort of class
+                            numEntries = 1;
+                        }
                         // These maps don't have string keys and values
                         checkMap(objAddress, numEntries, snapshot);
                     }
