@@ -115,7 +115,7 @@ public class ExtractCollectionEntriesTest3 extends ExtractCollectionEntriesTest2
                     }
                     // List collections
                     String dmppath = dmp.getAbsolutePath();
-                    String dmpname = hdp.getClass().getSimpleName()+" "+dmp.getName();
+                    String dmpname = hdp.getClass().getName()+" "+dmp.getName();
                     for (Collection c : cdp.getListCollectionTestData())
                     {
                         Object[] objects = new Object[] { dmppath, dmpname, 1, c.getClass().getName() };
@@ -234,7 +234,7 @@ public class ExtractCollectionEntriesTest3 extends ExtractCollectionEntriesTest2
                 break;
             case 4:
                 assumeThat(type, equalTo(4));
-                testCollections3(TestSnapshots.getSnapshot(snapfile,false), classname);
+                testCollections4(TestSnapshots.getSnapshot(snapfile,false), classname);
                 break;
             case 5:
                 assumeThat(type, equalTo(5));

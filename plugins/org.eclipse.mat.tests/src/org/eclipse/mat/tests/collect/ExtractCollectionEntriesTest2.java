@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.mat.tests.collect;
 
+import static org.hamcrest.number.OrderingComparison.greaterThanOrEqualTo;
+import static org.junit.Assert.assertThat;
+
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IArray;
@@ -45,13 +48,17 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
      */
     public void testCollections1(ISnapshot snapshot, String onlyClass) throws SnapshotException
     {
+        int objectsFound = 0;
         for (IClass cls : snapshot.getClassesByName(org.eclipse.mat.tests.CreateCollectionDump.ListCollectionTestData.class.getName(), false)) {
             for (int o : cls.getObjectIds()) {
                 IObject oo = snapshot.getObject(o);
                 IArray a = collectionArray(oo);
+                IArray v = valueArray(oo);
+                boolean checkVals = v != null;
                 for (NamedReference nr : a.getOutboundReferences()) {
                     if (nr.getName().startsWith("<")) continue;
                     if (skipTest(nr, onlyClass)) continue;
+                    ++objectsFound;
                     long objAddress = nr.getObjectAddress();
                     Integer numEntriesI = (Integer)cls.getSuperClass().resolveValue("COUNT");
                     int numEntries;
@@ -63,15 +70,26 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
                     String name = nr.getObject().getClazz().getName();
                     if (name.contains("Singleton"))
                         numEntries = 1;
-                    checkList(objAddress, numEntries, snapshot);
+                    checkList(objAddress, numEntries, checkVals, snapshot);
                 }
             }
         }
+        assertThat("At least 1 object found"+(onlyClass != null ? " of type "+onlyClass : ""), objectsFound, greaterThanOrEqualTo(1));
     }
 
     private IArray collectionArray(IObject obj) throws SnapshotException
     {
         return readArrayField(obj, "collections", "java.util.Collection[]");
+    }
+
+    private IArray mapArray(IObject obj) throws SnapshotException
+    {
+        return readArrayField(obj, "maps", "java.util.Map[]");
+    }
+
+    private IArray valueArray(IObject obj) throws SnapshotException
+    {
+        return readArrayField(obj, "values", "java.lang.String[]");
     }
 
     private IArray readArrayField(IObject obj, String fieldName, String valueType) throws SnapshotException
@@ -104,14 +122,18 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
      */
     public void testCollections2(ISnapshot snapshot, String onlyClass) throws SnapshotException
     {
+        int objectsFound = 0;
         for (IClass cls : snapshot.getClassesByName(org.eclipse.mat.tests.CreateCollectionDump.NonListCollectionTestData.class.getName(), false))
         {
             for (int o : cls.getObjectIds()) {
                 IObject oo = snapshot.getObject(o);
                 IArray a = collectionArray(oo);
+                IArray v = valueArray(oo);
+                boolean checkVals = v != null;
                 for (NamedReference nr : a.getOutboundReferences()) {
                     if (nr.getName().startsWith("<")) continue;
                     if (skipTest(nr, onlyClass)) continue;
+                    ++objectsFound;
                     long objAddress = nr.getObjectAddress();
                     Integer numEntriesI = (Integer)cls.getSuperClass().resolveValue("COUNT");
                     int numEntries;
@@ -142,17 +164,18 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
                         {
                             checkHashEntries(objAddress, numEntries, snapshot, false);
                             checkMapCollisionRatio(objAddress, numEntries, snapshot);
-                            checkHashSetObjects(objAddress, numEntries, snapshot);
+                            checkHashSetObjects(objAddress, numEntries, checkVals, snapshot);
                         }
                         else
                         {
                             // Other queries also work with list_entries
-                            checkList(objAddress, numEntries, snapshot);
+                            checkList(objAddress, numEntries, checkVals, snapshot);
                         }
                     }
                 }
             }
         }
+        assertThat("At least 1 object found"+(onlyClass != null ? " of type "+onlyClass : ""), objectsFound, greaterThanOrEqualTo(1));
     }
 
     /**
@@ -161,22 +184,27 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
      */
     public void testCollections3(ISnapshot snapshot, String onlyClass) throws SnapshotException
     {
+        int objectsFound = 0;
         for (IClass cls : snapshot.getClassesByName(org.eclipse.mat.tests.CreateCollectionDump.EmptyListCollectionTestData.class.getName(), false))
         {
             for (int o : cls.getObjectIds())
             {
                 IObject oo = snapshot.getObject(o);
                 IArray a = collectionArray(oo);
+                IArray v = valueArray(oo);
+                boolean checkVals = v != null;
                 for (NamedReference nr : a.getOutboundReferences())
                 {
                     if (nr.getName().startsWith("<")) continue;
                     if (skipTest(nr, onlyClass)) continue;
+                    ++objectsFound;
                     long objAddress = nr.getObjectAddress();
                     int numEntries = 0;
-                    checkList(objAddress, numEntries, snapshot);
+                    checkList(objAddress, numEntries, checkVals, snapshot);
                 }
             }
         }
+        assertThat("At least 1 object found"+(onlyClass != null ? " of type "+onlyClass : ""), objectsFound, greaterThanOrEqualTo(1));
     }
 
     /**
@@ -185,17 +213,20 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
      */
     public void testCollections4(ISnapshot snapshot, String onlyClass) throws SnapshotException
     {
-
+        int objectsFound = 0;
         for (IClass cls : snapshot.getClassesByName(org.eclipse.mat.tests.CreateCollectionDump.EmptyNonListCollectionTestData.class.getName(), false))
         {
             for (int o : cls.getObjectIds())
             {
                 IObject oo = snapshot.getObject(o);
                 IArray a = collectionArray(oo);
+                IArray v = valueArray(oo);
+                boolean checkVals = v != null;
                 for (NamedReference nr : a.getOutboundReferences())
                 {
                     if (nr.getName().startsWith("<")) continue;
                     if (skipTest(nr, onlyClass)) continue;
+                    ++objectsFound;
                     long objAddress = nr.getObjectAddress();
                     int numEntries = 0;
                     checkCollectionSize(objAddress, numEntries, snapshot);
@@ -205,11 +236,12 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
                     {
                         checkCollectionFillRatio(objAddress, numEntries, snapshot);
                         checkMapCollisionRatio(objAddress, numEntries, snapshot);
-                        checkHashSetObjects(objAddress, numEntries, snapshot);
+                        checkHashSetObjects(objAddress, numEntries, checkVals, snapshot);
                     }
                 }
             }
         }
+        assertThat("At least 1 object found"+(onlyClass != null ? " of type "+onlyClass : ""), objectsFound, greaterThanOrEqualTo(1));
     }
 
     /**
@@ -218,17 +250,21 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
      */
     public void testCollections5(ISnapshot snapshot, String onlyClass) throws SnapshotException
     {
+        int objectsFound = 0;
         for (IClass cls : snapshot.getClassesByName(org.eclipse.mat.tests.CreateCollectionDump.MapTestData.class.getName(), false))
         {
             for (int o : cls.getObjectIds())
             {
                 IObject oo = snapshot.getObject(o);
-                IArray a = readArrayField(oo, "maps", "java.util.Map[]");
+                IArray a = mapArray(oo);
+                IArray v = valueArray(oo);
+                boolean checkVals = v != null;
                 for (NamedReference nr : a.getOutboundReferences())
                 {
                     if (nr.getName().startsWith("<"))
                         continue;
                     if (skipTest(nr, onlyClass)) continue;
+                    ++objectsFound;
                     long objAddress = nr.getObjectAddress();
                     Integer numEntriesI = (Integer)cls.resolveValue("COUNT");
                     int numEntries;
@@ -243,8 +279,8 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
                     if (nm.equals("javax.print.attribute.standard.PrinterStateReasons")
                                     || nm.equals("java.util.jar.Attributes"))
                     {
-                        // These maps just have one entry
-                        checkMap(objAddress, 1, snapshot);
+                        // These maps don't have string keys and values
+                        checkMap(objAddress, numEntries, snapshot);
                     }
                     else
                     {
@@ -254,6 +290,7 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
                 }
             }
         }
+        assertThat("At least 1 object found"+(onlyClass != null ? " of type "+onlyClass : ""), objectsFound, greaterThanOrEqualTo(1));
     }
 
     /**
@@ -262,15 +299,19 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
      */
     public void testCollections6(ISnapshot snapshot, String onlyClass) throws SnapshotException
     {
+        int objectsFound = 0;
         for (IClass cls : snapshot.getClassesByName(org.eclipse.mat.tests.CreateCollectionDump.EmptyMapTestData.class.getName(), false))
         {
             for (int o : cls.getObjectIds()) {
                 IObject oo = snapshot.getObject(o);
-                IArray a = readArrayField(oo, "maps", "java.util.Map[]");
+                IArray a = mapArray(oo);
+                IArray v = valueArray(oo);
+                boolean checkVals = v != null;
                 for (NamedReference nr : a.getOutboundReferences())
                 {
                     if (nr.getName().startsWith("<")) continue;
                     if (skipTest(nr, onlyClass)) continue;
+                    ++objectsFound;
                     long objAddress = nr.getObjectAddress();
                     int numEntries = 0;
                     checkHashEntries(objAddress, numEntries, snapshot, true);
@@ -278,5 +319,6 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
                 }
             }
         }
+        assertThat("At least 1 object found"+(onlyClass != null ? " of type "+onlyClass : ""), objectsFound, greaterThanOrEqualTo(1));
     }
 }

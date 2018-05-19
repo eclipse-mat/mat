@@ -37,7 +37,7 @@ public class KnownCollectionInfo implements ICollectionExtractorProvider
     private static CollectionExtractionInfo[] knownCollections = new CollectionExtractionInfo[] {
                     // these are always empty
                     new CollectionExtractionInfo("java.util.Collections$EmptyList", new EmptyCollectionExtractor()), //$NON-NLS-1$
-                    new CollectionExtractionInfo("java.util.Collections$EmptySet", new EmptyCollectionExtractor()), //$NON-NLS-1$
+                    new CollectionExtractionInfo("java.util.Collections$EmptySet", new EmptyMapExtractor()), //$NON-NLS-1$
                     new CollectionExtractionInfo("java.util.Collections$EmptyMap", new EmptyMapExtractor()), //$NON-NLS-1$
                     new CollectionExtractionInfo("com.sap.engine.lib.util.AbstractDataStructure", new EmptyCollectionExtractor()), //$NON-NLS-1$
                     new CollectionExtractionInfo("java.util.concurrent.SynchronousQueue", new EmptyCollectionExtractor()), //$NON-NLS-1$
@@ -81,10 +81,16 @@ public class KnownCollectionInfo implements ICollectionExtractorProvider
                     new CollectionExtractionInfo("java.util.IdentityHashMap", JdkVersion.except(IBM14, IBM15, IBM16), new IdentityHashMapCollectionExtractor("size", "table")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                     new CollectionExtractionInfo("java.util.IdentityHashMap", JdkVersion.of(IBM14, IBM15), new IdentityHashMapCollectionExtractor("size", "table")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                     new CollectionExtractionInfo("java.util.IdentityHashMap", IBM16, new IdentityHashMapCollectionExtractor("size", "elementData")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    new CollectionExtractionInfo("java.util.IdentityHashMap$KeySet", new KeySetCollectionExtractor("this$0")), // //$NON-NLS-1$ //$NON-NLS-2$
+                    new CollectionExtractionInfo("java.util.IdentityHashMap$Values", new ValuesCollectionExtractor("this$0")), // //$NON-NLS-1$ //$NON-NLS-2$
 
                     // hash maps
                     new CollectionExtractionInfo("java.util.HashMap", JdkVersion.except(IBM16), new HashMapCollectionExtractor("size", "table", "key", "value")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
                     new CollectionExtractionInfo("java.util.HashMap", IBM16, new HashMapCollectionExtractor("elementCount", "elementData", "key", "value")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+                    new CollectionExtractionInfo("java.util.HashMap$KeySet", new KeySetCollectionExtractor("this$0")), // //$NON-NLS-1$ //$NON-NLS-2$
+                    new CollectionExtractionInfo("java.util.HashMap$Values", new ValuesCollectionExtractor("this$0")), // //$NON-NLS-1$ //$NON-NLS-2$
+                    new CollectionExtractionInfo("java.util.LinkedHashMap$LinkedKeySet", new KeySetCollectionExtractor("this$0")), // //$NON-NLS-1$ //$NON-NLS-2$
+                    new CollectionExtractionInfo("java.util.LinkedHashMap$LinkedValues", new ValuesCollectionExtractor("this$0")), // //$NON-NLS-1$ //$NON-NLS-2$
 
                     // Some Java 5 PHD files don't have superclass info so add
                     // LinkedHashMap to list
@@ -123,6 +129,8 @@ public class KnownCollectionInfo implements ICollectionExtractorProvider
                     new CollectionExtractionInfo("java.util.Hashtable", JdkVersion.except(IBM15, IBM16), new HashMapCollectionExtractor("count", "table", "key", "value")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
                     new CollectionExtractionInfo("java.util.Hashtable", JdkVersion.of(IBM15, IBM16), // //$NON-NLS-1$
                                     new HashMapCollectionExtractor("elementCount", "elementData", "key", "value")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                    new CollectionExtractionInfo("java.util.Hashtable$KeySet", new KeySetCollectionExtractor("this$0")), // //$NON-NLS-1$ //$NON-NLS-2$
+                    new CollectionExtractionInfo("java.util.Hashtable$ValueCollection", new ValuesCollectionExtractor("this$0")), // //$NON-NLS-1$ //$NON-NLS-2$
 
                     // Some Java 5 PHD files don't have superclass info so add
                     // Properties to list
@@ -132,6 +140,9 @@ public class KnownCollectionInfo implements ICollectionExtractorProvider
 
                     new CollectionExtractionInfo("java.util.WeakHashMap", JdkVersion.except(IBM16), new HashMapCollectionExtractor("size", "table", "referent", "value")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
                     new CollectionExtractionInfo("java.util.WeakHashMap", IBM16, new HashMapCollectionExtractor("elementCount", "elementData", "referent", "value")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+                    new CollectionExtractionInfo("java.util.WeakHashMap$KeySet", new KeySetCollectionExtractor("this$0")), // //$NON-NLS-1$ //$NON-NLS-2$
+                    new CollectionExtractionInfo("java.util.WeakHashMap$Values", new ValuesCollectionExtractor("this$0")), // //$NON-NLS-1$ //$NON-NLS-2$
+                    new CollectionExtractionInfo("sun.awt.WeakIdentityHashMap",  new HashMapCollectionExtractor("map.size", "map.table", "key.referent", "value")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 
                     new CollectionExtractionInfo("java.lang.ThreadLocal$ThreadLocalMap", // //$NON-NLS-1$
                                     new HashMapCollectionExtractor("size", "table", "referent", "value")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -142,17 +153,23 @@ public class KnownCollectionInfo implements ICollectionExtractorProvider
                     // small maps.
                     new CollectionExtractionInfo("java.util.concurrent.ConcurrentHashMap", JdkVersion.of(JAVA18, IBM18, JAVA19, IBM19), new HashMapCollectionExtractor("baseCount", "table", "key", "val")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
                     new CollectionExtractionInfo("java.util.concurrent.ConcurrentHashMap", JdkVersion.except(JAVA18, IBM18, JAVA19, IBM19), new ConcurrentHashMapCollectionExtractor("segments", "key", "value")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                    new CollectionExtractionInfo("java.util.concurrent.ConcurrentHashMap$KeySetView", new KeySetCollectionExtractor("map")),
+                    new CollectionExtractionInfo("java.util.concurrent.ConcurrentHashMap$ValuesView", new ValuesCollectionExtractor("map")),
 
                     new CollectionExtractionInfo("java.util.concurrent.ConcurrentSkipListSet", //$NON-NLS-1$
                                     new ConcurrentSkipListSetCollectionExtractor("m.head.node", "key", "value")), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                     new CollectionExtractionInfo("java.util.concurrent.ConcurrentSkipListMap", //$NON-NLS-1$
                                     new ConcurrentSkipListCollectionExtractor("head.node", "key", "value")), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    new CollectionExtractionInfo("java.util.concurrent.ConcurrentSkipListMap$KeySet", new KeySetCollectionExtractor("map")),
+                    new CollectionExtractionInfo("java.util.concurrent.ConcurrentSkipListMap$Values", new ValuesCollectionExtractor("map")),
 
                     // tree maps
                     new CollectionExtractionInfo("java.util.TreeMap", JdkVersion.except(IBM16), new TreeMapCollectionExtractor("size", "key", "value")), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
                     new CollectionExtractionInfo("java.util.TreeMap", IBM16, new TreeMapCollectionExtractor("size", "keys[]", "values[]")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
                     new CollectionExtractionInfo("java.util.TreeSet", JdkVersion.except(IBM16), new TreeSetCollectionExtractor("m.size", "key", "value")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
                     new CollectionExtractionInfo("java.util.TreeSet", IBM16, new TreeSetCollectionExtractor("backingMap.size", "keys[]", "values[]")), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                    new CollectionExtractionInfo("java.util.TreeMap$KeySet", new KeySetCollectionExtractor("m")), // //$NON-NLS-1$ //$NON-NLS-2$
+                    new CollectionExtractionInfo("java.util.TreeMap$Values", new ValuesCollectionExtractor("this$0")), // //$NON-NLS-1$ //$NON-NLS-2$
 
                     // wrappers
                     // also works for SynchronizedSet, SynchronizedSortedSet,

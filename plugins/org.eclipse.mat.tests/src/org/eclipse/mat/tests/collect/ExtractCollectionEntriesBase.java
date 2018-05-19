@@ -42,7 +42,7 @@ public class ExtractCollectionEntriesBase
     @Rule
     public ErrorCollector collector = new ErrorCollector();
 
-    void checkListObjects(long objAddress, int numEntries, ISnapshot snapshot) throws SnapshotException
+    void checkListObjects(long objAddress, int numEntries, boolean checkVals, ISnapshot snapshot) throws SnapshotException
     {
         IObject obj = snapshot.getObject(snapshot.mapAddressToId(objAddress));
         String prefix = obj.getTechnicalName()+": ";
@@ -70,9 +70,12 @@ public class ExtractCollectionEntriesBase
                     String cv = lobj.getClassSpecificName();
                     if (cv != null)
                     {
-                        collector.checkThat(prefix + "List entry should start with the type", cv, startsWith(name));
+                        if (checkVals)
+                        {
+                            collector.checkThat(prefix + "List entry should start with the type", cv, startsWith(name));
+                        }
                         collector.checkThat(prefix + "Should end with number or aAbB: " + cv,
-                                    cv.matches(".*:([0-9]+|[aAbB]+)$"), equalTo(true));
+                                    cv.matches(".*([0-9]+|[aAbB]+)$"), equalTo(true));
                     }
                     else
                     {
@@ -94,7 +97,7 @@ public class ExtractCollectionEntriesBase
      * @param snapshot
      * @throws SnapshotException
      */
-    protected void checkHashSetObjects(long objAddress, int numEntries, ISnapshot snapshot) throws SnapshotException
+    protected void checkHashSetObjects(long objAddress, int numEntries, boolean checkVals, ISnapshot snapshot) throws SnapshotException
     {
         IObject obj = snapshot.getObject(snapshot.mapAddressToId(objAddress));
         String prefix = obj.getTechnicalName()+": ";
@@ -123,9 +126,12 @@ public class ExtractCollectionEntriesBase
                     String cv = cobj.getClassSpecificName();
                     if (cv != null)
                     {
-                        collector.checkThat(prefix + "Hash set entry should start with the type", cv, startsWith(name));
+                        if (checkVals)
+                        {
+                            collector.checkThat(prefix + "Hash set entry should start with the type", cv, startsWith(name));
+                        }
                         collector.checkThat(prefix + "Should end with number or aAbB: " + cv,
-                                    cv.matches(".*:([0-9]+|[aAbB]+)$"), equalTo(true));
+                                    cv.matches(".*([0-9]+|[aAbB]+)$"), equalTo(true));
                     }
                     else
                     {
@@ -254,10 +260,10 @@ public class ExtractCollectionEntriesBase
         checkMapCollisionRatio(objAddress, numEntries, snapshot);
     }
 
-    protected void checkList(long objAddress, int numEntries, ISnapshot snapshot) throws SnapshotException
+    protected void checkList(long objAddress, int numEntries, boolean checkVals, ISnapshot snapshot) throws SnapshotException
     {
         checkCollectionSize(objAddress, numEntries, snapshot);
-        checkListObjects(objAddress, numEntries, snapshot);
+        checkListObjects(objAddress, numEntries, checkVals, snapshot);
     }
 
     /**
@@ -276,7 +282,8 @@ public class ExtractCollectionEntriesBase
         IResultTable table2 = (IResultTable) result2;
         int rowCount2 = table2.getRowCount();
         String className = snapshot.getClassOf(snapshot.mapAddressToId(objAddress)).getName();
-        if (className.equals("java.util.TreeMap") || className.equals("java.util.concurrent.ConcurrentSkipListMap") ||
+        if (className.equals("java.util.TreeMap") || className.equals("java.util.TreeMap$KeySet") || 
+            className.equals("java.util.concurrent.ConcurrentSkipListMap") ||  className.equals("java.util.concurrent.ConcurrentSkipListMap$KeySet") ||
             className.equals("java.util.TreeSet") || className.equals("java.util.concurrent.ConcurrentSkipListSet"))
         {
             // TreeMaps and ConcurrentSkipListMap don't appear in the fill ratio report as they
