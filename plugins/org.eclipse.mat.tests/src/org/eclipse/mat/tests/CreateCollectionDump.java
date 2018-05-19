@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.mat.tests;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -45,11 +46,16 @@ import javax.print.attribute.standard.Severity;
 public class CreateCollectionDump
 {
     ListCollectionTestData listCollectionTestData = new ListCollectionTestData();
+    ListCollectionTestData listCollectionTestData2;
     NonListCollectionTestData nonListCollectionTestData = new NonListCollectionTestData();
+    NonListCollectionTestData nonListCollectionTestData2;
     MapTestData mapTestData = new MapTestData();
     EmptyListCollectionTestData emptyListCollectionTestData = new EmptyListCollectionTestData();
+    EmptyListCollectionTestData emptyListCollectionTestData2;
     EmptyNonListCollectionTestData emptyNonListCollectionTestData = new EmptyNonListCollectionTestData();
+    EmptyNonListCollectionTestData emptyNonListCollectionTestData2;
     EmptyMapTestData emptyMapTestData = new EmptyMapTestData();
+
     // Add Strings for testing class specific name printing
     String s1 = "My String";
     StringBuilder sl1 = new StringBuilder(s1);
@@ -57,6 +63,56 @@ public class CreateCollectionDump
     String s2 = "My String with e-acute \u00E9 and Greek Delta \u0394";
     StringBuilder sl2 = new StringBuilder(s2);
     StringBuffer sf2 = new StringBuffer(s2);
+
+    public CreateCollectionDump()
+    {
+        // Extend the collections
+        List<Collection>l0 = new ArrayList<Collection>();
+        for (Map m : mapTestData.maps)
+        {
+            Collection c = m.values();
+            if (c.size() == mapTestData.COUNT && c.iterator().next() instanceof String)
+            {
+                l0.add(c);
+            }
+        }
+        listCollectionTestData2 = new ListCollectionTestData(l0);
+
+        l0.clear();
+        for (Map m : mapTestData.maps)
+        {
+            Set s = m.keySet();
+            if (s.size() == mapTestData.COUNT && s.iterator().next() instanceof String)
+            {
+                l0.add(s);
+                //l0.add(m.entrySet());
+            }
+        }
+        nonListCollectionTestData2 = new NonListCollectionTestData(l0);
+        
+        l0.clear();
+        for (Map m : emptyMapTestData.maps)
+        {
+            Collection c = m.values();
+            if (c.size() == mapTestData.COUNT)
+            {
+                l0.add(c);
+            }
+        }
+        emptyListCollectionTestData2 = new EmptyListCollectionTestData(l0);
+        
+        l0.clear();
+        for (Map m : emptyMapTestData.maps)
+        {
+            Set s = m.keySet();
+            if (s.size() == mapTestData.COUNT)
+            {
+                l0.add(s);
+                //l0.add(m.entrySet());
+            }
+        }
+        emptyNonListCollectionTestData2 = new EmptyNonListCollectionTestData(l0);
+    }
 
     public static void main(String[] args) throws Exception
     {
@@ -132,6 +188,11 @@ public class CreateCollectionDump
         }
 
         public abstract boolean accept(Class<? extends Collection> c);
+
+        public CollectionTestData(Collection<Collection> cols)
+        {
+            collections = cols.toArray(new Collection[cols.size()]);
+        }
 
         public CollectionTestData()
         {
@@ -439,6 +500,14 @@ public class CreateCollectionDump
             collections = cols.toArray(new Collection[cols.size()]);
         }
 
+        public void extend(List<Collection>ext)
+        {
+            List<Collection>l0 = Arrays.asList(collections);
+            ArrayList<Collection> l1 = new ArrayList<Collection>(l0);
+            l1.addAll(ext);
+            collections = l1.toArray(new Collection[l1.size()]);
+        }
+
         public String toString()
         {
             return Arrays.toString(collections);
@@ -455,6 +524,15 @@ public class CreateCollectionDump
      */
     public static class NonListCollectionTestData extends CollectionTestData
     {
+        public NonListCollectionTestData()
+        {
+            super();
+        }
+        public NonListCollectionTestData(Collection<Collection>cols)
+        {
+            super(cols);
+        }
+
         public boolean accept(Class<? extends Collection> c)
         {
             return !List.class.isAssignableFrom(c);
@@ -466,6 +544,15 @@ public class CreateCollectionDump
      */
     public static class EmptyNonListCollectionTestData extends NonListCollectionTestData
     {
+        public EmptyNonListCollectionTestData()
+        {
+            super();
+        }
+        public EmptyNonListCollectionTestData(Collection<Collection>cols)
+        {
+            super(cols);
+        }
+
         public boolean useEmpty()
         {
             return true;
@@ -477,6 +564,14 @@ public class CreateCollectionDump
      */
     public static class ListCollectionTestData extends CollectionTestData
     {
+        public ListCollectionTestData()
+        {
+            super();
+        }
+        public ListCollectionTestData(Collection<Collection>cols)
+        {
+            super(cols);
+        }
 
         public boolean accept(Class<? extends Collection> c)
         {
@@ -489,6 +584,15 @@ public class CreateCollectionDump
      */
     public static class EmptyListCollectionTestData extends ListCollectionTestData
     {
+        public EmptyListCollectionTestData()
+        {
+            super();
+        }
+        public EmptyListCollectionTestData(Collection<Collection>cols)
+        {
+            super(cols);
+        }
+
         public boolean useEmpty()
         {
             return true;
@@ -725,7 +829,13 @@ public class CreateCollectionDump
                                 try
                                 {
                                     // javax.print.attribute.standard.PrinterStateReasons
-                                    cl.put(PrinterStateReason.CONNECTING_TO_DEVICE, Severity.REPORT);
+                                    for (int i = 1; i <= COUNT; ++i)
+                                    {
+                                        PrinterStateReason r = new PrinterStateReason(i)
+                                        {
+                                        };
+                                        cl.put(r, Severity.REPORT);
+                                    }
                                 }
                                 catch (UnsupportedOperationException e)
                                 {
@@ -740,7 +850,10 @@ public class CreateCollectionDump
                                 try
                                 {
                                     // java.util.jar.Attributes
-                                    cl.put(Attributes.Name.CLASS_PATH, values[1]);
+                                    for (int i = 1; i <= COUNT; ++i)
+                                    {
+                                        cl.put(new Attributes.Name(keys[i]), values[i]);
+                                    }
                                 }
                                 catch (UnsupportedOperationException e)
                                 {
@@ -808,12 +921,20 @@ public class CreateCollectionDump
 
     public Collection[] getListCollectionTestData()
     {
-        return listCollectionTestData.getCollections();
+        List<Collection>l1 = Arrays.asList(listCollectionTestData.getCollections());
+        List<Collection>l2 = Arrays.asList(listCollectionTestData2.getCollections());
+        ArrayList<Collection>l3 = new ArrayList<Collection>(l1);
+        l3.addAll(l2);
+        return l3.toArray(new Collection[l3.size()]);
     }
 
     public Collection[] getNonListCollectionTestData()
     {
-        return nonListCollectionTestData.getCollections();
+        List<Collection>l1 = Arrays.asList(nonListCollectionTestData.getCollections());
+        List<Collection>l2 = Arrays.asList(nonListCollectionTestData2.getCollections());
+        ArrayList<Collection>l3 = new ArrayList<Collection>(l1);
+        l3.addAll(l2);
+        return l3.toArray(new Collection[l3.size()]);
     }
 
     public Map[] getMapTestData()
@@ -823,12 +944,20 @@ public class CreateCollectionDump
 
     public Collection[] getEmptyListCollectionTestData()
     {
-        return emptyListCollectionTestData.getCollections();
+        List<Collection>l1 = Arrays.asList(emptyListCollectionTestData.getCollections());
+        List<Collection>l2 = Arrays.asList(emptyListCollectionTestData2.getCollections());
+        ArrayList<Collection>l3 = new ArrayList<Collection>(l1);
+        l3.addAll(l2);
+        return l3.toArray(new Collection[l3.size()]);
     }
 
     public Collection[] getEmptyNonListCollectionTestData()
     {
-        return emptyNonListCollectionTestData.getCollections();
+        List<Collection>l1 = Arrays.asList(emptyNonListCollectionTestData.getCollections());
+        List<Collection>l2 = Arrays.asList(emptyNonListCollectionTestData2.getCollections());
+        ArrayList<Collection>l3 = new ArrayList<Collection>(l1);
+        l3.addAll(l2);
+        return l3.toArray(new Collection[l3.size()]);
     }
 
     public Map[] getEmptyMapTestData()
