@@ -1243,7 +1243,7 @@ public class IBMDumpProvider extends BaseProvider
         String dir = null;
         // See if the VM is usable to get dumps
         String displayName = vmd.displayName();
-        if (vmd.id().equals(displayName) && listAttach)
+        if ((vmd.id().equals(displayName) || "".equals(displayName)) && listAttach)
         {
             // Insufficient details of running VM, so attach for more information
             try
