@@ -8,7 +8,7 @@ instructions.configure=\
     addRepository(type:1,name:Memory Analyzer,location:http${#58}//download.eclipse.org/mat/1.7/update-site/);\
     addRepository(type:0,name:Memory Analyzer latest development build,location:http${#58}//download.eclipse.org/mat/snapshots/update-site/,enabled:false);\
     addRepository(type:1,name:Memory Analyzer latest development build,location:http${#58}//download.eclipse.org/mat/snapshots/update-site/,enabled:false);\
-    addRepository(type:0,name:Eclipse Mars,location:http${#58}//download.eclipse.org/releases/mars/,enabled:true);\
-    addRepository(type:1,name:Eclipse Mars,location:http${#58}//download.eclipse.org/releases/mars/,enabled:true);\
+    addRepository(type:0,name:Eclipse Photon,location:http${#58}//download.eclipse.org/releases/photon/,enabled:true);\
+    addRepository(type:1,name:Eclipse Photon,location:http${#58}//download.eclipse.org/releases/photon/,enabled:true);\
     addRepository(type:0,name:IBM Diagnostic Tool Framework for Java,location:http${#58}//public.dhe.ibm.com/ibmdl/export/pub/software/websphere/runtimes/tools/dtfj/);\
     addRepository(type:1,name:IBM Diagnostic Tool Framework for Java,location:http${#58}//public.dhe.ibm.com/ibmdl/export/pub/software/websphere/runtimes/tools/dtfj/)
