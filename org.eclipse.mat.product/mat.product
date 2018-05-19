@@ -202,7 +202,7 @@ Contributors:
       <property name="org.eclipse.update.reconcile" value="false" />
       <plugin id="org.eclipse.update.configurator" autoStart="true" startLevel="4"/>
 
-      <property name="osgi.requiredJavaVersion" value="1.6" />
+      <property name="osgi.requiredJavaVersion" value="1.8" />
       <property name="cssTheme" value="org.eclipse.e4.ui.css.theme.e4_default" />
       <property name="applicationCSSResources" value="platform:/plugin/org.eclipse.platform/images/" />
    </configurations>
