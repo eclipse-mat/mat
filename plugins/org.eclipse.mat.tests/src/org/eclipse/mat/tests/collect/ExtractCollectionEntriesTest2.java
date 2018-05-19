@@ -74,7 +74,10 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
                 }
             }
         }
-        assertThat("At least 1 object found"+(onlyClass != null ? " of type "+onlyClass : ""), objectsFound, greaterThanOrEqualTo(1));
+        if (onlyClass != null)
+        {
+            assertThat("At least 1 object found"+(onlyClass != null ? " of type "+onlyClass : ""), objectsFound, greaterThanOrEqualTo(1));
+        }
     }
 
     private IArray collectionArray(IObject obj) throws SnapshotException
@@ -175,7 +178,10 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
                 }
             }
         }
-        assertThat("At least 1 object found"+(onlyClass != null ? " of type "+onlyClass : ""), objectsFound, greaterThanOrEqualTo(1));
+        if (onlyClass != null)
+        {
+            assertThat("At least 1 object found"+(onlyClass != null ? " of type "+onlyClass : ""), objectsFound, greaterThanOrEqualTo(1));
+        }
     }
 
     /**
@@ -204,7 +210,10 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
                 }
             }
         }
-        assertThat("At least 1 object found"+(onlyClass != null ? " of type "+onlyClass : ""), objectsFound, greaterThanOrEqualTo(1));
+        if (onlyClass != null)
+        {
+            assertThat("At least 1 object found"+(onlyClass != null ? " of type "+onlyClass : ""), objectsFound, greaterThanOrEqualTo(1));
+        }
     }
 
     /**
@@ -241,7 +250,10 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
                 }
             }
         }
-        assertThat("At least 1 object found"+(onlyClass != null ? " of type "+onlyClass : ""), objectsFound, greaterThanOrEqualTo(1));
+        if (onlyClass != null)
+        {
+            assertThat("At least 1 object found"+(onlyClass != null ? " of type "+onlyClass : ""), objectsFound, greaterThanOrEqualTo(1));
+        }
     }
 
     /**
@@ -319,6 +331,9 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
                 }
             }
         }
-        assertThat("At least 1 object found"+(onlyClass != null ? " of type "+onlyClass : ""), objectsFound, greaterThanOrEqualTo(1));
+        if (onlyClass != null)
+        {
+            assertThat("At least 1 object found"+(onlyClass != null ? " of type "+onlyClass : ""), objectsFound, greaterThanOrEqualTo(1));
+        }
     }
 }
