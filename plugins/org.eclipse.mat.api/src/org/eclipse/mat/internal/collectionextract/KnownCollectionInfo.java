@@ -193,6 +193,8 @@ public class KnownCollectionInfo implements ICollectionExtractorProvider
                     new CollectionExtractionInfo("java.util.Collections$CheckedMap", new WrapperMapExtractor("m")), //$NON-NLS-1$ //$NON-NLS-2$
                     new CollectionExtractionInfo("java.util.Collections$CheckedMap$CheckedEntrySet", new WrapperCollectionExtractor("s")), //$NON-NLS-1$ //$NON-NLS-2$
                     new CollectionExtractionInfo("org.eclipse.osgi.framework.util.CaseInsensitiveDictionaryMap", new WrapperMapExtractor("map")), //$NON-NLS-1$ //$NON-NLS-2$
+                    new CollectionExtractionInfo("org.eclipse.osgi.framework.util.CaseInsensitiveDictionaryMap$KeySet", new KeySetCollectionExtractor("this$0")),  //$NON-NLS-1$ //$NON-NLS-2$
+                    new CollectionExtractionInfo("org.eclipse.osgi.framework.util.CaseInsensitiveDictionaryMap$Values", new ValuesCollectionExtractor("this$0")),  //$NON-NLS-1$ //$NON-NLS-2$ 
                     new CollectionExtractionInfo("java.awt.RenderingHints", new WrapperMapExtractor("hintmap")), //$NON-NLS-1$ //$NON-NLS-2$
 
                     // singletons
@@ -212,6 +214,9 @@ public class KnownCollectionInfo implements ICollectionExtractorProvider
                     new CollectionExtractionInfo("java.util.ImmutableCollections$ListN", new FieldSizeArrayCollectionExtractor("elements.@length", "elements")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
                     new CollectionExtractionInfo("java.util.ImmutableCollections$MapN", new IdentityHashMapCollectionExtractor("size", "table")),  //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
+                    new CollectionExtractionInfo("sun.util.resources.ParallelListResourceBundle", new WrapperMapExtractor("lookup")), //$NON-NLS-1$ //$NON-NLS-2$
+                    new CollectionExtractionInfo("sun.util.resources.ParallelListResourceBundle$KeySet", new WrapperMapExtractor("set")), //$NON-NLS-1$ //$NON-NLS-2$
 
                     // These are known un-implemented ones
                     new CollectionExtractionInfo("sun.util.PreHashedMap", new NoContentCollectionExtractor()), //$NON-NLS-1$
