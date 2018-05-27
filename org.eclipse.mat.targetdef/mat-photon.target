@@ -15,7 +15,7 @@
 <unit id="org.eclipse.ui.net" version="0.0.0"/>
 <unit id="org.eclipse.platform" version="0.0.0"/>
 <unit id="org.eclipse.ui.ide.application" version="0.0.0"/>
-<repository location="http://download.eclipse.org/releases/photon"/>
+<repository location="http://download.eclipse.org/releases/photon/201803161000/"/>
 </location>
 <location includeAllPlatforms="false" includeMode="planner" type="InstallableUnit">
 <unit id="com.ibm.dtfj.feature.feature.group" version="0.0.0"/>
