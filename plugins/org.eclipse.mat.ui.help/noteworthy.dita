@@ -40,25 +40,25 @@
 			<ul>
 			<li>Windows (x86)</li>
 			<li>Windows (x86_64)</li>
-			<li>Mac OSX (Mac/Cocoa x86_64)</li>
-			<li>Linux (x86/GTK 2)</li>
-			<li>Linux (x86_64/GTK 2)</li>
-			<li>Linux (PPC64/GTK 2)</li>
-			<li>Linux (PPC64le/GTK 2)</li>
+			<li>Mac OSX (Mac/Cocoa/x86_64)</li>
+			<li>Linux (x86/GTK+)</li>
+			<li>Linux (x86_64/GTK+)</li>
+			<li>Linux (PPC64/GTK+)</li>
+			<li>Linux (PPC64le/GTK+)</li>
 			</ul>
 			<note>
 			Because of the <xref format="html" href="https://dev.eclipse.org/mhonarc/lists/eclipse-dev/msg10207.html">removal of Eclipse platform support</xref> for certain operating systems for 
 			<xref format="html" href="https://www.eclipse.org/eclipse/news/4.7/platform.php#unix-platforms-dropped">
 			Oxygen</xref> and later the following stand-alone builds are not available for Memory Analyzer 1.8:
 			<ul importance="obsolete">
-			<li><i>Linux (PPC/GTK 2)</i></li>
-			<li><i>Linux (s390/GTK 2)</i></li>
-			<li><i>Linux (s390x/GTK 2)</i></li>
-			<li><i>Solaris 8 (x86/GTK 2)</i></li>
-			<li><i>Solaris 8 (SPARC/GTK 2)</i></li>
-			<li><i>HP-UX (IA64/GTK 2)</i></li>
-			<li><i>AIX (PPC/GTK 2)</i></li>
-			<li><i>AIX (PPC64/GTK 2)</i></li>
+			<li><i>Linux (PPC/GTK+)</i></li>
+			<li><i>Linux (s390/GTK+)</i></li>
+			<li><i>Linux (s390x/GTK+)</i></li>
+			<li><i>Solaris 8 (x86/GTK+)</i></li>
+			<li><i>Solaris 8 (SPARC/GTK+)</i></li>
+			<li><i>HP-UX (IA64/GTK+)</i></li>
+			<li><i>AIX (PPC/GTK+)</i></li>
+			<li><i>AIX (PPC64/GTK+)</i></li>
 			</ul>
 			It is possible that Memory Analyzer 1.8 could be installed into 
 			<xref format="html" href="http://archive.eclipse.org/eclipse/downloads/drops4/R-4.6.3-201703010400/">
