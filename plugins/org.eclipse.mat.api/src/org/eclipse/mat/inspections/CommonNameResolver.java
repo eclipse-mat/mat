@@ -106,6 +106,26 @@ public class CommonNameResolver
         }
     }
 
+    /**
+     * For Oracle VMs for int.class, byte.class, void.class etc.
+     * These are just simple IObjects, not IClass objects.
+     * All other classes resolve via IClass.
+     */
+    @Subjects("java.lang.Class")
+    public static class ClassTypeResolver implements IClassSpecificNameResolver
+    {
+        public String resolve(IObject object) throws SnapshotException
+        {
+            // Let normal IClass resolution happen if possible
+            if (object instanceof IClass)
+                return null;
+            IObject nameString = (IObject) object.resolveValue("name"); //$NON-NLS-1$
+            if (nameString == null)
+                return null;
+            return nameString.getClassSpecificName();
+        }
+    }
+
     @Subjects("java.util.concurrent.atomic.AtomicBoolean")
     public static class AtomicBooleanResolver implements IClassSpecificNameResolver
     {

@@ -109,6 +109,7 @@
 		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$FieldResolver" />
 		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$MethodResolver" />
 		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$ConstructorResolver" />
+		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$ClassTypeResolver" />
 
 		<!-- eclipse -->
 		<resolver impl="org.eclipse.mat.inspections.eclipse.EclipseNameResolver$EclipseClassLoaderResolver" />
