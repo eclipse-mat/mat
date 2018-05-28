@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2017 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -103,6 +103,26 @@ public class CommonNameResolver
         {
             Object value = heapObject.resolveValue("value"); //$NON-NLS-1$
             return value != null ? String.valueOf(value) : null; 
+        }
+    }
+
+    /**
+     * For Oracle VMs for int.class, byte.class, void.class etc.
+     * These are just simple IObjects, not IClass objects.
+     * All other classes resolve via IClass.
+     */
+    @Subjects("java.lang.Class")
+    public static class ClassTypeResolver implements IClassSpecificNameResolver
+    {
+        public String resolve(IObject object) throws SnapshotException
+        {
+            // Let normal IClass resolution happen if possible
+            if (object instanceof IClass)
+                return null;
+            IObject nameString = (IObject) object.resolveValue("name"); //$NON-NLS-1$
+            if (nameString == null)
+                return null;
+            return nameString.getClassSpecificName();
         }
     }
 
