@@ -246,7 +246,8 @@ public class IBMDumpProvider extends BaseProvider
                 }
                 if (t instanceof IOException)
                 {
-                    if (t.getMessage().contains("not attach to current VM"))
+                    // OpenJDK or OpenJ9 exceptions
+                    if (t.getMessage().contains("not attach to current VM") || t.getMessage().contains("jdk.attach.allowAttachSelf"))
                     {
                         // Java 9/10 throws IOException instead of more useful AttachNotSupportedException
                         throw new AttachNotSupportedException(t);
@@ -365,8 +366,12 @@ public class IBMDumpProvider extends BaseProvider
                 cls = o.getClass();
             }
             // Find a public class we can call methods from.
-            // The ibm. is to exclude IBM Java 9 classes which are public but not accessible
-            while (!Modifier.isPublic(cls.getModifiers()) || cls.getPackage().getName().startsWith("ibm.") || cls.getPackage().getName().startsWith("sun."))
+            // The ibm. is to exclude IBM Java 9 classes which are public but not accessible.
+            // The sun. is to exclude Oracle Java 9 classes which are public but not accessible.
+            // The com.ibm.tools.attach.attacher. is to exclude OpenJ9 Java 10 classes which are public but not accessible.
+            // The org. is to exclude possible future OpenJ9 Java 10 classes which are public but not accessible.
+            while (!Modifier.isPublic(cls.getModifiers()) || cls.getPackage().getName().startsWith("ibm.") || cls.getPackage().getName().startsWith("sun.")
+                   || cls.getPackage().getName().startsWith("com.ibm.tools.attach.attacher") || cls.getPackage().getName().startsWith("org."))
             {
                 cls = cls.getSuperclass();
             }
@@ -558,7 +563,8 @@ public class IBMDumpProvider extends BaseProvider
                 }
                 if (t instanceof IOException)
                 {
-                    if (t.getMessage().contains("not attach to current VM"))
+                    // OpenJDK or OpenJ9 exception
+                    if (t.getMessage().contains("not attach to current VM") || t.getMessage().contains("jdk.attach.allowAttachSelf"))
                     {
                         // Java 9/10 throws IOException instead of more useful AttachNotSupportedException
                         throw new AttachNotSupportedException(t);
