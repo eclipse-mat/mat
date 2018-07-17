@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 SAP AG, IBM Corporation and others
+ * Copyright (c) 2008, 2018 SAP AG, IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -326,6 +326,22 @@ public class ComponentReportQuery implements IQuery
         QuerySpec retainedSet = new QuerySpec(Messages.ComponentReportQuery_RetainedSet);
         retainedSet.set(Params.Html.SEPARATE_FILE, Boolean.TRUE.toString());
         retainedSet.setResult(histogram);
+        try
+        {
+            String command = "customized_retained_set";
+            command += " "+objects.getLabel();
+            command += " -x java.lang.ref.Finalizer:referent";
+            command += " java.lang.ref.PhantomReference:referent";
+            command += " java.lang.ref.WeakReference:referent";
+            command += " java.lang.ref.SoftReference:referent";
+            SnapshotQuery.parse(command, snapshot);
+            // It parses, so presume the command was okay
+            retainedSet.setCommand(command);
+        }
+        catch (SnapshotException e)
+        {
+            // Objects cannot be expressed simply for a command
+        }
         componentReport.add(retainedSet);
     }
 
@@ -418,6 +434,8 @@ public class ComponentReportQuery implements IQuery
 
         for (ClassHistogramRecord record : histogram.getClassHistogramRecords())
         {
+            if (listener.isCanceled())
+                break;
             IClass clazz = (IClass) snapshot.getObject(record.getClassId());
             ICollectionExtractor extractor = CollectionExtractionUtils.findCollectionExtractor(clazz.getName());
             if (extractor != null && extractor.hasSize())
@@ -503,6 +521,8 @@ public class ComponentReportQuery implements IQuery
 
         for (ClassHistogramRecord record : histogram.getClassHistogramRecords())
         {
+            if (listener.isCanceled())
+                break;
             IClass clazz = (IClass) snapshot.getObject(record.getClassId());
             ICollectionExtractor extractor = CollectionExtractionUtils.findCollectionExtractor(clazz.getName());
             if (extractor != null && extractor.hasSize() && extractor.hasExtractableContents())
@@ -586,6 +606,8 @@ public class ComponentReportQuery implements IQuery
 
         for (ClassHistogramRecord record : histogram.getClassHistogramRecords())
         {
+            if (listener.isCanceled())
+                break;
             IClass clazz = (IClass) snapshot.getObject(record.getClassId());
             ICollectionExtractor extractor = CollectionExtractionUtils.findCollectionExtractor(clazz.getName());
             if (extractor != null && extractor instanceof IMapExtractor)
@@ -724,6 +746,8 @@ public class ComponentReportQuery implements IQuery
 
         for (ClassHistogramRecord record : histogram.getClassHistogramRecords())
         {
+            if (ticks.isCanceled())
+                break;
             if (softRefClassIds.contains(record.getClassId()))
             {
                 softRefs.add(record);
@@ -739,6 +763,8 @@ public class ComponentReportQuery implements IQuery
                     ObjectReference ref = ReferenceQuery.getReferent(obj);
                     if (ref != null)
                         referentSet.add(ref.getObjectId());
+                    if (ticks.isCanceled())
+                        break;
                 }
             }
         }
@@ -822,7 +848,7 @@ public class ComponentReportQuery implements IQuery
             IMultiplePathsFromGCRootsComputer computer = snapshot.getMultiplePathsFromGCRoots(ai.toArray(), excludeMap);
 
             // Display the paths
-            IResultTree r = MultiplePath2GCRootsQuery.create(snapshot, computer, null);
+            IResultTree r = MultiplePath2GCRootsQuery.create(snapshot, computer, null, ticks);
             child = new QuerySpec(Messages.ComponentReportQuery_PathsToReferents, r);
             commentSpec.set(Params.Html.IS_IMPORTANT, Boolean.TRUE.toString());
             overview.add(child);
@@ -874,6 +900,8 @@ public class ComponentReportQuery implements IQuery
         {
             for (int objectId : c.getObjectIds())
             {
+                if (ticks.isCanceled())
+                    break;
                 IInstance obj = (IInstance) snapshot.getObject(objectId);
 
                 ObjectReference ref = ReferenceQuery.getReferent(obj);
@@ -933,7 +961,7 @@ public class ComponentReportQuery implements IQuery
     }
 
     // //////////////////////////////////////////////////////////////
-    // internal utilitiy methods
+    // internal utility methods
     // //////////////////////////////////////////////////////////////
 
     private void addEmptyResult(SectionSpec report, String sectionLabel, String message)
