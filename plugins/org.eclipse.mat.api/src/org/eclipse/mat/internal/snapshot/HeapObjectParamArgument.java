@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2009 SAP AG.
+ * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson/IBM Corporation - pass through listener for cancel
  *******************************************************************************/
 package org.eclipse.mat.internal.snapshot;
 
@@ -33,6 +34,7 @@ import org.eclipse.mat.snapshot.model.IClassLoader;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.IProgressListener.OperationCanceledException;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.VoidProgressListener;
 
@@ -223,14 +225,26 @@ public final class HeapObjectParamArgument extends HeapObjectArgumentFactory
             public int[] getIds(IProgressListener listener) throws SnapshotException
             {
                 ArrayIntBig answer = new ArrayIntBig();
-                for (int[] a : this)
+                for (Iterator<int[]>it = this.iterator(listener); it.hasNext(); )
+                {
+                    int[] a = it.next();
                     answer.addAll(a);
+                    if (listener.isCanceled())
+                    {
+                        throw new OperationCanceledException();
+                    }
+                }
                 return answer.toArray();
+            }
+
+            public Iterator<int[]> iterator(IProgressListener listener)
+            {
+                return new IteratorImpl(snapshot, HeapObjectParamArgument.this, listener);
             }
 
             public Iterator<int[]> iterator()
             {
-                return new IteratorImpl(snapshot, HeapObjectParamArgument.this);
+                return new IteratorImpl(snapshot, HeapObjectParamArgument.this, new VoidProgressListener());
             }
 
             public String getLabel()
@@ -252,12 +266,15 @@ public final class HeapObjectParamArgument extends HeapObjectArgumentFactory
         HeapObjectParamArgument hopa;
         LinkedList<Object> arguments;
         int[] next;
+        IProgressListener listener;
+        Iterator<IClass> classIterator;
 
-        public IteratorImpl(ISnapshot snapshot, HeapObjectParamArgument hopa)
+        public IteratorImpl(ISnapshot snapshot, HeapObjectParamArgument hopa, IProgressListener listener)
         {
             this.snapshot = snapshot;
             this.hopa = hopa;
             this.arguments = new LinkedList<Object>(hopa.getArguments());
+            this.listener = listener;
 
             if (hopa.isVerbose)
                 this.logger = Logger.getLogger(this.getClass().getName());
@@ -287,11 +304,26 @@ public final class HeapObjectParamArgument extends HeapObjectArgumentFactory
 
         private int[] getNext()
         {
-            if (arguments.isEmpty())
+            if (arguments.isEmpty() && classIterator == null)
                 return null;
 
             try
             {
+                if (classIterator != null)
+                {
+                    while (classIterator.hasNext())
+                    {
+                        int ret[] = collectObjectsByClass(classIterator.next());
+                        if (ret.length > 0)
+                            return ret;
+                    }
+                    classIterator = null;
+                    if (arguments.isEmpty())
+                    {
+                        // No other arguments left, so indicate no more
+                        return null;
+                    }
+                }
                 Object argument = arguments.removeFirst();
                 if (argument instanceof Pattern)
                 {
@@ -329,12 +361,32 @@ public final class HeapObjectParamArgument extends HeapObjectArgumentFactory
                     objectIds.addAll(batch);
                     batch = getNext();
                 }
-                return snapshot.getRetainedSet(objectIds.toArray(), new VoidProgressListener());
+                return snapshot.getRetainedSet(objectIds.toArray(), listener);
             }
             catch (SnapshotException e)
             {
                 throw new RuntimeException(e);
             }
+        }
+
+        private int[] collectObjectsByClass(IClass clazz) throws SnapshotException
+        {
+            int[] answer = clazz.getObjectIds();
+            if (hopa.isVerbose)
+            {
+                logger.log(Level.INFO, MessageUtil.format(Messages.HeapObjectParamArgument_Msg_AddedInstances,
+                                clazz.getName(), answer.length));
+            }
+
+            if (hopa.includeClassInstance)
+            {
+                int[] addtl = new int[answer.length + 1];
+                addtl[0] = clazz.getObjectId();
+                System.arraycopy(answer, 0, addtl, 1, answer.length);
+                answer = addtl;
+            }
+
+            return evalLoaderInstances(answer);
         }
 
         private int[] collectObjectsByPattern(Pattern pattern) throws SnapshotException
@@ -348,60 +400,42 @@ public final class HeapObjectParamArgument extends HeapObjectArgumentFactory
             int[] answer;
 
             Collection<IClass> classesByName = snapshot.getClassesByName(pattern, hopa.includeSubclasses);
+            if (hopa.isVerbose)
+            {
+                int instanceCount = 0;
+                for (IClass clazz: classesByName)
+                {
+                    if (hopa.includeClassInstance)
+                        ++instanceCount;
+                    instanceCount += clazz.getNumberOfObjects();
+                }
+                logger.log(Level.INFO, MessageUtil.format(Messages.HeapObjectParamArgument_Msg_MatchingPattern,
+                                classesByName.size(), instanceCount));
+            }
             if (classesByName.size() == 1)
             {
                 // shortcut -> no array copying necessary
                 IClass clazz = classesByName.iterator().next();
-                answer = clazz.getObjectIds();
-                if (hopa.isVerbose)
-                {
-                    logger.log(Level.INFO, MessageUtil.format(Messages.HeapObjectParamArgument_Msg_AddedInstances,
-                                    clazz.getName(), answer.length));
-                }
-
-                if (hopa.includeClassInstance)
-                {
-                    int[] addtl = new int[answer.length + 1];
-                    addtl[0] = clazz.getObjectId();
-                    System.arraycopy(answer, 0, addtl, 1, answer.length);
-                    answer = addtl;
-                }
+                answer = collectObjectsByClass(clazz);
+                return answer;
             }
             else
             {
-                int classCount = 0;
-                int instanceCount = 0;
-
-                ArrayInt objIds = new ArrayInt();
-
-                for (IClass clazz : classesByName)
+                classIterator = classesByName.iterator();
+                while (classIterator.hasNext())
                 {
-                    if (hopa.includeClassInstance)
-                        objIds.add(clazz.getObjectId());
-
-                    int[] toAdd = clazz.getObjectIds();
-                    objIds.addAll(toAdd);
-
-                    classCount++;
-                    instanceCount += toAdd.length;
-
-                    if (hopa.isVerbose)
+                    if (listener.isCanceled())
                     {
-                        logger.log(Level.INFO, MessageUtil.format(Messages.HeapObjectParamArgument_Msg_AddedInstances,
-                                        clazz.getName(), toAdd.length));
+                        throw new OperationCanceledException();
                     }
+                    answer = collectObjectsByClass(classIterator.next());
+                    if (answer.length > 0)
+                        return answer;
                 }
-
-                if (hopa.isVerbose)
-                {
-                    logger.log(Level.INFO, MessageUtil.format(Messages.HeapObjectParamArgument_Msg_MatchingPattern,
-                                    classCount, instanceCount));
-                }
-
-                answer = objIds.toArray();
+                classIterator = null;
+                // We didn't find any instances for the pattern, so return an empty array
+                return new int[0];
             }
-
-            return evalLoaderInstances(answer);
         }
 
         private int[] collectObjectsByAddress(long address) throws SnapshotException
@@ -419,7 +453,7 @@ public final class HeapObjectParamArgument extends HeapObjectArgumentFactory
         private int[] collectObjectsByOQL(String queryString) throws OQLParseException, SnapshotException
         {
             IOQLQuery oqlQuery = SnapshotFactory.createQuery(queryString);
-            Object result = oqlQuery.execute(snapshot, new VoidProgressListener());
+            Object result = oqlQuery.execute(snapshot, listener);
             if (result instanceof int[])
             {
                 return evalIncludeSubClassesAndInstances((int[]) result);
@@ -466,6 +500,11 @@ public final class HeapObjectParamArgument extends HeapObjectArgumentFactory
                         if (hopa.includeClassInstance)
                             objIds.add(subClazz.getObjectId());
                         objIds.addAll(subClazz.getObjectIds());
+                    }
+
+                    if (listener.isCanceled())
+                    {
+                        throw new OperationCanceledException();
                     }
                 }
 
@@ -514,6 +553,11 @@ public final class HeapObjectParamArgument extends HeapObjectArgumentFactory
                         }
 
                     }
+                }
+
+                if (listener.isCanceled())
+                {
+                    throw new OperationCanceledException();
                 }
             }
 

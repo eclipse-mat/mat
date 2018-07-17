@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2013 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2018 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
- *    IBM Corporation - optional columns
+ *    IBM Corporation - optional columns, cancellation
  *******************************************************************************/
 package org.eclipse.mat.inspections.threads;
 
@@ -75,6 +75,8 @@ public class ThreadOverviewQuery implements IQuery
             {
                 for (int objectId : objectIds)
                 {
+                    if (listener.isCanceled())
+                        break;
                     if (isThread(snapshot, objectId)) {
                         result.add(buildThreadOverviewNode(objectId, listener));
                     }
@@ -90,6 +92,8 @@ public class ThreadOverviewQuery implements IQuery
                 {
                     for (int id : clasz.getObjectIds())
                     {
+                        if (listener.isCanceled())
+                            break;
                         result.add(buildThreadOverviewNode(id, listener));
                     }
                 }

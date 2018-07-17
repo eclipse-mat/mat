@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson/IBM Corporation - additional web links
  *******************************************************************************/
 package org.eclipse.mat.inspections;
 
@@ -27,6 +28,7 @@ import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.Bytes;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.IContextObject;
+import org.eclipse.mat.query.IContextObjectSet;
 import org.eclipse.mat.query.IIconProvider;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
@@ -172,6 +174,7 @@ public class TopConsumers2Query implements IQuery
                 composite.add(new QuerySpec(Messages.TopConsumers2Query_BiggestObjectsOverview, pie.build()));
                 QuerySpec spec = new QuerySpec(Messages.TopConsumers2Query_BiggestObjects,
                                 new ObjectListResult.Outbound(snapshot, suspects.toArray()));
+                addCommand(spec, "list_objects", suspects);
                 spec.set(Params.Html.COLLAPSED, Boolean.TRUE.toString());
                 composite.add(spec);
             }
@@ -208,11 +211,30 @@ public class TopConsumers2Query implements IQuery
                 composite.add(new QuerySpec(Messages.TopConsumers2Query_BiggestObjectsOverview, pie.build()));
                 QuerySpec spec = new QuerySpec(Messages.TopConsumers2Query_BiggestObjects,
                                 new ObjectListResult.Outbound(snapshot, ids));
+                addCommand(spec, "list_objects", suspects);
                 spec.set(Params.Html.COLLAPSED, Boolean.TRUE.toString());
                 composite.add(spec);
             }
         }
 
+    }
+
+    private void addCommand(QuerySpec spec, String command, ArrayInt suspects)
+    {
+        if (suspects.size() > 0 && suspects.size() <= 30)
+        {
+            try
+            {
+                StringBuilder sb = new StringBuilder(command);
+                for (int i : suspects.toArray())
+                {
+                    sb.append(" 0x").append(Long.toHexString(snapshot.mapIdToAddress(i)));
+                }
+                spec.setCommand(sb.toString());
+            }
+            catch (SnapshotException e)
+            {} // Ignore if problem
+        }
     }
 
     /** find suspect classes */
@@ -257,12 +279,22 @@ public class TopConsumers2Query implements IQuery
                 @Override
                 public IContextObject getContext(final Object row)
                 {
-                    return new IContextObject()
+                    return new IContextObjectSet()
                     {
 
                         public int getObjectId()
                         {
                             return ((ClassHistogramRecord) row).getClassId();
+                        }
+
+                        public int[] getObjectIds()
+                        {
+                            return ((ClassHistogramRecord) row).getObjectIds();
+                        }
+
+                        public String getOQL()
+                        {
+                            return null;
                         }
 
                     };
@@ -274,6 +306,12 @@ public class TopConsumers2Query implements IQuery
             composite.add(new QuerySpec(Messages.TopConsumers2Query_BiggestClassesOverview, pie.build()));
 
             QuerySpec spec = new QuerySpec(Messages.TopConsumers2Query_BiggestClasses, result);
+            ArrayInt suspectObjects = new ArrayInt();
+            for (ClassHistogramRecord r : suspects)
+            {
+                suspectObjects.addAll(r.getObjectIds());
+            }
+            addCommand(spec, "histogram", suspectObjects);
             spec.set(Params.Html.COLLAPSED, Boolean.TRUE.toString());
             composite.add(spec);
         }
@@ -320,7 +358,7 @@ public class TopConsumers2Query implements IQuery
                 @Override
                 public IContextObject getContext(final Object row)
                 {
-                    return new IContextObject()
+                    return new IContextObjectSet()
                     {
 
                         public int getObjectId()
@@ -328,6 +366,22 @@ public class TopConsumers2Query implements IQuery
                             return ((ClassLoaderHistogramRecord) row).getClassLoaderId();
                         }
 
+                        public int[] getObjectIds()
+                        {
+                            try
+                            {
+                                return ((ClassLoaderHistogramRecord) row).getObjectIds();
+                            }
+                            catch (SnapshotException e)
+                            {
+                                return null;
+                            }
+                        }
+
+                        public String getOQL()
+                        {
+                            return null;
+                        }
                     };
                 }
             };
@@ -336,6 +390,17 @@ public class TopConsumers2Query implements IQuery
             composite.add(new QuerySpec(Messages.TopConsumers2Query_BiggestClassLoadersOverview, pie.build()));
 
             QuerySpec spec = new QuerySpec(Messages.TopConsumers2Query_BiggestClassLoaders, result);
+            ArrayInt suspectObjects = new ArrayInt();
+            try
+            {
+                for (ClassLoaderHistogramRecord r : suspects)
+                {
+                    suspectObjects.addAll(r.getObjectIds());
+                }
+                addCommand(spec, "show_dominator_tree -groupby BY_CLASSLOADER", suspectObjects);
+            }
+            catch (SnapshotException e)
+            {}
             spec.set(Params.Html.COLLAPSED, Boolean.TRUE.toString());
             composite.add(spec);
         }
@@ -345,24 +410,43 @@ public class TopConsumers2Query implements IQuery
     private void addPackageTree(SectionSpec spec, IProgressListener listener) throws SnapshotException
     {
         PackageTreeNode root = groupByPackage(listener);
-        root.retainedSize = new Bytes(totalHeap);
-        root.dominatorsCount = topDominators.length;
 
         pruneTree(root);
 
-        spec.add(new QuerySpec(Messages.TopConsumers2Query_BiggestPackages, new PackageTreeResult(root, totalHeap)));
+        QuerySpec querySpec = new QuerySpec(Messages.TopConsumers2Query_BiggestPackages, new PackageTreeResult(root, totalHeap));
+        addCommand(querySpec, "show_dominator_tree -groupby BY_PACKAGE", root.objs);
+        spec.add(querySpec);
     }
 
     // //////////////////////////////////////////////////////////////
     // calculate histogram
     // //////////////////////////////////////////////////////////////
+    private class ClassHistogramRecordWithObjIds extends ClassHistogramRecord
+    {
+        private ArrayInt objs = new ArrayInt();
+        public ClassHistogramRecordWithObjIds(String label, int classId, long numberOfObjects, long usedHeapSize,
+                        long retainedHeapSize)
+        {
+            super(label, classId, numberOfObjects, usedHeapSize, retainedHeapSize);
+            
+        }
+        @Override
+        public int[] getObjectIds()
+        {
+            return objs.toArray();
+        }
+        public void addObjectId(int objId)
+        {
+            objs.add(objId);
+        }
+    }
 
     private Histogram getDominatedHistogramWithRetainedSizes(IProgressListener listener) throws SnapshotException
     {
         listener.beginTask(Messages.TopConsumers2Query_CreatingHistogram, topDominators.length / 1000);
 
         // calculate histogram ourselves -> keep id:retained size relation
-        HashMapIntObject<ClassHistogramRecord> id2class = new HashMapIntObject<ClassHistogramRecord>();
+        HashMapIntObject<ClassHistogramRecordWithObjIds> id2class = new HashMapIntObject<ClassHistogramRecordWithObjIds>();
         HashMapIntObject<ClassLoaderHistogramRecord> id2loader = new HashMapIntObject<ClassLoaderHistogramRecord>();
         long totalShallow = 0;
 
@@ -373,15 +457,16 @@ public class TopConsumers2Query implements IQuery
 
             IClass clazz = snapshot.getClassOf(topDominators[ii]);
 
-            ClassHistogramRecord classRecord = id2class.get(clazz.getObjectId());
+            ClassHistogramRecordWithObjIds classRecord = id2class.get(clazz.getObjectId());
             if (classRecord == null)
             {
-                classRecord = new ClassHistogramRecord(clazz.getName(), clazz.getObjectId(), 0, 0, 0);
+                classRecord = new ClassHistogramRecordWithObjIds(clazz.getName(), clazz.getObjectId(), 0, 0, 0);
                 id2class.put(clazz.getObjectId(), classRecord);
             }
             classRecord.incNumberOfObjects();
             classRecord.incUsedHeapSize(usedHeap);
             classRecord.incRetainedHeapSize(topDominatorRetainedHeap[ii]);
+            classRecord.addObjectId(topDominators[ii]);
 
             int clId;
             if (snapshot.isClass(topDominators[ii]))
@@ -404,12 +489,41 @@ public class TopConsumers2Query implements IQuery
                 String name = loader.getClassSpecificName();
                 if (name == null)
                     name = loader.getTechnicalName();
-                loaderRecord = new ClassLoaderHistogramRecord(name, loader.getObjectId(), null, 0, 0, 0);
+                loaderRecord = new ClassLoaderHistogramRecord(name, loader.getObjectId(), 
+                                new ArrayList<ClassHistogramRecord>(), 0, 0, 0);
                 id2loader.put(clId, loaderRecord);
             }
             loaderRecord.incNumberOfObjects();
             loaderRecord.incUsedHeapSize(usedHeap);
             loaderRecord.incRetainedHeapSize(topDominatorRetainedHeap[ii]);
+            if (snapshot.isClass(topDominators[ii]) || snapshot.isClassLoader(topDominators[ii]))
+            {
+                // Look for the class histogram record just for this class loader
+                ClassHistogramRecordWithObjIds chr2 = null;
+                for (ClassHistogramRecord chr : loaderRecord.getClassHistogramRecords())
+                {
+                    if (chr.getClassId() == classRecord.getClassId())
+                    {
+                        chr2 = (ClassHistogramRecordWithObjIds)chr;
+                        break;
+                    }
+                }
+                if (chr2 == null)
+                {
+                    // New one
+                    chr2 = new ClassHistogramRecordWithObjIds(clazz.getName(), clazz.getObjectId(), 0, 0, 0);
+                    loaderRecord.getClassHistogramRecords().add(chr2);
+                }
+                chr2.incNumberOfObjects();
+                chr2.incUsedHeapSize(usedHeap);
+                chr2.incRetainedHeapSize(topDominatorRetainedHeap[ii]);
+                chr2.addObjectId(topDominators[ii]);
+            } 
+            else if (classRecord.getNumberOfObjects() == 1)
+            {
+                // Add a class record if it was the first (only one object so far)
+                loaderRecord.getClassHistogramRecords().add(classRecord);
+            }
 
             if (ii % 1000 == 0)
             {
@@ -438,6 +552,8 @@ public class TopConsumers2Query implements IQuery
         private Map<String, PackageTreeNode> subpackages = new HashMap<String, PackageTreeNode>();
         private int dominatorsCount;
         private Bytes retainedSize = new Bytes(0);
+        private ArrayInt objs = new ArrayInt();
+        private boolean pkg;
 
         public PackageTreeNode(String packageName)
         {
@@ -469,6 +585,9 @@ public class TopConsumers2Query implements IQuery
 
             long retainedSize = topDominatorRetainedHeap[ii];
             current = root;
+            current.retainedSize = current.retainedSize.add(retainedSize);
+            current.dominatorsCount++;
+            current.objs.add(dominatorId);
 
             // for classes take their name instead of java.lang.Class
             String className;
@@ -484,9 +603,12 @@ public class TopConsumers2Query implements IQuery
                 {
                     childNode = new PackageTreeNode(subpack);
                     current.subpackages.put(subpack, childNode);
+                    // Record that current is a package - as subpackages may get pruned later
+                    current.pkg = true;
                 }
                 childNode.retainedSize = childNode.retainedSize.add(retainedSize);
                 childNode.dominatorsCount++;
+                childNode.objs.add(dominatorId);
 
                 current = childNode;
             }
@@ -593,13 +715,30 @@ public class TopConsumers2Query implements IQuery
 
         public IContextObject getContext(Object row)
         {
-            return null;
+            final PackageTreeNode node = (PackageTreeNode) row;
+            return new IContextObjectSet()
+            {
+                public int getObjectId()
+                {
+                    return -1;
+                }
+
+                public int[] getObjectIds()
+                {
+                    return node.objs.toArray();
+                }
+
+                public String getOQL()
+                {
+                    return null;
+                }
+            };
         }
 
         public URL getIcon(Object row)
         {
             PackageTreeNode node = (PackageTreeNode) row;
-            return node.subpackages.isEmpty() ? Icons.CLASS : Icons.PACKAGE;
+            return node.pkg ? Icons.PACKAGE : Icons.CLASS;
         }
 
         public boolean isExpanded(Object row)

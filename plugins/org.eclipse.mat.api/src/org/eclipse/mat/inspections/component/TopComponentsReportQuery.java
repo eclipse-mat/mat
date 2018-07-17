@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others.
+ * Copyright (c) 2008, 2018 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson/IBM Corporation - OQL continuation
  *******************************************************************************/
 package org.eclipse.mat.inspections.component;
 
@@ -69,6 +70,20 @@ public class TopComponentsReportQuery implements IQuery
             QuerySpec spec = new QuerySpec(MessageUtil.format("{0} ({1,number,percent})", //$NON-NLS-1$
                             record.name, (double) record.retainedSize / (double) totalHeapSize), report);
             spec.set(Params.Html.SEPARATE_FILE, Boolean.TRUE.toString());
+            /*
+             * Set a command which generates the same report for a class loader
+             * Uses OQL to select from the top level dominators,
+             * choosing an object which is the class loader,
+             * or is a class and is loaded by the loader
+             * or is an ordinary object of type of of a class loaded by the class loader.
+             */
+            spec.setCommand("component_report "+
+                            (aggressive ? "-aggressive " : "") + 
+                            " select * from objects (select objects a from objects (dominators(-1)) a) b"+
+                            " where"+
+                            " b.@objectAddress = "+record.loaderAddr+"L or"+
+                            " b implements org.eclipse.mat.snapshot.model.IClass and b.@classLoaderAddress = "+record.loaderAddr+"L or"+
+                            " (b implements org.eclipse.mat.snapshot.model.IClassLoader) = false and (b implements org.eclipse.mat.snapshot.model.IClass) = false and b.@clazz.@classLoaderAddress = "+record.loaderAddr+"L;");
             result.add(spec);
         }
 
@@ -103,7 +118,7 @@ public class TopComponentsReportQuery implements IQuery
                 String name = loader.getClassSpecificName();
                 if (name == null)
                     name = loader.getTechnicalName();
-                loaderRecord = new Record(name);
+                loaderRecord = new Record(name, loader.getObjectAddress());
                 id2loader.put(classLoaderId, loaderRecord);
             }
             loaderRecord.objects.add(topDominators[ii]);
@@ -130,15 +145,25 @@ public class TopComponentsReportQuery implements IQuery
     // internal classes
     // //////////////////////////////////////////////////////////////
 
+    /**
+     * Records objects associated with this class loader.
+     */
     private static class Record implements Comparable<Record>
     {
         String name;
         ArrayInt objects = new ArrayInt();
         long retainedSize;
+        long loaderAddr;
 
-        public Record(String name)
+        /**
+         * Create record to hold objects associated with the class loader
+         * @param name The name of the class loader
+         * @param addr Its address
+         */
+        public Record(String name, long addr)
         {
             this.name = name;
+            this.loaderAddr = addr;
         }
 
         public int compareTo(Record other)

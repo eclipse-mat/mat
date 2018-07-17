@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2013 SAP AG and others.
+ * Copyright (c) 2008, 2018 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -114,6 +114,8 @@ public final class SnapshotImpl implements ISnapshot
                 throw new IOException(Messages.SnapshotImpl_Error_ParserNotFound + objectReaderUniqueIdentifier);
             listener.worked(1);
             IObjectReader heapObjectReader = parser.create(IObjectReader.class, ParserRegistry.OBJECT_READER);
+            if (heapObjectReader == null)
+                throw new SnapshotException(MessageUtil.format(Messages.SnapshotFactoryImpl_Error_OpeningHeapDump, file));
 
             XSnapshotInfo snapshotInfo = (XSnapshotInfo) in.readObject();
             snapshotInfo.setProperty("$heapFormat", parser.getId()); //$NON-NLS-1$

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2013 IBM Corporation.
+ * Copyright (c) 2011, 2018 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,6 +22,7 @@ import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IResultTree;
 import org.eclipse.mat.query.refined.RefinedResultBuilder;
 import org.eclipse.mat.query.refined.RefinedTable;
+import org.eclipse.mat.snapshot.ClassHistogramRecord;
 import org.eclipse.mat.snapshot.Histogram;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IClass;
@@ -215,5 +216,40 @@ public class QueriesTest
         Histogram t = (Histogram)query.execute(new VoidProgressListener());
         assertTrue(t != null);
         assertEquals(17, t.getRowCount());
+    }
+    
+    /**
+     * Test parsing of class pattern argument
+     * @throws SnapshotException
+     */
+    @Test
+    public void testHeapArguments1() throws SnapshotException
+    {
+        SnapshotQuery query = SnapshotQuery.parse("histogram .*", snapshot);
+        Histogram t = (Histogram)query.execute(new VoidProgressListener());
+        long objs = 0;
+        for (ClassHistogramRecord chr : t.getClassHistogramRecords())
+        {
+            objs += chr.getNumberOfObjects();
+        }
+        assertEquals("Number of objects", objs, snapshot.getSnapshotInfo().getNumberOfObjects());
+    }
+
+    /**
+     * Test parsing of OQL class pattern argument
+     * @throws SnapshotException
+     */
+    @Test
+    public void testHeapArguments2() throws SnapshotException
+    {
+        // Escape the quotes in the command line to pass them to OQL
+        SnapshotQuery query = SnapshotQuery.parse("histogram select * from \\\".*\\\"", snapshot);
+        Histogram t = (Histogram)query.execute(new VoidProgressListener());
+        long objs = 0;
+        for (ClassHistogramRecord chr : t.getClassHistogramRecords())
+        {
+            objs += chr.getNumberOfObjects();
+        }
+        assertEquals("Number of objects", objs, snapshot.getSnapshotInfo().getNumberOfObjects());
     }
 }

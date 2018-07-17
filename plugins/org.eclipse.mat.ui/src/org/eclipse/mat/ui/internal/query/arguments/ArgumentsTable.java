@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others.
+ * Copyright (c) 2008, 2018 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson/IBM Corporation - debug verbose option
  *******************************************************************************/
 package org.eclipse.mat.ui.internal.query.arguments;
 
@@ -40,6 +41,7 @@ import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.SnapshotFactory;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
+import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.accessibility.AccessibleCompositeAdapter;
 import org.eclipse.mat.ui.internal.query.arguments.LinkEditor.Mode;
@@ -521,6 +523,11 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
                             (initialInput != null) ? initialInput.isIncludeLoadedInstances() : false);
             addCheckBoxRows(descriptor, CheckBoxEditor.Type.RETAINED, (initialInput != null) ? initialInput
                             .isRetained() : false);
+            if (MemoryAnalyserPlugin.getDefault().isDebugging())
+            {
+                addCheckBoxRows(descriptor, CheckBoxEditor.Type.VERBOSE, (initialInput != null) ? initialInput
+                            .isVerbose() : false);
+            }
         }
 
         addLink(descriptor, modeMap.get(descriptor));
