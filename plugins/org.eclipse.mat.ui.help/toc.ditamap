@@ -14,6 +14,7 @@
 	</topichead>
 	<topichead navtitle="Tasks">
 		<topicref href="tasks/acquiringheapdump.dita" type="task" />
+		<topicref href="tasks/installDTFJ.dita" type="task" />
 		<topicref href="tasks/runningleaksuspectreport.dita" type="task" />
 		<topicref href="tasks/listbiggestobjects.dita" type="task" />
 		<topicref href="tasks/findingresponsibleobjects.dita" type="task" />
@@ -22,6 +23,7 @@
 		<topicref href="tasks/analyzingthreads.dita" type="task" />
 		<topicref href="tasks/analyzingjavacollectionusage.dita" type="task" />
 		<topicref href="tasks/analyzingfinalizer.dita" type="task" />
+		<topicref href="tasks/bundleregistry.dita" type="task" />
 		<topicref href="tasks/comparingdata.dita" type="task" />
 		<topicref href="tasks/exportdata.dita" type="task" />
 		<topicref href="tasks/configure_mat.dita" type="task" />

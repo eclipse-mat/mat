@@ -74,8 +74,8 @@
 			<p>
 			Memory Analyzer can also read memory-related information from IBM system
 			dumps and from Portable Heap Dump (PHD) files. For this purpose one just 
-			has to install the IBM DTFJ feature into Memory Analyzer. 
-			Follow the <xref format="html" href="http://www.ibm.com/developerworks/java/jdk/tools/dtfj.html">IBM DTFJ feature installation instructions</xref>. Once the DTFJ
+			has to install the IBM DTFJ feature into Memory Analyzer.
+			Follow the <xref href="installDTFJ.dita">IBM DTFJ feature installation instructions</xref>. Once the DTFJ
 			feature is successfully installed, then
 				<menucascade>
 					<uicontrol>File</uicontrol>
@@ -129,7 +129,7 @@
 			<p>
 			In addition to an OutOfMemoryError, system dumps may be produced using operating system tools (e.g. gcore in gdb for Linux, 
 			gencore for AIX, Task Manager for Windows, SVCDUMP for z/OS, etc.), using the 
-			<xref format="html" href="http://www.ibm.com/support/knowledgecenter/SSYKE2_8.0.0/com.ibm.java.lnx.80.doc/diag/tools/diagnostics_summary.html">IBM Java APIs</xref>, 
+			<xref format="html" href="https://www.ibm.com/support/knowledgecenter/SSYKE2_8.0.0/com.ibm.java.api.80.doc/com.ibm.jvm.ras/index.html">IBM Java APIs</xref>, 
 			using the various options of <xref format="html" href="http://www.ibm.com/support/knowledgecenter/SSYKE2_8.0.0/com.ibm.java.lnx.80.doc/diag/tools/dump_agents.html">-Xdump</xref>, 
 			using <xref format="html" href="https://www.ibm.com/developerworks/community/groups/service/html/communityview?communityUuid=7d3dc078-131f-404c-8b4d-68b3b9ddd07a">Java Surgery</xref>,
 			and more.

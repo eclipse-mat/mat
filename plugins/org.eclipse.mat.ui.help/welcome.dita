@@ -58,6 +58,7 @@
 	<section>
 	<title>Tasks</title>
 		<p><xref href="tasks/acquiringheapdump.dita" /></p>
+		<p><xref href="tasks/installDTFJ.dita" /></p>
 		<p><xref href="tasks/runningleaksuspectreport.dita" /></p>
 		<p><xref href="tasks/listbiggestobjects.dita" /></p>
 		<p><xref href="tasks/findingresponsibleobjects.dita" /></p>

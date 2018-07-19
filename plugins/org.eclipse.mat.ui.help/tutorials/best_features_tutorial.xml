@@ -22,8 +22,7 @@
    <item title="Open the heap dump" dialog="true" skip="false" href="/org.eclipse.mat.ui.help/gettingstarted/basictutorial.html">
       <description>
          From the main menu, select
-			<br/>
-			<b>File &gt; Open Snapshot</b>,
+			<b>File > Open Snapshot</b>,
 			<br/> then select a heap dump and press
 			<b>Open</b>.
 			<br/> In this cheat sheet we will use a sample heap dump. Please open it by
