@@ -36,7 +36,7 @@
 					Select
 					<menucascade>
 						<uicontrol>Help</uicontrol>
-						<uicontrol>Install New Software</uicontrol>
+						<uicontrol>Install New Software...</uicontrol>
 					</menucascade>
 				</cmd>
 				<stepresult>
@@ -55,7 +55,10 @@
 						</option>
 					</uicontrol>
 				</cmd>
-				<stepresult>In the main table the following appears: <option>IBM Monitoring and Diagnostic Tools</option>
+				<stepresult>In the main table the following appears: 
+					<lines>
+						IBM Monitoring and Diagnostic Tools
+					</lines>
 				</stepresult>
 			</step>
 			<step>
@@ -73,6 +76,8 @@
 					<uicontrol>Next</uicontrol>
 				</cmd>
 				<stepresult>
+					At the bottom of the dialog this progress message appears:
+					<msgph>Calculating requirements and dependencies</msgph>.
 					The dialog changes to:
 					<b>Install Details</b>
 					Review the items to be installed.
@@ -89,8 +94,9 @@
 				<stepresult>
 					The dialog changes to:
 					<b>Review Licenses</b>
-					Licenses must be reviewed and accepted before the software can be
-					installed.
+					<lines>
+					Licenses must be reviewed and accepted before the software can be installed.
+					</lines>
 				</stepresult>
 			</step>
 			<step>
