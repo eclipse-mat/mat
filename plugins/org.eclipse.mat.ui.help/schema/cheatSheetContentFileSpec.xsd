@@ -744,7 +744,9 @@ demonstrates the use of commands, perform-when and conditional subitems.&lt;/p&g
 
 &lt;pre&gt; 
 &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt; 
-&lt;cheatsheet title=&quot;Sample Cheat Sheet&quot;&gt;
+&lt;cheatsheet title=&quot;Sample Cheat Sheet&quot;
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xmlns="org.eclipse.ui.cheatsheets"&gt;
   &lt;intro&gt;
     &lt;description&gt;A cheat sheet which demonstrates the use of perform-when and conditional subitems&lt;/description&gt;
   &lt;/intro&gt;
