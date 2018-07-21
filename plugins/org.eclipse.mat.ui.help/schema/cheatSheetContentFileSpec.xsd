@@ -1,0 +1,816 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Schema file written by PDE -->
+<schema targetNamespace="org.eclipse.ui.cheatsheets" xmlns="http://www.w3.org/2001/XMLSchema"
+   xmlns:tns="org.eclipse.ui.cheatsheets"
+   elementFormDefault="qualified"
+>
+   <annotation>
+      <appinfo>
+         <meta.schema plugin="org.eclipse.ui.cheatsheets" id="cheat_sheet_schema" name="Cheat Sheet Content File XML Format"/>
+      </appinfo>
+      <documentation>
+         &lt;p&gt;This document describes the cheat sheet content file structure as a series of
+DTD fragments (&lt;a href=&quot;cheatSheetContentFileSpec.exsd&quot;&gt;machine readable XML schema&lt;/a&gt;).&lt;/p&gt;
+
+&lt;p&gt;A cheat sheet consists of a series of items (steps) which must be completed in order. Items can be divided into subitems and can launch commands or actions which will perform some of the steps for the user.&lt;/p&gt;
+      </documentation>
+   </annotation>
+
+   <element name="cheatsheet">
+      <annotation>
+         <documentation>
+            The root element of a cheatsheet.
+         </documentation>
+      </annotation>
+      <complexType>
+         <sequence>
+            <element ref="tns:intro"/>
+            <element ref="tns:item" minOccurs="1" maxOccurs="unbounded"/>
+         </sequence>
+         <attribute name="title" type="string" use="required">
+            <annotation>
+               <documentation>
+                  The title of this cheat sheet. The title will be displayed at the head of the cheat sheet view when the cheat sheet is opened.
+               </documentation>
+               <appinfo>
+                  <meta.attribute translatable="true"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="intro">
+      <annotation>
+         <documentation>
+            The &amp;lt;intro&amp;gt; element is used to define the introductory text to be displayed when the cheat sheet is opened.
+         </documentation>
+      </annotation>
+      <complexType>
+         <sequence>
+            <element ref="tns:description"/>
+         </sequence>
+         <attribute name="contextId" type="tns:eclipseID">
+            <annotation>
+               <documentation>
+                  The optional help context id of the documentation for this cheat sheet. If supplied, context help for the given fully-qualified context id is shown to the user (typically in a small pop-up window) when they clicks the introduction&apos;s help link. If this attribute is supplied, the &lt;b&gt;href&lt;/b&gt; attribute should not be supplied (&lt;b&gt;href&lt;/b&gt; will be ignored if both are present).
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="href" type="anyURI">
+            <annotation>
+               <documentation>
+                  The optional help document describing this cheat sheet. If supplied, this help document is shown to the user (typically in a help browser shown in a separate window) when they clicks the introduction&apos;s help link. If this attribute is supplied, the &lt;b&gt;contextId&lt;/b&gt; attribute should not be supplied (&lt;b&gt;href&lt;/b&gt; will be ignored if both are present).
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <simpleType name="eclipseID">
+      <annotation>
+         <documentation>
+             Eclipse identifiers for plug-ins and context IDs approximately follow the rules for
+             Java class names.
+         </documentation>
+      </annotation>
+      <restriction base="tns:javaClassName"/>
+   </simpleType>
+
+   <simpleType name="javaClassName">
+      <annotation>
+         <documentation>
+             Restricts a String to match a Java class name, which
+             are Java identifiers separated with a dot.
+         </documentation>
+      </annotation>
+      <restriction base="string">
+         <!-- Java identifiers start with:
+            a letter, a letter-number, a currency symbol, a punctuation connector;
+            and continues as above, or with a digit, mark-combining, mark-non-spacing, format-other, control but not a space -->
+         <pattern value="[\p{L}\p{Nl}\p{Sc}\p{Pc}][\p{L}\p{Nl}\p{Sc}\p{Pc}\d\p{Cf}\p{Cc}-[\p{Zs}]]*(\.[\p{L}\p{Nl}\p{Sc}\p{Pc}][\p{L}\p{Nl}\p{Sc}\p{Pc}\d\p{Cf}\p{Cc}-[\p{Zs}]]*)*" />
+         <maxLength value="65535"/>
+      </restriction>
+   </simpleType>
+
+   <element name="description" type="tns:formTextMarkup">
+      <annotation>
+         <documentation>
+            The &amp;lt;description&amp;gt; element holds the description of a cheat sheet or of
+a cheat sheet item. The description consists of text interspersed with &lt;a href=&quot;../../../org.eclipse.platform.doc.isv/guide/forms_controls_text_markup.htm&quot;&gt;form text markup&lt;/a&gt;. The cheat sheet automatically formats and lays out the text to
+make it show up reasonably in the UI. Within the text, balanced &lt;b&gt;&amp;lt;b&amp;gt;&lt;/b&gt;...&lt;b&gt;&amp;lt;/b&amp;gt;&lt;/b&gt;
+tags cause the enclosed text to be rendered in a bold font, and the &lt;b&gt;&amp;lt;br/&amp;gt;&lt;/b&gt;
+element can be used to force a line break. These are the only formatting tags
+supported at this time (however, others may be added in the future). Certain
+characters in the text have special significance for XML parsers; in particular,
+to write &amp;quot;&amp;lt;&amp;quot;, &amp;quot;&amp;gt;&amp;quot;, &amp;quot;&amp;amp;&amp;quot;, &amp;quot;&apos;&amp;quot;, and
+&amp;quot;&amp;quot;&amp;quot; (quotation mark) instead write &amp;quot;&amp;amp;lt;&amp;quot;,
+&amp;quot;&amp;amp;gt;&amp;quot;, &amp;quot;&amp;amp;amp;&amp;quot;, &amp;quot;&amp;amp;apos;&amp;quot;, and &amp;quot;&amp;amp;quot;&amp;quot;
+respectively. Whitespace (spaces and line breaks) is treated as a word
+separator; adjacent spaces and line breaks are treated as single unit and
+rendered as a single space or a line break. Whitespace immediately after the
+&amp;lt;&lt;b&gt;description&lt;/b&gt;&amp;gt; and &amp;lt;&lt;b&gt;br/&lt;/b&gt;&amp;gt; tags is ignored, as is
+whitespace immediately before the &amp;lt;&lt;b&gt;/description&lt;/b&gt;&amp;gt; tag.
+         </documentation>
+         <appinfo>
+            <meta.attribute translatable="true"/>
+         </appinfo>
+      </annotation>
+   </element>
+
+   <complexType name="formTextMarkup" mixed="true">
+      <annotation>
+         <documentation>
+            The marked-up text consists of text interspersed with &lt;a href=&quot;../../../org.eclipse.platform.doc.isv/guide/forms_controls_text_markup.htm&quot;&gt;form text markup&lt;/a&gt;. The cheat sheet automatically formats and lays out the text to
+make it show up reasonably in the UI. Within the text, balanced &lt;b&gt;&amp;lt;b&amp;gt;&lt;/b&gt;...&lt;b&gt;&amp;lt;/b&amp;gt;&lt;/b&gt;
+tags cause the enclosed text to be rendered in a bold font, and the &lt;b&gt;&amp;lt;br/&amp;gt;&lt;/b&gt;
+element can be used to force a line break. These are the only formatting tags
+supported at this time (however, others may be added in the future). Certain
+characters in the text have special significance for XML parsers; in particular,
+to write &amp;quot;&amp;lt;&amp;quot;, &amp;quot;&amp;gt;&amp;quot;, &amp;quot;&amp;amp;&amp;quot;, &amp;quot;&apos;&amp;quot;, and
+&amp;quot;&amp;quot;&amp;quot; (quotation mark) instead write &amp;quot;&amp;amp;lt;&amp;quot;,
+&amp;quot;&amp;amp;gt;&amp;quot;, &amp;quot;&amp;amp;amp;&amp;quot;, &amp;quot;&amp;amp;apos;&amp;quot;, and &amp;quot;&amp;amp;quot;&amp;quot;
+respectively. Whitespace (spaces and line breaks) is treated as a word
+separator; adjacent spaces and line breaks are treated as single unit and
+rendered as a single space or a line break. Whitespace immediately after the
+&amp;lt;&lt;b&gt;description&lt;/b&gt;&amp;gt; and &amp;lt;&lt;b&gt;br/&lt;/b&gt;&amp;gt; tags is ignored, as is
+whitespace immediately before the &amp;lt;&lt;b&gt;/description&lt;/b&gt;&amp;gt; tag.
+         </documentation>
+         <appinfo>
+            <meta.attribute translatable="true"/>
+         </appinfo>
+      </annotation>
+      <sequence minOccurs="0" maxOccurs="unbounded">
+         <choice>
+            <element ref="tns:b"/>
+            <element ref="tns:br"/>
+         </choice>
+      </sequence>
+   </complexType>
+
+   <element name="b" type="string">
+      <annotation>
+         <documentation>
+            The enclosed text is rendered in a bold font.
+         </documentation>
+         <appinfo>
+            <meta.attribute translatable="true"/>
+         </appinfo>
+      </annotation>
+   </element>
+
+   <element name="br">
+      <annotation>
+         <documentation>
+            Forces a line break.
+         </documentation>
+      </annotation>
+      <complexType/>
+   </element>
+
+   <element name="item">
+      <annotation>
+         <documentation>
+            &lt;p&gt;Each &amp;lt;item&amp;gt; element describes one top-level step in a cheat sheet. An
+&amp;lt;item&amp;gt; may contain &amp;lt;subitem&amp;gt; elements. 
+
+&lt;p&gt;The org.eclipse.ui.cheatsheets.cheatSheetItemExtension allows additional
+custom controls for the item to be displayed in the UI. Contributions to this
+extension point declare the names of additional, string-valued attributes that
+may appear on &amp;lt;item&amp;gt; elements.&lt;/p&gt;
+&lt;p&gt;Simple items have a description and an optional action or command. In the typical
+presentation, the titles of cheat sheet items are shown to the user most of the
+time. An item&apos;s description is only shown while the step is in the process of
+being executed. The presence of an &amp;lt;action&amp;gt;, &amp;lt;command&amp;gt; or &amp;lt;perform-when&amp;gt;)element is  associated with a button that the user can press to perform
+the step&apos;s action or command. If no action or command is present, the step is one that the user must
+carry out manually and then overtly indicate that they have successfully
+completed the step.&lt;/p&gt;
+&lt;p&gt;Steps may be broken down into sub-steps as specified by the &amp;lt;subitem&amp;gt; subelements. Unlike items, which the user must follow in strict sequence, the
+sub-items of a given item can be performed in any order. All sub-items within an
+item have to be attempted (or skipped) before progressing to the next item.
+(Which means actions that must be performed in a required sequence cannot be
+represented as sub-items.)&lt;/p&gt;
+&lt;p&gt;A &amp;lt;conditional-subitem&amp;gt; subelement allow a step to tailor the
+presentation of a sub-step based on cheat sheet variables whose values are
+acquired in earlier steps. A &amp;lt;repeated-subitem&amp;gt; subelement allows a step
+to include a set of similar sub-steps. Again, the exact set of sub-steps may be
+based on cheat sheet variables whose value are acquired in earlier steps.&lt;/p&gt;
+         </documentation>
+      </annotation>
+      <complexType>
+         <sequence>
+            <element ref="tns:description"/>
+            <choice>
+               <element ref="tns:action"/>
+               <element ref="tns:command"/>
+               <element ref="tns:perform-when"/>
+               <choice minOccurs="0" maxOccurs="unbounded">
+                  <element ref="tns:subitem"/>
+                  <element ref="tns:conditional-subitem"/>
+                  <element ref="tns:repeated-subitem"/>
+               </choice>
+            </choice>
+            <element ref="tns:onCompletion" minOccurs="0" maxOccurs="1"/>
+         </sequence>
+         <attribute name="title" type="string" use="required">
+            <annotation>
+               <documentation>
+                  The title of this step.
+               </documentation>
+               <appinfo>
+                  <meta.attribute translatable="true"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+         <attribute name="dialog" type="boolean" default="false">
+            <annotation>
+               <documentation>
+                  if &amp;quot;true&amp;quot; means this step involves opening a modal dialog. This is a hint to the system that it should allow the user to continue using the cheat sheet while in the modal dialog. This attribute will only affect dialogs launched from a command or action.
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="skip" type="boolean" default="false">
+            <annotation>
+               <documentation>
+                  if &amp;quot;true&amp;quot; means that the whole step can be skipped; the UI generally shows a button that the user can press to indicate that they are skipping this step
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="contextId" type="tns:eclipseID">
+            <annotation>
+               <documentation>
+                  The optional help context id of the documentation for this cheat sheet step. If supplied, context help for the given&amp;nbsp; fully-qualified context id is shown to the user (typically in a small pop-up window) when they clicks the step&apos;s help link. If this attribute is supplied, the &lt;b&gt;href&lt;/b&gt; attribute should not be supplied (&lt;b&gt;href&lt;/b&gt; will be ignored if both are present).
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="href" type="anyURI">
+            <annotation>
+               <documentation>
+                  The optional help document describing this cheat sheet step. If supplied, this help document is shown to the user (typically in a help browser shown in a separate window) when they clicks the step&apos;s help link. If this attribute is supplied, the &lt;b&gt;contextId&lt;/b&gt; attribute should not be supplied (&lt;b&gt;href&lt;/b&gt; will be ignored if both are present).
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="subitem">
+      <annotation>
+         <documentation>
+            &lt;p&gt;Each &amp;lt;subitem&amp;gt; element describes a sub-step in a cheat sheet. A &amp;lt;subitem&amp;gt;
+carries a simple text label, but has neither a lengthy description nor further
+sub-items.
+&lt;p&gt;Sub-items may have an optional action or command. The presence of an &amp;lt;action&amp;gt;, 
+&amp;lt;command&amp;gt; or
+&amp;lt;perform-when&amp;gt; element is associated with a button that the
+user can press to perform the sub-step&apos;s action or command. If no action or 
+command is present, the
+sub-step is one that the user must carry out manually and then overtly indicate
+that they have successfully completed the step.&lt;/p&gt;
+&lt;p&gt;Unlike items, which must be followed in strict sequence, the sub-items of a
+given item can be performed in any order. All sub-items within an item have to
+be completed or skipped before progressing to the next item. (Which means
+actions that must be performed in a required sequence should not be represented
+as sub-items.)&lt;/p&gt;
+&lt;p&gt;Since version 3.4 a description has been allowed in a subitem in place of the label attribute, which allows for formatting tags to be used.&lt;/p&gt;
+         </documentation>
+      </annotation>
+      <complexType>
+         <sequence>
+            <element ref="tns:description" minOccurs="0" maxOccurs="1"/>
+            <choice minOccurs="0" maxOccurs="1">
+               <element ref="tns:action"/>
+               <element ref="tns:command"/>
+               <element ref="tns:perform-when"/>
+            </choice>
+         </sequence>
+         <attribute name="label" type="string" use="optional">
+            <annotation>
+               <documentation>
+                  The title of the cheat sheet sub-item. If the string
+    contains substring occurrences of the form &amp;quot;${&lt;i&gt;var&lt;/i&gt;}&amp;quot;, they
+    are considered references to cheat sheet variables. All such occurrences in
+    the string value will be replaced by the value of the corresponding variable
+    in the context of the execution of the cheat sheet, or the empty string for
+    variables that are unbound. The values of the variables are as of the
+    beginning of the execution of the main step (when the &amp;lt;item&amp;gt; element
+    is elaborated), rather than when the individual sub-step are run.
+    
+  A subitem may have either a label or a description element but not both. A description element may contain the formating tags such as &amp;lt;b&amp;gt;, &amp;lt;/b&amp;gt; or &amp;lt;br/&amp;gt;.
+               </documentation>
+               <appinfo>
+                  <meta.attribute translatable="true"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+         <attribute name="skip" type="boolean" default="false">
+            <annotation>
+               <documentation>
+                  if &amp;quot;true&amp;quot; this sub-step can be
+    skipped. The UI generally shows a button that the user can press to indicate
+    that they are skipping this sub-step.
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="when" type="string">
+            <annotation>
+               <documentation>
+                  Indicates this subitem is to be used if and only if the
+    value of the condition attribute of the containing &amp;lt;conditional-subitem&amp;gt;
+    element matches this string value. This attribute is ignored if the &amp;lt;subitem&amp;gt;
+    element is not a child of&amp;nbsp; a &amp;lt;conditional-subitem&amp;gt; element.
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="conditional-subitem">
+      <annotation>
+         <documentation>
+            &lt;p&gt;Each &amp;lt;conditional-subitem&amp;gt; element describes a single sub-step whose
+form can differ based on a condition known at the time the item is expanded.
+&lt;p&gt;The &lt;b&gt;condition&lt;/b&gt; attribute on the &amp;lt;conditional-subitem&amp;gt; element
+provides a string value (invariably this value comes from a cheat sheet
+variable). Each of the &amp;lt;subitem&amp;gt; children must carry a &lt;b&gt;when&lt;/b&gt;
+attribute with a distinct string value. When the item is expanded, the
+&amp;lt;conditional-subitem&amp;gt; element is replaced by the &amp;lt;subitem&amp;gt; element
+with the matching value. It is considered an error if there is no &amp;lt;subitem&amp;gt;
+element with a matching value.&lt;/p&gt;
+&lt;p&gt;For example, if the cheat sheet variable named &amp;quot;v1&amp;quot; has the value
+&amp;quot;b&amp;quot; when the following item is expanded&lt;/p&gt;
+&lt;pre&gt;&lt;item ...&gt; 
+  &lt;conditional-subitem condition=&quot;${v1}&quot;&gt;
+     &lt;subitem when=&quot;a&quot; label=&quot;Step for A.&quot; /&gt;
+     &lt;subitem when=&quot;b&quot; label=&quot;Step for B.&quot; /&gt;
+  &lt;/conditional-subitem&gt;
+&lt;/item&gt;&lt;/pre&gt;
+then the second sub-item is selected and the item expands to something
+equivalent to
+&lt;pre&gt;&lt;item ...&gt; 
+  &lt;subitem label=&quot;Step for B.&quot;/&gt;
+&lt;/item&gt;&lt;/pre&gt;
+         </documentation>
+      </annotation>
+      <complexType>
+         <sequence>
+            <element ref="tns:subitem" minOccurs="1" maxOccurs="unbounded"/>
+         </sequence>
+         <attribute name="condition" type="string" use="required">
+            <annotation>
+               <documentation>
+                  Arbitrary string value used to select which child &amp;lt;subitem&amp;gt;
+    will be used. If the attribute string has the form &amp;quot;${&lt;i&gt;var&lt;/i&gt;}&amp;quot;,
+    it is considered a reference to a cheat sheet variable &lt;i&gt;var&lt;/i&gt;, and value
+    of the condition will be the value of the variable for the cheat sheet at
+    the start of execution of the containing &amp;lt;item&amp;gt; element (or the empty
+    string if the variable is unbound at that time).
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="repeated-subitem">
+      <annotation>
+         <documentation>
+            &lt;p&gt;Each &amp;lt;repeated-subitem&amp;gt; element describes a sub-item that expands into
+0, 1, or more similar sub-steps. 
+  
+&lt;p&gt;The &lt;b&gt;values&lt;/b&gt; attribute provides a list of comma-separated strings; the
+&amp;lt;subitem&amp;gt; child provide the template. When the item is expanded, the
+&amp;lt;repeated-subitem&amp;gt; element is replaced by copies of the &amp;lt;subitem&amp;gt;
+element with occurrences of the variable &amp;quot;this&amp;quot; replaced by the
+corresponding string value.&lt;/p&gt;
+&lt;p&gt;For example, if the cheat sheet variable named &amp;quot;v1&amp;quot; has the value
+&amp;quot;1,b,three&amp;quot; when the following item is expanded&lt;/p&gt;
+&lt;pre&gt;&lt;item ...&gt; 
+  &lt;repeated-subitem values=&quot;${v1}&quot;&gt;
+     &lt;subitem label=&quot;Step ${this}.&quot;&gt;
+        &lt;action class=&quot;com.xyz.myaction&quot; pluginId=&quot;com.xyz&quot; param1=&quot;${this}&quot;/&gt;
+     &lt;/subitem&gt;
+  &lt;/repeated-subitem&gt;
+&lt;/item&gt;&lt;/pre&gt;
+then the item expands to something equivalent to:
+&lt;pre&gt;&lt;item ...&gt; 
+  &lt;subitem label=&quot;Step 1.&quot;&gt;
+     &lt;action class=&quot;com.xyz.myaction&quot; pluginId=&quot;com.xyz&quot; param1=&quot;1&quot;/&gt;
+  &lt;/subitem&gt;
+  &lt;subitem label=&quot;Step b.&quot;&gt;
+     &lt;action class=&quot;com.xyz.myaction&quot; pluginId=&quot;com.xyz&quot; param1=&quot;b&quot;/&gt;
+  &lt;/subitem&gt;
+  &lt;subitem label=&quot;Step three.&quot;&gt;
+     &lt;action class=&quot;com.xyz.myaction&quot; pluginId=&quot;com.xyz&quot; param1=&quot;three&quot;/&gt;
+  &lt;/subitem&gt;
+&lt;/item&gt;&lt;/pre&gt;
+         </documentation>
+      </annotation>
+      <complexType>
+         <sequence>
+            <element ref="tns:subitem"/>
+         </sequence>
+         <attribute name="values" type="string" use="required">
+            <annotation>
+               <documentation>
+                  A string containing a comma-separated list of values. If
+    the attribute string has the form &amp;quot;${&lt;i&gt;var&lt;/i&gt;}&amp;quot;, it is
+    considered a reference to a cheat sheet variable &lt;i&gt;var&lt;/i&gt;, and value of
+    the condition will be the value of the variable for the cheat sheet at the
+    start of execution of the containing &amp;lt;item&amp;gt; element (or the empty
+    string if the variable is unbound at that time).
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="action">
+      <annotation>
+         <documentation>
+            Each &amp;lt;action&amp;gt; element describes an action in a cheat sheet.
+         </documentation>
+      </annotation>
+      <complexType>
+         <attribute name="class" type="tns:javaClassName" use="required">
+            <annotation>
+               <documentation>
+                  The fully-qualified name of the Java class implementing &lt;code&gt;org.eclipse.jface.action.IAction&lt;/code&gt;.
+    If this action also implements &lt;code&gt;org.eclipse.ui.cheatsheets.ICheatSheetAction&lt;/code&gt;
+    it will be invoked via its run(String[],ICheatSheetManager) method and be
+    passed the cheat sheet manager and action parameters. The pluginId attribute
+    must be present whenever this attribute is present. It is strongly
+    recommended that actions intended to be invoked from cheat sheets should
+    report success/fail outcome if running the action might fail (perhaps
+    because the user cancels the action from its dialog). (See
+    org.eclipse.jface.action.Action.notifyResult(boolean) for details.)
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="pluginId" type="tns:eclipseID" use="required">
+            <annotation>
+               <documentation>
+                  The id of the plug-in which contains the Java class of
+    the action class. This attribute must be present.
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="param1" type="string">
+            <annotation>
+               <documentation>
+                  For action classes that also implement &lt;code&gt;org.eclipse.ui.cheatsheets.ICheatSheetAction&lt;/code&gt;,
+    the string values of attributes &lt;b&gt;param1&lt;/b&gt;,
+    &lt;b&gt;param2&lt;/b&gt; up to &lt;b&gt;param9&lt;/b&gt; are passed to the action when it is
+    invoked. You can pass up to 9 parameters to a cheat sheet action , etc. The parameters supplied must start with parameter 1
+    and be contiguous; that is, it is illegal to specify &lt;b&gt;param2&lt;/b&gt; without &lt;b&gt;param1&lt;/b&gt;
+    also being present. If the attribute string has the form &amp;quot;${&lt;i&gt;var&lt;/i&gt;}&amp;quot;,
+    it is considered a reference to a cheat sheet variable &lt;i&gt;var&lt;/i&gt;, and value
+    of the condition will be the value of the variable for the cheat sheet at
+    the start of execution of the containing &amp;lt;item&amp;gt; element (or the empty
+    string if the variable is unbound at that time).
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="param2" type="string">
+            <annotation>
+               <documentation>
+                  The second parameter for a cheat sheet action.
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="param3" type="string">
+            <annotation>
+               <documentation>
+                  The third parameter for a cheat sheet action.
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="param4" type="string">
+             <annotation>
+               <documentation>
+                  The fourth parameter for a cheat sheet action.
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="param5" type="string">
+             <annotation>
+               <documentation>
+                  The fifth parameter for a cheat sheet action.
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="param6" type="string">
+             <annotation>
+               <documentation>
+                  The sixth parameter for a cheat sheet action.
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="param7" type="string">
+             <annotation>
+               <documentation>
+                  The seventh parameter for a cheat sheet action.
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="param8" type="string">
+         <annotation>
+               <documentation>
+                  The eighth parameter for a cheat sheet action.
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="param9" type="string">
+         <annotation>
+               <documentation>
+                  The ninth parameter for a cheat sheet action.
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="confirm" type="boolean" default="false">
+            <annotation>
+               <documentation>
+                  If &amp;quot;true&amp;quot; indicates this step (or sub-step)
+    requires the user to manually confirm that the action has been completed.
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="when" type="string">
+            <annotation>
+               <documentation>
+                  Indicates this action is to be used if and only if the value
+    of the condition attribute of the containing &amp;lt;perform-when&amp;gt; element
+    matches this string value. This attribute is ignored if the &amp;lt;action&amp;gt;
+    element is not a child of&amp;nbsp; a &amp;lt;perform-when&amp;gt; element.
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="required" type="boolean" default="true">
+            <annotation>
+               <documentation>
+                  if &quot;true&quot; this item or subitem can only be completed by performing this action (it may still be skipped if skip=&quot;true&quot;). If &quot;false&quot; two buttons will be created, one to perform the task and one to mark it as complete, either will complete this step or substep.
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="translate">
+            <annotation>
+               <documentation>
+                  A comma separated list of parameters which are translatable. Any parameters not in the list are considered non-translatable. While this attribute is optional it is strongly recommended that it be provided for any cheat sheat which may end up being translated. If this attribute is not specified it means that there is no translation hint.
+&lt;br&gt;
+Examples:
+&lt;br&gt;
+&lt;code&gt;translate = &quot;param2, param3&quot;&lt;/code&gt;  means translate param2 and param3 only.
+&lt;br&gt;
+&lt;code&gt;translate = &quot;&quot;&lt;/code&gt; means do not translate any parameters for this action.
+               </documentation>
+            </annotation>
+            <simpleType>
+               <restriction base="string">
+                  <pattern value="(param[1-9](, ?param[1-9]){0,8})?"/>
+               </restriction>
+            </simpleType>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="command">
+      <annotation>
+         <documentation>
+            &lt;p&gt;Each &amp;lt;command&amp;gt; element describes an command in a cheat sheet.
+&lt;p&gt;Below is an example of an item with a command which opens a dialog box and 
+stores the result in the cheat sheet variable &amp;quot;result&amp;quot;.&lt;/p&gt;
+&lt;pre&gt;&lt;item title=&quot;View Selection&quot;&gt;
+     &lt;description&gt;Select a view which will be opened in the next step.&lt;/description&gt;
+     &lt;command returns = &quot;result&quot;
+      serialization=&quot;org.eclipse.ui.dialogs.openMessageDialog(title=Select View,buttonLabel0=Package Explorer,message=Select a view ,buttonLabel1=Search View)&quot;/&gt;  
+      &lt;onCompletion&gt; Selected the ${result}. &lt;/onCompletion&gt;
+&lt;/item&gt;&lt;/pre&gt;
+         </documentation>
+      </annotation>
+      <complexType>
+         <attribute name="serialization" type="string" use="required">
+            <annotation>
+               <documentation>
+                  A serialized
+  &lt;a href=&quot;../api/org/eclipse/core/commands/ParameterizedCommand.html&quot;&gt;
+  ParameterizedCommand&lt;/a&gt;,&amp;nbsp; which is a string containing the command name 
+  and parameters. See the
+  &lt;a href=&quot;../api/org/eclipse/core/commands/ParameterizedCommand.html#serialize()&quot;&gt;
+  ParameterizedCommand.serialize()&lt;/a&gt; method for full details on this format.
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="returns" type="string">
+            <annotation>
+               <documentation>
+                  An optional attribute which specifies the name of a cheat 
+  sheet variable which will be used to store the return value of the command. 
+  This allows a command to set a cheat sheet variable which is used in 
+  a later &amp;lt;perform-when&amp;gt;, &amp;lt;conditional-subitem&amp;gt; or &amp;lt;repeated-subitem&amp;gt;.
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="confirm" type="boolean" default="false">
+            <annotation>
+               <documentation>
+                  if &amp;quot;true&amp;quot; indicates that this step (or sub-step)
+    requires the user to manually confirm that the command has been completed.
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="when" type="string">
+            <annotation>
+               <documentation>
+                  Indicates this command is to be used if and only if the value
+    of the condition attribute of the containing &amp;lt;perform-when&amp;gt; element
+    matches this string value. This attribute is ignored if the &amp;lt;command&amp;gt;
+    element is not a child of&amp;nbsp; a &amp;lt;perform-when&amp;gt; element.
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="required" type="boolean" default="true">
+            <annotation>
+               <documentation>
+                  if &quot;true&quot; this item or subitem can only be completed by performing this command (it may still be skipped if skip=&quot;true&quot;). If &quot;false&quot; two buttons will be created, one to perform the task and one to mark it as complete, either will complete this step or substep.
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="translate">
+            <annotation>
+               <documentation>
+                  A comma separated list of parameters which are translatable. Any parameters not in the list are considered non-translatable. While this attribute is optional it is strongly recommended that it be provided for any cheat sheat which may end up being translated. If this attribute is not specified it means that there is no translation hint.
+&lt;br&gt;
+Examples:
+&lt;br&gt;
+&lt;code&gt;translate = &quot;param2, param3&quot;&lt;/code&gt;  means translate param2 and param3 only.
+&lt;br&gt;
+&lt;code&gt;translate = &quot;&quot;&lt;/code&gt; means do not translate any parameters for this command.
+               </documentation>
+            </annotation>
+            <simpleType>
+               <restriction base="string">
+                  <!-- Java has a restriction of at most 254 parameters, so parm [,parm]{0,253} -->
+                  <!-- The parameter names are Java identifiers, so start with:
+                  a letter, a letter-number, a currency symbol, a punctuation connector;
+                  and continues as above, or with a digit, mark-combining, mark-non-spacing, format-other, control but not a space -->
+                  <pattern value="([\p{L}\p{Nl}\p{Sc}\p{Pc}][\p{L}\p{Nl}\p{Sc}\p{Pc}\d\p{Cf}\p{Cc}-[\p{Zs}]]*(, ?[\p{L}\p{Nl}\p{Sc}\p{Pc}][\p{L}\p{Nl}\p{Sc}\p{Pc}\d\p{Cf}\p{Cc}-[\p{Zs}]]*){0,253})?" />
+               </restriction>
+            </simpleType>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="onCompletion" type="tns:formTextMarkup">
+      <annotation>
+         <documentation>
+            Contains text which will be displayed when 
+an item is completed. This is particularly useful in the final step of the cheat 
+sheet to acknowledge completion of the entire task. The description consists of text interspersed with &lt;a href=&quot;../../../org.eclipse.platform.doc.isv/guide/forms_controls_text_markup.htm&quot;&gt;form text markup&lt;/a&gt; following the same rules as for a &amp;lt;description&amp;gt; element. 
+&amp;lt;onCompletion&amp;gt; elements may also contain references to cheat sheet variables of 
+the form&amp;nbsp; &amp;quot;${&lt;i&gt;var&lt;/i&gt;}&amp;quot;, which will be expanded using the actual value of 
+the cheat sheet variable &lt;i&gt;var&lt;/i&gt; at the time this step was completed.
+         </documentation>
+      </annotation>
+   </element>
+
+   <element name="perform-when">
+      <annotation>
+         <documentation>
+            &lt;p&gt;Each &amp;lt;perform-when&amp;gt; element describes an action in a cheat sheet.
+&lt;p&gt;The &lt;b&gt;condition&lt;/b&gt; attribute on the &amp;lt;conditional-subitem&amp;gt; element
+provides a string value (invariably this value comes from a cheat sheet
+variable). Each of the &amp;lt;subitem&amp;gt; children must carry a &lt;b&gt;when&lt;/b&gt;
+attribute with a distinct string value. When the item is expanded, the
+&amp;lt;conditional-subitem&amp;gt; element is replaced by the &amp;lt;subitem&amp;gt; element
+with the matching value. It is considered an error if there is no &amp;lt;subitem&amp;gt;
+element with a matching value.&lt;/p&gt;
+&lt;p&gt;For example, if the cheat sheet variable named &amp;quot;v1&amp;quot; has the value
+&amp;quot;b&amp;quot; when the following item is expanded&lt;/p&gt;
+&lt;pre&gt;&lt;item ...&gt;
+  &lt;subitem label=&quot;Main step&quot;&gt;
+     &lt;perform-when condition=&quot;${v1}&quot;&gt;
+        &lt;action when=&quot;a&quot; class=&quot;com.xyz.action1&quot; pluginId=&quot;com.xyz&quot; /&gt;
+        &lt;action when=&quot;b&quot; class=&quot;com.xyz.action2&quot; pluginId=&quot;com.xyz&quot; /&gt;
+        &lt;command when=&quot;c&quot; serialization=&quot;org.eclipse.search.ui.views.SearchView&quot;/&gt;
+     &lt;/perform-when&gt;
+  &lt;/subitem&gt;
+&lt;/item&gt;
+&lt;/pre&gt;
+then the second action is selected and the item expands to something equivalent
+to
+&lt;pre&gt;&lt;item ...&gt; 
+  &lt;subitem label=&quot;Main step&quot;&gt;
+     &lt;action class=&quot;com.xyz.action2&quot; pluginId=&quot;com.xyz&quot; /&gt;
+  &lt;/subitem&gt;
+&lt;/item&gt;
+&lt;/pre&gt;
+         </documentation>
+      </annotation>
+      <complexType>
+         <choice minOccurs="1" maxOccurs="unbounded">
+            <element ref="tns:action"/>
+            <element ref="tns:command"/>
+         </choice>
+         <attribute name="condition" type="string" use="required">
+            <annotation>
+               <documentation>
+                  Arbitrary string value used to select which child
+    &amp;lt;action&amp;gt; or &amp;lt;command&amp;gt; will be performed. If the attribute string has the form
+    &amp;quot;${&lt;i&gt;var&lt;/i&gt;}&amp;quot;, it is considered a reference to a cheat sheet
+    variable &lt;i&gt;var&lt;/i&gt;, and value of the condition will be the value of the
+    variable for the cheat sheet at the start of execution of the containing
+    &amp;lt;item&amp;gt; element (or the empty string if the variable is unbound at that
+    time).
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="since"/>
+      </appinfo>
+      <documentation>
+         3.2
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="examples"/>
+      </appinfo>
+      <documentation>
+         &lt;p&gt;The following is an example of a simple cheat sheet content file which 
+demonstrates the use of commands, perform-when and conditional subitems.&lt;/p&gt;
+
+&lt;pre&gt; 
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt; 
+&lt;cheatsheet title=&quot;Sample Cheat Sheet&quot;&gt;
+  &lt;intro&gt;
+    &lt;description&gt;A cheat sheet which demonstrates the use of perform-when and conditional subitems&lt;/description&gt;
+  &lt;/intro&gt;
+  &lt;item title=&quot;View Selection&quot;&gt;
+     &lt;description&gt;Select a view which will be opened in the following steps.&lt;/description&gt;
+     &lt;command returns = &quot;result&quot;
+      serialization=&quot;org.eclipse.ui.dialogs.openMessageDialog(title=Select View,buttonLabel0=Package Explorer,message=Select a view ,buttonLabel1=Search View)&quot;/&gt;  
+      &lt;onCompletion&gt; Selected the ${result}. &lt;/onCompletion&gt;
+  &lt;/item&gt; 
+  &lt;item title=&quot;Close Views&quot;&gt;
+     &lt;description&gt;Close the search view and package explorer if open&lt;/description&gt;
+  &lt;/item&gt;
+  &lt;item title=&quot;Open the view from a perform when item&quot; skip = &quot;true&quot;&gt;
+     &lt;description&gt;Uses perform when to open the view seleted previously.&lt;/description&gt; 
+     &lt;perform-when condition = &quot;${result}&quot;&gt;
+           &lt;command when = &quot;Package Explorer&quot; 
+            serialization=&quot;org.eclipse.ui.views.showView(org.eclipse.ui.views.showView.viewId=org.eclipse.jdt.ui.PackageExplorer)&quot;/&gt;
+           &lt;command when = &quot;Search View&quot; 
+            serialization=&quot;org.eclipse.ui.views.showView(org.eclipse.ui.views.showView.viewId=org.eclipse.search.ui.views.SearchView)&quot;/&gt;      
+     &lt;/perform-when&gt;
+  &lt;/item&gt; 
+  &lt;item title=&quot;Close Views&quot;&gt;
+     &lt;description&gt;Close the search view and package explorer if open&lt;/description&gt;
+  &lt;/item&gt;
+  &lt;item title=&quot;Open the view from a perform when subitem&quot;&gt;
+     &lt;description&gt;Uses perform when to open the view seleted previously.&lt;/description&gt; 
+     &lt;subitem label=&quot;Perform when subitem&quot; skip = &quot;true&quot;&gt;
+     &lt;perform-when condition = &quot;${result}&quot;&gt;
+           &lt;command when = &quot;Package Explorer&quot; 
+            serialization=&quot;org.eclipse.jdt.ui.PackageExplorer&quot;/&gt;
+           &lt;command when = &quot;Search View&quot; 
+            serialization=&quot;org.eclipse.search.ui.views.SearchView&quot;/&gt;      
+     &lt;/perform-when&gt;
+     &lt;/subitem&gt;
+  &lt;/item&gt; 
+  &lt;item title=&quot;Close Views&quot;&gt;
+     &lt;description&gt;Close the search view and package explorer if open&lt;/description&gt;
+  &lt;/item&gt;
+  &lt;item title=&quot;Open the view from a conditional subitem&quot;&gt;
+     &lt;description&gt;Uses perform when to open the view seleted previously.&lt;/description&gt; 
+      &lt;conditional-subitem condition=&quot;${result}&quot;&gt;
+         &lt;subitem when=&quot;Package Explorer&quot; label=&quot;Open package explorer.&quot;&gt;
+             &lt;command serialization = &quot;org.eclipse.jdt.ui.PackageExplorer&quot;/&gt;
+         &lt;/subitem&gt;
+         &lt;subitem when=&quot;Search View&quot; label=&quot;Open Search View&quot;&gt;
+             &lt;command serialization = &quot;org.eclipse.search.ui.views.SearchView&quot;/&gt;
+         &lt;/subitem&gt;
+     &lt;/conditional-subitem&gt;
+  &lt;/item&gt;
+&lt;/cheatsheet&gt;
+&lt;/pre&gt;
+      </documentation>
+   </annotation>
+
+
+
+   <annotation>
+      <appinfo>
+         <meta.section type="copyright"/>
+      </appinfo>
+      <documentation>
+         Copyright (c) 2004, 2018 IBM Corporation and others.&lt;br&gt;
+All rights reserved. This program and the accompanying materials are made 
+available under the terms of the Eclipse Public License v1.0 which accompanies 
+this distribution, and is available at &lt;a href=&quot;http://www.eclipse.org/legal/epl-v10.html&quot;&gt;http://www.eclipse.org/legal/epl-v10.html&lt;/a&gt;
+      </documentation>
+   </annotation>
+
+</schema>

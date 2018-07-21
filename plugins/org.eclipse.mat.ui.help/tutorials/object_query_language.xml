@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?><!--
-    Copyright (c) 2008, 2010 SAP AG.
+    Copyright (c) 2008, 2018 SAP AG and IBM Corporation
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -7,9 +7,13 @@
    
     Contributors:
         SAP AG - initial API and implementation
+        Andrew Johnson/IBM Corporation - XML validation
  -->
 
-<cheatsheet title="OQL in 1 minute">
+<cheatsheet title="OQL in 1 minute"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="org.eclipse.ui.cheatsheets platform:/resource/org.eclipse.mat.ui.help/schema/cheatSheetContentFileSpec.xsd"
+   xmlns="org.eclipse.ui.cheatsheets">
    <intro href="/org.eclipse.mat.ui.help/reference/oqlsyntax.html">
       <description>
          OQL is the build-in object query language. Learn to perform
@@ -21,8 +25,7 @@
          Open a sample heap dump by activating the action link
 			below.
       </description>
-      <action class="org.eclipse.mat.ui.snapshot.actions.OpenSampleHeapDumpAction" pluginId="org.eclipse.mat.ui" confirm="false" param1="org.eclipse.mat.ui.help/heapdump/HeapDumpSample.hprof">
-      </action>
+      <action class="org.eclipse.mat.ui.snapshot.actions.OpenSampleHeapDumpAction" pluginId="org.eclipse.mat.ui" confirm="false" param1="org.eclipse.mat.ui.help/heapdump/HeapDumpSample.hprof"/>
    </item>
    <item title="FROM Clause" dialog="true" skip="true" href="/org.eclipse.mat.ui.help/reference/oqlsyntaxfrom.html">
       <description>
@@ -39,8 +42,7 @@
 			<br/>
 			<br/>
       </description>
-      <action class="org.eclipse.mat.ui.snapshot.actions.OpenSampleHeapDumpAction" pluginId="org.eclipse.mat.ui" confirm="false" param1="org.eclipse.mat.ui.help/heapdump/HeapDumpSample.hprof" param2="oql" param3="SELECT * FROM java.lang.ref.SoftReference">
-      </action>
+      <action class="org.eclipse.mat.ui.snapshot.actions.OpenSampleHeapDumpAction" pluginId="org.eclipse.mat.ui" confirm="false" param1="org.eclipse.mat.ui.help/heapdump/HeapDumpSample.hprof" param2="oql" param3="SELECT * FROM java.lang.ref.SoftReference"/>
    </item>
    <item title="WHERE Clause" dialog="true" skip="true" href="/org.eclipse.mat.ui.help/reference/oqlsyntaxwhere.html">
       <description>
@@ -54,8 +56,7 @@
 			be addressed with dot notation to reach fields of a table alias or even fields of
 			nested objects: &lt;field&gt;.&lt;field&gt;.&lt;field&gt;.
       </description>
-      <action class="org.eclipse.mat.ui.snapshot.actions.OpenSampleHeapDumpAction" pluginId="org.eclipse.mat.ui" confirm="false" param1="org.eclipse.mat.ui.help/heapdump/HeapDumpSample.hprof" param2="oql" param3="SELECT * FROM java.lang.String s WHERE s.count > 100">
-      </action>
+      <action class="org.eclipse.mat.ui.snapshot.actions.OpenSampleHeapDumpAction" pluginId="org.eclipse.mat.ui" confirm="false" param1="org.eclipse.mat.ui.help/heapdump/HeapDumpSample.hprof" param2="oql" param3="SELECT * FROM java.lang.String s WHERE s.count > 100"/>
    </item>
    <item title="SELECT Clause" dialog="true" skip="true" href="/org.eclipse.mat.ui.help/reference/oqlsyntaxselect.html">
       <description>
@@ -72,7 +73,6 @@
 			arrays). Functions like toHex(), toString(), classof(), dominatorof() etc.
 			allow simple transformations.
       </description>
-      <action class="org.eclipse.mat.ui.snapshot.actions.OpenSampleHeapDumpAction" pluginId="org.eclipse.mat.ui" confirm="false" param1="org.eclipse.mat.ui.help/heapdump/HeapDumpSample.hprof" param2="oql" param3="SELECT toHex(m.@objectAddress), m.size, m.table.@length, m.@retainedHeapSize FROM java.util.HashMap m">
-      </action>
+      <action class="org.eclipse.mat.ui.snapshot.actions.OpenSampleHeapDumpAction" pluginId="org.eclipse.mat.ui" confirm="false" param1="org.eclipse.mat.ui.help/heapdump/HeapDumpSample.hprof" param2="oql" param3="SELECT toHex(m.@objectAddress), m.size, m.table.@length, m.@retainedHeapSize FROM java.util.HashMap m"/>
    </item>
 </cheatsheet>

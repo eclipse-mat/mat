@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2010 SAP AG and others.
+    Copyright (c) 2008, 2018 SAP AG, IBM Corporation and others.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -8,9 +8,13 @@
    
     Contributors:
         SAP AG - initial API and implementation
+        Andrew Johnson/IBM Corporation - XML validation
  -->
 
-<cheatsheet title="Basic Analysis">
+<cheatsheet title="Basic Analysis"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="org.eclipse.ui.cheatsheets platform:/resource/org.eclipse.mat.ui.help/schema/cheatSheetContentFileSpec.xsd"
+   xmlns="org.eclipse.ui.cheatsheets">
    <intro href="/org.eclipse.mat.ui.help/gettingstarted/basictutorial.html">
       <description>
          Here you will learn the basics on snapshots and memory analysis.
@@ -26,8 +30,7 @@
 			<br/> In this cheat sheet we will use a sample heap dump. Please open it by
 			activating the action link below.
       </description>
-      <action class="org.eclipse.mat.ui.snapshot.actions.OpenSampleHeapDumpAction" pluginId="org.eclipse.mat.ui" confirm="false" param1="org.eclipse.mat.ui.help/heapdump/HeapDumpSample.hprof">
-      </action>
+      <action class="org.eclipse.mat.ui.snapshot.actions.OpenSampleHeapDumpAction" pluginId="org.eclipse.mat.ui" confirm="false" param1="org.eclipse.mat.ui.help/heapdump/HeapDumpSample.hprof"/>
    </item>
    <item title="Open Class Histogram" dialog="true" skip="false" href="/org.eclipse.mat.ui.help/gettingstarted/basictutorial.html#N10001__class_histogram">
       <description>
@@ -39,8 +42,7 @@
 			<b>Open Class Histogram</b>
 			<br/> toolbar button.
       </description>
-      <action class="org.eclipse.mat.ui.snapshot.actions.OpenSampleHeapDumpAction" pluginId="org.eclipse.mat.ui" confirm="false" param1="org.eclipse.mat.ui.help/heapdump/HeapDumpSample.hprof" param2="histogram">
-      </action>
+      <action class="org.eclipse.mat.ui.snapshot.actions.OpenSampleHeapDumpAction" pluginId="org.eclipse.mat.ui" confirm="false" param1="org.eclipse.mat.ui.help/heapdump/HeapDumpSample.hprof" param2="histogram"/>
    </item>
    <item title="Sort histogram by classloader" dialog="true" skip="true" href="/org.eclipse.mat.ui.help/gettingstarted/basictutorial.html#N10001__histogram_by_classloader">
       <description>
@@ -51,8 +53,7 @@
 			combobox toolbar button. To return to the initial sorting select the
 			<b>Group by class</b> option of the same combobox.
       </description>
-      <action class="org.eclipse.mat.ui.snapshot.actions.OpenSampleHeapDumpAction" pluginId="org.eclipse.mat.ui" confirm="false" param1="org.eclipse.mat.ui.help/heapdump/HeapDumpSample.hprof" param2="Histogram -groupby BY_CLASSLOADER">
-      </action>
+      <action class="org.eclipse.mat.ui.snapshot.actions.OpenSampleHeapDumpAction" pluginId="org.eclipse.mat.ui" confirm="false" param1="org.eclipse.mat.ui.help/heapdump/HeapDumpSample.hprof" param2="Histogram -groupby BY_CLASSLOADER"/>
    </item>
    <item title="Compare two snapshots" dialog="true" skip="true" href="/org.eclipse.mat.ui.help/noteworthy.html#note_worthy">
       <description>
