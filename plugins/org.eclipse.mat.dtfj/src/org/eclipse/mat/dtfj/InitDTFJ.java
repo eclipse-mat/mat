@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009,2013 IBM Corporation.
+ * Copyright (c) 2009,2018 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,21 +17,28 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.ContributorFactoryOSGi;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IContributor;
+import org.eclipse.core.runtime.ICoreRunnable;
 import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IExtensionDelta;
 import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.IExtensionRegistry;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IRegistryChangeEvent;
 import org.eclipse.core.runtime.IRegistryChangeListener;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Plugin;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.content.IContentType;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.PreferenceStore;
 import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleException;
 
 /**
  * Controls the loading of this plugin and finds the available DTFJ
@@ -46,6 +53,7 @@ public class InitDTFJ extends Plugin implements IRegistryChangeListener
     private static final String DTFJ_IMAGEFACTORY = "imagefactory"; //$NON-NLS-1$
 
     private static final Map<String, Map<String, String>> allexts = new HashMap<String, Map<String, String>>();
+    private static int updateCount = 0;
 
     private static InitDTFJ plugin;
 
@@ -63,6 +71,7 @@ public class InitDTFJ extends Plugin implements IRegistryChangeListener
             reg.addRegistryChangeListener(this, DTFJ_NAMESPACE);
             registerFileExtensions(reg);
         }
+        checkDTFJInterface();
     }
 
     /**
@@ -114,9 +123,46 @@ public class InitDTFJ extends Plugin implements IRegistryChangeListener
                         break;
                 }
             }
+            checkDTFJInterface();
         }
     }
 
+    /**
+     * With new loading of DTFJ via Import-Package, sometimes the o.e.mat.dtfj bundle
+     * is not re-resolved properly.
+     * Try a update() on the bundle (stop->re-resolve->start).
+     */
+    void checkDTFJInterface()
+    {
+        if (allexts.size() > 0 && ++updateCount <= 1)
+        {    
+            // There is some DTFJ, so check it is usable.
+            try
+            {
+                new DTFJIndexBuilder();
+            }
+            catch (NoClassDefFoundError e)
+            {
+                log(IStatus.WARNING, Messages.InitDTFJ_FailedToCreate, e);
+                Job j = Job.create(Messages.InitDTFJ_UpdatingBundle, new ICoreRunnable() {
+                    public void run(IProgressMonitor monitor) throws CoreException
+                    {
+                        try
+                        {
+                            // Re-resolve this bundle to get com.ibm.dtfj.api resolved
+                            plugin.getBundle().update();
+                            log(IStatus.INFO, Messages.InitDTFJ_UpdatedBundle, null);
+                        }
+                        catch (BundleException e)
+                        {
+                            throw new CoreException(new Status(IStatus.ERROR, plugin.getBundle().getSymbolicName(), "Error updating bundle", e));
+                        }
+                    }});
+                j.schedule();
+            }
+        }
+    }
+    
     /**
      * Dynamically remove a plugin from the system
      * 
@@ -156,10 +202,27 @@ public class InitDTFJ extends Plugin implements IRegistryChangeListener
             {
                 removeParserExtension(reg, cont, ex);
             }
-            // Only clear cached dumps if there was an extension point present, so we had the DTFJ interface present
-            DTFJIndexBuilder.clearCachedDumps();
+            try
+            {
+                // Only clear cached dumps if there was an extension point present, so we had the DTFJ interface present
+                DTFJIndexBuilder.DumpCache.clearCachedDumps();
+            }
+            catch (NoClassDefFoundError e)
+            {
+                // If com.ibm.dtfj.api doesn't get resolved properly
+                if (isDebugging())
+                {
+                    // No need for message normally
+                    log(IStatus.WARNING, Messages.InitDTFJ_ErrorClearDumps, e);
+                }
+            }
         }
         allexts.clear();
+    }
+
+    private void log(int level, String msg, Throwable e)
+    {
+        getLog().log(new Status(level, getBundle().getSymbolicName(), msg, e));
     }
 
     /**

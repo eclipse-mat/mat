@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009,2013 IBM Corporation.
+ * Copyright (c) 2009,2018 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -85,7 +85,7 @@ public class DTFJHeapObjectReader implements IObjectReader
     public void close() throws IOException
     {
         // Close the dump
-        DTFJIndexBuilder.releaseDump(file, dtfjInfo, true);
+        DTFJIndexBuilder.DumpCache.releaseDump(file, dtfjInfo, true);
     }
 
     /**
@@ -146,10 +146,10 @@ public class DTFJHeapObjectReader implements IObjectReader
     {
         file = new File(snapshot.getSnapshotInfo().getPath());
         SnapshotInfo snapinfo = snapshot.getSnapshotInfo();
-        RuntimeInfo info = DTFJIndexBuilder.getDump(file, snapinfo.getProperty("$heapFormat")); //$NON-NLS-1$
+        RuntimeInfo info = DTFJIndexBuilder.DumpCache.getDump(file, snapinfo.getProperty("$heapFormat")); //$NON-NLS-1$
         Serializable runtimeId = snapinfo.getProperty(DTFJIndexBuilder.RUNTIME_ID_KEY);
         // Find the JVM
-        dtfjInfo = DTFJIndexBuilder.getRuntime(info.getImage(), runtimeId, null);
+        dtfjInfo = DTFJIndexBuilder.getRuntime(info.getImageFactory(), info.getImage(), runtimeId, null);
      }
 
     /*

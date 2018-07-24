@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009,2013 IBM Corporation.
+ * Copyright (c) 2009,2018 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -229,6 +229,11 @@ public class Messages extends NLS
     public static String DTFJPreferencePage_NoMethods;
     public static String DTFJPreferencePage_OnlyStackFrames;
     public static String DTFJPreferencePage_RunningMethods;
+    public static String InitDTFJ_FailedToCreate;
+    public static String InitDTFJ_UpdatingBundle;
+    public static String InitDTFJ_UpdatedBundle;
+    public static String InitDTFJ_FailedToUpdateBundle;
+    public static String InitDTFJ_ErrorClearDumps;
     public static String StackFrameResolver_file;
     public static String StackFrameResolver_file_line;
     public static String StackFrameResolver_method;
