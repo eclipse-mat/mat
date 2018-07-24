@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009,2013 IBM Corporation.
+ * Copyright (c) 2009,2018 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -238,15 +238,6 @@ public class DTFJIndexBuilder implements IIndexBuilder
     private String runtimeId;
     /** All the key DTFJ data */
     private RuntimeInfo dtfjInfo;
-    /** Used to cache DTFJ images */
-    private static final Map<File, ImageSoftReference> imageMap = new HashMap<File, ImageSoftReference>();
-    /** Used to store the factory */
-    private static final Map<Image, ImageFactory> factoryMap = Collections.synchronizedMap(new WeakHashMap<Image, ImageFactory>()); 
-    /** Used to keep count of the active images */
-    private static int imageCount;
-    /** Used to clear the cache of images */
-    private static Timer clearTimer;
-
     /** The outbound references index */
     private IndexWriter.IntArray1NWriter outRefs;
     /** The temporary object id to size index, for arrays and variable sized objects - used to build arrayToSize.
@@ -744,7 +735,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
     {
         // Close DTFJ Image if possible
         if (dtfjInfo != null)
-            releaseDump(dump, dtfjInfo, true);
+            DumpCache.releaseDump(dump, dtfjInfo, true);
 
         if (outRefs != null)
         {
@@ -857,7 +848,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         // Free memory
         objectToSize2 = null;
         missedRoots = null;
-        releaseDump(dump, dtfjInfo, false);
+        DumpCache.releaseDump(dump, dtfjInfo, false);
         // Debug
         listener.done();
     }
@@ -883,9 +874,9 @@ public class DTFJIndexBuilder implements IIndexBuilder
         XSnapshotInfo ifo = index.getSnapshotInfo();
 
         // The dump may have changed, so reread it
-        clearCachedDump(dump);
+        DumpCache.clearCachedDump(dump);
         Serializable dumpType = ifo.getProperty("$heapFormat"); //$NON-NLS-1$
-        dtfjInfo = getDump(dump, dumpType);
+        dtfjInfo = DumpCache.getDump(dump, dumpType);
 
         long now1 = System.currentTimeMillis();
         listener.sendUserMessage(Severity.INFO, MessageFormat.format(
@@ -910,7 +901,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             runtimeId = (String) rtId;
         }
         
-        dtfjInfo = getRuntime(dtfjInfo.getImage(), runtimeId, listener);
+        dtfjInfo = getRuntime(dtfjInfo.getImageFactory(), dtfjInfo.getImage(), runtimeId, listener);
         final String actualRuntimeId = dtfjInfo.getRuntimeId();
         if (actualRuntimeId != null)
         {
@@ -4895,9 +4886,9 @@ public class DTFJIndexBuilder implements IIndexBuilder
         private ImageProcess imageProcess;
         private JavaRuntime javaRuntime;
         private String runtimeId;
-        public RuntimeInfo(Image img, ImageAddressSpace space, ImageProcess process, JavaRuntime runtime, String id)
+        public RuntimeInfo(ImageFactory fact, Image img, ImageAddressSpace space, ImageProcess process, JavaRuntime runtime, String id)
         {
-            factory = factoryMap.get(img);
+            factory = fact;
             image = img;
             imageAddressSpace = space;
             imageProcess = process;
@@ -4958,7 +4949,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
      * @return A filled in RuntimeInfo object.
      * @throws MultipleSnapshotsException 
      */
-    static RuntimeInfo getRuntime(Image image, Serializable requestedId, IProgressListener listener) throws IOException, MultipleSnapshotsException
+    static RuntimeInfo getRuntime(ImageFactory fact, Image image, Serializable requestedId, IProgressListener listener) throws IOException, MultipleSnapshotsException
     {
         ImageAddressSpace ias = null;
         ImageProcess proc = null;
@@ -5099,7 +5090,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 fullRuntimeId = null;
             }
         }
-        return new RuntimeInfo(image, ias, proc, run, fullRuntimeId);
+        return new RuntimeInfo(fact, image, ias, proc, run, fullRuntimeId);
     }
 
     private static MultipleSnapshotsException.Context getRuntimeDetails(String addressSpace, String process, String runtimeId, JavaRuntime runtime)
@@ -8245,7 +8236,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                 // Don't close the dump if it is still in use
                 if (count == 0)
                 {
-                    factoryMap.remove(dumpImage);
+                    DumpCache.factoryMap.remove(dumpImage);
                     try
                     {
                         // DTFJ 1.4
@@ -8266,218 +8257,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         }
     }
 
-    /**
-     * Helper method to get a cached DTFJ image. Uses soft references to avoid
-     * running out of memory.
-     * 
-     * @param dump the dump file
-     * @param format
-     *            The id of the DTFJ plugin
-     * @return A RuntimeInfo with just the image filled in.
-     * @throws Error
-     *             , IOException
-     */
-    static RuntimeInfo getDump(File dump, Serializable format) throws Error, IOException
-    {
-        ImageSoftReference softReference;
-        Image im;
-        synchronized (imageMap)
-        {
-            // Cancel any pending clean-ups
-            if (clearTimer != null)
-            {
-                clearTimer.cancel();
-                clearTimer = null;
-            }
-            // Find an existing image for the dump file
-            softReference = imageMap.get(dump);
-            if (softReference != null)
-            {
-                im = softReference.obtain();
-                if (im != null)
-                {
-                    ++imageCount;
-                    return new RuntimeInfo(im, null, null, null, null);
-                }
-            }
-        }
-        // Failed, so get a new image for the dump
-        im = getUncachedDump(dump, format);
-        synchronized (imageMap)
-        {
-            // Check no new one obtained by another thread meanwhile.
-            softReference = imageMap.get(dump);
-            if (softReference == null || softReference.get() == null)
-            {
-                // Create a new soft reference
-                imageMap.put(dump, new ImageSoftReference(im));
-            }
-            else
-            {
-            }
-            // If we didn't create the soft reference then we will free the image on releasing the dump.
-            ++imageCount;
-        }
-        return new RuntimeInfo(im, null, null, null, null);
-    }
 
-    /**
-     * We want to cache DTFJ dump images, but want to free the memory when
-     * nothing is going on. A compromise is to free the images 30 seconds
-     * after the last image is released. A good initial parse will be followed
-     * by an heap object reader open, so don't start a timer after a good parse.
-     * @param dump The dump to be freed
-     * @param dtfj The DTFJ objects. Contents cleared on return.
-     * @param free If true and the total use count goes to zero, schedule cleanup
-     */
-    static void releaseDump(File dump, RuntimeInfo dtfj, boolean free)
-    {
-        // Already released?
-        if (dtfj.image == null)
-            return;
-        ImageSoftReference closeDump = null;
-        synchronized (imageMap)
-        {
-            ImageSoftReference sr = imageMap.get(dump);
-            if (sr != null && sr.release(dtfj.image))
-            {
-                dtfj.clear();
-                // Do not cache unused images if it is out of date or the plugin is not running
-                if (sr.count == 0 && (sr.old || InitDTFJ.getDefault() == null))
-                {
-                    // The dump was out of date, and is now unused so free it.
-                    imageMap.remove(dump);
-                    closeDump = sr;
-                }
-            }
-            else
-            {
-                // Is an image in the cache
-                ImageSoftReference newsr = new ImageSoftReference(dtfj.image);
-                // Do not cache the image if the plugin is not running
-                if ((sr == null || sr.get() == null) && InitDTFJ.getDefault() != null)
-                {
-                    // There was no image in the cache, so save this one.
-                    imageMap.put(dump, newsr);
-                    dtfj.clear();
-                }
-                else
-                {
-                    // There is already an image, so discard this one.
-                    // The use count was 1 on creation, so set it to 0.
-                    newsr.release(dtfj.image);
-                    dtfj.clear();
-                    closeDump = newsr;
-                }
-            }
-            if (--imageCount <= 0 && free)
-            {
-                if (clearTimer == null)
-                    clearTimer = new Timer();
-                // Wait for 30 seconds before cleaning up
-                clearTimer.schedule(new TimerTask()
-                {
-                    @Override
-                    public void run()
-                    {
-                        clearCachedDumps();
-                    }
-                }, 30 * 1000L);
-            }
-        }
-        if (closeDump != null)
-        {
-            closeDump.close();
-        }
-    }
-
-    /**
-     * Forget about the cached version of the dump
-     * 
-     * @param dump
-     */
-    private static void clearCachedDump(File dump)
-    {
-        ImageSoftReference sr;
-        synchronized (imageMap)
-        {
-            sr = imageMap.get(dump);
-            if (sr == null)
-            {
-                // ignore
-            }
-            else if (sr.count >= 1)
-            {
-                /*
-                 * Multiple users, so can't remove from the map
-                 * If there was only one user then we can't remove it
-                 * because if the cache were then empty on release it
-                 * would be added back into the cache.
-                 */
-                sr.old = true;
-                // we can't close it now
-                sr = null;
-            }
-            else
-            {
-                /*
-                 * found, but not in use, so close it
-                 */
-                sr = imageMap.remove(dump);
-            }
-        }
-        if (sr != null)
-        {
-            sr.close();
-        }
-    }
-
-    /**
-     * Forget about all cached dumps which are not in use.
-     */
-    static void clearCachedDumps()
-    {
-        boolean closeFailed = false;
-        boolean softRefCleared = false;
-        List<ImageSoftReference>toClean;
-        synchronized (imageMap)
-        {
-            toClean = new ArrayList<ImageSoftReference>();
-            for (Iterator<Map.Entry<File, ImageSoftReference>> it = imageMap.entrySet().iterator(); it.hasNext(); )
-            {
-                Map.Entry<File, ImageSoftReference> e = it.next();
-                if (e.getValue().count == 0)
-                {
-                    toClean.add(e.getValue());
-                    it.remove();
-                }
-            }
-        }
-        for (ImageSoftReference sr : toClean)
-        {
-            Image dumpImage = sr.get();
-            sr.clear();
-            if (dumpImage != null)
-            {
-                factoryMap.remove(dumpImage);
-                try
-                {
-                    // DTFJ 1.4
-                    dumpImage.close();
-                }
-                catch (NoSuchMethodError e)
-                {
-                    closeFailed = true;
-                    dumpImage = null;
-                }
-            }
-            else
-            {
-                softRefCleared = true;
-            }
-        }
-        cleanUp(closeFailed, softRefCleared);
-    }
 
     /**
      * Helper method to get a DTFJ image
@@ -8703,7 +8483,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                                             {
                                                 image = fact.getImage(dumpFile, metaFile);
                                                 // Save the factory too
-                                                factoryMap.put(image, fact);
+                                                DumpCache.factoryMap.put(image, fact);
                                                 return image;
                                             }
                                             catch (FileNotFoundException e)
@@ -8718,7 +8498,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                                             {
                                                 image = fact.getImage(dumpFile);
                                                 // Save the factory too
-                                                factoryMap.put(image, fact);
+                                                DumpCache.factoryMap.put(image, fact);
                                                 return image;
                                             }
                                             catch (RuntimeException e)
@@ -8743,7 +8523,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                                     // Could be out of disk space, so give up now
                                     // Clear the cache to attempt to free some disk
                                     // space
-                                    clearCachedDumps();
+                                    DumpCache.clearCachedDumps();
                                     IOException e1 = new IOException(MessageFormat.format(
                                                     Messages.DTFJIndexBuilder_UnableToReadDumpMetaInDTFJFormat, dumpFile,
                                                     metaFile, format));
@@ -8933,7 +8713,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         {
             // Could be out of disk space, so give up now
             // Clear the cache to attempt to free some disk space
-            clearCachedDumps();
+            DumpCache.clearCachedDumps();
             IOException e1 = new IOException(MessageFormat.format(
                             Messages.DTFJIndexBuilder_UnableToReadDumpMetaInDTFJFormat, dumpFile, metaFile, format));
             e1.initCause(e);
@@ -9008,6 +8788,231 @@ public class DTFJIndexBuilder implements IIndexBuilder
         else if (softRefCleared)
         {
             System.runFinalization();
+        }
+    }
+
+    static class DumpCache {
+
+        /** Used to cache DTFJ images */
+        private static final Map<File, ImageSoftReference> imageMap = new HashMap<File, ImageSoftReference>();
+        /** Used to store the factory */
+        private static final Map<Image, ImageFactory> factoryMap = Collections.synchronizedMap(new WeakHashMap<Image, ImageFactory>());
+        /** Used to keep count of the active images */
+        private static int imageCount;
+        /** Used to clear the cache of images */
+        private static Timer clearTimer;
+
+        /**
+         * Helper method to get a cached DTFJ image. Uses soft references to avoid
+         * running out of memory.
+         * 
+         * @param dump the dump file
+         * @param format
+         *            The id of the DTFJ plugin
+         * @return A RuntimeInfo with just the image filled in.
+         * @throws Error
+         *             , IOException
+         */
+        static RuntimeInfo getDump(File dump, Serializable format) throws Error, IOException
+        {
+            ImageSoftReference softReference;
+            Image im;
+            synchronized (imageMap)
+            {
+                // Cancel any pending clean-ups
+                if (clearTimer != null)
+                {
+                    clearTimer.cancel();
+                    clearTimer = null;
+                }
+                // Find an existing image for the dump file
+                softReference = imageMap.get(dump);
+                if (softReference != null)
+                {
+                    im = softReference.obtain();
+                    if (im != null)
+                    {
+                        ++imageCount;
+                        return new RuntimeInfo(factoryMap.get(im), im, null, null, null, null);
+                    }
+                }
+            }
+            // Failed, so get a new image for the dump
+            im = getUncachedDump(dump, format);
+            synchronized (imageMap)
+            {
+                // Check no new one obtained by another thread meanwhile.
+                softReference = imageMap.get(dump);
+                if (softReference == null || softReference.get() == null)
+                {
+                    // Create a new soft reference
+                    imageMap.put(dump, new ImageSoftReference(im));
+                }
+                else
+                {
+                }
+                // If we didn't create the soft reference then we will free the image on releasing the dump.
+                ++imageCount;
+            }
+            return new RuntimeInfo(factoryMap.get(im), im, null, null, null, null);
+        }
+
+        /**
+         * We want to cache DTFJ dump images, but want to free the memory when
+         * nothing is going on. A compromise is to free the images 30 seconds
+         * after the last image is released. A good initial parse will be followed
+         * by an heap object reader open, so don't start a timer after a good parse.
+         * @param dump The dump to be freed
+         * @param dtfj The DTFJ objects. Contents cleared on return.
+         * @param free If true and the total use count goes to zero, schedule cleanup
+         */
+        static void releaseDump(File dump, RuntimeInfo dtfj, boolean free)
+        {
+            // Already released?
+            if (dtfj.image == null)
+                return;
+            ImageSoftReference closeDump = null;
+            synchronized (imageMap)
+            {
+                ImageSoftReference sr = imageMap.get(dump);
+                if (sr != null && sr.release(dtfj.image))
+                {
+                    dtfj.clear();
+                    // Do not cache unused images if it is out of date or the plugin is not running
+                    if (sr.count == 0 && (sr.old || InitDTFJ.getDefault() == null))
+                    {
+                        // The dump was out of date, and is now unused so free it.
+                        imageMap.remove(dump);
+                        closeDump = sr;
+                    }
+                }
+                else
+                {
+                    // Is an image in the cache
+                    ImageSoftReference newsr = new ImageSoftReference(dtfj.image);
+                    // Do not cache the image if the plugin is not running
+                    if ((sr == null || sr.get() == null) && InitDTFJ.getDefault() != null)
+                    {
+                        // There was no image in the cache, so save this one.
+                        imageMap.put(dump, newsr);
+                        dtfj.clear();
+                    }
+                    else
+                    {
+                        // There is already an image, so discard this one.
+                        // The use count was 1 on creation, so set it to 0.
+                        newsr.release(dtfj.image);
+                        dtfj.clear();
+                        closeDump = newsr;
+                    }
+                }
+                if (--imageCount <= 0 && free)
+                {
+                    if (clearTimer == null)
+                        clearTimer = new Timer();
+                    // Wait for 30 seconds before cleaning up
+                    clearTimer.schedule(new TimerTask()
+                    {
+                        @Override
+                        public void run()
+                        {
+                            clearCachedDumps();
+                        }
+                    }, 30 * 1000L);
+                }
+            }
+            if (closeDump != null)
+            {
+                closeDump.close();
+            }
+        }
+
+        /**
+         * Forget about the cached version of the dump
+         * 
+         * @param dump
+         */
+        private static void clearCachedDump(File dump)
+        {
+            ImageSoftReference sr;
+            synchronized (imageMap)
+            {
+                sr = imageMap.get(dump);
+                if (sr == null)
+                {
+                    // ignore
+                }
+                else if (sr.count >= 1)
+                {
+                    /*
+                     * Multiple users, so can't remove from the map
+                     * If there was only one user then we can't remove it
+                     * because if the cache were then empty on release it
+                     * would be added back into the cache.
+                     */
+                    sr.old = true;
+                    // we can't close it now
+                    sr = null;
+                }
+                else
+                {
+                    /*
+                     * found, but not in use, so close it
+                     */
+                    sr = imageMap.remove(dump);
+                }
+            }
+            if (sr != null)
+            {
+                sr.close();
+            }
+        }
+
+        /**
+         * Forget about all cached dumps which are not in use.
+         */
+        static void clearCachedDumps()
+        {
+            boolean closeFailed = false;
+            boolean softRefCleared = false;
+            List<ImageSoftReference>toClean;
+            synchronized (imageMap)
+            {
+                toClean = new ArrayList<ImageSoftReference>();
+                for (Iterator<Map.Entry<File, ImageSoftReference>> it = imageMap.entrySet().iterator(); it.hasNext(); )
+                {
+                    Map.Entry<File, ImageSoftReference> e = it.next();
+                    if (e.getValue().count == 0)
+                    {
+                        toClean.add(e.getValue());
+                        it.remove();
+                    }
+                }
+            }
+            for (ImageSoftReference sr : toClean)
+            {
+                Image dumpImage = sr.get();
+                sr.clear();
+                if (dumpImage != null)
+                {
+                    factoryMap.remove(dumpImage);
+                    try
+                    {
+                        // DTFJ 1.4
+                        dumpImage.close();
+                    }
+                    catch (NoSuchMethodError e)
+                    {
+                        closeFailed = true;
+                        dumpImage = null;
+                    }
+                }
+                else
+                {
+                    softRefCleared = true;
+                }
+            }
+            cleanUp(closeFailed, softRefCleared);
         }
     }
 }
