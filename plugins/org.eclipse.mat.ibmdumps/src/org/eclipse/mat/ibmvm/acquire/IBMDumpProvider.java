@@ -961,16 +961,16 @@ public class IBMDumpProvider extends BaseProvider
                 File udir;
                 if (vminfo.dumpdir == null)
                 {
-                    udir = null;
-                    if (vminfo.type == DumpType.HPROF)
+                    String userdir = guessDumpLocation(props);
+                    if (userdir != null)
+                    {
+                        udir = new File(userdir);
+                    }
+                    else
                     {
                         // If we do an HPROF dump we can put it directly where it is needed
+                        // Also IBM dumps >= 1.7.1
                         udir = preferredLocation.getParentFile();
-                    }
-                    if (udir == null)
-                    {
-                        String userdir = guessDumpLocation(props);
-                        udir = new File(userdir);
                     }
                     // Set the directory, so even it is fails the user could adjust it
                     vminfo.dumpdir = udir;
@@ -1345,8 +1345,31 @@ public class IBMDumpProvider extends BaseProvider
         return ifo;
     }
 
+    /**
+     * Guess the location the dump will go to, if the dump location cannot be set.
+     * @param props
+     * @return Guess for the dump location, or null it will be where we ask it to be.
+     */
     private String guessDumpLocation(Properties props)
     {
+        // Now need to guess version for versions IBM 1.7.0 and earlier
+        // IBM 1.7.1 and later (=java version 1.7.0, vm.version 2.7) can dump at a location
+        String vendor = props.getProperty("java.vm.vendor"); //$NON-NLS-1$
+        if (!"IBM Corporation".equals(vendor))
+            return null;
+        String version = props.getProperty("java.version", "0"); //$NON-NLS-1$
+        String vmversion = props.getProperty("java.vm.version"); //$NON-NLS-1$
+        int comp170 = version.compareTo("1.7.0");
+        if (comp170 > 0) 
+        {
+            // 1.8 or later (9, 10, 11, etc.)
+            return null;
+        }
+        if (comp170 == 0 && "2.7".equals(vmversion)) //$NON-NLS-1$ //$NON-NLS-2$
+        {
+            // IBM 1.7.1
+            return null;
+        }
         String dir = props.getProperty("user.dir", System.getProperty("user.dir")); //$NON-NLS-1$ //$NON-NLS-2$
         // If there is a system trace file perhaps the dumps also do there
         String tracefilename = props.getProperty("system.trace.file"); //$NON-NLS-1$

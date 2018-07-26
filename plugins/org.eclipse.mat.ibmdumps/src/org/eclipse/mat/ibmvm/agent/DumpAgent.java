@@ -85,21 +85,51 @@ public class DumpAgent {
         {
             if (JAVA.equals(a))
             {
-                //com.ibm.jvm.Dump.JavaDump();
-                Method m = dumpcls.getMethod("JavaDump");
-                m.invoke(null);
+                try
+                {
+                    // IBM Java 7.1 and later
+                    // com.ibm.jvm.Dump.JavaDumpToFile(String filenamePattern)
+                    Method m = dumpcls.getMethod("javaDumpToFile", String.class);
+                    m.invoke(null, filename);
+                }
+                catch (NoSuchMethodException e)
+                {
+                    // com.ibm.jvm.Dump.JavaDump();
+                    Method m = dumpcls.getMethod("JavaDump");
+                    m.invoke(null);
+                }
             }
             else if (HEAP.equals(a))
             {
-                //com.ibm.jvm.Dump.HeapDump();
-                Method m = dumpcls.getMethod("HeapDump");
-                m.invoke(null);
+                try
+                {
+                    // IBM Java 7.1 and later
+                    // com.ibm.jvm.Dump.HeapDumpToFile(String filenamePattern)
+                    Method m = dumpcls.getMethod("heapDumpToFile", String.class);
+                    m.invoke(null, filename);
+                }
+                catch (NoSuchMethodException e)
+                {
+                    //com.ibm.jvm.Dump.HeapDump();
+                    Method m = dumpcls.getMethod("HeapDump");
+                    m.invoke(null);
+                }
             }
             else if (SYSTEM.equals(a))
             {
-                //com.ibm.jvm.Dump.SystemDump();
-                Method m = dumpcls.getMethod("SystemDump");
-                m.invoke(null);
+                try
+                {
+                    // IBM Java 7.1 and later
+                    // com.ibm.jvm.Dump.SystemDumpToFile(String filenamePattern)
+                    Method m = dumpcls.getMethod("systemDumpToFile", String.class);
+                    m.invoke(null, filename);
+                }
+                catch (NoSuchMethodException e)
+                {
+                    //com.ibm.jvm.Dump.SystemDump();
+                    Method m = dumpcls.getMethod("SystemDump");
+                    m.invoke(null);
+                }
             }
             else if (HPROF.equals(a))
             {
