@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 201 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,8 @@
  *    Andrew Johnson - JDK 9 snapshot
  *******************************************************************************/
 package org.eclipse.mat.tests;
+
+import static org.junit.Assume.assumeTrue;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -29,9 +31,11 @@ import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.SnapshotFactory;
 import org.eclipse.mat.util.VoidProgressListener;
+import org.osgi.framework.Version;
 
 public class TestSnapshots
 {
@@ -80,6 +84,13 @@ public class TestSnapshots
     private static Map<String, ISnapshot> snapshots = new HashMap<String, ISnapshot>();
     private static List<ISnapshot> pristineSnapshots = new ArrayList<ISnapshot>();
 
+    // Can DTFJ read 1.4.2 javacore files?
+    // DTFJ 1.5 cannot read javacore 1.4.2 dumps anymore
+    public static final boolean DTFJreadJavacore142 = Platform.getBundle("com.ibm.dtfj.j9").getVersion().compareTo(Version.parseVersion("1.5")) < 0;
+    // DTFJ 1.12.29003.201808011034 cannot read 1.4.2 system dumps anymore
+    // Don't test bundle com.ibm.dtfj.sov as an old version might still be around
+    public static final boolean DTFJreadSystem142 = Platform.getBundle("com.ibm.dtfj.api").getVersion().compareTo(Version.parseVersion("1.12.29003.201808011034")) < 0;
+
     static
     {
         deleterThread = new DirDeleter();
@@ -103,6 +114,10 @@ public class TestSnapshots
      */
     public static ISnapshot getSnapshot(String dumpname, Map<String, String> options, boolean pristine)
     {
+        // DTFJ 1.5 cannot read javacore 1.4.2 dumps anymore
+        assumeTrue("DTFJ >= 1.5 cannot read javacore 1.4.2 dumps", !dumpname.equals(TestSnapshots.IBM_JDK142_32BIT_JAVA) || DTFJreadJavacore142);
+        // DTFJ 1.12.29003.201808011034 cannot read 1.4.2 system dumps anymore
+        assumeTrue("DTFJ >= 1.12.29003.201808011034 cannot read 1.4.2 system dumps", !dumpname.equals(TestSnapshots.IBM_JDK142_32BIT_SYSTEM) || DTFJreadSystem142);
         try
         {
             testAssertionsEnabled();
