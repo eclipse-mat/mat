@@ -20,7 +20,7 @@
    </license>
 
    <url>
-      <update label="%updateSiteName" url="http://download.eclipse.org/mat/1.7/update-site/"/>
+      <update label="%updateSiteName" url="http://download.eclipse.org/mat/1.8/update-site/"/>
       <discovery label="%IBMDTFJSiteName" url="http://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/runtimes/tools/dtfj/"/>
    </url>
 
