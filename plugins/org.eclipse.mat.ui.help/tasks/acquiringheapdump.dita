@@ -86,7 +86,7 @@
 			<ul>
 				<li>All known formats</li>
 				<li>HPROF binary heap dumps</li>
-				<li>IBM 1.4.2 SDFF</li>
+				<li>IBM 1.4.2 SDFF<fn>IBM DTFJ feature versions >= 1.12.29003.201808011034 do not have this option</fn></li>
 				<li>IBM Javadumps</li>
 				<li>IBM SDK for Java (J9) system dumps</li>
 				<li>IBM SDK for Java Portable Heap Dumps</li>
@@ -103,8 +103,9 @@
 			<p>
 			Older versions of IBM Java (e.g. &lt; 5.0SR12, &lt; 6.0SR9) require running jextract on the operating system core dump
 			which produced a zip file that contained the core dump, XML or SDFF file, and shared libraries. The IBM DTFJ feature
-			still supports reading these jextracted zips; however, newer versions of IBM Java do not require jextract for use in
-			MAT since DTFJ is able to directly read each supported operating system's core dump format. 
+			still supports reading these jextracted zips although IBM DTFJ feature version 1.12.29003.201808011034 and later cannot read IBM Java 1.4.2 SDFF files, so MAT cannot read them either.
+			Dumps from newer versions of IBM Java do not require jextract for use in
+			MAT since DTFJ is able to directly read each supported operating system's core dump format.
 			Simply ensure that the operating system core dump file ends with the <b>.dmp</b> suffix for visibility in the MAT Open Heap Dump selection.
 			It is also common to zip core dumps because they are so large and compress very well. If a core dump is compressed with <b>.zip</b>,
 			the IBM DTFJ feature in MAT is able to decompress the ZIP file and read the core from inside (just like a jextracted zip).

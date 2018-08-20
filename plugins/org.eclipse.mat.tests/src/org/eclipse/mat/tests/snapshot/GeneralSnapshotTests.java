@@ -30,7 +30,6 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.mat.SnapshotException;
@@ -51,7 +50,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-import org.osgi.framework.Version;
 
 @RunWith(value = Parameterized.class)
 public class GeneralSnapshotTests
@@ -69,9 +67,6 @@ public class GeneralSnapshotTests
         FRAMES_AND_OBJECTS
     };
     final Stacks stackInfo;
-    // Can DTFJ read 1.4.2 javacore files?
-    // DTFJ 1.5 cannot read javacore 1.4.2 dumps any more
-    static final boolean DTFJreadJavacore142 = Platform.getBundle("com.ibm.dtfj.j9").getVersion().compareTo(Version.parseVersion("1.5")) < 0;
 
     @Parameters
     public static Collection<Object[]> data()
@@ -92,7 +87,7 @@ public class GeneralSnapshotTests
             {"noMethods", Stacks.FRAMES_AND_OBJECTS},
             {TestSnapshots.IBM_JDK142_32BIT_HEAP, Stacks.NONE},
             {TestSnapshots.IBM_JDK142_32BIT_JAVA, Stacks.FRAMES},
-            {TestSnapshots.IBM_JDK142_32BIT_HEAP_AND_JAVA, DTFJreadJavacore142 ? Stacks.FRAMES : Stacks.NONE},
+            {TestSnapshots.IBM_JDK142_32BIT_HEAP_AND_JAVA, TestSnapshots.DTFJreadJavacore142 ? Stacks.FRAMES : Stacks.NONE},
             {TestSnapshots.IBM_JDK142_32BIT_SYSTEM, Stacks.FRAMES},
             {TestSnapshots.ORACLE_JDK7_21_64BIT, Stacks.FRAMES_AND_OBJECTS},
             {TestSnapshots.ORACLE_JDK8_05_64BIT, Stacks.FRAMES_AND_OBJECTS},
@@ -120,8 +115,6 @@ public class GeneralSnapshotTests
         }
         else
         {
-            // DTFJ 1.5 cannot read javacore 1.4.2 dumps any more
-            assumeTrue(!snapshotname.equals(TestSnapshots.IBM_JDK142_32BIT_JAVA) || DTFJreadJavacore142);
             snapshot = TestSnapshots.getSnapshot(snapshotname, false);
             hasMethods = Methods.NONE;
         }

@@ -163,7 +163,7 @@
 					<lines>
 						All Known Formats
 						HPROF binary heap dumps
-						IBM 1.4.2 SDFF
+						IBM 1.4.2 SDFF<fn>IBM DTFJ feature versions >= 1.12.29003.201808011034 do not have this option</fn>
 						IBM	Javadumps
 						IBM SDK for Java (J9) system dumps
 						IBM SDK for Java
