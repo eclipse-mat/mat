@@ -8472,6 +8472,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
                                 // Try opening the dump
                                 RuntimeException savedRuntimeException = null;
                                 FileNotFoundException savedFileException = null;
+                                IOException savedIOException = null;
                                 try {
                                     for (List<File>fls : attemptedFiles)
                                     {
@@ -8489,6 +8490,20 @@ public class DTFJIndexBuilder implements IIndexBuilder
                                             catch (FileNotFoundException e)
                                             {
                                                 checkIfDiskFull(dumpFile, metaFile, e, format);
+                                            }
+                                            catch (IOException e)
+                                            {
+                                                if (e.getCause() != null && e.getCause().getMessage().contains("Not a javacore file.")) //$NON-NLS-1$
+                                                {
+                                                    // Ignore an error if the metafile appears not to be a Javacore file
+                                                    savedRuntimeException = null;
+                                                    savedFileException = null;
+                                                    savedIOException = e;
+                                                }
+                                                else
+                                                {
+                                                    throw e;
+                                                }
                                             }
                                         }
                                         else
@@ -8508,11 +8523,13 @@ public class DTFJIndexBuilder implements IIndexBuilder
                                                 // for bad dumps
                                                 savedRuntimeException = e;
                                                 savedFileException = null;
+                                                savedIOException = null;
                                             }
                                             catch (FileNotFoundException e)
                                             {
                                                 savedRuntimeException = null;
                                                 savedFileException = e;
+                                                savedIOException = null;
                                                 checkIfDiskFull(dumpFile, metaFile, e, format);
                                             }
                                         }
@@ -8528,6 +8545,14 @@ public class DTFJIndexBuilder implements IIndexBuilder
                                                     Messages.DTFJIndexBuilder_UnableToReadDumpMetaInDTFJFormat, dumpFile,
                                                     metaFile, format));
                                     e1.initCause(e);
+                                    throw e1;
+                                }
+                                if (savedIOException != null)
+                                {
+                                    IOException e1 = new IOException(MessageFormat.format(
+                                                    Messages.DTFJIndexBuilder_UnableToReadDumpMetaInDTFJFormat, dumpFile,
+                                                    metaFile, format));
+                                    e1.initCause(savedIOException);
                                     throw e1;
                                 }
                                 if (savedRuntimeException != null)
