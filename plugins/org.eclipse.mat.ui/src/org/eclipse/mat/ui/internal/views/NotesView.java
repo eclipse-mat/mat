@@ -32,6 +32,7 @@ import java.util.regex.Pattern;
 import java.util.zip.CRC32;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -124,7 +125,8 @@ public class NotesView extends ViewPart implements IPartListener, Observer, ISav
 
         getSite().getPage().addPartListener(this);
 
-        undoManager = new TextViewerUndoManager(UNDO_LEVEL);
+        int undolevel = Platform.getPreferencesService().getInt("org.eclipse.ui.editors", "undoHistorySize", UNDO_LEVEL, null);
+        undoManager = new TextViewerUndoManager(undolevel);
         undoManager.connect(textViewer);
         textViewer.setUndoManager(undoManager);
 

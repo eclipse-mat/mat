@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 SAP AG.
+ * Copyright (c) 2013,2018 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,12 +7,14 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson/IBM - 'Preferences' change - and optional Welcome cancel
  *******************************************************************************/
 package org.eclipse.mat.ui.rcp.tests;
 
 import static org.junit.Assert.assertTrue;
 
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
+import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotMenu;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
@@ -31,7 +33,14 @@ public class MemoryAnalyzerProductTest
     public static void beforeClass() throws Exception
     {
         bot = new SWTWorkbenchBot();
-        bot.viewByTitle("Welcome").close();
+        for (SWTBotView view : bot.views())
+        {
+            if ("Welcome".equals(view.getTitle()))
+            {
+                view.close();
+                break;
+            }
+        }
     }
 
     @AfterClass
@@ -43,7 +52,7 @@ public class MemoryAnalyzerProductTest
     @Test
     public void testIfProxySettingsPreferenceIsAvailable()
     {
-        bot.menu("Window").click().menu("Preferences...").click();
+        bot.menu("Window").click().menu("Preferences").click();
 
         SWTBotShell shell = bot.shell("Preferences");
         shell.activate();

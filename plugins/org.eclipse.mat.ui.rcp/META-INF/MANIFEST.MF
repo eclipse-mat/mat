@@ -32,6 +32,7 @@ Import-Package: org.eclipse.core.commands.common,
  org.eclipse.ui.intro,
  org.eclipse.ui.intro.config,
  org.eclipse.ui.plugin,
+ org.eclipse.ui.preferences,
  org.eclipse.ui.views
 Eclipse-LazyStart: true
 Bundle-ActivationPolicy: lazy

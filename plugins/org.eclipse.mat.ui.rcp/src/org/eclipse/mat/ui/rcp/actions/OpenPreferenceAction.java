@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andew Johnson/IBM - Additional preference options
  *******************************************************************************/
 package org.eclipse.mat.ui.rcp.actions;
 
@@ -22,6 +23,7 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.preference.IPreferenceNode;
 import org.eclipse.jface.preference.PreferenceDialog;
@@ -30,8 +32,11 @@ import org.eclipse.jface.preference.PreferenceNode;
 import org.eclipse.mat.ui.rcp.Messages;
 import org.eclipse.mat.ui.rcp.RCPPlugin;
 import org.eclipse.mat.util.RegistryReader;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
+import org.eclipse.ui.preferences.IWorkingCopyManager;
 
 /**
  * Action needed to create a preference dialog w/o all preference page
@@ -45,7 +50,20 @@ public class OpenPreferenceAction extends Action
                     "org.eclipse.ui.preferencePages.Keys", 
                     "org.eclipse.ui.preferencePages.Views",
                     "org.eclipse.ui.preferencePages.ColorsAndFonts",
-                    // "org.eclipse.ui.preferencePages.ContentTypes", 
+                    "org.eclipse.ui.preferencePages.ContentTypes", 
+                    "org.eclipse.ui.preferencePages.Editors",
+                    "org.eclipse.ui.preferencePages.GeneralTextEditor",
+                    "org.eclipse.ui.browser.preferencePage",
+                    "org.eclipse.help.ui.browsersPreferencePage",
+                    "org.eclipse.help.ui.contentPreferencePage",
+                    "org.eclipse.ui.trace.tracingPage",
+                    // "org.eclipse.ui.editors.preferencePages.Accessibility",
+                    // "org.eclipse.ui.editors.preferencePages.Spelling",
+                    // "org.eclipse.ui.editors.preferencePages.LinkedModePreferencePage",
+                    // "org.eclipse.ui.editors.preferencePages.HyperlinkDetectorsPreferencePage",
+                    "org.eclipse.equinox.internal.p2.ui.sdk.ProvisioningPreferencePage",
+                    "org.eclipse.equinox.internal.p2.ui.sdk.SitesPreferencePage",
+                    "org.eclipse.equinox.internal.p2.ui.sdk.scheduler.AutomaticUpdatesPreferencePage",
                     "org.eclipse.update.internal.ui.preferences.MainPreferencePage"})); //$NON-NLS-1$
     private static final String MAT_PREFIX = "org.eclipse.mat."; //$NON-NLS-1$
 
@@ -100,11 +118,35 @@ public class OpenPreferenceAction extends Action
             manager.addToRoot(node);
         }
 
-        PreferenceDialog dialog = new PreferenceDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
+        /**
+         * The content types preference page expects IWorkbenchPreferenceContainer
+         * so implement a minimal version.
+         */
+        class NewPreferenceDialog extends PreferenceDialog implements IWorkbenchPreferenceContainer
+        {
+            public NewPreferenceDialog(Shell parentShell, PreferenceManager manager)
+            {
+                super(parentShell, manager);
+            }
+
+            public boolean openPage(String preferencePageId, Object data)
+            {
+                return super.open() == OK;
+            }
+
+            public IWorkingCopyManager getWorkingCopyManager()
+            {
+                return null;
+            }
+
+            public void registerUpdateJob(Job job)
+            {
+            }
+        }
+        PreferenceDialog dialog = new NewPreferenceDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
                         manager);
         dialog.open();
     }
-
     private static class Node extends PreferenceNode
     {
         private IConfigurationElement configElement;

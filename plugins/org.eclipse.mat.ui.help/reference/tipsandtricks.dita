@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2014 SAP AG and IBM Corporation.
+    Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -18,7 +18,7 @@
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2008, 2014 SAP AG and others.
+				Copyright (c) 2008, 2018 SAP AG, IBM Corporation and others.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License v1.0
 			    which accompanies this distribution, and is available at
@@ -74,6 +74,12 @@
 						</ul>
 						</p>
 						<image href="../mimes/filter.png" align="left" placement="break" />
+						To move between columns of the filter row, click on the required cell, or once one cell 
+						is selected move to others with &lt;Tab&gt; or &lt;Shift&gt; &lt;Tab&gt;.
+						Use &lt;Esc&gt; to cancel or &lt;Enter&gt; to finish modifying the filters, or click on another row to continue to work
+						with the tree or table, or use
+						&lt;Ctrl&gt; or &lt;Command&gt;+&lt;Tab&gt; to navigate another pane.
+						&lt;Tab&gt; or &lt;Shift&gt;+&lt;Tab&gt; will then revert to normal navigation. 
 					</stentry>
 				</strow>
 				<strow>
@@ -84,8 +90,8 @@
 						<ul>
 						<li>Use &lt;Ctrl&gt; or &lt;Command&gt; 
 						up and down cursor keys to resize the column.</li>
-						<li>Use &lt;Alt&gt; up and down cursor keys to change the position of the column.</li>
-						<li>Use use &lt;Ctrl&gt; or &lt;Command&gt; &lt;Numpad plus&gt; to expand
+						<li>Use &lt;Shift&gt; up and down cursor keys to change the position of the column.</li>
+						<li>Use use &lt;Ctrl&gt; or &lt;Command&gt; &lt;Numpad plus&gt; when not in edit filter mode to expand
 						columns to full width.</li>
 						</ul>
 					</stentry>
