@@ -13,6 +13,7 @@ Import-Package: com.ibm.icu.text;version="3.6.1",
  org.eclipse.swtbot.swt.finder,
  org.eclipse.swtbot.swt.finder.junit,
  org.eclipse.swtbot.swt.finder.widgets,
+ org.eclipse.ui,
  org.junit;version="4.3.1",
  org.junit.runner;version="4.3.1",
  org.junit.runners;version="4.3.1"
