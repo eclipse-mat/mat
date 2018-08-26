@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 SAP AG and others.
+ * Copyright (c) 2008, 2018 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -93,6 +93,11 @@ public class ChartBuilder
         // is not safe in batch mode
         label.getLabel().getCaption().getFont().setSize(fontSize);
         label.getLabel().getCaption().getFont().setBold(true);
+        if (foreground != null)
+        {
+            label.getLabel().getCaption().setColor(ColorDefinitionImpl.create(foreground.getRed(), foreground.getGreen(),
+                            foreground.getBlue()));
+        }
         label.setAnchor(Anchor.SOUTH_LITERAL);
         chart.getPlot().add(label);
 
@@ -112,6 +117,11 @@ public class ChartBuilder
                                                 background.getBlue()));
             }
             chart.getLegend().getText().getFont().setSize(fontSize);
+            if (foreground != null)
+            {
+                chart.getLegend().getText().setColor(ColorDefinitionImpl.create(foreground.getRed(), foreground.getGreen(),
+                                foreground.getBlue()));
+            }
         }
 
         if (background != null)

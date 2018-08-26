@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 SAP AG and others.
+ * Copyright (c) 2008, 2018 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -53,6 +53,7 @@ import org.eclipse.swt.events.TraverseEvent;
 import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.forms.widgets.FormText;
@@ -94,10 +95,44 @@ public class PieChartPane extends AbstractEditorPane implements ISelectionProvid
             // Get the system colors
             Color bgColor = canvas.getParent().getBackground();
             Color fgColor = canvas.getParent().getForeground();
+            int br = bgColor.getRed();
+            int bg = bgColor.getGreen();
+            int bb = bgColor.getBlue();
+            int fr = fgColor.getRed();
+            int fg = fgColor.getGreen();
+            int fb = fgColor.getBlue();
+            int deltaf = (br - fr) * (br - fr) + (bg - fg) * (bg - fg) + (bb - fb) * (bb - fb);
+            if (deltaf < 96 * 96 * 3)
+            {
+                // Poor contrast
+                RGB fore = fgColor.getRGB();
+                float fgf[] = fore.getHSB();
+                RGB back = bgColor.getRGB();
+                float bgf[] = back.getHSB();
+                if (bgf[2] < 0.25)
+                {
+                    // Darkest theme, so make foreground brighter
+                    fgf[2] = 0.8f;
+                } else if (bgf[2] < 0.5)
+                {
+                    // Darkish theme, so make foreground bright
+                    fgf[2] = 1.0f;
+                } else if (bgf[2] < 0.75)
+                {
+                    // Lightish theme, so make foreground dark
+                    fgf[2] = 0.0f;
+                } else {
+                    // Lightest theme, so make foreground darker
+                    fgf[2] = 0.2f;
+                }
+                RGB fore2 = new RGB(fgf[0], fgf[1], fgf[2]);
+                fr = fore2.red;
+                fg = fore2.green;
+                fb = fore2.blue;
+            }
 
-            Chart chart = ChartBuilder.create(pie, true, ColorDefinitionImpl.create(bgColor.getRed(), bgColor
-                            .getGreen(), bgColor.getBlue()), ColorDefinitionImpl.create(fgColor.getRed(), fgColor
-                            .getGreen(), fgColor.getBlue()));
+            Chart chart = ChartBuilder.create(pie, true, ColorDefinitionImpl.create(br, bg , bb),
+                            ColorDefinitionImpl.create(fr, fg, fb));
 
             canvas.setChart(chart);
             canvas.getAccessible().addAccessibleListener(new AccessibleAdapter()
