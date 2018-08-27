@@ -16,6 +16,7 @@ import org.eclipse.mat.inspections.collections.HashEntriesQuery;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.CommandName;
+import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.extension.Subject;
 import org.eclipse.mat.snapshot.model.IClass;
@@ -25,6 +26,7 @@ import org.eclipse.mat.util.IProgressListener;
 
 @Subject("java.lang.System")
 @CommandName("system_properties")
+@Icon("/META-INF/icons/osgi/property.gif")
 public class SystemPropertiesQuery implements IQuery
 {
     @Argument

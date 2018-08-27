@@ -22,6 +22,7 @@ import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.CommandName;
+import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.extension.Subject;
 import org.eclipse.mat.snapshot.model.IArray;
@@ -32,6 +33,7 @@ import org.eclipse.mat.util.IProgressListener;
 
 @Subject("char[]")
 @CommandName("waste_in_char_arrays")
+@Icon("/META-INF/icons/waste.gif")
 public class WasteInCharArraysQuery implements IQuery
 {
     @Argument
