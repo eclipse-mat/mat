@@ -44,7 +44,7 @@ import org.eclipse.mat.util.MessageUtil;
 
 @CommandName("duplicate_classes")
 @HelpUrl("/org.eclipse.mat.ui.help/reference/findingmemoryleak.html")
-@Icon("/META-INF/icons/dup_classes.gif")
+@Icon("/META-INF/icons/duplicate_classes.gif")
 public class DuplicatedClassesQuery implements IQuery, IResultTree, IIconProvider, ITestResult, IDecorator,
                 ISelectionProvider
 {
