@@ -10,10 +10,12 @@
         Andrew Johnson/IBM Corporation - XML validation
  -->
 
-<cheatsheet title="OQL in 1 minute"
+<cheatsheet title="OQL in 1 minute">
+<!--
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
    xsi:schemaLocation="org.eclipse.ui.cheatsheets platform:/resource/org.eclipse.mat.ui.help/schema/cheatSheetContentFileSpec.xsd"
    xmlns="org.eclipse.ui.cheatsheets">
+ -->
    <intro href="/org.eclipse.mat.ui.help/reference/oqlsyntax.html">
       <description>
          OQL is the build-in object query language. Learn to perform

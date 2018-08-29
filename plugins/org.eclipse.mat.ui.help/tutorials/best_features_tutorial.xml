@@ -11,10 +11,12 @@
         Andrew Johnson/IBM Corporation - XML validation
  -->
 
-<cheatsheet title="Unique Features"
+<cheatsheet title="Unique Features">
+<!--
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
    xsi:schemaLocation="org.eclipse.ui.cheatsheets platform:/resource/org.eclipse.mat.ui.help/schema/cheatSheetContentFileSpec.xsd"
    xmlns="org.eclipse.ui.cheatsheets">
+ -->
    <intro>
       <description>
          This cheat sheet familiarizes you of with the Memory Analyzer&apos;s

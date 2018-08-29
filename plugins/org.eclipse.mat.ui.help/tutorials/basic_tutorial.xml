@@ -11,10 +11,12 @@
         Andrew Johnson/IBM Corporation - XML validation
  -->
 
-<cheatsheet title="Basic Analysis"
+<cheatsheet title="Basic Analysis">
+<!--
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
    xsi:schemaLocation="org.eclipse.ui.cheatsheets platform:/resource/org.eclipse.mat.ui.help/schema/cheatSheetContentFileSpec.xsd"
    xmlns="org.eclipse.ui.cheatsheets">
+ -->
    <intro href="/org.eclipse.mat.ui.help/gettingstarted/basictutorial.html">
       <description>
          Here you will learn the basics on snapshots and memory analysis.

@@ -11,10 +11,12 @@
         Andrew Johnson/IBM Corporation - XML validation
  -->
 
-<cheatsheet title="Component Report"
+<cheatsheet title="Component Report">
+<!--
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
    xsi:schemaLocation="org.eclipse.ui.cheatsheets platform:/resource/org.eclipse.mat.ui.help/schema/cheatSheetContentFileSpec.xsd"
    xmlns="org.eclipse.ui.cheatsheets">
+ -->
 	<intro href="/org.eclipse.mat.ui.help/reference/inspections/component_report.html">
 		<description>
 			A heap dump contains many objects. But which of those belong to your component?

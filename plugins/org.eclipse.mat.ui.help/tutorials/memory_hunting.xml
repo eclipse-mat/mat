@@ -10,10 +10,12 @@
         Andrew Johnson/IBM Corporation - XML validation
  -->
 
-<cheatsheet title="How to find memory problems"
+<cheatsheet title="How to find memory problems">
+<!--
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
    xsi:schemaLocation="org.eclipse.ui.cheatsheets platform:/resource/org.eclipse.mat.ui.help/schema/cheatSheetContentFileSpec.xsd"
    xmlns="org.eclipse.ui.cheatsheets">
+-->
    <intro>
       <description>
          This cheat sheet provides some guidlines how the Memory Analyzer tool could be used 
