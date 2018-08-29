@@ -19,9 +19,9 @@ import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.collect.SetInt;
 import org.eclipse.mat.internal.Messages;
+import org.eclipse.mat.query.Bytes;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.Column.SortDirection;
-import org.eclipse.mat.query.Bytes;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IContextObjectSet;
 import org.eclipse.mat.query.IIconProvider;
@@ -32,6 +32,7 @@ import org.eclipse.mat.query.ResultMetaData;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.Category;
 import org.eclipse.mat.query.annotations.CommandName;
+import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.query.annotations.Menu;
 import org.eclipse.mat.query.annotations.Menu.Entry;
 import org.eclipse.mat.snapshot.ISnapshot;
@@ -43,6 +44,7 @@ import org.eclipse.mat.util.VoidProgressListener;
 
 @Category(Category.HIDDEN)
 @CommandName("class_references")
+@Icon("/META-INF/icons/heapobjects/class.gif")
 @Menu( { @Entry(icon = "/META-INF/icons/class_refs_outbound.gif"), //
                 @Entry(options = "-inbound", icon = "/META-INF/icons/class_refs_inbound.gif") //
 })

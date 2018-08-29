@@ -16,12 +16,14 @@ import org.eclipse.mat.query.IResultPie.Slice;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.Category;
 import org.eclipse.mat.query.annotations.CommandName;
+import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.query.PieFactory;
 import org.eclipse.mat.util.IProgressListener;
 
 @CommandName("pie_biggest_objects")
 @Category(Category.HIDDEN)
+@Icon("/META-INF/icons/pie_chart.gif")
 public class BiggestObjectsPieQuery implements IQuery
 {
     @Argument

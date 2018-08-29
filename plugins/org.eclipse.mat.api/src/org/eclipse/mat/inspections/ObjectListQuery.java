@@ -15,6 +15,7 @@ import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.Category;
 import org.eclipse.mat.query.annotations.CommandName;
+import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.query.annotations.Menu;
 import org.eclipse.mat.query.annotations.Menu.Entry;
 import org.eclipse.mat.snapshot.ISnapshot;
@@ -24,6 +25,7 @@ import org.eclipse.mat.util.IProgressListener;
 
 @Category(Category.HIDDEN)
 @CommandName("list_objects")
+@Icon("/META-INF/icons/heapobjects/instance_obj.gif")
 @Menu( { @Entry(icon = "/META-INF/icons/list_outbound.gif"), //
                 @Entry(options = "-inbound", icon = "/META-INF/icons/list_inbound.gif") //
 })

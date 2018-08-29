@@ -25,6 +25,7 @@ import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.Category;
 import org.eclipse.mat.query.annotations.CommandName;
+import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.query.results.ListResult;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.SnapshotInfo;
@@ -32,8 +33,9 @@ import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.Units;
 
-@CommandName("heap_dump_overview")
 @Category(Category.HIDDEN)
+@CommandName("heap_dump_overview")
+@Icon("/META-INF/icons/heapdump_details.gif")
 public class HeapDumpInfoQuery implements IQuery
 {
     public static class TextEntry
