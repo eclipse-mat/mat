@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "86f3b4e6_1f6a72ec",
+        "filename": "plugins/org.eclipse.mat.ui/icon_labels.properties",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2018-08-31T15:53:51Z",
+      "side": 1,
+      "message": "This should not be here",
+      "revId": "c288f47dc322ed0675e87576a2fec1719914b1fc",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
