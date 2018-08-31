@@ -23,6 +23,7 @@ import org.eclipse.mat.query.registry.ArgumentDescriptor;
 import org.eclipse.mat.query.registry.ArgumentSet;
 import org.eclipse.mat.query.registry.QueryDescriptor;
 import org.eclipse.mat.snapshot.ISnapshot;
+import org.eclipse.mat.snapshot.UnreachableObjectsHistogram;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.ui.util.IPolicy;
@@ -98,7 +99,7 @@ public class Policy implements IPolicy
                     return false;
                 }
             } 
-            else if (IStructuredResult.class.isAssignableFrom(argument.getType()))
+            else if (IStructuredResult.class.isAssignableFrom(argument.getType()) && !UnreachableObjectsHistogram.class.isAssignableFrom(argument.getType()))
             {
                 tableArgExists = true;
             }
