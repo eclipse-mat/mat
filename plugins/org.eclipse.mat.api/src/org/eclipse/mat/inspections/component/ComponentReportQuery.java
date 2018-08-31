@@ -37,6 +37,7 @@ import org.eclipse.mat.query.IResultTree;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.HelpUrl;
+import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.query.refined.RefinedResultBuilder;
 import org.eclipse.mat.query.refined.RefinedTable;
 import org.eclipse.mat.query.refined.TotalsRow;
@@ -63,6 +64,7 @@ import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.Units;
 
 @CommandName("component_report")
+@Icon("/META-INF/icons/component_report.gif")
 @HelpUrl("/org.eclipse.mat.ui.help/reference/inspections/component_report.html")
 public class ComponentReportQuery implements IQuery
 {

@@ -39,6 +39,7 @@ import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.Argument.Advice;
 import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.HelpUrl;
+import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.query.results.ListResult;
 import org.eclipse.mat.query.results.TextResult;
 import org.eclipse.mat.report.Params;
@@ -61,6 +62,7 @@ import org.eclipse.mat.util.SimpleStringTokenizer;
 import com.ibm.icu.text.DecimalFormat;
 
 @CommandName("top_consumers_html")
+@Icon("/META-INF/icons/pie_chart.gif")
 @HelpUrl("/org.eclipse.mat.ui.help/reference/inspections/top_consumers.html")
 public class TopConsumers2Query implements IQuery
 {
@@ -421,7 +423,7 @@ public class TopConsumers2Query implements IQuery
     // //////////////////////////////////////////////////////////////
     // calculate histogram
     // //////////////////////////////////////////////////////////////
-    private class ClassHistogramRecordWithObjIds extends ClassHistogramRecord
+    static private class ClassHistogramRecordWithObjIds extends ClassHistogramRecord
     {
         private ArrayInt objs = new ArrayInt();
         public ClassHistogramRecordWithObjIds(String label, int classId, long numberOfObjects, long usedHeapSize,
