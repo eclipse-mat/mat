@@ -36,7 +36,7 @@ import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 
 @CommandName("component_report_top")
-@Icon("/META-INF/icons/top_component_report.gif")
+@Icon("/META-INF/icons/top_components_report.gif")
 public class TopComponentsReportQuery implements IQuery
 {
     @Argument
