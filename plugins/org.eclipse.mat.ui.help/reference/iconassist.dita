@@ -300,11 +300,20 @@
 				<strow>
 					<stentry>
 						<image href="../mimes/i-objectinspectorview.png">
-							<alt>pin icon</alt>
+							<alt>double arrow icon</alt>
 						</image>
 					</stentry>
 					<stentry>Pin current Object Inspector view (keep the content
 						constant)</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<image href="../mimes/i-objectinspectorpin.png">
+							<alt>pin icon</alt>
+						</image>
+					</stentry>
+					<stentry>Pin current Object Inspector tab (keep the tab
+						constant when switching heap dumps)</stentry>
 				</strow>
 				<strow>
 					<stentry>

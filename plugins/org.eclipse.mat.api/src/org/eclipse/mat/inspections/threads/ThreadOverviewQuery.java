@@ -60,7 +60,8 @@ public class ThreadOverviewQuery implements IQuery
     @Argument(isMandatory = false, flag = Argument.UNFLAGGED)
     public IHeapObjectArgument objects;
     
-    private static URL THREAD_ICON_URL = Icons.getURL("threads.gif"); //$NON-NLS-1$
+    private static URL THREAD_ICON_URL = Icons.getURL("thread.gif"); //$NON-NLS-1$
+    private static URL STACK_FRAME_ICON_URL = Icons.getURL("stack_frame.gif"); //$NON-NLS-1$
     public static final String CLASS_THREAD = "java.lang.Thread"; //$NON-NLS-1$
 
     public IResult execute(IProgressListener listener) throws Exception
@@ -358,7 +359,7 @@ public class ThreadOverviewQuery implements IQuery
             }
             else if (row instanceof ThreadStackFrameNode)
             {
-                return null;
+                return STACK_FRAME_ICON_URL;
             }
             else
             {
