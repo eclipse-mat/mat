@@ -793,6 +793,23 @@ public class EquinoxBundleReader2 implements IBundleReader
         // get type of object (Extension, ExtensionPoint,
         // ConfigurationElement)
         String className = instance.getClazz().getName();
+        if (instance.getClazz().doesExtend("java.lang.ref.SoftReference"))
+        {
+            // Some null SoftReferences get to here, just check they are null
+            ObjectReference ref = ReferenceQuery.getReferent((IInstance) instance);
+            if (ref != null)
+            {
+                // The SoftReferences should have been resolved
+                // before the call, but just in case:
+                instance = ref.getObject();
+                className = instance.getClazz().getName();
+            }
+            else
+            {
+                // The SoftReference is cleared, so nothing to do
+                return;
+            }
+        }
         if (className.equals("org.eclipse.core.internal.registry.ExtensionPoint")) //$NON-NLS-1$
         {
             ExtensionPoint extensionPoint = extractExtensionPointInfo(instance);
