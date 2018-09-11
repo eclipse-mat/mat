@@ -229,6 +229,7 @@ public class Messages extends NLS
     public static String DTFJPreferencePage_NoMethods;
     public static String DTFJPreferencePage_OnlyStackFrames;
     public static String DTFJPreferencePage_RunningMethods;
+    public static String DTFJPreferencePage_SuppressClassNativeSizes;
     public static String InitDTFJ_FailedToCreate;
     public static String InitDTFJ_UpdatingBundle;
     public static String InitDTFJ_UpdatedBundle;

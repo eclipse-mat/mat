@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.mat.dtfj;
 
+import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.RadioGroupFieldEditor;
@@ -54,6 +55,8 @@ public class DTFJPreferencePage extends FieldEditorPreferencePage implements IWo
                                         { Messages.DTFJPreferencePage_RunningMethods, PreferenceConstants.RUNNING_METHODS_AS_CLASSES },
                                         { Messages.DTFJPreferencePage_AllMethods, PreferenceConstants.ALL_METHODS_AS_CLASSES } },
                         getFieldEditorParent(), true));
+        addField(new BooleanFieldEditor(PreferenceConstants.P_SUPPRESS_CLASS_NATIVE_SIZES, Messages.DTFJPreferencePage_SuppressClassNativeSizes,
+                        getFieldEditorParent()));
     }
 
     /*
