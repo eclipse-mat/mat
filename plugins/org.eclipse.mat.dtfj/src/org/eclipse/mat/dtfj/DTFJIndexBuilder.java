@@ -197,6 +197,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
     private static final boolean faultyMethodEquals = false;
     private final String methodsAsClassesPref = Platform.getPreferencesService().getString(PLUGIN_ID,
                     PreferenceConstants.P_METHODS, "", null); //$NON-NLS-1$
+    private final boolean suppressClassNativeSizes = Platform.getPreferencesService().getBoolean(PLUGIN_ID,
+                    PreferenceConstants.P_SUPPRESS_CLASS_NATIVE_SIZES, false, null); //$NON-NLS-1$
     /** Whether to represent all methods as pseudo-classes */
     private final boolean getExtraInfo2 = PreferenceConstants.ALL_METHODS_AS_CLASSES.equals(methodsAsClassesPref);
     /** Whether to represent only the stack frames as pseudo-objects */
@@ -6214,8 +6216,10 @@ public class DTFJIndexBuilder implements IIndexBuilder
             // listener.sendUserMessage(Severity.WARNING, "Problem setting size
             // of instance of java.lang.Class", e);
         }
-        // TODO should we use segments to get the RAM/ROM class size?
-        size += classSize(j2, listener);
+        if (!suppressClassNativeSizes) {
+            // TODO should we use segments to get the RAM/ROM class size?
+            size += classSize(j2, listener);
+        }
         ci.setUsedHeapSize(size);
         if (debugInfo)
         {

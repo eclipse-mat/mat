@@ -30,6 +30,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer
         {
             IPreferenceStore store = (IPreferenceStore)InitDTFJ.getDefault().getPreferenceStore();
             store.setDefault(PreferenceConstants.P_METHODS, PreferenceConstants.NO_METHODS_AS_CLASSES);
+            store.setDefault(PreferenceConstants.P_SUPPRESS_CLASS_NATIVE_SIZES, false);
         }
         catch (LinkageError e)
         {

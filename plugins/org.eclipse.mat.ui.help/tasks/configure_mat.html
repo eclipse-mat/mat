@@ -173,6 +173,16 @@ and all methods are pseudo-classes of type <samp class="ph codeph">&lt;method ty
 				</dd>
 
 			
+			
+				<dt class="dt dlterm">
+					<span class="ph menucascade"><span class="ph uicontrol">Memory Analyzer</span> &gt; <span class="ph uicontrol">DTFJ Parser</span> &gt; <span class="ph uicontrol">Suppress Class native memory size calculations (IBM system dumps)</span></span>
+				</dt>
+
+				<dd class="dd">
+					By default, when MAT parses IBM system dumps, the size of classes includes some of the amount of native memory in the Java process (but outside of the Java heap) which is related to those classes such as native memory for bytecode and JIT compiled code for the class methods. Check this option to disable this calculation and only report Java heap usage.
+				</dd>
+
+			
 					
 						<dt class="dt dlterm">
 							<span class="ph menucascade"><span class="ph uicontrol">Memory Analyzer</span> &gt; <span class="ph uicontrol">HPROF Parser</span> &gt; <span class="ph uicontrol">Parser Strictness</span></span>
