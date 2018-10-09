@@ -462,8 +462,11 @@ public abstract class RefinedStructuredResult implements IStructuredResult, //
             sm = null;
         }
         int index = 0;
-        for (Object row : elements)
+        // Don't iterate over the elements in case the order is changed by the user sorting the table.
+        // Just index to avoid ConcurrentModificationException.
+        for (; index < elements.size(); )
         {
+            Object row = elements.get(index);
             if (sm != null)
                 l2 = sm.nextMonitor();
             accessor.calculator.calculate(operation, row, l2);
