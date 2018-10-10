@@ -139,11 +139,38 @@ public class RetainedSizeDerivedData extends ContextDerivedData
             this.values = new HashMapObjectLong<Object>();
         }
 
+        /**
+         * In case of simultaneous retained size calculations.
+         * @param row
+         * @return the size
+         * @throws NoSuchElementException if item not yet present
+         */
+        private long valuesget(Object row)
+        {
+            synchronized (values)
+            {
+                return values.get(row);
+            }
+        }
+
+        /**
+         * @param row
+         * @param newval the new retained size
+         * @return true if an entry with the key already exists
+         */
+        private boolean valuesput(Object row, long newval)
+        {
+            synchronized (values)
+            {
+                return values.put(row, newval);
+            }
+        }
+
         public Object lookup(Object row)
         {
             try
             {
-                return values.get(row);
+                return valuesget(row);
             }
             catch (NoSuchElementException e)
             {
@@ -163,7 +190,7 @@ public class RetainedSizeDerivedData extends ContextDerivedData
 
             try
             {
-                long v = values.get(row);
+                long v = valuesget(row);
                 if (v > 0 || operation == APPROXIMATE)
                     return;
             }
@@ -209,7 +236,7 @@ public class RetainedSizeDerivedData extends ContextDerivedData
                             }
                         }
 
-                        values.put(row, retainedSize);
+                        valuesput(row, retainedSize);
                     }
                 }
 
@@ -226,7 +253,7 @@ public class RetainedSizeDerivedData extends ContextDerivedData
                 else
                 {
                     long retainedSize = snapshot.getRetainedHeapSize(contextObject.getObjectId());
-                    values.put(row, retainedSize);
+                    valuesput(row, retainedSize);
                 }
             }
 

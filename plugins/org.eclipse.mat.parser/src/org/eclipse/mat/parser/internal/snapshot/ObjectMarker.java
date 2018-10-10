@@ -246,11 +246,17 @@ public class ObjectMarker
             pushed = n;
         }
 
+        /**
+         * Note that this thread is using this stack.
+         */
         synchronized void linkThread()
         {
             ++totalThreads;
         }
 
+        /**
+         * Note that this thread is no longer using the stack.
+         */
         synchronized void unlinkThread()
         {
             --totalThreads;
@@ -507,6 +513,8 @@ public class ObjectMarker
     {
         private static final int RESERVED = MultiThreadedRootStack.RESERVED_WAITING - MultiThreadedRootStack.RESERVED_RUNNING;
         static final int MAXSTACK = 100 * 1024;
+        /** How many times to loop before checking the global stack */
+        private static final int CHECKCOUNT = 10;
         int localRange;
         final int localRangeLimit;
         SoftReference<int[]> sr;
@@ -600,7 +608,7 @@ public class ObjectMarker
                             /* end stack.pop */
 
                             // See if other threads need work
-                            if (check || checkCount++ >= 10000)
+                            if (check || checkCount++ >= CHECKCOUNT)
                             {
                                 checkCount = 0;
                                 check = true;
@@ -760,7 +768,6 @@ public class ObjectMarker
         if (!excludeObjectsBF.get(referrerId))
             return false;
 
-        IObject referrerObject = snapshot.getObject(referrerId);
         Set<String> excludeFields = null;
         for (ExcludedReferencesDescriptor set : excludeSets)
         {
@@ -773,6 +780,7 @@ public class ObjectMarker
         if (excludeFields == null)
             return true; // treat null as all fields
 
+        IObject referrerObject = snapshot.getObject(referrerId);
         long referentAddr = snapshot.mapIdToAddress(referentId);
 
         List<NamedReference> refs = referrerObject.getOutboundReferences();

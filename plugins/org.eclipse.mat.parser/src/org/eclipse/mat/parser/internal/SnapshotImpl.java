@@ -785,6 +785,8 @@ public final class SnapshotImpl implements ISnapshot
     public int[] getRetainedSet(int[] objectIds, ExcludedReferencesDescriptor[] excludedReferences,
                     IProgressListener progressMonitor) throws SnapshotException
     {
+        if (progressMonitor == null)
+            progressMonitor = new VoidProgressListener();
         /*
          * first pass - mark starting from the GC roots, avoiding
          * excludedReferences, until initial are reached. The non-marked objects
@@ -798,7 +800,7 @@ public final class SnapshotImpl implements ISnapshot
         }
         ObjectMarker marker = new ObjectMarker(getGCRoots(), firstPass, getIndexManager().outbound,
                         IndexManager.Index.OUTBOUND.getFile(getSnapshotInfo().getPrefix()).length(),
-                        new VoidProgressListener());
+                        progressMonitor);
         marker.markSingleThreaded(excludedReferences, this);
 
         // un-mark initial - they have to go into the retained set
@@ -815,7 +817,7 @@ public final class SnapshotImpl implements ISnapshot
         System.arraycopy(firstPass, 0, secondPass, 0, firstPass.length);
 
         ObjectMarker secondMarker = new ObjectMarker(objectIds, secondPass, getIndexManager().outbound,
-                        new VoidProgressListener());
+                        progressMonitor);
         secondMarker.markSingleThreaded();
 
         /*
