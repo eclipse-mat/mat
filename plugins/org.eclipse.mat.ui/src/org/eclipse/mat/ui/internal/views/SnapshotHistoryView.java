@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2013 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -63,6 +63,7 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorRegistry;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
@@ -191,6 +192,7 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
     private Action actionDelete;
     private Action actionOpenFileInFileSystem;
     private Action actionDeleteIndeces;
+    private Action actionCopy;
 
     @Override
     public void createPartControl(Composite parent)
@@ -227,27 +229,6 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
                 if (e.character == 0x007F)
                 {
                     actionRemoveFromList.run();
-                }
-                else if (e.stateMask == SWT.CTRL && e.keyCode == 'c')
-                {
-                    StringBuilder selectedItems = new StringBuilder();
-                    for (TableItem selected : table.getSelection())
-                    {
-                        if (selectedItems.length() > 0)
-                        {
-                            selectedItems.append(' ');
-                        }
-                        String path = selected.getText();
-                        if (path.indexOf(' ') != -1)
-                        {
-                            path = '\"' + path + '\"';
-                        }
-                        selectedItems.append(path);
-                    }
-                    if (selectedItems.length() > 0)
-                    {
-                        Copy.copyToClipboard(selectedItems.toString(), table.getDisplay());
-                    }
                 }
             }
         });
@@ -531,6 +512,37 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
                 }
             }
         };
+
+        actionCopy = new Action()
+        {
+            public void run()
+            {
+                StringBuilder selectedItems = new StringBuilder();
+                for (TableItem selected : table.getSelection())
+                {
+                    if (selectedItems.length() > 0)
+                    {
+                        selectedItems.append(' ');
+                    }
+                    String path = selected.getText();
+                    if (path.indexOf(' ') != -1)
+                    {
+                        path = '\"' + path + '\"';
+                    }
+                    selectedItems.append(path);
+                }
+                if (selectedItems.length() > 0)
+                {
+                    Copy.copyToClipboard(selectedItems.toString(), table.getDisplay());
+                }
+            }
+        };
+        actionCopy.setText(Messages.SnapshotHistoryView_CopyFilename);
+        actionCopy.setImageDescriptor(MemoryAnalyserPlugin.getImageDescriptor(ISharedImages.COPY));
+        getViewSite().getActionBars().setGlobalActionHandler(ActionFactory.COPY.getId(), actionCopy);
+        // No paste action, try to avoid org.eclipse.core.commands.NotHandledException
+        getViewSite().getActionBars().setGlobalActionHandler(ActionFactory.PASTE.getId(), null);
+        getViewSite().getActionBars().updateActionBars();
     }
 
     private void hookContextMenu()
@@ -559,6 +571,8 @@ public class SnapshotHistoryView extends ViewPart implements org.eclipse.mat.ui.
 
         actionOpenFileInFileSystem.setEnabled(selection.length == 1);
         manager.add(actionOpenFileInFileSystem);
+
+        manager.add(actionCopy);
 
         manager.add(actionDelete);
         manager.add(actionDeleteIndeces);
