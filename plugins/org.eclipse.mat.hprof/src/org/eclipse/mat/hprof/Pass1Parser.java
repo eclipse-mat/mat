@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2016 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2018 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -123,7 +123,7 @@ public class Pass1Parser extends AbstractParser
 
                 if (length < 0)
                     throw new SnapshotException(MessageUtil.format(Messages.Pass1Parser_Error_IllegalRecordLength,
-                                    length, in.position(), record));
+                                    length, Long.toHexString(in.position() - 4), Integer.toHexString(record), Long.toHexString(curPos)));
 
                 if (curPos + length - 9 > fileSize)
                 {
@@ -132,12 +132,12 @@ public class Pass1Parser extends AbstractParser
                         case STRICTNESS_STOP:
                             throw new SnapshotException(Messages.HPROFStrictness_Stopped, new SnapshotException(
                                             MessageUtil.format(Messages.Pass1Parser_Error_invalidHPROFFile, length,
-                                                            fileSize - curPos - 9)));
+                                                            fileSize - curPos - 9, Integer.toHexString(record), Long.toHexString(curPos))));
                         case STRICTNESS_WARNING:
                         case STRICTNESS_PERMISSIVE:
                             monitor.sendUserMessage(Severity.WARNING,
                                             MessageUtil.format(Messages.Pass1Parser_Error_invalidHPROFFile, length,
-                                                            fileSize - curPos - 9), null);
+                                                            fileSize - curPos - 9, Integer.toHexString(record), Long.toHexString(curPos)), null);
                             break;
                         default:
                             throw new SnapshotException(Messages.HPROFStrictness_Unhandled_Preference);
@@ -149,8 +149,8 @@ public class Pass1Parser extends AbstractParser
                     case Constants.Record.STRING_IN_UTF8:
                         if (((int) (length - idSize) < 0))
                             throw new SnapshotException(MessageUtil.format(
-                                            Messages.Pass1Parser_Error_IllegalRecordLength, length, in.position(),
-                                            record));
+                                            Messages.Pass1Parser_Error_IllegalRecordLength, length, Long.toHexString(in.position() - 4),
+                                            Integer.toHexString(record), Long.toHexString(curPos)));
                         readString(length);
                         break;
                     case Constants.Record.LOAD_CLASS:
@@ -206,13 +206,13 @@ public class Pass1Parser extends AbstractParser
                             case STRICTNESS_STOP:
                                 throw new SnapshotException(Messages.HPROFStrictness_Stopped, new SnapshotException(
                                                 MessageUtil.format(Messages.Pass1Parser_UnexpectedRecord,
-                                                                Integer.toHexString(record), length)));
+                                                                Integer.toHexString(record), length, Long.toHexString(curPos))));
                             case STRICTNESS_WARNING:
                             case STRICTNESS_PERMISSIVE:
                                 monitor.sendUserMessage(
                                                 Severity.WARNING,
                                                 MessageUtil.format(Messages.Pass1Parser_UnexpectedRecord,
-                                                                Integer.toHexString(record), length), null);
+                                                                Integer.toHexString(record), length, Long.toHexString(curPos)), null);
                                 in.skipBytes(length);
                                 break;
                             default:
@@ -348,7 +348,7 @@ public class Pass1Parser extends AbstractParser
                     readGC(GCRootInfo.Type.SYSTEM_CLASS, 0);
                     break;
                 case Constants.DumpSegment.ROOT_THREAD_BLOCK:
-                    readGC(GCRootInfo.Type.THREAD_BLOCK, 4);
+                    readGCWithThreadContext(GCRootInfo.Type.THREAD_BLOCK, false);
                     break;
                 case Constants.DumpSegment.ROOT_MONITOR_USED:
                     readGC(GCRootInfo.Type.BUSY_MONITOR, 0);
@@ -367,7 +367,7 @@ public class Pass1Parser extends AbstractParser
                     break;
                 default:
                     throw new SnapshotException(MessageUtil.format(Messages.Pass1Parser_Error_InvalidHeapDumpFile,
-                                    segmentType, segmentStartPos));
+                                    Integer.toHexString(segmentType), Long.toHexString(segmentStartPos)));
             }
 
             segmentStartPos = in.position();
@@ -451,8 +451,10 @@ public class Pass1Parser extends AbstractParser
         long superClassObjectId = readID();
         long classLoaderObjectId = readID();
 
-        // skip signers, protection domain, reserved ids (2), instance size
-        in.skipBytes(this.idSize * 4 + 4);
+        // skip signers, protection domain, reserved ids (2)
+        in.skipBytes(this.idSize * 4);
+        // instance size
+        int instsize = in.readInt();
 
         // constant pool: u2 ( u2 u1 value )*
         int constantPoolSize = in.readUnsignedShort();
@@ -544,7 +546,7 @@ public class Pass1Parser extends AbstractParser
     {
         long address = readID();
         handler.reportInstance(address, segmentStartPos);
-        in.skipBytes(4);
+        in.skipBytes(4); // stack trace serial
         long classID = readID();
         int payload = in.readInt();
         // check if class needs to be created
@@ -570,7 +572,7 @@ public class Pass1Parser extends AbstractParser
 
         handler.reportInstance(address, segmentStartPos);
 
-        in.skipBytes(4);
+        in.skipBytes(4); // stack trace serial
         int size = in.readInt();
         long arrayClassObjectID = readID();
 
@@ -612,7 +614,7 @@ public class Pass1Parser extends AbstractParser
             return ""; //$NON-NLS-1$
 
         String result = handler.getConstantPool().get(address);
-        return result == null ? Messages.Pass1Parser_Error_UnresolvedName + Long.toHexString(address) : result;
+        return result == null ? MessageUtil.format(Messages.Pass1Parser_Error_UnresolvedName, Long.toHexString(address)) : result;
     }
 
     private void dumpThreads()

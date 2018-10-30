@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010,2017 IBM Corporation.
+ * Copyright (c) 2010,2018 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,7 @@ package org.eclipse.mat.tests.snapshot;
 import static org.hamcrest.CoreMatchers.either;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.junit.Assert.assertEquals;
@@ -21,6 +22,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeFalse;
 import static org.junit.Assume.assumeThat;
 import static org.junit.Assume.assumeTrue;
 
@@ -29,6 +31,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
@@ -37,6 +40,7 @@ import org.eclipse.mat.collect.SetInt;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.SnapshotFactory;
+import org.eclipse.mat.snapshot.SnapshotInfo;
 import org.eclipse.mat.snapshot.model.GCRootInfo;
 import org.eclipse.mat.snapshot.model.GCRootInfo.Type;
 import org.eclipse.mat.snapshot.model.IClass;
@@ -68,7 +72,7 @@ public class GeneralSnapshotTests
     };
     final Stacks stackInfo;
 
-    @Parameters
+    @Parameters(name="{index}: Snapshot={0} options={1}")
     public static Collection<Object[]> data()
     {
         return Arrays.asList(new Object[][] {
@@ -388,7 +392,43 @@ public class GeneralSnapshotTests
             }
         }
     }
-    
+
+    /**
+     * Test exporting as HPROF
+     * @throws SnapshotException
+     * @throws IOException
+     */
+    @Test
+    public void exportHPROF() throws SnapshotException, IOException
+    {
+        // Currently can't export PHD
+        assumeThat(snapshot.getSnapshotInfo().getProperty("$heapFormat"), not(equalTo((Serializable)"DTFJ-PHD")));
+        // Currently can't export methods as classes properly
+        assumeThat(hasMethods, equalTo(Methods.NONE));
+        // HPROF parser can't handle adding links from classloader to classes for javacore
+        File fn = new File(snapshot.getSnapshotInfo().getPrefix());
+        assumeThat(fn.getName(), not(containsString("javacore")));
+        File newSnapshotFile = File.createTempFile(fn.getName(), ".hprof");
+        try {
+            SnapshotQuery query = SnapshotQuery.parse("export_hprof -output "+newSnapshotFile.getPath(), snapshot);
+            IResult t = query.execute(new VoidProgressListener());
+            assertNotNull(t);
+            ISnapshot newSnapshot = SnapshotFactory.openSnapshot(newSnapshotFile, Collections.<String,String>emptyMap(), new VoidProgressListener());
+            try {
+                SnapshotInfo oldInfo = snapshot.getSnapshotInfo();
+                SnapshotInfo newInfo = newSnapshot.getSnapshotInfo();
+                assertEquals("Classes", oldInfo.getNumberOfClasses(), newInfo.getNumberOfClasses());
+                assertEquals("Objects", oldInfo.getNumberOfObjects(), newInfo.getNumberOfObjects());
+                assertEquals("Classloaders", oldInfo.getNumberOfClassLoaders(), newInfo.getNumberOfClassLoaders());
+                assertEquals("GC Roots", oldInfo.getNumberOfGCRoots(), newInfo.getNumberOfGCRoots());
+            } finally {
+                newSnapshot.dispose();
+            }
+        } finally {
+            newSnapshotFile.delete();
+        }
+    }
+
     /**
      * Test value of Strings
      */

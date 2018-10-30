@@ -97,4 +97,14 @@ public class FieldDescriptor implements Serializable
         String t = IPrimitiveArray.TYPE[type];
         return t.substring(0, t.length() - 2);
     }
+
+    /**
+     * A readable representation of the field descriptor.
+     * Do not rely on the format of the result.
+     * @return a description of this field descriptor.
+     */
+    public String toString()
+    {
+        return getVerboseSignature() + " " + name; //$NON-NLS-1$
+    }
 }

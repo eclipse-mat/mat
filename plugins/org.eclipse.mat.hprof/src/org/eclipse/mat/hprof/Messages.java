@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2013 SAP AG and others.
+ * Copyright (c) 2010, 2018 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,6 +23,20 @@ public class Messages extends NLS
     public static String AbstractParser_Error_UnsupportedHPROFVersion;
     public static String EnhancerRegistry_ErrorCreatingParser;
     public static String EnhancerRegistry_ErrorCreatingRuntime;
+    public static String ExportHprof_AvoidExample;
+    public static String ExportHprof_ExportTo;
+    public static String ExportHprof_PrepareClasses;
+    public static String ExportHprof_PrepareGCRoots;
+    public static String ExportHprof_PrepareObjects;
+    public static String ExportHprof_PrepareThreadStacks;
+    public static String ExportHprof_DumpClasses;
+    public static String ExportHprof_DumpGCRoots;
+    public static String ExportHprof_DumpObjects;
+    public static String ExportHprof_DumpStrings;
+    public static String ExportHprof_DumpThreadStacks;
+    public static String ExportHprof_RemapProperties;
+    public static String ExportHprof_SegmentSizeMismatch;
+    public static String ExportHprof_SegmentTooLong;
     public static String HprofIndexBuilder_ExtractingObjects;
     public static String HprofIndexBuilder_Parsing;
     public static String HprofIndexBuilder_Scanning;

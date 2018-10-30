@@ -67,7 +67,7 @@ public class HprofIndexBuilder implements IIndexBuilder
         mon.beginTask(MessageUtil.format(Messages.HprofIndexBuilder_Scanning, new Object[] { file.getAbsolutePath() }),
                         (int) (file.length() / 1000));
         Pass1Parser pass1 = new Pass1Parser(handler, mon, strictnessPreference);
-        Serializable id = preliminary.getSnapshotInfo().getProperty("$runtimeId");
+        Serializable id = preliminary.getSnapshotInfo().getProperty("$runtimeId"); //$NON-NLS-1$
         String dumpNrToRead;
         if (id instanceof String)
         {
