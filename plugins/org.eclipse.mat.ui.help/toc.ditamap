@@ -26,6 +26,7 @@
 		<topicref href="tasks/bundleregistry.dita" type="task" />
 		<topicref href="tasks/comparingdata.dita" type="task" />
 		<topicref href="tasks/exportdata.dita" type="task" />
+		<topicref href="tasks/exportdump.dita" type="task" />
 		<topicref href="tasks/configure_mat.dita" type="task" />
 	</topichead>
 	<topichead navtitle="Reference">

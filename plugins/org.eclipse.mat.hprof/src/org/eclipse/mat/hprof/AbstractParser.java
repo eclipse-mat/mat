@@ -183,7 +183,7 @@ import org.eclipse.mat.util.SimpleMonitor.Listener;
             case IObject.Type.LONG:
                 return in.readLong();
             default:
-                throw new IOException(MessageUtil.format(Messages.AbstractParser_Error_IllegalType, type));
+                throw new IOException(MessageUtil.format(Messages.AbstractParser_Error_IllegalType, type, in.position()));
         }
     }
 

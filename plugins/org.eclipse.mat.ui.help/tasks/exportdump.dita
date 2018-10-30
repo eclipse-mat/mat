@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2018 IBM Corporation.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+   
+    Contributors:
+        Andrew Johnson/IBM Corportation - initial API and implementation
+ -->
+<!DOCTYPE task PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd" >
+<task id="task_exportdump" xml:lang="en-us">
+	<title>Export Heap Dump</title>
+	<prolog>
+		<copyright>
+			<copyryear year=""></copyryear>
+			<copyrholder>
+				Copyright (c) 2018 IBM Corporation.
+				All rights reserved. This program and the accompanying materials
+				are made available under the terms of the Eclipse Public License v1.0
+				which accompanies this distribution, and is available at
+				http://www.eclipse.org/legal/epl-v10.html
+			</copyrholder>
+		</copyright>
+	</prolog>
+
+	<taskbody>
+		<context>
+			<p>A whole snapshot can be exported as a new HPROF format file by
+				using
+				the 'Export Snapshot' query.
+				This query can be used to convert a DTFJ core dump to HPROF format, or to redact sensitive data,
+				or to obfuscate class and method names in a dump.
+			</p>
+			<ul>
+				<li>
+					Choose the
+					<parmname>output</parmname>
+					file name, extension '.hprof'.
+				</li>
+				<li>
+					If required then certain data can be redacted from the output file,
+					to reduce the risk of passwords or other sensitive data being read
+					by
+					anyone analyzing the newly generated HPROF file. The
+					<parmname>redact</parmname>
+					option has
+					several choices:
+					<dl>
+						<dlentry>
+							<dt>NONE
+							</dt>
+							<dd>No redaction - all data is available in the new HPROF file.
+							</dd>
+						</dlentry>
+						<dlentry>
+							<dt>BASIC
+							</dt>
+							<dd>
+								<apiname>char</apiname>
+								arrays,
+								<apiname>byte</apiname>
+								arrays,
+								<apiname>int</apiname>
+								arrays,
+								<apiname>char</apiname>
+								fields and
+								<apiname>byte</apiname>
+								fields are redacted.
+								This removes some sensitive data, such as passwords and the majority
+								of
+								<apiname>BigInteger</apiname>
+								object contents,
+								which might hold private keys.
+								It leaves other data such as
+								<apiname>int</apiname>
+								fields, and
+								<apiname>boolean</apiname>
+								,
+								<apiname>long</apiname>
+								,
+								<apiname>float</apiname>
+								,
+								<apiname>double</apiname>
+								fields and arrays.
+								which might also contain sensitive information such as personal ID
+								numbers or financial
+								information. Those fields might be useful however for solving some sorts of
+								problems.
+							</dd>
+						</dlentry>
+						<dlentry>
+							<dt>FULL
+							</dt>
+							<dd>All fields and arrays are set to default values, so removing
+								many examples of sensitive data.
+								Object reference fields and arrays are preserved, together with array
+								sizes, as these
+								are necessary to identify causes of out of memory errors. There is
+								a chance that numbers of,
+								sizes, and links between objects might hold sensitive information.
+							</dd>
+						</dlentry>
+					</dl>
+					<hazardstatement type="notice">
+						<messagepanel>
+							<typeofhazard>
+								Information disclosure
+							</typeofhazard>
+							<consequence>
+								Incorrect use of these options may leave sensitive data in the new dump.
+								If this dump is then given to an unauthorised person the
+								sensitive data may
+								be extracted and disclosed.
+							</consequence>
+							<howtoavoid>
+								Review the correct use of these options.
+							</howtoavoid>
+							<howtoavoid>
+								Examine the newly generated HPROF file, for example with Memory
+								Analyzer, to
+								confirm that no sensitive data is visible.
+							</howtoavoid>
+						</messagepanel>
+						<hazardsymbol href="../mimes/message_warning.png" />
+					</hazardstatement>
+				</li>
+				<li>
+					<p>Class names, field names and method names can hold sensitive
+						information about the
+						nature of the application. The remap option allows the names to be
+						remapped to dummy names,
+						hiding the true nature of the application.
+					</p>
+					<p>
+						It is normally better to retain the names of
+						Java API classes, or at least those of the '<apiname>java.lang.</apiname>' package, as all
+						applications use them,
+						and having the true names available makes the analysis of the new
+						HPROF file a little easier.
+						The
+						<parmname>skip</parmname>
+						option allows this to be controlled.
+					</p>
+					<p>
+						The
+						<parmname>remap</parmname>
+						option allows a filename to be giving into which will be stored
+						the mapping from original class name to new class name.
+						This allows the results of analysis of the new HPROF file to be
+						manually converted
+						to class names of the original file. Also if several related
+						snapshots are to be exported
+						then the same remap file should be used so that all the new HPROF
+						files have the same remapped class
+						names.
+					</p>
+					<p>
+						The
+						<parmname>exclude</parmname>
+						option allows certain phrases or words to be excluded from the
+						generated names.
+						This might be useful if the generated names might otherwise include
+						unpronouncable or unsuitable characer
+						sequences.
+					</p>
+					<p>
+						The
+						<parmname>undo</parmname>
+						option allows the remapping operation to be reversed if 
+						the original snapshot file has been lost and only the
+						remapped HPROF file and the remapping file are available.
+					</p>
+					<hazardstatement type="notice">
+						<messagepanel>
+							<typeofhazard>
+								Information disclosure
+							</typeofhazard>
+							<consequence>
+								Incorrect use of these options may leave sensitive information about the
+								application design in the new dump.
+								If this dump is then given to an unauthorised person, sensitive
+								information about the application may
+								be extracted and disclosed.
+							</consequence>
+							<howtoavoid>
+								Review the correct use of these options.
+							</howtoavoid>
+							<howtoavoid>
+								Examine the newly generated HPROF file, for example with Memory
+								Analyzer, to
+								confirm that no sensitive data is visible.
+							</howtoavoid>
+						</messagepanel>
+						<hazardsymbol href="../mimes/message_warning.png" />
+					</hazardstatement>
+					<hazardstatement type="notice">
+						<messagepanel>
+							<typeofhazard>
+								Offensive content
+							</typeofhazard>
+							<consequence>
+								As the class, method and field names are randomly generated there is the
+								possibility of offensive words occuring in the names.
+							</consequence>
+							<howtoavoid>
+								Use the <parmname>avoid</parmname> option to filter out words.
+							</howtoavoid>
+							<howtoavoid>
+								Examine the generated remap file to confirm that no offensive words
+								have been generated. If they have, delete the remap file and
+								export the dump again. 
+							</howtoavoid>
+						</messagepanel>
+						<hazardsymbol href="../mimes/message_warning.png" />
+					</hazardstatement>
+				</li>
+				<li>
+					<p>
+						Normally the whole snapshot is exported. Sometimes it might be
+						useful to export
+						a subset of all the objects. For example if the original dump was
+						parsed with the
+						<parmname>keep unreachable objects</parmname>
+						option the unreachable objects will be retained by some created
+						dummy
+						<parmname>UNREACHABLE</parmname>
+						roots. It might be desired to create a new smaller HPROF file without
+						these objects. 
+					</p>
+					<p>
+						To create a HPROF file without the unreachable objects, either
+						reparse without the
+						<parmname>keep unreachable objects</parmname>
+						option then export the entire snapshot, or else run the
+						<cmdname>GC Roots</cmdname>
+						query, then
+						select all roots except the
+						<parmname>UNREACHABLE</parmname>
+						roots, find the retained set of those other
+						roots, then select all the objects and use the context menu to export
+						the snapshot for the selected objects.
+					</p>
+					<p>
+						Use this option with care - a dump exported without many objects
+						such as classes, or class loaders,
+						or objects from the
+						'<apiname>java.lang.</apiname>'
+						package may have broken links and be hard to
+						interpret.
+					</p>
+				</li>
+			</ul>
+		</context>
+	</taskbody>
+</task>

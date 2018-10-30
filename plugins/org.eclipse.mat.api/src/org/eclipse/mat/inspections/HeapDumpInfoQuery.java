@@ -101,12 +101,10 @@ public class HeapDumpInfoQuery implements IQuery
     }
 
     @Argument
-    public ISnapshot snapshot;
+    public SnapshotInfo info;
 
     public IResult execute(IProgressListener listener) throws Exception
     {
-        SnapshotInfo info = snapshot.getSnapshotInfo();
-
         if (listener.isCanceled())
             throw new IProgressListener.OperationCanceledException();
 

@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en-us" lang="en-us">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="task"/>
+<meta name="DC.Title" content="Export Heap Dump"/>
+<meta name="copyright" content="Copyright (c) 2018 IBM Corporation. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary"/>
+<meta name="DC.Rights.Owner" content="Copyright (c) 2018 IBM Corporation. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="task_exportdump"/>
+<meta name="DC.Language" content="en-us"/>
+<link rel="stylesheet" type="text/css" href="../styles/commonltr.css"/>
+<title>Export Heap Dump</title>
+</head>
+<body id="task_exportdump">
+
+
+	<h1 class="title topictitle1">Export Heap Dump</h1>
+
+	
+
+	<div class="body taskbody">
+		<div class="section context">
+			<p class="p">A whole snapshot can be exported as a new HPROF format file by
+				using
+				the 'Export Snapshot' query.
+				This query can be used to convert a DTFJ core dump to HPROF format, or to redact sensitive data,
+				or to obfuscate class and method names in a dump.
+			</p>
+
+			<ul class="ul">
+				<li class="li">
+					Choose the
+					<span class="keyword parmname">output</span>
+					file name, extension '.hprof'.
+				</li>
+
+				<li class="li">
+					If required then certain data can be redacted from the output file,
+					to reduce the risk of passwords or other sensitive data being read
+					by
+					anyone analyzing the newly generated HPROF file. The
+					<span class="keyword parmname">redact</span>
+					option has
+					several choices:
+					<dl class="dl">
+						
+							<dt class="dt dlterm">NONE
+							</dt>
+
+							<dd class="dd">No redaction - all data is available in the new HPROF file.
+							</dd>
+
+						
+						
+							<dt class="dt dlterm">BASIC
+							</dt>
+
+							<dd class="dd">
+								<span class="keyword apiname">char</span>
+								arrays,
+								<span class="keyword apiname">byte</span>
+								arrays,
+								<span class="keyword apiname">int</span>
+								arrays,
+								<span class="keyword apiname">char</span>
+								fields and
+								<span class="keyword apiname">byte</span>
+								fields are redacted.
+								This removes some sensitive data, such as passwords and the majority
+								of
+								<span class="keyword apiname">BigInteger</span>
+								object contents,
+								which might hold private keys.
+								It leaves other data such as
+								<span class="keyword apiname">int</span>
+								fields, and
+								<span class="keyword apiname">boolean</span>
+								,
+								<span class="keyword apiname">long</span>
+								,
+								<span class="keyword apiname">float</span>
+								,
+								<span class="keyword apiname">double</span>
+								fields and arrays.
+								which might also contain sensitive information such as personal ID
+								numbers or financial
+								information. Those fields might be useful however for solving some sorts of
+								problems.
+							</dd>
+
+						
+						
+							<dt class="dt dlterm">FULL
+							</dt>
+
+							<dd class="dd">All fields and arrays are set to default values, so removing
+								many examples of sensitive data.
+								Object reference fields and arrays are preserved, together with array
+								sizes, as these
+								are necessary to identify causes of out of memory errors. There is
+								a chance that numbers of,
+								sizes, and links between objects might hold sensitive information.
+							</dd>
+
+						
+					</dl>
+
+					<div class="note hazardstatement note"><span class="notetitle">Note:</span> 
+						<ul class="ul messagepanel">
+							<li class="li typeofhazard">
+								Information disclosure
+							</li>
+
+							<li class="li consequence">
+								Incorrect use of these options may leave sensitive data in the new dump.
+								If this dump is then given to an unauthorised person the
+								sensitive data may
+								be extracted and disclosed.
+							</li>
+
+							<li class="li howtoavoid">
+								Review the correct use of these options.
+							</li>
+
+							<li class="li howtoavoid">
+								Examine the newly generated HPROF file, for example with Memory
+								Analyzer, to
+								confirm that no sensitive data is visible.
+							</li>
+
+						</ul>
+
+						<img class="image hazardsymbol" src="../mimes/message_warning.png"/>
+					</div>
+
+				</li>
+
+				<li class="li">
+					<p class="p">Class names, field names and method names can hold sensitive
+						information about the
+						nature of the application. The remap option allows the names to be
+						remapped to dummy names,
+						hiding the true nature of the application.
+					</p>
+
+					<p class="p">
+						It is normally better to retain the names of
+						Java API classes, or at least those of the '<span class="keyword apiname">java.lang.</span>' package, as all
+						applications use them,
+						and having the true names available makes the analysis of the new
+						HPROF file a little easier.
+						The
+						<span class="keyword parmname">skip</span>
+						option allows this to be controlled.
+					</p>
+
+					<p class="p">
+						The
+						<span class="keyword parmname">remap</span>
+						option allows a filename to be giving into which will be stored
+						the mapping from original class name to new class name.
+						This allows the results of analysis of the new HPROF file to be
+						manually converted
+						to class names of the original file. Also if several related
+						snapshots are to be exported
+						then the same remap file should be used so that all the new HPROF
+						files have the same remapped class
+						names.
+					</p>
+
+					<p class="p">
+						The
+						<span class="keyword parmname">exclude</span>
+						option allows certain phrases or words to be excluded from the
+						generated names.
+						This might be useful if the generated names might otherwise include
+						unpronouncable or unsuitable characer
+						sequences.
+					</p>
+
+					<p class="p">
+						The
+						<span class="keyword parmname">undo</span>
+						option allows the remapping operation to be reversed if 
+						the original snapshot file has been lost and only the
+						remapped HPROF file and the remapping file are available.
+					</p>
+
+					<div class="note hazardstatement note"><span class="notetitle">Note:</span> 
+						<ul class="ul messagepanel">
+							<li class="li typeofhazard">
+								Information disclosure
+							</li>
+
+							<li class="li consequence">
+								Incorrect use of these options may leave sensitive information about the
+								application design in the new dump.
+								If this dump is then given to an unauthorised person, sensitive
+								information about the application may
+								be extracted and disclosed.
+							</li>
+
+							<li class="li howtoavoid">
+								Review the correct use of these options.
+							</li>
+
+							<li class="li howtoavoid">
+								Examine the newly generated HPROF file, for example with Memory
+								Analyzer, to
+								confirm that no sensitive data is visible.
+							</li>
+
+						</ul>
+
+						<img class="image hazardsymbol" src="../mimes/message_warning.png"/>
+					</div>
+
+					<div class="note hazardstatement note"><span class="notetitle">Note:</span> 
+						<ul class="ul messagepanel">
+							<li class="li typeofhazard">
+								Offensive content
+							</li>
+
+							<li class="li consequence">
+								As the class, method and field names are randomly generated there is the
+								possibility of offensive words occuring in the names.
+							</li>
+
+							<li class="li howtoavoid">
+								Use the <span class="keyword parmname">avoid</span> option to filter out words.
+							</li>
+
+							<li class="li howtoavoid">
+								Examine the generated remap file to confirm that no offensive words
+								have been generated. If they have, delete the remap file and
+								export the dump again. 
+							</li>
+
+						</ul>
+
+						<img class="image hazardsymbol" src="../mimes/message_warning.png"/>
+					</div>
+
+				</li>
+
+				<li class="li">
+					<p class="p">
+						Normally the whole snapshot is exported. Sometimes it might be
+						useful to export
+						a subset of all the objects. For example if the original dump was
+						parsed with the
+						<span class="keyword parmname">keep unreachable objects</span>
+						option the unreachable objects will be retained by some created
+						dummy
+						<span class="keyword parmname">UNREACHABLE</span>
+						roots. It might be desired to create a new smaller HPROF file without
+						these objects. 
+					</p>
+
+					<p class="p">
+						To create a HPROF file without the unreachable objects, either
+						reparse without the
+						<span class="keyword parmname">keep unreachable objects</span>
+						option then export the entire snapshot, or else run the
+						<span class="keyword cmdname">GC Roots</span>
+						query, then
+						select all roots except the
+						<span class="keyword parmname">UNREACHABLE</span>
+						roots, find the retained set of those other
+						roots, then select all the objects and use the context menu to export
+						the snapshot for the selected objects.
+					</p>
+
+					<p class="p">
+						Use this option with care - a dump exported without many objects
+						such as classes, or class loaders,
+						or objects from the
+						'<span class="keyword apiname">java.lang.</span>'
+						package may have broken links and be hard to
+						interpret.
+					</p>
+
+				</li>
+
+			</ul>
+
+		</div>
+
+	</div>
+
+
+</body>
+</html>
