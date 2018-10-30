@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others.
+ * Copyright (c) 2008, 2018 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson/IBM Corporation - enhancements and fixes
  *******************************************************************************/
 package org.eclipse.mat.snapshot.model;
 
@@ -89,6 +90,6 @@ public final class Field extends FieldDescriptor implements Serializable
      */
     public String toString()
     {
-        return type + " " + name + ": \t" + value; //$NON-NLS-1$//$NON-NLS-2$
+        return super.toString() + ": \t" + value; //$NON-NLS-1$
     }
 }

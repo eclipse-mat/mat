@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others.
+ * Copyright (c) 2008, 2018 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson/IBM Corporation - enhancements and fixes
  *******************************************************************************/
 package org.eclipse.mat.snapshot.model;
 
@@ -96,5 +97,15 @@ public class FieldDescriptor implements Serializable
 
         String t = IPrimitiveArray.TYPE[type];
         return t.substring(0, t.length() - 2);
+    }
+
+    /**
+     * A readable representation of the field descriptor.
+     * Do not rely on the format of the result.
+     * @return a description of this field descriptor.
+     */
+    public String toString()
+    {
+        return getVerboseSignature() + " " + name; //$NON-NLS-1$
     }
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 SAP AG.
+ * Copyright (c) 2009, 2018 SAP AG.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson/IBM Corporation - message fixes
  *******************************************************************************/
 package org.eclipse.mat.hprof.acquire;
 
@@ -29,6 +30,7 @@ import org.eclipse.mat.query.annotations.Argument.Advice;
 import org.eclipse.mat.snapshot.acquire.IHeapDumpProvider;
 import org.eclipse.mat.snapshot.acquire.VmInfo;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.MessageUtil;
 import org.osgi.service.prefs.BackingStoreException;
 
 @HelpUrl("/org.eclipse.mat.ui.help/tasks/acquiringheapdump.html#task_acquiringheapdump__1")
@@ -102,13 +104,12 @@ public class JMapHeapDumpProvider implements IHeapDumpProvider
 			int exitCode = p.waitFor();
 			if (exitCode != 0)
 			{
-				throw new SnapshotException(Messages.JMapHeapDumpProvider_ErrorCreatingDump + exitCode + "\r\n" + error.buf.toString());  //$NON-NLS-1$
+				throw new SnapshotException(MessageUtil.format(Messages.JMapHeapDumpProvider_ErrorCreatingDump, exitCode, error.buf.toString()));
 			}
 
 			if (!preferredLocation.exists())
 			{
-				throw new SnapshotException(Messages.JMapHeapDumpProvider_HeapDumpNotCreated + exitCode + "\r\nstdout:\r\n" + output.buf.toString() //$NON-NLS-1$
-						+ "\r\nstderr:\r\n" + error.buf.toString()); //$NON-NLS-1$
+				throw new SnapshotException(MessageUtil.format(Messages.JMapHeapDumpProvider_HeapDumpNotCreated, exitCode, output.buf.toString(), error.buf.toString()));
 			}
 		}
 		catch (IOException ioe)

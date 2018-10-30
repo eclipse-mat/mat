@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2016 SAP AG, IBM Corporation and others..
+ * Copyright (c) 2008, 2018 SAP AG, IBM Corporation and others..
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -104,10 +104,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
         }
 
         // if necessary, create required classes not contained in the heap
-        if (!requiredArrayClassIDs.isEmpty() || !requiredPrimitiveArrays.isEmpty() || !requiredClassIDs.isEmpty())
-        {
-            createRequiredFakeClasses();
-        }
+        createRequiredFakeClasses();
 
         // informational messages to the user
         monitor.sendUserMessage(IProgressListener.Severity.INFO, MessageUtil.format(
@@ -238,7 +235,21 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
         int clsid = 0;
         // java.lang.Object for the superclass
         List<ClassImpl>jlos = classesByName.get("java.lang.Object"); //$NON-NLS-1$
-        long jlo = jlos.isEmpty() ? 0 : jlos.get(0).getObjectAddress();
+        long jlo = jlos == null || jlos.isEmpty() ? 0 : jlos.get(0).getObjectAddress();
+        // Fake java.lang.Class, java.lang.ClassLoader for later
+        String clss[] = {ClassImpl.JAVA_LANG_CLASS, ClassImpl.JAVA_LANG_CLASSLOADER};
+        for (String cls : clss)
+        {
+            List<ClassImpl>jlcs = classesByName.get(cls); //$NON-NLS-1$
+            if (jlcs == null || jlcs.isEmpty())
+            {
+                while (identifiers.reverse(++nextObjectAddress) >= 0)
+                {}
+                IClass type = new ClassImpl(nextObjectAddress, cls, jlo, 0, new Field[0], new FieldDescriptor[0]);
+                ++clsid;
+                addClass((ClassImpl) type, -1);
+            }
+        }
         
         // create required (fake) classes for arrays
         if (!requiredArrayClassIDs.isEmpty())
@@ -256,7 +267,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
                         throw new SnapshotException(msg);
                     }
 
-                    arrayType = new ClassImpl(arrayClassID, "unknown-class-"+clsid+"[]", jlo, 0, new Field[0], //$NON-NLS-1$
+                    arrayType = new ClassImpl(arrayClassID, "unknown-class-"+clsid+"[]", jlo, 0, new Field[0], //$NON-NLS-1$ //$NON-NLS-2$
                                     new FieldDescriptor[0]);
                     ++clsid;
                     addClass((ClassImpl) arrayType, -1);
@@ -310,16 +321,16 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
                     int i;
                     for (i = 0; i < size / 4; ++i)
                     {
-                        fds[i] = new FieldDescriptor("unknown-field-"+i, IObject.Type.INT);
+                        fds[i] = new FieldDescriptor("unknown-field-"+i, IObject.Type.INT); //$NON-NLS-1$
                     }
                     if ((size & 2) != 0)
                     {
-                        fds[i] = new FieldDescriptor("unknown-field-"+i, IObject.Type.SHORT);
+                        fds[i] = new FieldDescriptor("unknown-field-"+i, IObject.Type.SHORT); //$NON-NLS-1$
                         ++i;
                     }
                     if ((size & 1) != 0)
                     {
-                        fds[i] = new FieldDescriptor("unknown-field-"+i, IObject.Type.BYTE);
+                        fds[i] = new FieldDescriptor("unknown-field-"+i, IObject.Type.BYTE); //$NON-NLS-1$
                         ++i;
                     }
                     type = new ClassImpl(classID, "unknown-class-"+clsid, jlo, 0, new Field[0], fds); //$NON-NLS-1$

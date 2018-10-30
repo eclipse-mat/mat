@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.2"?><!--
-    Copyright (c) 2010 SAP AG.
+    Copyright (c) 2010, 2018 SAP AG and IBM Corporation.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
    
     Contributors:
         SAP AG - initial API and implementation
+        Andrew Johnson/IBM Corporation - HPROF export
  -->
 
 <plugin>
@@ -51,6 +52,12 @@
    </extension>
    <extension point="org.eclipse.core.runtime.preferences">
       <initializer class="org.eclipse.mat.hprof.ui.PreferenceInitializer" />
+   </extension>
+   <extension
+         point="org.eclipse.mat.report.query">
+      <query
+            impl="org.eclipse.mat.hprof.ExportHprof">
+      </query>
    </extension>
 
 </plugin>

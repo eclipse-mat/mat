@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2013 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -453,6 +453,29 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
                         listener.sendUserMessage(Severity.ERROR, MessageUtil.format(
                                         Messages.SnapshotFactoryImpl_GCRootIDDoesNotMatchIndex, objid, idx), null);
                     }
+                    long objaddr = ifo.getObjectAddress();
+                    int j = pidx.identifiers.reverse(objaddr);
+                    if (j != idx)
+                    {
+                        listener.sendUserMessage(Severity.ERROR, MessageUtil.format(
+                                        Messages.SnapshotFactoryImpl_GCRootIDDoesNotMatchAddress, objid, Long.toHexString(objaddr)), null);
+                    }
+                    int ctxidx = ifo.getContextId();
+                    long ctxaddr = ifo.getContextAddress();
+                    if (ctxaddr != 0)
+                    {
+                        if (ctxidx < 0 || ctxidx >= maxIndex)
+                        {
+                            listener.sendUserMessage(Severity.ERROR, MessageUtil.format(
+                                            Messages.SnapshotFactoryImpl_GCRootIDOutOfRange, ctxidx, maxIndex), null);
+                        }
+                        int k = pidx.identifiers.reverse(ctxaddr);
+                        if (k != ctxidx)
+                        {
+                            listener.sendUserMessage(Severity.ERROR, MessageUtil.format(
+                                            Messages.SnapshotFactoryImpl_GCRootContextIDDoesNotMatchAddress, objid, ctxidx, Long.toHexString(ctxaddr)), null);
+                        }
+                    }
                 }
             }
         }
@@ -484,6 +507,29 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
                                 listener.sendUserMessage(Severity.ERROR, MessageUtil.format(
                                                 Messages.SnapshotFactoryImpl_GCThreadRootIDDoesNotMatchIndex,
                                                 thrd, objid, idx), null);
+                            }
+                            long objaddr = ifo.getObjectAddress();
+                            int j = pidx.identifiers.reverse(objaddr);
+                            if (j != idx)
+                            {
+                                listener.sendUserMessage(Severity.ERROR, MessageUtil.format(
+                                                Messages.SnapshotFactoryImpl_GCRootIDDoesNotMatchAddress, objid, Long.toHexString(objaddr)), null);
+                            }
+                            int ctxidx = ifo.getContextId();
+                            long ctxaddr = ifo.getContextAddress();
+                            if (ctxaddr != 0)
+                            {
+                                if (ctxidx < 0 || ctxidx >= maxIndex)
+                                {
+                                    listener.sendUserMessage(Severity.ERROR, MessageUtil.format(
+                                                    Messages.SnapshotFactoryImpl_GCRootIDOutOfRange, ctxidx, maxIndex), null);
+                                }
+                                int k = pidx.identifiers.reverse(ctxaddr);
+                                if (k != ctxidx)
+                                {
+                                    listener.sendUserMessage(Severity.ERROR, MessageUtil.format(
+                                                    Messages.SnapshotFactoryImpl_GCRootContextIDDoesNotMatchAddress, objid, ctxidx, Long.toHexString(ctxaddr)), null);
+                                }
                             }
                         }
                     }

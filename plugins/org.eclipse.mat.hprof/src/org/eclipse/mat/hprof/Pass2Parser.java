@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2016 SAP AG and IBM Corporation
+ * Copyright (c) 2008, 2018 SAP AG and IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -168,7 +168,7 @@ public class Pass2Parser extends AbstractParser
                     break;
                 default:
                     throw new SnapshotException(MessageUtil.format(Messages.Pass1Parser_Error_InvalidHeapDumpFile,
-                                    segmentType, segmentStartPos));
+                                    Integer.toHexString(segmentType), Long.toHexString(segmentStartPos)));
             }
             segmentStartPos = in.position();
         }
@@ -236,7 +236,7 @@ public class Pass2Parser extends AbstractParser
             boolean unknown = false;
             for (IClass clazz : hierarchy)
             {
-                if (clazz.getName().startsWith("unknown-class"))
+                if (clazz.getName().startsWith("unknown-class")) //$NON-NLS-1$
                 {
                     unknown = true;
                 }
@@ -244,12 +244,12 @@ public class Pass2Parser extends AbstractParser
             
             if (endPos >= in.position() && unknown && (strictnessPreference == HprofStrictness.STRICTNESS_WARNING || strictnessPreference == HprofStrictness.STRICTNESS_PERMISSIVE))
             {
-                monitor.sendUserMessage(Severity.WARNING, MessageUtil.format(Messages.Pass2Parser_Error_InsufficientBytesRead, segmentStartPos, endPos, in.position()), null);
+                monitor.sendUserMessage(Severity.WARNING, MessageUtil.format(Messages.Pass2Parser_Error_InsufficientBytesRead, thisClazz.getName(), Long.toHexString(id), Long.toHexString(segmentStartPos), Long.toHexString(endPos), Long.toHexString(in.position())), null);
                 in.skipBytes(endPos - in.position());
             }
             else
             {
-                throw new IOException(MessageUtil.format(Messages.Pass2Parser_Error_InsufficientBytesRead, segmentStartPos, endPos, in.position()));
+                throw new IOException(MessageUtil.format(Messages.Pass2Parser_Error_InsufficientBytesRead, thisClazz.getName(), Long.toHexString(id), Long.toHexString(segmentStartPos), Long.toHexString(endPos), Long.toHexString(in.position())));
             }
         }
 

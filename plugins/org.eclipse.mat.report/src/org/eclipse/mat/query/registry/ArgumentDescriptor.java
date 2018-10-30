@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -214,6 +214,7 @@ public class ArgumentDescriptor implements IArgumentDescriptor
 	{
 		if (value instanceof ArgumentFactory)
 		{
+			buf.append(" ");
 			if (flag != null) buf.append("-").append(flag).append(" ");
 			((ArgumentFactory) value).appendUsage(buf);
 			return;
