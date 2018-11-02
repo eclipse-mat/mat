@@ -32,9 +32,8 @@ import java.io.Closeable;
 import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
@@ -94,6 +93,12 @@ import org.eclipse.mat.util.SilentProgressListener;
 @HelpUrl("/org.eclipse.mat.ui.help/tasks/exportdump.html")
 public class ExportHprof implements IQuery
 {
+    /** A dummy stack trace */
+    private static final int UNKNOWN_STACK_TRACE_SERIAL = 1;
+
+    /** No stack frame available */
+    private static final int UNKNOWN_STACK_FRAME_SERIAL = -1;
+
     private static final Charset UTF8 = Charset.forName("UTF-8"); //$NON-NLS-1$
 
     @Argument
@@ -519,6 +524,21 @@ public class ExportHprof implements IQuery
     }
 
     /**
+     * Generate a dummy stack trace for when objects/classes
+     * etc. were allocated. Needed for jhat.
+     */
+    private int dummyStackTrace(DataOutput os, int dummyThread, long startTime) throws IOException
+    {
+        os.writeByte(Constants.Record.STACK_TRACE);
+        os.writeInt((int) (System.currentTimeMillis() - startTime));
+        os.writeInt(3 * 4);
+        os.writeInt(UNKNOWN_STACK_TRACE_SERIAL);
+        os.writeInt(dummyThread);
+        os.writeInt(0); // No frames
+        return UNKNOWN_STACK_TRACE_SERIAL;
+    }
+
+    /**
      * Dump the GC roots
      *
      * @param os
@@ -528,9 +548,12 @@ public class ExportHprof implements IQuery
     private void gcRoots(DataOutput os) throws SnapshotException, IOException
     {
         int nextThreadSerial = 1;
+        ++nextThreadSerial;
         for (int i : snapshot.getGCRoots())
         {
             int roots = 0;
+            if (!includeObject(i))
+                continue;
             GCRootInfo gi[] = snapshot.getGCRootInfo(i);
             for (GCRootInfo gri : gi)
             {
@@ -555,7 +578,7 @@ public class ExportHprof implements IQuery
                         ++nextThreadSerial;
                         Integer stackserial = threadToStack.get(gri.getObjectId());
                         if (stackserial == null)
-                            stackserial = -1;
+                            stackserial = UNKNOWN_STACK_TRACE_SERIAL;
                         os.writeInt(stackserial); // Stack trace
                         ++roots;
                         break;
@@ -567,30 +590,20 @@ public class ExportHprof implements IQuery
                             os.writeByte(tp);
                             writeID(os, gri.getObjectAddress());
                             os.writeInt(0); // thread serial
-                            os.writeInt(-1); // stack frame number
+                            os.writeInt(UNKNOWN_STACK_FRAME_SERIAL); // stack frame number
                             ++roots;
                         }
                         break;
                     case Type.NATIVE_LOCAL:
+                    case Type.NATIVE_STATIC:
+                    case Type.NATIVE_STACK:
                         contextAddr = gri.getContextAddress();
                         if (contextAddr == 0)
                         {
                             tp = Constants.DumpSegment.ROOT_JNI_GLOBAL;
                             os.writeByte(tp);
                             writeID(os, gri.getObjectAddress());
-                            os.writeInt(0); // thread serial
-                            os.writeInt(-1); // stack frame number
-                            ++roots;
-                        }
-                        break;
-                    case Type.NATIVE_STACK:
-                        contextAddr = gri.getContextAddress();
-                        if (contextAddr == 0)
-                        {
-                            tp = Constants.DumpSegment.ROOT_NATIVE_STACK;
-                            os.writeByte(tp);
-                            writeID(os, gri.getObjectAddress());
-                            os.writeInt(0); // thread serial
+                            writeID(os, 0); // JNI global ref ID
                             ++roots;
                         }
                         break;
@@ -747,8 +760,9 @@ public class ExportHprof implements IQuery
     private void dumpThreadStacks(DataOutput os, long startTime)
                     throws SnapshotException, IOException
     {
+        dummyStackTrace(os, UNKNOWN_STACK_TRACE_SERIAL, 1);
         int frameid = 1;
-        int serialid = 1;
+        int serialid = UNKNOWN_STACK_TRACE_SERIAL + 1;
         // Find the threads
         for (int i : snapshot.getGCRoots())
         {
@@ -828,7 +842,7 @@ public class ExportHprof implements IQuery
     {
         os.writeInt(cls.getObjectId()); // Class serial id
         writeID(os, cls.getObjectAddress());
-        os.writeInt(0); // stack trace serial
+        os.writeInt(UNKNOWN_STACK_TRACE_SERIAL); // stack trace serial number
         String classname = cls.getName();
         classname = remap.renameClassName(classname);
         writeString(os, classname);
@@ -950,7 +964,7 @@ public class ExportHprof implements IQuery
     {
         os.writeByte(Constants.DumpSegment.CLASS_DUMP);
         writeID(os, cls.getObjectAddress());
-        os.writeInt(0);
+        os.writeInt(UNKNOWN_STACK_TRACE_SERIAL); // stack trace serial number
         IClass sup = cls.getSuperClass();
         writeID(os, sup != null ? sup.getObjectAddress() : 0);
         writeID(os, cls.getClassLoaderAddress());
@@ -1222,6 +1236,8 @@ public class ExportHprof implements IQuery
             if (j == (k * numberOfObjects + WORK_OBJECT - 1) / WORK_OBJECT)
                 listener.worked(1);
         }
+        if (listener.isCanceled())
+            throw new OperationCanceledException();
     }
 
     /**
@@ -1356,21 +1372,31 @@ public class ExportHprof implements IQuery
                             } else {
                                 objs = new int[0][0];
                             }
-                            for (NamedReference nr : io.getOutboundReferences())
-                            {
-                                if (nr instanceof ThreadToLocalReference)
-                                {
-                                    ThreadToLocalReference tlr = (ThreadToLocalReference) nr;
-                                    for (GCRootInfo g2 : tlr.getGcRootInfo())
-                                    {
-                                        processRoot(os, g2, objs);
-                                    }
-                                }
-                            }
+                            processThreadLocalRefs(os, io, objs);
                             break;
                         default:
                             processRoot(os, g, new int[0][0]);
                             break;
+                    }
+                }
+            }
+        }
+    }
+
+    private void processThreadLocalRefs(DataOutput os, IObject io, int[][] objs) throws IOException, SnapshotException
+    {
+        for (NamedReference nr : io.getOutboundReferences())
+        {
+            if (nr instanceof ThreadToLocalReference)
+            {
+                ThreadToLocalReference tlr = (ThreadToLocalReference) nr;
+                for (GCRootInfo g2 : tlr.getGcRootInfo())
+                {
+                    processRoot(os, g2, objs);
+                    if (g2.getType() == Type.JAVA_STACK_FRAME)
+                    {
+                        // Another layer: Thread -> JAVA_STACK_FRAME -> objects
+                        processThreadLocalRefs(os, tlr.getObject(), objs);
                     }
                 }
             }
@@ -1413,7 +1439,7 @@ public class ExportHprof implements IQuery
 
             os.writeByte(Constants.DumpSegment.INSTANCE_DUMP);
             writeID(os, ii.getObjectAddress());
-            os.writeInt(0); // Stack trace
+            os.writeInt(UNKNOWN_STACK_TRACE_SERIAL); // stack trace serial number
             writeID(os, cls.getObjectAddress());
             os.writeInt((int)size);
             dumpInstance(os, cls, ii);
@@ -1446,7 +1472,7 @@ public class ExportHprof implements IQuery
 
         os.writeByte(Constants.DumpSegment.OBJECT_ARRAY_DUMP);
         writeID(os, ii.getObjectAddress());
-        os.writeInt(0); // Stack trace
+        os.writeInt(UNKNOWN_STACK_TRACE_SERIAL); // stack trace serial number
         os.writeInt(ii.getLength());
         writeID(os, ii.getClazz().getObjectAddress());
         long l[] = ii.getReferenceArray();
@@ -1469,7 +1495,7 @@ public class ExportHprof implements IQuery
 
         os.writeByte(Constants.DumpSegment.PRIMITIVE_ARRAY_DUMP);
         writeID(os, ii.getObjectAddress());
-        os.writeInt(0); // Stack trace
+        os.writeInt(UNKNOWN_STACK_TRACE_SERIAL); // stack trace serial number
         os.writeInt(ii.getLength());
         os.writeByte(ii.getType());
         // For safety, don't even read value for full redaction
@@ -1732,7 +1758,8 @@ public class ExportHprof implements IQuery
             if (mapFile != null && mapFile.canRead())
             {
                 Properties p = new Properties();
-                FileReader rdr = new FileReader(mapFile);
+                // Properties always written in ISO8859_1, so use stream
+                FileInputStream rdr = new FileInputStream(mapFile);
                 try {
                     p.load(rdr);
                 }
@@ -1766,40 +1793,40 @@ public class ExportHprof implements IQuery
             }
         }
 
+        private static class SortedProperties extends Properties
+        {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public Enumeration<Object> keys()
+            {
+                List<Object> list = Collections.list(super.keys());
+                Collections.sort(list, new Comparator<Object>()
+                {
+                    public int compare(Object o1, Object o2)
+                    {
+                        return o1.toString().compareTo(o2.toString());
+                    }
+                });
+                // Sorted, not sure about locking, but okay for this
+                // purpose
+                return Collections.enumeration(list);
+            }
+        };
+
         public void saveMapping(File mapFile, boolean undo, String comments) throws IOException
         {
             // Only save if we are not doing a reverse mapping, and it is okay to write to the file
             if (!undo && mapFile != null && (mapFile.canWrite() || !mapFile.exists()))
             {
                 // Sorted keys properties file
-                Properties p = new Properties()
-                {
-
-                    private static final long serialVersionUID = 1L;
-
-                    @Override
-                    public Enumeration<Object> keys()
-                    {
-                        List<Object> list = Collections.list(super.keys());
-                        Collections.sort(list, new Comparator<Object>()
-                        {
-
-                            public int compare(Object o1, Object o2)
-                            {
-                                return o1.toString().compareTo(o2.toString());
-                            }
-
-                        });
-                        // Sorted, not sure about locking, but okay for this
-                        // purpose
-                        return Collections.enumeration(list);
-                    }
-                };
+                Properties p = new SortedProperties();
                 for (Map.Entry<String,String> e : obfuscated.entrySet())
                 {
                     p.setProperty(e.getKey(), e.getValue());
                 }
-                FileWriter wrt = new FileWriter(mapFile);
+                // Properties always written in ISO8859_1, so use stream
+                FileOutputStream wrt = new FileOutputStream(mapFile);
                 try {
                     p.store(wrt, comments);
                 }

@@ -333,7 +333,7 @@ public class Pass1Parser extends AbstractParser
                     readGCThreadObject(GCRootInfo.Type.THREAD_OBJ);
                     break;
                 case Constants.DumpSegment.ROOT_JNI_GLOBAL:
-                    readGC(GCRootInfo.Type.NATIVE_STACK, idSize);
+                    readGC(GCRootInfo.Type.NATIVE_STATIC, idSize);
                     break;
                 case Constants.DumpSegment.ROOT_JNI_LOCAL:
                     readGCWithThreadContext(GCRootInfo.Type.NATIVE_LOCAL, true);
