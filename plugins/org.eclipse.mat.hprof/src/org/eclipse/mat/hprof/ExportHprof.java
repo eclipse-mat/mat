@@ -1189,10 +1189,8 @@ public class ExportHprof implements IQuery
                 else
                 {
                     // Use these objects
-                    IObject io = snapshot.getObject(o);
-                    IClass cls = io.getClazz();
                     // check for overflow if there is an unlimited end and this not the first object
-                    if (dumpObject(os, os2, cls, io, i > start && end == Integer.MAX_VALUE))
+                    if (this.dumpObject(os, os2, snapshot.getObject(o), i > start && end == Integer.MAX_VALUE))
                     {
                         // Success, enough room
                         ++totalObjects;
@@ -1413,7 +1411,7 @@ public class ExportHprof implements IQuery
      * @throws IOException
      * @throws SnapshotException
      */
-    private boolean dumpObject(DataOutputStream3 os, DataOutputStream3 os2, IClass cls, IObject io, boolean check)
+    private boolean dumpObject(DataOutputStream3 os, DataOutputStream3 os2, IObject io, boolean check)
                     throws IOException, SnapshotException
     {
         if (io instanceof IInstance)
@@ -1426,6 +1424,7 @@ public class ExportHprof implements IQuery
                     ++totalClassloaders;
                 return true;
             }
+            IClass cls = io.getClazz();
             long mark1 = os2.size();
             dumpInstance(os2, cls, ii);
             long mark2 = os2.size();
@@ -1449,21 +1448,80 @@ public class ExportHprof implements IQuery
         }
         else if (io instanceof IPrimitiveArray)
         {
-            return dumpPrimitiveArray(os, io, check);
+            return dumpPrimitiveArray(os, (IPrimitiveArray)io, check);
         }
         else if (io instanceof IObjectArray)
         {
-            return dumpObjectArray(os, io, check);
-        } else {
+            return dumpObjectArray(os, (IObjectArray)io, check);
+        } else if (io instanceof IClass){
             // Classes are IObject but not necessarily IInstance
+            return dumpClassObject(os, (IClass)io, check);
         }
         return true;
     }
 
-    private boolean dumpObjectArray(DataOutputStream3 os, IObject io, boolean check) throws IOException
+    /**
+     * Sometimes it might be desireable to dump an IClass also as an instance.
+     * This is likely to be incompatible with other HPROF tools, but might be necessary to indicate
+     * the type of an object is something other than java.lang.Class, 
+     * or to output per instance fields declared in java.lang.Class for other classes.
+     * CLASS_DUMP only has constant pool, declared fields and static fields - but not fields
+     * declared by java.lang.Class.
+     * @param os
+     * @param io
+     * @param check
+     * @return
+     * @throws IOException
+     */
+    private boolean dumpClassObject(DataOutputStream3 os, IClass io, boolean check) throws IOException
     {
-        IObjectArray ii = (IObjectArray) io;
+        IClass cls = io.getClazz();
+        String cn = cls.getName();
+        String rnc = remap.mapClass(cn);
+        String newclsname = rnc != null ? rnc : cn;
+        if (IClass.JAVA_LANG_CLASS.equals(newclsname))
+        {
+            // Most types are of class java.lang.Class, and don't need this extra information.
+            return true;
+        }
+        // Classes are IObject but not necessarily IInstance
+        int size = (int)cls.getHeapSizePerInstance();
+        int size2 = 0;
+        for (IClass cls2 = cls; cls2 != null; cls2 = cls2.getSuperClass())
+        {
+            for (FieldDescriptor fd : cls2.getFieldDescriptors()) {
+                int se;
+                switch (fd.getType())
+                {
+                    case IObject.Type.OBJECT:
+                        // TODO - retrieve per instance java.lang.Class fields
+                        se = idsize;
+                        break;
+                    default:
+                        se = IPrimitiveArray.ELEMENT_SIZE[fd.getType()];
+                        break;
+                }
+                 size2 += se;
+            }
+        }
+        size = size2;
+        if (check && os.size() + 1L + idsize + 4 + idsize + 4 + size > MAX_SEGMENT)
+        {
+            // Overflow
+            return false;
+        }
 
+        os.writeByte(Constants.DumpSegment.INSTANCE_DUMP);
+        writeID(os, io.getObjectAddress());
+        os.writeInt(UNKNOWN_STACK_TRACE_SERIAL); // stack trace serial number
+        writeID(os, cls.getObjectAddress());
+        os.writeInt((int)size);
+        os.write(new byte[size]);
+        return true;
+    }
+    
+    private boolean dumpObjectArray(DataOutputStream3 os, IObjectArray ii, boolean check) throws IOException
+    {
         if (check && os.size() + 1L + idsize + 4 + 4 + ii.getLength() * idsize > MAX_SEGMENT)
         {
             // This object would overflow
@@ -1480,14 +1538,12 @@ public class ExportHprof implements IQuery
         {
             writeID(os, l[i]);
         }
-        totalBytes += io.getUsedHeapSize();
+        totalBytes += ii.getUsedHeapSize();
         return true;
     }
 
-    private boolean dumpPrimitiveArray(DataOutputStream3 os, IObject io, boolean check) throws IOException
+    private boolean dumpPrimitiveArray(DataOutputStream3 os, IPrimitiveArray ii, boolean check) throws IOException
     {
-        IPrimitiveArray ii = (IPrimitiveArray) io;
-
         if (check && os.size() + 1L + idsize + 4 + 4 + 1 + ii.getLength() * (1L << (ii.getType() & 3) ) > MAX_SEGMENT)
         {
             return false;
@@ -1624,7 +1680,7 @@ public class ExportHprof implements IQuery
                 os.writeDouble(doubleValue);
             }
         }
-        totalBytes += io.getUsedHeapSize();
+        totalBytes += ii.getUsedHeapSize();
         return true;
     }
 
@@ -2075,7 +2131,7 @@ public class ExportHprof implements IQuery
          * mapping of outer class.
          *
          * @param classname
-         * @return
+         * @return the renamed class name, or the original name if no renaming is to be done for this class
          */
 
         public String renameClassName(String classname)
