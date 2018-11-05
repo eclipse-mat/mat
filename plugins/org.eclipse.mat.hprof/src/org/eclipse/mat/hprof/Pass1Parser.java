@@ -156,6 +156,9 @@ public class Pass1Parser extends AbstractParser
                     case Constants.Record.LOAD_CLASS:
                         readLoadClass();
                         break;
+                    case Constants.Record.UNLOAD_CLASS:
+                        readUnloadClass();
+                        break;
                     case Constants.Record.STACK_FRAME:
                         readStackFrame(length);
                         break;
@@ -191,7 +194,6 @@ public class Pass1Parser extends AbstractParser
                         currentDumpNr++;
                         in.skipBytes(length);
                         break;
-                    case Constants.Record.UNLOAD_CLASS:
                     case Constants.Record.ALLOC_SITES:
                     case Constants.Record.HEAP_SUMMARY:
                     case Constants.Record.START_THREAD:
@@ -277,6 +279,14 @@ public class Pass1Parser extends AbstractParser
         String className = getStringConstant(nameID).replace('/', '.');
         class2name.put(classID, className);
         classSerNum2id.put(classSerNum, classID);
+    }
+
+    private void readUnloadClass() throws IOException
+    {
+        long classSerNum = readUnsignedInt(); // used in stacks frames
+        long classID = classSerNum2id.get(classSerNum);
+        // class2name only holds active classes
+        class2name.remove(classID);
     }
 
     private void readStackFrame(long length) throws IOException
@@ -532,6 +542,8 @@ public class Pass1Parser extends AbstractParser
         }
 
         ClassImpl clazz = new ClassImpl(address, className, superClassObjectId, classLoaderObjectId, statics, fields);
+        // This will be replaced by a size calculated from the field sizes
+        clazz.setHeapSizePerInstance(instsize);
         handler.addClass(clazz, segmentStartPos);
         
         // Just in case the superclass is missing
@@ -553,6 +565,17 @@ public class Pass1Parser extends AbstractParser
         IClass instanceType = handler.lookupClass(classID);
         if (instanceType == null)
             handler.reportRequiredClass(classID, payload);
+        else
+        {
+            // If this is a instance record for a class
+            IClass instanceCls = handler.lookupClass(address);
+            if (instanceCls instanceof ClassImpl)
+            {
+                // Set the type here
+                ClassImpl instClsImpl = (ClassImpl)instanceCls;
+                instClsImpl.setClassInstance((ClassImpl) instanceType);
+            }    
+        }
 
         in.skipBytes(payload);
     }
