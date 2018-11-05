@@ -75,6 +75,8 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
     private int pointerSize;
     // The alignment between successive objects
     private int objectAlign;
+    // New size of classes including per-instance fields
+    private static final boolean NEWCLASSSIZE = false;
 
     // //////////////////////////////////////////////////////////////
     // lifecycle
@@ -156,9 +158,15 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
                 clazz.setClassLoaderIndex(identifiers.reverse(0));
             }
 
-            // add class instance
-            clazz.setClassInstance(javaLangClass);
-            javaLangClass.addInstance(clazz.getUsedHeapSize());
+            // add class instance - if not set by pass1 from an instance_dump for the class
+            if (clazz.getClazz() == null)
+                clazz.setClassInstance(javaLangClass);
+            if (NEWCLASSSIZE)
+            {
+                // Recalculate the clazz heap size based on also java.lang.Class fields
+                clazz.setUsedHeapSize(clazz.getUsedHeapSize() + clazz.getClazz().getHeapSizePerInstance());
+            }
+            clazz.getClazz().addInstance(clazz.getUsedHeapSize());
 
             // resolve super class
             ClassImpl superclass = lookupClass(clazz.getSuperClassAddress());
@@ -240,7 +248,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
         String clss[] = {ClassImpl.JAVA_LANG_CLASS, ClassImpl.JAVA_LANG_CLASSLOADER};
         for (String cls : clss)
         {
-            List<ClassImpl>jlcs = classesByName.get(cls); //$NON-NLS-1$
+            List<ClassImpl>jlcs = classesByName.get(cls);
             if (jlcs == null || jlcs.isEmpty())
             {
                 while (identifiers.reverse(++nextObjectAddress) >= 0)
@@ -531,13 +539,13 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
     {
         if (referrer != 0)
         {
-            HashMapLongObject localAddressToRootInfo = threadAddressToLocals.get(referrer);
+            HashMapLongObject<List<XGCRootInfo>> localAddressToRootInfo = threadAddressToLocals.get(referrer);
             if (localAddressToRootInfo == null)
             {
-                localAddressToRootInfo = new HashMapLongObject();
+                localAddressToRootInfo = new HashMapLongObject<List<XGCRootInfo>>();
                 threadAddressToLocals.put(referrer, localAddressToRootInfo);
             }
-            List<XGCRootInfo> gcRootInfo = (List<XGCRootInfo>) localAddressToRootInfo.get(id);
+            List<XGCRootInfo> gcRootInfo = localAddressToRootInfo.get(id);
             if (gcRootInfo == null)
             {
                 gcRootInfo = new ArrayList<XGCRootInfo>(1);
@@ -596,7 +604,11 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
 
     public void reportInstance(long id, long filePosition)
     {
-        this.identifiers.add(id);
+        // Check for INSTANCE_DUMP for an existing class object
+        if (!classesByAddress.containsKey(id))
+        {
+            this.identifiers.add(id);
+        }
     }
 
     public void reportRequiredObjectArray(long arrayClassID)

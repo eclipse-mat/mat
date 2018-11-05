@@ -40,6 +40,8 @@ public class Pass2Parser extends AbstractParser
 {
     private IHprofParserHandler handler;
     private SimpleMonitor.Listener monitor;
+    // New size of classes including per-instance fields
+    private static final boolean NEWCLASSSIZE = false;
 
     public Pass2Parser(IHprofParserHandler handler, SimpleMonitor.Listener monitor,
                     HprofPreferences.HprofStrictness strictnessPreference)
@@ -207,10 +209,38 @@ public class Pass2Parser extends AbstractParser
         List<IClass> hierarchy = handler.resolveClassHierarchy(classID);
 
         ClassImpl thisClazz = (ClassImpl) hierarchy.get(0);
-        HeapObject heapObject = new HeapObject(handler.mapAddressToId(id), id, thisClazz,
-                        thisClazz.getHeapSizePerInstance());
+        HeapObject heapObject;
 
-        heapObject.references.add(thisClazz.getObjectAddress());
+        IClass objcl = handler.lookupClass(id);
+        if (objcl instanceof ClassImpl)
+        {
+            // An INSTANCE_DUMP record for a class type
+            // This clazz is perhaps of different actual type, not java.lang.Class
+            // So fix the type
+            ClassImpl objcls = (ClassImpl) objcl;
+            // Remove size from old type (java.lang.Class)
+            objcls.getClazz().removeInstance(objcls.getUsedHeapSize());
+            // Set the new size, allowing for the fields in the new type, see also beforePass2()
+            if (NEWCLASSSIZE)
+            {
+                // We are calculating class instance sizes of static fields + fields of java.lang.Class (or the new type)
+                long perInstDelta = thisClazz.getHeapSizePerInstance()- objcls.getClazz().getHeapSizePerInstance();
+                objcls.setUsedHeapSize(objcls.getUsedHeapSize() + perInstDelta);
+            }
+            // Set the type of the new clazz
+            objcls.setClassInstance(thisClazz);
+            // Heap size of each class type object is individual as have statics
+            heapObject = new HeapObject(handler.mapAddressToId(id), id, thisClazz,
+                            objcls.getUsedHeapSize());
+            // and extract the class references
+            heapObject.references.addAll(objcls.getReferences());
+        }
+        else
+        {
+            heapObject = new HeapObject(handler.mapAddressToId(id), id, thisClazz,
+                            thisClazz.getHeapSizePerInstance());
+            heapObject.references.add(thisClazz.getObjectAddress());
+        }
 
         // extract outgoing references
         for (IClass clazz : hierarchy)

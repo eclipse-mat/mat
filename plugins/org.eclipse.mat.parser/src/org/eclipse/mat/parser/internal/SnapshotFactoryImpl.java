@@ -233,8 +233,20 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
                 indexBuilder.clean(purgedMapping, listener);
 
                 SnapshotImpl snapshot = builder.create(parser, listener);
-
-                snapshot.calculateDominatorTree(listener);
+                boolean done = false;
+                try
+                {
+                    snapshot.calculateDominatorTree(listener);
+                    done = true;
+                }
+                finally
+                {
+                    if (!done)
+                    {
+                        // Error in dominator tree, so close the index files
+                        snapshot.dispose();
+                    }
+                }
 
                 return snapshot;
             }

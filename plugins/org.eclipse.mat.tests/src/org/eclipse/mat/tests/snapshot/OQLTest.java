@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2017 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -875,7 +875,7 @@ public class OQLTest
     @Test
     public void testComplex1() throws SnapshotException {
         int res[] = (int[])execute("SELECT OBJECTS r from OBJECTS ${snapshot}.@GCRoots r "
-                    + " WHERE (SELECT s FROM OBJECTS ${snapshot}.getGCRootInfo(r) s WHERE s.@type = 128) != null");
+                    + " WHERE (SELECT s FROM OBJECTS ${snapshot}.getGCRootInfo(r) s WHERE s.@type = 8) != null");
         assertEquals(23, res.length);
     }
 
@@ -886,7 +886,7 @@ public class OQLTest
     @Test
     public void testComplex2() throws SnapshotException {
         int res[] = (int[])execute("SELECT OBJECTS r from OBJECTS ${snapshot}.@GCRoots r "
-                    + " WHERE (SELECT s FROM dummy s UNION (SELECT s FROM OBJECTS ${snapshot}.getGCRootInfo(r) s WHERE s.@type = 128)) != null");
+                    + " WHERE (SELECT s FROM dummy s UNION (SELECT s FROM OBJECTS ${snapshot}.getGCRootInfo(r) s WHERE s.@type = 8)) != null");
         assertEquals(23, res.length);
     }
 

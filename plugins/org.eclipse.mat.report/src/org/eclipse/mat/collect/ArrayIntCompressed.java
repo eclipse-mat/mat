@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson/IBM Corporation - allow changing of entries
  *******************************************************************************/
 package org.eclipse.mat.collect;
 
@@ -140,6 +141,8 @@ public class ArrayIntCompressed
         if (off > 0x8)
         {
             off -= 0x8;
+            // Mask off old data
+            data[idx] &= ~((1 << varyingBits - off) - 1);
             data[idx++] |= (byte) (value >>> off);
             while (off > 0x8)
             {
@@ -147,6 +150,9 @@ public class ArrayIntCompressed
                 data[idx++] = (byte) (value >>> off);
             }
         }
+        // Mask off old data
+        // Shift 2 by varyingBits - 1 to avoid problem with varying bits == 32
+        data[idx] &= ~(((2 << varyingBits - 1) - 1) << (0x8 - off));
         data[idx] |= (byte) (value << (0x8 - off));
     }
 
