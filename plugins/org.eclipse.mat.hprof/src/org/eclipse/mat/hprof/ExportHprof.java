@@ -52,6 +52,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -59,6 +60,7 @@ import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.BitField;
 import org.eclipse.mat.collect.SetInt;
 import org.eclipse.mat.hprof.AbstractParser.Constants;
+import org.eclipse.mat.hprof.ui.HprofPreferences;
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
@@ -138,6 +140,10 @@ public class ExportHprof implements IQuery
 
     @Argument(flag = Argument.UNFLAGGED, isMandatory = false)
     public IHeapObjectArgument objects;
+
+    /** Dump class fields as a instance dump */
+    @Argument(isMandatory = false, flag = "classInstance")
+    public boolean classesAsInstances = false;
 
     /** How big a heap dump segment can grow before it needs to be split */
     private static final long MAX_SEGMENT = 0xffffffffL;
@@ -317,6 +323,9 @@ public class ExportHprof implements IQuery
 
     /** Progress monitor work per class for dumping objects */
     private static final int WORK_OBJECT = 3;
+
+    /** Ready for new way of reading classes */
+    private final boolean NEWCLASSSIZE = HprofPreferences.useAdditionalClassReferences();
 
     Remap remap;
 
@@ -972,18 +981,122 @@ public class ExportHprof implements IQuery
         writeID(os, cls.getClassLoaderAddress());
         // Remember the type of the loader as a possible type for all class loaders
         classloaders.add(cls.getClassLoaderId());
-        writeID(os, 0); // signers
-        writeID(os, 0); // protection domain
-        writeID(os, 0); // reserved
-        writeID(os, 0); // reserved
-        os.writeInt((int) cls.getHeapSizePerInstance());
-        os.writeShort(0); // constant pool
-        // Static fields
+        // Calculate constant pool
         List<Field> statics = cls.getStaticFields();
-        os.writeShort((short) statics.size());
+        boolean skip[] = new boolean[statics.size()];
+        long signersId = 0;
+        long protectionDomainId = 0;
+        long reserved1Id = 0;
+        long reserved2Id = 0;
+        // count constant pool
+        int skipfields = 0;
+        int cpsize = 0;
+        Pattern cpName = Pattern.compile("constant pool\\[(\\d+)\\]"); //$NON-NLS-1$
+        int idx = 0;
         for (Field fld : statics)
         {
             String fieldName = fld.getName();
+            if (NEWCLASSSIZE && cpName.matcher(fieldName).matches())
+            {
+                ++cpsize;
+                ++skipfields;
+                skip[idx] = true;
+            }
+            if (NEWCLASSSIZE && fld.getType() == IObject.Type.OBJECT)
+            {
+                if (fieldName.equals("<signers>")) //$NON-NLS-1$
+                {
+                    ++skipfields;
+                    skip[idx] = true;
+                    if (fld.getValue() instanceof IObject)
+                        signersId = ((IObject)fld.getValue()).getObjectAddress();
+                }
+                if (fieldName.equals("<protectionDomain>")) //$NON-NLS-1$
+                {
+                    ++skipfields;
+                    skip[idx] = true;
+                    if (fld.getValue() instanceof IObject)
+                        protectionDomainId = ((IObject)fld.getValue()).getObjectAddress();
+                }
+                if (fieldName.equals("<reserved1>")) //$NON-NLS-1$
+                {
+                    ++skipfields;
+                    skip[idx] = true;
+                    if (fld.getValue() instanceof IObject)
+                        reserved1Id = ((IObject)fld.getValue()).getObjectAddress();
+                }
+                if (fieldName.equals("<reserved2>")) //$NON-NLS-1$
+                {
+                    ++skipfields;
+                    skip[idx] = true;
+                    if (fld.getValue() instanceof IObject)
+                        reserved2Id = ((IObject)fld.getValue()).getObjectAddress();
+                }
+            }
+            ++idx;
+        }
+        // Ignore static fields which will be dumped as class fields
+        if (classesAsInstances)
+        {
+            for (IClass cls1 = cls.getClazz(); cls1 != null; cls1 = cls1.getSuperClass())
+            {
+                for (FieldDescriptor fd : cls1.getFieldDescriptors())
+                {
+                    int idx2 = 0;
+                    for (Field fld : cls.getStaticFields())
+                    {
+                        if (!skip[idx2] && fd.getType() == fld.getType() && fld.getName().equals("<"+fd.getName()+">")) //$NON-NLS-1$ //$NON-NLS-2$
+                        {
+                            ++skipfields;
+                            skip[idx2] = true;
+                            break;
+                        }
+                        ++idx2;
+                    }
+                }
+            }
+        }
+        writeID(os, signersId); // signers
+        writeID(os, protectionDomainId); // protection domain
+        writeID(os, reserved1Id); // reserved
+        writeID(os, reserved2Id); // reserved
+        // Calculate the HPROF instance size as the size of an instance dump record data
+        // not what this snapshot has as the whole instance size: cls.getHeapSizePerInstance();
+        int hprofInstanceSize = 0;
+        for (IClass cls1 = cls; cls1 != null; cls1 = cls1.getSuperClass())
+        {
+            for (FieldDescriptor fld : cls1.getFieldDescriptors())
+            {
+                int type = fld.getType();
+                if (type == IObject.Type.OBJECT)
+                    hprofInstanceSize += idsize;
+                else
+                    hprofInstanceSize += IPrimitiveArray.ELEMENT_SIZE[type];
+            }
+        }
+        os.writeInt(hprofInstanceSize);
+        // write constant pool
+        os.writeShort(cpsize); // constant pool
+        for (Field fld : statics)
+        {
+            String fieldName = fld.getName();
+            Matcher matcher = cpName.matcher(fieldName);
+            if (NEWCLASSSIZE && matcher.matches())
+            {
+                String id = matcher.group(1);
+                int cpidx = Integer.parseInt(id);
+                os.writeShort((short)cpidx);
+                writeField(os, fld, true);
+            }
+        }
+        // Static fields
+        os.writeShort((short) (statics.size() - skipfields));
+        idx = 0;
+        for (Field fld : statics)
+        {
+            String fieldName = fld.getName();
+            if (skip[idx++])
+                continue;
             fieldName = remap.renameMethodName(cls.getName(), fieldName, true);
             writeString(os, fieldName);
             writeField(os, fld, true);
@@ -1192,7 +1305,7 @@ public class ExportHprof implements IQuery
                 {
                     // Use these objects
                     // check for overflow if there is an unlimited end and this not the first object
-                    if (this.dumpObject(os, os2, snapshot.getObject(o), i > start && end == Integer.MAX_VALUE))
+                    if (dumpObject(os, os2, snapshot.getObject(o), i > start && end == Integer.MAX_VALUE))
                     {
                         // Success, enough room
                         ++totalObjects;
@@ -1463,7 +1576,7 @@ public class ExportHprof implements IQuery
     }
 
     /**
-     * Sometimes it might be desireable to dump an IClass also as an instance.
+     * Sometimes it might be desirable to dump an IClass also as an instance.
      * This is likely to be incompatible with other HPROF tools, but might be necessary to indicate
      * the type of an object is something other than java.lang.Class, 
      * or to output per instance fields declared in java.lang.Class for other classes.
@@ -1477,15 +1590,11 @@ public class ExportHprof implements IQuery
      */
     private boolean dumpClassObject(DataOutputStream3 os, IClass io, boolean check) throws IOException
     {
-        IClass cls = io.getClazz();
-        String cn = cls.getName();
-        String rnc = remap.mapClass(cn);
-        String newclsname = rnc != null ? rnc : cn;
-        if (IClass.JAVA_LANG_CLASS.equals(newclsname))
+        if (!classesAsInstances)
         {
-            // Most types are of class java.lang.Class, and don't need this extra information.
             return true;
         }
+        IClass cls = io.getClazz();
         // Classes are IObject but not necessarily IInstance
         int size = (int)cls.getHeapSizePerInstance();
         int size2 = 0;
@@ -1496,14 +1605,13 @@ public class ExportHprof implements IQuery
                 switch (fd.getType())
                 {
                     case IObject.Type.OBJECT:
-                        // TODO - retrieve per instance java.lang.Class fields
                         se = idsize;
                         break;
                     default:
                         se = IPrimitiveArray.ELEMENT_SIZE[fd.getType()];
                         break;
                 }
-                 size2 += se;
+                size2 += se;
             }
         }
         size = size2;
@@ -1518,7 +1626,42 @@ public class ExportHprof implements IQuery
         os.writeInt(UNKNOWN_STACK_TRACE_SERIAL); // stack trace serial number
         writeID(os, cls.getObjectAddress());
         os.writeInt((int)size);
-        os.write(new byte[size]);
+        // Dump the actual fields
+        Field ss[] = cls.getStaticFields().toArray(new Field[0]);
+        for (IClass cls2 = cls; cls2 != null; cls2 = cls2.getSuperClass())
+        {
+            for (FieldDescriptor fd : cls2.getFieldDescriptors()) {
+                int fix = 0;
+                for (fix = 0; fix < ss.length; ++fix)
+                {
+                    Field fs = ss[fix];
+                    if (fs == null)
+                        continue;
+                    // match by type and pseudo-reference name
+                    if (fs.getType() == fd.getType() && fs.getName().equals("<"+fd.getName()+">")) //$NON-NLS-1$ //$NON-NLS-2$
+                    {
+                        writeField(os, fs, false);
+                        ss[fix] = null;
+                        break;
+                    }
+                }
+                if (fix >= ss.length)
+                {
+                    // Not found
+                    int se;
+                    switch (fd.getType())
+                    {
+                        case IObject.Type.OBJECT:
+                            se = idsize;
+                            break;
+                        default:
+                            se = IPrimitiveArray.ELEMENT_SIZE[fd.getType()];
+                            break;
+                    }
+                    os.write(new byte[se]);
+                }
+            }
+        }
         return true;
     }
     
@@ -1579,8 +1722,6 @@ public class ExportHprof implements IQuery
                 if (newstr == null)
                 {
                     newstr = remap.mapSignature(s);
-                    if (newstr != null)
-                        System.out.println("Found "+s+" "+newstr);
                 }
                 if (newstr != null)
                 {

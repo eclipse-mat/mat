@@ -195,7 +195,7 @@ import org.eclipse.mat.util.SimpleMonitor.Listener;
 
     protected void skipValue(int type) throws IOException
     {
-        if (type == 2)
+        if (type == IObject.Type.OBJECT)
             in.skipBytes(idSize);
         else
             in.skipBytes(IPrimitiveArray.ELEMENT_SIZE[type]);

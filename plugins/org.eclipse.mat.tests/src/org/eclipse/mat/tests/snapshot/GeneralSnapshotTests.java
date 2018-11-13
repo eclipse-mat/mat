@@ -11,10 +11,10 @@
  *******************************************************************************/
 package org.eclipse.mat.tests.snapshot;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.either;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.junit.Assert.assertEquals;
@@ -22,7 +22,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeFalse;
 import static org.junit.Assume.assumeThat;
 import static org.junit.Assume.assumeTrue;
 
@@ -44,6 +43,7 @@ import org.eclipse.mat.snapshot.SnapshotInfo;
 import org.eclipse.mat.snapshot.model.GCRootInfo;
 import org.eclipse.mat.snapshot.model.GCRootInfo.Type;
 import org.eclipse.mat.snapshot.model.IClass;
+import org.eclipse.mat.snapshot.model.IClassLoader;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IStackFrame;
 import org.eclipse.mat.snapshot.model.IThreadStack;
@@ -420,7 +420,32 @@ public class GeneralSnapshotTests
                 assertEquals("Classes", oldInfo.getNumberOfClasses(), newInfo.getNumberOfClasses());
                 assertEquals("Objects", oldInfo.getNumberOfObjects(), newInfo.getNumberOfObjects());
                 assertEquals("Classloaders", oldInfo.getNumberOfClassLoaders(), newInfo.getNumberOfClassLoaders());
-                assertEquals("GC Roots", oldInfo.getNumberOfGCRoots(), newInfo.getNumberOfGCRoots());
+                // Check number of (non-array) system classes not marked as GC root
+                IObject boot = snapshot.getObject(0);
+                int bootcls = 0;
+                int systemclsroot = 0;
+                if (boot instanceof IClassLoader)
+                {
+                    IClassLoader bootldr = ((IClassLoader)boot);
+                    if (bootldr.getObjectAddress() == 0)
+                    {
+                        for (IClass cl : bootldr.getDefinedClasses())
+                        {
+                            if (cl.isArrayType())
+                                continue;
+                            ++bootcls;
+                            GCRootInfo g[] = snapshot.getGCRootInfo(cl.getObjectId());
+                            if (g != null && g.length >= 1)
+                            {
+                                // The class is a root for some reason
+                                ++systemclsroot;
+                            }
+                        }
+                    }
+                }
+                // Parsing new HPROF will make all classes loaded by boot loader as GC roots, so adjust the expected total
+                // Only seems to apply for IBM 1.4.2 SDFF dumps with 'double', 'long' classes not as system class roots 
+                assertEquals("GC Roots", oldInfo.getNumberOfGCRoots() + (bootcls - systemclsroot), newInfo.getNumberOfGCRoots());
             } finally {
                 newSnapshot.dispose();
             }

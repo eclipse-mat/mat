@@ -1699,6 +1699,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
         boolean foundFields = false;
         for (JavaClass j2 : allClasses)
         {
+            if (listener.isCanceled()) { throw new IProgressListener.OperationCanceledException(); }
             // Don't do java.lang.Class twice
             if (j2.equals(clsJavaLangClass))
                 continue;
@@ -2475,6 +2476,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             out.print(" at "); //$NON-NLS-1$
             if (next instanceof CorruptData)
             {
+                // Consider whether we should generate a stack frame line with just " at " when there is corrupt data.
                 continue;
             }
             JavaStackFrame jsf = (JavaStackFrame) next;
@@ -7175,7 +7177,8 @@ public class DTFJIndexBuilder implements IIndexBuilder
         }
 
         // Add constant pool entries as pseudo fields
-        int cpindex = 0;
+        // Constant pool index starts at 1: see JVM spec ClassFile structure
+        int cpindex = 1;
         Iterator<?> f1;
         try
         {
