@@ -25,6 +25,8 @@ import java.util.Set;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.collect.HashMapLongObject;
+import org.eclipse.mat.collect.HashMapLongObject.Entry;
+import org.eclipse.mat.hprof.ui.HprofPreferences;
 import org.eclipse.mat.collect.IteratorLong;
 import org.eclipse.mat.parser.IPreliminaryIndex;
 import org.eclipse.mat.parser.index.IIndexReader.IOne2LongIndex;
@@ -76,7 +78,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
     // The alignment between successive objects
     private int objectAlign;
     // New size of classes including per-instance fields
-    private static final boolean NEWCLASSSIZE = false;
+    private final boolean NEWCLASSSIZE = HprofPreferences.useAdditionalClassReferences();
 
     // //////////////////////////////////////////////////////////////
     // lifecycle
@@ -111,6 +113,9 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
         // informational messages to the user
         monitor.sendUserMessage(IProgressListener.Severity.INFO, MessageUtil.format(
                         Messages.HprofParserHandlerImpl_HeapContainsObjects, info.getPath(), identifiers.size()), null);
+
+        // if instance dumps for classes are present, then fix up the classes
+        addTypesAndDummyStatics();
 
         int maxClassId = 0;
 
@@ -158,15 +163,25 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
                 clazz.setClassLoaderIndex(identifiers.reverse(0));
             }
 
+            boolean skipLogRefs = false;
             // add class instance - if not set by pass1 from an instance_dump for the class
             if (clazz.getClazz() == null)
-                clazz.setClassInstance(javaLangClass);
-            if (NEWCLASSSIZE)
             {
-                // Recalculate the clazz heap size based on also java.lang.Class fields
-                clazz.setUsedHeapSize(clazz.getUsedHeapSize() + clazz.getClazz().getHeapSizePerInstance());
+                clazz.setClassInstance(javaLangClass);
+                if (NEWCLASSSIZE)
+                {
+                    // Recalculate the clazz heap size based on also java.lang.Class fields
+                    // No need to do this for classes of other types as
+                    // these have object instance records with fields converted to statics
+                    clazz.setUsedHeapSize(clazz.getUsedHeapSize() + clazz.getClazz().getHeapSizePerInstance());
+                }
+                clazz.getClazz().addInstance(clazz.getUsedHeapSize());
             }
-            clazz.getClazz().addInstance(clazz.getUsedHeapSize());
+            else
+            {
+                // References for classes with instance dump records will be generated in pass2
+                skipLogRefs = true;
+            }
 
             // resolve super class
             ClassImpl superclass = lookupClass(clazz.getSuperClassAddress());
@@ -175,7 +190,8 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
 
             object2classId.set(clazz.getObjectId(), clazz.getClazz().getObjectId());
 
-            outbound.log(identifiers, clazz.getObjectId(), clazz.getReferences());
+            if (!skipLogRefs)
+                outbound.log(identifiers, clazz.getObjectId(), clazz.getReferences());
         }
 
         // report dependencies for system class loader
@@ -188,6 +204,71 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
         this.addObject(heapObject, 0);
 
         constantPool = null;
+    }
+
+    /**
+     * Possible HPROF extension:
+     * classes also with instance dump records.
+     * The classes could be of a type other than java.lang.Class
+     * There could also be per-instance fields defined by their type.
+     * Those values can be made accessible to MAT bby creating pseudo-static fields.
+     */
+    private void addTypesAndDummyStatics()
+    {
+        // Set type (and size?) for classes with object instances
+        // These will have had the type set by Pass1Parser
+        for (Iterator<Entry<ClassImpl>> it = classesByAddress.entries(); it.hasNext();)
+        {
+            Entry<ClassImpl> e = it.next();
+            ClassImpl cl = e.getValue();
+            ClassImpl type = cl.getClazz();
+            if (type != null)
+            {
+                List<FieldDescriptor> newStatics = new ArrayList<FieldDescriptor>(cl.getStaticFields());
+                List<IClass> icls = resolveClassHierarchy(type.getClassAddress());
+                for (IClass tcl : icls)
+                {
+                    for (FieldDescriptor fd : tcl.getFieldDescriptors())
+                    {
+                        // Create pseudo-static field
+                        Field st = new Field("<" + fd.getName() + ">", fd.getType(), null); //$NON-NLS-1$ //$NON-NLS-2$
+                        newStatics.add(st);
+                    }
+                }
+                if (newStatics.size() != cl.getStaticFields().size())
+                {
+                    ClassImpl newcl = new ClassImpl(cl.getObjectAddress(), cl.getName(), cl.getSuperClassAddress(),
+                                    cl.getClassLoaderAddress(), newStatics.toArray(new Field[newStatics.size()]),
+                                    cl.getFieldDescriptors().toArray(new FieldDescriptor[0]));
+                    newcl.setClassInstance(type);
+                    // Fix up the existing lookups
+                    classesByAddress.put(e.getKey(), newcl);
+                    List<ClassImpl>nms = classesByName.get(cl.getName());
+                    for (int i = 0; i < nms.size(); ++i)
+                    {
+                        if (nms.get(i) == cl)
+                            nms.set(i, newcl);
+                    }
+                }
+            }
+        }
+
+        // Set type to new type with the dummy static fields
+        for (Iterator<Entry<ClassImpl>> it = classesByAddress.entries(); it.hasNext();)
+        {
+            Entry<ClassImpl> e = it.next();
+            ClassImpl cl = e.getValue();
+            ClassImpl type = cl.getClazz();
+            if (type != null)
+            {
+                ClassImpl type2 = classesByAddress.get(type.getObjectAddress());
+                // Actual object test, not equality as we need to maintain linkage to the new class
+                if (type != type2)
+                {
+                    cl.setClassInstance(type2);
+                }
+            }
+        }
     }
 
     /**
@@ -254,7 +335,6 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
                 while (identifiers.reverse(++nextObjectAddress) >= 0)
                 {}
                 IClass type = new ClassImpl(nextObjectAddress, cls, jlo, 0, new Field[0], new FieldDescriptor[0]);
-                ++clsid;
                 addClass((ClassImpl) type, -1);
             }
         }
@@ -391,7 +471,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
     private int sizeOf(FieldDescriptor field)
     {
         int type = field.getType();
-        if (type == 2)
+        if (type == IObject.Type.OBJECT)
             return refSize;
 
         return IPrimitiveArray.ELEMENT_SIZE[type];
@@ -534,7 +614,6 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
         }
     }
 
-    @SuppressWarnings("unchecked")
     public void addGCRoot(long id, long referrer, int rootType)
     {
         if (referrer != 0)
