@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011,2013 IBM Corporation.
+ * Copyright (c) 2011,2018 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.mat.hprof.ui;
 
+import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.RadioGroupFieldEditor;
@@ -67,6 +68,8 @@ public class HPROFPreferencePage extends FieldEditorPreferencePage implements IW
                         // PreferenceConstants.HprofStrictness.STRICTNESS_PERMISSIVE
                         // .toString() }
                         }, getFieldEditorParent(), true));
+        addField(new BooleanFieldEditor(HprofPreferences.ADDITIONAL_CLASS_REFERENCES, Messages.HPROFPreferences_Additional_Class_References,
+                        getFieldEditorParent()));
     }
 
     /**

@@ -81,6 +81,7 @@ public class Messages extends NLS
     public static String HPROFPreferences_Strictness_Permissive;
     public static String HPROFStrictness_Unhandled_Preference;
     public static String HPROFStrictness_Stopped;
+    public static String HPROFPreferences_Additional_Class_References;
 
     static
     {

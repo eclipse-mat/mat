@@ -28,6 +28,7 @@ import java.util.regex.Pattern;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.HashMapLongObject;
+import org.eclipse.mat.collect.HashMapLongObject.Entry;
 import org.eclipse.mat.hprof.ui.HprofPreferences;
 import org.eclipse.mat.parser.io.PositionInputStream;
 import org.eclipse.mat.parser.model.ClassImpl;
@@ -36,7 +37,10 @@ import org.eclipse.mat.snapshot.model.Field;
 import org.eclipse.mat.snapshot.model.FieldDescriptor;
 import org.eclipse.mat.snapshot.model.GCRootInfo;
 import org.eclipse.mat.snapshot.model.IClass;
+import org.eclipse.mat.snapshot.model.IObject;
+import org.eclipse.mat.snapshot.model.IObject.Type;
 import org.eclipse.mat.snapshot.model.IPrimitiveArray;
+import org.eclipse.mat.snapshot.model.ObjectReference;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.IProgressListener.Severity;
 import org.eclipse.mat.util.MessageUtil;
@@ -47,11 +51,15 @@ public class Pass1Parser extends AbstractParser
     private static final Pattern PATTERN_OBJ_ARRAY = Pattern.compile("^(\\[+)L(.*);$"); //$NON-NLS-1$
     private static final Pattern PATTERN_PRIMITIVE_ARRAY = Pattern.compile("^(\\[+)(.)$"); //$NON-NLS-1$
 
+    // New size of classes including per-instance fields
+    private final boolean NEWCLASSSIZE = HprofPreferences.useAdditionalClassReferences();
+
     private HashMapLongObject<String> class2name = new HashMapLongObject<String>();
     private HashMapLongObject<Long> thread2id = new HashMapLongObject<Long>();
     private HashMapLongObject<StackFrame> id2frame = new HashMapLongObject<StackFrame>();
     private HashMapLongObject<StackTrace> serNum2stackTrace = new HashMapLongObject<StackTrace>();
     private HashMapLongObject<Long> classSerNum2id = new HashMapLongObject<Long>();
+    private HashMapLongObject<Long> class2type = new HashMapLongObject<Long>();
     private HashMapLongObject<List<JavaLocal>> thread2locals = new HashMapLongObject<List<JavaLocal>>();
     private IHprofParserHandler handler;
     private SimpleMonitor.Listener monitor;
@@ -273,7 +281,7 @@ public class Pass1Parser extends AbstractParser
     {
         long classSerNum = readUnsignedInt(); // used in stacks frames
         long classID = readID();
-        in.skipBytes(4);
+        in.skipBytes(4); // stack trace
         long nameID = readID();
 
         String className = getStringConstant(nameID).replace('/', '.');
@@ -461,22 +469,41 @@ public class Pass1Parser extends AbstractParser
         long superClassObjectId = readID();
         long classLoaderObjectId = readID();
 
-        // skip signers, protection domain, reserved ids (2)
-        in.skipBytes(this.idSize * 4);
+        // read signers, protection domain, reserved ids (2)
+        long signersId = readID();
+        long protectionDomainId = readID();
+        long reserved1Id = readID();
+        long reserved2Id = readID();
+        int extraDummyStatics = 0;
+        if (NEWCLASSSIZE)
+        {
+            // Always add signers / protectionDomain
+            extraDummyStatics += 2;
+            if (reserved1Id != 0)
+                ++extraDummyStatics;
+            if (reserved2Id != 0)
+                ++extraDummyStatics;
+        }
+
         // instance size
         int instsize = in.readInt();
 
         // constant pool: u2 ( u2 u1 value )*
         int constantPoolSize = in.readUnsignedShort();
+        Field[] constantPool = new Field[constantPoolSize];
         for (int ii = 0; ii < constantPoolSize; ii++)
         {
-            in.skipBytes(2); // index
-            skipValue(); // value
+            int index = in.readUnsignedShort(); // index
+            String name = "<constant pool["+index+"]>"; //$NON-NLS-1$ //$NON-NLS-2$
+            byte type = in.readByte();
+
+            Object value = readValue(null, type);
+            constantPool[ii] = new Field(name, type, value);
         }
 
         // static fields: u2 num ( name ID, u1 type, value)
         int numStaticFields = in.readUnsignedShort();
-        Field[] statics = new Field[numStaticFields];
+        Field[] statics = new Field[numStaticFields + extraDummyStatics];
 
         for (int ii = 0; ii < numStaticFields; ii++)
         {
@@ -487,6 +514,21 @@ public class Pass1Parser extends AbstractParser
 
             Object value = readValue(null, type);
             statics[ii] = new Field(name, type, value);
+        }
+
+        if (NEWCLASSSIZE)
+        {
+            int si = numStaticFields;
+            statics[si++] = new Field("<signers>", Type.OBJECT, signersId == 0 ? null : new ObjectReference(null, signersId)); //$NON-NLS-1$
+            statics[si++] = new Field("<protectionDomain>", Type.OBJECT, protectionDomainId == 0 ? null : new ObjectReference(null, protectionDomainId)); //$NON-NLS-1$
+            if (reserved1Id != 0)
+                statics[si++] = new Field("<reserved1>", Type.OBJECT, reserved1Id == 0 ? null : new ObjectReference(null, reserved1Id)); //$NON-NLS-1$
+            if (reserved2Id != 0)
+                statics[si++] = new Field("<reserved2>", Type.OBJECT, reserved2Id == 0 ? null : new ObjectReference(null, reserved2Id)); //$NON-NLS-1$
+            Field all[] = new Field[statics.length + constantPool.length];
+            System.arraycopy(statics,  0,  all,  0,  statics.length);
+            System.arraycopy(constantPool,  0,  all,  statics.length, constantPool.length);
+            statics = all;
         }
 
         // instance fields: u2 num ( name ID, u1 type )
@@ -549,8 +591,45 @@ public class Pass1Parser extends AbstractParser
         // Just in case the superclass is missing
         if (superClassObjectId != 0 && handler.lookupClass(superClassObjectId) == null)
         {
+            // Try to calculate how big the superclass should be
+            int ownFieldsSize = 0;
+            for (FieldDescriptor field : clazz.getFieldDescriptors())
+            {
+                int type = field.getType();
+                if (type == IObject.Type.OBJECT)
+                    ownFieldsSize += idSize;
+                else
+                    ownFieldsSize += IPrimitiveArray.ELEMENT_SIZE[type];
+            }
+            int supersize = Math.max(instsize - ownFieldsSize, 0);
             // A real size of an instance will override this
-            handler.reportRequiredClass(superClassObjectId, Integer.MAX_VALUE);
+            handler.reportRequiredClass(superClassObjectId, supersize);
+        }
+
+        // Check / set types of classes
+        if (class2type.containsKey(address))
+        {
+            // Already seen an instance dump for class type
+            long typeId = class2type.get(address);
+            IClass type = handler.lookupClass(typeId);
+            if (type instanceof ClassImpl)
+            {
+                clazz.setClassInstance((ClassImpl)type);
+            }
+        }
+        for (Iterator<Entry<Long>>it = class2type.entries(); it.hasNext(); )
+        {
+            Entry<Long>e = it.next();
+            if (e.getValue() == address)
+            {
+                // Existing class has this class as its type
+                IClass base = handler.lookupClass(e.getKey());
+                if (base instanceof ClassImpl)
+                {
+                    ClassImpl baseCls = (ClassImpl)base;
+                    baseCls.setClassInstance(clazz);
+                }
+            }
         }
     }
 
@@ -575,6 +654,12 @@ public class Pass1Parser extends AbstractParser
                 ClassImpl instClsImpl = (ClassImpl)instanceCls;
                 instClsImpl.setClassInstance((ClassImpl) instanceType);
             }
+        }
+        // Is this actually a class?
+        if (class2name.containsKey(address))
+        {
+            // record its type
+            class2type.put(address, classID);
         }
 
         in.skipBytes(payload);

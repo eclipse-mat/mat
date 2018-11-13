@@ -383,8 +383,9 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
                     if (outs[0] != clsId) {
                         long address = outs[0] >= 0 && outs[0] < maxIndex ? pidx.identifiers.get(outs[0]) : -1;
                         String desc = objDesc(pidx, i);
+                        long clsAddress = clsId >= 0 && outs[0] < maxIndex ? pidx.identifiers.get(clsId) : -1;
                         listener.sendUserMessage(Severity.ERROR, MessageUtil.format(
-                                    Messages.SnapshotFactoryImpl_InvalidFirstOutbound, i, format(addr), desc, outs[0], format(address), clsId), null);
+                                    Messages.SnapshotFactoryImpl_InvalidFirstOutbound, i, format(addr), desc, outs[0], format(address), clsId, format(clsAddress)), null);
                     }
                 }
             }

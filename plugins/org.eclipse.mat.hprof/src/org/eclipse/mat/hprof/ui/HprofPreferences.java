@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 IBM Corporation.
+ * Copyright (c) 2011, 2018 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,6 +24,9 @@ public class HprofPreferences
     /** Default strictness for preferences and value parsing */
     public static final HprofStrictness DEFAULT_STRICTNESS = HprofStrictness.STRICTNESS_STOP;
 
+    /** Additional references for classes */
+    public static final String ADDITIONAL_CLASS_REFERENCES = "hprofAddClassRefs"; //$NON-NLS-1$
+
     /**
      * Return the currently selected preference for strictness. This first
      * checks the preference store, and then checks for any -D$(STRICTNESS)=true
@@ -36,7 +39,7 @@ public class HprofPreferences
     {
         HprofPreferences.HprofStrictness strictnessPreference = HprofPreferences.HprofStrictness.parse(Platform
                         .getPreferencesService().getString(HprofPlugin.getDefault().getBundle().getSymbolicName(),
-                                        HprofPreferences.STRICTNESS_PREF, "", null));
+                                        HprofPreferences.STRICTNESS_PREF, "", null)); //$NON-NLS-1$
 
         // Check if the user overrides on the command line
         for (HprofStrictness strictness : HprofStrictness.values())
@@ -113,5 +116,11 @@ public class HprofPreferences
             }
             return DEFAULT_STRICTNESS;
         }
+    }
+
+    public static boolean useAdditionalClassReferences()
+    {
+        return Platform.getPreferencesService().getBoolean(HprofPlugin.getDefault().getBundle().getSymbolicName(),
+                        HprofPreferences.ADDITIONAL_CLASS_REFERENCES, false, null);
     }
 }

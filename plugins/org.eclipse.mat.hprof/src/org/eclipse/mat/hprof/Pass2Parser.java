@@ -23,14 +23,16 @@ import org.eclipse.mat.hprof.ui.HprofPreferences;
 import org.eclipse.mat.hprof.ui.HprofPreferences.HprofStrictness;
 import org.eclipse.mat.parser.io.PositionInputStream;
 import org.eclipse.mat.parser.model.ClassImpl;
+import org.eclipse.mat.snapshot.model.Field;
 import org.eclipse.mat.snapshot.model.FieldDescriptor;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IPrimitiveArray;
+import org.eclipse.mat.snapshot.model.ObjectReference;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.IProgressListener.Severity;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.SimpleMonitor;
-import org.eclipse.mat.util.IProgressListener.Severity;
 
 /**
  * Parser used to read the hprof formatted heap dump
@@ -212,23 +214,14 @@ public class Pass2Parser extends AbstractParser
         HeapObject heapObject;
 
         IClass objcl = handler.lookupClass(id);
+        Field statics[] = new Field[0];
         if (objcl instanceof ClassImpl)
         {
             // An INSTANCE_DUMP record for a class type
             // This clazz is perhaps of different actual type, not java.lang.Class
-            // So fix the type
+            // The true type has already been set in PassParser1 and beforePass2()
             ClassImpl objcls = (ClassImpl) objcl;
-            // Remove size from old type (java.lang.Class)
-            objcls.getClazz().removeInstance(objcls.getUsedHeapSize());
-            // Set the new size, allowing for the fields in the new type, see also beforePass2()
-            if (NEWCLASSSIZE)
-            {
-                // We are calculating class instance sizes of static fields + fields of java.lang.Class (or the new type)
-                long perInstDelta = thisClazz.getHeapSizePerInstance()- objcls.getClazz().getHeapSizePerInstance();
-                objcls.setUsedHeapSize(objcls.getUsedHeapSize() + perInstDelta);
-            }
-            // Set the type of the new clazz
-            objcls.setClassInstance(thisClazz);
+            statics = objcls.getStaticFields().toArray(statics);
             // Heap size of each class type object is individual as have statics
             heapObject = new HeapObject(handler.mapAddressToId(id), id, thisClazz,
                             objcls.getUsedHeapSize());
@@ -248,15 +241,35 @@ public class Pass2Parser extends AbstractParser
             for (FieldDescriptor field : clazz.getFieldDescriptors())
             {
                 int type = field.getType();
+                // Find match for pseudo-statics
+                Field stField = null;
+                for (int stidx = 0; stidx < statics.length; ++stidx)
+                {
+                    if (statics[stidx] != null && statics[stidx].getType() == type && statics[stidx].getName().equals("<"+field.getName()+">")) { //$NON-NLS-1$ //$NON-NLS-2$
+                        // Found a field
+                        stField = statics[stidx];
+                        // Don't use this twice.
+                        statics[stidx] = null;
+                        break;
+                    }
+                }
                 if (type == IObject.Type.OBJECT)
                 {
                     long refId = readID();
                     if (refId != 0)
+                    {
                         heapObject.references.add(refId);
+                        if (stField != null)
+                        {
+                            stField.setValue(new ObjectReference(null, refId));
+                        }
+                    }
                 }
                 else
                 {
-                    skipValue(type);
+                    Object value = readValue(null, type);
+                    if (stField != null)
+                        stField.setValue(value);
                 }
             }
         }
