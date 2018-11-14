@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c2e2d7e8_c1b5f280",
+        "filename": "plugins/org.eclipse.mat.dtfj/src/org/eclipse/mat/dtfj/DTFJIndexBuilder.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1703,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2018-11-14T13:41:58Z",
+      "side": 1,
+      "message": "Extra space - also other isCanceled() are just one line",
+      "revId": "6fd02416e937ac499b8cee767562271870cdb903",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eec18a5c_88e236b3",
+        "filename": "plugins/org.eclipse.mat.dtfj/src/org/eclipse/mat/dtfj/DTFJIndexBuilder.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 7183,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2018-11-14T13:41:58Z",
+      "side": 1,
+      "message": "Extra space",
+      "revId": "6fd02416e937ac499b8cee767562271870cdb903",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
