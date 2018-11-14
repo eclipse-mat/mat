@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "971e0f5b_2286d693",
+        "filename": "plugins/org.eclipse.mat.dtfj/src/org/eclipse/mat/dtfj/DTFJIndexBuilder.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 7186,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2018-11-14T13:41:58Z",
+      "side": 1,
+      "message": "Bad line?",
+      "revId": "ed27fb885912ef3e72f1e2e0226b809cb991645e",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
