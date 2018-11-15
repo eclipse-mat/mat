@@ -45,9 +45,9 @@ public class ClassNameExtractor implements ContextExtractor
                     readChar = doc.getChar(pos);
                     pos--;
                 }
-                while (pos >= 0 && readChar != ' ' && readChar != '\n');
+                while (pos >= 0 && readChar != ' ' && readChar != '\n' && readChar != '\r');
 
-                if (readChar == ' ' || readChar == '\n')
+                if (readChar == ' ' || readChar == '\n' || readChar == '\r')
                     pos++;
                 return doc.get(pos + 1, currentPosition - 1 - pos);
 
