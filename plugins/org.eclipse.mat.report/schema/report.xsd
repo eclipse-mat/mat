@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2011 IBM Corporation.
+    Copyright (c) 2011, 2018 IBM Corporation.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -12,24 +12,54 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://www.eclipse.org/mat/report.xsd"
 	targetNamespace="http://www.eclipse.org/mat/report.xsd">
 
+	<xs:annotation>
+		<xs:documentation>This defines how reports for Eclipse Memory Analyzer should be constructed.</xs:documentation>
+	</xs:annotation>
 	<xs:element name="param">
 		<xs:annotation>
 			<xs:documentation>This allows output of a query to be controlled.
+			Parameters are substituted in certain elements and attributes when ${keyname} is seen.
 			</xs:documentation>
 		</xs:annotation>
 		<xs:complexType>
 			<xs:attribute name="key" type="paramkey" use="required"></xs:attribute>
-			<xs:attribute name="value" type="translatablestring"
+			<xs:attribute name="value" type="paramvalue"
 				use="required"></xs:attribute>
 		</xs:complexType>
 	</xs:element>
 
 	<xs:simpleType name="paramkey">
 		<xs:annotation>
-			<xs:documentation>The name of a parameter to control a report.
+			<xs:documentation>A parameter - either one of a fixed set of known
+			types, or anything for an adopter defined type.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:union memberTypes="paramkeyfixed paramkeyany" />
+	</xs:simpleType>
+
+	<xs:simpleType name="paramkeyany">
+		<xs:annotation>
+			<xs:documentation>A general parameter key
 			</xs:documentation>
 		</xs:annotation>
 		<xs:restriction base="xs:string">
+			<xs:pattern value="[A-Za-z0-9_.]+" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="paramkeyfixed">
+		<xs:annotation>
+			<xs:documentation>The name of a parameter to control a report.
+			See org.eclipse.mat.report.Params
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="timestamp" />
+			<!--
+			<xs:enumeration value="snapshot" />
+			<xs:enumeration value="snapshot_prefix" />
+			-->
+
 			<xs:enumeration value="format" />
 			<xs:enumeration value="filename" />
 			<xs:enumeration value="filename_suffix" />
@@ -53,14 +83,77 @@
 		</xs:restriction>
 	</xs:simpleType>
 
+	<xs:simpleType name="paramvalue">
+		<xs:annotation>
+			<xs:documentation>A value for a parameter - either one of a fixed set of known
+			types, or anything as a translatable string.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:union memberTypes="booleanvalue patternvalue derived_data_columnvalue decimalstring columnnumber translatablestring" /> 
+	</xs:simpleType>
+
+	<xs:simpleType name="booleanvalue">
+		<xs:annotation>
+			<xs:documentation>Choices for a boolean value.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="true" />
+			<xs:enumeration value="false" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="patternvalue">
+		<xs:annotation>
+			<xs:documentation>Choices for a pattern.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="overview_details" />
+			<xs:enumeration value="sequential" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="derived_data_columnvalue">
+		<xs:annotation>
+			<xs:documentation>Choices for a pattern.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="_default_=PRECISE" />
+			<xs:enumeration value="_default_=APPROXIMATE" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="decimalstring">
+		<xs:annotation>
+			<xs:documentation>A number as text
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:pattern value="[1-9][0-9]*" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="columnnumber">
+		<xs:annotation>
+			<xs:documentation>A number preceded by # as text
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:pattern value="#[0-9]+" />
+		</xs:restriction>
+	</xs:simpleType>
+
 	<xs:simpleType name="translatedstring">
 		<xs:annotation>
 			<xs:documentation>A string with a leading % to be used as key into
 				the plugin properties file to provided translated text.
+				Default text to be used for a missing translation can be provided after the key and a space.
 			</xs:documentation>
 		</xs:annotation>
 		<xs:restriction base="xs:string">
-			<xs:pattern value="%[A-Za-z0-9_.]*" />
+			<xs:pattern value="%[A-Za-z0-9_.]+( .*)?" />
 		</xs:restriction>
 	</xs:simpleType>
 
@@ -70,13 +163,19 @@
 		</xs:restriction>
 	</xs:simpleType>
 
+	<xs:simpleType name="literalpercentuntranslatedstring">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="%%.*" />
+		</xs:restriction>
+	</xs:simpleType>
+
 	<xs:simpleType name="translatablestring">
 		<xs:annotation>
 			<xs:documentation>A readable string or a string that will be
 				translated according to the plugin.properties file.
 			</xs:documentation>
 		</xs:annotation>
-		<xs:union memberTypes="translatedstring untranslatedstring" />
+		<xs:union memberTypes="translatedstring untranslatedstring literalpercentuntranslatedstring" />
 	</xs:simpleType>
 
 	<xs:element name="query">
@@ -109,11 +208,12 @@
 		<xs:annotation>
 			<xs:documentation>
 				This specifies a query command to be executed.
+				The command can have arguments, and parameter substitution with ${} can be used to inject text.
 			</xs:documentation>
 		</xs:annotation>
 		<xs:simpleType>
 			<xs:restriction base="xs:string">
-				<xs:pattern value="\S.*"></xs:pattern>
+				<xs:pattern value="\S+(\s+\S+)*"></xs:pattern>
 			</xs:restriction>
 		</xs:simpleType>
 	</xs:element>

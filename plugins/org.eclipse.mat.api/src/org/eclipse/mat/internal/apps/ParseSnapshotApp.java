@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2013 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -90,6 +90,8 @@ public class ParseSnapshotApp implements IApplication
 
                 if (spec != null)
                 {
+                    // Allow command line options to control reports
+                    spec.putAll(options);
                     factory.resolve(spec);
                     reports.add(spec);
                 }

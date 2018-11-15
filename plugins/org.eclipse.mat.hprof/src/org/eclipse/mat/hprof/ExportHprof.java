@@ -493,7 +493,7 @@ public class ExportHprof implements IQuery
             name = name.substring(0, dot);
         }
         String prefix = (new File(output.getParentFile(), name)).getPath();
-        SnapshotInfo si = new SnapshotInfo(output.getPath(), prefix, null, idsize, new Date(startTime), nobjects, nroots, nclasses, nclassloaders, nused);
+        SnapshotInfo si = new SnapshotInfo(output.getAbsolutePath(), prefix, null, idsize, new Date(startTime), nobjects, nroots, nclasses, nclassloaders, nused);
         String format = (new HprofContentDescriber()).getSupportedOptions()[0].getLocalName();
         si.setProperty("$heapFormat", format); //$NON-NLS-1$
         sq.setArgument("info", si); //$NON-NLS-1$

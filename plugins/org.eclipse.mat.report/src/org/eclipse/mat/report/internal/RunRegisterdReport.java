@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2010 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,10 +7,13 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson/IBM Corporation - add parameters
  *******************************************************************************/
 package org.eclipse.mat.report.internal;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.mat.query.IQuery;
 import org.eclipse.mat.query.IQueryContext;
@@ -35,6 +38,9 @@ public class RunRegisterdReport implements IQuery
     @Argument(flag = Argument.UNFLAGGED)
     public String extensionIdentifier;
 
+    @Argument(isMandatory = false)
+    public String params[];
+
     public IResult execute(IProgressListener listener) throws Exception
     {
         SpecFactory factory = SpecFactory.instance();
@@ -42,6 +48,10 @@ public class RunRegisterdReport implements IQuery
         if (spec == null)
             throw new Exception(MessageUtil
                             .format(Messages.RunRegisterdReport_Error_UnknownReport, extensionIdentifier));
+
+        // Add options
+        Map<String, String> opts = parseOptions(params);
+        spec.putAll(opts);
 
         factory.resolve(spec);
 
@@ -58,4 +68,19 @@ public class RunRegisterdReport implements IQuery
         return null;
     }
 
+    Map<String,String>parseOptions(String opts[])
+    {
+        Map<String,String>m = new HashMap<String,String>();
+        if (opts != null)
+        {
+            for (String opt : opts)
+            {
+                int i = opt.indexOf('=');
+                if (i < 0)
+                    throw new IllegalArgumentException(opt);
+                m.put(opt.substring(0, i), opt.substring(i + 1));
+            }
+        }
+        return m;
+    }
 }

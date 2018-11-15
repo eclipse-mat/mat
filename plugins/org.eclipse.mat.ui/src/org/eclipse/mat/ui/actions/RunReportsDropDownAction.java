@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson/IBM Corporation - submenus/hidden reports
  *******************************************************************************/
 package org.eclipse.mat.ui.actions;
 
@@ -16,6 +17,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.eclipse.jface.action.Action;
+import org.eclipse.mat.query.annotations.Category;
 import org.eclipse.mat.report.SpecFactory;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.Messages;
@@ -48,6 +50,7 @@ public class RunReportsDropDownAction extends EasyToolBarDropDown
         {
             Action action = new ExecuteQueryAction(editor, "default_report " + report.getExtensionIdentifier());//$NON-NLS-1$
             action.setText(report.getName());
+            action.setDescription(report.getDescription());
             reportActions.add(action);
         }
 
@@ -60,7 +63,35 @@ public class RunReportsDropDownAction extends EasyToolBarDropDown
         });
 
         for (Action action : reportActions)
-            menu.add(action);
+        {
+            String name[] = action.getText().split("/"); //$NON-NLS-1$
+            for (int i = 0; i < name.length; ++i)
+            {
+                // Strip off ordering e.g. 1|Name
+                name[i] = name[i].replaceFirst("^\\d\\|", ""); //$NON-NLS-1$ //$NON-NLS-2$
+            }
+            // Create sub-menus
+            PopupMenu m1 = menu;
+            int i;
+            for (i = 0; i < name.length - 1; ++i)
+            {
+                if (name[i].equals(Category.HIDDEN))
+                    break;
+                PopupMenu m2 = m1.getChildMenu(name[i]);
+                if (m2 == null)
+                {
+                    m2 = new PopupMenu(name[i]);
+                    m1.add(m2);
+                }
+                m1 = m2;
+            }
+            if (i >= name.length - 1)
+            {
+                // Finally, add the action
+                action.setText(name[name.length - 1]);
+                m1.add(action);
+            }
+        }
 
         menu.addSeparator();
         menu.add(importReportAction);
