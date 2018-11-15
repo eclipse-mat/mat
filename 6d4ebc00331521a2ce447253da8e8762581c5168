@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "09004d34_a6e42776",
+        "filename": "plugins/org.eclipse.mat.ui/src/org/eclipse/mat/ui/snapshot/panes/oql/contentAssist/ClassNameExtractor.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2018-11-15T16:09:18Z",
+      "side": 1,
+      "message": "Actually for another bug - but harmless here.",
+      "revId": "6d4ebc00331521a2ce447253da8e8762581c5168",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
