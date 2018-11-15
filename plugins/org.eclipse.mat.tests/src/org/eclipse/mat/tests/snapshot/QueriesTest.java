@@ -16,15 +16,26 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URL;
+import java.util.Collections;
+
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.IContextObject;
+import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.IResultTree;
 import org.eclipse.mat.query.refined.RefinedResultBuilder;
 import org.eclipse.mat.query.refined.RefinedTable;
 import org.eclipse.mat.snapshot.ClassHistogramRecord;
 import org.eclipse.mat.snapshot.Histogram;
 import org.eclipse.mat.snapshot.ISnapshot;
+import org.eclipse.mat.snapshot.SnapshotFactory;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IClassLoader;
 import org.eclipse.mat.snapshot.model.IObject;
@@ -34,6 +45,7 @@ import org.eclipse.mat.util.VoidProgressListener;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.osgi.framework.Bundle;
 
 public class QueriesTest
 {
@@ -251,5 +263,92 @@ public class QueriesTest
             objs += chr.getNumberOfObjects();
         }
         assertEquals("Number of objects", objs, snapshot.getSnapshotInfo().getNumberOfObjects());
+    }
+
+    /**
+     * Test running a report defined in a plugin, with parameters.
+     * @throws SnapshotException
+     * @throws IOException
+     */
+    @Test 
+    public void testExportHprofReport() throws SnapshotException, IOException
+    {
+        File samp = new File(snapshot.getSnapshotInfo().getPrefix());
+        File fn = File.createTempFile(samp.getName(), ".hprof");
+        try
+        {
+            SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.hprof:export -params output="+fn.getPath(), snapshot);
+            IResult t = query.execute(new VoidProgressListener());
+            assertNotNull(t);
+            ISnapshot newSnapshot = SnapshotFactory.openSnapshot(fn, Collections.<String,String>emptyMap(), new VoidProgressListener());
+            assertNotNull(newSnapshot);
+            newSnapshot.dispose();
+        }
+        finally
+        {
+            fn.delete();
+        }
+    }
+
+    /**
+     * Test running an external report from a report file, with parameters.
+     * @throws SnapshotException
+     * @throws IOException
+     */
+    @Test 
+    public void testExportHprofReportFile() throws SnapshotException, IOException
+    {
+        // Create a temporary report file
+        File rep = File.createTempFile("exporthprof", ".xml"); //$NON-NLS-1$ //$NON-NLS-2$
+        try
+        {
+            // We happen to know where the exporthprof report lives, so copy it
+            Bundle bundle = Platform.getBundle("org.eclipse.mat.hprof"); //$NON-NLS-1$
+            URL url = bundle.getResource("reports/exporthprof.xml"); //$NON-NLS-1$
+            InputStream is = url.openStream();
+            OutputStream os = new FileOutputStream(rep);
+            try
+            {
+                try
+                {
+                    int r;
+                    while ((r = is.read()) != -1)
+                    {
+                        os.write(r);
+                    }
+                }
+                finally
+                {
+                    os.close();
+                }
+            }
+            finally
+            {
+                is.close();
+            }
+    
+            // Run the report
+            File samp = new File(snapshot.getSnapshotInfo().getPrefix());
+            File fn = File.createTempFile(samp.getName(), ".hprof");
+            try
+            {
+                SnapshotQuery query = SnapshotQuery.parse(
+                                "create_report "+rep.getPath()+" -params output=" + fn.getPath(), snapshot);
+                IResult t = query.execute(new VoidProgressListener());
+                assertNotNull(t);
+                ISnapshot newSnapshot = SnapshotFactory.openSnapshot(fn, Collections.<String, String> emptyMap(),
+                                new VoidProgressListener());
+                assertNotNull(newSnapshot);
+                newSnapshot.dispose();
+            }
+            finally
+            {
+                fn.delete();
+            }
+        }
+        finally
+        {
+            rep.delete();
+        }
     }
 }

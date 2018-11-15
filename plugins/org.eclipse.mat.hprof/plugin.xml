@@ -59,5 +59,14 @@
             impl="org.eclipse.mat.hprof.ExportHprof">
       </query>
    </extension>
-
+   <extension
+         id="export"
+         point="org.eclipse.mat.report.report">
+      <report
+            description="%report.export.desc Export a HPROF file from the command line"
+            file="reports/exporthprof.xml"
+            id="export"
+            name="%report.export.name __hidden__/Export HPROF">
+      </report>
+   </extension>
 </plugin>

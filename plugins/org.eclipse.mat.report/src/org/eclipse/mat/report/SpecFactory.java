@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson - improved translation of reports
  *******************************************************************************/
 package org.eclipse.mat.report;
 
@@ -245,12 +246,15 @@ public final class SpecFactory extends RegistryReader<SpecFactory.Report>
         /**
          * Some values are translatable using % prefix and a translation
          * in the plugin.properties file.
+         * %key.part default value
+         * 'key.part' is looked up, if missing then
+         * 'default value' is returned (without quotes).
          * @param n
-         * @return
+         * @return the translated string, or the default if present, or the key
          */
         private String translate(String n)
         {
-            if (bundle != null && n != null && n.length() > 0 && n.charAt(0) == '%')
+            if (n != null && n.length() > 0 && n.charAt(0) == '%')
                 n = Platform.getResourceString(bundle, n);
             return n;
         }
