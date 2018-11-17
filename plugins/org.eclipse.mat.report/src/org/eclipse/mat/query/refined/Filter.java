@@ -7,7 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
- *    IBM Corporation/Andrew Johnson - Javadoc updates
+ *    IBM Corporation/Andrew Johnson - Javadoc updates and Bytes + filters
  *******************************************************************************/
 package org.eclipse.mat.query.refined;
 
@@ -17,6 +17,7 @@ import java.text.ParsePosition;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import org.eclipse.mat.query.Bytes;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.report.internal.Messages;
 import org.eclipse.mat.util.MessageUtil;
@@ -128,14 +129,16 @@ public abstract class Filter
         @Override
         boolean accept(Object value)
         {
-            if (value == null)
-                return false;
-
-            double doubleValue = value instanceof Number ? ((Number) value).doubleValue() : Double.NaN;
+            // Experiment: Let null values be converted here to NaN, which will normally fail the accept() test
+            double doubleValue = value instanceof Bytes ? ((Bytes)value).getValue() : value instanceof Number ? ((Number) value).doubleValue() : Double.NaN;
             if (converter != null)
                 doubleValue = converter.convert(doubleValue);
 
-            return test.accept(doubleValue);
+            Test currentTest = test;
+            // If the filter is cleared while filtering it is possible for 'test' to go null
+            if (currentTest == null)
+                return true;
+            return currentTest.accept(doubleValue);
         }
 
         @Override
@@ -175,7 +178,9 @@ public abstract class Filter
                 int indexOfDots = criteria.indexOf(".."); //$NON-NLS-1$
                 if (indexOfDots >= 0)
                 {
-                    Double lowerBound = number(criteria.substring(0, indexOfDots).trim());
+                    // Invert of range (universal set difference from range)
+                    int st = criteria.startsWith("U\\") ? 2 : 0; //$NON-NLS-1$
+                    Double lowerBound = number(criteria.substring(st, indexOfDots).trim());
                     int lastIndexOfDots = criteria.lastIndexOf(".."); //$NON-NLS-1$
                     Double upperBound = number(criteria.substring(lastIndexOfDots + 2).trim());
 
@@ -186,21 +191,30 @@ public abstract class Filter
                         newTest = new LowerEqualBoundary(lowerBound.doubleValue());
                     else if (upperBound != null)
                         newTest = new UpperEqualBoundary(upperBound.doubleValue());
+                    else
+                        lowerBound = number(criteria); // cause an error
+                    if (criteria.startsWith("U\\")) //$NON-NLS-1$
+                        newTest = new NotTest(newTest);
                 }
                 else
                 {
-                    if (criteria.charAt(0) == '>')
+                    // Check lengths are enough for the condition and at least one character for the number
+                    if (criteria.charAt(0) == '>' && criteria.length() >= 2)
                     {
-                        if (criteria.charAt(1) == '=')
+                        if (criteria.length() >= 3 && criteria.charAt(1) == '=')
                             newTest = new LowerEqualBoundary(number(criteria.substring(2)).doubleValue());
                         else
                             newTest = new LowerBoundary(number(criteria.substring(1)).doubleValue());
                     }
-                    else if (criteria.charAt(0) == '<')
-                        if (criteria.charAt(1) == '=')
+                    else if (criteria.charAt(0) == '<' && criteria.length() >= 2)
+                        if (criteria.length() >= 3 && criteria.charAt(1) == '=')
                             newTest = new UpperEqualBoundary(number(criteria.substring(2)).doubleValue());
+                        else if (criteria.length() >= 3 && criteria.charAt(1) == '>')
+                            newTest = new NotEqualsTest(number(criteria.substring(2)).doubleValue());
                         else
                             newTest = new UpperBoundary(number(criteria.substring(1)).doubleValue());
+                    else if (criteria.charAt(0) == '!' && criteria.length() >= 3 && criteria.charAt(1) == '=')
+                        newTest = new NotEqualsTest(number(criteria.substring(2)).doubleValue());
                     else
                         newTest = new EqualsTest(number(criteria).doubleValue());
                 }
@@ -330,7 +344,24 @@ public abstract class Filter
 
             public boolean accept(double value)
             {
-                return this.value == value;
+                // Not standard, but want =NaN to find NaN
+                return this.value == value || Double.isNaN(this.value) && Double.isNaN(value);
+            }
+        }
+
+        static class NotEqualsTest implements Test
+        {
+            double value;
+
+            NotEqualsTest(double value)
+            {
+                this.value = value;
+            }
+
+            public boolean accept(double value)
+            {
+                // Not standard, but want !=NaN not to find NaN
+                return this.value != value && !(Double.isNaN(this.value) && Double.isNaN(value));
             }
         }
 
@@ -348,6 +379,20 @@ public abstract class Filter
             public boolean accept(double value)
             {
                 return a.accept(value) && b.accept(value);
+            }
+        }
+
+        static class NotTest implements Test
+        {
+            Test a;
+            private NotTest(Test t)
+            {
+                a = t;
+            }
+
+            public boolean accept(double value)
+            {
+                return !a.accept(value);
             }
         }
     }
