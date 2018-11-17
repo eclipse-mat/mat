@@ -71,6 +71,9 @@
 						<li>Intervals: 1000..10000 1%..10%</li>
 						<li>Upper Boundary: &lt;=10000 &lt;1%</li>
 						<li>Lower Boundary: &gt;1000 &gt;=5%</li>
+						<li>Equality: 1000 5% NaN &#8734;</li>
+						<li>Inequality: !=1000 &lt;&gt;5% !=NaN<note type="restriction">Experimental</note></li>
+						<li>Complement of interval: U\1000..10000 U\1%..10% (all values except those in the interval [universal set difference from])<note type="restriction">Experimental</note></li>
 						</ul>
 						</p>
 						<image href="../mimes/filter.png" align="left" placement="break" />

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson/IBM Corporation - documentation
  *******************************************************************************/
 package org.eclipse.mat.report;
 
@@ -111,7 +112,14 @@ public interface Params
          */
         String PATTERN = "rendering.pattern";
 
+        /**
+         * Possible value for  key given by {@link #PATTERN}.
+         */
         String PATTERN_OVERVIEW_DETAILS = "overview_details";
+
+        /**
+         * Possible value for  key given by {@link #PATTERN}.
+         */
         String PATTERN_SEQUENTIAL = "sequential";
 
         /**
@@ -120,6 +128,8 @@ public interface Params
         String SORT_COLUMN = "sort_column";
         /**
          * filter1=criteria,filter2=criteria 
+         * filter1 etc. is a column specified by name or #0, #1, #2 etc.
+         * criteria is a numeric or string filter such as >100, 10..200, com\.*
          */
         String FILTER = "filter";
         /**
@@ -134,8 +144,8 @@ public interface Params
         /**
          * Controls the calculation of the derived column.
          * For example for retained sizes
-         * _default_=APPROXIMATE
-         * _default_=PRECISE
+         * _default_=APPROXIMATE  {@link org.eclipse.mat.snapshot.query#APPROXIMATE}
+         * _default_=PRECISE {@link org.eclipse.mat.snapshot.query#PRECISE}
          */
         String DERIVED_DATA_COLUMN = "derived_data_column";
     }

@@ -14,7 +14,16 @@ package org.eclipse.mat.tests.snapshot;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.hamcrest.number.OrderingComparison.greaterThanOrEqualTo;
+import static org.hamcrest.number.OrderingComparison.greaterThan;
+import static org.hamcrest.number.OrderingComparison.lessThanOrEqualTo;
+import static org.hamcrest.number.OrderingComparison.lessThan;
+import static org.hamcrest.core.IsEqual.equalTo;
+import static org.hamcrest.core.IsNot.not;
+import static org.hamcrest.core.StringContains.containsString;
+import static org.hamcrest.core.AllOf.allOf;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -26,6 +35,7 @@ import java.util.Collections;
 
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.query.Bytes;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IResult;
@@ -142,8 +152,531 @@ public class QueriesTest
             assertTrue(val instanceof Number);
         }
     }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testOQLFiltering2() throws SnapshotException
+    {
+        SnapshotQuery query = SnapshotQuery.parse(OQL_MIXED_RESULT, snapshot);
+        RefinedResultBuilder builder = query.refine(new VoidProgressListener());
+        builder.setFilter(0, ">");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testOQLFiltering3() throws SnapshotException
+    {
+        SnapshotQuery query = SnapshotQuery.parse(OQL_MIXED_RESULT, snapshot);
+        RefinedResultBuilder builder = query.refine(new VoidProgressListener());
+        builder.setFilter(0, ">=");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testOQLFiltering4() throws SnapshotException
+    {
+        SnapshotQuery query = SnapshotQuery.parse(OQL_MIXED_RESULT, snapshot);
+        RefinedResultBuilder builder = query.refine(new VoidProgressListener());
+        builder.setFilter(0, "<=");
+    }
     
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testOQLFiltering5() throws SnapshotException
+    {
+        SnapshotQuery query = SnapshotQuery.parse(OQL_MIXED_RESULT, snapshot);
+        RefinedResultBuilder builder = query.refine(new VoidProgressListener());
+        builder.setFilter(0, "<");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testOQLFiltering6() throws SnapshotException
+    {
+        SnapshotQuery query = SnapshotQuery.parse(OQL_MIXED_RESULT, snapshot);
+        RefinedResultBuilder builder = query.refine(new VoidProgressListener());
+        builder.setFilter(0, "<>");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testOQLFiltering7() throws SnapshotException
+    {
+        SnapshotQuery query = SnapshotQuery.parse(OQL_MIXED_RESULT, snapshot);
+        RefinedResultBuilder builder = query.refine(new VoidProgressListener());
+        builder.setFilter(0, "!=");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testOQLFiltering8() throws SnapshotException
+    {
+        SnapshotQuery query = SnapshotQuery.parse(OQL_MIXED_RESULT, snapshot);
+        RefinedResultBuilder builder = query.refine(new VoidProgressListener());
+        builder.setFilter(0, "..");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testOQLFiltering9() throws SnapshotException
+    {
+        SnapshotQuery query = SnapshotQuery.parse(OQL_MIXED_RESULT, snapshot);
+        RefinedResultBuilder builder = query.refine(new VoidProgressListener());
+        builder.setFilter(0, "!");
+    }
+
+    /**
+     * Test for filtering of sizes of items
+     * @throws SnapshotException
+     */
+    @Test
+    public void testOQLFiltering10() throws SnapshotException
+    {
+        SnapshotQuery query = SnapshotQuery.parse("histogram", snapshot);
+        RefinedResultBuilder builder = query.refine(new VoidProgressListener());
+        // Check size is filterable
+        builder.setFilter(2, ">=0");
+        RefinedTable table = (RefinedTable) builder.build();
+        
+        int found = 0;
+        for (int i = 0; i < table.getRowCount(); ++i)
+        {
+            Object row = table.getRow(i);
+            Object val = table.getColumnValue(row, 2);
+            // Check no non-numeric item
+            assertTrue("Type: "+val.getClass(), val instanceof Number || val instanceof Bytes);
+            ++found;
+        }
+        assertEquals("All entries should have a size >= 0", table.getRowCount(), found);
+    }
+
+    /**
+     * Test for filtering of incompatible items
+     * @throws SnapshotException
+     */
+    @Test
+    public void testOQLFiltering11ge() throws SnapshotException
+    {
+        SnapshotQuery query = SnapshotQuery.parse("histogram", snapshot);
+        RefinedResultBuilder builder = query.refine(new VoidProgressListener());
+        // Check size is filterable
+        long sz = 32;
+        builder.setFilter(2, ">="+sz);
+        RefinedTable table = (RefinedTable) builder.build();
+        int found = 0;
+        int eq = 0;
+        for (int i = 0; i < table.getRowCount(); ++i)
+        {
+            Object row = table.getRow(i);
+            Object val = table.getColumnValue(row, 2);
+            // Check no non-numeric item
+            long v;
+            if (val instanceof Number)
+                v = ((Number)val).longValue();
+            else if (val instanceof Bytes)
+                v = ((Bytes)val).getValue();
+            else
+                v = sz + 1;
+            assertThat(v, greaterThanOrEqualTo(sz));
+            ++found;
+            if (v == sz)
+                ++eq;
+        }
+        assertThat(found, greaterThanOrEqualTo(1));
+        assertThat(eq, greaterThanOrEqualTo(1));
+    }
+
+    @Test
+    public void testOQLFiltering11gt() throws SnapshotException
+    {
+        SnapshotQuery query = SnapshotQuery.parse("histogram", snapshot);
+        RefinedResultBuilder builder = query.refine(new VoidProgressListener());
+        // Check size is filterable
+        long sz = 32;
+        builder.setFilter(2, ">"+sz);
+        RefinedTable table = (RefinedTable) builder.build();
+        int found = 0;
+        for (int i = 0; i < table.getRowCount(); ++i)
+        {
+            Object row = table.getRow(i);
+            Object val = table.getColumnValue(row, 2);
+            // Check no non-numeric item
+            long v;
+            if (val instanceof Number)
+                v = ((Number)val).longValue();
+            else if (val instanceof Bytes)
+                v = ((Bytes)val).getValue();
+            else
+                v = sz + 1;
+            assertThat(v, greaterThan(sz));
+            ++found;
+        }
+        assertThat(found, greaterThanOrEqualTo(1));
+    }
+
+    @Test
+    public void testOQLFiltering11lt() throws SnapshotException
+    {
+        SnapshotQuery query = SnapshotQuery.parse("histogram", snapshot);
+        RefinedResultBuilder builder = query.refine(new VoidProgressListener());
+        // Check size is filterable
+        long sz = 32;
+        builder.setFilter(2, "<"+sz);
+        RefinedTable table = (RefinedTable) builder.build();
+        int found = 0;
+        for (int i = 0; i < table.getRowCount(); ++i)
+        {
+            Object row = table.getRow(i);
+            Object val = table.getColumnValue(row, 2);
+            // Check no non-numeric item
+            long v;
+            if (val instanceof Number)
+                v = ((Number)val).longValue();
+            else if (val instanceof Bytes)
+                v = ((Bytes)val).getValue();
+            else
+                v = sz - 1;
+            assertThat(v, lessThan(sz));
+            ++found;
+        }
+        assertThat(found, greaterThanOrEqualTo(1));
+    }
+
+    @Test
+    public void testOQLFiltering11le() throws SnapshotException
+    {
+        SnapshotQuery query = SnapshotQuery.parse("histogram", snapshot);
+        RefinedResultBuilder builder = query.refine(new VoidProgressListener());
+        // Check size is filterable
+        long sz = 32;
+        builder.setFilter(2, "<="+sz);
+        RefinedTable table = (RefinedTable) builder.build();
+        int found = 0;
+        int eq = 0;
+        for (int i = 0; i < table.getRowCount(); ++i)
+        {
+            Object row = table.getRow(i);
+            Object val = table.getColumnValue(row, 2);
+            // Check no non-numeric item
+            long v;
+            if (val instanceof Number)
+                v = ((Number)val).longValue();
+            else if (val instanceof Bytes)
+                v = ((Bytes)val).getValue();
+            else
+                v = sz - 1;
+            assertThat(v, lessThanOrEqualTo(sz));
+            ++found;
+            if (v == sz)
+                ++eq;
+        }
+        assertThat(found, greaterThanOrEqualTo(1));
+        assertThat(eq, greaterThanOrEqualTo(1));
+    }
+
+    @Test
+    public void testOQLFiltering11eq() throws SnapshotException
+    {
+        SnapshotQuery query = SnapshotQuery.parse("histogram", snapshot);
+        RefinedResultBuilder builder = query.refine(new VoidProgressListener());
+        // Check size is filterable
+        long sz = 32;
+        builder.setFilter(2, ""+sz);
+        RefinedTable table = (RefinedTable) builder.build();
+        int found = 0;
+        for (int i = 0; i < table.getRowCount(); ++i)
+        {
+            Object row = table.getRow(i);
+            Object val = table.getColumnValue(row, 2);
+            // Check no non-numeric item
+            long v;
+            if (val instanceof Number)
+                v = ((Number)val).longValue();
+            else if (val instanceof Bytes)
+                v = ((Bytes)val).getValue();
+            else
+                v = sz;
+            assertThat(v, equalTo(sz));
+            ++found;
+        }
+        assertThat(found, greaterThanOrEqualTo(1));
+    }
+
+    @Test
+    public void testOQLFiltering11ne() throws SnapshotException
+    {
+        SnapshotQuery query = SnapshotQuery.parse("histogram", snapshot);
+        RefinedResultBuilder builder = query.refine(new VoidProgressListener());
+        // Check size is filterable
+        long sz = 32;
+        builder.setFilter(2, "!="+sz);
+        RefinedTable table = (RefinedTable) builder.build();
+        int found = 0;
+        for (int i = 0; i < table.getRowCount(); ++i)
+        {
+            Object row = table.getRow(i);
+            Object val = table.getColumnValue(row, 2);
+            // Check no non-numeric item
+            long v;
+            if (val instanceof Number)
+                v = ((Number)val).longValue();
+            else if (val instanceof Bytes)
+                v = ((Bytes)val).getValue();
+            else
+                v = sz;
+            assertThat(v, not(equalTo(sz)));
+            ++found;
+        }
+        assertThat(found, greaterThanOrEqualTo(1));
+    }
+
+    @Test
+    public void testOQLFiltering11ne2() throws SnapshotException
+    {
+        SnapshotQuery query = SnapshotQuery.parse("histogram", snapshot);
+        RefinedResultBuilder builder = query.refine(new VoidProgressListener());
+        // Check size is filterable
+        long sz = 32;
+        builder.setFilter(2, "<>"+sz);
+        RefinedTable table = (RefinedTable) builder.build();
+        int found = 0;
+        for (int i = 0; i < table.getRowCount(); ++i)
+        {
+            Object row = table.getRow(i);
+            Object val = table.getColumnValue(row, 2);
+            // Check no non-numeric item
+            long v;
+            if (val instanceof Number)
+                v = ((Number)val).longValue();
+            else if (val instanceof Bytes)
+                v = ((Bytes)val).getValue();
+            else
+                v = sz;
+            assertThat(v, not(equalTo(sz)));
+            ++found;
+        }
+        assertThat(found, greaterThanOrEqualTo(1));
+    }
+
+    @Test
+    public void testOQLFiltering11rangea() throws SnapshotException
+    {
+        SnapshotQuery query = SnapshotQuery.parse("histogram", snapshot);
+        RefinedResultBuilder builder = query.refine(new VoidProgressListener());
+        // Check size is filterable
+        long sz = 32;
+        builder.setFilter(2, sz+"..");
+        RefinedTable table = (RefinedTable) builder.build();
+        int found = 0;
+        int eq = 0;
+        for (int i = 0; i < table.getRowCount(); ++i)
+        {
+            Object row = table.getRow(i);
+            Object val = table.getColumnValue(row, 2);
+            // Check no non-numeric item
+            long v;
+            if (val instanceof Number)
+                v = ((Number)val).longValue();
+            else if (val instanceof Bytes)
+                v = ((Bytes)val).getValue();
+            else
+                v = sz + 1;
+            assertThat(v, greaterThanOrEqualTo(sz));
+            ++found;
+            if (v == sz)
+                ++eq;
+        }
+        assertThat(found, greaterThanOrEqualTo(1));
+        assertThat(eq, greaterThanOrEqualTo(1));
+    }
+
+    @Test
+    public void testOQLFiltering11rangeb() throws SnapshotException
+    {
+        SnapshotQuery query = SnapshotQuery.parse("histogram", snapshot);
+        RefinedResultBuilder builder = query.refine(new VoidProgressListener());
+        // Check size is filterable
+        long sz = 32;
+        builder.setFilter(2, ".."+sz);
+        RefinedTable table = (RefinedTable) builder.build();
+        int found = 0;
+        int eq = 0;
+        for (int i = 0; i < table.getRowCount(); ++i)
+        {
+            Object row = table.getRow(i);
+            Object val = table.getColumnValue(row, 2);
+            // Check no non-numeric item
+            long v;
+            if (val instanceof Number)
+                v = ((Number)val).longValue();
+            else if (val instanceof Bytes)
+                v = ((Bytes)val).getValue();
+            else
+                v = sz;
+            assertThat(v, lessThanOrEqualTo(sz));
+            ++found;
+            if (v == sz)
+                ++eq;
+        }
+        assertThat(found, greaterThanOrEqualTo(1));
+        assertThat(eq, greaterThanOrEqualTo(1));
+    }
+
+
+    @Test
+    public void testOQLFiltering11rangeab() throws SnapshotException
+    {
+        SnapshotQuery query = SnapshotQuery.parse("histogram", snapshot);
+        RefinedResultBuilder builder = query.refine(new VoidProgressListener());
+        // Check size is filterable
+        long sza = 32;
+        long szb = 256;
+        builder.setFilter(2, sza+".."+szb);
+        RefinedTable table = (RefinedTable) builder.build();
+        int found = 0;
+        int eqa = 0;
+        int eqb = 0;
+        for (int i = 0; i < table.getRowCount(); ++i)
+        {
+            Object row = table.getRow(i);
+            Object val = table.getColumnValue(row, 2);
+            // Check no non-numeric item
+            long v;
+            if (val instanceof Number)
+                v = ((Number)val).longValue();
+            else if (val instanceof Bytes)
+                v = ((Bytes)val).getValue();
+            else
+                v = sza+1;
+            assertThat(v, greaterThanOrEqualTo(sza));
+            assertThat(v, lessThanOrEqualTo(szb));
+            ++found;
+            if (v == sza)
+                ++eqa;
+            if (v == szb)
+                ++eqb;
+        }
+        assertThat(found, greaterThanOrEqualTo(1));
+        assertThat(eqa, greaterThanOrEqualTo(1));
+        assertThat(eqb, greaterThanOrEqualTo(1));
+    }
+
+    @Test
+    public void testOQLFiltering11urangea() throws SnapshotException
+    {
+        SnapshotQuery query = SnapshotQuery.parse("histogram", snapshot);
+        RefinedResultBuilder builder = query.refine(new VoidProgressListener());
+        // Check size is filterable
+        long sz = 32;
+        builder.setFilter(2, "U\\"+sz+"..");
+        RefinedTable table = (RefinedTable) builder.build();
+        int found = 0;
+        int eq = 0;
+        for (int i = 0; i < table.getRowCount(); ++i)
+        {
+            Object row = table.getRow(i);
+            Object val = table.getColumnValue(row, 2);
+            // Check no non-numeric item
+            long v;
+            if (val instanceof Number)
+                v = ((Number)val).longValue();
+            else if (val instanceof Bytes)
+                v = ((Bytes)val).getValue();
+            else
+                v = sz + 1;
+            assertThat(v, not(greaterThanOrEqualTo(sz)));
+            ++found;
+            if (v == sz)
+                ++eq;
+        }
+        assertThat(found, greaterThanOrEqualTo(1));
+        assertThat(eq, equalTo(0));
+    }
+
+    @Test
+    public void testOQLFiltering11urangeb() throws SnapshotException
+    {
+        SnapshotQuery query = SnapshotQuery.parse("histogram", snapshot);
+        RefinedResultBuilder builder = query.refine(new VoidProgressListener());
+        // Check size is filterable
+        long sz = 32;
+        builder.setFilter(2, "U\\.."+sz);
+        RefinedTable table = (RefinedTable) builder.build();
+        int found = 0;
+        int eq = 0;
+        for (int i = 0; i < table.getRowCount(); ++i)
+        {
+            Object row = table.getRow(i);
+            Object val = table.getColumnValue(row, 2);
+            // Check no non-numeric item
+            long v;
+            if (val instanceof Number)
+                v = ((Number)val).longValue();
+            else if (val instanceof Bytes)
+                v = ((Bytes)val).getValue();
+            else
+                v = sz;
+            assertThat(v, not(lessThanOrEqualTo(sz)));
+            ++found;
+            if (v == sz)
+                ++eq;
+        }
+        assertThat(found, greaterThanOrEqualTo(1));
+        assertThat(eq, equalTo(0));
+    }
+
+
+    @Test
+    public void testOQLFiltering11urangeab() throws SnapshotException
+    {
+        SnapshotQuery query = SnapshotQuery.parse("histogram", snapshot);
+        RefinedResultBuilder builder = query.refine(new VoidProgressListener());
+        // Check size is filterable
+        long sza = 32;
+        long szb = 256;
+        builder.setFilter(2, "U\\"+sza+".."+szb);
+        RefinedTable table = (RefinedTable) builder.build();
+        int found = 0;
+        int eqa = 0;
+        int eqb = 0;
+        for (int i = 0; i < table.getRowCount(); ++i)
+        {
+            Object row = table.getRow(i);
+            Object val = table.getColumnValue(row, 2);
+            // Check no non-numeric item
+            long v;
+            if (val instanceof Number)
+                v = ((Number)val).longValue();
+            else if (val instanceof Bytes)
+                v = ((Bytes)val).getValue();
+            else
+                v = sza+1;
+            assertThat(v, not(allOf(greaterThanOrEqualTo(sza), lessThanOrEqualTo(szb))));
+            ++found;
+            if (v == sza)
+                ++eqa;
+            if (v == szb)
+                ++eqb;
+        }
+        assertThat(found, greaterThanOrEqualTo(1));
+        assertThat(eqa, equalTo(0));
+        assertThat(eqb, equalTo(0));
+    }
+
+    
+    @Test
+    public void testOQLFiltering11regex() throws SnapshotException
+    {
+        SnapshotQuery query = SnapshotQuery.parse("histogram", snapshot);
+        RefinedResultBuilder builder = query.refine(new VoidProgressListener());
+        // Check size is filterable
+
+        builder.setFilter(0, "java.lang");
+        RefinedTable table = (RefinedTable) builder.build();
+        int found = 0;
+        for (int i = 0; i < table.getRowCount(); ++i)
+        {
+            Object row = table.getRow(i);
+            Object val = table.getColumnValue(row, 0);
+            assertThat(val.toString(), containsString("java.lang"));
+             ++found;
+        }
+        assertThat(found, greaterThanOrEqualTo(1));
+    }
+    
     /**
      * Test for sorting of incompatible items
      * @throws SnapshotException
