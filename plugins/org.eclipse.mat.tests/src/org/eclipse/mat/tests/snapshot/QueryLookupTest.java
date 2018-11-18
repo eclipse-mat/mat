@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 SAP AG.
+ * Copyright (c) 2010, 2018 SAP AG and IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,14 +7,18 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson/IBM Corporation - comparison queries
  *******************************************************************************/
 package org.eclipse.mat.tests.snapshot;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertThat;
+import static org.hamcrest.number.OrderingComparison.greaterThan;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -103,6 +107,109 @@ public class QueryLookupTest
         assertTrue(r2 != null);
     }
 
+
+    /**
+     * Test that subtraction comparisons are done, even for sizes.
+     */
+    @Test
+    public void testCompareDiffPrevious() throws SnapshotException
+    {
+        String queryId = "comparetablesquery";
+        ISnapshot snapshot1 = TestSnapshots.getSnapshot(TestSnapshots.SUN_JDK6_18_32BIT, false);
+        ISnapshot snapshot2 = TestSnapshots.getSnapshot(TestSnapshots.SUN_JDK6_18_64BIT, false);
+
+        SnapshotQuery query1 = SnapshotQuery.lookup("histogram", snapshot1);
+        IResult result1 = query1.execute(new VoidProgressListener());
+
+        SnapshotQuery query2 = SnapshotQuery.lookup("histogram", snapshot2);
+        IResult result2 = query2.execute(new VoidProgressListener());
+
+        SnapshotQuery query3 = SnapshotQuery.parse(queryId+" -mode DIFF_TO_PREVIOUS", snapshot1);
+
+        List<IResultTable> r = new ArrayList<IResultTable>();
+        r.add((IResultTable) result1);
+        r.add((IResultTable) result2);
+        query3.setArgument("tables", r);
+        ArrayList<ISnapshot> snapshots = new ArrayList<ISnapshot>();
+        snapshots.add(snapshot1);
+        snapshots.add(snapshot2);
+        query3.setArgument("snapshots", snapshots);
+        IResultTable r2 = (IResultTable) query3.execute(new VoidProgressListener());
+        assertTrue(r2 != null);
+        System.out.println(Arrays.toString(r2.getColumns()));
+        int count = 0;
+        for (int i = 0; i < r2.getRowCount(); ++i)
+        {
+            Object v0 = r2.getColumnValue(r2.getRow(i), 1);
+            for (int j = 1; j < r2.getColumns().length - 1; j += 2)
+            {
+                Object v1 = r2.getColumnValue(r2.getRow(i), j);
+                Object v2 = r2.getColumnValue(r2.getRow(i), j + 1);
+                // With a difference, if there is a value from table 1 then the difference has a value
+                if (v1 != null)
+                {
+                    if (v2 != null)
+                        ++count;
+                }
+            }
+        }
+        assertThat(count, greaterThan(0));
+    }
+
+    /**
+     * Test that subtraction comparisons are done, even for sizes.
+     */
+    @Test
+    public void testCompareDiffRatioFirst() throws SnapshotException
+    {
+        String queryId = "comparetablesquery";
+        ISnapshot snapshot1 = TestSnapshots.getSnapshot(TestSnapshots.SUN_JDK6_18_32BIT, false);
+        ISnapshot snapshot2 = TestSnapshots.getSnapshot(TestSnapshots.SUN_JDK6_18_64BIT, false);
+
+        SnapshotQuery query1 = SnapshotQuery.lookup("histogram", snapshot1);
+        IResult result1 = query1.execute(new VoidProgressListener());
+
+        SnapshotQuery query2 = SnapshotQuery.lookup("histogram", snapshot2);
+        IResult result2 = query2.execute(new VoidProgressListener());
+
+        SnapshotQuery query3 = SnapshotQuery.parse(queryId+" -mode DIFF_RATIO_TO_FIRST", snapshot1);
+
+
+        List<IResultTable> r = new ArrayList<IResultTable>();
+        r.add((IResultTable) result1);
+        r.add((IResultTable) result2);
+        query3.setArgument("tables", r);
+        ArrayList<ISnapshot> snapshots = new ArrayList<ISnapshot>();
+        snapshots.add(snapshot1);
+        snapshots.add(snapshot2);
+        query3.setArgument("snapshots", snapshots);
+        IResultTable r2 = (IResultTable) query3.execute(new VoidProgressListener());
+        assertTrue(r2 != null);
+        System.out.println(Arrays.toString(r2.getColumns()));
+        int count1 = 0;
+        int count2 = 0;
+        for (int i = 0; i < r2.getRowCount(); ++i)
+        {
+            Object v0 = r2.getColumnValue(r2.getRow(i), 1);
+            for (int j = 1; j < r2.getColumns().length - 2; j += 3)
+            {
+                Object v1 = r2.getColumnValue(r2.getRow(i), j);
+                Object v2 = r2.getColumnValue(r2.getRow(i), j + 1);
+                Object v3 = r2.getColumnValue(r2.getRow(i), j + 2);
+                // With a difference, if there is a value from table 1 then the difference has a value
+                if (v1 != null)
+                {
+                    if (v2 != null)
+                        ++count1;
+                    if (v3 != null)
+                        ++count2;
+                }
+            }
+        }
+        assertThat(count1, greaterThan(0));
+        assertThat(count2, greaterThan(0));
+    }
+ 
     @Test()
     public void testParse() throws SnapshotException
     {

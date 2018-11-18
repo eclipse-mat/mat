@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2011 SAP AG and IBM Corporation. 
+ * Copyright (c) 2010, 2018 SAP AG and IBM Corporation. 
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0 
  * which accompanies this distribution, and is available at 
@@ -21,6 +21,8 @@ import java.util.Map;
 
 import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.internal.Messages;
+import org.eclipse.mat.query.Bytes;
+import org.eclipse.mat.query.BytesFormat;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.ContextProvider;
 import org.eclipse.mat.query.IContextObject;
@@ -983,12 +985,19 @@ public class CompareTablesQuery implements IQuery
 
 			if (value == null && firstTableValue == null) return null;
 
-			if (value == null && firstTableValue instanceof Number) return null;
+			if (value == null && (firstTableValue instanceof Number || firstTableValue instanceof Bytes)) return null;
 
-			if (value instanceof Number && firstTableValue == null)
+			if ((value instanceof Number || value instanceof Bytes) && firstTableValue == null)
 			{
                 return ratio ? null : value;
 			}
+
+	         boolean returnBytes = value instanceof Bytes && firstTableValue instanceof Bytes;
+	         if (value instanceof Bytes)
+	             value = Long.valueOf(((Bytes)value).getValue());
+
+	         if (firstTableValue instanceof Bytes)
+	             firstTableValue = Long.valueOf(((Bytes)firstTableValue).getValue());
 
 			if (value instanceof Number && firstTableValue instanceof Number)
 			{
@@ -999,6 +1008,8 @@ public class CompareTablesQuery implements IQuery
                 }
                 else
                 {
+                    if (returnBytes)
+                        return new Bytes(((Number)ret).longValue());
                     return ret;
                 }
 			}
@@ -1018,12 +1029,19 @@ public class CompareTablesQuery implements IQuery
 
 			if (value == null && previousTableValue == null) return null;
 
-			if (value == null && previousTableValue instanceof Number) return null;
+			if (value == null && (previousTableValue instanceof Number || previousTableValue instanceof Bytes)) return null;
 
-			if (value instanceof Number && previousTableValue == null)
+			if ((value instanceof Number || value instanceof Bytes) && previousTableValue == null)
 			{
                 return ratio ? null : value;
 			}
+
+			boolean returnBytes = value instanceof Bytes && previousTableValue instanceof Bytes;
+			if (value instanceof Bytes)
+			    value = Long.valueOf(((Bytes)value).getValue());
+
+			if (previousTableValue instanceof Bytes)
+			    previousTableValue = Long.valueOf(((Bytes)previousTableValue).getValue());
 
 			if (value instanceof Number && previousTableValue instanceof Number)
 			{
@@ -1034,6 +1052,8 @@ public class CompareTablesQuery implements IQuery
                 }
                 else
                 {
+                    if (returnBytes)
+                        return new Bytes(((Number)ret).longValue());
                     return ret;
                 }
 			}
@@ -1124,6 +1144,10 @@ public class CompareTablesQuery implements IQuery
             {
                 ((DecimalFormat)formatterPercent).setPositivePrefix("+"); //$NON-NLS-1$
             }
+            // Force the sign for Bytes formatting
+            String detailed1 = "+"+BytesFormat.DETAILED_DECIMAL_FORMAT+";-"+BytesFormat.DETAILED_DECIMAL_FORMAT; //$NON-NLS-1$ //$NON-NLS-2$
+            DecimalFormat bcf = new DecimalFormat(detailed1);
+            BytesFormat bfm = new BytesFormat(formatter, bcf);
 
 			for (ComparedColumn comparedColumn : displayedColumns)
 			{
@@ -1144,6 +1168,12 @@ public class CompareTablesQuery implements IQuery
                             DecimalFormat fm = ((DecimalFormat) c.getFormatter().clone());
                             fm.setPositivePrefix("+"); //$NON-NLS-1$
                             columns[i].formatting(fm);
+                        }
+                        else if (c.getFormatter() instanceof BytesFormat)
+                        {
+                            //BytesFormat fm = ((BytesFormat) c.getFormatter().clone());
+                            // Force the sign - can't retrieve information from existing formatter
+                            columns[i].formatting(bfm);
                         }
                         else
                         {
