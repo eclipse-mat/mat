@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson/IBM Corporation - also total sizes (Bytes)
  *******************************************************************************/
 package org.eclipse.mat.query.refined;
 
@@ -93,6 +94,8 @@ import org.eclipse.mat.util.IProgressListener;
                 {
                     v = ((Number) o).doubleValue();
                 }
+                else if (o instanceof Bytes)
+                    v = ((Bytes) o).getValue();
                 else
                 {
                     try
