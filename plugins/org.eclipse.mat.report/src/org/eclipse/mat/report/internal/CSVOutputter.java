@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2018 SAP AG and IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson/IBM Corporation - Bytes values
  *******************************************************************************/
 package org.eclipse.mat.report.internal;
 
@@ -15,6 +16,7 @@ import java.io.Writer;
 import java.text.Format;
 import java.util.List;
 
+import org.eclipse.mat.query.Bytes;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.IResultTable;
@@ -155,6 +157,12 @@ public class CSVOutputter implements IOutputter
         Format fmt = null;
         if (columnValue instanceof Long || columnValue instanceof Integer)
             fmt = new DecimalFormat("0"); //$NON-NLS-1$
+        else if (columnValue instanceof Bytes)
+        {
+            // Extract actual value for formating
+            columnValue = ((Bytes)columnValue).getValue();
+            fmt = new DecimalFormat("0"); //$NON-NLS-1$
+        }
         else if (columnValue instanceof Double || columnValue instanceof Float)
             fmt = new DecimalFormat("0.#####"); //$NON-NLS-1$
 

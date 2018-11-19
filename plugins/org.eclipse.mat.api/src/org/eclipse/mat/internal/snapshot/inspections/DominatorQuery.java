@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 SAP AG, IBM Corporation
+ * Copyright (c) 2008, 2018 SAP AG, IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,9 +25,9 @@ import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.collect.IteratorInt;
 import org.eclipse.mat.internal.Messages;
+import org.eclipse.mat.query.Bytes;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.Column.SortDirection;
-import org.eclipse.mat.query.Bytes;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IContextObjectSet;
 import org.eclipse.mat.query.IDecorator;
@@ -48,7 +48,7 @@ import org.eclipse.mat.snapshot.query.Icons;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.VoidProgressListener;
 
-import com.ibm.icu.text.DecimalFormat;
+import com.ibm.icu.text.NumberFormat;
 
 @CommandName("dominator_tree")
 @Category(Category.HIDDEN)
@@ -329,12 +329,14 @@ public class DominatorQuery implements IQuery
 
         public Column[] getColumns()
         {
+            NumberFormat nf = NumberFormat.getPercentInstance();
+            nf.setMinimumFractionDigits(2);
             return new Column[] {
                             new Column(Messages.Column_ClassName, String.class).decorator(this), //
                             new Column(Messages.Column_ShallowHeap, Bytes.class).noTotals(), //
                             new Column(Messages.Column_RetainedHeap, Bytes.class).noTotals(), //
                             new Column(Messages.Column_Percentage, double.class)
-                                            .formatting(new DecimalFormat("0.00%")).noTotals() }; //$NON-NLS-1$
+                                            .formatting(nf).noTotals() };
         }
 
         public List<?> getElements()
@@ -513,11 +515,14 @@ public class DominatorQuery implements IQuery
 
         public Column[] getColumns()
         {
+            NumberFormat nf = NumberFormat.getPercentInstance();
+            nf.setMinimumFractionDigits(2);
+            nf.setMaximumFractionDigits(2);
             return new Column[] { new Column(Messages.Column_ClassName, String.class), //
                             new Column(Messages.Column_Objects, int.class), //
                             new Column(Messages.Column_ShallowHeap, Bytes.class), //
                             new Column(Messages.Column_RetainedHeap, Bytes.class).sorting(SortDirection.DESC), //
-                            new Column(Messages.Column_Percentage, double.class).formatting(new DecimalFormat("0.00%")) }; //$NON-NLS-1$
+                            new Column(Messages.Column_Percentage, double.class).formatting(nf) };
         }
 
         public List<?> getElements()
@@ -649,11 +654,13 @@ public class DominatorQuery implements IQuery
 
         public Column[] getColumns()
         {
+            NumberFormat nf = NumberFormat.getPercentInstance();
+            nf.setMinimumFractionDigits(2);
             return new Column[] { new Column(Messages.Column_ClassLoaderName, String.class), //
                             new Column(Messages.Column_Objects, int.class), //
                             new Column(Messages.Column_ShallowHeap, Bytes.class), //
                             new Column(Messages.Column_RetainedHeap, Bytes.class).sorting(SortDirection.DESC), //
-                            new Column(Messages.Column_Percentage, double.class).formatting(new DecimalFormat("0.00%")) }; //$NON-NLS-1$
+                            new Column(Messages.Column_Percentage, double.class).formatting(nf) }; //$NON-NLS-1$
         }
 
         public List<?> getElements()
@@ -880,11 +887,13 @@ public class DominatorQuery implements IQuery
 
         public Column[] getColumns()
         {
+            NumberFormat nf = NumberFormat.getPercentInstance();
+            nf.setMinimumFractionDigits(2);
             return new Column[] { new Column(Messages.Column_ClassName, String.class), //
                             new Column(Messages.Column_Objects, int.class), //
                             new Column(Messages.Column_ShallowHeap, Bytes.class), //
                             new Column(Messages.Column_RetainedHeap, Bytes.class).sorting(SortDirection.DESC), //
-                            new Column(Messages.Column_Percentage, double.class).formatting(new DecimalFormat("0.00%")) }; //$NON-NLS-1$
+                            new Column(Messages.Column_Percentage, double.class).formatting(nf) };
         }
 
         public List<?> getElements()

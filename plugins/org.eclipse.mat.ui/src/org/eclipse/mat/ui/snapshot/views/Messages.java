@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2013 SAP AG and others.
+ * Copyright (c) 2008, 2018 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,6 +27,7 @@ public class Messages extends NLS
     public static String identifier_size;
     public static String use_compressed_oops;
     public static String identifier_format;
+    public static String size_format;
     public static String file_path;
     public static String file_length;
     public static String identifier;

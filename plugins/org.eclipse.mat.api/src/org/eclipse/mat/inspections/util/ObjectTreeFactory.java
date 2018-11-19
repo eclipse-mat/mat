@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2009 SAP AG.
+ * Copyright (c) 2008, 2018 SAP AG and IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,11 +7,11 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson/IBM Corporation - use com.ibm.icu for formatting
  *******************************************************************************/
 package org.eclipse.mat.inspections.util;
 
 import java.net.URL;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,6 +27,8 @@ import org.eclipse.mat.query.ISelectionProvider;
 import org.eclipse.mat.query.ResultMetaData;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.query.Icons;
+
+import com.ibm.icu.text.NumberFormat;
 
 public final class ObjectTreeFactory
 {
@@ -160,8 +162,14 @@ public final class ObjectTreeFactory
     {
         private static final Column COL_HEAP = new Column(Messages.Column_ShallowHeap, Bytes.class);
         private static final Column COL_RETAINED = new Column(Messages.Column_RetainedHeap, Bytes.class);
-        private static final Column COL_PERCENT = new Column(Messages.ObjectTreeFactory_Column_Percentage, double.class) //
-                        .formatting(new DecimalFormat("0.00%")); //$NON-NLS-1$
+        private static Column col_percent()
+        {
+            // Return a new column each time as the formatter is not thread-safe
+            NumberFormat nf = NumberFormat.getPercentInstance();
+            nf.setMinimumFractionDigits(2);
+            nf.setMaximumFractionDigits(2);
+            return new Column(Messages.ObjectTreeFactory_Column_Percentage, double.class).formatting(nf);
+        }
 
         private ISnapshot snapshot;
         private Node invisibleRoot;
@@ -201,7 +209,7 @@ public final class ObjectTreeFactory
                 });
 
             if (base > 0)
-                return new Column[] { classNameCol, COL_HEAP, COL_RETAINED, COL_PERCENT };
+                return new Column[] { classNameCol, COL_HEAP, COL_RETAINED, col_percent() };
             else
                 return new Column[] { classNameCol, COL_HEAP, COL_RETAINED };
         }
