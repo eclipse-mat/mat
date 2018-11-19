@@ -28,7 +28,7 @@ public class TotalsRow
 {
     private static final URL SUM = FileLocator.find(ReportPlugin.getDefault().getBundle(), new Path("$nl$/META-INF/icons/misc/sum.gif"), null); //$NON-NLS-1$
     private static final URL SUM_PLUS = FileLocator.find(ReportPlugin.getDefault().getBundle(), new Path("$nl$/META-INF/icons/misc/sum_plus.gif"), null); //$NON-NLS-1$
-    private static final NumberFormat fmt = DecimalFormat.getInstance();
+    private final NumberFormat fmt = DecimalFormat.getInstance();
 
     private TotalsResult[] totals;
 

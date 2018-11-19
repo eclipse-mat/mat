@@ -25,6 +25,10 @@ public final class Messages extends NLS
     public static String ArgumentSet_Msg_NullValue;
     public static String ArrayInt_Error_LengthExceeded;
     public static String ArrayLong_Error_LengthExceeded;
+    public static String BytesFormat_B;
+    public static String BytesFormat_GB;
+    public static String BytesFormat_KB;
+    public static String BytesFormat_MB;
     public static String CategoryDescriptor_Label_NoCategory;
     public static String CommandLine_Error_AssignmentFailed;
     public static String CommandLine_Error_InvalidCommand;

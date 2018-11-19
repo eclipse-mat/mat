@@ -74,7 +74,6 @@ import org.eclipse.mat.snapshot.registry.TroubleTicketResolverRegistry;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 
-import com.ibm.icu.text.DecimalFormat;
 import com.ibm.icu.text.NumberFormat;
 
 @CommandName("leakhunter")
@@ -87,9 +86,16 @@ public class LeakHunterQuery implements IQuery
 
     static final String SYSTEM_CLASSLOADER = Messages.LeakHunterQuery_SystemClassLoader;
 
-    static NumberFormat percentFormatter = new DecimalFormat("0.00%"); //$NON-NLS-1$
-    static NumberFormat numberFormatter = NumberFormat.getNumberInstance();
-    static BytesFormat bytesFormatter = BytesFormat.getInstance();
+    // Use per-instance formatters to avoid thread safety problems
+    NumberFormat percentFormatter;
+    {
+        // Use com.ibm.icu
+        percentFormatter = NumberFormat.getPercentInstance();
+        percentFormatter.setMinimumFractionDigits(2);
+        percentFormatter.setMaximumFractionDigits(2);
+    }
+    NumberFormat numberFormatter = NumberFormat.getNumberInstance();
+    BytesFormat bytesFormatter = BytesFormat.getInstance();
 
     @Argument
     public ISnapshot snapshot;

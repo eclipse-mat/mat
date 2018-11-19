@@ -59,15 +59,22 @@ import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.SimpleStringTokenizer;
 
-import com.ibm.icu.text.DecimalFormat;
+import com.ibm.icu.text.NumberFormat;
 
 @CommandName("top_consumers_html")
 @Icon("/META-INF/icons/pie_chart.gif")
 @HelpUrl("/org.eclipse.mat.ui.help/reference/inspections/top_consumers.html")
 public class TopConsumers2Query implements IQuery
 {
-    private static final Column COL_RETAINED_HEAP = new Column(Messages.TopConsumers2Query_Column_RetainedHeapPercent,
-                    double.class).formatting(new DecimalFormat("0.00%")).noTotals(); //$NON-NLS-1$
+    private final Column col_retained_heap = getColRetainedHeap();
+    private static Column getColRetainedHeap()
+    {
+        NumberFormat nf = NumberFormat.getPercentInstance();
+        nf.setMinimumFractionDigits(2);
+        nf.setMaximumFractionDigits(2);
+        return new Column(Messages.TopConsumers2Query_Column_RetainedHeapPercent,
+                        double.class).formatting(nf).noTotals();
+    }
 
     @Argument
     public ISnapshot snapshot;
@@ -303,7 +310,7 @@ public class TopConsumers2Query implements IQuery
                 }
             };
 
-            result.addColumn(COL_RETAINED_HEAP, new PercentageValueProvider(totalHeap));
+            result.addColumn(col_retained_heap, new PercentageValueProvider(totalHeap));
 
             composite.add(new QuerySpec(Messages.TopConsumers2Query_BiggestClassesOverview, pie.build()));
 
@@ -387,7 +394,7 @@ public class TopConsumers2Query implements IQuery
                     };
                 }
             };
-            result.addColumn(COL_RETAINED_HEAP, new PercentageValueProvider(totalHeap));
+            result.addColumn(col_retained_heap, new PercentageValueProvider(totalHeap));
 
             composite.add(new QuerySpec(Messages.TopConsumers2Query_BiggestClassLoadersOverview, pie.build()));
 
@@ -676,7 +683,7 @@ public class TopConsumers2Query implements IQuery
         {
             return new Column[] { new Column(Messages.TopConsumers2Query_Column_Package), //
                             new Column(Messages.Column_RetainedHeap, Bytes.class).sorting(Column.SortDirection.DESC), //
-                            COL_RETAINED_HEAP, //
+                            getColRetainedHeap(), //
                             new Column(Messages.TopConsumers2Query_Column_TopDominators, int.class) };
         }
 

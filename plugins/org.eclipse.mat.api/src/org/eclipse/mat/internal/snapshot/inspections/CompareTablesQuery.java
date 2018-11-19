@@ -47,6 +47,7 @@ import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 
 import com.ibm.icu.text.DecimalFormat;
+import com.ibm.icu.text.DecimalFormatSymbols;
 import com.ibm.icu.text.NumberFormat;
 
 @Icon("/META-INF/icons/compare.gif")
@@ -1135,18 +1136,50 @@ public class CompareTablesQuery implements IQuery
 			updateColumns();
 		}
 
+        private void addPositiveIndicator(Format formatter)
+        {
+            if (formatter instanceof DecimalFormat)
+            {
+                DecimalFormat pctFmt = (DecimalFormat) formatter;
+                if ((pctFmt.getPositivePrefix().length() == 0
+                                || pctFmt.getPositivePrefix().equals(pctFmt.getNegativePrefix()))
+                                && (pctFmt.getPositiveSuffix().length() == 0
+                                                || pctFmt.getPositiveSuffix().equals(pctFmt.getNegativeSuffix())))
+                {
+                    // No positive prefix, or positive prefix
+                    DecimalFormatSymbols sym = DecimalFormatSymbols.getInstance();
+                    // find the symbol
+                    String plus = Character.toString(sym.getPlusSign());
+                    // Make it a prefix, unless there is prefix but no suffix
+                    if (pctFmt.getPositivePrefix().length() > 0 && pctFmt.getPositiveSuffix().length() == 0)
+                        pctFmt.setPositiveSuffix(plus);
+                    else
+                        pctFmt.setPositivePrefix(plus);
+                }
+            }
+        }
+
 		private void setFormatter()
 		{
 			int i = 1;
-			Format formatter = new DecimalFormat("+#,##0;-#,##0"); //$NON-NLS-1$
+			// Rather than giving a format, modify the default
+			Format formatter = NumberFormat.getIntegerInstance();
+			addPositiveIndicator(formatter);
             NumberFormat formatterPercent = NumberFormat.getPercentInstance();
-            if (formatterPercent instanceof DecimalFormat)
-            {
-                ((DecimalFormat)formatterPercent).setPositivePrefix("+"); //$NON-NLS-1$
-            }
+            addPositiveIndicator(formatterPercent);
             // Force the sign for Bytes formatting
+            // Compare with org.eclipse.mat.snapshot.Histogram.getColumns()
             String detailed1 = "+"+BytesFormat.DETAILED_DECIMAL_FORMAT+";-"+BytesFormat.DETAILED_DECIMAL_FORMAT; //$NON-NLS-1$ //$NON-NLS-2$
             DecimalFormat bcf = new DecimalFormat(detailed1);
+            NumberFormat nf = NumberFormat.getNumberInstance();
+            if (nf instanceof DecimalFormat)
+            {
+                DecimalFormat bcf2 = (DecimalFormat)nf;
+                bcf2.setMinimumFractionDigits(bcf.getMinimumFractionDigits());
+                bcf2.setMaximumFractionDigits(bcf.getMaximumFractionDigits());
+                addPositiveIndicator(bcf2);
+                bcf = bcf2;
+            }
             BytesFormat bfm = new BytesFormat(formatter, bcf);
 
 			for (ComparedColumn comparedColumn : displayedColumns)

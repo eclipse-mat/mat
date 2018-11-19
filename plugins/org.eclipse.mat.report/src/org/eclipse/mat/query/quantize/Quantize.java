@@ -11,7 +11,6 @@
  *******************************************************************************/
 package org.eclipse.mat.query.quantize;
 
-import com.ibm.icu.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -22,15 +21,18 @@ import java.util.Map;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.query.Column;
+import org.eclipse.mat.query.Column.SortDirection;
 import org.eclipse.mat.query.ContextDerivedData;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IContextObjectSet;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.query.ResultMetaData;
-import org.eclipse.mat.query.Column.SortDirection;
 import org.eclipse.mat.query.quantize.Quantize.Function.Factory;
 import org.eclipse.mat.report.internal.Messages;
+
+import com.ibm.icu.text.DecimalFormat;
+import com.ibm.icu.text.NumberFormat;
 
 /**
  * Create a value or frequency distribution out of arbitrary values.
@@ -191,8 +193,20 @@ public final class Quantize
      */
     public static Builder linearFrequencyDistribution(String label, double lowerBound, double upperBound, double step)
     {
+        DecimalFormat format = new DecimalFormat("<= #,##0.00"); //$NON-NLS-1$
+        NumberFormat nf = NumberFormat.getNumberInstance();
+        if (nf instanceof DecimalFormat)
+        {
+            // Use the locale formatter
+            DecimalFormat df = (DecimalFormat)nf;
+            df.setMinimumFractionDigits(2);
+            df.setMaximumFractionDigits(2);
+            df.setPositivePrefix("<= "+df.getPositivePrefix()); //$NON-NLS-1$
+            df.setNegativePrefix("<= "+df.getNegativePrefix()); //$NON-NLS-1$
+            format = df;
+        }
         return new Builder(new Quantize(new KeyCalculator.LinearDistributionDouble(lowerBound, upperBound, step)))
-                        .addKeyColumn(new Column(label, Double.class).formatting(new DecimalFormat("<= #,##0.00")) //$NON-NLS-1$
+                        .addKeyColumn(new Column(label, Double.class).formatting(format)
                                         .noTotals());
     }
 
@@ -208,8 +222,18 @@ public final class Quantize
      */
     public static Builder linearFrequencyDistribution(String label, long lowerBound, long upperBound, long step)
     {
+        DecimalFormat format = new DecimalFormat("<= #,##0.00"); //$NON-NLS-1$
+        NumberFormat nf = NumberFormat.getIntegerInstance();
+        if (nf instanceof DecimalFormat)
+        {
+            // Use the locale formatter
+            DecimalFormat df = (DecimalFormat)nf;
+            df.setPositivePrefix("<= "+df.getPositivePrefix()); //$NON-NLS-1$
+            df.setNegativePrefix("<= "+df.getNegativePrefix()); //$NON-NLS-1$
+            format = df;
+        }
         return new Builder(new Quantize(new KeyCalculator.LinearDistributionLong(lowerBound, upperBound, step)))
-                        .addKeyColumn(new Column(label, Long.class).formatting(new DecimalFormat("<= #,##0.00")) //$NON-NLS-1$
+                        .addKeyColumn(new Column(label, Long.class).formatting(format)
                                         .noTotals());
     }
 
