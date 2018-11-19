@@ -178,8 +178,9 @@ public abstract class Filter
                 int indexOfDots = criteria.indexOf(".."); //$NON-NLS-1$
                 if (indexOfDots >= 0)
                 {
-                    // Invert of range (universal set difference from range)
-                    int st = criteria.startsWith("U\\") ? 2 : 0; //$NON-NLS-1$
+                    // U\\ Invert of range (universal set difference from range, excludes NaN)
+                    // ! strict invert of range (universal set difference from range, includes NaN)
+                    int st = criteria.startsWith("U\\") ? 2 : criteria.startsWith("!") ? 1 : 0; //$NON-NLS-1$ //$NON-NLS-2$
                     Double lowerBound = number(criteria.substring(st, indexOfDots).trim());
                     int lastIndexOfDots = criteria.lastIndexOf(".."); //$NON-NLS-1$
                     Double upperBound = number(criteria.substring(lastIndexOfDots + 2).trim());
@@ -193,8 +194,10 @@ public abstract class Filter
                         newTest = new UpperEqualBoundary(upperBound.doubleValue());
                     else
                         lowerBound = number(criteria); // cause an error
-                    if (criteria.startsWith("U\\")) //$NON-NLS-1$
+                    if (criteria.startsWith("!")) //$NON-NLS-1$
                         newTest = new NotTest(newTest);
+                    else if (criteria.startsWith("U\\")) //$NON-NLS-1$
+                        newTest = new CompositeTest(new NotTest(newTest), new NotEqualsTest(Double.NaN));
                 }
                 else
                 {

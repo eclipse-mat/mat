@@ -7,14 +7,19 @@
  *
  * Contributors:
  *    IBM Corporation - initial API and implementation
- *    IBM Corporation/Andrew Johnson - Javadoc updates
+ *    IBM Corporation/Andrew Johnson - Javadoc updates, use com.ibm.icu.text
  *******************************************************************************/
 package org.eclipse.mat.query;
 
-import java.text.DecimalFormat;
 import java.text.FieldPosition;
 import java.text.Format;
 import java.text.ParsePosition;
+
+import org.eclipse.mat.report.internal.Messages;
+import org.eclipse.mat.util.MessageUtil;
+
+import com.ibm.icu.text.DecimalFormat;
+import com.ibm.icu.text.NumberFormat;
 
 
 /**
@@ -57,14 +62,40 @@ public class BytesFormat extends Format
         @Override
         protected Format initialValue()
         {
-            return new DecimalFormat(DETAILED_DECIMAL_FORMAT);
+            return new DecimalFormat(DETAILED_DECIMAL_FORMAT2);
         }
     };
 
     /**
      * The default format string using for decimal byte values.
      */
-    public static final String DETAILED_DECIMAL_FORMAT = "#,##0.00";
+    public static final String DETAILED_DECIMAL_FORMAT = "#,##0.00"; //$NON-NLS-1$;
+    /**
+     * A slightly more internationalised version.
+     */
+    static final String DETAILED_DECIMAL_FORMAT2;
+    static {
+        NumberFormat nf = NumberFormat.getNumberInstance();
+        String ret;
+        if (nf instanceof DecimalFormat)
+        {
+            DecimalFormat df = (DecimalFormat)nf;
+            // Set 2 digits for the fraction
+            df.setMinimumFractionDigits(2);
+            df.setMaximumFractionDigits(2);
+            // But leave the thousands separator and default integer digits
+            ret = df.toPattern();
+            // Only use the positive part
+            int i = ret.indexOf(';');
+            if (i >= 0)
+                ret = ret.substring(0, i);
+        }
+        else
+        {
+            ret = DETAILED_DECIMAL_FORMAT;
+        }
+        DETAILED_DECIMAL_FORMAT2 = ret;
+    }
 
     private final Format encapsulatedNumberFormat;
     private final Format encapsulatedDecimalFormat;
@@ -169,27 +200,27 @@ public class BytesFormat extends Format
     private StringBuffer formatGb(StringBuffer toAppendTo, double val)
     {
         double gb = (double) val / GB;
-        toAppendTo.append(getDetailedFormat().format(gb) + " GB");
+        toAppendTo.append(MessageUtil.format(Messages.BytesFormat_GB, getDetailedFormat().format(gb)));
         return toAppendTo;
     }
 
     private StringBuffer formatMb(StringBuffer toAppendTo, double val)
     {
         double mb = (double) val / MB;
-        toAppendTo.append(getDetailedFormat().format(mb) + " MB");
+        toAppendTo.append(MessageUtil.format(Messages.BytesFormat_MB, getDetailedFormat().format(mb)));
         return toAppendTo;
     }
 
     private StringBuffer formatKb(StringBuffer toAppendTo, double val)
     {
         double kb = (double) val / KB;
-        toAppendTo.append(getDetailedFormat().format(kb) + " KB");
+        toAppendTo.append(MessageUtil.format(Messages.BytesFormat_KB, getDetailedFormat().format(kb)));
         return toAppendTo;
     }
 
     private StringBuffer formatB(StringBuffer toAppendTo, double val)
     {
-        toAppendTo.append(getDefaultFormat().format(val) + " B");
+        toAppendTo.append(MessageUtil.format(Messages.BytesFormat_B, getDefaultFormat().format(val)));
         return toAppendTo;
     }
 

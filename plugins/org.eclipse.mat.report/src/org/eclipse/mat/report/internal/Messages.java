@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     SAP AG - initial API and implementation
+ *     Andrew Johnson/IBM Corporation - quantize localization
  *******************************************************************************/
 package org.eclipse.mat.report.internal;
 
@@ -25,6 +26,10 @@ public final class Messages extends NLS
     public static String ArgumentSet_Msg_NullValue;
     public static String ArrayInt_Error_LengthExceeded;
     public static String ArrayLong_Error_LengthExceeded;
+    public static String BytesFormat_B;
+    public static String BytesFormat_GB;
+    public static String BytesFormat_KB;
+    public static String BytesFormat_MB;
     public static String CategoryDescriptor_Label_NoCategory;
     public static String CommandLine_Error_AssignmentFailed;
     public static String CommandLine_Error_InvalidCommand;
@@ -58,6 +63,7 @@ public final class Messages extends NLS
     public static String PropertyResult_Column_Name;
     public static String PropertyResult_Column_Value;
     public static String Quantize_Error_MismatchArgumentsColumns;
+    public static String Quantize_LessEq_Prefix;
     public static String Queries_Error_NotAvialable;
     public static String Queries_Error_UnknownArgument;
     public static String QueryContextImpl_ImpossibleToConvert;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others.
+ * Copyright (c) 2008, 2018 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson/IBM Corporation - com.ibm.icu fixes
  *******************************************************************************/
 package org.eclipse.mat.ui.snapshot.views;
 
@@ -227,7 +228,17 @@ public abstract class SnapshotOutlinePage extends Page implements IContentOutlin
                     }
                     else if (obj instanceof Double)
                     {
-                        return new DecimalFormat("#,##0.0 M").format(obj);//$NON-NLS-1$
+                        DecimalFormat format = new DecimalFormat("#,##0.0"); //$NON-NLS-1$
+                        NumberFormat nf = NumberFormat.getNumberInstance();
+                        if (nf instanceof DecimalFormat)
+                        {
+                            // Use the locale formatter
+                            DecimalFormat df = (DecimalFormat)nf;
+                            df.setMinimumFractionDigits(1);
+                            df.setMaximumFractionDigits(1);
+                            format = df;
+                        }
+                        return MessageUtil.format(MessageUtil.format(Messages.size_format, format.format(obj)));
                     }
                     else if (obj instanceof Date)
                     {

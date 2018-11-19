@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2018 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -175,12 +175,23 @@ public class QueryContextMenu
             else
             {
                 Column col = result.getColumns()[0];
+                String sval;
                 if (col.getFormatter() != null)
-                    label = MessageUtil.format(Messages.QueryContextMenu_selectionOf,
-                                    "'" + col.getFormatter().format(value) + "'"); //$NON-NLS-2$ //$NON-NLS-1$
+                {
+                    try
+                    {
+                        sval = col.getFormatter().format(value);
+                    }
+                    catch (IllegalArgumentException e)
+                    {
+                        // For example, numeric column with a text value
+                        sval = fixLabel(String.valueOf(value));
+                    }
+                }
                 else
-                    label = MessageUtil.format(Messages.QueryContextMenu_selectionOf,
-                                    "'" + fixLabel(String.valueOf(value)) + "'"); //$NON-NLS-2$ //$NON-NLS-1$
+                    sval = fixLabel(String.valueOf(value));
+                label = MessageUtil.format(Messages.QueryContextMenu_selectionOf,
+                                "'" + sval + "'"); //$NON-NLS-2$ //$NON-NLS-1$
             }
         }
         else
@@ -339,6 +350,14 @@ public class QueryContextMenu
     // do nothing, to be overwritten
     }
 
+    /**
+     * Matches not spaces, then dot, then capital A-Z, then alphanumeric, then not dot or space, then anything.
+     * Strips of the initial part before the capital.
+     * Could be used to strip off package names to convert
+     * java.lang.String @ 0x12345678 contents
+     * to
+     * String @ 0x12345678 contents
+     */
     private static final Pattern PATH_PATTERN = Pattern.compile("^[^ ]*\\.([A-Z][\\p{Alnum}$]([^ .])*.*)$"); //$NON-NLS-1$
 
     private static String fixLabel(String label)
