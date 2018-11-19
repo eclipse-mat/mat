@@ -11,19 +11,19 @@
 package org.eclipse.mat.tests.snapshot;
 
 
+import static org.hamcrest.core.AllOf.allOf;
+import static org.hamcrest.core.IsEqual.equalTo;
+import static org.hamcrest.core.IsNot.not;
+import static org.hamcrest.core.StringContains.containsString;
+import static org.hamcrest.number.OrderingComparison.greaterThan;
+import static org.hamcrest.number.OrderingComparison.greaterThanOrEqualTo;
+import static org.hamcrest.number.OrderingComparison.lessThan;
+import static org.hamcrest.number.OrderingComparison.lessThanOrEqualTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.hamcrest.number.OrderingComparison.greaterThanOrEqualTo;
-import static org.hamcrest.number.OrderingComparison.greaterThan;
-import static org.hamcrest.number.OrderingComparison.lessThanOrEqualTo;
-import static org.hamcrest.number.OrderingComparison.lessThan;
-import static org.hamcrest.core.IsEqual.equalTo;
-import static org.hamcrest.core.IsNot.not;
-import static org.hamcrest.core.StringContains.containsString;
-import static org.hamcrest.core.AllOf.allOf;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -268,7 +268,7 @@ public class QueriesTest
             else if (val instanceof Bytes)
                 v = ((Bytes)val).getValue();
             else
-                v = sz + 1;
+                v = sz - 1;
             assertThat(v, greaterThanOrEqualTo(sz));
             ++found;
             if (v == sz)
@@ -299,7 +299,7 @@ public class QueriesTest
             else if (val instanceof Bytes)
                 v = ((Bytes)val).getValue();
             else
-                v = sz + 1;
+                v = sz - 1;
             assertThat(v, greaterThan(sz));
             ++found;
         }
@@ -327,7 +327,7 @@ public class QueriesTest
             else if (val instanceof Bytes)
                 v = ((Bytes)val).getValue();
             else
-                v = sz - 1;
+                v = sz + 1;
             assertThat(v, lessThan(sz));
             ++found;
         }
@@ -356,7 +356,7 @@ public class QueriesTest
             else if (val instanceof Bytes)
                 v = ((Bytes)val).getValue();
             else
-                v = sz - 1;
+                v = sz + 1;
             assertThat(v, lessThanOrEqualTo(sz));
             ++found;
             if (v == sz)
@@ -387,7 +387,7 @@ public class QueriesTest
             else if (val instanceof Bytes)
                 v = ((Bytes)val).getValue();
             else
-                v = sz;
+                v = sz + 1;
             assertThat(v, equalTo(sz));
             ++found;
         }
@@ -472,7 +472,7 @@ public class QueriesTest
             else if (val instanceof Bytes)
                 v = ((Bytes)val).getValue();
             else
-                v = sz + 1;
+                v = sz - 1;
             assertThat(v, greaterThanOrEqualTo(sz));
             ++found;
             if (v == sz)
@@ -504,7 +504,7 @@ public class QueriesTest
             else if (val instanceof Bytes)
                 v = ((Bytes)val).getValue();
             else
-                v = sz;
+                v = sz + 1;
             assertThat(v, lessThanOrEqualTo(sz));
             ++found;
             if (v == sz)
@@ -538,7 +538,7 @@ public class QueriesTest
             else if (val instanceof Bytes)
                 v = ((Bytes)val).getValue();
             else
-                v = sza+1;
+                v = sza - 1;
             assertThat(v, greaterThanOrEqualTo(sza));
             assertThat(v, lessThanOrEqualTo(szb));
             ++found;
@@ -606,7 +606,7 @@ public class QueriesTest
             else if (val instanceof Bytes)
                 v = ((Bytes)val).getValue();
             else
-                v = sz;
+                v = sz - 1;
             assertThat(v, not(lessThanOrEqualTo(sz)));
             ++found;
             if (v == sz)
@@ -641,7 +641,9 @@ public class QueriesTest
             else if (val instanceof Bytes)
                 v = ((Bytes)val).getValue();
             else
-                v = sza+1;
+                v = sza + 1;
+            assertFalse(val instanceof Double && Double.isNaN((Double)val));
+            assertFalse(val instanceof Float && Double.isNaN((Float)val));
             assertThat(v, not(allOf(greaterThanOrEqualTo(sza), lessThanOrEqualTo(szb))));
             ++found;
             if (v == sza)
@@ -654,6 +656,88 @@ public class QueriesTest
         assertThat(eqb, equalTo(0));
     }
 
+    @Test
+    public void testOQLFiltering11urangeabnan() throws SnapshotException
+    {
+        SnapshotQuery query = SnapshotQuery.parse(OQL_MIXED_RESULT, snapshot);
+        RefinedResultBuilder builder = query.refine(new VoidProgressListener());
+        // Check size is filterable
+        long sza = 32;
+        long szb = 256;
+        builder.setFilter(0, "U\\"+sza+".."+szb);
+        RefinedTable table = (RefinedTable) builder.build();
+        int found = 0;
+        int eqa = 0;
+        int eqb = 0;
+        for (int i = 0; i < table.getRowCount(); ++i)
+        {
+            Object row = table.getRow(i);
+            Object val = table.getColumnValue(row, 0);
+            // Check no non-numeric item
+            long v;
+            if (val instanceof Number)
+                v = ((Number)val).longValue();
+            else if (val instanceof Bytes)
+                v = ((Bytes)val).getValue();
+            else
+                v = sza + 1;
+            assertFalse(val instanceof Double && Double.isNaN((Double)val));
+            assertFalse(val instanceof Float && Double.isNaN((Float)val));
+            assertThat(v, not(allOf(greaterThanOrEqualTo(sza), lessThanOrEqualTo(szb))));
+            ++found;
+            if (v == sza)
+                ++eqa;
+            if (v == szb)
+                ++eqb;
+        }
+        assertThat(found, greaterThanOrEqualTo(1));
+        assertThat(eqa, equalTo(0));
+        assertThat(eqb, equalTo(0));
+    }
+
+    @Test
+    public void testOQLFiltering11notrangeabnan() throws SnapshotException
+    {
+        SnapshotQuery query = SnapshotQuery.parse(OQL_MIXED_RESULT, snapshot);
+        RefinedResultBuilder builder = query.refine(new VoidProgressListener());
+        // Check size is filterable
+        long sza = 32;
+        long szb = 256;
+        builder.setFilter(0, "!"+sza+".."+szb);
+        RefinedTable table = (RefinedTable) builder.build();
+        int found = 0;
+        int eqa = 0;
+        int eqb = 0;
+        int nan = 0;
+        for (int i = 0; i < table.getRowCount(); ++i)
+        {
+            Object row = table.getRow(i);
+            Object val = table.getColumnValue(row, 0);
+            // Check no non-numeric item
+            long v;
+            if (val instanceof Number)
+                v = ((Number)val).longValue();
+            else if (val instanceof Bytes)
+                v = ((Bytes)val).getValue();
+            else
+            {
+                v = sza - 1; // unconverted, so make outside the range
+                ++nan;
+            }
+
+            assertThat(v, not(allOf(greaterThanOrEqualTo(sza), lessThanOrEqualTo(szb))));
+            ++found;
+            if (v == sza)
+                ++eqa;
+            if (v == szb)
+                ++eqb;
+        }
+        assertThat(found, greaterThanOrEqualTo(1));
+        assertThat(eqa, equalTo(0));
+        assertThat(eqb, equalTo(0));
+        assertThat(nan, greaterThanOrEqualTo(1));
+    }
+    
     @Test
     public void testOQLFiltering11regex() throws SnapshotException
     {

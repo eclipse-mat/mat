@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -681,6 +681,30 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
         return null;
     }
 
+    private static Format addPositiveIndicator(Format formatter)
+    {
+        if (formatter instanceof DecimalFormat)
+        {
+            DecimalFormat pctFmt = (DecimalFormat) formatter;
+            if ((pctFmt.getPositivePrefix().length() == 0
+                            || pctFmt.getPositivePrefix().equals(pctFmt.getNegativePrefix()))
+                            && (pctFmt.getPositiveSuffix().length() == 0
+                                            || pctFmt.getPositiveSuffix().equals(pctFmt.getNegativeSuffix())))
+            {
+                // No positive prefix, or positive suffix
+                DecimalFormatSymbols sym = DecimalFormatSymbols.getInstance();
+                // find the symbol
+                String plus = Character.toString(sym.getPlusSign());
+                // Make it a prefix, unless there is a prefix (same as negative) but no suffix
+                if (pctFmt.getPositivePrefix().length() > 0 && pctFmt.getPositiveSuffix().length() == 0)
+                    pctFmt.setPositiveSuffix(plus);
+                else
+                    pctFmt.setPositivePrefix(plus);
+            }
+        }
+        return formatter;
+    }
+
     public Column[] getColumns()
     {
         Column[] columns = new Column[] {
@@ -692,9 +716,18 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
 
         if (showPlusMinus)
         {
-            Format formatter = new DecimalFormat("+#,##0;-#,##0"); //$NON-NLS-1$
-            Format detailedFormatter = new DecimalFormat("+" + BytesFormat.DETAILED_DECIMAL_FORMAT + ";-"
+            Format formatter = addPositiveIndicator(NumberFormat.getIntegerInstance());
+            DecimalFormat detailedFormatter = new DecimalFormat("+" + BytesFormat.DETAILED_DECIMAL_FORMAT + ";-" //$NON-NLS-1$ //$NON-NLS-2$
                             + BytesFormat.DETAILED_DECIMAL_FORMAT + ""); //$NON-NLS-1$
+            NumberFormat nf = NumberFormat.getNumberInstance();
+            if (nf instanceof DecimalFormat)
+            {
+                DecimalFormat bcf2 = (DecimalFormat)nf;
+                bcf2.setMinimumFractionDigits(detailedFormatter.getMinimumFractionDigits());
+                bcf2.setMaximumFractionDigits(detailedFormatter.getMaximumFractionDigits());
+                addPositiveIndicator(bcf2);
+                detailedFormatter = bcf2;
+            }
             columns[1].formatting(formatter);
             columns[2].formatting(new BytesFormat(formatter, detailedFormatter));
         }

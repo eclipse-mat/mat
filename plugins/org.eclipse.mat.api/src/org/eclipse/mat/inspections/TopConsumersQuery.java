@@ -48,13 +48,12 @@ import com.ibm.icu.text.NumberFormat;
 @Category(Category.HIDDEN)
 public class TopConsumersQuery implements IQuery
 {
-    static NumberFormat percentFormatter = NumberFormat.getIntegerInstance();
-    static NumberFormat numberFormatter = NumberFormat.getNumberInstance();
-    static BytesFormat bytesFormatter = BytesFormat.getInstance();
-    static
+    NumberFormat percentFormatter = NumberFormat.getIntegerInstance();
+    NumberFormat numberFormatter = NumberFormat.getNumberInstance();
+    BytesFormat bytesFormatter = BytesFormat.getInstance();
     {
-        percentFormatter.setMaximumFractionDigits(2);
         percentFormatter.setMinimumFractionDigits(2);
+        percentFormatter.setMaximumFractionDigits(2);
     }
 
     static final String SEPARATOR = "--------------------------------------------------------------------------------"; //$NON-NLS-1$
