@@ -22,6 +22,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeNotNull;
 import static org.junit.Assume.assumeThat;
 import static org.junit.Assume.assumeTrue;
 
@@ -455,7 +456,7 @@ public class GeneralSnapshotTests
     }
 
     /**
-     * Test value of Strings
+     * Test value of {@link java.lang.String}
      */
     @Test
     public void stringToString() throws SnapshotException
@@ -488,7 +489,7 @@ public class GeneralSnapshotTests
     }
     
     /**
-     * Test value of Strings
+     * Test value of {@link java.lang.StringBuilder}
      */
     @Test
     public void stringBuilderToString() throws SnapshotException
@@ -512,7 +513,7 @@ public class GeneralSnapshotTests
     }
     
     /**
-     * Test value of StringBuffers
+     * Test value of {@link java.lang.StringBuffer}
      */
     @Test
     public void stringBufferToString() throws SnapshotException
@@ -534,7 +535,32 @@ public class GeneralSnapshotTests
         }
         assertThat(printables, greaterThanOrEqualTo(objects * 2 / 3));
     }
-    
+
+    /**
+     * Test value of {@link java.lang.StackTraceElement}
+     */
+    @Test
+    public void stackFrameElementResolver() throws SnapshotException
+    {
+        int objects = 0;
+        int printables = 0;
+        assumeThat(snapshot.getSnapshotInfo().getProperty("$heapFormat"), not(equalTo((Serializable)"DTFJ-PHD")));
+        Collection<IClass>tClasses = snapshot.getClassesByName("java.lang.StackTraceElement", true);
+        assumeNotNull(tClasses);
+        for (IClass cls : tClasses)
+        {
+            for (int id : cls.getObjectIds()) {
+                IObject o = snapshot.getObject(id);
+                String cn = o.getClassSpecificName();
+                if (cn != null && cn.length() > 0)
+                {
+                    ++printables;
+                }
+            }
+        }
+        assertThat(printables, greaterThanOrEqualTo(objects * 2 / 3));
+    }
+
     /**
      * Test caching of snapshots
      * @throws SnapshotException

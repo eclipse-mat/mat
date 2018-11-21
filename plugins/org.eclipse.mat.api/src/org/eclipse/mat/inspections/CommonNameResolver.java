@@ -425,4 +425,43 @@ public class CommonNameResolver
             return r.toString();
         }
     }
+
+    @Subject("java.lang.StackTraceElement")
+    public static class StackTraceElementResolver implements IClassSpecificNameResolver
+    {
+        public String resolve(IObject obj) throws SnapshotException
+        {
+            IObject cls = (IObject)obj.resolveValue("declaringClass");
+            IObject methodName = (IObject)obj.resolveValue("methodName");
+            if (cls == null || methodName == null)
+                return null;
+            int line = (Integer)obj.resolveValue("lineNumber");
+            IObject fn = (IObject)obj.resolveValue("fileName");
+            String ln;
+            if (line == -2)
+                ln = "(Compiled Code)";
+            else if (line == -3)
+                ln = "(Native Method)";
+            else if (line == -1)
+                ln = "";
+            else if (line == 0)
+                ln = "";
+            else
+                ln = Integer.toString(line);
+            String name;
+            if (fn == null)
+                if (line > 0)
+                    name = cls.getClassSpecificName() + "." + methodName.getClassSpecificName() + "() " + ln;
+                else
+                    name = cls.getClassSpecificName() + "." + methodName.getClassSpecificName() + "()";
+            else
+                if (line > 0)
+                    name = cls.getClassSpecificName() + "." + methodName.getClassSpecificName() + "() ("
+                                + fn.getClassSpecificName() + ":" + ln + ")";
+                else
+                    name = cls.getClassSpecificName() + "." + methodName.getClassSpecificName() + "() ("
+                                    + fn.getClassSpecificName() + ")";
+            return name;
+        }
+    }
 }

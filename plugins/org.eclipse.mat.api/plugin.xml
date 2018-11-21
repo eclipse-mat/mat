@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.2"?><!--
-    Copyright (c) 2008, 2010 SAP AG.
+    Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
    
     Contributors:
         SAP AG - initial API and implementation
+        Andrew Johnson/IBM Corporation - additional queries and resolvers
  -->
 
 <plugin>
@@ -110,6 +111,7 @@
 		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$MethodResolver" />
 		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$ConstructorResolver" />
 		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$ClassTypeResolver" />
+		<resolver impl="org.eclipse.mat.inspections.CommonNameResolver$StackTraceElementResolver" />
 
 		<!-- eclipse -->
 		<resolver impl="org.eclipse.mat.inspections.eclipse.EclipseNameResolver$EclipseClassLoaderResolver" />
