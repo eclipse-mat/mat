@@ -976,47 +976,49 @@ public class QueriesTest
     public void testCompareQuery() throws SnapshotException, IOException
     {
         ISnapshot snapshot2 = TestSnapshots.getSnapshot(TestSnapshots.SUN_JDK6_18_64BIT, false);
-        try
+        SnapshotQuery query = SnapshotQuery.parse("delta_histogram -snapshot2 "+snapshot2.getSnapshotInfo().getPath(), snapshot);
+        IResult t = query.execute(new VoidProgressListener());
+        assertNotNull(t);
+        int intplus = 0;
+        int intminus = 0;
+        if (t instanceof IResultTable)
         {
-            SnapshotQuery query = SnapshotQuery.parse("delta_histogram -snapshot2 "+snapshot2.getSnapshotInfo().getPath(), snapshot);
-            IResult t = query.execute(new VoidProgressListener());
-            assertNotNull(t);
-            int intplus = 0;
-            int intminus = 0;
-            if (t instanceof IResultTable)
+            IResultTable tr = (IResultTable)t;
+            int rc = tr.getRowCount();
+            for (int i = 0; i < rc; ++i)
             {
-                IResultTable tr = (IResultTable)t;
-                int rc = tr.getRowCount();
-                for (int i = 0; i < rc; ++i)
+                Object rw = tr.getRow(i);
+                // columns are String, Long, Bytes
+                Object v = tr.getColumnValue(rw, 1);
+                if (v instanceof Integer)
                 {
-                    Object rw = tr.getRow(i);
-                    // columns are String, Long, Bytes
-                    Object v = tr.getColumnValue(rw, 1);
-                    if (v instanceof Integer)
-                    {
-                        int in = (Integer)v;
-                        if (in < 0)
-                            ++intminus;
-                        else if (in > 0)
-                            ++intplus;
-                    }
-                    else if (v instanceof Long)
-                    {
-                        long ln = (Long)v;
-                        if (ln < 0)
-                            ++intminus;
-                        else if (ln > 0)
-                            ++intplus;
-                    }
+                    int in = (Integer)v;
+                    if (in < 0)
+                        ++intminus;
+                    else if (in > 0)
+                        ++intplus;
                 }
+                else if (v instanceof Long)
+                {
+                    long ln = (Long)v;
+                    if (ln < 0)
+                        ++intminus;
+                    else if (ln > 0)
+                        ++intplus;
+                }
+            }
+            if (snapshot.getSnapshotInfo().getNumberOfObjects() == snapshot2.getSnapshotInfo().getNumberOfObjects())
+            {
+                // Check we have no pluses and minuses
+                assertThat(intplus, equalTo(0));
+                assertThat(intminus, equalTo(0));
+            }
+            else
+            {
                 // Check we have some pluses and minuses
                 assertThat(intplus, greaterThan(0));
                 assertThat(intminus, greaterThan(0));
             }
-        }
-        finally
-        {
-            snapshot2.dispose();
         }
     }
 
@@ -1028,16 +1030,9 @@ public class QueriesTest
     @Test
     public void testCompareReport() throws SnapshotException, IOException
     {
-        ISnapshot snapshot2 = TestSnapshots.getSnapshot(TestSnapshots.ORACLE_JDK8_05_64BIT, false);
-        try
-        {
-            SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.api:compare -params snapshot2="+snapshot2.getSnapshotInfo().getPath(), snapshot);
-            IResult t = query.execute(new VoidProgressListener());
-            assertNotNull(t);
-        }
-        finally
-        {
-            snapshot2.dispose();
-        }
+        ISnapshot snapshot2 = TestSnapshots.getSnapshot(TestSnapshots.SUN_JDK6_18_64BIT, false); // Do not dispose this as shared
+        SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.api:compare -params snapshot2="+snapshot2.getSnapshotInfo().getPath(), snapshot);
+        IResult t = query.execute(new VoidProgressListener());
+        assertNotNull(t);
     }
 }
