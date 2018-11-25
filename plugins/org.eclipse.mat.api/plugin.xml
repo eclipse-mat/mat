@@ -57,6 +57,7 @@
 		<query impl="org.eclipse.mat.inspections.LeakHunterQuery"/>
 		<query impl="org.eclipse.mat.inspections.FindLeaksQuery"/>
 		<query impl="org.eclipse.mat.inspections.BigDropsQuery"/>
+		<query impl="org.eclipse.mat.inspections.DeltaHistogram"/>
 	
 		<!-- Threads -->
 		<query impl="org.eclipse.mat.inspections.threads.ThreadOverviewQuery"/>
@@ -142,6 +143,9 @@
 		<report id="top_components" name="%report.top_components.name"
 				description="%report.top_components.help"
 				file="META-INF/reports/top_components.xml" />
+		<report id="compare" name="%report.compare.name Compare Snapshots"
+				description="%report.compare.help"
+				file="META-INF/reports/compare.xml" />
 	</extension>
 
     <extension point="org.eclipse.mat.api.collectionExtractorProvider">

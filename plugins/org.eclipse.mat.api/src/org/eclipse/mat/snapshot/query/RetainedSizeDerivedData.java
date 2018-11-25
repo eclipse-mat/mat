@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others.
+ * Copyright (c) 2008, 2018 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -373,7 +373,8 @@ public class RetainedSizeDerivedData extends ContextDerivedData
 
             if (v.longValue() < 0)
             {
-                toAppendTo.append(">= "); //$NON-NLS-1$
+                String approx = Messages.RetainedSizeDerivedData_Approximate;
+                toAppendTo.append(approx);
                 return super.format(new Bytes(-v.longValue()), toAppendTo, pos);
             }
             else

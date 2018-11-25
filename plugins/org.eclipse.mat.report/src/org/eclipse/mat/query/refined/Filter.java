@@ -26,8 +26,20 @@ import org.eclipse.mat.util.PatternUtil;
 import com.ibm.icu.text.DecimalFormat;
 import com.ibm.icu.text.NumberFormat;
 
+/**
+ * Used to filter values in a result, to avoid displaying rows not matching the filter.
+ */
 public abstract class Filter
 {
+    /**
+     * A ValueConverter attached to a column modifies the cell before
+     * it is tested in a filter or displayed.
+     * An example is where approximate retained sizes are stored as negative
+     * numbers, but need the positive value for display.
+     * See {@link Column#setData(Object, Object) and see {@link Column#getData(Object)},
+     * as used in
+     * and {@link org.eclipse.mat.snapshot.query.RetainedSizeDerivedData#columnFor(org.eclipse.mat.query.DerivedColumn, org.eclipse.mat.query.IResult, org.eclipse.mat.query.ContextProvider)}
+     */
     public interface ValueConverter
     {
         double convert(double source);

@@ -20,7 +20,7 @@ package org.eclipse.mat.report;
 public interface Params
 {
     /**
-     * Set to the time the report is generated
+     * Set to the time the report is generated.
      */
     String TIMESTAMP = "timestamp";
     /**
@@ -35,7 +35,7 @@ public interface Params
     /**
      * The format parameter determines the renderer to be used. By default, the
      * "html" is used, but one could use "csv" to create a comma separated file
-     * from the data.
+     * from the data. Matches {@link Renderer#target()} of an {@link IOutputter}.
      */
     String FORMAT = "format";
 
@@ -43,7 +43,8 @@ public interface Params
      * If given, the filename is used to create the output file. Depending on
      * the output format, this could be HTML or CSV. The property can be
      * configured for every Spec. If the output format is HTML, the Spec must
-     * also specify {@link Params.Html#SEPARATE_FILE}.
+     * also specify {@link Params.Html#SEPARATE_FILE}. For the HTML outputter
+     * this is not inherited from outer Specs.
      */
     String FILENAME = "filename";
     
@@ -69,13 +70,15 @@ public interface Params
          */
         String COLLAPSED = "html.collapsed";
         /**
-         * Used to specify this report should be in a separate HTML file
+         * Used to specify this report should be in a separate HTML file.
+         * For the HTML outputter this is not inherited from outer Specs.
          */
         String SEPARATE_FILE = "html.separate_file";
 
         /**
          * Used to emphasise a section. For example
          * a possible memory leak.
+         * For the HTML outputter this is usually not inherited from outer Specs.
          */
         String IS_IMPORTANT = "html.is_important";
 
@@ -86,10 +89,11 @@ public interface Params
         String SHOW_TABLE_HEADER = "html.show_table_header";
         /**
          * Whether to show a heading.
+         * For the HTML outputter this is not inherited from outer Specs.
          */
         String SHOW_HEADING = "html.show_heading";
         /**
-         * Whether to show totals for a table
+         * Whether to show totals for a table.
          */
         String SHOW_TOTALS = "html.show_totals";
 

@@ -119,8 +119,9 @@ public class CSVOutputter implements IOutputter
 
         boolean hasSeparator = data.indexOf(SEPARATOR) >= 0;
         boolean hasQuote = data.indexOf('"') >= 0;
+        boolean hasNewLine = data.indexOf('\n') >= 0 || data.indexOf('\r') >= 0 && data.indexOf('\f') >= 0;
 
-        if (hasSeparator || hasQuote)
+        if (hasSeparator || hasQuote || hasNewLine)
         {
             writer.append('"');
 

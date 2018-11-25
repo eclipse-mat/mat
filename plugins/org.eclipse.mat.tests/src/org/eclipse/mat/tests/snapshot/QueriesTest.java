@@ -39,6 +39,7 @@ import org.eclipse.mat.query.Bytes;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IResult;
+import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.query.IResultTree;
 import org.eclipse.mat.query.refined.RefinedResultBuilder;
 import org.eclipse.mat.query.refined.RefinedTable;
@@ -963,6 +964,80 @@ public class QueriesTest
         finally
         {
             rep.delete();
+        }
+    }
+
+    /**
+     * Test running the compare snapshots query, with parameters.
+     * @throws SnapshotException
+     * @throws IOException
+     */
+    @Test
+    public void testCompareQuery() throws SnapshotException, IOException
+    {
+        ISnapshot snapshot2 = TestSnapshots.getSnapshot(TestSnapshots.SUN_JDK6_18_64BIT, false);
+        try
+        {
+            SnapshotQuery query = SnapshotQuery.parse("delta_histogram -snapshot2 "+snapshot2.getSnapshotInfo().getPath(), snapshot);
+            IResult t = query.execute(new VoidProgressListener());
+            assertNotNull(t);
+            int intplus = 0;
+            int intminus = 0;
+            if (t instanceof IResultTable)
+            {
+                IResultTable tr = (IResultTable)t;
+                int rc = tr.getRowCount();
+                for (int i = 0; i < rc; ++i)
+                {
+                    Object rw = tr.getRow(i);
+                    // columns are String, Long, Bytes
+                    Object v = tr.getColumnValue(rw, 1);
+                    if (v instanceof Integer)
+                    {
+                        int in = (Integer)v;
+                        if (in < 0)
+                            ++intminus;
+                        else if (in > 0)
+                            ++intplus;
+                    }
+                    else if (v instanceof Long)
+                    {
+                        long ln = (Long)v;
+                        if (ln < 0)
+                            ++intminus;
+                        else if (ln > 0)
+                            ++intplus;
+                    }
+                }
+                // Check we have some pluses and minuses
+                assertThat(intplus, greaterThan(0));
+                assertThat(intminus, greaterThan(0));
+            }
+        }
+        finally
+        {
+            snapshot2.dispose();
+        }
+    }
+
+    /**
+     * Test running the compare snapshots report defined in a plugin, with parameters.
+     * @throws SnapshotException
+     * @throws IOException
+     */
+    @Test
+    public void testCompareReport() throws SnapshotException, IOException
+    {
+        ISnapshot snapshot2 = TestSnapshots.getSnapshot(TestSnapshots.ORACLE_JDK8_05_64BIT, false);
+        try
+        {
+            SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.api:compare -params snapshot2="+snapshot2.getSnapshotInfo().getPath(), snapshot);
+            IResult t = query.execute(new VoidProgressListener());
+            assertNotNull(t);
+        }
+        finally
+        {
+            snapshot2.dispose();
         }
     }
 }

@@ -89,7 +89,7 @@
 			types, or anything as a translatable string.
 			</xs:documentation>
 		</xs:annotation>
-		<xs:union memberTypes="booleanvalue patternvalue derived_data_columnvalue decimalstring columnnumber translatablestring" /> 
+		<xs:union memberTypes="booleanvalue patternvalue formatvalue derived_data_columnvalue decimalstring columnnumber translatablestring" /> 
 	</xs:simpleType>
 
 	<xs:simpleType name="booleanvalue">
@@ -111,6 +111,17 @@
 		<xs:restriction base="xs:string">
 			<xs:enumeration value="overview_details" />
 			<xs:enumeration value="sequential" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="formatvalue">
+		<xs:annotation>
+			<xs:documentation>Choices for a format.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="csv" />
+			<xs:enumeration value="html" />
 		</xs:restriction>
 	</xs:simpleType>
 
