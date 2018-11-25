@@ -1,0 +1,21 @@
+<section name="%compare.title Histogram Comparison" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.eclipse.org/mat/report.xsd"
+        xsi:schemaLocation="http://www.eclipse.org/mat/report.xsd platform:/resource/org.eclipse.mat.report/schema/report.xsd">
+
+        <param key="filename_suffix" value="%compare.suffix" />
+
+        <param key="snapshot2" value="&quot;&quot;" />
+        <param key="sort_column" value="#2=DESC" />
+        <param key="filter" value="#1=!=0" />
+        <param key="limit" value="500" />
+
+        <query name="%compare.query.name Histogram comparison">
+                <param key="format" value="html" />
+                <command>delta_histogram -snapshot2 ${snapshot2}</command>
+        </query>
+
+        <query name="%compare.query.namecsv Histogram comparison as CSV file">
+                <param key="format" value="csv" />
+                <command>delta_histogram -snapshot2 ${snapshot2}</command>
+        </query>
+</section>

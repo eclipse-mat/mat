@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.net.URL;
 
+import org.eclipse.mat.query.DetailResultProvider;
 import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.IResult;
 
@@ -33,8 +34,17 @@ public interface IOutputter
     {
         String getId();
 
+        /**
+         * The query context for the result. Could be used to convert object identifiers
+         * to addresses.
+         * @return
+         */
         IQueryContext getQueryContext();
 
+        /**
+         * Where files for the report can be generated.
+         * @return
+         */
         File getOutputDirectory();
 
         String getPathToRoot();
@@ -46,18 +56,54 @@ public interface IOutputter
          */
         String addIcon(URL icon);
 
+        /**
+         * Add a {@link IResult} from a {@link DetailResultProvider}
+         * to the report.
+         * @param name
+         * @param result
+         * @return a String which can be used by the IOutputter to identify
+         * the formatted result
+         */
         String addContextResult(String name, IResult result);
 
+        /**
+         * Whether there is a limit on the number of rows to generate.
+         * @return
+         */
         boolean hasLimit();
 
+        /**
+         * The limit on the number of rows to generate in the report from the result.
+         * @return
+         */
         int getLimit();
 
+        /**
+         * Whether a column of the result should be displayed in the report.
+         * @param columnIndex
+         * @return
+         */
         boolean isColumnVisible(int columnIndex);
 
+        /**
+         * Whether to display a totals row from the result in the report.
+         * @return
+         */
         boolean isTotalsRowVisible();
 
+        /**
+         * Get the value of a parameter from {@link Params} controlling generation of a report.
+         * @param key
+         * @return
+         */
         String param(String key);
 
+        /**
+         * Get the value of a parameter from {@link Params} controlling generation of a report.
+         * @param key
+         * @param defaultValue the value to be used if no parameter with that key is set.
+         * @return
+         */
         String param(String key, String defaultValue);
     }
 
