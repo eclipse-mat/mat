@@ -897,7 +897,7 @@ public class QueriesTest
             assertNotNull(t);
             ISnapshot newSnapshot = SnapshotFactory.openSnapshot(fn, Collections.<String,String>emptyMap(), new VoidProgressListener());
             assertNotNull(newSnapshot);
-            newSnapshot.dispose();
+            SnapshotFactory.dispose(newSnapshot);
         }
         finally
         {
@@ -954,7 +954,7 @@ public class QueriesTest
                 ISnapshot newSnapshot = SnapshotFactory.openSnapshot(fn, Collections.<String, String> emptyMap(),
                                 new VoidProgressListener());
                 assertNotNull(newSnapshot);
-                newSnapshot.dispose();
+                SnapshotFactory.dispose(newSnapshot);
             }
             finally
             {

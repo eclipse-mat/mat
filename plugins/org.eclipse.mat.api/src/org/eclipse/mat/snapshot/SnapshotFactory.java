@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -55,6 +55,8 @@ public final class SnapshotFactory
 
         /**
          * Free resources when the snapshot is no longer needed.
+         * Use instead of {@link ISnapshot#dispose()} if the snapshot is obtained from {@link #openSnapshot(File, Map, IProgressListener)}
+         * as openSnapshot() may obtain a copy from a cache.
          * @param snapshot
          */
         void dispose(ISnapshot snapshot);
@@ -153,6 +155,8 @@ public final class SnapshotFactory
      * main memory, file and socket handles...) when the last user has disposed
      * it through the snapshot factory. After calling this method the snapshot
      * can't be used anymore.
+     * Use instead of {@link ISnapshot#dispose()} if the snapshot is obtained from {@link #openSnapshot(File, Map, IProgressListener)}
+     * as openSnapshot() may obtain a copy from a cache.
      * 
      * @param snapshot
      *            snapshot which should be disposed

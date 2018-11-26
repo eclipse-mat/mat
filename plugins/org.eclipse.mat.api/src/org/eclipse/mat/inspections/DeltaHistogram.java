@@ -19,6 +19,7 @@ import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.query.annotations.Argument.Advice;
 import org.eclipse.mat.snapshot.Histogram;
 import org.eclipse.mat.snapshot.ISnapshot;
+import org.eclipse.mat.snapshot.SnapshotFactory;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.SimpleMonitor;
 
@@ -39,6 +40,8 @@ public class DeltaHistogram extends HistogramQuery
         Histogram h2 = (Histogram) super.execute(sm.nextMonitor());
         sm.nextMonitor();
         Histogram h3 = h2.diffWithBaseline(h1);
+        // Currently it seems a SECONDARY_SNAPSHOT is not disposed by the caller.
+        SnapshotFactory.dispose(snapshot2);
         listener.done();
         return h3;
     }
