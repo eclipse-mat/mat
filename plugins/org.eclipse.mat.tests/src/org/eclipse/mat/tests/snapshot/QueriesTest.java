@@ -771,7 +771,7 @@ public class QueriesTest
         RefinedTree table = (RefinedTree) builder.build();
         for (Object row : table.getElements())
         {
-            Object val = table.getColumnValue(row, 0);
+            Object val = table.getColumnValue(row, 3);
             assertThat((Double)val, greaterThanOrEqualTo(0.03));
         }
     }
