@@ -43,6 +43,7 @@ import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.query.IResultTree;
 import org.eclipse.mat.query.refined.RefinedResultBuilder;
 import org.eclipse.mat.query.refined.RefinedTable;
+import org.eclipse.mat.query.refined.RefinedTree;
 import org.eclipse.mat.snapshot.ClassHistogramRecord;
 import org.eclipse.mat.snapshot.Histogram;
 import org.eclipse.mat.snapshot.ISnapshot;
@@ -223,7 +224,7 @@ public class QueriesTest
      * @throws SnapshotException
      */
     @Test
-    public void testOQLFiltering10() throws SnapshotException
+    public void testFiltering10() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse("histogram", snapshot);
         RefinedResultBuilder builder = query.refine(new VoidProgressListener());
@@ -248,7 +249,7 @@ public class QueriesTest
      * @throws SnapshotException
      */
     @Test
-    public void testOQLFiltering11ge() throws SnapshotException
+    public void testFiltering11ge() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse("histogram", snapshot);
         RefinedResultBuilder builder = query.refine(new VoidProgressListener());
@@ -280,7 +281,7 @@ public class QueriesTest
     }
 
     @Test
-    public void testOQLFiltering11gt() throws SnapshotException
+    public void testFiltering11gt() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse("histogram", snapshot);
         RefinedResultBuilder builder = query.refine(new VoidProgressListener());
@@ -308,7 +309,7 @@ public class QueriesTest
     }
 
     @Test
-    public void testOQLFiltering11lt() throws SnapshotException
+    public void testFiltering11lt() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse("histogram", snapshot);
         RefinedResultBuilder builder = query.refine(new VoidProgressListener());
@@ -336,7 +337,7 @@ public class QueriesTest
     }
 
     @Test
-    public void testOQLFiltering11le() throws SnapshotException
+    public void testFiltering11le() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse("histogram", snapshot);
         RefinedResultBuilder builder = query.refine(new VoidProgressListener());
@@ -368,7 +369,7 @@ public class QueriesTest
     }
 
     @Test
-    public void testOQLFiltering11eq() throws SnapshotException
+    public void testFiltering11eq() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse("histogram", snapshot);
         RefinedResultBuilder builder = query.refine(new VoidProgressListener());
@@ -396,7 +397,7 @@ public class QueriesTest
     }
 
     @Test
-    public void testOQLFiltering11ne() throws SnapshotException
+    public void testFiltering11ne() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse("histogram", snapshot);
         RefinedResultBuilder builder = query.refine(new VoidProgressListener());
@@ -424,7 +425,7 @@ public class QueriesTest
     }
 
     @Test
-    public void testOQLFiltering11ne2() throws SnapshotException
+    public void testFiltering11ne2() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse("histogram", snapshot);
         RefinedResultBuilder builder = query.refine(new VoidProgressListener());
@@ -452,7 +453,7 @@ public class QueriesTest
     }
 
     @Test
-    public void testOQLFiltering11rangea() throws SnapshotException
+    public void testFiltering11rangea() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse("histogram", snapshot);
         RefinedResultBuilder builder = query.refine(new VoidProgressListener());
@@ -484,7 +485,7 @@ public class QueriesTest
     }
 
     @Test
-    public void testOQLFiltering11rangeb() throws SnapshotException
+    public void testFiltering11rangeb() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse("histogram", snapshot);
         RefinedResultBuilder builder = query.refine(new VoidProgressListener());
@@ -516,7 +517,7 @@ public class QueriesTest
     }
 
     @Test
-    public void testOQLFiltering11rangeab() throws SnapshotException
+    public void testFiltering11rangeab() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse("histogram", snapshot);
         RefinedResultBuilder builder = query.refine(new VoidProgressListener());
@@ -554,7 +555,7 @@ public class QueriesTest
     }
 
     @Test
-    public void testOQLFiltering11urangea() throws SnapshotException
+    public void testFiltering11urangea() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse("histogram", snapshot);
         RefinedResultBuilder builder = query.refine(new VoidProgressListener());
@@ -586,7 +587,7 @@ public class QueriesTest
     }
 
     @Test
-    public void testOQLFiltering11urangeb() throws SnapshotException
+    public void testFiltering11urangeb() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse("histogram", snapshot);
         RefinedResultBuilder builder = query.refine(new VoidProgressListener());
@@ -619,7 +620,7 @@ public class QueriesTest
 
 
     @Test
-    public void testOQLFiltering11urangeab() throws SnapshotException
+    public void testFiltering11urangeab() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse("histogram", snapshot);
         RefinedResultBuilder builder = query.refine(new VoidProgressListener());
@@ -740,7 +741,7 @@ public class QueriesTest
     }
     
     @Test
-    public void testOQLFiltering11regex() throws SnapshotException
+    public void testFiltering11regex() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse("histogram", snapshot);
         RefinedResultBuilder builder = query.refine(new VoidProgressListener());
@@ -757,6 +758,22 @@ public class QueriesTest
              ++found;
         }
         assertThat(found, greaterThanOrEqualTo(1));
+    }
+
+    @Test
+    public void testFiltering12percent() throws SnapshotException
+    {
+        SnapshotQuery query = SnapshotQuery.parse("dominator_tree", snapshot);
+        RefinedResultBuilder builder = query.refine(new VoidProgressListener());
+        // Check percentage is filterable
+
+        builder.setFilter(3, ">=3.0%");
+        RefinedTree table = (RefinedTree) builder.build();
+        for (Object row : table.getElements())
+        {
+            Object val = table.getColumnValue(row, 0);
+            assertThat((Double)val, greaterThanOrEqualTo(0.03));
+        }
     }
 
     /**

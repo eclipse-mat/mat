@@ -148,6 +148,15 @@ public final class Column
         this.calculateTotals = calculateTotals(type);
     }
 
+    /**
+     * Build a column with the given label.
+     * @param label the top of the column
+     * @param type a type of the column, such as float, int, Double
+     * @param align cell alignment - see {@link Column.Alignment} for the choices
+     * @param direction sorting direction
+     * @param formatter how to display items
+     * @param comparator how to sort the items
+     */
     public Column(String label, Class<?> type, Alignment align, SortDirection direction, Format formatter,
                     Comparator<?> comparator)
     {

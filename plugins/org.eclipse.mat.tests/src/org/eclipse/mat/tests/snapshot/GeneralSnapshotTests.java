@@ -448,7 +448,7 @@ public class GeneralSnapshotTests
                 // Only seems to apply for IBM 1.4.2 SDFF dumps with 'double', 'long' classes not as system class roots 
                 assertEquals("GC Roots", oldInfo.getNumberOfGCRoots() + (bootcls - systemclsroot), newInfo.getNumberOfGCRoots());
             } finally {
-                newSnapshot.dispose();
+                SnapshotFactory.dispose(newSnapshot);
             }
         } finally {
             newSnapshotFile.delete();
