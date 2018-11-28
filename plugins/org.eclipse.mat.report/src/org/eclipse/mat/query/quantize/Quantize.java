@@ -202,8 +202,10 @@ public final class Quantize
         {
             // Use the locale formatter
             DecimalFormat df = (DecimalFormat)nf;
-            df.setMinimumFractionDigits(2);
-            df.setMaximumFractionDigits(2);
+            // Want 2 digits for step of 0.2, more for much smaller steps
+            int digits = Math.max(0, (int)Math.log10(20 / step));
+            df.setMinimumFractionDigits(digits);
+            df.setMaximumFractionDigits(digits);
             df.setPositivePrefix(lessEq+df.getPositivePrefix());
             df.setNegativePrefix(lessEq+df.getNegativePrefix());
             format = df;
@@ -225,14 +227,17 @@ public final class Quantize
      */
     public static Builder linearFrequencyDistribution(String label, long lowerBound, long upperBound, long step)
     {
-        DecimalFormat format = new DecimalFormat("<= #,##0.00"); //$NON-NLS-1$
+        String lessEq = Messages.Quantize_LessEq_Prefix; //$NON-NLS-1$
+        DecimalFormat format = new DecimalFormat("#,##0"); //$NON-NLS-1$
+        format.setPositivePrefix(lessEq+format.getPositivePrefix());
+        format.setNegativePrefix(lessEq+format.getNegativePrefix());
         NumberFormat nf = NumberFormat.getIntegerInstance();
         if (nf instanceof DecimalFormat)
         {
             // Use the locale formatter
             DecimalFormat df = (DecimalFormat)nf;
-            df.setPositivePrefix("<= "+df.getPositivePrefix()); //$NON-NLS-1$
-            df.setNegativePrefix("<= "+df.getNegativePrefix()); //$NON-NLS-1$
+            df.setPositivePrefix(lessEq+df.getPositivePrefix()); //$NON-NLS-1$
+            df.setNegativePrefix(lessEq+df.getNegativePrefix()); //$NON-NLS-1$
             format = df;
         }
         return new Builder(new Quantize(new KeyCalculator.LinearDistributionLong(lowerBound, upperBound, step)))

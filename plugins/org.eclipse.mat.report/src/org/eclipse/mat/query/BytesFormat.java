@@ -16,7 +16,6 @@ import java.text.Format;
 import java.text.ParsePosition;
 
 import org.eclipse.mat.report.internal.Messages;
-import org.eclipse.mat.util.MessageUtil;
 
 import com.ibm.icu.text.DecimalFormat;
 import com.ibm.icu.text.NumberFormat;
@@ -153,30 +152,52 @@ public class BytesFormat extends Format
             obj = target;
 
             BytesDisplay currentDisplay = BytesDisplay.getCurrentValue();
+            StringBuffer ret;
             switch (currentDisplay)
             {
                 case Kilobytes:
-                    return formatKb(toAppendTo, target);
+                    pos.setBeginIndex(toAppendTo.length());
+                    ret = formatKb(toAppendTo, target);
+                    pos.setEndIndex(toAppendTo.length());
+                    return ret;
                 case Megabytes:
-                    return formatMb(toAppendTo, target);
+                    pos.setBeginIndex(toAppendTo.length());
+                    ret = formatMb(toAppendTo, target);
+                    pos.setEndIndex(toAppendTo.length());
+                    return ret;
                 case Gigabytes:
-                    return formatGb(toAppendTo, target);
+                    pos.setBeginIndex(toAppendTo.length());
+                    ret = formatGb(toAppendTo, target);
+                    pos.setEndIndex(toAppendTo.length());
+                    return ret;
                 case Smart:
                     if (target >= GB || target <= NEGGB)
                     {
-                        return formatGb(toAppendTo, target);
+                        pos.setBeginIndex(toAppendTo.length());
+                        ret = formatGb(toAppendTo, target);
+                        pos.setEndIndex(toAppendTo.length());
+                        return ret;
                     }
                     else if (target >= MB || target <= NEGMB)
                     {
-                        return formatMb(toAppendTo, target);
+                        pos.setBeginIndex(toAppendTo.length());
+                        ret = formatMb(toAppendTo, target);
+                        pos.setEndIndex(toAppendTo.length());
+                        return ret;
                     }
                     else if (target >= KB || target <= NEGKB)
                     {
-                        return formatKb(toAppendTo, target);
+                        pos.setBeginIndex(toAppendTo.length());
+                        ret = formatKb(toAppendTo, target);
+                        pos.setEndIndex(toAppendTo.length());
+                        return ret;
                     }
                     else
                     {
-                        return formatB(toAppendTo, target);
+                        pos.setBeginIndex(toAppendTo.length());
+                        ret = formatB(toAppendTo, target);
+                        pos.setEndIndex(toAppendTo.length());
+                        return ret;
                     }
                 default:
                     // fall through
@@ -200,34 +221,82 @@ public class BytesFormat extends Format
     private StringBuffer formatGb(StringBuffer toAppendTo, double val)
     {
         double gb = (double) val / GB;
-        toAppendTo.append(MessageUtil.format(Messages.BytesFormat_GB, getDetailedFormat().format(gb)));
+        toAppendTo.append(getDetailedFormat().format(gb)).append(Messages.BytesFormat_GB);
         return toAppendTo;
     }
 
     private StringBuffer formatMb(StringBuffer toAppendTo, double val)
     {
         double mb = (double) val / MB;
-        toAppendTo.append(MessageUtil.format(Messages.BytesFormat_MB, getDetailedFormat().format(mb)));
+        toAppendTo.append(getDetailedFormat().format(mb)).append(Messages.BytesFormat_MB);
         return toAppendTo;
     }
 
     private StringBuffer formatKb(StringBuffer toAppendTo, double val)
     {
         double kb = (double) val / KB;
-        toAppendTo.append(MessageUtil.format(Messages.BytesFormat_KB, getDetailedFormat().format(kb)));
+        toAppendTo.append(getDetailedFormat().format(kb)).append(Messages.BytesFormat_KB);
         return toAppendTo;
     }
 
     private StringBuffer formatB(StringBuffer toAppendTo, double val)
     {
-        toAppendTo.append(MessageUtil.format(Messages.BytesFormat_B, getDefaultFormat().format(val)));
+        toAppendTo.append(getDefaultFormat().format(val)).append(Messages.BytesFormat_KB);
         return toAppendTo;
     }
 
+    /**
+     * Parses the input string according to the display mode.
+     * Returns a {@ Bytes} object
+     */
     @Override
     public Object parseObject(String source, ParsePosition pos)
     {
-        return getDefaultFormat().parseObject(source, pos);
+        BytesDisplay currentDisplay = BytesDisplay.getCurrentValue();
+        if (currentDisplay != BytesDisplay.Bytes)
+        {
+            // Output formatting has units, so input should
+            Object o1 = this.getDetailedFormat().parseObject(source, pos);
+            if (o1 instanceof Number)
+            {
+                Number n1 = (Number)o1;
+
+                if (currentDisplay == BytesDisplay.Smart &&
+                                source.regionMatches(pos.getIndex(), Messages.BytesFormat_B, 0, 2))
+                {
+                    pos.setIndex(pos.getIndex() + 2);
+                    return new Bytes(n1.longValue());
+                }
+                if ((currentDisplay == BytesDisplay.Kilobytes || currentDisplay == BytesDisplay.Smart) &&
+                                source.regionMatches(pos.getIndex(), Messages.BytesFormat_KB, 0, 3))
+                {
+                    pos.setIndex(pos.getIndex() + 3);
+                    return new Bytes((long)(n1.longValue() * KB));
+                }
+                if ((currentDisplay == BytesDisplay.Megabytes || currentDisplay == BytesDisplay.Smart) &&
+                                source.regionMatches(pos.getIndex(), Messages.BytesFormat_MB, 0, 3))
+                {
+                    pos.setIndex(pos.getIndex() + 3);
+                    return new Bytes((long)(n1.longValue() * MB));
+                }
+                if ((currentDisplay == BytesDisplay.Gigabytes || currentDisplay == BytesDisplay.Smart) &&
+                                source.regionMatches(pos.getIndex(), Messages.BytesFormat_GB, 0, 3))
+                {
+                    pos.setIndex(pos.getIndex() + 3);
+                    return new Bytes((long)(n1.longValue() * GB));
+                }
+                // Given a format, but no suffix given
+                return null;
+            }
+            return null;
+        }
+        else
+        {
+            Object ret = getDefaultFormat().parseObject(source, pos);
+            if (ret instanceof Number)
+                return new Bytes(((Number)ret).longValue());
+            return ret;
+        }
     }
 
     /**

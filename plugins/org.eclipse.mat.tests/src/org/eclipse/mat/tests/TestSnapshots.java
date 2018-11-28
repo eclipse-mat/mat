@@ -25,6 +25,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,8 +33,10 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.SnapshotFactory;
+import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.util.VoidProgressListener;
 import org.osgi.framework.Version;
 
@@ -383,6 +386,39 @@ public class TestSnapshots
                 {
                     SnapshotFactory.dispose(sn);
                 }
+                // Perhaps the snapshot has been as been opened as a secondary snapshot and not been closed
+                // The usage count in SnapshotFactory would then be incorrect, so force a close here.
+                for (ISnapshot sn : snapshots.values())
+                {
+                    try
+                    {
+                        Collection<IClass>cls = sn.getClassesByName("java.lang.Object", false);
+                        if (cls != null && !cls.isEmpty())
+                            System.out.println("snapshot "+sn.getSnapshotInfo().getPath()+" hasn't been disposed at the factory");
+                    }
+                    catch (SnapshotException e)
+                    {
+                        // Expected when disposed
+                    }
+                    sn.dispose();
+                }
+                for (ISnapshot sn : pristineSnapshots)
+                {
+                    try
+                    {
+                        Collection<IClass>cls = sn.getClassesByName("java.lang.Object", false);
+                        if (cls != null && !cls.isEmpty())
+                            System.out.println("snapshot "+sn.getSnapshotInfo().getPath()+" hasn't been disposed at the factory");
+                    }
+                    catch (SnapshotException e)
+                    {
+                        // Expected when disposed
+                    }
+                    sn.dispose();
+                }
+                // Just in case some other file handles have not been closed
+                System.gc();
+                System.runFinalization();
                 for (File dir : dirList)
                     deleteDirectory(dir);
             }

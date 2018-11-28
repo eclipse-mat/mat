@@ -36,7 +36,7 @@ public abstract class Filter
      * it is tested in a filter or displayed.
      * An example is where approximate retained sizes are stored as negative
      * numbers, but need the positive value for display.
-     * See {@link Column#setData(Object, Object) and see {@link Column#getData(Object)},
+     * See {@link Column#setData(Object, Object)} and see {@link Column#getData(Object)},
      * as used in
      * and {@link org.eclipse.mat.snapshot.query.RetainedSizeDerivedData#columnFor(org.eclipse.mat.query.DerivedColumn, org.eclipse.mat.query.IResult, org.eclipse.mat.query.ContextProvider)}
      */
@@ -60,8 +60,8 @@ public abstract class Filter
                 boolean isPercentage = formatter instanceof DecimalFormat
                                 && ((DecimalFormat) formatter).toPattern().indexOf('%') >= 0;
 
-                return isPercentage ? new PercentageFilter(listener, converter)
-                                : new NumericFilter(listener, converter);
+                return isPercentage ? new PercentageFilter(listener, converter, formatter)
+                                : new NumericFilter(listener, converter, formatter);
             }
             else
             {
@@ -125,11 +125,13 @@ public abstract class Filter
 
         Test test;
         ValueConverter converter;
+        Format format;
 
-        public NumericFilter(FilterChangeListener listener, ValueConverter converter)
+        public NumericFilter(FilterChangeListener listener, ValueConverter converter, Format format)
         {
             super(listener);
             this.converter = converter;
+            this.format = format;
         }
 
         @Override
@@ -256,8 +258,24 @@ public abstract class Filter
                 return null;
 
             ParsePosition pos = new ParsePosition(0);
-            NumberFormat f = DecimalFormat.getInstance();
-            Number nresult = f.parse(string, pos);
+            // Try to parse the filter with column formatter
+            Object oresult = format.parseObject(string, pos);
+            Number nresult;
+            if (oresult instanceof Number)
+            {
+               nresult = (Number)oresult;
+            }
+            else if (oresult instanceof Bytes)
+            {
+                nresult = ((Bytes)(oresult)).getValue();
+            }
+            else
+            {
+                // Old way - just use a decimal formatter
+                pos = new ParsePosition(0);
+                NumberFormat f = DecimalFormat.getInstance();
+                nresult = f.parse(string, pos);
+            }
 
             if (pos.getIndex() < string.length())
                 throw new ParseException(MessageUtil.format(Messages.Filter_Error_IllegalCharacters, //
@@ -415,9 +433,9 @@ public abstract class Filter
     private static class PercentageFilter extends NumericFilter
     {
 
-        public PercentageFilter(FilterChangeListener listener, ValueConverter converter)
+        public PercentageFilter(FilterChangeListener listener, ValueConverter converter, Format format)
         {
-            super(listener, converter);
+            super(listener, converter, format);
         }
 
         @Override
@@ -426,15 +444,48 @@ public abstract class Filter
             if (string.length() == 0)
                 return null;
 
-            if (string.charAt(string.length() - 1) == '%')
+            ParsePosition pos = new ParsePosition(0);
+            // Try to parse the filter with column formatter
+            Object oresult = format.parseObject(string, pos);
+            Number nresult;
+            if (oresult instanceof Number)
             {
-                String substring = string.substring(0, string.length() - 1);
-                return super.number(substring) / 100;
+               nresult = (Number)oresult;
             }
             else
             {
-                return super.number(string);
+                // Old way - just use a percent formatter
+                pos = new ParsePosition(0);
+                NumberFormat f = DecimalFormat.getPercentInstance();
+                nresult = f.parse(string, pos);
+                if (nresult == null)
+                {
+                    // Also allow a simple decimal format
+                    ParsePosition p2 = new ParsePosition(0);
+                    f = DecimalFormat.getNumberInstance();
+                    nresult = f.parse(string, p2);
+                    // Only report the pos if this was successful
+                    /// otherwise report the failure from the percent formatter
+                    if (nresult != null)
+                    {
+                        if (string.charAt(p2.getIndex()) == '%' && nresult instanceof Number)
+                        {
+                            // Old way with trailing % (no space)
+                            // - some locale formatters just parse "12.34 %"
+                            nresult = ((Number)nresult).doubleValue() / 100;
+                            p2.setIndex(p2.getIndex() + 1);
+                        }
+                        pos = p2;
+                    }
+                }
             }
+
+            if (pos.getIndex() < string.length())
+                throw new ParseException(MessageUtil.format(Messages.Filter_Error_IllegalCharacters, //
+                                string.substring(pos.getIndex())), pos.getIndex());
+
+            Double result = nresult.doubleValue();
+            return result;
         }
     }
 
