@@ -45,6 +45,7 @@ public final class Messages extends NLS
     public static String Filter_Error_IllegalCharacters;
     public static String Filter_Error_InvalidRegex;
     public static String Filter_Error_Parsing;
+    public static String Filter_Error_Parsing2;
     public static String Filter_Label_Numeric;
     public static String Filter_Label_Regex;
     public static String HtmlOutputter_Error_MovingFile;

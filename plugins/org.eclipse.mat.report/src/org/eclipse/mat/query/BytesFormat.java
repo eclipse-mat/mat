@@ -241,7 +241,7 @@ public class BytesFormat extends Format
 
     private StringBuffer formatB(StringBuffer toAppendTo, double val)
     {
-        toAppendTo.append(getDefaultFormat().format(val)).append(Messages.BytesFormat_KB);
+        toAppendTo.append(getDefaultFormat().format(val)).append(Messages.BytesFormat_B);
         return toAppendTo;
     }
 
