@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,12 +7,17 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson/IBM Corporation - internationalization of filters
  *******************************************************************************/
 package org.eclipse.mat.report.internal;
 
 import java.io.IOException;
+import java.text.FieldPosition;
+import java.text.Format;
+import java.text.ParsePosition;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -21,6 +26,8 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.query.Column;
+import org.eclipse.mat.query.ContextDerivedData.DerivedColumn;
+import org.eclipse.mat.query.ContextDerivedData.DerivedOperation;
 import org.eclipse.mat.query.ContextProvider;
 import org.eclipse.mat.query.IQueryContext;
 import org.eclipse.mat.query.IResult;
@@ -28,8 +35,6 @@ import org.eclipse.mat.query.IResultPie;
 import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.query.IResultTree;
 import org.eclipse.mat.query.ResultMetaData;
-import org.eclipse.mat.query.ContextDerivedData.DerivedColumn;
-import org.eclipse.mat.query.ContextDerivedData.DerivedOperation;
 import org.eclipse.mat.query.refined.RefinedResultBuilder;
 import org.eclipse.mat.query.refined.RefinedStructuredResult;
 import org.eclipse.mat.query.refined.RefinedTable;
@@ -37,14 +42,17 @@ import org.eclipse.mat.query.refined.RefinedTree;
 import org.eclipse.mat.query.registry.CommandLine;
 import org.eclipse.mat.query.results.CompositeResult;
 import org.eclipse.mat.report.ITestResult;
+import org.eclipse.mat.report.ITestResult.Status;
 import org.eclipse.mat.report.Params;
 import org.eclipse.mat.report.QuerySpec;
 import org.eclipse.mat.report.SectionSpec;
 import org.eclipse.mat.report.Spec;
-import org.eclipse.mat.report.ITestResult.Status;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.SilentProgressListener;
+
+import com.ibm.icu.text.DecimalFormat;
+import com.ibm.icu.text.NumberFormat;
 
 public class QueryPart extends AbstractPart
 {
@@ -309,6 +317,79 @@ public class QueryPart extends AbstractPart
         info.setLimit(params().getInt(Params.Rendering.LIMIT, 25));
     }
 
+    /**
+     * Localize a number with an optional prefix / suffix.
+     * @param sb for the result
+     * @param ss the input string
+     * @param in input format
+     * @param out output format
+     */
+    private void localizeNumber(StringBuffer sb, String ss, Format in, Format out)
+    {
+        for (int pi = 0; pi < ss.length(); ++pi)
+        {
+            ParsePosition p = new ParsePosition(pi);
+            Object o = in.parseObject(ss, p);
+            if (o != null)
+            {
+                sb.append(ss.substring(0, pi));
+                out.format(o, sb, new FieldPosition(-1));
+                sb.append(ss.substring(p.getIndex()));
+                return;
+            }
+        }
+        sb.append(ss);
+    }
+
+    /**
+     * Set a filter when the filter is not localized.
+     * Currently {@ RefinedResultBuilder#setFilter(int, String)} expects numbers to be localized.
+     * This is possible a problem for reports, which might not be fully localized.
+     * If a report sets a filter >=10.301 this will have a problem
+     * in a French locale where . is a thousands separator.
+     * For queries parse numbers in the English locale, and replace with the
+     * result in the column formatter locale.
+     * @param builder
+     * @param col
+     * @param filter
+     */
+    private void setFilter(RefinedResultBuilder builder, int col, String filter)
+    {
+        String filter2 = filter;
+        Format fmt = builder.getColumns().get(col).getFormatter();
+        if (fmt instanceof DecimalFormat)
+        {
+            DecimalFormat dfmt = (DecimalFormat)fmt;
+            char decSep = dfmt.getDecimalFormatSymbols().getDecimalSeparator();
+            char digit0 = dfmt.getDecimalFormatSymbols().getZeroDigit();
+            if (decSep != '.' && filter.indexOf('.') >= 0 || digit0 != '0')
+            {
+                Locale eng = Locale.ENGLISH;
+                Format in;
+                if (dfmt.getMultiplier() > 1)
+                    in = NumberFormat.getPercentInstance(eng);
+                else if (dfmt.isParseIntegerOnly())
+                    in = NumberFormat.getIntegerInstance(eng);
+                else
+                    in = NumberFormat.getNumberInstance();
+                // Allow for number range
+                String flts[] = filter.split("\\.\\.", 2); //$NON-NLS-1$
+                StringBuffer sb = new StringBuffer();
+                localizeNumber(sb, flts[0], in, fmt);
+                if (flts.length >= 2)
+                {
+                    // If number ends with . avoid confusion with following ..
+                    if (sb.length() > 0 && sb.charAt(0) == '.')
+                        sb.append(digit0);
+                    sb.append(".."); //$NON-NLS-1$
+                    localizeNumber(sb, flts[0], in, fmt);
+                }
+                filter2 = sb.toString(); 
+            }
+        }
+        builder.setFilter(col, filter2);
+    }
+    
     /** format: filter1=criteria,filter2=criteria */
     private void addFilter(RefinedResultBuilder builder)
     {
@@ -339,7 +420,9 @@ public class QueryPart extends AbstractPart
                 {
                     try
                     {
-                        builder.setFilter(columnIndex, filter.substring(p + 1));
+                        // Calling builder.setFilter(columnIndex, filter.substring(p + 1));
+                        // with a non-localized filter could go wrong
+                        setFilter(builder, columnIndex, filter.substring(p + 1));
                     }
                     catch (IllegalArgumentException e)
                     {

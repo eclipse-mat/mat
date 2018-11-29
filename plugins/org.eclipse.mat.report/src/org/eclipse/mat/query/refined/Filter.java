@@ -238,11 +238,11 @@ public abstract class Filter
             }
             catch (ParseException e)
             {
-                throw new IllegalArgumentException(ERROR_MSG + e.getMessage(), e);
+                throw new IllegalArgumentException(MessageUtil.format(Messages.Filter_Error_Parsing2, format.format(lowerExample()), format.format(upperExample())) + e.getMessage(), e);
             }
             catch (NumberFormatException e)
             {
-                throw new IllegalArgumentException(ERROR_MSG + e.getMessage(), e);
+                throw new IllegalArgumentException(MessageUtil.format(Messages.Filter_Error_Parsing2, format.format(lowerExample()), format.format(upperExample())) + e.getMessage(), e);
             }
 
             this.criteria = criteria;
@@ -250,6 +250,16 @@ public abstract class Filter
 
             listener.filterChanged(this);
             return true;
+        }
+
+        protected Number lowerExample()
+        {
+            return 1000;
+        }
+
+        protected Number upperExample()
+        {
+            return 10000;
         }
 
         protected Double number(String string) throws ParseException
@@ -436,6 +446,18 @@ public abstract class Filter
         public PercentageFilter(FilterChangeListener listener, ValueConverter converter, Format format)
         {
             super(listener, converter, format);
+        }
+
+        @Override
+        protected Number lowerExample()
+        {
+            return 0.01;
+        }
+
+        @Override
+        protected Number upperExample()
+        {
+            return 0.10;
         }
 
         @Override
