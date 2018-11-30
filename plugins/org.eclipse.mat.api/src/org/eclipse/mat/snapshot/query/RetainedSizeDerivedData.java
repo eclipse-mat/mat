@@ -369,7 +369,11 @@ public class RetainedSizeDerivedData extends ContextDerivedData
         @Override
         public StringBuffer format(Object obj, StringBuffer toAppendTo, FieldPosition pos)
         {
-            Long v = (Long) obj;
+            Number v;
+            if (obj instanceof Bytes)
+                v = ((Bytes)obj).getValue();
+            else
+                v = (Number) obj;
 
             if (v.longValue() < 0)
             {
@@ -379,14 +383,43 @@ public class RetainedSizeDerivedData extends ContextDerivedData
             }
             else
             {
-                return super.format(new Bytes(v), toAppendTo, pos);
+                return super.format(new Bytes(v.longValue()), toAppendTo, pos);
             }
         }
 
         @Override
         public Object parseObject(String source, ParsePosition pos)
         {
-            return null;
+            Object ret;
+            if (source.regionMatches(pos.getIndex(), Messages.RetainedSizeDerivedData_Approximate, 0, Messages.RetainedSizeDerivedData_Approximate.length()))
+            {
+                int pi = pos.getIndex();
+                pos.setIndex(pi + Messages.RetainedSizeDerivedData_Approximate.length());
+                ret = super.parseObject(source, pos);
+                if (ret != null)
+                {
+                    long v;
+                    if (ret instanceof Bytes)
+                    {
+                        v = ((Bytes)ret).getValue();
+                        return new Bytes(-Math.abs(v));
+                    }
+                    else if (ret instanceof Number)
+                    {
+                        v = ((Number)ret).longValue();
+                        return new Bytes(-Math.abs(v));
+                    }
+                }
+                // >= in front of something else
+                pos.setErrorIndex(pi + Messages.RetainedSizeDerivedData_Approximate.length());
+                pos.setIndex(pi);
+                ret = null;
+            }
+            else
+            {
+                ret = super.parseObject(source, pos);
+            }
+            return ret;
         }
     }
 

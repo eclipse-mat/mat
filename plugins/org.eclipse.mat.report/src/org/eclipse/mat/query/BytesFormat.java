@@ -256,6 +256,7 @@ public class BytesFormat extends Format
         if (currentDisplay != BytesDisplay.Bytes)
         {
             // Output formatting has units, so input should
+            int pi = pos.getIndex();
             Object o1 = this.getDetailedFormat().parseObject(source, pos);
             if (o1 instanceof Number)
             {
@@ -285,9 +286,14 @@ public class BytesFormat extends Format
                     pos.setIndex(pos.getIndex() + 3);
                     return new Bytes((long)(n1.longValue() * GB));
                 }
+                pos.setErrorIndex(pos.getIndex());
+                pos.setIndex(pi);
                 // Given a format, but no suffix given
                 return null;
             }
+            // Not parsed as a Number, so can't check the suffix
+            pos.setErrorIndex(pi);
+            pos.setIndex(pi);
             return null;
         }
         else
