@@ -51,6 +51,7 @@ public class RunReportsDropDownAction extends EasyToolBarDropDown
             Action action = new ExecuteQueryAction(editor, "default_report " + report.getExtensionIdentifier());//$NON-NLS-1$
             action.setText(report.getName());
             action.setDescription(report.getDescription());
+            action.setToolTipText(report.getDescription());
             reportActions.add(action);
         }
 
