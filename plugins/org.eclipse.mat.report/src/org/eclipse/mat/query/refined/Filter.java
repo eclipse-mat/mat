@@ -60,8 +60,8 @@ public abstract class Filter
                 boolean isPercentage = formatter instanceof DecimalFormat
                                 && ((DecimalFormat) formatter).toPattern().indexOf('%') >= 0;
 
-                return isPercentage ? new PercentageFilter(listener, converter, formatter)
-                                : new NumericFilter(listener, converter, formatter);
+                return isPercentage ? new PercentageFilter(listener, converter, column)
+                                : new NumericFilter(listener, converter, column);
             }
             else
             {
@@ -125,13 +125,13 @@ public abstract class Filter
 
         Test test;
         ValueConverter converter;
-        Format format;
+        Column column;
 
-        public NumericFilter(FilterChangeListener listener, ValueConverter converter, Format format)
+        public NumericFilter(FilterChangeListener listener, ValueConverter converter, Column column)
         {
             super(listener);
             this.converter = converter;
-            this.format = format;
+            this.column = column;
         }
 
         @Override
@@ -238,11 +238,11 @@ public abstract class Filter
             }
             catch (ParseException e)
             {
-                throw new IllegalArgumentException(MessageUtil.format(Messages.Filter_Error_Parsing2, format.format(lowerExample()), format.format(upperExample())) + e.getMessage(), e);
+                throw new IllegalArgumentException(MessageUtil.format(Messages.Filter_Error_Parsing2, format(lowerExample()), format(upperExample())) + e.getMessage(), e);
             }
             catch (NumberFormatException e)
             {
-                throw new IllegalArgumentException(MessageUtil.format(Messages.Filter_Error_Parsing2, format.format(lowerExample()), format.format(upperExample())) + e.getMessage(), e);
+                throw new IllegalArgumentException(MessageUtil.format(Messages.Filter_Error_Parsing2, format(lowerExample()), format(upperExample())) + e.getMessage(), e);
             }
 
             this.criteria = criteria;
@@ -250,6 +250,24 @@ public abstract class Filter
 
             listener.filterChanged(this);
             return true;
+        }
+
+        protected String format(Object obj)
+        {
+            Format f = column.getFormatter();
+            if (f != null)
+                return f.format(obj);
+            else
+                return String.valueOf(obj);
+        }
+
+        protected Object parseObject(String s, ParsePosition pos)
+        {
+            Format f = column.getFormatter();
+            if (f != null)
+                return f.parseObject(s, pos);
+            else
+                return null;
         }
 
         protected Number lowerExample()
@@ -269,7 +287,7 @@ public abstract class Filter
 
             ParsePosition pos = new ParsePosition(0);
             // Try to parse the filter with column formatter
-            Object oresult = format.parseObject(string, pos);
+            Object oresult = parseObject(string, pos);
             Number nresult;
             if (oresult instanceof Number)
             {
@@ -443,9 +461,9 @@ public abstract class Filter
     private static class PercentageFilter extends NumericFilter
     {
 
-        public PercentageFilter(FilterChangeListener listener, ValueConverter converter, Format format)
+        public PercentageFilter(FilterChangeListener listener, ValueConverter converter, Column column)
         {
-            super(listener, converter, format);
+            super(listener, converter, column);
         }
 
         @Override
@@ -468,7 +486,7 @@ public abstract class Filter
 
             ParsePosition pos = new ParsePosition(0);
             // Try to parse the filter with column formatter
-            Object oresult = format.parseObject(string, pos);
+            Object oresult = parseObject(string, pos);
             Number nresult;
             if (oresult instanceof Number)
             {
@@ -490,10 +508,10 @@ public abstract class Filter
                     /// otherwise report the failure from the percent formatter
                     if (nresult != null)
                     {
-                        if (string.charAt(p2.getIndex()) == '%' && nresult instanceof Number)
+                        if (p2.getIndex() < string.length() && string.charAt(p2.getIndex()) == '%' && nresult instanceof Number)
                         {
                             // Old way with trailing % (no space)
-                            // - some locale formatters just parse "12.34 %"
+                            // - some locale formatters just parse "12.34 %" with a non-breaking space
                             nresult = ((Number)nresult).doubleValue() / 100;
                             p2.setIndex(p2.getIndex() + 1);
                         }

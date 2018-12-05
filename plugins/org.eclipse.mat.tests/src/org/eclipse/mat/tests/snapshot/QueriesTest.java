@@ -32,6 +32,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.Collections;
+import java.util.Locale;
 
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.mat.SnapshotException;
@@ -58,6 +59,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.osgi.framework.Bundle;
+
+import com.ibm.icu.text.DecimalFormat;
+import com.ibm.icu.text.NumberFormat;
 
 public class QueriesTest
 {
@@ -766,14 +770,81 @@ public class QueriesTest
         SnapshotQuery query = SnapshotQuery.parse("dominator_tree", snapshot);
         RefinedResultBuilder builder = query.refine(new VoidProgressListener());
         // Check percentage is filterable
-
-        builder.setFilter(3, ">=3.0%");
+        // Expect English locale
+        builder.setFilter(3, ">=3%");
         RefinedTree table = (RefinedTree) builder.build();
+        int found = 0;
         for (Object row : table.getElements())
         {
             Object val = table.getColumnValue(row, 3);
+            ++found;
             assertThat((Double)val, greaterThanOrEqualTo(0.03));
         }
+        assertThat(found, greaterThan(0));
+    }
+
+
+    @Test
+    public void testFiltering12percentFr() throws SnapshotException
+    {
+        SnapshotQuery query = SnapshotQuery.parse("dominator_tree", snapshot);
+        RefinedResultBuilder builder = query.refine(new VoidProgressListener());
+        // Check percentage is filterable
+        builder.getColumns().get(3).formatting(NumberFormat.getPercentInstance(Locale.FRENCH));
+        double comp = 0.03;
+        String p3_0 = builder.getColumns().get(3).getFormatter().format(comp);
+        DecimalFormat t;
+        builder.setFilter(3, ">=" + p3_0);
+        RefinedTree table = (RefinedTree) builder.build();
+        int found = 0;
+        for (Object row : table.getElements())
+        {
+            Object val = table.getColumnValue(row, 3);
+            ++found;
+            assertThat((Double)val, greaterThanOrEqualTo(comp));
+        }
+        assertThat(found, greaterThan(0));
+    }
+
+
+    @Test
+    public void testFiltering12percentAsNum() throws SnapshotException
+    {
+        SnapshotQuery query = SnapshotQuery.parse("dominator_tree", snapshot);
+        RefinedResultBuilder builder = query.refine(new VoidProgressListener());
+        // Check percentage is filterable
+        // Allow for current locale by using formatting
+        double comp = 0.03;
+        String num = NumberFormat.getNumberInstance().format(comp);
+        builder.setFilter(3, "<" + num);
+        RefinedTree table = (RefinedTree) builder.build();
+        int found = 0;
+        for (Object row : table.getElements())
+        {
+            Object val = table.getColumnValue(row, 3);
+            ++found;
+            assertThat((Double)val, lessThan(0.03));
+        }
+        assertThat(found, greaterThan(0));
+    }
+
+    @Test
+    public void testFiltering12percentAsNumFr() throws SnapshotException
+    {
+        SnapshotQuery query = SnapshotQuery.parse("dominator_tree", snapshot);
+        RefinedResultBuilder builder = query.refine(new VoidProgressListener());
+        // Check percentage is filterable
+        builder.getColumns().get(3).formatting(NumberFormat.getPercentInstance(Locale.FRENCH));
+        builder.setFilter(3, "<0,03");
+        RefinedTree table = (RefinedTree) builder.build();
+        int found = 0;
+        for (Object row : table.getElements())
+        {
+            Object val = table.getColumnValue(row, 3);
+            ++found;
+            assertThat((Double)val, lessThan(0.03));
+        }
+        assertThat(found, greaterThan(0));
     }
 
     /**
