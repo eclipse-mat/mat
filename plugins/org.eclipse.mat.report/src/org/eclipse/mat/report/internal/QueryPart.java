@@ -379,7 +379,7 @@ public class QueryPart extends AbstractPart
                 if (flts.length >= 2)
                 {
                     // If number ends with . avoid confusion with following ..
-                    if (sb.length() > 0 && sb.charAt(0) == '.')
+                    if (sb.length() > 0 && sb.charAt(sb.length() - 1) == '.')
                         sb.append(digit0);
                     sb.append(".."); //$NON-NLS-1$
                     localizeNumber(sb, flts[0], in, fmt);
