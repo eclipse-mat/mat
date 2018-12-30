@@ -45,6 +45,8 @@
 				type="reference" />
 			<topicref href="reference/inspections/top_consumers.dita"
 				type="reference" />
+			<topicref href="reference/inspections/unreachable_objects.dita"
+				type="reference" />
 		</topicref>
 		<topicref href="reference/querymatrix.dita" type="reference">
 			<topicref href="reference/findingmemoryleak.dita" type="reference" />

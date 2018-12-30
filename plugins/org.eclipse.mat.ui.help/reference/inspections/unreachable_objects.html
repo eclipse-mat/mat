@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en-us" lang="en-us">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="Unreachable objects"/>
+<meta name="abstract" content="Find out more about objects that could or should be garbage collected."/>
+<meta name="description" content="Find out more about objects that could or should be garbage collected."/>
+<meta name="DC.Relation" scheme="URI" content="../../concepts/reachability.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../concepts/gcroots.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../tasks/configure_mat.html"/>
+<meta name="DC.Relation" scheme="URI" content="../../tasks/acquiringheapdump.html"/>
+<meta name="DC.Relation" scheme="URI" content="retained_set.html"/>
+<meta name="copyright" content="Copyright (c) 2008, 2018 SAP AG, IBM Corporation and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html 2018" type="primary"/>
+<meta name="DC.Rights.Owner" content="Copyright (c) 2008, 2018 SAP AG, IBM Corporation and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html 2018" type="primary"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="ref_inspections_path_to_gc_roots"/>
+<meta name="DC.Language" content="en-us"/>
+<link rel="stylesheet" type="text/css" href="../../styles/commonltr.css"/>
+<title>Unreachable objects</title>
+</head>
+<body id="ref_inspections_path_to_gc_roots">
+
+
+	<h1 class="title topictitle1">Unreachable objects</h1>
+
+	
+	
+	
+	<div class="body refbody"><p class="shortdesc">Find out more about objects that could or should be garbage collected.
+	</p>
+
+		<div class="section"><h2 class="title sectiontitle">Motivation</h2>
+			
+			<p class="p">Sometimes a heap dump contains objects which would be removed at the next garbage collection.
+			These are objects which are unreachable from the garbage collection roots.
+			By default, Memory Analyzer removes these objects as part of the parse process as normally they are not
+			important in determining a memory leak. If the heap dump is generated as a result of an <span class="keyword apiname">OutOfMemoryError</span>
+			then the Java virtual machine will usually have performed a garbage collection operation to attempt to
+			free space for the new object, so there will not be those objects in the heap dump file.
+			There is a chance that the garbage collection was not performed, for example if the
+			object to be allocated was so huge that it was obvious to the JVM that no amount of garbage collection
+			could free enough space, or if the heap dump was triggered by another event.</p>
+
+			<p class="p">Sometimes however, it is interesting to investigate these unreachable objects. For example if the application
+			is spending a lot of time garbage collecting then it may be allocating and discarding more objects
+			than is sensible. The types of the objects which could be discarded at the next garbage collection
+			gives a clue as to which temporary objects the application is causing to be allocated.
+			When acquiring a heap dump for this purpose using the Memory Analyzer,
+			do not use the <span class="keyword cmdname">live=true</span> option as that would discard unreachable objects
+			before the heap dump is generated.</p>
+
+		</div>
+
+		<div class="section"><h2 class="title sectiontitle">Arguments</h2>
+			
+			<p class="p">None</p>
+
+			<div class="p">Invoke using either:
+			<ol class="ol">
+			<li class="li">From the link on the Overview page
+			</li>
+
+			<li class="li">From the Query Browser via <span class="ph menucascade"><span class="ph uicontrol">Java Basics</span> &gt; <span class="ph uicontrol"> Unreachable Objects Histogram</span></span></li>
+</ol>
+
+			</div>
+
+		</div>
+
+		<div class="section" id="ref_inspections_path_to_gc_roots__result"><h2 class="title sectiontitle">Result</h2>
+			
+			The result is a histogram table showing the class names and number of object instances
+			of the unreachable objects, together with their total sizes.
+			This histogram has no object graph behind it (unreachable objects are removed during the parsing of the heap dump,
+			only class names are stored). 
+			Thus it is not possible to see e.g. a list of references for a particular unreachable object.
+			<img class="image" src="unreachable_histogram.png" alt="Table displaying the unreachable objects."/>
+		</div>
+
+		<div class="section"><h2 class="title sectiontitle">Continued analysis</h2>
+			
+			<p class="p">If more information about the unreachable objects is required then the following steps
+			can include the objects in the snapshot.</p>
+
+			<ol class="ol">
+			<li class="li">Close the snapshot
+			</li>
+
+			<li class="li">Select the heap dump using <span class="ph menucascade"><span class="ph uicontrol">Window</span> &gt; <span class="ph uicontrol">Heap Dump History</span></span>
+			mouse button 2, <span class="ph menucascade"><span class="ph uicontrol">Delete Index Files</span></span>
+			</li>
+
+			<li class="li">Select 'Keep unreachable objects' using <span class="ph menucascade"><span class="ph uicontrol">Window</span> &gt; <span class="ph uicontrol">Preferences</span> &gt; <span class="ph uicontrol">Memory Analyzer</span></span></li>
+
+			<li class="li">Reopen the heap dump, which will reparse the heap dump.</li>
+
+			<li class="li">Select the <span class="ph menucascade"><span class="ph uicontrol">Java Basics</span> &gt; <span class="ph uicontrol">GC Roots</span></span>
+			query.</li>
+
+			<li class="li">Select the 'Unreachable Objects' row.</li>
+
+			<li class="li">Run the 'Show Retained Set' query on that row.</li>
+
+			</ol>
+
+			This will show a histogram of all the objects which normally would be unreachable and would be garbage collected
+			at the next opportunity. As these objects are now in the snapshot then they can be inspected in more detail.
+		</div>
+
+	</div>
+
+	<div class="related-links"><div class="relinfo relconcepts"><strong>Related concepts</strong><br/>
+<div><a class="link" href="../../concepts/reachability.html">Reachability</a></div>
+<div><a class="link" href="../../concepts/gcroots.html">Garbage Collection Roots</a></div>
+</div>
+<div class="relinfo reltasks"><strong>Related tasks</strong><br/>
+<div><a class="link" href="../../tasks/configure_mat.html">Memory Analyzer Configuration</a></div>
+<div><a class="link" href="../../tasks/acquiringheapdump.html">Acquiring Heap Dumps</a></div>
+</div>
+<div class="relinfo relref"><strong>Related reference</strong><br/>
+<div><a class="link" href="retained_set.html" title="All objects kept alive just because of the selected objects.">Retained Set</a></div>
+</div>
+</div>
+
+</body>
+</html>

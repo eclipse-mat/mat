@@ -126,6 +126,12 @@
 				classes, objects and class loaders.
 			</p>
 			<p>
+				If the total size of the dump is much smaller than the size of the file it is possible
+				that the heap dump contained many 'garbage' objects which would be discarded at the next garbage
+				collection. See the <xref href="../reference/inspections/unreachable_objects.dita">unreachable objects</xref>
+				query to examine these 'garbage' objects.
+			</p>
+			<p>
 				Right below, the pie chart gives an impression on the biggest
 				objects in the dump. Move your mouse over a slice to see the details
 				of the objects in the object inspector on the left. Click on any

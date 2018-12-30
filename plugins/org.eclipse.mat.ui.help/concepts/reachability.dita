@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2018 IBM Corporation.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+   
+    Contributors:
+        Andrew Johnson/IBM Corporation - initial API and implementation
+ -->
+<!DOCTYPE concept PUBLIC "-//OASIS//DTD DITA Concept//EN" "concept.dtd" >
+<concept id="concept_reachability" xml:lang="en-us">
+	<title>Reachability</title>
+	<prolog>
+		<copyright>
+			<copyryear year=""></copyryear>
+			<copyrholder>
+				Copyright (c) 2018 IBM Corporation.
+			    All rights reserved. This program and the accompanying materials
+			    are made available under the terms of the Eclipse Public License v1.0
+			    which accompanies this distribution, and is available at
+			    http://www.eclipse.org/legal/epl-v10.html
+			</copyrholder>
+		</copyright>
+	</prolog>
+	
+	<conbody>
+		<p> Objects in a heap dump have references to other objects. These can either be
+		via field references (for simple objects), array elements (for object arrays)
+		or via various hidden references. For instance every object contains a reference to
+		its type, and each class contain a reference to the class loader which loaded
+		the class.</p>
+		<p>These objects and references form a directed graph. The objects are the nodes,
+		the references are the directed links between the nodes. The
+		garbage collection roots are the roots of this graph.
+		</p>
+		<dl>
+			<dlentry>
+			<dt>Reachable</dt><dd>An object is reachable from another object if there is a
+			path following the directed links from the source object to the destination object.
+			</dd>
+			</dlentry>
+			<dlentry>
+			<dt>Unreachable object</dt><dd>If there is no path from a garbage collection root
+			to an object then it is unreachable. There is then no way a legitimate Java program
+			can every get access to this object, so it is safe for the Java virtual machine to
+			discard this object from the heap. This process of determining unreachable objects and
+			discarding them, thus making room for more objects to be allocated as required, is
+			called garbage collection.
+			</dd>
+			</dlentry>
+		</dl>
+	</conbody>
+	<related-links>
+		<link href="gcroots.dita" type="concept">
+			<linktext>Garbage collection roots</linktext>
+		</link>
+	</related-links>
+</concept>
