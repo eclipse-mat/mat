@@ -8,6 +8,7 @@
 	</topichead>
 	<topichead navtitle="Concepts">
 		<topicref href="concepts/heapdump.dita" type="concept" />
+		<topicref href="concepts/reachability.dita" type="concept" />
 		<topicref href="concepts/shallowretainedheap.dita" type="concept" />
 		<topicref href="concepts/dominatortree.dita" type="concept" />
 		<topicref href="concepts/gcroots.dita" type="concept" />
