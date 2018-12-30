@@ -66,7 +66,7 @@
 			<li>Close the snapshot
 			</li>
 			<li>Select the heap dump using <menucascade><uicontrol>Window</uicontrol><uicontrol>Heap Dump History</uicontrol></menucascade>
-			mouse button 2, <menucascade><uicontrol>Delete Index Files</uicontrol></menucascade>
+			right-click, <menucascade><uicontrol>Delete Index Files</uicontrol></menucascade>
 			</li>
 			<li>Select 'Keep unreachable objects' using <menucascade><uicontrol>Window</uicontrol><uicontrol>Preferences</uicontrol>
 			<uicontrol>Memory Analyzer</uicontrol></menucascade></li>
@@ -77,7 +77,7 @@
 			<li>Run the 'Show Retained Set' query on that row.</li>
 			</ol>
 			This will show a histogram of all the objects which normally would be unreachable and would be garbage collected
-			at the next opportunity. As these objects are now in the snapshot then they can be inspected in more detail.
+			at the next opportunity. As these objects are now in the snapshot they then can be inspected in more detail.
 		</section>
 	</refbody>
 	<related-links>
