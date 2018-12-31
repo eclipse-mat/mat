@@ -188,6 +188,26 @@
 					</stentry>
 				</strow>
 				<strow>
+					<stentry>Image and Color objects</stentry>
+					<stentry>
+						The Object Inspector View
+						recreates Eclipse colors and images from the information in the heap dump and 
+						displays the information in the lower left corner of the inspector.
+						<p>
+						<image href="../mimes/nn_inspector_imagedata.png" />
+						<image href="../mimes/nn_inspector_rgb.png" />
+						</p>
+					</stentry>
+				</strow>
+				<strow>
+					<stentry>Class Hierarchy in Inspector</stentry>
+					<stentry>
+						The inspector now displays the full class hierarchy of any selected object.
+						One can drill-down via context menus.
+						<image href="../mimes/nn_inspector_class_hierarchy.png" align="left" placement="break" />
+					</stentry>
+				</strow>
+				<strow>
 					<stentry>Context menu for totals row</stentry>
 					<stentry>
 						The totals row now represents all the additional entries in a tree or table.

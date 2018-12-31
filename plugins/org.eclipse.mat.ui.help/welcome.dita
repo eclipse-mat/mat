@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2010 SAP AG.
+    Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
    
     Contributors:
         SAP AG - initial API and implementation
+        IBM Corporation - additional help topics
  -->
 <!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd" >
 <reference id="ref_welcome" xml:lang="en-us">
@@ -16,7 +17,7 @@
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2008, 2010 SAP AG and others.
+				Copyright (c) 2008, 2018 SAP AG, IBM Corporation and others.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License v1.0
 			    which accompanies this distribution, and is available at
@@ -51,9 +52,9 @@
 	<section>
 	<title>Concepts</title>
 		<p><xref href="concepts/heapdump.dita" /></p>
+		<p><xref href="concepts/reachability.dita" /></p>
 		<p><xref href="concepts/shallowretainedheap.dita" /></p>
 		<p><xref href="concepts/dominatortree.dita" /></p>
-		<p><xref href="concepts/reachability.dita" /></p>
 		<p><xref href="concepts/gcroots.dita"/></p>
 	</section>
 	<section>
