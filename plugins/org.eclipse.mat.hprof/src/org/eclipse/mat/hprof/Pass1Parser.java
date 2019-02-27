@@ -30,7 +30,7 @@ import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.HashMapLongObject;
 import org.eclipse.mat.collect.HashMapLongObject.Entry;
 import org.eclipse.mat.hprof.ui.HprofPreferences;
-import org.eclipse.mat.parser.io.PositionInputStream;
+import org.eclipse.mat.parser.io.DefaultPositionInputStream;
 import org.eclipse.mat.parser.model.ClassImpl;
 import org.eclipse.mat.snapshot.MultipleSnapshotsException;
 import org.eclipse.mat.snapshot.model.Field;
@@ -80,7 +80,7 @@ public class Pass1Parser extends AbstractParser
     public void read(File file, String dumpNrToRead) throws SnapshotException, IOException
     {
         // See http://java.net/downloads/heap-snapshot/hprof-binary-format.html
-        in = new PositionInputStream(new BufferedInputStream(new FileInputStream(file)));
+        in = new DefaultPositionInputStream(new BufferedInputStream(new FileInputStream(file)));
 
         int currentDumpNr = 0;
         List<MultipleSnapshotsException.Context> ctxs = new ArrayList<MultipleSnapshotsException.Context>();

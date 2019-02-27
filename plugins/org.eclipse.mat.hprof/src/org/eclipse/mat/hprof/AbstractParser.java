@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.eclipse.mat.hprof.ui.HprofPreferences;
-import org.eclipse.mat.parser.io.PositionInputStream;
+import org.eclipse.mat.parser.io.DefaultPositionInputStream;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IPrimitiveArray;
@@ -96,7 +96,7 @@ import org.eclipse.mat.util.SimpleMonitor.Listener;
         }
     }
 
-    protected PositionInputStream in;
+    protected DefaultPositionInputStream in;
     protected Version version;
     // The size of identifiers in the dump file
     protected int idSize;
