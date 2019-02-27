@@ -214,7 +214,7 @@ public final class ArrayInt
       */
     public void sort()
     {
-        Arrays.sort(elements, 0, size);
+        Arrays.parallelSort(elements, 0, size);
     }
 
     // //////////////////////////////////////////////////////////////
