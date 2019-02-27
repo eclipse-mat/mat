@@ -98,7 +98,7 @@ public abstract class IndexWriter
 
         public void sort()
         {
-            Arrays.sort(identifiers, 0, size);
+            Arrays.parallelSort(identifiers, 0, size);
         }
 
         public int size()

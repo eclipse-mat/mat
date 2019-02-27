@@ -212,7 +212,7 @@ public final class ArrayLong
       */
     public void sort()
     {
-        Arrays.sort(elements, 0, size);
+        Arrays.parallelSort(elements, 0, size);
     }
 
     // //////////////////////////////////////////////////////////////
