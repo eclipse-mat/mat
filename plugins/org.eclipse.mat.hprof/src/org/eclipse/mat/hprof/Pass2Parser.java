@@ -223,14 +223,14 @@ public class Pass2Parser extends AbstractParser
             ClassImpl objcls = (ClassImpl) objcl;
             statics = objcls.getStaticFields().toArray(statics);
             // Heap size of each class type object is individual as have statics
-            heapObject = new HeapObject(handler.mapAddressToId(id), id, thisClazz,
+            heapObject = new HeapObject(id, thisClazz,
                             objcls.getUsedHeapSize());
             // and extract the class references
             heapObject.references.addAll(objcls.getReferences());
         }
         else
         {
-            heapObject = new HeapObject(handler.mapAddressToId(id), id, thisClazz,
+            heapObject = new HeapObject(id, thisClazz,
                             thisClazz.getHeapSizePerInstance());
             heapObject.references.add(thisClazz.getObjectAddress());
         }
@@ -296,7 +296,8 @@ public class Pass2Parser extends AbstractParser
             }
         }
 
-        handler.addObject(heapObject, segmentStartPos);
+        heapObject.filePosition = segmentStartPos;
+        handler.addObject(heapObject);
     }
 
     private void readObjectArrayDump(long segmentStartPos) throws IOException
@@ -314,7 +315,7 @@ public class Pass2Parser extends AbstractParser
                             Long.toHexString(arrayClassObjectID)));
 
         long usedHeapSize = handler.getObjectArrayHeapSize(arrayType, size);
-        HeapObject heapObject = new HeapObject(handler.mapAddressToId(id), id, arrayType, usedHeapSize);
+        HeapObject heapObject = new HeapObject(id, arrayType, usedHeapSize);
         heapObject.references.add(arrayType.getObjectAddress());
         heapObject.isArray = true;
 
@@ -325,10 +326,11 @@ public class Pass2Parser extends AbstractParser
                 heapObject.references.add(refId);
         }
 
-        handler.addObject(heapObject, segmentStartPos);
+        heapObject.filePosition = segmentStartPos;
+        handler.addObject(heapObject);
     }
 
-    private void readPrimitiveArrayDump(long segmentStartPost) throws SnapshotException, IOException
+    private void readPrimitiveArrayDump(long segmentStartPos) throws SnapshotException, IOException
     {
         long id = in.readID(idSize);
 
@@ -346,11 +348,12 @@ public class Pass2Parser extends AbstractParser
                             name));
 
         long usedHeapSize = handler.getPrimitiveArrayHeapSize(elementType, size);
-        HeapObject heapObject = new HeapObject(handler.mapAddressToId(id), id, clazz, usedHeapSize);
+        HeapObject heapObject = new HeapObject(id, clazz, usedHeapSize);
         heapObject.references.add(clazz.getObjectAddress());
         heapObject.isArray = true;
 
-        handler.addObject(heapObject, segmentStartPost);
+        heapObject.filePosition = segmentStartPos;
+        handler.addObject(heapObject);
 
         int elementSize = IPrimitiveArray.ELEMENT_SIZE[elementType];
         in.skipBytes((long) elementSize * size);

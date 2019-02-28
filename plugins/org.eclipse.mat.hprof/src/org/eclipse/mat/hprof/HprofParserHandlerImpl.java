@@ -200,10 +200,11 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
         // (if no classes use this class loader, cleanup garbage will remove it
         // again)
         ClassImpl classLoaderClass = this.classesByName.get(IClass.JAVA_LANG_CLASSLOADER).get(0);
-        HeapObject heapObject = new HeapObject(this.identifiers.reverse(0), 0, classLoaderClass, classLoaderClass
+        HeapObject heapObject = new HeapObject(0, classLoaderClass, classLoaderClass
                         .getHeapSizePerInstance());
         heapObject.references.add(classLoaderClass.getObjectAddress());
-        this.addObject(heapObject, 0);
+        heapObject.filePosition = 0;
+        this.addObject(heapObject);
     }
 
     /**
@@ -674,8 +675,15 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
         }
     }
 
-    public void addObject(HeapObject object, long filePosition) throws IOException
+    public void addObject(HeapObject object) throws IOException
     {
+        // this may be called from multiple threads
+        // so, each function called inside here needs to be threadsafe
+        // it will not do to simply synchronize here as we need
+        // better concurrency than that
+
+        final long filePosition = object.filePosition;
+        object.objectId = mapAddressToId(object.objectAddress);
         int index = object.objectId;
 
         // check if some thread to local variables references have to be added
