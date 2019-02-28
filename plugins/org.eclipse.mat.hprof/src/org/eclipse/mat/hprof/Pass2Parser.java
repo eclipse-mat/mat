@@ -22,6 +22,7 @@ import org.eclipse.mat.hprof.IHprofParserHandler.HeapObject;
 import org.eclipse.mat.hprof.ui.HprofPreferences;
 import org.eclipse.mat.hprof.ui.HprofPreferences.HprofStrictness;
 import org.eclipse.mat.parser.io.DefaultPositionInputStream;
+import org.eclipse.mat.parser.io.PositionInputStream;
 import org.eclipse.mat.parser.model.ClassImpl;
 import org.eclipse.mat.snapshot.model.Field;
 import org.eclipse.mat.snapshot.model.FieldDescriptor;
@@ -42,8 +43,7 @@ public class Pass2Parser extends AbstractParser
 {
     private IHprofParserHandler handler;
     private SimpleMonitor.Listener monitor;
-    // New size of classes including per-instance fields
-    private static final boolean NEWCLASSSIZE = false;
+    private PositionInputStream in;
 
     public Pass2Parser(IHprofParserHandler handler, SimpleMonitor.Listener monitor,
                     HprofPreferences.HprofStrictness strictnessPreference)
@@ -80,7 +80,7 @@ public class Pass2Parser extends AbstractParser
 
                 in.skipBytes(4); // time stamp
 
-                long length = readUnsignedInt();
+                long length = in.readUnsignedInt();
                 if (length < 0)
                     throw new SnapshotException(MessageUtil.format(Messages.Pass1Parser_Error_IllegalRecordLength,
                                     length, in.position(), record));
@@ -186,14 +186,14 @@ public class Pass2Parser extends AbstractParser
         for (int ii = 0; ii < constantPoolSize; ii++)
         {
             in.skipBytes(2);
-            skipValue();
+            skipValue(in);
         }
 
         int numStaticFields = in.readUnsignedShort();
         for (int i = 0; i < numStaticFields; i++)
         {
             in.skipBytes(idSize);
-            skipValue();
+            skipValue(in);
         }
 
         int numInstanceFields = in.readUnsignedShort();
@@ -202,9 +202,9 @@ public class Pass2Parser extends AbstractParser
 
     private void readInstanceDump(long segmentStartPos) throws IOException
     {
-        long id = readID();
+        long id = in.readID(idSize);
         in.skipBytes(4);
-        long classID = readID();
+        long classID = in.readID(idSize);
         int bytesFollowing = in.readInt();
         long endPos = in.position() + bytesFollowing;
 
@@ -255,7 +255,7 @@ public class Pass2Parser extends AbstractParser
                 }
                 if (type == IObject.Type.OBJECT)
                 {
-                    long refId = readID();
+                    long refId = in.readID(idSize);
                     if (refId != 0)
                     {
                         heapObject.references.add(refId);
@@ -267,7 +267,7 @@ public class Pass2Parser extends AbstractParser
                 }
                 else
                 {
-                    Object value = readValue(null, type);
+                    Object value = readValue(in, null, type);
                     if (stField != null)
                         stField.setValue(value);
                 }
@@ -301,11 +301,11 @@ public class Pass2Parser extends AbstractParser
 
     private void readObjectArrayDump(long segmentStartPos) throws IOException
     {
-        long id = readID();
+        long id = in.readID(idSize);
 
         in.skipBytes(4);
         int size = in.readInt();
-        long arrayClassObjectID = readID();
+        long arrayClassObjectID = in.readID(idSize);
 
         ClassImpl arrayType = (ClassImpl) handler.lookupClass(arrayClassObjectID);
         if (arrayType == null)
@@ -320,7 +320,7 @@ public class Pass2Parser extends AbstractParser
 
         for (int ii = 0; ii < size; ii++)
         {
-            long refId = readID();
+            long refId = in.readID(idSize);
             if (refId != 0)
                 heapObject.references.add(refId);
         }
@@ -330,7 +330,7 @@ public class Pass2Parser extends AbstractParser
 
     private void readPrimitiveArrayDump(long segmentStartPost) throws SnapshotException, IOException
     {
-        long id = readID();
+        long id = in.readID(idSize);
 
         in.skipBytes(4);
         int size = in.readInt();
