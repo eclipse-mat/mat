@@ -341,11 +341,10 @@ public class Pass2Parser extends AbstractParser
         if ((elementType < IPrimitiveArray.Type.BOOLEAN) || (elementType > IPrimitiveArray.Type.LONG))
             throw new SnapshotException(Messages.Pass1Parser_Error_IllegalType);
 
-        String name = IPrimitiveArray.TYPE[elementType];
-        ClassImpl clazz = (ClassImpl) handler.lookupClassByName(name, true);
-        if (clazz == null)
-            throw new RuntimeException(MessageUtil.format(Messages.Pass2Parser_Error_HandleMustCreateFakeClassForName,
-                            name));
+        int elementSize = IPrimitiveArray.ELEMENT_SIZE[elementType];
+        in.skipBytes((long) elementSize * size);
+
+        ClassImpl clazz = (ClassImpl) handler.lookupPrimitiveArrayClassByType(elementType);
 
         long usedHeapSize = handler.getPrimitiveArrayHeapSize(elementType, size);
         HeapObject heapObject = new HeapObject(id, clazz, usedHeapSize);
@@ -354,9 +353,6 @@ public class Pass2Parser extends AbstractParser
 
         heapObject.filePosition = segmentStartPos;
         handler.addObject(heapObject);
-
-        int elementSize = IPrimitiveArray.ELEMENT_SIZE[elementType];
-        in.skipBytes((long) elementSize * size);
     }
 
 }

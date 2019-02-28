@@ -771,6 +771,11 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
         return classesByAddress.get(classId);
     }
 
+    public IClass lookupPrimitiveArrayClassByType(byte elementType)
+    {
+        return primitiveArrays[elementType];
+    }
+
     public IClass lookupClassByName(String name, boolean failOnMultipleInstances)
     {
         List<ClassImpl> list = classesByName.get(name);
