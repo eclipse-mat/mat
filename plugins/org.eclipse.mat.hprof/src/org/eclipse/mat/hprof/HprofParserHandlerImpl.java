@@ -52,8 +52,6 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
 
     private XSnapshotInfo info = new XSnapshotInfo();
 
-    /** constant pool cache */
-    private HashMapLongObject<String> constantPool = new HashMapLongObject<String>(10000);
     private Map<String, List<ClassImpl>> classesByName = new HashMap<String, List<ClassImpl>>();
     private HashMapLongObject<ClassImpl> classesByAddress = new HashMapLongObject<ClassImpl>();
 
@@ -202,8 +200,6 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
                         .getHeapSizePerInstance());
         heapObject.references.add(classLoaderClass.getObjectAddress());
         this.addObject(heapObject, 0);
-
-        constantPool = null;
     }
 
     /**
@@ -578,9 +574,6 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
 
     public void cancel()
     {
-        if (constantPool != null)
-            constantPool.clear();
-
         if (outbound != null)
             outbound.cancel();
 
@@ -723,11 +716,6 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
     public int getIdentifierSize()
     {
         return info.getIdentifierSize();
-    }
-
-    public HashMapLongObject<String> getConstantPool()
-    {
-        return constantPool;
     }
 
     public ClassImpl lookupClass(long classId)
