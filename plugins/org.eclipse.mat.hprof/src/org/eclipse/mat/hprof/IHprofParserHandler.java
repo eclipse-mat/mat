@@ -39,11 +39,11 @@ public interface IHprofParserHandler
         public long usedHeapSize;
         public ArrayLong references = new ArrayLong();
         public boolean isArray = false;
+        public long filePosition;
 
-        public HeapObject(int objectId, long objectAddress, ClassImpl clazz, long usedHeapSize)
+        public HeapObject(long objectAddress, ClassImpl clazz, long usedHeapSize)
         {
             super();
-            this.objectId = objectId;
             this.objectAddress = objectAddress;
             this.clazz = clazz;
             this.usedHeapSize = usedHeapSize;
@@ -73,7 +73,7 @@ public interface IHprofParserHandler
 
     void addClass(ClassImpl clazz, long filePosition, int idSize, int instsize) throws IOException;
 
-    void addObject(HeapObject object, long filePosition) throws IOException;
+    void addObject(HeapObject object) throws IOException;
 
     void reportInstanceWithClass(long id, long filePosition, long classID, int size);
 
