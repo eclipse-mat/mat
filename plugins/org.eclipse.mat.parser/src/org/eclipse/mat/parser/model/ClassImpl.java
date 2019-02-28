@@ -338,6 +338,12 @@ public class ClassImpl extends AbstractObjectImpl implements IClass, Comparable<
         this.totalSize -= heapSizePerInstance;
     }
 
+    public void removeInstanceBulk(int instanceCount, long heapSize)
+    {
+        this.instanceCount -= instanceCount;
+        this.totalSize -= heapSize;
+    }
+
     @SuppressWarnings("unchecked")
     public List<IClass> getSubclasses()
     {
