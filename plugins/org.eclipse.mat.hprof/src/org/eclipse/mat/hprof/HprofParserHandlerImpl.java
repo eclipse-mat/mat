@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.HashMapIntObject;
@@ -931,8 +932,15 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
         return lookupClass(this.identifiers.get(objIndex));
     }
 
+    ConcurrentHashMap<Long, List<IClass>> classHierarchyCache = new ConcurrentHashMap<Long, List<IClass>>();
     public List<IClass> resolveClassHierarchy(long classId)
     {
+        List<IClass> cached = classHierarchyCache.get(classId);
+        if (cached != null)
+        {
+            return cached;
+        }
+
         List<IClass> answer = new ArrayList<IClass>();
 
         ClassImpl clazz = classesByAddress.get(classId);
@@ -944,6 +952,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
             answer.add(clazz);
         }
 
+        classHierarchyCache.put(classId, answer);
         return answer;
     }
 
