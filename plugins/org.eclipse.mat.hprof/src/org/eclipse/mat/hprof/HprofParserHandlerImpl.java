@@ -26,7 +26,9 @@ import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.collect.HashMapLongObject;
 import org.eclipse.mat.collect.HashMapLongObject.Entry;
+import org.eclipse.mat.hprof.IHprofParserHandler.HeapObject;
 import org.eclipse.mat.hprof.ui.HprofPreferences;
+import org.eclipse.mat.hprof.ui.HprofPreferences.HprofStrictness;
 import org.eclipse.mat.collect.IteratorLong;
 import org.eclipse.mat.parser.IPreliminaryIndex;
 import org.eclipse.mat.parser.index.IIndexReader.IOne2LongIndex;
@@ -35,6 +37,9 @@ import org.eclipse.mat.parser.index.IndexWriter;
 import org.eclipse.mat.parser.index.IntArray1NWriter;
 import org.eclipse.mat.parser.index.IntIndexCollector;
 import org.eclipse.mat.parser.index.LongIndexCollector;
+import org.eclipse.mat.parser.io.ByteArrayPositionInputStream;
+import org.eclipse.mat.parser.io.DefaultPositionInputStream;
+import org.eclipse.mat.parser.io.PositionInputStream;
 import org.eclipse.mat.parser.model.ClassImpl;
 import org.eclipse.mat.parser.model.PrimitiveArrayImpl;
 import org.eclipse.mat.parser.model.XGCRootInfo;
@@ -45,8 +50,10 @@ import org.eclipse.mat.snapshot.model.GCRootInfo;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IPrimitiveArray;
+import org.eclipse.mat.snapshot.model.ObjectReference;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
+import org.eclipse.mat.util.IProgressListener.Severity;
 
 public class HprofParserHandlerImpl implements IHprofParserHandler
 {
@@ -203,8 +210,8 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
         HeapObject heapObject = new HeapObject(0, classLoaderClass, classLoaderClass
                         .getHeapSizePerInstance());
         heapObject.references.add(classLoaderClass.getObjectAddress());
-        heapObject.filePosition = 0;
-        this.addObject(heapObject);
+        this.addObject(heapObject, true);
+
     }
 
     /**
@@ -675,16 +682,148 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
         }
     }
 
+    private void prepareHeapObject(HeapObject object) throws IOException
+    {
+        if (object.isPrimitiveArray)
+        {
+            byte elementType = (byte) object.classIdOrElementType;
+            ClassImpl clazz = (ClassImpl) lookupPrimitiveArrayClassByType(elementType);
+            object.usedHeapSize = getPrimitiveArrayHeapSize(elementType, object.arraySize);
+            object.references.add(clazz.getObjectAddress());
+            object.clazz = clazz;
+        }
+
+        if (object.isObjectArray)
+        {
+            long arrayClassObjectID = object.classIdOrElementType;
+            ClassImpl arrayType = (ClassImpl) lookupClass(arrayClassObjectID);
+            if (arrayType == null)
+                throw new RuntimeException(MessageUtil.format(
+                                Messages.Pass2Parser_Error_HandlerMustCreateFakeClassForAddress,
+                                Long.toHexString(arrayClassObjectID)));
+
+            object.usedHeapSize = getObjectArrayHeapSize(arrayType, object.arraySize);
+            object.references.add(arrayType.getObjectAddress());
+            long[] ids = object.ids;
+            for (int ii = 0; ii < object.arraySize; ii++)
+            {
+                if (ids[ii] != 0)
+                    object.references.add(ids[ii]);
+            }
+            object.clazz = arrayType;
+        }
+
+        if (!object.isObjectArray && !object.isPrimitiveArray)
+        {
+            long classID = object.classIdOrElementType;
+            List<IClass> hierarchy = resolveClassHierarchy(classID);
+            ByteArrayPositionInputStream in = new ByteArrayPositionInputStream(object.instanceData, object.idSize);
+
+            ClassImpl thisClazz = (ClassImpl) hierarchy.get(0);
+
+            IClass objcl = lookupClass(object.objectAddress);
+            Field statics[] = new Field[0];
+            if (objcl instanceof ClassImpl)
+            {
+                // An INSTANCE_DUMP record for a class type
+                // This clazz is perhaps of different actual type, not java.lang.Class
+                // The true type has already been set in PassParser1 and beforePass2()
+                ClassImpl objcls = (ClassImpl) objcl;
+                statics = objcls.getStaticFields().toArray(statics);
+                // Heap size of each class type object is individual as have statics
+                object.clazz = thisClazz;
+                object.usedHeapSize = objcls.getUsedHeapSize();
+                // and extract the class references
+                object.references.addAll(objcls.getReferences());
+            }
+            else
+            {
+                object.clazz = thisClazz;
+                object.usedHeapSize = thisClazz.getHeapSizePerInstance();
+                object.references.add(thisClazz.getObjectAddress());
+            }
+
+            // extract outgoing references
+            int pos = 0;
+            for (IClass clazz : hierarchy)
+            {
+                for (FieldDescriptor field : clazz.getFieldDescriptors())
+                {
+                    int type = field.getType();
+                    // Find match for pseudo-statics
+                    Field stField = null;
+                    for (int stidx = 0; stidx < statics.length; ++stidx)
+                    {
+                        if (statics[stidx] != null && statics[stidx].getType() == type && statics[stidx].getName().equals("<"+field.getName()+">")) { //$NON-NLS-1$ //$NON-NLS-2$
+                            // Found a field
+                            stField = statics[stidx];
+                            // Don't use this twice.
+                            statics[stidx] = null;
+                            break;
+                        }
+                    }
+                    if (type == IObject.Type.OBJECT)
+                    {
+                        long refId = in.readID(object.idSize);
+                        pos += object.idSize;
+                        if (refId != 0)
+                        {
+                            object.references.add(refId);
+                            if (stField != null)
+                            {
+                                stField.setValue(new ObjectReference(null, refId));
+                            }
+                        }
+                    }
+                    else
+                    {
+                        Object value = AbstractParser.readValue(in, null, type, object.idSize);
+                        if (stField != null)
+                            stField.setValue(value);
+                    }
+                }
+            }
+
+            if (pos != object.instanceData.length)
+            {
+                boolean unknown = false;
+                for (IClass clazz : hierarchy)
+                {
+                    if (clazz.getName().startsWith("unknown-class")) //$NON-NLS-1$
+                    {
+                        unknown = true;
+                    }
+                }
+
+                // TODO get the strictness settings across from eclipse
+//                if (unknown && (strictnessPreference == HprofStrictness.STRICTNESS_WARNING || strictnessPreference == HprofStrictness.STRICTNESS_PERMISSIVE))
+//                {
+//                    //monitor.sendUserMessage(Severity.WARNING, MessageUtil.format(Messages.Pass2Parser_Error_InsufficientBytesRead, thisClazz.getName(), Long.toHexString(id), Long.toHexString(segmentStartPos), Long.toHexString(endPos), Long.toHexString(in.position())), null);
+//                }
+//                else
+//                {
+//                    throw new IOException(MessageUtil.format(Messages.Pass2Parser_Error_InsufficientBytesRead, thisClazz.getName(), Long.toHexString(id), Long.toHexString(segmentStartPos), Long.toHexString(endPos), Long.toHexString(in.position())));
+//                }
+            }
+        }
+
+    }
     public void addObject(HeapObject object) throws IOException
     {
+        addObject(object, false);
+    }
+
+    private void addObject(HeapObject object, boolean prepared) throws IOException
+    {
+        if (!prepared)
+            prepareHeapObject(object);
+
         // this may be called from multiple threads
         // so, each function called inside here needs to be threadsafe
         // it will not do to simply synchronize here as we need
         // better concurrency than that
 
-        final long filePosition = object.filePosition;
-        object.objectId = mapAddressToId(object.objectAddress);
-        int index = object.objectId;
+        int index = mapAddressToId(object.objectAddress);
 
         // check if some thread to local variables references have to be added
         HashMapLongObject<List<XGCRootInfo>> localVars = threadAddressToLocals.get(object.objectAddress);
@@ -705,10 +844,10 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
 
         // log address
         object2classId.set(index, classIndex);
-        object2position.set(index, filePosition);
+        object2position.set(index, object.filePosition);
 
         // log array size
-        if (object.isArray)
+        if (object.isPrimitiveArray || object.isObjectArray)
             array2size.set(index, object.usedHeapSize);
     }
 

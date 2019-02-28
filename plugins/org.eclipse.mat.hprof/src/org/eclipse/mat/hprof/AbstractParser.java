@@ -212,6 +212,34 @@ import org.eclipse.mat.util.SimpleMonitor.Listener;
         }
     }
 
+    public static Object readValue(PositionInputStream in, ISnapshot snapshot, int type, int idSize) throws IOException
+    {
+        switch (type)
+        {
+            case IObject.Type.OBJECT:
+                long id = in.readID(idSize);
+                return id == 0 ? null : new ObjectReference(snapshot, id);
+            case IObject.Type.BOOLEAN:
+                return in.readByte() != 0;
+            case IObject.Type.CHAR:
+                return in.readChar();
+            case IObject.Type.FLOAT:
+                return in.readFloat();
+            case IObject.Type.DOUBLE:
+                return in.readDouble();
+            case IObject.Type.BYTE:
+                return in.readByte();
+            case IObject.Type.SHORT:
+                return in.readShort();
+            case IObject.Type.INT:
+                return in.readInt();
+            case IObject.Type.LONG:
+                return in.readLong();
+            default:
+                throw new IOException(MessageUtil.format(Messages.AbstractParser_Error_IllegalType, type, in.position()));
+        }
+    }
+
     protected void skipValue(PositionInputStream in) throws IOException
     {
         byte type = in.readByte();
