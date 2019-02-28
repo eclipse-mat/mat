@@ -331,7 +331,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
                 while (identifiers.reverse(++nextObjectAddress) >= 0)
                 {}
                 IClass type = new ClassImpl(nextObjectAddress, cls, jlo, 0, new Field[0], new FieldDescriptor[0]);
-                addClass((ClassImpl) type, -1);
+                addFakeClass((ClassImpl) type, -1);
             }
         }
         
@@ -354,7 +354,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
                     arrayType = new ClassImpl(arrayClassID, "unknown-class-"+clsid+"[]", jlo, 0, new Field[0], //$NON-NLS-1$ //$NON-NLS-2$
                                     new FieldDescriptor[0]);
                     ++clsid;
-                    addClass((ClassImpl) arrayType, -1);
+                    addFakeClass((ClassImpl) arrayType, -1);
                 }
             }
         }
@@ -372,7 +372,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
                     {}
 
                     clazz = new ClassImpl(nextObjectAddress, name, jlo, 0, new Field[0], new FieldDescriptor[0]);
-                    addClass((ClassImpl) clazz, -1);
+                    addFakeClass((ClassImpl) clazz, -1);
                 }
 
             }
@@ -419,7 +419,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
                     }
                     type = new ClassImpl(classID, "unknown-class-"+clsid, jlo, 0, new Field[0], fds); //$NON-NLS-1$
                     ++clsid;
-                    addClass((ClassImpl) type, -1);
+                    addFakeClass((ClassImpl) type, -1);
                 }
             }
         }
@@ -633,7 +633,18 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
         r.add(new XGCRootInfo(id, referrer, rootType));
     }
 
-    public void addClass(ClassImpl clazz, long filePosition) throws IOException
+    private void addFakeClass(ClassImpl clazz, long filePosition) throws IOException
+    {
+        this.identifiers.add(clazz.getObjectAddress());
+        this.classesByAddress.put(clazz.getObjectAddress(), clazz);
+
+        List<ClassImpl> list = classesByName.get(clazz.getName());
+        if (list == null)
+            classesByName.put(clazz.getName(), list = new ArrayList<ClassImpl>());
+        list.add(clazz);
+    }
+
+    public void addClass(ClassImpl clazz, long filePosition, int idSize, int instsize) throws IOException
     {
         this.identifiers.add(clazz.getObjectAddress());
         this.classesByAddress.put(clazz.getObjectAddress(), clazz);
@@ -674,26 +685,40 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
             array2size.set(index, object.usedHeapSize);
     }
 
-    public void reportInstance(long id, long filePosition)
+    private void reportInstance(long id, long filePosition)
     {
-        // Check for INSTANCE_DUMP for an existing class object
-        if (!classesByAddress.containsKey(id))
-        {
-            this.identifiers.add(id);
-        }
+        this.identifiers.add(id);
     }
 
-    public void reportRequiredObjectArray(long arrayClassID)
+    public void reportInstanceWithClass(long id, long filePosition, long classID, int size)
+    {
+        reportInstance(id, filePosition);
+        reportRequiredClass(classID, size);
+    }
+    
+    public void reportInstanceOfObjectArray(long id, long filePosition, long arrayClassID)
+    {
+        reportInstance(id, filePosition);
+        reportRequiredObjectArray(arrayClassID);
+    }
+
+    public void reportInstanceOfPrimitiveArray(long id, long filePosition, int arrayType)
+    {
+        reportInstance(id, filePosition);
+        reportRequiredPrimitiveArray(arrayType);
+    }
+    
+    private void reportRequiredObjectArray(long arrayClassID)
     {
         requiredArrayClassIDs.add(arrayClassID);
     }
-
-    public void reportRequiredPrimitiveArray(int arrayType)
+    
+    private void reportRequiredPrimitiveArray(int arrayType)
     {
         requiredPrimitiveArrays.add(arrayType);
     }
 
-    public void reportRequiredClass(long classID, int size)
+    private void reportRequiredClass(long classID, int size)
     {
         if (requiredClassIDs.containsKey(classID))
         {

@@ -71,18 +71,16 @@ public interface IHprofParserHandler
 
     void addGCRoot(long id, long referrer, int rootType) throws IOException;
 
-    void addClass(ClassImpl clazz, long filePosition) throws IOException;
+    void addClass(ClassImpl clazz, long filePosition, int idSize, int instsize) throws IOException;
 
     void addObject(HeapObject object, long filePosition) throws IOException;
 
-    void reportInstance(long id, long filePosition);
+    void reportInstanceWithClass(long id, long filePosition, long classID, int size);
 
-    void reportRequiredObjectArray(long arrayClassID);
+    void reportInstanceOfObjectArray(long id, long filePosition, long arrayClassID);
 
-    void reportRequiredPrimitiveArray(int arrayType);
+    void reportInstanceOfPrimitiveArray(long id, long filePosition, int arrayType);
     
-    void reportRequiredClass(long classID, int size);
-
     // //////////////////////////////////////////////////////////////
     // lookup heap infos
     // //////////////////////////////////////////////////////////////
