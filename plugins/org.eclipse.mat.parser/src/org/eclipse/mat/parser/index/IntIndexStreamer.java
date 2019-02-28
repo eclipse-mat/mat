@@ -6,6 +6,13 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.ref.SoftReference;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.mat.collect.ArrayIntCompressed;
 import org.eclipse.mat.collect.ArrayLong;
@@ -18,6 +25,21 @@ public class IntIndexStreamer extends IntIndex<SoftReference<ArrayIntCompressed>
     ArrayLong pageStart;
     int[] page;
     int left;
+
+    // tracks number of pages added, may not be available if they are still being compressed
+    int pagesAdded;
+
+    // if the writer task has an exception during async we want to throw it on the next write
+    Exception storedException = null;
+
+    // TODO bound these queues
+    // for the moment it is ok, as the compress and write stage is fast
+    // could do more threads but no point
+    final ExecutorService compressor = Executors.newSingleThreadExecutor(
+            r -> new Thread(r, "IntIndexStreamer-Compressor"));
+    // this must be single threaded to ensure page update logic stays correct
+    final ExecutorService writer = Executors.newSingleThreadExecutor(
+            r -> new Thread(r, "IntIndexStreamer-Writer"));
 
     public IIndexReader.IOne2OneIndex writeTo(File indexFile, IteratorInt iterator) throws IOException
     {
@@ -83,6 +105,18 @@ public class IntIndexStreamer extends IntIndex<SoftReference<ArrayIntCompressed>
     {
         if (left < page.length)
             addPage();
+
+        try
+        {
+            compressor.shutdown();
+            compressor.awaitTermination(100, TimeUnit.SECONDS);
+            writer.shutdown();
+            writer.awaitTermination(100, TimeUnit.SECONDS);
+        }
+        catch (InterruptedException ie)
+        {
+            throw new IOException(ie);
+        }
 
         // write header information
         for (int jj = 0; jj < pageStart.size(); jj++)
@@ -154,15 +188,12 @@ public class IntIndexStreamer extends IntIndex<SoftReference<ArrayIntCompressed>
 
     private void addPage() throws IOException
     {
-        ArrayIntCompressed array = new ArrayIntCompressed(page, 0, page.length - left);
+        Future<byte[]> compressionResult = compressor.submit(new CompressionTask(page, left, pagesAdded));
+        // compression may finish in any order, but writes have to be correct, so order them
+        writer.execute(new WriterTask(compressionResult));
 
-        byte[] buffer = array.toByteArray();
-        out.write(buffer);
-        int written = buffer.length;
-
-        pages.put(pages.size(), new SoftReference<ArrayIntCompressed>(array));
-        pageStart.add(pageStart.lastElement() + written);
-
+        pagesAdded += 1;
+        page = new int[page.length];
         left = page.length;
     }
 
@@ -172,4 +203,59 @@ public class IntIndexStreamer extends IntIndex<SoftReference<ArrayIntCompressed>
         throw new UnsupportedOperationException();
     }
 
+    /*
+     * Compresses a page of data to a byte array
+     */
+    private class CompressionTask implements Callable<byte[]>
+    {
+        final int[] page;
+        final int left;
+        final int pageNumber;
+        public CompressionTask(final int[] page, final int left, final int pageNumber)
+        {
+            this.page = page;
+            this.left = left;
+            this.pageNumber = pageNumber;
+        }
+
+        public byte[] call()
+        {
+            ArrayIntCompressed array = new ArrayIntCompressed(page, 0, page.length - left);
+            pages.put(pageNumber, new SoftReference<ArrayIntCompressed>(array));
+            return array.toByteArray();
+        }
+    }
+
+    /*
+     * Writes data to output
+     * Assumes there is only a single WriterTask that can ever be running
+     */
+    private class WriterTask implements Runnable {
+        final Future<byte[]> byteData;
+        public WriterTask(final Future<byte[]> byteData) throws IOException
+        {
+            this.byteData = byteData;
+            if (storedException != null)
+            {
+                throw new IOException("stored IO exception from writer", storedException);
+            }
+        }
+
+        public void run() {
+            byte[] buffer;
+            try
+            {
+                buffer = byteData.get();
+                out.write(buffer);
+                int written = buffer.length;
+
+                // update the shared page list
+                pageStart.add(pageStart.lastElement() + written);
+            }
+            catch (InterruptedException | ExecutionException | IOException e)
+            {
+                storedException = e;
+            }
+        }
+    }
 }
