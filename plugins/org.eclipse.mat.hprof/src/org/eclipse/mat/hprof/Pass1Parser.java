@@ -26,7 +26,6 @@ import java.util.regex.Pattern;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.HashMapLongObject;
-import org.eclipse.mat.collect.HashMapLongObject.Entry;
 import org.eclipse.mat.hprof.ui.HprofPreferences;
 import org.eclipse.mat.parser.io.BufferingRafPositionInputStream;
 import org.eclipse.mat.parser.io.PositionInputStream;
@@ -35,8 +34,6 @@ import org.eclipse.mat.snapshot.MultipleSnapshotsException;
 import org.eclipse.mat.snapshot.model.Field;
 import org.eclipse.mat.snapshot.model.FieldDescriptor;
 import org.eclipse.mat.snapshot.model.GCRootInfo;
-import org.eclipse.mat.snapshot.model.IClass;
-import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IObject.Type;
 import org.eclipse.mat.snapshot.model.IPrimitiveArray;
 import org.eclipse.mat.snapshot.model.ObjectReference;
@@ -58,7 +55,6 @@ public class Pass1Parser extends AbstractParser
     private HashMapLongObject<StackFrame> id2frame = new HashMapLongObject<StackFrame>();
     private HashMapLongObject<StackTrace> serNum2stackTrace = new HashMapLongObject<StackTrace>();
     private HashMapLongObject<Long> classSerNum2id = new HashMapLongObject<Long>();
-    private HashMapLongObject<Long> class2type = new HashMapLongObject<Long>();
     private HashMapLongObject<List<JavaLocal>> thread2locals = new HashMapLongObject<List<JavaLocal>>();
     private HashMapLongObject<String> constantPool = new HashMapLongObject<String>();
     private IHprofParserHandler handler;
@@ -587,8 +583,13 @@ public class Pass1Parser extends AbstractParser
         ClassImpl clazz = new ClassImpl(address, className, superClassObjectId, classLoaderObjectId, statics, fields);
         // This will be replaced by a size calculated from the field sizes
         clazz.setHeapSizePerInstance(instsize);
-        handler.addClass(clazz, segmentStartPos);
-        
+        handler.addClass(clazz, segmentStartPos, idSize, instsize);
+
+        // TODO do we actually need this code?
+        // if so - move it to HprofParserHandlerImpl
+        // instanceaddress2classID was a HashMapLongObject<Long>
+
+        /*
         // Just in case the superclass is missing
         if (superClassObjectId != 0 && handler.lookupClass(superClassObjectId) == null)
         {
@@ -608,17 +609,18 @@ public class Pass1Parser extends AbstractParser
         }
 
         // Check / set types of classes
-        if (class2type.containsKey(address))
+        if (instanceaddress2classID.containsKey(address))
         {
             // Already seen an instance dump for class type
-            long typeId = class2type.get(address);
-            IClass type = handler.lookupClass(typeId);
+            long classId = instanceaddress2classID.get(address);
+            IClass type = handler.lookupClass(classId);
             if (type instanceof ClassImpl)
             {
                 clazz.setClassInstance((ClassImpl)type);
             }
         }
-        for (Iterator<Entry<Long>>it = class2type.entries(); it.hasNext(); )
+
+        for (Iterator<Entry<Long>>it = instanceaddress2classID.entries(); it.hasNext(); )
         {
             Entry<Long>e = it.next();
             if (e.getValue() == address)
@@ -632,38 +634,19 @@ public class Pass1Parser extends AbstractParser
                 }
             }
         }
+        */
     }
 
     private void readInstanceDump(long segmentStartPos) throws IOException
     {
         long address = in.readID(idSize);
-        handler.reportInstance(address, segmentStartPos);
         in.skipBytes(4); // stack trace serial
         long classID = in.readID(idSize);
         int payload = in.readInt();
-        // check if class needs to be created
-        IClass instanceType = handler.lookupClass(classID);
-        if (instanceType == null)
-            handler.reportRequiredClass(classID, payload);
-        else
-        {
-            // If this is a instance record for a class
-            IClass instanceCls = handler.lookupClass(address);
-            if (instanceCls instanceof ClassImpl)
-            {
-                // Set the type here
-                ClassImpl instClsImpl = (ClassImpl)instanceCls;
-                instClsImpl.setClassInstance((ClassImpl) instanceType);
-            }
-        }
-        // Is this actually a class?
-        if (class2name.containsKey(address))
-        {
-            // record its type
-            class2type.put(address, classID);
-        }
 
         in.skipBytes(payload);
+
+        handler.reportInstanceWithClass(address, segmentStartPos, classID, payload);
     }
 
     private void readObjectArrayDump(long segmentStartPos) throws IOException
@@ -679,26 +662,20 @@ public class Pass1Parser extends AbstractParser
             foundCompressed = true;
         }
 
-        handler.reportInstance(address, segmentStartPos);
-
         in.skipBytes(4); // stack trace serial
         int size = in.readInt();
         long arrayClassObjectID = in.readID(idSize);
 
-        // check if class needs to be created
-        IClass arrayType = handler.lookupClass(arrayClassObjectID);
-        if (arrayType == null)
-            handler.reportRequiredObjectArray(arrayClassObjectID);
-
         in.skipBytes((long) size * idSize);
         previousArrayStart = address;
         previousArrayUncompressedEnd = address + 16 + (long)size * 8;
+
+        handler.reportInstanceOfObjectArray(address,  segmentStartPos, arrayClassObjectID);
     }
 
     private void readPrimitiveArrayDump(long segmentStartPos) throws SnapshotException, IOException
     {
         long address = in.readID(idSize);
-        handler.reportInstance(address, segmentStartPos);
 
         in.skipBytes(4);
         int size = in.readInt();
@@ -707,14 +684,10 @@ public class Pass1Parser extends AbstractParser
         if ((elementType < IPrimitiveArray.Type.BOOLEAN) || (elementType > IPrimitiveArray.Type.LONG))
             throw new SnapshotException(Messages.Pass1Parser_Error_IllegalType);
 
-        // check if class needs to be created
-        String name = IPrimitiveArray.TYPE[elementType];
-        IClass clazz = handler.lookupClassByName(name, true);
-        if (clazz == null)
-            handler.reportRequiredPrimitiveArray(elementType);
-
         int elementSize = IPrimitiveArray.ELEMENT_SIZE[elementType];
         in.skipBytes((long) elementSize * size);
+
+        handler.reportInstanceOfPrimitiveArray(address, segmentStartPos, elementType);
     }
 
     private String getStringConstant(long address)
