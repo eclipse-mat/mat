@@ -11,9 +11,7 @@
  *******************************************************************************/
 package org.eclipse.mat.hprof;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
 
@@ -21,7 +19,7 @@ import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.hprof.IHprofParserHandler.HeapObject;
 import org.eclipse.mat.hprof.ui.HprofPreferences;
 import org.eclipse.mat.hprof.ui.HprofPreferences.HprofStrictness;
-import org.eclipse.mat.parser.io.DefaultPositionInputStream;
+import org.eclipse.mat.parser.io.BufferingRafPositionInputStream;
 import org.eclipse.mat.parser.io.PositionInputStream;
 import org.eclipse.mat.parser.model.ClassImpl;
 import org.eclipse.mat.snapshot.model.Field;
@@ -55,7 +53,7 @@ public class Pass2Parser extends AbstractParser
 
     public void read(File file, String dumpNrToRead) throws SnapshotException, IOException
     {
-        in = new DefaultPositionInputStream(new BufferedInputStream(new FileInputStream(file)));
+        in = new BufferingRafPositionInputStream(file, 0, 8*1024);
 
         int currentDumpNr = 0;
 
