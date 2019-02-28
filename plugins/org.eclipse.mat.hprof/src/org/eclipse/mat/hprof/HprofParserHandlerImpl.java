@@ -63,9 +63,10 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
     private IndexWriter.LongIndexCollector object2position = null;
     private IndexWriter.SizeIndexCollectorUncompressed array2size = null;
 
-    private Set<Long> requiredArrayClassIDs = new HashSet<Long>();
-    private Set<Integer> requiredPrimitiveArrays = new HashSet<Integer>();
-    private HashMapLongObject<Integer> requiredClassIDs = new HashMapLongObject<Integer>();
+    private HashMap<Long, Boolean> requiredArrayClassIDs = new HashMap<Long, Boolean>();
+    private HashMap<Long, Integer> requiredClassIDs = new HashMap<Long, Integer>();
+    private IClass[] primitiveArrays = new IClass[IPrimitiveArray.TYPE.length];
+    private boolean[] requiredPrimitiveArrays = new boolean[IPrimitiveArray.COMPONENT_TYPE.length];
 
     private HashMapLongObject<HashMapLongObject<List<XGCRootInfo>>> threadAddressToLocals = new HashMapLongObject<HashMapLongObject<List<XGCRootInfo>>>();
 
@@ -338,7 +339,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
         // create required (fake) classes for arrays
         if (!requiredArrayClassIDs.isEmpty())
         {
-            for (long arrayClassID : requiredArrayClassIDs)
+            for (long arrayClassID : requiredArrayClassIDs.keySet())
             {
                 IClass arrayType = lookupClass(arrayClassID);
                 if (arrayType == null)
@@ -360,9 +361,9 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
         }
         requiredArrayClassIDs = null;
 
-        if (!requiredPrimitiveArrays.isEmpty())
+        for(int arrayType = 0; arrayType < requiredPrimitiveArrays.length; arrayType++)
         {
-            for (Integer arrayType : requiredPrimitiveArrays)
+            if (requiredPrimitiveArrays[arrayType])
             {
                 String name = IPrimitiveArray.TYPE[arrayType];
                 IClass clazz = lookupClassByName(name, true);
@@ -374,16 +375,15 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
                     clazz = new ClassImpl(nextObjectAddress, name, jlo, 0, new Field[0], new FieldDescriptor[0]);
                     addFakeClass((ClassImpl) clazz, -1);
                 }
-
+                primitiveArrays[arrayType] = clazz;
             }
         }
 
         // create required (fake) classes for objects
         if (!requiredClassIDs.isEmpty())
         {
-            for (Iterator<HashMapLongObject.Entry<Integer>> it = requiredClassIDs.entries(); it.hasNext(); )
+            for (Map.Entry<Long, Integer> e : requiredClassIDs.entrySet())
             {
-                HashMapLongObject.Entry<Integer> e = it.next();
                 long classID = e.getKey();
                 IClass type = lookupClass(classID);
                 if (type == null)
@@ -653,6 +653,22 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
         if (list == null)
             classesByName.put(clazz.getName(), list = new ArrayList<ClassImpl>());
         list.add(clazz);
+
+        if (clazz.getSuperClassAddress() != 0) {
+            // Try to calculate how big the superclass should be
+            int ownFieldsSize = 0;
+            for (FieldDescriptor field : clazz.getFieldDescriptors())
+            {
+                int type = field.getType();
+                if (type == IObject.Type.OBJECT)
+                    ownFieldsSize += idSize;
+                else
+                    ownFieldsSize += IPrimitiveArray.ELEMENT_SIZE[type];
+            }
+            int supersize = Math.max(instsize - ownFieldsSize, 0);
+            // A real size of an instance will override this
+            reportRequiredClass(clazz.getSuperClassAddress(), supersize, false);
+        }
     }
 
     public void addObject(HeapObject object, long filePosition) throws IOException
@@ -693,7 +709,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
     public void reportInstanceWithClass(long id, long filePosition, long classID, int size)
     {
         reportInstance(id, filePosition);
-        reportRequiredClass(classID, size);
+        reportRequiredClass(classID, size, true);
     }
     
     public void reportInstanceOfObjectArray(long id, long filePosition, long arrayClassID)
@@ -710,27 +726,23 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
     
     private void reportRequiredObjectArray(long arrayClassID)
     {
-        requiredArrayClassIDs.add(arrayClassID);
+        requiredArrayClassIDs.putIfAbsent(arrayClassID, true);
     }
     
     private void reportRequiredPrimitiveArray(int arrayType)
     {
-        requiredPrimitiveArrays.add(arrayType);
+        requiredPrimitiveArrays[arrayType] = true;
     }
 
-    private void reportRequiredClass(long classID, int size)
+    private void reportRequiredClass(long classID, int size, boolean sizeKnown)
     {
-        if (requiredClassIDs.containsKey(classID))
+        if (sizeKnown)
         {
-            if (requiredClassIDs.get(classID) > size)
-            {
-                // Make the size the minimum
-                requiredClassIDs.put(classID, size);
-            }
+            requiredClassIDs.put(classID, size);
         }
         else
         {
-            requiredClassIDs.put(classID, size);
+            requiredClassIDs.putIfAbsent(classID, size);
         }
     }
     
