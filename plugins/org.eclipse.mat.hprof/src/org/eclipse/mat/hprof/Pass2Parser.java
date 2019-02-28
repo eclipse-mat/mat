@@ -139,6 +139,7 @@ public class Pass2Parser extends AbstractParser
             }
 
             int segmentType = in.readUnsignedByte();
+            HeapObject heapObject = null;
             switch (segmentType)
             {
                 case Constants.DumpSegment.ROOT_UNKNOWN:
@@ -162,17 +163,21 @@ public class Pass2Parser extends AbstractParser
                     skipClassDump();
                     break;
                 case Constants.DumpSegment.INSTANCE_DUMP:
-                    readInstanceDump(segmentStartPos);
+                    heapObject = readInstanceDump(segmentStartPos);
                     break;
                 case Constants.DumpSegment.OBJECT_ARRAY_DUMP:
-                    readObjectArrayDump(segmentStartPos);
+                    heapObject = readObjectArrayDump(segmentStartPos);
                     break;
                 case Constants.DumpSegment.PRIMITIVE_ARRAY_DUMP:
-                    readPrimitiveArrayDump(segmentStartPos);
+                    heapObject = readPrimitiveArrayDump(segmentStartPos);
                     break;
                 default:
                     throw new SnapshotException(MessageUtil.format(Messages.Pass1Parser_Error_InvalidHeapDumpFile,
                                     Integer.toHexString(segmentType), Long.toHexString(segmentStartPos)));
+            }
+            if (heapObject != null)
+            {
+                handler.addObject(heapObject);
             }
             segmentStartPos = in.position();
         }
@@ -200,13 +205,17 @@ public class Pass2Parser extends AbstractParser
         in.skipBytes((idSize + 1) * numInstanceFields);
     }
 
-    private void readInstanceDump(long segmentStartPos) throws IOException
+    private HeapObject readInstanceDump(long segmentStartPos) throws IOException
     {
         long id = in.readID(idSize);
         in.skipBytes(4);
         long classID = in.readID(idSize);
         int bytesFollowing = in.readInt();
         long endPos = in.position() + bytesFollowing;
+
+        //// long classID, long id, remainder of data
+        // TODO is there a way to read the remaining bytes early
+        // so that we can do full processing later?
 
         List<IClass> hierarchy = handler.resolveClassHierarchy(classID);
 
@@ -297,16 +306,24 @@ public class Pass2Parser extends AbstractParser
         }
 
         heapObject.filePosition = segmentStartPos;
-        handler.addObject(heapObject);
+        return heapObject;
     }
 
-    private void readObjectArrayDump(long segmentStartPos) throws IOException
+    private HeapObject readObjectArrayDump(long segmentStartPos) throws IOException
     {
         long id = in.readID(idSize);
 
         in.skipBytes(4);
         int size = in.readInt();
         long arrayClassObjectID = in.readID(idSize);
+
+        long[] ids = new long[size];
+        for(int i = 0; i < size; i++)
+        {
+            ids[i] = in.readID(idSize);
+        }
+
+        //// long arrayClassObjectID, long size, long id, long[] ids
 
         ClassImpl arrayType = (ClassImpl) handler.lookupClass(arrayClassObjectID);
         if (arrayType == null)
@@ -321,16 +338,15 @@ public class Pass2Parser extends AbstractParser
 
         for (int ii = 0; ii < size; ii++)
         {
-            long refId = in.readID(idSize);
-            if (refId != 0)
-                heapObject.references.add(refId);
+            if (ids[ii] != 0)
+                heapObject.references.add(ids[ii]);
         }
 
         heapObject.filePosition = segmentStartPos;
-        handler.addObject(heapObject);
+        return heapObject;
     }
 
-    private void readPrimitiveArrayDump(long segmentStartPos) throws SnapshotException, IOException
+    private HeapObject readPrimitiveArrayDump(long segmentStartPos) throws SnapshotException, IOException
     {
         long id = in.readID(idSize);
 
@@ -344,6 +360,8 @@ public class Pass2Parser extends AbstractParser
         int elementSize = IPrimitiveArray.ELEMENT_SIZE[elementType];
         in.skipBytes((long) elementSize * size);
 
+        //// byte elementType, int size, long id
+
         ClassImpl clazz = (ClassImpl) handler.lookupPrimitiveArrayClassByType(elementType);
 
         long usedHeapSize = handler.getPrimitiveArrayHeapSize(elementType, size);
@@ -352,7 +370,7 @@ public class Pass2Parser extends AbstractParser
         heapObject.isArray = true;
 
         heapObject.filePosition = segmentStartPos;
-        handler.addObject(heapObject);
+        return heapObject;
     }
 
 }
