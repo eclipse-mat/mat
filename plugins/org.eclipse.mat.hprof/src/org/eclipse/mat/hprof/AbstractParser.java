@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.eclipse.mat.hprof.ui.HprofPreferences;
-import org.eclipse.mat.parser.io.DefaultPositionInputStream;
+import org.eclipse.mat.parser.io.PositionInputStream;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IPrimitiveArray;
@@ -96,7 +96,6 @@ import org.eclipse.mat.util.SimpleMonitor.Listener;
         }
     }
 
-    protected DefaultPositionInputStream in;
     protected Version version;
     // The size of identifiers in the dump file
     protected int idSize;
@@ -105,6 +104,42 @@ import org.eclipse.mat.util.SimpleMonitor.Listener;
     /* package */AbstractParser(HprofPreferences.HprofStrictness strictnessPreference)
     {
         this.strictnessPreference = strictnessPreference;
+    }
+
+    /* protected */static Version readVersion(PositionInputStream in) throws IOException
+    {
+        StringBuilder version = new StringBuilder();
+
+        int bytesRead = 0;
+        while (bytesRead < 20)
+        {
+            byte b = (byte) in.read();
+            bytesRead++;
+
+            if (b != 0)
+            {
+                version.append((char) b);
+            }
+            else
+            {
+                Version answer = Version.byLabel(version.toString());
+                if (answer == null)
+                {
+                    if (bytesRead <= 13) // did not read "JAVA PROFILE "
+                        throw new IOException(Messages.AbstractParser_Error_NotHeapDump);
+                    else
+                        throw new IOException(MessageUtil.format(Messages.AbstractParser_Error_UnknownHPROFVersion,
+                                        version.toString()));
+                }
+
+                if (answer == Version.JDK12BETA3) // not supported by MAT
+                    throw new IOException(MessageUtil.format(Messages.AbstractParser_Error_UnsupportedHPROFVersion,
+                                    answer.getLabel()));
+                return answer;
+            }
+        }
+
+        throw new IOException(Messages.AbstractParser_Error_InvalidHPROFHeader);
     }
 
     /* protected */static Version readVersion(InputStream in) throws IOException
@@ -143,28 +178,18 @@ import org.eclipse.mat.util.SimpleMonitor.Listener;
         throw new IOException(Messages.AbstractParser_Error_InvalidHPROFHeader);
     }
 
-    protected long readUnsignedInt() throws IOException
-    {
-        return (0x0FFFFFFFFL & in.readInt());
-    }
-
-    protected long readID() throws IOException
-    {
-        return idSize == 4 ? (0x0FFFFFFFFL & in.readInt()) : in.readLong();
-    }
-
-    protected Object readValue(ISnapshot snapshot) throws IOException
+    protected Object readValue(PositionInputStream in, ISnapshot snapshot) throws IOException
     {
         byte type = in.readByte();
-        return readValue(snapshot, type);
+        return readValue(in, snapshot, type);
     }
 
-    protected Object readValue(ISnapshot snapshot, int type) throws IOException
+    protected Object readValue(PositionInputStream in, ISnapshot snapshot, int type) throws IOException
     {
         switch (type)
         {
             case IObject.Type.OBJECT:
-                long id = readID();
+                long id = in.readID(idSize);
                 return id == 0 ? null : new ObjectReference(snapshot, id);
             case IObject.Type.BOOLEAN:
                 return in.readByte() != 0;
@@ -187,13 +212,13 @@ import org.eclipse.mat.util.SimpleMonitor.Listener;
         }
     }
 
-    protected void skipValue() throws IOException
+    protected void skipValue(PositionInputStream in) throws IOException
     {
         byte type = in.readByte();
-        skipValue(type);
+        skipValue(in, type);
     }
 
-    protected void skipValue(int type) throws IOException
+    protected void skipValue(PositionInputStream in, int type) throws IOException
     {
         if (type == IObject.Type.OBJECT)
             in.skipBytes(idSize);
