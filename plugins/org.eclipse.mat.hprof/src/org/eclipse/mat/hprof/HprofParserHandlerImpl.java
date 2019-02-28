@@ -32,6 +32,9 @@ import org.eclipse.mat.parser.IPreliminaryIndex;
 import org.eclipse.mat.parser.index.IIndexReader.IOne2LongIndex;
 import org.eclipse.mat.parser.index.IndexManager.Index;
 import org.eclipse.mat.parser.index.IndexWriter;
+import org.eclipse.mat.parser.index.IntArray1NWriter;
+import org.eclipse.mat.parser.index.IntIndexCollector;
+import org.eclipse.mat.parser.index.LongIndexCollector;
 import org.eclipse.mat.parser.model.ClassImpl;
 import org.eclipse.mat.parser.model.PrimitiveArrayImpl;
 import org.eclipse.mat.parser.model.XGCRootInfo;
@@ -58,9 +61,9 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
     private HashMapLongObject<List<XGCRootInfo>> gcRoots = new HashMapLongObject<List<XGCRootInfo>>(200);
 
     private IndexWriter.Identifier identifiers = null;
-    private IndexWriter.IntArray1NWriter outbound = null;
-    private IndexWriter.IntIndexCollector object2classId = null;
-    private IndexWriter.LongIndexCollector object2position = null;
+    private IntArray1NWriter outbound = null;
+    private IntIndexCollector object2classId = null;
+    private LongIndexCollector object2position = null;
     private IndexWriter.SizeIndexCollectorUncompressed array2size = null;
 
     private HashMap<Long, Boolean> requiredArrayClassIDs = new HashMap<Long, Boolean>();
@@ -132,11 +135,11 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
         }
 
         // create index writers
-        outbound = new IndexWriter.IntArray1NWriter(this.identifiers.size(), Index.OUTBOUND.getFile(info.getPrefix()
+        outbound = new IntArray1NWriter(this.identifiers.size(), Index.OUTBOUND.getFile(info.getPrefix()
                         + "temp."));//$NON-NLS-1$
-        object2classId = new IndexWriter.IntIndexCollector(this.identifiers.size(), IndexWriter
+        object2classId = new IntIndexCollector(this.identifiers.size(), IndexWriter
                         .mostSignificantBit(maxClassId));
-        object2position = new IndexWriter.LongIndexCollector(this.identifiers.size(), IndexWriter
+        object2position = new LongIndexCollector(this.identifiers.size(), IndexWriter
                         .mostSignificantBit(new File(this.info.getPath()).length()));
         array2size = new IndexWriter.SizeIndexCollectorUncompressed(this.identifiers.size());
 
