@@ -323,8 +323,9 @@ public class ClassImpl extends AbstractObjectImpl implements IClass, Comparable<
     /**
 	 * @since 1.0
 	 */
-    public void addInstance(long usedHeapSize)
+    public synchronized void addInstance(long usedHeapSize)
     {
+        // TODO this could be converted to atomic field updaters
         this.instanceCount++;
         this.totalSize += usedHeapSize;
     }
