@@ -32,13 +32,58 @@ public interface IHprofParserHandler
 
     public class HeapObject
     {
-        public int objectId;
         public long objectAddress;
         public ClassImpl clazz;
         public long usedHeapSize;
         public ArrayLong references = new ArrayLong();
-        public boolean isArray = false;
+        public boolean isObjectArray = false;
+        public boolean isPrimitiveArray = false;
         public long filePosition;
+        public long classIdOrElementType;
+        public int arraySize;
+        public long[] ids;
+        public byte[] instanceData;
+        public int idSize;
+
+        public static HeapObject forPrimitiveArray(long objectAddress, byte elementType, int arraySize, long filePosition)
+        {
+            HeapObject o = new HeapObject();
+            o.objectAddress = objectAddress;
+            o.isPrimitiveArray = true;
+            o.references = new ArrayLong(1);
+            o.classIdOrElementType = elementType;
+            o.arraySize = arraySize;
+            o.filePosition = filePosition;
+            return o;
+        }
+
+        public static HeapObject forObjectArray(long objectAddress, long classID, int arraySize, long[] ids, long filePosition)
+        {
+            HeapObject o = new HeapObject();
+            o.objectAddress = objectAddress;
+            o.isObjectArray = true;
+            o.references = new ArrayLong(1 + ids.length);
+            o.classIdOrElementType = classID;
+            o.arraySize = arraySize;
+            o.filePosition = filePosition;
+            o.ids = ids;
+            return o;
+        }
+
+        public static HeapObject forInstance(long objectAddress, long classID, byte[] instanceData, long filePosition, int idSize)
+        {
+            HeapObject o = new HeapObject();
+            o.objectAddress = objectAddress;
+            o.references = new ArrayLong();
+            o.classIdOrElementType = classID;
+            o.instanceData = instanceData;
+            o.filePosition = filePosition;
+            o.idSize = idSize;
+            return o;
+        }
+
+        public HeapObject()
+        { }
 
         public HeapObject(long objectAddress, ClassImpl clazz, long usedHeapSize)
         {
@@ -46,7 +91,6 @@ public interface IHprofParserHandler
             this.objectAddress = objectAddress;
             this.clazz = clazz;
             this.usedHeapSize = usedHeapSize;
-            this.isArray = false;
         }
     }
 
