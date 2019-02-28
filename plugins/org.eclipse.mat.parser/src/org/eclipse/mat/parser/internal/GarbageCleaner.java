@@ -38,6 +38,8 @@ import org.eclipse.mat.parser.index.IndexManager;
 import org.eclipse.mat.parser.index.IndexManager.Index;
 import org.eclipse.mat.parser.index.IndexReader.SizeIndexReader;
 import org.eclipse.mat.parser.index.IndexWriter;
+import org.eclipse.mat.parser.index.IntIndexStreamer;
+import org.eclipse.mat.parser.index.LongIndexStreamer;
 import org.eclipse.mat.parser.internal.snapshot.ObjectMarker;
 import org.eclipse.mat.parser.model.ClassImpl;
 import org.eclipse.mat.parser.model.XGCRootInfo;
@@ -242,7 +244,7 @@ import org.eclipse.mat.util.SilentProgressListener;
 
             File indexFile = Index.IDENTIFIER.getFile(idx.snapshotInfo.getPrefix());
             listener.subTask(MessageUtil.format(Messages.GarbageCleaner_Writing, indexFile.getAbsolutePath()));
-            idxManager.setReader(Index.IDENTIFIER, new IndexWriter.LongIndexStreamer().writeTo(indexFile, id2a));
+            idxManager.setReader(Index.IDENTIFIER, new LongIndexStreamer().writeTo(indexFile, id2a));
 
             if (listener.isCanceled())
                 throw new IProgressListener.OperationCanceledException();
@@ -254,7 +256,7 @@ import org.eclipse.mat.util.SilentProgressListener;
 
             indexFile = Index.O2CLASS.getFile(idx.snapshotInfo.getPrefix());
             listener.subTask(MessageUtil.format(Messages.GarbageCleaner_Writing, indexFile.getAbsolutePath()));
-            idxManager.setReader(Index.O2CLASS, new IndexWriter.IntIndexStreamer().writeTo(indexFile,
+            idxManager.setReader(Index.O2CLASS, new IntIndexStreamer().writeTo(indexFile,
                             new NewObjectIntIterator()
                             {
                                 @Override
@@ -289,7 +291,7 @@ import org.eclipse.mat.util.SilentProgressListener;
                             .getAbsolutePath() }));
             final BitField arrayObjects = new BitField(newNoOfObjects);
             // arrayObjects
-            IOne2OneIndex newIdx = new IndexWriter.IntIndexStreamer().writeTo(indexFile,
+            IOne2OneIndex newIdx = new IntIndexStreamer().writeTo(indexFile,
                             new NewObjectIntIterator()
                             {
                                 IOne2SizeIndex a2size = preA2size;

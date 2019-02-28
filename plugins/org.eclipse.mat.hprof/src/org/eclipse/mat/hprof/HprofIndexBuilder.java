@@ -24,7 +24,7 @@ import org.eclipse.mat.hprof.ui.HprofPreferences;
 import org.eclipse.mat.parser.IIndexBuilder;
 import org.eclipse.mat.parser.IPreliminaryIndex;
 import org.eclipse.mat.parser.index.IIndexReader.IOne2LongIndex;
-import org.eclipse.mat.parser.index.IndexWriter;
+import org.eclipse.mat.parser.index.LongIndexStreamer;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.SimpleMonitor;
@@ -117,7 +117,7 @@ public class HprofIndexBuilder implements IIndexBuilder
         File indexFile = new File(prefix + "o2hprof.index"); //$NON-NLS-1$
         listener.subTask(MessageUtil.format(Messages.HprofIndexBuilder_Writing,
                         new Object[] { indexFile.getAbsolutePath() }));
-        IOne2LongIndex newIndex = new IndexWriter.LongIndexStreamer().writeTo(indexFile, new IndexIterator(id2position,
+        IOne2LongIndex newIndex = new LongIndexStreamer().writeTo(indexFile, new IndexIterator(id2position,
                         purgedMapping));
 
         try
