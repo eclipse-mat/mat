@@ -8,6 +8,7 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *    Andrew Johnson - documentation update
+ *    Netflix (Jason Koch) - refactors for increased performance and concurrency
  *******************************************************************************/
 package org.eclipse.mat.parser.model;
 
