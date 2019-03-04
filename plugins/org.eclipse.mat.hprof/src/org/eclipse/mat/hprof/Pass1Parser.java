@@ -8,6 +8,7 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *    IBM Corporation - additional debug information
+ *    Netflix (Jason Koch) - refactors for increased performance and concurrency
  *******************************************************************************/
 package org.eclipse.mat.hprof;
 

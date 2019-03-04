@@ -8,6 +8,7 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *    Andrew Johnson - bug fix for missing classes
+ *    Netflix (Jason Koch) - refactors for increased performance and concurrency
  *******************************************************************************/
 package org.eclipse.mat.hprof;
 

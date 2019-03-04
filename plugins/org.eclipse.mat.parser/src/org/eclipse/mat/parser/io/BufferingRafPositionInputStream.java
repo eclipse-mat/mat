@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    Netflix - Jason Koch
+ *    Netflix (Jason Koch) - refactors for increased concurrency and performance
  *******************************************************************************/
 package org.eclipse.mat.parser.io;
 
@@ -94,6 +94,7 @@ public class BufferingRafPositionInputStream implements PositionInputStream
             return n;
         }
 
+        // if it is only a buffer or so away, read through
         read(throwaway, 0, (int) n);
         return n;
     }
@@ -155,7 +156,8 @@ public class BufferingRafPositionInputStream implements PositionInputStream
     private void ensureAvailable(int required) throws IOException
     {
         // required must not be greater than half the buffer size
-        // this is on the caller to be sure of
+        // this is on the caller to be sure of - private method
+        // so all callers are internal
 
         // if we have a read that straddles boundaries,
         // copy the bytes into the start of the current buffer,
