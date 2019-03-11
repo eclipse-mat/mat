@@ -15,24 +15,4 @@
             </message_arguments>
         </filter>
     </resource>
-    <resource path="src/org/eclipse/mat/snapshot/SnapshotFactory.java" type="org.eclipse.mat.snapshot.SnapshotFactory">
-        <filter id="1143996420">
-            <message_arguments>
-                <message_argument value="openSnapshot(File, Map&lt;String,String&gt;, IProgressListener)"/>
-            </message_arguments>
-        </filter>
-    </resource>
-    <resource path="src/org/eclipse/mat/snapshot/SnapshotFactory.java" type="org.eclipse.mat.snapshot.SnapshotFactory$Implementation">
-        <filter id="405901410">
-            <message_arguments>
-                <message_argument value="org.eclipse.mat.snapshot.SnapshotFactory.Implementation"/>
-                <message_argument value="openSnapshot(File, IProgressListener)"/>
-            </message_arguments>
-        </filter>
-        <filter id="1211105284">
-            <message_arguments>
-                <message_argument value="openSnapshot(File, Map&lt;String,String&gt;, IProgressListener)"/>
-            </message_arguments>
-        </filter>
-    </resource>
 </component>

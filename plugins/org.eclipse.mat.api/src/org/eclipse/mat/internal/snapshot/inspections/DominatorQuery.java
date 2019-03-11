@@ -658,11 +658,11 @@ public class DominatorQuery implements IQuery
             NumberFormat nf = NumberFormat.getPercentInstance();
             nf.setMinimumFractionDigits(2);
             nf.setMaximumFractionDigits(2);
-            return new Column[] { new Column(Messages.Column_ClassLoaderName, String.class), //
-                            new Column(Messages.Column_Objects, int.class), //
-                            new Column(Messages.Column_ShallowHeap, Bytes.class), //
-                            new Column(Messages.Column_RetainedHeap, Bytes.class).sorting(SortDirection.DESC), //
-                            new Column(Messages.Column_Percentage, double.class).formatting(nf) }; //$NON-NLS-1$
+            return new Column[] { new Column(Messages.Column_ClassLoaderName, String.class),
+                            new Column(Messages.Column_Objects, int.class),
+                            new Column(Messages.Column_ShallowHeap, Bytes.class),
+                            new Column(Messages.Column_RetainedHeap, Bytes.class).sorting(SortDirection.DESC),
+                            new Column(Messages.Column_Percentage, double.class).formatting(nf) };
         }
 
         public List<?> getElements()
