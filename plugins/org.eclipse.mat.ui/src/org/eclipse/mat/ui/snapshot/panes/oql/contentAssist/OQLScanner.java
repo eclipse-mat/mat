@@ -41,7 +41,7 @@ public class OQLScanner extends RuleBasedScanner
 
             public boolean isWordPart(char arg0)
             {
-                return arg0 != ' ' && arg0 != '\n';
+                return arg0 != ' ' && arg0 != '\n' && arg0 != '\r';
             }
 
             public boolean isWordStart(char arg0)
@@ -69,7 +69,7 @@ public class OQLScanner extends RuleBasedScanner
 
             public boolean isWordPart(char arg0)
             {
-                return arg0 != ' ' && arg0 != '\n' && arg0 != ')' && arg0 != '!' && arg0 != '=';
+                return arg0 != ' ' && arg0 != '\n' && arg0 != '\r' && arg0 != ')' && arg0 != '!' && arg0 != '=';
             }
 
             public boolean isWordStart(char arg0)
@@ -88,7 +88,7 @@ public class OQLScanner extends RuleBasedScanner
 
             public boolean isWordPart(char arg0)
             {
-                return arg0 != ' ' && arg0 != '\n' && arg0 != '(';
+                return arg0 != ' ' && arg0 != '\n' && arg0 != '\r' && arg0 != '(';
             }
 
             public boolean isWordStart(char arg0)
@@ -111,7 +111,7 @@ public class OQLScanner extends RuleBasedScanner
 
             public boolean isWordPart(char arg0)
             {
-                return arg0 != ' ' && arg0 != '\n' && arg0 != '(';
+                return arg0 != ' ' && arg0 != '\n' && arg0 != '\r' && arg0 != '(';
             }
 
             public boolean isWordStart(char arg0)
@@ -126,6 +126,7 @@ public class OQLScanner extends RuleBasedScanner
         wr4.addWord("outbounds", tKeyWord); //$NON-NLS-1$
         wr4.addWord("inbounds", tKeyWord); //$NON-NLS-1$
         wr4.addWord("classof", tKeyWord); //$NON-NLS-1$
+        wr4.addWord("eval", tKeyWord); //$NON-NLS-1$
 
         r[3] = wr4;
         
