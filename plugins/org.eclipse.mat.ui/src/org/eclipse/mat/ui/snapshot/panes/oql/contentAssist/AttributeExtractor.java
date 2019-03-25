@@ -43,9 +43,9 @@ public class AttributeExtractor implements ContextExtractor
                     readChar = doc.getChar(pos);
                     pos--;
                 }
-                while (pos >= 0 && readChar != ' ' && readChar != '@' && readChar != '.' && readChar != '\n');
+                while (pos >= 0 && readChar != ' ' && readChar != '@' && readChar != '.' && readChar != '\n' && readChar != '\r');
 
-                if (readChar == ' ' || readChar == '\n' || readChar == '.')
+                if (readChar == ' ' || readChar == '\n' || readChar == '\r' ||readChar == '.')
                     pos++;
                 return doc.get(pos + 1, currentPosition - 1 - pos);
 
