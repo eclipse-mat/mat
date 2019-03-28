@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aacb84fd_5242630c",
+        "filename": "plugins/org.eclipse.mat.parser/src/org/eclipse/mat/parser/model/ClassImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2019-03-28T11:30:24Z",
+      "side": 1,
+      "message": "\"Missing @since tag on removeInstanceBulk(int, long)\"\n\nThis method will need a @since tag once we have updated the version of MAT",
+      "revId": "f72d17fe36dde74f0cd7e9773cc3cee4c19272a5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
