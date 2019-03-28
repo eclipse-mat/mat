@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3ee2c695_8fdfabbf",
+        "filename": "plugins/org.eclipse.mat.hprof/src/org/eclipse/mat/hprof/Pass1Parser.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 592,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2019-03-28T14:00:16Z",
+      "side": 1,
+      "message": "The commented out code was added as part of the ExportHprof changes. The ExportHprof query allows the creation of somewhat non-stand HPROF files. For example there is the option to export a partial heap dump by only selecting some classes/objects to export. These changes were to allow the parser to recover from classes missing from the file.",
+      "revId": "880fd1eba664e6a545bf9c6e423742547fac87e2",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
