@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5d2dc003_81574aaf",
+        "filename": "plugins/org.eclipse.mat.hprof/src/org/eclipse/mat/hprof/Pass2Parser.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2019-03-29T17:48:38Z",
+      "side": 1,
+      "message": "We have a problem here with giant arrays in the dump. The array here then might have nearly 2^31 entries, which would make it impossible to parse the heap dump on smaller JVMs. Is there a reason for reading all the entries in one go, rather than one by one or in chunks?",
+      "revId": "129720ccc16dd34ed98a83261dfb41f808b0343f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
