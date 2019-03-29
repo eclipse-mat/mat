@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8a78fb48_33df589a",
+        "filename": "plugins/org.eclipse.mat.parser/src/org/eclipse/mat/parser/index/IntIndexStreamer.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2019-03-29T15:55:37Z",
+      "side": 1,
+      "message": "If IntIndexStreamer is moved back to its original location then we may need to mark this method as a new API. I\u0027ll wait to see what all the patches put together do.",
+      "revId": "7d86c50469256b26edcb220272d8725b2d933919",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
