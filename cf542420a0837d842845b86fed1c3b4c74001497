@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0608331f_c8cb9bc6",
+        "filename": "plugins/org.eclipse.mat.parser/src/org/eclipse/mat/parser/index/IntIndexStreamer.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2019-03-29T16:52:45Z",
+      "side": 1,
+      "message": "Is the ThreadFactory import used?",
+      "revId": "cf542420a0837d842845b86fed1c3b4c74001497",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cc48c522_cf6ef387",
+        "filename": "plugins/org.eclipse.mat.parser/src/org/eclipse/mat/parser/index/IntIndexStreamer.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2019-03-29T16:52:45Z",
+      "side": 1,
+      "message": "Should we check the return code from awaitTermination? What happens if the compressor hasn\u0027t terminated when the write is the shut down?",
+      "revId": "cf542420a0837d842845b86fed1c3b4c74001497",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f00f117f_329bface",
+        "filename": "plugins/org.eclipse.mat.parser/src/org/eclipse/mat/parser/index/IntIndexStreamer.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2019-03-29T16:52:45Z",
+      "side": 1,
+      "message": "I don\u0027t think we need to make this text translatable, so perhaps we should tag it //$NON-NLS-1$ to show it won\u0027t be translated.",
+      "revId": "cf542420a0837d842845b86fed1c3b4c74001497",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6c1f167f_7bca3e19",
+        "filename": "plugins/org.eclipse.mat.parser/src/org/eclipse/mat/parser/index/LongIndexStreamer.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2019-03-29T16:52:45Z",
+      "side": 1,
+      "message": "Is the ThreadFactory import used?",
+      "revId": "cf542420a0837d842845b86fed1c3b4c74001497",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fd2b8fdf_150d8be1",
+        "filename": "plugins/org.eclipse.mat.parser/src/org/eclipse/mat/parser/index/LongIndexStreamer.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2019-03-29T16:52:45Z",
+      "side": 1,
+      "message": "Are these names every visible to the end user? If so then we should translate them, but if they are like \"ObjectMarkerThread\u003d\" then just tag with //$NON-NLS-1$",
+      "revId": "cf542420a0837d842845b86fed1c3b4c74001497",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0524d8e4_d877813c",
+        "filename": "plugins/org.eclipse.mat.parser/src/org/eclipse/mat/parser/index/LongIndexStreamer.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2019-03-29T16:52:45Z",
+      "side": 1,
+      "message": "Similar comment to IntIndexStreamer and checking the return code.",
+      "revId": "cf542420a0837d842845b86fed1c3b4c74001497",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
