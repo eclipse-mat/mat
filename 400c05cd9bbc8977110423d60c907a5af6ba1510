@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "40f24236_4f525d05",
+        "filename": "plugins/org.eclipse.mat.parser/src/org/eclipse/mat/parser/model/ClassImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 334,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2019-03-30T22:25:15Z",
+      "side": 1,
+      "message": "Could this use getAndIncrement ?",
+      "revId": "400c05cd9bbc8977110423d60c907a5af6ba1510",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
