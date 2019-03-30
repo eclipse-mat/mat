@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "263b0e56_949ba2f6",
+        "filename": "plugins/org.eclipse.mat.hprof/src/org/eclipse/mat/hprof/IHprofParserHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2019-03-30T21:49:50Z",
+      "side": 1,
+      "message": "A problem here is giant arrays in the dump. It would be hard to have an array of long holding all references, together with an ArrayLong if there are nearly 2^31 entries.",
+      "revId": "9795e589593313eeff9fb3ec52c219913893f9a8",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
