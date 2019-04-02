@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "06d7abb4_6fab79de",
+        "filename": "plugins/org.eclipse.mat.parser/src/org/eclipse/mat/parser/index/IntArray1NWriter.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2019-04-02T09:38:51Z",
+      "side": 1,
+      "message": "Code moved from IndexWriter.java",
+      "revId": "c39ff086cb20bfb2721d34df632f13dc1094ace5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e65458f6_6f1e6a16",
+        "filename": "plugins/org.eclipse.mat.parser/src/org/eclipse/mat/parser/index/IntIndexCollector.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2019-04-02T09:38:51Z",
+      "side": 1,
+      "message": "Code moved from IndexWriter.java",
+      "revId": "c39ff086cb20bfb2721d34df632f13dc1094ace5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7699562_7d7c563e",
+        "filename": "plugins/org.eclipse.mat.parser/src/org/eclipse/mat/parser/index/IntIndexStreamer.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2019-04-02T09:38:51Z",
+      "side": 1,
+      "message": "Code moved from IndexWriter.java",
+      "revId": "c39ff086cb20bfb2721d34df632f13dc1094ace5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b3b1ca88_b7aa82d6",
+        "filename": "plugins/org.eclipse.mat.parser/src/org/eclipse/mat/parser/index/LongIndexCollector.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2019-04-02T09:38:51Z",
+      "side": 1,
+      "message": "Code moved from IndexWriter.java",
+      "revId": "c39ff086cb20bfb2721d34df632f13dc1094ace5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e099879d_23434050",
+        "filename": "plugins/org.eclipse.mat.parser/src/org/eclipse/mat/parser/index/LongIndexStreamer.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2019-04-02T09:38:51Z",
+      "side": 1,
+      "message": "Code moved from IndexWriter.java",
+      "revId": "c39ff086cb20bfb2721d34df632f13dc1094ace5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
