@@ -16,6 +16,24 @@
       "revId": "129720ccc16dd34ed98a83261dfb41f808b0343f",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "90615f19_3e2a1373",
+        "filename": "plugins/org.eclipse.mat.hprof/src/org/eclipse/mat/hprof/Pass2Parser.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 233149
+      },
+      "writtenOn": "2019-04-18T17:15:20Z",
+      "side": 1,
+      "message": "This is a fair concern \u0026 good point. The earlier direction was to head towards a bulk-add model (where we can bulk add to the references list) however this is not used at this point iirc so we can probably do away with it.\n\n\u003d\u003d\n\nWorth noting, that we have a similar bulk allocation concern with the original code however it is behind the abstraction: the heapObject.references is actually an ArrayLong which uses up to (N-1)*2.5 memory for storage during expansion of underlying array. It would be interesting to see if we could do a single pass of this, but maybe that\u0027s for another PR.",
+      "parentUuid": "5d2dc003_81574aaf",
+      "revId": "129720ccc16dd34ed98a83261dfb41f808b0343f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
