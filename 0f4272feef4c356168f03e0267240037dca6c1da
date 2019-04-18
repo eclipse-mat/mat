@@ -16,6 +16,24 @@
       "revId": "0f4272feef4c356168f03e0267240037dca6c1da",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e7212507_9498fa63",
+        "filename": "plugins/org.eclipse.mat.hprof/src/org/eclipse/mat/hprof/HprofParserHandlerImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 233149
+      },
+      "writtenOn": "2019-04-18T16:59:24Z",
+      "side": 1,
+      "message": "Note to self when I package this up, might be a good idea to do this:\n\nlong DUMMY_ADDRESS_FOR_BOOT_CLASS_LOADER \u003d 0l;\nnew HeapObject(DUMMY_ADDRESS_FOR_BOOT_CLASS_LOADER, ...)",
+      "parentUuid": "7cdac8fc_9d2a3d25",
+      "revId": "0f4272feef4c356168f03e0267240037dca6c1da",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
