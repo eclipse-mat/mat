@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "a66b77bc_7b2c8e31",
+        "filename": "plugins/org.eclipse.mat.parser/src/org/eclipse/mat/parser/index/IntIndexCollector.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 233149
+      },
+      "writtenOn": "2019-04-18T17:00:20Z",
+      "side": 1,
+      "message": "ok",
+      "parentUuid": "1d636e87_bbc60735",
+      "revId": "2fceefd92904661aeb3128435b96cff4b201e31f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bc8cca55_0d2a1ca1",
         "filename": "plugins/org.eclipse.mat.parser/src/org/eclipse/mat/parser/index/IntIndexCollector.java",
         "patchSetId": 2
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "6de4b928_c2ceec26",
+        "filename": "plugins/org.eclipse.mat.parser/src/org/eclipse/mat/parser/index/IntIndexCollector.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 233149
+      },
+      "writtenOn": "2019-04-18T17:00:20Z",
+      "side": 1,
+      "message": "This is a confusing comment on my part. It should read \"TODO unlock this code by improving array get and set\".\n\nThe answer is, in fact, yes we can unlock this, it just takes more code. I have this now in a branch unlocked on my. It requires rewriting ArrayLongCompressed and ArrayIntCompressed. I thought it best to leave that for a later pr!",
+      "parentUuid": "bc8cca55_0d2a1ca1",
+      "revId": "2fceefd92904661aeb3128435b96cff4b201e31f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fb4a5875_849c3fcd",
         "filename": "plugins/org.eclipse.mat.parser/src/org/eclipse/mat/parser/index/IntIndexCollector.java",
         "patchSetId": 2
@@ -47,6 +83,24 @@
       "writtenOn": "2019-04-02T10:05:39Z",
       "side": 1,
       "message": "Did the original class implement this? If so, when we move the class back then we should implement this method for compatibility reasons.",
+      "revId": "2fceefd92904661aeb3128435b96cff4b201e31f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "764b4d4f_d2d06105",
+        "filename": "plugins/org.eclipse.mat.parser/src/org/eclipse/mat/parser/index/IntIndexCollector.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 233149
+      },
+      "writtenOn": "2019-04-18T17:00:20Z",
+      "side": 1,
+      "message": "It was inferred by me when reading the core that most of the original classes implemented these utility functions through superclasses or because they could. I noticed that many of these functions were not actually called, did not show up in any test cases, and were only provided in order to comply with an interface. (In other words, dead code.)",
+      "parentUuid": "fb4a5875_849c3fcd",
       "revId": "2fceefd92904661aeb3128435b96cff4b201e31f",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
