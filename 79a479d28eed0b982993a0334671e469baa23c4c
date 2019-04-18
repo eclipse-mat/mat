@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "104a75af_e873a84c",
+        "filename": "plugins/org.eclipse.mat.hprof/src/org/eclipse/mat/hprof/HprofParserHandlerImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 233149
+      },
+      "writtenOn": "2019-04-18T17:01:14Z",
+      "side": 1,
+      "message": "This gives us putIfAbsent semantics and an easy switch to ConcurrentHashMap if that proves to be valuable in future. Not strictly required for this change set.",
+      "parentUuid": "46a6b9f4_2de545fb",
+      "revId": "79a479d28eed0b982993a0334671e469baa23c4c",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "630efec7_440656dc",
         "filename": "plugins/org.eclipse.mat.hprof/src/org/eclipse/mat/hprof/HprofParserHandlerImpl.java",
         "patchSetId": 2
@@ -47,6 +65,24 @@
       "writtenOn": "2019-04-02T09:20:50Z",
       "side": 1,
       "message": "I think there is a slight logic change here, but it may not be significant. If the class size is definitely known, then we override it here, even if already set. That seems a good change. If the size isn\u0027t known for sure, then it is set the first time, but not thereafter. The original code would set the size to the minimum of the old set value and the new potential value. So if class A is extended by B, and by C, but A is missing in the dump the old way would calculate the size of A as the smallest of B or C minus their fields. This may not be significant however, because no instances of A are in the dump (otherwise we would know the size), so probably makes no difference to any analysis.",
+      "revId": "79a479d28eed0b982993a0334671e469baa23c4c",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0e65f3e8_86643abf",
+        "filename": "plugins/org.eclipse.mat.hprof/src/org/eclipse/mat/hprof/HprofParserHandlerImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 737,
+      "author": {
+        "id": 233149
+      },
+      "writtenOn": "2019-04-18T17:01:14Z",
+      "side": 1,
+      "message": "Yes, that was my expectation. In the case we are guessing, we are guessing anyway, however when we know, we should definitely know. Although, I\u0027m not as familiar with other use case / dump formats eg IBM dumps.",
+      "parentUuid": "c58f0ead_24452ead",
       "revId": "79a479d28eed0b982993a0334671e469baa23c4c",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
