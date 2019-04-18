@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "4d9ec169_123c681c",
+        "filename": "plugins/org.eclipse.mat.parser/src/org/eclipse/mat/parser/index/IntIndexStreamer.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 233149
+      },
+      "writtenOn": "2019-04-18T16:58:50Z",
+      "side": 1,
+      "message": "You are correct; it is not.",
+      "parentUuid": "0608331f_c8cb9bc6",
+      "revId": "cf542420a0837d842845b86fed1c3b4c74001497",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cc48c522_cf6ef387",
         "filename": "plugins/org.eclipse.mat.parser/src/org/eclipse/mat/parser/index/IntIndexStreamer.java",
         "patchSetId": 2
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "86fbc321_33f237e3",
+        "filename": "plugins/org.eclipse.mat.parser/src/org/eclipse/mat/parser/index/IntIndexStreamer.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 233149
+      },
+      "writtenOn": "2019-04-18T16:58:50Z",
+      "side": 1,
+      "message": "Ideally we would do this in a loop. On the other hand, if the compressor has not finished in 100s we have other bigger problems. But yes, we should cover this with better timeout handling.",
+      "parentUuid": "cc48c522_cf6ef387",
+      "revId": "cf542420a0837d842845b86fed1c3b4c74001497",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f00f117f_329bface",
         "filename": "plugins/org.eclipse.mat.parser/src/org/eclipse/mat/parser/index/IntIndexStreamer.java",
         "patchSetId": 2
@@ -47,6 +83,24 @@
       "writtenOn": "2019-03-29T16:52:45Z",
       "side": 1,
       "message": "I don\u0027t think we need to make this text translatable, so perhaps we should tag it //$NON-NLS-1$ to show it won\u0027t be translated.",
+      "revId": "cf542420a0837d842845b86fed1c3b4c74001497",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b7529cd7_b7505811",
+        "filename": "plugins/org.eclipse.mat.parser/src/org/eclipse/mat/parser/index/IntIndexStreamer.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 233149
+      },
+      "writtenOn": "2019-04-18T16:58:50Z",
+      "side": 1,
+      "message": "ok.",
+      "parentUuid": "f00f117f_329bface",
       "revId": "cf542420a0837d842845b86fed1c3b4c74001497",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
