@@ -16,6 +16,24 @@
       "revId": "9795e589593313eeff9fb3ec52c219913893f9a8",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "62626d74_d401fedd",
+        "filename": "plugins/org.eclipse.mat.hprof/src/org/eclipse/mat/hprof/IHprofParserHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 233149
+      },
+      "writtenOn": "2019-04-18T17:02:25Z",
+      "side": 1,
+      "message": "If I have understood correctly ...\n\nIn the original code, Pass2Parser creates an ArrayLong and incrementally loads it.\n\nGiven that ArrayLong is loaded incrementally, and when full it grows by 1.5, we previously needed 2.5x the amount of memory for an array in order to load it. (Suppose 1000 element array, we need 1000 elements in current + 1500 for new array to grow \u003d total 2500).\n\nIn this new case, we create an id of 1000 elements, an ArrayLong of 1001 elements and then copy the data. Total 2001.\n\nThis should be better than before for the worst case. The only scenario that it won\u0027t be , is in the case that you have an object array in the heap that is loaded with lots of entries pointing to the same address. In this case, the earlier code would be more efficient since it does not need to grow ArrayLong as much.\n\n\u003d\u003d\u003d\u003d\u003d\n        HeapObject heapObject \u003d new HeapObject(handler.mapAddressToId(id), id, arrayType, usedHeapSize);\n        heapObject.references.add(arrayType.getObjectAddress());\n        heapObject.isArray \u003d true;\n\n        for (int ii \u003d 0; ii \u003c size; ii++)\n        {\n            long refId \u003d readID();\n            if (refId !\u003d 0)\n                heapObject.references.add(refId);\n        }\n\n        handler.addObject(heapObject, segmentStartPos);\n\u003d\u003d\u003d\u003d\u003d",
+      "parentUuid": "263b0e56_949ba2f6",
+      "revId": "9795e589593313eeff9fb3ec52c219913893f9a8",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
     }
   ]
 }
