@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: %Bundle-Name
 Bundle-Vendor: %Bundle-Vendor
 Bundle-SymbolicName: org.eclipse.mat.api;singleton:=true
-Bundle-Version: 1.8.1.qualifier
+Bundle-Version: 1.9.0.qualifier
 Export-Package: org.eclipse.mat.inspections.osgi;x-friends:="org.eclipse.mat.ui",
  org.eclipse.mat.inspections.osgi.model;x-friends:="org.eclipse.mat.ui",
  org.eclipse.mat.internal.acquire;x-friends:="org.eclipse.mat.ui",
