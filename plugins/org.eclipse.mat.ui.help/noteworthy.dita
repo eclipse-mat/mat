@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2018 SAP AG and others.
+    Copyright (c) 2008, 2019 SAP AG and others.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -8,19 +8,19 @@
    
     Contributors:
         SAP AG - initial API and implementation
-        IBM Corporation - 1.4, 1.7, 1.8 updates
+        IBM Corporation - 1.4, 1.7, 1.8, 1.9 updates
  -->
 <!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd" >
 <reference id="ref_noteworthy" xml:lang="en-us">
 	<title>New and Noteworthy</title>
 	<shortdesc>Here are descriptions of some of the more interesting or
-		significant changes made to the Memory Analyzer for the 1.8 release.
+		significant changes made to the Memory Analyzer for the 1.9 release.
 	</shortdesc>
 	<prolog>
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2008, 2018 SAP AG and others.
+				Copyright (c) 2008, 2019 SAP AG and others.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License v1.0
 			    which accompanies this distribution, and is available at
@@ -31,86 +31,44 @@
 	<refbody>
 		<section>
 			<title>Enhancements and fixes</title>
-			<p>Eclipse Memory Analyzer 1.8 has support for generating and analyzing dumps
-			from Java 9, Java 10 as well as Java 1.8 and previous versions.
-			The acquire dump dialog and collection queries have been enhanced for this.</p>
+			<p>
+			One of the main enhancements is the <xref href="tasks/exportdump.dita">export HPROF</xref> query. This allows a new HPROF file to be generated from a snapshot,
+			with the redaction of data such as character or byte array values or field values. This could be useful
+			to allow future analysis of the new HPROF dump without exposing sensitive data.
+			</p>
+			<p>There is also a way to compare two heap dumps with a basic batch mode report using <xref href="tasks/batch.dita"><cmdname>ParseHeapDump</cmdname></xref>.</p>
+			<p>Memory Analyzer 1.8.1 also added more icons for queries and icons which worked better in high contrast or dark modes.</p>
 			<ul>
-			<li>Memory Analyzer RCP is now built with Photon.
-			The following stand-alone builds are available:
-			<ul>
-			<li>Windows (x86)</li>
-			<li>Windows (x86_64)</li>
-			<li>Mac OSX (Mac/Cocoa/x86_64)</li>
-			<li>Linux (x86/GTK+)</li>
-			<li>Linux (x86_64/GTK+)</li>
-			<li>Linux (PPC64/GTK+)</li>
-			<li>Linux (PPC64le/GTK+)</li>
-			</ul>
-			<note>
-			Because of the <xref format="html" href="https://dev.eclipse.org/mhonarc/lists/eclipse-dev/msg10207.html">removal of Eclipse platform support</xref> for certain operating systems for 
-			<xref format="html" href="https://www.eclipse.org/eclipse/news/4.7/platform.php#unix-platforms-dropped">
-			Oxygen</xref> and later the following stand-alone builds are not available for Memory Analyzer 1.8:
-			<ul importance="obsolete">
-			<li><i>Linux (PPC/GTK+)</i></li>
-			<li><i>Linux (s390/GTK+)</i></li>
-			<li><i>Linux (s390x/GTK+)</i></li>
-			<li><i>Solaris 8 (x86/GTK+)</i></li>
-			<li><i>Solaris 8 (SPARC/GTK+)</i></li>
-			<li><i>HP-UX (IA64/GTK+)</i></li>
-			<li><i>AIX (PPC/GTK+)</i></li>
-			<li><i>AIX (PPC64/GTK+)</i></li>
-			</ul>
-			It is possible that Memory Analyzer 1.8 could be installed into 
-			<xref format="html" href="http://archive.eclipse.org/eclipse/downloads/drops4/R-4.6.3-201703010400/">
-			Eclipse Neon for those platforms</xref> or into 
-			<xref format="html" href="https://www.eclipse.org/mat/previousReleases.php">previous releases of Eclipse Memory Analyzer</xref>
-			but this has not been tested.
-			</note>
-			<note>
-			Because of the <xref format="html" href="https://wiki.eclipse.org/Eclipse/Installation/Java8Required">requirements of Eclipse Neon and later</xref>, Java version 1.8 or later is required to run the RCP.
-			<xref format="html" href="https://www.eclipse.org/mat/previousReleases.php">Previous releases of Eclipse Memory Analyzer</xref>
-			could run with Java 1.6, 1.7 and 1.8.
-			</note>
+			<li>Fix for <xref format="html" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=317289">317289</xref> Extract information from Exception objects in the heap dumps
 			</li>
-			<li>Memory Analyzer can now work with Java virtual machines, version 9 and version 10,
-			as well as 1.8. Dumps from JVMs versions 1.5, 1.6 and 1.7 are still handled.
-			Memory Analyzer has been tested with JVMs of the
-			following types:
-			<ul>
-			<li>Oracle JVMs</li>
-			<li>OpenJDK JVMs</li>
-			<li>IBM JVMs</li>
-			<li>OpenJ9 JVMs</li>
-			</ul>
+			<li>Fix for <xref format="html" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=380600">380600</xref> Resave Heap Dump without Unreachable Objects
 			</li>
-			<li>Fixes for new Java 9 string format</li>
-			<li>Acquire heap dumps - various improvements:
-			<ul>
-			<li>Attach API provider now works using <codeph>com.sun.tools.attach</codeph>
-			allowing it to work with Oracle JVMs and IBM JVMs, version 1.8 SR5 and later.
-			Earlier IBM JVMs continue to work using <codeph>com.ibm.tools.attach</codeph></li>
-			<li>Sort columns of PID and provider</li>
-			<li>Resizing of columns with window</li>
-			<li>More help, including links to provider help</li>
-			<li>Processes unavailable for dumps marked in <i>italics</i></li>
-			<li>Attach API provide can generate HPROF dumps for Oracle and OpenJDK JVMS
-			using HotSpot MX bean.</li>
-			<li>Configure Heap Dump providers page jumps to appropriate provider when
-			selected from a process.</li>
-			</ul>
+			<li>Fix for <xref format="html" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=519274">519274</xref> Redacted Binary or PHD dump so as to protect privacy data
 			</li>
-			<li>Equinox Bundle Explorer now handles more recent Eclipse versions.</li>
-			<li>More collections handled by collection queries, including collections from Java 9 and Java 10.</li>
-			<li>Fix for <xref format="html" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=520908">520908</xref>: Invalid thread object in ThreadOverviewQuery causes whole query to fail</li>
-			<li>Fix for <xref format="html" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=521999">521999</xref>: pString values not displayed analyzing some IBM core dumps</li>
+			<li>Fix for <xref format="html" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=538953">538953</xref> Create an option for DTFJIndexBuilder to suppress native class sizes
+			</li>
+			<li>Fix for <xref format="html" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=539750">539750</xref> java.util.ConcurrentModificationException with Calculate precise retained size and sort
+			</li>
+			<li>Fix for <xref format="html" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=541245">541245</xref> Exceptions with result filtering
+			</li>
+			<li>Fix for <xref format="html" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=541286">541286</xref> Missing shallow heap size values in comparison tables
+			</li>
+			<li>Fix for <xref format="html" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=541539">541539</xref> Simple batch mode comparison of two snapshots
+			</li>
+			<li>Fix for <xref format="html" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=543045">543045</xref> Eclipse MAT does not show complete actual heap size(Heap dump size) on overview tab.
+			</li>
+			<li>Fix for <xref format="html" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=537579">537579</xref> ArrayIndexOutOfBoundsException in HashMapObjectLong.resize
+			</li>
+			<li>Fix for <xref format="html" href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=539751">539751</xref> Unhandled event loop exception - InjectionException - WidgetMethodHandler is not handled for for command Command Copy
+			</li> 
 			</ul>
 		</section>
 		
 		<section>
-			<title>New and Noteworthy for Memory Analyzer 1.7</title>
+			<title>New and Noteworthy for Memory Analyzer 1.8</title>
 			<p>
-				The New and Noteworthy document for version 1.7 is available 
-				<xref format="html" href="http://www.eclipse.org/mat/1.7.0/noteworthy.html">here</xref>.
+				The New and Noteworthy document for version 1.8 is available 
+				<xref format="html" href="http://www.eclipse.org/mat/1.8.0/noteworthy.html">here</xref>.
 			</p>
 		</section>
 

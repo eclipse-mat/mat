@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2019 IBM Corporation.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+   
+    Contributors:
+        Andrew Johnson/IBM - initial API and implementation
+ -->
+<!DOCTYPE task PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd" >
+<task id="task_batch" xml:lang="en-us">
+	<title>Batch mode</title>
+	<prolog>
+		<copyright>
+			<copyryear year=""></copyryear>
+			<copyrholder>
+				Copyright (c) 2019 IBM Corporation.
+			    All rights reserved. This program and the accompanying materials
+			    are made available under the terms of the Eclipse Public License v1.0
+			    which accompanies this distribution, and is available at
+			    http://www.eclipse.org/legal/epl-v10.html
+			</copyrholder>
+		</copyright>
+	</prolog>
+
+	<taskbody>
+		<context>
+			<p>Memory Analyzer can be operated in batch mode to process heap dumps
+			without user input.</p>
+		</context>
+		<steps>
+			<step>
+				<note>On Windows, use <keyword>.\mat\ParseHeapDump.bat</keyword> instead of <keyword>./mat/ParseHeapDump.sh</keyword></note>
+				<cmd>Run <cmdname>./mat/ParseHeapDump.sh</cmdname> <parmname>myheapdump.hprof</parmname> <parmname>org.eclipse.mat.api:suspects</parmname>
+				</cmd>
+				<choices>
+					<choice>For a simple suspects report use <parmname>org.eclipse.mat.api:suspects</parmname></choice>
+					<choice>For an overview report use <parmname>org.eclipse.mat.api:overview</parmname></choice>
+					<choice>For a report on memory usage by component use <parmname>org.eclipse.mat.api:top_components</parmname></choice>
+					<choice>To compare two heap dumps use<cmdname>./mat/ParseHeapDump.sh</cmdname> <parmname>myheapdump.hprof</parmname> <option>-snapshot2=</option><parmname>myheapdump2.hprof</parmname> <parmname>org.eclipse.mat.api:compare</parmname></choice>					
+				</choices>
+				<stepresult>
+					<msgblock>
+Task: Parsing myheapdump.hprof
+[Task: Parsing .\Downloads\myheapdump.hprof
+[
+Subtask: Scanning .\Downloads\myheapdump.hprof
+[.................
+[INFO] Detected compressed references, because with uncompressed 64-bit references the array at 0x5c4bd4258 would overlap the array at 0x5c4bd4230
+[....................
+[INFO] Wrote threads call stacks to .\Downloads\myheapdump.threads
+[....................
+[INFO] Heap .\Downloads\myheapdump.hprof contains 116,716 objects
+[....................
+Subtask: Extracting objects from .\Downloads\myheapdump.hprof
+[...................................................................................Task: Removing unreachable objects
+[
+Subtask: Searching for unreachable objects
+[
+Subtask: Marking reachable objects
+[.
+Subtask: Re-indexing objects
+[..
+Subtask: Re-indexing classes
+[...
+Subtask: Writing .\Downloads\myheapdump.idx.index
+[....
+Subtask: Writing .\Downloads\myheapdump.o2c.index
+[.....
+Subtask: Writing .\Downloads\myheapdump.a2s.index
+[......
+Subtask: Re-indexing outbound index
+[.......
+Subtask: Writing .\Downloads\myheapdump.inbound.index
+[........
+Subtask: Writing .\Downloads\myheapdump.outbound.index
+[.........
+Subtask: Writing .\Downloads\myheapdump.o2hprof.index
+[.........Task: Calculating Dominator Tree
+[
+Subtask: Dominator Tree calculation
+[
+Subtask: Depth-first search
+[....................
+Subtask: Computing dominators
+[..............................................
+Subtask: Calculate retained sizes
+[............................................................
+Subtask: Create dominators index file
+[................................................................................]
+
+Subtask: Test 'Heap Dump Overview' of section 'System Overview'
+[
+Subtask: Test 'System Properties' of section 'System Overview'
+[
+Subtask: Extracting Key Value Pairs...
+[
+Subtask: Test 'Thread Overview' of section 'System Overview'
+[
+Subtask: Searching Threads...
+[
+Subtask: Test 'Top Consumers' of section 'System Overview'
+[
+Subtask: Creating histogram
+[
+Subtask: Grouping by package
+[
+Subtask: Test 'Biggest Objects (Overview)' of section 'Top Consumers'
+[
+Subtask: Test 'Biggest Objects' of section 'Top Consumers'
+[
+Subtask: Test 'Biggest Top-Level Dominator Classes (Overview)' of section 'Top Consumers'
+[
+Subtask: Test 'Biggest Top-Level Dominator Classes' of section 'Top Consumers'
+[
+Subtask: Test 'Biggest Top-Level Dominator Class Loaders (Overview)' of section 'Top Consumers'
+[
+Subtask: Test 'Biggest Top-Level Dominator Class Loaders' of section 'Top Consumers'
+[
+Subtask: Test 'Biggest Top-Level Dominator Packages' of section 'Top Consumers'
+[
+Subtask: Test 'Class Histogram' of section 'System Overview'
+[
+Subtask: Test 'Leaks' of section 'Leak Suspects'
+[
+Subtask: Finding problem suspects
+[
+Subtask: Searching suspicious single objects ...
+[
+Subtask: Searching suspicious groups of objects ...
+[
+Subtask: building histogram
+[
+Subtask: Preparing results
+[
+Subtask: building histogram
+[
+Subtask: building histogram
+[
+Subtask: Finding paths
+[
+Subtask: Test 'Overview' of section 'Leaks'
+[
+Subtask: Test 'Problem Suspect 1' of section 'Leaks'
+[
+Subtask: Test 'Description' of section 'Problem Suspect 1'
+[
+Subtask: Test 'Shortest Paths To the Accumulation Point' of section 'Problem Suspect 1'
+[
+Subtask: Test 'Shortest Paths To the Accumulation Point' of section 'Problem Suspect 1'
+[
+Subtask: Test 'Accumulated Objects in Dominator Tree' of section 'Problem Suspect 1'
+[
+Subtask: Test 'Accumulated Objects in Dominator Tree' of section 'Problem Suspect 1'
+[
+Subtask: Test 'Accumulated Objects by Class in Dominator Tree' of section 'Problem Suspect 1'
+[
+Subtask: Test 'Accumulated Objects by Class in Dominator Tree' of section 'Problem Suspect 1'
+[
+Subtask: Test 'All Accumulated Objects by Class' of section 'Problem Suspect 1'
+[
+Subtask: Test 'All Accumulated Objects by Class' of section 'Problem Suspect 1'
+[]
+					</msgblock>
+				</stepresult>
+			</step>
+			<step>
+				<cmd>
+					Unzip the report <parmname>myheapdump_Leak_Suspects.zip</parmname>
+				</cmd>
+			</step>
+			<step>
+				<cmd>
+					View the <parmname>index.html</parmname>
+				</cmd>
+			</step>
+		</steps>
+		<result>
+			<p>The result is a HTML report.</p>
+		</result>
+	</taskbody>
+</task>
