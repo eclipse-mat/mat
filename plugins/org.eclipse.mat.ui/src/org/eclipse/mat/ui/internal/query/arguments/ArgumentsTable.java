@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2019 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -30,6 +30,7 @@ import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.window.DefaultToolTip;
 import org.eclipse.jface.window.ToolTip;
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.internal.snapshot.ArgumentParser;
 import org.eclipse.mat.internal.snapshot.HeapObjectContextArgument;
 import org.eclipse.mat.internal.snapshot.HeapObjectParamArgument;
 import org.eclipse.mat.query.IContextObject;
@@ -251,7 +252,32 @@ public class ArgumentsTable implements ArgumentEditor.IEditorListener
             }
             else if (isHeapObject)
             {
-                addHeapObjectTableItems(descriptor, (HeapObjectParamArgument) argumentValue);
+                Object value = argumentValue;
+                if (value == null)
+                {
+                    // Experimental
+                    // No heap object provided, so see if query has a default heap object argument
+                    value = descriptor.getDefaultValue();
+                    if (value instanceof IHeapObjectArgument)
+                    {
+                        // The default heap object argument has a null snapshot,
+                        ISnapshot snapshot = (ISnapshot) context.get(ISnapshot.class, null);
+                        // So convert it to a string then reparse in this context.
+                        // Only really makes sense for class name or OQL arguments as object 
+                        // addresses won't apply between snapshots (except boot classloader @0x0 ?)
+                        String line = ((IHeapObjectArgument) value).getLabel();
+                        try
+                        {
+                            HeapObjectParamArgument hoa = ArgumentParser.consumeHeapObjects(snapshot, line);
+                            value = hoa;
+                        }
+                        catch (SnapshotException e)
+                        {
+                            value = null;
+                        }
+                    }
+                }
+                addHeapObjectTableItems(descriptor, (HeapObjectParamArgument) value);
             }
             else
             {

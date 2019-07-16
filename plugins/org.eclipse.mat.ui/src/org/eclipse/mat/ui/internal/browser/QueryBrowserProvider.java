@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2019 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson/IBM Corporation - allow matching of subject classes by subclasses
  *******************************************************************************/
 package org.eclipse.mat.ui.internal.browser;
 
@@ -60,6 +61,11 @@ public abstract class QueryBrowserProvider
             {
                 try
                 {
+                    /*
+                     * Until we can efficiently match objects for a query against the subject we don't
+                     * need to check subclasses as if the class is present then all the subclasses
+                     * will be available too as we are considering the entire snapshot.
+                     */
                     Collection<IClass> ss = snapshot.getClassesByName(cn, false);
                     if (ss == null || ss.isEmpty())
                         continue;
