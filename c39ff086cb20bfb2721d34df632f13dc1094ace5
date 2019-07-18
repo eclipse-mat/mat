@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8e5081c5_0897216a",
+        "filename": "plugins/org.eclipse.mat.parser/src/org/eclipse/mat/parser/index/IntIndexCollector.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2019-07-18T07:12:48Z",
+      "side": 0,
+      "message": "If this class is moved back to IndexWriter (for API compatibility reasons), then removing writeTo(DataOutputStream out, long position) will cause an API change, so we would need to put it back.",
+      "revId": "c39ff086cb20bfb2721d34df632f13dc1094ace5",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
