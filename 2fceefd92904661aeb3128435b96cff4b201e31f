@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "b30d1399_1e9f6f66",
+        "filename": "plugins/org.eclipse.mat.parser/src/org/eclipse/mat/parser/index/IntIndexCollector.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2019-07-19T10:30:25Z",
+      "side": 1,
+      "message": "This removes \u0027extends IntIndex\u003cArrayIntCompressed\u003e\u0027 which would cause a problem if we moved IntIndexCollector back to IndexWriter (or added a stub class IntIndexCollector extending this one).\n\nThe Eclipse error would be:\nThe superclass hierarchy for org.eclipse.mat.parser.index.IndexWriter.IntIndexCollector has been reduced",
+      "parentUuid": "a66b77bc_7b2c8e31",
+      "revId": "2fceefd92904661aeb3128435b96cff4b201e31f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f6217f97_f992dfe5",
         "filename": "plugins/org.eclipse.mat.parser/src/org/eclipse/mat/parser/index/IntIndexCollector.java",
         "patchSetId": 2
@@ -152,6 +170,30 @@
       "writtenOn": "2019-04-02T10:05:39Z",
       "side": 1,
       "message": "We should document how thread-safe this class now is.\n\nThis class is now missing methods which were in the original class - should we add the methods, or retain the old class and add this new one?",
+      "range": {
+        "startLine": 11,
+        "startChar": 23,
+        "endLine": 11,
+        "endChar": 24
+      },
+      "revId": "2fceefd92904661aeb3128435b96cff4b201e31f",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0fc9b4f7_11efab78",
+        "filename": "plugins/org.eclipse.mat.parser/src/org/eclipse/mat/parser/index/LongIndexCollector.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2019-07-19T10:30:25Z",
+      "side": 1,
+      "message": "This removes \u0027extends LongIndex\u0027 which would cause a problem if we moved LongIndexCollector back to IndexWriter (or added a stub class LongIndexCollector extending this one).\n\nThe Eclipse error would be:\nThe superclass hierarchy for org.eclipse.mat.parser.index.IndexWriter.LongIndexCollector has been reduced",
+      "parentUuid": "079a388e_59883b9b",
       "range": {
         "startLine": 11,
         "startChar": 23,
