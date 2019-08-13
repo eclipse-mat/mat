@@ -42,8 +42,6 @@ public class FindStringsQuery implements IQuery
 
     public IResult execute(IProgressListener listener) throws Exception
     {
-        listener.subTask(Messages.FindStringsQuery_SearchingStrings);
-
         ArrayInt result = new ArrayInt();
 
         Collection<IClass> classes = snapshot.getClassesByName("java.lang.String", false); //$NON-NLS-1$
@@ -54,6 +52,8 @@ public class FindStringsQuery implements IQuery
                 {
                     int[] objectIds = clasz.getObjectIds();
 
+                    listener.beginTask(Messages.FindStringsQuery_SearchingStrings, objectIds.length);
+
                     for (int id : objectIds)
                     {
                         if (listener.isCanceled())
@@ -62,7 +62,11 @@ public class FindStringsQuery implements IQuery
                         String value = snapshot.getObject(id).getClassSpecificName();
                         if (value != null && pattern.matcher(value).matches())
                             result.add(id);
+
+                        listener.worked(1);
                     }
+
+                    listener.done();
                 }
         }
         else
@@ -70,6 +74,14 @@ public class FindStringsQuery implements IQuery
             if (classes != null && !classes.isEmpty())
             {
                 IClass javaLangString = classes.iterator().next();
+
+                int totalWork = 0;
+                for (int[] objectIds : objects)
+                {
+                    totalWork += objectIds.length;
+                }
+
+                listener.beginTask(Messages.FindStringsQuery_SearchingStrings, totalWork);
 
                 ObjectsLoop: for (int[] objectIds : objects)
                 {
@@ -91,8 +103,12 @@ public class FindStringsQuery implements IQuery
                         {
                             result.add(id);
                         }
+
+                        listener.worked(1);
                     }
                 }
+
+                listener.done();
             }
         }
 
