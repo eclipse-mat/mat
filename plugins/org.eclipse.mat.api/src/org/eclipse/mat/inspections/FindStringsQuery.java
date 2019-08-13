@@ -65,6 +65,8 @@ public class FindStringsQuery implements IQuery
 
                         listener.worked(1);
                     }
+                    
+                    listener.done();
                 }
         }
         else
@@ -105,6 +107,8 @@ public class FindStringsQuery implements IQuery
                         listener.worked(1);
                     }
                 }
+                
+                listener.done();
             }
         }
 
