@@ -29,7 +29,7 @@
 	<query name="Retained Size for Classloaders(precise)">		
 		<param key="html.separate_file" value="true" />
 		<param key="limit" value="50000" />	
-		<command>retained_size_histogram_test -byClassLoader </command>	
+		<command>retained_size_histogram_test -byClassLoader</command>	
 	</query>
 	<query name="Immediate Dominators of java.util.HashMap$Entry">		
 		<param key="html.separate_file" value="true" />

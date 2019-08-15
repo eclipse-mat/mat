@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 SAP AG.
+ * Copyright (c) 2008,2019 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson - Xmx and thread numbers
  *******************************************************************************/
 package org.eclipse.mat.tests.regression;
 
@@ -25,16 +26,18 @@ public class TestParseApp
 {
     private File snapshotFile;
     private Spec report;
+    private boolean showMem;
 
-    public TestParseApp(File snapshotFile, Spec report)
+    public TestParseApp(File snapshotFile, Spec report, boolean showMem)
     {
         this.snapshotFile = snapshotFile;
         this.report = report;
+        this.showMem = showMem;
     }
 
     public void run() throws Exception
     {
-        IProgressListener listener = new ClockedProgressListener(snapshotFile, System.out);
+        IProgressListener listener = new ClockedProgressListener(snapshotFile, System.out, showMem);
 
         ISnapshot snapshot = null;
 
@@ -62,11 +65,12 @@ public class TestParseApp
         private int count = 0;
         private String absolutePath;
         private String fileName;
+        private boolean showMem;
 
         private long timestamp = 0;
         private String lastMessage = null;
 
-        /* package */ClockedProgressListener(File snapshot, PrintStream out)
+        /* package */ClockedProgressListener(File snapshot, PrintStream out, boolean showMemUsage)
         {
             this.out = out;
             this.timestamp = System.currentTimeMillis();
@@ -77,6 +81,7 @@ public class TestParseApp
             int p = this.fileName.lastIndexOf('.');
             if (p >= 0)
                 this.fileName = this.fileName.substring(0, p);
+            this.showMem = showMemUsage;
         }
 
         public void beginTask(String name, int totalWork)
@@ -99,8 +104,20 @@ public class TestParseApp
                 if (p >= 0)
                     lastMessage = lastMessage.substring(0, p) + "DUMP" + lastMessage.substring(p + fileName.length());
 
-                out.println(String.format("Task: [%02d] %s %s ms", ++count, lastMessage, String
-                                .valueOf(now - timestamp)));
+                if (showMem)
+                {
+                    long freeMem = Runtime.getRuntime().freeMemory();
+                    long totalMem = Runtime.getRuntime().totalMemory();
+                    long maxMem = Runtime.getRuntime().maxMemory();
+                    long usedMem = totalMem - freeMem;
+                    out.println(String.format("Task: [%02d] %s %s ms used %d free %d total %d max %d", ++count, lastMessage, String
+                                    .valueOf(now - timestamp), usedMem, freeMem, totalMem, maxMem));
+                }
+                else
+                {
+                    out.println(String.format("Task: [%02d] %s %s ms", ++count, lastMessage, String
+                                    .valueOf(now - timestamp)));
+                }
             }
 
             this.lastMessage = name;
