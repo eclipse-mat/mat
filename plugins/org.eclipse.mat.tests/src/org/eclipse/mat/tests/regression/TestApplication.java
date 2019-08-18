@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 SAP AG.
+ * Copyright (c) 2008,2019 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson - Xmx and thread numbers
  *******************************************************************************/
 package org.eclipse.mat.tests.regression;
 
@@ -28,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Matcher;
@@ -129,51 +131,139 @@ public class TestApplication
             throw new IOException(MessageUtil.format("{0} contains no heap dumps", dumpDir.getAbsolutePath()));
 
         List<TestSuiteResult> testResults = new ArrayList<TestSuiteResult>(dumpList.size());
-        for (File dump : dumpList)
+        fileloop: for (File dump : dumpList)
         {
-            TestSuiteResult result = new TestSuiteResult(dump);
-            testResults.add(result);
-
-            try
+            // Multiple -Djava.util.concurrent.ForkJoinPool.common.parallelism= means
+            // run with every value
+            // Also allow -XX:ActiveProcessorCount=
+            String propname1 = "java.util.concurrent.ForkJoinPool.common.parallelism";
+            String prop1 = "-D" + propname1 + "=";
+            String propPattern1 = Pattern.quote(prop1);
+            String propname2 = "XX:ActiveProcessorCount";
+            String prop2 = "-" + propname2 + "=";
+            String propPattern2 = Pattern.quote(prop2);
+            String propPattern = propPattern1 + "|" + propPattern2;
+            // Two instances of property, match first and last, consume space before mid
+            Pattern threadPattern = Pattern.compile("(.*?)("+propPattern+")(\\d+) ?" + 
+                                                     "(.*)\\2(\\d+)" + "(.*)");
+            int minThreads = 1;
+            int maxThreads = 1;
+            Matcher threadMatch = threadPattern.matcher(jvmFlags);
+            if (threadMatch.matches())
             {
-                // prepare test environment
-                cleanIndexFiles(dump, result, true);
+                minThreads = Integer.parseInt(threadMatch.group(3));
+                maxThreads = Integer.parseInt(threadMatch.group(5));
             }
-            catch (Exception e)
+            for (int th = minThreads; th <= maxThreads; ++th)
             {
-                // skip test suite for this heap dump
-                continue;
-            }
-
-            try
-            {
-                // parse the heap dump and execute the test suite
-                parse(dump, jvmFlags, result, !compare);
-            }
-            catch (Exception e)
-            {
-                System.err.println("ERROR: " + e.getMessage());
-                result.addErrorMessage(e.getMessage());
-                continue;
-            }
-
-            // process the result (compare to the baseline)
-            if (compare)
-                processResults(dump, result);
-
-            // do the cleanup only if all the tests succeeded
-            boolean succeed = true;
-            for (SingleTestResult entry : result.getTestData())
-            {
-                if (entry.getResult().equals("Failed"))
+                String jvmFlags1 = this.jvmFlags;
+                if (threadMatch.matches())
                 {
-                    succeed = false;
-                    break;
+                    String prefix = threadMatch.group(1);
+                    String propmatch = threadMatch.group(2);
+                    String mid = threadMatch.group(4);
+                    String suffix = threadMatch.group(6);
+                    jvmFlags1 = prefix + mid + propmatch + th + suffix;
                 }
-            }
-            if (succeed && result.getErrorMessages().isEmpty())
-                cleanIndexFiles(dump, result, false);
 
+                // Multiple -Xmx settings means for us to find the smallest which works
+                String memArg="-Xmx";
+                String memArgPattern = Pattern.quote(memArg);
+                String unitPattern="[kKmMgG]?";
+                // Two instances of Xmx, choose first and last, consume space before mid
+                Pattern mXpattern = Pattern.compile("(.*?)(" + memArgPattern + ")(\\d+)(" + unitPattern + ") ?" +
+                                                     "(.*)\\2(\\d+)(" + unitPattern + ")" +
+                                                     "(.*)");
+                long min = 1;
+                long max = 1;
+                String prefix="",mxmatch="",mid="",unit="",suffix="";
+                Matcher m = mXpattern.matcher(jvmFlags1);
+                if (m.matches())
+                {
+                    // Variable heap size e.g. 
+                    // -Xmx64M -Xms1024M
+                    // -Xmx64m -Xmx1G
+                    prefix = m.group(1);
+                    mxmatch = m.group(2);
+                    min = Long.parseLong(m.group(3));
+                    String unitMin = m.group(4);
+                    mid = m.group(5);
+                    max = Long.parseLong(m.group(6));
+                    String unitMax = m.group(7);
+                    suffix = m.group(8);
+                    // Normalize units
+                    unit = unitMin;
+                    if (!unitMin.equals(unitMax))
+                    {
+                        unit = normalizedUnit(unitMin, unitMax);
+                        min = normalizeToUnit(min, unitMin, unit);
+                        max = normalizeToUnit(max, unitMax, unit);
+                    }
+                }
+                boolean success = false;
+                /*
+                 * Binary search
+                 */
+                do
+                {
+                    long mx = (min + max) >>> 1;
+                    String jvmFlags = m.matches() ? prefix + mid + mxmatch + mx + unit + suffix : jvmFlags1;
+
+                    TestSuiteResult result = new TestSuiteResult(dump, jvmFlags);
+                    testResults.add(result);
+                    try
+                    {
+                        // prepare test environment
+                        cleanIndexFiles(dump, result, true);
+                    }
+                    catch (Exception e)
+                    {
+                        // skip test suite for this heap dump
+                        continue fileloop;
+                    }
+
+                    try
+                    {
+                        // parse the heap dump and execute the test suite
+                        parse(dump, jvmFlags, result, !compare);
+                        max = mx - 1;
+                        success = true;
+                    }
+                    catch (Exception e)
+                    {
+                        min = mx + 1;
+                        if (min > max && !success)
+                        {
+                            System.err.println("ERROR: " + e.getMessage());
+                            result.addErrorMessage(e.getMessage());
+                        }
+                        else
+                        {
+                            // Expected failure with a too small Xmx
+                            testResults.remove(result);
+                        }
+                        continue;
+                    }
+
+                    // process the result (compare to the baseline)
+                    if (compare)
+                        processResults(dump, result);
+
+                    // do the cleanup only if all the tests succeeded
+                    boolean succeed = true;
+                    for (SingleTestResult entry : result.getTestData())
+                    {
+                        if (entry.getResult().equals("Failed"))
+                        {
+                            succeed = false;
+                            break;
+                        }
+                    }
+                    if (succeed && result.getErrorMessages().isEmpty())
+                        cleanIndexFiles(dump, result, false);
+
+                } while (min <= max);
+            }
         }
 
         if (!testResults.isEmpty())
@@ -202,11 +292,73 @@ public class TestApplication
         }
     }
 
+    /**
+     * Convert a value to the new units.
+     * @param value
+     * @param fromUnit
+     * @param toUnit
+     * @return the new value expressed as toUnit
+     */
+    private long normalizeToUnit(long value, String fromUnit, String toUnit)
+    {
+        String u1 = (toUnit+fromUnit).toUpperCase(Locale.ENGLISH);
+        if (u1.equals("K") || u1.equals("KM") || u1.equals("MG") || u1.equals("GT"))
+        {
+            value *= 1024;
+        }
+        else if (u1.equals("M") || u1.equals("KG") || u1.equals("MT"))
+        {
+            value *= 1024 * 1024;
+        }
+        else if (u1.equals("G") || u1.equals("KT"))
+        {
+            value *= 1024 * 1024 * 1024;
+        }
+        else if (u1.equals("T"))
+        {
+            value *= 1024L * 1024 * 1024 * 1024;
+        }
+        return value;
+    }
+
+    /**
+     * Choose the smaller of the two units.
+     * @param unitMin
+     * @param unitMax
+     * @return the smaller unit
+     */
+    private String normalizedUnit(String unitMin, String unitMax)
+    {
+        String unit;
+        if (unitMin.equals(unitMax))
+            unit = unitMin;
+        else if ("tT".contains(unitMin))
+            unit = unitMax;
+        else if ("tT".contains(unitMax))
+            unit = unitMin;
+        else if ("gG".contains(unitMin))
+            unit = unitMax;
+        else if ("gG".contains(unitMax))
+            unit = unitMin;
+        else if ("mM".contains(unitMin))
+            unit = unitMax;
+        else if ("mM".contains(unitMax))
+            unit = unitMin;
+        else if ("kK".contains(unitMin))
+            unit = unitMax;
+        else if ("kK".contains(unitMax))
+            unit = unitMin;
+        else
+            unit = unitMin;
+        return unit;
+    }
+
     private static final String URI = "http://www.eclipse.org/mat/regtest/";
 
     private interface Parameter
     {
         String NAME = "name";
+        String JVM_FLAGS = "jvmFlags";
         String TEST_SUITE = "testSuite";
         String HEAP_DUMP = "heapDump";
         String ERROR = "error";
@@ -245,6 +397,7 @@ public class TestApplication
             {
                 atts.clear();
                 atts.addAttribute(URI, Parameter.NAME, Parameter.NAME, "CDATA", testSuiteResult.getDumpName());
+                atts.addAttribute(URI, Parameter.JVM_FLAGS, Parameter.JVM_FLAGS, "CDATA", testSuiteResult.getJVMflags());
                 handler.startElement(URI, Parameter.HEAP_DUMP, Parameter.HEAP_DUMP, atts);
                 atts.clear();
 
@@ -345,7 +498,13 @@ public class TestApplication
                             .append("Test Name").append(RegTestUtils.SEPARATOR) //
                             .append("Date").append(RegTestUtils.SEPARATOR) //
                             .append("Time").append(RegTestUtils.SEPARATOR) //
-                            .append("Build Version").append("\n");
+                            .append("Build Version").append(RegTestUtils.SEPARATOR) //
+                            .append("JVM flags").append(RegTestUtils.SEPARATOR) //
+                            .append("Used memory").append(RegTestUtils.SEPARATOR) //
+                            .append("Free memory").append(RegTestUtils.SEPARATOR) //
+                            .append("Total memory").append(RegTestUtils.SEPARATOR) //
+                            .append("Maximum memory").append(RegTestUtils.SEPARATOR) //
+                            .append("\n");
 
             Bundle bundle = Platform.getBundle("org.eclipse.mat.api");
             String buildId = (bundle != null) ? bundle.getHeaders().get("Bundle-Version").toString()
@@ -363,7 +522,13 @@ public class TestApplication
                                     .append(record.getTestName()).append(RegTestUtils.SEPARATOR) //
                                     .append(date).append(RegTestUtils.SEPARATOR) //
                                     .append(record.getTime()).append(RegTestUtils.SEPARATOR) //
-                                    .append(buildId).append("\n");
+                                    .append(buildId).append(RegTestUtils.SEPARATOR) //
+                                    .append(result.getJVMflags()).append(RegTestUtils.SEPARATOR) //
+                                    .append(record.getUsedMem()).append(RegTestUtils.SEPARATOR) //
+                                    .append(record.getFreeMem()).append(RegTestUtils.SEPARATOR) //
+                                    .append(record.getTotalMem()).append(RegTestUtils.SEPARATOR) //
+                                    .append(record.getMaxMem()) //
+                                    .append("\n");
                 }
             }
 
@@ -573,7 +738,7 @@ public class TestApplication
         // get result file name
         String resultsFileName = dumpFile.getAbsolutePath().substring(0, dumpFile.getAbsolutePath().lastIndexOf('.'))
                         + "_Regression_Tests.zip";
-        System.out.println("Unzip: unziping test result file " + resultsFileName);
+        System.out.println("Unzip: unzipping test result file " + resultsFileName);
 
         File originFile = new File(resultsFileName);
         File targetFile = new File(baselineDir, originFile.getName());
@@ -586,7 +751,7 @@ public class TestApplication
         }
         else
         {
-            String message = "ERROR: Failed coping test results file " + resultsFileName
+            String message = "ERROR: Failed copying test results file " + resultsFileName
                             + " to the destination folder " + baselineDir;
             result.addErrorMessage(message);
             System.err.println(message);
@@ -668,12 +833,13 @@ public class TestApplication
         // extract parsing time
         if (extractTime)
         {
-            Pattern pattern = Pattern.compile("Task: (.*) ([0-9]*) ms");
+            Pattern pattern = Pattern.compile("Task: (.*) ([0-9]+) ms used ([0-9]+) free ([0-9]+) total ([0-9]+) max ([0-9]+)");
             for (String line : outputGobbler.getLines())
             {
                 Matcher matcher = pattern.matcher(line);
                 if (matcher.matches())
-                    result.addPerfData(new PerfData(matcher.group(1), matcher.group(2)));
+                    result.addPerfData(new PerfData(matcher.group(1), matcher.group(2), 
+                        matcher.group(3), matcher.group(4), matcher.group(5), matcher.group(6)));
             }
         }
     }

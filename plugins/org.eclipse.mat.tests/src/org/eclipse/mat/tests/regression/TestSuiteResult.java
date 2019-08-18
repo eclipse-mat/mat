@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 SAP AG.
+ * Copyright (c) 2008,2019 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson - Xmx and thread numbers
  *******************************************************************************/
 package org.eclipse.mat.tests.regression;
 
@@ -17,13 +18,15 @@ import java.util.List;
 /*package*/class TestSuiteResult
 {
     private File snapshot;
+    private String jvmFlags;
     private List<SingleTestResult> singleTestResult = new ArrayList<SingleTestResult>();
     private List<String> errorMessages = new ArrayList<String>();
     private List<PerfData> perfData = new ArrayList<PerfData>();
 
-    public TestSuiteResult(File snapshot)
+    public TestSuiteResult(File snapshot, String jvmFlags)
     {
         this.snapshot = snapshot;
+        this.jvmFlags = jvmFlags;
     }
 
     public String getDumpName()
@@ -34,6 +37,11 @@ import java.util.List;
     public File getSnapshot()
     {
         return snapshot;
+    }
+
+    public String getJVMflags()
+    {
+        return jvmFlags;
     }
 
     public List<SingleTestResult> getTestData()

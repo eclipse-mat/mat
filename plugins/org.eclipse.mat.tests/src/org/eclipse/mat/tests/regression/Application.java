@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 SAP AG.
+ * Copyright (c) 2008,2019 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson - memory usage
  *******************************************************************************/
 package org.eclipse.mat.tests.regression;
 
@@ -105,7 +106,7 @@ public class Application implements IApplication
         if (report == null)
             throw new SnapshotException(MessageUtil.format("Report not found: {0}", args[2]));
 
-        new TestParseApp(snapshotFile, report).run();
+        new TestParseApp(snapshotFile, report, args[2].contains(":performance")).run();
 
         return IApplication.EXIT_OK;
     }
@@ -119,7 +120,14 @@ public class Application implements IApplication
                         + "  -performance <folder> <jvmargs> : run performance tests on snapshots in given folder\n" //
                         + "  -cleanAll <folder> : clean index files and test results\n" //
                         + "  -newBaseline <folder> : overwrite existing base line with the last test results\n" //
-                        + "  -parse <snaphost> <report> : parse heap dump and print times\n");
+                        + "  -parse <snaphost> <report> : parse heap dump and print times\n\n"
+                        + "  If <jvmargs> contains two -Xmx values then a binary search is used to find the\n"
+                        + "  minimum value of -Xmx in the range which works.\n"
+                        + "  If <jvmargs> contains two -XX:activeProcessorCount=\n"
+                        + "  or two -Djava.util.concurrent.ForkJoinPool.common.parallelism= values then\n"
+                        + "  the tests are repeated with the range of values from one to the other.\n"
+                        + "  Use double-quotes around <jvmargs> having spaces or multiple options.\n"
+                        );
     }
 
     public void stop()
