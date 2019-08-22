@@ -4,18 +4,18 @@
 	<query name="info">
 		<param key="format" value="csv" />
 		<param key="filename" value="info.csv" />
-		<param key="html.separate_file" value="true" />	
+		<param key="html.separate_file" value="true" />
 		<param key="html.show_table_header" value="false" />
 		<command>heap_dump_overview</command>
-	</query>	
+	</query>
 	<query name="System Properties">
 		<param key="format" value="csv" />
 		<param key="filename" value="System_Properties.csv" />
-		<param key="html.separate_file" value="true" />		
+		<param key="html.separate_file" value="true" />
 		<param key="sort_column" value="Key=ASC" />
-		<param key="limit" value="1000" />		
+		<param key="limit" value="1000" />
 		<command>system_properties</command>
-	</query>	
+	</query>
 	<query name="Class Histogram">
 	    <param key="format" value="csv" />
 		<param key="filename" value="Class_Histogram.csv" />
@@ -39,20 +39,20 @@
 		<param key="filename" value="Dominator_Tree.csv" />
 		<param key="html.separate_file" value="true" />
 		<param key="sort_column" value="#2=DESC,#1=DESC,#0" />
-		<param key="limit" value="50000" />	
+		<param key="limit" value="50000" />
 		<command>dominator_tree</command>
 	</query>
-	<query name="Dominator Tree (binary)">			
-		<command>dom_tree_binary_test</command>				
+	<query name="Dominator Tree (binary)">
+		<command>dom_tree_binary_test</command>
 	</query>
 	<query name="List 1000 Strings">
 		<param key="format" value="csv" />
 		<param key="filename" value="List_1000_Strings.csv" />
 		<param key="html.separate_file" value="true" />
 		<param key="sort_column" value="ADDRESS" />
-		<param key="limit" value="1000" />	
+		<param key="limit" value="1000" />
 		<command>oql "select s.@objectAddress as ADDRESS, toString(s)as VALUE from java.lang.String s"</command>
-	</query>	
+	</query>
 	<query name="Paths from GC Roots">
 		<param key="format" value="csv" />
 		<param key="filename" value="Paths_from_GC_Root.csv" />
@@ -68,15 +68,15 @@
 		<param key="html.separate_file" value="true" />
 		<param key="limit" value="1000" />
 		<command>merged_paths_reg_test</command>
-	</query>	
+	</query>
 	<query name="Immediate Dominators of java.util.HashMap$Entry">
 		<param key="filename" value="Immediate_Dominators_of_java.util.HashMap$Entry.csv" />
 		<param key="format" value="csv" />
-		<param key="html.separate_file" value="true" />		
+		<param key="html.separate_file" value="true" />
 		<param key="sort_column" value="#4=DESC,#3=DESC,#2=DESC,#1=DESC,#0" />
 		<param key="limit" value="1000" />
 		<command>immediate_dominators java.util.HashMap$Entry</command>
-	</query>		
+	</query>
 	<query name="Thread Overview">
 		<param key="filename" value="Thread_Overview.csv" />
 		<param key="format" value="csv" />
@@ -84,5 +84,5 @@
 		<param key="sort_column" value="Name,Object / Stack Frame" />
 		<param key="limit" value="1000" />
 		<command>thread_overview</command>
-	</query>		
+	</query>
 </section>
