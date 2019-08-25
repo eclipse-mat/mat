@@ -487,6 +487,29 @@ public class TestApplication
 
     }
 
+    /**
+     * Escape CSV fields according to RFC 4180.
+     * @param data
+     * @param sep separator e.g. comma, semicolon
+     * @return escaped data
+     */
+    private String escapeCSVField(String data, String sep)
+    {
+        boolean hasSeparator = data.indexOf(sep) >= 0;
+        boolean hasQuote = data.indexOf('"') >= 0;
+        boolean hasNewLine = data.indexOf('\n') >= 0 || data.indexOf('\r') >= 0 && data.indexOf('\f') >= 0;
+
+        if (hasSeparator || hasQuote || hasNewLine)
+        {
+            if (hasQuote)
+            {
+                data = data.replace("\"", "\"\""); //$NON-NLS-1$ //$NON-NLS-2$
+            }
+            return "\"" + data + "\""; //$NON-NLS-1$ //$NON-NLS-2$
+        }
+        return data;
+    }
+    
     private void generatePerformanceReport(List<TestSuiteResult> results) throws IOException
     {
         File report = new File(dumpDir, String.format("performanceResults_%1$tY%1$tm%1$td%1$tH%1$tM.csv", new Date()));
@@ -507,7 +530,7 @@ public class TestApplication
                             .append("Used memory").append(RegTestUtils.SEPARATOR) //
                             .append("Free memory").append(RegTestUtils.SEPARATOR) //
                             .append("Total memory").append(RegTestUtils.SEPARATOR) //
-                            .append("Maximum memory").append(RegTestUtils.SEPARATOR) //
+                            .append("Maximum memory") //
                             .append("\n");
 
             Bundle bundle = Platform.getBundle("org.eclipse.mat.api");
@@ -522,17 +545,17 @@ public class TestApplication
 
                 for (PerfData record : result.getPerfData())
                 {
-                    out.append(relativePath).append(RegTestUtils.SEPARATOR) //
-                                    .append(record.getTestName()).append(RegTestUtils.SEPARATOR) //
-                                    .append(date).append(RegTestUtils.SEPARATOR) //
-                                    .append(record.getTime()).append(RegTestUtils.SEPARATOR) //
-                                    .append(buildId).append(RegTestUtils.SEPARATOR) //
-                                    .append(result.getJVMflags()).append(RegTestUtils.SEPARATOR) //
-                                    .append(record.getUsedMem()).append(RegTestUtils.SEPARATOR) //
-                                    .append(record.getFreeMem()).append(RegTestUtils.SEPARATOR) //
-                                    .append(record.getTotalMem()).append(RegTestUtils.SEPARATOR) //
-                                    .append(record.getMaxMem()) //
-                                    .append("\n");
+                    out.append(escapeCSVField(relativePath, RegTestUtils.SEPARATOR)).append(RegTestUtils.SEPARATOR) //
+                       .append(escapeCSVField(record.getTestName(), RegTestUtils.SEPARATOR)).append(RegTestUtils.SEPARATOR) //
+                       .append(escapeCSVField(date, RegTestUtils.SEPARATOR)).append(RegTestUtils.SEPARATOR) //
+                       .append(escapeCSVField(record.getTime(), RegTestUtils.SEPARATOR)).append(RegTestUtils.SEPARATOR) //
+                       .append(escapeCSVField(buildId, RegTestUtils.SEPARATOR)).append(RegTestUtils.SEPARATOR) //
+                       .append(escapeCSVField(result.getJVMflags(), RegTestUtils.SEPARATOR)).append(RegTestUtils.SEPARATOR) //
+                       .append(escapeCSVField(record.getUsedMem(), RegTestUtils.SEPARATOR)).append(RegTestUtils.SEPARATOR) //
+                       .append(escapeCSVField(record.getFreeMem(), RegTestUtils.SEPARATOR)).append(RegTestUtils.SEPARATOR) //
+                       .append(escapeCSVField(record.getTotalMem(), RegTestUtils.SEPARATOR)).append(RegTestUtils.SEPARATOR) //
+                       .append(escapeCSVField(record.getMaxMem(), RegTestUtils.SEPARATOR)) //
+                       .append("\n");
                 }
             }
 

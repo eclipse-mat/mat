@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 SAP AG.
+ * Copyright (c) 2008, 2019 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson - CSV changes
  *******************************************************************************/
 package org.eclipse.mat.tests.regression;
 
@@ -16,12 +17,14 @@ import java.io.FilenameFilter;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import com.ibm.icu.text.DecimalFormatSymbols;
+
 public class RegTestUtils
 {
     static final String BASELINE_EXTENSION = "_baseline";
     static final String TEST_EXTENSION = "_test";
     static final String RESULT_FILENAME = "result.xml";
-    public static final String SEPARATOR = ";";
+    public static final String SEPARATOR = new DecimalFormatSymbols().getDecimalSeparator() == ',' ? ";" : ",";
 
     private static FileFilter filter = new FileFilter()
     {

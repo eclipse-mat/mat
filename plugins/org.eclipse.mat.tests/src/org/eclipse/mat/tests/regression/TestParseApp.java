@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008,2019 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2019 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
- *    Andrew Johnson - Xmx and thread numbers
+ *    Andrew Johnson (IBM Corporation) - Xmx and thread numbers
  *******************************************************************************/
 package org.eclipse.mat.tests.regression;
 
@@ -53,9 +53,10 @@ public class TestParseApp
         finally
         {
             if (snapshot != null) SnapshotFactory.dispose(snapshot);
-        }
 
-        listener.done();
+            // If there was an error then this will still show the last message
+            listener.done();
+        }
     }
 
     private static class ClockedProgressListener implements IProgressListener
