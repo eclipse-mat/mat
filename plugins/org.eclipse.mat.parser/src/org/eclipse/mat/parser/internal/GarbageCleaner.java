@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others.
+ * Copyright (c) 2008, 2019 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson (IBM Corporation) - bug fixes
  *******************************************************************************/
 package org.eclipse.mat.parser.internal;
 
@@ -101,8 +102,9 @@ import org.eclipse.mat.util.SilentProgressListener;
                 }
                 catch (OperationCanceledException e)
                 {
-                    // $JL-EXC$
-                    return null;
+                    IOException ioe = new IOException(e.getMessage());
+                    ioe.initCause(e);
+                    throw ioe;
                 }
             }
             marker = null;
