@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2013 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2019 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -29,6 +29,8 @@ import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.NamedReference;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.MessageUtil;
+import org.eclipse.mat.util.IProgressListener.Severity;
 
 public class ObjectMarker
 {
@@ -360,8 +362,13 @@ public class ObjectMarker
                 push(z);
                 ++pushed;
                 if (waitingThreads > 0)
+                {
                     // All or one?
-                    notifyAll();
+                    if (size() > 1)
+                        notifyAll();
+                    else
+                        notify();
+                }
                 return true;
             }
             return false;
@@ -421,13 +428,29 @@ public class ObjectMarker
         }
 
         // wait for all the threads to finish
+        
+        int failed = 0;
+        Throwable failure = null;
         for (int i = 0; i < numberOfThreads; i++)
         {
             threads[i].join();
+            if (!dfsthreads[i].completed)
+            {
+                ++failed;
+                if (failure == null)
+                {
+                    failure = dfsthreads[i].failure;
+                }
+            }
         }
 
         if (progressListener.isCanceled())
             return;
+
+        if (failed > 0)
+        {
+            throw new RuntimeException(MessageUtil.format(Messages.ObjectMarker_ErrorMarkingObjectsSeeLog, failed), failure);
+        }
 
         progressListener.done();
         if (DEBUG) System.out.println("Took "+(System.currentTimeMillis() - l)+"ms"); //$NON-NLS-1$//$NON-NLS-2$
@@ -436,9 +459,12 @@ public class ObjectMarker
     public class DfsThread implements Runnable
     {
 
+        boolean completed; // normal completion
         int size = 0;
         int[] data = new int[10 * 1024]; // start with 10k
         IntStack rootsStack;
+        int current = -1;
+        Throwable failure; // Exception/Error
 
         public DfsThread(IntStack roots)
         {
@@ -447,58 +473,70 @@ public class ObjectMarker
 
         public void run()
         {
-            while (true)
+            try
             {
-                synchronized (rootsStack)
+                while (true)
                 {
-                    progressListener.worked(1);
-                    if (progressListener.isCanceled())
-                        return;
-
-                    if (rootsStack.size() > 0) // still some roots are not
-                    // processed
+                    synchronized (rootsStack)
                     {
-                        data[0] = rootsStack.pop();
-                        size = 1;
-                    }
-                    else
-                    // the work is done
-                    {
-                        break;
-                    }
-                }
+                        progressListener.worked(1);
+                        if (progressListener.isCanceled())
+                            return;
 
-                int current;
-
-                while (size > 0)
-                {
-                    /* start stack.pop() */
-                    current = data[--size];
-                    /* end stack.pop */
-
-                    for (int child : outbound.get(current))
-                    {
-                        /*
-                         * No synchronization here. It costs a lot of
-                         * performance It is possible that some bits are marked
-                         * more than once, but this is not a problem
-                         */
-                        if (!bits[child])
+                        if (rootsStack.size() > 0) // still some roots are not
+                            // processed
                         {
-                            bits[child] = true;
-                            // stack.push(child);
-                            /* start stack.push() */
-                            if (size == data.length)
-                            {
-                                int[] newArr = new int[data.length << 1];
-                                System.arraycopy(data, 0, newArr, 0, data.length);
-                                data = newArr;
-                            }
-                            data[size++] = child;
-                            /* end stack.push() */
+                            data[0] = rootsStack.pop();
+                            size = 1;
+                        }
+                        else
+                            // the work is done
+                        {
+                            break;
                         }
                     }
-                } // end of processing one GC root
+
+                    while (size > 0)
+                    {
+                        /* start stack.pop() */
+                        current = data[--size];
+                        /* end stack.pop */
+
+                        for (int child : outbound.get(current))
+                        {
+                            /*
+                             * No synchronization here. It costs a lot of
+                             * performance It is possible that some bits are marked
+                             * more than once, but this is not a problem
+                             */
+                            if (!bits[child])
+                            {
+                                bits[child] = true;
+                                // stack.push(child);
+                                /* start stack.push() */
+                                if (size == data.length)
+                                {
+                                    int[] newArr = new int[data.length << 1];
+                                    System.arraycopy(data, 0, newArr, 0, data.length);
+                                    data = newArr;
+                                }
+                                data[size++] = child;
+                                /* end stack.push() */
+                            }
+                        }
+                    } // end of processing one GC root
+                }
+                completed = true;
+            } 
+            catch (RuntimeException e)
+            {
+                progressListener.sendUserMessage(Severity.ERROR, Messages.ObjectMarker_ErrorMarkingObjects, e);
+                failure = e;
+            }
+            catch (Error e)
+            {
+                progressListener.sendUserMessage(Severity.ERROR, Messages.ObjectMarker_ErrorMarkingObjects, e);
+                failure = e;
             }
         }
     }
@@ -515,6 +553,8 @@ public class ObjectMarker
         static final int MAXSTACK = 100 * 1024;
         /** How many times to loop before checking the global stack */
         private static final int CHECKCOUNT = 10;
+        /** How many times to loop on outbounds before checking the global stack */
+        private static final int CHECKCOUNT2 = 200;
         int localRange;
         final int localRangeLimit;
         SoftReference<int[]> sr;
@@ -599,8 +639,6 @@ public class ObjectMarker
                         fillStack();
 
                         // Process the local stack and queue
-                        int current;
-
                         while (size > 0)
                         {
                             /* start stack.pop() */
@@ -611,35 +649,7 @@ public class ObjectMarker
                             if (check || checkCount++ >= CHECKCOUNT)
                             {
                                 checkCount = 0;
-                                check = true;
-                                if (queue.size() > 0 && queue.size() + size > RESERVED)
-                                {
-                                    int fromQueue;
-                                    synchronized (rootsStack)
-                                    {
-                                        do
-                                        {
-                                            fromQueue = queue.get();
-                                            check = rootsStack.pushIfWaiting(fromQueue);
-                                        }
-                                        while (check && queue.size() > 0 && queue.size() + size > RESERVED);
-                                    }
-                                    if (!check)
-                                        queue.put(fromQueue);
-                                }
-                                else if (size > RESERVED)
-                                {
-                                    synchronized (rootsStack)
-                                    {
-                                        do
-                                        {
-                                            check = rootsStack.pushIfWaiting(current);
-                                            if (check)
-                                                current = data[--size];
-                                        }
-                                        while (check && size > RESERVED);
-                                    }
-                                }
+                                check = fillRootsStack();
                             }
 
                             // Examine each outbound reference
@@ -654,6 +664,17 @@ public class ObjectMarker
                                 if (!bits[child])
                                 {
                                     bits[child] = true;
+                                    // See if we have enough work and other threads need more work. 
+                                    if (queue.size() + size > RESERVED && (check || checkCount++ >= CHECKCOUNT2))
+                                    {
+                                        checkCount = 0;
+                                        synchronized(rootsStack)
+                                        {
+                                            check = rootsStack.pushIfWaiting(child);
+                                        }
+                                        if (check)
+                                            continue;
+                                    }
                                     if (size == 0)
                                     {
                                         // We have emptied the stack, so reset
@@ -693,12 +714,110 @@ public class ObjectMarker
                         } // end of processing one GC root
                     }
                 }
+                completed = true;
+            }
+            catch (RuntimeException e)
+            {
+                progressListener.sendUserMessage(Severity.ERROR, Messages.ObjectMarker_ErrorMarkingObjects, e);
+                failure = e;
+            }
+            catch (OutOfMemoryError e)
+            {
+                failure = e;
+                if (emptyLocalStacks())
+                {
+                    progressListener.sendUserMessage(Severity.WARNING, Messages.ObjectMarker_WarningMarkingObjects, e);
+                    // Mark as done as the remaining threads can continue to handle the remaining work
+                    completed = true;
+                }
+                else
+                {
+                    progressListener.sendUserMessage(Severity.ERROR, Messages.ObjectMarker_ErrorMarkingObjects, e);
+                }
+            }
+            catch (Error e)
+            {
+                progressListener.sendUserMessage(Severity.ERROR, Messages.ObjectMarker_ErrorMarkingObjects, e);
+                failure = e;
             }
             finally
             {
                 rootsStack.unlinkThread();
             }
         }
+
+        /**
+         * Fill the root stack with some of the local items
+         * if other threads are waiting and there are still
+         * enough items on the local stack/queue.
+         * @return
+         */
+        private boolean fillRootsStack()
+        {
+            boolean check;
+            check = true;
+            if (queue.size() > 0 && queue.size() + size > RESERVED)
+            {
+                int fromQueue;
+                synchronized (rootsStack)
+                {
+                    do
+                    {
+                        fromQueue = queue.get();
+                        check = rootsStack.pushIfWaiting(fromQueue);
+                    }
+                    while (check && queue.size() > 0 && queue.size() + size > RESERVED);
+                }
+                if (!check)
+                    queue.put(fromQueue);
+            }
+            else if (size > RESERVED)
+            {
+                synchronized (rootsStack)
+                {
+                    do
+                    {
+                        check = rootsStack.pushIfWaiting(current);
+                        if (check)
+                            current = data[--size];
+                    }
+                    while (check && size > RESERVED);
+                }
+            }
+            return check;
+        }
+
+        /**
+         * Empty the local stacks to the global stack.
+         * @return If this was successful.
+         */
+        boolean emptyLocalStacks()
+        {
+            synchronized (rootsStack)
+            {
+                if (DEBUG) System.out.println("emptyLocalStacks "+rootsStack.totalThreads+" "+current+" "+size+" "+queue.size()); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
+                // Only can requeue if another thread is still running
+                if (rootsStack.totalThreads >= 2)
+                {
+                    if (current != -1)
+                    {
+                        rootsStack.push(current);
+                        current = -1;
+                    }
+                    while (size > 0)
+                    {
+                        rootsStack.push(data[--size]);
+                    }
+                    while (queue.size() > 0)
+                    {
+                        rootsStack.push(queue.get());
+                    }
+                }
+            }
+            if (DEBUG) System.out.println("emptyLocalStacks "+current+" "+size+" "+queue.size()); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+            return current == -1 && size == 0 && queue.size() == 0;
+        }
+
         /**
          * Is the objectId in range for the local stack?
          * @param val
