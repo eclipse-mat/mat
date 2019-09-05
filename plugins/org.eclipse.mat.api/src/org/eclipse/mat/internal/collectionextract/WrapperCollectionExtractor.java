@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 SAP AG, IBM Corporation and others
+ * Copyright (c) 2008, 2019 SAP AG, IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -99,13 +99,29 @@ public class WrapperCollectionExtractor implements ICollectionExtractor
         return extractList(coll).getNumberOfNotNullElements();
     }
 
+    private String desc(String msg, IObject coll, AbstractExtractedCollection<?, ?> ec)
+    {
+        if (ec != null)
+            return msg + coll.getDisplayName() + "; " + ec.getDisplayName(); //$NON-NLS-1$
+        try
+        {
+            Object coll2 = coll.resolveValue(field);
+            if (coll2 instanceof IObject)
+                return msg + coll.getDisplayName() + "; " + ((IObject)coll2).getDisplayName(); //$NON-NLS-1$
+        }
+        catch (SnapshotException e)
+        {
+        }
+        return msg + coll.getDisplayName();
+    }
+
     protected ExtractedCollection extractList(IObject coll)
     {
         AbstractExtractedCollection<?, ?> ec = extractCollection(coll);
         if (ec instanceof ExtractedCollection)
             return (ExtractedCollection) ec;
         else
-            throw new UnsupportedOperationException("not a list-ish collection: " + coll.getDisplayName() + (ec != null ? ("; " + ec.getDisplayName()) : ""));
+            throw new UnsupportedOperationException(desc("not a list-ish collection: ", coll, ec));
     }
 
     protected ExtractedMap extractMap(IObject coll)
@@ -114,7 +130,7 @@ public class WrapperCollectionExtractor implements ICollectionExtractor
         if (ec instanceof ExtractedMap)
             return (ExtractedMap) ec;
         else
-            throw new UnsupportedOperationException("not a map: " + coll.getDisplayName() + (ec != null ? ("; " + ec.getDisplayName()) : ""));
+            throw new UnsupportedOperationException(desc("not a map: ", coll, ec));
     }
 
     protected AbstractExtractedCollection<?, ?> extractCollection(IObject coll)

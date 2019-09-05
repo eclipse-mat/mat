@@ -13,6 +13,7 @@ package org.eclipse.mat.tests.collect;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.isOneOf;
+import static org.hamcrest.core.AnyOf.anyOf;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.hamcrest.core.StringStartsWith.startsWith;
@@ -21,6 +22,7 @@ import static org.hamcrest.number.OrderingComparison.greaterThanOrEqualTo;
 import static org.hamcrest.number.OrderingComparison.lessThanOrEqualTo;
 
 import java.io.Serializable;
+import java.util.regex.Pattern;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.IContextObject;
@@ -33,11 +35,38 @@ import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.query.SnapshotQuery;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.VoidProgressListener;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
 import org.junit.Rule;
 import org.junit.rules.ErrorCollector;
 
 public class ExtractCollectionEntriesBase
 {
+    /**
+     * Hamcrest style matcher for regular expression matching.
+     * Hamcrest 1.1 doesn't have this.
+     * @param regex
+     * @return true if the string matches the pattern
+     */
+    public static Matcher<java.lang.String> matchesPattern(final java.lang.String regex)
+    {
+        return new TypeSafeMatcher<String>() {
+            Pattern pat = Pattern.compile(regex);
+
+            public void describeTo(Description description)
+            {
+                description.appendText("a string matching '" + regex + "'");
+            }
+
+            @Override
+            protected boolean matchesSafely(String item)
+            {
+                return pat.matcher(item).matches();
+            }
+
+        };
+    }
 
     @Rule
     public ErrorCollector collector = new ErrorCollector();
@@ -74,8 +103,8 @@ public class ExtractCollectionEntriesBase
                         {
                             collector.checkThat(prefix + "List entry should start with the type", cv, startsWith(name));
                         }
-                        collector.checkThat(prefix + "Should end with number or aAbB: " + cv,
-                                    cv.matches(".*([0-9]+|[aAbB]+)$"), equalTo(true));
+                        collector.checkThat(prefix + "Should end with number or aAbB", cv,
+                                    matchesPattern(".*([0-9]+|[aAbB]+)$"));
                     }
                     else
                     {
@@ -130,8 +159,8 @@ public class ExtractCollectionEntriesBase
                         {
                             collector.checkThat(prefix + "Hash set entry should start with the type", cv, startsWith(name));
                         }
-                        collector.checkThat(prefix + "Should end with number or aAbB: " + cv,
-                                    cv.matches(".*([0-9]+|[aAbB]+)$"), equalTo(true));
+                        collector.checkThat(prefix + "Should end with number or aAbB", cv,
+                                    matchesPattern(".*([0-9]+|[aAbB]+)$"));
                     }
                     else
                     {
@@ -149,19 +178,24 @@ public class ExtractCollectionEntriesBase
     protected void checkCollection(long objAddress, int numEntries, ISnapshot snapshot) throws SnapshotException
     {
         checkMap(objAddress, numEntries, snapshot);
-        checkHashEntries(objAddress, numEntries, snapshot, false);
+        checkHashEntries(objAddress, numEntries, snapshot, false, false);
     }
 
     /**
      * HashMap entries.
-     * Check keys
+     * Check keys and values.
+     * Map:
+     * 123 : full.class.name:123
+     * Set from map
+     * full.class.name:123 : <other>
      * @param objAddress
      * @param numEntries
      * @param snapshot
      * @param checkValueString
+     * @param isMap whether this is a normal test map, or a map from a set
      * @throws SnapshotException
      */
-    protected void checkHashEntries(long objAddress, int numEntries, ISnapshot snapshot, boolean checkValueString) throws SnapshotException
+    protected void checkHashEntries(long objAddress, int numEntries, ISnapshot snapshot, boolean checkValueString, boolean isMap) throws SnapshotException
     {
         IObject obj = snapshot.getObject(snapshot.mapAddressToId(objAddress));
         String prefix = obj.getTechnicalName()+": ";
@@ -196,24 +230,29 @@ public class ExtractCollectionEntriesBase
             if (k1 != null)
             {
                 collector.checkThat(prefix+"Key should be an String", k1, instanceOf(String.class));
-                if (checkValueString && k1 instanceof String)
+                if (isMap && checkValueString && k1 instanceof String)
                 {
-                    collector.checkThat(prefix+"Should be a number or aAbB", ((String)k1).matches("[0-9]+|[aAbB]+"), equalTo(true));
+                    collector.checkThat(prefix+"Key should be a number or aAbB", (String)k1, matchesPattern("[0-9]+|[aAbB]+"));
                 }
                 if (checkValueString && k1 instanceof String)
                 {
-                    collector.checkThat(prefix+"Should end with a number or aAbB", ((String)k1).matches(".*([0-9]+|[aAbB]+)$"), equalTo(true));
+                    collector.checkThat(prefix+"Key should end with a number or aAbB", (String)k1, matchesPattern(".*([0-9]+|[aAbB]+)$"));
+                }
+                if (!isMap && checkValueString && k1 instanceof String)
+                {
+                    // Some of the sets are KeySets from Maps so have numeric/aAbB not class names
+                    collector.checkThat(prefix+"Key contains name of collection class or a number or aAbB", (String)k1, anyOf(containsString(obj.getClazz().getName()), matchesPattern("[0-9]+|[aAbB]+")));
                 }
             }
             if (v1 != null)
             {
                 collector.checkThat(prefix+"Value should be an String", v1, instanceOf(String.class));
             }
-            if (checkValueString && k1 instanceof String &&  v1 instanceof String)
+            if (isMap && checkValueString && k1 instanceof String &&  v1 instanceof String)
             {
                 collector.checkThat(prefix+"Value contains key", (String)v1, containsString((String)k1));
             }
-            if (checkValueString && v1 instanceof String)
+            if (isMap && checkValueString && v1 instanceof String)
             {
                 collector.checkThat(prefix+"Value contains name of collection class", (String)v1, containsString(obj.getClazz().getName()));
             }
@@ -282,8 +321,10 @@ public class ExtractCollectionEntriesBase
         IResultTable table2 = (IResultTable) result2;
         int rowCount2 = table2.getRowCount();
         String className = snapshot.getClassOf(snapshot.mapAddressToId(objAddress)).getName();
-        if (className.equals("java.util.TreeMap") || className.equals("java.util.TreeMap$KeySet") || 
-            className.equals("java.util.concurrent.ConcurrentSkipListMap") ||  className.equals("java.util.concurrent.ConcurrentSkipListMap$KeySet") ||
+        if (className.equals("java.util.TreeMap") || className.equals("java.util.TreeMap$KeySet") ||
+            className.equals("java.util.TreeMap$EntrySet") ||
+            className.equals("java.util.concurrent.ConcurrentSkipListMap") || className.equals("java.util.concurrent.ConcurrentSkipListMap$KeySet") ||
+            className.equals("java.util.concurrent.ConcurrentSkipListMap$EntrySet") ||
             className.equals("java.util.TreeSet") || className.equals("java.util.concurrent.ConcurrentSkipListSet"))
         {
             // TreeMaps and ConcurrentSkipListMap don't appear in the fill ratio report as they

@@ -11,17 +11,18 @@
  *******************************************************************************/
 package org.eclipse.mat.tests;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.time.Month;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -34,8 +35,14 @@ import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.concurrent.Delayed;
+import java.util.concurrent.TimeUnit;
 import java.util.jar.Attributes;
 
+import javax.management.openmbean.CompositeType;
+import javax.management.openmbean.OpenDataException;
+import javax.management.openmbean.SimpleType;
+import javax.management.openmbean.TabularType;
 import javax.print.attribute.standard.JobStateReason;
 import javax.print.attribute.standard.PrinterStateReason;
 import javax.print.attribute.standard.Severity;
@@ -68,12 +75,14 @@ public class CreateCollectionDump
     {
         // Extend the collections
         List<Collection>l0 = new ArrayList<Collection>();
+        List<Map>l1 = new ArrayList<Map>();
         for (Map m : mapTestData.maps)
         {
             Collection c = m.values();
             if (c.size() == mapTestData.COUNT && c.iterator().next() instanceof String)
             {
                 l0.add(c);
+                //System.out.println("Added " + c.getClass());
             }
         }
         listCollectionTestData2 = new ListCollectionTestData(l0);
@@ -82,36 +91,79 @@ public class CreateCollectionDump
         for (Map m : mapTestData.maps)
         {
             Set s = m.keySet();
+            Set s2 = m.entrySet();
             if (s.size() == mapTestData.COUNT && s.iterator().next() instanceof String)
             {
                 l0.add(s);
-                //l0.add(m.entrySet());
+                //System.out.println("Added " + s.getClass());
+                // Only add the entry set classes so we can detect them at test time
+                if (s2.getClass().getName().contains("EntrySet"))
+                {
+                    l0.add(s2);
+                    //System.out.println("Added " + s2.getClass());
+                }
+                else
+                {
+                    boolean found = false;
+                    for (Collection c : nonListCollectionTestData.collections)
+                    {
+                        if (c.getClass().equals(s2.getClass()))
+                        {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found)
+                        System.out.println("Missing entry set class " + s2.getClass());
+                }
             }
         }
         nonListCollectionTestData2 = new NonListCollectionTestData(l0);
-        
+
         l0.clear();
         for (Map m : emptyMapTestData.maps)
         {
             Collection c = m.values();
-            if (c.size() == mapTestData.COUNT)
+            if (c.size() == 0)
             {
                 l0.add(c);
+                //System.out.println("Added " + c.getClass());
             }
         }
         emptyListCollectionTestData2 = new EmptyListCollectionTestData(l0);
-        
+
         l0.clear();
         for (Map m : emptyMapTestData.maps)
         {
             Set s = m.keySet();
-            if (s.size() == mapTestData.COUNT)
+            Set s2 = m.entrySet();
+            if (s.size() == 0)
             {
                 l0.add(s);
-                //l0.add(m.entrySet());
+                //System.out.println("Added " + s.getClass());
+                if (s2.getClass().getName().contains("EntrySet"))
+                {
+                    l0.add(s2);
+                    //System.out.println("Added " + s.getClass());
+                }
+                else
+                {
+                    boolean found = false;
+                    for (Collection c : emptyNonListCollectionTestData.collections)
+                    {
+                        if (c.getClass().equals(s2.getClass()))
+                        {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found)
+                        System.out.println("Missing entry set class " + s2.getClass());
+                }
             }
         }
         emptyNonListCollectionTestData2 = new EmptyNonListCollectionTestData(l0);
+
     }
 
     public static void main(String[] args) throws Exception
@@ -199,7 +251,9 @@ public class CreateCollectionDump
             List<Collection>cols = new ArrayList<Collection>();
             /*
              * List of classes under test.
-             * Space separate class from static method
+             * Space separated class from static method
+             * 1 entry means use constructor
+             * 2 entries means use static method from class
              */
             String ls[] = new String[] {
                             "java.util.AbstractCollection",
@@ -230,6 +284,9 @@ public class CreateCollectionDump
                             "java.util.Collections emptySet",
                             "java.util.Collections emptySortedSet",
                             "java.util.Collections emptyNavigableSet",
+                            "java.util.Collections list",
+                            "java.util.Collections nCopies",
+                            "java.util.Collections newSetFromMap",
                             "java.util.Collections singleton",
                             "java.util.Collections singletonList",
                             "java.util.Collections synchronizedCollection",
@@ -243,6 +300,8 @@ public class CreateCollectionDump
                             "java.util.Collections unmodifiableSortedSet",
                             "java.util.Collections unmodifiableNavigableSet",
                             "java.util.EnumSet",
+                            "java.util.EnumSet noneOf",
+                            //"java.util.EnumSet allOf",
                             "java.util.HashSet",
                             "javax.print.attribute.standard.JobStateReasons",
                             "java.util.concurrent.LinkedBlockingDeque",
@@ -250,6 +309,7 @@ public class CreateCollectionDump
                             "java.util.LinkedHashSet",
                             "java.util.LinkedList",
                             "java.util.concurrent.LinkedTransferQueue",
+                            "java.util.concurrent.PriorityBlockingQueue",
                             "java.util.PriorityQueue",
                             "javax.management.relation.RoleList",
                             "javax.management.relation.RoleUnresolvedList",
@@ -262,6 +322,7 @@ public class CreateCollectionDump
             values = new String[COUNT];
             for (String cn : ls)
             {
+                // Class for constructor
                 Class<? extends Collection> c = null;
                 // Methods?
                 String cn0 = cn;
@@ -304,42 +365,16 @@ public class CreateCollectionDump
                     }
                 }
 
-                // To use an existing collection constructor
                 fillValues(cn);
-                List<String>arrayVals = new ArrayList<String>();
-                for (int i = 1; i <= COUNT; ++i)
-                {
-                    arrayVals.add(values[i]);
-                }
-                // And a plain 0-based array
-                String values0[] = arrayVals.toArray(new String[arrayVals.size()]);
-                Set<String>setVals = new TreeSet<String>(arrayVals);
-                Set<String>setVals2 = new HashSet<String>(arrayVals);
-                Queue queue = new ArrayDeque(setVals);
-                Object[][] args = new Object[][] { {}, { Integer.valueOf(0) }, { new Integer(COUNT) }, { new Integer(COUNT * 2) },
-                    { arrayVals }, { arrayVals }, { setVals2 }, { setVals2 }, { setVals }, { setVals }, { setVals }, { setVals },
-                    { values0 }, {queue}, {queue},
-                    { arrayVals, String.class}, { arrayVals, String.class}, { setVals, String.class}, { queue, String.class},
-                    { setVals, String.class}, { setVals, String.class},
-                    { values[1] },
-                    { Collections.emptySet() },
-                    { Collections.emptySet() },
-                };
-
-                // Matches argument objects
-                Class[][] cons = new Class[][] { {}, { Integer.TYPE }, { Integer.TYPE }, { Integer.TYPE },
-                                { Collection.class }, { List.class }, { Collection.class }, { Set.class }, { Collection.class }, { Set.class }, { SortedSet.class }, { NavigableSet.class },
-                                { Object[].class }, { Collection.class }, { Deque.class },
-                                { Collection.class, Class.class }, { List.class, Class.class }, { Set.class, Class.class }, { Queue.class, Class.class },
-                                { SortedSet.class, Class.class }, { NavigableSet.class, Class.class },
-                                { Object.class },
-                                { Set.class },
-                                { Collections.class },
-                };
+                // To use an existing collection constructor
+                Class[][] cons = buildArgTypes();
                 int added = 0;
-                // Try the different constuctors / methods
+                // Try the different constructors / methods
                 for (int j = 0; j < cons.length; ++j)
                 {
+                    List<String>arrayVals = new ArrayList<String>();
+                    List<Delayed>delayedVals = new ArrayList<Delayed>();
+                    Object[][] args = buildArgs(arrayVals, delayedVals);
                     Collection cl;
                     try
                     {
@@ -371,24 +406,8 @@ public class CreateCollectionDump
                                 // To use an existing collection constructor
                                 fillValues(cn);
                                 arrayVals = new ArrayList<String>();
-                                for (int i = 1; i <= COUNT; ++i)
-                                {
-                                    arrayVals.add(values[i]);
-                                }
-                                // And a plain 0-based array
-                                values0 = arrayVals.toArray(new String[arrayVals.size()]);
-                                setVals = new TreeSet<String>(arrayVals);
-                                setVals2 = new HashSet<String>(arrayVals);
-                                queue = new ArrayDeque(setVals);
-                                args = new Object[][] { {}, { Integer.valueOf(0) }, { new Integer(COUNT) }, { new Integer(COUNT * 2) },
-                                    { arrayVals }, { arrayVals }, { setVals2 }, { setVals2 }, { setVals }, { setVals }, { setVals }, { setVals },
-                                    { values0 }, {queue}, {queue},
-                                    { arrayVals, String.class}, { arrayVals, String.class}, { setVals, String.class}, { queue, String.class},
-                                    { setVals, String.class}, { setVals, String.class},
-                                    { values[1] },
-                                    { Collections.emptySet() },
-                                    { Collections.emptySet() },
-                                };
+                                delayedVals = new ArrayList<Delayed>();
+                                args = buildArgs(arrayVals, delayedVals);
                                 cl = (Collection)method.invoke(null, args[j]);
                             }
                         }
@@ -404,12 +423,14 @@ public class CreateCollectionDump
                                         cl.add(values[i]);
                                     }
                                 }
-                                // Remove and refill
+                                List vals = new ArrayList(cl.contains(delayedVals.get(0)) ? delayedVals : arrayVals);
+                                 // Remove and refill
                                 int from = 0;
                                 int to = COUNT * 2 / 3;
                                 for (int i = to; i <= COUNT; i += 1)
                                 {
-                                    cl.remove(values[i]);
+                                    //System.out.println(cl.getClass()+" "+arrayVals.size()+" "+delayedVals.size()+" "+delayedVals2.size());
+                                    cl.remove(vals.get(i - 1));
                                 }
                                 if (cl instanceof List)
                                 {
@@ -421,12 +442,12 @@ public class CreateCollectionDump
                                     }
                                     for (i += 3; i < to; i += 3)
                                     {
-                                        l.add(i - 1, values[i]);
+                                        l.add(i - 1, vals.get(i - 1));
                                     }
                                 }
                                 for (int i = to; i <= COUNT; i += 1)
                                 {
-                                    cl.add(values[i]);
+                                    cl.add(vals.get(i - 1));
                                 }
                             }
                             catch (UnsupportedOperationException e)
@@ -460,11 +481,22 @@ public class CreateCollectionDump
                                 }
                             }
                         }
+                        else
+                        {
+                            // Try to make an empty collection
+                            try
+                            {
+                                cl.clear();
+                            }
+                            catch (UnsupportedOperationException e)
+                            {
+                            }
+                        }
                         if (cl.isEmpty() == useEmpty())
                         {
                             cols.add(cl);
                             ++added;
-                            //System.out.println("coll "+cl.size()+" "+cl.getClass()+"  "+useEmpty());
+                            //System.out.println("coll "+cl.size()+" "+cl.getClass()+"  "+useEmpty()+" "+cl);
                         }
                     }
                     catch (NoSuchMethodException e)
@@ -498,6 +530,67 @@ public class CreateCollectionDump
                 }
             }
             collections = cols.toArray(new Collection[cols.size()]);
+        }
+
+        private Object[][]  buildArgs(List<String> arrayVals, List<Delayed> delayedVals)
+        {
+            for (int i = 1; i <= COUNT; ++i)
+            {
+                arrayVals.add(values[i]);
+                final int fi = i;
+                delayedVals.add(new Delayed() {
+                    public int compareTo(Delayed o)
+                    {
+                        return 0;
+                    }
+                    public long getDelay(TimeUnit unit)
+                    {
+                        return fi;
+                    }
+                });
+            }
+            Map<String,Boolean>mapVals = new TreeMap<String,Boolean>();
+            // And a plain 0-indexed array
+            String values0[] = arrayVals.toArray(new String[arrayVals.size()]);
+            Set<String>setVals = new TreeSet<String>(arrayVals);
+            Set<String>setVals2 = new HashSet<String>(arrayVals);
+            Queue queue = new ArrayDeque(setVals);
+            Enumeration<String> enumer = Collections.enumeration(arrayVals);
+            Object[][] args = new Object[][] { {}, { Integer.valueOf(0) }, { new Integer(COUNT) }, { new Integer(COUNT * 2) },
+                { arrayVals }, { arrayVals }, { setVals2 }, { setVals2 }, { setVals }, { setVals }, { setVals }, { setVals },
+                { values0 }, {queue}, {queue},
+                { arrayVals, String.class}, { arrayVals, String.class}, { setVals, String.class}, { queue, String.class},
+                { setVals, String.class}, { setVals, String.class},
+                { values[1] },
+                { Collections.emptySet() },
+                { Collections.emptySet() },
+                { enumer },
+                { new Integer(COUNT), values[1] },
+                { mapVals },
+                //{ delayedVals },
+                { Month.class },
+            };
+            return args;
+        }
+
+        private Class[][] buildArgTypes()
+        {
+            // Matches argument objects
+            Class[][] cons = new Class[][] { {}, { Integer.TYPE }, { Integer.TYPE }, { Integer.TYPE },
+                            { Collection.class }, { List.class }, { Collection.class }, { Set.class }, { Collection.class }, { Set.class }, { SortedSet.class }, { NavigableSet.class },
+                            { Object[].class }, { Collection.class }, { Deque.class },
+                            { Collection.class, Class.class }, { List.class, Class.class }, { Set.class, Class.class }, { Queue.class, Class.class },
+                            { SortedSet.class, Class.class }, { NavigableSet.class, Class.class },
+                            { Object.class },
+                            { Set.class },
+                            { Collections.class },
+                            { Enumeration.class },
+                            { Integer.TYPE, Object.class },
+                            { Map.class },
+                            //{ Collection.class },
+                            { Class.class },
+            };
+            return cons;
         }
 
         public void extend(List<Collection>ext)
@@ -649,10 +742,19 @@ public class CreateCollectionDump
             }
         }
 
+        public MapTestData(Collection<Map> newmaps)
+        {
+            maps = newmaps.toArray(new Map[newmaps.size()]);
+        }
+
         public MapTestData()
         {
             List<Map>ms = new ArrayList<Map>();
-            // List of maps under test
+            /*
+             * List of maps under test
+             * 1 entry means use constructor
+             * 2 entries means use static method from class
+             */
             String ls[] = new String[] {
                             "java.util.AbstractMap",
                             "java.util.jar.Attributes",
@@ -691,11 +793,14 @@ public class CreateCollectionDump
             keys = new String[COUNT];
             for (String cn : ls)
             {
+                // Class for constructor
                 Class<? extends Map> c = null;
                 String cn0 = cn;
                 // Methods?
                 String ss[] = cn.split(" ", 2);
+                // Method name
                 final String mn;
+                // Class for method name
                 Class<?>cm;
                 if (ss.length > 1)
                 {
@@ -729,31 +834,17 @@ public class CreateCollectionDump
                         continue;
                     }
                 }
-                // To use an existing map constructor
+
                 fillValues(cn);
-                Map<String,String>mapVals = new TreeMap<String,String>();
-                for (int i = 1; i <= COUNT; ++i)
-                {
-                    mapVals.put(keys[i], values[i]);
-                }
-                Map<String,String>mapVals2 = new HashMap<String,String>(mapVals);
-                Object[][] args = new Object[][] { {}, { Integer.valueOf(0) }, { new Integer(COUNT) }, { new Integer(COUNT * 2) },
-                    { mapVals2 } , { mapVals } , { mapVals } , { mapVals },
-                    { mapVals, String.class, String.class }, { mapVals, String.class, String.class }, { mapVals, String.class, String.class },
-                    { keys[1], values[1] },
-                    { Collections.emptyMap() },
-                };
-
-                Class[][] cons = new Class[][] { {}, { Integer.TYPE }, { Integer.TYPE }, { Integer.TYPE },
-                    { Map.class }, { Map.class }, { SortedMap.class }, { NavigableMap.class },
-                    { Map.class, Class.class, Class.class }, { SortedMap.class, Class.class, Class.class }, { NavigableMap.class, Class.class, Class.class },
-                    { Object.class, Object.class },
-                    { Map.class },
-                };
-
+                // Argument types
+                Class[][] cons = buildArgTypes();
                 int added = 0;
                 for (int j = 0; j < cons.length; ++j)
                 {
+                    // To use an existing map constructor
+                    Map<Enum,String>enumVals = new TreeMap<Enum,String>();
+                    Map<String,String>mapVals = new TreeMap<String,String>();
+                    Object[][] args = buildArgs(mapVals, enumVals);
                     Map cl;
                     try
                     {
@@ -771,25 +862,16 @@ public class CreateCollectionDump
                         }
                         else
                         {
-                            cl = (Map)cm.getMethod(mn, cons[j]).invoke(null, args[j]);
+                            Method method = cm.getMethod(mn, cons[j]);
+                            cl = (Map)method.invoke(null, args[j]);
                             c = cl.getClass();
                             if (!c.getName().equals(cn))
                             {
+                                // Class name changed, so rebuild initial values
                                 cn = c.getName();
                                 fillValues(cn);
-                                mapVals = new TreeMap<String,String>();
-                                for (int i = 1; i <= COUNT; ++i)
-                                {
-                                    mapVals.put(keys[i], values[i]);
-                                }
-                                mapVals2 = new HashMap<String,String>(mapVals);
-                                args = new Object[][] { {}, { Integer.valueOf(0) }, { new Integer(COUNT) }, { new Integer(COUNT * 2) },
-                                    { mapVals2 } , { mapVals } , { mapVals } , { mapVals },
-                                    { mapVals, String.class, String.class }, { mapVals, String.class, String.class }, { mapVals, String.class, String.class },
-                                    { keys[1], values[1] },
-                                    { Collections.emptyMap() },
-                                };
-                                cl = (Map)cm.getMethod(mn, cons[j]).invoke(null, args[j]);
+                                args = buildArgs(mapVals, enumVals);
+                                cl = (Map)method.invoke(null, args[j]);
                                 c = cl.getClass();
                             }
                         }
@@ -863,11 +945,22 @@ public class CreateCollectionDump
                                 }
                             }
                         }
+                        else
+                        {
+                            // Try to make an empty map
+                            try
+                            {
+                                cl.clear();
+                            }
+                            catch (UnsupportedOperationException e)
+                            {
+                            }
+                        }
                         if (cl.isEmpty() == useEmpty())
                         {
                             ms.add(cl);
                             ++added;
-                            //System.out.println("map "+cl.size()+" "+cl.getClass()+"  "+useEmpty()+" "+mn+" "+j);
+                            //System.out.println("map "+cl.size()+" "+cl.getClass()+"  "+useEmpty()+" "+mn+" "+j+" "+cl);
                         }
                     }
                     catch (InstantiationException e)
@@ -895,6 +988,57 @@ public class CreateCollectionDump
                 }
             }
             maps = ms.toArray(new Map[ms.size()]);
+        }
+
+        private Object[][] buildArgs(Map<String, String> mapVals, Map<Enum, String> enumVals)
+        {
+            for (int i = 1; i <= COUNT; ++i)
+            {
+                mapVals.put(keys[i], values[i]);
+                if (i <= 12)
+                    enumVals.put(Month.of(i), values[i]);
+            }
+            SimpleType<String> st[] = Collections.nCopies(COUNT, SimpleType.STRING).toArray(new SimpleType[COUNT]);
+            CompositeType ct1;
+            TabularType tt1;
+            try
+            {
+                // keys[], values[] is 1-offset, we need 0-offset
+                ct1 = new CompositeType("composite test", "a composite type", mapVals.keySet().toArray(new String[COUNT]), mapVals.values().toArray(new String[COUNT]), st);
+                tt1 = new TabularType("tabular test", "testing tabular types with strings", ct1, mapVals.keySet().toArray(new String[COUNT]));
+            }
+            catch (OpenDataException e)
+            {
+                e.printStackTrace();
+                ct1 = null;
+                tt1 = null;
+            }
+            Map<String,String>mapVals2 = new HashMap<String,String>(mapVals);
+            // Arguments
+            Object[][] args = new Object[][] { {}, { Integer.valueOf(0) }, { new Integer(COUNT) }, { new Integer(COUNT * 2) },
+                { mapVals2 } , { mapVals } , { mapVals } , { mapVals },
+                { mapVals, String.class, String.class }, { mapVals, String.class, String.class }, { mapVals, String.class, String.class },
+                { keys[1], values[1] },
+                { Collections.emptyMap() },
+                //{ Month.class },
+                //{ enumVals },
+                //{ tt1 },
+            };
+            return args;
+        }
+
+        private Class[][] buildArgTypes()
+        {
+            Class[][] cons = new Class[][] { {}, { Integer.TYPE }, { Integer.TYPE }, { Integer.TYPE },
+                { Map.class }, { Map.class }, { SortedMap.class }, { NavigableMap.class },
+                { Map.class, Class.class, Class.class }, { SortedMap.class, Class.class, Class.class }, { NavigableMap.class, Class.class, Class.class },
+                { Object.class, Object.class },
+                { Map.class },
+                //{ Class.class },
+                //{ Map.class },
+                //{ TabularType.class },
+            };
+            return cons;
         }
 
         public String toString()

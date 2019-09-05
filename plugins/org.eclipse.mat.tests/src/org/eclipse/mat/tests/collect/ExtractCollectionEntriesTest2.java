@@ -158,6 +158,7 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
                         checkCollectionSize(objAddress, numEntries, snapshot);
                         if (!name.startsWith("java.util.concurrent.LinkedBlocking") &&
                                         !name.startsWith("java.util.concurrent.LinkedTransfer") &&
+                                        !name.startsWith("java.util.concurrent.SynchronousQueue") &&
                                         !name.startsWith("java.util.concurrent.ConcurrentLinked"))
                         {
                             checkCollectionFillRatio(objAddress, numEntries, snapshot);
@@ -165,9 +166,12 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
                         if (!name.contains("Array") && !name.contains("Queue") && !name.contains("Deque")
                             && !(name.startsWith("java.util.Collections") && (name.endsWith("Collection") || name.endsWith("SingletonSet"))))
                         {
-                            checkHashEntries(objAddress, numEntries, snapshot, false);
+                            checkHashEntries(objAddress, numEntries, snapshot, true, false);
                             checkMapCollisionRatio(objAddress, numEntries, snapshot);
-                            checkHashSetObjects(objAddress, numEntries, checkVals, snapshot);
+                            if (!name.contains("EntrySet"))
+                            {
+                                checkHashSetObjects(objAddress, numEntries, checkVals, snapshot);
+                            }
                         }
                         else
                         {
@@ -239,13 +243,26 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
                     long objAddress = nr.getObjectAddress();
                     int numEntries = 0;
                     checkCollectionSize(objAddress, numEntries, snapshot);
-                    checkHashEntries(objAddress, numEntries, snapshot, true);
+                    checkHashEntries(objAddress, numEntries, snapshot, true, false);
                     String name = nr.getObject().getClazz().getName();
-                    if (!name.contains("Array") && !name.contains("Queue") && !name.contains("Deque"))
+                    if (!name.startsWith("java.util.concurrent.LinkedBlocking") &&
+                                    !name.startsWith("java.util.concurrent.LinkedTransfer") &&
+                                    !name.startsWith("java.util.concurrent.SynchronousQueue") &&
+                                    !name.startsWith("java.util.concurrent.ConcurrentLinked"))
                     {
                         checkCollectionFillRatio(objAddress, numEntries, snapshot);
+                    }
+                    if (!name.contains("Array") && !name.contains("Queue") && !name.contains("Deque")
+                        && !(name.startsWith("java.util.Collections") && (name.endsWith("Collection") || name.endsWith("SingletonSet"))))
+                    {
+                        checkHashEntries(objAddress, numEntries, snapshot, true, false);
                         checkMapCollisionRatio(objAddress, numEntries, snapshot);
                         checkHashSetObjects(objAddress, numEntries, checkVals, snapshot);
+                    }
+                    else
+                    {
+                        // Other queries also work with list_entries
+                        checkList(objAddress, numEntries, checkVals, snapshot);
                     }
                 }
             }
@@ -301,7 +318,7 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
                     }
                     else
                     {
-                        checkHashEntries(objAddress, numEntries, snapshot, true);
+                        checkHashEntries(objAddress, numEntries, snapshot, true, true);
                         checkMap(objAddress, numEntries, snapshot);
                     }
                 }
@@ -331,7 +348,7 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
                     ++objectsFound;
                     long objAddress = nr.getObjectAddress();
                     int numEntries = 0;
-                    checkHashEntries(objAddress, numEntries, snapshot, true);
+                    checkHashEntries(objAddress, numEntries, snapshot, true, true);
                     checkMap(objAddress, numEntries, snapshot);
                 }
             }
