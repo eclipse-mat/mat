@@ -62,7 +62,7 @@ public class LinkedListCollectionExtractor extends FieldSizedCollectionExtractor
             header = ExtractionUtils.followOnlyOutgoingReferencesExceptLast(leadField, list);
         }
         if (header == null)
-            return null;
+            return new int[0];
 
         IObject previous = header;
         IObject current = header;
@@ -177,7 +177,7 @@ public class LinkedListCollectionExtractor extends FieldSizedCollectionExtractor
         int entries[] =  extractEntryIds(coll);
         if (entries == null)
             return 0;
-        else 
+        else
             return entries.length;
     }
 }

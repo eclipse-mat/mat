@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2010 SAP AG.
+    Copyright (c) 2008, 2019 SAP AG and IBM Corporation.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
    
     Contributors:
         SAP AG - initial API and implementation
+        IBM Corporation - additional collection classes
  -->
 <!DOCTYPE task PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd" >
 <task id="task_analyzingjavacollectionusage" xml:lang="en-us">
@@ -16,7 +17,7 @@
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2008, 2010 SAP AG and others.
+				Copyright (c) 2008, 2019 SAP AG, IBM Corporation and others.
 				All rights reserved. This program and the accompanying materials
 				are made available under the terms of the Eclipse Public License v1.0
 				which accompanies this distribution, and is available at
@@ -97,6 +98,9 @@
 										<codeblock>java.util.Collections$EmptySet</codeblock>
 									</li>
 									<li>
+										<codeblock>java.util.Collections$SetFromMap</codeblock>
+									</li>
+									<li>
 										<codeblock>java.util.Collections$SingletonList</codeblock>
 									</li>
 									<li>
@@ -148,6 +152,12 @@
 										<codeblock>java.util.concurrent.SynchronousQueue</codeblock>
 									</li>
 									<li>
+										<codeblock>java.util.EnumMap</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.EnumSet</codeblock>
+									</li>
+									<li>
 										<codeblock>java.util.HashMap</codeblock>
 									</li>
 									<li>
@@ -155,6 +165,9 @@
 									</li>
 									<li>
 										<codeblock>java.util.Hashtable</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.IdentityHashMap</codeblock>
 									</li>
 									<li>
 										<codeblock>java.util.ImmutableCollections$List0</codeblock>
@@ -238,6 +251,9 @@
 										<codeblock>java.util.Collections$EmptySet</codeblock>
 									</li>
 									<li>
+										<codeblock>java.util.Collections$SetFromMap</codeblock>
+									</li>
+									<li>
 										<codeblock>java.util.Collections$SingletonList</codeblock>
 									</li>
 									<li>
@@ -302,6 +318,12 @@
 									</li>
 									<li>
 										<codeblock>java.util.concurrent.SynchronousQueue</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.EnumMap</codeblock>
+									</li>
+									<li>
+										<codeblock>java.util.EnumSet</codeblock>
 									</li>
 									<li>
 										<codeblock>java.util.HashMap</codeblock>
@@ -437,13 +459,7 @@
 										<codeblock>java.util.concurrent.ConcurrentHashMap$Segment</codeblock>
 									</li>
 									<li>
-										<codeblock>java.util.HashMap</codeblock>
-									</li>
-									<li>
 										<codeblock>java.util.HashSet</codeblock>
-									</li>
-									<li>
-										<codeblock>java.util.Hashtable</codeblock>
 									</li>
 									<li>
 										<codeblock>java.util.concurrent.ConcurrentHashMap</codeblock>
@@ -455,13 +471,10 @@
 										<codeblock>java.util.concurrent.ConcurrentSkipListSet</codeblock>
 									</li>
 									<li>
-										<codeblock>java.util.Collections$CheckedSet</codeblock>
-									</li>
-									<li>
 										<codeblock>java.util.Collections$CheckedMap</codeblock>
 									</li>
 									<li>
-										<codeblock>java.util.Collections$UnmodifiableMap</codeblock>
+										<codeblock>java.util.Collections$CheckedSet</codeblock>
 									</li>
 									<li>
 										<codeblock>java.util.Collections$SynchronizedMap</codeblock>

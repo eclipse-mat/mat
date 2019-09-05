@@ -102,7 +102,7 @@ public class CommonNameResolver
         public String resolve(IObject heapObject) throws SnapshotException
         {
             Object value = heapObject.resolveValue("value"); //$NON-NLS-1$
-            return value != null ? String.valueOf(value) : null; 
+            return value != null ? String.valueOf(value) : null;
         }
     }
 
@@ -431,37 +431,47 @@ public class CommonNameResolver
     {
         public String resolve(IObject obj) throws SnapshotException
         {
-            IObject cls = (IObject)obj.resolveValue("declaringClass");
-            IObject methodName = (IObject)obj.resolveValue("methodName");
+            IObject cls = (IObject)obj.resolveValue("declaringClass"); //$NON-NLS-1$
+            IObject methodName = (IObject)obj.resolveValue("methodName"); //$NON-NLS-1$
             if (cls == null || methodName == null)
                 return null;
-            int line = (Integer)obj.resolveValue("lineNumber");
-            IObject fn = (IObject)obj.resolveValue("fileName");
+            int line = (Integer)obj.resolveValue("lineNumber"); //$NON-NLS-1$
+            IObject fn = (IObject)obj.resolveValue("fileName"); //$NON-NLS-1$
             String ln;
             if (line == -2)
-                ln = "(Compiled Code)";
+                ln = "(Compiled Code)"; //$NON-NLS-1$
             else if (line == -3)
-                ln = "(Native Method)";
+                ln = "(Native Method)"; //$NON-NLS-1$
             else if (line == -1)
-                ln = "";
+                ln = ""; //$NON-NLS-1$
             else if (line == 0)
-                ln = "";
+                ln = ""; //$NON-NLS-1$
             else
                 ln = Integer.toString(line);
             String name;
             if (fn == null)
                 if (line > 0)
-                    name = cls.getClassSpecificName() + "." + methodName.getClassSpecificName() + "() " + ln;
+                    name = cls.getClassSpecificName() + "." + methodName.getClassSpecificName() + "() " + ln; //$NON-NLS-1$ //$NON-NLS-2$
                 else
-                    name = cls.getClassSpecificName() + "." + methodName.getClassSpecificName() + "()";
+                    name = cls.getClassSpecificName() + "." + methodName.getClassSpecificName() + "()";  //$NON-NLS-1$//$NON-NLS-2$
             else
                 if (line > 0)
-                    name = cls.getClassSpecificName() + "." + methodName.getClassSpecificName() + "() ("
-                                + fn.getClassSpecificName() + ":" + ln + ")";
+                    name = cls.getClassSpecificName() + "." + methodName.getClassSpecificName() + "() (" //$NON-NLS-1$ //$NON-NLS-2$
+                                + fn.getClassSpecificName() + ":" + ln + ")";  //$NON-NLS-1$//$NON-NLS-2$
                 else
-                    name = cls.getClassSpecificName() + "." + methodName.getClassSpecificName() + "() ("
-                                    + fn.getClassSpecificName() + ")";
+                    name = cls.getClassSpecificName() + "." + methodName.getClassSpecificName() + "() (" //$NON-NLS-1$ //$NON-NLS-2$
+                                    + fn.getClassSpecificName() + ")"; //$NON-NLS-1$
             return name;
+        }
+    }
+
+    @Subject("java.lang.Enum")
+    public static class EnumResolver implements IClassSpecificNameResolver
+    {
+        public String resolve(IObject heapObject) throws SnapshotException
+        {
+            IObject value = (IObject) heapObject.resolveValue("name"); //$NON-NLS-1$
+            return value != null ? ClassSpecificNameResolverRegistry.resolve(value) : null; 
         }
     }
 }
