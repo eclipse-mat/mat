@@ -232,10 +232,21 @@ public class TestApplication
                     catch (Exception e)
                     {
                         min = mx + 1;
-                        if (min > max && !success)
+                        if (min > max)
                         {
-                            System.err.println("ERROR: " + e.getMessage());
-                            result.addErrorMessage(e.getMessage());
+                            // Last -Xmx
+                            if (success)
+                            {
+                                // Previous success, but expected failure with a too small Xmx
+                                testResults.remove(result);
+                                // but we had a success, so delete the index files
+                                cleanIndexFiles(dump, result, false);
+                            }
+                            else
+                            {
+                                System.err.println("ERROR: " + e.getMessage());
+                                result.addErrorMessage(e.getMessage());
+                            }
                         }
                         else
                         {
