@@ -53,7 +53,7 @@
 								<ul>
 									<li>it is blocking</li>
 									<li>it is long running</li>
-									<li> it the finalizer queue was or is still full.</li>
+									<li>the finalizer queue was or is still full.</li>
 								</ul>
 								<p> Use the finalizer queue query to check the queue.</p>
 							</entry>
@@ -72,6 +72,13 @@
 									<li> The application made use of too many objects with
 										finalize() which are queued up in memory.</li>
 								</ul>
+								<p>Note: On J9 JVM-based dumps (e.g. IBM Java, OpenJ9), this
+								   list shows objects waiting to be finalized and those
+								   which have already been finalized and are waiting to be
+								   garbage collected. This query does not provide a way to
+								   differentiate the two (because DTFJ doesn't), although you may 
+								   be able to differentiate based on object fields
+								   (e.g. a "closed" boolean field, etc.).</p>
 								<p> Additionally a class-level summary of the objects is provided</p>
 							</entry>
 						</row>
