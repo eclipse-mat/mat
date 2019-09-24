@@ -37,6 +37,23 @@
     },
     {
       "key": {
+        "uuid": "251c798e_313541bc",
+        "filename": "plugins/org.eclipse.mat.parser/src/org/eclipse/mat/parser/index/IntIndexStreamer.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2019-09-24T15:37:49Z",
+      "side": 1,
+      "message": "It would be useful for IntIndex1NReader to be able to stop the IntIndexStreamer threads if it was cancelled. One way would be for IntIndex1NReader.cancel to call IntIndexStreamer.closeStream after closing the output stream. We could then catch the IOException here and shutdownNow() the compressor and writer.",
+      "revId": "cf542420a0837d842845b86fed1c3b4c74001497",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cc48c522_cf6ef387",
         "filename": "plugins/org.eclipse.mat.parser/src/org/eclipse/mat/parser/index/IntIndexStreamer.java",
         "patchSetId": 2
@@ -72,6 +89,23 @@
     },
     {
       "key": {
+        "uuid": "deab6ce6_4e5c21db",
+        "filename": "plugins/org.eclipse.mat.parser/src/org/eclipse/mat/parser/index/IntIndexStreamer.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2019-09-24T15:37:49Z",
+      "side": 1,
+      "message": "If the exception occurs on the last write we won\u0027t detect the problem on the next task - so perhaps we need an extra check at the end, or a dummy WriterTask create.",
+      "revId": "cf542420a0837d842845b86fed1c3b4c74001497",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f00f117f_329bface",
         "filename": "plugins/org.eclipse.mat.parser/src/org/eclipse/mat/parser/index/IntIndexStreamer.java",
         "patchSetId": 2
@@ -101,6 +135,23 @@
       "side": 1,
       "message": "ok.",
       "parentUuid": "f00f117f_329bface",
+      "revId": "cf542420a0837d842845b86fed1c3b4c74001497",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e22f783c_09da07e5",
+        "filename": "plugins/org.eclipse.mat.parser/src/org/eclipse/mat/parser/index/IntIndexStreamer.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2019-09-24T15:37:49Z",
+      "side": 1,
+      "message": "We should also catch an OutOfMemoryError here and handle it in a similar way. Are there any other ways that the writing can fail?",
       "revId": "cf542420a0837d842845b86fed1c3b4c74001497",
       "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
       "unresolved": false
