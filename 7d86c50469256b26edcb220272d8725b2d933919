@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "22f66a2f_fa529235",
+        "filename": "plugins/org.eclipse.mat.parser/src/org/eclipse/mat/parser/index/IntArray1NWriter.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2019-09-24T15:46:09Z",
+      "side": 1,
+      "message": "The batching could be useful for performance, but we also need to consider cases where the SetTask has a big backing array. We should keep count of the total size of all the values arrays (for the retained size of the arrays) and for the number of values (\u0027length\u0027) and publish the tasks if they get too big, not just with TASK_BUFFER_SIZE tasks. We may need a new class to do this e.g. ArrayListSetTask rather than finding the totals on each set.",
+      "revId": "7d86c50469256b26edcb220272d8725b2d933919",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8a78fb48_33df589a",
         "filename": "plugins/org.eclipse.mat.parser/src/org/eclipse/mat/parser/index/IntIndexStreamer.java",
         "patchSetId": 2
