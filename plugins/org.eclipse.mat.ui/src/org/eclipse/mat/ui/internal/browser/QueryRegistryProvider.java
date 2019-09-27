@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others.
+ * Copyright (c) 2008, 2019 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson (IBM Corporation) - bug fixes
  *******************************************************************************/
 package org.eclipse.mat.ui.internal.browser;
 
@@ -23,8 +24,10 @@ import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.QueryExecution;
+import org.eclipse.mat.ui.editor.AbstractEditorPane;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
 import org.eclipse.mat.ui.util.IPolicy;
+import org.eclipse.mat.ui.util.PaneState;
 
 public class QueryRegistryProvider extends QueryBrowserProvider
 {
@@ -79,7 +82,9 @@ public class QueryRegistryProvider extends QueryBrowserProvider
                 ArgumentSet set = query.createNewArgumentSet(editor.getQueryContext());
                 ISnapshot snapshot = (ISnapshot) editor.getQueryContext().get(ISnapshot.class, null);
                 policy.fillInObjectArguments(snapshot, query, set);
-                QueryExecution.execute(editor, editor.getActiveEditor().getPaneState(), null, set, !query.isShallow(),
+                AbstractEditorPane active = editor.getActiveEditor();
+                PaneState ps = active != null ? active.getPaneState() : null;
+                QueryExecution.execute(editor, ps, null, set, !query.isShallow(),
                                 false);
             }
             else
