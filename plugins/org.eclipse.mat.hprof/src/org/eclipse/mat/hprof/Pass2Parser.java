@@ -21,7 +21,7 @@ import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.hprof.IHprofParserHandler.HeapObject;
 import org.eclipse.mat.hprof.ui.HprofPreferences;
 import org.eclipse.mat.hprof.ui.HprofPreferences.HprofStrictness;
-import org.eclipse.mat.parser.io.PositionInputStream;
+import org.eclipse.mat.parser.io.DefaultPositionInputStream;
 import org.eclipse.mat.parser.model.ClassImpl;
 import org.eclipse.mat.snapshot.model.Field;
 import org.eclipse.mat.snapshot.model.FieldDescriptor;
@@ -55,7 +55,7 @@ public class Pass2Parser extends AbstractParser
 
     public void read(File file, String dumpNrToRead) throws SnapshotException, IOException
     {
-        in = new PositionInputStream(new BufferedInputStream(new FileInputStream(file)));
+        in = new DefaultPositionInputStream(new BufferedInputStream(new FileInputStream(file)));
 
         int currentDumpNr = 0;
 

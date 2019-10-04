@@ -20,7 +20,7 @@ import java.util.List;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.hprof.ui.HprofPreferences;
 import org.eclipse.mat.parser.io.BufferedRandomAccessInputStream;
-import org.eclipse.mat.parser.io.PositionInputStream;
+import org.eclipse.mat.parser.io.DefaultPositionInputStream;
 import org.eclipse.mat.parser.model.ClassImpl;
 import org.eclipse.mat.parser.model.ClassLoaderImpl;
 import org.eclipse.mat.parser.model.InstanceImpl;
@@ -43,7 +43,7 @@ public class HprofRandomAccessParser extends AbstractParser
                     HprofPreferences.HprofStrictness strictnessPreference) throws IOException
     {
         super(strictnessPreference);
-        this.in = new PositionInputStream(new BufferedRandomAccessInputStream(new RandomAccessFile(file, "r"), 512)); //$NON-NLS-1$
+        this.in = new DefaultPositionInputStream(new BufferedRandomAccessInputStream(new RandomAccessFile(file, "r"), 512)); //$NON-NLS-1$
         this.version = version;
         this.idSize = identifierSize;
     }
