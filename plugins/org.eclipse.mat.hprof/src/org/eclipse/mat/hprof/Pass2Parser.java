@@ -140,6 +140,7 @@ public class Pass2Parser extends AbstractParser
     private class HeapObjectParser implements Spliterator<HeapObject>
     {
         static final int BATCH_SIZE = 512;
+        static final long MAX_MEM = 1000000;
 
         final long end;
 
@@ -166,11 +167,15 @@ public class Pass2Parser extends AbstractParser
             // read another N items from the queue
             final HeapObject[] nextBatch = new HeapObject[BATCH_SIZE];
             int found = 0;
+            long memsize = 0;
             while (tryAdvance(t -> _nextItemCapture = t))
             {
                 nextBatch[found] = _nextItemCapture;
                 found++;
+                if (_nextItemCapture.isObjectArray)
+                    memsize += _nextItemCapture.ids.length; 
                 if (found >= nextBatch.length) break;
+                if (memsize >= MAX_MEM) break;
             }
             // tryAdvance indicated end of stream, and no entries found, bail out
             if (found == 0)
