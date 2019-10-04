@@ -11,9 +11,7 @@
  *******************************************************************************/
 package org.eclipse.mat.hprof;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -30,7 +28,7 @@ import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.HashMapLongObject;
 import org.eclipse.mat.collect.HashMapLongObject.Entry;
 import org.eclipse.mat.hprof.ui.HprofPreferences;
-import org.eclipse.mat.parser.io.DefaultPositionInputStream;
+import org.eclipse.mat.parser.io.BufferingRafPositionInputStream;
 import org.eclipse.mat.parser.io.PositionInputStream;
 import org.eclipse.mat.parser.model.ClassImpl;
 import org.eclipse.mat.snapshot.MultipleSnapshotsException;
@@ -83,7 +81,7 @@ public class Pass1Parser extends AbstractParser
     public void read(File file, String dumpNrToRead) throws SnapshotException, IOException
     {
         // See http://java.net/downloads/heap-snapshot/hprof-binary-format.html
-        in = new DefaultPositionInputStream(new BufferedInputStream(new FileInputStream(file)));
+        in = new BufferingRafPositionInputStream(file, 0, 8*1024);
 
         int currentDumpNr = 0;
         List<MultipleSnapshotsException.Context> ctxs = new ArrayList<MultipleSnapshotsException.Context>();
