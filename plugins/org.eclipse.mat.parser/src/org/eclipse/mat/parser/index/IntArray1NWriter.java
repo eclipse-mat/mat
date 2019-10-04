@@ -5,6 +5,9 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Supplier;
 
 import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.collect.ArrayLong;
@@ -14,6 +17,9 @@ import org.eclipse.mat.parser.index.IndexWriter.PosIndexStreamer;
 
 public class IntArray1NWriter
 {
+    // length of set() queue to buffer before writing to output as a batch
+    private static final int TASK_BUFFER_SIZE = 1024;
+
     int[] header;
     // Used to expand the range of values stored in the header up to 2^40
     byte[] header2;
@@ -22,11 +28,21 @@ public class IntArray1NWriter
     DataOutputStream out;
     IntIndexStreamer body;
 
+    CopyOnWriteArrayList<ArrayList<SetTask>> allTasks = new CopyOnWriteArrayList<ArrayList<SetTask>>();
+    ThreadLocal<ArrayList<SetTask>> threadTaskQueue = ThreadLocal.withInitial(new Supplier<ArrayList<SetTask>>()
+    {
+        public ArrayList<SetTask> get()
+        {
+            ArrayList<SetTask> newList = new ArrayList<SetTask>(TASK_BUFFER_SIZE);
+            allTasks.add(newList);
+            return newList;
+        }
+    });
+
     public IntArray1NWriter(int size, File indexFile) throws IOException
     {
         this.header = new int[size];
-        // Lazy allocate header2
-        // this.header2 = new byte[size];
+        this.header2 = new byte[size];
         this.indexFile = indexFile;
 
         this.out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(indexFile)));
@@ -92,35 +108,62 @@ public class IntArray1NWriter
     void setHeader(int index, long val)
     {
         header[index] = (int)val;
-        byte hi = (byte)(val >> 32);
-        if ((hi != 0 || val > IndexWriter.MAX_OLD_HEADER_VALUE) && header2 == null)
-            header2 = new byte[header.length];
-        // Once we have started, always overwrite
-        if (header2 != null)
-            header2[index] = hi;
+        header2[index] = (byte)(val >> 32);
     }
 
     private long getHeader(int index)
     {
-        return (header2 != null ? (header2[index] & 0xffL) << 32 : 0) | (header[index] & 0xffffffffL);
+        return ((header2[index] & 0xffL) << 32) | (header[index] & 0xffffffffL);
     }
 
     protected void set(int index, int[] values, int offset, int length) throws IOException
     {
-        long bodyPos = body.size;
-        setHeader(index, bodyPos);
+        ArrayList<SetTask> tasks = threadTaskQueue.get();
+        tasks.add(new SetTask(index, values, offset, length));
 
-        body.add(length);
+        if (tasks.size() >= TASK_BUFFER_SIZE)
+        {
+            publishTasks(tasks);
+            tasks.clear();
+        }
+    }
 
-        body.addAll(values, offset, length);
+    void publishTasks(final ArrayList<SetTask> tasks) throws IOException
+    {
+        synchronized(body)
+        {
+            for(SetTask t : tasks)
+            {
+                long bodyPos = body.addAllWithLengthFirst(t.values, t.offset, t.length);
+                setHeader(t.index, bodyPos);
+            }
+        }
     }
 
     public IIndexReader.IOne2ManyIndex flush() throws IOException
     {
+        synchronized(body)
+        {
+            for(ArrayList<SetTask> list : allTasks)
+            {
+                publishTasks(list);
+                list.clear();
+            }
+        }
+
         long divider = body.closeStream();
 
         IIndexReader.IOne2OneIndex headerIndex = null;
-        if (header2 != null)
+        boolean usesHeader2 = false;
+        for(int i = 0; i < header2.length; i++)
+        {
+            if (header2[i] != 0)
+            {
+                usesHeader2 = true;
+                break;
+            }
+        }
+        if (usesHeader2)
         {
             headerIndex = new PosIndexStreamer().writeTo2(out, divider, new IteratorLong()
             {
@@ -184,5 +227,18 @@ public class IntArray1NWriter
     public File getIndexFile()
     {
         return indexFile;
+    }
+
+    private static class SetTask {
+        final int index;
+        final int[] values;
+        final int offset;
+        final int length;
+        public SetTask(final int index, final int[] values, final int offset, final int length) {
+            this.index = index;
+            this.values = values;
+            this.offset = offset;
+            this.length = length;
+        }
     }
 }

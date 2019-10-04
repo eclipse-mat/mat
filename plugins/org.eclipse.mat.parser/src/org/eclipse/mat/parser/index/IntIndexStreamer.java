@@ -144,6 +144,14 @@ public class IntIndexStreamer extends IntIndex<SoftReference<ArrayIntCompressed>
         }
     }
 
+    public long addAllWithLengthFirst(int[] values, int offset, int length) throws IOException
+    {
+        long startPos = size;
+        add(length);
+        addAll(values, offset, length);
+        return startPos;
+    }
+
     private void addPage() throws IOException
     {
         ArrayIntCompressed array = new ArrayIntCompressed(page, 0, page.length - left);
