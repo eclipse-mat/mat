@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Netflix (Jason Koch) - concurrent calculations
  *******************************************************************************/
 package org.eclipse.mat.parser.internal;
 
@@ -15,9 +16,15 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.collect.BitField;
@@ -45,10 +52,13 @@ import org.eclipse.mat.util.SilentProgressListener;
 /* package */class GarbageCleaner
 {
 
+    private final static int PARALLEL_CHUNK_SIZE = 16*1024*1024;
     public static int[] clean(final PreliminaryIndexImpl idx, final SnapshotImplBuilder builder,
-                    Map<String, String> arguments, IProgressListener listener) throws IOException
+                    Map<String, String> arguments, IProgressListener listener)
+            throws IOException, InterruptedException, ExecutionException
     {
         IndexManager idxManager = new IndexManager();
+        ExecutorService es = Executors.newWorkStealingPool();
 
         try
         {
@@ -122,7 +132,7 @@ import org.eclipse.mat.util.SilentProgressListener;
                 }
                 if (newNoOfObjects < oldNoOfObjects)
                 {
-                    createHistogramOfUnreachableObjects(idx, reachable);
+                    createHistogramOfUnreachableObjects(es, idx, reachable);
                 }
             }
 
@@ -149,43 +159,39 @@ import org.eclipse.mat.util.SilentProgressListener;
                 else
                 {
                     map[ii] = -1;
-
-                    int classId = object2classId.get(ii);
-                    ClassImpl clazz = classesById.get(classId);
-
-                    long arraySize = preA2size.getSize(ii);
-                    if (arraySize > 0)
-                    {
-                        clazz.removeInstance(arraySize);
-                        memFree += arraySize;
-                    }
-                    else
-                    {
-                        // [INFO] some instances of java.lang.Class are not
-                        // reported as HPROF_GC_CLASS_DUMP but as
-                        // HPROF_GC_INSTANCE_DUMP
-                        ClassImpl c = classesById.get(ii);
-
-                        if (c == null)
-                        {
-                            clazz.removeInstance(clazz.getHeapSizePerInstance());
-                            memFree += clazz.getHeapSizePerInstance();
-                        }
-                        else
-                        {
-                            clazz.removeInstance(c.getUsedHeapSize());
-                            memFree += c.getUsedHeapSize();
-                            classes2remove.add(c);
-                        }
-                    }
                 }
             }
+
+            ArrayList<Callable<CleanupWrapper>> tasks = new ArrayList<Callable<CleanupWrapper>>();
+
+            for(int i = 0; i < oldNoOfObjects; i += PARALLEL_CHUNK_SIZE) {
+                final int start = i;
+                final int length = Math.min(PARALLEL_CHUNK_SIZE, reachable.length - start);
+                tasks.add(new CalculateGarbageCleanupForClass(idx, reachable, start, length));
+            }
+
+            List<Future<CleanupWrapper>> wrappers = null;
+            wrappers = es.invokeAll(tasks);
+
+            for(Future<CleanupWrapper> wrapper : wrappers) {
+                for(CleanupResult cr : wrapper.get().results.values()) {
+                    cr.clazz.removeInstanceBulk(cr.count, cr.size);
+                    memFree += cr.size;
+                }
+                for(ClassImpl c : wrapper.get().classes2remove)
+                {
+                    classes2remove.add(c);
+                }
+            }
+
             if (newNoOfObjects < oldNoOfObjects)
             {
                 listener.sendUserMessage(Severity.INFO, MessageUtil.format(
                                 Messages.GarbageCleaner_RemovedUnreachableObjects, oldNoOfObjects
                                                 - newNoOfObjects, memFree), null);
             }
+
+            es.shutdown();
 
             // classes cannot be removed right away
             // as they are needed to remove instances of this class
@@ -509,68 +515,192 @@ import org.eclipse.mat.util.SilentProgressListener;
         }
     }
 
-    private static void createHistogramOfUnreachableObjects(PreliminaryIndexImpl idx, boolean[] reachable)
+    private static void createHistogramOfUnreachableObjects(final ExecutorService es,
+                    final PreliminaryIndexImpl idx, final boolean[] reachable)
+                                    throws InterruptedException, ExecutionException
     {
-        IOne2SizeIndex array2size = idx.array2size;
+        ArrayList<Callable<HashMap<Integer, Record>>> tasks = new ArrayList<Callable<HashMap<Integer, Record>>>();
 
-        HashMapIntObject<Record> histogram = new HashMapIntObject<Record>();
+        for(int i = 0; i < reachable.length; i += PARALLEL_CHUNK_SIZE) {
+            final int start = i;
+            final int length = Math.min(PARALLEL_CHUNK_SIZE, reachable.length - start);
+            tasks.add(new CreateHistogramOfUnreachableObjectsChunk(idx, reachable, start, length));
+        }
 
-        int totalObjectCount = 0;
-        long totalSize = 0;
+        List<Future<HashMap<Integer, Record>>> results = null;
+        results = es.invokeAll(tasks);
 
-        for (int ii = 0; ii < reachable.length; ii++)
-        {
-            if (!reachable[ii])
-            {
-                int classId = idx.object2classId.get(ii);
+        final HashMap<Integer, Record> histogram = new HashMap<Integer, Record>(reachable.length);
 
-                Record r = histogram.get(classId);
-                if (r == null)
-                {
-                    ClassImpl clazz = idx.classesById.get(classId);
-                    r = new Record(clazz);
-                    histogram.put(classId, r);
-                }
-
-                r.objectCount++;
-                totalObjectCount++;
-                long s = 0;
-
-                s = array2size.getSize(ii);
-                if (s > 0)
-                {
-                    // Already got the size
-                }
-                else if (IClass.JAVA_LANG_CLASS.equals(r.clazz.getName()))
-                {
-                    ClassImpl classImpl = idx.classesById.get(ii);
-                    if (classImpl == null)
-                    {
-                        s = r.clazz.getHeapSizePerInstance();
-                    }
-                    else
-                    {
-                        s = classImpl.getUsedHeapSize();
-                    }
-                }
-                else
-                {
-                    s = r.clazz.getHeapSizePerInstance();
-                }
-                r.size += s;
-                totalSize += s;
-            }
+        for(Future<HashMap<Integer, Record>> subhistogram : results) {
+            histogram.putAll(subhistogram.get());
         }
 
         List<UnreachableObjectsHistogram.Record> records = new ArrayList<UnreachableObjectsHistogram.Record>();
-        for (Iterator<Record> iter = histogram.values(); iter.hasNext();)
-        {
-            Record r = iter.next();
-            records.add(new UnreachableObjectsHistogram.Record(r.clazz.getName(), r.clazz.getObjectAddress(), r.objectCount, r.size));
+        for(Record r : histogram.values()) {
+            records.add(new UnreachableObjectsHistogram.Record(
+                            r.clazz.getName(),
+                            r.clazz.getObjectAddress(),
+                            r.objectCount,
+                            r.size));
         }
 
         UnreachableObjectsHistogram deadObjectHistogram = new UnreachableObjectsHistogram(records);
         idx.getSnapshotInfo().setProperty(UnreachableObjectsHistogram.class.getName(), deadObjectHistogram);
+    }
+
+
+    private static class CreateHistogramOfUnreachableObjectsChunk implements Callable<HashMap<Integer, Record>>
+    {
+        final PreliminaryIndexImpl idx;
+        final boolean[] reachable;
+        final int start;
+        final int length;
+
+        public CreateHistogramOfUnreachableObjectsChunk(PreliminaryIndexImpl idx,
+                        boolean[] reachable, int start, int length)
+        {
+            this.idx = idx;
+            this.reachable = reachable;
+            this.start = start;
+            this.length = length;
+        }
+
+        public HashMap<Integer, Record> call() {
+            IOne2SizeIndex array2size = idx.array2size;
+
+            HashMap<Integer, Record> histogram = new HashMap<Integer, Record>(length);
+
+            for (int ii = start; ii < (start + length); ii++)
+            {
+                if (!reachable[ii])
+                {
+                    final int classId = idx.object2classId.get(ii);
+                    Record r = histogram.get(classId);
+                    if (r == null)
+                    {
+                        r = new Record(idx.classesById.get(classId));
+                        histogram.put(classId, r);
+                    }
+
+                    long s = array2size.getSize(ii);
+                    if (s > 0)
+                    {
+                        // Already got the size
+                    }
+                    else if (IClass.JAVA_LANG_CLASS.equals(r.clazz.getName()))
+                    {
+                        ClassImpl classImpl = idx.classesById.get(ii);
+                        if (classImpl == null)
+                        {
+                            s = r.clazz.getHeapSizePerInstance();
+                        }
+                        else
+                        {
+                            s = classImpl.getUsedHeapSize();
+                        }
+                    }
+                    else
+                    {
+                        s = r.clazz.getHeapSizePerInstance();
+                    }
+
+                    r.size += s;
+                    r.objectCount += 1;
+                }
+            }
+
+            return histogram;
+        }
+    }
+
+    // //////////////////////////////////////////////////////////////
+    // calculate garbage cleanup
+    // //////////////////////////////////////////////////////////////
+
+    private static class CleanupWrapper {
+        final HashMap<Integer, CleanupResult> results;
+        final List<ClassImpl> classes2remove;
+        public CleanupWrapper(final HashMap<Integer, CleanupResult> results, final List<ClassImpl> classes2remove)
+        {
+            this.results = results;
+            this.classes2remove = classes2remove;
+        }
+    }
+
+    private static class CleanupResult {
+        int count = 0;
+        long size = 0;
+        final ClassImpl clazz;
+        public CleanupResult(ClassImpl clazz)
+        {
+            this.clazz = clazz;
+        }
+    }
+
+    private static class CalculateGarbageCleanupForClass implements Callable<CleanupWrapper>
+    {
+        final PreliminaryIndexImpl idx;
+        final boolean[] reachable;
+        final int start;
+        final int length;
+
+        public CalculateGarbageCleanupForClass(PreliminaryIndexImpl idx,
+                        boolean[] reachable, int start, int length)
+        {
+            this.idx = idx;
+            this.reachable = reachable;
+            this.start = start;
+            this.length = length;
+        }
+
+        public CleanupWrapper call() throws Exception
+        {
+            HashMap<Integer, CleanupResult> results = new HashMap<Integer, CleanupResult>();
+            List<ClassImpl> classes2remove = new ArrayList<ClassImpl>();
+            for (int ii = start; ii < (start + length); ii++)
+            {
+                if (reachable[ii])
+                    continue;
+
+                int classId = idx.object2classId.get(ii);
+                ClassImpl clazz = idx.classesById.get(classId);
+
+                CleanupResult cr = results.get(classId);
+                if (cr == null)
+                {
+                    cr = new CleanupResult(clazz);
+                    results.put(classId, cr);
+                }
+
+                long arraySize = idx.array2size.getSize(ii);
+                if (arraySize > 0)
+                {
+                    cr.count += 1;
+                    cr.size += arraySize;
+                }
+                else
+                {
+                    // [INFO] some instances of java.lang.Class are not
+                    // reported as HPROF_GC_CLASS_DUMP but as
+                    // HPROF_GC_INSTANCE_DUMP
+                    ClassImpl c = idx.classesById.get(ii);
+
+                    if (c == null)
+                    {
+                        cr.count += 1;
+                        cr.size += clazz.getHeapSizePerInstance();
+                    }
+                    else
+                    {
+                        cr.count += 1;
+                        cr.size += c.getUsedHeapSize();
+                        classes2remove.add(c);
+                    }
+                }
+            }
+            return new CleanupWrapper(results, classes2remove);
+        }
     }
 
     // //////////////////////////////////////////////////////////////
