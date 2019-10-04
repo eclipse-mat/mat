@@ -26,8 +26,6 @@ import org.eclipse.mat.parser.index.IIndexReader;
 import org.eclipse.mat.parser.index.IndexReader;
 import org.eclipse.mat.parser.index.IndexWriter;
 import org.eclipse.mat.parser.index.IndexWriter.Identifier;
-import org.eclipse.mat.parser.index.IntIndexCollector;
-import org.eclipse.mat.parser.index.IntIndexStreamer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -77,7 +75,7 @@ public class TestIndex1to1
         assumeTrue(N < MAXELEMENTS);
         long n = N;
         int n2 = (int) Math.min(n, Integer.MAX_VALUE);
-        IntIndexCollector ic = new IntIndexCollector(n2, 31);
+        IndexWriter.IntIndexCollector ic = new IndexWriter.IntIndexCollector(n2, 31);
         for (int i = 0; i < n2; ++i)
         {
             ic.set(i, i);
@@ -99,7 +97,7 @@ public class TestIndex1to1
         File indexFile = File.createTempFile("int1_", ".index");
         long n = N;
         int n2 = (int) Math.min(n, Integer.MAX_VALUE);
-        IntIndexCollector ic = new IntIndexCollector(n2, 31);
+        IndexWriter.IntIndexCollector ic = new IndexWriter.IntIndexCollector(n2, 31);
         for (int i = 0; i < n2; ++i)
         {
             ic.set(i, i);
@@ -137,7 +135,7 @@ public class TestIndex1to1
         File indexFile = File.createTempFile("int1_", ".index");
         final long n = N;
         final int n2 = (int) Math.min(n, Integer.MAX_VALUE);
-        IntIndexStreamer ic = new IntIndexStreamer();
+        IndexWriter.IntIndexStreamer ic = new IndexWriter.IntIndexStreamer();
         
         try
         {

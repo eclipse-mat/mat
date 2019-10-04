@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2016 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2019 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -45,9 +45,9 @@ public class ClassImpl extends AbstractObjectImpl implements IClass, Comparable<
 {
     private static final long serialVersionUID = 22L;
     private static final transient AtomicIntegerFieldUpdater<ClassImpl> instanceCountUpdater =
-                    AtomicIntegerFieldUpdater.newUpdater(ClassImpl.class, "instanceCount");
+                    AtomicIntegerFieldUpdater.newUpdater(ClassImpl.class, "instanceCount"); //$NON-NLS-1$
     private static final transient AtomicLongFieldUpdater<ClassImpl> totalSizeUpdater =
-                    AtomicLongFieldUpdater.newUpdater(ClassImpl.class, "totalSize");
+                    AtomicLongFieldUpdater.newUpdater(ClassImpl.class, "totalSize"); //$NON-NLS-1$
 
     public static final String JAVA_LANG_CLASS = IClass.JAVA_LANG_CLASS;
 
@@ -345,7 +345,7 @@ public class ClassImpl extends AbstractObjectImpl implements IClass, Comparable<
         this.totalSize -= heapSizePerInstance;
     }
 
-    public void removeInstanceBulk(int instanceCount, long heapSize)
+    void removeInstanceBulk(int instanceCount, long heapSize)
     {
         this.instanceCount -= instanceCount;
         this.totalSize -= heapSize;

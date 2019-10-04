@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2014 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2019 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,10 +23,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
-import org.eclipse.mat.collect.ArrayIntCompressed;
 import org.eclipse.mat.collect.ArrayLong;
 import org.eclipse.mat.collect.ArrayLongCompressed;
 import org.eclipse.mat.collect.HashMapIntObject;
@@ -34,7 +32,7 @@ import org.eclipse.mat.collect.IteratorLong;
 import org.eclipse.mat.parser.index.IIndexReader.IOne2LongIndex;
 import org.eclipse.mat.parser.index.IndexWriter.LongIndex;
 
-public class LongIndexStreamer extends LongIndex
+class LongIndexStreamer extends LongIndex
 {
     DataOutputStream out;
     ArrayLong pageStart;
@@ -51,10 +49,10 @@ public class LongIndexStreamer extends LongIndex
     // for the moment it is ok, as the compress and write stage is fast
     // could do more threads but no point
     final ExecutorService compressor = Executors.newSingleThreadExecutor(
-            r -> new Thread(r, "LongIndexStreamer-Compressor"));
+            r -> new Thread(r, "LongIndexStreamer-Compressor")); //$NON-NLS-1$
     // this must be single threaded to ensure page update logic stays correct
     final ExecutorService writer = Executors.newSingleThreadExecutor(
-            r -> new Thread(r, "LongIndexStreamer-Writer"));
+            r -> new Thread(r, "LongIndexStreamer-Writer")); //$NON-NLS-1$
 
     public LongIndexStreamer()
     {}

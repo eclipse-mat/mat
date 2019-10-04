@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2014 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2019 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,8 +19,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.mat.collect.ArrayLongCompressed;
 import org.eclipse.mat.collect.HashMapIntObject;
+import org.eclipse.mat.parser.index.IndexWriter.LongIndex;
 
-public class LongIndexCollector
+class LongIndexCollector extends LongIndex
 {
     final int mostSignificantBit;
     final int size;
@@ -33,7 +34,7 @@ public class LongIndexCollector
         this.mostSignificantBit = mostSignificantBit;
     }
 
-    protected ArrayLongCompressed getOrCreatePage(int page)
+    protected ArrayLongCompressed getPage(int page)
     {
         ArrayLongCompressed existing = pages.get(page);
         if (existing != null) return existing;
@@ -56,7 +57,7 @@ public class LongIndexCollector
 
     public void set(int index, long value)
     {
-        ArrayLongCompressed array = getOrCreatePage(index / pageSize);
+        ArrayLongCompressed array = getPage(index / pageSize);
         // uses bit operations internally, so we should sync against the page
         // TODO unlock this by having ArrayLongCompressed use atomics
         synchronized(array)

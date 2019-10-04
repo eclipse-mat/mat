@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 SAP AG, IBM Corporation and others..
+ * Copyright (c) 2008, 2019 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,31 +17,24 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.collect.HashMapLongObject;
 import org.eclipse.mat.collect.HashMapLongObject.Entry;
-import org.eclipse.mat.hprof.IHprofParserHandler.HeapObject;
-import org.eclipse.mat.hprof.ui.HprofPreferences;
-import org.eclipse.mat.hprof.ui.HprofPreferences.HprofStrictness;
 import org.eclipse.mat.collect.IteratorLong;
+import org.eclipse.mat.hprof.ui.HprofPreferences;
 import org.eclipse.mat.parser.IPreliminaryIndex;
 import org.eclipse.mat.parser.index.IIndexReader.IOne2LongIndex;
 import org.eclipse.mat.parser.index.IndexManager.Index;
 import org.eclipse.mat.parser.index.IndexWriter;
-import org.eclipse.mat.parser.index.IntArray1NWriter;
-import org.eclipse.mat.parser.index.IntIndexCollector;
-import org.eclipse.mat.parser.index.LongIndexCollector;
-import org.eclipse.mat.parser.io.ByteArrayPositionInputStream;
-import org.eclipse.mat.parser.io.DefaultPositionInputStream;
-import org.eclipse.mat.parser.io.PositionInputStream;
+import org.eclipse.mat.parser.index.IndexWriter.IntArray1NWriter;
+import org.eclipse.mat.parser.index.IndexWriter.IntIndexCollector;
+import org.eclipse.mat.parser.index.IndexWriter.LongIndexCollector;
 import org.eclipse.mat.parser.model.ClassImpl;
 import org.eclipse.mat.parser.model.PrimitiveArrayImpl;
 import org.eclipse.mat.parser.model.XGCRootInfo;
@@ -55,7 +48,6 @@ import org.eclipse.mat.snapshot.model.IPrimitiveArray;
 import org.eclipse.mat.snapshot.model.ObjectReference;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
-import org.eclipse.mat.util.IProgressListener.Severity;
 
 public class HprofParserHandlerImpl implements IHprofParserHandler
 {

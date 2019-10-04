@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2018 SAP AG and others.
+ * Copyright (c) 2010, 2019 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -49,6 +49,9 @@ public class Messages extends NLS
     public static String HprofRandomAccessParser_Error_IllegalDumpSegment;
     public static String HprofRandomAccessParser_Error_MissingClass;
     public static String HprofRandomAccessParser_Error_MissingFakeClass;
+    public static String IPositionInputStream_mark;
+    public static String IPositionInputStream_reset;
+    public static String IPositionInputStream_seek;
     public static String JMapHeapDumpProvider_ErrorCreatingDump;
     public static String JMapHeapDumpProvider_HeapDumpNotCreated;
     public static String JMapHeapDumpProvider_WaitForHeapDump;

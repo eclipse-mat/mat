@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2014 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2019 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,7 +23,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.mat.collect.ArrayIntCompressed;
@@ -31,7 +30,7 @@ import org.eclipse.mat.collect.ArrayLong;
 import org.eclipse.mat.collect.IteratorInt;
 import org.eclipse.mat.parser.index.IndexWriter.IntIndex;
 
-public class IntIndexStreamer extends IntIndex<SoftReference<ArrayIntCompressed>>
+class IntIndexStreamer extends IntIndex<SoftReference<ArrayIntCompressed>>
 {
     DataOutputStream out;
     ArrayLong pageStart;
@@ -48,10 +47,10 @@ public class IntIndexStreamer extends IntIndex<SoftReference<ArrayIntCompressed>
     // for the moment it is ok, as the compress and write stage is fast
     // could do more threads but no point
     final ExecutorService compressor = Executors.newSingleThreadExecutor(
-            r -> new Thread(r, "IntIndexStreamer-Compressor"));
+            r -> new Thread(r, "IntIndexStreamer-Compressor")); //$NON-NLS-1$
     // this must be single threaded to ensure page update logic stays correct
     final ExecutorService writer = Executors.newSingleThreadExecutor(
-            r -> new Thread(r, "IntIndexStreamer-Writer"));
+            r -> new Thread(r, "IntIndexStreamer-Writer")); //$NON-NLS-1$
 
     public IIndexReader.IOne2OneIndex writeTo(File indexFile, IteratorInt iterator) throws IOException
     {

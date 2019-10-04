@@ -8,14 +8,12 @@
  * Contributors:
  *    Netflix (Jason Koch) - refactors for increased concurrency and performance
  *******************************************************************************/
-package org.eclipse.mat.parser.io;
+package org.eclipse.mat.hprof;
 
 import java.io.EOFException;
 import java.io.IOException;
 
-import org.eclipse.mat.parser.internal.Messages;
-
-public class ByteArrayPositionInputStream implements PositionInputStream
+public class ByteArrayPositionInputStream implements IPositionInputStream
 {
     /*
      * note this does not throw any IOExceptions
@@ -60,12 +58,12 @@ public class ByteArrayPositionInputStream implements PositionInputStream
 
     public void mark(int readLimit)
     {
-        throw new UnsupportedOperationException(Messages.PositionInputStream_mark);
+        throw new UnsupportedOperationException(Messages.IPositionInputStream_mark);
     }
 
     public void reset()
     {
-        throw new UnsupportedOperationException(Messages.PositionInputStream_reset);
+        throw new UnsupportedOperationException(Messages.IPositionInputStream_reset);
     }
 
     public int skipBytes(long n)

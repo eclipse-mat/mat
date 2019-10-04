@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2014 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2019 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -510,6 +510,28 @@ public abstract class IndexWriter
         public boolean hasNext()
         {
             return nextIndex < intArray.size;
+        }
+    }
+
+
+    public static class IntIndexCollector extends org.eclipse.mat.parser.index.IntIndexCollector
+    {
+        public IntIndexCollector(int size, int mostSignificantBit)
+        {
+            super(size, mostSignificantBit);
+        }
+    }
+
+    public static class IntIndexStreamer extends org.eclipse.mat.parser.index.IntIndexStreamer
+    {
+        // Default constructor
+    }
+
+    public static class IntArray1NWriter extends org.eclipse.mat.parser.index.IntArray1NWriter
+    {
+        public IntArray1NWriter(int size, File indexFile) throws IOException
+        {
+            super(size, indexFile);
         }
     }
 
@@ -1249,6 +1271,26 @@ public abstract class IndexWriter
         public boolean hasNext()
         {
             return nextIndex < longArray.size();
+        }
+    }
+
+    public static class LongIndexCollector extends org.eclipse.mat.parser.index.LongIndexCollector
+    {
+        public LongIndexCollector(int size, int mostSignificantBit)
+        {
+            super(size, mostSignificantBit);
+        }
+    }
+
+    public static class LongIndexStreamer extends org.eclipse.mat.parser.index.LongIndexStreamer
+    {
+        public LongIndexStreamer()
+        {
+            super();
+        }
+        public LongIndexStreamer(File indexFile) throws IOException
+        {
+            super(indexFile);
         }
     }
 

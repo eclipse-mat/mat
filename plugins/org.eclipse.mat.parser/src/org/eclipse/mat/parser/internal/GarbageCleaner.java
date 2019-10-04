@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others.
+ * Copyright (c) 2008, 2019 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -38,8 +38,8 @@ import org.eclipse.mat.parser.index.IndexManager;
 import org.eclipse.mat.parser.index.IndexManager.Index;
 import org.eclipse.mat.parser.index.IndexReader.SizeIndexReader;
 import org.eclipse.mat.parser.index.IndexWriter;
-import org.eclipse.mat.parser.index.IntIndexStreamer;
-import org.eclipse.mat.parser.index.LongIndexStreamer;
+import org.eclipse.mat.parser.index.IndexWriter.IntIndexStreamer;
+import org.eclipse.mat.parser.index.IndexWriter.LongIndexStreamer;
 import org.eclipse.mat.parser.internal.snapshot.ObjectMarker;
 import org.eclipse.mat.parser.model.ClassImpl;
 import org.eclipse.mat.parser.model.XGCRootInfo;
@@ -177,7 +177,14 @@ import org.eclipse.mat.util.SilentProgressListener;
 
             for(Future<CleanupWrapper> wrapper : wrappers) {
                 for(CleanupResult cr : wrapper.get().results.values()) {
-                    cr.clazz.removeInstanceBulk(cr.count, cr.size);
+                    long totalmem = cr.size;
+                    for (int i = cr.count; i > 0; --i)
+                    {
+                        // Remove one by one as removeInstanceBulk is not yet API
+                        long instsize = totalmem / i;
+                        totalmem -= instsize;
+                        cr.clazz.removeInstance(instsize);
+                    }
                     memFree += cr.size;
                 }
                 for(ClassImpl c : wrapper.get().classes2remove)

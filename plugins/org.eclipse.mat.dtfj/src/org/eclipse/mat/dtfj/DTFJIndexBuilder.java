@@ -65,11 +65,9 @@ import org.eclipse.mat.parser.index.IIndexReader.IOne2SizeIndex;
 import org.eclipse.mat.parser.index.IndexManager.Index;
 import org.eclipse.mat.parser.index.IndexReader.SizeIndexReader;
 import org.eclipse.mat.parser.index.IndexWriter;
+import org.eclipse.mat.parser.index.IndexWriter.IntIndexStreamer;
+import org.eclipse.mat.parser.index.IndexWriter.LongIndexStreamer;
 import org.eclipse.mat.parser.index.IndexWriter.SizeIndexCollectorUncompressed;
-import org.eclipse.mat.parser.index.IntArray1NWriter;
-import org.eclipse.mat.parser.index.IntIndexCollector;
-import org.eclipse.mat.parser.index.IntIndexStreamer;
-import org.eclipse.mat.parser.index.LongIndexStreamer;
 import org.eclipse.mat.parser.model.ClassImpl;
 import org.eclipse.mat.parser.model.XGCRootInfo;
 import org.eclipse.mat.parser.model.XSnapshotInfo;
@@ -243,7 +241,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
     /** All the key DTFJ data */
     private RuntimeInfo dtfjInfo;
     /** The outbound references index */
-    private IntArray1NWriter outRefs;
+    private IndexWriter.IntArray1NWriter outRefs;
     /** The temporary object id to size index, for arrays and variable sized objects - used to build arrayToSize.
      * Could instead be a {@link SizeIndexCollectorUncompressed} but that is bigger. */
     private ObjectToSize indexToSize;
@@ -254,7 +252,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
     /** The object/class id number to address index once all ids are found */
     private IIndexReader.IOne2LongIndex indexToAddress;
     /** The object id to class id index for accumulation and lookup */
-    private IntIndexCollector objectToClass;
+    private IndexWriter.IntIndexCollector objectToClass;
     /** The object id to class id index once mapping is done */
     private IIndexReader.IOne2OneIndex objectToClass1;
     /** The class id to MAT class information index */
@@ -303,7 +301,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
      * Used to see how much memory has been freed by the initial garbage
      * collection
      */
-    private IntIndexCollector objectToClass2;
+    private IndexWriter.IntIndexCollector objectToClass2;
     
     /**
      * Used for very corrupt dumps without a java/lang/Class
@@ -1827,12 +1825,12 @@ public class DTFJIndexBuilder implements IIndexBuilder
         }
 
         // Object id to class id
-        objectToClass = new IntIndexCollector(indexToAddress.size(), IndexWriter
+        objectToClass = new IndexWriter.IntIndexCollector(indexToAddress.size(), IndexWriter
                         .mostSignificantBit(maxClsId));
 
         // Do the object refs to other refs
         IOne2ManyIndex out2b;
-        outRefs = new IntArray1NWriter(indexToAddress.size(), Index.OUTBOUND.getFile(pfx
+        outRefs = new IndexWriter.IntArray1NWriter(indexToAddress.size(), Index.OUTBOUND.getFile(pfx
                         + "temp.")); //$NON-NLS-1$
 
         // Keep track of all objects which are referred to. Remaining objects
@@ -4466,9 +4464,9 @@ public class DTFJIndexBuilder implements IIndexBuilder
     /**
      * @param objectToClass2
      */
-    private IntIndexCollector copy(IIndexReader.IOne2OneIndex objectToClass1, int bits)
+    private IndexWriter.IntIndexCollector copy(IIndexReader.IOne2OneIndex objectToClass1, int bits)
     {
-        IntIndexCollector objectToClass2 = new IntIndexCollector(objectToClass1.size(), bits);
+        IndexWriter.IntIndexCollector objectToClass2 = new IndexWriter.IntIndexCollector(objectToClass1.size(), bits);
         for (int i = 0; i < objectToClass1.size(); ++i)
         {
             int j = objectToClass1.get(i);

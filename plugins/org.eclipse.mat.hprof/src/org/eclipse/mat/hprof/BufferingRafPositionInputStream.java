@@ -8,25 +8,14 @@
  * Contributors:
  *    Netflix (Jason Koch) - refactors for increased concurrency and performance
  *******************************************************************************/
-package org.eclipse.mat.parser.io;
+package org.eclipse.mat.hprof;
 
 import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.nio.ByteBuffer;
-import java.nio.channels.SeekableByteChannel;
-import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
-import java.util.EnumSet;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
-import org.eclipse.mat.parser.internal.Messages;
-
-public class BufferingRafPositionInputStream implements PositionInputStream
+public class BufferingRafPositionInputStream implements IPositionInputStream
 {
     private final RandomAccessFile raf;
     private long channelPosition = 0;
@@ -37,7 +26,7 @@ public class BufferingRafPositionInputStream implements PositionInputStream
 
     public BufferingRafPositionInputStream(final File file, final long offset, final int readLength) throws IOException
     {
-        raf = new RandomAccessFile(file, "r");
+        raf = new RandomAccessFile(file, "r"); //$NON-NLS-1$
         this.readLength = readLength;
         this.buffer = new byte[readLength * 2];
         this.throwaway = new byte[readLength * 2];
@@ -106,12 +95,12 @@ public class BufferingRafPositionInputStream implements PositionInputStream
 
     public void mark(int readLimit)
     {
-        throw new UnsupportedOperationException(Messages.PositionInputStream_mark);
+        throw new UnsupportedOperationException(Messages.IPositionInputStream_mark);
     }
 
     public void reset()
     {
-        throw new UnsupportedOperationException(Messages.PositionInputStream_reset);
+        throw new UnsupportedOperationException(Messages.IPositionInputStream_reset);
     }
 
     public int skipBytes(long n) throws IOException

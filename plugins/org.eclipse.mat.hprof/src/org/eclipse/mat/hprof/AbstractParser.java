@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2013 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2019 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.eclipse.mat.hprof.ui.HprofPreferences;
-import org.eclipse.mat.parser.io.PositionInputStream;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IPrimitiveArray;
@@ -107,7 +106,7 @@ import org.eclipse.mat.util.SimpleMonitor.Listener;
         this.strictnessPreference = strictnessPreference;
     }
 
-    /* protected */static Version readVersion(PositionInputStream in) throws IOException
+    /* protected */static Version readVersion(IPositionInputStream in) throws IOException
     {
         StringBuilder version = new StringBuilder();
 
@@ -179,13 +178,13 @@ import org.eclipse.mat.util.SimpleMonitor.Listener;
         throw new IOException(Messages.AbstractParser_Error_InvalidHPROFHeader);
     }
 
-    protected Object readValue(PositionInputStream in, ISnapshot snapshot) throws IOException
+    protected Object readValue(IPositionInputStream in, ISnapshot snapshot) throws IOException
     {
         byte type = in.readByte();
         return readValue(in, snapshot, type);
     }
 
-    protected Object readValue(PositionInputStream in, ISnapshot snapshot, int type) throws IOException
+    protected Object readValue(IPositionInputStream in, ISnapshot snapshot, int type) throws IOException
     {
         switch (type)
         {
@@ -213,7 +212,7 @@ import org.eclipse.mat.util.SimpleMonitor.Listener;
         }
     }
 
-    public static Object readValue(PositionInputStream in, ISnapshot snapshot, int type, int idSize) throws IOException
+    public static Object readValue(IPositionInputStream in, ISnapshot snapshot, int type, int idSize) throws IOException
     {
         switch (type)
         {
@@ -241,13 +240,13 @@ import org.eclipse.mat.util.SimpleMonitor.Listener;
         }
     }
 
-    protected void skipValue(PositionInputStream in) throws IOException
+    protected void skipValue(IPositionInputStream in) throws IOException
     {
         byte type = in.readByte();
         skipValue(in, type);
     }
 
-    protected void skipValue(PositionInputStream in, int type) throws IOException
+    protected void skipValue(IPositionInputStream in, int type) throws IOException
     {
         if (type == IObject.Type.OBJECT)
             in.skipBytes(idSize);

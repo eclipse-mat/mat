@@ -22,9 +22,6 @@ import org.eclipse.mat.collect.IteratorInt;
 import org.eclipse.mat.parser.index.IIndexReader;
 import org.eclipse.mat.parser.index.IndexManager;
 import org.eclipse.mat.parser.index.IndexWriter;
-import org.eclipse.mat.parser.index.IntArray1NWriter;
-import org.eclipse.mat.parser.index.IntIndexStreamer;
-import org.eclipse.mat.parser.index.LongIndexCollector;
 import org.eclipse.mat.parser.index.IndexManager.Index;
 import org.eclipse.mat.parser.internal.util.IntStack;
 import org.eclipse.mat.util.IProgressListener;
@@ -195,7 +192,7 @@ public class DominatorTree
             // retainedSetIdx is still sorted by object id
             snapshot.getIndexManager().setReader(
                             IndexManager.Index.DOMINATOR,
-                            new IntIndexStreamer().writeTo(IndexManager.Index.DOMINATOR.getFile(snapshot
+                            new IndexWriter.IntIndexStreamer().writeTo(IndexManager.Index.DOMINATOR.getFile(snapshot
                                             .getSnapshotInfo().getPrefix()), new IteratorInt()
                             {
                                 int nextIndex = 2;
@@ -395,7 +392,7 @@ public class DominatorTree
         private void writeIndexFiles(FlatDominatorTree tree) throws IOException
         {
 
-            IntArray1NWriter writer = new IntArray1NWriter(dom.length - 1,
+            IndexWriter.IntArray1NWriter writer = new IndexWriter.IntArray1NWriter(dom.length - 1,
                             IndexManager.Index.DOMINATED.getFile(snapshot.getSnapshotInfo().getPrefix()));
 
             int numberOfObjects = snapshot.getSnapshotInfo().getNumberOfObjects();
@@ -538,7 +535,7 @@ public class DominatorTree
 
             public void calculateTotalSizesIterative(int e) throws SnapshotException, IOException
             {
-                LongIndexCollector retained = new LongIndexCollector(dump.getSnapshotInfo()
+                IndexWriter.LongIndexCollector retained = new IndexWriter.LongIndexCollector(dump.getSnapshotInfo()
                                 .getNumberOfObjects(), IndexWriter.mostSignificantBit(dump.getSnapshotInfo()
                                 .getUsedHeapSize()));
 

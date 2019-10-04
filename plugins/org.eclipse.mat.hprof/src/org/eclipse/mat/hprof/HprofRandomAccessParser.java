@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2014 SAP AG.
+ * Copyright (c) 2008, 2019 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Netflix (Jason Koch) - refactors for increased performance and concurrency
  *******************************************************************************/
 package org.eclipse.mat.hprof;
 
@@ -20,8 +21,6 @@ import java.util.List;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.hprof.ui.HprofPreferences;
 import org.eclipse.mat.parser.io.BufferedRandomAccessInputStream;
-import org.eclipse.mat.parser.io.DefaultPositionInputStream;
-import org.eclipse.mat.parser.io.PositionInputStream;
 import org.eclipse.mat.parser.model.ClassImpl;
 import org.eclipse.mat.parser.model.ClassLoaderImpl;
 import org.eclipse.mat.parser.model.InstanceImpl;
@@ -39,8 +38,8 @@ import org.eclipse.mat.util.MessageUtil;
 public class HprofRandomAccessParser extends AbstractParser
 {
     public static final int LAZY_LOADING_LIMIT = 256;
-    private final PositionInputStream in;
-    
+    private final IPositionInputStream in;
+
     public HprofRandomAccessParser(File file, Version version, int identifierSize,
                     HprofPreferences.HprofStrictness strictnessPreference) throws IOException
     {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2019 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,7 +9,7 @@
  *    SAP AG - initial API and implementation
  *    Netflix (Jason Koch) - refactors for increased performance and concurrency
  *******************************************************************************/
-package org.eclipse.mat.parser.io;
+package org.eclipse.mat.hprof;
 
 import java.io.DataInput;
 import java.io.DataInputStream;
@@ -18,9 +18,10 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.eclipse.mat.parser.internal.Messages;
+import org.eclipse.mat.parser.io.BufferedRandomAccessInputStream;
+import org.eclipse.mat.parser.io.SimpleBufferedRandomAccessInputStream;
 
-public class DefaultPositionInputStream extends FilterInputStream implements DataInput, PositionInputStream
+public class DefaultPositionInputStream extends FilterInputStream implements DataInput, IPositionInputStream
 {
     private final byte[] readBuffer = new byte[32];
     private long position = 0L;
@@ -75,7 +76,7 @@ public class DefaultPositionInputStream extends FilterInputStream implements Dat
      */
     public void mark(int readLimit)
     {
-        throw new UnsupportedOperationException(Messages.PositionInputStream_mark);
+        throw new UnsupportedOperationException(Messages.IPositionInputStream_mark);
     }
 
     /* (non-Javadoc)
@@ -83,7 +84,7 @@ public class DefaultPositionInputStream extends FilterInputStream implements Dat
      */
     public void reset()
     {
-        throw new UnsupportedOperationException(Messages.PositionInputStream_reset);
+        throw new UnsupportedOperationException(Messages.IPositionInputStream_reset);
     }
 
     /* (non-Javadoc)
@@ -166,7 +167,7 @@ public class DefaultPositionInputStream extends FilterInputStream implements Dat
         }
         else
         {
-            throw new UnsupportedOperationException(Messages.PositionInputStream_seek);
+            throw new UnsupportedOperationException(Messages.IPositionInputStream_seek);
         }
     }
 
@@ -184,7 +185,7 @@ public class DefaultPositionInputStream extends FilterInputStream implements Dat
         }
         else
         {
-            throw new UnsupportedOperationException(Messages.PositionInputStream_seek);
+            throw new UnsupportedOperationException(Messages.IPositionInputStream_seek);
         }
     }
 

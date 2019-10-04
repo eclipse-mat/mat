@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2014 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2019 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.eclipse.mat.parser.index;
 
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
@@ -19,8 +20,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.eclipse.mat.collect.ArrayIntCompressed;
 import org.eclipse.mat.collect.IteratorInt;
 import org.eclipse.mat.parser.index.IIndexReader.IOne2OneIndex;
+import org.eclipse.mat.parser.index.IndexWriter.IntIndex;
 
-public class IntIndexCollector implements IOne2OneIndex
+class IntIndexCollector extends IntIndex<ArrayIntCompressed> implements IOne2OneIndex
 {
     final int mostSignificantBit;
     final int size;
@@ -33,7 +35,7 @@ public class IntIndexCollector implements IOne2OneIndex
         this.mostSignificantBit = mostSignificantBit;
     }
 
-    protected ArrayIntCompressed getOrCreatePage(int page)
+    protected ArrayIntCompressed getPage(int page)
     {
         ArrayIntCompressed existing = pages.get(page);
         if (existing != null) return existing;
@@ -62,9 +64,27 @@ public class IntIndexCollector implements IOne2OneIndex
         });
     }
 
+    public IIndexReader.IOne2OneIndex writeTo(DataOutputStream out, long position) throws IOException
+    {
+        // needed to re-compress
+        return new IntIndexStreamer().writeTo(out, position, new IteratorInt()
+        {
+            int index = 0;
+            public boolean hasNext()
+            {
+                return (index < size);
+            }
+
+            public int next()
+            {
+                return get(index++);
+            }
+        });
+    }
+
     public void set(int index, int value)
     {
-        ArrayIntCompressed array = getOrCreatePage(index / pageSize);
+        ArrayIntCompressed array = getPage(index / pageSize);
         // TODO unlock this by having ArrayIntCompressed use atomics
         // uses bit operations internally, so we should sync against the page
         synchronized(array)
@@ -75,7 +95,7 @@ public class IntIndexCollector implements IOne2OneIndex
 
     public int get(int index)
     {
-        ArrayIntCompressed array = getOrCreatePage(index / pageSize);
+        ArrayIntCompressed array = getPage(index / pageSize);
 
         // TODO unlock this by having ArrayIntCompressed use atomics
         // we currently lock a whole page, when we only need a single element
@@ -97,7 +117,7 @@ public class IntIndexCollector implements IOne2OneIndex
         return size;
     }
 
-    public void unload() throws IOException
+    public void unload()
     {
         throw new UnsupportedOperationException("not implemented");
     }

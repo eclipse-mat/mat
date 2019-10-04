@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 SAP AG and IBM Corporation
+ * Copyright (c) 2008, 2019 SAP AG and IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,8 +23,6 @@ import java.util.stream.StreamSupport;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.hprof.IHprofParserHandler.HeapObject;
 import org.eclipse.mat.hprof.ui.HprofPreferences;
-import org.eclipse.mat.parser.io.BufferingRafPositionInputStream;
-import org.eclipse.mat.parser.io.PositionInputStream;
 import org.eclipse.mat.snapshot.model.IPrimitiveArray;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
@@ -38,7 +36,7 @@ public class Pass2Parser extends AbstractParser
 {
     private IHprofParserHandler handler;
     private SimpleMonitor.Listener monitor;
-    private PositionInputStream in;
+    private IPositionInputStream in;
 
     public Pass2Parser(IHprofParserHandler handler, SimpleMonitor.Listener monitor,
                     HprofPreferences.HprofStrictness strictnessPreference)
