@@ -881,7 +881,7 @@ public abstract class IndexWriter
                 this.byteData = byteData;
                 if (storedException != null)
                 {
-                    throw new IOException(Messages.IndexWriter_Stored_Exception, storedException);
+                    throw new IOException(Messages.IndexWriter_StoredException, storedException);
                 }
                 if (storedError != null)
                 {
@@ -2261,7 +2261,7 @@ public abstract class IndexWriter
                 {
                     throw new IOException(Messages.IndexWriter_StoredException, storedException);
                 }
-                if (storedException != null)
+                if (storedError != null)
                 {
                     throw new IOException(Messages.IndexWriter_StoredError, storedError);
                 }

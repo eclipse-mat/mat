@@ -40,6 +40,9 @@ public class Messages extends NLS
     public static String IndexReader_Error_IndexIsEmbedded;
     public static String IndexWriter_Error_ArrayLength;
     public static String IndexWriter_Error_ObjectArrayLength;
+    public static String IndexWriter_NotImplemented;
+    public static String IndexWriter_StoredError;
+    public static String IndexWriter_StoredException;
     public static String MethodCallExpression_Error_MethodNotFound;
     public static String MultiplePathsFromGCRootsComputerImpl_FindingPaths;
     public static String SnapshotFactoryImpl_ClassIDNotFound;
