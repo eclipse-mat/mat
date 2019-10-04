@@ -359,7 +359,7 @@ public class DefaultPositionInputStream extends FilterInputStream implements Dat
         return a.length;
     }
 
-    protected static long readLong(byte[] b, int offset)
+    public static long readLong(byte[] b, int offset)
     {
         return (((long) b[offset] << 56) //
                         + ((long) (b[offset + 1] & 255) << 48) //
