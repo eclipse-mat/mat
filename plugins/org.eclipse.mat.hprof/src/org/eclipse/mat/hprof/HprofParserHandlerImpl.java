@@ -705,6 +705,9 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
                     object.references.add(ids[ii]);
             }
             object.clazz = arrayType;
+            // References now transfered, so free some space
+            ids = null;
+            object.ids = null;
         }
 
         if (!object.isObjectArray && !object.isPrimitiveArray)

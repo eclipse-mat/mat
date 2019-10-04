@@ -20,11 +20,24 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.lang.ref.SoftReference;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
+import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.collect.ArrayIntCompressed;
+import org.eclipse.mat.collect.ArrayLong;
 import org.eclipse.mat.collect.ArrayLongCompressed;
 import org.eclipse.mat.collect.ArrayUtils;
 import org.eclipse.mat.collect.BitField;
@@ -34,6 +47,8 @@ import org.eclipse.mat.collect.HashMapIntObject.Entry;
 import org.eclipse.mat.collect.IteratorInt;
 import org.eclipse.mat.collect.IteratorLong;
 import org.eclipse.mat.collect.SetInt;
+import org.eclipse.mat.parser.index.IIndexReader.IOne2LongIndex;
+import org.eclipse.mat.parser.index.IIndexReader.IOne2OneIndex;
 import org.eclipse.mat.parser.index.IndexReader.SizeIndexReader;
 import org.eclipse.mat.parser.internal.Messages;
 import org.eclipse.mat.parser.io.BitInputStream;
@@ -50,9 +65,9 @@ public abstract class IndexWriter
     // How much to resize break points for large formats to make testing easier
     private static final int TESTSCALE = TEST ? 18 : 0;
     // Switch point from plain size to encoded size for 1 to 1 index
-    static final int FORMAT1_MAX_SIZE = Integer.MAX_VALUE >>> TESTSCALE;
+    private static final int FORMAT1_MAX_SIZE = Integer.MAX_VALUE >>> TESTSCALE;
     // Switch point for using a long valued header index
-    static final long MAX_OLD_HEADER_VALUE = 0xffffffffL >>> TESTSCALE;
+    private static final long MAX_OLD_HEADER_VALUE = 0xffffffffL >>> TESTSCALE;
     // Switch point for inbound key to using longs
     private static final long INBOUND_MAX_KEY1 = Integer.MAX_VALUE >>> TESTSCALE;
 
@@ -85,7 +100,7 @@ public abstract class IndexWriter
                 if (newCapacity < minCapacity)
                 {
                     // Avoid strange exceptions later
-                    throw new OutOfMemoryError(MessageUtil.format(Messages.IndexWriter_Error_ArrayLength, minCapacity, newCapacity)); 
+                    throw new OutOfMemoryError(MessageUtil.format(Messages.IndexWriter_Error_ArrayLength, minCapacity, newCapacity));
                 }
                 identifiers = copyOf(identifiers, newCapacity);
             }
@@ -218,8 +233,8 @@ public abstract class IndexWriter
 
         /**
          * Cope with objects bigger than Integer.MAX_VALUE.
-         * E.g. double[Integer.MAX_VALUE] 
-         * The original problem was that the array to size mapping had an integer as the size (IntIndexCollectorUncompressed). 
+         * E.g. double[Integer.MAX_VALUE]
+         * The original problem was that the array to size mapping had an integer as the size (IntIndexCollectorUncompressed).
          * This array would be approximately 0x18 + 0x8 * 0x7fffffff = 0x400000010 bytes, too big for an int.
          * Expanding the array size array to longs could be overkill.
          * Instead we do some simple compression - values 0 - 0x7fffffff convert as now,
@@ -361,9 +376,9 @@ public abstract class IndexWriter
 
         int get(long index)
         {
-            if (index == (int)index) 
+            if (index == (int)index)
             {
-                // in case get(int) is overridden 
+                // in case get(int) is overridden
                 return get((int)index);
             }
             else
@@ -416,7 +431,7 @@ public abstract class IndexWriter
         {
             if (index == (int)index)
             {
-                // in case getNext(int, int) is overridden 
+                // in case getNext(int, int) is overridden
                 return getNext((int)index, length);
             }
             else
@@ -514,24 +529,646 @@ public abstract class IndexWriter
     }
 
 
-    public static class IntIndexCollector extends org.eclipse.mat.parser.index.IntIndexCollector
+    public static class IntIndexCollector extends IntIndex<ArrayIntCompressed> implements IOne2OneIndex
     {
+        final int mostSignificantBit;
+        final int size;
+        final int pageSize = IndexWriter.PAGE_SIZE_INT;
+        final ConcurrentHashMap<Integer, ArrayIntCompressed> pages = new ConcurrentHashMap<Integer, ArrayIntCompressed>();
+
         public IntIndexCollector(int size, int mostSignificantBit)
         {
-            super(size, mostSignificantBit);
+            this.size = size;
+            this.mostSignificantBit = mostSignificantBit;
+        }
+
+        protected ArrayIntCompressed getPage(int page)
+        {
+            ArrayIntCompressed existing = pages.get(page);
+            if (existing != null) return existing;
+
+            int ps = page < (size / pageSize) ? pageSize : size % pageSize;
+            ArrayIntCompressed newArray = new ArrayIntCompressed(ps, 31 - mostSignificantBit, 0);
+            existing = pages.putIfAbsent(page, newArray);
+            return (existing != null) ? existing : newArray;
+        }
+
+        public IIndexReader.IOne2OneIndex writeTo(File indexFile) throws IOException
+        {
+            // needed to re-compress
+            return new IntIndexStreamer().writeTo(indexFile, new IteratorInt()
+            {
+                int index = 0;
+                public boolean hasNext()
+                {
+                    return (index < size);
+                }
+
+                public int next()
+                {
+                    return get(index++);
+                }
+            });
+        }
+
+        public IIndexReader.IOne2OneIndex writeTo(DataOutputStream out, long position) throws IOException
+        {
+            // needed to re-compress
+            return new IntIndexStreamer().writeTo(out, position, new IteratorInt()
+            {
+                int index = 0;
+                public boolean hasNext()
+                {
+                    return (index < size);
+                }
+
+                public int next()
+                {
+                    return get(index++);
+                }
+            });
+        }
+
+        public void set(int index, int value)
+        {
+            ArrayIntCompressed array = getPage(index / pageSize);
+            // TODO unlock this by having ArrayIntCompressed use atomics
+            // uses bit operations internally, so we should sync against the page
+            synchronized(array)
+            {
+                array.set(index % pageSize, value);
+            }
+        }
+
+        public int get(int index)
+        {
+            ArrayIntCompressed array = getPage(index / pageSize);
+
+            // TODO unlock this by having ArrayIntCompressed use atomics
+            // we currently lock a whole page, when we only need a single element
+            synchronized(array) {
+                return array.get(index % pageSize);
+            }
+        }
+
+        public void close() throws IOException
+        { }
+
+        public void delete()
+        {
+            pages.clear();
+        }
+
+        public int size()
+        {
+            return size;
+        }
+
+        public void unload()
+        {
+            throw new UnsupportedOperationException(Messages.IndexWriter_NotImplemented);
+        }
+
+        public int[] getAll(int[] index)
+        {
+            throw new UnsupportedOperationException(Messages.IndexWriter_NotImplemented);
+        }
+
+        public int[] getNext(int index, int length)
+        {
+            throw new UnsupportedOperationException(Messages.IndexWriter_NotImplemented);
         }
     }
 
-    public static class IntIndexStreamer extends org.eclipse.mat.parser.index.IntIndexStreamer
+    public static class IntIndexStreamer extends IntIndex<SoftReference<ArrayIntCompressed>>
     {
-        // Default constructor
+        DataOutputStream out;
+        ArrayLong pageStart;
+        int[] page;
+        int left;
+
+        // tracks number of pages added, may not be available if they are still being compressed
+        int pagesAdded;
+
+        // if the writer task has an exception during async we want to throw it on the next write
+        Exception storedException = null;
+        // if the writer task has an OutOfMemoryError during async we want to throw it on the next write
+        OutOfMemoryError storedError = null;
+
+        // TODO bound these queues, and add more compressor threads if needed
+        // for the moment it is ok, as the compress and write stage is fast
+        // could do more threads but no point
+        final ExecutorService compressor = Executors.newSingleThreadExecutor(
+                r -> new Thread(r, "IntIndexStreamer-Compressor")); //$NON-NLS-1$
+        // this must be single threaded to ensure page update logic stays correct
+        final ExecutorService writer = Executors.newSingleThreadExecutor(
+                r -> new Thread(r, "IntIndexStreamer-Writer")); //$NON-NLS-1$
+
+        public IIndexReader.IOne2OneIndex writeTo(File indexFile, IteratorInt iterator) throws IOException
+        {
+            DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(indexFile)));
+
+            openStream(out, 0);
+            addAll(iterator);
+            closeStream();
+
+            out.close();
+
+            return getReader(indexFile);
+        }
+
+        public IIndexReader.IOne2OneIndex writeTo(File indexFile, int[] array) throws IOException
+        {
+            DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(indexFile)));
+
+            openStream(out, 0);
+            addAll(array);
+            closeStream();
+
+            out.close();
+
+            return getReader(indexFile);
+        }
+
+        public IIndexReader.IOne2OneIndex writeTo(DataOutputStream out, long position, IteratorInt iterator)
+                        throws IOException
+        {
+            openStream(out, position);
+            addAll(iterator);
+            closeStream();
+
+            return getReader(null);
+        }
+
+        public IIndexReader.IOne2OneIndex writeTo(DataOutputStream out, long position, int[] array) throws IOException
+        {
+            openStream(out, position);
+            addAll(array);
+            closeStream();
+
+            return getReader(null);
+        }
+
+        void openStream(DataOutputStream out, long position)
+        {
+            this.out = out;
+
+            init(0, PAGE_SIZE_INT);
+
+            this.page = new int[pageSize];
+            this.pageStart = new ArrayLong();
+            this.pageStart.add(position);
+            this.left = page.length;
+        }
+
+        /**
+         * @return total bytes written to index file
+         */
+        long closeStream() throws IOException
+        {
+            try
+            {
+                if (left < page.length)
+                    addPage();
+                else
+                    new WriterTask(null); // Dummy to test for pending exception
+            }
+            catch (IOException e)
+            {
+                // Early termination with an exception
+                try
+                {
+                    compressor.shutdownNow();
+                    compressor.awaitTermination(100, TimeUnit.SECONDS);
+                    writer.shutdownNow();
+                    writer.awaitTermination(100, TimeUnit.SECONDS);
+                    throw e;
+                }
+                catch (InterruptedException ie)
+                {
+                    throw new IOException(ie);
+                }
+            }
+
+            try
+            {
+                compressor.shutdown();
+                compressor.awaitTermination(100, TimeUnit.SECONDS);
+                writer.shutdown();
+                writer.awaitTermination(100, TimeUnit.SECONDS);
+            }
+            catch (InterruptedException ie)
+            {
+                throw new IOException(ie);
+            }
+
+            // write header information
+            for (int jj = 0; jj < pageStart.size(); jj++)
+                out.writeLong(pageStart.get(jj));
+
+            out.writeInt(pageSize);
+            // Encoded size is the negative number of entries in the last page
+            int s = size <= FORMAT1_MAX_SIZE ? (int)size : -(int)((size + pageSize - 1) % pageSize + 1);
+            out.writeInt(s);
+
+            this.page = null;
+
+            this.out = null;
+
+            return this.pageStart.lastElement() + (8 * pageStart.size()) + 8 - this.pageStart.firstElement();
+        }
+
+        IndexReader.IntIndexReader getReader(File indexFile)
+        {
+            return new IndexReader.IntIndexReader(indexFile, pages, size, pageSize, pageStart.toArray());
+        }
+
+        void addAll(IteratorInt iterator) throws IOException
+        {
+            while (iterator.hasNext())
+                add(iterator.next());
+        }
+
+        void add(int value) throws IOException
+        {
+            if (left == 0)
+                addPage();
+
+            page[page.length - left--] = value;
+            size++;
+
+        }
+
+        void addAll(int[] values) throws IOException
+        {
+            addAll(values, 0, values.length);
+        }
+
+        void addAll(int[] values, int offset, int length) throws IOException
+        {
+            while (length > 0)
+            {
+                if (left == 0)
+                    addPage();
+
+                int chunk = Math.min(left, length);
+
+                System.arraycopy(values, offset, page, page.length - left, chunk);
+                left -= chunk;
+                size += chunk;
+
+                length -= chunk;
+                offset += chunk;
+            }
+        }
+
+        long addAllWithLengthFirst(int[] values, int offset, int length) throws IOException
+        {
+            long startPos = size;
+            add(length);
+            addAll(values, offset, length);
+            return startPos;
+        }
+
+        private void addPage() throws IOException
+        {
+            Future<byte[]> compressionResult = compressor.submit(new CompressionTask(page, left, pagesAdded));
+            // compression may finish in any order, but writes have to be correct, so order them
+            writer.execute(new WriterTask(compressionResult));
+
+            pagesAdded += 1;
+            page = new int[page.length];
+            left = page.length;
+        }
+
+        @Override
+        protected ArrayIntCompressed getPage(int page)
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        /*
+         * Compresses a page of data to a byte array
+         */
+        private class CompressionTask implements Callable<byte[]>
+        {
+            final int[] page;
+            final int left;
+            final int pageNumber;
+            public CompressionTask(final int[] page, final int left, final int pageNumber)
+            {
+                this.page = page;
+                this.left = left;
+                this.pageNumber = pageNumber;
+            }
+
+            public byte[] call()
+            {
+                ArrayIntCompressed array = new ArrayIntCompressed(page, 0, page.length - left);
+                pages.put(pageNumber, new SoftReference<ArrayIntCompressed>(array));
+                return array.toByteArray();
+            }
+        }
+
+        /*
+         * Writes data to output
+         * Assumes there is only a single WriterTask that can ever be running
+         */
+        private class WriterTask implements Runnable {
+            final Future<byte[]> byteData;
+            public WriterTask(final Future<byte[]> byteData) throws IOException
+            {
+                this.byteData = byteData;
+                if (storedException != null)
+                {
+                    throw new IOException(Messages.IndexWriter_Stored_Exception, storedException);
+                }
+                if (storedError != null)
+                {
+                    throw new IOException(Messages.IndexWriter_StoredError, storedError);
+                }
+            }
+
+            public void run() {
+                byte[] buffer;
+                try
+                {
+                    buffer = byteData.get();
+                    out.write(buffer);
+                    int written = buffer.length;
+
+                    // update the shared page list
+                    pageStart.add(pageStart.lastElement() + written);
+                }
+                catch (InterruptedException | ExecutionException | IOException e)
+                {
+                    storedException = e;
+                }
+                catch (OutOfMemoryError e)
+                {
+                    storedError = e;
+                }
+            }
+        }
     }
 
-    public static class IntArray1NWriter extends org.eclipse.mat.parser.index.IntArray1NWriter
+    public static class IntArray1NWriter
     {
+        // length of set() queue to buffer before writing to output as a batch
+        private static final int TASK_BUFFER_SIZE = 1024;
+        /** Number of ints to write out in the buffer */
+        private static final int TASK_BUFFER_MAX_OBJECTS = 10000;
+        /** Size of all arrays in the buffer */
+        private static final int TASK_BUFFER_MAX_MEMORY = 20000;
+
+        int[] header;
+        // Used to expand the range of values stored in the header up to 2^40
+        byte[] header2;
+        File indexFile;
+
+        DataOutputStream out;
+        IntIndexStreamer body;
+
+        CopyOnWriteArrayList<ArrayListSetTask> allTasks = new CopyOnWriteArrayList<ArrayListSetTask>();
+        ThreadLocal<ArrayListSetTask> threadTaskQueue = ThreadLocal.withInitial(new Supplier<ArrayListSetTask>()
+        {
+            public ArrayListSetTask get()
+            {
+                ArrayListSetTask newList = new ArrayListSetTask(TASK_BUFFER_SIZE);
+                allTasks.add(newList);
+                return newList;
+            }
+        });
+
         public IntArray1NWriter(int size, File indexFile) throws IOException
         {
-            super(size, indexFile);
+            this.header = new int[size];
+            this.header2 = new byte[size];
+            this.indexFile = indexFile;
+
+            this.out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(indexFile)));
+            this.body = new IntIndexStreamer();
+            this.body.openStream(this.out, 0);
+        }
+
+        public void log(Identifier identifier, int index, ArrayLong references) throws IOException
+        {
+            log((IIndexReader.IOne2LongIndex)identifier, index, references);
+        }
+
+        /**
+         * @since 1.2
+         */
+        public void log(IIndexReader.IOne2LongIndex identifier, int index, ArrayLong references) throws IOException
+        {
+            // remove duplicates and convert to identifiers
+            // keep pseudo reference as first one
+
+            long pseudo = references.firstElement();
+
+            references.sort();
+
+            int[] objectIds = new int[references.size()];
+            int length = 1;
+
+            long current = 0, last = references.firstElement() - 1;
+            for (int ii = 0; ii < objectIds.length; ii++)
+            {
+                current = references.get(ii);
+                if (last != current)
+                {
+                    int objectId = identifier.reverse(current);
+
+                    if (objectId >= 0)
+                    {
+                        int jj = (current == pseudo) ? 0 : length++;
+                        objectIds[jj] = objectId;
+                    }
+
+                }
+
+                last = current;
+            }
+
+            this.set(index, objectIds, 0, length);
+        }
+
+        /**
+         * must not contain duplicates!
+         */
+        public void log(int index, ArrayInt references) throws IOException
+        {
+            this.set(index, references.toArray(), 0, references.size());
+        }
+
+        public void log(int index, int[] values) throws IOException
+        {
+            this.set(index, values, 0, values.length);
+        }
+
+        void setHeader(int index, long val)
+        {
+            header[index] = (int)val;
+            header2[index] = (byte)(val >> 32);
+        }
+
+        private long getHeader(int index)
+        {
+            return ((header2[index] & 0xffL) << 32) | (header[index] & 0xffffffffL);
+        }
+
+        protected void set(int index, int[] values, int offset, int length) throws IOException
+        {
+            ArrayListSetTask tasks = threadTaskQueue.get();
+            tasks.add(new SetTask(index, values, offset, length));
+
+            long memsize = tasks.memcount;
+            long objcount = tasks.objcount;
+            if (tasks.size() >= TASK_BUFFER_SIZE || memsize > TASK_BUFFER_MAX_OBJECTS || objcount > TASK_BUFFER_MAX_MEMORY)
+            {
+                publishTasks(tasks);
+                tasks.clear();
+            }
+        }
+
+        void publishTasks(final ArrayListSetTask tasks) throws IOException
+        {
+            synchronized(body)
+            {
+                for(SetTask t : tasks)
+                {
+                    long bodyPos = body.addAllWithLengthFirst(t.values, t.offset, t.length);
+                    setHeader(t.index, bodyPos);
+                }
+            }
+        }
+
+        public IIndexReader.IOne2ManyIndex flush() throws IOException
+        {
+            synchronized(body)
+            {
+                for(ArrayListSetTask list : allTasks)
+                {
+                    publishTasks(list);
+                    list.clear();
+                }
+            }
+
+            long divider = body.closeStream();
+
+            IIndexReader.IOne2OneIndex headerIndex = null;
+            boolean usesHeader2 = false;
+            for(int i = 0; i < header2.length; i++)
+            {
+                if (header2[i] != 0)
+                {
+                    usesHeader2 = true;
+                    break;
+                }
+            }
+            if (usesHeader2)
+            {
+                headerIndex = new PosIndexStreamer().writeTo2(out, divider, new IteratorLong()
+                {
+                    int i;
+
+                    public boolean hasNext()
+                    {
+                        return i < header.length;
+                    }
+
+                    public long next()
+                    {
+                        long ret = getHeader(i++);
+                        return ret;
+                    }
+                });
+
+            }
+            else
+            {
+                headerIndex = new IntIndexStreamer().writeTo(out, divider, header);
+            }
+
+            out.writeLong(divider);
+
+            out.close();
+            out = null;
+
+            return createReader(headerIndex, body.getReader(null));
+        }
+
+        /**
+         * @throws IOException
+         */
+        protected IIndexReader.IOne2ManyIndex createReader(IIndexReader.IOne2OneIndex headerIndex,
+                        IIndexReader.IOne2OneIndex bodyIndex) throws IOException
+        {
+            return new IndexReader.IntIndex1NReader(this.indexFile, headerIndex, bodyIndex);
+        }
+
+        public void cancel()
+        {
+            try
+            {
+                if (out != null)
+                {
+                    out.close();
+                    if (body != null)
+                        body.closeStream();
+                    body = null;
+                    out = null;
+                }
+            }
+            catch (IOException ignore)
+            {}
+            finally
+            {
+                if (indexFile.exists())
+                    indexFile.delete();
+            }
+        }
+
+        public File getIndexFile()
+        {
+            return indexFile;
+        }
+
+        private static class SetTask {
+            final int index;
+            final int[] values;
+            final int offset;
+            final int length;
+            public SetTask(final int index, final int[] values, final int offset, final int length) {
+                this.index = index;
+                this.values = values;
+                this.offset = offset;
+                this.length = length;
+            }
+        }
+
+        private static class ArrayListSetTask extends ArrayList<SetTask> {
+            private static final long serialVersionUID = 1L;
+            /** Number of values to write */
+            long objcount;
+            /** total size of all arrays */
+            long memcount;
+            public ArrayListSetTask(int n)
+            {
+                super(n);
+            }
+            public boolean add(SetTask t)
+            {
+                objcount += t.length;
+                memcount += t.values.length;
+                return super.add(t);
+            }
+            public void clear()
+            {
+                objcount = 0;
+                memcount = 0;
+                super.clear();
+            }
         }
     }
 
@@ -635,10 +1272,11 @@ public abstract class IndexWriter
 
             BitInputStream segmentIn = null;
 
+            IntIndexStreamer body = new IntIndexStreamer();
+            body.openStream(index, 0);
+            boolean bodyopen = true;
             try
             {
-                IntIndexStreamer body = new IntIndexStreamer();
-                body.openStream(index, 0);
 
                 for (int segment = 0; segment < segments.length; segment++)
                 {
@@ -652,6 +1290,7 @@ public abstract class IndexWriter
 
                 // write header
                 long divider = body.closeStream();
+                bodyopen = false;
                 IIndexReader.IOne2OneIndex headerIndex = null;
                 if (header2 != null)
                 {
@@ -695,6 +1334,8 @@ public abstract class IndexWriter
                 {
                     if (index != null)
                         index.close();
+                    if (bodyopen)
+                        body.closeStream();
                 }
                 catch (IOException ignore)
                 {}
@@ -814,7 +1455,7 @@ public abstract class IndexWriter
                         segmentIn.close();
                     }
                 }
-                finally 
+                finally
                 {
                     // Close the subfiles
                     for (int ss = 0; ss < subsegs; ++ss)
@@ -990,7 +1631,7 @@ public abstract class IndexWriter
             }
 
             if (endPseudo > fromIndex)
-            { 
+            {
                 long h = getHeader(objectId);
                 if (h > INBOUND_MAX_KEY1)
                 {
@@ -1274,23 +1915,378 @@ public abstract class IndexWriter
         }
     }
 
-    public static class LongIndexCollector extends org.eclipse.mat.parser.index.LongIndexCollector
+    public static class LongIndexCollector extends LongIndex
     {
+        final int mostSignificantBit;
+        final int size;
+        final int pageSize = IndexWriter.PAGE_SIZE_LONG;
+        final ConcurrentHashMap<Integer, ArrayLongCompressed> pages = new ConcurrentHashMap<Integer, ArrayLongCompressed>();
+
         public LongIndexCollector(int size, int mostSignificantBit)
         {
-            super(size, mostSignificantBit);
+            this.size = size;
+            this.mostSignificantBit = mostSignificantBit;
+        }
+
+        protected ArrayLongCompressed getPage(int page)
+        {
+            ArrayLongCompressed existing = pages.get(page);
+            if (existing != null) return existing;
+
+            int ps = page < (size / pageSize) ? pageSize : size % pageSize;
+            ArrayLongCompressed newArray = new ArrayLongCompressed(ps, 63 - mostSignificantBit, 0);
+            existing = pages.putIfAbsent(page, newArray);
+            return (existing != null) ? existing : newArray;
+        }
+
+        public IIndexReader.IOne2LongIndex writeTo(File indexFile) throws IOException
+        {
+            HashMapIntObject<Object> output = new HashMapIntObject<Object>(pages.size());
+            for(Map.Entry<Integer, ArrayLongCompressed> entry : pages.entrySet()) {
+                output.put(entry.getKey(), entry.getValue());
+            }
+            // needed to re-compress
+            return new LongIndexStreamer().writeTo(indexFile, this.size, output, this.pageSize);
+        }
+
+        public void set(int index, long value)
+        {
+            ArrayLongCompressed array = getPage(index / pageSize);
+            // uses bit operations internally, so we should sync against the page
+            // TODO unlock this by having ArrayLongCompressed use atomics
+            synchronized(array)
+            {
+                array.set(index % pageSize, value);
+            }
         }
     }
 
-    public static class LongIndexStreamer extends org.eclipse.mat.parser.index.LongIndexStreamer
+    public static class LongIndexStreamer extends LongIndex
     {
+        DataOutputStream out;
+        ArrayLong pageStart;
+        long[] page;
+        int left;
+
+        // tracks number of pages added, may not be available if they are still being compressed
+        int pagesAdded;
+
+        // if the writer task has an exception during async we want to throw it on the next write
+        Exception storedException = null;
+        // if the writer task has an OutOfMemoryError during async we want to throw it on the next write
+        OutOfMemoryError storedError = null;
+
+        // TODO bound these queues, and add more compressor threads if needed
+        // for the moment it is ok, as the compress and write stage is fast
+        // could do more threads but no point
+        final ExecutorService compressor = Executors.newSingleThreadExecutor(
+                r -> new Thread(r, "LongIndexStreamer-Compressor")); //$NON-NLS-1$
+        // this must be single threaded to ensure page update logic stays correct
+        final ExecutorService writer = Executors.newSingleThreadExecutor(
+                r -> new Thread(r, "LongIndexStreamer-Writer")); //$NON-NLS-1$
+
         public LongIndexStreamer()
-        {
-            super();
-        }
+        {}
+
         public LongIndexStreamer(File indexFile) throws IOException
         {
-            super(indexFile);
+            DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(indexFile)));
+            openStream(out, 0);
+        }
+
+        public void close() throws IOException
+        {
+            DataOutputStream out = this.out;
+            closeStream();
+            out.close();
+        }
+
+        public IOne2LongIndex writeTo(File indexFile, int size, HashMapIntObject<Object> pages, int pageSize)
+                        throws IOException
+        {
+            DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(indexFile)));
+
+            openStream(out, 0);
+
+            int noOfPages = size / pageSize + (size % pageSize > 0 ? 1 : 0);
+            for (int ii = 0; ii < noOfPages; ii++)
+            {
+                ArrayLongCompressed a = (ArrayLongCompressed) pages.get(ii);
+                int len = (ii + 1) < noOfPages ? pageSize : (size % pageSize);
+
+                if (a == null)
+                    addAll(new long[len]);
+                else
+                    for (int jj = 0; jj < len; jj++)
+                    {
+                        add(a.get(jj));
+                    }
+            }
+
+            closeStream();
+            out.close();
+
+            return getReader(indexFile);
+        }
+
+        public IOne2LongIndex writeTo(File indexFile, long[] array) throws IOException
+        {
+            DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(indexFile)));
+
+            openStream(out, 0);
+            addAll(array);
+            closeStream();
+
+            out.close();
+
+            return getReader(indexFile);
+        }
+
+        public IOne2LongIndex writeTo(File indexFile, IteratorLong iterator) throws IOException
+        {
+            FileOutputStream fos = new FileOutputStream(indexFile);
+            try
+            {
+                DataOutputStream out = new DataOutputStream(new BufferedOutputStream(fos));
+
+                openStream(out, 0);
+                addAll(iterator);
+                closeStream();
+
+                out.flush();
+
+                return getReader(indexFile);
+            }
+            finally
+            {
+                try
+                {
+                    fos.close();
+                }
+                catch (IOException ignore)
+                {}
+            }
+        }
+
+        public IOne2LongIndex writeTo(File indexFile, ArrayLong array) throws IOException
+        {
+            DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(indexFile)));
+
+            openStream(out, 0);
+            addAll(array);
+            closeStream();
+
+            out.close();
+
+            return getReader(indexFile);
+        }
+
+        IIndexReader.IOne2LongIndex writeTo(DataOutputStream out, long position, IteratorLong iterator)
+                        throws IOException
+        {
+            openStream(out, position);
+            addAll(iterator);
+            closeStream();
+
+            return getReader(null);
+        }
+
+        void openStream(DataOutputStream out, long position)
+        {
+            this.out = out;
+
+            init(0, PAGE_SIZE_LONG);
+
+            this.page = new long[pageSize];
+            this.pageStart = new ArrayLong();
+            this.pageStart.add(position);
+            this.left = page.length;
+        }
+
+        /**
+         * @return total bytes written to index file
+         */
+        long closeStream() throws IOException
+        {
+            try
+            {
+                if (left < page.length)
+                    addPage();
+                else
+                    new WriterTask(null); // Dummy to test for pending exception
+            }
+            catch (IOException e)
+            {
+                // Early termination with an exception
+                try
+                {
+                    compressor.shutdownNow();
+                    compressor.awaitTermination(100, TimeUnit.SECONDS);
+                    writer.shutdownNow();
+                    writer.awaitTermination(100, TimeUnit.SECONDS);
+                    throw e;
+                }
+                catch (InterruptedException ie)
+                {
+                    throw new IOException(ie);
+                }
+            }
+
+            try
+            {
+                compressor.shutdown();
+                compressor.awaitTermination(100, TimeUnit.SECONDS);
+                writer.shutdown();
+                writer.awaitTermination(100, TimeUnit.SECONDS);
+            }
+            catch (InterruptedException ie)
+            {
+                throw new IOException(ie);
+            }
+
+            // write header information
+            for (int jj = 0; jj < pageStart.size(); jj++)
+                out.writeLong(pageStart.get(jj));
+
+            out.writeInt(pageSize);
+            out.writeInt(size);
+
+            this.page = null;
+
+            this.out = null;
+
+            return this.pageStart.lastElement() + (8 * pageStart.size()) + 8 - this.pageStart.firstElement();
+        }
+
+        IndexReader.LongIndexReader getReader(File indexFile) throws IOException
+        {
+            return new IndexReader.LongIndexReader(indexFile, pages, size, pageSize, pageStart.toArray());
+        }
+
+        public void addAll(IteratorLong iterator) throws IOException
+        {
+            while (iterator.hasNext())
+                add(iterator.next());
+        }
+
+        public void addAll(ArrayLong array) throws IOException
+        {
+            for (IteratorLong e = array.iterator(); e.hasNext();)
+                add(e.next());
+        }
+
+        public void add(long value) throws IOException
+        {
+            if (left == 0)
+                addPage();
+
+            page[page.length - left--] = value;
+            size++;
+
+        }
+
+        public void addAll(long[] values) throws IOException
+        {
+            addAll(values, 0, values.length);
+        }
+
+        public void addAll(long[] values, int offset, int length) throws IOException
+        {
+            while (length > 0)
+            {
+                if (left == 0)
+                    addPage();
+
+                int chunk = Math.min(left, length);
+
+                System.arraycopy(values, offset, page, page.length - left, chunk);
+                left -= chunk;
+                size += chunk;
+
+                length -= chunk;
+                offset += chunk;
+            }
+        }
+
+        private void addPage() throws IOException
+        {
+            Future<byte[]> compressionResult = compressor.submit(new CompressionTask(page, left, pagesAdded));
+            // compression may finish in any order, but writes have to be correct, so order them
+            writer.execute(new WriterTask(compressionResult));
+
+            pagesAdded += 1;
+            page = new long[page.length];
+            left = page.length;
+        }
+
+        @Override
+        protected ArrayLongCompressed getPage(int page)
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        /*
+         * Compresses a page of data to a byte array
+         */
+        private class CompressionTask implements Callable<byte[]>
+        {
+            final long[] page;
+            final int left;
+            final int pageNumber;
+            public CompressionTask(final long[] page, final int left, final int pageNumber)
+            {
+                this.page = page;
+                this.left = left;
+                this.pageNumber = pageNumber;
+            }
+
+            public byte[] call()
+            {
+                ArrayLongCompressed array = new ArrayLongCompressed(page, 0, page.length - left);
+                pages.put(pageNumber, new SoftReference<ArrayLongCompressed>(array));
+                return array.toByteArray();
+            }
+        }
+
+        /*
+         * Writes data to output
+         * Assumes there is only a single WriterTask that can ever be running
+         */
+        private class WriterTask implements Runnable {
+            final Future<byte[]> byteData;
+            public WriterTask(final Future<byte[]> byteData) throws IOException
+            {
+                this.byteData = byteData;
+                if (storedException != null)
+                {
+                    throw new IOException(Messages.IndexWriter_StoredException, storedException);
+                }
+                if (storedException != null)
+                {
+                    throw new IOException(Messages.IndexWriter_StoredError, storedError);
+                }
+            }
+
+            public void run() {
+                byte[] buffer;
+                try
+                {
+                    buffer = byteData.get();
+                    out.write(buffer);
+                    int written = buffer.length;
+
+                    // update the shared page list
+                    pageStart.add(pageStart.lastElement() + written);
+                }
+                catch (InterruptedException | ExecutionException | IOException e)
+                {
+                    storedException = e;
+                }
+                catch (OutOfMemoryError e)
+                {
+                    storedError = e;
+                }
+            }
         }
     }
 
@@ -1403,6 +2399,8 @@ public abstract class IndexWriter
                 if (out != null)
                 {
                     out.close();
+                    if (body != null)
+                        body.closeStream();
                     body = null;
                     out = null;
                 }

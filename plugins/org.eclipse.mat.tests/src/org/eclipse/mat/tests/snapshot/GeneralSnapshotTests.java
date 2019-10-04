@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010,2018 IBM Corporation.
+ * Copyright (c) 2010,2019 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -409,7 +409,8 @@ public class GeneralSnapshotTests
         // HPROF parser can't handle adding links from classloader to classes for javacore
         File fn = new File(snapshot.getSnapshotInfo().getPrefix());
         assumeThat(fn.getName(), not(containsString("javacore")));
-        File newSnapshotFile = File.createTempFile(fn.getName(), ".hprof");
+        File tmpdir = TestSnapshots.createGeneratedName(fn.getName(), null);
+        File newSnapshotFile = new File(tmpdir, fn.getName() + ".hprof");
         try {
             SnapshotQuery query = SnapshotQuery.parse("export_hprof -output "+newSnapshotFile.getPath(), snapshot);
             IResult t = query.execute(new VoidProgressListener());
