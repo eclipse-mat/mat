@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "85d43ba2_7506ae43",
+        "filename": "plugins/org.eclipse.mat.hprof/.settings/org.eclipse.jdt.core.prefs",
+        "patchSetId": 2
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2019-10-04T05:00:21Z",
+      "side": 1,
+      "message": "Extra jdt preference changes here - we could remove them later.",
+      "revId": "12430cf600881f65fced73f26af72a8484265433",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
