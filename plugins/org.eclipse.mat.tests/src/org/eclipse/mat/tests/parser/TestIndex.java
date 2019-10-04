@@ -25,6 +25,7 @@ import org.eclipse.mat.parser.index.IIndexReader.IOne2ManyObjectsIndex;
 import org.eclipse.mat.parser.index.IndexReader;
 import org.eclipse.mat.parser.index.IndexWriter;
 import org.eclipse.mat.parser.index.IndexWriter.KeyWriter;
+import org.eclipse.mat.parser.index.IntArray1NWriter;
 import org.eclipse.mat.util.VoidProgressListener;
 import org.junit.Assert;
 import org.junit.Test;
@@ -103,7 +104,7 @@ public class TestIndex
         File indexFile = File.createTempFile("1toN", ".index");
         try
         {
-            IndexWriter.IntArray1NWriter f = new IndexWriter.IntArray1NWriter(M, indexFile);
+            IntArray1NWriter f = new IntArray1NWriter(M, indexFile);
             for (int j = 0; j < M; ++j)
             {
                 // Vary the length a little
