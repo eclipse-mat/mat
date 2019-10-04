@@ -62,6 +62,7 @@ public class Pass1Parser extends AbstractParser
     private HashMapLongObject<Long> classSerNum2id = new HashMapLongObject<Long>();
     private HashMapLongObject<Long> class2type = new HashMapLongObject<Long>();
     private HashMapLongObject<List<JavaLocal>> thread2locals = new HashMapLongObject<List<JavaLocal>>();
+    private HashMapLongObject<String> constantPool = new HashMapLongObject<String>();
     private IHprofParserHandler handler;
     private SimpleMonitor.Listener monitor;
     private long previousArrayStart;
@@ -276,7 +277,7 @@ public class Pass1Parser extends AbstractParser
         long id = in.readID(idSize);
         byte[] chars = new byte[(int) (length - idSize)];
         in.readFully(chars);
-        handler.getConstantPool().put(id, new String(chars, "UTF-8")); //$NON-NLS-1$
+        constantPool.put(id, new String(chars, "UTF-8")); //$NON-NLS-1$
     }
 
     private void readLoadClass() throws IOException
@@ -723,7 +724,7 @@ public class Pass1Parser extends AbstractParser
         if (address == 0L)
             return ""; //$NON-NLS-1$
 
-        String result = handler.getConstantPool().get(address);
+        String result = constantPool.get(address);
         return result == null ? MessageUtil.format(Messages.Pass1Parser_Error_UnresolvedName, Long.toHexString(address)) : result;
     }
 

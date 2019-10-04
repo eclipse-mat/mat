@@ -89,8 +89,6 @@ public interface IHprofParserHandler
 
     int getIdentifierSize();
 
-    HashMapLongObject<String> getConstantPool();
-
     IClass lookupClass(long classId);
 
     IClass lookupClassByName(String name, boolean failOnMultipleInstances);
