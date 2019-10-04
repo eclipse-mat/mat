@@ -18,6 +18,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
+import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
@@ -41,6 +43,10 @@ import org.eclipse.mat.util.VoidProgressListener;
 public class ClassImpl extends AbstractObjectImpl implements IClass, Comparable<ClassImpl>
 {
     private static final long serialVersionUID = 22L;
+    private static final transient AtomicIntegerFieldUpdater<ClassImpl> instanceCountUpdater =
+                    AtomicIntegerFieldUpdater.newUpdater(ClassImpl.class, "instanceCount");
+    private static final transient AtomicLongFieldUpdater<ClassImpl> totalSizeUpdater =
+                    AtomicLongFieldUpdater.newUpdater(ClassImpl.class, "totalSize");
 
     public static final String JAVA_LANG_CLASS = IClass.JAVA_LANG_CLASS;
 
@@ -53,8 +59,8 @@ public class ClassImpl extends AbstractObjectImpl implements IClass, Comparable<
     protected FieldDescriptor[] fields;
     protected int usedHeapSize;
     protected int instanceSize;
-    protected int instanceCount;
-    protected long totalSize;
+    protected volatile int instanceCount;
+    protected volatile long totalSize;
     protected boolean isArrayType;
 
     private List<IClass> subClasses;
@@ -323,11 +329,10 @@ public class ClassImpl extends AbstractObjectImpl implements IClass, Comparable<
     /**
 	 * @since 1.0
 	 */
-    public synchronized void addInstance(long usedHeapSize)
+    public void addInstance(long usedHeapSize)
     {
-        // TODO this could be converted to atomic field updaters
-        this.instanceCount++;
-        this.totalSize += usedHeapSize;
+        instanceCountUpdater.getAndAdd(this, 1);
+        totalSizeUpdater.getAndAdd(this, usedHeapSize);
     }
 
     /**
