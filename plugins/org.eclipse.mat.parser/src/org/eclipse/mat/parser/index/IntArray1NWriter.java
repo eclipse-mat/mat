@@ -1,3 +1,15 @@
+/*******************************************************************************
+ * Copyright (c) 2008, 2014 SAP AG, IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    SAP AG - initial API and implementation
+ *    Andrew Johnson - enhancements for huge dumps
+ *    Netflix (Jason Koch) - refactors for increased performance and concurrency
+ *******************************************************************************/
 package org.eclipse.mat.parser.index;
 
 import java.io.BufferedOutputStream;

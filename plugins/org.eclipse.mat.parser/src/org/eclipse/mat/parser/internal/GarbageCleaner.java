@@ -7,7 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
- *    Netflix (Jason Koch) - concurrent calculations
+ *    Netflix (Jason Koch) - refactors for increased performance and concurrency
  *******************************************************************************/
 package org.eclipse.mat.parser.internal;
 

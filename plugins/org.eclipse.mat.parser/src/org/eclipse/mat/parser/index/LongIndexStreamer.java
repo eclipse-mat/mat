@@ -1,3 +1,15 @@
+/*******************************************************************************
+ * Copyright (c) 2008, 2014 SAP AG, IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    SAP AG - initial API and implementation
+ *    Andrew Johnson - enhancements for huge dumps
+ *    Netflix (Jason Koch) - refactors for increased performance and concurrency
+ *******************************************************************************/
 package org.eclipse.mat.parser.index;
 
 import java.io.BufferedOutputStream;
@@ -35,7 +47,7 @@ public class LongIndexStreamer extends LongIndex
     // if the writer task has an exception during async we want to throw it on the next write
     Exception storedException = null;
 
-    // TODO bound these queues
+    // TODO bound these queues, and add more compressor threads if needed
     // for the moment it is ok, as the compress and write stage is fast
     // could do more threads but no point
     final ExecutorService compressor = Executors.newSingleThreadExecutor(
