@@ -16,7 +16,6 @@ import java.util.List;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayLong;
-import org.eclipse.mat.collect.HashMapLongObject;
 import org.eclipse.mat.parser.IPreliminaryIndex;
 import org.eclipse.mat.parser.index.IIndexReader.IOne2LongIndex;
 import org.eclipse.mat.parser.model.ClassImpl;
@@ -92,6 +91,8 @@ public interface IHprofParserHandler
     IClass lookupClassByName(String name, boolean failOnMultipleInstances);
 
     IClass lookupClassByIndex(int objIndex);
+
+    IClass lookupPrimitiveArrayClassByType(byte elementType);
 
     List<IClass> resolveClassHierarchy(long classId);
 
