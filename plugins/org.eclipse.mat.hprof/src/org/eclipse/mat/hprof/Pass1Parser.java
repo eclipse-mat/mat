@@ -31,6 +31,7 @@ import org.eclipse.mat.collect.HashMapLongObject;
 import org.eclipse.mat.collect.HashMapLongObject.Entry;
 import org.eclipse.mat.hprof.ui.HprofPreferences;
 import org.eclipse.mat.parser.io.DefaultPositionInputStream;
+import org.eclipse.mat.parser.io.PositionInputStream;
 import org.eclipse.mat.parser.model.ClassImpl;
 import org.eclipse.mat.snapshot.MultipleSnapshotsException;
 import org.eclipse.mat.snapshot.model.Field;
@@ -68,6 +69,7 @@ public class Pass1Parser extends AbstractParser
     private boolean foundCompressed;
     private final boolean verbose = Platform.inDebugMode() && HprofPlugin.getDefault().isDebugging()
                     && Boolean.parseBoolean(Platform.getDebugOption("org.eclipse.mat.hprof/debug/parser")); //$NON-NLS-1$
+    private PositionInputStream in;
 
     public Pass1Parser(IHprofParserHandler handler, SimpleMonitor.Listener monitor,
                     HprofPreferences.HprofStrictness strictnessPreference)
@@ -115,7 +117,7 @@ public class Pass1Parser extends AbstractParser
 
                 int record = in.readUnsignedByte();
 
-                long timeOffset = readUnsignedInt(); // time stamp in microseconds
+                long timeOffset = in.readUnsignedInt(); // time stamp in microseconds
                 if (timeOffset < prevTimeOffset)
                 {
                     // Wrap after 4294 seconds
@@ -123,7 +125,7 @@ public class Pass1Parser extends AbstractParser
                 }
                 prevTimeOffset = timeOffset;
 
-                long length = readUnsignedInt();
+                long length = in.readUnsignedInt();
                 if (verbose)
                     System.out.println("Read record type " + record + ", length " + length + " at position 0x" + Long.toHexString(curPos)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
@@ -271,7 +273,7 @@ public class Pass1Parser extends AbstractParser
 
     private void readString(long length) throws IOException
     {
-        long id = readID();
+        long id = in.readID(idSize);
         byte[] chars = new byte[(int) (length - idSize)];
         in.readFully(chars);
         handler.getConstantPool().put(id, new String(chars, "UTF-8")); //$NON-NLS-1$
@@ -279,10 +281,10 @@ public class Pass1Parser extends AbstractParser
 
     private void readLoadClass() throws IOException
     {
-        long classSerNum = readUnsignedInt(); // used in stacks frames
-        long classID = readID();
+        long classSerNum = in.readUnsignedInt(); // used in stacks frames
+        long classID = in.readID(idSize);
         in.skipBytes(4); // stack trace
-        long nameID = readID();
+        long nameID = in.readID(idSize);
 
         String className = getStringConstant(nameID).replace('/', '.');
         class2name.put(classID, className);
@@ -291,7 +293,7 @@ public class Pass1Parser extends AbstractParser
 
     private void readUnloadClass() throws IOException
     {
-        long classSerNum = readUnsignedInt(); // used in stacks frames
+        long classSerNum = in.readUnsignedInt(); // used in stacks frames
         long classID = classSerNum2id.get(classSerNum);
         // class2name only holds active classes
         class2name.remove(classID);
@@ -299,11 +301,11 @@ public class Pass1Parser extends AbstractParser
 
     private void readStackFrame(long length) throws IOException
     {
-        long frameId = readID();
-        long methodName = readID();
-        long methodSig = readID();
-        long srcFile = readID();
-        long classSerNum = readUnsignedInt();
+        long frameId = in.readID(idSize);
+        long methodName = in.readID(idSize);
+        long methodSig = in.readID(idSize);
+        long srcFile = in.readID(idSize);
+        long classSerNum = in.readUnsignedInt();
         int lineNr = in.readInt(); // can be negative
         StackFrame frame = new StackFrame(frameId, lineNr, getStringConstant(methodName), getStringConstant(methodSig),
                         getStringConstant(srcFile), classSerNum);
@@ -312,13 +314,13 @@ public class Pass1Parser extends AbstractParser
 
     private void readStackTrace(long length) throws IOException
     {
-        long stackTraceNr = readUnsignedInt();
-        long threadNr = readUnsignedInt();
-        long frameCount = readUnsignedInt();
+        long stackTraceNr = in.readUnsignedInt();
+        long threadNr = in.readUnsignedInt();
+        long frameCount = in.readUnsignedInt();
         long[] frameIds = new long[(int) frameCount];
         for (int i = 0; i < frameCount; i++)
         {
-            frameIds[i] = readID();
+            frameIds[i] = in.readID(idSize);
         }
         StackTrace stackTrace = new StackTrace(stackTraceNr, threadNr, frameIds);
         serNum2stackTrace.put(stackTraceNr, stackTrace);
@@ -418,7 +420,7 @@ public class Pass1Parser extends AbstractParser
 
     private void readGCThreadObject(int gcType) throws IOException
     {
-        long id = readID();
+        long id = in.readID(idSize);
         int threadSerialNo = in.readInt();
         thread2id.put(threadSerialNo, id);
         handler.addGCRoot(id, 0, gcType);
@@ -428,7 +430,7 @@ public class Pass1Parser extends AbstractParser
 
     private void readGC(int gcType, int skip) throws IOException
     {
-        long id = readID();
+        long id = in.readID(idSize);
         handler.addGCRoot(id, 0, gcType);
 
         if (skip > 0)
@@ -437,7 +439,7 @@ public class Pass1Parser extends AbstractParser
 
     private void readGCWithThreadContext(int gcType, boolean hasLineInfo) throws IOException
     {
-        long id = readID();
+        long id = in.readID(idSize);
         int threadSerialNo = in.readInt();
         Long tid = thread2id.get(threadSerialNo);
         if (tid != null)
@@ -464,16 +466,16 @@ public class Pass1Parser extends AbstractParser
 
     private void readClassDump(long segmentStartPos) throws IOException
     {
-        long address = readID();
+        long address = in.readID(idSize);
         in.skipBytes(4); // stack trace serial number
-        long superClassObjectId = readID();
-        long classLoaderObjectId = readID();
+        long superClassObjectId = in.readID(idSize);
+        long classLoaderObjectId = in.readID(idSize);
 
         // read signers, protection domain, reserved ids (2)
-        long signersId = readID();
-        long protectionDomainId = readID();
-        long reserved1Id = readID();
-        long reserved2Id = readID();
+        long signersId = in.readID(idSize);
+        long protectionDomainId = in.readID(idSize);
+        long reserved1Id = in.readID(idSize);
+        long reserved2Id = in.readID(idSize);
         int extraDummyStatics = 0;
         if (NEWCLASSSIZE)
         {
@@ -497,7 +499,7 @@ public class Pass1Parser extends AbstractParser
             String name = "<constant pool["+index+"]>"; //$NON-NLS-1$ //$NON-NLS-2$
             byte type = in.readByte();
 
-            Object value = readValue(null, type);
+            Object value = readValue(in, null, type);
             constantPool[ii] = new Field(name, type, value);
         }
 
@@ -507,12 +509,12 @@ public class Pass1Parser extends AbstractParser
 
         for (int ii = 0; ii < numStaticFields; ii++)
         {
-            long nameId = readID();
+            long nameId = in.readID(idSize);
             String name = getStringConstant(nameId);
 
             byte type = in.readByte();
 
-            Object value = readValue(null, type);
+            Object value = readValue(in, null, type);
             statics[ii] = new Field(name, type, value);
         }
 
@@ -537,7 +539,7 @@ public class Pass1Parser extends AbstractParser
 
         for (int ii = 0; ii < numInstanceFields; ii++)
         {
-            long nameId = readID();
+            long nameId = in.readID(idSize);
             String name = getStringConstant(nameId);
 
             byte type = in.readByte();
@@ -635,10 +637,10 @@ public class Pass1Parser extends AbstractParser
 
     private void readInstanceDump(long segmentStartPos) throws IOException
     {
-        long address = readID();
+        long address = in.readID(idSize);
         handler.reportInstance(address, segmentStartPos);
         in.skipBytes(4); // stack trace serial
-        long classID = readID();
+        long classID = in.readID(idSize);
         int payload = in.readInt();
         // check if class needs to be created
         IClass instanceType = handler.lookupClass(classID);
@@ -667,7 +669,7 @@ public class Pass1Parser extends AbstractParser
 
     private void readObjectArrayDump(long segmentStartPos) throws IOException
     {
-        long address = readID();
+        long address = in.readID(idSize);
         if (!foundCompressed && idSize == 8 && address > previousArrayStart && address < previousArrayUncompressedEnd)
         {
             monitor.sendUserMessage(
@@ -682,7 +684,7 @@ public class Pass1Parser extends AbstractParser
 
         in.skipBytes(4); // stack trace serial
         int size = in.readInt();
-        long arrayClassObjectID = readID();
+        long arrayClassObjectID = in.readID(idSize);
 
         // check if class needs to be created
         IClass arrayType = handler.lookupClass(arrayClassObjectID);
@@ -696,7 +698,7 @@ public class Pass1Parser extends AbstractParser
 
     private void readPrimitiveArrayDump(long segmentStartPos) throws SnapshotException, IOException
     {
-        long address = readID();
+        long address = in.readID(idSize);
         handler.reportInstance(address, segmentStartPos);
 
         in.skipBytes(4);

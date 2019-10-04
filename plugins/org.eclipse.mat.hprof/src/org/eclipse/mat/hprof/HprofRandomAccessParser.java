@@ -21,6 +21,7 @@ import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.hprof.ui.HprofPreferences;
 import org.eclipse.mat.parser.io.BufferedRandomAccessInputStream;
 import org.eclipse.mat.parser.io.DefaultPositionInputStream;
+import org.eclipse.mat.parser.io.PositionInputStream;
 import org.eclipse.mat.parser.model.ClassImpl;
 import org.eclipse.mat.parser.model.ClassLoaderImpl;
 import org.eclipse.mat.parser.model.InstanceImpl;
@@ -38,7 +39,8 @@ import org.eclipse.mat.util.MessageUtil;
 public class HprofRandomAccessParser extends AbstractParser
 {
     public static final int LAZY_LOADING_LIMIT = 256;
-
+    private final PositionInputStream in;
+    
     public HprofRandomAccessParser(File file, Version version, int identifierSize,
                     HprofPreferences.HprofStrictness strictnessPreference) throws IOException
     {
@@ -89,7 +91,7 @@ public class HprofRandomAccessParser extends AbstractParser
 
     private IObject readInstanceDump(int objectId, ISnapshot dump) throws IOException, SnapshotException
     {
-        long address = readID();
+        long address = in.readID(idSize);
         if (in.skipBytes(8 + idSize) != 8 + idSize)
             throw new IOException();
 
@@ -109,7 +111,7 @@ public class HprofRandomAccessParser extends AbstractParser
                 {
                     FieldDescriptor field = fields.get(ii);
                     int type = field.getType();
-                    Object value = readValue(dump, type);
+                    Object value = readValue(in, dump, type);
                     instanceFields.add(new Field(field.getName(), field.getType(), value));
                 }
             }
@@ -125,12 +127,12 @@ public class HprofRandomAccessParser extends AbstractParser
 
     private IArray readObjectArrayDump(int objectId, ISnapshot dump) throws IOException, SnapshotException
     {
-        long id = readID();
+        long id = in.readID(idSize);
 
         in.skipBytes(4);
         int size = in.readInt();
 
-        long arrayClassObjectID = readID();
+        long arrayClassObjectID = in.readID(idSize);
 
         IClass arrayType = (IClass) dump.getObject(dump.mapAddressToId(arrayClassObjectID));
         if (arrayType == null)
@@ -141,7 +143,7 @@ public class HprofRandomAccessParser extends AbstractParser
         {
             long[] data = new long[size];
             for (int ii = 0; ii < data.length; ii++)
-                data[ii] = readID();
+                data[ii] = in.readID(idSize);
             content = data;
         }
         else
@@ -156,7 +158,7 @@ public class HprofRandomAccessParser extends AbstractParser
 
     private IArray readPrimitiveArrayDump(int objectId, ISnapshot dump) throws IOException, SnapshotException
     {
-        long id = readID();
+        long id = in.readID(idSize);
 
         in.skipBytes(4);
         int arraySize = in.readInt();
@@ -205,7 +207,7 @@ public class HprofRandomAccessParser extends AbstractParser
         in.seek(descriptor.getPosition() + ((long)offset * elementSize));
         long[] data = new long[length];
         for (int ii = 0; ii < data.length; ii++)
-            data[ii] = readID();
+            data[ii] = in.readID(idSize);
         return data;
     }
 
