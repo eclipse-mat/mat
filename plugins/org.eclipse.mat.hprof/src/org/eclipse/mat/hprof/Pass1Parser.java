@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -61,6 +62,7 @@ public class Pass1Parser extends AbstractParser
     private long previousArrayStart;
     private long previousArrayUncompressedEnd;
     private boolean foundCompressed;
+    private int biggestArrays[];
     private final boolean verbose = Platform.inDebugMode() && HprofPlugin.getDefault().isDebugging()
                     && Boolean.parseBoolean(Platform.getDebugOption("org.eclipse.mat.hprof/debug/parser")); //$NON-NLS-1$
     private IPositionInputStream in;
@@ -71,6 +73,7 @@ public class Pass1Parser extends AbstractParser
         super(strictnessPreference);
         this.handler = handler;
         this.monitor = monitor;
+        this.biggestArrays = new int[Runtime.getRuntime().availableProcessors()];
     }
 
     public void read(File file, String dumpNrToRead) throws SnapshotException, IOException
@@ -263,6 +266,22 @@ public class Pass1Parser extends AbstractParser
         if (serNum2stackTrace.size() > 0)
             dumpThreads();
 
+    }
+
+    /**
+     * Total of the size of the k biggest object arrays.
+     * k = number of processors
+     * Use to estimate how much more memory parallel parsing will use.
+     * @return
+     */
+    public long biggestArrays()
+    {
+        long total = 0;
+        for (int s : biggestArrays)
+        {
+            total += s;
+        }
+        return total;
     }
 
     private void readString(long length) throws IOException
@@ -668,6 +687,11 @@ public class Pass1Parser extends AbstractParser
         in.skipBytes((long) size * idSize);
         previousArrayStart = address;
         previousArrayUncompressedEnd = address + 16 + (long)size * 8;
+        if (size > biggestArrays[0])
+        {
+            biggestArrays[0] = size;
+            Arrays.sort(biggestArrays);
+        }
 
         handler.reportInstanceOfObjectArray(address,  segmentStartPos, arrayClassObjectID);
     }

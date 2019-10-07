@@ -37,13 +37,15 @@ public class Pass2Parser extends AbstractParser
     private IHprofParserHandler handler;
     private SimpleMonitor.Listener monitor;
     private IPositionInputStream in;
+    private boolean parallel;
 
     public Pass2Parser(IHprofParserHandler handler, SimpleMonitor.Listener monitor,
-                    HprofPreferences.HprofStrictness strictnessPreference)
+                    HprofPreferences.HprofStrictness strictnessPreference, boolean parallel)
     {
         super(strictnessPreference);
         this.handler = handler;
         this.monitor = monitor;
+        this.parallel = parallel;
     }
 
     public void read(File file, String dumpNrToRead) throws SnapshotException, IOException
@@ -119,7 +121,7 @@ public class Pass2Parser extends AbstractParser
     private void readDumpSegments(long length) throws SnapshotException, IOException
     {
         Stream<HeapObject> heapObjects = StreamSupport.stream(
-                        new HeapObjectParser(length), true);
+                        new HeapObjectParser(length), parallel);
         heapObjects.forEach(t -> {
             try
             {

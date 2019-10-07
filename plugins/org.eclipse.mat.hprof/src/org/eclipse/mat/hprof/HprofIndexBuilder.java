@@ -90,7 +90,24 @@ public class HprofIndexBuilder implements IIndexBuilder
         mon.beginTask(MessageUtil.format(Messages.HprofIndexBuilder_ExtractingObjects,
                         new Object[] { file.getAbsolutePath() }), (int) (file.length() / 1000));
 
-        Pass2Parser pass2 = new Pass2Parser(handler, mon, strictnessPreference);
+        /*
+         * Estimate whether parallel processing of object arrays will cause an
+         * OutOfMemoryError.
+         */
+        long biggestArrays = pass1.biggestArrays();
+        // Just a guess from experimentation with a dumps with 100x[200000] and 2x[20000000] arrays
+        long memestimate = biggestArrays * 24;
+        Runtime runtime = Runtime.getRuntime();
+        // This free memory calculation is very approximate - we do a GC to get a better estimate
+        long maxFree = runtime.maxMemory() - runtime.totalMemory() + runtime.freeMemory();
+        if (!(maxFree > memestimate))
+        {
+            runtime.gc();
+            maxFree = runtime.maxMemory() - runtime.totalMemory() + runtime.freeMemory();
+        }
+        boolean parallel = maxFree > memestimate;
+
+        Pass2Parser pass2 = new Pass2Parser(handler, mon, strictnessPreference, parallel);
         pass2.read(file, dumpNrToRead);
 
         if (listener.isCanceled())
