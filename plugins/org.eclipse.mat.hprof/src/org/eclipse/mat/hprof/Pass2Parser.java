@@ -14,6 +14,7 @@ package org.eclipse.mat.hprof;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.function.Consumer;
@@ -122,16 +123,23 @@ public class Pass2Parser extends AbstractParser
     {
         Stream<HeapObject> heapObjects = StreamSupport.stream(
                         new HeapObjectParser(length), parallel);
-        heapObjects.forEach(t -> {
-            try
-            {
-                handler.addObject(t);
-            }
-            catch (IOException e)
-            {
-                throw new RuntimeException(e);
-            }
-        });
+        try
+        {
+            heapObjects.forEach(t -> {
+                try
+                {
+                    handler.addObject(t);
+                }
+                catch (IOException e)
+                {
+                    throw new UncheckedIOException(e);
+                }
+            });
+        }
+        catch (UncheckedIOException e)
+        {
+            throw e.getCause();
+        }
     }
 
     /**
@@ -241,7 +249,11 @@ public class Pass2Parser extends AbstractParser
                     }
                 }
             }
-            catch (IOException | SnapshotException e)
+            catch (IOException e)
+            {
+                throw new UncheckedIOException(e);
+            }
+            catch (SnapshotException e)
             {
                 throw new RuntimeException(e);
             }
