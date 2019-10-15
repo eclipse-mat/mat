@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Netflix
+ * Copyright (c) 2019 Netflix and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Netflix (Jason Koch) - refactors for increased concurrency and performance
+ *    IBM Corporation (Andrew Johnson) - tidy exception cases
  *******************************************************************************/
 package org.eclipse.mat.hprof;
 
@@ -16,14 +17,15 @@ import java.io.IOException;
 public class ByteArrayPositionInputStream implements IPositionInputStream
 {
     /*
-     * note this does not throw any IOExceptions
-     * but if you use it wrong, it will throw ArrayIndexOutOfBoundsException
+     * Can throw EOFExceptions.
+     * If you use it wrong, it will throw ArrayIndexOutOfBoundsException.
      */
     private final byte[] bytes;
     private int position = 0;
     private final int idSize;
 
-    public ByteArrayPositionInputStream(final byte[] bytes, final int idSize) {
+    public ByteArrayPositionInputStream(final byte[] bytes, final int idSize)
+    {
         this.bytes = bytes;
         this.idSize = idSize;
     }
@@ -32,14 +34,24 @@ public class ByteArrayPositionInputStream implements IPositionInputStream
     {
         position = bytes.length;
     }
-    
+
     public int read()
     {
+        if (position >= bytes.length)
+            return -1;
         return 0xFF & ((int) bytes[position++]);
     }
 
     public int read(byte[] b, int off, int len)
     {
+        if (len < 0)
+            throw new IllegalArgumentException();
+        if (len == 0)
+            return 0;
+        if (position >= bytes.length)
+            return -1;
+        if (position > bytes.length - len)
+            len = bytes.length - position;
         System.arraycopy(bytes, position, b, off, len);
         position += len;
         return len;
@@ -47,6 +59,12 @@ public class ByteArrayPositionInputStream implements IPositionInputStream
 
     public long skip(long n)
     {
+        if (n <= 0)
+            return 0;
+        if (position >= bytes.length)
+            return 0;
+        if (position > bytes.length - n)
+            n = bytes.length - position;
         position += n;
         return n;
     }
@@ -71,14 +89,18 @@ public class ByteArrayPositionInputStream implements IPositionInputStream
         return (int) skip(n);
     }
 
-    public void readFully(byte b[])
+    public void readFully(byte b[]) throws EOFException
     {
-        read(b, 0, b.length);
+        int r = read(b, 0, b.length);
+        if (r < b.length)
+            throw new EOFException();
     }
 
-    public void readFully(byte b[], int off, int len)
+    public void readFully(byte b[], int off, int len) throws EOFException
     {
-        read(b, off, len);
+        int r = read(b, off, len);
+        if (r < len)
+            throw new EOFException();
     }
 
     public long position()
@@ -86,37 +108,36 @@ public class ByteArrayPositionInputStream implements IPositionInputStream
         return position;
     }
 
-    public void seek(int pos)
-    {
-        position = pos;
-    }
-
     // //////////////////////////////////////////////////////////////
     // DataInput implementations
     // //////////////////////////////////////////////////////////////
 
-    public int readUnsignedByte()
+    public int readUnsignedByte() throws EOFException
     {
         int ch = read();
+        if (ch < 0)
+            throw new EOFException();
         return ch;
     }
 
-    public int readInt()
+    public int readInt() throws EOFException
     {
+        if (position > bytes.length - 4)
+            throw new EOFException();
         int ch1 = bytes[position] & 0xff;
         int ch2 = bytes[position + 1] & 0xff;
         int ch3 = bytes[position + 2] & 0xff;
         int ch4 = bytes[position + 3] & 0xff;
-        
-        int result = ((ch1 << 24) + (ch2 << 16) + (ch3 << 8) + (ch4 << 0)); 
-        
+
+        int result = ((ch1 << 24) + (ch2 << 16) + (ch3 << 8) + (ch4 << 0));
         position += 4;
-        
         return result;
     }
 
-    public long readLong()
+    public long readLong() throws EOFException
     {
+        if (position > bytes.length - 4)
+            throw new EOFException();
         long result = (((long) bytes[position] << 56)
                         + ((long) (bytes[position + 1] & 0xff) << 48)
                         + ((long) (bytes[position + 2] & 0xff) << 40)
@@ -153,7 +174,7 @@ public class ByteArrayPositionInputStream implements IPositionInputStream
             throw new EOFException();
         return (char) ((ch1 << 8) + (ch2 << 0));
     }
-    
+
     public double readDouble() throws IOException
     {
         return Double.longBitsToDouble(readLong());
@@ -178,10 +199,12 @@ public class ByteArrayPositionInputStream implements IPositionInputStream
         return (short) ((ch1 << 8) + (ch2 << 0));
     }
 
-    public int readUnsignedShort()
+    public int readUnsignedShort() throws IOException
     {
         int ch1 = read();
         int ch2 = read();
+        if ((ch1 | ch2) < 0)
+            throw new EOFException();
         return (ch1 << 8) + (ch2 << 0);
     }
 
@@ -189,7 +212,7 @@ public class ByteArrayPositionInputStream implements IPositionInputStream
     // additions
     // //////////////////////////////////////////////////////////////
 
-    protected int readIntArray(int[] a)
+    protected int readIntArray(int[] a) throws EOFException
     {
         for(int i = 0; i < a.length; i++) {
             a[i] = readInt();
@@ -197,7 +220,7 @@ public class ByteArrayPositionInputStream implements IPositionInputStream
         return a.length;
     }
 
-    protected int readLongArray(long[] a)
+    protected int readLongArray(long[] a) throws EOFException
     {
         for(int i = 0; i < a.length; i++) {
             a[i] = readLong();
@@ -205,19 +228,27 @@ public class ByteArrayPositionInputStream implements IPositionInputStream
         return a.length;
     }
 
-    public long readUnsignedInt()
+    public long readUnsignedInt() throws EOFException
     {
         return (0x0FFFFFFFFL & readInt());
     }
 
     public int skipBytes(int n)
     {
+        if (n <= 0)
+            return 0;
+        if (position >= bytes.length)
+            return 0;
+        if (position > bytes.length - n)
+            n = bytes.length - position;
         position += n;
         return n;
     }
 
-    public void seek(long pos)
+    public void seek(long pos) throws IOException
     {
+        if (pos < 0 || pos > Integer.MAX_VALUE)
+            throw new IOException();
         position = (int) pos;
     }
 
@@ -226,7 +257,7 @@ public class ByteArrayPositionInputStream implements IPositionInputStream
         throw new UnsupportedOperationException();
     }
 
-    public long readID(int idSize)
+    public long readID(int idSize) throws IOException
     {
         return idSize == 4 ? (0x0FFFFFFFFL & readInt()) : readLong();
     }

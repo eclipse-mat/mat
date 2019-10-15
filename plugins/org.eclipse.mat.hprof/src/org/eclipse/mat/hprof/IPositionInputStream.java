@@ -27,42 +27,57 @@ public interface IPositionInputStream extends DataInput
 
     void mark(int readLimit);
 
-    void reset();
+    void reset() throws IOException;
 
+    @Override
     int skipBytes(int n) throws IOException;
 
     int skipBytes(long n) throws IOException;
 
+    @Override
     void readFully(byte b[]) throws IOException;
 
+    @Override
     void readFully(byte b[], int off, int len) throws IOException;
 
     long position();
 
     void seek(long pos) throws IOException;
 
+    @Override
     int readUnsignedByte() throws IOException;
 
+    @Override
     int readInt() throws IOException;
 
+    @Override
     long readLong() throws IOException;
 
+    @Override
     boolean readBoolean() throws IOException;
 
+    @Override
     byte readByte() throws IOException;
 
+    @Override
     char readChar() throws IOException;
 
+    @Override
     double readDouble() throws IOException;
 
+    @Override
     float readFloat() throws IOException;
 
+    @Override
     String readLine() throws IOException;
 
+    @Override
     short readShort() throws IOException;
 
+    @Override
     String readUTF() throws IOException;
 
+    @Override
     int readUnsignedShort() throws IOException;
 
     long readUnsignedInt() throws IOException;

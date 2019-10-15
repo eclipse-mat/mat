@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Netflix
+ * Copyright (c) 2019 Netflix and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Netflix (Jason Koch) - refactors for increased concurrency and performance
+ *    IBM Corporation (Andrew Johnson) - tidy EOF processing
  *******************************************************************************/
 package org.eclipse.mat.hprof;
 
@@ -40,7 +41,8 @@ public class BufferingRafPositionInputStream implements IPositionInputStream
 
     public int read() throws IOException
     {
-        ensureAvailable(1);
+        if (!ensureAvailable(1))
+            return -1;
         return 0xFF & ((int)buffer[bufferPosition++]);
     }
 
@@ -52,7 +54,14 @@ public class BufferingRafPositionInputStream implements IPositionInputStream
             while (bufferPosition == bufferLength)
             {
                 bufferPosition = 0;
-                bufferLength = raf.read(buffer, 0, readLength);
+                bufferLength = 0;
+                int read = raf.read(buffer, 0, readLength);
+                // Check for short return
+                if (read <= 0)
+                {
+                    return copied > 0 ? copied : -1;
+                }
+                bufferLength = read;
                 channelPosition += bufferLength;
             }
             // copy the least of: what is remaining to be copied or the amount of room left in the buffer
@@ -62,11 +71,13 @@ public class BufferingRafPositionInputStream implements IPositionInputStream
             off += toCopy;
             copied += toCopy;
         }
-        return len;
+        return copied;
     }
 
     public long skip(long n) throws IOException
     {
+        if (n <= 0)
+            return 0;
         // assume the majority of skips are pretty close
 
         // if inside current buffer, just advance it
@@ -79,13 +90,24 @@ public class BufferingRafPositionInputStream implements IPositionInputStream
         // if it is a long way, just seek
         if (n > readLength)
         {
+            /* 
+             * If n is too big then this would allow a seek
+             * beyond the end of the file.
+             */ 
             seek(position() + n);
             return n;
         }
 
         // if it is only a buffer or so away, read through
-        read(throwaway, 0, (int) n);
-        return n;
+        long sk = 0;
+        while (n > sk)
+        {
+            int rd = read(throwaway, 0, (int)Math.min(throwaway.length, n - sk));
+            if (rd <= 0)
+                break;
+            sk += rd;
+        }
+        return sk;
     }
 
     public boolean markSupported()
@@ -125,11 +147,6 @@ public class BufferingRafPositionInputStream implements IPositionInputStream
         return channelPosition - (bufferLength - bufferPosition);
     }
 
-    public void seek(int pos) throws IOException
-    {
-        seek((long) pos);
-    }
-
     // //////////////////////////////////////////////////////////////
     // DataInput implementations
     // //////////////////////////////////////////////////////////////
@@ -142,7 +159,7 @@ public class BufferingRafPositionInputStream implements IPositionInputStream
         return ch;
     }
 
-    private void ensureAvailable(int required) throws IOException
+    private boolean ensureAvailable(int required) throws IOException
     {
         // required must not be greater than half the buffer size
         // this is on the caller to be sure of - private method
@@ -162,14 +179,18 @@ public class BufferingRafPositionInputStream implements IPositionInputStream
             bufferLength = toKeep;
 
             int amountRead = raf.read(buffer, bufferLength, readLength - bufferLength);
+            if (amountRead <= 0)
+                break;
             bufferLength += amountRead;
             channelPosition += amountRead;
         }
+        return bufferLength - bufferPosition >= required;
     }
 
     public int readInt() throws IOException
     {
-        ensureAvailable(4);
+        if (!ensureAvailable(4))
+            throw new EOFException();
         int ch1 = buffer[bufferPosition] & 0xff;
         int ch2 = buffer[bufferPosition + 1] & 0xff;
         int ch3 = buffer[bufferPosition + 2] & 0xff;
@@ -184,7 +205,8 @@ public class BufferingRafPositionInputStream implements IPositionInputStream
 
     public long readLong() throws IOException
     {
-        ensureAvailable(8);
+        if (!ensureAvailable(8))
+            throw new EOFException();
         long result = (((long) buffer[bufferPosition] << 56)
                         + ((long) (buffer[bufferPosition + 1] & 0xff) << 48)
                         + ((long) (buffer[bufferPosition + 2] & 0xff) << 40)
@@ -250,6 +272,8 @@ public class BufferingRafPositionInputStream implements IPositionInputStream
     {
         int ch1 = read();
         int ch2 = read();
+        if ((ch1 | ch2) < 0)
+            throw new EOFException();
         return (ch1 << 8) + (ch2 << 0);
     }
 
