@@ -8,6 +8,7 @@
  * Contributors:
  *    SAP AG - initial API and implementation
  *    Netflix (Jason Koch) - refactors for increased performance and concurrency
+ *    IBM Corporation (Andrew Johnson) - compressed dumps
  *******************************************************************************/
 package org.eclipse.mat.hprof;
 
@@ -44,7 +45,14 @@ public class HprofRandomAccessParser extends AbstractParser
                     HprofPreferences.HprofStrictness strictnessPreference) throws IOException
     {
         super(strictnessPreference);
-        this.in = new DefaultPositionInputStream(new BufferedRandomAccessInputStream(new RandomAccessFile(file, "r"), 512)); //$NON-NLS-1$
+        RandomAccessFile raf = new RandomAccessFile(file, "r"); //$NON-NLS-1$
+        boolean gzip = CompressedRandomAccessFile.isGZIP(raf);
+        if (gzip)
+        {
+            raf.close();
+            raf = new CompressedRandomAccessFile(file);
+        }
+        this.in = new DefaultPositionInputStream(new BufferedRandomAccessInputStream(raf, 512));
         this.version = version;
         this.idSize = identifierSize;
     }
@@ -68,7 +76,7 @@ public class HprofRandomAccessParser extends AbstractParser
                 return readPrimitiveArrayDump(objectId, dump);
             default:
                 throw new IOException(MessageUtil.format(Messages.HprofRandomAccessParser_Error_IllegalDumpSegment,
-                                segmentType));
+                                segmentType, Long.toHexString(position)));
         }
 
     }

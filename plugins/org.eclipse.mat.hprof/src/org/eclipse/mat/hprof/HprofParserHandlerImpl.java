@@ -82,6 +82,8 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
     private int objectAlign;
     // New size of classes including per-instance fields
     private final boolean NEWCLASSSIZE = HprofPreferences.useAdditionalClassReferences();
+    // Largest offset into HPROF file
+    private long maxFilePosition = 0; 
 
     // //////////////////////////////////////////////////////////////
     // lifecycle
@@ -141,7 +143,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
         object2classId = new IntIndexCollector(this.identifiers.size(), IndexWriter
                         .mostSignificantBit(maxClassId));
         object2position = new LongIndexCollector(this.identifiers.size(), IndexWriter
-                        .mostSignificantBit(new File(this.info.getPath()).length()));
+                        .mostSignificantBit(maxFilePosition));
         array2size = new IndexWriter.SizeIndexCollectorUncompressed(this.identifiers.size());
 
         // java.lang.Class needs some special treatment so that object2classId
@@ -851,6 +853,8 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
     private void reportInstance(long id, long filePosition)
     {
         this.identifiers.add(id);
+        if (filePosition > maxFilePosition)
+            maxFilePosition = filePosition;
     }
 
     public void reportInstanceWithClass(long id, long filePosition, long classID, int size)

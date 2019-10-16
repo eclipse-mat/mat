@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2019 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -71,6 +71,7 @@ public class TestSnapshots
     public static final String IBM_JDK8_64BIT_SYSTEM = "dumps/core.20160404.083441.9480.0001.dmp.zip";
     public static final String IBM_JDK8_64BIT_HEAP = "dumps/heapdump.20160404.083909.9480.0002.phd";
     public static final String IBM_JDK8_64BIT_JAVA = "dumps/javacore.20160404.083909.9480.0003.txt";
+    public static final String ADOPTOPENJDK_HOTSPOT_JDK11_0_4_11_64BIT = "dumps/java_pid1884.0001.hprof.gz";
     /**
      * javacore provides extra thread and class loader information to a heap
      * dump

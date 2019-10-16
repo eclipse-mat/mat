@@ -97,6 +97,7 @@ public class GeneralSnapshotTests
             {TestSnapshots.ORACLE_JDK7_21_64BIT, Stacks.FRAMES_AND_OBJECTS},
             {TestSnapshots.ORACLE_JDK8_05_64BIT, Stacks.FRAMES_AND_OBJECTS},
             {TestSnapshots.ORACLE_JDK9_01_64BIT, Stacks.FRAMES_AND_OBJECTS},
+            {TestSnapshots.ADOPTOPENJDK_HOTSPOT_JDK11_0_4_11_64BIT, Stacks.FRAMES_AND_OBJECTS},
         });
     }
 
