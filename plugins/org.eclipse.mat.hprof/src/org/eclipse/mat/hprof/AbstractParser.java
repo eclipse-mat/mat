@@ -142,6 +142,9 @@ import org.eclipse.mat.util.SimpleMonitor.Listener;
         throw new IOException(Messages.AbstractParser_Error_InvalidHPROFHeader);
     }
 
+    /*
+     * Used for content describers, don't throw exceptions.
+     */
     /* protected */static Version readVersion(InputStream in) throws IOException
     {
         StringBuilder version = new StringBuilder();
@@ -161,21 +164,16 @@ import org.eclipse.mat.util.SimpleMonitor.Listener;
                 Version answer = Version.byLabel(version.toString());
                 if (answer == null)
                 {
-                    if (bytesRead <= 13) // did not read "JAVA PROFILE "
-                        throw new IOException(Messages.AbstractParser_Error_NotHeapDump);
-                    else
-                        throw new IOException(MessageUtil.format(Messages.AbstractParser_Error_UnknownHPROFVersion,
-                                        version.toString()));
+                    return null;
                 }
 
                 if (answer == Version.JDK12BETA3) // not supported by MAT
-                    throw new IOException(MessageUtil.format(Messages.AbstractParser_Error_UnsupportedHPROFVersion,
-                                    answer.getLabel()));
+                    return null;
                 return answer;
             }
         }
 
-        throw new IOException(Messages.AbstractParser_Error_InvalidHPROFHeader);
+        return null;
     }
 
     protected Object readValue(IPositionInputStream in, ISnapshot snapshot) throws IOException

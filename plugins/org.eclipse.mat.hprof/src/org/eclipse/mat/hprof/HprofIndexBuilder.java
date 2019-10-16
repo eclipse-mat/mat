@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2013 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2019 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -62,11 +62,13 @@ public class HprofIndexBuilder implements IIndexBuilder
 
         IHprofParserHandler handler = new HprofParserHandlerImpl();
         handler.beforePass1(preliminary.getSnapshotInfo());
+        long estimatedLength = CompressedRandomAccessFile.estimatedLength(file);
+        int pass1Work = (int) (estimatedLength / 1000);
 
         SimpleMonitor.Listener mon = (SimpleMonitor.Listener) monitor.nextMonitor();
         mon.beginTask(MessageUtil.format(Messages.HprofIndexBuilder_Scanning, new Object[] { file.getAbsolutePath() }),
-                        (int) (file.length() / 1000));
-        Pass1Parser pass1 = new Pass1Parser(handler, mon, strictnessPreference);
+                        pass1Work);
+        Pass1Parser pass1 = new Pass1Parser(handler, mon, strictnessPreference, estimatedLength);
         Serializable id = preliminary.getSnapshotInfo().getProperty("$runtimeId"); //$NON-NLS-1$
         String dumpNrToRead;
         if (id instanceof String)
@@ -86,9 +88,11 @@ public class HprofIndexBuilder implements IIndexBuilder
 
         handler.beforePass2(listener);
 
+        long streamLength = pass1.streamLength();
+
         mon = (SimpleMonitor.Listener) monitor.nextMonitor();
         mon.beginTask(MessageUtil.format(Messages.HprofIndexBuilder_ExtractingObjects,
-                        new Object[] { file.getAbsolutePath() }), (int) (file.length() / 1000));
+                        new Object[] { file.getAbsolutePath() }), (int) (streamLength / 1000));
 
         /*
          * Estimate whether parallel processing of object arrays will cause an
@@ -107,7 +111,7 @@ public class HprofIndexBuilder implements IIndexBuilder
         }
         boolean parallel = maxFree > memestimate;
 
-        Pass2Parser pass2 = new Pass2Parser(handler, mon, strictnessPreference, parallel);
+        Pass2Parser pass2 = new Pass2Parser(handler, mon, strictnessPreference, streamLength, parallel);
         pass2.read(file, dumpNrToRead);
 
         if (listener.isCanceled())

@@ -20,7 +20,7 @@
          point="org.eclipse.mat.parser.parser">
       <parser
       		name="%parser.filetype.name"
-            fileExtension="hprof,bin"
+            fileExtension="hprof,bin,hprof.gz"
             indexBuilder="org.eclipse.mat.hprof.HprofIndexBuilder"
             objectReader="org.eclipse.mat.hprof.HprofHeapObjectReader">
       </parser>
@@ -35,6 +35,14 @@
 		      name="%content-type.name.Hprof_Heap_Dump"
 		      priority="normal">
 		</content-type>
+     <content-type
+           base-type="org.eclipse.mat.HprofHeapDump"
+           describer="org.eclipse.mat.hprof.HprofGZIPContentDescriber"
+           file-extensions="hprof.gz,hprofgz"
+           id="org.eclipse.mat.HprofGZIPHeapDump"
+           name="%content-type.name.Hprof_GZIP_Heap_Dump"
+           priority="normal">
+     </content-type>
 	</extension>
  <extension
        point="org.eclipse.mat.api.heapDumpProvider">
