@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2019 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,7 @@ package org.eclipse.mat.parser.internal;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -27,7 +28,10 @@ import java.util.regex.Pattern;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.content.IContentType;
+import org.eclipse.core.runtime.content.IContentTypeManager;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.HashMapIntObject;
 import org.eclipse.mat.collect.IteratorInt;
@@ -81,6 +85,43 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
         }
 
         String name = file.getName();
+
+        /*
+         * Perhaps there are extensions with dots, e.g. .phd.gz or .hprof.gz,
+         * so this code ensures the whole extension is removed.
+         */
+        IContentTypeManager contentTypeManager = Platform.getContentTypeManager();
+        IContentType javaheapdump = contentTypeManager.getContentType("org.eclipse.mat.JavaHeapDump"); //$NON-NLS-1$
+        if (javaheapdump != null)
+        {
+            String n1 = name;
+            IContentType types[];
+            try (FileInputStream fis = new FileInputStream(file))
+            {
+                types = contentTypeManager.findContentTypesFor(fis, file.getPath());
+            }
+            catch (IOException e)
+            {
+                // Ignore, try using file name alone
+                types = contentTypeManager.findContentTypesFor(file.getPath());
+            }
+            for (IContentType tp : types)
+            {
+                if (tp.isKindOf(javaheapdump))
+                {
+                    for (String ext: tp.getFileSpecs(IContentType.FILE_EXTENSION_SPEC))
+                    {
+                        // Does extension itself contains a dot, and matches this file ?
+                        if (ext.indexOf('.') >= 0 && name.endsWith("." + ext)) //$NON-NLS-1$
+                        {
+                            // It has a dot, so remove
+                            n1 = name.substring(0, name.length() - ext.length());
+                        }
+                    }
+                }
+            }
+            name = n1;
+        }
 
         int p = name.lastIndexOf('.');
         name = p >= 0 ? name.substring(0, p + 1) : name + ".";//$NON-NLS-1$
@@ -195,9 +236,9 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
         {
             IIndexBuilder indexBuilder = parser.create(IIndexBuilder.class, ParserRegistry.INDEX_BUILDER);
 
-			if (indexBuilder == null)
-				continue;
-            
+            if (indexBuilder == null)
+                continue;
+
             try
             {
                 indexBuilder.init(file, prefix);
@@ -289,7 +330,7 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
 
     /**
      * Check that indices look valid
-     * 
+     *
      * @param listener
      */
     private void validateIndices(PreliminaryIndexImpl pidx, IProgressListener listener)
@@ -368,7 +409,7 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
                     listener.sendUserMessage(Severity.ERROR, MessageUtil.format(
                                     Messages.SnapshotFactoryImpl_EmptyOutbounds, i, format(addr), desc), null);
                 }
-                else 
+                else
                 {
                     for (int k = 0; k < outs.length; ++k)
                     {
@@ -554,7 +595,7 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
 
     /**
      * Convert an address to a 0x hex number
-     * 
+     *
      * @param address
      * @return A string representing the address
      */
@@ -565,7 +606,7 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
 
     /**
      * Describe the class of the object at the given index
-     * 
+     *
      * @param newObjId
      * @return a class description
      */
@@ -618,8 +659,8 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
         File directory = prefixFile.getParentFile();
         if (directory == null)
             directory = new File("."); //$NON-NLS-1$
-        
-        final String fragment = prefixFile.getName();
+
+       final String fragment = prefixFile.getName();
 
         final Pattern indexPattern = Pattern.compile("([A-Za-z0-9]+\\.)?index$"); //$NON-NLS-1$
         final Pattern threadPattern = Pattern.compile("threads$"); //$NON-NLS-1$
@@ -635,7 +676,7 @@ public class SnapshotFactoryImpl implements SnapshotFactory.Implementation
                 String name = f.getName();
                 return name.startsWith(fragment)
                                 && (indexPattern.matcher(name.substring(fragment.length())).matches()
-                                  || threadPattern.matcher(name.substring(fragment.length())).matches() 
+                                  || threadPattern.matcher(name.substring(fragment.length())).matches()
                                   || logPattern.matcher(name.substring(fragment.length())).matches());
             }
         });

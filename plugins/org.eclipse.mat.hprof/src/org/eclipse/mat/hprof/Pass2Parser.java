@@ -39,13 +39,15 @@ public class Pass2Parser extends AbstractParser
     private SimpleMonitor.Listener monitor;
     private IPositionInputStream in;
     private boolean parallel;
+    private long streamLength;
 
     public Pass2Parser(IHprofParserHandler handler, SimpleMonitor.Listener monitor,
-                    HprofPreferences.HprofStrictness strictnessPreference, boolean parallel)
+                    HprofPreferences.HprofStrictness strictnessPreference, long streamLength, boolean parallel)
     {
         super(strictnessPreference);
         this.handler = handler;
         this.monitor = monitor;
+        this.streamLength = streamLength;
         this.parallel = parallel;
     }
 
@@ -63,7 +65,7 @@ public class Pass2Parser extends AbstractParser
                 throw new SnapshotException(Messages.Pass1Parser_Error_SupportedDumps);
             in.skipBytes(8); // creation date
 
-            long fileSize = file.length();
+            long fileSize = streamLength;
             long curPos = in.position();
 
             while (curPos < fileSize)
@@ -72,7 +74,15 @@ public class Pass2Parser extends AbstractParser
                     throw new IProgressListener.OperationCanceledException();
                 monitor.totalWorkDone(curPos / 1000);
 
-                int record = in.readUnsignedByte();
+                /*
+                 * Use this instead of
+                 * record = in.readUnsignedByte();
+                 * so that we can detect the end of a zipped stream.
+                 */
+                int r = in.read();
+                if (r == -1)
+                    break;
+                int record = r & 0xff;
 
                 in.skipBytes(4); // time stamp
 

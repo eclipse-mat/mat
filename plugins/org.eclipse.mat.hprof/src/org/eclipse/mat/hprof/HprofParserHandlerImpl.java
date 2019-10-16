@@ -82,6 +82,8 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
     private int objectAlign;
     // New size of classes including per-instance fields
     private final boolean NEWCLASSSIZE = HprofPreferences.useAdditionalClassReferences();
+    // Largest offset into HPROF file
+    private long maxFilePosition = 0;
 
     // //////////////////////////////////////////////////////////////
     // lifecycle
@@ -103,7 +105,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
 
         // See what the actual object alignment is
         calculateAlignment();
-        
+
         // Set property to show if compressed oops are used on x64 bit dumps
         if (pointerSize == 8) // if x64 bit dump
         {
@@ -141,7 +143,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
         object2classId = new IntIndexCollector(this.identifiers.size(), IndexWriter
                         .mostSignificantBit(maxClassId));
         object2position = new LongIndexCollector(this.identifiers.size(), IndexWriter
-                        .mostSignificantBit(new File(this.info.getPath()).length()));
+                        .mostSignificantBit(maxFilePosition));
         array2size = new IndexWriter.SizeIndexCollectorUncompressed(this.identifiers.size());
 
         // java.lang.Class needs some special treatment so that object2classId
@@ -340,7 +342,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
                 addFakeClass((ClassImpl) type, -1);
             }
         }
-        
+
         // create required (fake) classes for arrays
         if (!requiredArrayClassIDs.isEmpty())
         {
@@ -403,7 +405,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
                     // Create some dummy fields
                     int size = e.getValue();
                     // Special value for missing superclass
-                    if (size >= Integer.MAX_VALUE) 
+                    if (size >= Integer.MAX_VALUE)
                         size = 0;
                     int nfields = size / 4 + Integer.bitCount(size % 4);
                     FieldDescriptor fds[] = new FieldDescriptor[nfields];
@@ -429,7 +431,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
             }
         }
         requiredClassIDs = null;
-        
+
         identifiers.sort();
     }
 
@@ -446,7 +448,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
             return refSize;
         }
     }
-    
+
 	private int calculateSizeRecursive(ClassImpl clazz)
 	{
 		if (clazz.getSuperClassAddress() == 0)
@@ -851,6 +853,8 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
     private void reportInstance(long id, long filePosition)
     {
         this.identifiers.add(id);
+        if (filePosition > maxFilePosition)
+            maxFilePosition = filePosition;
     }
 
     public void reportInstanceWithClass(long id, long filePosition, long classID, int size)
@@ -858,7 +862,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
         reportInstance(id, filePosition);
         reportRequiredClass(classID, size, true);
     }
-    
+
     public void reportInstanceOfObjectArray(long id, long filePosition, long arrayClassID)
     {
         reportInstance(id, filePosition);
@@ -870,12 +874,12 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
         reportInstance(id, filePosition);
         reportRequiredPrimitiveArray(arrayType);
     }
-    
+
     private void reportRequiredObjectArray(long arrayClassID)
     {
         requiredArrayClassIDs.putIfAbsent(arrayClassID, true);
     }
-    
+
     private void reportRequiredPrimitiveArray(int arrayType)
     {
         requiredPrimitiveArrays[arrayType] = true;
@@ -892,7 +896,7 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
             requiredClassIDs.putIfAbsent(classID, size);
         }
     }
-    
+
     // //////////////////////////////////////////////////////////////
     // lookup heap infos
     // //////////////////////////////////////////////////////////////

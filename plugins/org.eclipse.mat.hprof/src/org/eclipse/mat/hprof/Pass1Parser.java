@@ -63,6 +63,7 @@ public class Pass1Parser extends AbstractParser
     private long previousArrayUncompressedEnd;
     private boolean foundCompressed;
     private int biggestArrays[];
+    private long streamLength;
     private final boolean verbose = Platform.inDebugMode() && HprofPlugin.getDefault().isDebugging()
                     && Boolean.parseBoolean(Platform.getDebugOption("org.eclipse.mat.hprof/debug/parser")); //$NON-NLS-1$
     private IPositionInputStream in;
@@ -76,7 +77,7 @@ public class Pass1Parser extends AbstractParser
         this.biggestArrays = new int[Runtime.getRuntime().availableProcessors()];
     }
 
-    public void read(File file, String dumpNrToRead) throws SnapshotException, IOException
+    public void read(File file, String dumpNrToRead, long estimatedLength) throws SnapshotException, IOException
     {
         // See http://java.net/downloads/heap-snapshot/hprof-binary-format.html
         in = new BufferingRafPositionInputStream(file, 0, 8*1024);
@@ -103,16 +104,27 @@ public class Pass1Parser extends AbstractParser
             long prevTimeOffset = 0;
             long timeWrap = 0;
 
-            long fileSize = file.length();
+            // Actual file size
+            long fileSize0 = file.length();
+            // Estimated stream length
+            long fileSize = estimatedLength;
             long curPos = in.position();
 
-            while (curPos < fileSize)
+            while (true)
             {
                 if (monitor.isProbablyCanceled())
                     throw new IProgressListener.OperationCanceledException();
                 monitor.totalWorkDone(curPos / 1000);
 
-                int record = in.readUnsignedByte();
+                /*
+                 * Use this instead of
+                 * record = in.readUnsignedByte();
+                 * so that we can detect the end of a zipped stream.
+                 */
+                int r = in.read();
+                if (r == -1)
+                    break;
+                int record = r & 0xff;
 
                 long timeOffset = in.readUnsignedInt(); // time stamp in microseconds
                 if (timeOffset < prevTimeOffset)
@@ -137,7 +149,9 @@ public class Pass1Parser extends AbstractParser
                     switch (strictnessPreference)
                     {
                         case STRICTNESS_STOP:
-                            throw new SnapshotException(Messages.HPROFStrictness_Stopped, new SnapshotException(
+                            // If we are sure about the file size
+                            if (fileSize == fileSize0 || fileSize < 0x10000000L)
+                                throw new SnapshotException(Messages.HPROFStrictness_Stopped, new SnapshotException(
                                             MessageUtil.format(Messages.Pass1Parser_Error_invalidHPROFFile, length,
                                                             fileSize - curPos - 9, Integer.toHexString(record), Long.toHexString(curPos))));
                         case STRICTNESS_WARNING:
@@ -232,6 +246,7 @@ public class Pass1Parser extends AbstractParser
 
                 curPos = in.position();
             }
+            streamLength = curPos;
         }
         finally
         {
@@ -282,6 +297,15 @@ public class Pass1Parser extends AbstractParser
             total += s;
         }
         return total;
+    }
+
+    /**
+     * The stream length (in case the dump is compressed).
+     * @return
+     */
+    public long streamLength()
+    {
+        return streamLength;
     }
 
     private void readString(long length) throws IOException
@@ -877,7 +901,7 @@ public class Pass1Parser extends AbstractParser
 
     }
 
-    private class JavaLocal
+    private static class JavaLocal
     {
         private long objectId;
         private int lineNumber;

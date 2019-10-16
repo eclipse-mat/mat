@@ -7,16 +7,17 @@
  *
  * Contributors:
  *    Netflix (Jason Koch) - refactors for increased concurrency and performance
- *    IBM Corporation (Andrew Johnson) - tidy EOF processing
+ *    IBM Corporation (Andrew Johnson) - tidy EOF processing and compressed dumps
  *******************************************************************************/
 package org.eclipse.mat.hprof;
 
+import java.io.Closeable;
 import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-public class BufferingRafPositionInputStream implements IPositionInputStream
+public class BufferingRafPositionInputStream implements IPositionInputStream, Closeable, AutoCloseable
 {
     private final RandomAccessFile raf;
     private long channelPosition = 0;
@@ -27,7 +28,17 @@ public class BufferingRafPositionInputStream implements IPositionInputStream
 
     public BufferingRafPositionInputStream(final File file, final long offset, final int readLength) throws IOException
     {
-        raf = new RandomAccessFile(file, "r"); //$NON-NLS-1$
+        RandomAccessFile raf1 = new RandomAccessFile(file, "r"); //$NON-NLS-1$
+        boolean gzip = CompressedRandomAccessFile.isGZIP(raf1);
+        if (gzip)
+        {
+            raf1.close();
+            raf = new CompressedRandomAccessFile(file);
+        }
+        else
+        {
+            raf = raf1;
+        }
         this.readLength = readLength;
         this.buffer = new byte[readLength * 2];
         this.throwaway = new byte[readLength * 2];

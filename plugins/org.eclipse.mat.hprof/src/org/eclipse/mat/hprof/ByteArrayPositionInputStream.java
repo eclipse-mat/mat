@@ -11,10 +11,11 @@
  *******************************************************************************/
 package org.eclipse.mat.hprof;
 
+import java.io.Closeable;
 import java.io.EOFException;
 import java.io.IOException;
 
-public class ByteArrayPositionInputStream implements IPositionInputStream
+public class ByteArrayPositionInputStream implements IPositionInputStream, Closeable, AutoCloseable
 {
     /*
      * Can throw EOFExceptions.
