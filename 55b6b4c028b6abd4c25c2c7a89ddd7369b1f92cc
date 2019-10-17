@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a2d0c436_d86b4edf",
+        "filename": "plugins/org.eclipse.mat.hprof/src/org/eclipse/mat/hprof/HprofIndexBuilder.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 65230
+      },
+      "writtenOn": "2019-10-17T07:07:08Z",
+      "side": 1,
+      "message": "Perhaps estimated length would be better passed via read()",
+      "revId": "55b6b4c028b6abd4c25c2c7a89ddd7369b1f92cc",
+      "serverId": "97ee7c02-f12f-4043-b43e-dea463d88b31",
+      "unresolved": false
+    }
+  ]
+}
