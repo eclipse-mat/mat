@@ -143,12 +143,16 @@ public class BufferingRafPositionInputStream implements IPositionInputStream, Cl
 
     public void readFully(byte b[]) throws IOException
     {
-        read(b, 0, b.length);
+        int r = read(b, 0, b.length);
+        if (r < b.length)
+            throw new EOFException();
     }
 
     public void readFully(byte b[], int off, int len) throws IOException
     {
-        read(b, off, len);
+        int r = read(b, off, len);
+        if (r < len)
+            throw new EOFException();
     }
 
     public long position()

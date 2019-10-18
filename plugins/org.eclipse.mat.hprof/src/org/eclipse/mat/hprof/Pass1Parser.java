@@ -138,6 +138,17 @@ public class Pass1Parser extends AbstractParser
                 if (verbose)
                     System.out.println("Read record type " + record + ", length " + length + " at position 0x" + Long.toHexString(curPos)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
+                if (curPos + 9 >= fileSize && fileSize > fileSize0 && curPos + 9 >= 0x100000000L)
+                {
+                    /*
+                     * Gzip has uncertain stream length though the lower 32-bits are correct,
+                     * so make the estimated size grow.
+                     */
+                    while (fileSize < curPos + 9)
+                    {
+                        fileSize += 0x100000000L;
+                    }
+                }
                 length = updateLengthIfNecessary(fileSize, curPos, record, length, monitor);
 
                 if (length < 0)
