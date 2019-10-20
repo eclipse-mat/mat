@@ -397,11 +397,11 @@ public class GeneralSnapshotTests
 
     /**
      * Test exporting as HPROF
+     * @param compress whether to compress the generated HPROF file
      * @throws SnapshotException
      * @throws IOException
      */
-    @Test
-    public void exportHPROF() throws SnapshotException, IOException
+    public void exportHPROF(boolean compress) throws SnapshotException, IOException
     {
         // Currently can't export PHD
         assumeThat(snapshot.getSnapshotInfo().getProperty("$heapFormat"), not(equalTo((Serializable)"DTFJ-PHD")));
@@ -411,9 +411,9 @@ public class GeneralSnapshotTests
         File fn = new File(snapshot.getSnapshotInfo().getPrefix());
         assumeThat(fn.getName(), not(containsString("javacore")));
         File tmpdir = TestSnapshots.createGeneratedName(fn.getName(), null);
-        File newSnapshotFile = new File(tmpdir, fn.getName() + ".hprof");
+        File newSnapshotFile = new File(tmpdir, fn.getName() + (compress ? ".hprof.gz" : ".hprof"));
         try {
-            SnapshotQuery query = SnapshotQuery.parse("export_hprof -output "+newSnapshotFile.getPath(), snapshot);
+            SnapshotQuery query = SnapshotQuery.parse("export_hprof -output "+newSnapshotFile.getPath() + (compress ? " -compress" : ""), snapshot);
             IResult t = query.execute(new VoidProgressListener());
             assertNotNull(t);
             ISnapshot newSnapshot = SnapshotFactory.openSnapshot(newSnapshotFile, Collections.<String,String>emptyMap(), new VoidProgressListener());
@@ -455,6 +455,28 @@ public class GeneralSnapshotTests
         } finally {
             newSnapshotFile.delete();
         }
+    }
+
+    /**
+     * Test exporting as HPROF
+     * @throws SnapshotException
+     * @throws IOException
+     */
+    @Test
+    public void exportHPROF() throws SnapshotException, IOException
+    {
+        exportHPROF(false);
+    }
+
+    /**
+     * Test exporting as compressed HPROF
+     * @throws SnapshotException
+     * @throws IOException
+     */
+    @Test
+    public void exportHPROFCompress() throws SnapshotException, IOException
+    {
+        exportHPROF(true);
     }
 
     /**

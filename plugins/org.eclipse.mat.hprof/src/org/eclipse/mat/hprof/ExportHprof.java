@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018 IBM Corporation
+ * Copyright (c) 2018, 2019 IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -54,6 +54,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.GZIPOutputStream;
 
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.mat.SnapshotException;
@@ -109,6 +110,9 @@ public class ExportHprof implements IQuery
     @Argument(advice = Advice.SAVE)
     public File output;
 
+    @Argument(isMandatory = false)
+    public boolean compress;
+
     public enum RedactType
     {
         NONE("none"), //$NON-NLS-1$
@@ -135,7 +139,7 @@ public class ExportHprof implements IQuery
     @Argument(isMandatory = false, advice = Advice.CLASS_NAME_PATTERN, flag = "avoid")
     public Pattern avoidPattern = Pattern.compile(Messages.ExportHprof_AvoidExample);
 
-    @Argument
+    @Argument(isMandatory = false)
     public boolean undo;
 
     @Argument(flag = Argument.UNFLAGGED, isMandatory = false)
@@ -352,7 +356,10 @@ public class ExportHprof implements IQuery
         remap.loadMapping(mapFile, undo);
 
         long startTime;
-        DataOutputStream3 os = new DataOutputStream3(new BufferedOutputStream(new FileOutputStream(output), 1024 * 64));
+        OutputStream outstream = new BufferedOutputStream(new FileOutputStream(output), 1024 * 64);
+        if (compress)
+            outstream = new GZIPOutputStream(outstream);
+        DataOutputStream3 os = new DataOutputStream3(outstream);
         try
         {
             os.writeBytes(AbstractParser.Version.JDK6.getLabel()+"\0"); //$NON-NLS-1$
