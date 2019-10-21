@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 IBM Corporation
+ * Copyright (c) 2010,2019 IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,6 +18,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.List;
 import java.util.zip.GZIPOutputStream;
@@ -132,15 +133,26 @@ class IBMHeapDumpProvider extends IBMDumpProvider {
         final boolean zip = result.getName().endsWith(".gz"); //$NON-NLS-1$
         if (zip)
         {
-            InputStream is = new BufferedInputStream(new FileInputStream(dumps.get(0)));
+            listener.subTask(Messages.getString("IBMDumpProvider.CompressingDump")); //$NON-NLS-1$
+            int bufsize = 64 * 1024;
+            InputStream is = new BufferedInputStream(new FileInputStream(dumps.get(0)), bufsize);
             try
             {
-                OutputStream os = new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream(result)));
+                OutputStream os = new GZIPOutputStream(new BufferedOutputStream(new FileOutputStream(result)));
                 try
                 {
-                    int c;
-                    while ((c = is.read()) >= 0)
-                        os.write(c);
+                    byte buffer[] = new byte[bufsize];
+                    for (;;)
+                    {
+                        if (listener.isCanceled())
+                            return null;
+                        int r;
+                        r = is.read(buffer);
+                        if (r > 0)
+                            os.write(buffer, 0, r);
+                        else
+                            break;
+                    }
                 }
                 finally
                 {

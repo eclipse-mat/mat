@@ -35,6 +35,10 @@ class CompressedRandomAccessFile extends RandomAccessFile
     {
         super(file, "r"); //$NON-NLS-1$
         FileChannel ch = getChannel();
+        // length of file on disk - don't find length after decompression as expensive
+        // and don't know it yet
+        long len = ch.size();
+        int cacheSize = (int)Math.min(Math.min(len / 100000, 1000) + len / 1000000, 1000000);
         ss = new SeekableStream(new Supplier<InputStream>()
         {
             public InputStream get()
@@ -49,7 +53,7 @@ class CompressedRandomAccessFile extends RandomAccessFile
                     throw new UncheckedIOException(e);
                 }
             }
-        }, ch, (int)Math.min(length() / 1000000, 1000000));
+        }, ch, cacheSize);
     }
     @Override
     public void seek(long pos) throws IOException

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2018 IBM Corporation.
+ * Copyright (c) 2015, 2019 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,15 +10,20 @@
  *******************************************************************************/
 package org.eclipse.mat.tests.acquire;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
 import static org.hamcrest.number.OrderingComparison.greaterThanOrEqualTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeThat;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -40,14 +45,44 @@ import org.eclipse.mat.util.VoidProgressListener;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
 /**
  * Test the triggering and collection of heap dumps from other processes.
  */
+@RunWith(value = Parameterized.class)
 public class AcquireDumpTest
 {
     @Rule
     public ErrorCollector collector = new ErrorCollector();
+
+    HeapDumpProviderDescriptor hdpd;
+    int num;
+    int nall;
+    static int count;
+    static int found;
+    public AcquireDumpTest(HeapDumpProviderDescriptor hdpd, String name, int id, int n)
+    {
+        this.hdpd = hdpd;
+        num = id;
+        nall = n;
+    }
+    
+    @Parameters(name = "{1}")
+    public static Collection<Object[]> data()
+    {
+        List<Object[]> parms = new ArrayList<Object[]>();
+        Collection<HeapDumpProviderDescriptor> descs = HeapDumpProviderRegistry.instance().getHeapDumpProviders();
+        int id = 0;
+        for (HeapDumpProviderDescriptor hdpd : descs)
+        {
+            ++id;
+            parms.add(new Object[] {hdpd, hdpd.getName(), id, descs.size()});
+        }
+        return parms;
+    }
 
     /**
      * Check there are JMap and IBM dump providers
@@ -65,18 +100,15 @@ public class AcquireDumpTest
     @Test
     public void test2()
     {
-        Collection<HeapDumpProviderDescriptor> descs = HeapDumpProviderRegistry.instance().getHeapDumpProviders();
-        for (HeapDumpProviderDescriptor hd : descs)
-        {
-            collector.checkThat("Should be some help", hd.getHelp().length(), greaterThan(20));
-            collector.checkThat("Should be a name", hd.getName().length(), greaterThan(3));
-            collector.checkThat("Locale", hd.getHelpLocale(), notNullValue());
-            // collector.checkThat("Icon", hd.getIcon(), notNullValue());
-            collector.checkThat("Should be an ID", hd.getIdentifier().length(), greaterThan(3));
-            IHeapDumpProvider hdp = hd.getHeapDumpProvider();
-            collector.checkThat("Heap Dump Provider", hdp, notNullValue());
-            collector.checkThat("Heap Dump Provider toString", hdp.toString(), notNullValue());
-        }
+        HeapDumpProviderDescriptor hd = hdpd;
+        collector.checkThat("Should be some help", hd.getHelp().length(), greaterThan(20));
+        collector.checkThat("Should be a name", hd.getName().length(), greaterThan(3));
+        collector.checkThat("Locale", hd.getHelpLocale(), notNullValue());
+        // collector.checkThat("Icon", hd.getIcon(), notNullValue());
+        collector.checkThat("Should be an ID", hd.getIdentifier().length(), greaterThan(3));
+        IHeapDumpProvider hdp = hd.getHeapDumpProvider();
+        collector.checkThat("Heap Dump Provider", hdp, notNullValue());
+        collector.checkThat("Heap Dump Provider toString", hdp.toString(), notNullValue());
     }
 
     /**
@@ -85,15 +117,16 @@ public class AcquireDumpTest
      * @throws SnapshotException
      * @throws IOException
      */
-    @Test
-    public void test3() throws SnapshotException, IOException
+    public void test3(boolean compress) throws SnapshotException, IOException
     {
         Collection<HeapDumpProviderDescriptor> descs = HeapDumpProviderRegistry.instance().getHeapDumpProviders();
-        int count = 0;
-        int found = 0;
         File tmpdir = TestSnapshots.createGeneratedName("acquire", null);
-        for (HeapDumpProviderDescriptor hd : descs)
-        {
+        HeapDumpProviderDescriptor hd = hdpd;
+        do {
+            // Currently compressed HPROF is too slow
+            assumeThat(compress, equalTo(false));
+            if (compress)
+                assumeThat(hd.getName(), not(containsString("HPROF")));
             IHeapDumpProvider hdp = hd.getHeapDumpProvider();
             collector.checkThat("Heap Dump Provider", hdp, notNullValue());
             IProgressListener l = new VoidProgressListener();
@@ -117,10 +150,37 @@ public class AcquireDumpTest
                 if (desc.contains("org.eclipse.mat.tests"))
                 {
                     System.out.println("Desc " + desc);
+                    // If we can, try compressing the dump to test more code paths
+                    try
+                    {
+                        vm.getClass().getField("compress").set(vm, compress);
+                    }
+                    catch (NoSuchFieldException e1)
+                    {
+                        // TODO Auto-generated catch block
+                        e1.printStackTrace();
+                    }
+                    catch (SecurityException e1)
+                    {
+                        // TODO Auto-generated catch block
+                        e1.printStackTrace();
+                    }
+                    catch (IllegalArgumentException e)
+                    {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                    catch (IllegalAccessException e)
+                    {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
                     File f = new File(vm.getProposedFileName());
-                    System.out.println("Proposed name "+f);
+                    System.out.println("Proposed name "+f+" "+hdp);
                     String fname = f.getName();
-                    int ldot = fname.lastIndexOf('.');
+                    int ldot = fname.endsWith(".gz") ? 
+                                    fname.lastIndexOf('.', fname.length() - 4)
+                                  : fname.lastIndexOf('.');
                     String fname2 = "acquire_dump_" + (found+1) + fname.substring(ldot);
                     File tmpdump = new File(tmpdir, fname2);
                     System.out.println("Dump " + tmpdump);
@@ -150,7 +210,11 @@ public class AcquireDumpTest
                         {
                             collector.checkThat("Snapshot", answer, notNullValue());
                             found++;
-                            checkEclipseBundleQuery(answer);
+                            // Currently zipped hprof is very slow (>1 hour)
+                            if (!compress)
+                            {
+                                checkEclipseBundleQuery(answer);
+                            }
                         }
                         finally
                         {
@@ -167,9 +231,37 @@ public class AcquireDumpTest
                 }
             }
 
+        } while (false);
+        // See if any of the tests with any provider actually loads a dump
+        if (num == nall)
+        {
+            collector.checkThat("Available VMs", count, greaterThan(0));
+            collector.checkThat("Available dumps from VMs", found, greaterThan(0));
         }
-        collector.checkThat("Available VMs", count, greaterThan(0));
-        collector.checkThat("Available dumps from VMs", found, greaterThan(0));
+    }
+
+    /**
+     * Actually generate a dump and parse it
+     * 
+     * @throws SnapshotException
+     * @throws IOException
+     */
+    @Test
+    public void testAcquireDumpUncompressed() throws SnapshotException, IOException
+    {
+        test3(false);
+    }
+
+    /**
+     * Actually generate a dump and parse it
+     * 
+     * @throws SnapshotException
+     * @throws IOException
+     */
+    @Test
+    public void testAcquireDumpCompressed() throws SnapshotException, IOException
+    {
+        test3(true);
     }
 
     /**
