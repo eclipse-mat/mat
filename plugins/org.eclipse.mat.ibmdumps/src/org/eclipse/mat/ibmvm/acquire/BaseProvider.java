@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2018 IBM Corporation
+ * Copyright (c) 2010, 2019 IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -63,6 +63,9 @@ public abstract class BaseProvider implements IHeapDumpProvider
 
     @Argument
     public String hprofDumpTemplate = "java_pid{1,number,0000}.{2,number,0000}.hprof"; //$NON-NLS-1$;
+
+    @Argument
+    public String hprofDumpZipTemplate = "java_pid{1,number,0000}.{2,number,0000}.hprof.gz"; //$NON-NLS-1$;
 
     static final int SLEEP_TIMEOUT = 500; // milliseconds
     static final int GROW_COUNT = 5 * 60 * 1000 / SLEEP_TIMEOUT;

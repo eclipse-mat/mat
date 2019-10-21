@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2018 SAP AG.
+ * Copyright (c) 2009, 2019 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,15 +7,20 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
- *    Andrew Johnson/IBM Corporation - message fixes
+ *    Andrew Johnson/IBM Corporation - message fixes, gzip
  *******************************************************************************/
 package org.eclipse.mat.hprof.acquire;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
+import java.util.zip.GZIPOutputStream;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Platform;
@@ -25,8 +30,8 @@ import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.hprof.Messages;
 import org.eclipse.mat.hprof.acquire.LocalJavaProcessesUtils.StreamCollector;
 import org.eclipse.mat.query.annotations.Argument;
-import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Argument.Advice;
+import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.snapshot.acquire.IHeapDumpProvider;
 import org.eclipse.mat.snapshot.acquire.VmInfo;
 import org.eclipse.mat.util.IProgressListener;
@@ -40,10 +45,14 @@ public class JMapHeapDumpProvider implements IHeapDumpProvider
 	private static final String PLUGIN_ID = "org.eclipse.mat.hprof"; //$NON-NLS-1$
 	private static final String LAST_JDK_DIRECTORY_KEY = JMapHeapDumpProvider.class.getName() + ".lastJDKDir"; //$NON-NLS-1$
 	private static final String LAST_JMAP_JDK_DIRECTORY_KEY = JMapHeapDumpProvider.class.getName() + ".lastJmapJDKDir"; //$NON-NLS-1$
-	private static final String FILE_PATTERN = "java_pid{1,number,0}.{2,number,0000}.hprof"; //$NON-NLS-1$
+	static final String FILE_PATTERN = "java_pid{1,number,0}.{2,number,0000}.hprof"; //$NON-NLS-1$
+	static final String FILE_GZ_PATTERN = "java_pid{1,number,0}.{2,number,0000}.hprof.gz"; //$NON-NLS-1$
 
 	@Argument(isMandatory = false, advice = Advice.DIRECTORY)
 	public File jdkHome;
+
+    @Argument(isMandatory = false)
+    public boolean defaultCompress;
 
 	public JMapHeapDumpProvider()
 	{
@@ -125,14 +134,66 @@ public class JMapHeapDumpProvider implements IHeapDumpProvider
 			if (p != null) p.destroy();
 		}
 
+		if (jmapProcessInfo.compress)
+		{
+		    try
+		    {
+		        preferredLocation = compressFile(preferredLocation, listener);
+		    }
+		    catch (IOException e)
+		    {
+		        throw new SnapshotException(Messages.JMapHeapDumpProvider_ErrorCreatingDump, e);
+		    }
+		}
+
 		listener.done();
 
 		return preferredLocation;
 	}
 
+    File compressFile(File dump, IProgressListener listener) throws IOException
+    {
+        listener.subTask(Messages.JMapHeapDumpProvider_CompressingDump);
+        File dumpout = File.createTempFile(dump.getName(),  null, dump.getParentFile());
+        int bufsize = 64 * 1024;
+        try (FileInputStream in = new FileInputStream(dump);
+             InputStream inb = new BufferedInputStream(in, bufsize);
+             FileOutputStream out = new FileOutputStream(dumpout);
+             GZIPOutputStream outb = new GZIPOutputStream(out, bufsize))
+        {
+            byte b[] = new byte[bufsize];
+            for (;;)
+            {
+                if (listener.isCanceled()) 
+                    return null;
+                int r = in.read(b);
+                if (r <= 0)
+                    break;
+                outb.write(b, 0, r);
+            }
+            outb.flush();
+        }
+        if (dump.delete())
+        {
+            if (!dumpout.renameTo(dump))
+            {
+                throw new IOException(dump.getPath());
+            }
+        }
+        else
+        {
+            if (!dumpout.delete())
+            {
+                throw new IOException(dumpout.getPath());
+            }
+            // Return uncompressed
+        }
+        return dump;
+    }
+
 	public List<JmapVmInfo> getAvailableVMs(IProgressListener listener) throws SnapshotException
 	{
-	    listener.beginTask(Messages.JMapHeapDumpProvider_ListProcesses, IProgressListener.UNKNOWN_TOTAL_WORK); //$NON-NLS-1$
+	    listener.beginTask(Messages.JMapHeapDumpProvider_ListProcesses, IProgressListener.UNKNOWN_TOTAL_WORK);
 		// was something injected from outside?
 		if (jdkHome != null && jdkHome.exists())
 		{
@@ -149,9 +210,10 @@ public class JMapHeapDumpProvider implements IHeapDumpProvider
 			
 			for (JmapVmInfo vmInfo : jvms)
 			{
-				vmInfo.setProposedFileName(FILE_PATTERN);
+				//vmInfo.setProposedFileName(defaultCompress ? FILE_GZ_PATTERN : FILE_PATTERN);
 				vmInfo.setHeapDumpProvider(this);
 				vmInfo.jdkHome = jmapJdkHome;
+				vmInfo.compress = defaultCompress;
 				result.add(vmInfo);
 			}
 		}

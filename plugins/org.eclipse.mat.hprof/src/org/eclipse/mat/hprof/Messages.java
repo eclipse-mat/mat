@@ -56,6 +56,7 @@ public class Messages extends NLS
     public static String JMapHeapDumpProvider_HeapDumpNotCreated;
     public static String JMapHeapDumpProvider_WaitForHeapDump;
     public static String JMapHeapDumpProvider_ListProcesses;
+    public static String JMapHeapDumpProvider_CompressingDump;
     public static String LocalJavaProcessesUtils_ErrorGettingProcesses;
     public static String LocalJavaProcessesUtils_ErrorGettingProcessListJPS;
     public static String Pass1Parser_DetectedCompressedReferences;

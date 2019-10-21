@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2018 SAP AG and IBM Corporation
+ * Copyright (c) 2009, 2019 SAP AG and IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -52,6 +52,7 @@ public class LocalJavaProcessesUtils
 			if (exitVal != 0) return null;
 
 			List<JmapVmInfo> vms = new ArrayList<JmapVmInfo>();
+			int jpsProcesses = 0;
 			StringTokenizer tok = new StringTokenizer(output.buf.toString(), "\r\n"); //$NON-NLS-1$
 			while (tok.hasMoreTokens())
 			{
@@ -59,7 +60,25 @@ public class LocalJavaProcessesUtils
 
 				// System.err.println(token);
 				JmapVmInfo info = parseJPSLine(token);
-				if (info != null) vms.add(info);
+				String jpssig = "Jps -ml";
+                if (info != null)
+				{
+				    vms.add(info);
+				    if (info.getDescription().contains(jpssig)) //$NON-NLS-1$
+				        ++jpsProcesses;
+				}
+				// Mark the jps process as not suitable for dumps
+				if (jpsProcesses == 1)
+				{
+				    for (JmapVmInfo inf : vms)
+				    {
+				        if (info.getDescription().contains(jpssig)) //$NON-NLS-1$
+				        {
+				            info.setHeapDumpEnabled(false);
+				            break;
+				        }
+				    }
+				}
 			}
 			return vms;
 		}
