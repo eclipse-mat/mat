@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011,2017 IBM Corporation.
+ * Copyright (c) 2011,2019 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -58,6 +58,11 @@ public class CopyOQL implements IQuery
                 else
                 {
                     int ids[] = ((IContextObjectSet)element).getObjectIds();
+                    if (ids.length > 10000)
+                    {
+                        // A huge OQL statement will take too long to build and execute, so give up now.
+                        throw new SnapshotException(Messages.CopyOQL_TooBig);
+                    }
                     String oql = OQL.forObjectIds(ids);
                     if (oql != null)
                     {

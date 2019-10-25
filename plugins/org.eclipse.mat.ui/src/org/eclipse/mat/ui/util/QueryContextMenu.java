@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2019 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,10 +13,13 @@ package org.eclipse.mat.ui.util;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -28,6 +31,7 @@ import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.ContextProvider;
 import org.eclipse.mat.query.DetailResultProvider;
 import org.eclipse.mat.query.IContextObject;
+import org.eclipse.mat.query.IContextObjectSet;
 import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.IStructuredResult;
 import org.eclipse.mat.query.registry.ArgumentSet;
@@ -35,7 +39,14 @@ import org.eclipse.mat.query.registry.CategoryDescriptor;
 import org.eclipse.mat.query.registry.QueryDescriptor;
 import org.eclipse.mat.query.registry.QueryRegistry;
 import org.eclipse.mat.query.registry.QueryResult;
+import org.eclipse.mat.snapshot.Histogram;
 import org.eclipse.mat.snapshot.ISnapshot;
+import org.eclipse.mat.snapshot.OQL;
+import org.eclipse.mat.snapshot.extension.Subject;
+import org.eclipse.mat.snapshot.extension.Subjects;
+import org.eclipse.mat.snapshot.model.IClass;
+import org.eclipse.mat.snapshot.model.IClassLoader;
+import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin.ISharedImages;
 import org.eclipse.mat.ui.Messages;
@@ -260,7 +271,9 @@ public class QueryContextMenu
     private void queryMenu(PopupMenu menu, final List<IContextObject> menuContext, String label)
     {
         final IPolicy policy = new Policy(menuContext, label);
-        addCategories(menu, QueryRegistry.instance().getRootCategory(), menuContext, label, policy);
+        // Checking for suitable queries for a selection can take time, so set a deadline
+        long deadline = System.currentTimeMillis() + 1000;
+        addCategories(menu, QueryRegistry.instance().getRootCategory(), menuContext, label, policy, deadline);
         Action queryBrowser = new Action(Messages.QueryDropDownMenuAction_SearchQueries)
         {
             @Override
@@ -280,7 +293,8 @@ public class QueryContextMenu
                     CategoryDescriptor root, //
                     List<IContextObject> menuContext, //
                     String label, //
-                    IPolicy policy)
+                    IPolicy policy,
+                    long deadline)
     {
         for (Object item : root.getChildren())
         {
@@ -289,16 +303,429 @@ public class QueryContextMenu
                 CategoryDescriptor sub = (CategoryDescriptor) item;
                 PopupMenu subManager = new PopupMenu(sub.getName());
                 menu.add(subManager);
-                addCategories(subManager, sub, menuContext, label, policy);
+                addCategories(subManager, sub, menuContext, label, policy, deadline);
             }
             else if (item instanceof QueryDescriptor)
             {
                 QueryDescriptor query = (QueryDescriptor) item;
-                if (policy.accept(query))
+                if (policy.accept(query) && (System.currentTimeMillis() > deadline || !unsuitableSubjects(query, menuContext)))
                     menu.add(new QueryAction(editor, query, policy));
 
             }
         }
+    }
+
+    /**
+     * Find the subjects from a query. See {@link Subjects} and {@link Subject}
+     * @param query
+     * @return a string array
+     */
+    private static String[] extractSubjects(QueryDescriptor query)
+    {
+        final String[] cls;
+        Subjects subjects = query.getCommandType().getAnnotation(Subjects.class);
+        if (subjects != null)
+        {
+            cls = subjects.value();
+        }
+        else
+        {
+            Subject s = query.getCommandType().getAnnotation(Subject.class);
+            if (s != null)
+            {
+                cls = new String[] { s.value() };
+            }
+            else
+            {
+                cls = null;
+            }
+        }
+        return cls;
+    }
+
+    /**
+     * Instanceof test which works for simple objects and arrays
+     * @param snapshot
+     * @param o the object to be tested
+     * @param className is an instance of this class?
+     * @return true if an instance
+     * @throws SnapshotException
+     */
+    public boolean instanceOf(ISnapshot snapshot, int o, String className) throws SnapshotException
+    {
+        IClass cls = snapshot.getClassOf(o);
+        return instanceOf(snapshot, cls, className);
+    }
+
+    /**
+     * Instanceof test which works for simple object and array types
+     * @param snapshot
+     * @param cls
+     * @param className
+     * @return true if an instance
+     * @throws SnapshotException
+     */
+    public boolean instanceOf(ISnapshot snapshot, IClass cls, String className) throws SnapshotException
+    {
+        // simple test via subclasses
+        if (cls.doesExtend(className))
+            return true;
+        /*
+         * also consider arrays
+         *    int[] instanceof Object
+         *    Integer[] instanceof Object
+         * are handled above.
+         * Also handle:
+         * Integer[] instanceof Object[]
+         * Integer[][] instanceof Number[][]
+         * Integer[][] instanceof Object[]
+         * reduce left by array on right then does it extend?
+         */
+        while (className.endsWith("[]") && cls.isArrayType()) //$NON-NLS-1$
+        {
+            String n2 = cls.getName();
+            String n3 = n2.substring(0, n2.length() - 2);
+            className = className.substring(0, className.length() - 2);
+            boolean found = false;
+            Collection<IClass> classes = snapshot.getClassesByName(n3, false);
+            if (classes == null)
+                return false;
+            for (IClass c2 : classes)
+            {
+                if (c2.getClassLoaderId() == cls.getClassLoaderId())
+                {
+                    cls = c2;
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)
+                return false;
+            if (cls.doesExtend(className))
+                return true;
+        }
+        return false;
+    }
+
+    public boolean anyInstances(ISnapshot snapshot, String cn) throws SnapshotException
+    {
+        Collection<IClass> ss = snapshot.getClassesByName(cn, false);
+        if (ss == null || ss.isEmpty())
+            return false;
+        for (IClass cls : ss)
+        {
+            if (cls.getNumberOfObjects() > 0)
+                return true;
+        }
+        for (IClass cls : ss)
+        {
+            if (anySubInstances(cls))
+                return true;
+        }
+        return false;
+    }
+
+    public boolean anySubInstances(IClass cls)
+    {
+        for (IClass cls2 : cls.getSubclasses())
+        {
+            if (cls2.getNumberOfObjects() > 0)
+                return true;
+        }
+        for (IClass cls2 : cls.getSubclasses())
+        {
+            if (anySubInstances(cls2))
+                return true;
+        }
+        return false;
+    }
+
+    /**
+     * See if the menuContext cannot possibly satisfy the requirements of the query.
+     * Needs to be reasonably efficient, so if the calculation would take too long
+     * then it is okay to return false.
+     * @param query
+     * @param menuContext
+     * @return true if the menuContext is unsuitable.
+     */
+    public boolean unsuitableSubjects(QueryDescriptor query, List<IContextObject> menuContext)
+    {
+        final String cls[];
+        boolean skip;
+        cls = extractSubjects(query);
+        if (cls != null)
+        {
+            ISnapshot snapshot = (ISnapshot) editor.getQueryContext().get(ISnapshot.class, null);
+            int count = 0;
+            for (String cn : cls)
+            {
+                try
+                {
+                    /*
+                     * If the classes are not present at all no need to check the objects.
+                     */
+                    Collection<IClass> ss = snapshot.getClassesByName(cn, false);
+                    if (ss == null || ss.isEmpty())
+                        continue;
+                    count += ss.size();
+                    break;
+                }
+                catch (SnapshotException e)
+                {}
+            }
+            if (count == 0)
+                return true;
+
+            // Some of the classes exists in the snapshot so see if the objects are in the selection
+            // Don't spend too long checking
+            int limit = 1000;
+            int inspected = 0;
+            boolean skipCheckObjectIds = false;
+            List<IContextObject> menuContext2 = new ArrayList<IContextObject>(menuContext);
+            Collections.shuffle(menuContext2);
+            for (IContextObject ico : menuContext)
+            {
+                if (inspected >= limit)
+                    return false;
+                if (ico instanceof IContextObjectSet)
+                {
+                    IContextObjectSet icos = (IContextObjectSet) ico;
+                    {
+                        // Test for some well known IContextObjectSets
+                        // Could be null
+                        Class<?> enclosingClass = icos.getClass().getEnclosingClass();
+                        if (Histogram.class.equals(enclosingClass)
+                            || Histogram.SuperclassTree.class.equals(enclosingClass)
+                            || Histogram.ClassLoaderTree.class.equals(enclosingClass)
+                            || Histogram.PackageTree.class.equals(enclosingClass) && icos.getObjectId() != -1)
+                        {
+                            // Test the whole histogram record without
+                            // looking at the items
+                            int type = icos.getObjectId();
+                            IObject io;
+                            try
+                            {
+                                io = snapshot.getObject(type);
+                            }
+                            catch (SnapshotException e)
+                            {
+                                continue;
+                            }
+                            if (io instanceof IClass)
+                            {
+                                IClass ic = (IClass)io;
+                                for (String cn : cls)
+                                {
+                                    try
+                                    {
+                                        if (instanceOf(snapshot, ic, cn))
+                                        {
+                                            // Class matches, check if we have >= 1 object
+                                            if (Histogram.class.equals(enclosingClass))
+                                            {
+                                                // Whole snapshot histogram?
+                                                if (icos.getOQL() != null)
+                                                {
+                                                    if (ic.getNumberOfObjects() > 0)
+                                                        return false;
+                                                }
+                                            }
+                                            if (Histogram.SuperclassTree.class.equals(enclosingClass))
+                                            {
+                                                // Whole snapshot histogram?
+                                                if (icos.getOQL() != null)
+                                                {
+                                                    if (ic.getNumberOfObjects() > 0 || anySubInstances(ic))
+                                                        return false;
+                                                }
+                                            }
+                                            if (Histogram.ClassLoaderTree.class.equals(enclosingClass))
+                                            {
+                                                // Whole snapshot histogram?
+                                                if (icos.getOQL() != null)
+                                                {
+                                                    if (ic.getNumberOfObjects() > 0)
+                                                        return false;
+                                                }
+                                            }
+                                            if (Histogram.PackageTree.class.equals(enclosingClass))
+                                            {
+                                                // Whole snapshot histogram?
+                                                if (icos.getOQL() != null)
+                                                {
+                                                    if (ic.getNumberOfObjects() > 0)
+                                                        return false;
+                                                }
+                                            }
+                                            if (skipCheckObjectIds)
+                                                return false;
+                                            // Check there is at least one object in the histogram
+                                            int os[] = icos.getObjectIds();
+                                            if (os.length > 0)
+                                                return false;
+                                        }
+                                        else if (Histogram.SuperclassTree.class.equals(enclosingClass))
+                                        {
+                                            // Superclass tree, didn't match the base class,
+                                            // so test the subclasses too.
+                                            for (IClass ic2 : ic.getAllSubclasses())
+                                            {
+                                                if (instanceOf(snapshot, ic2, cn))
+                                                {
+                                                    // Whole snapshot histogram?
+                                                    if (icos.getOQL() != null)
+                                                    {
+                                                        if (ic2.getNumberOfObjects() > 0 || anySubInstances(ic2))
+                                                            return false;
+                                                    }
+                                                    if (skipCheckObjectIds)
+                                                        return false;
+                                                    // Check there is at least one object in the histogram
+                                                    int os[] = icos.getObjectIds();
+                                                    if (os.length > 0)
+                                                        return false;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    catch (SnapshotException e)
+                                    {e.printStackTrace();}
+                                }
+                                ++inspected;
+                            }
+                            else if (io instanceof IClassLoader)
+                            {
+                                IClassLoader icl = (IClassLoader)io;
+                                for (String cn : cls)
+                                {
+                                    try
+                                    {
+                                        for (IClass ic2 : icl.getDefinedClasses())
+                                        {
+                                            if (instanceOf(snapshot, ic2, cn))
+                                            {
+                                                // Whole snapshot histogram?
+                                                if (icos.getOQL() != null)
+                                                {
+                                                    // Check an object is available in the whole dump
+                                                    if (ic2.getNumberOfObjects() > 0)
+                                                        return false;
+                                                }
+                                                // The object list could be too huge to examine.
+                                                // Play safe, don't know if this class is in the selection.
+                                                return false;
+                                            }
+                                        }
+                                    }
+                                    catch (SnapshotException e)
+                                    {}
+                                }
+                                ++inspected;
+                            }
+                        }
+                        else if (Histogram.PackageTree.class.equals(enclosingClass) && icos.getObjectId() == -1)
+                        {
+                            /*
+                             * Histogram with the package.
+                             * These can be very large so skip and presume suitable.
+                             * Enhancement: extract package matching string from getOQL, then get classes
+                             */
+                            // Extract the OQL pattern
+                            String oql = icos.getOQL();
+                            String oqlref = OQL.instancesByPattern(Pattern.compile(""), false); //$NON-NLS-1$
+                            String oqlPrefix = oqlref.substring(0, oqlref.length() - 1);
+                            String oqlSuffix = oqlref.substring(oqlref.length() - 1);
+                            if (oql != null && oql.startsWith(oqlPrefix) && oql.endsWith(oqlSuffix) 
+                                            && oql.substring(oqlPrefix.length(), oql.length() - oqlSuffix.length()).indexOf('\"') < 0)
+                            {
+                                String pat = oql.substring(oqlPrefix.length(), oql.length() - oqlSuffix.length());
+                                try
+                                {
+                                    Collection<IClass> classes = snapshot.getClassesByName(Pattern.compile(pat), false);
+                                    for (String cn : cls)
+                                    {
+                                        for (IClass ic2 : classes)
+                                        {
+                                            try
+                                            {
+                                                if (instanceOf(snapshot, ic2, cn))
+                                                {
+                                                    // Whole snapshot histogram?
+                                                    if (icos.getOQL() != null)
+                                                    {
+                                                        // Check an object is available in the whole dump
+                                                        if (ic2.getNumberOfObjects() > 0)
+                                                            return false;
+                                                    }
+                                                    // The object list could be too huge to examine.
+                                                    // Play safe, don't know if this class is in the selection.
+                                                    return false;
+                                                }
+                                            }
+                                            catch (SnapshotException e)
+                                            {}
+                                        }
+                                    }
+                                }
+                                catch (PatternSyntaxException e)
+                                {}
+                                catch (SnapshotException e)
+                                {}
+                                // Not found, so continue to search
+                                ++inspected;
+                            }
+                            else
+                            {
+                                return false;
+                            }
+                        }
+                        else
+                        {
+                            // This can be expensive, so don't get it earlier
+                            int os[] = icos.getObjectIds();
+                            inspected += os.length;
+                            if (inspected >= limit)
+                                return false;
+                            for (String cn : cls)
+                            {
+                                for (int o : os)
+                                {
+                                    try
+                                    {
+                                        if (instanceOf(snapshot, o, cn))
+                                            return false;
+                                    }
+                                    catch (SnapshotException e)
+                                    {}
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    // Single object in this line of the selection
+                    int o = ico.getObjectId();
+                    for (String cn : cls)
+                    {
+                        try
+                        {
+                            if (instanceOf(snapshot, o, cn))
+                                return false;
+                        }
+                        catch (SnapshotException e)
+                        {}
+                    }
+                    ++inspected;
+                }
+            }
+            skip = true;
+        }
+        else
+        {
+            skip = false;
+        }
+        return skip;
     }
 
     private void systemMenu(PopupMenu menu, final Control control)

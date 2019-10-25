@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 Chris Grindstaff, James Livingston and IBM Corporation
+ * Copyright (c) 2008, 2019 Chris Grindstaff, James Livingston and IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,6 +24,7 @@ import org.eclipse.mat.query.annotations.Help;
 import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.snapshot.ISnapshot;
+import org.eclipse.mat.snapshot.extension.Subjects;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IObjectArray;
 import org.eclipse.mat.snapshot.model.IPrimitiveArray;
@@ -34,6 +35,7 @@ import org.eclipse.mat.util.IProgressListener;
 @CommandName("primitive_arrays_with_a_constant_value")
 @Icon("/META-INF/icons/constant_value.gif")
 @HelpUrl("/org.eclipse.mat.ui.help/tasks/analyzingjavacollectionusage.html")
+@Subjects({"byte[]", "boolean[]", "short[]", "char[]", "int[]", "float[]", "long[]", "double[]"})
 public class PrimitiveArraysWithAConstantValueQuery implements IQuery
 {
     @Argument

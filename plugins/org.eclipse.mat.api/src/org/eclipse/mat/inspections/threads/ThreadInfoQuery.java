@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG & IBM Corporation.
+ * Copyright (c) 2008, 2019 SAP AG & IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,6 +33,7 @@ import org.eclipse.mat.report.SectionSpec;
 import org.eclipse.mat.report.Spec;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.extension.IThreadInfo;
+import org.eclipse.mat.snapshot.extension.Subject;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IStackFrame;
 import org.eclipse.mat.snapshot.model.IThreadStack;
@@ -43,6 +44,7 @@ import org.eclipse.mat.util.MessageUtil;
 @CommandName("thread_details")
 @Icon("/META-INF/icons/threads.gif")
 @HelpUrl("/org.eclipse.mat.ui.help/tasks/analyzingthreads.html")
+@Subject("java.lang.Thread")
 public class ThreadInfoQuery implements IQuery
 {
     public static class Result extends SectionSpec
