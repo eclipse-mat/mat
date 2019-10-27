@@ -627,8 +627,9 @@ public class QueryContextMenu
                         {
                             /*
                              * Histogram with the package.
-                             * These can be very large so skip and presume suitable.
+                             * These can be very large.
                              * Enhancement: extract package matching string from getOQL, then get classes
+                             * and see if the classes are possibly suitable.
                              */
                             // Extract the OQL pattern
                             String oql = icos.getOQL();

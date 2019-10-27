@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 SAP AG, IBM Corporation and others
+ * Copyright (c) 2008, 2019 SAP AG, IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,6 +23,7 @@ import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.query.quantize.Quantize;
 import org.eclipse.mat.snapshot.ISnapshot;
+import org.eclipse.mat.snapshot.extension.Subjects;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.snapshot.query.RetainedSizeDerivedData;
 import org.eclipse.mat.util.IProgressListener;
@@ -30,6 +31,48 @@ import org.eclipse.mat.util.IProgressListener;
 @CommandName("collection_fill_ratio")
 @Icon("/META-INF/icons/collection_fill.gif")
 @HelpUrl("/org.eclipse.mat.ui.help/tasks/analyzingjavacollectionusage.html")
+@Subjects({"java.util.AbstractCollection",
+    "java.util.jar.Attributes",
+    "java.util.Dictionary",
+    "java.lang.ThreadLocal$ThreadLocalMap",
+    "java.util.concurrent.ConcurrentHashMap$Segment",
+    "java.util.concurrent.ConcurrentHashMap$CollectionView",
+    "java.util.concurrent.CopyOnWriteArrayList",
+    "java.util.Collections$SynchronizedCollection",
+    "java.util.Collections$SynchronizedMap",
+    "java.util.Collections$UnmodifiableCollection",
+    "java.util.Collections$UnmodifiableMap",
+    "java.util.Collections$CheckedCollection",
+    "java.util.Collections$CheckedMap",
+    "java.util.Collections$CheckedMap$CheckedEntrySet",
+    "java.util.Collections$SetFromMap",
+    "java.util.ResourceBundle",
+    "java.awt.RenderingHints",
+    "java.beans.beancontext.BeanContextSupport",
+    "sun.awt.WeakIdentityHashMap",
+    "javax.script.SimpleBindings",
+    "javax.management.openmbean.TabularDataSupport",
+    "com.ibm.jvm.util.HashMapRT",
+    "com.sap.engine.lib.util.AbstractDataStructure",
+
+    "java.util.AbstractMap",
+    "java.util.jar.Attributes",
+    "java.util.Dictionary",
+    "java.lang.ThreadLocal$ThreadLocalMap",
+    "java.util.concurrent.ConcurrentHashMap$Segment",
+    "java.util.concurrent.ConcurrentHashMap$CollectionView",
+    "java.util.Collections$SynchronizedMap",
+    "java.util.Collections$UnmodifiableMap",
+    "java.util.Collections$CheckedMap",
+    "java.util.Collections$SetFromMap",
+    "java.util.ResourceBundle",
+    "java.beans.beancontext.BeanContextSupport",
+    "sun.awt.WeakIdentityHashMap",
+    "javax.script.SimpleBindings",
+    "javax.management.openmbean.TabularDataSupport",
+    "com.ibm.jvm.util.HashMapRT",
+    "com.sap.engine.lib.util.AbstractDataStructure"
+})
 public class CollectionFillRatioQuery extends AbstractFillRatioQuery implements IQuery
 {
 
