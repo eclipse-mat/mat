@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 SAP AG, IBM Corporation and others
+ * Copyright (c) 2008, 2019 SAP AG, IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,6 +25,7 @@ import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.query.quantize.Quantize;
 import org.eclipse.mat.snapshot.ISnapshot;
+import org.eclipse.mat.snapshot.extension.Subjects;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.snapshot.query.RetainedSizeDerivedData;
@@ -34,6 +35,26 @@ import org.eclipse.mat.util.MessageUtil;
 @CommandName("map_collision_ratio")
 @Icon("/META-INF/icons/map_collision.gif")
 @HelpUrl("/org.eclipse.mat.ui.help/tasks/analyzingjavacollectionusage.html")
+@Subjects({"java.util.AbstractMap",
+    "java.util.jar.Attributes",
+    "java.util.Dictionary",
+    "java.lang.ThreadLocal$ThreadLocalMap",
+    "java.util.concurrent.ConcurrentHashMap$Segment",
+    "java.util.concurrent.ConcurrentHashMap$CollectionView",
+    "java.util.Collections$SynchronizedMap",
+    "java.util.Collections$UnmodifiableMap",
+    "java.util.Collections$CheckedMap",
+    "java.util.ResourceBundle",
+    "java.awt.RenderingHints",
+    "sun.awt.WeakIdentityHashMap",
+    "javax.script.SimpleBindings",
+    "javax.management.openmbean.TabularDataSupport",
+    "com.ibm.jvm.util.HashMapRT",
+    "com.sap.engine.lib.util.AbstractDataStructure",
+    
+    // Sometimes useful to see collision ratio of a HashSet
+    "java.util.HashSet"
+})
 public class MapCollisionRatioQuery implements IQuery
 {
 

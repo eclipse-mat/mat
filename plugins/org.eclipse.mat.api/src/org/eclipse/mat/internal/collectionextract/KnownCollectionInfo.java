@@ -42,7 +42,7 @@ public class KnownCollectionInfo implements ICollectionExtractorProvider
                     new CollectionExtractionInfo("com.sap.engine.lib.util.AbstractDataStructure", new EmptyCollectionExtractor()), //$NON-NLS-1$
                     new CollectionExtractionInfo("java.util.concurrent.SynchronousQueue", new EmptyCollectionExtractor()), //$NON-NLS-1$
 
-                    new CollectionExtractionInfo("java.util.ImmutableCollections$Set0", new EmptyMapExtractor()), //$NON-NLS-1$
+                    new CollectionExtractionInfo("java.util.ImmutableCollections$Set", new EmptyMapExtractor()), //$NON-NLS-1$
                     new CollectionExtractionInfo("java.util.ImmutableCollections$List0", new EmptyCollectionExtractor()), //$NON-NLS-1$
 
                     // these have a field indicating the size
@@ -199,7 +199,7 @@ public class KnownCollectionInfo implements ICollectionExtractorProvider
                     new CollectionExtractionInfo("java.util.Collections$SynchronizedMap", new WrapperMapExtractor("m")), //$NON-NLS-1$ //$NON-NLS-2$
                     // also works for CheckedSet, CheckedSortedSet, CheckedList,
                     new CollectionExtractionInfo("java.util.Collections$CheckedSet", new WrapperMapExtractor("c")), //$NON-NLS-1$ //$NON-NLS-2$
-                    // CheckedRandomAccessList
+                    // CheckedRandomAccessList, CheckedQueue
                     new CollectionExtractionInfo("java.util.Collections$CheckedCollection", new WrapperCollectionExtractor("c")), //$NON-NLS-1$ //$NON-NLS-2$
                     // also works for CheckedSortedMap
                     new CollectionExtractionInfo("java.util.Collections$CheckedMap", new WrapperMapExtractor("m")), //$NON-NLS-1$ //$NON-NLS-2$
@@ -221,6 +221,7 @@ public class KnownCollectionInfo implements ICollectionExtractorProvider
                     new CollectionExtractionInfo("java.util.EnumMap", new FieldSizeArrayMapExtractor("size", "vals", "keyUniverse")),//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
                     new CollectionExtractionInfo("java.util.EnumMap$Values", new ValuesCollectionExtractor("this$0")),//$NON-NLS-1$ //$NON-NLS-2$
                     new CollectionExtractionInfo("java.util.EnumMap$KeySet", new KeySetCollectionExtractor("this$0")),//$NON-NLS-1$ //$NON-NLS-2$
+                    new CollectionExtractionInfo("java.util.EnumMap$EntrySet", new WrapperMapExtractor("this$0")),//$NON-NLS-1$ //$NON-NLS-2$
                     new CollectionExtractionInfo("java.util.RegularEnumSet", new RegularEnumSetExtractor("elements", "Universe")),//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
                     // New Java 9 collections
@@ -244,5 +245,6 @@ public class KnownCollectionInfo implements ICollectionExtractorProvider
 
                     // usually shouldn't match
                     new CollectionExtractionInfo("java.util.AbstractList", new NoContentCollectionExtractor()), //$NON-NLS-1$
+                    new CollectionExtractionInfo("java.util.AbstractMap$2", new ValuesCollectionExtractor("this$0")),//$NON-NLS-1$ //$NON-NLS-2$
     };
 }

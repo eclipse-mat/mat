@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 SAP AG, IBM Corporation and others
+ * Copyright (c) 2008, 2019 SAP AG, IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -211,6 +211,8 @@ public abstract class HashedMapCollectionExtractorBase extends MapCollectionExtr
 
                     if (field.getValue() != null)
                         nextEntryId = ((ObjectReference) field.getValue()).getObjectId();
+                    if (nextEntryId == entryId)
+                        nextEntryId = -1;
                 }
             }
 

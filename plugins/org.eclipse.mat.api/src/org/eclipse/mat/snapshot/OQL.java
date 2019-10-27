@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.mat.snapshot;
 
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.mat.snapshot.model.IClass;
@@ -208,7 +207,7 @@ public final class OQL
     }
 
     private static final String OQL_classesByClassLoaderId = "SELECT * FROM java.lang.Class c WHERE c implements " //$NON-NLS-1$
-                    + IClass.class.getName() + " and c.@classLoaderId = {0, number, 0}"; //$NON-NLS-1$
+                    + IClass.class.getName() + " and c.@classLoaderId = {0,number,0}"; //$NON-NLS-1$
 
     /**
      * Returns an OQL query string to select all objects loaded by the given

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 SAP AG, IBM Corporation and others
+ * Copyright (c) 2008, 2019 SAP AG, IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,6 +24,7 @@ import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.snapshot.ISnapshot;
+import org.eclipse.mat.snapshot.extension.Subjects;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.query.ObjectListResult;
 import org.eclipse.mat.util.IProgressListener;
@@ -31,6 +32,19 @@ import org.eclipse.mat.util.IProgressListener;
 @CommandName("hash_set_values")
 @Icon("/META-INF/icons/hash_set.gif")
 @HelpUrl("/org.eclipse.mat.ui.help/tasks/analyzingjavacollectionusage.html")
+@Subjects({"java.util.AbstractSet",
+    "java.util.Collections$SynchronizedSet",
+    "java.util.Collections$UnmodifiableSet",
+    "java.util.Collections$CheckedSet",
+    "java.util.Collections$CheckedMap$CheckedEntrySet",
+    "java.util.Collections$SetFromMap",
+    
+    "java.util.concurrent.ConcurrentHashMap$KeySetView",
+    "java.util.concurrent.ConcurrentHashMap$EntrySetView",
+    "java.util.ImmutableCollections$AbstractImmutableSet",
+    "java.util.ImmutableCollections$Set",
+    "java.beans.beancontext.BeanContextSupport",
+})
 public class HashSetValuesQuery implements IQuery
 {
     @Argument

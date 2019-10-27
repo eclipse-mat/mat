@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 SAP AG, IBM Corporation and others
+ * Copyright (c) 2008, 2019 SAP AG, IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -35,6 +35,7 @@ import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.HelpUrl;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.snapshot.ISnapshot;
+import org.eclipse.mat.snapshot.extension.Subjects;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.util.IProgressListener;
@@ -42,6 +43,24 @@ import org.eclipse.mat.util.IProgressListener;
 @CommandName("hash_entries")
 @Icon("/META-INF/icons/hash_map.gif")
 @HelpUrl("/org.eclipse.mat.ui.help/tasks/analyzingjavacollectionusage.html")
+@Subjects({"java.util.AbstractMap",
+    "java.util.jar.Attributes",
+    "java.util.Dictionary",
+    "java.lang.ThreadLocal$ThreadLocalMap",
+    "java.util.concurrent.ConcurrentHashMap$Segment",
+    "java.util.concurrent.ConcurrentHashMap$CollectionView",
+    "java.util.Collections$SynchronizedMap",
+    "java.util.Collections$UnmodifiableMap",
+    "java.util.Collections$CheckedMap",
+    "java.util.ImmutableCollections$AbstractImmutableMap",
+    "java.util.ResourceBundle",
+    "java.awt.RenderingHints",
+    "sun.awt.WeakIdentityHashMap",
+    "javax.script.SimpleBindings",
+    "javax.management.openmbean.TabularDataSupport",
+    "com.ibm.jvm.util.HashMapRT",
+    "com.sap.engine.lib.util.AbstractDataStructure"
+})
 public class HashEntriesQuery implements IQuery
 {
     private static final String NULL = "<null>"; //$NON-NLS-1$
