@@ -32,7 +32,7 @@
 					<tbody class="tbody">
 						<tr class="row">
 							<td class="entry" valign="top">
-								<strong class="ph b">Array Fill Ratio Query</strong>
+								<strong class="ph b"><span class="keyword cmdname">Array Fill Ratio</span> Query</strong>
 							</td>
 
 							<td class="entry" valign="top">Prints a frequency distribution of fill ratios of
@@ -46,7 +46,7 @@
 
 						<tr class="row">
 							<td class="entry" valign="top">
-								<strong class="ph b">Arrays Grouped by Size Query</strong>
+								<strong class="ph b"><span class="keyword cmdname">Arrays Grouped by Size</span> Query</strong>
 							</td>
 
 							<td class="entry" valign="top">Distribution histogram of given arrays grouped
@@ -56,7 +56,7 @@
 
 						<tr class="row">
 							<td class="entry" valign="top">
-								<strong class="ph b">Collection Fill Ratio Query</strong>
+								<strong class="ph b"><span class="keyword cmdname">Collection Fill Ratio</span> Query</strong>
 							</td>
 
 							<td class="entry" valign="top">
@@ -307,7 +307,7 @@
 
 						<tr class="row">
 							<td class="entry" valign="top">
-								<strong class="ph b">Collections Grouped By Size Query</strong>
+								<strong class="ph b"><span class="keyword cmdname">Collections Grouped By Size</span> Query</strong>
 							</td>
 
 							<td class="entry" valign="top">
@@ -638,7 +638,7 @@
 
 						<tr class="row">
 							<td class="entry" valign="top">
-								<strong class="ph b">Extract List Values Query</strong>
+								<strong class="ph b"><span class="keyword cmdname">Extract List Values</span> Query</strong>
 							</td>
 
 							<td class="entry" valign="top">
@@ -653,7 +653,7 @@
 
 						<tr class="row">
 							<td class="entry" valign="top">
-								<strong class="ph b">Hash Entries Query</strong>
+								<strong class="ph b"><span class="keyword cmdname">Hash Entries</span> Query</strong>
 							</td>
 
 							<td class="entry" valign="top">
@@ -666,7 +666,7 @@
 
 						<tr class="row">
 							<td class="entry" valign="top">
-								<strong class="ph b">Extract Hash Set Value Query</strong>
+								<strong class="ph b"><span class="keyword cmdname">Extract Hash Set Values</span> Query</strong>
 							</td>
 
 							<td class="entry" valign="top">
@@ -678,7 +678,7 @@
 
 						<tr class="row">
 							<td class="entry" valign="top">
-								<strong class="ph b">Map Collision Ratio Query</strong>
+								<strong class="ph b"><span class="keyword cmdname">Map Collision Ratio</span> Query</strong>
 							</td>
 
 							<td class="entry" valign="top">
@@ -819,7 +819,7 @@
 
 						<tr class="row">
 							<td class="entry" valign="top">
-								<strong class="ph b">Primitive Arrays with a Constant Value</strong>
+								<strong class="ph b"><span class="keyword cmdname">Primitive Arrays with a Constant Value</span> Query</strong>
 							</td>
 
 							<td class="entry" valign="top">
@@ -837,6 +837,15 @@
 			<p class="p">
 				All these queries are accessible from the toolbar drop-down menu:
 				<span class="ph menucascade"><span class="ph uicontrol">Open Query Browser</span> &gt; <span class="ph uicontrol">Java Collections</span></span>
+			</p>
+
+			<p class="p">
+				There are also available from the pop-up context menu using mouse button 2 on a selection of objects from a previous query.
+				Unsuitable queries for the selection are filtered out and are not shown, so for example a <span class="keyword cmdname">Hash Entries</span> query
+				would not be offered for a selection of <samp class="ph codeph">ArrayList</samp> objects.
+				All the collection queries can be seen from the pop-up context menu using:
+				<span class="ph menucascade"><span class="ph uicontrol">Search Queries...</span> &gt; <span class="ph uicontrol">Java Collections</span></span>
+				Any query can then be selected and run.
 			</p>
 
 		</div>

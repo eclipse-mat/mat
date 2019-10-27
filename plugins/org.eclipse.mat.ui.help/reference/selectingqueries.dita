@@ -47,8 +47,15 @@
 				about the arguments for this query. </p>
 			<p>
 				The query browser (&quot;Search Queries...&quot;) is also available in the context menu.
-				It offers only queries valid for the current selection, and is easier to use as it can display
+				The query browser is easier to use as it can display
 				some or all the queries, and shows also the help for each query.
+				It offers only queries valid for the current selection. For example, queries
+				operating on the whole dump would only be offered in the drop down menu from the
+				task bar. Queries operating on single objects would not be offered from the
+				content menu when multiple objects or rows are selected.
+				The pop-up context menu excludes queries where the selection
+				does not include any objects of the type required by the query.
+				Those queries would still be available using the query browser.
 			</p>
 			<p>
 				<image href="../mimes/search_queries_context.png">

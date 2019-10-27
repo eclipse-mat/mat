@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2019 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -891,7 +891,7 @@ public class Histogram extends HistogramRecord implements IResultTable, IIconPro
                     public String getOQL()
                     {
                         if (histogram.isDefaultHistogram)
-                            return OQL.classesByClassLoaderId(record.getClassLoaderId());
+                            return OQL.instancesByClassLoaderId(record.getClassLoaderId());
                         else
                             return null;
                     }
