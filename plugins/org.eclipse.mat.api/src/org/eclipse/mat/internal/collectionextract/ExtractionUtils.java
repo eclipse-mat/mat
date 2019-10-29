@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2016 SAP AG, IBM Corporation and others
+ * Copyright (c) 2008, 2019 SAP AG, IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -270,25 +270,39 @@ public class ExtractionUtils
         classes = snapshot.getClassesByName("sun.misc.Version", false);
         if (classes != null && classes.size() > 0)
         {
-            Object ver = classes.iterator().next().resolveValue("java_version");
-            if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("1.8.")) { return JAVA18; }
-            if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("9.")) { return JAVA18; }
+            try
+            {
+                Object ver = classes.iterator().next().resolveValue("java_version");
+                if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("1.8.")) { return JAVA18; }
+                if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("9.")) { return JAVA18; }
+            }
+            catch (SnapshotException e)
+            {
+            }
         }
         classes = snapshot.getClassesByName("java.lang.VersionProps", false);
         if (classes != null && classes.size() > 0)
         {
-            Object ver = classes.iterator().next().resolveValue("java_version");
-            if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("9.")) { return JAVA19; }
-            if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("9-")) { return JAVA19; }
-            if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("10.")) { return JAVA19; }
-            if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("10-")) { return JAVA19; }
-            if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("11.")) { return JAVA19; }
-            if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("11-")) { return JAVA19; }
-            if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("12.")) { return JAVA19; }
-            if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("12-")) { return JAVA19; }
-            // Lots of new Java versions planned
-            return JAVA19;
+            try
+            {
+                Object ver = classes.iterator().next().resolveValue("java_version");
+                if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("9.")) { return JAVA19; }
+                if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("9-")) { return JAVA19; }
+                if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("10.")) { return JAVA19; }
+                if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("10-")) { return JAVA19; }
+                if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("11.")) { return JAVA19; }
+                if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("11-")) { return JAVA19; }
+                if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("12.")) { return JAVA19; }
+                if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("12-")) { return JAVA19; }
+                // Lots of new Java versions planned
+                return JAVA19;
+            }
+            catch (SnapshotException e)
+            {
+            }
         }
+        if ((classes = snapshot.getClassesByName("java.lang.Module", false)) != null && !classes.isEmpty()) return JAVA19;
+        if ((classes = snapshot.getClassesByName("java.util.Spliterators", false)) != null && !classes.isEmpty()) return JAVA18;
         return SUN;
     }
 }
