@@ -11,8 +11,10 @@
 package org.eclipse.mat.inspections;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.regex.Pattern;
 
+import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.IQuery;
@@ -21,6 +23,7 @@ import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.CommandName;
 import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.snapshot.ISnapshot;
+import org.eclipse.mat.snapshot.extension.Subject;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
@@ -29,13 +32,30 @@ import org.eclipse.mat.util.IProgressListener;
 
 @CommandName("find_strings")
 @Icon("/META-INF/icons/find_strings.gif")
+@Subject("java.lang.String")
 public class FindStringsQuery implements IQuery
 {
     @Argument
     public ISnapshot snapshot;
 
+    // Experimental default heap argument
     @Argument(isMandatory = false)
-    public IHeapObjectArgument objects;
+    public IHeapObjectArgument objects = new IHeapObjectArgument() {
+        public Iterator<int[]> iterator()
+        {
+            return null;
+        }
+
+        public int[] getIds(IProgressListener listener) throws SnapshotException
+        {
+            return null;
+        }
+
+        public String getLabel()
+        {
+            return "java.lang.String"; //$NON-NLS-1$
+        }
+    };
 
     @Argument
     public Pattern pattern;
