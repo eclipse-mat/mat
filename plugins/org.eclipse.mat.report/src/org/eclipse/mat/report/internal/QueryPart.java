@@ -49,7 +49,6 @@ import org.eclipse.mat.report.SectionSpec;
 import org.eclipse.mat.report.Spec;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
-import org.eclipse.mat.util.SilentProgressListener;
 
 import com.ibm.icu.text.DecimalFormat;
 import com.ibm.icu.text.NumberFormat;
@@ -101,7 +100,7 @@ public class QueryPart extends AbstractPart
             {
                 try
                 {
-                    result = CommandLine.execute(context, getCommand(), new SilentProgressListener(listener));
+                    result = CommandLine.execute(context, getCommand(), listener);
                 }
                 catch (Exception e)
                 {
@@ -362,18 +361,26 @@ public class QueryPart extends AbstractPart
             DecimalFormat dfmt = (DecimalFormat)fmt;
             char decSep = dfmt.getDecimalFormatSymbols().getDecimalSeparator();
             char digit0 = dfmt.getDecimalFormatSymbols().getZeroDigit();
-            if (decSep != '.' && filter.indexOf('.') >= 0 || digit0 != '0')
+            char percent = dfmt.getDecimalFormatSymbols().getPercent();
+            // If the formatter seems significantly different from English
+            if (decSep != '.' && filter.indexOf('.') >= 0 ||
+                percent != '%' && filter.indexOf('%') >= 0 ||
+                dfmt.isDecimalSeparatorAlwaysShown() ||
+                dfmt.getPositiveSuffix().length() > 0 ||
+                dfmt.getNegativeSuffix().length() > 0 ||
+                digit0 != '0')
             {
                 Locale eng = Locale.ENGLISH;
                 Format in;
-                if (dfmt.getMultiplier() > 1)
+                if (dfmt.getMultiplier() > 1 || filter.indexOf('%') >= 0)
                     in = NumberFormat.getPercentInstance(eng);
                 else if (dfmt.isParseIntegerOnly())
                     in = NumberFormat.getIntegerInstance(eng);
                 else
-                    in = NumberFormat.getNumberInstance();
+                    in = NumberFormat.getNumberInstance(eng);
                 // Allow for number range
                 String flts[] = filter.split("\\.\\.", 2); //$NON-NLS-1$
+                // StringBuffer not StringBuilder for Formatter
                 StringBuffer sb = new StringBuffer();
                 localizeNumber(sb, flts[0], in, fmt);
                 if (flts.length >= 2)
@@ -382,7 +389,7 @@ public class QueryPart extends AbstractPart
                     if (sb.length() > 0 && sb.charAt(sb.length() - 1) == '.')
                         sb.append(digit0);
                     sb.append(".."); //$NON-NLS-1$
-                    localizeNumber(sb, flts[0], in, fmt);
+                    localizeNumber(sb, flts[1], in, fmt);
                 }
                 filter2 = sb.toString();
             }

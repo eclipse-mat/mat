@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others.
+ * Copyright (c) 2008, 2019 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -179,15 +179,14 @@ public class ImportReportAction extends Action
 
     private void prepareFilterSelection(FileDialog dialog)
     {
-        File snapshot = editor.getQueryContext().getPrimaryFile();
-
         // extract prefix
-        String name = snapshot.getName();
-        int p = name.lastIndexOf('.');
-        String prefix = p < 0 ? name : name.substring(0, p);
+        File prefixFile = new File(editor.getQueryContext().getPrefix());
+        String prefix = prefixFile.getName();
+        if (prefix.endsWith(".")) //$NON-NLS-1$
+            prefix = prefix.substring(0, prefix.length() - 1);
 
-        dialog.setFilterPath(snapshot.getParentFile().getAbsolutePath());
-        dialog.setFileName(prefix + "_*.zip");//$NON-NLS-1$
+        dialog.setFilterPath(prefixFile.getParentFile().getAbsolutePath());
+        dialog.setFileName(prefix + "_");//$NON-NLS-1$
     }
 
 }

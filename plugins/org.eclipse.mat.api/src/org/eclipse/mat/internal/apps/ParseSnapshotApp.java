@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2019 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -36,7 +36,9 @@ import org.eclipse.mat.snapshot.MultipleSnapshotsException;
 import org.eclipse.mat.snapshot.MultipleSnapshotsException.Context;
 import org.eclipse.mat.snapshot.SnapshotFactory;
 import org.eclipse.mat.util.ConsoleProgressListener;
+import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
+import org.eclipse.mat.util.SilentProgressListener;
 
 /**
  * Opens and parses a dump into a snapshot and runs reports on the snapshot.
@@ -188,7 +190,7 @@ public class ParseSnapshotApp implements IApplication
         TestSuite suite = new TestSuite.Builder(report) //
                         .build(new SnapshotQueryContext(snapshot));
 
-        ConsoleProgressListener listener = new ConsoleProgressListener(System.out);
+        IProgressListener listener = new SilentProgressListener(new ConsoleProgressListener(System.out));
         suite.execute(listener);
         listener.done();
     }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2019 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,6 +22,8 @@ import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.annotations.Argument;
 import org.eclipse.mat.query.annotations.Category;
 import org.eclipse.mat.query.annotations.CommandName;
+import org.eclipse.mat.query.annotations.HelpUrl;
+import org.eclipse.mat.query.annotations.Icon;
 import org.eclipse.mat.query.results.DisplayFileResult;
 import org.eclipse.mat.report.Spec;
 import org.eclipse.mat.report.SpecFactory;
@@ -30,6 +32,8 @@ import org.eclipse.mat.util.IProgressListener;
 
 @CommandName("create_report")
 @Category(Category.HIDDEN)
+@HelpUrl("/org.eclipse.mat.ui.help/reference/extendingmat.html")
+@Icon("/META-INF/icons/expert.gif")
 public class RunExternalTest implements IQuery
 {
     @Argument

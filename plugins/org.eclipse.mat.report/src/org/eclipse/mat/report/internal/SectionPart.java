@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2019 SAP AG.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,18 +7,21 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson (IBM Corporation) - progress monitors for section children
  *******************************************************************************/
 package org.eclipse.mat.report.internal;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.query.IQueryContext;
+import org.eclipse.mat.report.ITestResult.Status;
 import org.eclipse.mat.report.Params;
 import org.eclipse.mat.report.SectionSpec;
 import org.eclipse.mat.report.Spec;
-import org.eclipse.mat.report.ITestResult.Status;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.SimpleMonitor;
 
 public class SectionPart extends AbstractPart
 {
@@ -56,9 +59,13 @@ public class SectionPart extends AbstractPart
     {
         renderer.beginSection(this);
 
+        int perc[] = new int[this.children.size()];
+        Arrays.fill(perc, 100);
+        SimpleMonitor sm = new SimpleMonitor(spec.getName(), listener, perc);
         for (int ii = 0; ii < this.children.size(); ii++)
         {
-            AbstractPart part = this.children.get(ii).execute(context, renderer, listener);
+            IProgressListener mon = sm.nextMonitor();
+            AbstractPart part = this.children.get(ii).execute(context, renderer, mon);
             this.status = Status.max(this.status, part.status);
             this.children.set(ii, part);
         }

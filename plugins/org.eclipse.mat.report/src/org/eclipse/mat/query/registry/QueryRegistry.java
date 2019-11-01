@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2013 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2019 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -220,9 +220,9 @@ public class QueryRegistry extends RegistryReader<IQuery>
         /*
          * $nl$ and annotations.properties .icon substitution added with 1.3
          * This allows
-         * @Icon("$nl$/MANIFEST.MF/icons/myicon.gif")
+         * @Icon("$nl$/META-INF/icons/myicon.gif")
          * also this which is safe (ignored) for < V1.3
-         * myquery.icon = $nl$/MANIFEST.MF/icons/myicon.gif
+         * myquery.icon = $nl$/META-INF/icons/myicon.gif
          */
         Icon i = queryClass.getAnnotation(Icon.class);
         String iconPath = translate(i18n, key + ".icon", i != null ? i.value() : null); //$NON-NLS-1$
