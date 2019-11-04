@@ -1,14 +1,16 @@
 /*******************************************************************************
- * Copyright (c) 2014 IBM
+ * Copyright (c) 2014, 2019 IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    IBM
+ *    IBM Corporation
  *******************************************************************************/
 package org.eclipse.mat.query;
+
+import org.eclipse.core.runtime.Platform;
 
 /**
  * This enumeration specifies how to display a number of bytes. It can be
@@ -30,7 +32,7 @@ public enum BytesDisplay
     Kilobytes,
 
     /**
-     * Unites of megabytes (1,048,576 bytes).
+     * Units of megabytes (1,048,576 bytes).
      */
     Megabytes,
 
@@ -53,7 +55,7 @@ public enum BytesDisplay
     /**
      * System property name to specify a bytes display.
      */
-    public static final String PROPERTY_NAME = "bytes_display";
+    public static final String PROPERTY_NAME = "bytes_display"; //$NON-NLS-1$
 
     /**
      * We store the preference value statically to avoid constantly looking it
@@ -106,5 +108,22 @@ public enum BytesDisplay
     {
         System.setProperty(PROPERTY_NAME, val.toString());
         currentValue = val;
+    }
+
+    static
+    {
+        String propValue = System.getProperty(BytesDisplay.PROPERTY_NAME);
+        if (propValue == null)
+        {
+            // Eclipse preference set by UI plugin
+            String MATUI_PLUGIN = "org.eclipse.mat.ui"; //$NON-NLS-1$
+            String prefValue = Platform.getPreferencesService().getString(MATUI_PLUGIN, BytesDisplay.PROPERTY_NAME, null, null);
+            BytesDisplay.setCurrentValue(BytesDisplay.parse(prefValue));
+        }
+        else
+        {
+            // Set the current value from the system property, or default if it doesn't parse
+            BytesDisplay.setCurrentValue(BytesDisplay.parse(propValue));
+        }
     }
 }

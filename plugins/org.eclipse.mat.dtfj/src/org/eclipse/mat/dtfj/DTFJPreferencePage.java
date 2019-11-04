@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011,2013 IBM Corporation.
+ * Copyright (c) 2011,2019 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,12 +14,15 @@ import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.RadioGroupFieldEditor;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.eclipse.ui.PlatformUI;
 
 /**
  * This class represents a preference page that is contributed to the
- * Preferences dialog. By subclassing { link org.eclipse.jface.preference.FieldEditorPreferencePage}, we
+ * Preferences dialog. By subclassing {@link org.eclipse.jface.preference.FieldEditorPreferencePage}, we
  * can use the field support built into JFace that allows us to create a page
  * that is small and knows how to save, restore and apply itself.
  * <p>
@@ -57,7 +60,7 @@ public class DTFJPreferencePage extends FieldEditorPreferencePage implements IWo
                         getFieldEditorParent(), true));
         addField(new BooleanFieldEditor(PreferenceConstants.P_SUPPRESS_CLASS_NATIVE_SIZES, Messages.DTFJPreferencePage_SuppressClassNativeSizes,
                         getFieldEditorParent()));
-    }
+   }
 
     /*
      * (non-Javadoc)
@@ -67,4 +70,9 @@ public class DTFJPreferencePage extends FieldEditorPreferencePage implements IWo
     public void init(IWorkbench workbench)
     {}
 
+    @Override
+    protected Control createContents(Composite parent) {
+        PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, "org.eclipse.mat.ui.help.preferences_dtfj_assist"); //$NON-NLS-1$
+        return super.createContents(parent);
+    }
 }

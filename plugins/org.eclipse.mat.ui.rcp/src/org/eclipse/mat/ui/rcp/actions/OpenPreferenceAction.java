@@ -35,6 +35,7 @@ import org.eclipse.mat.util.RegistryReader;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 import org.eclipse.ui.preferences.IWorkingCopyManager;
 
@@ -143,9 +144,22 @@ public class OpenPreferenceAction extends Action
             {
             }
         }
-        PreferenceDialog dialog = new NewPreferenceDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
-                        manager);
-        dialog.open();
+        if (false)
+        {
+            PreferenceDialog dialog = new NewPreferenceDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
+                            manager);
+            dialog.setHelpAvailable(true);
+            dialog.open();
+        }
+        else
+        {
+            String pageId = "org.eclipse.mat.ui.Preferences"; //$NON-NLS-1$
+            Set<String>nodeset = nodes.keySet();
+            PreferenceDialog dialog = PreferencesUtil.createPreferenceDialogOn(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), pageId, nodeset.toArray(new String[nodeset.size()]), null);
+            dialog.setHelpAvailable(true);
+            dialog.open();
+        }
+
     }
     private static class Node extends PreferenceNode
     {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2019 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,7 +33,7 @@ import org.eclipse.ui.PlatformUI;
 
 public class ArgumentsWizardPage extends WizardPage implements ArgumentsTable.ITableListener
 {
-    public final static String HIDE_QUERY_HELP = "pref:HideQueryHelp";
+    public final static String HIDE_QUERY_HELP = "pref:HideQueryHelp"; //$NON-NLS-1$
     private IQueryContext context;
     private ArgumentSet argumentSet;
     private ArgumentsTable table;

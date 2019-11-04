@@ -31,4 +31,19 @@
 		<topic label="The meaning of various icons"
 			href="reference/iconassist.html" />
 	</context>
+	<context id="preferences_assist">
+		<description>Configuration preferences</description>
+		<topic label="Memory Analyzer preferences"
+			href="tasks/configure_mat.html#task_configure_mat__preferences" />
+	</context>
+	<context id="preferences_hprof_assist">
+		<description>Configuration preferences (HPROF)</description>
+		<topic label="Memory Analyzer preferences"
+			href="tasks/configure_mat.html#task_configure_mat__hprof_preferences" />
+	</context>
+	<context id="preferences_dtfj_assist">
+		<description>Configuration preferences (DTFJ)</description>
+		<topic label="Memory Analyzer preferences"
+			href="tasks/configure_mat.html#task_configure_mat__dtfj_preferences" />
+	</context>
 </contexts>

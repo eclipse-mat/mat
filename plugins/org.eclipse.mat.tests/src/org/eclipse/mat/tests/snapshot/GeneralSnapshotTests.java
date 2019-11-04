@@ -134,7 +134,7 @@ public class GeneralSnapshotTests
     {
         final String dtfjPlugin = "org.eclipse.mat.dtfj";
         final String key = "methodsAsClasses";
-        IEclipsePreferences preferences = new InstanceScope().getNode(dtfjPlugin);
+        IEclipsePreferences preferences = InstanceScope.INSTANCE.getNode(dtfjPlugin);
         String prev = preferences.get(key, null);
         preferences.put(key, includeMethods);
         try {

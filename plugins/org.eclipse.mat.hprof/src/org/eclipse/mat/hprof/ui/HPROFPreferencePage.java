@@ -16,8 +16,11 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.RadioGroupFieldEditor;
 import org.eclipse.mat.hprof.HprofPlugin;
 import org.eclipse.mat.hprof.Messages;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.eclipse.ui.PlatformUI;
 
 /**
  * This class represents a preference page that is contributed to the
@@ -77,4 +80,10 @@ public class HPROFPreferencePage extends FieldEditorPreferencePage implements IW
      */
     public void init(IWorkbench workbench)
     {}
+
+    @Override
+    protected Control createContents(Composite parent) {
+        PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, "org.eclipse.mat.ui.help.preferences_hprof_assist"); //$NON-NLS-1$
+        return super.createContents(parent);
+    }
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011,2012 IBM Corporation.
+ * Copyright (c) 2011,2019 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,6 +20,7 @@ import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.internal.query.arguments.ArgumentsWizardPage;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.eclipse.ui.PlatformUI;
 
 /**
  * This class represents a preference page that is contributed to the
@@ -66,6 +67,7 @@ public class UIPreferencePage extends FieldEditorPreferencePage implements IWork
                       { Messages.UIPreferencePage_BytesDisplay_Gigabytes, BytesDisplay.Gigabytes.toString() },
                       { Messages.UIPreferencePage_BytesDisplay_Smart, BytesDisplay.Smart.toString() },
                     }, getFieldEditorParent(), true));
+        PlatformUI.getWorkbench().getHelpSystem().setHelp(getFieldEditorParent().getShell(), "org.eclipse.mat.ui.help.preferences_assist"); //$NON-NLS-1$
     }
 
     /*
@@ -74,7 +76,8 @@ public class UIPreferencePage extends FieldEditorPreferencePage implements IWork
      * org.eclipse.ui.IWorkbenchPreferencePage#init(org.eclipse.ui.IWorkbench)
      */
     public void init(IWorkbench workbench)
-    {}
+    {
+    }
 
     @Override
     public boolean performOk()
