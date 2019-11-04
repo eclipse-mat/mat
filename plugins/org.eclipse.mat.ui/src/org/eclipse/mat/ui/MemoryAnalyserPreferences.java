@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2014 IBM
+ * Copyright (c) 2014, 2019 IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    IBM
+ *    IBM Corporation
  *******************************************************************************/
 package org.eclipse.mat.ui;
 
@@ -25,6 +25,9 @@ public class MemoryAnalyserPreferences implements IStartup
 {
     /**
      * Called when Eclipse starts.
+     * Not used anymore as it causes o.e.mat.ui always to be started
+     * when MAT is installed in Eclipse, even when not used.
+     * Instead BytesDisplay does the query of the Eclipse preferences. 
      */
     public void earlyStartup()
     {

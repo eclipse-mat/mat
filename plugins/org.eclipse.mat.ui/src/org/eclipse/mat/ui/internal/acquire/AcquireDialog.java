@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2018 SAP AG and IBM Corporation.
+ * Copyright (c) 2009, 2019 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -480,7 +480,7 @@ public class AcquireDialog extends WizardPage
 
     public void saveSettings()
     {
-    	new InstanceScope().getNode(MemoryAnalyserPlugin.PLUGIN_ID).put(LAST_DIRECTORY_KEY, getSelectedDirectory());
+    	InstanceScope.INSTANCE.getNode(MemoryAnalyserPlugin.PLUGIN_ID).put(LAST_DIRECTORY_KEY, getSelectedDirectory());
     }
     
     private HeapDumpProviderDescriptor getProviderDescriptor(VmInfo vmInfo)

@@ -223,7 +223,7 @@ public class JMapHeapDumpProvider implements IHeapDumpProvider
 
 	private void persistJDKLocation(String key, String value)
 	{
-		IEclipsePreferences prefs = new InstanceScope().getNode(PLUGIN_ID);
+		IEclipsePreferences prefs = InstanceScope.INSTANCE.getNode(PLUGIN_ID);
 		prefs.put(key, value);
 		try
 		{

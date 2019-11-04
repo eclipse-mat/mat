@@ -6,8 +6,8 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <meta name="DC.Type" content="task"/>
 <meta name="DC.Title" content="Memory Analyzer Configuration"/>
-<meta name="copyright" content="Copyright (c) 2008, 2012 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary"/>
-<meta name="DC.Rights.Owner" content="Copyright (c) 2008, 2012 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary"/>
+<meta name="copyright" content="Copyright (c) 2008, 2019 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary"/>
+<meta name="DC.Rights.Owner" content="Copyright (c) 2008, 2019 SAP AG and others. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary"/>
 <meta name="DC.Format" content="XHTML"/>
 <meta name="DC.Identifier" content="task_configure_mat"/>
 <meta name="DC.Language" content="en-us"/>
@@ -85,7 +85,7 @@
 				<span class="ph menucascade"><span class="ph uicontrol">Window</span> &gt; <span class="ph uicontrol">Preferences</span></span>
 			</p>
 
-			<div class="p">The preferences page allows various aspects of Memory Analyzer to be controlled.
+			<div class="p" id="task_configure_mat__preferences">The preferences page allows various aspects of Memory Analyzer to be controlled.
 			<img class="image" src="../mimes/preferences.png" alt="preferences page showing general options with DTFJ subpage"/>
 			<dl class="dl">
 			
@@ -110,7 +110,68 @@
 
 			
 			
-				<dt class="dt dlterm">
+				<dt class="dt dlterm">Hide the Welcome screen on launch</dt>
+
+				<dd class="dd">The welcome page has the 'Overview' and 'Tutorials' tabs and the 'Workbench' button.
+				The welcome page is closed by going to the workbench.
+				Selecting this option means that when Memory Analyzer is started the workbench is displayed
+				first. 
+				The welcome page can be reopened from the workbench by:
+					<span class="ph menucascade"><span class="ph uicontrol">Help</span> &gt; <span class="ph uicontrol">Welcome</span></span>
+				</dd>
+
+			
+			
+				<dt class="dt dlterm">Bytes Display</dt>
+
+				<dd class="dd">
+					<p class="p">
+						There is a option (from MAT 1.5 onwards) to display bytes in B, KB, MB, GB, or Smart formats.
+						The default is to always display in Bytes format to match the previous MAT behavior and not cause any confusion.
+						The option can be changed in the Eclipse preference dialog or using <span class="keyword option">-Dbytes_display=(bytes|kilobytes|megabytes|gigabytes|smart)</span>.
+					</p>
+
+					<img class="image" src="../mimes/size_units_cfg.png" alt="Preferences dialog to configure size units"/>
+					<dl class="dl">
+						
+							<dt class="dt dlterm">Bytes (B)</dt>
+
+							<dd class="dd">Memory counted in single bytes</dd>
+
+						
+						
+							<dt class="dt dlterm">Kilobytes (KB)</dt>
+
+							<dd class="dd">Memory counted in units of 1,024 bytes</dd>
+
+						
+						
+							<dt class="dt dlterm">Megabytes (MB)</dt>
+
+							<dd class="dd">Memory counted in units of 1,048,576 bytes</dd>
+
+						
+						
+							<dt class="dt dlterm">Gigabytes (GB)</dt>
+
+							<dd class="dd">Memory counted in units of 1,073,741,824‬ bytes</dd>
+
+						
+						
+							<dt class="dt dlterm">Smart</dt>
+
+							<dd class="dd">In Smart mode, if the value is a gigabyte or more, display in gigabytes; similarly for megabytes and kilobytes; otherwise, display in bytes.
+								<img class="image" src="../mimes/size_units_sample.png" alt="A histogram showing entries with different size units"/>
+							</dd>
+
+						
+					</dl>
+
+				</dd>
+
+			
+			
+				<dt class="dt dlterm"><a name="task_configure_mat__dtfj_preferences"><!-- --></a>
 					<span class="ph menucascade"><span class="ph uicontrol">Memory Analyzer</span> &gt; <span class="ph uicontrol">DTFJ Parser</span> &gt; <span class="ph uicontrol">Stack frames</span></span>
 				</dt>
 
@@ -184,7 +245,7 @@ and all methods are pseudo-classes of type <samp class="ph codeph">&lt;method ty
 
 			
 					
-						<dt class="dt dlterm">
+						<dt class="dt dlterm"><a name="task_configure_mat__hprof_preferences"><!-- --></a>
 							<span class="ph menucascade"><span class="ph uicontrol">Memory Analyzer</span> &gt; <span class="ph uicontrol">HPROF Parser</span> &gt; <span class="ph uicontrol">Parser Strictness</span></span>
 						</dt>
 

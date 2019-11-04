@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2018 IBM Corporation
+ * Copyright (c) 2010, 2019 IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -308,7 +308,7 @@ public class IBMExecDumpProvider extends BaseProvider
     {
         if (home != null && !home.equals(savedJavaDir))
         {
-            IEclipsePreferences prefs = new InstanceScope().getNode(PLUGIN_ID);
+            IEclipsePreferences prefs = InstanceScope.INSTANCE.getNode(PLUGIN_ID);
             prefs.put(last_directory_key, home);
             try
             {

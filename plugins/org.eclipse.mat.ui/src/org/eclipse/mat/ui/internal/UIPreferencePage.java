@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011,2012 IBM Corporation.
+ * Copyright (c) 2011,2019 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,8 +18,11 @@ import org.eclipse.mat.query.BytesDisplay;
 import org.eclipse.mat.ui.MemoryAnalyserPlugin;
 import org.eclipse.mat.ui.Messages;
 import org.eclipse.mat.ui.internal.query.arguments.ArgumentsWizardPage;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.eclipse.ui.PlatformUI;
 
 /**
  * This class represents a preference page that is contributed to the
@@ -75,6 +78,13 @@ public class UIPreferencePage extends FieldEditorPreferencePage implements IWork
      */
     public void init(IWorkbench workbench)
     {}
+
+
+    @Override
+    protected Control createContents(Composite parent) {
+        PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, "org.eclipse.mat.ui.help.preferences_assist"); //$NON-NLS-1$
+        return super.createContents(parent);
+    }
 
     @Override
     public boolean performOk()

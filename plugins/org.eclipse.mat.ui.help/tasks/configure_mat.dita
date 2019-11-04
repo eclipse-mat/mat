@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2012 SAP AG and IBM Corporation.
+    Copyright (c) 2008, 2019 SAP AG and IBM Corporation.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -17,7 +17,7 @@
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2008, 2012 SAP AG and others.
+				Copyright (c) 2008, 2019 SAP AG and others.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License v1.0
 			    which accompanies this distribution, and is available at
@@ -83,7 +83,7 @@
 					<uicontrol>Preferences</uicontrol>
 				</menucascade>
 			</p>
-			<p>The preferences page allows various aspects of Memory Analyzer to be controlled.
+			<p id="preferences">The preferences page allows various aspects of Memory Analyzer to be controlled.
 			<image href="../mimes/preferences.png">
 				<alt>preferences page showing general options with DTFJ subpage</alt>
 			</image>
@@ -104,6 +104,58 @@
 				is pressed.</dd>
 			</dlentry>
 			<dlentry>
+				<dt>Hide the Welcome screen on launch</dt>
+				<dd>The welcome page has the 'Overview' and 'Tutorials' tabs and the 'Workbench' button.
+				The welcome page is closed by going to the workbench.
+				Selecting this option means that when Memory Analyzer is started the workbench is displayed
+				first. 
+				The welcome page can be reopened from the workbench by:
+					<menucascade>
+						<uicontrol>Help</uicontrol>
+						<uicontrol>Welcome</uicontrol>
+					</menucascade>
+				</dd>
+			</dlentry>
+			<dlentry>
+				<dt>Bytes Display</dt>
+				<dd>
+					<p>
+						There is a option (from MAT 1.5 onwards) to display bytes in B, KB, MB, GB, or Smart formats.
+						The default is to always display in Bytes format to match the previous MAT behavior and not cause any confusion.
+						The option can be changed in the Eclipse preference dialog or using <option>-Dbytes_display=(bytes|kilobytes|megabytes|gigabytes|smart)</option>.
+					</p>
+					<image href="../mimes/size_units_cfg.png">
+						<alt>Preferences dialog to configure size units</alt>
+					</image>
+					<dl>
+						<dlentry>
+							<dt>Bytes (B)</dt>
+							<dd>Memory counted in single bytes</dd>
+						</dlentry>
+						<dlentry>
+							<dt>Kilobytes (KB)</dt>
+							<dd>Memory counted in units of 1,024 bytes</dd>
+						</dlentry>
+						<dlentry>
+							<dt>Megabytes (MB)</dt>
+							<dd>Memory counted in units of 1,048,576 bytes</dd>
+						</dlentry>
+						<dlentry>
+							<dt>Gigabytes (GB)</dt>
+							<dd>Memory counted in units of 1,073,741,824‬ bytes</dd>
+						</dlentry>
+						<dlentry>
+							<dt>Smart</dt>
+							<dd>In Smart mode, if the value is a gigabyte or more, display in gigabytes; similarly for megabytes and kilobytes; otherwise, display in bytes.
+								<image href="../mimes/size_units_sample.png">
+									<alt>A histogram showing entries with different size units</alt>
+								</image>
+							</dd>
+						</dlentry>
+					</dl>
+				</dd>
+			</dlentry>
+			<dlentry id="dtfj_preferences">
 				<dt>
 					<menucascade>
 						<uicontrol>Memory Analyzer</uicontrol>
@@ -169,7 +221,7 @@ and all methods are pseudo-classes of type <codeph>&lt;method type&gt;</codeph> 
 					By default, when MAT parses IBM system dumps, the size of classes includes some of the amount of native memory in the Java process (but outside of the Java heap) which is related to those classes such as native memory for bytecode and JIT compiled code for the class methods. Check this option to disable this calculation and only report Java heap usage.
 				</dd>
 			</dlentry>
-					<dlentry>
+					<dlentry id="hprof_preferences">
 						<dt>
 							<menucascade>
 								<uicontrol>Memory Analyzer</uicontrol>
