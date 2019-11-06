@@ -13,6 +13,7 @@ package org.eclipse.mat.hprof;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.zip.GZIPInputStream;
+import java.util.zip.ZipException;
 
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.content.IContentDescriber;
@@ -25,7 +26,18 @@ public class HprofGZIPContentDescriber implements IContentDescriber
 
     public int describe(InputStream contents, IContentDescription description) throws IOException
     {
-        return AbstractParser.readVersion(new GZIPInputStream(contents)) != null ? VALID : INVALID;
+        try
+        {
+            return AbstractParser.readVersion(new GZIPInputStream(contents)) != null ? VALID : INVALID;
+        }
+        catch (ZipException e)
+        {
+            /*
+             * Distinguish a zip format error, which is definitely unsuitable,
+             * from an IOException, which might just be a read error and so we do not know.
+             */
+            return INVALID;
+        }
     }
 
     public QualifiedName[] getSupportedOptions()
