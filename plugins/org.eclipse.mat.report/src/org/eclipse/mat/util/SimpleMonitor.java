@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2019 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson (IBM Corporation) - nested SimpleMonitor
  *******************************************************************************/
 package org.eclipse.mat.util;
 
@@ -29,6 +30,29 @@ public class SimpleMonitor
 
     public IProgressListener nextMonitor()
     {
+
+        // Subcall to simple monitor
+        if (delegate instanceof Listener)
+        {
+            /*
+             *  Scale by remaining.
+             *  E.g. first monitor has [100,50,100]
+             *  total of 250
+             *  After second monitor has been used (10), 40 remaining
+             *  Now second SimpleMonitor [100,100,100,100] created.
+             *  All the percentages need to be scaled by 1/10
+             */
+            Listener l = (Listener)delegate;
+            int togo = l.majorUnits - l.unitsReported;
+            int todo = 0;
+            for (int i = currentMonitor; i < percentages.length; ++i)
+            {
+                todo += percentages[i];
+            }
+            if (currentMonitor == 0)
+                delegate.beginTask(task, togo);
+            return new Listener((int)((long)percentages[currentMonitor++] * togo / todo));
+        }
         if (currentMonitor == 0)
         {
             int total = 0;
@@ -64,7 +88,21 @@ public class SimpleMonitor
             if (totalWork == 0)
                 return;
 
-            isSmaller = totalWork < majorUnits;
+            if (workDone > 0)
+            {
+                // Already had a beginTask, so use up the remaining
+                if (unitsReported < majorUnits)
+                {
+                    majorUnits -= unitsReported;
+                }
+                else
+                {
+                    majorUnits = 0;
+                }
+                workDone = 0;
+            }
+
+            isSmaller = totalWork < majorUnits || majorUnits == 0;
             workPerUnit = isSmaller ? majorUnits / totalWork : totalWork / majorUnits;
             unitsReported = 0;
         }
@@ -92,7 +130,7 @@ public class SimpleMonitor
 
         public void totalWorkDone(long work)
         {
-            if (workDone == work)
+            if (workDone >= work)
                 return;
 
             if (workPerUnit == 0)
@@ -100,6 +138,8 @@ public class SimpleMonitor
 
             workDone = work;
             int unitsWorked = isSmaller ? (int) (work * workPerUnit) : (int) (work / workPerUnit);
+            // Avoid exceeding work
+            unitsWorked = Math.min(unitsWorked, majorUnits);
             int unitsToReport = unitsWorked - unitsReported;
 
             if (unitsToReport > 0)

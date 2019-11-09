@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 SAP AG, IBM Corporation and others
+ * Copyright (c) 2008, 2019 SAP AG, IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -149,6 +149,11 @@ public interface IMapExtractor extends ICollectionExtractor
         public IObject setValue(IObject value)
         {
             throw new IllegalArgumentException();
+        }
+
+        public String toString()
+        {
+            return getKey().getDisplayName()+ "=" +getValue().getDisplayName(); //$NON-NLS-1$
         }
     }
 }

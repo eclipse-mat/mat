@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2019 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson (IBM Corporation) - remove newlines in titles
  *******************************************************************************/
 package org.eclipse.mat.query.registry;
 
@@ -85,12 +86,12 @@ public class QueryResult
 
     public String getTitle()
     {
-        return command;
+        return command.replaceAll("[\\r\\n]", ""); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     public String getTitleToolTip()
     {
-        return command;
+        return command.replaceAll("[\\r\\n]", ""); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     public ContextProvider getDefaultContextProvider()

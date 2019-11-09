@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2019 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,17 +7,20 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
- *    IBM Corporation - bug fixes for instanceof
+ *    IBM Corporation - bug fixes for instanceof, big changes for tables
  *******************************************************************************/
 package org.eclipse.mat.parser.internal.oql;
 
 import java.io.StringReader;
 import java.lang.reflect.Array;
+import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -33,14 +36,18 @@ import org.eclipse.mat.parser.internal.oql.compiler.CompilerImpl;
 import org.eclipse.mat.parser.internal.oql.compiler.EvaluationContext;
 import org.eclipse.mat.parser.internal.oql.compiler.Expression;
 import org.eclipse.mat.parser.internal.oql.compiler.Query;
+import org.eclipse.mat.parser.internal.oql.compiler.Query.FromClause;
 import org.eclipse.mat.parser.internal.oql.compiler.Query.SelectItem;
 import org.eclipse.mat.parser.internal.oql.parser.OQLParser;
 import org.eclipse.mat.parser.internal.oql.parser.ParseException;
 import org.eclipse.mat.parser.internal.oql.parser.TokenMgrError;
 import org.eclipse.mat.query.Column;
+import org.eclipse.mat.query.ContextProvider;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IContextObjectSet;
 import org.eclipse.mat.query.IResultTable;
+import org.eclipse.mat.query.IResultTree;
+import org.eclipse.mat.query.IStructuredResult;
 import org.eclipse.mat.query.ResultMetaData;
 import org.eclipse.mat.snapshot.IOQLQuery;
 import org.eclipse.mat.snapshot.ISnapshot;
@@ -51,6 +58,7 @@ import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.PatternUtil;
+import org.eclipse.mat.util.SilentProgressListener;
 import org.eclipse.mat.util.SimpleMonitor;
 import org.eclipse.mat.util.VoidProgressListener;
 
@@ -63,13 +71,208 @@ public class OQLQueryImpl implements IOQLQuery
     // result set implementations
     // //////////////////////////////////////////////////////////////
 
-    private interface CustomTableResultSet extends IOQLQuery.Result, IResultTable
+    private interface CustomTableResultSet extends IOQLQuery.Result, IResultTable, List<Object>
     {}
+
+    /**
+     * Get more details for a table.
+     * Allows extra menu options for columns holding objects.
+     * @param rt
+     * @param columns
+     * @param source
+     * @return
+     */
+    private static ResultMetaData getResultMetaData(IResultTable rt, Query query)
+    {
+        Column columns[] = rt.getColumns();
+        ResultMetaData.Builder builder = new ResultMetaData.Builder();
+        int prov = 0;
+        for (int ii = 0; ii < columns.length; ++ii)
+        {
+            // Find an example object for each column
+            Object sample = rt.getColumnValue(rt.getRow(0), ii);
+            // See if it is one or more objects from the dump
+            if (sample instanceof IObject || sample instanceof Iterable<?> && ((Iterable<?>)sample).iterator().hasNext() && ((Iterable<?>)sample).iterator().next() instanceof IObject)
+            {
+                // Also add the underlying row
+                if (prov == 0 && rt.getContext(rt.getRow(0)) != null)
+                {
+                    String label;
+                    FromClause fc = query.getFromClause();
+                    if (fc != null)
+                    {
+                        String alias = fc.getAlias();
+                        if (alias != null)
+                            label = alias;
+                        else
+                            label = fc.toString();
+                    }
+                    else
+                    {
+                        label = query.toString();
+                    }
+                    builder.addContext(new ContextProvider(label) {
+                        @Override
+                        public IContextObject getContext(Object row)
+                        {
+                            return rt.getContext(row);
+                        }
+                    });
+                    ++prov;
+                };
+                int columnIndex = ii;
+                builder.addContext(new ContextProvider(columns[ii].getLabel()) {
+
+                    @Override
+                    public IContextObject getContext(Object row)
+                    {
+                        Object o = rt.getColumnValue(row, columnIndex);
+                        if (o instanceof IObject)
+                        {
+                            IObject io = (IObject)o;
+                            return new IContextObjectSet() {
+
+                                @Override
+                                public int getObjectId()
+                                {
+
+                                    return io.getObjectId();
+                                }
+
+                                @Override
+                                public int[] getObjectIds()
+                                {
+
+                                    return new int[] {io.getObjectId()};
+                                }
+
+                                @Override
+                                public String getOQL()
+                                {
+                                    String alias = query.getFromClause().getAlias();
+                                    String alias2;
+                                    if (alias == null)
+                                        alias2 = ""; //$NON-NLS-1$
+                                    else
+                                        alias2 = " "+alias; //$NON-NLS-1$
+                                    Query.SelectItem column = query.getSelectClause().getSelectList().get(columnIndex);
+                                    return "SELECT "+column.toString()+" FROM OBJECTS " + getObjectId()+alias2; //$NON-NLS-1$ //$NON-NLS-2$
+                                }
+                            };
+                        }
+                        else if (o instanceof Iterable<?>)
+                        {
+                            Iterable<?>l = (Iterable<?>)o;
+                            return new IContextObjectSet() {
+
+                                @Override
+                                public int getObjectId()
+                                {
+
+                                    return rt.getContext(row).getObjectId();
+                                }
+
+                                @Override
+                                public int[] getObjectIds()
+                                {
+                                    ArrayInt ai = new ArrayInt();
+                                    for (Object o : l)
+                                    {
+                                        if (o instanceof IObject)
+                                        {
+                                            ai.add(((IObject)o).getObjectId());
+                                        }
+                                    }
+                                    return ai.toArray();
+                                }
+
+                                @Override
+                                public String getOQL()
+                                {
+                                    String alias = query.getFromClause().getAlias();
+                                    String alias2;
+                                    if (alias == null)
+                                        alias2 = ""; //$NON-NLS-1$
+                                    else
+                                        alias2 = " "+alias; //$NON-NLS-1$
+                                    Query.SelectItem column = query.getSelectClause().getSelectList().get(columnIndex);
+                                    return "SELECT "+column.toString()+" FROM OBJECTS " + getObjectId()+alias2; //$NON-NLS-1$ //$NON-NLS-2$
+                                }
+                            };
+                        }
+                        return null;
+                    }
+
+                });
+                ++prov;
+            }
+        }
+        return builder.build();
+    }
+
+    /**
+     * Find the distinct rows in the table.
+     * @param table
+     * @return an array of unique rows
+     */
+    private static ArrayInt distinctList(IResultTable table)
+    {
+        LinkedHashSet<Object> hs = new LinkedHashSet<Object>();
+        ArrayInt newrows = new ArrayInt();
+        Column columns[] = table.getColumns();
+        for (int i = 0; i < table.getRowCount(); ++i)
+        {
+            List<Object>rowo = new ArrayList<Object>();
+            Object row = table.getRow(i);
+            for (int j = 0; j < columns.length; ++j)
+            {
+                rowo.add(table.getColumnValue(row, j));
+            }
+            if (hs.add(rowo))
+            {
+                newrows.add(i);
+            }
+        }
+        hs.clear();
+        return newrows;
+    }
+
+    private static abstract class AbstractCustomTableResultSet extends AbstractList<Object> implements CustomTableResultSet
+    {
+        @Override
+        public Object get(int index)
+        {
+            int cols = getColumns().length;
+            if (cols == 1)
+                return getColumnValue(getRow(index), 0);
+            // Delay resolving columns until needed
+            List<Object>l = new AbstractList<Object>() {
+                @Override
+                public Object get(int col)
+                {
+                    return getColumnValue(getRow(index), col);
+                }
+
+                @Override
+                public int size()
+                {
+                    return cols;
+                }
+            };
+            return l;
+        }
+
+        @Override
+        public int size()
+        {
+            return getRowCount();
+        }
+    }
 
     /**
      * Result from a select with select list where the from clause returned a list or array of objects.
      */
-    private static class ObjectResultSet implements CustomTableResultSet
+    private static class ObjectResultSet extends AbstractCustomTableResultSet implements CustomTableResultSet
     {
         private static final Object NULL_VALUE = new Object();
 
@@ -106,7 +309,7 @@ public class OQLQueryImpl implements IOQLQuery
             try
             {
                 for (int ii = 0; ii < columns.length; ii++)
-                    columns[ii] = buildColumn(selectList.get(ii), getColumnValue(0, ii));
+                    columns[ii] = buildColumn(selectList.get(ii), getColumnValue(getRow(0), ii));
             }
             catch (RuntimeException e)
             {
@@ -116,7 +319,7 @@ public class OQLQueryImpl implements IOQLQuery
 
         public ResultMetaData getResultMetaData()
         {
-            return null;
+            return OQLQueryImpl.getResultMetaData(this, source.query);
         }
 
         public Column[] getColumns()
@@ -214,7 +417,7 @@ public class OQLQueryImpl implements IOQLQuery
     /**
      * Result from a select with select list where the from clause returned an array of object IDs.
      */
-    private static class ResultSet implements CustomTableResultSet
+    private static class ResultSet extends AbstractCustomTableResultSet implements CustomTableResultSet
     {
         private static final Object NULL_VALUE = new Object();
 
@@ -245,7 +448,7 @@ public class OQLQueryImpl implements IOQLQuery
             try
             {
                 for (int ii = 0; ii < columns.length; ii++)
-                    columns[ii] = buildColumn(selectList.get(ii), getColumnValue(0, ii));
+                    columns[ii] = buildColumn(selectList.get(ii), getColumnValue(getRow(0), ii));
             }
             catch (RuntimeException e)
             {
@@ -256,7 +459,7 @@ public class OQLQueryImpl implements IOQLQuery
 
         public ResultMetaData getResultMetaData()
         {
-            return null;
+            return OQLQueryImpl.getResultMetaData(this, source.query);
         }
 
         public int getRowCount()
@@ -351,15 +554,17 @@ public class OQLQueryImpl implements IOQLQuery
         return new Column(name, type).noTotals();
     }
 
-    private static class UnionResultSet implements Result, IResultTable
+    private static class UnionResultSet extends AbstractCustomTableResultSet implements Result, IResultTable
     {
         private static class ValueHolder
         {
+            Query query;
             IResultTable source;
             Object row;
 
-            public ValueHolder(IResultTable source, Object row)
+            public ValueHolder(Query query, IResultTable source, Object row)
             {
+                this.query = query;
                 this.source = source;
                 this.row = row;
             }
@@ -367,19 +572,160 @@ public class OQLQueryImpl implements IOQLQuery
         }
 
         int size = 0;
+        List<Query> queries = new ArrayList<Query>();
         List<CustomTableResultSet> resultSets = new ArrayList<CustomTableResultSet>();
         ArrayInt sizes = new ArrayInt(5);
 
-        public void addResultSet(CustomTableResultSet resultSet)
+        public void addResultSet(Query query, CustomTableResultSet resultSet)
         {
+            queries.add(query);
             sizes.add(size);
             size += resultSet.getRowCount();
             resultSets.add(resultSet);
         }
 
+        /**
+         * Metadata for object columns for UNION queries
+         */
         public ResultMetaData getResultMetaData()
         {
-            return null;
+            Column columns[] = getColumns();
+            ResultMetaData.Builder builder = new ResultMetaData.Builder();
+            int prov = 0;
+            for (int ii = 0; ii < columns.length; ++ii)
+            {
+                // Find an example object for each column
+                Object sample = null;
+                IContextObject sampleContext = null;
+                // Look in each table in case single columns have blanks
+                for (IResultTable tab : resultSets)
+                {
+                    Object o = tab.getColumnValue(tab.getRow(0), ii);
+                    if (o != null)
+                    {
+                        sample = o;
+                        if (prov == 0)
+                            sampleContext = tab.getContext(tab.getRow(0));
+                        break;
+                    }
+                }
+                // See if it is one or more objects from the dump
+                if (sample instanceof IObject || sample instanceof Iterable<?> && ((Iterable<?>)sample).iterator().hasNext() && ((Iterable<?>)sample).iterator().next() instanceof IObject)
+                {
+                    // Also add the underlying row
+                    if (prov == 0 && sampleContext != null)
+                    {
+                        String label;
+                        FromClause fc = queries.get(0).getFromClause();
+                        if (fc != null)
+                        {
+                            String alias = fc.getAlias();
+                            if (alias != null)
+                                label = alias;
+                            else
+                                label = fc.toString();
+                        }
+                        else
+                        {
+                            label = queries.get(0).toString();
+                        }
+                        builder.addContext(new ContextProvider(label) {
+                            @Override
+                            public IContextObject getContext(Object row)
+                            {
+                                return UnionResultSet.this.getContext(row);
+                            }
+                        });
+                        ++prov;
+                    };
+                    int columnIndex = ii;
+                    builder.addContext(new ContextProvider(columns[ii].getLabel()) {
+
+                        @Override
+                        public IContextObject getContext(Object row)
+                        {
+                            Object o = getColumnValue(row, columnIndex);
+                            if (o instanceof IObject)
+                            {
+                                IObject io = (IObject)o;
+                                return new IContextObjectSet() {
+
+                                    @Override
+                                    public int getObjectId()
+                                    {
+
+                                        return io.getObjectId();
+                                    }
+
+                                    @Override
+                                    public int[] getObjectIds()
+                                    {
+
+                                        return new int[] {io.getObjectId()};
+                                    }
+
+                                    @Override
+                                    public String getOQL()
+                                    {
+                                        String alias = ((ValueHolder)row).query.getFromClause().getAlias();
+                                        String alias2;
+                                        if (alias == null)
+                                            alias2 = ""; //$NON-NLS-1$
+                                        else
+                                            alias2 = " "+alias; //$NON-NLS-1$
+                                        Query.SelectItem column = ((ValueHolder)row).query.getSelectClause().getSelectList().get(columnIndex);
+                                        return "SELECT "+column.toString()+" FROM OBJECTS " + getObjectId()+alias2; //$NON-NLS-1$ //$NON-NLS-2$
+                                    }
+                                };
+                            }
+                            else if (o instanceof Iterable<?>)
+                            {
+                                Iterable<?>l = (Iterable<?>)o;
+                                return new IContextObjectSet() {
+
+                                    @Override
+                                    public int getObjectId()
+                                    {
+
+                                        return UnionResultSet.this.getContext(row).getObjectId();
+                                    }
+
+                                    @Override
+                                    public int[] getObjectIds()
+                                    {
+                                        ArrayInt ai = new ArrayInt();
+                                        for (Object o : l)
+                                        {
+                                            if (o instanceof IObject)
+                                            {
+                                                ai.add(((IObject)o).getObjectId());
+                                            }
+                                        }
+                                        return ai.toArray();
+                                    }
+
+                                    @Override
+                                    public String getOQL()
+                                    {
+                                        String alias = ((ValueHolder)row).query.getFromClause().getAlias();
+                                        String alias2;
+                                        if (alias == null)
+                                            alias2 = ""; //$NON-NLS-1$
+                                        else
+                                            alias2 = " "+alias; //$NON-NLS-1$
+                                        Query.SelectItem column = ((ValueHolder)row).query.getSelectClause().getSelectList().get(columnIndex);
+                                        return "SELECT "+column.toString()+" FROM OBJECTS " + getObjectId()+alias2; //$NON-NLS-1$ //$NON-NLS-2$
+                                    }
+                                };
+                            }
+                            return null;
+                        }
+
+                    });
+                    ++prov;
+                }
+            }
+            return builder.build();
         }
 
         public Column[] getColumns()
@@ -395,9 +741,10 @@ public class OQLQueryImpl implements IOQLQuery
         public Object getRow(int index)
         {
             int ii = findPageFor(index);
+            Query query = queries.get(ii);
             IResultTable rs = resultSets.get(ii);
             Object value = rs.getRow(index - sizes.get(ii));
-            return new ValueHolder(rs, value);
+            return new ValueHolder(query, rs, value);
         }
 
         public Object getColumnValue(Object row, int columnIndex)
@@ -708,7 +1055,7 @@ public class OQLQueryImpl implements IOQLQuery
         if (result instanceof CustomTableResultSet)
         {
             unionResultSet = new UnionResultSet();
-            unionResultSet.addResultSet((CustomTableResultSet) result);
+            unionResultSet.addResultSet(query, (CustomTableResultSet) result);
         }
         else if (result instanceof IntResult)
         {
@@ -740,7 +1087,7 @@ public class OQLQueryImpl implements IOQLQuery
             {
                 if (unionResultSet != null)
                 {
-                    unionResultSet.addResultSet((CustomTableResultSet) unionResult);
+                    unionResultSet.addResultSet(q, (CustomTableResultSet) unionResult);
                 }
                 else if (unionIntResult != null)
                 {
@@ -755,7 +1102,7 @@ public class OQLQueryImpl implements IOQLQuery
                 else
                 {
                     unionResultSet = new UnionResultSet();
-                    unionResultSet.addResultSet((CustomTableResultSet) unionResult);
+                    unionResultSet.addResultSet(q, (CustomTableResultSet) unionResult);
                 }
             }
         }
@@ -767,6 +1114,14 @@ public class OQLQueryImpl implements IOQLQuery
     {
         OQLQueryImpl subQuery = new OQLQueryImpl(this.ctx, query.getFromClause().getSubSelect());
         Object result = subQuery.internalExecute(monitor);
+
+        if (result instanceof IResultTable || result instanceof IResultTree)
+        {
+            if (query.getFromClause().includeObjects() && !query.getFromClause().includeSubClasses())
+            {
+                return filterAndSelect((IStructuredResult)result, monitor);
+            }
+        }
 
         if (!(result instanceof IntResult))
             throw new SnapshotException(MessageUtil.format(Messages.OQLQueryImpl_Error_MustReturnObjectList,
@@ -944,7 +1299,10 @@ public class OQLQueryImpl implements IOQLQuery
     {
         Expression method = query.getFromClause().getCall();
         this.ctx.setSubject(this.ctx.getSnapshot());
+        this.ctx.setProgressListener(listener);
+        IProgressListener old = ctx.getProgressListener();
         Object result = method.compute(this.ctx);
+        this.ctx.setProgressListener(old);
 
         if (query.getFromClause().includeObjects() && !query.getFromClause().includeSubClasses())
         {
@@ -958,7 +1316,7 @@ public class OQLQueryImpl implements IOQLQuery
 
                 for (Object obj : (Iterable<?>) result)
                 {
-                    if (accept(obj))
+                    if (accept(obj, listener))
                         r.add(obj);
                 }
 
@@ -972,15 +1330,19 @@ public class OQLQueryImpl implements IOQLQuery
                 for (int ii = 0; ii < length; ii++)
                 {
                     Object obj = Array.get(result, ii);
-                    if (accept(obj))
+                    if (accept(obj, listener))
                         r.add(obj);
                 }
 
                 return r.isEmpty() ? null : select(r, listener);
             }
+            else if (result instanceof IResultTable || result instanceof IResultTree)
+            {
+                return filterAndSelect((IStructuredResult)result, listener);
+            }
             else
             {
-                return accept(result) ? select(result, listener) : null;
+                return accept(result, listener) ? select(result, listener) : null;
             }
         }
         else
@@ -1107,7 +1469,7 @@ public class OQLQueryImpl implements IOQLQuery
             IntResult filteredSet = createIntResult(classes.size());
             for (IClass clasz : classes)
             {
-                if (accept(clasz.getObjectId()))
+                if (accept(clasz.getObjectId(), listener))
                     filteredSet.add(clasz.getObjectId());
 
                 if (listener.isCanceled())
@@ -1119,7 +1481,24 @@ public class OQLQueryImpl implements IOQLQuery
         }
         else
         {
-            listener.beginTask(Messages.OQLQueryImpl_CollectingObjects, classes.size());
+            // Keep track of progress via classes or objects
+            int work = classes.size();
+            boolean countObjs = work < 1000;
+            if (countObjs)
+            {
+                for (IClass clasz : classes)
+                {
+                    work += clasz.getNumberOfObjects();
+                }
+                if (work < classes.size())
+                {
+                    // Original way
+                    countObjs = false;
+                    work = classes.size();
+                }
+            }
+
+            listener.beginTask(Messages.OQLQueryImpl_CollectingObjects, work);
 
             IntResult filteredSet = createIntResult(classes.size() * 100);
             for (IClass clasz : classes)
@@ -1130,35 +1509,46 @@ public class OQLQueryImpl implements IOQLQuery
                 int[] ids = clasz.getObjectIds();
                 for (int id : ids)
                 {
-                    if (accept(id))
+                    if (accept(id, listener))
                         filteredSet.add(id);
+
+                    if (countObjs)
+                        listener.worked(1);
+                    if (listener.isCanceled())
+                        throw new IProgressListener.OperationCanceledException();
                 }
 
                 if (listener.isCanceled())
                     throw new IProgressListener.OperationCanceledException();
-                listener.worked(1);
+                if (!countObjs)
+                    listener.worked(1);
             }
 
             return filteredSet.isEmpty() ? null : select(filteredSet, listener);
         }
     }
 
-    private boolean accept(int objectId) throws SnapshotException
+    private boolean accept(int objectId, IProgressListener mon) throws SnapshotException
     {
         if (query.getWhereClause() == null)
             return true;
 
-        return accept(ctx.getSnapshot().getObject(objectId));
+        return accept(ctx.getSnapshot().getObject(objectId), mon);
     }
 
-    private boolean accept(Object object) throws SnapshotException
+    private boolean accept(Object object, IProgressListener mon) throws SnapshotException
     {
         if (query.getWhereClause() == null)
             return true;
 
         ctx.setSubject(object);
+        // We don't track work for the WHERE clause
+        IProgressListener old = ctx.getProgressListener();
+        ctx.setProgressListener(new SilentProgressListener(mon));
 
         Boolean result = (Boolean) query.getWhereClause().compute(ctx);
+
+        ctx.setProgressListener(old);
 
         return result == null ? false : result.booleanValue();
     }
@@ -1173,7 +1563,7 @@ public class OQLQueryImpl implements IOQLQuery
                 throw new IProgressListener.OperationCanceledException();
 
             int id = iter.nextInt();
-            if (accept(id))
+            if (accept(id, listener))
                 filteredSet.add(id);
         }
 
@@ -1203,7 +1593,22 @@ public class OQLQueryImpl implements IOQLQuery
         }
         else
         {
-            return new ResultSet(getSelectQuery(), objectIds.toArray());
+            if (select.isDistinct())
+            {
+                int ids[] = objectIds.toArray();
+                ResultSet r1 = new ResultSet(getSelectQuery(), ids);
+                ArrayInt aa =  distinctList(r1);
+                // Reuse the array from remapping list to the list of object ids
+                for (int i = 0; i < aa.size(); ++i)
+                {
+                    aa.set(i, ids[aa.get(i)]);
+                }
+                return new ResultSet(getSelectQuery(), aa.toArray());
+            }
+            else
+            {
+                return new ResultSet(getSelectQuery(), objectIds.toArray());
+            }
         }
     }
 
@@ -1227,8 +1632,73 @@ public class OQLQueryImpl implements IOQLQuery
         }
         else
         {
-            return new ObjectResultSet(getSelectQuery(), objects);
+            if (select.isDistinct())
+            {
+                // Prefilter the list, we also make distinct on column values
+                Set<Object>so = new LinkedHashSet<Object>(objects);
+                Object objs[] = so.toArray(new Object[so.size()]);
+                so.clear();
+                ObjectResultSet s1 = new ObjectResultSet(getSelectQuery(), objs);
+                ArrayInt aa = distinctList(s1);
+                Object objs2[] = new Object[aa.size()];
+                for (int i = 0; i < aa.size(); ++i)
+                {
+                    objs2[i] = objs[aa.get(i)];
+                }
+                return new ObjectResultSet(getSelectQuery(), objs2);
+            }
+            else
+            {
+                return new ObjectResultSet(getSelectQuery(), objects);
+            }
         }
+    }
+
+    private Object filterAndSelect(IStructuredResult result, IProgressListener listener) throws SnapshotException
+    {
+        List<Object> r = new ArrayList<Object>();
+        IStructuredResult irt = (IStructuredResult)result;
+        Column cols[] = irt.getColumns();
+        int colCount = cols.length;
+        List<?>elements = irt instanceof IResultTree ? ((IResultTree)irt).getElements() : null;
+        int count = irt instanceof IResultTable ? ((IResultTable)irt).getRowCount() : elements.size();
+        for (int ii = 0; ii < count; ii++)
+        {
+            if (listener.isCanceled())
+                throw new IProgressListener.OperationCanceledException();
+            Object row = irt instanceof IResultTable ? ((IResultTable)irt).getRow(ii) : elements.get(ii);
+            Object rowobj;
+            // Should single select items be wrapped?
+            if (colCount > 1)
+            {
+                // Delay resolving columns until needed
+                List<Object>l = new AbstractList<Object>() {
+                    @Override
+                    public Object get(int index)
+                    {
+                        return irt.getColumnValue(row, index);
+                    }
+
+                    @Override
+                    public int size()
+                    {
+                        return colCount;
+                    }
+                };
+                rowobj = l;
+            }
+            else
+            {
+                rowobj = irt.getColumnValue(row, 0);
+            }
+            // Don't use any context object for the select
+            //IContextObject ic = irt.getContext(row);
+            //IObject o = ctx.getSnapshot().getObject(ic.getObjectId());
+            if (accept(rowobj, listener))
+                r.add(rowobj);
+        }
+
+        return r.isEmpty() ? null : select(r, listener);
     }
 
     private Object select(Object object, IProgressListener listener) throws SnapshotException

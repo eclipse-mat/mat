@@ -131,9 +131,6 @@ public class QueryContextMenu
                 }
             }
 
-            if (menuContext.isEmpty())
-                continue;
-
             PopupMenu menu = manager;
 
             String menuLabel = p.getLabel();
@@ -157,11 +154,13 @@ public class QueryContextMenu
                 label = getLabel(selection);
             }
 
-            queryMenu(menu, menuContext, label);
+            if (!menuContext.isEmpty())
+                queryMenu(menu, menuContext, label);
 
             systemMenu(menu, control);
 
-            customMenu(menu, menuContext, p, label);
+            if (!menuContext.isEmpty())
+                customMenu(menu, menuContext, p, label);
         }
     }
 

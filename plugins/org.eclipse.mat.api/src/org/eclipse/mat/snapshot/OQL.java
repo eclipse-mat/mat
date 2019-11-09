@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2009 SAP AG.
+ * Copyright (c) 2008, 2019 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson (IBM Corporation) - unions
  *******************************************************************************/
 package org.eclipse.mat.snapshot;
 
@@ -89,19 +90,29 @@ public final class OQL
         return "SELECT * FROM " + classId; //$NON-NLS-1$
     }
 
-    private static CharSequence lastId(CharSequence query)
+    /**
+     * Find the last identifier of the query
+     * @param query
+     * @return the identifier, including a space
+     */
+    private static CharSequence lastId(CharSequence query, int end)
     {
-        int end = query.length();
         int j = end - 1;
         while (j >= 0 && Character.isJavaIdentifierPart(query.charAt(j))) --j;
         if (j < end - 1 && Character.isJavaIdentifierStart(query.charAt(j + 1)))
-        {    
+        {
             if (isSpace(query, j))
-                return query.subSequence(j, query.length());
+                return query.subSequence(j, end);
         }
         return ""; //$NON-NLS-1$
     }
 
+    /**
+     * Extract out digits, spaces and commas going backward
+     * @param s
+     * @param e start position
+     * @return the sequence of digits, spaces, commas
+     */
     private static CharSequence matchObjs(CharSequence s, int e) {
         int i = e - 1;
         while (isSpace(s, i))
@@ -145,35 +156,58 @@ public final class OQL
      * select s.a,s.b,s.c from 123 s
      * combine to
      * select s.a,s.b,s.c from 1,173,123 s
+     *
+     * Also split off UNION clauses to see if the new clause can
+     * be merged into an existing UNION clause.
      */
     public static void union(StringBuilder query, String other)
     {
         if ((query.length() > 0))
         {
-
-            CharSequence id1 = lastId(query.toString());
-            CharSequence id2 = lastId(other);
-            if (id1.equals(id2))
+            int end = query.length();
+            while (query.charAt(end - 1) == ')')
             {
-                CharSequence num1 = matchObjs(query, query.length() - id1.length());
-                CharSequence num2 = matchObjs(other, other.length() - id2.length());
-                int s1 = query.length() - id1.length() - num1.length();
-                int s2 = other.length() - id2.length() - num2.length();
-                if (num1.length() > 0 && num2.length() > 0 && 
-                                query.subSequence(0, s1).equals(
-                                other.subSequence(0, s2)))
-                {
-                    int j = 0;
-                    while (isSpace(num2, j)) ++j;
-                    query.insert(s1 + num1.length(), ","+num2.subSequence(j,  num2.length())); //$NON-NLS-1$
+                int start = query.lastIndexOf(" UNION ("); //$NON-NLS-1$
+                if (start == -1)
+                    break;
+                if (union(query, start + 8, end - 1, other))
                     return;
-                }
+                if (start < 1)
+                    break;
+                end = start;
             }
+            if (union(query, 0, end, other))
+                return;
             // Default
             query.append(" UNION (").append(other).append(")"); //$NON-NLS-1$ //$NON-NLS-2$
         }
         else
             query.append(other);
+    }
+
+    private static boolean union(StringBuilder query, int start, int end, String other)
+    {
+        // Strip off last identifier
+        CharSequence id1 = lastId(query, end);
+        CharSequence id2 = lastId(other, other.length());
+        if (id1.equals(id2))
+        {
+            // Find the object identifiers
+            CharSequence num1 = matchObjs(query, end - id1.length());
+            CharSequence num2 = matchObjs(other, other.length() - id2.length());
+            int s1 = end - id1.length() - num1.length();
+            int s2 = other.length() - id2.length() - num2.length();
+            if (num1.length() > 0 && num2.length() > 0 &&
+                            query.subSequence(start, s1).equals(
+                                            other.subSequence(0, s2)))
+            {
+                int j = 0;
+                while (isSpace(num2, j)) ++j;
+                query.insert(s1 + num1.length(), ","+num2.subSequence(j,  num2.length())); //$NON-NLS-1$
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -212,7 +246,7 @@ public final class OQL
     /**
      * Returns an OQL query string to select all objects loaded by the given
      * class loader.
-     * 
+     *
      * <pre>
      *       select *
      *       from
@@ -224,7 +258,7 @@ public final class OQL
      *                and c.@classLoaderId = {0}
      *       )
      * </pre>
-     * 
+     *
      * @param classLoaderId
      *            the object id of the class loader
      * @return an OQL query selecting all objects loaded by the class loader
@@ -241,7 +275,7 @@ public final class OQL
     /**
      * Returns an OQL query string to select all classes loaded by the given
      * class loader.
-     * 
+     *
      * <pre>
      *       select *
      *       from java.lang.Class c
@@ -249,7 +283,7 @@ public final class OQL
      *            c implements org.eclipse.mat.snapshot.model.IClass
      *            and c.@classLoaderId = {0}
      * </pre>
-     * 
+     *
      * @param classLoaderId
      *            the object id of the class loader
      * @return an OQL query selecting all classes loaded by the class loader

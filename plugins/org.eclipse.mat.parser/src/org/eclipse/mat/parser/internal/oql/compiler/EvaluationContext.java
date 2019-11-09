@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2019 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,10 +7,12 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson (IBM Corporation) - progress listener
  *******************************************************************************/
 package org.eclipse.mat.parser.internal.oql.compiler;
 
 import org.eclipse.mat.snapshot.ISnapshot;
+import org.eclipse.mat.util.IProgressListener;
 
 public class EvaluationContext
 {
@@ -18,6 +20,7 @@ public class EvaluationContext
 
     ISnapshot snapshot;
     Object subject;
+    IProgressListener listener;
 
     String alias;
 
@@ -25,6 +28,7 @@ public class EvaluationContext
     {
         this.parent = parent;
         this.snapshot = parent != null ? parent.snapshot : null;
+        this.listener = parent != null ? parent.listener : null;
     }
 
     public ISnapshot getSnapshot()
@@ -35,6 +39,16 @@ public class EvaluationContext
     public void setSnapshot(ISnapshot snapshot)
     {
         this.snapshot = snapshot;
+    }
+
+    public IProgressListener getProgressListener()
+    {
+        return listener != null ? listener : parent != null ? parent.getProgressListener() : null;
+    }
+
+    public void setProgressListener(IProgressListener listener)
+    {
+        this.listener = listener;
     }
 
     public Object getSubject()
