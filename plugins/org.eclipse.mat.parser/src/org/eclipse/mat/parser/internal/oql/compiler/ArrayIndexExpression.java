@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2017 IBM Corporation.
+ * Copyright (c) 2012, 2019 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,12 +13,15 @@ package org.eclipse.mat.parser.internal.oql.compiler;
 import java.lang.ref.SoftReference;
 import java.lang.reflect.Array;
 import java.util.AbstractList;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.inspections.collectionextract.CollectionExtractionUtils;
 import org.eclipse.mat.inspections.collectionextract.ExtractedCollection;
+import org.eclipse.mat.inspections.collectionextract.ExtractedMap;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IObjectArray;
@@ -178,6 +181,64 @@ class ArrayIndexExpression extends Expression
         }
         
     }
+
+    private static class MapObjectSubList extends AbstractList<Entry<IObject,IObject>>
+    {
+        private final ExtractedMap coll;
+        private final int i1;
+        private final int i2;
+        /** Cache extraction of the objects in the collection */
+        SoftReference<List<Entry<IObject,IObject>>> sr = null;
+        /** Lazy fill of the list */
+        Iterator<Entry<IObject,IObject>> it;
+
+        public MapObjectSubList(ExtractedMap map, int i1, int i2)
+        {
+            this.coll = map;
+            this.i1 = i1;
+            this.i2 = i2;
+        }
+        
+        @Override
+        public Entry<IObject,IObject> get(int index)
+        {
+            if (index < 0 || index >= size())
+                throw new IndexOutOfBoundsException(Integer.toString(index));
+            List<Entry<IObject,IObject>> objs;
+            if (!(sr != null && (objs = sr.get()) != null))
+            {
+                objs = new ArrayList<Entry<IObject,IObject>>();
+                it = coll.iterator();
+                sr = new SoftReference<List<Entry<IObject,IObject>>>(objs);
+            }
+            if (i1 + index >= i2)
+            { 
+                throw new IllegalArgumentException(index + " >= " + (i2 - i1) +" " + coll.getTechnicalName()); //$NON-NLS-1$ //$NON-NLS-2$
+            }
+            // Fill array to required point
+            for (int i = objs.size(); it.hasNext() && i < i1 + index + 1; ++i)
+            {
+                objs.add(it.next());
+            }
+            if (i1 + index >= objs.size())
+            { 
+                /*
+                 * Currently the CollectionsExtractor only returns non-null entries, so the number of entries
+                 * can be less than the size, so pad at the end with nulls.
+                 */
+                return null;
+            }
+            return objs.get(i1 + index);
+        }
+        
+
+        @Override
+        public int size()
+        {
+            return i2 - i1;
+        }
+    }
+
     
     List<Expression> parameters;
 
@@ -270,6 +331,25 @@ class ArrayIndexExpression extends Expression
         else if (subject instanceof IObject)
         {
             IObject obj = (IObject) subject;
+            ExtractedMap map = CollectionExtractionUtils.extractMap(obj);
+            if (map != null)
+            {
+                Object objlen = map.size();
+                if (objlen != null)
+                {
+                    int len = (Integer)objlen;
+                    if (range)
+                    {
+                        final int i1 = normalize(index, len, 0), i2 = normalize(index2, len, 1);
+                        return new MapObjectSubList(map, i1, i2);
+                    }
+                    if (index >= len)
+                        return null;
+                    if (index < 0)
+                        return null;
+                    return (new MapObjectSubList(map, index, index+1)).get(0);
+                }
+            }
             ExtractedCollection coll = CollectionExtractionUtils.extractList(obj);
             if (coll != null && coll.hasExtractableContents())
             {

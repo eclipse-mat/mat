@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others.
+ * Copyright (c) 2008, 2019 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -282,8 +282,9 @@ public class Query
                 /*
                  * Ensure that a non-env var or constant has parentheses
                  * so it isn't confused with a FROM classname
-                 * No parentheses
-                 * select * from objects ${snapshot}
+                 * Add parentheses for select wrapped as a call expression,
+                 * otherwise will be reparsed just as a subselect
+                 * ( select * from objects ${snapshot} )
                  * Add parentheses for this:
                  * select * from objects (1)
                  * Add parentheses for this:
@@ -293,7 +294,8 @@ public class Query
                  */
                 String cl = String.valueOf(call);
                 boolean eval = call instanceof PathExpression && !cl.startsWith("$")//$NON-NLS-1$
-                                || call instanceof CompilerImpl.ConstantExpression; 
+                                || call instanceof CompilerImpl.ConstantExpression
+                                || call instanceof QueryExpression; 
                 if (eval) buf.append("( ");//$NON-NLS-1$
                 buf.append(call);
                 if (eval) buf.append(" )");//$NON-NLS-1$

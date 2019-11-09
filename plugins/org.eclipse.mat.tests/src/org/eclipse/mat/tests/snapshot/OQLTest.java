@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2019 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -868,6 +868,17 @@ public class OQLTest
         assertEquals("select s from 1,2,3 s UNION (select s from 17,23 t)", sb.toString());
     }
 
+    @Test
+    public void testOQLunion6() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("select s from 1 s");
+        OQL.union(sb, "select s from 2 s");
+        OQL.union(sb, "select t from 17 t");
+        OQL.union(sb, "select t from 23 t");
+        OQL.union(sb, "select s from 3 s");
+        assertEquals("select s from 1,2,3 s UNION (select t from 17,23 t)", sb.toString());
+    }
+
     /**
      * Complex test to check that the second FROM clause is reevaluated.
      * @throws SnapshotException
@@ -888,6 +899,60 @@ public class OQLTest
         int res[] = (int[])execute("SELECT OBJECTS r from OBJECTS ${snapshot}.@GCRoots r "
                     + " WHERE (SELECT s FROM dummy s UNION (SELECT s FROM OBJECTS ${snapshot}.getGCRootInfo(r) s WHERE s.@type = 8)) != null");
         assertEquals(23, res.length);
+    }
+
+    /**
+     * Complex test to check that the second and third FROM clause
+     * is not reevaluated each time - otherwise this will take a long time. 
+     * @throws SnapshotException
+     */
+    @Test
+    public void testComplex3() throws SnapshotException {
+        int res[] = (int[])execute("SELECT OBJECTS r from OBJECTS ${snapshot}.@GCRoots r "
+                        + "WHERE (SELECT s FROM INSTANCEOF java.lang.Object s "
+                        + "WHERE (SELECT t FROM INSTANCEOF java.lang.String t) != null) != null");
+        assertEquals(354, res.length);
+    }
+
+    @Test
+    public void testComplex4() throws SnapshotException {
+        IResultTable irt = (IResultTable)execute("SELECT s AS HashMap, eval((SELECT t, t.getKey(), t.getValue() "
+                        + "FROM OBJECTS ( s[0:-1] ) t "
+                        + "WHERE (toString(t.getKey()) = \"META-INF\")))[0][2] AS \"Value for META-INF\" "
+                        + "FROM java.util.HashMap s "
+                        + "WHERE "
+                        + "((SELECT t FROM OBJECTS ( s[0:-1] ) t "
+                        + "WHERE (toString(t.getKey()) = \"META-INF\")) != null)");
+        assertEquals(3, irt.getRowCount());
+        // 0 is the whole row, 1 is column 0, 2 is column 1
+        assertEquals("Value for META-INF", irt.getResultMetaData().getContextProviders().get(2).getLabel());
+        int id = irt.getResultMetaData().getContextProviders().get(1).getContext(irt.getRow(0)).getObjectId();
+        assertTrue(id >= 0);
+    }
+
+    @Test
+    public void testComplex5() throws SnapshotException {
+        IResultTable irt = (IResultTable)execute("SELECT v[0], v[1][0].getKey() "
+                        + "FROM OBJECTS ( "
+                        + "SELECT t, t[0:-1] "
+                        + "FROM java.util.HashSet t  "
+                        + "UNION "
+                        + "( SELECT s, s[0:-1] "
+                        + "FROM java.util.Hashtable s  ) ) v ");
+        assertEquals(11, irt.getRowCount());
+    }
+
+    @Test
+    public void testComplex6() throws SnapshotException {
+        IResultTable irt = (IResultTable)execute("SELECT toString(v[0].getKey()) AS Key "
+                        + "FROM OBJECTS "
+                        + "( SELECT * "
+                        + "FROM java.util.HashSet t  "
+                        + "UNION "
+                        + "( SELECT * "
+                        + "FROM java.util.Hashtable s  ) ) v ");
+        assertEquals(11, irt.getRowCount());
+        assertEquals("META-INF", irt.getColumnValue(irt.getRow(1), 0));
     }
 
     /**

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2019 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -163,7 +163,7 @@ public abstract class ContextDerivedData
                     return column;
             }
 
-        throw new RuntimeException(MessageUtil.format(Messages.ContextDerivedData_Error_OperationNotFound, operation
+        throw new IllegalArgumentException(MessageUtil.format(Messages.ContextDerivedData_Error_OperationNotFound, operation
                         .getLabel(), this.getClass().getName()));
     }
 }
