@@ -75,163 +75,25 @@ public class OQLQueryImpl implements IOQLQuery
     {}
 
     /**
-     * Get more details for a table.
-     * Allows extra menu options for columns holding objects.
-     * @param rt
-     * @param columns
-     * @param source
-     * @return
-     */
-    private static ResultMetaData getResultMetaData(IResultTable rt, Query query)
-    {
-        Column columns[] = rt.getColumns();
-        ResultMetaData.Builder builder = new ResultMetaData.Builder();
-        int prov = 0;
-        for (int ii = 0; ii < columns.length; ++ii)
-        {
-            // Find an example object for each column
-            Object sample = rt.getColumnValue(rt.getRow(0), ii);
-            // See if it is one or more objects from the dump
-            if (sample instanceof IObject || sample instanceof Iterable<?> && ((Iterable<?>)sample).iterator().hasNext() && ((Iterable<?>)sample).iterator().next() instanceof IObject)
-            {
-                // Also add the underlying row
-                if (prov == 0 && rt.getContext(rt.getRow(0)) != null)
-                {
-                    String label;
-                    FromClause fc = query.getFromClause();
-                    if (fc != null)
-                    {
-                        String alias = fc.getAlias();
-                        if (alias != null)
-                            label = alias;
-                        else
-                            label = fc.toString();
-                    }
-                    else
-                    {
-                        label = query.toString();
-                    }
-                    builder.addContext(new ContextProvider(label) {
-                        @Override
-                        public IContextObject getContext(Object row)
-                        {
-                            return rt.getContext(row);
-                        }
-                    });
-                    ++prov;
-                };
-                int columnIndex = ii;
-                builder.addContext(new ContextProvider(columns[ii].getLabel()) {
-
-                    @Override
-                    public IContextObject getContext(Object row)
-                    {
-                        Object o = rt.getColumnValue(row, columnIndex);
-                        if (o instanceof IObject)
-                        {
-                            IObject io = (IObject)o;
-                            return new IContextObjectSet() {
-
-                                @Override
-                                public int getObjectId()
-                                {
-
-                                    return io.getObjectId();
-                                }
-
-                                @Override
-                                public int[] getObjectIds()
-                                {
-
-                                    return new int[] {io.getObjectId()};
-                                }
-
-                                @Override
-                                public String getOQL()
-                                {
-                                    String alias = query.getFromClause().getAlias();
-                                    String alias2;
-                                    if (alias == null)
-                                        alias2 = ""; //$NON-NLS-1$
-                                    else
-                                        alias2 = " "+alias; //$NON-NLS-1$
-                                    Query.SelectItem column = query.getSelectClause().getSelectList().get(columnIndex);
-                                    return "SELECT "+column.toString()+" FROM OBJECTS " + getObjectId()+alias2; //$NON-NLS-1$ //$NON-NLS-2$
-                                }
-                            };
-                        }
-                        else if (o instanceof Iterable<?>)
-                        {
-                            Iterable<?>l = (Iterable<?>)o;
-                            return new IContextObjectSet() {
-
-                                @Override
-                                public int getObjectId()
-                                {
-
-                                    return rt.getContext(row).getObjectId();
-                                }
-
-                                @Override
-                                public int[] getObjectIds()
-                                {
-                                    ArrayInt ai = new ArrayInt();
-                                    for (Object o : l)
-                                    {
-                                        if (o instanceof IObject)
-                                        {
-                                            ai.add(((IObject)o).getObjectId());
-                                        }
-                                    }
-                                    return ai.toArray();
-                                }
-
-                                @Override
-                                public String getOQL()
-                                {
-                                    String alias = query.getFromClause().getAlias();
-                                    String alias2;
-                                    if (alias == null)
-                                        alias2 = ""; //$NON-NLS-1$
-                                    else
-                                        alias2 = " "+alias; //$NON-NLS-1$
-                                    Query.SelectItem column = query.getSelectClause().getSelectList().get(columnIndex);
-                                    return "SELECT "+column.toString()+" FROM OBJECTS " + getObjectId()+alias2; //$NON-NLS-1$ //$NON-NLS-2$
-                                }
-                            };
-                        }
-                        return null;
-                    }
-
-                });
-                ++prov;
-            }
-        }
-        return builder.build();
-    }
-
-    /**
      * Find the distinct rows in the table.
      * @param table
-     * @return an array of unique rows
+     * @param listener
+     * @return an array of indexes of unique rows
      */
-    private static ArrayInt distinctList(IResultTable table)
+    private static ArrayInt distinctList(CustomTableResultSet table, IProgressListener listener)
     {
         LinkedHashSet<Object> hs = new LinkedHashSet<Object>();
         ArrayInt newrows = new ArrayInt();
-        Column columns[] = table.getColumns();
-        for (int i = 0; i < table.getRowCount(); ++i)
+        int i = 0;
+        for (Object row : table)
         {
-            List<Object>rowo = new ArrayList<Object>();
-            Object row = table.getRow(i);
-            for (int j = 0; j < columns.length; ++j)
-            {
-                rowo.add(table.getColumnValue(row, j));
-            }
-            if (hs.add(rowo))
+            if (hs.add(row))
             {
                 newrows.add(i);
             }
+            if (listener.isCanceled())
+                throw new IProgressListener.OperationCanceledException();
+            ++i;
         }
         hs.clear();
         return newrows;
@@ -266,6 +128,157 @@ public class OQLQueryImpl implements IOQLQuery
         public int size()
         {
             return getRowCount();
+        }
+
+        /**
+         * Get more details for a table.
+         * Allows extra menu options for columns holding objects.
+         * @param rt
+         * @param columns
+         * @param source
+         * @return
+         */
+        protected ResultMetaData getResultMetaData(Query query)
+        {
+            Column columns[] = getColumns();
+            ResultMetaData.Builder builder = new ResultMetaData.Builder();
+            int prov = 0;
+            for (int ii = 0; ii < columns.length; ++ii)
+            {
+                // Find an example object for each column
+                Object sample = getColumnValue(getRow(0), ii);
+                // See if it is one or more objects from the dump
+                if (sample instanceof IObject || sample instanceof Iterable<?> && ((Iterable<?>)sample).iterator().hasNext() && ((Iterable<?>)sample).iterator().next() instanceof IObject)
+                {
+                    // Also add the underlying row
+                    if (prov == 0 && getContext(getRow(0)) != null)
+                    {
+                        String label;
+                        FromClause fc = query.getFromClause();
+                        if (fc != null)
+                        {
+                            String alias = fc.getAlias();
+                            if (alias != null)
+                                label = alias;
+                            else
+                                label = fc.toString();
+                        }
+                        else
+                        {
+                            label = query.toString();
+                        }
+                        // Distinguish the select for all the columns
+                        label = "SELECT ... " + label; //$NON-NLS-1$
+                        builder.addContext(new ContextProvider(label) {
+                            @Override
+                            public IContextObject getContext(Object row)
+                            {
+                                return AbstractCustomTableResultSet.this.getContext(row);
+                            }
+                        });
+                        ++prov;
+                    };
+                    int columnIndex = ii;
+                    builder.addContext(new ContextProvider(columns[ii].getLabel()) {
+
+                        @Override
+                        public IContextObject getContext(Object row)
+                        {
+                            Object o = getColumnValue(row, columnIndex);
+                            if (o instanceof IObject)
+                            {
+                                IObject io = (IObject)o;
+                                return new IContextObjectSet() {
+
+                                    @Override
+                                    public int getObjectId()
+                                    {
+
+                                        return io.getObjectId();
+                                    }
+
+                                    @Override
+                                    public int[] getObjectIds()
+                                    {
+
+                                        return new int[] {io.getObjectId()};
+                                    }
+
+                                    @Override
+                                    public String getOQL()
+                                    {
+                                        String alias = query.getFromClause().getAlias();
+                                        String alias2;
+                                        if (alias == null)
+                                            alias2 = ""; //$NON-NLS-1$
+                                        else
+                                            alias2 = " "+alias; //$NON-NLS-1$
+                                        Query.SelectItem column = query.getSelectClause().getSelectList().get(columnIndex);
+                                        IContextObject ctx = AbstractCustomTableResultSet.this.getContext(row);
+                                        if (ctx != null)
+                                        {
+                                            int selectId = ctx.getObjectId();
+                                            if (selectId != -1)
+                                                return "SELECT "+column.toString()+" FROM OBJECTS " + selectId+alias2; //$NON-NLS-1$ //$NON-NLS-2$
+                                        }
+                                        return OQL.forObjectId(getObjectId());
+                                    }
+                                };
+                            }
+                            else if (o instanceof Iterable<?>)
+                            {
+                                Iterable<?>l = (Iterable<?>)o;
+                                return new IContextObjectSet() {
+
+                                    @Override
+                                    public int getObjectId()
+                                    {
+                                        IContextObject ctx = AbstractCustomTableResultSet.this.getContext(row);
+                                        if (ctx != null)
+                                            return ctx.getObjectId();
+                                        else
+                                            return -1;
+                                    }
+
+                                    @Override
+                                    public int[] getObjectIds()
+                                    {
+                                        ArrayInt ai = new ArrayInt();
+                                        for (Object o : l)
+                                        {
+                                            if (o instanceof IObject)
+                                            {
+                                                ai.add(((IObject)o).getObjectId());
+                                            }
+                                        }
+                                        return ai.toArray();
+                                    }
+
+                                    @Override
+                                    public String getOQL()
+                                    {
+                                        String alias = query.getFromClause().getAlias();
+                                        String alias2;
+                                        if (alias == null)
+                                            alias2 = ""; //$NON-NLS-1$
+                                        else
+                                            alias2 = " "+alias; //$NON-NLS-1$
+                                        Query.SelectItem column = query.getSelectClause().getSelectList().get(columnIndex);
+                                        int selectId = getObjectId();
+                                        if (selectId != -1)
+                                            return "SELECT "+column.toString()+" FROM OBJECTS " + getObjectId()+alias2; //$NON-NLS-1$ //$NON-NLS-2$
+                                        return OQL.forObjectIds(getObjectIds());
+                                    }
+                                };
+                            }
+                            return null;
+                        }
+
+                    });
+                    ++prov;
+                }
+            }
+            return builder.build();
         }
     }
 
@@ -319,7 +332,7 @@ public class OQLQueryImpl implements IOQLQuery
 
         public ResultMetaData getResultMetaData()
         {
-            return OQLQueryImpl.getResultMetaData(this, source.query);
+            return getResultMetaData(source.query);
         }
 
         public Column[] getColumns()
@@ -459,7 +472,7 @@ public class OQLQueryImpl implements IOQLQuery
 
         public ResultMetaData getResultMetaData()
         {
-            return OQLQueryImpl.getResultMetaData(this, source.query);
+            return getResultMetaData(source.query);
         }
 
         public int getRowCount()
@@ -629,6 +642,8 @@ public class OQLQueryImpl implements IOQLQuery
                         {
                             label = queries.get(0).toString();
                         }
+                        // Distinguish the select for all the columns
+                        label = "SELECT ... " + label; //$NON-NLS-1$
                         builder.addContext(new ContextProvider(label) {
                             @Override
                             public IContextObject getContext(Object row)
@@ -653,7 +668,6 @@ public class OQLQueryImpl implements IOQLQuery
                                     @Override
                                     public int getObjectId()
                                     {
-
                                         return io.getObjectId();
                                     }
 
@@ -674,7 +688,14 @@ public class OQLQueryImpl implements IOQLQuery
                                         else
                                             alias2 = " "+alias; //$NON-NLS-1$
                                         Query.SelectItem column = ((ValueHolder)row).query.getSelectClause().getSelectList().get(columnIndex);
-                                        return "SELECT "+column.toString()+" FROM OBJECTS " + getObjectId()+alias2; //$NON-NLS-1$ //$NON-NLS-2$
+                                        IContextObject ctx = UnionResultSet.this.getContext(row);
+                                        if (ctx != null)
+                                        {
+                                            int selectId = ctx.getObjectId();
+                                            if (selectId != -1)
+                                                return "SELECT "+column.toString()+" FROM OBJECTS " + selectId+alias2; //$NON-NLS-1$ //$NON-NLS-2$
+                                        }
+                                        return OQL.forObjectId(getObjectId());
                                     }
                                 };
                             }
@@ -686,8 +707,11 @@ public class OQLQueryImpl implements IOQLQuery
                                     @Override
                                     public int getObjectId()
                                     {
-
-                                        return UnionResultSet.this.getContext(row).getObjectId();
+                                        IContextObject ctx = UnionResultSet.this.getContext(row);
+                                        if (ctx != null)
+                                            return ctx.getObjectId();
+                                        else
+                                            return -1;
                                     }
 
                                     @Override
@@ -714,7 +738,10 @@ public class OQLQueryImpl implements IOQLQuery
                                         else
                                             alias2 = " "+alias; //$NON-NLS-1$
                                         Query.SelectItem column = ((ValueHolder)row).query.getSelectClause().getSelectList().get(columnIndex);
-                                        return "SELECT "+column.toString()+" FROM OBJECTS " + getObjectId()+alias2; //$NON-NLS-1$ //$NON-NLS-2$
+                                        int selectId = getObjectId();
+                                        if (selectId != -1)
+                                            return "SELECT "+column.toString()+" FROM OBJECTS " + selectId+alias2; //$NON-NLS-1$ //$NON-NLS-2$
+                                        return OQL.forObjectIds(getObjectIds());
                                     }
                                 };
                             }
@@ -1597,7 +1624,7 @@ public class OQLQueryImpl implements IOQLQuery
             {
                 int ids[] = objectIds.toArray();
                 ResultSet r1 = new ResultSet(getSelectQuery(), ids);
-                ArrayInt aa =  distinctList(r1);
+                ArrayInt aa =  distinctList(r1, listener);
                 // Reuse the array from remapping list to the list of object ids
                 for (int i = 0; i < aa.size(); ++i)
                 {
@@ -1639,7 +1666,7 @@ public class OQLQueryImpl implements IOQLQuery
                 Object objs[] = so.toArray(new Object[so.size()]);
                 so.clear();
                 ObjectResultSet s1 = new ObjectResultSet(getSelectQuery(), objs);
-                ArrayInt aa = distinctList(s1);
+                ArrayInt aa = distinctList(s1, listener);
                 Object objs2[] = new Object[aa.size()];
                 for (int i = 0; i < aa.size(); ++i)
                 {
