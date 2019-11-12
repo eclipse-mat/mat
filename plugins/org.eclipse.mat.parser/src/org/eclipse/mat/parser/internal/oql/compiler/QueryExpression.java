@@ -71,6 +71,14 @@ public class QueryExpression extends Expression
         if (fromExpression != null && fromExpression.isContextDependent(ctx))
             return true;
 
+        Query subSelect = query.getFromClause().getSubSelect();
+        if (subSelect != null)
+        {
+            QueryExpression qe = new QueryExpression(subSelect);
+            if (qe.isContextDependent(ctx))
+                return true;
+        }
+
         if (query.getUnionQueries() != null)
         {
             for (Query union : query.getUnionQueries())

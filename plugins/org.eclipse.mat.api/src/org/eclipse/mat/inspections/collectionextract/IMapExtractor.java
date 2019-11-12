@@ -153,7 +153,7 @@ public interface IMapExtractor extends ICollectionExtractor
 
         public String toString()
         {
-            return getKey().getDisplayName()+ "=" +getValue().getDisplayName(); //$NON-NLS-1$
+            return "" + getKey() + "=" + getValue(); //$NON-NLS-1$ //$NON-NLS-2$
         }
 
         @Override
