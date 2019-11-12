@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2019 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,6 +19,7 @@ import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.parser.internal.Messages;
@@ -117,16 +118,30 @@ class PathExpression extends Expression
                         {
                             boolean didFindProperty = false;
 
-                            BeanInfo info = Introspector.getBeanInfo(current.getClass());
-                            PropertyDescriptor[] descriptors = info.getPropertyDescriptors();
-
-                            for (PropertyDescriptor descriptor : descriptors)
+                            if (!attribute.isNative())
                             {
-                                if (attribute.getName().equals(descriptor.getName()))
+                                // Used for table rows from sub-select
+                                if (current instanceof  Map<?,?>)
                                 {
-                                    current = descriptor.getReadMethod().invoke(current, (Object[]) null);
+                                    Map<?,?> map = (Map<?,?>)current;
+                                    current = map.get(attribute.getName());
                                     didFindProperty = true;
-                                    break;
+                                }
+                            }
+
+                            if (!didFindProperty)
+                            {
+                                BeanInfo info = Introspector.getBeanInfo(current.getClass());
+                                PropertyDescriptor[] descriptors = info.getPropertyDescriptors();
+
+                                for (PropertyDescriptor descriptor : descriptors)
+                                {
+                                    if (attribute.getName().equals(descriptor.getName()))
+                                    {
+                                        current = descriptor.getReadMethod().invoke(current, (Object[]) null);
+                                        didFindProperty = true;
+                                        break;
+                                    }
                                 }
                             }
 

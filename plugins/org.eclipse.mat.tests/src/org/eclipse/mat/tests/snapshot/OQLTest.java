@@ -129,6 +129,93 @@ public class OQLTest
     }
 
     @Test
+    public void testDistinct1() throws SnapshotException
+    {
+        Object result = execute("select distinct objects classof(s) from java.lang.String s");
+        assertThat("'SELECT distinct objects' must return a result of type int[]", result, instanceOf(int[].class));
+        int[] objectIds = (int[]) result;
+        assertThat("1 object of type java.lang.Class expected", objectIds.length, equalTo(1));
+    }
+
+    @Test
+    public void testDistinct2() throws SnapshotException
+    {
+        Object result = execute("select distinct classof(s) from java.lang.String s");
+        assertThat("'SELECT distinct' must return a result of type IResultTable", result, instanceOf(IResultTable.class));
+        IResultTable resulttable = (IResultTable) result;
+        assertThat("1 object of type java.lang.Class expected", resulttable.getRowCount(), equalTo(1));
+        checkGetOQL(resulttable);
+    }
+
+
+    @Test
+    public void testDistinct3() throws SnapshotException
+    {
+        Object result = execute("SELECT DISTINCT z FROM OBJECTS ( SELECT classof(s) FROM java.lang.String s  ) z");
+        assertThat("'SELECT distinct' must return a result of type IResultTable", result, instanceOf(IResultTable.class));
+        IResultTable resulttable = (IResultTable) result;
+        assertThat("1 object of type java.lang.Class expected", resulttable.getRowCount(), equalTo(1));
+        checkGetOQL(resulttable);
+    }
+
+    @Test
+    public void testOperations1int() throws SnapshotException
+    {
+        Object result = execute("select * from objects ((1+2+3--2-2)*-4/-3)");
+        assertEquals(8.0, result);
+    }
+
+    @Test
+    public void testOperations1long() throws SnapshotException
+    {
+        Object result = execute("select * from objects ((1L+2L+3L--2L-2L)*-4L/-3L)");
+        assertEquals(8.0, result);
+    }
+
+    @Test
+    public void testOperations1double() throws SnapshotException
+    {
+        Object result = execute("select * from objects ((1.0+2.0+3.0--2.0-2.0)*-4.0/-3.0)");
+        assertEquals(8.0, result);
+    }
+
+    @Test
+    public void testOperations2int() throws SnapshotException
+    {
+        Object result = execute("select * from objects (1=1 AND 3<2 OR 4>3 AND 4>=4 AND 4 <= 4 AND 4 < 5)");
+        assertEquals(true, result);
+    }
+
+
+    @Test
+    public void testOperations2long() throws SnapshotException
+    {
+        Object result = execute("select * from objects (1L=1L AND 3L<2L OR 4L>3L AND 4L>=4L AND 4L <= 4L AND 4L < 5L)");
+        assertEquals(true, result);
+    }
+
+
+    @Test
+    public void testOperations2double() throws SnapshotException
+    {
+        Object result = execute("select * from objects (1.0=1.0 AND 3.0<2.0 OR 4.0>3.0 AND 4.0>=4.0 AND 4.0 <= 4.0 AND 4.0 < 5.0)");
+        assertEquals(true, result);
+    }
+
+    @Test
+    public void testOperations2date() throws SnapshotException
+    {
+        Object result = execute("select * from objects (" +
+                        "${snapshot}.@snapshotInfo.@creationDate < ${snapshot}.@snapshotInfo.@creationDate OR " +
+                        "${snapshot}.@snapshotInfo.@creationDate > ${snapshot}.@snapshotInfo.@creationDate OR " +
+                        "${snapshot}.@snapshotInfo.@creationDate != ${snapshot}.@snapshotInfo.@creationDate OR " +
+                        "${snapshot}.@snapshotInfo.@creationDate = ${snapshot}.@snapshotInfo.@creationDate AND " +
+                        "${snapshot}.@snapshotInfo.@creationDate <= ${snapshot}.@snapshotInfo.@creationDate AND " +
+                        "${snapshot}.@snapshotInfo.@creationDate >= ${snapshot}.@snapshotInfo.@creationDate)");
+        assertEquals(true, result);
+    }
+
+    @Test
     public void testUnion() throws SnapshotException
     {
         int[] objectIds = (int[]) execute("select * from objects 0 union (select * from objects 1)");
@@ -287,6 +374,42 @@ public class OQLTest
     }
 
     @Test
+    public void testUnionCommand10() throws SnapshotException
+    {
+        String oql = "SELECT s FROM missing s  UNION (SELECT s FROM missing s ) UNION (SELECT s FROM java.lang.String s )";
+        IOQLQuery.Result  r = (IOQLQuery.Result)execute(oql);
+        assertEquals(oql, r.getOQLQuery());
+        assertEquals(492, ((IResultTable)r).getRowCount());
+        checkGetOQL((IResultTable)r);
+    }
+
+    @Test
+    public void testUnionCommand11() throws SnapshotException
+    {
+        String oql = "SELECT s FROM java.lang.String[] s  UNION (SELECT s FROM missing s ) UNION (SELECT s FROM java.lang.String s )";
+        IOQLQuery.Result  r = (IOQLQuery.Result)execute(oql);
+        assertEquals(oql, r.getOQLQuery());
+        assertEquals(28 + 492, ((IResultTable)r).getRowCount());
+        checkGetOQL((IResultTable)r);
+    }
+
+    @Test
+    public void testUnionCommand12() throws SnapshotException
+    {
+        String oql = "SELECT * FROM missing  UNION (SELECT * FROM missing ) UNION (SELECT * FROM java.lang.String )";
+        int r[] = (int[])execute(oql);
+        assertEquals(492, r.length);
+    }
+
+    @Test
+    public void testUnionCommand13() throws SnapshotException
+    {
+        String oql = "SELECT * FROM java.lang.String[]  UNION (SELECT * FROM missing ) UNION (SELECT * FROM java.lang.String )";
+        int r[] = (int[])execute(oql);
+        assertEquals(28 + 492, r.length);
+    }
+
+    @Test
     public void testFromPattern() throws SnapshotException
     {
         Object result = execute("select * from \"java.lang.*\"");
@@ -386,7 +509,7 @@ public class OQLTest
         objectIds = (int[]) execute("SELECT * FROM java.lang.String s WHERE s.count > 1000 OR s.value.@length > 1000");
         assert objectIds.length == 3;
     }
-    
+
     /**
      * Check reads of attributes declared in subclasses
      * @throws SnapshotException
@@ -397,7 +520,7 @@ public class OQLTest
         int[] objectIds = (int[]) execute("select * from instanceof java.util.Vector s where s.elementCount < 10");
         assertEquals("Expected to read ", 11, objectIds.length);
     }
-    
+
     /**
      * Check reads of statics declared in classes
      * @throws SnapshotException
@@ -810,7 +933,7 @@ public class OQLTest
         int res[] = (int[])execute("SELECT OBJECTS s.@GCRoots[1:3] FROM OBJECTS ${snapshot} s");
         assertEquals(3, res.length);
     }
-    
+
     @Test
     public void testJavaArrayRange3() throws SnapshotException
     {
@@ -859,7 +982,7 @@ public class OQLTest
         assertEquals("ABC123", val);
         checkGetOQL(res);
     }
-    
+
     @Test
     public void testOQLunion1() {
         StringBuilder sb = new StringBuilder();
@@ -941,7 +1064,7 @@ public class OQLTest
 
     /**
      * Complex test to check that the second and third FROM clause
-     * is not reevaluated each time - otherwise this will take a long time. 
+     * is not reevaluated each time - otherwise this will take a long time.
      * @throws SnapshotException
      */
     @Test
@@ -954,9 +1077,9 @@ public class OQLTest
 
     @Test
     public void testComplex4() throws SnapshotException {
-        IResultTable irt = (IResultTable)execute("SELECT s AS HashMap, eval((SELECT t, t.getKey(), t.getValue() "
+        IResultTable irt = (IResultTable)execute("SELECT s AS HashMap, eval((SELECT t, t.getKey(), t.getValue() as value "
                         + "FROM OBJECTS ( s[0:-1] ) t "
-                        + "WHERE (toString(t.getKey()) = \"META-INF\")))[0][2] AS \"Value for META-INF\" "
+                        + "WHERE (toString(t.getKey()) = \"META-INF\")))[0].value AS \"Value for META-INF\" "
                         + "FROM java.util.HashMap s "
                         + "WHERE "
                         + "((SELECT t FROM OBJECTS ( s[0:-1] ) t "
@@ -971,7 +1094,7 @@ public class OQLTest
 
     @Test
     public void testComplex5() throws SnapshotException {
-        IResultTable irt = (IResultTable)execute("SELECT v[0], v[1][0].getKey(), v[0][0:-1], v[1] "
+        IResultTable irt = (IResultTable)execute("SELECT v.t, v.get(\"t[0:-1]\")[0].getKey(), v.t[0:-1], v.get(\"t[0:-1]\") "
                         + "FROM OBJECTS ( "
                         + "SELECT t, t[0:-1] "
                         + "FROM java.util.HashSet t "
@@ -984,7 +1107,7 @@ public class OQLTest
 
     @Test
     public void testComplex5a() throws SnapshotException {
-        IResultTable irt = (IResultTable)execute("SELECT v[0], v[1][0].getKey(), v[0][0:-1], v[1] "
+        IResultTable irt = (IResultTable)execute("SELECT v.t, v.get(\"t[0:-1]\")[0].getKey(), v.t[0:-1], v.get(\"t[0:-1]\") "
                         + "FROM OBJECTS ( "
                         + "SELECT t, t[0:-1] "
                         + "FROM java.util.HashSet t ) v");
@@ -1002,12 +1125,12 @@ public class OQLTest
 
     @Test
     public void testComplex5c() throws SnapshotException {
-        IResultTable irt = (IResultTable)execute("SELECT v[0], v[1][0].getKey(), v[0][0:-1], v[1] "
+        IResultTable irt = (IResultTable)execute("SELECT v.t, v.get(\"t[0:-1]\")[0].getKey(), v.t[0:-1], v.get(\"t[0:-1]\") "
                         + "FROM OBJECTS ( "
                         + "SELECT t, t[0:-1] "
                         + "FROM java.util.HashSet t  ) v "
                         + "UNION ("
-                        + "SELECT v[0], v[1][0].getKey(), v[0][0:-1], v[1] "
+                        + "SELECT v.t, v.get(\"t[0:-1]\")[0].getKey(), v.t[0:-1], v.get(\"t[0:-1]\") "
                         + "FROM OBJECTS "
                         + "( SELECT t, t[0:-1] FROM java.util.Hashtable t  ) v )");
         assertEquals(11, irt.getRowCount());
@@ -1042,8 +1165,31 @@ public class OQLTest
         checkGetOQL(irt);
     }
 
+    @Test
+    public void testComplex7() throws SnapshotException {
+        Object result = execute("select * from OBJECTS (SELECT * FROM OBJECTS ( SELECT s.table, s.@usedHeapSize, s[0:-1], s.@objectId, s.@usedHeapSize FROM java.util.HashMap s WHERE (s.table != null) ) z)");
+        assertNotNull(result);
+    }
+
+    /**
+     * Check select item is reevaluated as sub-select is context dependent
+     * @throws SnapshotException
+     */
+    @Test
+    public void testComplex8() throws SnapshotException {
+        int r1[] = (int[])execute("SELECT OBJECTS ( SELECT OBJECTS q.getKey() AS k FROM OBJECTS ( t[0:-1] ) q  ) FROM java.util.HashMap t");
+        int r2[] = (int[])execute("SELECT OBJECTS (SELECT * FROM OBJECTS ( SELECT OBJECTS q.getKey() AS k FROM OBJECTS ( t[0:-1] ) q  ) ) FROM java.util.HashMap t");
+        assertEquals("Context dependent subselect", r1.length, r2.length);
+    }
+
+    /**
+     * Check all getOQL() from contexts from the result are sensible.
+     * @param rt ResultTable
+     * @throws SnapshotException
+     */
     void checkGetOQL(IResultTable rt) throws SnapshotException
     {
+        // Check the default contextx
         for (int i = 0; i < rt.getRowCount(); ++i)
         {
             IContextObject c = rt.getContext(rt.getRow(i));
@@ -1057,23 +1203,27 @@ public class OQLTest
                 }
             }
         }
+        // check the other providers
         for (ContextProvider p : rt.getResultMetaData().getContextProviders())
         {
             String l = p.getLabel();
             for (int j = 0; j < rt.getColumns().length; ++j) {
                 if (l.equals(rt.getColumns()[j].getLabel()))
                 {
+                    // Now check each row
                     for (int i = 0; i < rt.getRowCount(); ++i)
                     {
                         Object o = rt.getColumnValue(rt.getRow(i), j);
                         if (o instanceof IObject)
                         {
+                            // SimpleObject
                             IObject io = (IObject)o;
                             IContextObject c = p.getContext(rt.getRow(i));
                             checkSingleObjectContext(io.getObjectId(), c);
                         }
                         else if (o instanceof Iterable && ((Iterable<?>)o).iterator().hasNext() && ((Iterable<?>)o).iterator().next() instanceof IObject)
                         {
+                            // Iterable, look for objects
                             List<IObject>os = new ArrayList<IObject>();
                             for (Object o1 : (Iterable)o)
                             {
@@ -1093,6 +1243,16 @@ public class OQLTest
                                 {
                                     boolean found = false;
                                     for (int ri : r)
+                                    {
+                                        if (ri == o1.getObjectId())
+                                            found = true;
+                                    }
+                                    assertTrue(found);
+                                }
+                                for (int ri : r)
+                                {
+                                    boolean found = false;
+                                    for (IObject o1 : os)
                                     {
                                         if (ri == o1.getObjectId())
                                             found = true;
@@ -1122,6 +1282,10 @@ public class OQLTest
                                 {
                                     assertTrue(os2.contains(ox));
                                 }
+                                for (IObject ox : os2)
+                                {
+                                    assertTrue(os.contains(ox));
+                                }
                             }
                         }
                     }
@@ -1145,15 +1309,9 @@ public class OQLTest
                 {
                     int r[] = (int[])res;
                     assertEquals(os.length, r.length);
-                    for (int o1 : os)
+                    for (int i = 0; i < os.length; ++i)
                     {
-                        boolean found = false;
-                        for (int ri : r)
-                        {
-                            if (ri == o1)
-                              found = true;
-                        }
-                        assertTrue(found);
+                        assertEquals("index="+i, os[i], r[i]);
                     }
                 }
                 else if (res instanceof IResultTable)
@@ -1229,7 +1387,7 @@ public class OQLTest
             IResultTable rt2 = (IResultTable)res;
             assertEquals(1, rt2.getRowCount());
             assertEquals(rt.getColumns().length, rt2.getColumns().length);
-            for (int j = 0; j < rt.getColumns().length; ++j) 
+            for (int j = 0; j < rt.getColumns().length; ++j)
             {
                 Object o1 = rt.getColumnValue(rt.getRow(row), j);
                 Object o2 = rt2.getColumnValue(rt2.getRow(0), j);
@@ -1238,7 +1396,6 @@ public class OQLTest
         }
     }
 
-    
     /**
      * Test that null objects from a from clause don't cause problems
      */
@@ -1248,7 +1405,7 @@ public class OQLTest
                     + " WHERE ((SELECT t FROM OBJECTS ( s.threads[0:-1] ) t WHERE t.name.toString().startsWith(\"R\")) != null)");
         assertEquals(1, res.length);
     }
-    
+
     /**
      * Test reading static fields of a class
      * @throws SnapshotException
@@ -1264,7 +1421,7 @@ public class OQLTest
         assertThat("Integer.MAX_VALUE", val, equalTo(Integer.MAX_VALUE));
         checkGetOQL(table);
     }
-    
+
     /**
      * Test extracting objects from a collection
      * @throws SnapshotException
@@ -1275,7 +1432,7 @@ public class OQLTest
         int objs[] = (int[])execute("select objects s[0:-1] from java.util.ArrayList s");
         assertThat("Multiple objects expected", objs.length, greaterThanOrEqualTo(2));
     }
-    
+
     /**
      * Test extracting objects from a collection.
      * Check we can read the last element from a collection.
@@ -1287,7 +1444,7 @@ public class OQLTest
         int objs[] = (int[])execute("select objects s[0:-1][-1:-1][0] from java.util.ArrayList s");
         assertThat("Multiple objects expected", objs.length, greaterThanOrEqualTo(2));
     }
-    
+
     // //////////////////////////////////////////////////////////////
     // internal helper
     // //////////////////////////////////////////////////////////////
