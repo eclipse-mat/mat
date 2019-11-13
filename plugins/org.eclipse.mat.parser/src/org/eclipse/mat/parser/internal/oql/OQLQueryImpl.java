@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -161,29 +162,52 @@ public class OQLQueryImpl implements IOQLQuery
                 Set<Entry<String, Object>> set = new LinkedHashSet<Entry<String, Object>>();
                 for (int col = 0; col < isr.getColumns().length; ++col)
                 {
-                    set.add(new SimpleEntry<String, Object>(isr.getColumns()[col].getLabel(), null) {
-                        /**
-                         *
-                         */
-                        private static final long serialVersionUID = 378783918135046563L;
+                    String key = isr.getColumns()[col].getLabel();
+                    set.add(new Entry<String, Object>() {
 
                         final Object NULL_VALUE = new Object();
 
+                        Object value;
+
                         public Object getValue()
                         {
-                            Object o = super.getValue();
+                            Object o = value;
                             if (o == NULL_VALUE)
                                 return null;
                             else if (o != null)
                                 return o;
                             o = get(getKey());
-                            super.setValue(o);
+                            value = o;
                             return o;
                         }
 
                         public Object setValue(Object o)
                         {
                             throw new UnsupportedOperationException();
+                        }
+
+                        @Override
+                        public String getKey()
+                        {
+                            return key;
+                        }
+
+                        public int hashCode()
+                        {
+                            return Objects.hash(getKey(), getValue());
+                        }
+
+                        public boolean equals(Object o)
+                        {
+                            if (!(o instanceof Entry<?,?>))
+                            {
+                                Entry<?,?>ox = (Entry<?,?>)o;
+                                return Objects.equals(getKey(),  ox.getKey()) &&
+                                       Objects.equals(getValue(),  ox.getValue());
+                            }
+                            {
+                                return false;
+                            }
                         }
                     });
                 }
@@ -1852,8 +1876,6 @@ public class OQLQueryImpl implements IOQLQuery
     {
         List<Object> r = new ArrayList<Object>();
         IStructuredResult irt = (IStructuredResult)result;
-        Column cols[] = irt.getColumns();
-        int colCount = cols.length;
         List<?>elements = irt instanceof IResultTree ? ((IResultTree)irt).getElements() : null;
         int count = irt instanceof IResultTable ? ((IResultTable)irt).getRowCount() : elements.size();
         for (int ii = 0; ii < count; ii++)
