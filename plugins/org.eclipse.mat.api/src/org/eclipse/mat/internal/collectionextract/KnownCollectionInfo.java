@@ -245,6 +245,7 @@ public class KnownCollectionInfo implements ICollectionExtractorProvider
 
                     // usually shouldn't match
                     new CollectionExtractionInfo("java.util.AbstractList", new NoContentCollectionExtractor()), //$NON-NLS-1$
+                    new CollectionExtractionInfo("java.util.AbstractMap", new NoContentCollectionExtractor()), //$NON-NLS-1$
                     new CollectionExtractionInfo("java.util.AbstractMap$2", new ValuesCollectionExtractor("this$0")),//$NON-NLS-1$ //$NON-NLS-2$
     };
 }

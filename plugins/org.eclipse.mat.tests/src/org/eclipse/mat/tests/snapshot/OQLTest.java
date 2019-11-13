@@ -15,6 +15,7 @@ package org.eclipse.mat.tests.snapshot;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.instanceOf;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
@@ -1182,6 +1183,14 @@ public class OQLTest
         assertEquals("Context dependent subselect", r1.length, r2.length);
     }
 
+    @Test
+    public void testComplex9() throws SnapshotException {
+        IResultTable irt = (IResultTable)execute("SELECT m AS map, classof(m).@name AS type, m[0:-1].size() AS size, (SELECT OBJECTS z.getKey() FROM OBJECTS ( m[0:-1] ) z ) AS keys, (SELECT OBJECTS z.getValue() FROM OBJECTS ( m[0:-1] ) z ) AS values FROM INSTANCEOF java.util.AbstractMap m ");
+        // 3 columns plus base row have context providers
+        assertEquals(4, irt.getResultMetaData().getContextProviders().size());
+        checkGetOQL(irt);
+    }
+
     /**
      * Check all getOQL() from contexts from the result are sensible.
      * @param rt ResultTable
@@ -1391,7 +1400,10 @@ public class OQLTest
             {
                 Object o1 = rt.getColumnValue(rt.getRow(row), j);
                 Object o2 = rt2.getColumnValue(rt2.getRow(0), j);
-                assertEquals("Row="+row+" col="+j, o1, o2);
+                if (o1 instanceof int[] && o2 instanceof int[])
+                    assertArrayEquals("Row="+row+" col="+j, (int[])o1, (int[])o2);
+                else
+                    assertEquals("Row="+row+" col="+j, o1, o2);
             }
         }
     }

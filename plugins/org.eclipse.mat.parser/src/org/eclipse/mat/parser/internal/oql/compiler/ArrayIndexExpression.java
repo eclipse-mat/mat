@@ -332,6 +332,9 @@ class ArrayIndexExpression extends Expression
             ExtractedMap map = CollectionExtractionUtils.extractMap(obj);
             if (map != null)
             {
+                // Don't return any data for maps we know of, but can't extract properly
+                if (!(map.hasExtractableContents() && map.hasSize()))
+                    return null;
                 Object objlen = map.size();
                 if (objlen != null)
                 {
@@ -349,8 +352,11 @@ class ArrayIndexExpression extends Expression
                 }
             }
             ExtractedCollection coll = CollectionExtractionUtils.extractList(obj);
-            if (coll != null && coll.hasExtractableContents())
+            if (coll != null)
             {
+                // Don't return any data for collections we know of, but can't extract properly
+                if (!(coll.hasExtractableContents() && coll.hasSize()))
+                    return null;
                 Object objlen = coll.size();
                 if (objlen != null)
                 {
