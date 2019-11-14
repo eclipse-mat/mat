@@ -89,8 +89,8 @@ public class SingletonMapExtractor implements IMapExtractor
 
     public Iterator<Entry<IObject, IObject>> extractMapEntries(IObject coll) throws SnapshotException
     {
-        return Collections.singletonMap((IObject) coll.resolveValue(keyField), (IObject) coll.resolveValue(valueField))
-                        .entrySet().iterator();
+        return Collections.singleton((Entry<IObject, IObject>)(new EntryObject(coll, (IObject) coll.resolveValue(keyField), (IObject) coll.resolveValue(valueField))))
+                                   .iterator();
     }
 
     public boolean hasFillRatio()

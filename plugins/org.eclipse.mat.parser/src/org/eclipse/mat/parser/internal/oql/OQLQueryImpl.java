@@ -1362,7 +1362,10 @@ public class OQLQueryImpl implements IOQLQuery
                 for (IntIterator iter = baseSet.iterator(); iter.hasNext();)
                 {
                     int id = iter.nextInt();
-                    IClass subjectClass = (IClass) ctx.getSnapshot().getObject(id);
+                    IObject o = ctx.getSnapshot().getObject(id);
+                    if (!(o instanceof IClass))
+                        throw new SnapshotException(Messages.OQLQueryImpl_Error_ClassCastExceptionOccured);
+                    IClass subjectClass = (IClass)o;
                     classes.add(subjectClass);
                     if (query.getFromClause().includeSubClasses())
                     {
@@ -1586,7 +1589,11 @@ public class OQLQueryImpl implements IOQLQuery
                         }
                         else if (obj instanceof Integer)
                         {
-                            IClass subjectClass = (IClass) this.ctx.getSnapshot().getObject(((Integer) obj).intValue());
+                            IObject o =  this.ctx.getSnapshot().getObject(((Integer) obj).intValue());
+                            if (!(o instanceof IClass))
+                                throw new SnapshotException(MessageUtil.format(Messages.OQLQueryImpl_Error_ElementIsNotClass,
+                                                query.getFromClause().toString(), o.getClass().getName()));
+                            IClass subjectClass = (IClass)o;
                             classes.add(subjectClass);
                             if (query.getFromClause().includeSubClasses())
                             {
@@ -1597,7 +1604,11 @@ public class OQLQueryImpl implements IOQLQuery
                         {
                             for (int id : (int[]) obj)
                             {
-                                IClass subjectClass = (IClass) this.ctx.getSnapshot().getObject(id);
+                                IObject o =  this.ctx.getSnapshot().getObject(id);
+                                if (!(o instanceof IClass))
+                                    throw new SnapshotException(MessageUtil.format(Messages.OQLQueryImpl_Error_ElementIsNotClass,
+                                                    query.getFromClause().toString(), o.getClass().getName()));
+                                IClass subjectClass = (IClass)o;
                                 classes.add(subjectClass);
                                 if (query.getFromClause().includeSubClasses())
                                 {
@@ -1605,7 +1616,7 @@ public class OQLQueryImpl implements IOQLQuery
                                 }
                             }
                         }
-                        else
+                        else if (obj instanceof IClass)
                         {
                             IClass subjectClass = (IClass) obj;
                             classes.add(subjectClass);
@@ -1613,6 +1624,10 @@ public class OQLQueryImpl implements IOQLQuery
                             {
                                 classes.addAll(subjectClass.getAllSubclasses());
                             }
+                        }
+                        else
+                        {
+                            throw new SnapshotException(MessageUtil.format(Messages.OQLQueryImpl_Error_ElementIsNotClass, query.getFromClause().toString(), obj.getClass().getName()));
                         }
                     }
                 }
@@ -1628,7 +1643,11 @@ public class OQLQueryImpl implements IOQLQuery
                         }
                         else if (obj instanceof Integer)
                         {
-                            IClass subjectClass = (IClass) this.ctx.getSnapshot().getObject(((Integer) obj).intValue());
+                            IObject o = this.ctx.getSnapshot().getObject(((Integer) obj).intValue());
+                            if (!(o instanceof IClass))
+                                throw new SnapshotException(MessageUtil.format(Messages.OQLQueryImpl_Error_ElementIsNotClass,
+                                                query.getFromClause().toString(), o.getClass().getName()));
+                            IClass subjectClass = (IClass)o;
                             classes.add(subjectClass);
                             if (query.getFromClause().includeSubClasses())
                             {
@@ -1647,7 +1666,7 @@ public class OQLQueryImpl implements IOQLQuery
                                 }
                             }
                         }
-                        else
+                        else if (obj instanceof IClass)
                         {
                             IClass subjectClass = (IClass) obj;
                             classes.add(subjectClass);
@@ -1656,9 +1675,13 @@ public class OQLQueryImpl implements IOQLQuery
                                 classes.addAll(subjectClass.getAllSubclasses());
                             }
                         }
+                        else
+                        {
+                            throw new SnapshotException(MessageUtil.format(Messages.OQLQueryImpl_Error_ElementIsNotClass, query.getFromClause().toString(), obj.getClass().getName()));
+                        }
                     }
                 }
-                else
+                else if (result instanceof IClass)
                 {
                     IClass subjectClass = (IClass) result;
                     classes.add(subjectClass);
@@ -1667,11 +1690,15 @@ public class OQLQueryImpl implements IOQLQuery
                         classes.addAll(subjectClass.getAllSubclasses());
                     }
                 }
+                else
+                {
+                    throw new SnapshotException(MessageUtil.format(Messages.OQLQueryImpl_Error_ElementIsNotClass, query.getFromClause().toString(), result.getClass().getName()));
+                }
             }
             catch (ClassCastException e)
             {
                 throw new SnapshotException(MessageUtil.format(Messages.OQLQueryImpl_Error_ElementIsNotClass,
-                                new Object[] { e.getMessage() }), e);
+                                query.getFromClause().toString(), e.getMessage()), e);
             }
 
             return filterClasses(listener, classes);

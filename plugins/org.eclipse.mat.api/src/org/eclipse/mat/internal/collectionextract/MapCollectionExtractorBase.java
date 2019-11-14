@@ -80,7 +80,7 @@ public abstract class MapCollectionExtractorBase implements IMapExtractor
             try
             {
                 IObject obj = snapshot.getObject(ids[idx++]);
-                return new EntryObject(coll, getEntryKey(obj), getEntryValue(obj));
+                return new EntryObject(obj, getEntryKey(obj), getEntryValue(obj));
             }
             catch (SnapshotException e)
             {
