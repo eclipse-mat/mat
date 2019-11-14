@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2013 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2019 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -31,6 +31,7 @@ import org.eclipse.mat.query.refined.RefinedStructuredResult;
 import org.eclipse.mat.query.refined.RefinedTable;
 import org.eclipse.mat.query.refined.RefinedTree;
 import org.eclipse.mat.query.refined.TotalsRow;
+import org.eclipse.mat.query.registry.Converters;
 import org.eclipse.mat.query.registry.QueryObjectLink;
 import org.eclipse.mat.query.results.DisplayFileResult;
 import org.eclipse.mat.query.results.TextResult;
@@ -457,9 +458,13 @@ public class HtmlOutputter implements IOutputter
             label = HTMLUtils.escapeText(label);
 
             if (columnIndex == 0)
-                renderLink(context, artefact, structured, row, label);
+                renderLink(context, artefact, structured, row, label, columns, columnIndex);
             else
-                artefact.append(label);
+            {
+                // Is there a context corresponding to this column
+                if (!renderLink(context, artefact, structured, row, label,columns, columnIndex))
+                    artefact.append(label);
+            }
         }
 
         if (decorator != null)
@@ -488,11 +493,12 @@ public class HtmlOutputter implements IOutputter
     }
 
     @SuppressWarnings("nls")
-    private void renderLink(Context context, Writer artefact, IStructuredResult thing, Object row, String label)
+    private boolean renderLink(Context context, Writer artefact, IStructuredResult thing, Object row, String label, Column columns[], int columnIndex)
                     throws IOException
     {
         IContextObject ctx = thing.getContext(row);
-        renderContext(context, label, null, ctx, artefact);
+        if (columnIndex == 0)
+            renderContext(context, label, null, ctx, artefact);
         boolean first = true;
         boolean done = false;
         for (ContextProvider prov : thing.getResultMetaData().getContextProviders())
@@ -500,6 +506,17 @@ public class HtmlOutputter implements IOutputter
             IContextObject ctx1 = prov.getContext(row);
             if (moreContextObjects(ctx, ctx1))
             {
+                if (columnIndex == 0)
+                {
+                    int c;
+                    for (c = 1; c < columns.length; ++c)
+                        if (columns[c].getLabel().equals(prov.getLabel()))
+                            break;
+                    if (c < columns.length)
+                        continue;
+                }
+                else if (!columns[columnIndex].getLabel().equals(prov.getLabel()))
+                    continue;
                 if (first)
                 {
                     first = false;
@@ -507,17 +524,26 @@ public class HtmlOutputter implements IOutputter
                     //artefact.append("<ul>");
                     done = true;
                 }
-                artefact.append("<br>");
-                //artefact.append("<li>");
-                String contextLabel = HTMLUtils.escapeText(prov.getLabel());
-                renderContext(context, contextLabel, prov.getIcon(), ctx1, artefact);
-                //artefact.append("</li>");
+                if (columnIndex == 0)
+                {
+                    artefact.append("<br>");
+                    //artefact.append("<li>");
+                    String contextLabel = HTMLUtils.escapeText(prov.getLabel());
+                    renderContext(context, contextLabel, prov.getIcon(), ctx1, artefact);
+                    //artefact.append("</li>");
+                }
+                else
+                {
+                    // Other column, so render label with the link
+                    renderContext(context, label, prov.getIcon(), ctx1, artefact);
+                }
             }
         }
         if (done)
         {
             //artefact.append("</ul>");
         }
+        return done;
     }
 
     @SuppressWarnings("nls")
@@ -566,16 +592,19 @@ public class HtmlOutputter implements IOutputter
         {
             IContextObjectSet set = (IContextObjectSet)ctx;
             String oqlCommand = set.getOQL();
+            boolean complexoql = oqlCommand != null && !oqlCommand.matches("SELECT . FROM");
             int objs[] = set.getObjectIds();
-            if (objs.length > 0)
+            // At least one object, and not a single object the same as the base context
+            if (objs.length > 0 && (complexoql || !(objs.length == 1 && objs[0] == objectId)))
             {
                 int n = Math.min(maxLinkObjects, objs.length);
-                if (objs.length > n && oqlCommand != null)
+                if (objs.length > n && oqlCommand != null || complexoql)
                 {
                     artefact.append("<br><a href=\"");
                     StringBuilder sb = new StringBuilder("oql");
                     sb.append(" ");
-                    sb.append('"').append(oqlCommand).append('"');
+                    String escapedCommand = Converters.convertAndEscape(String.class, oqlCommand);
+                    sb.append(escapedCommand);
                     artefact.append(QueryObjectLink.forQuery(sb.toString())).append("\">");
                     artefact.append(Messages.HtmlOutputter_Label_AllObjects);
                     artefact.append("</a>");

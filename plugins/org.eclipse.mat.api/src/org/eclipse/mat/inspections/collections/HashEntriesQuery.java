@@ -328,9 +328,9 @@ public class HashEntriesQuery implements IQuery
                         if (me instanceof IObject)
                         {
                             IObject meObject = (IObject) me;
-                            int keyId = (me.getKey() != null) ? me.getKey().getObjectId() : 0;
-                            int valueId = (me.getValue() != null) ? me.getValue().getObjectId() : 0;
-                            e = new Entry(meObject.getObjectId(), meObject.getDisplayName(), keyId, valueId);
+                            int keyId = (me.getKey() != null) ? me.getKey().getObjectId() : -1;
+                            int valueId = (me.getValue() != null) ? me.getValue().getObjectId() : -1;
+                            e = new Entry(obj.getObjectId(), obj.getDisplayName(), keyId, valueId);
                         }
                         else
                         {

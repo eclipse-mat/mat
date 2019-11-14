@@ -155,6 +155,8 @@ public class KnownCollectionInfo implements ICollectionExtractorProvider
                     new CollectionExtractionInfo("java.lang.ThreadLocal$ThreadLocalMap", // //$NON-NLS-1$
                                     new HashMapCollectionExtractor("size", "table", "referent", "value")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
                     new CollectionExtractionInfo("java.lang.ProcessEnvironment$CheckedEntrySet", new WrapperMapExtractor("s")), //$NON-NLS-1$ //$NON-NLS-2$
+                    new CollectionExtractionInfo("java.lang.ProcessEnvironment$CheckedKeySet", new WrapperMapExtractor("s")), //$NON-NLS-1$ //$NON-NLS-2$
+                    new CollectionExtractionInfo("java.lang.ProcessEnvironment$CheckedValues", new WrapperMapExtractor("c")), //$NON-NLS-1$ //$NON-NLS-2$
 
                     new CollectionExtractionInfo("java.util.concurrent.ConcurrentHashMap$Segment", new HashMapCollectionExtractor("count", "table", "key", "value")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 
@@ -243,9 +245,12 @@ public class KnownCollectionInfo implements ICollectionExtractorProvider
                     new CollectionExtractionInfo("sun.util.PreHashedMap", new NoContentCollectionExtractor()), //$NON-NLS-1$
                     new CollectionExtractionInfo("sun.misc.SoftCache", new NoContentCollectionExtractor()), //$NON-NLS-1$
 
+                    new CollectionExtractionInfo("java.util.AbstractMap$2", new ValuesCollectionExtractor("this$0")),//$NON-NLS-1$ //$NON-NLS-2$
+
                     // usually shouldn't match
                     new CollectionExtractionInfo("java.util.AbstractList", new NoContentCollectionExtractor()), //$NON-NLS-1$
                     new CollectionExtractionInfo("java.util.AbstractMap", new NoContentCollectionExtractor()), //$NON-NLS-1$
-                    new CollectionExtractionInfo("java.util.AbstractMap$2", new ValuesCollectionExtractor("this$0")),//$NON-NLS-1$ //$NON-NLS-2$
+                    new CollectionExtractionInfo("java.util.AbstractSet", new NoContentCollectionExtractor()), //$NON-NLS-1$
+                    new CollectionExtractionInfo("java.util.AbstractCollection", new NoContentCollectionExtractor()), //$NON-NLS-1$
     };
 }

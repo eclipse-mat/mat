@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2018 IBM Corporation
+ * Copyright (c) 2014, 2019 IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -526,7 +526,7 @@ public class CreateCollectionDump
                 }
                 if (added == 0 && (mn == null || c == null))
                 {
-                    System.out.println("Missing collection "+cn0+" "+useEmpty());
+                    System.out.println("Missing collection "+cn0+" empty="+useEmpty());
                 }
             }
             collections = cols.toArray(new Collection[cols.size()]);
@@ -779,6 +779,7 @@ public class CreateCollectionDump
                             "java.util.Hashtable",
                             "java.util.IdentityHashMap",
                             "java.util.LinkedHashMap",
+                            "java.lang.ProcessBuilder environment",
                             "javax.print.attribute.standard.PrinterStateReasons",
                             "java.util.Properties",
                             "java.security.Provider",
@@ -863,7 +864,21 @@ public class CreateCollectionDump
                         else
                         {
                             Method method = cm.getMethod(mn, cons[j]);
-                            cl = (Map)method.invoke(null, args[j]);
+                            Object obj2;
+                            if (Modifier.isStatic(method.getModifiers()))
+                            {
+                                obj2 = null;
+                                cl = (Map)method.invoke(obj2, args[j]);
+                            }
+                            else
+                            {
+                                // String array constructor of base class
+                                Constructor<?>cons2 = cm.getConstructor(String[].class);
+                                String args2[] = new String[]{"command"};
+                                obj2 = cons2.newInstance(new Object[] {args2});
+                                cl = (Map)method.invoke(obj2, args[j]);
+                                cl.clear();
+                            }
                             c = cl.getClass();
                             if (!c.getName().equals(cn))
                             {
@@ -871,7 +886,9 @@ public class CreateCollectionDump
                                 cn = c.getName();
                                 fillValues(cn);
                                 args = buildArgs(mapVals, enumVals);
-                                cl = (Map)method.invoke(null, args[j]);
+                                cl = (Map)method.invoke(obj2, args[j]);
+                                if (obj2 != null)
+                                    cl.clear();
                                 c = cl.getClass();
                             }
                         }
@@ -977,6 +994,7 @@ public class CreateCollectionDump
                     }
                     catch (IllegalArgumentException e)
                     {
+                        e.printStackTrace();
                     }
                     catch (InvocationTargetException e)
                     {
@@ -984,7 +1002,7 @@ public class CreateCollectionDump
                 }
                 if (added == 0 && (mn == null || c == null))
                 {
-                    System.out.println("Missing map "+cn0+" "+useEmpty());
+                    System.out.println("Missing map "+cn0+" empty="+useEmpty());
                 }
             }
             maps = ms.toArray(new Map[ms.size()]);

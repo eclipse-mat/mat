@@ -682,7 +682,16 @@ public class QueryContextMenu
                         else
                         {
                             // This can be expensive, so don't get it earlier
-                            int os[] = icos.getObjectIds();
+                            int os[];
+                            try
+                            {
+                                os = icos.getObjectIds();
+                            }
+                            catch (RuntimeException e)
+                            {
+                                // For example a OQL select query can fail
+                                return false;
+                            }
                             inspected += os.length;
                             if (inspected >= limit)
                                 return false;

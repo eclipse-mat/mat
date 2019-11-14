@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 SAP AG, IBM Corporation and others
+ * Copyright (c) 2008, 2019 SAP AG, IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -89,8 +89,8 @@ public class SingletonMapExtractor implements IMapExtractor
 
     public Iterator<Entry<IObject, IObject>> extractMapEntries(IObject coll) throws SnapshotException
     {
-        return Collections.singletonMap((IObject) coll.resolveValue(keyField), (IObject) coll.resolveValue(valueField))
-                        .entrySet().iterator();
+        return Collections.singleton((Entry<IObject, IObject>)(new EntryObject(coll, (IObject) coll.resolveValue(keyField), (IObject) coll.resolveValue(valueField))))
+                                   .iterator();
     }
 
     public boolean hasFillRatio()
