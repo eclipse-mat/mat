@@ -157,6 +157,10 @@ public class KnownCollectionInfo implements ICollectionExtractorProvider
                     new CollectionExtractionInfo("java.lang.ProcessEnvironment$CheckedEntrySet", new WrapperMapExtractor("s")), //$NON-NLS-1$ //$NON-NLS-2$
                     new CollectionExtractionInfo("java.lang.ProcessEnvironment$CheckedKeySet", new WrapperMapExtractor("s")), //$NON-NLS-1$ //$NON-NLS-2$
                     new CollectionExtractionInfo("java.lang.ProcessEnvironment$CheckedValues", new WrapperMapExtractor("c")), //$NON-NLS-1$ //$NON-NLS-2$
+                    new CollectionExtractionInfo("java.lang.ProcessEnvironment$StringEnvironment", new WrapperMapExtractor("m")), //$NON-NLS-1$ //$NON-NLS-2$
+                    new CollectionExtractionInfo("java.lang.ProcessEnvironment$StringEntrySet", new WrapperMapExtractor("s")), //$NON-NLS-1$ //$NON-NLS-2$
+                    new CollectionExtractionInfo("java.lang.ProcessEnvironment$StringKeySet", new WrapperMapExtractor("s")), //$NON-NLS-1$ //$NON-NLS-2$
+                    new CollectionExtractionInfo("java.lang.ProcessEnvironment$StringValues", new WrapperMapExtractor("c")), //$NON-NLS-1$ //$NON-NLS-2$
 
                     new CollectionExtractionInfo("java.util.concurrent.ConcurrentHashMap$Segment", new HashMapCollectionExtractor("count", "table", "key", "value")), // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 
