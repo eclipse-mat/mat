@@ -53,6 +53,8 @@ import org.eclipse.mat.util.MessageUtil;
     "java.util.concurrent.ConcurrentLinkedDeque",
     
     "java.util.EnumMap$Values",
+    "java.lang.ProcessEnvironment$CheckedValues",
+    "java.lang.ProcessEnvironment$StringValues",
 })
 public class ExtractListValuesQuery implements IQuery
 {

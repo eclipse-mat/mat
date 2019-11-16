@@ -1,59 +1,56 @@
 /*******************************************************************************
- * Copyright (c) 2018, 2019 IBM Corporation.
+ * Copyright (c) 2019 IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    IBM Corporation/Andrew Johnson - initial API and implementation
+ *    Andrew Johnson (IBM Corporation) - initial API and implementation
  *******************************************************************************/
 package org.eclipse.mat.internal.collectionextract;
 
-import java.util.Map.Entry;
-
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
-import org.eclipse.mat.inspections.collectionextract.ExtractedMap;
 import org.eclipse.mat.inspections.collectionextract.ICollectionExtractor;
 import org.eclipse.mat.snapshot.model.IObject;
-import org.eclipse.mat.snapshot.model.IObjectArray;
 
-public class ValuesCollectionExtractor extends WrapperCollectionExtractor
+public class WrapperFieldCollectionExtractor extends WrapperCollectionExtractor
 {
-    public ValuesCollectionExtractor(String field)
+
+    String entryfield;
+    public WrapperFieldCollectionExtractor(String field, String entryfield)
     {
-        this(field, null);
+        this(field, entryfield, null);
     }
 
-    public ValuesCollectionExtractor(String field, ICollectionExtractor extractor)
+    public WrapperFieldCollectionExtractor(String field, String entryfield, ICollectionExtractor extractor)
     {
         super(field, extractor);
+        this.entryfield = entryfield;
+
     }
 
+    @Override
     public int[] extractEntryIds(IObject coll) throws SnapshotException
     {
-        ExtractedMap em = extractMap(coll);
-        ArrayInt a = new ArrayInt();
-        if (em != null)
+        int r[] = super.extractEntryIds(coll);
+        ArrayInt a = new ArrayInt(r.length);
+        for (int i = 0; i < r.length; ++i)
         {
-            for (Entry<IObject,IObject>en : em)
+            IObject o = coll.getSnapshot().getObject(r[i]);
+            Object o2 = o.resolveValue(entryfield);
+            if (o2 instanceof IObject)
             {
-                IObject value = en.getValue();
-                if (value != null)
-                    a.add(value.getObjectId());
+                a.add(((IObject)o2).getObjectId());
             }
         }
         return a.toArray();
     }
 
+    @Override
     public boolean hasExtractableArray()
     {
         return false;
-    }
-    
-    public IObjectArray extractEntries(IObject coll) throws SnapshotException
-    {
-        throw new UnsupportedOperationException();
     }
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2019 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -474,4 +474,15 @@ public class CommonNameResolver
             return value != null ? ClassSpecificNameResolverRegistry.resolve(value) : null; 
         }
     }
+
+    @Subject("java.lang.ProcessEnvironment$ExternalData")
+    public static class ExternalDataResolver implements IClassSpecificNameResolver
+    {
+        public String resolve(IObject heapObject) throws SnapshotException
+        {
+            IObject value = (IObject) heapObject.resolveValue("str"); //$NON-NLS-1$
+            return value != null ? ClassSpecificNameResolverRegistry.resolve(value) : null; 
+        }
+    }
+
 }

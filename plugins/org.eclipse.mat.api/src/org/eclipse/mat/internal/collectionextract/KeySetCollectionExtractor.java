@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018 IBM Corporation.
+ * Copyright (c) 2018, 2019 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,7 +15,7 @@ import java.util.Map.Entry;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.inspections.collectionextract.ExtractedMap;
-import org.eclipse.mat.inspections.collectionextract.IMapExtractor;
+import org.eclipse.mat.inspections.collectionextract.ICollectionExtractor;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IObjectArray;
 
@@ -23,7 +23,12 @@ public class KeySetCollectionExtractor extends WrapperMapExtractor
 {
     public KeySetCollectionExtractor(String field)
     {
-        super(field);
+        this(field, null);
+    }
+
+    public KeySetCollectionExtractor(String field, ICollectionExtractor extractor)
+    {
+        super(field, extractor);
     }
 
     public int[] extractEntryIds(IObject coll) throws SnapshotException
@@ -34,7 +39,9 @@ public class KeySetCollectionExtractor extends WrapperMapExtractor
         {
             for (Entry<IObject,IObject>en : em)
             {
-                a.add(en.getKey().getObjectId());
+                IObject key = en.getKey();
+                if (key != null)
+                    a.add(en.getKey().getObjectId());
             }
         }
         return a.toArray();
