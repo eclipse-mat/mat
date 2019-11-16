@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 SAP AG, IBM Corporation and others
+ * Copyright (c) 2008, 2019 SAP AG, IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,6 +17,7 @@ import java.util.Map.Entry;
 
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.inspections.collectionextract.ExtractedMap;
+import org.eclipse.mat.inspections.collectionextract.ICollectionExtractor;
 import org.eclipse.mat.inspections.collectionextract.IMapExtractor;
 import org.eclipse.mat.snapshot.model.IObject;
 
@@ -25,6 +26,11 @@ public class WrapperMapExtractor extends WrapperCollectionExtractor implements I
     public WrapperMapExtractor(String field)
     {
         super(field);
+    }
+
+    public WrapperMapExtractor(String field, ICollectionExtractor extractor)
+    {
+        super(field, extractor);
     }
 
     public boolean hasCollisionRatio()

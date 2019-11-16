@@ -46,13 +46,15 @@ import org.eclipse.mat.util.MessageUtil;
     "java.util.Collections$UnmodifiableList",
     "java.util.Collections$CheckedList",
     "java.util.Collections$CheckedQueue",
-    
+
     "java.util.ImmutableCollections$AbstractImmutableList",
     "java.util.ImmutableCollect0ions$List0",
     "java.util.concurrent.CopyOnWriteArrayList",
     "java.util.concurrent.ConcurrentLinkedDeque",
-    
+
     "java.util.EnumMap$Values",
+    "java.lang.ProcessEnvironment$CheckedValues",
+    "java.lang.ProcessEnvironment$StringValues",
 })
 public class ExtractListValuesQuery implements IQuery
 {
