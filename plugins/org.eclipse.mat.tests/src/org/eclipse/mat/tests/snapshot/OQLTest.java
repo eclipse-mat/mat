@@ -13,6 +13,7 @@
 package org.eclipse.mat.tests.snapshot;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertArrayEquals;
@@ -110,10 +111,32 @@ public class OQLTest
     }
 
     @Test
-    public void testSelectRetained() throws SnapshotException
+    public void testSelectRetained1() throws SnapshotException
     {
         int[] objectIds = (int[]) execute("select as retained set * from java.lang.String");
-        assert objectIds.length == 963 : "963 objects expected";
+        assertThat("963 objects expected", objectIds.length, equalTo(963));
+    }
+
+    @Test
+    public void testSelectRetained2() throws SnapshotException
+    {
+        int[] objectIds = (int[]) execute("SELECT AS RETAINED SET * FROM OBJECTS ( SELECT * FROM java.lang.String  ) s ");
+        assertThat("963 objects expected", objectIds.length, equalTo(963));
+    }
+
+    @Test
+    public void testSelectRetained3() throws SnapshotException
+    {
+        int[] objectIds = (int[]) execute("SELECT AS RETAINED SET OBJECTS s FROM OBJECTS ( SELECT * FROM java.lang.String  ) s ");
+        assertThat("963 objects expected", objectIds.length, equalTo(963));
+    }
+
+    @Test
+    public void testSelectRetained4() throws SnapshotException
+    {
+        IResultTable resulttable = (IResultTable)execute("SELECT AS RETAINED SET s FROM OBJECTS ( SELECT * FROM java.lang.String  ) s ");
+        assertThat("963 objects expected", resulttable.getRowCount(), equalTo(963));
+        checkGetOQL(resulttable);
     }
 
     @Test
@@ -434,6 +457,73 @@ public class OQLTest
     {
         int[] objectIds = (int[]) execute("SELECT * FROM ${snapshot}.getClassesByName(\"java.lang.ref.Reference\", true)");
         assert objectIds.length == 21 : "expected 21 instanceof of java.lang.ref.Reference";
+    }
+
+    @Test
+    public void testFromByName1() throws SnapshotException
+    {
+        IResultTable irt = (IResultTable)execute("SELECT s, snapshot FROM OBJECTS ${snapshot}.getClassesByName(\"java.lang.Class\",false).iterator().next().getObjectIds() s WHERE ${snapshot}.isClass(s)");
+        ISnapshot sn = (ISnapshot)irt.getColumnValue(0, 1);
+        assertThat(irt.getRowCount(), equalTo(sn.getSnapshotInfo().getNumberOfClasses()));
+    }
+
+    @Test
+    public void testFromByName2() throws SnapshotException
+    {
+        IResultTable irt = (IResultTable)execute("SELECT t FROM ("
+                        + "SELECT OBJECTS s FROM OBJECTS ${snapshot}.getClassesByName(\"java.lang.Class\",false).iterator().next().getObjectIds() s WHERE ${snapshot}.isClass(s)"
+                        + ") t");
+        IObject o = (IObject)irt.getColumnValue(0, 0);
+        assertThat(irt.getRowCount(), equalTo(o.getSnapshot().getSnapshotInfo().getNumberOfObjects()));
+        checkGetOQL(irt);
+    }
+
+    @Test
+    public void testFromByName3() throws SnapshotException
+    {
+        IResultTable irt = (IResultTable)execute("SELECT t,snapshot FROM ( eval(("
+                        + "SELECT OBJECTS s FROM OBJECTS ${snapshot}.getClassesByName(\"java.lang.Class\",false).iterator().next().getObjectIds() s WHERE ${snapshot}.isClass(s)"
+                        + "))"
+                        + ") t");
+        IObject o = (IObject)irt.getColumnValue(0, 0);
+        assertThat(irt.getRowCount(), equalTo(o.getSnapshot().getSnapshotInfo().getNumberOfObjects()));
+        checkGetOQL(irt);
+    }
+
+    @Test
+    public void testFromByName4() throws SnapshotException
+    {
+        IResultTable irt = (IResultTable)execute("SELECT s,snapshot FROM OBJECTS ${snapshot}.getClassesByName(\"java.lang.Object\",true).toArray() s WHERE ${snapshot}.isClass(s.@objectId)");
+        ISnapshot sn = (ISnapshot)irt.getColumnValue(0, 1);
+        assertThat(irt.getRowCount(), equalTo(sn.getSnapshotInfo().getNumberOfClasses()));
+        checkGetOQL(irt);
+    }
+
+    @Test
+    public void testFromByName5() throws SnapshotException
+    {
+        IResultTable irt = (IResultTable)execute("SELECT s, snapshot FROM ${snapshot}.getClassesByName(\"java.lang.Object\",true).toArray() s WHERE ${snapshot}.isClass(s.@objectId)");
+        ISnapshot sn = (ISnapshot)irt.getColumnValue(0, 1);
+        assertThat(irt.getRowCount(), equalTo(sn.getSnapshotInfo().getNumberOfClasses()));
+        checkGetOQL(irt);
+    }
+
+    @Test
+    public void testFromByName6() throws SnapshotException
+    {
+        IResultTable irt = (IResultTable)execute("SELECT s, snapshot FROM INSTANCEOF ${snapshot}.getClassesByName(\"java.lang.Object\",false).toArray() s WHERE ${snapshot}.isClass(s.@objectId)");
+        ISnapshot sn = (ISnapshot)irt.getColumnValue(0, 1);
+        assertThat(irt.getRowCount(), equalTo(sn.getSnapshotInfo().getNumberOfClasses()));
+        checkGetOQL(irt);
+    }
+
+    @Test
+    public void testFromByName7() throws SnapshotException
+    {
+        IResultTable irt = (IResultTable)execute("SELECT AS RETAINED SET s, snapshot FROM ${snapshot}.getClassesByName(\"java.lang.Class\",false) s");
+        ISnapshot sn = (ISnapshot)irt.getColumnValue(0, 1);
+        assertThat(irt.getRowCount(), greaterThan(sn.getSnapshotInfo().getNumberOfClasses()));
+        checkGetOQL(irt);
     }
 
     @Test
@@ -1097,11 +1187,14 @@ public class OQLTest
     public void testComplex5() throws SnapshotException {
         IResultTable irt = (IResultTable)execute("SELECT v.t, v.get(\"t[0:-1]\")[0].getKey(), v.t[0:-1], v.get(\"t[0:-1]\") "
                         + "FROM OBJECTS ( "
+                        + "eval((" // Avoid auto-flattening
                         + "SELECT t, t[0:-1] "
                         + "FROM java.util.HashSet t "
                         + "UNION "
                         + "( SELECT s, s[0:-1] "
-                        + "FROM java.util.Hashtable s  ) ) v ");
+                        + "FROM java.util.Hashtable s  ) )"
+                        + "))"
+                        + " v ");
         assertEquals(11, irt.getRowCount());
         checkGetOQL(irt);
     }
@@ -1110,8 +1203,11 @@ public class OQLTest
     public void testComplex5a() throws SnapshotException {
         IResultTable irt = (IResultTable)execute("SELECT v.t, v.get(\"t[0:-1]\")[0].getKey(), v.t[0:-1], v.get(\"t[0:-1]\") "
                         + "FROM OBJECTS ( "
+                        + "eval((" // Avoid auto-flattening
                         + "SELECT t, t[0:-1] "
-                        + "FROM java.util.HashSet t ) v");
+                        + "FROM java.util.HashSet t )"
+                        + "))"
+                        + " v");
         assertEquals(5, irt.getRowCount());
         checkGetOQL(irt);
     }
@@ -1128,12 +1224,18 @@ public class OQLTest
     public void testComplex5c() throws SnapshotException {
         IResultTable irt = (IResultTable)execute("SELECT v.t, v.get(\"t[0:-1]\")[0].getKey(), v.t[0:-1], v.get(\"t[0:-1]\") "
                         + "FROM OBJECTS ( "
+                        + "eval((" // Avoid auto-flattening
                         + "SELECT t, t[0:-1] "
-                        + "FROM java.util.HashSet t  ) v "
+                        + "FROM java.util.HashSet t  )"
+                        + "))"
+                        + " v "
                         + "UNION ("
                         + "SELECT v.t, v.get(\"t[0:-1]\")[0].getKey(), v.t[0:-1], v.get(\"t[0:-1]\") "
-                        + "FROM OBJECTS "
-                        + "( SELECT t, t[0:-1] FROM java.util.Hashtable t  ) v )");
+                        + "FROM OBJECTS ("
+                        + "eval((" // Avoid auto-flattening
+                        + "SELECT t, t[0:-1] FROM java.util.Hashtable t  )"
+                        + "))"
+                        + " v )");
         assertEquals(11, irt.getRowCount());
         checkGetOQL(irt);
     }
@@ -1188,6 +1290,14 @@ public class OQLTest
         IResultTable irt = (IResultTable)execute("SELECT m AS map, classof(m).@name AS type, m[0:-1].size() AS size, (SELECT OBJECTS z.getKey() FROM OBJECTS ( m[0:-1] ) z ) AS keys, (SELECT OBJECTS z.getValue() FROM OBJECTS ( m[0:-1] ) z ) AS values FROM INSTANCEOF java.util.AbstractMap m ");
         // 3 columns plus base row have context providers
         assertEquals(4, irt.getResultMetaData().getContextProviders().size());
+        checkGetOQL(irt);
+    }
+
+    @Test
+    public void testComplex10() throws SnapshotException {
+        IResultTable irt = (IResultTable)execute("SELECT z.map AS Map, z.kv.key AS Key, z.kv.value AS Value FROM OBJECTS ( SELECT h AS map, (SELECT e.getKey() AS key, e.getValue() AS value FROM OBJECTS ${h}[0:-1] e ) AS kv FROM java.util.HashMap h  ) z WHERE (z.kv.key != null)");
+        assertThat(irt.getRowCount(), greaterThan(0));
+        assertThat(irt.getColumns().length, equalTo(3));
         checkGetOQL(irt);
     }
 
@@ -1388,14 +1498,14 @@ public class OQLTest
         if (res instanceof int[])
         {
             int r[] = (int[])res;
-            assertEquals(1, r.length);
-            assertEquals(ioid, r[0]);
+            assertEquals(oql, 1, r.length);
+            assertEquals(oql, ioid, r[0]);
         }
         else if (res instanceof IResultTable)
         {
             IResultTable rt2 = (IResultTable)res;
-            assertEquals(1, rt2.getRowCount());
-            assertEquals(rt.getColumns().length, rt2.getColumns().length);
+            assertEquals(oql, 1, rt2.getRowCount());
+            assertEquals(oql, rt.getColumns().length, rt2.getColumns().length);
             for (int j = 0; j < rt.getColumns().length; ++j)
             {
                 Object o1 = rt.getColumnValue(rt.getRow(row), j);

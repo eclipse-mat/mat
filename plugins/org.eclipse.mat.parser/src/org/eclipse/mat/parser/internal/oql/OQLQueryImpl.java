@@ -39,6 +39,7 @@ import org.eclipse.mat.parser.internal.oql.compiler.EvaluationContext;
 import org.eclipse.mat.parser.internal.oql.compiler.Expression;
 import org.eclipse.mat.parser.internal.oql.compiler.Query;
 import org.eclipse.mat.parser.internal.oql.compiler.Query.FromClause;
+import org.eclipse.mat.parser.internal.oql.compiler.Query.SelectClause;
 import org.eclipse.mat.parser.internal.oql.compiler.Query.SelectItem;
 import org.eclipse.mat.parser.internal.oql.parser.OQLParser;
 import org.eclipse.mat.parser.internal.oql.parser.ParseException;
@@ -199,11 +200,11 @@ public class OQLQueryImpl implements IOQLQuery
 
                         public boolean equals(Object o)
                         {
-                            if (!(o instanceof Entry<?,?>))
+                            if ((o instanceof Entry<?,?>))
                             {
                                 Entry<?,?>ox = (Entry<?,?>)o;
-                                return Objects.equals(getKey(),  ox.getKey()) &&
-                                       Objects.equals(getValue(),  ox.getValue());
+                                return Objects.equals(getKey(), ox.getKey()) &&
+                                       Objects.equals(getValue(), ox.getValue());
                             }
                             {
                                 return false;
@@ -532,7 +533,16 @@ public class OQLQueryImpl implements IOQLQuery
                             alias2 = ""; //$NON-NLS-1$
                         else
                             alias2 = " "+alias; //$NON-NLS-1$
-                        return "SELECT "+source.query.getSelectClause().toString() +" FROM OBJECTS " + getObjectId()+alias2; //$NON-NLS-1$ //$NON-NLS-2$
+                        SelectClause sc = source.query.getSelectClause();
+                        if (sc.isRetainedSet())
+                        {
+                            // Remove asRetainedSet() as we just have a single object here
+                            SelectClause sc2 = new SelectClause();
+                            sc2.setAsObjects(sc.isAsObjects());
+                            sc2.setSelectList(sc.getSelectList());
+                            sc = sc2;
+                        }
+                        return "SELECT "+sc.toString() +" FROM OBJECTS " + getObjectId()+alias2; //$NON-NLS-1$ //$NON-NLS-2$
                     }
                 };
             }
@@ -665,7 +675,16 @@ public class OQLQueryImpl implements IOQLQuery
                         alias2 = ""; //$NON-NLS-1$
                     else
                         alias2 = " "+alias; //$NON-NLS-1$
-                    return "SELECT "+source.query.getSelectClause().toString() +" FROM OBJECTS " + getObjectId()+alias2; //$NON-NLS-1$ //$NON-NLS-2$
+                    SelectClause sc = source.query.getSelectClause();
+                    if (sc.isRetainedSet())
+                    {
+                        // Remove asRetainedSet() as we just have a single object here
+                        SelectClause sc2 = new SelectClause();
+                        sc2.setAsObjects(sc.isAsObjects());
+                        sc2.setSelectList(sc.getSelectList());
+                        sc = sc2;
+                    }
+                    return "SELECT "+sc.toString() +" FROM OBJECTS " + getObjectId()+alias2; //$NON-NLS-1$ //$NON-NLS-2$
                 }
             };
         }
@@ -1306,6 +1325,13 @@ public class OQLQueryImpl implements IOQLQuery
             {
                 return null;
             }
+            else if (result instanceof AbstractCustomTableResultSet)
+            {
+                /*
+                 * Experiment - flatten sub-select containing selects in select items
+                 */
+                return filterAndSelect((AbstractCustomTableResultSet)result, monitor);
+            }
             else if (result instanceof Iterable)
             {
                 List<Object> r = new ArrayList<Object>();
@@ -1917,6 +1943,77 @@ public class OQLQueryImpl implements IOQLQuery
                 r.add(rowobj);
         }
 
+        return r.isEmpty() ? null : select(r, listener);
+    }
+
+    private Object filterAndSelect(AbstractCustomTableResultSet result, IProgressListener listener) throws SnapshotException
+    {
+        List<Object> r = new ArrayList<Object>();
+        for (AbstractCustomTableResultSet.RowMap rowobj : result)
+        {
+            if (listener.isCanceled())
+                throw new IProgressListener.OperationCanceledException();
+
+            /*
+             * Possible flatten
+             */
+            int maxlen = -1;
+            for (Object v : rowobj.values())
+            {
+                if (v instanceof List)
+                {
+                    int ll = ((List<?>)v).size();
+                    if (ll > maxlen)
+                        maxlen = ll;
+                }
+                else if (v !=null && v.getClass().isArray())
+                {
+                    int ll = Array.getLength(v);
+                    if (ll > maxlen)
+                        maxlen = ll;
+                }
+            }
+
+            if (maxlen >= 0)
+            {
+                // Create a row even if the list/array is empty, will be replaced with null
+                if (maxlen == 0)
+                    maxlen = 1;
+                for (int i = 0; i < maxlen; ++i)
+                {
+                    int ix = i;
+                    AbstractCustomTableResultSet.RowMap rm2 = new AbstractCustomTableResultSet.RowMap(result, rowobj.index) {
+                        public Object get(Object key)
+                        {
+                            Object v = rowobj.get(key);
+                            if (v instanceof List)
+                            {
+                                if (ix >= ((List<?>)v).size())
+                                    return null;
+                                return ((List<?>)v).get(ix);
+                            }
+                            else if (v != null && v.getClass().isArray())
+                            {
+                                if (ix >= Array.getLength(v))
+                                    return null;
+                                return Array.get(v, ix);
+                            }
+                            else
+                            {
+                                return v;
+                            }
+                        }
+                    };
+                    if (accept(rm2, listener))
+                        r.add(rm2);
+                }
+            }
+            else
+            {
+                if (accept(rowobj, listener))
+                    r.add(rowobj);
+            }
+        }
         return r.isEmpty() ? null : select(r, listener);
     }
 
