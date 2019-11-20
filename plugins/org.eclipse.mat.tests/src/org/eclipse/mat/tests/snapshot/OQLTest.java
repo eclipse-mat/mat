@@ -13,9 +13,12 @@
 package org.eclipse.mat.tests.snapshot;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.anyOf;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -42,6 +45,7 @@ import org.eclipse.mat.snapshot.SnapshotFactory;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.tests.TestSnapshots;
+import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.VoidProgressListener;
 import org.junit.Test;
@@ -1301,6 +1305,141 @@ public class OQLTest
         checkGetOQL(irt);
     }
 
+    @Test
+    public void testCrossJoin() throws SnapshotException {
+        String dump = TestSnapshots.SUN_JDK6_18_32BIT;
+        int ints[] = (int[])execute("SELECT * from java.lang.Integer", dump);
+        assertNotNull(ints);
+        int longs[] = (int[])execute("SELECT * from java.lang.Long", dump);
+        assertNotNull(longs);
+        IResultTable irt = (IResultTable)execute("SELECT z.i AS Integer, z.i.value AS \"Integer value\", z.lv.l AS Long, z.lv.l.value as \"Long value\" \r\n" +
+                        "FROM OBJECTS ( SELECT i, (SELECT l FROM java.lang.Long l ) AS lv FROM java.lang.Integer i  ) z", dump);
+        assertThat(irt.getRowCount(), equalTo(ints.length * longs.length));
+        for (int i = 0; i < irt.getRowCount(); ++i) {
+            Object row = irt.getRow(i);
+            Object iv1 = irt.getColumnValue(row, 1);
+            assertThat(iv1, instanceOf(Integer.class));
+            Object iv2 = irt.getColumnValue(row, 3);
+            assertThat(iv2, instanceOf(Long.class));
+        }
+        checkGetOQL(irt);
+    }
+
+    @Test
+    public void testLeftJoin() throws SnapshotException {
+        String dump = TestSnapshots.SUN_JDK6_18_32BIT;
+        int ints[] = (int[])execute("SELECT * from java.lang.Integer", dump);
+        assertNotNull(ints);
+        int longs[] = (int[])execute("SELECT * from java.lang.Long", dump);
+        assertNotNull(longs);
+        IResultTable irt = (IResultTable)execute("SELECT z.i AS Integer, z.i.value AS \"Integer value\", z.lv.l AS Long, z.lv.l.value as \"Long value\"  \r\n" +
+                        "FROM OBJECTS ( SELECT i, (SELECT l FROM java.lang.Long l WHERE (l.value = i.value)) AS lv FROM java.lang.Integer i  ) z", dump);
+        assertThat(irt.getRowCount(), greaterThanOrEqualTo(ints.length));
+        for (int i = 0; i < irt.getRowCount(); ++i) {
+            Object row = irt.getRow(i);
+            Object iv1 = irt.getColumnValue(row, 1);
+            assertThat(iv1, instanceOf(Integer.class));
+            Object iv2 = irt.getColumnValue(row, 3);
+            assertThat(iv2, anyOf(nullValue(),instanceOf(Long.class)));
+            if (iv2 != null)
+                assertThat((long)(Integer)iv1, equalTo(iv2));
+        }
+        checkGetOQL(irt);
+    }
+
+    @Test
+    public void testInnerJoin1() throws SnapshotException {
+        String dump = TestSnapshots.SUN_JDK6_18_32BIT;
+        int ints[] = (int[])execute("SELECT * from java.lang.Integer", dump);
+        assertNotNull(ints);
+        int longs[] = (int[])execute("SELECT * from java.lang.Long", dump);
+        assertNotNull(longs);
+        IResultTable irt = (IResultTable)execute("SELECT z.i AS Integer, z.i.value AS \"Integer value\", z.lv.l AS Long, z.lv.l.value as \"Long value\" \r\n" +
+                        "FROM OBJECTS ( SELECT i, (SELECT l FROM java.lang.Long l WHERE (l.value = i.value)) AS lv FROM java.lang.Integer i  ) z WHERE (z.lv != null)", dump);
+        assertThat(irt.getRowCount(), lessThanOrEqualTo(ints.length));
+        assertThat(irt.getRowCount(), lessThanOrEqualTo(longs.length));
+        for (int i = 0; i < irt.getRowCount(); ++i) {
+            Object row = irt.getRow(i);
+            Object iv1 = irt.getColumnValue(row, 1);
+            assertThat(iv1, instanceOf(Integer.class));
+            Object iv2 = irt.getColumnValue(row, 3);
+            assertThat(iv2, instanceOf(Long.class));
+            assertThat((long)(Integer)iv1, equalTo(iv2));
+        }
+        checkGetOQL(irt);
+    }
+
+    @Test
+    public void testInnerJoin2() throws SnapshotException {
+        String dump = TestSnapshots.SUN_JDK6_18_32BIT;
+        int ints[] = (int[])execute("SELECT * from java.lang.Integer", dump);
+        assertNotNull(ints);
+        int longs[] = (int[])execute("SELECT * from java.lang.Long", dump);
+        assertNotNull(longs);
+        IResultTable irt = (IResultTable)execute("SELECT z.iv.i AS Integer, z.iv.i.value AS \"Integer value\", z.l AS Long, z.l.value as \"Long value\" \r\n" +
+                        "FROM OBJECTS ( SELECT (SELECT i FROM java.lang.Integer i WHERE (i.value = l.value)) AS iv, l FROM java.lang.Long l  ) z WHERE (z.iv != null)", dump);
+        assertThat(irt.getRowCount(), lessThanOrEqualTo(ints.length));
+        assertThat(irt.getRowCount(), lessThanOrEqualTo(longs.length));
+        for (int i = 0; i < irt.getRowCount(); ++i) {
+            Object row = irt.getRow(i);
+            Object iv1 = irt.getColumnValue(row, 1);
+            assertThat(iv1, instanceOf(Integer.class));
+            Object iv2 = irt.getColumnValue(row, 3);
+            assertThat(iv2, instanceOf(Long.class));
+            assertThat((long)(Integer)iv1, equalTo(iv2));
+        }
+        checkGetOQL(irt);
+    }
+
+    @Test
+    public void testRightJoin() throws SnapshotException {
+        String dump = TestSnapshots.SUN_JDK6_18_32BIT;
+        int ints[] = (int[])execute("SELECT * from java.lang.Integer", dump);
+        assertNotNull(ints);
+        int longs[] = (int[])execute("SELECT * from java.lang.Long", dump);
+        assertNotNull(longs);
+        IResultTable irt = (IResultTable)execute("SELECT z.iv.i AS Integer, z.iv.i.value AS \"Integer value\", z.l AS Long, z.l.value as \"Long value\" \r\n" +
+                        "FROM OBJECTS ( SELECT (SELECT i FROM java.lang.Integer i WHERE (i.value = l.value)) AS iv, l FROM java.lang.Long l  ) z", dump);
+        assertThat(irt.getRowCount(), greaterThanOrEqualTo(longs.length));
+        for (int i = 0; i < irt.getRowCount(); ++i) {
+            Object row = irt.getRow(i);
+            Object iv1 = irt.getColumnValue(row, 1);
+            assertThat(iv1, anyOf(nullValue(),instanceOf(Integer.class)));
+            Object iv2 = irt.getColumnValue(row, 3);
+            assertThat(iv2, instanceOf(Long.class));
+            if (iv1 != null)
+                assertThat((long)(Integer)iv1, equalTo(iv2));
+        }
+        checkGetOQL(irt);
+    }
+
+    @Test
+    public void testFullOuterJoin() throws SnapshotException {
+        String dump = TestSnapshots.SUN_JDK6_18_32BIT;
+        int ints[] = (int[])execute("SELECT * from java.lang.Integer", dump);
+        assertNotNull(ints);
+        int longs[] = (int[])execute("SELECT * from java.lang.Long", dump);
+        assertNotNull(longs);
+        IResultTable irt = (IResultTable)execute("SELECT z.i AS Integer, z.i.value AS \"Integer value\", z.lv.l AS Long, z.lv.l.value as \"Long value\" \r\n" +
+                        "FROM OBJECTS ( SELECT i, (SELECT l FROM java.lang.Long l WHERE (l.value = i.value)) AS lv FROM java.lang.Integer i  ) z \r\n" +
+                        "UNION (\r\n" +
+                        "SELECT z.iv.i AS Integer, z.iv.i.value AS \"Integer value\", z.l AS Long, z.l.value as \"Long value\" \r\n" +
+                        "FROM OBJECTS ( SELECT (SELECT i FROM java.lang.Integer i WHERE (i.value = l.value)) AS iv, l FROM java.lang.Long l  ) z WHERE (z.iv = null)\r\n" +
+                        ")", dump);
+        assertThat(irt.getRowCount(), greaterThanOrEqualTo(ints.length));
+        assertThat(irt.getRowCount(), greaterThanOrEqualTo(longs.length));
+        for (int i = 0; i < irt.getRowCount(); ++i) {
+            Object row = irt.getRow(i);
+            Object iv1 = irt.getColumnValue(row, 1);
+            assertThat(iv1, anyOf(nullValue(),instanceOf(Integer.class)));
+            Object iv2 = irt.getColumnValue(row, 3);
+            assertThat(iv2, anyOf(nullValue(),instanceOf(Long.class)));
+            if (iv1 != null && iv2 != null)
+                assertThat((long)(Integer)iv1, equalTo(iv2));
+        }
+        checkGetOQL(irt);
+    }
+
     /**
      * Check all getOQL() from contexts from the result are sensible.
      * @param rt ResultTable
@@ -1568,16 +1707,50 @@ public class OQLTest
     }
 
     // //////////////////////////////////////////////////////////////
-    // internal helper
+    // internal helpers
     // //////////////////////////////////////////////////////////////
+
+    /**
+     * Use to check that the work reports from OQL processing are sensible.
+     */
+    static class CountListener extends VoidProgressListener
+    {
+        int work;
+        int done;
+        public void beginTask(String name, int totalWork)
+        {
+            work = totalWork;
+        }
+
+        public void done()
+        {
+            if (done < work)
+                done = work;
+        }
+
+        public void worked(int work)
+        {
+            if (done + work > this.work)
+                throw new IllegalArgumentException("Too much work "+work+" for a listener "+done+"/"+this.work);
+            done += work;
+        }
+    }
 
     private Object execute(String oql) throws SnapshotException
     {
+        return execute(oql, TestSnapshots.SUN_JDK5_64BIT);
+    }
+
+    private Object execute(String oql, String snapshotName) throws SnapshotException
+        {
         try
         {
-            ISnapshot snapshot = TestSnapshots.getSnapshot(TestSnapshots.SUN_JDK5_64BIT, false);
+            ISnapshot snapshot = TestSnapshots.getSnapshot(snapshotName, false);
             IOQLQuery query = SnapshotFactory.createQuery(oql);
-            return query.execute(snapshot, new VoidProgressListener());
+            CountListener cl = new CountListener();
+            Object ret = query.execute(snapshot, cl);
+            assertThat(oql, cl.done, equalTo(cl.work));
+            return ret;
         }
         catch (OQLParseException e)
         {

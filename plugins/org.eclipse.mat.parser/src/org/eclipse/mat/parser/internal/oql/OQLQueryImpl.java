@@ -415,6 +415,31 @@ public class OQLQueryImpl implements IOQLQuery
             }
             return builder.build();
         }
+
+        /**
+         * Simple toString() which does not evaluate all the rows and columns,
+         * which otherwise a subclass of AbstractList would do.
+         */
+        public String toString()
+        {
+            int ncols = getColumns() != null ? getColumns().length : 0;
+            StringBuilder sb = new StringBuilder();
+            sb.append(this.getClass().getSimpleName()).append('@').append(Integer.toHexString(System.identityHashCode(this)));
+            sb.append('[').append(getRowCount()).append(']');
+            sb.append('[').append(ncols).append(']');
+            sb.append('[');
+            final int maxRows = 2;
+            for (int i = 0; i < Math.min(maxRows,  getRowCount()); ++i)
+            {
+                sb.append(get(i).toString());
+                if (i + 1 < getRowCount())
+                    sb.append(',');
+            }
+            if (getRowCount() > maxRows)
+                sb.append("..."); //$NON-NLS-1$
+            sb.append(']');
+            return sb.toString();
+        }
     }
 
     /**
@@ -490,9 +515,13 @@ public class OQLQueryImpl implements IOQLQuery
                 try
                 {
                     source.ctx.setSubject(holder.subject);
+                    // Don't track progress here for reading the cell
+                    IProgressListener old = source.ctx.getProgressListener();
+                    source.ctx.setProgressListener(new SilentProgressListener(old));
                     Query.SelectItem column = source.query.getSelectClause().getSelectList().get(columnIndex);
                     Object v = column.getExpression().compute(source.ctx);
 
+                    source.ctx.setProgressListener(old);
                     holder.values[columnIndex] = v == null ? NULL_VALUE : v;
                 }
                 catch (SnapshotException e)
@@ -597,6 +626,7 @@ public class OQLQueryImpl implements IOQLQuery
 
             List<SelectItem> selectList = source.query.getSelectClause().getSelectList();
             columns = new Column[selectList.size()];
+
             try
             {
                 for (int ii = 0; ii < columns.length; ii++)
@@ -606,7 +636,6 @@ public class OQLQueryImpl implements IOQLQuery
             {
                 throw SnapshotException.rethrow(e);
             }
-
         }
 
         public ResultMetaData getResultMetaData()
@@ -638,9 +667,13 @@ public class OQLQueryImpl implements IOQLQuery
                 {
                     IObject object = source.ctx.getSnapshot().getObject(objectIds[index]);
                     source.ctx.setSubject(object);
+                    // Don't track progress here for reading the cell
+                    IProgressListener old = source.ctx.getProgressListener();
+                    source.ctx.setProgressListener(new SilentProgressListener(old));
                     List<SelectItem> selectList = source.query.getSelectClause().getSelectList();
                     Object value = selectList.get(columnIndex).getExpression().compute(source.ctx);
 
+                    source.ctx.setProgressListener(old);
                     objects[index].values[columnIndex] = value != null ? value : NULL_VALUE;
                 }
                 catch (SnapshotException e)
@@ -1196,9 +1229,17 @@ public class OQLQueryImpl implements IOQLQuery
         initSnapshot(snapshot);
 
         if (monitor == null)
-            monitor = new VoidProgressListener();
+        {
+            if (this.ctx.getProgressListener() != null)
+                monitor = new SilentProgressListener(this.ctx.getProgressListener());
+            else
+                monitor = new VoidProgressListener();
+        }
 
+        IProgressListener old = this.ctx.getProgressListener();
+        this.ctx.setProgressListener(monitor);
         Object result = internalExecute(monitor);
+        this.ctx.setProgressListener(old);
         return result instanceof IntResult ? ((IntResult) result).toArray() : result;
     }
 
@@ -1229,6 +1270,7 @@ public class OQLQueryImpl implements IOQLQuery
             result = union(listener, result);
         }
 
+        monitor.done();
         return result;
 
     }
@@ -1316,8 +1358,11 @@ public class OQLQueryImpl implements IOQLQuery
 
     private Object doSubQuery(IProgressListener monitor) throws SnapshotException
     {
+        int percentages[] = new int[] {300,100};
+        SimpleMonitor listener = new SimpleMonitor(query.toString(), monitor, percentages);
         OQLQueryImpl subQuery = new OQLQueryImpl(this.ctx, query.getFromClause().getSubSelect());
-        Object result = subQuery.internalExecute(monitor);
+        Object result = subQuery.internalExecute(listener.nextMonitor());
+        monitor = listener.nextMonitor();
 
         if (query.getFromClause().includeObjects() && !query.getFromClause().includeSubClasses())
         {
@@ -1340,6 +1385,8 @@ public class OQLQueryImpl implements IOQLQuery
                 {
                     if (accept(obj, monitor))
                         r.add(obj);
+                    if (monitor.isCanceled())
+                        throw new IProgressListener.OperationCanceledException();
                 }
 
                 return r.isEmpty() ? null : select(r, monitor);
@@ -1354,6 +1401,8 @@ public class OQLQueryImpl implements IOQLQuery
                     Object obj = Array.get(result, ii);
                     if (accept(obj, monitor))
                         r.add(obj);
+                    if (monitor.isCanceled())
+                        throw new IProgressListener.OperationCanceledException();
                 }
                 return r.isEmpty() ? null : select(r, monitor);
             }
@@ -1544,12 +1593,15 @@ public class OQLQueryImpl implements IOQLQuery
      */
     private Object doMethodCall(IProgressListener listener) throws SnapshotException
     {
+        int percentages[] = new int[] {300,100};
+        SimpleMonitor smlistener = new SimpleMonitor(query.toString(), listener, percentages);
         Expression method = query.getFromClause().getCall();
         this.ctx.setSubject(this.ctx.getSnapshot());
-        this.ctx.setProgressListener(listener);
         IProgressListener old = ctx.getProgressListener();
+        this.ctx.setProgressListener(smlistener.nextMonitor());
         Object result = method.compute(this.ctx);
         this.ctx.setProgressListener(old);
+        listener = smlistener.nextMonitor();
 
         if (query.getFromClause().includeObjects() && !query.getFromClause().includeSubClasses())
         {
@@ -1565,6 +1617,8 @@ public class OQLQueryImpl implements IOQLQuery
                 {
                     if (accept(obj, listener))
                         r.add(obj);
+                    if (listener.isCanceled())
+                        throw new IProgressListener.OperationCanceledException();
                 }
 
                 return r.isEmpty() ? null : select(r, listener);
@@ -1579,6 +1633,8 @@ public class OQLQueryImpl implements IOQLQuery
                     Object obj = Array.get(result, ii);
                     if (accept(obj, listener))
                         r.add(obj);
+                    if (listener.isCanceled())
+                        throw new IProgressListener.OperationCanceledException();
                 }
 
                 return r.isEmpty() ? null : select(r, listener);
@@ -1848,7 +1904,7 @@ public class OQLQueryImpl implements IOQLQuery
         // calculate retained set
         if (select.isRetainedSet())
         {
-            objectIds = new IntArrayResult(ctx.getSnapshot().getRetainedSet(objectIds.toArray(), listener));
+            objectIds = new IntArrayResult(ctx.getSnapshot().getRetainedSet(objectIds.toArray(), new SilentProgressListener(listener)));
         }
 
         if (select.getSelectList().isEmpty())
@@ -1931,6 +1987,7 @@ public class OQLQueryImpl implements IOQLQuery
         IStructuredResult irt = (IStructuredResult)result;
         List<?>elements = irt instanceof IResultTree ? ((IResultTree)irt).getElements() : null;
         int count = irt instanceof IResultTable ? ((IResultTable)irt).getRowCount() : elements.size();
+        listener.beginTask(Messages.OQLQueryImpl_Selecting, count);
         for (int ii = 0; ii < count; ii++)
         {
             if (listener.isCanceled())
@@ -1941,14 +1998,19 @@ public class OQLQueryImpl implements IOQLQuery
             //IObject o = ctx.getSnapshot().getObject(ic.getObjectId());
             if (accept(rowobj, listener))
                 r.add(rowobj);
+            listener.worked(1);
         }
 
+        listener.done();
         return r.isEmpty() ? null : select(r, listener);
     }
 
     private Object filterAndSelect(AbstractCustomTableResultSet result, IProgressListener listener) throws SnapshotException
     {
         List<Object> r = new ArrayList<Object>();
+        listener.beginTask(Messages.OQLQueryImpl_Selecting, result.getRowCount() * 2);
+        IProgressListener old = this.ctx.getProgressListener();
+        this.ctx.setProgressListener(new SilentProgressListener(listener));
         for (AbstractCustomTableResultSet.RowMap rowobj : result)
         {
             if (listener.isCanceled())
@@ -1966,13 +2028,14 @@ public class OQLQueryImpl implements IOQLQuery
                     if (ll > maxlen)
                         maxlen = ll;
                 }
-                else if (v !=null && v.getClass().isArray())
+                else if (v != null && v.getClass().isArray())
                 {
                     int ll = Array.getLength(v);
                     if (ll > maxlen)
                         maxlen = ll;
-                }
+                };
             }
+            listener.worked(1);
 
             if (maxlen >= 0)
             {
@@ -2006,6 +2069,8 @@ public class OQLQueryImpl implements IOQLQuery
                     };
                     if (accept(rm2, listener))
                         r.add(rm2);
+                    if (listener.isCanceled())
+                        throw new IProgressListener.OperationCanceledException();
                 }
             }
             else
@@ -2013,7 +2078,10 @@ public class OQLQueryImpl implements IOQLQuery
                 if (accept(rowobj, listener))
                     r.add(rowobj);
             }
+            listener.worked(1);
         }
+        this.ctx.setProgressListener(old);
+        listener.done();
         return r.isEmpty() ? null : select(r, listener);
     }
 
@@ -2093,6 +2161,9 @@ public class OQLQueryImpl implements IOQLQuery
         if (set.getColumns().length != 1) { throw new SnapshotException(MessageUtil.format(
                         Messages.OQLQueryImpl_Error_QueryCannotBeConverted, new Object[] { set.getOQLQuery() })); }
 
+        // We don't track work for converting objects
+        IProgressListener old = ctx.getProgressListener();
+        ctx.setProgressListener(new SilentProgressListener(listener));
         int count = set.getRowCount();
         for (int ii = 0; ii < count; ii++)
         {
@@ -2163,6 +2234,7 @@ public class OQLQueryImpl implements IOQLQuery
                 }
             }
         }
+        ctx.setProgressListener(old);
     }
 
     private IntResult createIntResult(int capacity)

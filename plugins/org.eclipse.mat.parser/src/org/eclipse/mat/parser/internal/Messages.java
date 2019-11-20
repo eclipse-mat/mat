@@ -116,6 +116,7 @@ public class Messages extends NLS
     public static String OQLQueryImpl_Error_QueryMustReturnObjects;
     public static String OQLQueryImpl_Error_ResultMustReturnObjectList;
     public static String OQLQueryImpl_Errot_IsNotClass;
+    public static String OQLQueryImpl_Selecting;
     public static String OQLQueryImpl_SelectingObjects;
     public static String ParserRegistry_ErrorCompilingFileNamePattern;
     public static String ParserRegistry_ErrorWhileCreating;
