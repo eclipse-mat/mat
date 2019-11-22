@@ -466,7 +466,7 @@ public class GeneralSnapshotTests
                             continue;
                         // Should not be any classes which match the original snapshot, apart from the excluded ones above
                         Collection<IClass>classes = newSnapshot.getClassesByName(cl.getName(), false);
-                        assertThat("Class matching old snapshot", classes, anyOf(emptyCollectionOf(IClass.class), nullValue()));
+                        assertThat("Class matching original snapshot", classes, anyOf(emptyCollectionOf(IClass.class), nullValue()));
                     }
                     // Check that no byte arrays match the old class names
                     Collection<IClass>cl1 = newSnapshot.getClassesByName("byte[]", false);
@@ -482,7 +482,7 @@ public class GeneralSnapshotTests
                                 if (name != null && !name.matches(excluded))
                                 {
                                     Collection<IClass>classes = snapshot.getClassesByName(name, false);
-                                    assertThat("byte[] matching classes in old snapshot", classes, anyOf(emptyCollectionOf(IClass.class), nullValue()));
+                                    assertThat("byte[] matching classes in original snapshot", classes, anyOf(emptyCollectionOf(IClass.class), nullValue()));
                                 }
                                 if (name != null && !name.matches("\\.+"))
                                     ++nonnull1;
@@ -504,7 +504,7 @@ public class GeneralSnapshotTests
                                 if (name != null && !name.matches(excluded))
                                 {
                                     Collection<IClass>classes = snapshot.getClassesByName(name, false);
-                                    assertThat("char[] matching classes in old snapshot", classes, anyOf(emptyCollectionOf(IClass.class), nullValue()));
+                                    assertThat("char[] matching classes in original snapshot", classes, anyOf(emptyCollectionOf(IClass.class), nullValue()));
                                 }
                                 if (name != null && !name.matches("(\\u0000)+"))
                                     ++nonnull2;
@@ -512,6 +512,26 @@ public class GeneralSnapshotTests
                         }
                     }
                     assertThat("Should be a non-empty char[] somewhere", nonnull2, greaterThan(0));
+                    File newSnapshotFile2 = File.createTempFile(fn.getName(), (compress ? ".hprof.gz" : ".hprof"), tmpdir);
+
+                    // Try reversing the mapping, check the classes come back with the expected names
+                    SnapshotQuery query2 = SnapshotQuery.parse("export_hprof -output "+newSnapshotFile2.getPath() +
+                                    (compress ? " -compress" : "") +
+                                    (mapping != null ? " -redact NONE -undo -map "+mapping.getPath() : "") +
+                                    (segsize > 0 ? " -segsize "+segsize : ""), newSnapshot);
+                    IResult t2 = query2.execute(new VoidProgressListener());
+                    assertNotNull(t2);
+                    ISnapshot newSnapshot2 = SnapshotFactory.openSnapshot(newSnapshotFile, Collections.<String,String>emptyMap(), new VoidProgressListener());
+                    try {
+                        for (IClass cl : snapshot.getClasses())
+                        {
+                            // Should be all the classes in the original snapshot
+                            Collection<IClass>classes = newSnapshot2.getClassesByName(cl.getName(), false);
+                            assertThat("Class matching original snapshot "+cl.getName(), classes, not(emptyCollectionOf(IClass.class)));
+                        }
+                    } finally {
+                        SnapshotFactory.dispose(newSnapshot2);
+                    }
                 }
             } finally {
                 SnapshotFactory.dispose(newSnapshot);
