@@ -15,8 +15,11 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.either;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.collection.IsEmptyCollection.emptyCollectionOf;
+import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
@@ -81,7 +84,7 @@ public class GeneralSnapshotTests
             {TestSnapshots.SUN_JDK5_64BIT, Stacks.NONE},
             {TestSnapshots.SUN_JDK6_18_32BIT, Stacks.FRAMES_AND_OBJECTS},
             {TestSnapshots.SUN_JDK6_18_64BIT, Stacks.FRAMES_AND_OBJECTS},
-            {TestSnapshots.SUN_JDK5_13_32BIT, Stacks.NONE}, 
+            {TestSnapshots.SUN_JDK5_13_32BIT, Stacks.NONE},
             {TestSnapshots.IBM_JDK6_32BIT_HEAP, Stacks.NONE},
             {TestSnapshots.IBM_JDK6_32BIT_JAVA, Stacks.FRAMES},
             {TestSnapshots.IBM_JDK6_32BIT_HEAP_AND_JAVA, Stacks.FRAMES},
@@ -168,7 +171,7 @@ public class GeneralSnapshotTests
         }
         /*
          *  PHD+javacore sometimes doesn't mark javacore threads as type Thread as
-         *  javacore thread id is not a real object id  
+         *  javacore thread id is not a real object id.
          */
         for (int o : snapshot.getGCRoots())
         {
@@ -336,7 +339,7 @@ public class GeneralSnapshotTests
         assertTrue(snapshot.getSnapshotInfo().getNumberOfClassLoaders() > 1);
     }
 
-    @Test 
+    @Test
     public void testRegressionReport() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.tests:regression", snapshot);
@@ -344,7 +347,7 @@ public class GeneralSnapshotTests
         assertNotNull(t);
     }
 
-    @Test 
+    @Test
     public void testPerformanceReport() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.tests:performance", snapshot);
@@ -352,7 +355,7 @@ public class GeneralSnapshotTests
         assertNotNull(t);
     }
 
-    @Test 
+    @Test
     public void testLeakSuspectsReport() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.api:suspects", snapshot);
@@ -360,7 +363,7 @@ public class GeneralSnapshotTests
         assertNotNull(t);
     }
 
-    @Test 
+    @Test
     public void testOverviewReport() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.api:overview", snapshot);
@@ -368,7 +371,7 @@ public class GeneralSnapshotTests
         assertNotNull(t);
     }
 
-    @Test 
+    @Test
     public void testTopComponentsReport() throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.api:top_components", snapshot);
@@ -389,7 +392,6 @@ public class GeneralSnapshotTests
                     IResult t = query.execute(new VoidProgressListener());
                     assertNotNull(t);
                 } catch (IllegalArgumentException e) {
-                    
                 }
             }
         }
@@ -401,7 +403,7 @@ public class GeneralSnapshotTests
      * @throws SnapshotException
      * @throws IOException
      */
-    public void exportHPROF(boolean compress) throws SnapshotException, IOException
+    public void exportHPROF(boolean compress, boolean redact, long segsize) throws SnapshotException, IOException
     {
         // Currently can't export PHD
         assumeThat(snapshot.getSnapshotInfo().getProperty("$heapFormat"), not(equalTo((Serializable)"DTFJ-PHD")));
@@ -411,13 +413,18 @@ public class GeneralSnapshotTests
         File fn = new File(snapshot.getSnapshotInfo().getPrefix());
         assumeThat(fn.getName(), not(containsString("javacore")));
         File tmpdir = TestSnapshots.createGeneratedName(fn.getName(), null);
-        File newSnapshotFile = new File(tmpdir, fn.getName() + (compress ? ".hprof.gz" : ".hprof"));
+        File newSnapshotFile = new File(tmpdir, fn.getName() + (compress ? "hprof.gz" : "hprof"));
+        File mapping = redact ? new File(tmpdir, fn.getName() + "_mapping.properties") : null;
         try {
-            SnapshotQuery query = SnapshotQuery.parse("export_hprof -output "+newSnapshotFile.getPath() + (compress ? " -compress" : ""), snapshot);
+            SnapshotQuery query = SnapshotQuery.parse("export_hprof -output "+newSnapshotFile.getPath() +
+                            (compress ? " -compress" : "") +
+                            (mapping != null ? " -redact NAMES -map "+mapping.getPath() : "") +
+                            (segsize > 0 ? " -segsize "+segsize : ""), snapshot);
             IResult t = query.execute(new VoidProgressListener());
             assertNotNull(t);
             ISnapshot newSnapshot = SnapshotFactory.openSnapshot(newSnapshotFile, Collections.<String,String>emptyMap(), new VoidProgressListener());
             try {
+                assertEquals("Snapshot prefix filename", new File(tmpdir, fn.getName()).getName(), new File(newSnapshot.getSnapshotInfo().getPrefix()).getName());
                 SnapshotInfo oldInfo = snapshot.getSnapshotInfo();
                 SnapshotInfo newInfo = newSnapshot.getSnapshotInfo();
                 assertEquals("Classes", oldInfo.getNumberOfClasses(), newInfo.getNumberOfClasses());
@@ -447,13 +454,72 @@ public class GeneralSnapshotTests
                     }
                 }
                 // Parsing new HPROF will make all classes loaded by boot loader as GC roots, so adjust the expected total
-                // Only seems to apply for IBM 1.4.2 SDFF dumps with 'double', 'long' classes not as system class roots 
+                // Only seems to apply for IBM 1.4.2 SDFF dumps with 'double', 'long' classes not as system class roots
                 assertEquals("GC Roots", oldInfo.getNumberOfGCRoots() + (bootcls - systemclsroot), newInfo.getNumberOfGCRoots());
+                if (redact)
+                {
+                    // Check redaction
+                    String excluded = "java\\..*|(boolean|byte|char|short|int|long|float|double|void)(\\[\\])*";
+                    for (IClass cl : snapshot.getClasses())
+                    {
+                        if (cl.getName().matches(excluded))
+                            continue;
+                        // Should not be any classes which match the original snapshot, apart from the excluded ones above
+                        Collection<IClass>classes = newSnapshot.getClassesByName(cl.getName(), false);
+                        assertThat("Class matching old snapshot", classes, anyOf(emptyCollectionOf(IClass.class), nullValue()));
+                    }
+                    // Check that no byte arrays match the old class names
+                    Collection<IClass>cl1 = newSnapshot.getClassesByName("byte[]", false);
+                    int nonnull1 = 0;
+                    if (cl1 != null)
+                    {
+                        for (IClass c : cl1)
+                        {
+                            for (int o : c.getObjectIds())
+                            {
+                                IObject io = newSnapshot.getObject(o);
+                                String name = io.getClassSpecificName();
+                                if (name != null && !name.matches(excluded))
+                                {
+                                    Collection<IClass>classes = snapshot.getClassesByName(name, false);
+                                    assertThat("byte[] matching classes in old snapshot", classes, anyOf(emptyCollectionOf(IClass.class), nullValue()));
+                                }
+                                if (name != null && !name.matches("\\.+"))
+                                    ++nonnull1;
+                            }
+                        }
+                    }
+                    assertThat("Should be a non-empty byte[] somewhere", nonnull1, greaterThan(0));
+                    // Check that no char arrays match the old class names
+                    Collection<IClass>cl2 = newSnapshot.getClassesByName("char[]", false);
+                    int nonnull2 = 0;
+                    if (cl2 != null)
+                    {
+                        for (IClass c : cl2)
+                        {
+                            for (int o : c.getObjectIds())
+                            {
+                                IObject io = newSnapshot.getObject(o);
+                                String name = io.getClassSpecificName();
+                                if (name != null && !name.matches(excluded))
+                                {
+                                    Collection<IClass>classes = snapshot.getClassesByName(name, false);
+                                    assertThat("char[] matching classes in old snapshot", classes, anyOf(emptyCollectionOf(IClass.class), nullValue()));
+                                }
+                                if (name != null && !name.matches("(\\u0000)+"))
+                                    ++nonnull2;
+                            }
+                        }
+                    }
+                    assertThat("Should be a non-empty char[] somewhere", nonnull2, greaterThan(0));
+                }
             } finally {
                 SnapshotFactory.dispose(newSnapshot);
             }
         } finally {
             newSnapshotFile.delete();
+            if (mapping != null)
+                mapping.delete();
         }
     }
 
@@ -465,7 +531,18 @@ public class GeneralSnapshotTests
     @Test
     public void exportHPROF() throws SnapshotException, IOException
     {
-        exportHPROF(false);
+        exportHPROF(false, false, 0);
+    }
+
+    /**
+     * Test exporting as HPROF
+     * @throws SnapshotException
+     * @throws IOException
+     */
+    @Test
+    public void exportHPROFredact() throws SnapshotException, IOException
+    {
+        exportHPROF(false, true, 0);
     }
 
     /**
@@ -476,7 +553,20 @@ public class GeneralSnapshotTests
     @Test
     public void exportHPROFCompress() throws SnapshotException, IOException
     {
-        exportHPROF(true);
+        exportHPROF(true, false, 0);
+    }
+
+    /**
+     * Test exporting as HPROF
+     * with small HPROF Heap Dump Segments
+     * to test segment processing.
+     * @throws SnapshotException
+     * @throws IOException
+     */
+    @Test
+    public void exportHPROFSegments() throws SnapshotException, IOException
+    {
+        exportHPROF(false, false, 1000000);
     }
 
     /**
@@ -511,7 +601,7 @@ public class GeneralSnapshotTests
         // Check for at least one escape character if there are any Strings
         assertThat(escaped, either(greaterThan(0)).or(equalTo(objects)));
     }
-    
+
     /**
      * Test value of {@link java.lang.StringBuilder}
      */
@@ -535,7 +625,7 @@ public class GeneralSnapshotTests
         }
         assertThat(printables, greaterThanOrEqualTo(objects * 2 / 3));
     }
-    
+
     /**
      * Test value of {@link java.lang.StringBuffer}
      */
@@ -617,7 +707,7 @@ public class GeneralSnapshotTests
 
     /**
      * Test aliasing of two dumps.
-     * Find a dump with an absolute path and a relative path which is the same 
+     * Find a dump with an absolute path and a relative path which is the same
      * when converted to absolute.
      * @throws SnapshotException
      * @throws IOException
@@ -630,7 +720,7 @@ public class GeneralSnapshotTests
         // Get the absolute path version
         File file1 = (new File(path)).getAbsoluteFile();
         // convert the absolute path to a relative path to the appropriate drive/current directory
-        for (File root: File.listRoots()) { 
+        for (File root: File.listRoots()) {
             if (file1.getPath().startsWith(root.getPath())) {
                 // Found a root e.g. C:\
                 String rootPath = root.getPath();
@@ -642,7 +732,7 @@ public class GeneralSnapshotTests
                 current = current.getParentFile();
                 // e.g. C:
                 File newPrefix = drive;
-                
+
                 while (current != null) {
                     if (newPrefix == drive)
                         // e.g. C:..
@@ -659,7 +749,7 @@ public class GeneralSnapshotTests
                 File f2 = newPath.getAbsoluteFile();
                 /*
                  * Check that the complex path manipulations worked.
-                 * This should be true for Windows and Linux. 
+                 * This should be true for Windows and Linux.
                  */
                 assumeTrue(newPath.exists());
                 assumeTrue(f2.exists());
@@ -679,7 +769,7 @@ public class GeneralSnapshotTests
                         SnapshotFactory.dispose(sn3);
                     }
                     assertTrue(sn2.getHeapSize(0) >= 0);
-                    // Do a complex operation which requires the dump still to be open and alive 
+                    // Do a complex operation which requires the dump still to be open and alive.
                     assertNotNull(sn2.getObject(sn2.getClassOf(0).getClassLoaderId()).getOutboundReferences());
                 }
                 finally
