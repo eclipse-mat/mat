@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2018 IBM Corporation.
+ * Copyright (c) 2011, 2019 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1025,7 +1025,8 @@ public class QueriesTest
     public void testExportHprofReport() throws SnapshotException, IOException
     {
         File samp = new File(snapshot.getSnapshotInfo().getPrefix());
-        File fn = File.createTempFile(samp.getName(), ".hprof");
+        File tmpdir = TestSnapshots.createGeneratedName(samp.getName(), null);
+        File fn = new File(tmpdir, samp.getName() + ".hprof");
         try
         {
             SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.hprof:export -params output="+fn.getPath(), snapshot);
@@ -1037,6 +1038,7 @@ public class QueriesTest
         }
         finally
         {
+            // Rest of the directory will be deleted later
             fn.delete();
         }
     }
@@ -1080,7 +1082,8 @@ public class QueriesTest
 
             // Run the report
             File samp = new File(snapshot.getSnapshotInfo().getPrefix());
-            File fn = File.createTempFile(samp.getName(), ".hprof");
+            File tmpdir = TestSnapshots.createGeneratedName(samp.getName(), null);
+            File fn = new File(tmpdir, samp.getName() + ".hprof");
             try
             {
                 SnapshotQuery query = SnapshotQuery.parse(
@@ -1094,6 +1097,7 @@ public class QueriesTest
             }
             finally
             {
+                // Rest of the directory will be deleted later
                 fn.delete();
             }
         }
