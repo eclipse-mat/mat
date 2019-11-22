@@ -149,8 +149,9 @@ public class ExportHprof implements IQuery
     @Argument(isMandatory = false, flag = "classInstance")
     public boolean classesAsInstances = false;
 
+    @Argument(isMandatory = false)
     /** How big a heap dump segment can grow before it needs to be split */
-    private static final long MAX_SEGMENT = 0xffffffffL;
+    public long segsize = 0xffffffffL;
 
     /** Strings to HPROF ID */
     HashMap<String, Integer> stringToID = new HashMap<String, Integer>();
@@ -427,15 +428,19 @@ public class ExportHprof implements IQuery
             /*
              * Possibly multiple segments needed for objects
              */
+            int maxObjects = Integer.MAX_VALUE;
             int st = 0;
             do
             {
                 ++segnum;
 
+                // Segment length measurer
+                os2 = new DataOutputStream3(new NullStream());
+                // Object measurer
                 DataOutputStream3 os3 = new DataOutputStream3(new NullStream());
                 long m1 = os2.size();
                 listener.subTask(MessageUtil.format(Messages.ExportHprof_PrepareObjects, segnum));
-                int end = dumpObjects(os2, os3, st, Integer.MAX_VALUE, listener);
+                int end = dumpObjects(os2, os3, st, maxObjects, true, listener);
                 long m2 = os2.size();
                 long s2 = m2 - m1;
                 os3.close();
@@ -443,7 +448,7 @@ public class ExportHprof implements IQuery
                 long sizel = s2;
 
                 long segStart = os.size();
-                if (sizel > 0xffffffffL)
+                if (sizel > 0xffffffffL || sizel > segsize)
                 {
                     // Too big, but carry on
                     listener.sendUserMessage(IProgressListener.Severity.WARNING,
@@ -456,7 +461,7 @@ public class ExportHprof implements IQuery
 
                 long checkmark1 = os.size();
                 listener.subTask(MessageUtil.format(Messages.ExportHprof_DumpObjects, segnum));
-                st = dumpObjects(os, os2, st, end, listener);
+                st = dumpObjects(os, os2, st, end, false, listener);
                 long checkmark2 = os.size();
                 long size2 = checkmark2 - checkmark1;
                 if (size2 != sizel)
@@ -464,7 +469,7 @@ public class ExportHprof implements IQuery
                     listener.sendUserMessage(IProgressListener.Severity.WARNING,
                                     MessageUtil.format(Messages.ExportHprof_SegmentSizeMismatch, segnum, sizel, size2, Long.toHexString(segStart)), null);
                 }
-            } while (st > 0);
+            } while (st > 0 && st < maxObjects);
 
             os.writeByte(Constants.Record.HEAP_DUMP_END);
             os.writeInt((int) (System.currentTimeMillis() - startTime));
@@ -484,13 +489,14 @@ public class ExportHprof implements IQuery
         listener.done();
 
         /*
-         * Report the result as a heap dump overview
+         * Report the result as a heap dump overview.
+         * Handle integer overflow as we count everything twice, once for sizing, once for output.
          */
-        int nclasses = totalClasses / 2;
-        int nobjects = totalObjects / 2;
-        int nroots = totalRoots / 2;
-        int nclassloaders = totalClassloaders / 2;
-        long nused = totalBytes / 2;
+        int nclasses = totalClasses >>> 1;
+        int nobjects = totalObjects >>> 1;
+        int nroots = totalRoots >>> 1;
+        int nclassloaders = totalClassloaders >>> 1;
+        long nused = totalBytes >>> 1;
 
         SnapshotQuery sq = SnapshotQuery.lookup("heap_dump_overview", snapshot); //$NON-NLS-1$
         String name = output.getName();
@@ -503,6 +509,10 @@ public class ExportHprof implements IQuery
         SnapshotInfo si = new SnapshotInfo(output.getAbsolutePath(), prefix, null, idsize, new Date(startTime), nobjects, nroots, nclasses, nclassloaders, nused);
         String format = (new HprofContentDescriber()).getSupportedOptions()[0].getLocalName();
         si.setProperty("$heapFormat", format); //$NON-NLS-1$
+        if (Boolean.TRUE.equals(snapshot.getSnapshotInfo().getProperty("$useCompressedOops"))) //$NON-NLS-1$
+        {
+            si.setProperty("$useCompressedOops", true); //$NON-NLS-1$
+        }
         sq.setArgument("info", si); //$NON-NLS-1$
         IResult ret = sq.execute(new SilentProgressListener(listener));
         return ret;
@@ -1233,17 +1243,19 @@ public class ExportHprof implements IQuery
     }
 
     /**
-     * Dump objects from start to end (exclusive)
-     * @param os
-     * @param os2
+     * Dump objects from start to end (exclusive).
+     * Returns early if segment is full.
+     * @param os the main out stream
+     * @param os2 a temporary length measuring stream
      * @param start Start object (inclusive)
-     * @param end End object (exclusive)
+     * @param end End object (exclusive), negative means no limit
+     * @param check whether to check for segment overflow
      * @param listener
-     * @return next start position, or -1 for no more objects to do
+     * @return next start position, (negative if no more objects to do)
      * @throws IOException
      * @throws SnapshotException
      */
-    private int dumpObjects(DataOutputStream3 os, DataOutputStream3 os2, int start, int end, IProgressListener listener)
+    private int dumpObjects(DataOutputStream3 os, DataOutputStream3 os2, int start, int end, boolean check, IProgressListener listener)
                     throws IOException, SnapshotException
     {
         int i = 0;
@@ -1251,7 +1263,9 @@ public class ExportHprof implements IQuery
         {
             for (int objs[] : objects)
             {
-                i = dumpObjects(os, os2, start, end, i, objs, listener);
+                i = dumpObjects(os, os2, start, end, i, objs, check, listener);
+                if (end >= 0 && i >= end)
+                    return i;
                 if (i < 0)
                     return -i;
                 if (listener.isCanceled())
@@ -1263,31 +1277,34 @@ public class ExportHprof implements IQuery
             for (IClass cls : snapshot.getClasses())
             {
                 int objs[] = cls.getObjectIds();
-                i = dumpObjects(os, os2, start, end, i, objs, listener);
+                i = dumpObjects(os, os2, start, end, i, objs, check, listener);
+                if (end >= 0 && i >= end)
+                    return i;
                 if (i < 0)
                     return -i;
                 if (listener.isCanceled())
                     throw new OperationCanceledException();
             }
         }
-        return -1;
+        return -i;
     }
 
     /**
-     * Dump objects from start to end (exclusive)
-     * @param os
-     * @param os2
+     * Dump array of objects from start to end (exclusive)
+     * @param os the main out stream
+     * @param os2 a temporary length measuring stream
      * @param start Start object (inclusive)
      * @param end End object (exclusive)
      * @param i current position
      * @param objs an array of the objects
+     * @param check whether to check for segment overflow
      * @param listener
-     * @return next start position, or -1 for no more objects to do
+     * @return next start position, or -position for segment overflow
      * @throws IOException
      * @throws SnapshotException
      */
     private int dumpObjects(DataOutputStream3 os, DataOutputStream3 os2, int start, int end, int i,
-                    int[] objs, IProgressListener listener) throws SnapshotException, IOException
+                    int[] objs, boolean check, IProgressListener listener) throws SnapshotException, IOException
     {
         int numberOfObjects = objs.length;
         if (i + numberOfObjects <= start)
@@ -1311,8 +1328,8 @@ public class ExportHprof implements IQuery
                 else
                 {
                     // Use these objects
-                    // check for overflow if there is an unlimited end and this not the first object
-                    if (dumpObject(os, os2, snapshot.getObject(o), i > start && end == Integer.MAX_VALUE))
+                    // check for overflow if requested and this not the first object
+                    if (dumpObject(os, os2, snapshot.getObject(o), check && i > start))
                     {
                         // Success, enough room
                         ++totalObjects;
@@ -1320,12 +1337,10 @@ public class ExportHprof implements IQuery
                         ++j;
                         progress(numberOfObjects, j, listener);
 
-                        if (i >= end && end >= 0 || os.size() > MAX_SEGMENT)
+                        if (end >= 0 && i >= end)
                         {
                             // Give up here if we have dumped all we should
-                            // or we have overflowed
-                            // Negative indicates return from caller too
-                            return -i;
+                            return i;
                         }
                     }
                     else
@@ -1530,6 +1545,7 @@ public class ExportHprof implements IQuery
      * @param cls the type of the object to dump
      * @param io the object to dump
      * @param check whether to check for segment overflow
+     * @return false if no room in segment
      * @throws IOException
      * @throws SnapshotException
      */
@@ -1538,35 +1554,7 @@ public class ExportHprof implements IQuery
     {
         if (io instanceof IInstance)
         {
-            IInstance ii = (IInstance) io;
-            if (ii.getObjectAddress() == 0)
-            {
-                // skip Bootstrap class loader as it has no fields
-                if (classloaders.contains(io.getObjectId()))
-                    ++totalClassloaders;
-                return true;
-            }
-            IClass cls = io.getClazz();
-            long mark1 = os2.size();
-            dumpInstance(os2, cls, ii);
-            long mark2 = os2.size();
-            long size = mark2 - mark1;
-
-            if (check && os.size() + 1L + idsize + 4 + idsize + 4 + size > MAX_SEGMENT)
-            {
-                // Overflow
-                return false;
-            }
-
-            os.writeByte(Constants.DumpSegment.INSTANCE_DUMP);
-            writeID(os, ii.getObjectAddress());
-            os.writeInt(UNKNOWN_STACK_TRACE_SERIAL); // stack trace serial number
-            writeID(os, cls.getObjectAddress());
-            os.writeInt((int)size);
-            dumpInstance(os, cls, ii);
-            if (classloaders.contains(io.getObjectId()))
-                ++totalClassloaders;
-            totalBytes += cls.getHeapSizePerInstance();
+            return dumpInstance(os, os2, (IInstance)io, check);
         }
         else if (io instanceof IPrimitiveArray)
         {
@@ -1589,10 +1577,10 @@ public class ExportHprof implements IQuery
      * or to output per instance fields declared in java.lang.Class for other classes.
      * CLASS_DUMP only has constant pool, declared fields and static fields - but not fields
      * declared by java.lang.Class.
-     * @param os
-     * @param io
-     * @param check
-     * @return
+     * @param os where to output
+     * @param io what to output
+     * @param check whether to check if no room
+     * @return false if no room in segment
      * @throws IOException
      */
     private boolean dumpClassObject(DataOutputStream3 os, IClass io, boolean check) throws IOException
@@ -1622,7 +1610,7 @@ public class ExportHprof implements IQuery
             }
         }
         size = size2;
-        if (check && os.size() + 1L + idsize + 4 + idsize + 4 + size > MAX_SEGMENT)
+        if (check && os.size() + 1L + idsize + 4 + idsize + 4 + size > segsize)
         {
             // Overflow
             return false;
@@ -1669,12 +1657,22 @@ public class ExportHprof implements IQuery
                 }
             }
         }
+        //if (check && os.size() > MAX_SEGMENT)
+        //   throw new IllegalStateException(""+os.size());
         return true;
     }
     
+    /**
+     * Dump an object array.
+     * @param os where to output
+     * @param ii the object array
+     * @param check whether to check if no room
+     * @return false if no room in segment
+     * @throws IOException
+     */
     private boolean dumpObjectArray(DataOutputStream3 os, IObjectArray ii, boolean check) throws IOException
     {
-        if (check && os.size() + 1L + idsize + 4 + 4 + ii.getLength() * idsize > MAX_SEGMENT)
+        if (check && os.size() + 1L + idsize + 4 + 4 + idsize + ii.getLength() * idsize > segsize)
         {
             // This object would overflow
             return false;
@@ -1690,13 +1688,23 @@ public class ExportHprof implements IQuery
         {
             writeID(os, l[i]);
         }
+        //if (check && os.size() > MAX_SEGMENT)
+        //   throw new IllegalStateException(""+os.size());
         totalBytes += ii.getUsedHeapSize();
         return true;
     }
 
+    /**
+     * Dump a primitive array.
+     * @param os where to output
+     * @param ii the object array
+     * @param check whether to check if no room
+     * @return false if no room in segment
+     * @throws IOException
+     */
     private boolean dumpPrimitiveArray(DataOutputStream3 os, IPrimitiveArray ii, boolean check) throws IOException
     {
-        if (check && os.size() + 1L + idsize + 4 + 4 + 1 + ii.getLength() * (1L << (ii.getType() & 3) ) > MAX_SEGMENT)
+        if (check && os.size() + 1L + idsize + 4 + 4 + 1 + ii.getLength() * (1L << (ii.getType() & 3) ) > segsize)
         {
             return false;
         }
@@ -1830,18 +1838,56 @@ public class ExportHprof implements IQuery
                 os.writeDouble(doubleValue);
             }
         }
+        //if (check && os.size() > MAX_SEGMENT)
+        //   throw new IllegalStateException(""+os.size());
         totalBytes += ii.getUsedHeapSize();
+        return true;
+    }
+
+    private boolean dumpInstance(DataOutputStream3 os, DataOutputStream3 os2, IInstance ii, boolean check)
+                    throws IOException
+    {
+        if (ii.getObjectAddress() == 0)
+        {
+            // skip Bootstrap class loader as it has no fields
+            if (classloaders.contains(ii.getObjectId()))
+                ++totalClassloaders;
+            return true;
+        }
+        IClass cls = ii.getClazz();
+        long mark1 = os2.size();
+        dumpInstanceFields(os2, cls, ii);
+        long mark2 = os2.size();
+        long size = mark2 - mark1;
+
+        if (check && os.size() + 1L + idsize + 4 + idsize + 4 + size > segsize)
+        {
+            // Overflow
+            return false;
+        }
+
+        os.writeByte(Constants.DumpSegment.INSTANCE_DUMP);
+        writeID(os, ii.getObjectAddress());
+        os.writeInt(UNKNOWN_STACK_TRACE_SERIAL); // stack trace serial number
+        writeID(os, cls.getObjectAddress());
+        os.writeInt((int)size);
+        dumpInstanceFields(os, cls, ii);
+        //if (check && os.size() > MAX_SEGMENT)
+        //   throw new IllegalStateException(""+os.size());
+        if (classloaders.contains(ii.getObjectId()))
+            ++totalClassloaders;
+        totalBytes += cls.getHeapSizePerInstance();
         return true;
     }
 
     /**
      * Output a single plain object.
-     * @param os
-     * @param cls
-     * @param ii
+     * @param os where to output
+     * @param cls the type of the object
+     * @param ii the actual object
      * @throws IOException
      */
-    private void dumpInstance(DataOutputStream3 os, IClass cls, IInstance ii) throws IOException
+    private void dumpInstanceFields(DataOutputStream3 os, IClass cls, IInstance ii) throws IOException
     {
         List<Field> allf = new ArrayList<Field>(ii.getFields());
         for (IClass cls1 = cls; cls1 != null; cls1 = cls1.getSuperClass())
@@ -1871,8 +1917,8 @@ public class ExportHprof implements IQuery
 
     /**
      * Write an ID of an object as an appropriate size.
-     * @param os
-     * @param addr
+     * @param os where to output
+     * @param addr the address of the object
      * @throws IOException
      */
     private void writeID(DataOutput os, long addr) throws IOException
