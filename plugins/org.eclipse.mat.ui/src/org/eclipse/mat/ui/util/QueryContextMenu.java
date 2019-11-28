@@ -115,6 +115,7 @@ public class QueryContextMenu
 
         String label = null;
 
+        boolean shownSystem = false;
         // context calculation
         for (ContextProvider p : contextProvider)
         {
@@ -157,11 +158,17 @@ public class QueryContextMenu
             if (!menuContext.isEmpty())
                 queryMenu(menu, menuContext, label);
 
-            systemMenu(menu, control);
+            if (!menuContext.isEmpty())
+            {
+                systemMenu(menu, control);
+                shownSystem = true;
+            }
 
             if (!menuContext.isEmpty())
                 customMenu(menu, menuContext, p, label);
         }
+        if (!shownSystem)
+            systemMenu(manager, control);
     }
 
     private String getLabel(IStructuredSelection selection)
@@ -750,7 +757,15 @@ public class QueryContextMenu
             String menuName = QueryRegistry.instance().getRootCategory().resolve(qd.getCategory()).getName();
             PopupMenu menu2 = menu.getChildMenu(menuName);
             if (menu2 != null)
+            {
                 menu = menu2;
+            }
+            else
+            {
+                menu2 = new PopupMenu(menuName);
+                menu.add(menu2);
+                menu = menu2;
+            }
         }
 
         Action copySelectionAction = new Action()

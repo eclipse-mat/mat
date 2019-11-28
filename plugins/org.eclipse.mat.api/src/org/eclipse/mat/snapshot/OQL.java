@@ -167,7 +167,7 @@ public final class OQL
             int end = query.length();
             while (query.charAt(end - 1) == ')')
             {
-                int start = query.lastIndexOf(" UNION ("); //$NON-NLS-1$
+                int start = query.lastIndexOf(" UNION (", end - 1); //$NON-NLS-1$
                 if (start == -1)
                     break;
                 if (union(query, start + 8, end - 1, other))

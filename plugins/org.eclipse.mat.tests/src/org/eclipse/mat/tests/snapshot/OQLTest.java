@@ -19,6 +19,7 @@ import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.anyOf;
+import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -33,6 +34,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.mat.SnapshotException;
+import org.eclipse.mat.collect.ArrayInt;
+import org.eclipse.mat.collect.IteratorInt;
 import org.eclipse.mat.query.ContextProvider;
 import org.eclipse.mat.query.IContextObject;
 import org.eclipse.mat.query.IContextObjectSet;
@@ -1135,6 +1138,22 @@ public class OQLTest
         assertEquals("select s from 1,2,3 s UNION (select t from 17,23 t)", sb.toString());
     }
 
+    @Test
+    public void testOQLunion7() throws SnapshotException {
+        String dump = TestSnapshots.SUN_JDK6_18_32BIT;
+        StringBuilder sb = new StringBuilder();
+        sb.append("SELECT a.t.s.value FROM OBJECTS (SELECT * FROM OBJECTS ( SELECT (SELECT ${snapshot}.getObject(2839) AS s FROM OBJECTS ( null ) ) AS t FROM OBJECTS ( null ) a  ) a )  a");
+        OQL.union(sb, "SELECT a.t.s.value FROM OBJECTS (SELECT * FROM OBJECTS ( SELECT (SELECT ${snapshot}.getObject(2896) AS s FROM OBJECTS ( null ) ) AS t FROM OBJECTS ( null ) a  ) a )  a");
+        OQL.union(sb, "SELECT a.t.s.value FROM OBJECTS (SELECT * FROM OBJECTS ( SELECT (SELECT ${snapshot}.getObject(2796) AS s FROM OBJECTS ( null ) ) AS t FROM OBJECTS ( null ) a  ) a )  a");
+        String s1 = sb.toString();
+        assertThat(s1, containsString("2839"));
+        assertThat(s1, containsString("2896"));
+        assertThat(s1, containsString("2796"));
+        IResultTable irt = (IResultTable)execute(s1, dump);
+        assertThat(irt.getRowCount(), equalTo(3));
+        checkGetOQL(irt, dump);
+    }
+
     /**
      * Complex test to check that the second FROM clause is reevaluated.
      * @throws SnapshotException
@@ -1306,23 +1325,117 @@ public class OQLTest
     }
 
     @Test
+    public void testComplex11() throws SnapshotException {
+        IResultTable irt = (IResultTable)execute("SELECT 'c', \"String\", 1, 1234567890123456789L, 1.23456, 1.23456F, 1.23456789, 1.23456789D, true, false, null FROM OBJECTS 0");
+        assertThat(irt.getRowCount(), equalTo(1));
+        assertThat(irt.getColumns().length, equalTo(11));
+        Object row = irt.getRow(0);
+        checkGetOQL(irt);
+    }
+
+    @Test
+    public void testComplex12() throws SnapshotException {
+        IResultTable irt = (IResultTable)execute("SELECT 'c' as a, \"String\" as b, 1 as c, 1234567890123456789L as d, 1.23456 as e, 1.23456F as f, 1.23456789 as g, 1.23456789D as h, true as i, false as j, null as k FROM OBJECTS 0");
+        assertThat(irt.getRowCount(), equalTo(1));
+        assertThat(irt.getColumns().length, equalTo(11));
+        Object row = irt.getRow(0);
+        checkGetOQL(irt);
+    }
+
+    @Test
+    public void testComplex13() throws SnapshotException {
+        IResultTable irt = (IResultTable)execute("SELECT z.a,z.b,z.c,z.d,z.e,z.f,z.g,z.h,z.i,z.j,z.k FROM OBJECTS ("
+                        + "SELECT 'c' as a, \"String\" as b, 1 as c, 1234567890123456789L as d, 1.23456 as e, 1.23456F as f, 1.23456789 as g, 1.23456789D as h, true as i, false as j, null as k FROM OBJECTS 0"
+                        + ") z");
+        assertThat(irt.getRowCount(), equalTo(1));
+        assertThat(irt.getColumns().length, equalTo(11));
+        Object row = irt.getRow(0);
+        checkGetOQL(irt);
+    }
+
+    @Test
+    public void testComplex14() throws SnapshotException {
+        IResultTable irt = (IResultTable)execute("SELECT "
+                        + "(SELECT * FROM OBJECTS ('c')) as a, "
+                        + "(SELECT * FROM OBJECTS (\"String\")) as b, "
+                        + "(SELECT * FROM OBJECTS (1)) as c, "
+                        + "(SELECT * FROM OBJECTS (1234567890123456789L)) as d, "
+                        + "(SELECT * FROM OBJECTS (1.23456)) as e, "
+                        + "(SELECT * FROM OBJECTS (1.23456F)) as f, "
+                        + "(SELECT * FROM OBJECTS (1.23456789)) as g, "
+                        + "(SELECT * FROM OBJECTS (1.23456789D)) as h, "
+                        + "(SELECT * FROM OBJECTS (true)) as i, "
+                        + "(SELECT * FROM OBJECTS (false)) as j, "
+                        + "(SELECT * FROM OBJECTS (null)) as k"
+                        + " FROM OBJECTS 0");
+        assertThat(irt.getRowCount(), equalTo(1));
+        assertThat(irt.getColumns().length, equalTo(11));
+        Object row = irt.getRow(0);
+        checkGetOQL(irt);
+    }
+
+    @Test
+    public void testComplex15() throws SnapshotException {
+        IResultTable irt = (IResultTable)execute("SELECT a.t.s.value, a, outbounds(a.t.s.value) "
+                        + "FROM OBJECTS ( "
+                        + "SELECT "
+                        + "(SELECT s FROM java.lang.String s ) AS t "
+                        + "FROM OBJECTS ( \"A\" )  ) a");
+        assertThat(irt.getColumns().length, equalTo(3));
+        checkGetOQL(irt);
+    }
+
+    @Test
+    public void testComplex16() throws SnapshotException {
+        IResultTable irt = (IResultTable)execute("SELECT a.t.s.value, a, outbounds(a.t.s.value) "
+                        + "FROM OBJECTS ( "
+                        + "SELECT "
+                        + "(SELECT s FROM java.lang.String s ) AS t "
+                        + "FROM OBJECTS ( \"A\" )  ) a  "
+                        + "UNION ("
+                        + "SELECT a.t.s.value, a, outbounds(a.t.s.value) "
+                        + "FROM OBJECTS ( "
+                        + "SELECT "
+                        + "(SELECT s FROM java.lang.String s ) AS t "
+                        + "FROM OBJECTS ( \"A\" )  ) a )");
+        assertThat(irt.getColumns().length, equalTo(3));
+        checkGetOQL(irt);
+    }
+
+    /**
+     *  check a column holding objects and ints 
+     */
+    @Test
+    public void testComplex17() throws SnapshotException {
+        IResultTable irt = (IResultTable)execute("SELECT v, v.i.value FROM OBJECTS ( SELECT i FROM java.lang.String i  UNION ( SELECT i FROM java.lang.Integer i  ) ) v");
+        assertThat(irt.getColumns().length, equalTo(2));
+        checkGetOQL(irt);
+    }
+
+    /**
+     * Cross Join.
+     * Integer and Boolean
+     * takes too long with Integer and Long
+     * @throws SnapshotException
+     */
+    @Test
     public void testCrossJoin() throws SnapshotException {
         String dump = TestSnapshots.SUN_JDK6_18_32BIT;
         int ints[] = (int[])execute("SELECT * from java.lang.Integer", dump);
         assertNotNull(ints);
-        int longs[] = (int[])execute("SELECT * from java.lang.Long", dump);
-        assertNotNull(longs);
-        IResultTable irt = (IResultTable)execute("SELECT z.i AS Integer, z.i.value AS \"Integer value\", z.lv.l AS Long, z.lv.l.value as \"Long value\" \r\n" +
-                        "FROM OBJECTS ( SELECT i, (SELECT l FROM java.lang.Long l ) AS lv FROM java.lang.Integer i  ) z", dump);
-        assertThat(irt.getRowCount(), equalTo(ints.length * longs.length));
+        int bools[] = (int[])execute("SELECT * from java.lang.Boolean", dump);
+        assertNotNull(bools);
+        IResultTable irt = (IResultTable)execute("SELECT z.i AS Integer, z.i.value AS \"Integer value\", z.lv.l AS Boolean, z.lv.l.value as \"Boolean value\" \r\n" +
+                        "FROM OBJECTS ( SELECT i, (SELECT l FROM java.lang.Boolean l ) AS lv FROM java.lang.Integer i  ) z", dump);
+        assertThat(irt.getRowCount(), equalTo(ints.length * bools.length));
         for (int i = 0; i < irt.getRowCount(); ++i) {
             Object row = irt.getRow(i);
             Object iv1 = irt.getColumnValue(row, 1);
             assertThat(iv1, instanceOf(Integer.class));
             Object iv2 = irt.getColumnValue(row, 3);
-            assertThat(iv2, instanceOf(Long.class));
+            assertThat(iv2, instanceOf(Boolean.class));
         }
-        checkGetOQL(irt);
+        checkGetOQL(irt, dump);
     }
 
     @Test
@@ -1344,7 +1457,7 @@ public class OQLTest
             if (iv2 != null)
                 assertThat((long)(Integer)iv1, equalTo(iv2));
         }
-        checkGetOQL(irt);
+        checkGetOQL(irt, dump);
     }
 
     @Test
@@ -1366,7 +1479,7 @@ public class OQLTest
             assertThat(iv2, instanceOf(Long.class));
             assertThat((long)(Integer)iv1, equalTo(iv2));
         }
-        checkGetOQL(irt);
+        checkGetOQL(irt, dump);
     }
 
     @Test
@@ -1388,7 +1501,7 @@ public class OQLTest
             assertThat(iv2, instanceOf(Long.class));
             assertThat((long)(Integer)iv1, equalTo(iv2));
         }
-        checkGetOQL(irt);
+        checkGetOQL(irt, dump);
     }
 
     @Test
@@ -1410,7 +1523,7 @@ public class OQLTest
             if (iv1 != null)
                 assertThat((long)(Integer)iv1, equalTo(iv2));
         }
-        checkGetOQL(irt);
+        checkGetOQL(irt, dump);
     }
 
     @Test
@@ -1437,7 +1550,7 @@ public class OQLTest
             if (iv1 != null && iv2 != null)
                 assertThat((long)(Integer)iv1, equalTo(iv2));
         }
-        checkGetOQL(irt);
+        checkGetOQL(irt, dump);
     }
 
     /**
@@ -1447,17 +1560,28 @@ public class OQLTest
      */
     void checkGetOQL(IResultTable rt) throws SnapshotException
     {
+        checkGetOQL(rt, TestSnapshots.SUN_JDK5_64BIT);
+    }
+
+    /**
+     * Check all getOQL() from contexts from the result are sensible.
+     * @param rt ResultTable
+     * @param dump the snapshot to test against
+     * @throws SnapshotException
+     */
+    void checkGetOQL(IResultTable rt, String dump) throws SnapshotException
+    {
         // Check the default contextx
         for (int i = 0; i < rt.getRowCount(); ++i)
         {
             IContextObject c = rt.getContext(rt.getRow(i));
-            checkDefaultContext(rt, i, c);
+            checkDefaultContext(rt, i, c, dump);
             for (ContextProvider p : rt.getResultMetaData().getContextProviders())
             {
                 if (p.getLabel().startsWith("SELECT ... ")) {
                     // Default provider as metadata provider
                     c = p.getContext(rt.getRow(i));
-                    checkDefaultContext(rt, i, c);
+                    checkDefaultContext(rt, i, c, dump);
                 }
             }
         }
@@ -1477,72 +1601,107 @@ public class OQLTest
                             // SimpleObject
                             IObject io = (IObject)o;
                             IContextObject c = p.getContext(rt.getRow(i));
-                            checkSingleObjectContext(io.getObjectId(), c);
+                            checkSingleObjectContext(io.getObjectId(), c, dump);
                         }
-                        else if (o instanceof Iterable && ((Iterable<?>)o).iterator().hasNext() && ((Iterable<?>)o).iterator().next() instanceof IObject)
+                        else if (o instanceof Iterable && ((Iterable<?>)o).iterator().hasNext() && ((Iterable<?>)o).iterator().next() instanceof IObject || o instanceof int[])
                         {
                             // Iterable, look for objects
-                            List<IObject>os = new ArrayList<IObject>();
-                            for (Object o1 : (Iterable)o)
+                            List<IObject> os = new ArrayList<IObject>();
+                            ArrayInt ai = new ArrayInt();
+                            if (o instanceof Iterable<?>)
                             {
-                                if (o1 instanceof IObject)
-                                os.add((IObject)o1);
+                                for (Object o1 : (Iterable<?>)o)
+                                {
+                                    if (o1 instanceof IObject)
+                                    {
+                                        ai.add(((IObject)o1).getObjectId());
+                                        os.add((IObject)o1);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                int oa[] = (int[])o;
+                                for (int o1 : oa)
+                                {
+                                    ai.add(o1);
+                                }
                             }
                             IContextObject c = p.getContext(rt.getRow(i));
-                            assertTrue(c instanceof IContextObjectSet);
+                            assertThat("row="+i+" col="+j, c, instanceOf(IContextObjectSet.class));
                             IContextObjectSet cs = (IContextObjectSet)c;
+                            int []csobjs = cs.getObjectIds();
+                            assertThat("row="+i+" col="+j, csobjs, equalTo(ai.toArray()));
                             String oql = cs.getOQL();
-                            Object res = execute(oql);
+                            Object res = execute(oql, dump);
                             if (res instanceof int[])
                             {
                                 int r[] = (int[])res;
-                                assertEquals(os.size(), r.length);
-                                for (IObject o1 : os)
+                                assertEquals("row="+i+" col="+j, ai.size(), r.length);
+                                for (IteratorInt it = ai.iterator(); it.hasNext(); )
                                 {
+                                    int o1 = it.next();
                                     boolean found = false;
                                     for (int ri : r)
                                     {
-                                        if (ri == o1.getObjectId())
+                                        if (ri == o1)
                                             found = true;
                                     }
-                                    assertTrue(found);
+                                    assertTrue("row="+i+" col="+j, found);
                                 }
                                 for (int ri : r)
                                 {
                                     boolean found = false;
-                                    for (IObject o1 : os)
+                                    for (IteratorInt it = ai.iterator(); it.hasNext(); )
                                     {
-                                        if (ri == o1.getObjectId())
+                                        int o1 = it.next();
+                                        if (ri == o1)
                                             found = true;
                                     }
-                                    assertTrue(found);
+                                    assertTrue("row="+i+" col="+j, found);
                                 }
                             }
                             else if (res instanceof IResultTable)
                             {
                                 IResultTable rt2 = (IResultTable)res;
-                                assertEquals(1, rt2.getRowCount());
-                                assertEquals(1, rt2.getColumns().length);
+                                assertEquals("row="+i+" col="+j, 1, rt2.getRowCount());
+                                assertEquals("row="+i+" col="+j, 1, rt2.getColumns().length);
                                 List<IObject>os2 = new ArrayList<IObject>();
+                                ArrayInt ai2 = new ArrayInt();
                                 for (int r = 0; r < rt2.getRowCount(); ++r)
                                 {
                                     Object o2 = rt2.getColumnValue(rt2.getRow(r), 0);
-                                    assertTrue(""+o2, o2 instanceof Iterable);
-                                    for (Object o3 : (Iterable)o2)
+                                    if (o2 instanceof int[])
                                     {
-                                        assertTrue(""+o3, o3 instanceof IObject);
-                                        IObject io2 = (IObject)o3;
-                                        assertTrue(os.contains(io2));
-                                        os2.add(io2);
+                                        ai2.addAll((int[])o2);
+                                    }
+                                    else
+                                    {
+                                        assertThat(o2, instanceOf(Iterable.class));
+                                        for (Object o3 : (Iterable<?>)o2)
+                                        {
+                                            assertThat(o3, instanceOf(IObject.class));
+                                            IObject io2 = (IObject)o3;
+                                            assertTrue("row="+i+" col="+j, os.contains(io2));
+                                            os2.add(io2);
+                                            ai2.add(io2.getObjectId());
+                                        }
                                     }
                                 }
-                                for (IObject ox : os)
+                                if (ai2.isEmpty())
                                 {
-                                    assertTrue(os2.contains(ox));
+                                    for (IObject ox : os)
+                                    {
+                                        assertTrue(os2.contains(ox));
+                                    }
+                                    for (IObject ox : os2)
+                                    {
+                                        assertTrue(os.contains(ox));
+                                    }
                                 }
-                                for (IObject ox : os2)
+                                else
                                 {
-                                    assertTrue(os.contains(ox));
+                                    assertThat(ai.toArray(), equalTo(ai2.toArray()));
                                 }
                             }
                         }
@@ -1552,17 +1711,17 @@ public class OQLTest
         }
     }
 
-    private void checkDefaultContext(IResultTable rt, int row, IContextObject c) throws SnapshotException
+    private void checkDefaultContext(IResultTable rt, int row, IContextObject c, String dump) throws SnapshotException
     {
         if (c instanceof IContextObjectSet)
         {
             IContextObjectSet cs = (IContextObjectSet)c;
             if (cs.getObjectIds().length == 1)
-                checkSingleObjectContext(rt, row, cs.getObjectIds()[0], c);
+                checkSingleObjectContext(rt, row, cs.getObjectIds()[0], c, dump);
             else {
                 int os[] = cs.getObjectIds();
                 String oql = cs.getOQL();
-                Object res = execute(oql);
+                Object res = execute(oql, dump);
                 if (res instanceof int[])
                 {
                     int r[] = (int[])res;
@@ -1575,23 +1734,23 @@ public class OQLTest
                 else if (res instanceof IResultTable)
                 {
                     IResultTable rt2 = (IResultTable)res;
-                    assertEquals(1, rt2.getRowCount());
-                    assertEquals(rt.getColumns().length, rt2.getColumns().length);
+                    assertEquals("row="+row+" oql="+oql, 1, rt2.getRowCount());
+                    assertEquals("row="+row+" oql="+oql, rt.getColumns().length, rt2.getColumns().length);
                     for (int j = 0; j < rt.getColumns().length; ++j)
                     {
                         Object o1 = rt.getColumnValue(rt.getRow(row), j);
                         Object o2 = rt2.getColumnValue(rt2.getRow(0), j);
-                        assertEquals("row="+row+" col="+j, o1, o2);
+                        assertThat("row="+row+" col="+j+" oql="+oql, o1, equalTo(o2));
                     }
                     IContextObject ic = rt2.getContext(rt2.getRow(0));
-                    assertTrue(ic instanceof IContextObjectSet);
+                    assertThat("row="+row+" oql="+oql, ic, instanceOf(IContextObjectSet.class));
                     IContextObjectSet ics = (IContextObjectSet)ic;
-                    assertEquals(oql, ics.getOQL());
-                    assertEquals(cs.getObjectId(), ics.getObjectId());
-                    assertEquals(os.length, ics.getObjectIds().length);
+                    assertEquals("row="+row, oql, ics.getOQL());
+                    assertEquals("row="+row+" oql="+oql ,cs.getObjectId(), ics.getObjectId());
+                    assertEquals("row="+row+" oql="+oql, os.length, ics.getObjectIds().length);
                     for (int ix = 0; ix < os.length; ++ix)
                     {
-                        assertEquals(os[ix], ics.getObjectIds()[ix]);
+                        assertEquals("row="+row+" oql="+oql, os[ix], ics.getObjectIds()[ix]);
                     }
                 }
             }
@@ -1601,15 +1760,15 @@ public class OQLTest
         }
     }
 
-    private void checkSingleObjectContext(int ioid, IContextObject c) throws SnapshotException
+    private void checkSingleObjectContext(int ioid, IContextObject c, String dump) throws SnapshotException
     {
-        assertTrue(c instanceof IContextObjectSet);
+        assertThat(c, instanceOf(IContextObjectSet.class));
         IContextObjectSet cs = (IContextObjectSet)c;
         assertEquals(ioid, cs.getObjectId());
         assertEquals(1, cs.getObjectIds().length);
         assertEquals(ioid, cs.getObjectIds()[0]);
         String oql = cs.getOQL();
-        Object res = execute(oql);
+        Object res = execute(oql, dump);
         if (res instanceof int[])
         {
             int r[] = (int[])res;
@@ -1622,18 +1781,18 @@ public class OQLTest
             assertEquals(1, rt2.getRowCount());
             assertEquals(1, rt2.getColumns().length);
             Object o2 = rt2.getColumnValue(rt2.getRow(0), 0);
-            assertTrue(o2 instanceof IObject);
+            assertThat(o2, instanceOf(IObject.class));
             IObject io2 = (IObject)o2;
             assertEquals(ioid, io2.getObjectId());
         }
     }
 
-    private void checkSingleObjectContext(IResultTable rt, int row, int ioid, IContextObject c) throws SnapshotException
+    private void checkSingleObjectContext(IResultTable rt, int row, int ioid, IContextObject c, String dump) throws SnapshotException
     {
-        assertTrue(c instanceof IContextObjectSet);
+        assertThat(c, instanceOf(IContextObjectSet.class));
         IContextObjectSet cs = (IContextObjectSet)c;
         String oql = cs.getOQL();
-        Object res = execute(oql);
+        Object res = execute(oql, dump);
         if (res instanceof int[])
         {
             int r[] = (int[])res;
@@ -1742,7 +1901,7 @@ public class OQLTest
     }
 
     private Object execute(String oql, String snapshotName) throws SnapshotException
-        {
+    {
         try
         {
             ISnapshot snapshot = TestSnapshots.getSnapshot(snapshotName, false);
