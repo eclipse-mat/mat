@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 Filippo Pacifici
+ * Copyright (c) 2012,2019 Filippo Pacifici and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  * Filippo Pacifici - initial API and implementation
+ * Andrew Johnson (IBM Corporation) - bug fix
  *******************************************************************************/
 package org.eclipse.mat.ui.snapshot.panes.oql.textPartitioning;
 
@@ -220,6 +221,11 @@ public class MultilineNonConsumingRule implements IRule, IPredicateRule
             {
                 offsets[i]++;
                 if (offsets[i] == endSeq[i].length) { return i; }
+            }
+            else
+            {
+                // Reset the match
+                offsets[i] = 0;
             }
         }
         return -1;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 Filippo Pacifici
+ * Copyright (c) 2012,2019 Filippo Pacifici and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,18 +7,22 @@
  *
  * Contributors:
  * Filippo Pacifici - initial API and implementation
+ * Andrew Johnson (IBM Corporation) - test bug fix
  *******************************************************************************/
 package org.eclipse.mat.tests.ui.snapshot.panes.textPartitioning;
+
+import static org.junit.Assert.assertEquals;
 
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.rules.FastPartitioner;
+import org.eclipse.jface.text.rules.Token;
+import org.eclipse.mat.ui.snapshot.panes.oql.contentAssist.OQLScanner;
 import org.eclipse.mat.ui.snapshot.panes.oql.textPartitioning.OQLPartitionScanner;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  * Tests that partition works for complex queries
@@ -144,5 +148,57 @@ public class TestOQLPartitionScanner
         assertEquals(OQLPartitionScanner.SELECT_CLAUSE, regions[0].getType());
         assertEquals(OQLPartitionScanner.FROM_CLAUSE, regions[1].getType());
 
+    }
+
+    /**
+     * Checks complex partitions and where clauses is not prematurely terminated
+     * and that end of line does not stop highlighting.
+     */
+    @Test
+    public void testComplexPartitions1()
+    {
+        doc.set("select * from java.lang.String where\n"
+                + "s.count > 0 and s.count > 0 and s.count > 0 and\n"
+                + "s.count > 0 and s.count > 0 and s.count > 0 and\n"
+                + "s.count > 0 and s.count > 0 and s.count > 0");
+
+        ITypedRegion[] regions = partitioner.computePartitioning(0, doc.getLength());
+
+        assertEquals(3, regions.length);
+        assertEquals(OQLPartitionScanner.SELECT_CLAUSE, regions[0].getType());
+        assertEquals(OQLPartitionScanner.FROM_CLAUSE, regions[1].getType());
+        assertEquals(OQLPartitionScanner.WHERE_CLAUSE, regions[2].getType());
+        assertEquals(regions[2].getOffset(), doc.get().indexOf("where"));
+        assertEquals(regions[2].getOffset() + regions[2].getLength(), doc.get().length());
+
+        OQLScanner sc = new OQLScanner(null);
+        int ands = 0;
+        sc.setRange(doc, regions[2].getOffset(), regions[2].getLength());
+        while (sc.nextToken() != Token.EOF)
+        {
+            if (doc.get().substring(sc.getTokenOffset(), sc.getTokenOffset() + sc.getTokenLength()).equals("and"))
+                ++ands;
+        }
+        assertEquals(8, ands);
+    }
+
+    /**
+     * Checks complex partitions and where clause is not prematurely terminated
+     * by a hidden 'SELECT'.
+     */
+    @Test
+    public void testComplexPartitions2()
+    {
+        doc.set("select * from java.lang.String s where \n" +
+                "s implements org.eclipse.mat.snapshot.model.IObject and s implements org.eclipse.mat.snapshot.model.IObject");
+
+        ITypedRegion[] regions = partitioner.computePartitioning(0, doc.getLength());
+
+        assertEquals(3, regions.length);
+        assertEquals(OQLPartitionScanner.SELECT_CLAUSE, regions[0].getType());
+        assertEquals(OQLPartitionScanner.FROM_CLAUSE, regions[1].getType());
+        assertEquals(OQLPartitionScanner.WHERE_CLAUSE, regions[2].getType());
+        assertEquals(regions[2].getOffset(), doc.get().indexOf("where"));
+        assertEquals(regions[2].getOffset() + regions[2].getLength(), doc.get().length());
     }
 }
