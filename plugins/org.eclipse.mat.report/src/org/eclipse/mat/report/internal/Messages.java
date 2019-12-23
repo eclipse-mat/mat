@@ -104,6 +104,7 @@ public final class Messages extends NLS
     public static String ResultRenderer_Error_OutputterNotFound;
     public static String ResultRenderer_Label_Details;
     public static String ResultRenderer_Label_TableOfContents;
+    public static String ResultRenderer_Warning_ZipFailed;
     public static String RunRegisterdReport_Error_UnknownReport;
     public static String SpecFactory_Error_MissingTemplate;
     public static String TextResult_Label_Links;

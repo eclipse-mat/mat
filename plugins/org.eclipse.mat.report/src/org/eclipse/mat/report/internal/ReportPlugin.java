@@ -73,4 +73,8 @@ public class ReportPlugin extends Plugin
         log(new Status(status, PLUGIN_ID, message));
     }
 
+    public static void log(int status, String message, Throwable e)
+    {
+        log(new Status(status, PLUGIN_ID, message, e));
+    }
 }

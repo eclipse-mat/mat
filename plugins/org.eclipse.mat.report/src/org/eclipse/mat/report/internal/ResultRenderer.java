@@ -165,7 +165,15 @@ public class ResultRenderer
 
         copyIcons();
 
-        zipResult();
+        try
+        {
+            zipResult();
+        }
+        catch (IOException ioe)
+        {
+            ReportPlugin.log(IStatus.WARNING,
+                            MessageUtil.format(Messages.ResultRenderer_Warning_ZipFailed, ioe.toString()), ioe);
+        }
     }
 
     private void copyIcons() throws IOException
