@@ -22,6 +22,7 @@ import org.eclipse.mat.snapshot.extension.IThreadInfo;
 import org.eclipse.mat.snapshot.extension.Subject;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.query.SnapshotQuery;
+import org.eclipse.mat.util.HTMLUtils;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 
@@ -42,8 +43,8 @@ public class JettyRequestResolver implements IRequestDetailsResolver
 
         // Summary
         StringBuilder buf = new StringBuilder(256);
-        buf.append(MessageUtil.format(Messages.JettyRequestResolver_Msg_ThreadExecutesHTTPRequest, requestURI
-                        .getClassSpecificName()));
+        buf.append(MessageUtil.format(Messages.JettyRequestResolver_Msg_ThreadExecutesHTTPRequest, HTMLUtils.escapeText(requestURI
+                        .getClassSpecificName())));
         String summary = buf.toString();
         QuerySpec spec = new QuerySpec(Messages.JettyRequestResolver_Summary);
         spec.setCommand("list_objects 0x" + Long.toHexString(httpRequest.getObjectAddress())); //$NON-NLS-1$

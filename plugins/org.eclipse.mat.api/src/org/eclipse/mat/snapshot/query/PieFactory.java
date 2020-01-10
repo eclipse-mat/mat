@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 SAP AG and others.
+ * Copyright (c) 2008, 2019 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -258,7 +258,7 @@ public final class PieFactory
     private final static class SliceImpl implements IResultPie.ColoredSlice, Serializable
     {
         private static final long serialVersionUID = 1L;
-        private static final String HTML_BREAK = "<br/>"; //$NON-NLS-1$
+        private static final String HTML_BREAK = "<br>"; //$NON-NLS-1$
 
         int objectId;
 
