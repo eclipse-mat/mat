@@ -17,6 +17,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
@@ -27,17 +28,26 @@ import static org.junit.Assume.assumeThat;
 import static org.junit.Assume.assumeTrue;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Stack;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.SetInt;
 import org.eclipse.mat.query.IResult;
+import org.eclipse.mat.query.results.DisplayFileResult;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.SnapshotFactory;
 import org.eclipse.mat.snapshot.SnapshotInfo;
@@ -320,7 +330,7 @@ public class GeneralSnapshotTests
         else if (hasMethods == Methods.FRAMES_ONLY)
         {
             assertEquals(1, methods);
-            assertTrue(methodsWithObjects > 0);
+            assertThat(methodsWithObjects, greaterThan(0));
         }
         else
         {
@@ -332,48 +342,259 @@ public class GeneralSnapshotTests
     @Test
     public void testClassLoaders() throws SnapshotException
     {
-        assertTrue(snapshot.getSnapshotInfo().getNumberOfClassLoaders() > 1);
+    	assertThat(snapshot.getSnapshotInfo().getNumberOfClassLoaders(), greaterThan(1));
     }
 
     @Test 
-    public void testRegressionReport() throws SnapshotException
+    public void testRegressionReport() throws SnapshotException, IOException
     {
         SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.tests:regression", snapshot);
         IResult t = query.execute(new VoidProgressListener());
         assertNotNull(t);
+        checkHTMLResult(t);
     }
 
     @Test 
-    public void testPerformanceReport() throws SnapshotException
+    public void testPerformanceReport() throws SnapshotException, IOException
     {
         SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.tests:performance", snapshot);
         IResult t = query.execute(new VoidProgressListener());
         assertNotNull(t);
+        checkHTMLResult(t);
     }
 
     @Test 
-    public void testLeakSuspectsReport() throws SnapshotException
+    public void testLeakSuspectsReport() throws SnapshotException, IOException
     {
         SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.api:suspects", snapshot);
         IResult t = query.execute(new VoidProgressListener());
         assertNotNull(t);
+        checkHTMLResult(t);
     }
 
     @Test 
-    public void testOverviewReport() throws SnapshotException
+    public void testOverviewReport() throws SnapshotException, IOException
     {
         SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.api:overview", snapshot);
         IResult t = query.execute(new VoidProgressListener());
         assertNotNull(t);
+        checkHTMLResult(t);
     }
 
     @Test 
-    public void testTopComponentsReport() throws SnapshotException
+    public void testTopComponentsReport() throws SnapshotException, IOException
     {
         SnapshotQuery query = SnapshotQuery.parse("default_report org.eclipse.mat.api:top_components", snapshot);
         IResult t = query.execute(new VoidProgressListener());
         assertNotNull(t);
+        checkHTMLResult(t);
     }
+    
+    public void checkHTMLResult(IResult r) throws IOException
+    {
+        assertThat(r, instanceOf(DisplayFileResult.class));
+        if (r instanceof DisplayFileResult)
+        {
+            DisplayFileResult d = (DisplayFileResult)r;
+            File f = d.getFile();
+            checkHTMLFile(f);
+        }
+    }
+
+    /**
+     * Recursively check an HTML file.
+     * @param f
+     * @throws IOException
+     */
+    public void checkHTMLFile(File f) throws IOException
+    {
+        Set<File>seen = new HashSet<File>();
+        checkHTMLFile(f, seen);
+    }
+    
+    /**
+     * Recursively check an HTML file, avoiding going
+     * into files already seen.
+     * @param f
+     * @param seen Files already seen
+     * @throws IOException
+     */
+    public void checkHTMLFile(File f, Set<File>seen) throws IOException
+    {
+        // canonical needed to avoid problems with ..
+        if (!seen.add(f.getCanonicalFile()))
+            return;
+        FileInputStream fis = new FileInputStream(f);
+        try
+        {
+            if (!f.getName().endsWith(".html"))
+            {
+                // Not HTML
+                return;
+            }
+            // Read the file into a string
+            InputStreamReader ir = new InputStreamReader(fis, StandardCharsets.UTF_8);
+            char cbuf[] = new char[(int)f.length()];
+            int l = ir.read(cbuf);
+            String s = new String(cbuf, 0, l);
+
+            /*
+             *  All these checks are approximate and would be confused
+             *  by false tags in attribute value string etc.
+             */
+
+            // Some basic checks
+            assertThat("Expected charset", s, containsString("content=\"text/html;charset=UTF-8\""));
+            assertThat("Possible double escaping <", s, not(containsString("&amp;lt;")));
+            assertThat("Possible double escaping &", s, not(containsString("&amp;amp;")));
+
+            /*
+             * Rough test for bad tag - might indicate unescaped '<'.
+             * Find a less-than sign
+             *  Negative lookahead for:
+             *   optional / or !
+             *   series of letters
+             *   then optional digits
+             *   ending with a space or greater-than
+             *   or !DOCTYPE
+             *  then match all until next space or greater-than
+             * We normally have lower case tags and no self-closed tags.
+             */
+            Pattern p = Pattern.compile("<(?!(/?[a-z]+[0-9]*)[ >]|!DOCTYPE )[^ >]*");
+            Matcher m = p.matcher(s);
+            String v;
+            if (m.find())
+            {
+                v = m.group(0);
+            }
+            else
+            {
+                v = null;
+            }
+            assertThat("Bad tag in "+f, v, equalTo(null));
+
+            /*
+             * Rough test for bad entity or unescaped ampersand.
+             * Negative lookahead for
+             * entity name followed by semicolon
+             * entity number preceded by # followed by semicolon
+             */
+            p = Pattern.compile("&(?!([a-z]+;)|(#[0-9]+;))[^a-z#]+");
+            m = p.matcher(s);
+            if (m.find())
+            {
+                v = m.group(0);
+            }
+            else
+            {
+                v = null;
+            }
+            assertThat("Bad entity in "+f, v, equalTo(null));
+
+            /*
+             * Check for alt text for images.
+             */
+            p = Pattern.compile("<img (?![^>]*alt)[^>]*>");
+            m = p.matcher(s);
+            if (m.find())
+            {
+                v = m.group(0);
+            }
+            else
+            {
+                v = null;
+            }
+            assertThat("No alt for img in "+f, v, equalTo(null));
+
+            /*
+             * Rough check for nesting of tags.
+             */
+            Stack<String> stk = new Stack<String>();
+            Stack<Integer> stki = new Stack<Integer>();
+            // Matches tags
+            p = Pattern.compile("</?[a-z]+");
+            m = p.matcher(s);
+            while (m.find())
+            {
+                String tag = m.group().substring(1);
+                if (tag.startsWith("/"))
+                {
+                    // Closing tag
+                    assertThat("Stack for "+tag, stk.size(), greaterThan(0));
+                    tag = tag.substring(1);
+                    String tag2 = stk.pop();
+                    int si = stki.pop();
+                    if (tag2.equals("p") && !tag.equals("a") && !tag.equals("p"))
+                    {
+                        // <p> closed by any outer tag except <a>
+                        tag2 = stk.pop();
+                        si = stki.pop();
+                        assertThat("Stack for "+tag, stk.size(), greaterThan(0));
+                    }
+                    String range = s.substring(si, m.end());
+                    assertThat("Tag closing at " + m.start()+" "+range+" "+f, tag, equalTo(tag2));
+                }
+                else
+                {
+                    // Self closing tag?
+                    if (!(tag.equals("br")
+                                    || tag.equals("hr")
+                                    || tag.equals("img")
+                                    || tag.equals("link")
+                                    || tag.equals("input")
+                                    || tag.equals("meta")
+                                    || tag.equals("area")))
+                    {
+                        // <p> is closed by following block tag
+                        if (stk.size() >= 1 && stk.peek().equals("p") && (
+                                        tag.equals("h1") ||
+                                        tag.equals("h2") ||
+                                        tag.equals("h3") ||
+                                        tag.equals("h4") ||
+                                        tag.equals("h5") ||
+                                        tag.equals("h6") ||
+                                        tag.equals("pre") ||
+                                        tag.equals("ol") ||
+                                        tag.equals("ul") ||
+                                        tag.equals("div")))
+                        {
+                            // Close the <p> tag
+                            stk.pop();
+                            stki.pop();
+                        }
+                        stk.push(tag);
+                        stki.push(m.start());
+                    }
+                }
+            }
+            assertThat("Stack should be empty", stk.size(), equalTo(0));
+            
+            // Look for references to other files
+            for (int i = 0; i >= 0; )
+            {
+                String match = "href=\"";
+                i = s.indexOf(match, i);
+                if (i >= 0)
+                {
+                    int j = s.indexOf("\"", i + match.length());
+                    String fn = s.substring(i + match.length(), j);
+                    if (!fn.startsWith("/") && !fn.contains("#") && !fn.startsWith("http") && !fn.startsWith("mat:"))
+                    {
+                        File d = f.getParentFile();
+                        File newf = new File(d, fn);
+                        checkHTMLFile(newf, seen);
+                    }
+                    i = j;
+                }
+            }
+            ir.close();
+        }
+        finally
+        {
+            fis.close();
+        }
+    }
+            
 
     @Test
     public void listEntries() throws SnapshotException
@@ -645,7 +866,7 @@ public class GeneralSnapshotTests
                     ISnapshot sn3 = SnapshotFactory.openSnapshot(newPath, new VoidProgressListener());
                     try
                     {
-                        assertTrue(sn3.getHeapSize(0) >= 0);
+                    	assertThat(sn3.getHeapSize(0), greaterThanOrEqualTo(0L));
                         // Do a complex operation which requires the dump still
                         // to be open and alive
                         assertNotNull(sn3.getObject(sn2.getClassOf(0).getClassLoaderId()).getOutboundReferences());
@@ -654,7 +875,7 @@ public class GeneralSnapshotTests
                     {
                         SnapshotFactory.dispose(sn3);
                     }
-                    assertTrue(sn2.getHeapSize(0) >= 0);
+                    assertThat(sn2.getHeapSize(0), greaterThanOrEqualTo(0L));
                     // Do a complex operation which requires the dump still to be open and alive 
                     assertNotNull(sn2.getObject(sn2.getClassOf(0).getClassLoaderId()).getOutboundReferences());
                 }

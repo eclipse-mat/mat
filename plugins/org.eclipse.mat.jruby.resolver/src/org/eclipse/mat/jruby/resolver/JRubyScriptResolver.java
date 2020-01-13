@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 SAP AG.
+ * Copyright (c) 2010, 2019 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Dimitar Giormov - initial API and implementation
+ *    Andrew Johnson (IBM Corporation) - escapes
  *******************************************************************************/
 package org.eclipse.mat.jruby.resolver;
 
@@ -25,6 +26,7 @@ import org.eclipse.mat.snapshot.extension.Subject;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.NamedReference;
+import org.eclipse.mat.util.HTMLUtils;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.osgi.util.NLS;
 
@@ -79,22 +81,22 @@ public class JRubyScriptResolver implements IRequestDetailsResolver {
 		}
 		if (classSpecificName.length() > 0){
 			String fileName = new File(classSpecificName).getName();
-			String summary = NLS.bind(Messages.JRubyScriptResolver_Summary, fileName);
+			String summary = NLS.bind(Messages.JRubyScriptResolver_Summary, HTMLUtils.escapeText(fileName));
 			
 			String rubyCallMessage = (shortJavaName == null)
-					? NLS.bind(Messages.JRubyScriptResolver_ResultBody_RubyCall_Class, fileName)
-					: NLS.bind(Messages.JRubyScriptResolver_ResultBody_RubyCall_Method, fileName, realClassName);
+					? NLS.bind(Messages.JRubyScriptResolver_ResultBody_RubyCall_Class, HTMLUtils.escapeText(fileName))
+					: NLS.bind(Messages.JRubyScriptResolver_ResultBody_RubyCall_Method, HTMLUtils.escapeText(fileName), HTMLUtils.escapeText(realClassName));
 			
 			String possibleBundleSuspectsMessage = ""; //$NON-NLS-1$
 			if (isOsgiBased && possibleBundleSuspects.size() > 0){
 				thread.addKeyword("osgi"); //$NON-NLS-1$
 				StringBuilder suspects = new StringBuilder();
 				for (String possibleBundleSuspect : possibleBundleSuspects) {
-					suspects.append(possibleBundleSuspect).append(' ');
+					suspects.append(HTMLUtils.escapeText(possibleBundleSuspect)).append(' ');
 				}
 				possibleBundleSuspectsMessage = NLS.bind(Messages.JRubyScriptResolver_ResultBody_PossibleSuspects, suspects);
 			}
-			String rubyScriptPathMessage = NLS.bind(Messages.JRubyScriptResolver_ResultBody_RubyScriptPath, classSpecificName);
+			String rubyScriptPathMessage = NLS.bind(Messages.JRubyScriptResolver_ResultBody_RubyScriptPath, HTMLUtils.escapeText(classSpecificName));
 			
 			String resultBody = NLS.bind(Messages.JRubyScriptResolver_ResultBody, new Object[] { rubyCallMessage, possibleBundleSuspectsMessage, rubyScriptPathMessage });
 			result.addResult(Messages.JRubyScriptResolver_ResultHeader, new TextResult(resultBody, true));

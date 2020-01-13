@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2019 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -71,6 +71,7 @@ import org.eclipse.mat.snapshot.query.Icons;
 import org.eclipse.mat.snapshot.query.PieFactory;
 import org.eclipse.mat.snapshot.query.SnapshotQuery;
 import org.eclipse.mat.snapshot.registry.TroubleTicketResolverRegistry;
+import org.eclipse.mat.util.HTMLUtils;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 
@@ -243,7 +244,7 @@ public class LeakHunterQuery implements IQuery
         {
             overview.append("<p>"); //$NON-NLS-1$
             overview.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_Thread, //
-                            suspect.getSuspect().getDisplayName(), //
+                            HTMLUtils.escapeText(suspect.getSuspect().getDisplayName()), //
                             formatRetainedHeap(suspect.getSuspectRetained(), totalHeap)));
             overview.append("</p>"); //$NON-NLS-1$
         }
@@ -270,7 +271,7 @@ public class LeakHunterQuery implements IQuery
             String classloaderName = getClassLoaderName(suspectClassloader, keywords);
 
             overview.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_Class, //
-                            className, classloaderName, formatRetainedHeap(suspect.getSuspectRetained(), totalHeap)));
+                            HTMLUtils.escapeText(className), classloaderName, formatRetainedHeap(suspect.getSuspectRetained(), totalHeap)));
         }
         else
         {
@@ -285,7 +286,7 @@ public class LeakHunterQuery implements IQuery
             String classloaderName = getClassLoaderName(suspectClassloader, keywords);
 
             overview.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_Instance, //
-                            className, classloaderName, formatRetainedHeap(suspect.getSuspectRetained(), totalHeap)));
+                            HTMLUtils.escapeText(className), classloaderName, formatRetainedHeap(suspect.getSuspectRetained(), totalHeap)));
 
             /*
              * if the class name matches the skip pattern, try to find the first
@@ -326,8 +327,8 @@ public class LeakHunterQuery implements IQuery
 //                        involvedClassloaders.add(suspectClassloader);
                         objectsForTroubleTicketInfo.add(referrer);
                         String referrerClassloaderName = getClassLoaderName(referrerClassloader, keywords);
-                        overview.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_ReferencedByInstance, referrer
-                                        .getDisplayName(), referrerClassloaderName));
+                        overview.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_ReferencedByInstance, HTMLUtils.escapeText(referrer
+                                        .getDisplayName()), referrerClassloaderName));
 
                     }
                 }
@@ -359,7 +360,7 @@ public class LeakHunterQuery implements IQuery
 
                 String classloaderName = getClassLoaderName(accPointClassloader, keywords);
 
-                overview.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_AccumulatedByLoadedBy, clazz.getName(),
+                overview.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_AccumulatedByLoadedBy, HTMLUtils.escapeText(clazz.getName()),
                                 classloaderName));
             }
             else
@@ -373,7 +374,7 @@ public class LeakHunterQuery implements IQuery
                 objectsForTroubleTicketInfo.add(accumulationObject);
 
                 String classloaderName = getClassLoaderName(accPointClassloader, keywords);
-                overview.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_AccumulatedByInstance, className,
+                overview.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_AccumulatedByInstance, HTMLUtils.escapeText(className),
                                 classloaderName));
             }
         }
@@ -466,7 +467,7 @@ public class LeakHunterQuery implements IQuery
         String classloaderName = getClassLoaderName(classloader, keywords);
 
         String numberOfInstances = numberFormatter.format(suspect.getSuspectInstances().length);
-        builder.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_InstancesOccupy, numberOfInstances, className,
+        builder.append(MessageUtil.format(Messages.LeakHunterQuery_Msg_InstancesOccupy, numberOfInstances, HTMLUtils.escapeText(className),
                         classloaderName, formatRetainedHeap(suspect.getSuspectRetained(), totalHeap)));
 
         int[] suspectInstances = suspect.getSuspectInstances();
@@ -485,12 +486,13 @@ public class LeakHunterQuery implements IQuery
             builder.append("<ul>"); //$NON-NLS-1$
             for (IObject inst : bigSuspectInstances)
             {
-                builder.append("<li>").append(inst.getDisplayName()); //$NON-NLS-1$
+                builder.append("<li>").append(HTMLUtils.escapeText(inst.getDisplayName())); //$NON-NLS-1$
                 builder.append("&nbsp;-&nbsp;") //$NON-NLS-1$
                                 .append(
                                                 MessageUtil.format(Messages.LeakHunterQuery_Msg_Bytes,
                                                                 formatRetainedHeap(inst.getRetainedHeapSize(),
                                                                                 totalHeap)));
+                builder.append("</li>"); //$NON-NLS-1$
             }
             builder.append("</ul>"); //$NON-NLS-1$
         }
@@ -643,6 +645,12 @@ public class LeakHunterQuery implements IQuery
         return name;
     }
 
+    /**
+     * Get the name of the class loader.
+     * @param classloader
+     * @param keywords
+     * @return The name with HTML escapes already applied.
+     */
     private String getClassLoaderName(IObject classloader, Set<String> keywords)
     {
         if (classloader.getObjectAddress() == 0)
@@ -656,7 +664,7 @@ public class LeakHunterQuery implements IQuery
             {
                 keywords.add(classloaderName);
             }
-            return classloaderName;
+            return HTMLUtils.escapeText(classloaderName);
         }
     }
 
@@ -754,7 +762,7 @@ public class LeakHunterQuery implements IQuery
     {
         builder.append("<b>").append(Messages.LeakHunterQuery_Keywords).append("</b><br>"); //$NON-NLS-1$ //$NON-NLS-2$
         for (String s : keywords)
-            builder.append(s).append("<br>"); //$NON-NLS-1$
+            builder.append(HTMLUtils.escapeText(s)).append("<br>"); //$NON-NLS-1$
     }
 
     private void appendTroubleTicketInformation(List<IObject> classloaders, StringBuilder builder)
@@ -766,12 +774,12 @@ public class LeakHunterQuery implements IQuery
 
             if (!mapping.isEmpty())
             {
-                builder.append("<br><b>").append(resolver.getTicketSystem()).append("</b><br>"); //$NON-NLS-1$ //$NON-NLS-2$
+                builder.append("<br><b>").append(HTMLUtils.escapeText(resolver.getTicketSystem())).append("</b><br>"); //$NON-NLS-1$ //$NON-NLS-2$
                 for (Map.Entry<String, String> entry : mapping.entrySet())
                 {
                     builder.append(
-                                    MessageUtil.format(Messages.LeakHunterQuery_TicketForSuspect, entry.getKey(), entry
-                                                    .getValue())).append("<br>"); //$NON-NLS-1$
+                                    MessageUtil.format(Messages.LeakHunterQuery_TicketForSuspect, HTMLUtils.escapeText(entry.getKey()), HTMLUtils.escapeText(entry
+                                                    .getValue()))).append("<br>"); //$NON-NLS-1$
                 }
             }
         }
@@ -798,7 +806,7 @@ public class LeakHunterQuery implements IQuery
                 builder.append("<p>"); //$NON-NLS-1$
 
                 for (CompositeResult.Entry requestInfo : requestInfos.getResultEntries())
-                    builder.append(requestInfo.getName()).append(" ").append( //$NON-NLS-1$
+                    builder.append(HTMLUtils.escapeText(requestInfo.getName())).append(" ").append( //$NON-NLS-1$
                                                     textResult.linkTo(Messages.LeakHunterQuery_RequestDetails,
                                                                     requestInfo.getResult())).append("<br>"); //$NON-NLS-1$
 

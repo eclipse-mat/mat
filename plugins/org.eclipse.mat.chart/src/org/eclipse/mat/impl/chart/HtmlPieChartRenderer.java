@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 SAP AG and others.
+ * Copyright (c) 2008, 2019 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -48,6 +48,7 @@ import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.IResultPie;
 import org.eclipse.mat.report.IOutputter;
 import org.eclipse.mat.report.Renderer;
+import org.eclipse.mat.util.HTMLUtils;
 
 @Renderer(target = "html", result = IResultPie.class)
 public class HtmlPieChartRenderer implements IOutputter
@@ -141,10 +142,10 @@ public class HtmlPieChartRenderer implements IOutputter
     {
         StringBuilder message = new StringBuilder();
         message.append(Messages.HtmlPieChartRenderer_ErrorRenderingChart);
-        message.append(e.getClass().getName());
+        message.append(HTMLUtils.escapeText(e.getClass().getName()));
 
         if (e.getMessage() != null)
-            message.append(": ").append(e.getMessage()); //$NON-NLS-1$
+            message.append(": ").append(HTMLUtils.escapeText(e.getMessage())); //$NON-NLS-1$
 
         String msg = message.toString();
 

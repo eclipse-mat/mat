@@ -95,6 +95,7 @@ public class HtmlOutputter implements IOutputter
     // //////////////////////////////////////////////////////////////
     /**
      * Extract alternate text for image URL.
+     * Use result within double quotes for attributes.
      * @param url
      * @return the text or an empty string
      */
@@ -102,7 +103,7 @@ public class HtmlOutputter implements IOutputter
     private String altText(URL url)
     {
         String alt = "";
-        return HTMLUtils.escapeText(alt);
+        return HTMLUtils.escapeText(alt).replace("\"","&quot;");
     }
 
     @SuppressWarnings("nls")
@@ -175,12 +176,12 @@ public class HtmlOutputter implements IOutputter
                 if (filter[i].isActive())
                     artefact.append("<td>").append(HTMLUtils.escapeText(filter[i].getCriteria())).append("</td>");
                 else
-                    artefact.append("<td/>");
+                    artefact.append("<td></td>");
             }
         }
 
         if (hasDetailsLink)
-            artefact.append("<td/>");
+            artefact.append("<td></td>");
 
         artefact.append("</tr>");
     }
@@ -248,7 +249,7 @@ public class HtmlOutputter implements IOutputter
             }
 
             if (hasDetailsLink)
-                artefact.append("<td/>");
+                artefact.append("<td></td>");
 
             artefact.append("</tr>");
         }
@@ -628,11 +629,10 @@ public class HtmlOutputter implements IOutputter
         }
         else
         {
-            writer.append("<p>");//$NON-NLS-1$
+            // <pre> is a block level tag so cannot be surrounded by <p>
             writer.append("<pre>"); //$NON-NLS-1$
             writer.append(HTMLUtils.escapeText(textResult.getText()));
             writer.append("</pre>"); //$NON-NLS-1$
-            writer.append("</p>");//$NON-NLS-1$
         }
     }
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 SAP AG, IBM Corporation and others
+ * Copyright (c) 2008, 2019 SAP AG, IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -59,6 +59,7 @@ import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.snapshot.query.PieFactory;
 import org.eclipse.mat.snapshot.query.RetainedSizeDerivedData;
 import org.eclipse.mat.snapshot.query.SnapshotQuery;
+import org.eclipse.mat.util.HTMLUtils;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.Units;
@@ -379,8 +380,8 @@ public class ComponentReportQuery implements IQuery
 
             StringBuilder comment = new StringBuilder();
             comment.append(MessageUtil.format(Messages.ComponentReportQuery_Msg_FoundOccurrences, table.getRowCount(),
-                            totals.getLabel(2)));
-            comment.append("<p>" + Messages.ComponentReportQuery_TopElementsInclude + "</p><ul>"); //$NON-NLS-1$ //$NON-NLS-2$
+                            HTMLUtils.escapeText(totals.getLabel(2))));
+            comment.append("<p>").append(Messages.ComponentReportQuery_TopElementsInclude).append("</p><ul>"); //$NON-NLS-1$ //$NON-NLS-2$
 
             for (int rowId = 0; rowId < table.getRowCount() && rowId < 5; rowId++)
             {
@@ -392,7 +393,7 @@ public class ComponentReportQuery implements IQuery
                 String size = table.getFormattedColumnValue(row, 3);
 
                 comment.append("<li>").append(table.getFormattedColumnValue(row, 1)); //$NON-NLS-1$
-                comment.append(" &times; <strong>").append(value).append("</strong> "); //$NON-NLS-1$ //$NON-NLS-2$
+                comment.append(" &times; <strong>").append(HTMLUtils.escapeText(value)).append("</strong> "); //$NON-NLS-1$ //$NON-NLS-2$
                 comment.append(MessageUtil.format(Messages.ComponentReportQuery_Label_Bytes, size)).append("</li>"); //$NON-NLS-1$
             }
             comment.append("</ul>"); //$NON-NLS-1$
@@ -470,7 +471,7 @@ public class ComponentReportQuery implements IQuery
 
                             comment.append("<li>"); //$NON-NLS-1$
                             comment.append(MessageUtil.format(Messages.ComponentReportQuery_Msg_InstancesRetainBytes,
-                                            numberOfObjects, clazz.getName(), retainedSize));
+                                            numberOfObjects, HTMLUtils.escapeText(clazz.getName()), retainedSize));
                             comment.append("</li>"); //$NON-NLS-1$
                         }
 
@@ -557,7 +558,7 @@ public class ComponentReportQuery implements IQuery
 
                             comment.append("<li>"); //$NON-NLS-1$
                             comment.append(MessageUtil.format(Messages.ComponentReportQuery_Msg_InstancesRetainBytes,
-                                            numberOfObjects, clazz.getName(), retainedSize));
+                                            numberOfObjects, HTMLUtils.escapeText(clazz.getName()), retainedSize));
                             comment.append("</li>"); //$NON-NLS-1$
                         }
 
@@ -647,7 +648,7 @@ public class ComponentReportQuery implements IQuery
 
                         comment.append("<li>"); //$NON-NLS-1$
                         comment.append(MessageUtil.format(Messages.ComponentReportQuery_Msg_InstancesRetainBytes,
-                                        numberOfObjects, clazz.getName(), retainedSize));
+                                        numberOfObjects, HTMLUtils.escapeText(clazz.getName()), retainedSize));
                         comment.append("</li>"); //$NON-NLS-1$
                         break;
                     }
