@@ -17,8 +17,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InvalidClassException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.ObjectStreamClass;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -102,7 +104,75 @@ public final class SnapshotImpl implements ISnapshot
             File indexFile = new File(prefix + "index"); //$NON-NLS-1$
             fis = new FileInputStream(indexFile);
             listener.worked(1);
-            ObjectInputStream in = new ObjectInputStream(new BufferedInputStream(fis));
+            /**
+             * Classes deserialized:
+             * org.eclipse.mat.parser.model.XSnapshotInfo
+             * org.eclipse.mat.parser.model.AbstractObjectImpl
+             * org.eclipse.mat.parser.model.XGCRootInfo
+             * org.eclipse.mat.parser.model.ClassImpl
+             * [Lorg.eclipse.mat.parser.model.XGCRootInfo
+             * org.eclipse.mat.parser.model.XGCRootInfo
+             *
+             * org.eclipse.mat.snapshot.SnapshotInfo
+             * org.eclipse.mat.snapshot.UnreachableObjectsHistogram
+             *
+             * org.eclipse.mat.snapshot.model.GCRootInfo
+             * org.eclipse.mat.snapshot.model.FieldDescriptor
+             * org.eclipse.mat.snapshot.model.Field
+             * [Lorg.eclipse.mat.snapshot.model.FieldDescriptor
+             * [Lorg.eclipse.mat.snapshot.model.Field
+             * org.eclipse.mat.snapshot.model.ObjectReference
+             *
+             * org.eclipse.mat.collect.HashMapIntObject
+             * org.eclipse.mat.collect.BitField
+             *
+             * java.util.ArrayList:
+             * java.util.Date
+             * java.util.HashMap
+             *
+             * java.lang.Boolean
+             * java.lang.Long
+             * java.lang.Number
+             * java.lang.Byte
+             * java.lang.Short
+             * java.lang.Character
+             * java.lang.Double
+             * java.lang.Float
+             * [I
+             *
+             */
+            ObjectInputStream in = new ObjectInputStream(new BufferedInputStream(fis)) {
+                @Override
+                protected Class<?> resolveClass(ObjectStreamClass desc) throws IOException, ClassNotFoundException {
+                    // similar to system property jdk.serialFilter
+                    String match="java.lang.*;java.util.*;org.eclipse.mat.parser.model.*;org.eclipse.mat.snapshot.*;org.eclipse.mat.snapshot.model.*;org.eclipse.mat.collect.*;!*"; //$NON-NLS-1$
+                    String nm = desc.getName();
+                    if (!nm.startsWith("[")) //$NON-NLS-1$
+                    {
+                        for (String pt : match.split(";")) //$NON-NLS-1$
+                        {
+                            boolean not = pt.startsWith("!"); //$NON-NLS-1$
+                            if (not)
+                                pt = pt.substring(1);
+                            boolean m;
+                            if (pt.endsWith(".**")) //$NON-NLS-1$
+                                m = nm.startsWith(pt.substring(0, pt.length() - 2));
+                            else if (pt.endsWith(".*")) //$NON-NLS-1$
+                                m = nm.startsWith(pt.substring(0, pt.length() - 1))
+                                                && !nm.substring(pt.length() - 1).contains("."); //$NON-NLS-1$
+                            else if (pt.endsWith("*")) //$NON-NLS-1$
+                                m = nm.startsWith(pt.substring(0, pt.length() - 1));
+                            else
+                                m = nm.equals(pt);
+                            if (not && m)
+                                throw new InvalidClassException(nm, match);
+                            if (m)
+                                break;
+                        }
+                    }
+                    return super.resolveClass(desc);
+                }
+            };
 
             String version = in.readUTF();
             if (!VERSION.equals(version))
@@ -155,12 +225,26 @@ public final class SnapshotImpl implements ISnapshot
             }
 
             IndexManager indexManager = new IndexManager();
-            indexManager.init(prefix);
+            boolean done = false;
+            try
+            {
+                indexManager.init(prefix);
 
-            SnapshotImpl ret = new SnapshotImpl(snapshotInfo, heapObjectReader, classCache, roots, rootsPerThread, loaderLabels,
-                            arrayObjects, indexManager);
-            listener.worked(3);
-            return ret;
+                SnapshotImpl ret = new SnapshotImpl(snapshotInfo, heapObjectReader, classCache, roots, rootsPerThread, loaderLabels,
+                                arrayObjects, indexManager);
+                listener.worked(3);
+                done = true;
+
+                return ret;
+            }
+            finally
+            {
+                if (!done)
+                {
+                    // Close files on error to allow delete
+                    indexManager.close();
+                }
+            }
         }
         catch (ClassNotFoundException e)
         {
