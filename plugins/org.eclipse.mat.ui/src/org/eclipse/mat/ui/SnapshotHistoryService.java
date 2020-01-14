@@ -14,8 +14,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InvalidClassException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.ObjectStreamClass;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -197,7 +199,47 @@ public class SnapshotHistoryService
 
                 list = new LinkedList<Entry>();
 
-                ObjectInputStream oin = new ObjectInputStream(new FileInputStream(file));
+                /*
+                 * org.eclipse.mat.ui.SnapshotHistoryService$Entry
+                 * java.lang.Long
+                 * java.lang.Number
+                 * org.eclipse.mat.snapshot.SnapshotInfo
+                 * java.util.Date
+                 * java.util.HashMap
+                 * java.lang.Boolean
+                 */
+                ObjectInputStream oin = new ObjectInputStream(new FileInputStream(file)) {
+                    @Override
+                    protected Class<?> resolveClass(ObjectStreamClass desc) throws IOException, ClassNotFoundException {
+                        // similar to system property jdk.serialFilter
+                        String match="java.lang.*;java.util.*;org.eclipse.mat.snapshot.SnapshotInfo;org.eclipse.mat.ui.SnapshotHistoryService$Entry;!*"; //$NON-NLS-1$
+                        String nm = desc.getName();
+                        if (!nm.startsWith("[")) //$NON-NLS-1$
+                        {
+                            for (String pt : match.split(";")) //$NON-NLS-1$
+                            {
+                                boolean not = pt.startsWith("!"); //$NON-NLS-1$
+                                if (not)
+                                    pt = pt.substring(1);
+                                boolean m;
+                                if (pt.endsWith(".**")) //$NON-NLS-1$
+                                    m = nm.startsWith(pt.substring(0, pt.length() - 2));
+                                else if (pt.endsWith(".*")) //$NON-NLS-1$
+                                    m = nm.startsWith(pt.substring(0, pt.length() - 1))
+                                    && !nm.substring(pt.length() - 1).contains("."); //$NON-NLS-1$
+                                else if (pt.endsWith("*")) //$NON-NLS-1$
+                                    m = nm.startsWith(pt.substring(0, pt.length() - 1));
+                                else
+                                    m = nm.equals(pt);
+                                if (not && m)
+                                    throw new InvalidClassException(nm, match);
+                                if (m)
+                                    break;
+                            }
+                        }
+                        return super.resolveClass(desc);
+                    }
+                };
                 try
                 {
                     int size = oin.readInt();
