@@ -24,7 +24,7 @@
 		<mat-target>mat-photon</mat-target>
 		<!-- mat-release-repo-url specifies from which p2 repo the MAT bundles 
 			come, when the build-release profile is used -->
-		<mat-release-repo-url>http://download.eclipse.org/mat/1.8/update-site/</mat-release-repo-url>
+		<mat-release-repo-url>http://download.eclipse.org/mat/latest/update-site/</mat-release-repo-url>
 	</properties>
 
 	<profiles>
