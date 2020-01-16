@@ -1976,7 +1976,7 @@ public class OQLTest
         Object result = execute("SELECT eval(123).intValue() FROM OBJECTS 1 s");
         assertThat(result, instanceOf(IResultTable.class));
         IResultTable table = (IResultTable) result;
-        Object row = table.getRow(1);
+        Object row = table.getRow(0);
         assertThat(table.getColumnValue(row, 0), equalTo((Object)123));
     }
 
