@@ -44,6 +44,7 @@ public class Messages extends NLS
     public static String IndexWriter_StoredError;
     public static String IndexWriter_StoredException;
     public static String MethodCallExpression_Error_MethodNotFound;
+    public static String MethodCallExpression_Error_MethodProhibited;
     public static String MultiplePathsFromGCRootsComputerImpl_FindingPaths;
     public static String SnapshotFactoryImpl_ClassIDNotFound;
     public static String SnapshotFactoryImpl_ClassImplNotFound;

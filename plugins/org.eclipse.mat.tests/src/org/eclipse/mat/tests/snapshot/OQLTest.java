@@ -12,22 +12,24 @@
  *******************************************************************************/
 package org.eclipse.mat.tests.snapshot;
 
+import static org.hamcrest.CoreMatchers.isA;
+import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
-import static org.hamcrest.Matchers.lessThanOrEqualTo;
+import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.anyOf;
+import static org.hamcrest.Matchers.lessThanOrEqualTo;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -48,10 +50,11 @@ import org.eclipse.mat.snapshot.SnapshotFactory;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.tests.TestSnapshots;
-import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.VoidProgressListener;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 @SuppressWarnings("nls")
 public class OQLTest
@@ -105,15 +108,15 @@ public class OQLTest
     {
         Object result = execute("select s.@objectId, s.value, s.count, s.offset from java.lang.String s");
 
-        assert result instanceof IResultTable : "'SELECT x, y, z' must return a result of type IResultTable";
+        assertThat("'SELECT x, y, z' must return a result of type IResultTable", result, instanceOf(IResultTable.class));
         IResultTable table = (IResultTable) result;
-        assert table.getRowCount() == 492 : "492 objects of type java.lang.String expected";
-        assert table.getColumns().length == 4 : "4 columns expected";
+        assertThat("492 objects of type java.lang.String expected", table.getRowCount(), equalTo(492));
+        assertThat("4 columns expected", table.getColumns().length, equalTo(4));
 
         // check if context is available
         Object row = table.getRow(0);
         int objectId = (Integer) table.getColumnValue(row, 0);
-        assert objectId == table.getContext(row).getObjectId() : "Result must return underlying object id as context";
+        assertThat("Result must return underlying object id as context", objectId, equalTo(table.getContext(row).getObjectId()));
         checkGetOQL(table);
     }
 
@@ -150,13 +153,13 @@ public class OQLTest
     public void testSelectObjects() throws SnapshotException
     {
         int[] objectIds = (int[]) execute("select objects dominators(s) from objects 0x1295e2f8 s");
-        assert objectIds.length == 7;
+        assertThat(objectIds.length, equalTo(7));
 
         objectIds = (int[]) execute("select objects dominators(s) from objects ${snapshot}.getClassesByName(\"java.lang.String\", false) s");
-        assert objectIds.length == 2;
+        assertThat(objectIds.length, equalTo(2));
 
         objectIds = (int[]) execute("select objects dominators(s) from objects (select * from java.lang.String) s");
-        assert objectIds.length == 465;
+        assertThat(objectIds.length, equalTo(465));
     }
 
     @Test
@@ -250,12 +253,12 @@ public class OQLTest
     public void testUnion() throws SnapshotException
     {
         int[] objectIds = (int[]) execute("select * from objects 0 union (select * from objects 1)");
-        assert objectIds.length == 2;
+        assertThat(objectIds.length, equalTo(2));
 
         IResultTable table = (IResultTable) execute("select toString(s) from objects 0x17c180b8 s union (select toHex(s.@objectAddress) from objects 1 s)");
-        assert table.getRowCount() == 2;
-        assert "main".equals(table.getColumnValue(table.getRow(0), 0));
-        assert "0x12832b50".equals(table.getColumnValue(table.getRow(1), 0));
+        assertThat(table.getRowCount(), equalTo(2));
+        assertThat(table.getColumnValue(table.getRow(0), 0), equalTo((Object)"main"));
+        assertThat(table.getColumnValue(table.getRow(1), 0), equalTo((Object)"0x12832b50"));
         checkGetOQL(table);
     }
 
@@ -445,25 +448,25 @@ public class OQLTest
     {
         Object result = execute("select * from \"java.lang.*\"");
 
-        assert result instanceof int[] : "'SELECT *' must return a result of type int[]";
+        assertThat("'SELECT *' must return a result of type int[]", result, instanceOf(int[].class));
         int[] objectIds = (int[]) result;
-        assert objectIds.length == 1198 : "1198 objects of type java.lang.* expected";
+        assertThat("1198 objects of type java.lang.* expected", objectIds.length, equalTo(1198));
     }
 
     @Test
     public void testFromAddress() throws SnapshotException
     {
         Object result = execute("select * from objects 0x0");
-        assert result instanceof int[] : "'SELECT *' must return a result of type int[]";
+        assertThat("'SELECT *' must return a result of type int[]", result, instanceOf(int[].class));
         int[] objectIds = (int[]) result;
-        assert objectIds.length == 1 : "one object matching 0x0 expected";
+        assertThat("one object matching 0x0 expected", objectIds.length, equalTo(1));
     }
 
     @Test
     public void testFromObject() throws SnapshotException
     {
         int[] objectIds = (int[]) execute("SELECT * FROM ${snapshot}.getClassesByName(\"java.lang.ref.Reference\", true)");
-        assert objectIds.length == 21 : "expected 21 instanceof of java.lang.ref.Reference";
+        assertThat("expected 21 instanceof of java.lang.ref.Reference", objectIds.length, equalTo(21));
     }
 
     @Test
@@ -540,7 +543,7 @@ public class OQLTest
                         + "FROM java.lang.Class c " //
                         + "WHERE c implements org.eclipse.mat.snapshot.model.IClass )";
         int[] objectIds = (int[]) execute(oql);
-        assert objectIds.length == 2058 : "expected 2058 instances of IClass";
+        assertThat("expected 2058 instances of IClass", objectIds.length, equalTo(2058));
     }
 
     @Test
@@ -559,7 +562,7 @@ public class OQLTest
     public void testFromInstanceOf() throws SnapshotException
     {
         int[] objectIds = (int[]) execute("SELECT * FROM INSTANCEOF java.lang.ref.Reference");
-        assert objectIds.length == 21 : "expected 21 instances of java.lang.ref.Reference";
+        assertThat("expected 21 instances of java.lang.ref.Reference", objectIds.length, equalTo(21));
 
         ISnapshot snapshot = TestSnapshots.getSnapshot(TestSnapshots.SUN_JDK5_64BIT, false);
 
@@ -567,45 +570,49 @@ public class OQLTest
         assertNotNull(rClasses);
         Set<IClass> classes = new HashSet<IClass>(rClasses);
         for (int id : objectIds)
+        {
+            assertThat(MessageUtil.format("Object {0} not an instance of java.lang.ref.Reference ", id), 
+                            classes, hasItems(snapshot.getClassOf(id)));
             assert classes.contains(snapshot.getClassOf(id)) : MessageUtil.format(
                             "Object {0} not an instance of java.lang.ref.Reference ", id);
+        }
     }
 
     @Test
     public void testWhereRelationalOperators() throws SnapshotException
     {
         int[] objectIds = (int[]) execute("SELECT * FROM java.lang.String s WHERE s.count > 51");
-        assert objectIds.length == 16;
+        assertThat(objectIds.length, equalTo(16));
 
         objectIds = (int[]) execute("SELECT * FROM java.lang.String s WHERE s.count >= 51");
-        assert objectIds.length == 19;
+        assertThat(objectIds.length, equalTo(19));
 
         objectIds = (int[]) execute("SELECT * FROM java.lang.String s WHERE s.count < 51");
-        assert objectIds.length == 473;
+        assertThat(objectIds.length, equalTo(473));
 
         objectIds = (int[]) execute("SELECT * FROM java.lang.String s WHERE s.count <= 51");
-        assert objectIds.length == 476;
+        assertThat(objectIds.length, equalTo(476));
 
         objectIds = (int[]) execute("SELECT * FROM java.lang.String s WHERE toString(s) LIKE \"java.*\"");
-        assert objectIds.length == 27;
+        assertThat(objectIds.length, equalTo(27));
 
         objectIds = (int[]) execute("SELECT * FROM java.lang.String s WHERE toString(s) NOT LIKE \"java.*\"");
-        assert objectIds.length == 492 - 27;
+        assertThat(objectIds.length, equalTo(492 - 27));
 
         objectIds = (int[]) execute("SELECT * FROM java.lang.String s WHERE s.value IN dominators(s)");
-        assert objectIds.length == 492 - 27;
+        assertThat(objectIds.length, equalTo(492 - 27));
 
         objectIds = (int[]) execute("SELECT * FROM java.lang.String s WHERE s.value NOT IN dominators(s)");
-        assert objectIds.length == 27;
+        assertThat(objectIds.length, equalTo(27));
 
         objectIds = (int[]) execute("SELECT * FROM java.lang.String s WHERE toString(s) = \"file.separator\"");
-        assert objectIds.length == 1;
+        assertThat(objectIds.length, equalTo(1));
 
         objectIds = (int[]) execute("SELECT * FROM java.lang.String s WHERE s.count > 100 AND s.@retainedHeapSize > s.@usedHeapSize");
-        assert objectIds.length == 6;
+        assertThat(objectIds.length, equalTo(6));
 
         objectIds = (int[]) execute("SELECT * FROM java.lang.String s WHERE s.count > 1000 OR s.value.@length > 1000");
-        assert objectIds.length == 3;
+        assertThat(objectIds.length, equalTo(3));
     }
 
     /**
@@ -634,16 +641,16 @@ public class OQLTest
     public void testWhereArithmetic() throws SnapshotException
     {
         int[] objectIds = (int[]) execute("SELECT * FROM java.lang.String s WHERE s.count < s.value.@length * 0.5");
-        assert objectIds.length == 16;
+        assertThat(objectIds.length, equalTo(16));
 
         objectIds = (int[]) execute("SELECT * FROM java.lang.String s WHERE s.count < s.value.@length / 2");
-        assert objectIds.length == 16;
+        assertThat(objectIds.length, equalTo(16));
 
         objectIds = (int[]) execute("SELECT * FROM java.lang.String s WHERE s.count < s.value.@length - 20");
-        assert objectIds.length == 16;
+        assertThat(objectIds.length, equalTo(16));
 
         objectIds = (int[]) execute("SELECT * FROM java.lang.String s WHERE s.count + 20 < s.value.@length");
-        assert objectIds.length == 16;
+        assertThat(objectIds.length, equalTo(16));
     }
 
     @Test
@@ -661,19 +668,19 @@ public class OQLTest
     public void testWhereLiterals() throws SnapshotException
     {
         int[] objectIds = (int[]) execute("SELECT * FROM java.lang.String s WHERE ( s.count > 1000 ) = true");
-        assert objectIds.length == 3;
+        assertThat(objectIds.length, equalTo(3));
 
         objectIds = (int[]) execute("SELECT * FROM java.lang.String s WHERE dominators(s).size() = 0");
-        assert objectIds.length == 27;
+        assertThat(objectIds.length, equalTo(27));
 
         objectIds = (int[]) execute("SELECT * FROM java.lang.String s WHERE dominators(s).length = 0");
-        assert objectIds.length == 27;
+        assertThat(objectIds.length, equalTo(27));
 
         objectIds = (int[]) execute("SELECT * FROM java.lang.String s WHERE s.@retainedHeapSize > 1024L");
-        assert objectIds.length == 4;
+        assertThat(objectIds.length, equalTo(4));
 
         objectIds = (int[]) execute("SELECT * FROM java.lang.Thread s WHERE s.@GCRootInfo != null");
-        assert objectIds.length == 4;
+        assertThat(objectIds.length, equalTo(4));
     }
 
     @Test
@@ -683,30 +690,30 @@ public class OQLTest
         int objectId = ((int[]) execute("select * from objects 0x17c38b80 s"))[0];
 
         IResultTable result = (IResultTable) execute("select toString(s) from objects 0x17c38b80 s");
-        assert "little".equals(result.getColumnValue(result.getRow(0), 0));
+        assertThat(result.getColumnValue(result.getRow(0), 0), equalTo((Object)"little"));
 
         result = (IResultTable) execute("select toHex(s.@objectAddress) from objects 0x17c38b80 s");
-        assert "0x17c38b80".equals(result.getColumnValue(result.getRow(0), 0));
+        assertThat(result.getColumnValue(result.getRow(0), 0), equalTo((Object)"0x17c38b80"));
 
         result = (IResultTable) execute("select dominators(s).length from objects 0x17c38b80 s");
-        assert Integer.valueOf(1).equals(result.getColumnValue(result.getRow(0), 0));
+        assertThat(result.getColumnValue(result.getRow(0), 0), equalTo((Object)1));
 
         result = (IResultTable) execute("select outbounds(s) from objects 0x17c38b80 s");
         int[] outbounds = (int[]) result.getColumnValue(result.getRow(0), 0);
-        assert outbounds.length == 2;
-        assert Arrays.toString(snapshot.getOutboundReferentIds(objectId)).equals(Arrays.toString(outbounds));
+        assertThat(outbounds.length, equalTo(2));
+        assertThat(outbounds, equalTo(snapshot.getOutboundReferentIds(objectId)));
 
         result = (IResultTable) execute("select inbounds(s) from objects 0x17c38b80 s");
         int[] inbounds = (int[]) result.getColumnValue(result.getRow(0), 0);
-        assert inbounds.length == 1;
-        assert Arrays.toString(snapshot.getInboundRefererIds(objectId)).equals(Arrays.toString(inbounds));
+        assertThat(inbounds.length, equalTo(1));
+        assertThat(inbounds, equalTo(snapshot.getInboundRefererIds(objectId)));
 
         result = (IResultTable) execute("select classof(s) from objects 0x17c38b80 s");
         IClass obj = (IClass) result.getColumnValue(result.getRow(0), 0);
-        assert "java.lang.String".equals(obj.getName());
+        assertThat(obj.getName(), equalTo("java.lang.String"));
 
         result = (IResultTable) execute("select dominatorof(s) from objects 0x17c38b80 s");
-        assert result.getColumnValue(result.getRow(0), 0) != null;
+        assertNotNull(result.getColumnValue(result.getRow(0), 0));
     }
 
     @Test(expected = SnapshotException.class)
@@ -780,7 +787,10 @@ public class OQLTest
         IOQLQuery q1 = SnapshotFactory.createQuery(queryString);
         String s = q1.toString();
         IOQLQuery q2 = SnapshotFactory.createQuery(s);
-        execute(s);
+        String s2 = q2.toString();
+        assertEquals(s, s2);
+        IResultTable r = (IResultTable)execute(s);
+        checkGetOQL(r);
     }
 
     /**
@@ -791,7 +801,7 @@ public class OQLTest
     public void testAndClause() throws SnapshotException
     {
         IResultTable res = (IResultTable)execute("SELECT s.value FROM INSTANCEOF java.lang.Number s WHERE (s.value and true)");
-        assert 3 ==  res.getRowCount() : "3 non-zero Numbers expected";
+        assertThat("3 non-zero Numbers expected", res.getRowCount(), equalTo(3));
     }
 
     @Test
@@ -1330,6 +1340,7 @@ public class OQLTest
         assertThat(irt.getRowCount(), equalTo(1));
         assertThat(irt.getColumns().length, equalTo(11));
         Object row = irt.getRow(0);
+        assertNotNull(row);
         checkGetOQL(irt);
     }
 
@@ -1339,6 +1350,7 @@ public class OQLTest
         assertThat(irt.getRowCount(), equalTo(1));
         assertThat(irt.getColumns().length, equalTo(11));
         Object row = irt.getRow(0);
+        assertNotNull(row);
         checkGetOQL(irt);
     }
 
@@ -1350,6 +1362,7 @@ public class OQLTest
         assertThat(irt.getRowCount(), equalTo(1));
         assertThat(irt.getColumns().length, equalTo(11));
         Object row = irt.getRow(0);
+        assertNotNull(row);
         checkGetOQL(irt);
     }
 
@@ -1371,6 +1384,7 @@ public class OQLTest
         assertThat(irt.getRowCount(), equalTo(1));
         assertThat(irt.getColumns().length, equalTo(11));
         Object row = irt.getRow(0);
+        assertNotNull(row);
         checkGetOQL(irt);
     }
 
@@ -1863,6 +1877,107 @@ public class OQLTest
     {
         int objs[] = (int[])execute("select objects s[0:-1][-1:-1][0] from java.util.ArrayList s");
         assertThat("Multiple objects expected", objs.length, greaterThanOrEqualTo(2));
+    }
+
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
+
+    /**
+     * Test method calls disallowed.
+     * @throws SnapshotException
+     */
+    @Test
+    public void testMethodCallClassLoader() throws SnapshotException
+    {
+        expectedException.expectCause(isA(java.security.AccessControlException.class));
+        Object o = execute("SELECT s.@class.forName(\"java.lang.ClassLoader\").getSystemClassLoader() FROM OBJECTS 1 s");
+        assertNull(o);
+    }
+
+    /**
+     * Test method calls disallowed.
+     * @throws SnapshotException
+     */
+    @Test
+    public void testMethodCallCompiler() throws SnapshotException
+    {
+        expectedException.expectCause(isA(java.security.AccessControlException.class));
+        Object o = execute("SELECT s.@class.forName(\"java.lang.Compiler\").disable() FROM OBJECTS 1 s");
+        assertNull(o);
+    }
+
+    /**
+     * Test method calls disallowed.
+     * @throws SnapshotException
+     */
+    @Test
+    public void testMethodCallProcess() throws SnapshotException
+    {
+        expectedException.expectCause(isA(java.security.AccessControlException.class));
+        Object o = execute("SELECT s.@class.forName(\"java.lang.ProcessBuilder\").getConstructor(s.@class.forName(\"[Ljava.lang.String;\")).newInstance(\"calc\") FROM OBJECTS 1 s");
+        assertNull(o);
+    }
+
+    /**
+     * Test method calls disallowed.
+     * @throws SnapshotException
+     */
+    @Test
+    public void testMethodCallRuntime() throws SnapshotException
+    {
+        expectedException.expectCause(isA(java.security.AccessControlException.class));
+        Object o = execute("SELECT s.@class.forName(\"java.lang.Runtime\").getRuntime() FROM OBJECTS 1 s");
+        assertNull(o);
+    }
+
+    /**
+     * Test method calls disallowed.
+     * @throws SnapshotException
+     */
+    @Test
+    public void testMethodCallSecurityManager() throws SnapshotException
+    {
+        expectedException.expectCause(isA(java.security.AccessControlException.class));
+        Object o = execute("SELECT s.@class.forName(\"java.lang.SecurityManager\").newInstance().checkExec(\"calc\") FROM OBJECTS 1 s");
+        assertNull(o);
+    }
+
+    /**
+     * Test method calls disallowed.
+     * @throws SnapshotException
+     */
+    @Test
+    public void testMethodCallSystem() throws SnapshotException
+    {
+        expectedException.expectCause(isA(java.security.AccessControlException.class));
+        Object o = execute("SELECT s.@class.forName(\"java.lang.System\").currentTimeMillis() FROM OBJECTS 1 s");
+        assertNull(o);
+    }
+
+    /**
+     * Test method calls disallowed.
+     * @throws SnapshotException
+     */
+    @Test
+    public void testMethodCallThread() throws SnapshotException
+    {
+        expectedException.expectCause(isA(java.security.AccessControlException.class));
+        Object o = execute("SELECT s.@class.forName(\"java.lang.Thread\").activeCount() FROM OBJECTS 1 s");
+        assertNull(o);
+    }
+
+    /**
+     * Test method calls allowed.
+     * @throws SnapshotException
+     */
+    @Test
+    public void testMethodCallInteger() throws SnapshotException
+    {
+        Object result = execute("SELECT eval(123).intValue() FROM OBJECTS 1 s");
+        assertThat(result, instanceOf(IResultTable.class));
+        IResultTable table = (IResultTable) result;
+        Object row = table.getRow(1);
+        assertThat(table.getColumnValue(row, 0), equalTo((Object)123));
     }
 
     // //////////////////////////////////////////////////////////////
