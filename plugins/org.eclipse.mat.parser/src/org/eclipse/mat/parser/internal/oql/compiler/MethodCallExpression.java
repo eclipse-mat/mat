@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2019 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,9 +11,12 @@
  *******************************************************************************/
 package org.eclipse.mat.parser.internal.oql.compiler;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.security.AccessControlException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -64,7 +67,7 @@ class MethodCallExpression extends Expression
 
         /*
          * Finding the right method is tricky as the arguments have already been boxed.
-         * E.g. consider overloaded methods 
+         * E.g. consider overloaded methods
          * remove(int)
          * remove(Object)
          * with argument Integer(1).
@@ -73,7 +76,9 @@ class MethodCallExpression extends Expression
         final Class<? extends Object> subjectClass = subject.getClass();
         Method[] methods;
         methods = subjectClass.getMethods();
-        if (!Modifier.isPublic(subjectClass.getModifiers()))
+        // If we checkMethodAccess then an interface method may be allowed even if the class method isn't
+        boolean alwaysInterfaces = true;
+        if (!Modifier.isPublic(subjectClass.getModifiers()) || alwaysInterfaces)
         {
             // Non-public class public methods are only accessible via
             // interfaces. For example java.util.Arrays$ArrayList.get()
@@ -97,6 +102,17 @@ class MethodCallExpression extends Expression
         {
             firstChoiceMethods(extraMethods, subjectClass, arguments);
         }
+        // Add static methods if a class object is passed
+        if (subject instanceof Class)
+        {
+            for (Method m : ((Class<?>)subject).getMethods())
+            {
+                if (Modifier.isStatic(m.getModifiers()) && Modifier.isPublic(m.getModifiers()))
+                {
+                    extraMethods.add(m);
+                }
+            }
+        }
         if (extraMethods.size() > 0)
         {
             // Then add the original methods
@@ -105,12 +121,14 @@ class MethodCallExpression extends Expression
             extraMethods = new ArrayList<Method>(new LinkedHashSet<Method>(extraMethods));
             methods = extraMethods.toArray(new Method[extraMethods.size()]);
         }
+        SnapshotException deferred = null;
         nextMethod: for (int ii = 0; ii < methods.length; ii++)
         {
             if (methods[ii].getName().equals(this.name))
             {
                 Class<?>[] parameterTypes = methods[ii].getParameterTypes();
-                if (parameterTypes.length == arguments.length)
+                if (parameterTypes.length == arguments.length ||
+                    methods[ii].isVarArgs() && parameterTypes.length < arguments.length)
                 {
                     Object savedArgs[] = null;
                     for (int jj = 0; jj < arguments.length; jj++)
@@ -119,7 +137,8 @@ class MethodCallExpression extends Expression
                         {
                             arguments[jj] = null;
                         }
-                        if (arguments[jj] != null && !isConvertible(parameterTypes[jj], arguments[jj]))
+                        if (!(methods[ii].isVarArgs() && jj >= parameterTypes.length - 1) &&
+                            arguments[jj] != null && !isConvertible(parameterTypes[jj], arguments[jj]))
                         {
                             // we do some special magic here...
                             if (parameterTypes[jj].isAssignableFrom(Pattern.class))
@@ -148,7 +167,17 @@ class MethodCallExpression extends Expression
 
                     try
                     {
-                        return methods[ii].invoke(subject, arguments);
+                        checkMethodAccess(methods[ii]);
+                        if (methods[ii].isVarArgs())
+                        {
+                            Object args2[] = convertVarArgs(parameterTypes, arguments);
+                            if (args2 != null)
+                                return methods[ii].invoke(subject, args2);
+                        }
+                        else
+                        {
+                            return methods[ii].invoke(subject, arguments);
+                        }
                     }
                     catch (IllegalArgumentException e)
                     {
@@ -162,15 +191,24 @@ class MethodCallExpression extends Expression
                     {
                         throw new SnapshotException(e);
                     }
+                    catch (SecurityException e)
+                    {
+                        // Perhaps another method works
+                        deferred = new SnapshotException(methods[ii].toString(), e);
+                    }
                 }
             }
         }
+        if (deferred != null)
+            throw deferred;
 
         StringBuilder argTypes = new StringBuilder();
         for (Object arg : arguments)
         {
             if (argTypes.length() > 0)
                 argTypes.append(", "); //$NON-NLS-1$
+            if (arg == ConstantExpression.NULL)
+                arg = null;
             argTypes.append(arg != null ? unboxedType(arg.getClass()).getName() : null);
         }
         throw new SnapshotException(MessageUtil.format(Messages.MethodCallExpression_Error_MethodNotFound,
@@ -191,10 +229,12 @@ class MethodCallExpression extends Expression
         boolean unbox = false;
         for (Object args : arguments)
         {
+            if  (args == ConstantExpression.NULL)
+                args = null;
             if (args != null)
                 argumentTypes1[i] = args.getClass();
             argumentTypes2[i] = unboxedType(argumentTypes1[i]);
-            if (argumentTypes2 != argumentTypes1)
+            if (argumentTypes2[i] != argumentTypes1[i])
                 unbox = true;
             i++;
         }
@@ -254,11 +294,11 @@ class MethodCallExpression extends Expression
         }
         else if (arg == Double.class)
         {
-            arg =double.class;
+            arg = double.class;
         }
         return arg;
     }
-    
+
     /**
      * Can method invocation convert the argument via unboxing/widening conversion?
      */
@@ -271,7 +311,7 @@ class MethodCallExpression extends Expression
                         parameterType == boolean.class || parameterType == Boolean.class))
             return true;
         if (argumentType == Byte.class && (
-                        parameterType == byte.class || parameterType == Byte.class 
+                        parameterType == byte.class || parameterType == Byte.class
                         || parameterType == short.class || parameterType == Short.class
                         || parameterType == int.class || parameterType == Integer.class
                         || parameterType == long.class || parameterType == Long.class
@@ -311,6 +351,91 @@ class MethodCallExpression extends Expression
                         parameterType == double.class || parameterType == Double.class))
             return true;
         return false;
+    }
+
+    /**
+     * Check whether to allow this method call.
+     * Syntax for mat.oqlmethodFilter
+     * com.package1.* only classes/methods in this package
+     * com.package1.** classes/methods in this package or subpackages
+     * com.package* classes/methods starting with the prefix
+     * com.*#methodname prefix before * and suffix after * must match
+     * ! means not allowed
+     * ; separates components
+     * Throws an exception if not allowed.
+     */
+    private void checkMethodAccess(Method method)
+    {
+        /*
+         * Default allows a few safe methods.
+         */
+        String match = System.getProperty("mat.oql.methodFilter", //$NON-NLS-1$
+                        "!java.lang.ClassLoader#*;!java.lang.Compiler#*;!java.lang.Process*;!java.lang.Runtime#*;!java.lang.SecurityManager#*;!java.lang.System#*;!java.lang.Thread*;java.lang.*;java.util.*;org.eclipse.mat.snapshot.*;org.eclipse.mat.snapshot.model.*;!*"); //$NON-NLS-1$
+        String nm = method.getDeclaringClass().getName()+"#"+method.getName(); //$NON-NLS-1$
+        for (String pt : match.split(";")) //$NON-NLS-1$
+        {
+            boolean not = pt.startsWith("!"); //$NON-NLS-1$
+            if (not)
+                pt = pt.substring(1);
+            boolean m;
+            if (pt.endsWith(".**")) //$NON-NLS-1$
+                m = nm.startsWith(pt.substring(0, pt.length() - 2));
+            else if (pt.endsWith(".*")) //$NON-NLS-1$
+                m = nm.startsWith(pt.substring(0, pt.length() - 1))
+                && !nm.substring(pt.length() - 1).contains("."); //$NON-NLS-1$
+            else if (pt.endsWith("*")) //$NON-NLS-1$
+                m = nm.startsWith(pt.substring(0, pt.length() - 1));
+            else if (pt.contains("*")) //$NON-NLS-1$)
+            {
+                int i = pt.indexOf("*"); //$NON-NLS-1$)
+                m = nm.startsWith(pt.substring(0, i)) && nm.endsWith(pt.substring(i + 1));
+            }
+            else
+                m = nm.equals(pt);
+            if (not && m)
+                throw new AccessControlException(MessageFormat.format(Messages.MethodCallExpression_Error_MethodProhibited, nm, "!" + pt, match)); //$NON-NLS-1$
+            if (m)
+                break;
+        }
+    }
+
+    /**
+     * Collect varargs arguments into an array.
+     * @param parameterTypes
+     * @param arguments
+     * @return null if the arguments won't convert
+     */
+    private Object[] convertVarArgs(Class<?>[] parameterTypes, Object arguments[])
+    {
+        /*
+         *  If there is one var args argument and it looks like it matches the object array,
+         *  then don't wrap it.
+         */
+        if (!(arguments.length == parameterTypes.length
+                        && (arguments[arguments.length - 1] == null || parameterTypes[parameterTypes.length - 1]
+                                        .isAssignableFrom(arguments[arguments.length - 1].getClass()))))
+        {
+            Object args2[] = new Object[parameterTypes.length];
+            for (int i = 0; i < parameterTypes.length - 1; ++i)
+            {
+                args2[i] = arguments[i];
+            }
+            Class<?> componentType = parameterTypes[parameterTypes.length - 1].getComponentType();
+            Object varargs[] = (Object[]) Array.newInstance(componentType,
+                            arguments.length - (parameterTypes.length - 1));
+            args2[parameterTypes.length - 1] = varargs;
+            for (int i = parameterTypes.length - 1; i < arguments.length; ++i)
+            {
+                if (arguments[i] != null && !componentType.isAssignableFrom(arguments[i].getClass()))
+                    return null;
+                varargs[i - (parameterTypes.length - 1)] = arguments[i];
+            }
+            return args2;
+        }
+        else
+        {
+            return arguments;
+        }
     }
 
     @Override
