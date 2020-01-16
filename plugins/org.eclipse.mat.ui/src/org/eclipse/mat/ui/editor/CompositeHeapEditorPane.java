@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2019 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson (IBM Corporation) - MAT Calcite
  *******************************************************************************/
 package org.eclipse.mat.ui.editor;
 
@@ -157,6 +158,13 @@ public abstract class CompositeHeapEditorPane extends AbstractEditorPane impleme
         {
             listener.selectionChanged(event);
         }
+    }
+
+    public <T> T getAdapter(Class<T> adapter)
+    {
+        if (embeddedPane != null)
+            return embeddedPane.getAdapter(adapter);
+        return super.getAdapter(adapter);
     }
 
     @Override

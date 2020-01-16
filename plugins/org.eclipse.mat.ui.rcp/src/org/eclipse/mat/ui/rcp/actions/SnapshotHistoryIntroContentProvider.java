@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2019 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson (IBM Corporation) - alt text
  *******************************************************************************/
 package org.eclipse.mat.ui.rcp.actions;
 
@@ -135,7 +136,7 @@ public class SnapshotHistoryIntroContentProvider implements IIntroContentProvide
                                     : RESOURCE_ICON;
 
                     buffer.append("<li style=\"image\" value=\"bullet\">"); //$NON-NLS-1$
-                    buffer.append("<img src =\"").append(icon).append("\"/>"); //$NON-NLS-1$ //$NON-NLS-2$
+                    buffer.append("<img src =\"").append(icon).append("\" alt=\"\">"); //$NON-NLS-1$ //$NON-NLS-2$
                     buffer.append("<a href=\"http://org.eclipse.ui.intro/runAction?" //$NON-NLS-1$
                                     + "standby=true&amp;pluginId=org.eclipse.mat.ui.rcp&amp;" //$NON-NLS-1$
                                     + "class=org.eclipse.mat.ui.rcp.actions.OpenEditorAction&amp;param="); //$NON-NLS-1$

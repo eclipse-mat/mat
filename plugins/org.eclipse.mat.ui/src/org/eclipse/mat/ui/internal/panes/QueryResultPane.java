@@ -380,4 +380,16 @@ public class QueryResultPane extends AbstractEditorPane implements ISelectionPro
         return srcQueryResult;
     }
 
+    public <T> T getAdapter(Class<T> adapter)
+    {
+        if (adapter.isAssignableFrom(srcQueryResult.getClass()))
+        {
+            return (adapter.cast(srcQueryResult));
+        }
+        if (adapter.isAssignableFrom(srcQueryResult.getSubject().getClass()))
+        {
+            return (adapter.cast(srcQueryResult.getSubject()));
+        }
+        return super.getAdapter(adapter);
+    }
 }

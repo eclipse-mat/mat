@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2012 SAP AG and IBM Corporation
+ * Copyright (c) 2010, 2019 SAP AG and IBM Corporation
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0 
  * which accompanies this distribution, and is available at 
@@ -48,6 +48,7 @@ import org.eclipse.mat.ui.QueryExecution;
 import org.eclipse.mat.ui.accessibility.AccessibleCompositeAdapter;
 import org.eclipse.mat.ui.actions.QueryDropDownMenuAction;
 import org.eclipse.mat.ui.editor.AbstractEditorPane;
+import org.eclipse.mat.ui.editor.CompositeHeapEditorPane;
 import org.eclipse.mat.ui.editor.MultiPaneEditor;
 import org.eclipse.mat.ui.internal.panes.QueryResultPane;
 import org.eclipse.mat.ui.internal.panes.TableResultPane;
@@ -159,6 +160,14 @@ public class CompareBasketView extends ViewPart
 	{
         AbstractEditorPane pane = resultPane(state, editor);
 		ComparedResult entry = null;
+		if (pane != null)
+		{
+            QueryResult qr = pane.getAdapter(QueryResult.class);
+            if (qr != null && qr.getSubject() instanceof IResultTree)
+                entry = new ComparedResult(state, editor, (IResultTree)qr.getSubject());
+            if (qr != null && qr.getSubject() instanceof IResultTable)
+                entry = new ComparedResult(state, editor, (IResultTable)qr.getSubject());
+		}
 		if (pane instanceof HistogramPane)
 		{
 			entry = new ComparedResult(state, editor, ((HistogramPane) pane).getHistogram());
@@ -196,6 +205,14 @@ public class CompareBasketView extends ViewPart
 	public static boolean accepts(PaneState state, MultiPaneEditor editor)
 	{
 	    AbstractEditorPane pane = resultPane(state, editor);
+	    if (pane != null)
+	    {
+	        QueryResult qr = pane.getAdapter(QueryResult.class);
+	        if (qr != null && qr.getSubject() instanceof IResultTree)
+	            return true;
+	        if (qr != null && qr.getSubject() instanceof IResultTable)
+	            return true;
+	    }
 		return (pane instanceof HistogramPane) || (pane instanceof TableResultPane) ||
 		                pane instanceof QueryResultPane && 
 		                ((QueryResultPane) pane).getSrcQueryResult().getSubject() instanceof IResultTree;
@@ -206,12 +223,14 @@ public class CompareBasketView extends ViewPart
         AbstractEditorPane pane;
         if (state.isActive() && state.getType() == PaneState.PaneType.COMPOSITE_CHILD)
         {
-            state = state.getParentPaneState();
-            pane = editor.getEditor(state);
+            PaneState pstate = state.getParentPaneState();
+            pane = editor.getEditor(pstate);
             if (pane instanceof OQLPane)
                 pane = ((OQLPane)pane).getEmbeddedPane();
-            else
-                pane = null;
+            else if (pane instanceof CompositeHeapEditorPane)
+            {
+                pane = ((CompositeHeapEditorPane)pane);
+            }
         }
         else
         {

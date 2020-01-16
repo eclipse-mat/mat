@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others.
+ * Copyright (c) 2008, 2019 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson (IBM Corporation) - MAT Calcite
  *******************************************************************************/
 package org.eclipse.mat.ui.editor;
 
@@ -111,8 +112,7 @@ public abstract class AbstractEditorPane implements IEditorPart
     public void setFocus()
     {}
 
-    @SuppressWarnings("unchecked")
-    public Object getAdapter(Class adapter)
+    public <T> T getAdapter(Class<T> adapter)
     {
         return null;
     }
