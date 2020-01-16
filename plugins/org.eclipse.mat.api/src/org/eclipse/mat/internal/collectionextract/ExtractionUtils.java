@@ -21,6 +21,7 @@ import static org.eclipse.mat.snapshot.extension.JdkVersion.IBM18;
 import static org.eclipse.mat.snapshot.extension.JdkVersion.IBM19;
 import static org.eclipse.mat.snapshot.extension.JdkVersion.JAVA18;
 import static org.eclipse.mat.snapshot.extension.JdkVersion.JAVA19;
+import static org.eclipse.mat.snapshot.extension.JdkVersion.JAVA_11;
 import static org.eclipse.mat.snapshot.extension.JdkVersion.SUN;
 
 import java.util.Collection;
@@ -290,12 +291,14 @@ public class ExtractionUtils
                 if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("9-")) { return JAVA19; }
                 if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("10.")) { return JAVA19; }
                 if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("10-")) { return JAVA19; }
-                if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("11.")) { return JAVA19; }
-                if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("11-")) { return JAVA19; }
-                if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("12.")) { return JAVA19; }
-                if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("12-")) { return JAVA19; }
+                if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("11.")) { return JAVA_11; }
+                if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("11-")) { return JAVA_11; }
+                if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("12.")) { return JAVA_11; }
+                if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("12-")) { return JAVA_11; }
+                if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("13.")) { return JAVA_11; }
+                if (ver instanceof IObject && ((IObject) ver).getClassSpecificName().startsWith("13-")) { return JAVA_11; }
                 // Lots of new Java versions planned
-                return JAVA19;
+                return JAVA_11;
             }
             catch (SnapshotException e)
             {

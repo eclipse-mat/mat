@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2018 IBM Corporation
+ * Copyright (c) 2016, 2019 IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,12 +13,15 @@ package org.eclipse.mat.tests.collect;
 import static org.hamcrest.number.OrderingComparison.greaterThanOrEqualTo;
 import static org.junit.Assert.assertThat;
 
+import java.io.File;
+
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.IArray;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.NamedReference;
+import org.eclipse.mat.tests.TestSnapshots;
 
 public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
 {
@@ -308,9 +311,12 @@ public class ExtractCollectionEntriesTest2 extends ExtractCollectionEntriesBase
                     if (nm.equals("javax.print.attribute.standard.PrinterStateReasons")
                                     || nm.equals("java.util.jar.Attributes"))
                     {
-                        if (onlyClass == null)
+                        String snapshotName = snapshot.getSnapshotInfo().getPath();
+                        if (onlyClass == null && (snapshotName.contains((new File(TestSnapshots.ORACLE_JDK7_21_64BIT)).getName()))
+                                        || snapshotName.contains((new File(TestSnapshots.IBM_JDK8_64BIT_SYSTEM)).getName())
+                                        || snapshotName.contains((new File(TestSnapshots.ORACLE_JDK8_05_64BIT)).getName()))
                         {
-                            // For the pre-existing dumps only had one of this sort of class
+                            // For the older pre-existing dumps only had one of this sort of class
                             numEntries = 1;
                         }
                         // These maps don't have string keys and values
