@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 Filippo Pacifici and IBM Corporation
+ * Copyright (c) 2012,2019 Filippo Pacifici and IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,6 +18,7 @@ import org.eclipse.jface.text.rules.IWordDetector;
 import org.eclipse.jface.text.rules.RuleBasedScanner;
 import org.eclipse.jface.text.rules.Token;
 import org.eclipse.jface.text.rules.WordRule;
+import org.eclipse.mat.ui.snapshot.panes.oql.textPartitioning.OQLPartitionScanner;
 import org.eclipse.swt.graphics.Color;
 
 /**
@@ -32,6 +33,14 @@ public class OQLScanner extends RuleBasedScanner
      * Assigns keyword coloring rule to the ruleset
      */
     public OQLScanner(Color color)
+    {
+        this(color, null);
+    }
+
+    /**
+     * Assigns keyword coloring rule to the ruleset
+     */
+    public OQLScanner(Color color, String clause)
     {
         IToken tKeyWord = new Token(new TextAttribute(color));
 
@@ -53,14 +62,22 @@ public class OQLScanner extends RuleBasedScanner
         wr.addWord("FROM", tKeyWord); //$NON-NLS-1$
         wr.addWord("WHERE", tKeyWord); //$NON-NLS-1$
         wr.addWord("UNION", tKeyWord); //$NON-NLS-1$
-        
-        wr.addWord("DISTINCT", tKeyWord); //$NON-NLS-1$
-        wr.addWord("INSTANCEOF", tKeyWord); //$NON-NLS-1$
-        wr.addWord("AS", tKeyWord); //$NON-NLS-1$
-        wr.addWord("RETAINED", tKeyWord); //$NON-NLS-1$
-        wr.addWord("SET", tKeyWord); //$NON-NLS-1$
-        wr.addWord("OBJECTS", tKeyWord); //$NON-NLS-1$
-       
+
+        if (OQLPartitionScanner.SELECT_CLAUSE.equals(clause))
+        {
+            wr.addWord("DISTINCT", tKeyWord); //$NON-NLS-1$
+            wr.addWord("AS", tKeyWord); //$NON-NLS-1$
+            wr.addWord("RETAINED", tKeyWord); //$NON-NLS-1$
+            wr.addWord("SET", tKeyWord); //$NON-NLS-1$
+            wr.addWord("OBJECTS", tKeyWord); //$NON-NLS-1$
+        }
+
+        if (OQLPartitionScanner.FROM_CLAUSE.equals(clause))
+        {
+            wr.addWord("INSTANCEOF", tKeyWord); //$NON-NLS-1$
+            wr.addWord("OBJECTS", tKeyWord); //$NON-NLS-1$
+        }
+
         r[0] = wr;
         
         // Add some constants

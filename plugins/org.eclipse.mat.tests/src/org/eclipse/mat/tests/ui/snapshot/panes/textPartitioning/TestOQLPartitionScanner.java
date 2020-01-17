@@ -201,4 +201,36 @@ public class TestOQLPartitionScanner
         assertEquals(regions[2].getOffset(), doc.get().indexOf("where"));
         assertEquals(regions[2].getOffset() + regions[2].getLength(), doc.get().length());
     }
+
+    /**
+     * Checks complex partitions and where clauses is not prematurely terminated
+     * and that end of line does not stop highlighting.
+     */
+    @Test
+    public void testComplexPartitions3()
+    {
+        doc.set("select s,s.set from java.lang.String s where s.set != null or s.value != null");
+
+        ITypedRegion[] regions = partitioner.computePartitioning(0, doc.getLength());
+
+        assertEquals(3, regions.length);
+        assertEquals(OQLPartitionScanner.SELECT_CLAUSE, regions[0].getType());
+        assertEquals(OQLPartitionScanner.FROM_CLAUSE, regions[1].getType());
+        assertEquals(OQLPartitionScanner.WHERE_CLAUSE, regions[2].getType());
+        assertEquals(regions[2].getOffset(), doc.get().indexOf("where"));
+        assertEquals(regions[2].getOffset() + regions[2].getLength(), doc.get().length());
+
+        OQLScanner sc = new OQLScanner(null);
+        int sets = 0;
+        sc.setRange(doc, regions[2].getOffset(), regions[2].getLength());
+        while (sc.nextToken() != Token.EOF)
+        {
+            String token = doc.get().substring(sc.getTokenOffset(), sc.getTokenOffset() + sc.getTokenLength());
+            System.out.println(token);
+            if (token.equals("set"))
+                ++sets;
+        }
+        // The set in the where clause should not be highlighted
+        assertEquals(0, sets);
+    }
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 Filippo Pacifici and IBM Corporation
+ * Copyright (c) 2012,2019 Filippo Pacifici and IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -170,16 +170,19 @@ public class OQLTextViewerConfiguration extends SourceViewerConfiguration
     {
         PresentationReconciler reconciler = new PresentationReconciler();
 
-        DefaultDamagerRepairer dr = new DefaultDamagerRepairer(new OQLScanner(keyword));
+        DefaultDamagerRepairer dr = new DefaultDamagerRepairer(new OQLScanner(keyword, OQLPartitionScanner.SELECT_CLAUSE));
         reconciler.setDamager(dr, OQLPartitionScanner.SELECT_CLAUSE);
         reconciler.setRepairer(dr, OQLPartitionScanner.SELECT_CLAUSE);
 
+        dr = new DefaultDamagerRepairer(new OQLScanner(keyword, OQLPartitionScanner.FROM_CLAUSE));
         reconciler.setDamager(dr, OQLPartitionScanner.FROM_CLAUSE);
         reconciler.setRepairer(dr, OQLPartitionScanner.FROM_CLAUSE);
 
+        dr = new DefaultDamagerRepairer(new OQLScanner(keyword, OQLPartitionScanner.WHERE_CLAUSE));
         reconciler.setDamager(dr, OQLPartitionScanner.WHERE_CLAUSE);
         reconciler.setRepairer(dr, OQLPartitionScanner.WHERE_CLAUSE);
 
+        dr = new DefaultDamagerRepairer(new OQLScanner(keyword, OQLPartitionScanner.UNION_CLAUSE));
         reconciler.setDamager(dr, OQLPartitionScanner.UNION_CLAUSE);
         reconciler.setRepairer(dr, OQLPartitionScanner.UNION_CLAUSE);
 
