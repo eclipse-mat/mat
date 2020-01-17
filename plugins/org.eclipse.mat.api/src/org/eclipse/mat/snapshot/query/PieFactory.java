@@ -258,7 +258,7 @@ public final class PieFactory
     private final static class SliceImpl implements IResultPie.ColoredSlice, Serializable
     {
         private static final long serialVersionUID = 1L;
-        private static final String HTML_BREAK = "<br>"; //$NON-NLS-1$
+        private static final String HTML_BREAK = "<br/>"; //$NON-NLS-1$
 
         int objectId;
 
@@ -272,6 +272,11 @@ public final class PieFactory
             this.objectId = objectId;
         }
 
+        /**
+         * Get slice description used for the PieChart which will be supplied to
+         * {@link org.eclipse.ui.forms.widgets.FormText} which expects an XML, not HTML
+         * type input, so &lt;br/&gt; must be closed.
+         */
         public String getDescription()
         {
             StringBuilder buf = new StringBuilder();
