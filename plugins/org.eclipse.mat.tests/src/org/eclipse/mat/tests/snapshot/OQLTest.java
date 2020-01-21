@@ -1967,6 +1967,19 @@ public class OQLTest
     }
 
     /**
+     * Test a bean method call is disallowed.
+     * ArrayImpl.getInfo() is not part of IArray
+     * @throws SnapshotException
+     */
+    @Test
+    public void testMethodArrayInfo() throws SnapshotException
+    {
+        expectedException.expectCause(isA(java.security.AccessControlException.class));
+        Object o = execute("SELECT s.@info FROM java.lang.String[] s");
+        assertNull(o);
+    }
+
+    /**
      * Test method calls allowed.
      * @throws SnapshotException
      */

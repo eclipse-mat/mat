@@ -15,6 +15,7 @@ import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Array;
+import java.lang.reflect.Method;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -138,7 +139,46 @@ class PathExpression extends Expression
                                 {
                                     if (attribute.getName().equals(descriptor.getName()))
                                     {
-                                        current = descriptor.getReadMethod().invoke(current, (Object[]) null);
+                                        Method method = descriptor.getReadMethod();
+                                        try
+                                        {
+                                            // Check whether access to this method should be allowed
+                                            MethodCallExpression.checkMethodAccess(method);
+                                        }
+                                        catch (SecurityException e)
+                                        {
+                                            // Perhaps the method should be accessible via an interface
+                                            for (Class<?> intf : method.getDeclaringClass().getInterfaces())
+                                            {
+                                                try
+                                                {
+                                                    Method m2 = intf.getMethod(method.getName(), method.getParameterTypes());
+                                                    MethodCallExpression.checkMethodAccess(m2);
+                                                    // Switching to the interface method
+                                                    method = m2;
+                                                    // Clear the exception indicator
+                                                    e = null;
+                                                    break;
+                                                }
+                                                catch (NoSuchMethodException e1)
+                                                {
+                                                }
+                                                catch (SecurityException e1)
+                                                {
+                                                }
+                                            }
+                                            if (e != null)
+                                            {
+                                                // Fail for the original reason
+                                                throw new SnapshotException(MessageUtil.format(
+                                                                Messages.PathExpression_Error_TypeHasNoProperty,
+                                                                new Object[] { current.getClass().getName(),
+                                                                                attribute.name }),
+                                                                e);
+                                            }
+                                            // Continue with equivalent interface method
+                                        }
+                                        current = method.invoke(current, (Object[]) null);
                                         didFindProperty = true;
                                         break;
                                     }

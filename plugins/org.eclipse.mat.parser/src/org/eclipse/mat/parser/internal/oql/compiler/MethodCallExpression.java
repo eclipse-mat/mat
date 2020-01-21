@@ -364,13 +364,14 @@ class MethodCallExpression extends Expression
      * ; separates components
      * Throws an exception if not allowed.
      */
-    private void checkMethodAccess(Method method)
+    static void checkMethodAccess(Method method)
     {
         /*
          * Default allows a few safe methods.
          */
         String match = System.getProperty("mat.oql.methodFilter", //$NON-NLS-1$
-                        "!java.lang.ClassLoader#*;!java.lang.Compiler#*;!java.lang.Process*;!java.lang.Runtime#*;!java.lang.SecurityManager#*;!java.lang.System#*;!java.lang.Thread*;java.lang.*;java.util.*;org.eclipse.mat.snapshot.*;org.eclipse.mat.snapshot.model.*;!*"); //$NON-NLS-1$
+                        "!java.lang.ClassLoader#*;!java.lang.Compiler#*;!java.lang.Module*;!java.lang.Process*;!java.lang.Runtime#*;!java.lang.SecurityManager#*;!java.lang.System#*;!java.lang.Thread*;java.lang.*" //$NON-NLS-1$
+                        + ";java.util.*;!org.eclipse.mat.snapshot.ISnapshot#dispose;org.eclipse.mat.snapshot.*;org.eclipse.mat.snapshot.model.*;!*"); //$NON-NLS-1$
         String nm = method.getDeclaringClass().getName()+"#"+method.getName(); //$NON-NLS-1$
         for (String pt : match.split(";")) //$NON-NLS-1$
         {
