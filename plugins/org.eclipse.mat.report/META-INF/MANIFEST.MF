@@ -4,7 +4,7 @@ Bundle-Name: %Bundle-Name
 Bundle-Vendor: %Bundle-Vendor
 Bundle-SymbolicName: org.eclipse.mat.report;singleton:=true
 Bundle-Version: 1.10.0.qualifier
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.eclipse.mat,
  org.eclipse.mat.collect,
  org.eclipse.mat.query,
@@ -23,7 +23,7 @@ Eclipse-LazyStart: true
 Bundle-Activator: org.eclipse.mat.report.internal.ReportPlugin
 Import-Package: com.ibm.icu.text;version="3.6.1"
 Bundle-Localization: plugin
-Bundle-Copyright: Copyright (c) 2008, 2012 SAP AG and IBM Corporation. 
+Bundle-Copyright: Copyright (c) 2008, 2019 SAP AG and IBM Corporation. 
  All rights reserved. This program and the accompanying materials 
  are made available under the terms of the Eclipse Public License v1.0 
  which accompanies this distribution, and is available at 

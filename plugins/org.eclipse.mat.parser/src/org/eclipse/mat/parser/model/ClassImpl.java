@@ -341,14 +341,14 @@ public class ClassImpl extends AbstractObjectImpl implements IClass, Comparable<
 	 */
     public void removeInstance(long heapSizePerInstance)
     {
-        this.instanceCount--;
-        this.totalSize -= heapSizePerInstance;
+        instanceCountUpdater.getAndAdd(this, -1);
+        totalSizeUpdater.getAndAdd(this, -heapSizePerInstance);
     }
 
     void removeInstanceBulk(int instanceCount, long heapSize)
     {
-        this.instanceCount -= instanceCount;
-        this.totalSize -= heapSize;
+        instanceCountUpdater.getAndAdd(this, -instanceCount);
+        totalSizeUpdater.getAndAdd(this, heapSize);
     }
 
     @SuppressWarnings("unchecked")
