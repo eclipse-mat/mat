@@ -138,18 +138,19 @@ public class HprofHeapObjectReader implements IObjectReader
 
     private Object convert(PrimitiveArrayImpl array, byte[] content)
     {
-        if (array.getType() == IObject.Type.BYTE)
+        int type = array.getType();
+        if (type == IObject.Type.BYTE)
             return content;
 
-        int elementSize = IPrimitiveArray.ELEMENT_SIZE[array.getType()];
+        int elementSize = IPrimitiveArray.ELEMENT_SIZE[type];
         int length = content.length / elementSize;
 
-        Object answer = Array.newInstance(IPrimitiveArray.COMPONENT_TYPE[array.getType()], length);
+        Object answer = Array.newInstance(IPrimitiveArray.COMPONENT_TYPE[type], length);
 
         int index = 0;
         for (int ii = 0; ii < content.length; ii += elementSize)
         {
-            switch (array.getType())
+            switch (type)
             {
                 case IObject.Type.BOOLEAN:
                     Array.set(answer, index, content[ii] != 0);

@@ -41,8 +41,8 @@ import org.eclipse.osgi.util.NLS;
 @Subjects({"java.lang.Thread", "org.jruby.Main"})
 public class RubyStacktraceDumper implements IRequestDetailsResolver {
 	
-	public final static String RUBY_RUNNABLE_CLASS = "org.jruby.internal.runtime.RubyRunnable";
-	public final static String THREAD_CONTEXT_CLASS = "org.jruby.runtime.ThreadContext";
+	public final static String RUBY_RUNNABLE_CLASS = "org.jruby.internal.runtime.RubyRunnable"; //$NON-NLS-1$
+	public final static String THREAD_CONTEXT_CLASS = "org.jruby.runtime.ThreadContext"; //$NON-NLS-1$
 
 	public void complement(ISnapshot snapshot, IThreadInfo thread, int[] javaLocals, int thisJavaLocal, IProgressListener listener) throws SnapshotException {
         
@@ -77,13 +77,13 @@ public class RubyStacktraceDumper implements IRequestDetailsResolver {
             		NLS.bind(Messages.RubyStacktraceDumper_ResultHeader, javaThreadName), 
             		new TextResult(stackTrace.toString(), true));
             thread.addRequest(summary, result);
-            thread.addKeyword("thread_details");
+            thread.addKeyword("thread_details"); //$NON-NLS-1$
         }
     }
     
 
 	private IObject findIncomingThreadRef(ISnapshot model, IObject threadContext) throws SnapshotException{
-	    Collection<IClass> classesByName = model.getClassesByName("java.lang.Thread", false);
+	    Collection<IClass> classesByName = model.getClassesByName("java.lang.Thread", false); //$NON-NLS-1$
 	    if (classesByName != null) {
 	        for (IClass javaThreads : classesByName) {
 	            int[] objectIds = javaThreads.getObjectIds();
@@ -122,14 +122,14 @@ public class RubyStacktraceDumper implements IRequestDetailsResolver {
                 for (int id : objectIds) {
                     IObject threadContext = model.getObject(id);
 
-                    IObject rubyThread = (IObject) threadContext.resolveValue("thread");
+                    IObject rubyThread = (IObject) threadContext.resolveValue("thread"); //$NON-NLS-1$
                     String javaThreadName = javaThreadNameForRubyThread.get(rubyThread); // TODO check if this works
 
-                    final String currentFile = ((IObject) threadContext.resolveValue("file")).getClassSpecificName();
-                    final int currentLine = (Integer) threadContext.resolveValue("line");
+                    final String currentFile = ((IObject) threadContext.resolveValue("file")).getClassSpecificName(); //$NON-NLS-1$
+                    final int currentLine = (Integer) threadContext.resolveValue("line"); //$NON-NLS-1$
 
-                    IObjectArray frames = (IObjectArray) threadContext.resolveValue("frameStack");
-                    final int frameIndex = (Integer) threadContext.resolveValue("frameIndex");
+                    IObjectArray frames = (IObjectArray) threadContext.resolveValue("frameStack"); //$NON-NLS-1$
+                    final int frameIndex = (Integer) threadContext.resolveValue("frameIndex"); //$NON-NLS-1$
                     // + 1 for the fact that frameIndex is the index of the top of the stack, 
                     // + 1 for the extra frame to include the current file/line number.
                     final int traceSize = frameIndex + 2;
@@ -169,12 +169,12 @@ public class RubyStacktraceDumper implements IRequestDetailsResolver {
         		int[] objectIds = rubyRunnableClass.getObjectIds();
         		for (int id : objectIds) {
         			IObject runnable = model.getObject(id);
-        			IObject rubyThread = (IObject) runnable.resolveValue("rubyThread");
-        			IObject thread = (IObject) runnable.resolveValue("javaThread");
+        			IObject rubyThread = (IObject) runnable.resolveValue("rubyThread"); //$NON-NLS-1$
+        			IObject thread = (IObject) runnable.resolveValue("javaThread"); //$NON-NLS-1$
 
         			// javaThread isn't set until RubyRunnable#run() is called, so it might be null.
         			if (thread != null) {
-        				final String threadName = new String(thread.getClassSpecificName());
+        				final String threadName = thread.getClassSpecificName();
 
         				javaThreadNameForRubyThread.put(rubyThread, threadName);
         			}
@@ -197,7 +197,7 @@ public class RubyStacktraceDumper implements IRequestDetailsResolver {
         	}
         }
 //		else {
-        Collection<IClass> threadClasses = model.getClassesByName("java.lang.Thread", false);
+        Collection<IClass> threadClasses = model.getClassesByName("java.lang.Thread", false); //$NON-NLS-1$
         if (threadClasses != null) {	
             for (IClass javaThreads : threadClasses) {
         		int[] objectIds = javaThreads.getObjectIds();
@@ -210,7 +210,7 @@ public class RubyStacktraceDumper implements IRequestDetailsResolver {
         			for (NamedReference namedReference : outboundReferences) {
         				IObject object = model.getObject(namedReference.getObjectId());
         				if(object.getTechnicalName().startsWith(THREAD_CONTEXT_CLASS)){
-        					rubyThread = (IObject) object.resolveValue("thread");
+        					rubyThread = (IObject) object.resolveValue("thread"); //$NON-NLS-1$
         					thread = jThread;
         					break;
         				}
@@ -262,14 +262,14 @@ public class RubyStacktraceDumper implements IRequestDetailsResolver {
         public FrameModel(IObject object) throws SnapshotException
 		{
 			super();
-			fileName = ((IObject) object.resolveValue("fileName")).getClassSpecificName();
-			line = (Integer) object.resolveValue("line");
-			IObject nameObject = (IObject) object.resolveValue("name");
+			fileName = ((IObject) object.resolveValue("fileName")).getClassSpecificName(); //$NON-NLS-1$
+			line = (Integer) object.resolveValue("line"); //$NON-NLS-1$
+			IObject nameObject = (IObject) object.resolveValue("name"); //$NON-NLS-1$
 			if (nameObject != null)
 				name = nameObject.getClassSpecificName();
-			IObject klazz = (IObject) object.resolveValue("klazz");
+			IObject klazz = (IObject) object.resolveValue("klazz"); //$NON-NLS-1$
 			moduleName = getClassNameFromFrame(klazz);
-			isBindingFrame = (Boolean) object.resolveValue("isBindingFrame");
+			isBindingFrame = (Boolean) object.resolveValue("isBindingFrame"); //$NON-NLS-1$
 		}
         
         public FrameModel(String moduleName, String methodName, String frameFileName, int frameLine, boolean isBindingFrame) throws SnapshotException
@@ -285,10 +285,10 @@ public class RubyStacktraceDumper implements IRequestDetailsResolver {
             String klazzName = Messages.RubyStacktraceDumper_Unknown;
             String fullName = null;
             if (klazz != null) {
-            	IObject fullNameObject = (IObject) klazz.resolveValue("fullName");
+            	IObject fullNameObject = (IObject) klazz.resolveValue("fullName"); //$NON-NLS-1$
             	if (fullNameObject != null)
             		fullName = fullNameObject.getClassSpecificName();
-                if (fullName != null && !"".equals(fullName.trim())) {
+                if (fullName != null && !"".equals(fullName.trim())) { //$NON-NLS-1$
                     klazzName = fullName;
                 }
             }

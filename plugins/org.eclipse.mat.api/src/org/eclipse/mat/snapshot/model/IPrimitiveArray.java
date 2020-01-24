@@ -44,7 +44,7 @@ public interface IPrimitiveArray extends IArray
 
     /**
      * Java component type of the primitive array.
-     * Indexes match the values of {link IObject.Type}
+     * Indexes match the values of {@link IObject.Type}
      * @see IObject.Type
      */
     public static final Class<?>[] COMPONENT_TYPE = { null, null, null, null, boolean.class, char.class, float.class,

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2013 SAP AG and IBM Corporation.
+ * Copyright (c) 2010, 2019 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -44,7 +44,7 @@ public class ProviderContextImpl extends QueryContextImpl
 
     public int mapToObjectId(String externalIdentifier) throws SnapshotException
     {
-        return Integer.valueOf(externalIdentifier);
+        return Integer.parseInt(externalIdentifier);
     }
 
     public Object parse(Class<?> type, Advice advice, String[] args, ParsePosition pos) throws SnapshotException

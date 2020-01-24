@@ -394,7 +394,7 @@ public class MultiPaneEditor extends EditorPart implements IResourceChangeListen
                         // sequenceNr
                         String sequenceNrStr = confElements[jj].getAttribute("sequenceNr");//$NON-NLS-1$
                         int sequenceNr = sequenceNrStr != null && sequenceNrStr.length() > 0 ? Integer
-                                        .valueOf(sequenceNrStr) : Integer.MAX_VALUE;
+                                        .parseInt(sequenceNrStr) : Integer.MAX_VALUE;
 
                         // instantiate editor
                         IMultiPaneEditorContributor contributor = (IMultiPaneEditorContributor) confElements[jj]

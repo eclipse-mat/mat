@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 SAP AG and IBM Corporation
+ * Copyright (c) 2008, 2020 SAP AG and IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -921,13 +921,13 @@ public abstract class RefinedResultViewer
 
                     };
 
-                    InputDialog inputDialog = new InputDialog(PlatformUI.getWorkbench().getDisplay().getActiveShell(),
+                    InputDialog inputDialog = new InputDialog(control.getDisplay().getActiveShell(),
                                     Messages.RefinedResultViewer_ExpandToLimit, //
                                     Messages.RefinedResultViewer_EnterNumber, null, inputValidator);
 
                     if (inputDialog.open() == 1) // if canceled
                         return;
-                    int number = new Integer(inputDialog.getValue()).intValue();
+                    int number = Integer.parseInt(inputDialog.getValue());
                     doRevealChildren(parent, number);
                 }
 

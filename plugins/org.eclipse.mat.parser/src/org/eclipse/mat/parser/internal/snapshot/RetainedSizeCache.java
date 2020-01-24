@@ -108,7 +108,9 @@ public class RetainedSizeCache implements IIndexReader
 
         try
         {
-            id2size = new HashMapIntLong((int) file.length() / 8);
+            // Cope with large numbers, entries = size / 12, scale up for hashing 
+            int initialCapacity = (int) Math.min(file.length() / 8, Integer.MAX_VALUE - 20);
+            id2size = new HashMapIntLong(initialCapacity);
 
             in = new DataInputStream(new BufferedInputStream(new FileInputStream(file)));
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2019 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson (IBM Corporation) - FindBugs fix
  *******************************************************************************/
 package org.eclipse.mat.parser.internal;
 
@@ -159,7 +160,7 @@ import org.eclipse.mat.util.MessageUtil;
     private static int readLineNumber(String line)
     {
         int start = line.indexOf("line="); //$NON-NLS-1$
-        return Integer.valueOf(line.substring(start + 5));
+        return Integer.parseInt(line.substring(start + 5));
     }
 
     private static StackFrameImpl[] buildFrames(List<String> lines, HashMapIntObject<ArrayInt> line2locals)

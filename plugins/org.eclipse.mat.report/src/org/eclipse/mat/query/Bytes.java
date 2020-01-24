@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2014 IBM
+ * Copyright (c) 2014,2019 IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    IBM
+ *    IBM Corporation
  *******************************************************************************/
 package org.eclipse.mat.query;
 
@@ -48,7 +48,7 @@ public final class Bytes implements Comparable<Object>
     @Override
     public String toString()
     {
-        return new Long(value).toString();
+        return Long.toString(value);
     }
 
     /**
@@ -57,7 +57,7 @@ public final class Bytes implements Comparable<Object>
     @Override
     public int hashCode()
     {
-        return new Long(value).hashCode();
+        return Long.hashCode(value);
     }
 
     /**
