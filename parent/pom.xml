@@ -25,6 +25,11 @@
 		<!-- mat-release-repo-url specifies from which p2 repo the MAT bundles 
 			come, when the build-release profile is used -->
 		<mat-release-repo-url>http://download.eclipse.org/mat/latest/update-site/</mat-release-repo-url>
+		<p2.mirrorsPrefix>/mat/1.9.2/update-site/</p2.mirrorsPrefix>
+		<p2.statsURI>https://download.eclipse.org/stats</p2.statsURI>
+		<p2.mirrorsURL>https://www.eclipse.org/downloads/download.php?format=xml&amp;file=${p2.mirrorsPrefix}</p2.mirrorsURL>
+		<p2.statsTrackedArtifacts>org.eclipse.mat.api,org.eclipse.mat.chart,org.eclipse.mat.rcp</p2.statsTrackedArtifacts>
+
 	</properties>
 
 	<profiles>
@@ -125,6 +130,18 @@
 						</executions>
 					</plugin>
 					<plugin>
+						<groupId>org.eclipse.tycho</groupId>
+						<artifactId>tycho-p2-repository-plugin</artifactId>
+						<version>${tycho-version}</version>
+						<configuration>
+							<xzCompress>true</xzCompress>
+							<extraArtifactRepositoryProperties>
+								<p2.statsURI>${p2.statsURI}</p2.statsURI>
+								<p2.mirrorsURL>${p2.mirrorsURL}</p2.mirrorsURL>
+							</extraArtifactRepositoryProperties>
+						</configuration>
+					</plugin>
+					<plugin>
 						<groupId>org.eclipse.cbi.maven.plugins</groupId>
 						<artifactId>eclipse-jarsigner-plugin</artifactId>
 						<version>1.1.3</version>
@@ -167,6 +184,7 @@
 						</executions>
 						<configuration>
 							<defaultP2Metadata>false</defaultP2Metadata>
+							<generateDownloadStatsProperty>true</generateDownloadStatsProperty>
 						</configuration>
 					</plugin>
 				</plugins>
@@ -181,6 +199,12 @@
 				<artifactId>tycho-maven-plugin</artifactId>
 				<version>${tycho-version}</version>
 				<extensions>true</extensions>
+				<configuration>
+					<generateDownloadStatsProperty>true</generateDownloadStatsProperty>
+					<extraArtifactRepositoryProperties>
+						<p2.statsURI>http://download.eclipse.org/stats/</p2.statsURI>
+					</extraArtifactRepositoryProperties>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>

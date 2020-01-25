@@ -35,6 +35,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Serializable;
+import java.nio.charset.Charset;
+import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
@@ -436,8 +438,18 @@ public class GeneralSnapshotTests
                 // Not HTML
                 return;
             }
+            String encoding = System.getProperty("file.encoding", "UTF-8"); //$NON-NLS-1$ //$NON-NLS-2$
+            try
+            {
+                // Convert to canonical form
+                encoding = Charset.forName(encoding).name();
+            }
+            catch (IllegalCharsetNameException e)
+            {
+                // Ignore
+            }
             // Read the file into a string
-            InputStreamReader ir = new InputStreamReader(fis, StandardCharsets.UTF_8);
+            InputStreamReader ir = new InputStreamReader(fis, encoding);
             char cbuf[] = new char[(int)f.length()];
             int l = ir.read(cbuf);
             String s = new String(cbuf, 0, l);
@@ -448,7 +460,7 @@ public class GeneralSnapshotTests
              */
 
             // Some basic checks
-            assertThat("Expected charset", s, containsString("content=\"text/html;charset=UTF-8\""));
+            assertThat("Expected charset", s, containsString("content=\"text/html;charset=" + encoding + "\""));
             assertThat("Possible double escaping <", s, not(containsString("&amp;lt;")));
             assertThat("Possible double escaping &", s, not(containsString("&amp;amp;")));
 
