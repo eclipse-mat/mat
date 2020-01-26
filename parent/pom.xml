@@ -25,9 +25,10 @@
 		<!-- mat-release-repo-url specifies from which p2 repo the MAT bundles 
 			come, when the build-release profile is used -->
 		<mat-release-repo-url>http://download.eclipse.org/mat/latest/update-site/</mat-release-repo-url>
-		<p2.mirrorsPrefix>/mat/1.9.2/update-site/</p2.mirrorsPrefix>
-		<p2.statsURI>https://download.eclipse.org/stats</p2.statsURI>
+		<p2.mirrorsPrefix>/mat/1.10.0/update-site/</p2.mirrorsPrefix>
+		<p2.statsURI>https://download.eclipse.org/stats/mat</p2.statsURI>
 		<p2.mirrorsURL>https://www.eclipse.org/downloads/download.php?format=xml&amp;file=${p2.mirrorsPrefix}</p2.mirrorsURL>
+		<!--  Track the branding plugin for each feature. Current doesn't work and all artifacts tracked. -->
 		<p2.statsTrackedArtifacts>org.eclipse.mat.api,org.eclipse.mat.chart,org.eclipse.mat.rcp</p2.statsTrackedArtifacts>
 
 	</properties>
