@@ -21,16 +21,26 @@ import java.util.function.Supplier;
 import java.util.zip.GZIPInputStream;
 
 /**
+ * Creates an unzipped view of a Gzipped file.
+ * Probably quite slow for random access, okay for streaming access.
  * Package class.
  * Do not call any methods other than
- * length() - not necessarily accurate
- * read(byte[])
- * read(byte[], int, int)
- * close()
+ * {@link #seek(long)}
+ * {@link #getFilePointer()}
+ * {@link #length()} - not necessarily accurate
+ * {@link #read(byte[])}
+ * {@link #read(byte[], int, int)}
+ * {@link #close()}
  */
 class CompressedRandomAccessFile extends RandomAccessFile
 {
     SeekableStream ss;
+    /**
+     * Create an unzipped view of the gzipped file, using multiple
+     * gzipped readers to obtain the uncompressed data.
+     * @param file
+     * @throws IOException
+     */
     public CompressedRandomAccessFile(File file) throws IOException
     {
         super(file, "r"); //$NON-NLS-1$
@@ -102,6 +112,15 @@ class CompressedRandomAccessFile extends RandomAccessFile
             return estimatedLength(ra);
         }
     }
+    /**
+     * Estimate the length of the uncompressed version of the Gzipped file.
+     * Gzip only has the least significant 32-bits of the size.
+     * Estimate the size as 5.0 times the compressed size, but with the
+     * same least significant 32-bits.
+     * @param ra The file
+     * @return the estimated uncompresed size
+     * @throws IOException
+     */
     static long estimatedLength(RandomAccessFile ra) throws IOException
     {
         long filel = ra.length();
@@ -119,7 +138,7 @@ class CompressedRandomAccessFile extends RandomAccessFile
                 // Least significant 32 bits of original length
                 long len32 = ((long) (r4 & 0xff) << 24) + ((r3 & 0xff) << 16) + ((r2 & 0xff) << 8) + (r1 & 0xff);
                 // Estimated decompression factor
-                long estimate = (long) (filel * 4.0);
+                long estimate = (long) (filel * 5.0);
                 // Now insert least significant 32 bits
                 long e1 = (estimate & ~0xffffffffL) + len32;
                 // and choose the closest value with those bits

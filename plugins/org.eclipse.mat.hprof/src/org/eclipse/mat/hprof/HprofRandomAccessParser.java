@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2019 SAP AG and others.
+ * Copyright (c) 2008, 2020 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -50,7 +50,10 @@ public class HprofRandomAccessParser extends AbstractParser
         if (gzip)
         {
             raf.close();
-            raf = new CompressedRandomAccessFile(file);
+            if (FileCacheCompressedRandomAccessFile.isDiskSpace(file))
+                raf = new FileCacheCompressedRandomAccessFile(file);
+            else
+                raf = new CompressedRandomAccessFile(file);
         }
         this.in = new DefaultPositionInputStream(new BufferedRandomAccessInputStream(raf, 512));
         this.version = version;
