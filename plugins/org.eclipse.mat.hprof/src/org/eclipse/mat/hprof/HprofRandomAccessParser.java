@@ -41,7 +41,7 @@ public class HprofRandomAccessParser extends AbstractParser
     public static final int LAZY_LOADING_LIMIT = 256;
     private final IPositionInputStream in;
 
-    public HprofRandomAccessParser(File file, Version version, int identifierSize,
+    public HprofRandomAccessParser(File file, Version version, int identifierSize, long len,
                     HprofPreferences.HprofStrictness strictnessPreference) throws IOException
     {
         super(strictnessPreference);
@@ -50,10 +50,12 @@ public class HprofRandomAccessParser extends AbstractParser
         if (gzip)
         {
             raf.close();
-            if (FileCacheCompressedRandomAccessFile.isDiskSpace(file))
+            long sparemem = Runtime.getRuntime().maxMemory() - (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory());
+            // If we are memory constrained use a file cache
+            if (len / 5  > sparemem && FileCacheCompressedRandomAccessFile.isDiskSpace(file, len))
                 raf = new FileCacheCompressedRandomAccessFile(file);
             else
-                raf = new CompressedRandomAccessFile(file);
+                raf = new CompressedRandomAccessFile(file, true, len);
         }
         this.in = new DefaultPositionInputStream(new BufferedRandomAccessInputStream(raf, 512));
         this.version = version;

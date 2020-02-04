@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson (IBM Corporation) - additional properties
  *******************************************************************************/
 package org.eclipse.mat.hprof;
 
@@ -32,6 +33,7 @@ import org.eclipse.mat.snapshot.model.IPrimitiveArray;
 public class HprofHeapObjectReader implements IObjectReader
 {
     public static final String VERSION_PROPERTY = "hprof.version"; //$NON-NLS-1$
+    public static final String HPROF_LENGTH_PROPERTY = "hprof.length"; //$NON-NLS-1$
 
     private ISnapshot snapshot;
     private HprofRandomAccessParser hprofDump;
@@ -46,10 +48,12 @@ public class HprofHeapObjectReader implements IObjectReader
                         .getProperty(VERSION_PROPERTY));
 
         HprofPreferences.HprofStrictness strictnessPreference = HprofPreferences.getCurrentStrictness();
+        Long olen = (Long)snapshot.getSnapshotInfo().getProperty(HPROF_LENGTH_PROPERTY);
+        long len = (olen != null) ? olen : -1;
 
         this.hprofDump = new HprofRandomAccessParser(new File(snapshot.getSnapshotInfo().getPath()), //
                         version, //
-                        snapshot.getSnapshotInfo().getIdentifierSize(), strictnessPreference);
+                        snapshot.getSnapshotInfo().getIdentifierSize(), len, strictnessPreference);
         this.o2hprof = new IndexReader.LongIndexReader(new File(snapshot.getSnapshotInfo().getPrefix()
                         + "o2hprof.index")); //$NON-NLS-1$
 

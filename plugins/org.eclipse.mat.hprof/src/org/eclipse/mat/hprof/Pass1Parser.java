@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2019 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -80,7 +80,7 @@ public class Pass1Parser extends AbstractParser
     public void read(File file, String dumpNrToRead, long estimatedLength) throws SnapshotException, IOException
     {
         // See http://java.net/downloads/heap-snapshot/hprof-binary-format.html
-        in = new BufferingRafPositionInputStream(file, 0, 8*1024);
+        in = new BufferingRafPositionInputStream(file, 0, 8*1024, 0);
 
         int currentDumpNr = 0;
         List<MultipleSnapshotsException.Context> ctxs = new ArrayList<MultipleSnapshotsException.Context>();
@@ -268,6 +268,8 @@ public class Pass1Parser extends AbstractParser
             catch (IOException ignore)
             {}
         }
+
+        handler.addProperty(IHprofParserHandler.STREAM_LENGTH, Long.toString(streamLength()));
 
         if (!foundDump)
             throw new SnapshotException(MessageUtil.format(Messages.Pass1Parser_Error_NoHeapDumpIndexFound,

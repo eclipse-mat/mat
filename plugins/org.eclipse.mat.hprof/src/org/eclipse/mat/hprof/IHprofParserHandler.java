@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2016 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -30,6 +30,7 @@ public interface IHprofParserHandler
     String CREATION_DATE = "CREATION_DATE"; //$NON-NLS-1$
     String VERSION = "VERSION";//$NON-NLS-1$
     String REFERENCE_SIZE = "REF_SIZE"; //$NON-NLS-1$
+    String STREAM_LENGTH = "LENGTH"; //$NON-NLS-1$
 
     public class HeapObject
     {

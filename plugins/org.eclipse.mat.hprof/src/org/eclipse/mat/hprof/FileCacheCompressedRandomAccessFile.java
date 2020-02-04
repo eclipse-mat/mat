@@ -88,12 +88,13 @@ class FileCacheCompressedRandomAccessFile extends RandomAccessFile
     /**
      * Rough estimate if there is enough disk space to unzip the file.
      * @param f The gzipped file.
+     * @param len the unzipped length, or -1 if unknown
      * @return true if probably enough space.
      * @throws IOException
      */
-    public static boolean isDiskSpace(File f) throws IOException
+    public static boolean isDiskSpace(File f, long len) throws IOException
     {
-        long estlen = CompressedRandomAccessFile.estimatedLength(f);
+        long estlen = len >= 0 ? len : CompressedRandomAccessFile.estimatedLength(f);
         String tempDirName = System.getProperty("java.io.tmpdir"); //$NON-NLS-1$
         File tempDir = new File(tempDirName);
         return tempDir.getUsableSpace() > estlen;

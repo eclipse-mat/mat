@@ -26,14 +26,14 @@ public class BufferingRafPositionInputStream implements IPositionInputStream, Cl
     private int bufferPosition = 0;
     private int bufferLength = 0;
 
-    public BufferingRafPositionInputStream(final File file, final long offset, final int readLength) throws IOException
+    public BufferingRafPositionInputStream(final File file, final long offset, final int readLength, long estlen) throws IOException
     {
         RandomAccessFile raf1 = new RandomAccessFile(file, "r"); //$NON-NLS-1$
         boolean gzip = CompressedRandomAccessFile.isGZIP(raf1);
         if (gzip)
         {
             raf1.close();
-            raf = new CompressedRandomAccessFile(file);
+            raf = new CompressedRandomAccessFile(file, false, estlen);
         }
         else
         {

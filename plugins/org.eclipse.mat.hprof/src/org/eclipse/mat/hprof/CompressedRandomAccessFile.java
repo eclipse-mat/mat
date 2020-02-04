@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 IBM Corporation.
+ * Copyright (c) 2019,2020 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@
 package org.eclipse.mat.hprof;
 
 import java.io.File;
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
@@ -39,31 +40,72 @@ class CompressedRandomAccessFile extends RandomAccessFile
      * Create an unzipped view of the gzipped file, using multiple
      * gzipped readers to obtain the uncompressed data.
      * @param file
+     * @param hint for random access
+     * @param length estimate
      * @throws IOException
      */
-    public CompressedRandomAccessFile(File file) throws IOException
+    public CompressedRandomAccessFile(File file, boolean random, long length) throws IOException
     {
         super(file, "r"); //$NON-NLS-1$
         FileChannel ch = getChannel();
         // length of file on disk - don't find length after decompression as expensive
         // and don't know it yet
         long len = ch.size();
+        // Each SeekableSteam input decompressor probably uses 64kB.
+        long decompSize = 65536;
         int cacheSize = (int)Math.min(Math.min(len / 100000, 1000) + len / 1000000, 1000000);
+        // Also limit the cache according to memory
+        long sparemem = Runtime.getRuntime().maxMemory() - (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory());
+        // Limit to 1/4 spare memory
+        if (cacheSize * decompSize * 4 > sparemem)
+            cacheSize = (int)(sparemem / decompSize / 4);
         ss = new SeekableStream(new Supplier<InputStream>()
         {
             public InputStream get()
             {
                 try
                 {
-                    InputStream is = Channels.newInputStream(ch);
-                    return new GZIPInputStream(new SeekableStream.UnclosableInputStream(is));
+                    /*
+                     * Create a stream view of the channel.
+                     * Important - changing position via channel
+                     * must change position of input stream, so
+                     * no buffering.
+                     * Add mark support.
+                     */
+                    InputStream is = new FilterInputStream(Channels.newInputStream(ch)) {
+                        long mark_pos;
+                        @Override
+                        public boolean markSupported()
+                        {
+                            return true;
+                        }
+                        public void mark(int n)
+                        {
+                            try
+                            {
+                                mark_pos = ch.position();
+                            }
+                            catch (IOException e)
+                            {
+                                mark_pos = -1;
+                            }
+                        }
+                        public void reset() throws IOException
+                        {
+                            ch.position(mark_pos);
+                        }
+                    };
+                    InputStream is2 = new SeekableStream.UnclosableInputStream(is);
+                    // GZIPInputStream2 can save positions mid stream
+                    // GZIPInputStream is faster for linear access
+                    return random ? new GZIPInputStream2(is2) : new GZIPInputStream(is2);
                 }
                 catch (IOException e)
                 {
                     throw new UncheckedIOException(e);
                 }
             }
-        }, ch, cacheSize);
+        }, ch, cacheSize, length);
     }
     @Override
     public void seek(long pos) throws IOException

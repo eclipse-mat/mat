@@ -37,6 +37,16 @@ public class Messages extends NLS
     public static String ExportHprof_RemapProperties;
     public static String ExportHprof_SegmentSizeMismatch;
     public static String ExportHprof_SegmentTooLong;
+    public static String GZIPInputStream2_BadHeaderCRC;
+    public static String GZIPInputStream2_BadTrailerCRC;
+    public static String GZIPInputStream2_BadTrailerLength;
+    public static String GZIPInputStream2_NotAGzip;
+    public static String GZIPInputStream2_NotDeflate;
+    public static String GZIPInputStream2_TruncatedComment;
+    public static String GZIPInputStream2_TruncatedExtra;
+    public static String GZIPInputStream2_TruncatedHeader;
+    public static String GZIPInputStream2_TruncatedHeaderCRC;
+    public static String GZIPInputStream2_TruncatedName;
     public static String HprofIndexBuilder_ExtractingObjects;
     public static String HprofIndexBuilder_Parsing;
     public static String HprofIndexBuilder_Scanning;

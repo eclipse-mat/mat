@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 IBM Corporation and others.
+ * Copyright (c) 2019,2020 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,6 +19,9 @@ import java.nio.channels.SeekableByteChannel;
 import java.util.Iterator;
 import java.util.TreeSet;
 import java.util.function.Supplier;
+
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.mat.util.MessageUtil;
 
 /**
  * Used to wrap an non-seekable stream to make it seekable.
@@ -108,6 +111,26 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
             seq = seq1;
         }
 
+        /**
+         * Create a copy of the PosStream.
+         * Requires the underlying stream can have its state duplicated
+         * in another copy.
+         * @param seq
+         * @return the copy or null if no copy is possible
+         * @throws IOException
+         */
+        protected PosStream copy(long seq) throws IOException
+        {
+            if (in instanceof GZIPInputStream2)
+            {
+                PosStream ret = new PosStream(new GZIPInputStream2((GZIPInputStream2)in), seq);
+                ret.basepos = basepos;
+                ret.pos = pos;
+                return ret;
+            }
+            return null;
+        }
+
         /** Position in stream */
         private long pos;
         /**
@@ -120,6 +143,7 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
         //InputStream is;
         /** Position in the base stream when not in use. */
         long basepos;
+        boolean eof;
 
         @Override
         public int read() throws IOException
@@ -127,6 +151,8 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
             int r = super.read();
             if (r != -1)
                 ++pos;
+            else
+                eof = true;
             return r;
         }
 
@@ -136,6 +162,8 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
             int r = super.read(buf, off, len);
             if (r != -1)
                 pos += r;
+            else
+                eof = true;
             return r;
         }
 
@@ -162,7 +190,7 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
 
         public String toString()
         {
-            return super.toString() + " " + pos + " (" + seq + ")";  //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            return super.toString() + " " + pos + " (" + seq + ")" + (eof?"EOF" : "");  //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         }
 
         long position()
@@ -188,6 +216,8 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
     PosStream current;
     /** How many streams to keep active */
     int cachesize;
+    /** Estimate of uncompressed length */
+    long estlen;
     /** The last position if the current stream has been closed */
     long lastpos;
     /**
@@ -200,7 +230,8 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
      * Alternative underlying channel with position and seek.
      */
     SeekableByteChannel underlyingChannel;
-
+    private final boolean verbose = Platform.inDebugMode() && HprofPlugin.getDefault().isDebugging()
+                    && Boolean.parseBoolean(Platform.getDebugOption("org.eclipse.mat.hprof/debug/gzip")); //$NON-NLS-1$
     /**
      * Creates a seekable stream out of a non-seekable stream.
      *
@@ -215,12 +246,14 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
      *            The underlying seekable stream.
      *            Avoids having to open a file multiple times if a seek can be used instead.
      * @param cachesize number of seekable streams to use
+     * @param estlen estimate of length
      * @throws IOException
      */
-    public SeekableStream(Supplier<InputStream> genstream, RandomAccessInputStream underlying, int cachesize) throws IOException
+    public SeekableStream(Supplier<InputStream> genstream, RandomAccessInputStream underlying, int cachesize, long estlen) throws IOException
     {
         this.genstream = genstream;
         this.cachesize = cachesize;
+        this.estlen = estlen;
         this.underlying = underlying;
         cleanup = initcleanup();
         seek(0);
@@ -248,12 +281,14 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
      *            The underlying seekable stream.
      *            Avoids having to open a file multiple times if a seek can be used instead.
      * @param cachesize number of seekable streams to use
+     * @param estlen estimate of uncompressed length
      * @throws IOException
      */
-    public SeekableStream(Supplier<InputStream> genstream, SeekableByteChannel underlying, int cachesize) throws IOException
+    public SeekableStream(Supplier<InputStream> genstream, SeekableByteChannel underlying, int cachesize, long estlen) throws IOException
     {
         this.genstream = genstream;
         this.cachesize = cachesize;
+        this.estlen = estlen;
         this.underlyingChannel = underlying;
         cleanup = initcleanup();
         seek(0);
@@ -416,6 +451,7 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
      */
     public void seek(long pos) throws IOException
     {
+        long then = System.currentTimeMillis();
         if (current != null)
         {
             // Remember the position in the underlying stream
@@ -428,8 +464,25 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
         PosStream found = ts.floor(dummy);
         if (found != null)
         {
-            // remove from tree set as we change the position
-            ts.remove(found);
+            PosStream copy = found.copy(nextseq);
+            if (copy != null)
+            {
+                ++nextseq;
+                ts.remove(found);
+                // Put the copy back, and use the original
+                ts.add(copy);
+                // Only do the cleanup after we have removed the 
+                // PosStream we want to use - don't want clean up closing it.
+                if (ts.size() > cachesize)
+                {
+                    clearEntry();
+                }
+            }
+            else
+            {
+                // remove from tree set as we change the position
+                ts.remove(found);
+            }
             underlyingPosition(found.basepos);
         }
         else
@@ -458,14 +511,44 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
         }
         current = found;
         long toSkip = pos - found.position();
+        long toSkip1 = toSkip;
         while (toSkip > 0)
         {
-            long skipped = skip(pos - found.position());
+            // Skip in 1GB chunks so we can save intermediate readers
+            long skipNow;
+            if (ts.size() < cachesize)
+            {
+                if (lastpos > 0)
+                    skipNow = Math.min(toSkip, lastpos / (cachesize - ts.size()));
+                else if (estlen > 0)
+                    skipNow = Math.min(toSkip, estlen / (cachesize - ts.size()));
+                else
+                    skipNow = Math.min(toSkip, 1L << 30);
+            }
+            else
+            {
+                skipNow = toSkip;
+            }
+            long skipped = skip(skipNow);
             if (skipped == 0)
                 throw new IOException();
             // Skip should normally call read() which will update pos
             toSkip -= skipped;
+            // Possibly create some readers for intermediate places
+            if (toSkip > 0 && ts.size() < cachesize)
+            {
+                current.basepos = underlyingPosition();
+                PosStream extra = current.copy(nextseq);
+                if (extra != null)
+                {
+                    ++nextseq;
+                    ts.add(extra);
+                }
+            }
         }
+        long now = System.currentTimeMillis();
+        if (verbose && now - then > 1000)
+            System.out.println(MessageUtil.format("Slow gzip seek to offset {0} by {1} cache size {2} took {3}ms", pos,toSkip1,ts.size(),(now-then))); //$NON-NLS-1$
     }
 
     public long position()

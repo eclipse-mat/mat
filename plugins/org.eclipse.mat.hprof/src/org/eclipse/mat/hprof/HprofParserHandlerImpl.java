@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2019 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -611,6 +611,11 @@ public class HprofParserHandlerImpl implements IHprofParserHandler
         else if (IHprofParserHandler.REFERENCE_SIZE.equals(name))
         {
             refSize = Integer.parseInt(value);
+        }
+        else if (IHprofParserHandler.STREAM_LENGTH.equals(name))
+        {
+            long length = Long.parseLong(value);
+            info.setProperty(HprofHeapObjectReader.HPROF_LENGTH_PROPERTY, length);
         }
     }
 
