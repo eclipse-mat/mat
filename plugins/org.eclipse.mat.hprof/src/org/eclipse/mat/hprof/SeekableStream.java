@@ -15,6 +15,7 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.lang.ref.SoftReference;
 import java.nio.channels.SeekableByteChannel;
 import java.util.Iterator;
 import java.util.TreeSet;
@@ -90,6 +91,8 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
 
     /**
      * Internal class to hold position of a decompression stream.
+     * Uses a {@link java.lang.ref.SoftReference} to hold the stream
+     * when not in use so that the stream can be freed when memory is short.
      */
     static class PosStream extends FilterInputStream implements Comparable<PosStream>
     {
@@ -97,6 +100,7 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
         {
             super(in);
             seq = seq1;
+            savedStream = new SoftReference<InputStream>(in);
         }
 
         /**
@@ -144,6 +148,8 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
         /** Position in the base stream when not in use. */
         long basepos;
         boolean eof;
+        /** Used to save the stream when not in active use */
+        SoftReference<InputStream> savedStream;
 
         @Override
         public int read() throws IOException
@@ -190,7 +196,7 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
 
         public String toString()
         {
-            return super.toString() + " " + pos + " (" + seq + ")" + (eof?"EOF" : "");  //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            return super.toString() + " " + pos + " (" + seq + ")" + (eof?"EOF" : "");  //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
         }
 
         long position()
@@ -201,6 +207,52 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
         void position(long pos)
         {
             this.pos = pos;
+        }
+
+        /**
+         * Sets the stream available or not available for use.
+         * @param state true if required to be active
+         * @return if now active ({@link #read()} etc. can work,
+         * false if the SoftReference has been cleared and the stream
+         * cannot be used.
+         */
+        boolean setActive(boolean state)
+        {
+            if (state)
+            {
+                in = savedStream.get();
+                return in != null;
+            }
+            else
+            {
+                //in = null;
+                //return false;
+                return true;
+            }
+        }
+
+        boolean isCleared()
+        {
+            return savedStream.get() == null;
+        }
+
+        public void close() throws IOException
+        {
+            if (setActive(true))
+            {
+                super.close();
+            }
+        }
+
+        public void finalizable()
+        {
+            try
+            {
+                close();
+            }
+            catch (IOException e)
+            {
+            }
         }
     }
 
@@ -427,8 +479,15 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
         long pos = 0;
         PosStream best = null;
         long bestgap = Long.MAX_VALUE;
-        for (PosStream p : ts)
+        for (Iterator<PosStream> ip = ts.iterator(); ip.hasNext(); )
         {
+            PosStream p = ip.next();
+            // Also remove PosStream which have SoftReferences which have been cleared
+            if (p.isCleared())
+            {
+                ip.remove();
+                continue;
+            }
             if (p.position() - pos < bestgap)
             {
                 best = p;
@@ -436,8 +495,11 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
             }
             pos = p.position();
         }
-        ts.remove(best);
-        streamClose(best);
+        if (best != null)
+        {
+            ts.remove(best);
+            streamClose(best);
+        }
     }
 
     /**
@@ -457,11 +519,17 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
             // Remember the position in the underlying stream
             current.basepos = underlyingPosition();
             // Add the current stream to the list so it can be searched for
+            current.setActive(false);
             ts.add(current);
         }
         // Create a PosStream so we can search for an existing close one
         PosStream dummy = new PosStream(pos, nextseq);
-        PosStream found = ts.floor(dummy);
+        PosStream found;
+        do
+        {
+            found = ts.floor(dummy);
+        } 
+        while (found != null && !found.setActive(true) && ts.remove(found));
         if (found != null)
         {
             PosStream copy = found.copy(nextseq);
@@ -470,6 +538,7 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
                 ++nextseq;
                 ts.remove(found);
                 // Put the copy back, and use the original
+                copy.setActive(false);
                 ts.add(copy);
                 // Only do the cleanup after we have removed the 
                 // PosStream we want to use - don't want clean up closing it.
@@ -504,6 +573,10 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
                 if (current != null)
                 {
                     ts.remove(current);
+                    if (!current.setActive(true))
+                    {
+                        current = null;
+                    }
                     underlyingPosition(current.basepos);
                 }
                 throw e.getCause();
@@ -542,6 +615,7 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
                 if (extra != null)
                 {
                     ++nextseq;
+                    extra.setActive(false);
                     ts.add(extra);
                 }
             }

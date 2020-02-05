@@ -51,8 +51,8 @@ public class HprofRandomAccessParser extends AbstractParser
         {
             raf.close();
             long sparemem = Runtime.getRuntime().maxMemory() - (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory());
-            // If we are memory constrained use a file cache
-            if (len / 5  > sparemem && FileCacheCompressedRandomAccessFile.isDiskSpace(file, len))
+            // If we are very memory constrained use a file cache
+            if (len / 10  > sparemem && FileCacheCompressedRandomAccessFile.isDiskSpace(file, len))
                 raf = new FileCacheCompressedRandomAccessFile(file);
             else
                 raf = new CompressedRandomAccessFile(file, true, len);
