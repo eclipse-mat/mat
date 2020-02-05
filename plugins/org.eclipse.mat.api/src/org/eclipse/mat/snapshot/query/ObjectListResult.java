@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2013 SAP AG and others.
+ * Copyright (c) 2008, 2020 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -307,6 +307,7 @@ public final class ObjectListResult
     {
         /** A string guaranteed not to be equal by identity to any other String */
         public static final String NOT_A_GC_ROOT = new String("$ not a gc root $"); //$NON-NLS-1$
+        private static final Bytes UNSET = new Bytes(-1);
 
         int objectId;
         String label;
@@ -317,8 +318,8 @@ public final class ObjectListResult
         private Node(int objectId)
         {
             this.objectId = objectId;
-            this.shallowHeap = new Bytes(-1);
-            this.retainedHeap = new Bytes(-1);
+            this.shallowHeap = UNSET;
+            this.retainedHeap = UNSET;
         }
     }
 

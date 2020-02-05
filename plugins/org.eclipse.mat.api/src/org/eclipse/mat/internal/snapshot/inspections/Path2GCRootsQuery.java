@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others.
+ * Copyright (c) 2008, 2020 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -140,12 +140,13 @@ public class Path2GCRootsQuery implements IQuery
 
         boolean isExpanded;
         boolean isSelected;
+        private static final Bytes UNSET = new Bytes(-1);
 
         public Node(int objectId)
         {
             this.objectId = objectId;
-            this.shallowHeap = new Bytes(-1);
-            this.retainedHeap = new Bytes(-1);
+            this.shallowHeap = UNSET;
+            this.retainedHeap = UNSET;
         }
 
         /* package */Node getChild(int childId)

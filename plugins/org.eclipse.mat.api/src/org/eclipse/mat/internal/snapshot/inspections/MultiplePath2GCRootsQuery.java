@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others.
+ * Copyright (c) 2008, 2020 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -217,15 +217,16 @@ public class MultiplePath2GCRootsQuery implements IQuery
         Bytes shallowHeap;
         Bytes refShallowHeap;
         Bytes retainedHeap;
+        private static final Bytes UNSET = new Bytes(-1);
 
         protected Node(int objectId, int level)
         {
             this.objectId = objectId;
             this.level = level;
 
-            this.shallowHeap = new Bytes(-1);
-            this.refShallowHeap = new Bytes(-1);
-            this.retainedHeap = new Bytes(-1);
+            this.shallowHeap = UNSET;
+            this.refShallowHeap = UNSET;
+            this.retainedHeap = UNSET;
         }
 
         int[] getReferencedObjects()
