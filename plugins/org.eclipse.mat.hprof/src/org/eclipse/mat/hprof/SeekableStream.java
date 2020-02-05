@@ -250,14 +250,15 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
         }
 
         @Override
-        public void finalize()
+        protected void finalize() throws Throwable
         {
             try
             {
                 close();
             }
-            catch (IOException e)
+            finally
             {
+                super.finalize();
             }
         }
     }
@@ -579,11 +580,11 @@ public class SeekableStream extends InputStream implements Closeable, AutoClosea
                 if (current != null)
                 {
                     ts.remove(current);
+                    underlyingPosition(current.basepos);
                     if (!current.setActive(true))
                     {
                         current = null;
                     }
-                    underlyingPosition(current.basepos);
                 }
                 throw e.getCause();
             }
