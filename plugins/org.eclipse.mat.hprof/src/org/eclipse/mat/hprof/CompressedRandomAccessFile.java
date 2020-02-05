@@ -55,10 +55,11 @@ class CompressedRandomAccessFile extends RandomAccessFile
         long decompSize = 65536;
         int cacheSize = (int)Math.min(Math.min(len / 100000, 1000) + len / 1000000, 1000000);
         // Also limit the cache according to memory
-        long sparemem = Runtime.getRuntime().maxMemory() - (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory());
         // Limit to 1/4 spare memory
-        if (cacheSize * decompSize * 4 > sparemem)
-            cacheSize = (int)(sparemem / decompSize / 4);
+        long required = cacheSize * decompSize * 4;
+        long maxFree = checkMemSpace(required);
+        if (required > maxFree)
+            cacheSize = (int)(maxFree / decompSize / 4);
         ss = new SeekableStream(new Supplier<InputStream>()
         {
             public InputStream get()
@@ -220,5 +221,24 @@ class CompressedRandomAccessFile extends RandomAccessFile
         {
             ra.seek(pos);
         }
+    }
+
+    /**
+     * Check whether there is at least the requested amount of
+     * memory available.
+     * @param requested
+     * @return memory available 
+     */
+    static long checkMemSpace(long requested)
+    {
+        Runtime runtime = Runtime.getRuntime();
+        long maxFree = runtime.maxMemory() - (runtime.totalMemory() - runtime.freeMemory());
+        if (maxFree < requested)
+        {
+            runtime.gc();
+            maxFree = runtime.maxMemory() - (runtime.totalMemory() - runtime.freeMemory());
+            return maxFree;
+        }
+        return maxFree;
     }
 }

@@ -50,9 +50,10 @@ public class HprofRandomAccessParser extends AbstractParser
         if (gzip)
         {
             raf.close();
-            long sparemem = Runtime.getRuntime().maxMemory() - (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory());
+            long requested = len / 10;
+            long maxFree = CompressedRandomAccessFile.checkMemSpace(requested);
             // If we are very memory constrained use a file cache
-            if (len / 10  > sparemem && FileCacheCompressedRandomAccessFile.isDiskSpace(file, len))
+            if (requested > maxFree && FileCacheCompressedRandomAccessFile.isDiskSpace(file, len))
                 raf = new FileCacheCompressedRandomAccessFile(file);
             else
                 raf = new CompressedRandomAccessFile(file, true, len);
