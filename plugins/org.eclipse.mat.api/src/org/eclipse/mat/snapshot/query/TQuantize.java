@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2009 SAP AG.
+ * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson (IBM Corporation) - fix deprecated method
  *******************************************************************************/
 package org.eclipse.mat.snapshot.query;
 
@@ -27,6 +28,7 @@ import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.ContextDerivedData;
+import org.eclipse.mat.query.ContextDerivedData.DerivedOperation;
 import org.eclipse.mat.query.ContextProvider;
 import org.eclipse.mat.query.DetailResultProvider;
 import org.eclipse.mat.query.IContextObject;
@@ -37,7 +39,6 @@ import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.query.IResultTree;
 import org.eclipse.mat.query.ResultMetaData;
-import org.eclipse.mat.query.ContextDerivedData.DerivedOperation;
 import org.eclipse.mat.query.quantize.Quantize;
 import org.eclipse.mat.query.quantize.Quantize.Function;
 import org.eclipse.mat.snapshot.ISnapshot;
@@ -140,7 +141,7 @@ public final class TQuantize
     {
         try
         {
-            Builder builder = new Builder(snapshot, base, target.getCalculatorClass().newInstance());
+            Builder builder = new Builder(snapshot, base, target.getCalculatorClass().getDeclaredConstructor().newInstance());
             builder.column(base.getColumns()[0], 0);
             return builder;
         }
@@ -159,7 +160,7 @@ public final class TQuantize
     {
         try
         {
-            Builder builder = new Builder(snapshot, base, target.getCalculatorClass().newInstance());
+            Builder builder = new Builder(snapshot, base, target.getCalculatorClass().getDeclaredConstructor().newInstance());
 
             Column[] columns = base.getColumns();
             ResultMetaData data = base.getResultMetaData();

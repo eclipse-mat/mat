@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -37,13 +37,13 @@ public interface IOutputter
         /**
          * The query context for the result. Could be used to convert object identifiers
          * to addresses.
-         * @return
+         * @return the query context
          */
         IQueryContext getQueryContext();
 
         /**
          * Where files for the report can be generated.
-         * @return
+         * @return the directory
          */
         File getOutputDirectory();
 
@@ -68,20 +68,20 @@ public interface IOutputter
 
         /**
          * Whether there is a limit on the number of rows to generate.
-         * @return
+         * @return true if there is a limit
          */
         boolean hasLimit();
 
         /**
          * The limit on the number of rows to generate in the report from the result.
-         * @return
+         * @return number of rows
          */
         int getLimit();
 
         /**
          * Whether a column of the result should be displayed in the report.
          * @param columnIndex
-         * @return
+         * @return true if column should be displayed
          */
         boolean isColumnVisible(int columnIndex);
 
@@ -94,7 +94,7 @@ public interface IOutputter
         /**
          * Get the value of a parameter from {@link Params} controlling generation of a report.
          * @param key
-         * @return
+         * @return the value or null
          */
         String param(String key);
 
@@ -102,7 +102,7 @@ public interface IOutputter
          * Get the value of a parameter from {@link Params} controlling generation of a report.
          * @param key
          * @param defaultValue the value to be used if no parameter with that key is set.
-         * @return
+         * @return the value, or defaultValue if no parameter with that key
          */
         String param(String key, String defaultValue);
     }

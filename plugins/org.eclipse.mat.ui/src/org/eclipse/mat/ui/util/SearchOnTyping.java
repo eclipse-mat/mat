@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG.
+ * Copyright (c) 2008, 2020 SAP AG.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson (IBM Corporation) - fix deprecated method
  *******************************************************************************/
 package org.eclipse.mat.ui.util;
 
@@ -249,7 +250,7 @@ public class SearchOnTyping
 
         private SearchPopup(SearchThingy thingy, String initialPattern)
         {
-            super(thingy.getControl().getShell(), SWT.RESIZE, true, false, false, false, null, null);
+            super(thingy.getControl().getShell(), SWT.RESIZE, true, false, false, false, false, null, null);
             this.thingy = thingy;
             this.initialPattern = initialPattern;
         }

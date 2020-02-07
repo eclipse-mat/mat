@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 SAP AG.
+ * Copyright (c) 2008,2020 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson (IBM Corporation) - fix deprecated method
  *******************************************************************************/
 package org.eclipse.mat.tests;
 
@@ -14,6 +15,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -274,7 +276,7 @@ public class JUnit4TestRunner implements IApplication
         try
         {
             Class<?> clazz = getClass().getClassLoader().loadClass(classname);
-            Object instance = clazz.newInstance();
+            Object instance = clazz.getConstructor().newInstance();
             if (!(instance instanceof JUnitResultFormatter))
                 throw new BuildException(MessageUtil.format("{0} is not a JUnitResultFormatter", classname));
 
@@ -296,6 +298,22 @@ public class JUnit4TestRunner implements IApplication
             throw new BuildException(e);
         }
         catch (java.io.IOException e)
+        {
+            throw new BuildException(e);
+        }
+        catch (IllegalArgumentException e)
+        {
+            throw new BuildException(e);
+        }
+        catch (InvocationTargetException e)
+        {
+            throw new BuildException(e);
+        }
+        catch (NoSuchMethodException e)
+        {
+            throw new BuildException(e);
+        }
+        catch (SecurityException e)
         {
             throw new BuildException(e);
         }

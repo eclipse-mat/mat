@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -420,7 +420,7 @@ public final class Quantize
 
     /**
      * Returns the {@link IResult} build by the Quantize object.
-     * @return a {link QuantizedResult}
+     * @return a {@link QuantizedResult}
      */
     public IResult getResult()
     {
@@ -778,7 +778,7 @@ public final class Quantize
 
         public Function build() throws Exception
         {
-            return functionClass.newInstance();
+            return functionClass.getDeclaredConstructor().newInstance();
         }
 
     }

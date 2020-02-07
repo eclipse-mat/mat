@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 SAP AG and others.
+ * Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson (IBM Corporation) - fix deprecated method
  *******************************************************************************/
 package org.eclipse.mat.ui.internal.browser;
 
@@ -111,7 +112,7 @@ public class QueryBrowserPopup extends PopupDialog
     
     public QueryBrowserPopup(MultiPaneEditor editor, boolean onlyHistory, org.eclipse.mat.ui.util.IPolicy policy)
     {
-        super(editor.getEditorSite().getShell(), SWT.RESIZE, true, true, true, true, null,
+        super(editor.getEditorSite().getShell(), SWT.RESIZE, true, true, true, true, true, null,
                         Messages.QueryBrowserPopup_StartTyping);
 
         this.editor = editor;
@@ -414,14 +415,14 @@ public class QueryBrowserPopup extends PopupDialog
 
     protected Point getInitialSize()
     {
-        if (!getPersistBounds())
+        if (!this.getPersistSize())
             return new Point(450, 400);
         return super.getInitialSize();
     }
 
     protected Point getInitialLocation(Point initialSize)
     {
-        if (!getPersistBounds())
+        if (!getPersistLocation())
         {
             Point size = new Point(400, 400);
             Rectangle parentBounds = getParentShell().getBounds();

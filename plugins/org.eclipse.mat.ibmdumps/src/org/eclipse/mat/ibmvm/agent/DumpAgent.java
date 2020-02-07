@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2018 IBM Corporation
+ * Copyright (c) 2010, 2020 IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,7 +8,7 @@
  * Contributors:
  *    IBM Corporation - initial implementation
  *    IBM Corporation/Andrew Johnson - Updates to use reflection for non-standard classes
-  *    IBM Corporation/Andrew Johnson - dumps for Oracle based VMs using HotSpot Beans
+ *    IBM Corporation/Andrew Johnson - dumps for Oracle based VMs using HotSpot Beans
  *******************************************************************************/
 package org.eclipse.mat.ibmvm.agent;
 
@@ -142,7 +142,7 @@ public class DumpAgent {
             }
             else if ("hprof".equals(a))
             {
-                Object hsd = dumpcls.newInstance();
+                Object hsd = dumpcls.getConstructor().newInstance();
                 //sun.management.HotSpotDiagnostic.dumpHeap(String filename, boolean live);
                 // fails with linkage error on dumpHeap0()
                 Method m = dumpcls.getMethod("dumpHeap", String.class, Boolean.TYPE);

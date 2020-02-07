@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -331,8 +331,8 @@ public abstract class SnapshotOutlinePage extends Page implements IContentOutlin
                 }
             }
             category.addChild(new Label(Messages.file_path, info.getPath(), bInfo.getPath()));
-            Double fileLength = new Double((double) new File(info.getPath()).length() / (1024 * 1024));
-            Double bFileLength = bInfo.getPath() != null ? new Double((double) new File(bInfo.getPath()).length()
+            Double fileLength = Double.valueOf((double) new File(info.getPath()).length() / (1024 * 1024));
+            Double bFileLength = bInfo.getPath() != null ? Double.valueOf((double) new File(bInfo.getPath()).length()
                             / (1024 * 1024)) : null;
             category.addChild(new Label(Messages.file_length, fileLength, bFileLength));
             if (info.getProperty("$runtimeId") != null || bInfo.getProperty("$runtimeId") != null)  //$NON-NLS-1$//$NON-NLS-2$
@@ -371,7 +371,7 @@ public abstract class SnapshotOutlinePage extends Page implements IContentOutlin
             category.addChild(new Label(Messages.identifier_size, null, null));
             category.addChild(new Label(Messages.file_path, path.toOSString(), null));
 
-            final Double fileLength = new Double((double) osFile.length() / (1024 * 1024));
+            final Double fileLength = Double.valueOf((double) osFile.length() / (1024 * 1024));
             category.addChild(new Label(Messages.file_length, fileLength, null));
 
         }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2009 SAP AG.
+ * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson (IBM Corporation) - fix deprecated method
  *******************************************************************************/
 package org.eclipse.mat.snapshot;
 
@@ -109,7 +110,7 @@ public final class DominatorsSummary
                 ClassloaderDominatorRecord clr = map.get(record.getClassloaderId());
                 if (clr == null)
                 {
-                    map.put(record.getClassloaderId(), clr = factoryClass.newInstance());
+                    map.put(record.getClassloaderId(), clr = factoryClass.getDeclaredConstructor().newInstance());
 
                     clr.setId(record.getClassloaderId());
 
