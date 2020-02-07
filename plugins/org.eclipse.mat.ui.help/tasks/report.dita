@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright (c) 2020 IBM Corporation. All rights reserved. 
+	This program and the accompanying materials are made available under the 
+	terms of the Eclipse Public License v1.0 which accompanies this distribution, 
+	and is available at http://www.eclipse.org/legal/epl-v10.html Contributors: 
+	Andrew Johnson (IBM Corporation) - initial API and implementation -->
+<!DOCTYPE task PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd" >
+<task id="task_configure_mat" xml:lang="en-us">
+	<title>Problems displaying reports</title>
+	<prolog>
+		<copyright>
+			<copyryear year=""></copyryear>
+			<copyrholder>
+				Copyright (c) 2020 IBM Corporation.
+				All rights reserved.
+				This program and the accompanying materials
+				are made available under
+				the terms of the Eclipse Public License v1.0
+				which accompanies this
+				distribution, and is available at
+				http://www.eclipse.org/legal/epl-v10.html
+			</copyrholder>
+		</copyright>
+	</prolog>
+
+	<taskbody>
+		<context>
+			<p>
+				Sometimes Memory Analyzer does not display reports such as Leak
+				Suspects report
+				or Component report and displays a message such as:
+				<msgph>
+					Failed to create a browser because of:
+					org.eclipse.swt.SWTException:
+					Failed to execute runnable
+					(org.eclipse.swt.SWTError: No more
+					handles because no underlying
+					browser available.
+				</msgph>
+				or
+				<msgph>org.eclipse.swt.SWTException: Failed to execute runnable
+					(org.eclipse.swt.SWTError: XPCOM error -2147467259)
+				</msgph>
+			</p>
+		</context>
+		<steps>
+			<step>
+				<cmd>
+					Close Memory Analyzer.
+				</cmd>
+			</step>
+			<step>
+				<note>
+					<p>
+						On a Linux system, make sure that
+						<cmdname>libwebkit2gtk-4.0</cmdname>
+						is installed.
+					</p>
+				</note>
+				<cmd>
+					<cmdname>Select the latest version available of libwebkit2gtk-4.0
+						and install it.
+					</cmdname>
+				</cmd>
+				<choices>
+					<choice>
+						<p>
+							On an
+							<tm tmtype="reg">Ubuntu</tm>
+							system use commands such as
+							<pre>sudo apt-get update
+sudo apt-get install libwebkit2gtk-4.0-37
+</pre>
+						</p>
+					</choice>
+					<choice>
+						<p>
+							On a
+							<tm tmtype="reg">Red Hat</tm>
+							system use
+							<cmdname>rpm</cmdname>
+						</p>
+					</choice>
+				</choices>
+				<stepresult>
+					<p>
+						The operating system should confirm that libwebkit2gtk-4 has
+						been properly installed
+					</p>
+				</stepresult>
+			</step>
+			<step>
+				<cmd>
+					Restart Memory Analyzer
+				</cmd>
+			</step>
+			<step>
+				<cmd>
+					Open a heap dump.
+				</cmd>
+			</step>
+			<step>
+				<cmd>
+					Run a report such as
+					<xref href="runningleaksuspectreport.dita">Leak Suspects report</xref>
+					or
+					<xref href="../reference/inspections/component_report.dita#ref_inspections_component_report__run">Component report</xref>
+					and check how the report looks.
+				</cmd>
+				<stepresult>
+					Check the HTML report is displayed.
+					<image href="../mimes/leaksuspects1.png"
+						alt="screen shot of leak suspect details showing links"
+						placement="break"></image>
+				</stepresult>
+			</step>
+		</steps>
+	</taskbody>
+</task>

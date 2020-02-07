@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2019 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -43,6 +43,7 @@ import org.eclipse.mat.ui.util.QueryContextMenu;
 import org.eclipse.mat.util.HTMLUtils;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.SWTError;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.browser.LocationEvent;
 import org.eclipse.swt.browser.LocationListener;
@@ -50,12 +51,15 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionFactory;
 
 public class QueryTextResultPane extends AbstractEditorPane implements ISelectionProvider, LocationListener
 {
     private Browser browser;
+    private Text text;
 
     private IStructuredSelection selection;
     private List<ISelectionChangedListener> listeners = Collections
@@ -68,10 +72,21 @@ public class QueryTextResultPane extends AbstractEditorPane implements ISelectio
     public void createPartControl(Composite parent)
     {
         final Composite top = new Composite(parent, SWT.NONE);
-        top.setLayout(new FillLayout());
+        top.setLayout(new FillLayout(SWT.VERTICAL));
 
-        browser = new Browser(top, SWT.NONE);
-        browser.addLocationListener(this);
+        try
+        {
+            browser = new Browser(top, SWT.NONE);
+            browser.addLocationListener(this);
+        }
+        catch (SWTError e)
+        {
+            Text text1 = new Text(top, SWT.MULTI);
+            text1.setText(MessageUtil.format(Messages.QueryTextResultPane_FailedBrowser, e.getLocalizedMessage()));
+            PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, "org.eclipse.mat.ui.help.report"); //$NON-NLS-1$
+            text = new Text(top, SWT.MULTI | SWT.READ_ONLY);
+            ErrorHelper.logThrowableAndShowMessage(e, MessageUtil.format(Messages.QueryTextResultPane_FailedBrowser, e.getLocalizedMessage()));
+        }
 
         contextMenu = new QueryContextMenu(this, new ContextProvider((String) null)
         {
@@ -96,12 +111,18 @@ public class QueryTextResultPane extends AbstractEditorPane implements ISelectio
 
             if (textResult.isHtml())
             {
-                browser.setText(textResult.getText());
+                if (browser != null)
+                    browser.setText(textResult.getText());
+                else
+                    text.setText(textResult.getText());
             }
             else
             {
                 String html = "<pre>" + HTMLUtils.escapeText(textResult.getText()) + "</pre>"; //$NON-NLS-1$//$NON-NLS-2$
-                browser.setText(html);
+                if (browser != null)
+                    browser.setText(html);
+                else
+                    text.setText(html);
             }
         }
         else if (queryResult.getSubject() instanceof DisplayFileResult)
@@ -109,7 +130,10 @@ public class QueryTextResultPane extends AbstractEditorPane implements ISelectio
             try
             {
                 DisplayFileResult r = (DisplayFileResult) queryResult.getSubject();
-                browser.setUrl(r.getFile().toURI().toURL().toExternalForm());
+                if (browser != null)
+                    browser.setUrl(r.getFile().toURI().toURL().toExternalForm());
+                else
+                    text.setText(r.getFile().toURI().toURL().toExternalForm());
             }
             catch (MalformedURLException e)
             {
@@ -118,7 +142,10 @@ public class QueryTextResultPane extends AbstractEditorPane implements ISelectio
         }
         else
         {
-            browser.setText(String.valueOf(queryResult.getSubject()));
+            if (browser != null)
+                browser.setText(String.valueOf(queryResult.getSubject()));
+            else
+                text.setText(String.valueOf(queryResult.getSubject()));
         }
 
         firePropertyChange(IWorkbenchPart.PROP_TITLE);
@@ -140,7 +167,10 @@ public class QueryTextResultPane extends AbstractEditorPane implements ISelectio
         // to be able to use Ctrl-C to copy text
         site.getActionBars().setGlobalActionHandler(ActionFactory.COPY.getId(), null);
         site.getActionBars().updateActionBars();
-        browser.setFocus();
+        if (browser != null)
+            browser.setFocus();
+        else
+            text.setFocus();
     }
 
     public ISelection getSelection()
