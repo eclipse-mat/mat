@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -38,7 +38,7 @@ public abstract class Filter
      * numbers, but need the positive value for display.
      * See {@link Column#setData(Object, Object)} and see {@link Column#getData(Object)},
      * as used in
-     * and {@link org.eclipse.mat.snapshot.query.RetainedSizeDerivedData#columnFor(org.eclipse.mat.query.DerivedColumn, org.eclipse.mat.query.IResult, org.eclipse.mat.query.ContextProvider)}
+     * {@link org.eclipse.mat.query.ContextDerivedData#columnFor(org.eclipse.mat.query.ContextDerivedData.DerivedColumn, org.eclipse.mat.query.IResult, org.eclipse.mat.query.ContextProvider)}
      */
     public interface ValueConverter
     {

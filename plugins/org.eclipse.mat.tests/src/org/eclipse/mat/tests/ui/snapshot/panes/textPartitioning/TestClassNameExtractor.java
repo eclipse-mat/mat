@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 Filippo Pacifici
+ * Copyright (c) 2012,2020 Filippo Pacifici and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,10 +7,9 @@
  *
  * Contributors:
  * Filippo Pacifici - initial API and implementation
+ * Andrew Johnson (IBM Corporation) - fix deprecated method
  *******************************************************************************/
 package org.eclipse.mat.tests.ui.snapshot.panes.textPartitioning;
-
-import junit.framework.Assert;
 
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IAutoIndentStrategy;
@@ -32,6 +31,7 @@ import org.eclipse.mat.ui.snapshot.panes.oql.contentAssist.ClassNameExtractor;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
+import org.junit.Assert;
 import org.junit.Test;
 
 /**

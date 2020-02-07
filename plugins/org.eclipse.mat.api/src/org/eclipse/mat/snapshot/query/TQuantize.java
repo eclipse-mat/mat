@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2009 SAP AG.
+ * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson (IBM Corporation) - fix deprecated method
  *******************************************************************************/
 package org.eclipse.mat.snapshot.query;
 
@@ -27,6 +28,7 @@ import org.eclipse.mat.collect.ArrayInt;
 import org.eclipse.mat.internal.Messages;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.query.ContextDerivedData;
+import org.eclipse.mat.query.ContextDerivedData.DerivedOperation;
 import org.eclipse.mat.query.ContextProvider;
 import org.eclipse.mat.query.DetailResultProvider;
 import org.eclipse.mat.query.IContextObject;
@@ -37,7 +39,6 @@ import org.eclipse.mat.query.IResult;
 import org.eclipse.mat.query.IResultTable;
 import org.eclipse.mat.query.IResultTree;
 import org.eclipse.mat.query.ResultMetaData;
-import org.eclipse.mat.query.ContextDerivedData.DerivedOperation;
 import org.eclipse.mat.query.quantize.Quantize;
 import org.eclipse.mat.query.quantize.Quantize.Function;
 import org.eclipse.mat.snapshot.ISnapshot;
@@ -65,7 +66,11 @@ public final class TQuantize
                         Icons.CLASSLOADER_INSTANCE, ByClassloader.class),
         /** Aggregate by package */
         PACKAGE(Messages.TQuantize_Label_GroupByPackage, Messages.TQuantize_Label_GroupedByPackage, Icons.PACKAGE,
-                        ByPackage.class);
+                        ByPackage.class),
+        /** Aggregate by superclass
+         * @since 1.10 */
+        SUPERCLASS("Group by superclass", "Grouped ''{0}'' by superclass", Icons.SUPERCLASS,
+                        BySuperclass.class);
 
         private final String label;
         private final String title;
@@ -140,7 +145,7 @@ public final class TQuantize
     {
         try
         {
-            Builder builder = new Builder(snapshot, base, target.getCalculatorClass().newInstance());
+            Builder builder = new Builder(snapshot, base, target.getCalculatorClass().getDeclaredConstructor().newInstance());
             builder.column(base.getColumns()[0], 0);
             return builder;
         }
@@ -159,7 +164,7 @@ public final class TQuantize
     {
         try
         {
-            Builder builder = new Builder(snapshot, base, target.getCalculatorClass().newInstance());
+            Builder builder = new Builder(snapshot, base, target.getCalculatorClass().getDeclaredConstructor().newInstance());
 
             Column[] columns = base.getColumns();
             ResultMetaData data = base.getResultMetaData();
@@ -1051,6 +1056,293 @@ public final class TQuantize
         public IContextObject getContext(Object row)
         {
             if (row instanceof Package)
+            {
+                return null; // nothing to show in inspector
+            }
+            else
+            {
+                return table.getContext(row);
+            }
+        }
+
+    }
+
+    // //////////////////////////////////////////////////////////////
+    // group by superclass
+    // //////////////////////////////////////////////////////////////
+
+    static class BySuperclass extends Calculator
+    {
+        Superclass root = new Superclass(-1, null); //$NON-NLS-1$
+
+        public IResult result(Map<Object, GroupedRowImpl> result)
+        {
+            // propagate values to the sub/superclasses
+            for (Map.Entry<Object, GroupedRowImpl> entry : result.entrySet())
+            {
+                GroupedRowImpl row = entry.getValue();
+
+                Superclass p = (Superclass) entry.getKey();
+
+                while (p != null)
+                {
+                    if (p.functions == null)
+                        p.functions = quantize.createFunctions();
+
+                    for (int ii = 0; ii < p.functions.length; ii++)
+                    {
+                        if (p.functions[ii] != null)
+                            p.functions[ii].add(row.functions[ii].getValue());
+                    }
+                    p = p.parent;
+                }
+
+            }
+
+            return new BySuperclassResult(root, quantize.table, quantize.columns, result);
+        }
+
+        public String label(Object key) throws SnapshotException
+        {
+            return ""+((Superclass) key).name;
+        }
+
+        public Object key(Object row) throws SnapshotException
+        {
+            IContextObject ctx = quantize.table.getContext(row);
+            if (ctx == null)
+                return root.getOrCreateChild(-2);
+
+            int objectId = ctx.getObjectId();
+            if (objectId < 0)
+                return root.getOrCreateChild(-2);
+
+            IClass objClass = quantize.snapshot.getClassOf(objectId);
+            if (IClass.JAVA_LANG_CLASS.equals(objClass.getName()))
+            {
+                IObject obj = quantize.snapshot.getObject(objectId);
+                if (obj instanceof IClass)
+                    objClass = (IClass) obj;
+            }
+            String className = objClass.getName();
+
+            // @FIXME
+            List<IClass>all = new ArrayList<IClass>();
+            IClass supercl = objClass;
+            while (supercl != null)
+            {
+                all.add(supercl);
+                supercl = supercl.getSuperClass();
+            }
+            
+            int p = all.size();
+            /*
+            int p = className.lastIndexOf('.');
+            if (p < 0)
+                return root;
+
+            StringTokenizer tokenizer = new StringTokenizer(className.substring(0, p), "."); //$NON-NLS-1$
+            */
+
+            Superclass current = root;
+
+            while (p > 0)
+            {
+                IClass subpack = all.get(--p);
+                Superclass childNode = current.getOrCreateChild(subpack.getObjectId());
+                current = childNode;
+            }
+
+            return current;
+        }
+
+    }
+
+    static class Superclass implements GroupedRow
+    {
+        int name;
+        Superclass parent;
+        Map<Integer, Superclass> subPackages = new HashMap<Integer, Superclass>();
+        Quantize.Function[] functions;
+
+        GroupedRowImpl groupedRow;
+
+        public Superclass(int id, Superclass parent)
+        {
+            this.name = id;
+            this.parent = parent;
+        }
+
+        Superclass getOrCreateChild(int name)
+        {
+            Superclass answer = subPackages.get(name);
+            if (answer == null)
+                subPackages.put(name, answer = new Superclass(name, this));
+            return answer;
+        }
+
+        public int compareTo(GroupedRow o)
+        {
+            if (o instanceof Superclass)
+                // @FIXME
+                return name - ((Superclass) o).name;
+            else
+                return 1;
+        }
+
+        void setGroupedRow(GroupedRowImpl row)
+        {
+            this.groupedRow = row;
+        }
+
+        public List<?> getSubjects()
+        {
+            List<Object> answer = new ArrayList<Object>();
+            addSubjectsTo(answer);
+            return answer;
+        }
+
+        public void addSubjectsTo(List<Object> subjects)
+        {
+            if (groupedRow != null)
+                groupedRow.addSubjectsTo(subjects);
+
+            if (!subPackages.isEmpty())
+            {
+                for (Superclass p : subPackages.values())
+                {
+                    p.addSubjectsTo(subjects);
+                }
+            }
+        }
+
+        public ArrayInt getObjectIds()
+        {
+            return null;
+        }
+    }
+
+    static class BySuperclassResult implements IResultTree, IIconProvider
+    {
+        Superclass root;
+        IResultTable table;
+        List<Column> columns;
+        Map<Object, GroupedRowImpl> elements;
+
+        public BySuperclassResult(Superclass root, IResultTable table, List<Column> groupedColumns,
+                        Map<Object, GroupedRowImpl> elements)
+        {
+            this.root = root;
+            this.table = table;
+            this.columns = groupedColumns;
+            this.elements = elements;
+
+            for (Map.Entry<Object, GroupedRowImpl> entry : elements.entrySet())
+            {
+                ((Superclass) entry.getKey()).setGroupedRow(entry.getValue());
+            }
+        }
+
+        public ResultMetaData getResultMetaData()
+        {
+            return wrap(table);
+        }
+
+        public Column[] getColumns()
+        {
+            return this.columns.toArray(new Column[0]);
+        }
+
+        public List<?> getElements()
+        {
+            List<Object> children = new ArrayList<Object>();
+            children.addAll(root.subPackages.values());
+
+            addOriginalChildren(children, root);
+
+            return children;
+        }
+
+        private void addOriginalChildren(List<Object> children, Object subject)
+        {
+            GroupedRowImpl row = elements.get(subject);
+            if (row != null)
+            {
+                for (int ii = 0; ii < row.rowIndex.size(); ii++)
+                {
+                    int rowIndex = row.rowIndex.get(ii);
+                    children.add(table.getRow(rowIndex));
+                }
+            }
+        }
+
+        public boolean hasChildren(Object parent)
+        {
+            return parent instanceof Superclass;
+        }
+
+        public List<?> getChildren(Object parent)
+        {
+            if (parent instanceof Superclass)
+            {
+                Superclass p = (Superclass) parent;
+                List<Object> children = new ArrayList<Object>();
+
+                for (Superclass sp : p.subPackages.values())
+                {
+                    children.add(sp);
+                }
+                addOriginalChildren(children, p);
+
+                return children;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public Object getColumnValue(Object element, int columnIndex)
+        {
+            if (element instanceof Superclass)
+            {
+                Superclass p = (Superclass) element;
+                if (columnIndex == 0)
+                {
+                    return p.name;
+                }
+                else
+                {
+                    Quantize.Function function = p.functions[columnIndex - 1];
+                    return function != null ? function.getValue() : null;
+                }
+            }
+            else
+            {
+                if (columnIndex == 0)
+                {
+                    String label = String.valueOf(table.getColumnValue(element, columnIndex));
+                    int p = label.lastIndexOf('.');
+                    return p >= 0 ? label.substring(p + 1) : label;
+                }
+                else
+                {
+                    return table.getColumnValue(element, columnIndex);
+                }
+            }
+        }
+
+        public URL getIcon(Object row)
+        {
+            if (row instanceof Superclass)
+                return Icons.SUPERCLASS;
+            else
+                return table instanceof IIconProvider ? ((IIconProvider) table).getIcon(row) : null;
+        }
+
+        public IContextObject getContext(Object row)
+        {
+            if (row instanceof Superclass)
             {
                 return null; // nothing to show in inspector
             }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2019 IBM Corporation
+ * Copyright (c) 2014, 2020 IBM Corporation
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -382,7 +382,7 @@ public class CreateCollectionDump
                         {
                             if (cons[j].length == 0)
                             {
-                                cl = c.newInstance();
+                                cl = c.getConstructor().newInstance();
                             }
                             else
                             {
@@ -853,7 +853,7 @@ public class CreateCollectionDump
                         {
                             if (cons[j].length == 0)
                             {
-                                cl = c.newInstance();
+                                cl = c.getConstructor().newInstance();
                             }
                             else
                             {

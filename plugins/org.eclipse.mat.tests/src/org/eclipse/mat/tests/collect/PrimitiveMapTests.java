@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 SAP AG.
+ * Copyright (c) 2008,2020 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson (IBM Corporation) - fix deprecated method
  *******************************************************************************/
 package org.eclipse.mat.tests.collect;
 
@@ -678,8 +679,8 @@ public class PrimitiveMapTests
             if (ii == 20)
             {
                 ii++;
-                keys[ii] = new Integer(keys[ii - 1]);
-                values[ii] = new Long(values[ii - 1]);
+                keys[ii] = Integer.valueOf(keys[ii - 1]);
+                values[ii] = Long.valueOf(values[ii - 1]);
             }
         }
 
@@ -910,7 +911,7 @@ public class PrimitiveMapTests
         {
             if (key instanceof Integer)
             {
-                key = new Integer((Integer)key);
+                key = Integer.valueOf((Integer)key);
             }
             return super.remove(key);
         }

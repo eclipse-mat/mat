@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,6 +20,10 @@ import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.Platform;
@@ -33,7 +37,6 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
-import org.xml.sax.helpers.XMLReaderFactory;
 
 /**
  * Builds a full report based on an xml report definition, which could 
@@ -178,13 +181,24 @@ public final class SpecFactory extends RegistryReader<SpecFactory.Report>
         try
         {
             SpecHandler handler = new SpecHandler(bundle);
-            XMLReader saxXmlReader = XMLReaderFactory.createXMLReader();
+            SAXParserFactory parserFactory = SAXParserFactory.newInstance();
+            parserFactory.setNamespaceAware(true);
+            SAXParser parser = parserFactory.newSAXParser();
+            XMLReader saxXmlReader =  parser.getXMLReader();
+            // Old way is deprecated
+            //saxXmlReader = XMLReaderFactory.createXMLReader();
             saxXmlReader.setContentHandler(handler);
             saxXmlReader.setErrorHandler(handler);
             saxXmlReader.parse(new InputSource(input));
             return handler.getSpec();
         }
         catch (SAXException e)
+        {
+            IOException ioe = new IOException();
+            ioe.initCause(e);
+            throw ioe;
+        }
+        catch (ParserConfigurationException e)
         {
             IOException ioe = new IOException();
             ioe.initCause(e);

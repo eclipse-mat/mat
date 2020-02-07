@@ -247,7 +247,7 @@ public class BytesFormat extends Format
 
     /**
      * Parses the input string according to the display mode.
-     * Returns a {@ Bytes} object
+     * Returns a {@link Bytes} object
      */
     @Override
     public Object parseObject(String source, ParsePosition pos)

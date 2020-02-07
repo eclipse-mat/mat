@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -133,7 +133,7 @@ public interface Params
         /**
          * filter1=criteria,filter2=criteria 
          * filter1 etc. is a column specified by name or #0, #1, #2 etc.
-         * criteria is a numeric or string filter such as >100, 10..200, com\.*
+         * criteria is a numeric or string filter such as &gt;100, 10..200, com\.*
          */
         String FILTER = "filter";
         /**
@@ -148,8 +148,8 @@ public interface Params
         /**
          * Controls the calculation of the derived column.
          * For example for retained sizes
-         * _default_=APPROXIMATE  {@link org.eclipse.mat.snapshot.query#APPROXIMATE}
-         * _default_=PRECISE {@link org.eclipse.mat.snapshot.query#PRECISE}
+         * _default_=APPROXIMATE  {@link org.eclipse.mat.snapshot.query.RetainedSizeDerivedData#APPROXIMATE}
+         * _default_=PRECISE {@link org.eclipse.mat.snapshot.query.RetainedSizeDerivedData#PRECISE}
          */
         String DERIVED_DATA_COLUMN = "derived_data_column";
     }
