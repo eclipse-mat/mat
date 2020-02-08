@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2010 SAP AG.
+    Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
    
     Contributors:
         SAP AG - initial API and implementation
+        Andrew Johnson (IBM Corporation) - enhancements
  -->
 <!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd" >
 <reference id="ref_oqlsyntaxwhere" xml:lang="en-us">
@@ -18,7 +19,7 @@
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2008, 2010 SAP AG and others.
+				Copyright (c) 2008, 2020 SAP AG and others.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License v1.0
 			    which accompanies this distribution, and is available at
@@ -30,7 +31,7 @@
 	<refbody>
 		<section>
 			<p>
-				The WHERE clause specifies search conditions, that
+				The <codeph>WHERE</codeph> clause specifies search conditions, that
 				remove unwanted data from the query result. The
 				following operators, are in order of precedence. The
 				operators are evaluated in the specified order:

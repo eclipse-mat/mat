@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en-us" lang="en-us">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="UNION Clause"/>
+<meta name="abstract" content=""/>
+<meta name="description" content=""/>
+<meta name="DC.Relation" scheme="URI" content="../reference/oqlsyntax.html"/>
+<meta name="copyright" content="Copyright (c) 2020 IBM Corporation. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary"/>
+<meta name="DC.Rights.Owner" content="Copyright (c) 2020 IBM Corporation. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html " type="primary"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="ref_oqlsyntaxunion"/>
+<meta name="DC.Language" content="en-us"/>
+<link rel="stylesheet" type="text/css" href="../styles/commonltr.css"/>
+<title>UNION Clause</title>
+</head>
+<body id="ref_oqlsyntaxunion">
+
+
+	<h1 class="title topictitle1">UNION Clause</h1>
+
+	
+
+	
+
+	<div class="body refbody"><p class="shortdesc"/>
+
+		<div class="section">
+			<p class="p">
+				The <samp class="ph codeph">UNION</samp> clause allows the results
+				of two queries to be combined. The second query is surrounded
+				by parentheses.
+			</p>
+
+			<pre class="pre codeblock">select * from java.lang.String union (select * from java.lang.StringBuilder)</pre>
+
+			<p class="p">The two queries must match in the number of columns in the select clause.</p>
+
+			<pre class="pre codeblock">SELECT s, s.value, s.hash FROM java.lang.String s  UNION (SELECT b, b.value, "dummy" FROM java.lang.StringBuilder b )</pre>
+
+		</div>
+
+	</div>
+
+<div class="related-links">
+<div class="familylinks">
+<div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="../reference/oqlsyntax.html">OQL Syntax</a></div>
+</div>
+</div>
+
+</body>
+</html>

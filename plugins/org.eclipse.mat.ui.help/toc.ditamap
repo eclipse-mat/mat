@@ -60,6 +60,7 @@
 			<topicref href="reference/oqlsyntaxselect.dita" type="reference" />
 			<topicref href="reference/oqlsyntaxfrom.dita" type="reference" />
 			<topicref href="reference/oqlsyntaxwhere.dita" type="reference" />
+			<topicref href="reference/oqlsyntaxunion.dita" type="reference" />
 			<topicref href="reference/propertyaccessors.dita" type="reference" />
 			<topicref href="reference/bnfofoql.dita" type="reference" />
 		</topicref>

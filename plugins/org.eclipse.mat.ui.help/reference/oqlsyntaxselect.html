@@ -30,10 +30,10 @@
 
 		<div class="section">
 			<p class="p">
-				The SELECT clause determines what to extract from the
+				The <samp class="ph codeph">SELECT</samp> clause determines what to extract from the
 				heap dump. To display objects and be able to browse the
 				outgoing references, use the
-				<span class="keyword cmdname">*</span>
+				<samp class="ph codeph">*</samp>
 				symbol:
 			</p>
 
@@ -52,7 +52,7 @@
 			<p class="p">
 				The resulting table knows about the underlying object.
 				So you can use the context menu to open further views on
-				the object at hand. Use the @ symbol to access Java
+				the object at hand. Use the <samp class="ph codeph">@</samp> symbol to access Java
 				attributes and methods of the objects. There are also a
 				number of built-in functions available to extract common
 				information:
@@ -80,7 +80,7 @@
 
 			<p class="p">
 				Use the
-				<span class="keyword cmdname">AS RETAINED SET</span>
+				<samp class="ph codeph">AS RETAINED SET</samp>
 				keyword to get the set of objects retained by your
 				selection:
 			</p>
@@ -91,9 +91,9 @@
 
 			<p class="p">
 				Use the
-				<span class="keyword cmdname">OBJECTS</span>
+				<samp class="ph codeph">OBJECTS</samp>
 				to interpret the items in the
-				<span class="keyword cmdname">SELECT</span>
+				<samp class="ph codeph">SELECT</samp>
 				clause as objects:
 			</p>
 
@@ -101,11 +101,11 @@
 
 			<p class="p">
 				The function
-				<span class="keyword cmdname">dominators()</span>
+				<samp class="ph codeph">dominators()</samp>
 				returns an array of objects. Therefore the query returns
 				a list of object lists, i.e. arrays. By using the
 				keyword
-				<span class="keyword cmdname">OBJECTS</span>
+				<samp class="ph codeph">OBJECTS</samp>
 				, we force the OQL to reduce this into a single list of
 				objects.
 			</p>
@@ -114,7 +114,7 @@
 
 			<p class="p">
 				Use the
-				<span class="keyword cmdname">DISTINCT</span>
+				<samp class="ph codeph">DISTINCT</samp>
 				keyword to only select unique objects:
 			</p>
 
@@ -122,7 +122,7 @@
 
 			<p class="p">
 				Use the
-				<span class="keyword cmdname">DISTINCT OBJECTS</span>
+				<samp class="ph codeph">DISTINCT OBJECTS</samp>
 				keyword to only select unique objects from the result of the selected clause:
 			</p>
 
@@ -130,15 +130,20 @@
 
 			<p class="p">
 				The function
-				<span class="keyword cmdname">classof</span>
+				<samp class="ph codeph">classof</samp>
 				returns the class object. Of course, all Strings have
-				the same class. The <span class="keyword cmdname">OBJECTS</span> converts the underlying row with a String object
+				the same class. The <samp class="ph codeph">OBJECTS</samp> converts the underlying row with a String object
 				and a displayed value of the class object
-				to the object represented by the result of the <span class="keyword cmdname">classof</span> function.
-				Without the <span class="keyword cmdname">DISTINCT OBJECTS</span>
+				to the object represented by the result of the <samp class="ph codeph">classof</samp> function.
+				Without the <samp class="ph codeph">DISTINCT OBJECTS</samp>
 				keywords, the query would result in a list with as many
 				rows with the same class as there are Strings.
 			</p>
+
+			<p class="p">With Memory Analyzer 1.10 or later, <samp class="ph codeph">DISTINCT</samp> also operates without
+			<samp class="ph codeph">OBJECTS</samp> to find items which are distinct.
+			See <a class="xref" href="https://wiki.eclipse.org/MemoryAnalyzer/OQL#SELECT_DISTINCT">Wiki: OQL SELECT DISTINCT</a>
+			for further details.</p>
 
 			<p class="p"><strong class="ph b">Expressions (experimental, Memory Analyzer 1.4 or later)</strong></p>
 
