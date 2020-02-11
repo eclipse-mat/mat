@@ -20,6 +20,7 @@ import java.util.regex.PatternSyntaxException;
 import org.eclipse.mat.query.Bytes;
 import org.eclipse.mat.query.Column;
 import org.eclipse.mat.report.internal.Messages;
+import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
 import org.eclipse.mat.util.PatternUtil;
 
@@ -151,7 +152,7 @@ public abstract class Filter
             Test currentTest = test;
             // If the filter is cleared while filtering it is possible for 'test' to go null
             if (currentTest == null)
-                return true;
+                throw new IProgressListener.OperationCanceledException();
             return currentTest.accept(doubleValue);
         }
 
@@ -553,6 +554,9 @@ public abstract class Filter
         @Override
         boolean accept(String value)
         {
+            // If the filter is cleared while filtering it is possible for 'pattern' to go null
+            if (pattern == null)
+                throw new IProgressListener.OperationCanceledException();
             return value == null ? false : pattern.matcher(value).matches();
         }
 
