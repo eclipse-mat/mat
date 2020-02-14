@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -183,7 +183,7 @@ public class TopConsumers2Query implements IQuery
                 composite.add(new QuerySpec(Messages.TopConsumers2Query_BiggestObjectsOverview, pie.build()));
                 QuerySpec spec = new QuerySpec(Messages.TopConsumers2Query_BiggestObjects,
                                 new ObjectListResult.Outbound(snapshot, suspects.toArray()));
-                addCommand(spec, "list_objects", suspects);
+                addCommand(spec, "list_objects", suspects); //$NON-NLS-1$
                 spec.set(Params.Html.COLLAPSED, Boolean.TRUE.toString());
                 composite.add(spec);
             }
@@ -220,7 +220,7 @@ public class TopConsumers2Query implements IQuery
                 composite.add(new QuerySpec(Messages.TopConsumers2Query_BiggestObjectsOverview, pie.build()));
                 QuerySpec spec = new QuerySpec(Messages.TopConsumers2Query_BiggestObjects,
                                 new ObjectListResult.Outbound(snapshot, ids));
-                addCommand(spec, "list_objects", suspects);
+                addCommand(spec, "list_objects", suspects); //$NON-NLS-1$
                 spec.set(Params.Html.COLLAPSED, Boolean.TRUE.toString());
                 composite.add(spec);
             }
@@ -237,7 +237,7 @@ public class TopConsumers2Query implements IQuery
                 StringBuilder sb = new StringBuilder(command);
                 for (int i : suspects.toArray())
                 {
-                    sb.append(" 0x").append(Long.toHexString(snapshot.mapIdToAddress(i)));
+                    sb.append(" 0x").append(Long.toHexString(snapshot.mapIdToAddress(i))); //$NON-NLS-1$
                 }
                 spec.setCommand(sb.toString());
             }
@@ -320,7 +320,7 @@ public class TopConsumers2Query implements IQuery
             {
                 suspectObjects.addAll(r.getObjectIds());
             }
-            addCommand(spec, "histogram", suspectObjects);
+            addCommand(spec, "histogram", suspectObjects); //$NON-NLS-1$
             spec.set(Params.Html.COLLAPSED, Boolean.TRUE.toString());
             composite.add(spec);
         }
@@ -406,7 +406,7 @@ public class TopConsumers2Query implements IQuery
                 {
                     suspectObjects.addAll(r.getObjectIds());
                 }
-                addCommand(spec, "show_dominator_tree -groupby BY_CLASSLOADER", suspectObjects);
+                addCommand(spec, "show_dominator_tree -groupby BY_CLASSLOADER", suspectObjects); //$NON-NLS-1$
             }
             catch (SnapshotException e)
             {}
@@ -423,7 +423,7 @@ public class TopConsumers2Query implements IQuery
         pruneTree(root);
 
         QuerySpec querySpec = new QuerySpec(Messages.TopConsumers2Query_BiggestPackages, new PackageTreeResult(root, totalHeap));
-        addCommand(querySpec, "show_dominator_tree -groupby BY_PACKAGE", root.objs);
+        addCommand(querySpec, "show_dominator_tree -groupby BY_PACKAGE", root.objs); //$NON-NLS-1$
         spec.add(querySpec);
     }
 
