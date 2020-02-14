@@ -617,12 +617,18 @@ public class GeneralSnapshotTests
                             assertNotNull(fn, t);
                             SnapshotQuery q = SnapshotQuery.parse(t, snapshot);
                             IResult r = q.execute(new VoidProgressListener());
-                            if (t.equals("system_properties"))
+                            if ((t.equals("system_properties") || t.equals("thread_overview"))
+                                            && (snapshot.getSnapshotInfo().getProperty("$heapFormat").equals("DTFJ-PHD")
+                                                            || snapshot.getSnapshotInfo().getProperty("$heapFormat")
+                                                                            .equals("DTFJ-Javacore")))
                             {
-                                // Might not return a result for PHD but shouldn't fail
-                                assumeThat(snapshot.getSnapshotInfo().getProperty("$heapFormat"), not(anyOf(equalTo((Serializable)"DTFJ-PHD"), equalTo((Serializable)"DTFJ-Javacore"))));
+                                // Might not return a result for PHD but
+                                // shouldn't fail
                             }
-                            assertNotNull(t, r);
+                            else
+                            {
+                                assertNotNull(t, r);
+                            }
                         }
                         else if (link.getType() == QueryObjectLink.Type.DETAIL_RESULT)
                         {
