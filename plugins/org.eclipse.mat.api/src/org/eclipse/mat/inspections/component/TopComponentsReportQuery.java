@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -64,8 +64,9 @@ public class TopComponentsReportQuery implements IQuery
             if (record.retainedSize < threshold)
                 break;
 
-            SnapshotQuery query = SnapshotQuery.lookup("component_report", snapshot) //$NON-NLS-1$
-                            .setArgument("objects", record.objects); //$NON-NLS-1$
+            String oql = oqlLoader(record.name, record.loaderAddr);
+            oql = oql.replace("\"", "\\\""); //$NON-NLS-1$ //$NON-NLS-2$
+            SnapshotQuery query = SnapshotQuery.parse("component_report "+oql+";", snapshot); //$NON-NLS-1$ //$NON-NLS-2$
             query.setArgument("aggressive", aggressive); //$NON-NLS-1$
             IResult report = query.execute(listener);
 
@@ -79,17 +80,26 @@ public class TopComponentsReportQuery implements IQuery
              * or is a class and is loaded by the loader
              * or is an ordinary object of type of of a class loaded by the class loader.
              */
-            spec.setCommand("component_report "+
-                            (aggressive ? "-aggressive " : "") + 
-                            " select * from objects (select objects a from objects (dominators(-1)) a) b"+
-                            " where"+
-                            " b.@objectAddress = "+record.loaderAddr+"L or"+
-                            " b implements org.eclipse.mat.snapshot.model.IClass and b.@classLoaderAddress = "+record.loaderAddr+"L or"+
-                            " (b implements org.eclipse.mat.snapshot.model.IClassLoader) = false and (b implements org.eclipse.mat.snapshot.model.IClass) = false and b.@clazz.@classLoaderAddress = "+record.loaderAddr+"L;");
+            spec.setCommand("component_report "+ //$NON-NLS-1$
+                            (aggressive ? "-aggressive " : "") +   //$NON-NLS-1$//$NON-NLS-2$
+                             oql + ";" ); //$NON-NLS-1$
             result.add(spec);
         }
 
         return result;
+    }
+
+    private String oqlLoader(String name, long loaderAddress)
+    {
+        return
+        //"select * from objects (select objects a from objects (dominators(-1)) a) b"+ //$NON-NLS-1$
+        "select objects b as \"" + name + "\" from objects (select objects a from objects (dominators(-1)) a) b"+ //$NON-NLS-1$ //$NON-NLS-2$
+        " where"+ //$NON-NLS-1$
+        " b.@objectAddress = " + loaderAddress + "L or"+ //$NON-NLS-1$ //$NON-NLS-2$
+        " b implements org.eclipse.mat.snapshot.model.IClass and b.@classLoaderAddress = " + loaderAddress + "L or"+ //$NON-NLS-1$ //$NON-NLS-2$
+        " (b implements org.eclipse.mat.snapshot.model.IClassLoader) = false and (b implements org.eclipse.mat.snapshot.model.IClass) = false and b.@clazz.@classLoaderAddress = " + loaderAddress + "L"; //$NON-NLS-1$ //$NON-NLS-2$
+        //" $ {snapshot}.isClass(b.@objectId) and b.@classLoaderAddress = " + loaderAddress + "L or"+ //$NON-NLS-1$ //$NON-NLS-2$
+        //" $ {snapshot}.isClassLoader(b.@objectId) = false and $ {snapshot}.isClass(b.@objectId) = false and b.@clazz.@classLoaderAddress = " + loaderAddress + "L"; //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     private List<Record> createClassLoaderRecords(IProgressListener listener, int[] topDominators)

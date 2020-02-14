@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010,2019 IBM Corporation.
+ * Copyright (c) 2010,2020 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -37,7 +37,6 @@ import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -51,7 +50,9 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.collect.SetInt;
+import org.eclipse.mat.internal.snapshot.SnapshotQueryContext;
 import org.eclipse.mat.query.IResult;
+import org.eclipse.mat.query.registry.QueryObjectLink;
 import org.eclipse.mat.query.results.DisplayFileResult;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.SnapshotFactory;
@@ -396,7 +397,7 @@ public class GeneralSnapshotTests
         checkHTMLResult(t);
     }
 
-    public void checkHTMLResult(IResult r) throws IOException
+    public void checkHTMLResult(IResult r) throws IOException, SnapshotException
     {
         assertThat(r, instanceOf(DisplayFileResult.class));
         if (r instanceof DisplayFileResult)
@@ -412,7 +413,7 @@ public class GeneralSnapshotTests
      * @param f
      * @throws IOException
      */
-    public void checkHTMLFile(File f) throws IOException
+    public void checkHTMLFile(File f) throws IOException, SnapshotException
     {
         Set<File>seen = new HashSet<File>();
         checkHTMLFile(f, seen);
@@ -425,7 +426,7 @@ public class GeneralSnapshotTests
      * @param seen Files already seen
      * @throws IOException
      */
-    public void checkHTMLFile(File f, Set<File>seen) throws IOException
+    public void checkHTMLFile(File f, Set<File>seen) throws IOException, SnapshotException
     {
         // canonical needed to avoid problems with ..
         if (!seen.add(f.getCanonicalFile()))
@@ -528,7 +529,7 @@ public class GeneralSnapshotTests
             Stack<String> stk = new Stack<String>();
             Stack<Integer> stki = new Stack<Integer>();
             // Matches tags
-            p = Pattern.compile("</?[a-z]+");
+            p = Pattern.compile("</?[a-z]+[1-6]?");
             m = p.matcher(s);
             while (m.find())
             {
@@ -594,11 +595,44 @@ public class GeneralSnapshotTests
                 {
                     int j = s.indexOf("\"", i + match.length());
                     String fn = s.substring(i + match.length(), j);
-                    if (!fn.startsWith("/") && !fn.contains("#") && !fn.startsWith("http") && !fn.startsWith("mat:"))
+                    if (!fn.startsWith("/") && !fn.contains("#") && !fn.startsWith("http") && !fn.startsWith(QueryObjectLink.PROTOCOL))
                     {
                         File d = f.getParentFile();
                         File newf = new File(d, fn);
                         checkHTMLFile(newf, seen);
+                    }
+                    else if (fn.startsWith(QueryObjectLink.PROTOCOL))
+                    {
+                        QueryObjectLink link = QueryObjectLink.parse(fn);
+                        if (link.getType() == QueryObjectLink.Type.OBJECT)
+                        {
+                            String t = link.getTarget();
+                            assertNotNull(fn, t);
+                            SnapshotQueryContext sc = new SnapshotQueryContext(snapshot);
+                            int id = sc.mapToObjectId(t);
+                        }
+                        else if (link.getType() == QueryObjectLink.Type.QUERY)
+                        {
+                            String t = link.getTarget();
+                            assertNotNull(fn, t);
+                            SnapshotQuery q = SnapshotQuery.parse(t, snapshot);
+                            IResult r = q.execute(new VoidProgressListener());
+                            if (t.equals("system_properties"))
+                            {
+                                // Might not return a result for PHD but shouldn't fail
+                                assumeThat(snapshot.getSnapshotInfo().getProperty("$heapFormat"), not(anyOf(equalTo((Serializable)"DTFJ-PHD"), equalTo((Serializable)"DTFJ-Javacore"))));
+                            }
+                            assertNotNull(t, r);
+                        }
+                        else if (link.getType() == QueryObjectLink.Type.DETAIL_RESULT)
+                        {
+                            String t = link.getTarget();
+                            assertNotNull(fn, t);
+                        }
+                        else
+                        {
+                            assertTrue("Unexpected link type "+link.getType()+" "+fn, false);
+                        }
                     }
                     i = j;
                 }

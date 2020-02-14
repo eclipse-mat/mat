@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2019 SAP AG, IBM Corporation and others
+ * Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -62,6 +63,7 @@ import org.eclipse.mat.snapshot.query.SnapshotQuery;
 import org.eclipse.mat.util.HTMLUtils;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
+import org.eclipse.mat.util.SilentProgressListener;
 import org.eclipse.mat.util.Units;
 
 @CommandName("component_report")
@@ -221,6 +223,7 @@ public class ComponentReportQuery implements IQuery
     // calculate retained size
     // //////////////////////////////////////////////////////////////
 
+    private String oqlretained;
     private int[] calculateRetainedSize(Ticks ticks) throws SnapshotException
     {
         int[] retained = null;
@@ -232,15 +235,30 @@ public class ComponentReportQuery implements IQuery
         addExcludes(excludes, "java.lang.ref.WeakReference", "referent"); //$NON-NLS-1$ //$NON-NLS-2$
         addExcludes(excludes, "java.lang.ref.SoftReference", "referent"); //$NON-NLS-1$ //$NON-NLS-2$
 
+        int[] ids = objects.getIds(ticks);
         if (excludes.isEmpty())
         {
-            retained = snapshot.getRetainedSet(objects.getIds(ticks), ticks);
+            retained = snapshot.getRetainedSet(ids, ticks);
         }
         else
         {
-            retained = snapshot.getRetainedSet(objects.getIds(ticks), //
+            retained = snapshot.getRetainedSet(ids, //
                             excludes.toArray(new ExcludedReferencesDescriptor[0]), //
                             ticks);
+            String label = objects.getLabel().toLowerCase(Locale.ENGLISH);
+            if (label.startsWith("select * ") || label.startsWith("select objects ")) //$NON-NLS-1$ //$NON-NLS-2$
+            {
+                // See if the ordinary retained set as used by OQL returns the same results
+                int retained1[] = snapshot.getRetainedSet(ids, new SilentProgressListener(ticks));
+                if (retained1.length == retained.length)
+                {
+                    // Excluded makes no difference, so can use standard OQL retained set
+                    String oql0 = objects.getLabel().trim();
+                    if (oql0.endsWith(";")) //$NON-NLS-1$
+                        oql0 = oql0.substring(0, oql0.length() - 1);
+                    oqlretained = oql0.substring(0, 6) + " as retained set" + oql0.substring(6); //$NON-NLS-1$
+                }
+            }
         }
         return retained;
     }
@@ -321,6 +339,11 @@ public class ComponentReportQuery implements IQuery
         topConsumers.set(Params.Html.SEPARATE_FILE, Boolean.TRUE.toString());
         topConsumers.set(Params.Html.COLLAPSED, Boolean.FALSE.toString());
         topConsumers.setResult(result);
+        if (oqlretained != null)
+        {
+            String cmd = "top_consumers_html " + oqlretained + ";"; //$NON-NLS-1$ //$NON-NLS-2$
+            topConsumers.setCommand(cmd);
+        }
         componentReport.add(topConsumers);
     }
 
@@ -331,15 +354,19 @@ public class ComponentReportQuery implements IQuery
         retainedSet.setResult(histogram);
         try
         {
-            String command = "customized_retained_set";
-            command += " "+objects.getLabel();
-            command += " -x java.lang.ref.Finalizer:referent";
-            command += " java.lang.ref.PhantomReference:referent";
-            command += " java.lang.ref.WeakReference:referent";
-            command += " java.lang.ref.SoftReference:referent";
-            SnapshotQuery.parse(command, snapshot);
-            // It parses, so presume the command was okay
-            retainedSet.setCommand(command);
+            String objectLabel = objects.getLabel();
+            if (!objectLabel.startsWith("[")) //$NON-NLS-1$
+            {
+                String command = "customized_retained_set"; //$NON-NLS-1$
+                command += " " + objectLabel; //$NON-NLS-1$
+                command += " -x java.lang.ref.Finalizer:referent"; //$NON-NLS-1$
+                command += " java.lang.ref.PhantomReference:referent"; //$NON-NLS-1$
+                command += " java.lang.ref.WeakReference:referent"; //$NON-NLS-1$
+                command += " java.lang.ref.SoftReference:referent"; //$NON-NLS-1$
+                SnapshotQuery.parse(command, snapshot);
+                // It parses, so presume the command was okay
+                retainedSet.setCommand(command);
+            }
         }
         catch (SnapshotException e)
         {
@@ -421,6 +448,30 @@ public class ComponentReportQuery implements IQuery
     // collection usage
     // //////////////////////////////////////////////////////////////
 
+    private void addCommand(QuerySpec spec, String command, int suspects[], IClass clazz)
+    {
+        if (suspects.length > 0 && suspects.length <= 30)
+        {
+            try
+            {
+                StringBuilder sb = new StringBuilder(command);
+                for (int i : suspects)
+                {
+                    sb.append(" 0x").append(Long.toHexString(snapshot.mapIdToAddress(i))); //$NON-NLS-1$
+                }
+                spec.setCommand(sb.toString());
+            }
+            catch (SnapshotException e)
+            {} // Ignore if problem
+        }
+        else if (oqlretained != null)
+        {
+            String oql = "select * from objects (" + oqlretained + ") m where m.@clazz.@objectAddress = " + clazz.getObjectAddress() + "L"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            String cmd = command + " " + oql + ";"; //$NON-NLS-1$ //$NON-NLS-2$
+            spec.setCommand(cmd);
+        }
+    }
+
     private void addEmptyCollections(SectionSpec componentReport, long totalSize, Histogram histogram, Ticks listener)
                     throws Exception
     {
@@ -471,7 +522,7 @@ public class ComponentReportQuery implements IQuery
 
                             comment.append("<li>"); //$NON-NLS-1$
                             comment.append(MessageUtil.format(Messages.ComponentReportQuery_Msg_InstancesRetainBytes,
-                                            numberOfObjects, HTMLUtils.escapeText(clazz.getName()), retainedSize));
+                                            numberOfObjects, HTMLUtils.escapeText(clazz.getName()), HTMLUtils.escapeText(retainedSize)));
                             comment.append("</li>"); //$NON-NLS-1$
                         }
 
@@ -481,6 +532,7 @@ public class ComponentReportQuery implements IQuery
 
                 QuerySpec bySizeSpec = new QuerySpec(clazz.getName());
                 bySizeSpec.setResult(refinedTable);
+                addCommand(bySizeSpec, "collections_grouped_by_size", record.getObjectIds(), clazz); //$NON-NLS-1$
                 collectionbySizeSpec.add(bySizeSpec);
 
                 listener.tick();
@@ -558,7 +610,7 @@ public class ComponentReportQuery implements IQuery
 
                             comment.append("<li>"); //$NON-NLS-1$
                             comment.append(MessageUtil.format(Messages.ComponentReportQuery_Msg_InstancesRetainBytes,
-                                            numberOfObjects, HTMLUtils.escapeText(clazz.getName()), retainedSize));
+                                            numberOfObjects, HTMLUtils.escapeText(clazz.getName()), HTMLUtils.escapeText(retainedSize)));
                             comment.append("</li>"); //$NON-NLS-1$
                         }
 
@@ -568,6 +620,7 @@ public class ComponentReportQuery implements IQuery
 
                 QuerySpec spec = new QuerySpec(clazz.getName());
                 spec.setResult(refinedTable);
+                addCommand(spec, "collection_fill_ratio", record.getObjectIds(), clazz); //$NON-NLS-1$
                 detailsSpec.add(spec);
 
                 listener.tick();
@@ -638,7 +691,7 @@ public class ComponentReportQuery implements IQuery
                     Object row = refinedTable.getRow(rowId);
                     double collisionRato = (Double) refinedTable.getColumnValue(row, 0);
 
-                    if (collisionRato > 0.79d)
+                    if (collisionRato > 0.80d)
                     {
                         int numberOfObjects = (Integer) refinedTable.getColumnValue(row, 1);
                         String retainedSize = refinedTable.getFormattedColumnValue(row, 3);
@@ -648,7 +701,7 @@ public class ComponentReportQuery implements IQuery
 
                         comment.append("<li>"); //$NON-NLS-1$
                         comment.append(MessageUtil.format(Messages.ComponentReportQuery_Msg_InstancesRetainBytes,
-                                        numberOfObjects, HTMLUtils.escapeText(clazz.getName()), retainedSize));
+                                        numberOfObjects, HTMLUtils.escapeText(clazz.getName()), HTMLUtils.escapeText(retainedSize)));
                         comment.append("</li>"); //$NON-NLS-1$
                         break;
                     }
@@ -656,6 +709,7 @@ public class ComponentReportQuery implements IQuery
 
                 QuerySpec spec = new QuerySpec(clazz.getName());
                 spec.setResult(refinedTable);
+                addCommand(spec, "map_collision_ratio", record.getObjectIds(), clazz); //$NON-NLS-1$
                 detailsSpec.add(spec);
 
                 listener.tick();
