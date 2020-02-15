@@ -12,6 +12,7 @@
 package org.eclipse.mat.inspections.component;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -34,6 +35,7 @@ import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.query.SnapshotQuery;
 import org.eclipse.mat.util.IProgressListener;
 import org.eclipse.mat.util.MessageUtil;
+import org.eclipse.mat.util.SimpleMonitor;
 
 @CommandName("component_report_top")
 @Icon("/META-INF/icons/top_components_report.gif")
@@ -50,17 +52,44 @@ public class TopComponentsReportQuery implements IQuery
 
     public IResult execute(IProgressListener listener) throws Exception
     {
+        SimpleMonitor sm = new SimpleMonitor(Messages.TopComponentsReportQuery_TopComponentReports, listener, new int[] {10,90});
         int[] topDominators = snapshot.getImmediateDominatedIds(-1);
 
-        List<Record> loaders = createClassLoaderRecords(listener, topDominators);
+        List<Record> loaders = createClassLoaderRecords(sm.nextMonitor(), topDominators);
 
         SectionSpec result = new SectionSpec(Messages.TopComponentsReportQuery_TopComponentReports);
 
         long totalHeapSize = snapshot.getSnapshotInfo().getUsedHeapSize();
         long threshold = totalHeapSize / 100 * thresholdPercent;
 
+        int nr = 0;
         for (Record record : loaders)
         {
+            if (record.retainedSize < threshold)
+                break;
+            ++nr;
+        }
+        int tasks[] = new int[nr];
+        int nobj = snapshot.getSnapshotInfo().getNumberOfObjects();
+        long totalheap = snapshot.getSnapshotInfo().getUsedHeapSize();
+        if (totalheap > 0)
+        {
+            for (int i = 0; i < nr; ++i)
+            {
+                // estimate how much work for each loader
+                tasks[i] = (int)(loaders.get(i).retainedSize * nobj / totalheap);
+            }
+        }
+        else
+        {
+            Arrays.fill(tasks, 100);
+        }
+        SimpleMonitor sm2 = new SimpleMonitor(Messages.TopComponentsReportQuery_TopComponentReports, sm.nextMonitor(), tasks);
+
+        for (Record record : loaders)
+        {
+            if (listener.isCanceled())
+                break;
             if (record.retainedSize < threshold)
                 break;
 
@@ -68,7 +97,7 @@ public class TopComponentsReportQuery implements IQuery
             oql = oql.replace("\"", "\\\""); //$NON-NLS-1$ //$NON-NLS-2$
             SnapshotQuery query = SnapshotQuery.parse("component_report "+oql+";", snapshot); //$NON-NLS-1$ //$NON-NLS-2$
             query.setArgument("aggressive", aggressive); //$NON-NLS-1$
-            IResult report = query.execute(listener);
+            IResult report = query.execute(sm2.nextMonitor());
 
             QuerySpec spec = new QuerySpec(MessageUtil.format("{0} ({1,number,percent})", //$NON-NLS-1$
                             record.name, (double) record.retainedSize / (double) totalHeapSize), report);

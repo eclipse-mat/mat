@@ -55,6 +55,7 @@ import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.GCRootInfo;
 import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IInstance;
+import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.ObjectReference;
 import org.eclipse.mat.snapshot.query.IHeapObjectArgument;
 import org.eclipse.mat.snapshot.query.PieFactory;
@@ -88,7 +89,7 @@ public class ComponentReportQuery implements IQuery
         SectionSpec componentReport = new SectionSpec(MessageUtil.format(Messages.ComponentReportQuery_ComponentReport,
                         objects.getLabel()));
 
-        Ticks ticks = new Ticks(listener, componentReport.getName(), 31);
+        Ticks ticks = new Ticks(listener, componentReport.getName(), 13);
 
         // calculate retained set
         int[] retained = calculateRetainedSize(ticks);
@@ -424,6 +425,8 @@ public class ComponentReportQuery implements IQuery
         InspectionAssert.heapFormatIsNot(snapshot, "DTFJ-PHD"); //$NON-NLS-1$
         for (ClassHistogramRecord record : histogram.getClassHistogramRecords())
         {
+            if (listener.isCanceled())
+                break;
             if (!"char[]".equals(record.getLabel())) //$NON-NLS-1$
                 continue;
 
@@ -476,10 +479,12 @@ public class ComponentReportQuery implements IQuery
 
             spec = new QuerySpec(Messages.ComponentReportQuery_Histogram);
             spec.setResult(table);
+            IObject o = snapshot.getObject(record.getClassId());
+            if (o instanceof IClass)
+                addCommand(spec, "group_by_value", objectIds, (IClass)o); //$NON-NLS-1$
             duplicateStrings.add(spec);
 
             listener.tick();
-
             break;
         }
     }
@@ -574,10 +579,9 @@ public class ComponentReportQuery implements IQuery
                 bySizeSpec.setResult(refinedTable);
                 addCommand(bySizeSpec, "collections_grouped_by_size", record.getObjectIds(), clazz); //$NON-NLS-1$
                 collectionbySizeSpec.add(bySizeSpec);
-
-                listener.tick();
             }
         }
+        listener.tick();
 
         if (collectionbySizeSpec.getChildren().isEmpty())
             return;
@@ -662,10 +666,9 @@ public class ComponentReportQuery implements IQuery
                 spec.setResult(refinedTable);
                 addCommand(spec, "collection_fill_ratio", record.getObjectIds(), clazz); //$NON-NLS-1$
                 detailsSpec.add(spec);
-
-                listener.tick();
             }
         }
+        listener.tick();
 
         if (detailsSpec.getChildren().isEmpty())
             return;
@@ -751,10 +754,9 @@ public class ComponentReportQuery implements IQuery
                 spec.setResult(refinedTable);
                 addCommand(spec, "map_collision_ratio", record.getObjectIds(), clazz); //$NON-NLS-1$
                 detailsSpec.add(spec);
-
-                listener.tick();
             }
         }
+        listener.tick();
 
         if (detailsSpec.getChildren().isEmpty())
             return;
@@ -865,6 +867,7 @@ public class ComponentReportQuery implements IQuery
                 }
             }
         }
+        ticks.tick();
 
         if (instanceSet.isEmpty())
         {

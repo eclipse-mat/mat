@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2019 SAP AG.
+ * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -68,6 +68,7 @@ public class SectionPart extends AbstractPart
             AbstractPart part = this.children.get(ii).execute(context, renderer, mon);
             this.status = Status.max(this.status, part.status);
             this.children.set(ii, part);
+            mon.done();
         }
 
         renderer.endSection(this);
