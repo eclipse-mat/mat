@@ -236,29 +236,69 @@ public class ComponentReportQuery implements IQuery
         addExcludes(excludes, "java.lang.ref.SoftReference", "referent"); //$NON-NLS-1$ //$NON-NLS-2$
 
         int[] ids = objects.getIds(ticks);
+        String label = objects.getLabel().toLowerCase(Locale.ENGLISH);
+        boolean useoql = label.startsWith("select * ") || label.startsWith("select objects "); //$NON-NLS-1$ //$NON-NLS-2$
         if (excludes.isEmpty())
         {
             retained = snapshot.getRetainedSet(ids, ticks);
         }
         else
         {
+            int retlen = -1;
+            long hs = 0;
+            if (useoql)
+            {
+                /*
+                 * See if the ordinary retained set as used by OQL returns the same results
+                 * Do this first so we can discard the result and just check the length
+                 * Consider o is component roots, z = other roots, SR=SoftReference
+                 * o->SR->A
+                 * o->B
+                 * z->SR->B
+                 * If SoftRefs followed, retained set = SR,A
+                 * if SoftRefs not followed, retained set = SR,B
+                 * so same number of refs doesn't prove equality.
+                 * Order doesn't matter though.
+                 */
+                int retained1[] = snapshot.getRetainedSet(ids, new SilentProgressListener(ticks));
+                retlen = retained1.length;
+                for (int i : retained1)
+                {
+                    hs += snapshot.mapIdToAddress(i);
+                }
+                retained1 = null;
+            }
             retained = snapshot.getRetainedSet(ids, //
                             excludes.toArray(new ExcludedReferencesDescriptor[0]), //
                             ticks);
-            String label = objects.getLabel().toLowerCase(Locale.ENGLISH);
-            if (label.startsWith("select * ") || label.startsWith("select objects ")) //$NON-NLS-1$ //$NON-NLS-2$
+            if (useoql)
             {
-                // See if the ordinary retained set as used by OQL returns the same results
-                int retained1[] = snapshot.getRetainedSet(ids, new SilentProgressListener(ticks));
-                if (retained1.length == retained.length)
+                if (retained.length != retlen)
                 {
-                    // Excluded makes no difference, so can use standard OQL retained set
-                    String oql0 = objects.getLabel().trim();
-                    if (oql0.endsWith(";")) //$NON-NLS-1$
-                        oql0 = oql0.substring(0, oql0.length() - 1);
-                    oqlretained = oql0.substring(0, 6) + " as retained set" + oql0.substring(6); //$NON-NLS-1$
+                    useoql = false;
+                }
+                else
+                {
+                    // Further test that they seem the same
+                    long hs1 = 0;
+                    for (int i : retained)
+                    {
+                        hs1 += snapshot.mapIdToAddress(i);
+                    }
+                    if (hs != hs1)
+                    {
+                        useoql = false;
+                    }
                 }
             }
+        }
+        if (useoql)
+        {
+            // Excluded makes no difference, so can use standard OQL retained set
+            String oql0 = objects.getLabel().trim();
+            if (oql0.endsWith(";")) //$NON-NLS-1$
+                oql0 = oql0.substring(0, oql0.length() - 1);
+            oqlretained = oql0.substring(0, 6) + " as retained set" + oql0.substring(6); //$NON-NLS-1$
         }
         return retained;
     }
