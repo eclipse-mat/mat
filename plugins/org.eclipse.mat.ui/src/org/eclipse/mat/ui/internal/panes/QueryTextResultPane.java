@@ -85,7 +85,7 @@ public class QueryTextResultPane extends AbstractEditorPane implements ISelectio
             text1.setText(MessageUtil.format(Messages.QueryTextResultPane_FailedBrowser, e.getLocalizedMessage()));
             PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, "org.eclipse.mat.ui.help.report"); //$NON-NLS-1$
             text = new Text(top, SWT.MULTI | SWT.READ_ONLY);
-            ErrorHelper.logThrowableAndShowMessage(e, MessageUtil.format(Messages.QueryTextResultPane_FailedBrowser, e.getLocalizedMessage()));
+            ErrorHelper.logThrowableAndShowMessage(e, MessageUtil.format(Messages.QueryTextResultPane_FailedBrowser2, e.getLocalizedMessage()));
         }
 
         contextMenu = new QueryContextMenu(this, new ContextProvider((String) null)

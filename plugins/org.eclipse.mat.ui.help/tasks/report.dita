@@ -28,20 +28,22 @@
 			<p>
 				Sometimes Memory Analyzer does not display reports such as Leak
 				Suspects report
-				or Component report and displays a message such as:
-				<msgph>
+				or Component report and displays a message such as:</p>
+			<ul>
+				<li><msgph>
 					Failed to create a browser because of:
 					org.eclipse.swt.SWTException:
 					Failed to execute runnable
 					(org.eclipse.swt.SWTError: No more
 					handles because no underlying
 					browser available.
-				</msgph>
-				or
-				<msgph>org.eclipse.swt.SWTException: Failed to execute runnable
+				</msgph></li>
+				<li><msgph>org.eclipse.swt.SWTException: Failed to execute runnable
 					(org.eclipse.swt.SWTError: XPCOM error -2147467259)
-				</msgph>
-			</p>
+				</msgph></li>
+				<li><msgph>Failed to create a browser because of: No more handles because no underlying browser available.
+   Please ensure Webkit with its Gtk 3.x bindings installed. Webkit2 API level preferred.</msgph></li>
+			</ul>
 		</context>
 		<steps>
 			<step>
@@ -52,13 +54,13 @@
 			<step>
 				<note>
 					<p>
-						On a Linux system, make sure that
-						<cmdname>libwebkit2gtk-4.0</cmdname>
+						On a <tm tmtype="reg">Linux</tm><fn>Linux® is the registered trademark of Linus Torvalds in the U.S. and other countries.</fn> system, make sure that
+						<cmdname>webkit2gtk-4.0</cmdname>
 						is installed.
 					</p>
 				</note>
 				<cmd>
-					<cmdname>Select the latest version available of libwebkit2gtk-4.0
+					<cmdname>Select the latest version available of webkit2gtk-4.0
 						and install it.
 					</cmdname>
 				</cmd>
@@ -66,25 +68,26 @@
 					<choice>
 						<p>
 							On an
-							<tm tmtype="reg">Ubuntu</tm>
-							system use commands such as
-							<pre>sudo apt-get update
-sudo apt-get install libwebkit2gtk-4.0-37
-</pre>
+							<tm tmtype="reg">Ubuntu</tm><fn>Ubuntu and Canonical are registered trademarks of Canonical Ltd.</fn>
+							<tm tmtype="reg">Linux</tm> system use commands such as
+							<pre><userinput>sudo apt-get update
+sudo apt-get install libwebkit2gtk-4.0
+</userinput></pre>
 						</p>
 					</choice>
 					<choice>
 						<p>
 							On a
-							<tm tmtype="reg">Red Hat</tm>
-							system use
-							<cmdname>rpm</cmdname>
+							<tm tmtype="reg">Red Hat</tm><fn>Red Hat is a registered trademark of Red Hat, Inc.</fn>
+							<tm tmtype="reg">Linux</tm> system use
+							<cmdname>yum</cmdname>
+							<pre><userinput>yum install webkitgtk4</userinput></pre>
 						</p>
 					</choice>
 				</choices>
 				<stepresult>
 					<p>
-						The operating system should confirm that libwebkit2gtk-4 has
+						The operating system should confirm that webkit2gtk-4 has
 						been properly installed
 					</p>
 				</stepresult>
@@ -109,8 +112,7 @@ sudo apt-get install libwebkit2gtk-4.0-37
 				</cmd>
 				<stepresult>
 					Check the HTML report is displayed.
-					<image href="../mimes/leaksuspects1.png"
-						alt="screen shot of leak suspect details showing links"
+					<image href="../mimes/leaksuspects.png" alt="screen shot of leak suspects" 
 						placement="break"></image>
 				</stepresult>
 			</step>

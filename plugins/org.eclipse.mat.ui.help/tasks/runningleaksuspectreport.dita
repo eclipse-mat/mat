@@ -36,9 +36,11 @@
 			.
 			<image href="../mimes/leak_report.png" alt="screen shot of starting to run a leak suspect report"
 				placement="break"></image>
-			As a result an HTML report will be opened. It contains an overview
-			of the heap dump and leak suspect info.
-			<p>This report will be stored together with the heap dump and is
+			<p>As a result an HTML report will be opened. It contains an overview
+			of the heap dump and leak suspect info.</p>
+			<image href="../mimes/leaksuspects.png" alt="screen shot of leak suspects" 
+				placement="break"></image>
+			<p>This report will be stored together with the heap dump and can be
 				displayed when you open the heap dump again.</p>
 			<p>Some of the sections in the leak suspects report have links to rerun the individual
 			queries which make up the report. This can be useful for further analysis.
