@@ -404,6 +404,7 @@
 			<dlentry>
 				<dt>compress</dt>
 				<dd>
+					<p>
 					System dumps can be processed using
 					<xref
 						href="https://www.ibm.com/support/knowledgecenter/en/SSYKE2_8.0.0/com.ibm.java.lnx.80.doc/diag/tools/dump_viewer_dtfjview/jextract.html"
@@ -414,11 +415,21 @@
 					also adds extra system information so
 					that the dump could be moved to
 					another machine.
+					</p>
+					<p>
 					Portable Heap Dump
 					(PHD) files generated with the Heap option can be compressed using
 					the gzip compressor
 					to reduce
 					the file size.
+					</p>
+					<p>
+					HPROF files can be compressed using
+					the Gzip compressor to reduce the file size.
+					A compressed file may take longer to parse in Memory Analyzer, and
+					running queries and reports and reading fields from objects may take
+					longer.
+					</p>
 				</dd>
 			</dlentry>
 			<dlentry>
