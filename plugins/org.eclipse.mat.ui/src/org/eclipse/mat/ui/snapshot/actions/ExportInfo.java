@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2017 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -163,7 +163,7 @@ import org.eclipse.mat.snapshot.model.IPrimitiveArray;
             if (o instanceof Byte && ((Byte)o).byteValue() != 0)
             {
                 Collection<IClass>clss = object.getSnapshot().getClassesByName("java.lang.StringUTF16", false);//$NON-NLS-1$
-                if (!clss.isEmpty())
+                if (clss != null && !clss.isEmpty())
                 {
                     IClass str = clss.iterator().next();
                     Object shift = str.resolveValue("HI_BYTE_SHIFT");//$NON-NLS-1$

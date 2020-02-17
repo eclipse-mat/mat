@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012 SAP AG and others.
+ * Copyright (c) 2008, 2020 SAP AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -51,7 +51,7 @@ public final class PrettyPrinter
                 }
                 Collection<IClass> clss = stringObject.getSnapshot().getClassesByName("java.lang.StringUTF16", false);//$NON-NLS-1$
                 int bigEndian;
-                if (!clss.isEmpty())
+                if (clss != null && !clss.isEmpty())
                 {
                     Object o = clss.iterator().next().resolveValue("HI_BYTE_SHIFT"); //$NON-NLS-1$
                     bigEndian = o instanceof Integer && (Integer)o == 8 ? 1 : 0;
@@ -94,7 +94,10 @@ public final class PrettyPrinter
                         return compactByteArrayAsString(charArray, offset, count, limit);
                     }
                 }
-                Object o = stringObject.getSnapshot().getClassesByName("java.lang.String", false).iterator().next().resolveValue("HI_BYTE_SHIFT"); //$NON-NLS-1$ //$NON-NLS-2$
+                Collection<IClass> stringClasses = stringObject.getSnapshot().getClassesByName("java.lang.String", false); //$NON-NLS-1$
+                if (stringClasses == null || stringClasses.isEmpty())
+                    return null;
+                Object o = stringClasses.iterator().next().resolveValue("HI_BYTE_SHIFT"); //$NON-NLS-1$
                 int bigEndian = o instanceof Integer && (Integer)o == 8 ? 1 : 0;
                 return byteArrayAsString(charArray, offset, count, limit, bigEndian);
             }
