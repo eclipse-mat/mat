@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2008, 2010 SAP AG.
+    Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
    
     Contributors:
         SAP AG - initial API and implementation
+        Andrew Johnson (IBM Corporation) - enhancements
  -->
 <!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd" >
 <reference id="propertyaccessors" xml:lang="en-us">
@@ -17,7 +18,7 @@
 		<copyright>
 			<copyryear year=""></copyryear>
 			<copyrholder>
-				Copyright (c) 2008, 2010 SAP AG and others.
+				Copyright (c) 2008, 2020 SAP AG and others.
 			    All rights reserved. This program and the accompanying materials
 			    are made available under the terms of the Eclipse Public License v1.0
 			    which accompanies this distribution, and is available at
@@ -68,67 +69,67 @@
 				<strow>
 					<stentry>Any heap object</stentry>
 					<stentry><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IObject.html#method_summary" format="html">IObject</xref></stentry>
-					<stentry>objectId</stentry>
+					<stentry><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IObject.html#getObjectId--" format="html">objectId</xref></stentry>
 					<stentry>id of snapshot object</stentry>
 				</strow>
 				<strow>
 					<stentry />
 					<stentry />
-					<stentry>objectAddress</stentry>
+					<stentry><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IObject.html#getObjectAddress--" format="html">objectAddress</xref></stentry>
 					<stentry>address of snapshot object</stentry>
 				</strow>
 				<strow>
 					<stentry />
 					<stentry />
 					<stentry>class</stentry>
-					<stentry>Java class of this object</stentry>
+					<stentry>Java class of this object as a Memory Analyzer object</stentry>
 				</strow>
 				<strow>
 					<stentry />
 					<stentry />
-					<stentry>clazz</stentry>
+					<stentry><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IObject.html#getClazz--" format="html">clazz</xref></stentry>
 					<stentry>IClass of this object. See also classof(object).</stentry>
 				</strow>
 				<strow>
 					<stentry />
 					<stentry />
-					<stentry>usedHeapSize</stentry>
+					<stentry><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IObject.html#getUsedHeapSize--" format="html">usedHeapSize</xref></stentry>
 					<stentry>shallow heap size</stentry>
 				</strow>
 				<strow>
 					<stentry />
 					<stentry />
-					<stentry>retainedHeapSize</stentry>
+					<stentry><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IObject.html#getRetainedHeapSize--" format="html">retainedHeapSize</xref></stentry>
 					<stentry>retained heap size</stentry>
 				</strow>
 				<strow>
 					<stentry />
 					<stentry />
-					<stentry>displayName</stentry>
+					<stentry><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IObject.html#getDisplayName--" format="html">displayName</xref></stentry>
 					<stentry>display name</stentry>
 				</strow>
 				<strow>
 					<stentry>Class object</stentry>
 					<stentry><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IClass.html#method_summary" format="html">IClass</xref></stentry>
-					<stentry>classLoaderId</stentry>
+					<stentry><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IClass.html#getClassLoaderId--" format="html">classLoaderId</xref></stentry>
 					<stentry>id of the class loader</stentry>
 				</strow>
 				<strow>
 					<stentry>Any array</stentry>
 					<stentry><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IArray.html#method_summary" format="html">IArray</xref></stentry>
-					<stentry>length</stentry>
+					<stentry><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IArray.html#getLength--" format="html">length</xref></stentry>
 					<stentry>length of the array</stentry>
 				</strow>
 				<strow>
 					<stentry>Primitive array</stentry>
 					<stentry><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IPrimitiveArray.html#method_summary" format="html">IPrimitiveArray</xref></stentry>
-					<stentry>valueArray</stentry>
+					<stentry><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IPrimitiveArray.html#getValueArray--" format="html">valueArray</xref></stentry>
 					<stentry>the values in the array</stentry>
 				</strow>
 				<strow>
 					<stentry>Reference array</stentry>
 					<stentry><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IObjectArray.html#method_summary" format="html">IObjectArray</xref></stentry>
-					<stentry>referenceArray</stentry>
+					<stentry><xref href="../../../ntopic/org.eclipse.mat.ui.help/doc/org/eclipse/mat/snapshot/model/IObjectArray.html#getReferenceArray--" format="html">referenceArray</xref></stentry>
 					<stentry>the objects in the array (as long values, the addresses of the objects)
 					Access a particular element using get() and convert to an object using OBJECTS.
 					</stentry>
@@ -285,8 +286,25 @@
 			</p>
 		</section>
 		<section>
-		<title>
-		</title>
+			<title>Collection access</title>
+			<codeblock>SELECT a[0] FROM java.util.ArrayList a</codeblock>
+			<p>Many of the standard collections classes are well known by Memory Analyzer.
+			The <xref href="../tasks/analyzingjavacollectionusage.dita">collection queries</xref>
+			allow analysis of lists, sets, queues, deques and maps.
+			This access is extended to OQL so if the collection queries work with a particular
+			collection or map then so does OQL.
+			</p>
+			<note>Collection and map access is still experimental and subject to change.</note>
+			<codeblock>SELECT a[0:-1] FROM java.util.ArrayList a</codeblock>
+			<p>If the array access syntax is used on a collection (list,set, queue, deque) object
+			then particular elements of the collection can be extracted. If subarray syntax
+			is used then that part of collection is converted to a list ready for further processing</p>
+			<codeblock>SELECT h[0].@key, h[0].@value FROM java.util.HashMap h</codeblock>
+			<p>If the array access syntax is used on a map then the map is converted to a list of
+			map entries. These can then be examined using the bean access syntax to retrieve the key
+			<codeph>h[0].@key</codeph> or value <codeph>h[0].@value</codeph>.
+			See <xref format="html" href="https://wiki.eclipse.org/MemoryAnalyzer/OQL#Map_processing">Wiki OQL Map processing</xref>
+			for more details of OQL with maps and collections.</p>
 		</section>
 		<section>
 			<title>Built-in OQL functions</title>
