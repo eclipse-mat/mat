@@ -188,6 +188,7 @@ public class Messages extends NLS
     public static String DTFJIndexBuilder_SkippingObject;
     public static String DTFJIndexBuilder_SuperclassInWrongAddressSpace;
     public static String DTFJIndexBuilder_SuperclassNotFound;
+    public static String DTFJIndexBuilder_ThreadBlockingObjectNotFound;
     public static String DTFJIndexBuilder_ThreadNameNotFound;
     public static String DTFJIndexBuilder_ThreadObjectNotFound;
     public static String DTFJIndexBuilder_ThreadObjectNotFoundSoIgnoring;

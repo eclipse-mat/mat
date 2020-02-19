@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009,2018 IBM Corporation.
+ * Copyright (c) 2009,2020 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -198,7 +198,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
     private final String methodsAsClassesPref = Platform.getPreferencesService().getString(PLUGIN_ID,
                     PreferenceConstants.P_METHODS, "", null); //$NON-NLS-1$
     private final boolean suppressClassNativeSizes = Platform.getPreferencesService().getBoolean(PLUGIN_ID,
-                    PreferenceConstants.P_SUPPRESS_CLASS_NATIVE_SIZES, false, null); //$NON-NLS-1$
+                    PreferenceConstants.P_SUPPRESS_CLASS_NATIVE_SIZES, false, null);
     /** Whether to represent all methods as pseudo-classes */
     private final boolean getExtraInfo2 = PreferenceConstants.ALL_METHODS_AS_CLASSES.equals(methodsAsClassesPref);
     /** Whether to represent only the stack frames as pseudo-objects */
@@ -1212,26 +1212,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingThreads, dtfjInfo.getJavaRuntime()))
                 continue;
             JavaThread th = (JavaThread) next;
-            JavaObject threadObject;
-            try
-            {
-                threadObject = th.getObject();
-            }
-            catch (CorruptDataException e)
-            {
-                threadObject = null;
-            }
-            // Thread object could be null if the thread is being attached
-            long threadAddress = getThreadAddress(th, listener);
-            if (threadAddress != 0)
-            {
-                if (indexToAddress0.reverse(threadAddress) < 0)
-                {
-                    missingObjects.put(threadAddress, threadObject);
-                    listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
-                                    Messages.DTFJIndexBuilder_ThreadObjectNotFound, format(threadAddress)), null);
-                }
-            }
+            long threadAddress = findMissingObjectsFromJavaThread(th, missingObjects, listener);
             if (getExtraInfo)
             {
                 // Scan stack frames for pseudo-classes
@@ -1345,6 +1326,22 @@ public class DTFJIndexBuilder implements IIndexBuilder
                     listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
                                     Messages.DTFJIndexBuilder_MonitorObjectNotFound, format(monitorAddress)), null);
                 }
+            }
+            for (Iterator<?> it = jm.getEnterWaiters(); it.hasNext();)
+            {
+                next = it.next();
+                if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingThreadsFromMonitors))
+                    continue;
+                JavaThread th = (JavaThread) next;
+                findMissingObjectsFromJavaThread(th, missingObjects, listener);
+            }
+            for (Iterator<?> it = jm.getNotifyWaiters(); it.hasNext();)
+            {
+                next = it.next();
+                if (isCorruptData(next, listener, Messages.DTFJIndexBuilder_CorruptDataReadingThreadsFromMonitors))
+                    continue;
+                JavaThread th = (JavaThread) next;
+                findMissingObjectsFromJavaThread(th, missingObjects, listener);
             }
         }
         listener.worked(1);
@@ -3571,6 +3568,54 @@ public class DTFJIndexBuilder implements IIndexBuilder
         return null;
     }
 
+    private long findMissingObjectsFromJavaThread(JavaThread th, HashMapLongObject<JavaObject>missingObjects ,IProgressListener listener)
+    {
+        JavaObject threadObject;
+        try
+        {
+            threadObject = th.getObject();
+        }
+        catch (CorruptDataException e)
+        {
+            threadObject = null;
+        }
+        // Thread object could be null if the thread is being attached
+        long threadAddress = getThreadAddress(th, listener);
+        if (threadAddress != 0)
+        {
+            if (indexToAddress0.reverse(threadAddress) < 0)
+            {
+                missingObjects.put(threadAddress, threadObject);
+                listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
+                                Messages.DTFJIndexBuilder_ThreadObjectNotFound, format(threadAddress)), null);
+            }
+        }
+        try
+        {
+            JavaObject blockingObject = th.getBlockingObject();
+            if (blockingObject != null)
+            {
+                long objAddress = blockingObject.getID().getAddress();
+                if (objAddress != 0)
+                {
+                    if (indexToAddress0.reverse(objAddress) < 0)
+                    {
+                        missingObjects.put(objAddress, blockingObject);
+                        listener.sendUserMessage(Severity.WARNING, MessageFormat.format(
+                                        Messages.DTFJIndexBuilder_ThreadBlockingObjectNotFound, format(objAddress), format(threadAddress)), null);
+                    }
+                }
+            }
+        }
+        catch (CorruptDataException e)
+        {
+        }
+        catch (DataUnavailable e)
+        {
+        }
+        return threadAddress;
+    }
+
     private void scanJavaThread(JavaThread th, long threadAddress, int pointerSize,
                     HashMapIntObject<HashMapIntObject<List<XGCRootInfo>>> thr, IProgressListener listener,
                     boolean scanUp, PrintWriter pw) throws CorruptDataException
@@ -3887,7 +3932,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
             {
                 long objAddress = blockingObject.getID().getAddress();
                 long thrd2 = getThreadAddress(th, null);
-                if (thrd2 != 0)
+                if (objAddress != 0 && thrd2 != 0)
                 {
                     addRoot(gcRoot, objAddress, thrd2, GCRootInfo.Type.BUSY_MONITOR);
                 }
@@ -7732,7 +7777,7 @@ public class DTFJIndexBuilder implements IIndexBuilder
      * 2. JNIEnv address
      * 3. corrupt data from thread object
      * @param th
-     * @param listener
+     * @param listener - could be null if we don't need to report errors again
      * @return
      */
     static long getThreadAddress(JavaThread th, IProgressListener listener)
