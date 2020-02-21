@@ -10,6 +10,11 @@
  *******************************************************************************/
 package org.eclipse.mat.inspections.osgi.model;
 
+import java.util.List;
+
+import org.eclipse.mat.inspections.osgi.model.eclipse.Extension;
+import org.eclipse.mat.inspections.osgi.model.eclipse.ExtensionPoint;
+
 public class BundleFragment extends Bundle
 {
     private BundleDescriptor host;
@@ -19,6 +24,20 @@ public class BundleFragment extends Bundle
         // Fragments cannot have a BundleContext and therefore
         // cannot have any services (used or registered).
         super(descriptor, location, null, null, null, null, null, null, null);
+        this.host = host;
+    }
+
+    public BundleFragment(BundleDescriptor descriptor, String location, BundleDescriptor host,
+                    List<BundleDescriptor> dependencies, List<BundleDescriptor> dependents, 
+                    List<ExtensionPoint> points, List<Extension> extensions)
+    {
+        // Fragments cannot have a BundleContext and therefore
+        // cannot have any services (used or registered).
+        // It appears they can have extensions or extension points.
+        // See org.eclipse.m2e.jdt.ui/fragment.xml
+        // The MANIFEST.MF does have Require-Bundle: for dependencies
+        // There should not be dependents - that should be via the host
+        super(descriptor, location, dependencies, dependents, points, extensions, null, null, null);
         this.host = host;
     }
 

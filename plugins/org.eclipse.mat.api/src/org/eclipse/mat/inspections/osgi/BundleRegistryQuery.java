@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2013 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -312,7 +312,7 @@ public class BundleRegistryQuery implements IQuery
             }
             else if (parent instanceof ConfigurationElement)
             {
-                // return both properties and other congifElements if available
+                // return both properties and other configElements if available
                 List<Object> children = new ArrayList<Object>();
                 children.addAll(((ConfigurationElement) parent).getPropertiesAndValues());
                 List<ConfigurationElement> configElements = ((ConfigurationElement) parent).getConfigurationElements();
@@ -610,6 +610,10 @@ public class BundleRegistryQuery implements IQuery
                 ExtensionPoint point = (ExtensionPoint) parent;
                 List<Extension> extensions = point.getExtensions();
                 List<Object> children = new ArrayList<Object>(extensions.size());
+                if (point.getContributedBy() != null)
+                    children.add(new DescriptorFolder(point.getContributedBy(), MessageUtil
+                                    .format(Messages.BundleRegistryQuery_RegisteredBy, point.getContributedBy()
+                                                    .getBundleName()), Type.BUNDLE));
                 for (Extension extension : extensions)
                 {
                     if (extension.getContributedBy() != null)
@@ -617,10 +621,6 @@ public class BundleRegistryQuery implements IQuery
                                         Messages.BundleRegistryQuery_ContributedBy, extension.getContributedBy()
                                                         .getBundleName()), Type.CONTRIBUTED_BY));
                 }
-                if (point.getContributedBy() != null)
-                    children.add(new DescriptorFolder(point.getContributedBy(), MessageUtil
-                                    .format(Messages.BundleRegistryQuery_RegisteredBy, point.getContributedBy()
-                                                    .getBundleName()), Type.BUNDLE));
 
                 return children;
             }
@@ -632,8 +632,15 @@ public class BundleRegistryQuery implements IQuery
                 {
                     case BUNDLE:
                         return super.getChildren(((DescriptorFolder) folder).descriptor);
+                    case CONTRIBUTED_BY:
+                        ExtensionFolder ef = (ExtensionFolder)folder;
+                        List<Object> children = new ArrayList<Object>();
+                        children.add(ef.extension.getContributedBy());
+                        children.addAll(super.getChildren(parent));
+                        return children;
+                    default:
+                        break;
                 }
-
             }
 
             return super.getChildren(parent);
