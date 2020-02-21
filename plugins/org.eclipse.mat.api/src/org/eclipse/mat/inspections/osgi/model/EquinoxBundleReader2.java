@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2017 SAP AG, IBM Corporation and others
+ * Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.inspections.ReferenceQuery;
 import org.eclipse.mat.inspections.collectionextract.CollectionExtractionUtils;
@@ -38,8 +39,10 @@ import org.eclipse.mat.snapshot.model.IClass;
 import org.eclipse.mat.snapshot.model.IInstance;
 import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IObjectArray;
+import org.eclipse.mat.snapshot.model.IPrimitiveArray;
 import org.eclipse.mat.snapshot.model.ObjectReference;
 import org.eclipse.mat.util.IProgressListener;
+import org.eclipse.mat.util.IProgressListener.Severity;
 import org.eclipse.mat.util.MessageUtil;
 
 public class EquinoxBundleReader2 implements IBundleReader
@@ -264,7 +267,7 @@ public class EquinoxBundleReader2 implements IBundleReader
                                 long[] keyAddresses = keysArray.getReferenceArray();
                                 if (keyAddresses != null)
                                 {
-                                    keys = getServiceProperties(new String[keyAddresses.length], keyAddresses);
+                                    keys = getServiceProperties(new String[keyAddresses.length], keyAddresses, listener);
                                 }
                             }
                             IObjectArray valuesArray = (IObjectArray) propertiesObject.resolveValue("values"); //$NON-NLS-1$
@@ -273,7 +276,7 @@ public class EquinoxBundleReader2 implements IBundleReader
                                 long[] valueAddresses = valuesArray.getReferenceArray();
                                 if (valueAddresses != null)
                                 {
-                                    values = getServiceProperties(new String[valueAddresses.length], valueAddresses);
+                                    values = getServiceProperties(new String[valueAddresses.length], valueAddresses, listener);
                                 }
                             }
                         }
@@ -291,7 +294,7 @@ public class EquinoxBundleReader2 implements IBundleReader
         return services;
     }
 
-    private String[] getServiceProperties(String[] values, long[] valueAddresses)
+    private String[] getServiceProperties(String[] values, long[] valueAddresses, IProgressListener listener)
     {
         for (int j = 0; j < valueAddresses.length; j++)
         {
@@ -328,9 +331,9 @@ public class EquinoxBundleReader2 implements IBundleReader
             catch (SnapshotException e)
             {
                 values[j] = null;
-                MATPlugin.log(e,
+                listener.sendUserMessage(Severity.WARNING,
                                 MessageUtil.format(Messages.EquinoxBundleReader_ErrorMsg_ServiceProperty,
-                                                Long.toHexString(valueAddresses[j])));
+                                                Long.toHexString(valueAddresses[j])), e);
             }
         }
         return values;
@@ -440,11 +443,6 @@ public class EquinoxBundleReader2 implements IBundleReader
         {
             location = locationObj.getClassSpecificName();
         }
-        if (descriptor.getType().equals(BundleDescriptor.Type.FRAGMENT))
-        {
-            BundleDescriptor host = getFragmentHost(obj);
-            return new BundleFragment(descriptor, location, host);
-        }
         List<BundleDescriptor> dependencies = null;
         List<BundleDescriptor> dependents = null;
 
@@ -453,6 +451,12 @@ public class EquinoxBundleReader2 implements IBundleReader
 
         List<Extension> extensions = extensionsByBundle.get(descriptor);
         List<ExtensionPoint> extensionPoints = extensionPointsByBundle.get(descriptor);
+
+        if (descriptor.getType().equals(BundleDescriptor.Type.FRAGMENT))
+        {
+            BundleDescriptor host = getFragmentHost(obj);
+            return new BundleFragment(descriptor, location, host, dependencies, dependents, extensionPoints, extensions);
+        }
 
         List<Service> registeredServices = this.registeredServices.get(descriptor);
         List<Service> usedServices = this.usedServices.get(descriptor);
@@ -494,7 +498,7 @@ public class EquinoxBundleReader2 implements IBundleReader
                 }
             }
         }
-        MATPlugin.log(MessageUtil.format(Messages.EquinoxBundleReader_ErrorMsg_BundleNotFound,
+        MATPlugin.log(IStatus.WARNING, MessageUtil.format(Messages.EquinoxBundleReader_ErrorMsg_BundleNotFound,
                             Long.toHexString(bundleFragmentObject.getObjectAddress())));
         return null;
     }
@@ -642,6 +646,8 @@ public class EquinoxBundleReader2 implements IBundleReader
                 int work = STEPS / nobjs;
                 IInstance obj = (IInstance) snapshot.getObject(objs[i]);
 
+                Map<String, String> contributors = getContributors(obj);
+
                 IObjectArray heldObjectsArray = (IObjectArray) obj.resolveValue("registryObjects.heldObjects.elements");//$NON-NLS-1$
                 ExtractedCollection heldObjects = CollectionExtractionUtils.extractList(heldObjectsArray);
                 if (heldObjects != null)
@@ -651,7 +657,7 @@ public class EquinoxBundleReader2 implements IBundleReader
                     {
                         if (listener.isCanceled())
                             throw new IProgressListener.OperationCanceledException();
-                        extractElements(instance, extensionPoints, extensions, configElements, listener);
+                        extractElements(instance, extensionPoints, extensions, configElements, contributors, listener);
                         if (size1 != null)
                         {
                             listener.worked(work / size1 / 2);
@@ -681,7 +687,7 @@ public class EquinoxBundleReader2 implements IBundleReader
                         {
                             instance = ref.getObject();
                         }
-                        extractElements(instance, extensionPoints, extensions, configElements, listener);
+                        extractElements(instance, extensionPoints, extensions, configElements, contributors, listener);
                         if (size2 != null)
                         {
                             listener.worked(work / size2 / 2);
@@ -786,14 +792,36 @@ public class EquinoxBundleReader2 implements IBundleReader
 
     }
 
+    private Map<String, String> getContributors(IInstance obj) throws SnapshotException
+    {
+        Map<String, String> contributors = new HashMap<String, String>();
+        Object c1 = obj.resolveValue("registryObjects.contributors"); //$NON-NLS-1$
+        if (c1 instanceof IObject)
+        {
+            ExtractedMap em = CollectionExtractionUtils.extractMap((IObject)c1);
+            if (em != null && em.hasSize())
+            {
+                for (Entry<IObject,IObject> e : em)
+                {
+                    Object ox = e.getValue().resolveValue("actualContributorName"); //$NON-NLS-1$
+                    if (ox instanceof IObject)
+                    {
+                        contributors.put(e.getKey().getClassSpecificName(), ((IObject) ox).getClassSpecificName());
+                    }
+                }
+            }
+        }
+        return contributors;
+    }
+
     private void extractElements(IObject instance, Map<String, ExtensionPoint> extensionPoints,
                     Map<Integer, Extension> extensions, Map<Integer, ConfigurationElement> configElements,
-                    IProgressListener listener) throws SnapshotException
+                    Map<String, String> contributors, IProgressListener listener) throws SnapshotException
     {
         // get type of object (Extension, ExtensionPoint,
         // ConfigurationElement)
         String className = instance.getClazz().getName();
-        if (instance.getClazz().doesExtend("java.lang.ref.SoftReference"))
+        if (instance.getClazz().doesExtend("java.lang.ref.SoftReference")) //$NON-NLS-1$
         {
             // Some null SoftReferences get to here, just check they are null
             ObjectReference ref = ReferenceQuery.getReferent((IInstance) instance);
@@ -812,14 +840,14 @@ public class EquinoxBundleReader2 implements IBundleReader
         }
         if (className.equals("org.eclipse.core.internal.registry.ExtensionPoint")) //$NON-NLS-1$
         {
-            ExtensionPoint extensionPoint = extractExtensionPointInfo(instance);
+            ExtensionPoint extensionPoint = extractExtensionPointInfo(instance, contributors, listener);
             if (extensionPoint != null && !extensionPoints.containsValue(extensionPoint))
                 extensionPoints.put(extensionPoint.getName(), extensionPoint);
             else if (extensionPoint != null && instance.getObjectId() != extensionPoint.getObjectId())
-                MATPlugin.log(MessageUtil.format(Messages.EquinoxBundleReader_ErrorMsg_DuplicateExtensionPoint,
+                listener.sendUserMessage(Severity.WARNING, MessageUtil.format(Messages.EquinoxBundleReader_ErrorMsg_DuplicateExtensionPoint,
                                 extensionPoint.getName(),
                                 Long.toHexString(snapshot.mapIdToAddress(extensionPoint.getObjectId())),
-                                Long.toHexString(instance.getObjectAddress())));
+                                Long.toHexString(instance.getObjectAddress())), null);
         }
         else if (className.equals("org.eclipse.core.internal.registry.ConfigurationElement")) //$NON-NLS-1$
         {
@@ -827,26 +855,26 @@ public class EquinoxBundleReader2 implements IBundleReader
             if (configElement != null && !configElements.containsValue(configElement))
                 configElements.put(configElement.getElementId(), configElement);
             else if (configElement != null && instance.getObjectId() != configElement.getObjectId())
-                MATPlugin.log(MessageUtil.format(Messages.EquinoxBundleReader_ErrorMsg_DuplicateConfigurationElement,
+                listener.sendUserMessage(Severity.WARNING, MessageUtil.format(Messages.EquinoxBundleReader_ErrorMsg_DuplicateConfigurationElement,
                                 configElement.getName(),
                                 Long.toHexString(snapshot.mapIdToAddress(configElement.getObjectId())),
-                                Long.toHexString(instance.getObjectAddress())));
+                                Long.toHexString(instance.getObjectAddress())), null);
         }
         else if (className.equals("org.eclipse.core.internal.registry.Extension")) //$NON-NLS-1$
         {
-            Extension extension = extractExtensionInfo(instance);
+            Extension extension = extractExtensionInfo(instance, contributors, listener);
             if (extension != null && !extensions.containsValue(extension))
                 extensions.put(extension.getExtensionId(), extension);
             else if (extension != null && instance.getObjectId() != extension.getObjectId())
-                MATPlugin.log(MessageUtil.format(Messages.EquinoxBundleReader_ErrorMsg_DuplicateExtension,
+                listener.sendUserMessage(Severity.WARNING, MessageUtil.format(Messages.EquinoxBundleReader_ErrorMsg_DuplicateExtension,
                                 extension.getName(),
                                 Long.toHexString(snapshot.mapIdToAddress(extension.getObjectId())),
-                                Long.toHexString(instance.getObjectAddress())));
+                                Long.toHexString(instance.getObjectAddress())), null);
         }
         else
         {
-            MATPlugin.log(MessageUtil.format(Messages.EquinoxBundleReader_ErrorMsg_UnknownElementType,
-                            Long.toHexString(instance.getObjectAddress()), instance.getClazz().getName()));
+            listener.sendUserMessage(Severity.WARNING, MessageUtil.format(Messages.EquinoxBundleReader_ErrorMsg_UnknownElementType,
+                            Long.toHexString(instance.getObjectAddress()), instance.getClazz().getName()), null);
         }
     }
 
@@ -856,8 +884,8 @@ public class EquinoxBundleReader2 implements IBundleReader
         Field idField = ((IInstance) instance).getField("parentId"); //$NON-NLS-1$
         if (idField == null)
         {
-            MATPlugin.log(MessageUtil.format(Messages.EquinoxBundleReader_ErrorMsg_ExpectedFieldParent,
-                            Long.toHexString(instance.getObjectAddress())));
+            listener.sendUserMessage(Severity.WARNING, MessageUtil.format(Messages.EquinoxBundleReader_ErrorMsg_ExpectedFieldParent,
+                            Long.toHexString(instance.getObjectAddress())), null);
             return null;
         }
 
@@ -866,8 +894,8 @@ public class EquinoxBundleReader2 implements IBundleReader
         Field objectIdField = ((IInstance) instance).getField("objectId"); //$NON-NLS-1$
         if (objectIdField == null)
         {
-            MATPlugin.log(MessageUtil.format(Messages.EquinoxBundleReader_ErrorMsg_ExpectedFieldObjectId,
-                            Long.toHexString(instance.getObjectAddress())));
+            listener.sendUserMessage(Severity.WARNING, MessageUtil.format(Messages.EquinoxBundleReader_ErrorMsg_ExpectedFieldObjectId,
+                            Long.toHexString(instance.getObjectAddress())), null);
             return null;
         }
 
@@ -876,8 +904,8 @@ public class EquinoxBundleReader2 implements IBundleReader
         IObject contributorObject = (IObject) instance.resolveValue("contributorId");//$NON-NLS-1$
         if (contributorObject == null)
         {
-            MATPlugin.log(MessageUtil.format(Messages.EquinoxBundleReader_ExpectedFieldContributorId,
-                            Long.toHexString(instance.getObjectAddress())));
+            listener.sendUserMessage(Severity.WARNING, MessageUtil.format(Messages.EquinoxBundleReader_ExpectedFieldContributorId,
+                            Long.toHexString(instance.getObjectAddress())), null);
             return null;
         }
 
@@ -895,7 +923,7 @@ public class EquinoxBundleReader2 implements IBundleReader
         }
         catch (NumberFormatException e)
         {
-            MATPlugin.log(MessageUtil.format(Messages.EquinoxBundleReader_CannotFindContributorID, contributorIdString));
+            listener.sendUserMessage(Severity.WARNING, MessageUtil.format(Messages.EquinoxBundleReader_CannotFindContributorID, contributorIdString, Long.toHexString(instance.getObjectAddress())), e);
         }
         if (contributorId != null)
         {
@@ -913,8 +941,8 @@ public class EquinoxBundleReader2 implements IBundleReader
         IObject propertiesObject = (IObject) instance.resolveValue("propertiesAndValue");//$NON-NLS-1$
         if (propertiesObject == null)
         {
-            MATPlugin.log(MessageUtil.format(Messages.EquinoxBundleReader_ExpectedFieldPropertiesAndValues,
-                            Long.toHexString(instance.getObjectAddress())));
+            listener.sendUserMessage(Severity.WARNING, MessageUtil.format(Messages.EquinoxBundleReader_ExpectedFieldPropertiesAndValues,
+                            Long.toHexString(instance.getObjectAddress())), null);
         }
         else if (propertiesObject.getClazz().isArrayType())
         {
@@ -938,9 +966,9 @@ public class EquinoxBundleReader2 implements IBundleReader
                     // Some HPROF dumps have String arrays with invalid entries
                     // Generating 10,000 messages takes too long
                     if (maxWarnings-- > 0)
-                        MATPlugin.log(e,
+                        listener.sendUserMessage(Severity.WARNING,
                                         MessageUtil.format(Messages.EquinoxBundleReader_ErrorMsg_ReadingProperty,
-                                                        Long.toHexString(addresses[i])));
+                                                        Long.toHexString(addresses[i])), e);
                     propertiesAndValues[i] = null;
                 }
 
@@ -950,25 +978,25 @@ public class EquinoxBundleReader2 implements IBundleReader
         }
         else
         {
-            MATPlugin.log(MessageUtil.format(Messages.EquinoxBundleReader_ErrorMsg_ExpectedStringArray,
-                            Long.toHexString(instance.getObjectAddress())));
+            listener.sendUserMessage(Severity.WARNING, MessageUtil.format(Messages.EquinoxBundleReader_ErrorMsg_ExpectedStringArray,
+                            Long.toHexString(instance.getObjectAddress())), null);
         }
         return new ConfigurationElement(instance.getObjectId(), name, parentId, objectId, contributedBy, null);
 
     }
 
-    private Extension extractExtensionInfo(IObject instance) throws SnapshotException
+    private Extension extractExtensionInfo(IObject instance, Map<String,String> contributors, IProgressListener listener) throws SnapshotException
     {
         // Expect at least 3 properties
-        String[] properties = getExtensionProperties(instance);
+        String[] properties = getExtensionProperties(instance, listener);
         if (properties == null)
             return null;
 
         Field id = ((IInstance) instance).getField("objectId"); //$NON-NLS-1$
         if (id == null)
         {
-            MATPlugin.log(MessageUtil.format(Messages.EquinoxBundleReader_ErrorMsg_ExpectedFieldObjectId,
-                            Long.toHexString(instance.getObjectAddress())));
+            listener.sendUserMessage(Severity.WARNING, MessageUtil.format(Messages.EquinoxBundleReader_ErrorMsg_ExpectedFieldObjectId,
+                            Long.toHexString(instance.getObjectAddress())), null);
             return null;
         }
         Integer extensionId = (Integer) id.getValue();
@@ -987,24 +1015,35 @@ public class EquinoxBundleReader2 implements IBundleReader
         }
         catch (NumberFormatException e)
         {
-            MATPlugin.log(MessageUtil.format(Messages.EquinoxBundleReader_CannotFindContributorID, contributorIdString));
+            listener.sendUserMessage(Severity.WARNING, MessageUtil.format(Messages.EquinoxBundleReader_CannotFindContributorID, contributorIdString, Long.toHexString(instance.getObjectAddress())), e);
         }
         if (contributorId != null)
         {
-            BundleDescriptor contributedBy = bundleDescriptors.get(contributorId);
+            // The id appears to be from the contributors table not the bundle.module.id
+            BundleDescriptor contributedBy = getBundleDescriptor(contributorIdString, contributors);
+            if (contributedBy == null)
+                contributedBy = bundleDescriptors.get(contributorId);
             extension.setContributedBy(contributedBy);
         }
 
         return extension;
     }
 
-    private String[] getExtensionProperties(IObject instance) throws SnapshotException
+    private String[] getExtensionProperties(IObject instance, IProgressListener listener) throws SnapshotException
     {
         IObject extraInfoObject = (IObject) instance.resolveValue("extraInformation");//$NON-NLS-1$
         if (extraInfoObject == null)
         {
-            MATPlugin.log(MessageUtil.format(Messages.EquinoxBundleReader_ErrorMsg_ExpectedFieldExtraInformation,
-                            Long.toHexString(instance.getObjectAddress())));
+            if (instance.getClazz().doesExtend("org.eclipse.core.internal.registry.ExtensionPoint"))//$NON-NLS-1$
+            {
+                String props[] = getExtensionPointProperties(instance);
+                if (props != null)
+                {
+                    return props;
+                }
+            }
+            listener.sendUserMessage(Severity.WARNING, MessageUtil.format(Messages.EquinoxBundleReader_ErrorMsg_ExpectedFieldExtraInformation,
+                            Long.toHexString(instance.getObjectAddress())), null);
             return null;
         }
 
@@ -1015,6 +1054,17 @@ public class EquinoxBundleReader2 implements IBundleReader
             if (ref != null)
             {
                 extraInfoObject = ref.getObject();
+            }
+            else
+            {
+                if (instance.getClazz().doesExtend("org.eclipse.core.internal.registry.ExtensionPoint"))//$NON-NLS-1$
+                {
+                    String props[] = getExtensionPointProperties(instance);
+                    if (props != null)
+                    {
+                        return props;
+                    }
+                }
             }
         }
 
@@ -1039,24 +1089,79 @@ public class EquinoxBundleReader2 implements IBundleReader
             // null. Log, if otherwise.
             IObject referentObject = (IObject) extraInfoObject.resolveValue("referent"); //$NON-NLS-1$
             if (referentObject != null)
-                MATPlugin.log(MessageUtil.format(Messages.EquinoxBundleReader_ErrorMsg_SoftReferencesNotHandled,
-                                Long.toHexString(instance.getObjectAddress())));
+                listener.sendUserMessage(Severity.WARNING, MessageUtil.format(Messages.EquinoxBundleReader_ErrorMsg_SoftReferencesNotHandled,
+                                Long.toHexString(instance.getObjectAddress())), null);
             return null;
         }
     }
 
-    private ExtensionPoint extractExtensionPointInfo(IObject instance) throws SnapshotException
+    private String[] getExtensionPointProperties(IObject instance) throws SnapshotException
+    {
+        IObjectArray nameArray = (IObjectArray) instance.resolveValue("registry.registryObjects.extensionPoints.keyTable");//$NON-NLS-1$
+        IPrimitiveArray idArray = (IPrimitiveArray) instance.resolveValue("registry.registryObjects.extensionPoints.valueTable");//$NON-NLS-1$
+        Integer objectId = (Integer)instance.resolveValue("objectId");//$NON-NLS-1$
+        if (nameArray != null && idArray != null && objectId != null)
+        {
+            int len = Math.min(nameArray.getLength(), idArray.getLength());
+            long addrs[] = nameArray.getReferenceArray();
+            Object v = idArray.getValueArray();
+            if (v instanceof int[])
+            {
+                int vi[] = (int[])v;
+                for (int j = 0; j < len; ++j)
+                {
+                    if (addrs[j] != 0)
+                    {
+                        int ii = vi[j];
+                        if (ii == objectId)
+                        {
+                            IObject o = snapshot.getObject(snapshot.mapAddressToId(addrs[j]));
+                            if (o != null)
+                            {
+                                String nm = o.getClassSpecificName();
+                                return new String[] {nm, null, nm, null, null};
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    private BundleDescriptor getBundleDescriptor(String contributorIdString, Map<String,String>contributors)
+    {
+        // Fix up Bundle - sometimes contributorId is not a module.id
+        String bundlename = contributors.get(contributorIdString);
+        BundleDescriptor bd1 = null;
+        for (BundleDescriptor bd : bundleDescriptors.values())
+        {
+            if (bd.getBundleName().startsWith(bundlename + " ")) //$NON-NLS-1$
+            {
+                if (bd1 == null)
+                    bd1 = bd;
+                else
+                {
+                    bd1 = null;
+                    break;
+                }
+            }
+        }
+        return bd1;
+    }
+
+    private ExtensionPoint extractExtensionPointInfo(IObject instance, Map<String,String>contributors, IProgressListener listener) throws SnapshotException
     {
         // Expect at least 5 properties
-        String[] properties = getExtensionProperties(instance);
+        String[] properties = getExtensionProperties(instance, listener);
         if (properties == null)
             return null;
 
         Field id = ((IInstance) instance).getField("objectId"); //$NON-NLS-1$
         if (id == null)
         {
-            MATPlugin.log(MessageUtil.format(Messages.EquinoxBundleReader_ErrorMsg_ExpectedFieldObjectId,
-                            Long.toHexString(instance.getObjectAddress())));
+            listener.sendUserMessage(Severity.WARNING, MessageUtil.format(Messages.EquinoxBundleReader_ErrorMsg_ExpectedFieldObjectId,
+                            Long.toHexString(instance.getObjectAddress())), null);
             return null;
         }
         Integer extensionPointId = (Integer) id.getValue();
@@ -1075,11 +1180,14 @@ public class EquinoxBundleReader2 implements IBundleReader
         }
         catch (NumberFormatException e)
         {
-            MATPlugin.log(MessageUtil.format(Messages.EquinoxBundleReader_CannotFindContributorID, contributorIdString));
+            listener.sendUserMessage(IProgressListener.Severity.WARNING, MessageUtil.format(Messages.EquinoxBundleReader_CannotFindContributorID, contributorIdString, Long.toHexString(instance.getObjectAddress())), e);
         }
         if (contributorId != null)
         {
-            BundleDescriptor contributedBy = bundleDescriptors.get(contributorId);
+            // The id appears to be from the contributors table not the bundle.module.id
+            BundleDescriptor contributedBy = getBundleDescriptor(contributorIdString, contributors);
+            if (contributedBy == null)
+                contributedBy = bundleDescriptors.get(contributorId);
             extensionPoint.setContributedBy(contributedBy);
         }
 
