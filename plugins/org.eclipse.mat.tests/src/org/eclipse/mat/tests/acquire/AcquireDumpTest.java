@@ -302,7 +302,7 @@ public class AcquireDumpTest
                     if (o4.toString().startsWith("Dependents"))
                     {
                         f2 |= 2;
-                        checkSubtree(tree, o3, 6, "org.eclipse.mat.parser ", "Expected dependendents of org.eclipse.mat.api to include");
+                        checkSubtree(tree, o3, 4, "org.eclipse.mat.parser ", "Expected dependendents of org.eclipse.mat.api to include");
                     }
                     if (o4.toString().startsWith("Extension Points"))
                     {
@@ -329,7 +329,7 @@ public class AcquireDumpTest
     private void checkSubtree(IResultTree tree, Object o3, int minElements, String toFind, String errMsg)
     {
         List<?> l5 = tree.getChildren(o3);
-        assertThat(l5.size(), greaterThanOrEqualTo(minElements));
+        assertThat(errMsg + " " + l5.toString(), l5.size(), greaterThanOrEqualTo(minElements));
         boolean foundItem = false;
         for (Object o6 : l5)
         {
