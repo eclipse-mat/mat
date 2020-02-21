@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2019 IBM Corporation.
+ * Copyright (c) 2015, 2020 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,14 +10,15 @@
  *******************************************************************************/
 package org.eclipse.mat.tests.acquire;
 
-import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
 import static org.hamcrest.number.OrderingComparison.greaterThanOrEqualTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeThat;
 
@@ -270,7 +271,7 @@ public class AcquireDumpTest
      * @param snapshot
      * @throws SnapshotException
      */
-    private void checkEclipseBundleQuery(ISnapshot snapshot) throws SnapshotException
+    void checkEclipseBundleQuery(ISnapshot snapshot) throws SnapshotException
     {
         SnapshotQuery query = SnapshotQuery.parse("bundle_registry -groupby NONE", snapshot);
         assertNotNull(query);
@@ -296,22 +297,22 @@ public class AcquireDumpTest
                     if (o4.toString().startsWith("Dependencies"))
                     {
                         f2 |= 1;
-                        checkSubtree(tree, o3, 2, "org.eclipse.mat.report ", "Expected dependencies of org.eclipse.mat.api to include");
+                        checkSubtree(tree, o3, 3, "org.eclipse.mat.report ", "Expected dependencies of org.eclipse.mat.api to include");
                     }
                     if (o4.toString().startsWith("Dependents"))
                     {
                         f2 |= 2;
-                        checkSubtree(tree, o3, 2, "org.eclipse.mat.parser ", "Expected dependendents of org.eclipse.mat.api to include");
+                        checkSubtree(tree, o3, 6, "org.eclipse.mat.parser ", "Expected dependendents of org.eclipse.mat.api to include");
                     }
                     if (o4.toString().startsWith("Extension Points"))
                     {
                         f2 |= 4;
-                        checkSubtree(tree, o3, 2, "org.eclipse.mat.api.factory", "Expected extension points of org.eclipse.mat.api to include");
+                        checkSubtree(tree, o3, 7, "org.eclipse.mat.api.factory", "Expected extension points of org.eclipse.mat.api to include");
                     }
                     if (o4.toString().startsWith("Extensions"))
                     {
                         f2 |= 8;
-                        checkSubtree(tree, o3, 2, "org.eclipse.mat.api.nameResolver", "Expected extensions of org.eclipse.mat.api to include");
+                        checkSubtree(tree, o3, 7, "org.eclipse.mat.api.nameResolver", "Expected extensions of org.eclipse.mat.api to include");
                     }
                     if (o4.toString().startsWith("Used Services"))
                     {
@@ -328,7 +329,7 @@ public class AcquireDumpTest
     private void checkSubtree(IResultTree tree, Object o3, int minElements, String toFind, String errMsg)
     {
         List<?> l5 = tree.getChildren(o3);
-        assertTrue(l5.size() >= minElements);
+        assertThat(l5.size(), greaterThanOrEqualTo(minElements));
         boolean foundItem = false;
         for (Object o6 : l5)
         {
