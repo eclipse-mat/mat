@@ -640,7 +640,17 @@ public class LeakHunterQuery implements IQuery
                 String msg = (suspect.getSuspectInstances().length > max_paths) ?
                     MessageUtil.format(Messages.LeakHunterQuery_ReferencePatternFor, max_paths) :
                     Messages.LeakHunterQuery_ReferencePattern;
-                composite.addResult(msg, result);
+                QuerySpec qs = new QuerySpec(msg, result);
+                IObject io = suspect.getSuspect();
+                if (io instanceof IClass)
+                {
+                    // Check class name is sensible and will parse (not a full Java identifier test)
+                    if (className.matches("[\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}.]+")) //$NON-NLS-1$
+                    {
+                        qs.setCommand("merge_shortest_paths SELECT * FROM " + className + " s WHERE dominatorof(s) = null; -groupby FROM_GC_ROOTS_BY_CLASS"); //$NON-NLS-1$ //$NON-NLS-2$
+                    }
+                }
+                composite.addResult(qs);
             }
         }
 
