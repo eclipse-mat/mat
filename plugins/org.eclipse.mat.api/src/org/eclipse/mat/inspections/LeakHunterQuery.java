@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2019 SAP AG, IBM Corporation and others.
+ * Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -68,6 +68,7 @@ import org.eclipse.mat.snapshot.model.IObject;
 import org.eclipse.mat.snapshot.model.IStackFrame;
 import org.eclipse.mat.snapshot.model.IThreadStack;
 import org.eclipse.mat.snapshot.query.Icons;
+import org.eclipse.mat.snapshot.query.ObjectListResult;
 import org.eclipse.mat.snapshot.query.PieFactory;
 import org.eclipse.mat.snapshot.query.SnapshotQuery;
 import org.eclipse.mat.snapshot.registry.TroubleTicketResolverRegistry;
@@ -552,6 +553,53 @@ public class LeakHunterQuery implements IQuery
         CompositeResult composite = new CompositeResult();
         composite.addResult(Messages.LeakHunterQuery_Description, new TextResult(builder.toString(), true));
 
+        /*
+         * Show more details about the big instances
+         */
+        if (bigSuspectInstances.size() > 0)
+        {
+            PieFactory pie = new PieFactory(snapshot, totalHeap);
+            int big[] = new int[bigSuspectInstances.size()];
+            long totalBig = 0;
+            long usedBig = 0;
+            for (int i = 0; i < bigSuspectInstances.size(); ++i)
+            {
+                IObject iObject = bigSuspectInstances.get(i);
+                big[i] = iObject.getObjectId();
+                pie.addSlice(i, iObject.getDisplayName(), iObject.getUsedHeapSize(), iObject.getRetainedHeapSize());
+                totalBig += iObject.getRetainedHeapSize();
+                usedBig += iObject.getUsedHeapSize();
+            }
+            long totalSuspects = 0;
+            long usedSuspects = 0;
+            for (int s : suspectInstances)
+            {
+                IObject inst = snapshot.getObject(s);
+                totalSuspects += inst.getRetainedHeapSize();
+                usedSuspects += inst.getUsedHeapSize();
+            }
+            pie.addSlice(-1, Messages.LeakHunterQuery_OtherSuspectInstances, usedSuspects - usedBig, totalSuspects - totalBig);
+            QuerySpec specPie = new QuerySpec(Messages.LeakHunterQuery_BiggestInstancesOverview, pie.build());
+            specPie.set(Params.Html.COLLAPSED, Boolean.TRUE.toString());
+            composite.addResult(specPie);
+
+            QuerySpec spec = new QuerySpec(Messages.LeakHunterQuery_BiggestInstancesHeading,
+                            new ObjectListResult.Outbound(snapshot, big));
+            try
+            {
+                StringBuilder sb = new StringBuilder("list_objects"); //$NON-NLS-1$
+                for (int i : big)
+                {
+                    sb.append(" 0x").append(Long.toHexString(snapshot.mapIdToAddress(i))); //$NON-NLS-1$
+                }
+                spec.setCommand(sb.toString());
+            }
+            catch (SnapshotException e)
+            {} // Ignore if problem
+            spec.set(Params.Html.COLLAPSED, Boolean.TRUE.toString());
+            composite.addResult(spec);
+        }
+
         AccumulationPoint accPoint = suspect.getAccumulationPoint();
         if (accPoint != null)
         {
@@ -588,7 +636,12 @@ public class LeakHunterQuery implements IQuery
         {
             IResult result = findReferencePattern(suspect);
             if (result != null)
-                composite.addResult(Messages.LeakHunterQuery_ReferencePattern, result);
+            {
+                String msg = (suspect.getSuspectInstances().length > max_paths) ?
+                    MessageUtil.format(Messages.LeakHunterQuery_ReferencePatternFor, max_paths) :
+                    Messages.LeakHunterQuery_ReferencePattern;
+                composite.addResult(msg, result);
+            }
         }
 
         return composite;
@@ -861,7 +914,8 @@ public class LeakHunterQuery implements IQuery
         MultiplePathsFromGCRootsClassRecord[] classRecords = dummy.nextLevel();
 
         int numPaths = allPaths.length;
-        double threshold = numPaths * 0.9;
+        double factor = 0.8;
+        double threshold = numPaths * factor;
         List<IClass> referencePattern = new ArrayList<IClass>();
 
         Arrays.sort(classRecords, MultiplePathsFromGCRootsClassRecord.getComparatorByNumberOfReferencedObjects());
@@ -869,6 +923,7 @@ public class LeakHunterQuery implements IQuery
 
         while (r.getCount() > threshold)
         {
+            threshold = r.getCount() * factor;
             referencePattern.add(r.getClazz());
             classRecords = r.nextLevel();
             if (classRecords == null || classRecords.length == 0)
@@ -878,22 +933,15 @@ public class LeakHunterQuery implements IQuery
             r = classRecords[0];
         }
 
-        if (referencePattern.isEmpty())
-            return null;
-
         /*
          * build the tree
          */
-        ObjectTreeFactory.TreePathBuilder treeBuilder = new ObjectTreeFactory.TreePathBuilder(snapshot
-                        .getSnapshotInfo().getUsedHeapSize());
-        treeBuilder.addBranch(referencePattern.get(0).getObjectId());
-
-        for (int i = 1; i < referencePattern.size(); i++)
+        int expandedClasses[] = new int[referencePattern.size()];
+        for (int i = 0; i < referencePattern.size(); ++i)
         {
-            treeBuilder.addChild(referencePattern.get(i).getObjectId(), false);
+            expandedClasses[i] = referencePattern.get(i).getObjectId();
         }
-
-        return treeBuilder.build(snapshot);
+        return MultiplePath2GCRootsQuery.create(snapshot, suspect.getPathsComputer(), expandedClasses, true, listener);
 
     }
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 SAP AG and IBM Corporation.
+ * Copyright (c) 2008, 2020 SAP AG and IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -392,6 +392,8 @@ public class Messages extends NLS
     public static String LeakHunterQuery_AccumulatedObjectsByClass;
     public static String LeakHunterQuery_AllAccumulatedObjectsByClass;
     public static String LeakHunterQuery_BiggestInstances;
+    public static String LeakHunterQuery_BiggestInstancesHeading;
+    public static String LeakHunterQuery_BiggestInstancesOverview;
     public static String LeakHunterQuery_CommonPath;
     public static String LeakHunterQuery_Description;
     public static String LeakHunterQuery_ErrorRetrievingRequestDetails;
@@ -418,9 +420,11 @@ public class Messages extends NLS
     public static String LeakHunterQuery_Msg_Thread;
     public static String LeakHunterQuery_NothingFound;
     public static String LeakHunterQuery_Overview;
+    public static String LeakHunterQuery_OtherSuspectInstances;
     public static String LeakHunterQuery_PreparingResults;
     public static String LeakHunterQuery_ProblemSuspect;
     public static String LeakHunterQuery_ReferencePattern;
+    public static String LeakHunterQuery_ReferencePatternFor;
     public static String LeakHunterQuery_RequestDetails;
     public static String LeakHunterQuery_SeeStackstrace;
     public static String LeakHunterQuery_ShortestPaths;
