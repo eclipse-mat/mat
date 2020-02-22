@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 SAP AG and others.
+ * Copyright (c) 2008, 2020 SAP AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    SAP AG - initial API and implementation
+ *    Andrew Johnson (IBM Corporation) - selective expand by class
  *******************************************************************************/
 package org.eclipse.mat.internal.snapshot.inspections;
 
@@ -144,6 +145,29 @@ public class MultiplePath2GCRootsQuery implements IQuery
                         result);
     }
 
+    /**
+     * Creates a tree by class.
+     * @param snapshot
+     * @param computer
+     * @param selection list of classes, or null, which are the path to be expanded.
+     * @param mergeFromRoots
+     * @param listener
+     * @return the tree
+     * @throws SnapshotException
+     */
+    public static Tree create(ISnapshot snapshot, IMultiplePathsFromGCRootsComputer computer, int[] selection, boolean mergeFromRoots, IProgressListener listener)
+                    throws SnapshotException
+    {
+        Object[] paths = computer.getAllPaths(listener);
+
+        List<int[]> result = new ArrayList<int[]>(paths.length);
+        for (int ii = 0; ii < paths.length; ii++)
+            result.add((int[]) paths[ii]);
+
+        return selection != null ? new TreeByClassSelected(snapshot, result, selection, mergeFromRoots) : new TreeByClass(snapshot,
+                        result, mergeFromRoots);
+    }
+    
     private static Tree create(Grouping groupBy, ISnapshot snapshot, List<int[]> paths)
     {
         switch (groupBy)
@@ -582,4 +606,59 @@ public class MultiplePath2GCRootsQuery implements IQuery
             return mergeFromRoots ? Grouping.FROM_GC_ROOTS_BY_CLASS : Grouping.FROM_OBJECTS_BY_CLASS;
         }
     }
+    
+    /* package */static class TreeByClassSelected extends TreeByClass implements ISelectionProvider
+    {
+        int[] selection;
+
+        private TreeByClassSelected(ISnapshot snapshot, List<int[]> paths, int[] selection, boolean mergeFromRoots)
+        {
+            super(snapshot, paths, mergeFromRoots);
+            this.selection = selection;
+        }
+
+        public boolean isExpanded(Object row)
+        {
+            Node node = (Node) row;
+
+            if (node.level >= selection.length)
+                return false;
+
+            return eval(node);
+        }
+
+        /**
+         * Select if the end of a path.
+         */
+        public boolean isSelected(Object row)
+        {
+            Node node = (Node) row;
+
+            for (int path[] : node.paths)
+            {
+                if (path.length - 1 == node.level)
+                    return true;
+            }
+            return false;
+        }
+
+        private boolean eval(Node node)
+        {
+            boolean selected = true;
+            int[] path = node.paths.get(0);
+            for (int ii = 0; selected && ii < selection.length && ii < node.level; ii++)
+            {
+                try
+                {
+                    selected = selection[ii] == snapshot.getClassOf(path[path.length - ii - 1]).getObjectId();
+                }
+                catch (SnapshotException e)
+                {
+                    selected = false;
+                }
+            }
+            return selected;
+        }
+    }
+
 }
